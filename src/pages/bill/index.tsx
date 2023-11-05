@@ -39,7 +39,7 @@ const Bill = () => {
     <div className="page">
       <div className={'px-3 flex-grow'}>
         <BillTabs date={selectDate} setDate={setSelectDate} />
-        <BillRecordCard />
+        <BillRecordCard data={data?.data.all} />
         <Content data={getList(data?.data.month)} />
       </div>
       <div className={classNames('flex-shrink-0')}>
