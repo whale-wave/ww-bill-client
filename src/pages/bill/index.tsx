@@ -4,8 +4,9 @@ import { Button } from 'bw-mobile';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Top from './components/Top';
 import classNames from 'classnames';
+import { BillTabs } from '@/pages/bill/BillTabs';
+import { BillRecordCard } from '@/pages/bill/BillRecordCard';
 
 const Bill = () => {
   const [selectDate, setSelectDate] = useState(new Date());
@@ -36,8 +37,11 @@ const Bill = () => {
   }
   return (
     <div className="page">
-      <Top data={data?.data.all} date={selectDate} setDate={setSelectDate} />
-      <Content data={getList(data?.data.month)} />
+      <div className={'px-3 flex-grow'}>
+        <BillTabs date={selectDate} setDate={setSelectDate} />
+        <BillRecordCard />
+        <Content data={getList(data?.data.month)} />
+      </div>
       <div className={classNames('flex-shrink-0')}>
         <Button size="full" onClick={onBack}>
           返回
