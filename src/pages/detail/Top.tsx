@@ -71,9 +71,15 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
       <div className={styles.title}>蓝鲸记账</div>
       <div className={classNames([styles.left, styles['top-text-1-wrapper']])}>
         <div className={styles['top-text-1']}>{yearMoth[0]}</div>
-        <div className={styles['left-bottom']}>
+        <div className={classNames(styles['left-bottom'])}>
+          <div
+            className={
+              'h-[40%] w-[1px] bg-black333 absolute -right-[12px] bottom-1 opacity-50'
+            }
+          ></div>
           <div className={styles['bottom-wrapper']} onClick={PrecisionFn}>
-            <span className={styles.month}>{yearMoth[1]}</span>月
+            <span className={styles.month}>{yearMoth[1]}</span>月{' '}
+            <Icon name="show-bottom" className={'text-[10px] mb-[2px]'} />
             <Precision
               visible1={visible1}
               change={() => ChangeDateToggle()}
