@@ -131,9 +131,9 @@ const List: FC<timeDateProp> = ({ timeProp, change }) => {
         let addAmount = 0;
         let reduceAmount = 0;
         item[3].forEach((chunk) => {
-          if (chunk.type === '-') {
+          if (chunk.type === 'sub') {
             reduceAmount += Number(chunk.amount) * 10 * 10;
-          } else if (chunk.type === '+') {
+          } else if (chunk.type === 'add') {
             addAmount += Number(chunk.amount) * 10 * 10;
           }
         });
@@ -192,7 +192,7 @@ const List: FC<timeDateProp> = ({ timeProp, change }) => {
                   <div className={styles.right}>
                     <div className={styles.remark}>{chunk.remark}</div>
                     <div className={styles.price}>
-                      {chunk.type === '+' ? chunk.amount : -chunk.amount}
+                      {chunk.type === 'add' ? chunk.amount : -chunk.amount}
                     </div>
                   </div>
                 </div>
