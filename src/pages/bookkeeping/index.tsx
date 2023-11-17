@@ -11,6 +11,7 @@ export type stateType = [amount: string, time: string, id: number];
 
 const Bookkeeping: FC = () => {
   const [keyToggle, setKeyToggle] = useState<number>(-1); //图标的id
+  const [keyInputPadding, setKeyInputPadding] = useState<boolean>(false); //图标的id
   const [name, setName] = useState(''); //图标选项的名称
   const [type1, setType1] = useState<CategoryAmountType>('sub'); //切换支出和收入
   const navParams = useLocation();
@@ -23,6 +24,11 @@ const Bookkeeping: FC = () => {
       setName(item.name);
       setKeyToggle(item.id);
     }
+  };
+
+  const changeKeyInputToggle = (bool: boolean) => {
+    console.log(bool, 'hh');
+    setKeyInputPadding(bool);
   };
 
   const navBarType = (type: CategoryAmountType) => {
@@ -65,8 +71,10 @@ const Bookkeeping: FC = () => {
         change={handleChangeTab}
         keyToggle={keyToggle}
         categoryList={mainList}
+        keyInputPadding={keyInputPadding}
       ></Main>
       <KeyBoard
+        change={changeKeyInputToggle}
         keyToggle={keyToggle}
         name={name}
         type={type1}

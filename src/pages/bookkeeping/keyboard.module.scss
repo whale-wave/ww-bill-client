@@ -1,6 +1,11 @@
 .keyBoard {
   display: flex;
   flex-direction: column;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
 
   > .top {
     background: #FFFFFF;
