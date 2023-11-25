@@ -21,6 +21,7 @@ import Detail from '@/pages/detail';
 import NotFound from '@/pages/NotFound';
 import PostTopic from '@/pages/PostTopic';
 import Sign from '@/pages/Sign';
+import Chart from '@/pages/Chart';
 import FirstScreen from '@/pages/FirstScreen';
 import Login from '@/pages/Login';
 import Mine from '@/pages/mine';
@@ -75,6 +76,7 @@ const App = () => {
           }
         />
         <Route path="/sign" element={<Sign />} />
+        <Route path="/chart" element={<Chart />} />
         <Route path="/mine" element={<Mine />} />
         <Route path="/share" element={<Share />} />
         <Route

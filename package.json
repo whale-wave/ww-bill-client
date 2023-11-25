@@ -13,6 +13,7 @@
     "postinstall": "husky install && chmod 700 .husky/pre-commit"
   },
   "dependencies": {
+    "@ant-design/charts": "^1.4.2",
     "@reduxjs/toolkit": "^1.7.1",
     "antd-mobile": "^5.0.0-rc.17",
     "axios": "^0.24.0",
@@ -29,6 +30,9 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "antd": "^4.6.3",
+    "@ant-design/icons": "^4.6.0",
+    "ant-design-mobile-chart": "^1.2.2",
     "@types/jest": "^27.4.0",
     "@types/node": "*",
     "@types/react": "^17.0.33",
