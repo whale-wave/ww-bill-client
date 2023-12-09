@@ -44,17 +44,19 @@ const ExportData = () => {
 
     if (!selectTime) return;
 
+    const setTimeValue = dayjs(selectTime).format('YYYY-MM-DD');
+
     switch (type) {
       case ChangeType.START:
         setExportTimeRange({
           ...exportTimeRange,
-          startTime: dayjs(selectTime).format('YYYY-MM-DD'),
+          startTime: setTimeValue,
         });
         break;
       case ChangeType.END:
         setExportTimeRange({
           ...exportTimeRange,
-          endTime: dayjs(endTime).format('YYYY-MM-DD'),
+          endTime: setTimeValue,
         });
         break;
       default:
