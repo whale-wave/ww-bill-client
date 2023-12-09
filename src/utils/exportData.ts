@@ -26,13 +26,20 @@ export const exportData = ({
   document.body.removeChild(link);
 };
 
-export const exportRecordData = (
-  data: any,
+export const exportRecordData = ({
+  data,
+  range,
+  expend,
+  income,
+}: {
+  data: any;
   range: {
     startTime: string;
     endTime: string;
-  },
-) => {
+  };
+  expend: number;
+  income: number;
+}) => {
   const sheet = data.map(
     ({
       id,
@@ -41,18 +48,36 @@ export const exportRecordData = (
       type,
       createdAt,
       updatedAt,
+      amount,
       category: { id: categoryId, name: categoryName },
     }: SheetData) => ({
       记录ID: id,
       备注: remark,
+      金额: amount,
       记账时间: dayjs(time).format('YYYY-MM-DD HH:mm:ss'),
-      类型: type === '-' ? '支出' : '收入',
+      类型: type === 'sub' ? '支出' : '收入',
       创建时间: dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss'),
       更新时间: dayjs(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
       类别ID: categoryId,
       类别: categoryName,
     }),
   );
+
+  sheet.push({
+    记录ID: '总收入',
+    备注: income,
+  });
+
+  sheet.push({
+    记录ID: '总支出',
+    备注: expend,
+  });
+
+  sheet.push({
+    记录ID: '总结余',
+    备注: income - expend,
+  });
+
   exportData({
     data: sheet,
     fileName: `蓝鲸记账 - ${range.startTime}~${range.endTime}记录数据`,
@@ -67,6 +92,7 @@ type SheetData = {
   type: string;
   createdAt: string;
   updatedAt: string;
+  amount: string;
   category: {
     id: string;
     name: string;

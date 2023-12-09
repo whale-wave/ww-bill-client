@@ -16,7 +16,12 @@ const ExportData = () => {
       startDate: startTime,
       endDate: endTime,
     });
-    exportRecordData(res.data.data, exportTimeRange);
+    exportRecordData({
+      data: res.data.data,
+      range: exportTimeRange,
+      expend: res.data.expend,
+      income: res.data.income,
+    });
   };
 
   const init = () => {
