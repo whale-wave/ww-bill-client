@@ -140,10 +140,10 @@ const PostTopic: FC = () => {
                 multiple={true}
               />
               <Icon
-                className={classNames(
-                  styles.add,
-                  'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
-                )}
+                className={classNames(styles.add, 'absolute top-1/2 left-1/2')}
+                style={{
+                  transform: 'translate(-50%, -50%)',
+                }}
                 name="add"
               />
             </div>

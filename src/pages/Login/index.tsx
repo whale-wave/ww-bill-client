@@ -57,7 +57,7 @@ const Login: FC = () => {
 
   return (
     <div className="page justify-center items-center">
-      <div className="-translate-y-16" style={{ maxWidth: 313 }}>
+      <div style={{ maxWidth: 313, transform: 'translateY(-4rem)' }}>
         <div>
           <Input
             label="账号"

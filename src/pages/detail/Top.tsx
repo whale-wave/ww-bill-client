@@ -133,8 +133,11 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
       <div
         className={classNames(
           styles['list-wrapper'],
-          'w-full absolute bottom-0 left-1/2 -translate-x-1/2',
+          'w-full absolute bottom-0 left-1/2',
         )}
+        style={{
+          transform: 'translateX(-50%)',
+        }}
       >
         <div className={classNames(styles.list, 'h-full flex')}>
           {tabs.map((tab) => (
