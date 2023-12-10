@@ -65,7 +65,7 @@ const UserInfo: FC<UserInfoProps> = ({
           'absolute bottom-0 left-1/2 w-full',
         )}
         style={{
-          transform: 'translateY(50%)',
+          transform: 'translateX(-50%)',
         }}
       >
         <div
