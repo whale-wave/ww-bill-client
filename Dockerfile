@@ -5,5 +5,6 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm i
 COPY . .
+ENV VITE_HOST=http://bill.easyhappy.top
 RUN pnpm build
 CMD ["tail", "-f", "/dev/null"]

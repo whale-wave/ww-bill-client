@@ -24,22 +24,22 @@ jobs:
       - name: Get version
         id: get_version
         run: echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
-#      - name: Build and push
-#        uses: docker/build-push-action@v5
-#        with:
-#          context: .
-#          platforms: linux/amd64
-#          push: true
-#          tags: |
-#            ${{ secrets.DOCKER_REPOSITORY }}/whale-wave/ww-bill/ww-bill-client:${{ steps.get_version.outputs.version }}
-#            ${{ secrets.DOCKER_REPOSITORY }}/whale-wave/ww-bill/ww-bill-client:latest
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_REPOSITORY }}/whale-wave/ww-bill/ww-bill-client:${{ steps.get_version.outputs.version }}
+            ${{ secrets.DOCKER_REPOSITORY }}/whale-wave/ww-bill/ww-bill-client:latest
   deploy:
     needs: docker
     runs-on: ubuntu-latest
-    env:
-      WW_BILL_CLIENT_VERSION: ${{ needs.docker.outputs.get_version }}
-      FUCK_AVAN: fuckavan
     steps:
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
       - name: deploy aliyun
         uses: appleboy/ssh-action@master
         with:
@@ -49,11 +49,10 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd ${{ secrets.WORK_DIR }}
-            export WW_BILL_CLIENT_VERSION=$WW_BILL_CLIENT_VERSION
+            export WW_BILL_CLIENT_VERSION=${{ steps.get_version.outputs.version }}
             export WW_BILL_SERVICE_VERSION=0.0.6
             
             echo "WW_BILL_CLIENT_VERSION: $WW_BILL_CLIENT_VERSION"
-            echo $FUCK_AVAN
             
             export WW_BILL_SERVICE_ENV_SECRET=${{ secrets.WW_BILL_SERVICE_ENV_SECRET }}
             export WW_BILL_SERVICE_ENV_EMAIL_PASSWORD=${{ secrets.WW_BILL_SERVICE_ENV_EMAIL_PASSWORD }}
