@@ -1,4 +1,3 @@
-import { defaultHost } from '@/config';
 import {
   baseResponseProcess,
   errorResponseProcess,
@@ -6,7 +5,7 @@ import {
 import { Toast } from 'antd-mobile';
 import axios from 'axios';
 
-let host = import.meta.env.DEV ? '' : defaultHost;
+let host = '';
 if (typeof import.meta.env.VITE_HOST === 'string')
   host = import.meta.env.VITE_HOST;
 
