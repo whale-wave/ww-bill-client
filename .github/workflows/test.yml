@@ -68,4 +68,4 @@ jobs:
             export WW_BILL_SERVICE_ENV_ORM_PASSWORD=${{ secrets.WW_BILL_SERVICE_ENV_ORM_PASSWORD }}
             export WW_BILL_SERVICE_ENV_ORM_DATABASE=${{ secrets.WW_BILL_SERVICE_ENV_ORM_DATABASE }}
             
-            sh deploy.sh
+            bash deploy.sh
