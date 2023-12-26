@@ -50,7 +50,6 @@ jobs:
           script: |
             cd ${{ secrets.WORK_DIR }}
             export WW_BILL_CLIENT_VERSION=${{ steps.get_version.outputs.version }}
-            export WW_BILL_SERVICE_VERSION=0.0.6
             
             echo "WW_BILL_CLIENT_VERSION: $WW_BILL_CLIENT_VERSION"
             
@@ -69,4 +68,4 @@ jobs:
             export WW_BILL_SERVICE_ENV_ORM_PASSWORD=${{ secrets.WW_BILL_SERVICE_ENV_ORM_PASSWORD }}
             export WW_BILL_SERVICE_ENV_ORM_DATABASE=${{ secrets.WW_BILL_SERVICE_ENV_ORM_DATABASE }}
             
-            docker-compose up -d
+            sh deploy.sh
