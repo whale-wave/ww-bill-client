@@ -23,7 +23,7 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
       name: '图表',
       icon: 'chart',
       iconActive: 'chart-fill',
-      router: '/sign',
+      router: '/charts',
     },
     {
       name: '记账',

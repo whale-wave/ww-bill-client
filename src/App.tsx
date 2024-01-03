@@ -33,6 +33,7 @@ import Editing from '@/pages/Detail_editing';
 import Personal from '@/pages/community/Personal';
 import Share from '@/pages/Share';
 import Message from '@/pages/Message';
+import { Charts } from '@/pages/Charts';
 
 const App = () => {
   const dispatch = useAppDispatch();
@@ -50,6 +51,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/detail" />} />
         <Route path="/bookkeeping" element={<Bookkeeping />} />
+        <Route path="/charts" element={<Charts />} />
         <Route path="/community" element={<Community />} />
         <Route path="/cateGory" element={<CateGory />}></Route>
         <Route path="/editing/:id" element={<Editing />}></Route>
