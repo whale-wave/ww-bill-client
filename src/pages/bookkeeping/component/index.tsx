@@ -1,7 +1,5 @@
-import React, { useCallback, FC } from 'react';
+import React, { useCallback, FC, useEffect, useState } from 'react';
 import { DatePicker } from 'antd-mobile';
-
-const now = new Date();
 
 type CustomRender = {
   valueDate: boolean;
@@ -11,6 +9,8 @@ type CustomRender = {
 
 // 自定义每列的渲染内容
 const CustomRender: FC<CustomRender> = ({ valueDate, change, changeTime }) => {
+  const [now, setNow] = useState(new Date());
+
   const labelRenderer = useCallback((type: string, data: number) => {
     switch (type) {
       case 'year':
@@ -66,6 +66,12 @@ const CustomRender: FC<CustomRender> = ({ valueDate, change, changeTime }) => {
   //     // console.log(d.getDate(),'天数');
   //     return d.getDate();
   // }
+
+  useEffect(() => {
+    if (!valueDate) return;
+
+    setNow(new Date());
+  }, [valueDate]);
 
   return (
     <>
