@@ -16,7 +16,12 @@ const ExportData = () => {
       startDate: startTime,
       endDate: endTime,
     });
-    exportRecordData(res.data.data, exportTimeRange);
+    exportRecordData({
+      data: res.data.data,
+      range: exportTimeRange,
+      expend: res.data.expend,
+      income: res.data.income,
+    });
   };
 
   const init = () => {
@@ -44,17 +49,19 @@ const ExportData = () => {
 
     if (!selectTime) return;
 
+    const setTimeValue = dayjs(selectTime).format('YYYY-MM-DD');
+
     switch (type) {
       case ChangeType.START:
         setExportTimeRange({
           ...exportTimeRange,
-          startTime: dayjs(selectTime).format('YYYY-MM-DD'),
+          startTime: setTimeValue,
         });
         break;
       case ChangeType.END:
         setExportTimeRange({
           ...exportTimeRange,
-          endTime: dayjs(endTime).format('YYYY-MM-DD'),
+          endTime: setTimeValue,
         });
         break;
       default:

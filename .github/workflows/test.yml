@@ -1,14 +1,45 @@
-name: Test
+name: Build and push Docker images
 
 on:
   push:
-    branches: [ master ]
+    tags:
+      - "v*.*.*"
 
 jobs:
-  build:
+  docker:
     runs-on: ubuntu-latest
     steps:
-      # 下载代码
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REPOSITORY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_REPOSITORY }}/whale-wave/ww-bill/ww-bill-client:${{ steps.get_version.outputs.version }}
+            ${{ secrets.DOCKER_REPOSITORY }}/whale-wave/ww-bill/ww-bill-client:latest
+  deploy:
+    needs: docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
       - name: deploy aliyun
         uses: appleboy/ssh-action@master
         with:
@@ -17,6 +48,24 @@ jobs:
           key: ${{ secrets.RSA_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            ls
-            cd whale-wave/ww-bill-service
-            ./deploy.sh
+            cd ${{ secrets.WORK_DIR }}
+            export WW_BILL_CLIENT_VERSION=${{ steps.get_version.outputs.version }}
+            
+            echo "WW_BILL_CLIENT_VERSION: $WW_BILL_CLIENT_VERSION"
+            
+            export WW_BILL_SERVICE_ENV_SECRET=${{ secrets.WW_BILL_SERVICE_ENV_SECRET }}
+            export WW_BILL_SERVICE_ENV_EMAIL_PASSWORD=${{ secrets.WW_BILL_SERVICE_ENV_EMAIL_PASSWORD }}
+            export WW_BILL_SERVICE_ENV_OSS_QI_NIU_BUCKET=${{ secrets.WW_BILL_SERVICE_ENV_OSS_QI_NIU_BUCKET }}
+            export WW_BILL_SERVICE_ENV_OSS_QI_NIU_ACCESS_KEY=${{ secrets.WW_BILL_SERVICE_ENV_OSS_QI_NIU_ACCESS_KEY }}
+            export WW_BILL_SERVICE_ENV_OSS_QI_NIU_SECRET_KEY=${{ secrets.WW_BILL_SERVICE_ENV_OSS_QI_NIU_SECRET_KEY }}
+            export WW_BILL_SERVICE_ENV_OSS_QI_NIU_DOMAIN=${{ secrets.WW_BILL_SERVICE_ENV_OSS_QI_NIU_DOMAIN }}
+            export WW_BILL_SERVICE_ENV_OSS_ALI_REGION=${{ secrets.WW_BILL_SERVICE_ENV_OSS_ALI_REGION }}
+            export WW_BILL_SERVICE_ENV_OSS_ALI_BUCKET=${{ secrets.WW_BILL_SERVICE_ENV_OSS_ALI_BUCKET }}
+            export WW_BILL_SERVICE_ENV_OSS_ALI_ACCESS_KEY_ID=${{ secrets.WW_BILL_SERVICE_ENV_OSS_ALI_ACCESS_KEY_ID }}
+            export WW_BILL_SERVICE_ENV_OSS_ALI_ACCESS_KEY_SECRET=${{ secrets.WW_BILL_SERVICE_ENV_OSS_ALI_ACCESS_KEY_SECRET }}
+            export WW_BILL_SERVICE_ENV_ORM_HOST=${{ secrets.WW_BILL_SERVICE_ENV_ORM_HOST }}
+            export WW_BILL_SERVICE_ENV_ORM_USERNAME=${{ secrets.WW_BILL_SERVICE_ENV_ORM_USERNAME }}
+            export WW_BILL_SERVICE_ENV_ORM_PASSWORD=${{ secrets.WW_BILL_SERVICE_ENV_ORM_PASSWORD }}
+            export WW_BILL_SERVICE_ENV_ORM_DATABASE=${{ secrets.WW_BILL_SERVICE_ENV_ORM_DATABASE }}
+            
+            bash deploy.sh

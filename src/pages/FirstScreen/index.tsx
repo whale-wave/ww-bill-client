@@ -27,7 +27,10 @@ const FirstScreen: FC = () => {
       ref={el}
     >
       <div
-        className={'flex flex-col justify-center items-center -translate-y-1/3'}
+        className={'flex flex-col justify-center items-center'}
+        style={{
+          transform: 'translateY(-33.333333%)',
+        }}
       >
         <img className={styles.logo} src={logo} alt="蓝鲸记账" />
         <span className={styles['logo-text']}>蓝鲸记账</span>

@@ -55,8 +55,11 @@ const ItemList: FC<ItemListProps> = ({ data, fetch }) => {
         <div
           className={classNames(
             styles['not-data-wrapper'],
-            'absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 text-center',
+            'absolute top-1/2 left-1/2 text-center',
           )}
+          style={{
+            transform: 'translate(-50%, -50%)',
+          }}
         >
           <Icon name="not-data" block className={styles['not-data']} />
           <span className={styles['not-data-text']}>暂无数据</span>

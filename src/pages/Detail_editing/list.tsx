@@ -21,10 +21,10 @@ const List: FC<stateType> = ({ state }) => {
     const { amount, remark } = state;
     let { type, time } = state;
     switch (type) {
-      case '-':
+      case 'sub':
         type = '支出';
         break;
-      case '+':
+      case 'add':
         type = '收入';
         break;
     }

@@ -62,8 +62,11 @@ const UserInfo: FC<UserInfoProps> = ({
       <div
         className={classNames(
           styles['bottom-wrapper'],
-          'absolute bottom-0 left-1/2 -translate-x-1/2 w-full',
+          'absolute bottom-0 left-1/2 w-full',
         )}
+        style={{
+          transform: 'translateX(-50%)',
+        }}
       >
         <div
           className={classNames(

@@ -23,9 +23,9 @@ const Content: FC<ContentProps> = ({ data }) => {
       <ul>
         <li className={styles.header}>
           <div>月份</div>
-          <div>收入</div>
-          <div>支出</div>
-          <div>结束</div>
+          <div>月收入</div>
+          <div>月支出</div>
+          <div>月结余</div>
           <div />
         </li>
         {showData(data).map((i) => (
