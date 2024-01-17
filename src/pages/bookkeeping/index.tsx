@@ -85,4 +85,6 @@ const Bookkeeping: FC = () => {
   );
 };
 
+console.log('1');
+
 export default Bookkeeping;
