@@ -6,10 +6,15 @@ import '../../components/tab-bar/tab-bar.scss';
 import classNames from 'classnames';
 import { Dropdown } from 'antd-mobile';
 import { DemoBlock } from '@/components/demos/demo-block';
-import { Icon } from 'bw-mobile';
+import { Icon, NavBar } from 'bw-mobile';
 import { DropdownRef } from 'antd-mobile/es/components/dropdown';
+import { useNavigate } from 'react-router-dom';
 
-const Top: FC = () => {
+type statusType = {
+  statusDetails: string;
+};
+
+const Top: FC<statusType> = ({ statusDetails }) => {
   type selectedType = {
     moneyType: string;
     icon: string;
@@ -31,6 +36,7 @@ const Top: FC = () => {
     },
   ]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const navigate = useNavigate();
 
   const itemListFn = (index: number) => {
     console.log(index, 'index');
@@ -44,56 +50,63 @@ const Top: FC = () => {
 
   return (
     <div className={style.topContent}>
-      <div className={style.top}>
-        {/*<div>{AmountType}</div>*/}
-        {/*<Icon name="xialaxuanze"></Icon>*/}
-        <DemoBlock title="" padding={'0'}>
-          <Dropdown
-            ref={ref}
-            closeOnClickAway={false}
-            className={classNames(style.admDropdown)}
-          >
-            <Dropdown.Item
-              key="sorter"
-              title={selectedAmountType[selectedActive].moneyType}
-              className={style.admDropdownItemActive}
+      {statusDetails === '1' ? (
+        <div className={style.top}>
+          {/*<div>{AmountType}</div>*/}
+          {/*<Icon name="xialaxuanze"></Icon>*/}
+          <DemoBlock title="" padding={'0'}>
+            <Dropdown
+              ref={ref}
+              closeOnClickAway={false}
+              className={classNames(style.admDropdown)}
             >
-              <div
-                className={classNames(style.downContent)}
-                onClick={() => {
-                  ref.current?.close();
-                }}
+              <Dropdown.Item
+                key="sorter"
+                title={selectedAmountType[selectedActive].moneyType}
+                className={style.admDropdownItemActive}
               >
-                {selectedAmountType.map((item, index) => (
-                  <div
-                    key={item.icon}
-                    className={classNames(style['itemSelected'])}
-                    onClick={() => selectedFn(index)}
-                  >
-                    <div>
-                      <Icon
-                        name={item.icon}
-                        className={style['tab-icon']}
-                      ></Icon>
-                    </div>
-                    <div>
-                      <span className={style.name}>{item.moneyType}</span>
-                      {index === selectedActive ? (
+                <div
+                  className={classNames(style.downContent)}
+                  onClick={() => {
+                    ref.current?.close();
+                  }}
+                >
+                  {selectedAmountType.map((item, index) => (
+                    <div
+                      key={item.icon}
+                      className={classNames(style['itemSelected'])}
+                      onClick={() => selectedFn(index)}
+                    >
+                      <div>
                         <Icon
-                          name={item.duigo}
-                          className={style['tab-icon-duigo']}
+                          name={item.icon}
+                          className={style['tab-icon']}
                         ></Icon>
-                      ) : (
-                        ''
-                      )}
+                      </div>
+                      <div>
+                        <span className={style.name}>{item.moneyType}</span>
+                        {index === selectedActive ? (
+                          <Icon
+                            name={item.duigo}
+                            className={style['tab-icon-duigo']}
+                          ></Icon>
+                        ) : (
+                          ''
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </Dropdown.Item>
-          </Dropdown>
-        </DemoBlock>
-      </div>
+                  ))}
+                </div>
+              </Dropdown.Item>
+            </Dropdown>
+          </DemoBlock>
+        </div>
+      ) : (
+        <NavBar back="" onBack={() => navigate(-1)}>
+          购物
+        </NavBar>
+      )}
+
       <div className={style.dateDay}>
         {list.map((item, i) => (
           <div

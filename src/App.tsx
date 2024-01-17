@@ -34,6 +34,7 @@ import Editing from '@/pages/Detail_editing';
 import Personal from '@/pages/community/Personal';
 import Share from '@/pages/Share';
 import Message from '@/pages/Message';
+import ChartDetails from '@/pages/Chart/details';
 
 const App = () => {
   const dispatch = useAppDispatch();
@@ -77,6 +78,7 @@ const App = () => {
         />
         <Route path="/sign" element={<Sign />} />
         <Route path="/chart" element={<Chart />} />
+        <Route path="/ChartDetails" element={<ChartDetails />} />
         <Route path="/mine" element={<Mine />} />
         <Route path="/share" element={<Share />} />
         <Route
