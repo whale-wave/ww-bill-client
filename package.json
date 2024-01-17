@@ -15,7 +15,7 @@
   "dependencies": {
     "@ant-design/charts": "^1.4.2",
     "@reduxjs/toolkit": "^1.7.1",
-    "antd-mobile": "^5.0.0-rc.17",
+    "antd-mobile": "^5.33.0-rc.17",
     "axios": "^0.24.0",
     "bw-mobile": "^0.0.7",
     "dayjs": "^1.10.7",
@@ -61,7 +61,7 @@
     "sass": "^1.46.0",
     "tailwindcss": "^3.0.11",
     "typescript": "^4.4.4",
-    "vite": "^2.7.2",
+    "vite": "2.9.16",
     "vitest": "0.0.131"
   },
   "config": {

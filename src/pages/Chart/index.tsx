@@ -1,15 +1,13 @@
 import React from 'react';
-import ChartLine from '@/pages/Chart/chartLine';
 import { TabBar } from '@/components';
 import Top from '@/pages/Chart/top';
-import List from '@/pages/Chart/list';
+import Tag from '@/pages/Chart/tag';
 
 const DemoLine: React.FC = () => {
   return (
     <div className="page">
       <Top></Top>
-      <ChartLine></ChartLine>
-      <List></List>
+      <Tag></Tag>
       <TabBar active={1} />
     </div>
   );

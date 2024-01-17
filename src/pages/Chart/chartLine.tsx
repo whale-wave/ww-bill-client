@@ -165,9 +165,10 @@ const ChartLine: FC = () => {
         {...config}
         style={{
           width: '100%',
-          height: '22%',
+          minHeight: '28%',
           padding: '5px',
         }}
+        className={styles.chart_wrapper}
         onReady={(plot) => {
           plot.on('plot:click', (evt: any) => {
             console.log(evt, 'evt');

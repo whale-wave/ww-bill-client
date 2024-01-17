@@ -8,13 +8,12 @@
   overflow: hidden;
 
   > .top {
-    background: #FFFFFF;
+    background: #ffffff;
     opacity: 1;
     display: flex;
     align-items: center;
     border-top: 1px solid #ccc;
     flex-wrap: wrap;
-
 
     > div {
       flex-grow: 1;
@@ -45,6 +44,7 @@
         min-width: 100px;
         flex: 1;
         padding-right: 10px;
+        -webkit-user-select: auto; /*webkit浏览器*/
       }
     }
 
@@ -68,7 +68,7 @@
     display: flex;
 
     > .numbers {
-      background: #F3F3F3;
+      background: #f3f3f3;
       display: flex;
       flex-wrap: wrap;
       flex: 3;
@@ -79,7 +79,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background: #F3F3F3;
+        background: #f3f3f3;
         border-top: 1px solid #ccc;
         border-right: 1px solid #ccc;
         font-size: 21px;
@@ -88,13 +88,13 @@
         opacity: 1;
       }
 
-      .active{
-        background: #C5C5C5;
+      .active {
+        background: #c5c5c5;
       }
     }
 
     > .right {
-      background: #F3F3F3;
+      background: #f3f3f3;
       display: flex;
       flex-direction: column;
       flex: 1;
@@ -109,7 +109,6 @@
           font-size: 14px;
           border-top: 1px solid #ccc;
 
-
           &:nth-child(1) {
             span {
               margin-left: 4px;
@@ -121,15 +120,12 @@
             opacity: 1;
           }
         }
-
-
-
       }
-         .active{
-        background: #C5C5C5;
+      .active {
+        background: #c5c5c5;
       }
-      .active1{
-        box-shadow: 0 0 10px 8px #C5C5C5 inset;
+      .active1 {
+        box-shadow: 0 0 10px 8px #c5c5c5 inset;
       }
     }
   }
