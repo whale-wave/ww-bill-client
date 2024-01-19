@@ -2,14 +2,21 @@ import { FC, useEffect, useState } from 'react';
 import { Icon } from 'bw-mobile';
 import styles from './main.module.scss';
 import { iconObj } from '@/api/category';
+import classNames from 'classnames';
 
 type ChangePropsFn = {
   change: (item: iconObj) => void;
   keyToggle: number;
   categoryList: iconObj[];
+  keyInputPadding: boolean;
 };
 
-const Main: FC<ChangePropsFn> = ({ change, keyToggle, categoryList }) => {
+const Main: FC<ChangePropsFn> = ({
+  change,
+  keyToggle,
+  categoryList,
+  keyInputPadding,
+}) => {
   const [active, setActive] = useState(-1);
 
   const changeMainFn = (item: iconObj) => {
@@ -26,7 +33,13 @@ const Main: FC<ChangePropsFn> = ({ change, keyToggle, categoryList }) => {
   }, [keyToggle]);
 
   return (
-    <div className={styles.context}>
+    <div
+      className={classNames(
+        keyToggle > -1 && !keyInputPadding
+          ? [styles.activeKey, styles.context]
+          : styles.context,
+      )}
+    >
       <div className={styles.main_wrapper}>
         {categoryList.map((item, index) => (
           <div
