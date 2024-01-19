@@ -1,8 +1,6 @@
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { DatePicker, Space } from 'antd-mobile';
 import { getTimedate } from '@/utils/DataTime';
-
-const now = new Date();
 
 type CustomRender = {
   visible1: boolean;
@@ -12,6 +10,14 @@ type CustomRender = {
 
 // 控制选择精度
 const Precision: FC<CustomRender> = ({ visible1, change, changeTime }) => {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    if (!visible1) return;
+
+    setNow(new Date());
+  }, [visible1]);
+
   return (
     <>
       <Space wrap>

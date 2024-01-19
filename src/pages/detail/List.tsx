@@ -176,7 +176,7 @@ const List: FC<timeDateProp> = ({ timeProp, change }) => {
                   key={index}
                   onClick={() => recordFn(chunk)}
                 >
-                  <div className={styles.left}>
+                  <div className={classNames(styles.left, 'flex-shrink-0')}>
                     <div
                       className={classNames(
                         styles.icon,
