@@ -1,12 +1,15 @@
 .context {
   flex-grow: 1;
   overflow: auto;
+  padding-bottom: 38px;
+  &.activeKey {
+    padding-bottom: 224px;
+  }
 
   > .main_wrapper {
     display: flex;
     flex-wrap: wrap;
     padding: 20px 0 10px 0;
-
 
     > .wrapper_item {
       margin-bottom: 20px;
@@ -41,11 +44,10 @@
           width: 60%;
           height: 60%;
         }
-        &.newClass_icon_backGround{
+        &.newClass_icon_backGround {
           background: var(--theme-color);
         }
       }
     }
   }
-
 }

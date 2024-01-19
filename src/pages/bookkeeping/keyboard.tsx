@@ -16,6 +16,7 @@ import { stateType } from '@/pages/bookkeeping/index';
 import { recordChildren } from '@/pages/detail/List';
 
 type keyType = {
+  change: (bool: boolean) => void;
   keyToggle: number;
   type: string;
   name: string;
@@ -23,7 +24,14 @@ type keyType = {
   state: recordChildren;
 };
 
-const keyboard: FC<keyType> = ({ type, keyToggle, name, stateList, state }) => {
+const keyboard: FC<keyType> = ({
+  type,
+  keyToggle,
+  name,
+  stateList,
+  state,
+  change,
+}) => {
   const ArrayList = [
     {
       keys: 7,
@@ -420,10 +428,12 @@ const keyboard: FC<keyType> = ({ type, keyToggle, name, stateList, state }) => {
   };
 
   const inputOnBlur = () => {
+    change(false);
     setInputToggle(false);
   };
 
   const inputOnFocus = () => {
+    change(true);
     setInputToggle(true);
   };
 

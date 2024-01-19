@@ -1,4 +1,4 @@
-@import "~normalize.css";
+@import '~normalize.css';
 
 @tailwind components;
 @tailwind utilities;
@@ -12,18 +12,27 @@
 }
 
 body {
-  font-family: -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial, "Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif;
+  font-family: -apple-system, 'Noto Sans', 'Helvetica Neue', Helvetica,
+    'Nimbus Sans L', Arial, 'Liberation Sans', 'PingFang SC', 'Hiragino Sans GB',
+    'Noto Sans CJK SC', 'Source Han Sans SC', 'Source Han Sans CN',
+    'Microsoft YaHei', 'Wenquanyi Micro Hei', 'WenQuanYi Zen Hei', 'ST Heiti',
+    SimHei, 'WenQuanYi Zen Hei Sharp', sans-serif;
 }
 
-textarea, input {
+textarea,
+input {
   outline: none;
 }
 
-html, body, #root, .page {
+html,
+body,
+#root,
+.page {
   height: 100%;
 }
 
-button, input {
+button,
+input {
   border: none;
   background: transparent;
 }
@@ -46,6 +55,12 @@ button, input {
 }
 
 :root {
-  --theme-color: #AEEEFF;
+  --theme-color: #aeeeff;
   --background-color: #f5f5f5;
+  -webkit-touch-callout: none; /*系统默认菜单被禁用*/
+  -webkit-user-select: none; /*webkit浏览器*/
+  -khtml-user-select: none; /*早期浏览器*/
+  -moz-user-select: none; /*火狐*/
+  -ms-user-select: none; /*IE10*/
+  user-select: none;
 }
