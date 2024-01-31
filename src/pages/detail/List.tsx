@@ -1,7 +1,7 @@
 import { playSound } from '@/modules';
 import { useRecordQuery } from '@/service/record';
 import { Icon } from 'bw-mobile';
-import classNames from 'classnames';
+import c from 'classnames';
 import { FC, useEffect, useState } from 'react';
 import styles from './list.module.scss';
 import { getWeekByDay, getTimeValueFn, getTimedate } from '@/utils/DataTime';
@@ -176,9 +176,9 @@ const List: FC<timeDateProp> = ({ timeProp, change }) => {
                   key={index}
                   onClick={() => recordFn(chunk)}
                 >
-                  <div className={classNames(styles.left, 'flex-shrink-0')}>
+                  <div className={c(styles.left, 'flex-shrink-0')}>
                     <div
-                      className={classNames(
+                      className={c(
                         styles.icon,
                         'flex justify-center items-center',
                       )}
@@ -189,8 +189,15 @@ const List: FC<timeDateProp> = ({ timeProp, change }) => {
                       />
                     </div>
                   </div>
-                  <div className={styles.right}>
-                    <div className={styles.remark}>{chunk.remark}</div>
+                  <div className={c(styles.right, 'flex flex-grow-1 min-w-0')}>
+                    <div
+                      className={c(
+                        styles.remark,
+                        'overflow-hidden overflow-ellipsis whitespace-nowrap',
+                      )}
+                    >
+                      {chunk.remark}
+                    </div>
                     <div className={styles.price}>
                       {chunk.type === 'add' ? chunk.amount : -chunk.amount}
                     </div>
