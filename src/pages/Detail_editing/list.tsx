@@ -3,6 +3,7 @@ import { FixedPin } from 'bw-mobile';
 import styles from './list.module.scss';
 import { recordChildren } from '../detail/List';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/utils/DataTime';
+import c from 'classnames';
 
 type stateType = {
   state: recordChildren;
@@ -45,9 +46,11 @@ const List: FC<stateType> = ({ state }) => {
   return (
     <div className={styles.list}>
       {Object.keys(list).map((item, index) => (
-        <div className={styles.listItem} key={index}>
-          {item}
-          <span className={styles.listKeys}>{listKeys[index]}</span>
+        <div className={c(styles.listItem, 'py-[20px] px-[15px]')} key={index}>
+          <span className={'flex-shrink-0'}>{item}</span>
+          <span className={c(styles.listKeys, 'ml-[12px]')}>
+            {listKeys[index]}
+          </span>
         </div>
       ))}
       <FixedPin>分享</FixedPin>
