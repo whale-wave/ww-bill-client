@@ -198,7 +198,7 @@ const List: FC<timeDateProp> = ({ timeProp, change }) => {
                     >
                       {chunk.remark}
                     </div>
-                    <div className={styles.price}>
+                    <div className={c(styles.price, 'ml-[12px]')}>
                       {chunk.type === 'add' ? chunk.amount : -chunk.amount}
                     </div>
                   </div>
