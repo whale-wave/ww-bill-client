@@ -2,9 +2,11 @@ import { FC, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import styles from './index.module.css';
 import logo from '../../assets/images/logo.png';
+import { useNavigate } from 'react-router-dom';
 
 const FirstScreen: FC = () => {
   const el = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     close();
@@ -13,7 +15,8 @@ const FirstScreen: FC = () => {
   const close = () => {
     setTimeout(() => {
       /* eslint-disable */
-      el.current!.remove();
+      // el.current!.remove();
+      navigate('/detail');
       /* eslint-disable */
     }, 1200);
   };
