@@ -21,9 +21,11 @@ export const login = (
 
 export const sign = (
   body: {
-    username: string;
+    username?: string;
+    name?: string;
+    email: string;
     password: string;
-    name: string;
+    emailCode: string;
   },
   loading = true,
 ) => {

@@ -97,6 +97,13 @@ const Login: FC = () => {
             }}
             dangerouslySetInnerHTML={{ __html: svgCaption }}
           />
+          <div
+            className="flex justify-between w-full"
+            style={{ marginTop: 20 }}
+          >
+            <span></span>
+            <span>忘记密码</span>
+          </div>
         </div>
         <Button block onClick={handleLogin}>
           登录

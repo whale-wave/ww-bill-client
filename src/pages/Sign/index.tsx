@@ -1,22 +1,22 @@
 import { getEmailCaptchaAPi, sign } from '@/api';
-import { Button, Input, NavBar } from 'bw-mobile';
+import { Button, NavBar } from 'bw-mobile';
 import { useAppDispatch } from '@/store/hooks';
 import { setToken } from '@/store/slice';
-import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
-import { ChangeEvent, FC, useRef, useState } from 'react';
+import { CSSProperties, ChangeEvent, FC, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.scss';
+import { Input } from '@/components';
 
 const WAIT_TIME = 60;
+const inputStyle = {
+  '--prefix-width': '73px',
+} as CSSProperties;
 
 const Sign: FC = () => {
   const [form, setForm] = useState({
-    username: '',
-    password: '',
-    rePassword: '',
-    name: '',
     email: '',
+    password: '',
     emailCode: '',
   });
   const dispatch = useAppDispatch();
@@ -28,9 +28,6 @@ const Sign: FC = () => {
   };
 
   const handleSign = async () => {
-    if (form.password !== form.rePassword) {
-      return Toast.show('两次输入的密码不一致');
-    }
     const { statusCode, data } = await sign(form);
     if (statusCode === 200) {
       dispatch(setToken(data.token));
@@ -70,7 +67,9 @@ const Sign: FC = () => {
         注册
       </NavBar>
       <main
-        className={classNames('flex-grow flex justify-center items-center')}
+        className={classNames(
+          'flex-grow flex justify-center items-center px-[28px]',
+        )}
       >
         <div
           className={classNames(
@@ -79,14 +78,7 @@ const Sign: FC = () => {
           )}
         >
           <Input
-            label="账号"
-            value={form.username}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setFormValue('username', e.target.value)
-            }
-            placeholder="请输入账号"
-          />
-          <Input
+            style={inputStyle}
             label="邮箱"
             value={form.email}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -96,56 +88,36 @@ const Sign: FC = () => {
             placeholder="请输入邮箱"
           />
           <Input
-            label="用户名"
-            value={form.name}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setFormValue('name', e.target.value)
-            }
-            className="mt-3"
-            placeholder="请输入用户名"
-          />
-          <Input
+            style={inputStyle}
             label="密码"
             value={form.password}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setFormValue('password', e.target.value)
             }
-            type="password"
             className="mt-3"
             placeholder="请输入密码"
           />
           <Input
-            label="确认密码"
-            className="mt-3"
-            value={form.rePassword}
-            type="password"
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setFormValue('rePassword', e.target.value)
-            }
-            placeholder="请再次输入密码"
-          />
-          <Input
+            style={inputStyle}
             label="验证码"
             value={form.emailCode}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setFormValue('emailCode', e.target.value)
             }
-            className="mt-3"
+            className="mt-3 bg-green"
             placeholder="请输入邮箱验证码"
+            suffix={
+              <>
+                {sendEmailStatus ? (
+                  <span style={{ color: '#ddd' }}>
+                    {sendEmailWaitTime}秒后重试
+                  </span>
+                ) : (
+                  <span onClick={handleEmail}>获取验证码</span>
+                )}
+              </>
+            }
           />
-          <div
-            className="flex justify-between w-full"
-            style={{ marginTop: 20 }}
-          >
-            <span>忘记密码</span>
-            {sendEmailStatus ? (
-              <span style={{ color: '#ddd' }}>
-                {sendEmailWaitTime}秒重新发送
-              </span>
-            ) : (
-              <span onClick={handleEmail}>发送邮箱验证码</span>
-            )}
-          </div>
           <Button
             block
             style={{ margin: '40px 0 14px 0' }}
