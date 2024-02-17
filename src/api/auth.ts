@@ -11,7 +11,9 @@ interface LoginRes {
 }
 
 export const login = (
-  body: { username: string; password: string },
+  body:
+    | { username: string; password: string }
+    | { email: string; emailCode: string },
   loading = true,
 ) => {
   return request.post<never, SuccessResponse<LoginRes>>('/auth/login', body, {
@@ -32,4 +34,16 @@ export const sign = (
   return request.post<never, SuccessResponse<LoginRes>>('/auth/sign', body, {
     loading,
   });
+};
+
+export const loginEmailCaptchaApi = (email: string, loading = true) => {
+  return request.get<never, SuccessResponse<unknown>>(
+    '/auth/login/email/captcha',
+    {
+      params: {
+        email,
+      },
+      loading,
+    },
+  );
 };

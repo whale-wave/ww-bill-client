@@ -3,7 +3,7 @@ import c from 'classnames';
 
 const classPrefix = `wwb-input`;
 
-type InputProps = {
+export type InputProps = {
   className?: string;
   label?: string;
   value?: string | number;
