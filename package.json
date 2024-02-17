@@ -15,7 +15,7 @@
   "dependencies": {
     "@ant-design/charts": "^1.4.2",
     "@reduxjs/toolkit": "^1.7.1",
-    "antd-mobile": "^5.33.0-rc.17",
+    "antd-mobile": "5.34.0",
     "axios": "^0.24.0",
     "bw-mobile": "^0.0.7",
     "dayjs": "^1.10.7",

@@ -3,7 +3,8 @@ export const JIN_JUN_SERVER = 'http://bill.easyhappy.top';
 export const REACT_XIAO_MI = 'http://192.168.31.201:3001';
 export const LOCAL_SERVER = 'http://localhost:3001';
 
-// const defaultHost = LOCAL_SERVER;
-const defaultHost = JIN_JUN_SERVER;
+let defaultHost = '';
+defaultHost = JIN_JUN_SERVER;
+// defaultHost = LOCAL_SERVER;
 
 export { defaultHost };
