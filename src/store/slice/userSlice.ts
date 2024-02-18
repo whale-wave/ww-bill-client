@@ -5,6 +5,7 @@ type UserInfo = {
   name: string;
   username: string;
   avatar: string;
+  email: string;
 };
 
 interface UserState {
@@ -26,8 +27,8 @@ export const userSlice = createSlice({
       localStorage.setItem('token', action.payload);
     },
     setUserInfo: (state, action: PayloadAction<UserInfo>) => {
-      const { id, name, username, avatar } = action.payload;
-      state.userInfo = { id, name, username, avatar };
+      const { id, name, username, avatar, email } = action.payload;
+      state.userInfo = { id, name, username, avatar, email };
       localStorage.setItem('userInfo', JSON.stringify(action.payload));
     },
     updateUserInfo: (
@@ -44,6 +45,7 @@ export const userSlice = createSlice({
         name: '',
         id: '',
         avatar: '',
+        email: '',
       };
       state.token = '';
       localStorage.clear();

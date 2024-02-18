@@ -99,8 +99,11 @@ const userInfo: FC = () => {
         >
           头像
         </List.Item>
-        <List.Item clickable arrow={false} extra={userData.id}>
-          ID
+        <List.Item clickable arrow={false} extra={userData.username}>
+          账号ID
+        </List.Item>
+        <List.Item clickable arrow={false} extra={userData.email}>
+          邮箱
         </List.Item>
         <List.Item extra={userData.name} onClick={handleChangeName}>
           昵称
