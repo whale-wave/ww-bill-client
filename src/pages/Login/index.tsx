@@ -94,7 +94,7 @@ const Login: FC = () => {
             <div>
               <Input
                 label="账号"
-                placeholder="请输入账号"
+                placeholder="请输入账号ID或邮箱"
                 onChange={onUserNameFormFieldChange('username')}
                 value={userNameForm.username}
               />
