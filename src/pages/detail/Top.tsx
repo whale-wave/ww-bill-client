@@ -74,7 +74,7 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
         <div className={classNames(styles['left-bottom'])}>
           <div
             className={
-              'h-[40%] w-[1px] bg-black333 absolute -right-[12px] bottom-1 opacity-50'
+              'h-[40%] w-[1px] bg-black333 absolute -right-0 bottom-1 opacity-50'
             }
           ></div>
           <div className={styles['bottom-wrapper']} onClick={PrecisionFn}>
