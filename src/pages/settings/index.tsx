@@ -6,15 +6,15 @@ import {
   closePlay,
   openPlay,
   setStorageSize,
+  toggleVisibleAmountSwitch,
 } from '@/store/slice';
 import { Toast } from 'antd-mobile';
 import { List, NavBar, Gap, Switch, Icon } from 'bw-mobile';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.scss';
 
 const Settings = () => {
-  const system = useAppSelector((state) => state.system);
+  const systemStoreState = useAppSelector((state) => state.system);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const handleBack = () => {
@@ -22,16 +22,14 @@ const Settings = () => {
     navigate(-1);
   };
 
-  const [hideTotalAmount, setHideTotalAmount] = useState(false);
-
-  const handleToggleTotalAmount = (val: boolean) => {
+  const onToggleVisibleAmountSwitch = () => {
     playSound.click();
-    setHideTotalAmount(val);
+    dispatch(toggleVisibleAmountSwitch());
   };
 
   const handleSoundSwitch = (val: boolean) => {
     if (val) {
-      if (system.hasAudioCache) {
+      if (systemStoreState.hasAudioCache) {
         audioWeb.loadCache();
       } else {
         void audioWeb.download();
@@ -72,13 +70,21 @@ const Settings = () => {
       title: '隐藏总金额',
       path: '',
       arrow: (
-        <Switch checked={hideTotalAmount} onChange={handleToggleTotalAmount} />
+        <Switch
+          checked={systemStoreState.visibleAmountSwitch}
+          onChange={onToggleVisibleAmountSwitch}
+        />
       ),
     },
     {
       title: '声音开关',
       path: '',
-      arrow: <Switch checked={system.canPlay} onChange={handleSoundSwitch} />,
+      arrow: (
+        <Switch
+          checked={systemStoreState.canPlay}
+          onChange={handleSoundSwitch}
+        />
+      ),
     },
   ];
   const groupFour = [
@@ -88,7 +94,7 @@ const Settings = () => {
       onClick: clearCache,
       arrow: (
         <div>
-          <span>{system.localStorageSize}</span> <Icon name="right" />
+          <span>{systemStoreState.localStorageSize}</span> <Icon name="right" />
         </div>
       ),
     },

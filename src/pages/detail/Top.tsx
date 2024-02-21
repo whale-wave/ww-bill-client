@@ -1,10 +1,12 @@
 import { Icon } from 'bw-mobile';
-import classNames from 'classnames';
-import { FC, useEffect, useState } from 'react';
+import c from 'classnames';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Precision from '@/pages/detail/component';
 import styles from './top.module.scss';
 import { numType } from './index';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setVisibleAmount } from '@/store/slice';
 
 type TopProps = {
   change: (val: string) => void;
@@ -30,6 +32,8 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
       click: () => null,
     },
   ];
+  const systemStoreState = useAppSelector((state) => state.system);
+  const dispatch = useAppDispatch();
 
   const [visible1, setVisible1] = useState(false);
   const [yearMoth, setYearMoth] = useState<string[]>([]);
@@ -66,15 +70,26 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
     }
   }, []);
 
+  const isVisibleAmount = useMemo(() => {
+    if (!systemStoreState.visibleAmountSwitch) {
+      return true;
+    }
+
+    return systemStoreState.visibleAmount;
+  }, [systemStoreState.visibleAmount, systemStoreState.visibleAmountSwitch]);
+  const onToggleVisibleAmount = useCallback(() => {
+    dispatch(setVisibleAmount(!systemStoreState.visibleAmount));
+  }, [systemStoreState.visibleAmount]);
+
   return (
     <div className={styles.top}>
       <div className={styles.title}>蓝鲸记账</div>
-      <div className={classNames([styles.left, styles['top-text-1-wrapper']])}>
+      <div className={c([styles.left, styles['top-text-1-wrapper']])}>
         <div className={styles['top-text-1']}>{yearMoth[0]}</div>
-        <div className={classNames(styles['left-bottom'])}>
+        <div className={c(styles['left-bottom'])}>
           <div
             className={
-              'h-[40%] w-[1px] bg-black333 absolute -right-[12px] bottom-1 opacity-50'
+              'h-[40%] w-[1px] bg-black333 absolute -right-0 bottom-1 opacity-50'
             }
           ></div>
           <div className={styles['bottom-wrapper']} onClick={PrecisionFn}>
@@ -90,48 +105,70 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
           </div>
         </div>
       </div>
-      <div
-        className={classNames([styles.middle, styles['top-text-1-wrapper']])}
-      >
+      <div className={c([styles.middle, styles['top-text-1-wrapper']])}>
         <div className={styles['top-text-1']}>收入</div>
         <div className={styles['middle-bottom']}>
           <div className={styles['bottom-wrapper']}>
-            <span className={styles.big}>
-              {numExpendIncome[1] && numExpendIncome[1].length
-                ? numExpendIncome[1][0]
-                : '0'}
-            </span>
-            <span className={styles.bigNum}>
-              {numExpendIncome[1] &&
-              numExpendIncome[1].length &&
-              numExpendIncome[1][1] !== ''
-                ? '.' + numExpendIncome[1][1]
-                : '.00'}
-            </span>
+            {isVisibleAmount ? (
+              <>
+                <span className={styles.big}>
+                  {numExpendIncome[1] && numExpendIncome[1].length
+                    ? numExpendIncome[1][0]
+                    : '0'}
+                </span>
+                <span className={styles.bigNum}>
+                  {numExpendIncome[1] &&
+                  numExpendIncome[1].length &&
+                  numExpendIncome[1][1] !== ''
+                    ? '.' + numExpendIncome[1][1]
+                    : '.00'}
+                </span>
+              </>
+            ) : (
+              <span className={c(styles.big, 'font-bold')}>*******</span>
+            )}
           </div>
         </div>
       </div>
-      <div className={classNames([styles.right, styles['top-text-1-wrapper']])}>
+      <div className={c([styles.right, styles['top-text-1-wrapper']])}>
         <div className={styles['top-text-1']}>支出</div>
         <div className={styles['right-bottom']}>
           <div className={styles['bottom-wrapper']}>
-            <span className={styles.big}>
-              {numExpendIncome[0] && numExpendIncome[0].length
-                ? numExpendIncome[0][0]
-                : '0'}
-            </span>
-            <span className={styles.bigNum}>
-              {numExpendIncome[0] &&
-              numExpendIncome[0].length &&
-              numExpendIncome[0][1] !== ''
-                ? '.' + numExpendIncome[0][1]
-                : '.00'}
-            </span>
+            {isVisibleAmount ? (
+              <>
+                <span className={styles.big}>
+                  {numExpendIncome[0] && numExpendIncome[0].length
+                    ? numExpendIncome[0][0]
+                    : '0'}
+                </span>
+                <span className={styles.bigNum}>
+                  {numExpendIncome[0] &&
+                  numExpendIncome[0].length &&
+                  numExpendIncome[0][1] !== ''
+                    ? '.' + numExpendIncome[0][1]
+                    : '.00'}
+                </span>
+              </>
+            ) : (
+              <span className={c(styles.big, 'font-bold')}>*******</span>
+            )}
           </div>
         </div>
       </div>
+      {systemStoreState.visibleAmountSwitch ? (
+        <div
+          className="right-7 bottom-1/2 absolute text-[24px] px-1"
+          onClick={onToggleVisibleAmount}
+        >
+          {systemStoreState.visibleAmount ? (
+            <Icon name="eye-close" />
+          ) : (
+            <Icon name="eye" />
+          )}
+        </div>
+      ) : null}
       <div
-        className={classNames(
+        className={c(
           styles['list-wrapper'],
           'w-full absolute bottom-0 left-1/2',
         )}
@@ -139,10 +176,10 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
           transform: 'translateX(-50%)',
         }}
       >
-        <div className={classNames(styles.list, 'h-full flex')}>
+        <div className={c(styles.list, 'h-full flex')}>
           {tabs.map((tab) => (
             <div
-              className={classNames(
+              className={c(
                 styles.tab,
                 'flex-shrink-0 flex-grow flex flex-col justify-center items-center',
               )}

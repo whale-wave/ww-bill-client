@@ -3,7 +3,13 @@
   height: 182px;
   position: relative;
   flex-shrink: 0;
-  background: linear-gradient(180deg, var(--theme-color) 0%, var(--theme-color) 75%, #FEFEFE 89%, #FEFEFE 100%);
+  background: linear-gradient(
+    180deg,
+    var(--theme-color) 0%,
+    var(--theme-color) 75%,
+    #fefefe 89%,
+    #fefefe 100%
+  );
   &-text-1 {
     font-size: 13px;
     font-weight: 400;
@@ -29,7 +35,7 @@
     left: 20px;
     &-bottom {
       height: 40px;
-      width: 66px;
+      width: 70px;
       font-size: 14px;
       font-weight: 400;
       color: #333333;
@@ -53,14 +59,14 @@
   }
 
   .big {
-    font-size: 22px;
+    @apply text-[19px] leading-[19px];
   }
   .bigNum {
-    font-size: 14px;
+    font-size: 11px;
   }
 
   .right {
-    left: 249px;
+    left: 230px;
     &-bottom {
       height: 37px;
       position: relative;
@@ -76,7 +82,7 @@
     height: 68px;
     padding: 0 10px 0;
     .list {
-      background: #FEFEFE;
+      background: #fefefe;
       box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.16);
       border-radius: 8px;
       > .tab {
@@ -99,4 +105,3 @@
   background: rgba(0, 0, 0, 0);
   border: 0;
 }
-
