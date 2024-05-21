@@ -11,6 +11,7 @@ type UserInfo = {
   checkInAll: number;
   recordCount: number;
   billRecord: BillRecordType;
+  email: string;
 };
 
 type UpdateUserInfo = {

@@ -1,0 +1,29 @@
+$class-prefix-input: 'wwb-input';
+
+.#{$class-prefix-input} {
+  height: 100%;
+  outline: none;
+  & > input {
+    &::placeholder {
+      color: #ddd;
+      font-size: 15px;
+    }
+  }
+  &-wrapper {
+    --width: 100%;
+    --prefix-width: 'auto';
+    --border-inner: 1px solid #e7e7e7;
+
+    width: var(--width);
+    height: 40px;
+    font-size: 22px;
+    color: #333233;
+    border-bottom: var(--border-inner);
+  }
+  &-name {
+    width: var(--prefix-width);
+    padding-right: 28px;
+    flex-shrink: 0;
+    font-size: 15px;
+  }
+}
