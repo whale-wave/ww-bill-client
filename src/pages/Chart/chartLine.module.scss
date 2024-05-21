@@ -1,6 +1,18 @@
 .span{
-  background: red;
+  background: pink;
 }
 .chart_wrapper{
   //background: red;
+}
+.title{
+  background: #202020;
+  padding: 3px 0;
+  color: #ffffff;
+  border-radius: 5px;
+}
+.selectedItem{
+  background: #000000;
+}
+.chartList{
+  color: #FFFFFF;
 }

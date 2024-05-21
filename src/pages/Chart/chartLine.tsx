@@ -1,12 +1,43 @@
 import { FC } from 'react';
 import styles from './chartLine.module.scss';
 import { Line } from '@ant-design/charts';
+import classNames from 'classnames';
+// import { Icon } from 'bw-mobile';
+
+type arrType = [
+  {
+    icon: string;
+    year: string;
+    name: string;
+    value: number;
+  },
+];
 
 const ChartLine: FC = () => {
   const data = [
     {
       year: '1991',
-      value: 3,
+      value: 5,
+      data: [
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+      ],
     },
     {
       year: '1992',
@@ -63,43 +94,59 @@ const ChartLine: FC = () => {
       customContent: (title: any, items: any) => {
         return (
           <>
-            <h5 style={{ marginTop: 16 }}>标题:{title}</h5>
-            <ul style={{ paddingLeft: 0 }}>
-              {items?.map((item: any, index: any) => {
-                const { name, value, color } = item;
-                console.log(item, 'item');
-                return (
-                  <li
-                    key={item.data.year}
-                    className="g2-tooltip-list-item"
-                    data-index={index}
-                    style={{
-                      marginBottom: 4,
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <span
-                      className="g2-tooltip-marker"
-                      style={{ backgroundColor: color }}
-                    ></span>
-                    <span
-                      className={styles.span}
-                      style={{
-                        display: 'inline-flex',
-                        flex: 1,
-                        justifyContent: 'space-between',
-                      }}
-                    >
-                      <span style={{ marginRight: 16 }}>name:{name}:</span>
-                      <span className="g2-tooltip-list-item-value">
-                        {value}
-                      </span>
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className={styles.selectedItem}>
+              <h5
+                style={{
+                  marginTop: 6,
+                  display: 'flex',
+                  justifyContent: 'center',
+                }}
+                className={styles.title}
+              >
+                最大三笔交易
+              </h5>
+
+              <ul style={{ paddingLeft: 0 }}>
+                {items?.map((item: any) => {
+                  const data = item.data.data as arrType;
+                  console.log(item, 'item');
+                  return (
+                    <>
+                      {data.map((t: any, i: any) => {
+                        return (
+                          <li
+                            key={i}
+                            className={classNames(
+                              'g2-tooltip-list-item',
+                              styles.chartList,
+                            )}
+                            data-index={i}
+                          >
+                            {/*<Icon name={item.icon} style={{ fontSize: 30 }} />*/}
+                            <span
+                              style={{
+                                marginLeft: '8px',
+                                marginRight: '8px',
+                              }}
+                            >
+                              {t.year}
+                            </span>
+                            <span
+                              style={{
+                                marginRight: '8px',
+                              }}
+                            >
+                              {t.name}
+                            </span>
+                            <span>{t.value}</span>
+                          </li>
+                        );
+                      })}
+                    </>
+                  );
+                })}
+              </ul>
+            </div>
           </>
         );
       },
