@@ -42,59 +42,294 @@ const ChartLine: FC = () => {
     {
       year: '1992',
       value: 4,
+      data: [
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+      ],
     },
     {
       year: '1993',
       value: 3.5,
+      data: [
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+      ],
     },
     {
       year: '1994',
       value: 5,
+      data: [
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+      ],
     },
     {
       year: '1995',
       value: 4.9,
+      data: [
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+      ],
     },
     {
       year: '1996',
       value: 6,
+      data: [
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+      ],
     },
     {
       year: '1997',
       value: 0,
+      data: [
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+      ],
     },
     {
       year: '1998',
       value: 9,
+      data: [
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+      ],
     },
     {
       year: '1999',
       value: 0,
+      data: [
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+      ],
     },
     {
       year: '2000',
       value: 14,
+      data: [
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+      ],
     },
     {
       year: '2002',
       value: 20,
+      data: [
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+      ],
     },
     {
       year: '2023',
       value: 50,
+      data: [
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 298,
+        },
+        {
+          icon: '',
+          year: '21/10/24',
+          name: '优衣库',
+          value: 29800,
+        },
+      ],
     },
   ];
   const config = {
     data,
     yField: 'value',
     xField: 'year',
-    padding: [13, 8, 22, 8],
+    // padding: [13, 8, 22, 8],
     autoFit: true,
     tooltip: {
       customContent: (title: any, items: any) => {
         return (
           <>
-            <div className={styles.selectedItem}>
+            <div
+              className={styles.selectedItem}
+              style={
+                //此处配置弹窗的基本样式，如宽高，背景及文字颜色等
+                {
+                  // width: 106,
+                  // height: 132,
+                  padding: 2,
+                  backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                  color: 'white',
+                  fontSize: 12,
+                  margin: '0 -12px 0 -12px',
+                  borderRadius: 2,
+                }
+              }
+            >
               <h5
                 style={{
                   marginTop: 6,
@@ -110,6 +345,7 @@ const ChartLine: FC = () => {
                 {items?.map((item: any) => {
                   const data = item.data.data as arrType;
                   console.log(item, 'item');
+                  console.log(items, 'DIDIDI');
                   return (
                     <>
                       {data.map((t: any, i: any) => {
