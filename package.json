@@ -10,7 +10,7 @@
     "coverage": "vitest --coverage",
     "lint": "eslint src/**/*.{tsx,ts,js,jsx} --fix",
     "prettier": "prettier --config .prettierrc.js --write src/**/*.{tsx,ts,js,jsx}",
-    "postinstall": "husky install && chmod 700 .husky/pre-commit"
+    "postinstall": "husky install"
   },
   "dependencies": {
     "@ant-design/icons": "^4.6.0",
@@ -58,8 +58,8 @@
     "react-test-renderer": "^17.0.2",
     "sass": "^1.46.0",
     "tailwindcss": "^3.0.11",
-    "typescript": "^4.4.4",
-    "vite": "2.9.16",
+    "typescript": "5.2.2",
+    "vite": "^2.9.16",
     "vitest": "0.0.131"
   },
   "config": {
