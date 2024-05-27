@@ -1,19 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
-import { getRecordApi, GetRecordApiParams } from '@/api';
+import { getRecordBillApi } from '@/api';
 import { useMemo } from 'react';
 import { isSuccessApi } from '@/utils';
 
-export const useGetRecordQueryQueryKey = 'useGetRecordQuery' as const;
+export const useGetRecordBillQueryQueryKey = 'useGetRecordBillQuery';
 
-export const useGetRecordQuery = (options?: {
-  params: GetRecordApiParams;
+export const useGetRecordBillQuery = (options?: {
+  params: number;
   options?: {
     enabled?: boolean;
   };
 }) => {
   const { data: response, ...rest } = useQuery({
-    queryFn: ({ queryKey }) => getRecordApi(queryKey[1]),
-    queryKey: [useGetRecordQueryQueryKey, options!.params] as const,
+    queryFn: ({ queryKey }) => getRecordBillApi(queryKey[1]),
+    queryKey: [useGetRecordBillQueryQueryKey, options!.params] as const,
     ...options?.options,
   });
 

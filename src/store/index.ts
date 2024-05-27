@@ -1,4 +1,3 @@
-import { recordApi } from '@/service/record';
 import { topicApi } from '@/service/topic';
 import { userSlice, i18nSlice, systemSlice } from '@/store/slice';
 import { configureStore } from '@reduxjs/toolkit';
@@ -10,10 +9,9 @@ const store = configureStore({
     user: userSlice.reducer,
     system: systemSlice.reducer,
     [topicApi.reducerPath]: topicApi.reducer,
-    [recordApi.reducerPath]: recordApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(topicApi.middleware, recordApi.middleware),
+    getDefaultMiddleware().concat(topicApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

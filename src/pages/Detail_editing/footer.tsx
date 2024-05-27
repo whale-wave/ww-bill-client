@@ -1,10 +1,10 @@
-import { useDeleteRecordMutation } from '@/service/record';
 import { FC, useState } from 'react';
 import styles from './footer.module.scss';
 import { recordChildren } from '../detail/List';
 import { useNavigate } from 'react-router-dom';
 import Popup from '@/components/Popup';
 import { Toast } from 'antd-mobile';
+import { useDeleteRecordMutation } from '@/hooks';
 
 type stateType = {
   state: recordChildren;
@@ -22,16 +22,12 @@ const Footer: FC<stateType> = ({ state }) => {
     setShowPopup(true);
   };
 
-  const [deleteRecord] = useDeleteRecordMutation();
+  const [deleteRecordMutate] = useDeleteRecordMutation();
 
   const changeShowDelete = async () => {
-    const res = await deleteRecord(state.id);
-    if (
-      'data' in res &&
-      res.data.statusCode === 200 &&
-      res.data.message === '删除成功'
-    ) {
-      Toast.show({ content: res.data.message });
+    const res = await deleteRecordMutate(state.id + '');
+    if (res.statusCode === 200 && res.message === '删除成功') {
+      Toast.show({ content: res.message });
       navigate('/detail');
     }
   };

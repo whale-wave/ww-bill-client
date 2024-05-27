@@ -1,6 +1,6 @@
 import request from '@/utils/request';
 
-export type getRecordChilder = {
+export interface Record {
   amount: string;
   category: {
     createdAt: string;
@@ -15,18 +15,77 @@ export type getRecordChilder = {
   time: string;
   type: string;
   updatedAt: string;
-};
+}
 
-export type getRecordResponse = {
+export interface GetRecordApiResponseData {
   total: number;
-  data: getRecordChilder[];
+  data: Record[];
   expend: number;
   income: number;
-};
+}
+
+export interface GetRecordApiParams {
+  startDate: string;
+  endDate?: string;
+}
 
 //获取记录
-export function getRecordApi(params?: GetRecordType) {
-  return request.get<unknown, SuccessResponse<getRecordResponse>>('/record', {
-    params,
-  });
+export function getRecordApi(params?: GetRecordApiParams) {
+  return request.get<unknown, SuccessResponse<GetRecordApiResponseData>>(
+    '/record',
+    {
+      params,
+    },
+  );
+}
+
+interface PostRecordApiData {
+  remark: string;
+  categoryId: number;
+  type: string;
+  amount: string;
+  time: string;
+}
+
+// 创建记录
+export function postRecordApi(data: PostRecordApiData) {
+  return request.post<unknown, SuccessResponse<undefined>>(`/record`, data);
+}
+
+export interface PutRecordApiData extends PostRecordApiData {}
+
+// 更新记录
+export function putRecordApi(id: string, data: PutRecordApiData) {
+  return request.put<unknown, SuccessResponse<undefined>>(
+    `/record/${id}`,
+    data,
+  );
+}
+
+// 删除记录
+export function deleteRecordApi(id: string) {
+  return request.delete<unknown, SuccessResponse<undefined>>(`/record/${id}`);
+}
+
+export interface Bill {
+  income: number;
+  expand: number;
+  balance: number;
+}
+
+export interface GetRecordBillApiResponseData {
+  month: {
+    [month: string]: Bill;
+  };
+  all: Bill;
+}
+
+// 获取账单
+export function getRecordBillApi(year: number) {
+  return request.get<unknown, SuccessResponse<GetRecordBillApiResponseData>>(
+    `/record/bill`,
+    {
+      params: { year },
+    },
+  );
 }
