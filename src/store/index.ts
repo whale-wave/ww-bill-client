@@ -1,4 +1,3 @@
-import { followApi } from '@/service/follow';
 import { recordApi } from '@/service/record';
 import { topicApi } from '@/service/topic';
 import { userSlice, i18nSlice, systemSlice } from '@/store/slice';
@@ -10,16 +9,11 @@ const store = configureStore({
     i18n: i18nSlice.reducer,
     user: userSlice.reducer,
     system: systemSlice.reducer,
-    [followApi.reducerPath]: followApi.reducer,
     [topicApi.reducerPath]: topicApi.reducer,
     [recordApi.reducerPath]: recordApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(
-      followApi.middleware,
-      topicApi.middleware,
-      recordApi.middleware,
-    ),
+    getDefaultMiddleware().concat(topicApi.middleware, recordApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

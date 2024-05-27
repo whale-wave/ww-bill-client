@@ -1,4 +1,4 @@
-import { FollowListType, getFollowList } from '@/api/follow';
+import { FollowTypeEnum, getFollowApi } from '@/api/follow';
 import { NavBar } from 'bw-mobile';
 import { FC, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -14,16 +14,15 @@ const FollowList = () => {
   }, []);
 
   const getListData = async () => {
-    const { statusCode, data } = await getFollowList(
-      parseInt(id!),
-      type as FollowListType,
-    );
+    const { statusCode, data } = await getFollowApi(id!, {
+      type,
+    } as { type: FollowTypeEnum });
     if (statusCode === 200) {
       setList(data.data);
     }
   };
 
-  const followName = (type: FollowType) => {
+  const followName = (type: FollowTypeEnum) => {
     return type === 'follow' ? '关注' : '粉丝';
   };
   return (
@@ -33,7 +32,7 @@ const FollowList = () => {
         back="返回"
         onBack={() => navigate(-1)}
       >
-        阿文的{followName(type as FollowType)}
+        阿文的{followName(type as FollowTypeEnum)}
       </NavBar>
       {list.map((i) => (
         <Item key={i} data={i} />
@@ -76,5 +75,3 @@ const Item: FC<ItemProps> = ({ data }) => {
     </div>
   );
 };
-
-type FollowType = 'follow' | 'fans';
