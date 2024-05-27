@@ -24,9 +24,9 @@ export type getRecordResponse = {
   income: number;
 };
 
-export const getRecord = (params?: GetRecordType) => {
-  //获取记录
+//获取记录
+export function getRecordApi(params?: GetRecordType) {
   return request.get<unknown, SuccessResponse<getRecordResponse>>('/record', {
     params,
   });
-};
+}
