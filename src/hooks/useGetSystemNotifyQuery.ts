@@ -1,22 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
-import { getRecordApi } from '@/api';
+import { getSystemNotifyApi } from '@/api';
 import { useMemo } from 'react';
 import { isSuccessApi } from '@/utils';
 
-export const useGetRecordQuery = (options?: {
-  params: GetRecordType;
+export const useGetSystemNotifyQuery = (options?: {
+  params?: any;
   options?: {
     enabled?: boolean;
   };
 }) => {
   const { data: response, ...rest } = useQuery({
-    queryFn: ({ queryKey }) => getRecordApi(queryKey[1]),
-    queryKey: ['useGetRecordQuery', options!.params] as const,
+    queryFn: () => getSystemNotifyApi(),
+    queryKey: ['useGetSystemNotifyQuery', options?.params] as const,
     ...options?.options,
   });
 
   const data = useMemo(() => {
-    if (!isSuccessApi(response)) return;
+    if (!isSuccessApi(response)) return [];
     return response.data;
   }, [response]);
 

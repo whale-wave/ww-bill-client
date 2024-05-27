@@ -6,6 +6,7 @@ export * from './user';
 export * from './record';
 export * from './category';
 export * from './tools';
+export * from './system';
 
 export const uploadFile = async (body: FormData, loading = true) => {
   return request.post<unknown, SuccessResponse<{ url: string }>>(

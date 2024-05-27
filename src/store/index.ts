@@ -1,6 +1,5 @@
 import { followApi } from '@/service/follow';
 import { recordApi } from '@/service/record';
-import { systemNotifyApi } from '@/service/systemNotify';
 import { topicApi } from '@/service/topic';
 import { userSlice, i18nSlice, systemSlice } from '@/store/slice';
 import { configureStore } from '@reduxjs/toolkit';
@@ -13,14 +12,12 @@ const store = configureStore({
     system: systemSlice.reducer,
     [followApi.reducerPath]: followApi.reducer,
     [topicApi.reducerPath]: topicApi.reducer,
-    [systemNotifyApi.reducerPath]: systemNotifyApi.reducer,
     [recordApi.reducerPath]: recordApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       followApi.middleware,
       topicApi.middleware,
-      systemNotifyApi.middleware,
       recordApi.middleware,
     ),
 });
