@@ -15,8 +15,8 @@ importers:
         specifier: ^1.7.1
         version: 1.9.7(react-redux@7.2.9(react-dom@17.0.2(react@17.0.2))(react@17.0.2))(react@17.0.2)
       antd-mobile:
-        specifier: 5.34.0
-        version: 5.34.0(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+        specifier: 5.36.1
+        version: 5.36.1(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       axios:
         specifier: 1.6.0
         version: 1.6.0
@@ -673,10 +673,11 @@ packages:
   antd-mobile-v5-count@1.0.1:
     resolution: {integrity: sha512-YGsiEDCPUDz3SzfXi6gLZn/HpeSMW+jgPc4qiYUr1fSopg3hkUie2TnooJdExgfiETHefH3Ggs58He0OVfegLA==}
 
-  antd-mobile@5.34.0:
-    resolution: {integrity: sha512-GqpynUhBvu5X2xDoqNrEbt7ir3UfXNTLAUluw1WyRqLPO4kxUtEoD2A+vxKXc01657O0k4K4XpfY+THMOJQ5sg==}
+  antd-mobile@5.36.1:
+    resolution: {integrity: sha512-TneFsSc0OV95+lYSA1DzOyDdZZI3bitA071QT71cu+duS7RLMJXoOUPGcDxkCrqPC4ticwkfNx3s6NTdP2d8fQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
 
   any-promise@1.3.0:
     resolution: {integrity: sha512-7UvmKalWRt1wgjL1RrGxoSJW/0QZFIegpeGvZG9kjp8vrRu55XTHbwnqq2GpXm9uLbcuhxm3IqX9OB4MZR1b2A==}
@@ -1005,6 +1006,10 @@ packages:
 
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
+
+  deepmerge@4.3.1:
+    resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
+    engines: {node: '>=0.10.0'}
 
   defaults@1.0.4:
     resolution: {integrity: sha512-eFuaLoy/Rxalv2kr+lqMlUnrDWV+3j4pljOIJgLIhI058IQfWJ7vXhyEIHu+HtC738klGALYxOKDO0bQP3tg8A==}
@@ -1992,6 +1997,9 @@ packages:
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
+  nano-memoize@3.0.16:
+    resolution: {integrity: sha512-JyK96AKVGAwVeMj3MoMhaSXaUNqgMbCRSQB3trUV8tYZfWEzqUBKdK1qJpfuNXgKeHOx1jv/IEYTM659ly7zUA==}
+
   nanoid@3.3.7:
     resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -2240,6 +2248,9 @@ packages:
     resolution: {integrity: sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA==}
     peerDependencies:
       react: 17.0.2
+
+  react-fast-compare@3.2.2:
+    resolution: {integrity: sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==}
 
   react-i18next@11.18.6:
     resolution: {integrity: sha512-yHb2F9BiT0lqoQDt8loZ5gWP331GwctHz9tYQ8A2EIEUu+CcEdjBLQWli1USG3RdWQt3W+jqQLg/d4rrQR96LA==}
@@ -3532,7 +3543,7 @@ snapshots:
 
   antd-mobile-v5-count@1.0.1: {}
 
-  antd-mobile@5.34.0(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
+  antd-mobile@5.36.1(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
     dependencies:
       '@floating-ui/dom': 1.6.3
       '@rc-component/mini-decimal': 1.1.0
@@ -3543,17 +3554,18 @@ snapshots:
       antd-mobile-v5-count: 1.0.1
       classnames: 2.5.1
       dayjs: 1.11.10
-      lodash: 4.17.21
+      deepmerge: 4.3.1
+      nano-memoize: 3.0.16
       rc-field-form: 1.27.4(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       rc-util: 5.38.1(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
+      react-fast-compare: 3.2.2
       react-is: 18.2.0
       runes2: 1.1.4
       staged-components: 1.1.3(react@17.0.2)
       tslib: 2.6.2
       use-sync-external-store: 1.2.0(react@17.0.2)
-    transitivePeerDependencies:
-      - react-dom
 
   any-promise@1.3.0: {}
 
@@ -3930,6 +3942,8 @@ snapshots:
       type-detect: 4.0.8
 
   deep-is@0.1.4: {}
+
+  deepmerge@4.3.1: {}
 
   defaults@1.0.4:
     dependencies:
@@ -5009,6 +5023,8 @@ snapshots:
       object-assign: 4.1.1
       thenify-all: 1.6.0
 
+  nano-memoize@3.0.16: {}
+
   nanoid@3.3.7: {}
 
   natural-compare-lite@1.4.0: {}
@@ -5237,6 +5253,8 @@ snapshots:
       object-assign: 4.1.1
       react: 17.0.2
       scheduler: 0.20.2
+
+  react-fast-compare@3.2.2: {}
 
   react-i18next@11.18.6(i18next@21.10.0)(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
     dependencies:
