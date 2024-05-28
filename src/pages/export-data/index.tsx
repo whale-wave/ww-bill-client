@@ -1,6 +1,6 @@
 import { getRecordApi } from '@/api';
 import { exportRecordData } from '@/utils/exportData';
-import { DatePicker } from 'antd-mobile';
+import { DatePicker, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -21,12 +21,19 @@ const ExportData = () => {
       startDate: startTime,
       endDate: endTime,
     });
+
+    if (res.statusCode !== 200) {
+      return Toast.show(res.message);
+    }
+
     exportRecordData({
       data: res.data.data,
       range: exportTimeRange,
       expend: res.data.expend,
       income: res.data.income,
     });
+
+    Toast.show('导出成功');
   };
 
   const init = () => {

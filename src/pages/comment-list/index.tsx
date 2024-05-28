@@ -1,14 +1,16 @@
 import CommentListItem from '@/pages/comment-list/components';
-import { useGetTopicQuery } from '@/service/topic';
 import { useAppSelector } from '@/store/hooks';
 import { showDate } from '@/utils/time';
 import { NavBar } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
+import { useGetTopicIdCommentQuery } from '@/hooks/useGetTopicIdCommentQuery';
 
 const CommentList = () => {
   const userId = useAppSelector((state) => state.user.userInfo.id);
   const navigate = useNavigate();
-  const { data, isLoading } = useGetTopicQuery(userId);
+  const { data, isLoading } = useGetTopicIdCommentQuery({
+    params: userId + '',
+  });
 
   return (
     <div className="page">
@@ -26,7 +28,7 @@ const CommentList = () => {
         </div>
       ) : (
         <div>
-          {data?.data.data.map((item) => (
+          {data?.data.map((item) => (
             <CommentListItem
               key={item.id}
               coverPicture={item.topic.images?.[0]}
