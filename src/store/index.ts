@@ -1,21 +1,15 @@
-import { topicApi } from '@/service/topic';
 import { userSlice, i18nSlice, systemSlice } from '@/store/slice';
 import { configureStore } from '@reduxjs/toolkit';
-import { setupListeners } from '@reduxjs/toolkit/query';
 
 const store = configureStore({
   reducer: {
     i18n: i18nSlice.reducer,
     user: userSlice.reducer,
     system: systemSlice.reducer,
-    [topicApi.reducerPath]: topicApi.reducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(topicApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
-setupListeners(store.dispatch);
 
 export default store;
