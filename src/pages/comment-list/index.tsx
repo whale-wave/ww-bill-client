@@ -1,15 +1,15 @@
 import CommentListItem from '@/pages/comment-list/components';
-import { useAppSelector } from '@/store/hooks';
 import { showDate } from '@/utils/time';
 import { NavBar } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
 import { useGetTopicIdCommentQuery } from '@/hooks/useGetTopicIdCommentQuery';
+import { useUserStore } from '@/store';
 
 const CommentList = () => {
-  const userId = useAppSelector((state) => state.user.userInfo.id);
+  const { userInfo } = useUserStore(({ userInfo }) => ({ userInfo }));
   const navigate = useNavigate();
   const { data, isLoading } = useGetTopicIdCommentQuery({
-    params: userId + '',
+    params: userInfo!.id + '',
   });
 
   return (

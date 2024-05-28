@@ -35,7 +35,7 @@ export const getUserInfo = () => {
   return request.get<unknown, SuccessResponse<UserInfo>>('/user/userInfo');
 };
 
-export const updateUserInfo = (data: UpdateUserInfo, loading = true) => {
+export const putUserUserInfoApi = (data: UpdateUserInfo, loading = true) => {
   return request.put<unknown, SuccessResponse<any>>('/user/userInfo', data, {
     loading,
   });

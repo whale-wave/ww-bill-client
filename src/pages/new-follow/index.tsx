@@ -1,5 +1,4 @@
 import UserFollowItem from '@/pages/new-follow/components';
-import { useAppSelector } from '@/store/hooks';
 import { showDate } from '@/utils/time';
 import { NavBar } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
@@ -11,9 +10,10 @@ import {
 } from '@/hooks';
 import { Follow, FollowTypeEnum } from '@/api';
 import { useCallback } from 'react';
+import { useUserStore } from '@/store';
 
 const NewFollow = () => {
-  const { id } = useAppSelector((state) => state.user.userInfo);
+  const { userInfo } = useUserStore(({ userInfo }) => ({ userInfo }));
   const navigate = useNavigate();
 
   const onSubmit = useCallback(
@@ -29,7 +29,7 @@ const NewFollow = () => {
 
   const { isLoading, data } = useGetFollowQuery({
     params: {
-      id: id + '',
+      id: userInfo!.id + '',
       params: {
         type: FollowTypeEnum.FANS,
       },

@@ -1,12 +1,11 @@
 import { sign } from '@/api';
 import { Button, NavBar } from 'bw-mobile';
-import { useAppDispatch } from '@/store/hooks';
-import { setToken } from '@/store/slice';
 import classNames from 'classnames';
 import { CSSProperties, ChangeEvent, FC, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.scss';
 import { EmailCaptchaInput, Input } from '@/components';
+import { useUserStore } from '@/store';
 
 const inputStyle = {
   '--prefix-width': '73px',
@@ -18,7 +17,7 @@ const Sign: FC = () => {
     password: '',
     emailCode: '',
   });
-  const dispatch = useAppDispatch();
+  const { setToken } = useUserStore(({ setToken }) => ({ setToken }));
 
   const navigate = useNavigate();
 
@@ -29,7 +28,7 @@ const Sign: FC = () => {
   const handleSign = async () => {
     const { statusCode, data } = await sign(form);
     if (statusCode === 200) {
-      dispatch(setToken(data.token));
+      setToken(data.token);
       setTimeout(() => navigate('/'), 1000);
     }
   };

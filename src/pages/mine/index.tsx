@@ -2,14 +2,13 @@ import { playSound } from '@/modules';
 import { spliceNumberByPoint, zeroFill } from '@/utils/time';
 import { FC, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { BillRecordType, checkInPost, getUserInfo } from '@/api';
 import { TabBar } from '@/components';
 import UserInfo from '@/pages/mine/UserInfo';
-import { setUserInfo } from '@/store/slice';
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.scss';
 import { Icon } from 'bw-mobile';
+import { useUserStore } from '@/store';
 
 const Mine: FC = () => {
   const navigate = useNavigate();
@@ -19,12 +18,13 @@ const Mine: FC = () => {
     checkInKeep: 0,
     recordCount: 0,
   });
-  const { name, token, avatar } = useAppSelector((state) => ({
-    name: state.user.userInfo.name,
-    avatar: state.user.userInfo.avatar,
-    token: state.user.token,
-  }));
-  const dispatch = useAppDispatch();
+  const { userInfo, token, setUserInfo } = useUserStore(
+    ({ userInfo, token, setUserInfo }) => ({
+      userInfo,
+      token,
+      setUserInfo,
+    }),
+  );
 
   useEffect(() => {
     token && void getInfo();
@@ -33,7 +33,7 @@ const Mine: FC = () => {
   const getInfo = async () => {
     const { data, statusCode } = await getUserInfo();
     if (statusCode === 200) {
-      dispatch(setUserInfo(data));
+      setUserInfo(data);
       setNumberInfo({
         checkInAll: data.checkInAll,
         checkInKeep: data.checkInKeep,
@@ -86,8 +86,8 @@ const Mine: FC = () => {
     <div className={classNames('page', styles.wrapper)}>
       <main className="overflow-auto flex flex-col grow">
         <UserInfo
-          name={name}
-          avatar={avatar}
+          name={userInfo?.name}
+          avatar={userInfo?.avatar}
           checkIn={checkIn}
           numberInfo={numberInfo}
           onCheckIn={onCheckIn}
