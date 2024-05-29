@@ -4,6 +4,7 @@ import {
 } from '@/utils/requestProcess';
 import { Toast } from 'antd-mobile';
 import axios from 'axios';
+import { useUserStore } from '@/store';
 
 let host = '';
 if (typeof import.meta.env.VITE_HOST === 'string')
@@ -15,7 +16,7 @@ const request = axios.create({
 });
 
 request.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = useUserStore.getState().token;
   if (token) {
     (
       config.headers as { Authorization: string }

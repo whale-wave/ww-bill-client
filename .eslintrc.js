@@ -27,5 +27,6 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off', // 允许使用any
     'no-prototype-builtins': 'off', // 允许使用原型构造函数
     '@typescript-eslint/no-non-null-assertion': 'off', // 允许使用非空断言
+    '@typescript-eslint/no-empty-interface': 'off', // 允许空接口
   },
 };

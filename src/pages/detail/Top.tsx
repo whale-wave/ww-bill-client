@@ -5,8 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Precision from '@/pages/detail/component';
 import styles from './top.module.scss';
 import { numType } from './index';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setVisibleAmount } from '@/store/slice';
+import { useSystemStore } from '@/store';
 
 type TopProps = {
   change: (val: string) => void;
@@ -15,6 +14,9 @@ type TopProps = {
 
 const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
   const navigate = useNavigate();
+  // TODO: 需要调整为获取指定的字段
+  const { setVisibleAmount, visibleAmount, visibleAmountSwitch } =
+    useSystemStore();
   const tabs = [
     {
       name: '账单',
@@ -32,8 +34,6 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
       click: () => null,
     },
   ];
-  const systemStoreState = useAppSelector((state) => state.system);
-  const dispatch = useAppDispatch();
 
   const [visible1, setVisible1] = useState(false);
   const [yearMoth, setYearMoth] = useState<string[]>([]);
@@ -71,15 +71,15 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
   }, []);
 
   const isVisibleAmount = useMemo(() => {
-    if (!systemStoreState.visibleAmountSwitch) {
+    if (!visibleAmountSwitch) {
       return true;
     }
 
-    return systemStoreState.visibleAmount;
-  }, [systemStoreState.visibleAmount, systemStoreState.visibleAmountSwitch]);
+    return visibleAmount;
+  }, [visibleAmount, visibleAmountSwitch]);
   const onToggleVisibleAmount = useCallback(() => {
-    dispatch(setVisibleAmount(!systemStoreState.visibleAmount));
-  }, [systemStoreState.visibleAmount]);
+    setVisibleAmount(!visibleAmount);
+  }, [visibleAmount]);
 
   return (
     <div className={styles.top}>
@@ -155,16 +155,12 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
           </div>
         </div>
       </div>
-      {systemStoreState.visibleAmountSwitch ? (
+      {visibleAmountSwitch ? (
         <div
           className="right-7 bottom-1/2 absolute text-[24px] px-1"
           onClick={onToggleVisibleAmount}
         >
-          {systemStoreState.visibleAmount ? (
-            <Icon name="eye-close" />
-          ) : (
-            <Icon name="eye" />
-          )}
+          {visibleAmount ? <Icon name="eye-close" /> : <Icon name="eye" />}
         </div>
       ) : null}
       <div

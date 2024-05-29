@@ -6,9 +6,10 @@ import classNames from 'classnames';
 import dayjs from 'dayjs';
 import React, { FC, useCallback } from 'react';
 import styles from './Top.module.scss';
+import { Bill } from '@/api';
 
 type TopProps = {
-  data?: BillItemDto;
+  data?: Bill;
   date: Date;
   setDate: React.Dispatch<React.SetStateAction<Date>>;
 };
