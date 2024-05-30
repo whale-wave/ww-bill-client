@@ -27,6 +27,7 @@ import Bill from '@/pages/bill';
 import NotFound from '@/pages/NotFound';
 import FirstScreen from '@/pages/FirstScreen';
 import { Root } from '@/Root';
+import ForgetPassword from '@/pages/ForgetPassword/ForgetPassword';
 
 export const router = createHashRouter([
   {
@@ -81,6 +82,10 @@ export const router = createHashRouter([
             <Password />
           </LoginGuard>
         ),
+      },
+      {
+        path: 'forget_password',
+        element: <ForgetPassword />,
       },
       {
         path: 'sign',
