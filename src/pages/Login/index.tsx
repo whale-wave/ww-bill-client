@@ -69,7 +69,7 @@ const Login: FC = () => {
 
   const onGoToForgetPassword = useCallback(() => {
     playSound.turnPage();
-    navigate('/forget_password');
+    navigate('/forget-password');
   }, []);
 
   useEffect(() => {
