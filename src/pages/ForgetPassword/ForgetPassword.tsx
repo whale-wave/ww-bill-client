@@ -5,6 +5,7 @@ import { playSound } from '@/modules';
 import { WwInput } from '@/pages/ForgetPassword/components';
 import { Button, Dialog, Toast } from 'antd-mobile';
 import { isEmail } from '@/utils';
+import { getToolsForgetPasswordEmailApi } from '@/api';
 
 const ForgetPassword: FC = () => {
   const navigate = useNavigate();
@@ -33,12 +34,22 @@ const ForgetPassword: FC = () => {
       ),
       onConfirm: async () => {
         Toast.show({ content: '请稍后', position: 'top' });
-        setTimeout(() => {
-          Toast.show({ content: '未注册', position: 'top' });
-        }, 300);
-        setTimeout(() => {
-          onGoTo('/forget-password/verify-code');
-        }, 600);
+
+        const getForgetPasswordEmailCaptchaRes =
+          await getToolsForgetPasswordEmailApi(email);
+
+        if (getForgetPasswordEmailCaptchaRes.statusCode === 200) {
+          Toast.show({
+            content: getForgetPasswordEmailCaptchaRes.message,
+            position: 'top',
+          });
+
+          setTimeout(() => {
+            onGoTo(
+              `/forget-password/verify-code?email=${encodeURIComponent(email)}`,
+            );
+          }, 200);
+        }
       },
     });
   }, [email]);

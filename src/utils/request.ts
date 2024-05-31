@@ -28,6 +28,7 @@ request.interceptors.request.use((config) => {
 
 request.interceptors.response.use(
   (response) => {
+    console.log(response.config, 'config layouwen');
     if (response.config.loading) errorResponseProcess(response.data);
     return response.data;
   },
@@ -37,6 +38,7 @@ request.interceptors.response.use(
       console.error('请求超时');
       return response;
     }
+
     baseResponseProcess(response.data.statusCode);
     if (config.loading) errorResponseProcess(response.data);
     return response.data;

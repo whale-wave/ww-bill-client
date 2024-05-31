@@ -1,4 +1,4 @@
-import { getCaptchaApi, login, loginEmailCaptchaApi } from '@/api';
+import { getToolsCaptchaApi, login, loginEmailCaptchaApi } from '@/api';
 import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
 import { Button } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
@@ -46,7 +46,7 @@ const Login: FC = () => {
 
   const [svgCaption, setSvgCaption] = useState('');
   const getCaptcha = useCallback(async () => {
-    const data = await getCaptchaApi();
+    const data = await getToolsCaptchaApi();
     if (data) {
       setSvgCaption(
         data

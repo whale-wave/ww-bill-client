@@ -1,25 +1,36 @@
 import { FC, useCallback, useState } from 'react';
 import { NavBar } from 'bw-mobile';
-import { useNavigate } from 'react-router-dom';
+import {
+  NavigateOptions,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import { playSound } from '@/modules';
 import { WwInput } from '@/pages/ForgetPassword/components';
 import { Button, Toast } from 'antd-mobile';
+import { postAuthPasswordForgetResetApi } from '@/api';
 
 const ForgetPasswordRest: FC = () => {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [urlSearchParams] = useSearchParams();
+  const email = urlSearchParams.get('email')!;
+  const captcha = urlSearchParams.get('captcha')!;
 
-  const onGoTo = useCallback((v: string | number) => {
-    playSound.turnPage();
-    navigate(v as any);
-  }, []);
+  const onGoTo = useCallback(
+    (v: string | number, options?: NavigateOptions) => {
+      playSound.turnPage();
+      navigate(v as any, options);
+    },
+    [],
+  );
 
   const onGoToBack = useCallback(() => {
     onGoTo(-1);
   }, []);
 
-  const onSend = useCallback(() => {
+  const onSend = useCallback(async () => {
     if (!password || !confirmPassword) {
       Toast.show({ content: '请输入密码', position: 'top' });
       return;
@@ -30,15 +41,33 @@ const ForgetPasswordRest: FC = () => {
       return;
     }
 
-    setTimeout(() => {
-      Toast.show({ content: '请稍后', position: 'top' });
-    }, 300);
+    Toast.show({ content: '请稍后', position: 'top' });
+
+    const postAuthPasswordForgetResetRes = await postAuthPasswordForgetResetApi(
+      {
+        email,
+        captcha,
+        password,
+        confirmPassword,
+      },
+    );
+
+    if (postAuthPasswordForgetResetRes.statusCode !== 200) {
+      if (postAuthPasswordForgetResetRes.message !== '密码必须为8-20位') {
+        setTimeout(() => {
+          onGoTo('/mine', {
+            replace: true,
+          });
+        }, 400);
+      }
+      return;
+    }
+    Toast.show({ content: postAuthPasswordForgetResetRes.message });
 
     setTimeout(() => {
-      Toast.show({ position: 'top', content: '修改成功' });
       navigate('/mine');
-    }, 900);
-  }, [password, confirmPassword]);
+    }, 400);
+  }, [password, confirmPassword, email, captcha]);
 
   return (
     <div className={'page flex flex-col'}>

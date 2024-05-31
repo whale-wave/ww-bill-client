@@ -48,3 +48,45 @@ export const loginEmailCaptchaApi = (email: string, loading = true) => {
     },
   );
 };
+
+interface PostAuthPasswordForgetResetApiData {
+  email: string;
+  captcha: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export function postAuthPasswordForgetResetApi(
+  data: PostAuthPasswordForgetResetApiData,
+) {
+  return request.post<never, SuccessResponse<unknown>>(
+    '/auth/password/forget/reset',
+    data,
+    {
+      loading: true,
+    },
+  );
+}
+
+export const getToolsForgetPasswordEmailApi = (email: string) => {
+  return request.get<unknown, SuccessResponse<unknown>>(
+    '/auth/forget-password-email',
+    {
+      params: { email },
+      loading: true,
+    },
+  );
+};
+
+export const getToolsForgetPasswordEmailVerifyCodeApi = (params: {
+  email: string;
+  captcha: string;
+}) => {
+  return request.get<unknown, SuccessResponse<unknown>>(
+    '/auth/forget-password-email/verify-code',
+    {
+      params,
+      loading: true,
+    },
+  );
+};

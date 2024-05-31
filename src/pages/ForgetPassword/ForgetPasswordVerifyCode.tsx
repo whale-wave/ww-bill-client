@@ -1,22 +1,27 @@
-import { FC, useCallback, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { NavBar } from 'bw-mobile';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { playSound } from '@/modules';
 import { WwInput } from '@/pages/ForgetPassword/components';
 import { Button, Toast } from 'antd-mobile';
 import { WwInputVerifyCode } from '@/pages/ForgetPassword/components/WwInput';
 import { Dayjs } from 'dayjs';
+import {
+  getToolsForgetPasswordEmailApi,
+  getToolsForgetPasswordEmailVerifyCodeApi,
+} from '@/api';
 
 const ForgetPasswordVerifyCode: FC = () => {
   const navigate = useNavigate();
-  const [email] = useState('layouwen@gmail.com');
-  const [verifyCode, setVerifyCode] = useState('');
+  const [captcha, setCaptcha] = useState('');
+  const [urlSearchParams] = useSearchParams();
+  const [email] = useState(urlSearchParams.get('email') || '');
   const [startTime, setStartTime] = useState<Dayjs>();
 
   const isDisabled = useMemo(() => {
-    if (!verifyCode || verifyCode.trim().length < 6) return true;
+    if (!captcha || captcha.trim().length < 6) return true;
     return false;
-  }, [verifyCode]);
+  }, [captcha]);
 
   const onGoTo = useCallback((v: string | number) => {
     playSound.turnPage();
@@ -28,23 +33,45 @@ const ForgetPasswordVerifyCode: FC = () => {
   }, []);
 
   const onSendVerify = useCallback(async () => {
-    // TODO: 请求接口
-    return true;
-  }, [verifyCode]);
+    const getForgetPasswordEmailCaptchaRes =
+      await getToolsForgetPasswordEmailApi(email);
 
-  const onSend = useCallback(() => {
-    setTimeout(() => {
-      Toast.show({ content: '请稍后', position: 'top' });
-    }, 300);
+    if (getForgetPasswordEmailCaptchaRes.statusCode === 200) {
+      Toast.show({
+        content: getForgetPasswordEmailCaptchaRes.message,
+        position: 'top',
+      });
+      return true;
+    }
 
-    setTimeout(() => {
-      Toast.show({ position: 'top', content: '验证码错误!' });
-    }, 600);
+    return false;
+  }, [captcha]);
 
-    setTimeout(() => {
+  const onSend = useCallback(async () => {
+    Toast.show({ content: '请稍后', position: 'top' });
+
+    const getToolsForgetPasswordEmailVerifyCodeRes =
+      await getToolsForgetPasswordEmailVerifyCodeApi({
+        email,
+        captcha,
+      });
+
+    if (getToolsForgetPasswordEmailVerifyCodeRes.statusCode === 200) {
       Toast.show({ position: 'top', content: '验证成功' });
-      navigate('/forget-password/reset');
-    }, 900);
+      setTimeout(() => {
+        navigate(
+          `/forget-password/reset?email=${encodeURIComponent(
+            email,
+          )}&captcha=${encodeURIComponent(captcha)}`,
+        );
+      }, 400);
+    }
+  }, [email, captcha]);
+
+  useEffect(() => {
+    if (!email) {
+      onGoTo('/mine');
+    }
   }, [email]);
 
   return (
@@ -56,8 +83,8 @@ const ForgetPasswordVerifyCode: FC = () => {
         <WwInput value={email} disabled clearable={false} />
         <WwInputVerifyCode
           placeholder={'请输入验证码'}
-          value={verifyCode}
-          onChange={setVerifyCode}
+          value={captcha}
+          onChange={setCaptcha}
           startTime={startTime}
           setStartTime={setStartTime}
           onSend={onSendVerify}
