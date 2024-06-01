@@ -31,7 +31,7 @@ export const errorResponseProcess = (data: {
       : parseInt(data.statusCode);
   const params = {
     content: typeof data.message === 'string' ? data.message : data.message[0],
-    icon: 'success',
+    position: 'top',
     duration: 1000,
   } as { content: string; icon?: string };
   if (statusCode !== 200) delete params.icon;

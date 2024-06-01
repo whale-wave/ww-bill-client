@@ -1,10 +1,11 @@
-import { getCaptchaApi, login, loginEmailCaptchaApi } from '@/api';
+import { getToolsCaptchaApi, login, loginEmailCaptchaApi } from '@/api';
 import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
 import { Button } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
 import { EmailCaptchaInput, Input } from '@/components';
 import styles from './index.module.scss';
 import { useUserStore } from '@/store';
+import { playSound } from '@/modules';
 
 const Login: FC = () => {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const Login: FC = () => {
 
   const [svgCaption, setSvgCaption] = useState('');
   const getCaptcha = useCallback(async () => {
-    const data = await getCaptchaApi();
+    const data = await getToolsCaptchaApi();
     if (data) {
       setSvgCaption(
         data
@@ -65,6 +66,11 @@ const Login: FC = () => {
       setTimeout(() => navigate(-1), 1000);
     }
   }, [userNameForm, emailForm, loginType]);
+
+  const onGoToForgetPassword = useCallback(() => {
+    playSound.turnPage();
+    navigate('/forget-password');
+  }, []);
 
   useEffect(() => {
     void getCaptcha();
@@ -137,7 +143,7 @@ const Login: FC = () => {
           <span onClick={onToggleLoginType}>
             {loginType === 'username' ? '邮箱登录' : '账号密码登录'}
           </span>
-          <span>忘记密码</span>
+          <span onClick={onGoToForgetPassword}>忘记密码</span>
         </div>
         <Button className="mt-[40px]" block onClick={handleLogin}>
           登录

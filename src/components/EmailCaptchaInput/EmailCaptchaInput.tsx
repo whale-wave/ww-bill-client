@@ -1,6 +1,6 @@
 import { FC, useRef, useState } from 'react';
 import { Input, InputProps } from '../Input';
-import { getEmailCaptchaAPi } from '@/api';
+import { getToolsEmailApi } from '@/api';
 
 const WAIT_TIME = 60;
 
@@ -10,7 +10,7 @@ export const EmailCaptchaInput: FC<
     sendEmailApi?: (email: string) => Promise<any>;
   }
 > = (props) => {
-  const sendEmailApi = props.sendEmailApi || getEmailCaptchaAPi;
+  const sendEmailApi = props.sendEmailApi || getToolsEmailApi;
 
   const sendEmailWaitTimeRef = useRef(WAIT_TIME);
   const [sendEmailWaitTime, setSendEmailWaitTime] = useState(WAIT_TIME);
