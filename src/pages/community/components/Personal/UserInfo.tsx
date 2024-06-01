@@ -1,9 +1,9 @@
 import { followUserApi, unfollowUserApi } from '@/api/follow';
-import { useAppSelector } from '@/store/hooks';
 import classNames from 'classnames';
 import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './UserInfo.module.scss';
+import { useUserStore } from '@/store';
 
 interface UserInfoProps {
   data?: {
@@ -25,7 +25,7 @@ const UserInfo: FC<UserInfoProps> = ({
   fansCount,
 }) => {
   const navigate = useNavigate();
-  const userInfo = useAppSelector((state) => state.user.userInfo);
+  const { userInfo } = useUserStore(({ userInfo }) => ({ userInfo }));
   const followUser = async (followId: number) => {
     await followUserApi(followId);
     topicUserInfo();
@@ -58,7 +58,7 @@ const UserInfo: FC<UserInfoProps> = ({
       </div>
       <div className={styles.btn}>
         {data?.id &&
-          data.id !== userInfo.id &&
+          data.id !== userInfo!.id &&
           (isFollow ? (
             <button onClick={() => unFollowUser(data.id)}>已关注</button>
           ) : (

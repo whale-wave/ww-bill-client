@@ -4,28 +4,32 @@ import { useNavigate } from 'react-router-dom';
 import React, { FC, useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { Button, List, Modal, NavBar } from 'bw-mobile';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { logOut, updateUserInfo as updateInfo } from '@/store/slice';
-import { updateUserInfo, uploadFile } from '@/api';
+import { putUserUserInfoApi, uploadFile } from '@/api';
 import styles from './index.module.scss';
+import { useUserStore } from '@/store';
 
 const userInfo: FC = () => {
-  const userData = useAppSelector((state) => state.user.userInfo);
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [modalVisible, setModalVisible] = useState(false);
-  const [name, setName] = useState(userData.name);
+  const { logOut, updateUserInfo, userInfo } = useUserStore(
+    ({ logOut, updateUserInfo, userInfo }) => ({
+      logOut,
+      updateUserInfo,
+      userInfo,
+    }),
+  );
+  const [name, setName] = useState(userInfo!.name);
 
   const toPassword = useCallback(() => navigate('/password'), []);
 
   const handleLogOut = () => {
-    dispatch(logOut());
+    logOut();
     navigate('/detail');
   };
 
   const onCancelModal = () => {
     setModalVisible(false);
-    setName(userData.name);
+    setName(userInfo!.name);
   };
 
   const handleChangeName = () => {
@@ -33,12 +37,12 @@ const userInfo: FC = () => {
   };
 
   const changeName = async () => {
-    const { statusCode } = await updateUserInfo({
+    const { statusCode } = await putUserUserInfoApi({
       name,
-      avatar: userData.avatar,
+      avatar: userInfo!.avatar,
     });
     if (statusCode === 200) {
-      dispatch(updateInfo({ name, avatar: userData.avatar }));
+      updateUserInfo({ name, avatar: userInfo!.avatar });
       setModalVisible(false);
     }
   };
@@ -53,12 +57,12 @@ const userInfo: FC = () => {
       Toast.show({ content: '更新失败', icon: 'fail' });
       return;
     }
-    const { statusCode: status } = await updateUserInfo({
-      name: userData.name,
+    const { statusCode: status } = await putUserUserInfoApi({
+      name: userInfo!.name,
       avatar: data.url,
     });
     if (status === 200) {
-      dispatch(updateInfo({ name: userData.name, avatar: data.url }));
+      updateUserInfo({ name: userInfo!.name, avatar: data.url });
     }
   };
 
@@ -91,21 +95,21 @@ const userInfo: FC = () => {
             >
               <img
                 className="w-full h-full object-cover"
-                src={userData.avatar}
-                alt={userData.name}
+                src={userInfo?.avatar}
+                alt={userInfo?.name}
               />
             </div>
           }
         >
           头像
         </List.Item>
-        <List.Item clickable arrow={false} extra={userData.username}>
+        <List.Item clickable arrow={false} extra={userInfo?.username}>
           账号ID
         </List.Item>
-        <List.Item clickable arrow={false} extra={userData.email}>
+        <List.Item clickable arrow={false} extra={userInfo?.email}>
           邮箱
         </List.Item>
-        <List.Item extra={userData.name} onClick={handleChangeName}>
+        <List.Item extra={userInfo?.name} onClick={handleChangeName}>
           昵称
         </List.Item>
       </List>

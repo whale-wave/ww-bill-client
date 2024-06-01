@@ -42,11 +42,12 @@ const PostTopic: FC = () => {
       } else {
         Toast.show({ content: message?.[0] });
       }
-    } catch ({
-      data: {
-        message: [msg],
-      },
-    }) {
+    } catch (error: any) {
+      const {
+        data: {
+          message: [msg],
+        },
+      } = error;
       console.error(msg);
     }
   };

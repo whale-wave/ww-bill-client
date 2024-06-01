@@ -1,9 +1,8 @@
-import store from '@/store';
-import { logOut } from '@/store/slice';
+import { useUserStore } from '@/store';
 import { Toast } from 'antd-mobile';
 
 const clearTokenToLogin = (msg: string) => {
-  store.dispatch(logOut());
+  useUserStore.getState().logOut();
   Toast.show({ content: msg, icon: 'fail', duration: 1000 });
   setTimeout(() => {
     window.location.hash = '#/login';

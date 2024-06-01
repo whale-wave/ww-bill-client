@@ -1,17 +1,19 @@
 import { useEffect } from 'react';
-import { useAppDispatch } from './store/hooks';
-import { setUserInfo, syncAudioWebData } from './store/slice';
 import { audioWeb } from './modules/playSound';
 import { Outlet } from 'react-router-dom';
+import { useSystemStore, useUserStore } from '@/store';
 
 export const Root = () => {
-  const dispatch = useAppDispatch();
+  const { setUserInfo } = useUserStore(({ setUserInfo }) => ({ setUserInfo }));
+  const { syncAudioWebData } = useSystemStore(({ syncAudioWebData }) => ({
+    syncAudioWebData,
+  }));
   useEffect(() => {
     const userInfo = localStorage.getItem('userInfo');
-    if (userInfo) dispatch(setUserInfo(JSON.parse(userInfo)));
+    if (userInfo) setUserInfo(JSON.parse(userInfo));
 
     audioWeb.loadCache();
-    dispatch(syncAudioWebData());
+    syncAudioWebData();
   }, []);
 
   return <Outlet />;

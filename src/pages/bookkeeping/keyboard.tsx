@@ -1,11 +1,7 @@
-import {
-  useAddRecordMutation,
-  useUpdateRecordMutation,
-} from '@/service/record';
 import dayjs from 'dayjs';
 import { FC, useEffect, useState } from 'react';
 import styles from './keyboard.module.scss';
-import { cateGoryApi } from '@/api';
+import { cateGoryApi, PutRecordApiData } from '@/api';
 import { useNavigate } from 'react-router-dom';
 import CustomRender from '@/pages/bookkeeping/component';
 import classNames from 'classnames';
@@ -14,6 +10,7 @@ import { Icon } from 'bw-mobile';
 import { getShowTime } from '@/utils/DataTime';
 import { stateType } from '@/pages/bookkeeping/index';
 import { recordChildren } from '@/pages/detail/List';
+import { usePostRecordMutation, usePutRecordMutation } from '@/hooks';
 
 type keyType = {
   change: (bool: boolean) => void;
@@ -339,8 +336,8 @@ const keyboard: FC<keyType> = ({
     changePing(str, 3);
   };
 
-  const [addRecord] = useAddRecordMutation();
-  const [updateRecord] = useUpdateRecordMutation();
+  const [postRecordMutate] = usePostRecordMutation();
+  const [putRecordMutate] = usePutRecordMutation();
 
   //完成
   const changeCompleteFn = async () => {
@@ -379,7 +376,7 @@ const keyboard: FC<keyType> = ({
       time: time1,
       type: String(type),
       amount: String(str),
-    };
+    } as PutRecordApiData;
 
     if (stateList[0] !== '') {
       //编辑
@@ -388,13 +385,13 @@ const keyboard: FC<keyType> = ({
       } else {
         data.time = stateList[1];
       }
-      const edit = await updateRecord({
-        params: data,
-        id: Number(stateList[2]),
+      const edit = await putRecordMutate({
+        id: stateList[2] + '',
+        data,
       });
-      if ('data' in edit && edit.data.statusCode === 200) {
+      if (edit.statusCode === 200) {
         // Touch('编辑成功')
-        Toast.show({ content: edit.data.message });
+        Toast.show({ content: edit.message });
         const chunk = Object.assign(state, data);
         chunk.status = true;
         navigate(`/editing/${state.id}`, { state: chunk });
@@ -402,10 +399,10 @@ const keyboard: FC<keyType> = ({
     } else if (stateList[0] === '') {
       //新增
       data.time = time1;
-      const res = await addRecord(data);
-      if ('data' in res && res.data.statusCode === 200) {
+      const res = await postRecordMutate(data);
+      if (res.statusCode === 200) {
         // Touch('创建成功')
-        Toast.show({ content: res.data.message });
+        Toast.show({ content: res.message });
         navigate('/detail');
       }
     }

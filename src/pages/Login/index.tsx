@@ -1,15 +1,19 @@
 import { getCaptchaApi, login, loginEmailCaptchaApi } from '@/api';
-import { useAppDispatch } from '@/store/hooks';
-import { setToken, setUserInfo } from '@/store/slice/userSlice';
 import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
 import { Button } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
 import { EmailCaptchaInput, Input } from '@/components';
 import styles from './index.module.scss';
+import { useUserStore } from '@/store';
 
 const Login: FC = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const { setToken, setUserInfo } = useUserStore(
+    ({ setToken, setUserInfo }) => ({
+      setToken,
+      setUserInfo,
+    }),
+  );
 
   const [userNameForm, setUserNameForm] = useState({
     username: '',
@@ -56,8 +60,8 @@ const Login: FC = () => {
       loginType === 'username' ? userNameForm : emailForm,
     );
     if (statusCode === 200) {
-      dispatch(setToken(data.token));
-      dispatch(setUserInfo(data.userInfo));
+      setToken(data.token);
+      setUserInfo(data.userInfo);
       setTimeout(() => navigate(-1), 1000);
     }
   }, [userNameForm, emailForm, loginType]);
