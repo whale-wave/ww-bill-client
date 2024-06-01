@@ -58,35 +58,42 @@ interface PostAuthPasswordForgetResetApiData {
 
 export function postAuthPasswordForgetResetApi(
   data: PostAuthPasswordForgetResetApiData,
+  loading = false,
 ) {
   return request.post<never, SuccessResponse<unknown>>(
     '/auth/password/forget/reset',
     data,
     {
-      loading: true,
+      loading,
     },
   );
 }
 
-export const getToolsForgetPasswordEmailApi = (email: string) => {
+export const getToolsForgetPasswordEmailApi = (
+  email: string,
+  loading = false,
+) => {
   return request.get<unknown, SuccessResponse<unknown>>(
     '/auth/forget-password-email',
     {
       params: { email },
-      loading: true,
+      loading,
     },
   );
 };
 
-export const getToolsForgetPasswordEmailVerifyCodeApi = (params: {
-  email: string;
-  captcha: string;
-}) => {
+export const getToolsForgetPasswordEmailVerifyCodeApi = (
+  params: {
+    email: string;
+    captcha: string;
+  },
+  loading = false,
+) => {
   return request.get<unknown, SuccessResponse<unknown>>(
     '/auth/forget-password-email/verify-code',
     {
       params,
-      loading: true,
+      loading,
     },
   );
 };

@@ -3,8 +3,8 @@ import { NavBar } from 'bw-mobile';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { playSound } from '@/modules';
 import { WwInput } from '@/pages/ForgetPassword/components';
-import { Button, Toast } from 'antd-mobile';
-import { WwInputVerifyCode } from '@/pages/ForgetPassword/components/WwInput';
+import { Button } from 'antd-mobile';
+import { WwInputVerifyCode } from '@/pages/ForgetPassword/components';
 import { Dayjs } from 'dayjs';
 import {
   getToolsForgetPasswordEmailApi,
@@ -34,35 +34,30 @@ const ForgetPasswordVerifyCode: FC = () => {
 
   const onSendVerify = useCallback(async () => {
     const getForgetPasswordEmailCaptchaRes =
-      await getToolsForgetPasswordEmailApi(email);
+      await getToolsForgetPasswordEmailApi(email, true);
 
-    if (getForgetPasswordEmailCaptchaRes.statusCode === 200) {
-      Toast.show({
-        content: getForgetPasswordEmailCaptchaRes.message,
-        position: 'top',
-      });
-      return true;
-    }
-
-    return false;
+    return getForgetPasswordEmailCaptchaRes.statusCode === 200;
   }, [captcha]);
 
   const onSend = useCallback(async () => {
-    Toast.show({ content: '请稍后', position: 'top' });
-
     const getToolsForgetPasswordEmailVerifyCodeRes =
-      await getToolsForgetPasswordEmailVerifyCodeApi({
-        email,
-        captcha,
-      });
+      await getToolsForgetPasswordEmailVerifyCodeApi(
+        {
+          email,
+          captcha,
+        },
+        true,
+      );
 
     if (getToolsForgetPasswordEmailVerifyCodeRes.statusCode === 200) {
-      Toast.show({ position: 'top', content: '验证成功' });
       setTimeout(() => {
         navigate(
           `/forget-password/reset?email=${encodeURIComponent(
             email,
           )}&captcha=${encodeURIComponent(captcha)}`,
+          {
+            replace: true,
+          },
         );
       }, 400);
     }
@@ -88,6 +83,7 @@ const ForgetPasswordVerifyCode: FC = () => {
           startTime={startTime}
           setStartTime={setStartTime}
           onSend={onSendVerify}
+          autoCountdown={true}
         />
         <Button
           block

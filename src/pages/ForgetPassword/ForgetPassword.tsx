@@ -33,17 +33,10 @@ const ForgetPassword: FC = () => {
         </div>
       ),
       onConfirm: async () => {
-        Toast.show({ content: '请稍后', position: 'top' });
-
         const getForgetPasswordEmailCaptchaRes =
-          await getToolsForgetPasswordEmailApi(email);
+          await getToolsForgetPasswordEmailApi(email, true);
 
         if (getForgetPasswordEmailCaptchaRes.statusCode === 200) {
-          Toast.show({
-            content: getForgetPasswordEmailCaptchaRes.message,
-            position: 'top',
-          });
-
           setTimeout(() => {
             onGoTo(
               `/forget-password/verify-code?email=${encodeURIComponent(email)}`,

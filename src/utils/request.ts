@@ -28,7 +28,6 @@ request.interceptors.request.use((config) => {
 
 request.interceptors.response.use(
   (response) => {
-    console.log(response.config, 'config layouwen');
     if (response.config.loading) errorResponseProcess(response.data);
     return response.data;
   },
@@ -49,9 +48,9 @@ export default request;
 
 const loading = () => {
   Toast.show({
-    icon: 'loading',
-    content: '加载中',
+    content: '请稍后...',
     maskClickable: false,
+    position: 'top',
     duration: 0,
   });
 };

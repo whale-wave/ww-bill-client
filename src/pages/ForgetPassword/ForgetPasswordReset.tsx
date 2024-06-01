@@ -41,8 +41,6 @@ const ForgetPasswordRest: FC = () => {
       return;
     }
 
-    Toast.show({ content: '请稍后', position: 'top' });
-
     const postAuthPasswordForgetResetRes = await postAuthPasswordForgetResetApi(
       {
         email,
@@ -50,23 +48,23 @@ const ForgetPasswordRest: FC = () => {
         password,
         confirmPassword,
       },
+      true,
     );
 
-    if (postAuthPasswordForgetResetRes.statusCode !== 200) {
-      if (postAuthPasswordForgetResetRes.message !== '密码必须为8-20位') {
-        setTimeout(() => {
-          onGoTo('/mine', {
-            replace: true,
-          });
-        }, 400);
-      }
+    if (postAuthPasswordForgetResetRes.statusCode === 4005) {
+      setTimeout(() => {
+        onGoTo('/forget-password', {
+          replace: true,
+        });
+      }, 400);
       return;
+    } else if (postAuthPasswordForgetResetRes.statusCode === 200) {
+      setTimeout(() => {
+        navigate('/mine', {
+          replace: true,
+        });
+      }, 400);
     }
-    Toast.show({ content: postAuthPasswordForgetResetRes.message });
-
-    setTimeout(() => {
-      navigate('/mine');
-    }, 400);
   }, [password, confirmPassword, email, captcha]);
 
   return (
