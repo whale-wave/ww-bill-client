@@ -3,10 +3,11 @@ import { Icon } from 'bw-mobile';
 import classNames from 'classnames';
 import { FC } from 'react';
 import styles from './Content.module.scss';
+import { Bill } from '@/api';
 
 type DataItem = {
   month: string;
-} & BillItemDto;
+} & Bill;
 
 type ContentProps = {
   data: DataItem[];

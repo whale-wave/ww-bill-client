@@ -1,6 +1,6 @@
-import { getRecord } from '@/api';
+import { getRecordApi } from '@/api';
 import { exportRecordData } from '@/utils/exportData';
-import { DatePicker } from 'antd-mobile';
+import { DatePicker, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,18 +10,30 @@ import styles from './index.module.scss';
 const ExportData = () => {
   const navigate = useNavigate();
 
+  const [exportTimeRange, setExportTimeRange] = useState({
+    startTime: '',
+    endTime: '',
+  });
+
   const handleExportData = async () => {
     const { startTime, endTime } = exportTimeRange;
-    const res = await getRecord({
+    const res = await getRecordApi({
       startDate: startTime,
       endDate: endTime,
     });
+
+    if (res.statusCode !== 200) {
+      return Toast.show(res.message);
+    }
+
     exportRecordData({
       data: res.data.data,
       range: exportTimeRange,
       expend: res.data.expend,
       income: res.data.income,
     });
+
+    Toast.show('导出成功');
   };
 
   const init = () => {
@@ -29,15 +41,6 @@ const ExportData = () => {
     const startTime = dayjs().subtract(1, 'month').format('YYYY-MM-DD');
     setExportTimeRange({ startTime, endTime });
   };
-
-  useEffect(() => {
-    init();
-  }, []);
-
-  const [exportTimeRange, setExportTimeRange] = useState({
-    startTime: '',
-    endTime: '',
-  });
 
   const handleChangeTime = async (type: ChangeType) => {
     const max = new Date();
@@ -68,6 +71,10 @@ const ExportData = () => {
         break;
     }
   };
+
+  useEffect(() => {
+    init();
+  }, []);
 
   return (
     <div className="page">

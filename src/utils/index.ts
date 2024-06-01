@@ -1,7 +1,3 @@
-export { default as request } from './request';
-export * from './component';
-export * from './system';
-
 export const downloadCanvas = (
   canvas: HTMLCanvasElement,
   fileName = '蓝鲸账本',
@@ -11,3 +7,15 @@ export const downloadCanvas = (
   a.download = fileName;
   a.click();
 };
+
+export function isSuccessApi<T extends SuccessResponse<any>>(
+  response?: T,
+): response is T {
+  return response?.statusCode === 200;
+}
+
+export * from './component';
+export * from './system';
+export * from './regular';
+
+export { default as request } from './request';

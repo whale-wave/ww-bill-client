@@ -1,19 +1,21 @@
 import CommentListItem from '@/pages/comment-list/components';
-import { useGetSystemNotifyQuery } from '@/service/systemNotify';
 import { showDate } from '@/utils/time';
 import { NavBar } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
+import { useGetSystemNotifyQuery } from '@/hooks';
 
 const SystemNotify = () => {
   const navigate = useNavigate();
   const { data, isLoading } = useGetSystemNotifyQuery();
+
   if (isLoading) return <div>loading...</div>;
+
   return (
     <div>
       <NavBar back="返回" onBack={() => navigate(-1)}>
         系统通知
       </NavBar>
-      {data!.data.map((i) => {
+      {data.map((i: any) => {
         return (
           <CommentListItem
             key={i.id}

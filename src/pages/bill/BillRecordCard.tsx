@@ -1,6 +1,7 @@
 import { Card } from 'antd-mobile';
 import { FC } from 'react';
 import { mergerProps } from '@/utils';
+import { Bill } from '@/api';
 
 const defaultProps = {
   data: {
@@ -10,7 +11,7 @@ const defaultProps = {
   },
 };
 
-export const BillRecordCard: FC<{ data?: BillItemDto }> = (p) => {
+export const BillRecordCard: FC<{ data?: Bill }> = (p) => {
   const { data } = mergerProps({ ...defaultProps }, p);
   return (
     <Card className={'bg-primary py-2 mb-2'} bodyClassName={'space-y-1 px-2'}>

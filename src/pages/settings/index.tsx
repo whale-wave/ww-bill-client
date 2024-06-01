@@ -1,21 +1,24 @@
 import { playSound } from '@/modules';
 import { audioWeb } from '@/modules/playSound';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  clearStorage,
-  closePlay,
-  openPlay,
-  setStorageSize,
-  toggleVisibleAmountSwitch,
-} from '@/store/slice';
 import { Toast } from 'antd-mobile';
 import { List, NavBar, Gap, Switch, Icon } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.scss';
+import { useSystemStore } from '@/store';
 
 const Settings = () => {
-  const systemStoreState = useAppSelector((state) => state.system);
-  const dispatch = useAppDispatch();
+  // TODO: 需要调整为获取指定的字段
+  const {
+    visibleAmountSwitch,
+    openPlay,
+    toggleVisibleAmountSwitch,
+    hasAudioCache,
+    closePlay,
+    setStorageSize,
+    localStorageSize,
+    canPlay,
+    clearStorage,
+  } = useSystemStore();
   const navigate = useNavigate();
   const handleBack = () => {
     playSound.turnPage();
@@ -24,28 +27,28 @@ const Settings = () => {
 
   const onToggleVisibleAmountSwitch = () => {
     playSound.click();
-    dispatch(toggleVisibleAmountSwitch());
+    toggleVisibleAmountSwitch();
   };
 
   const handleSoundSwitch = (val: boolean) => {
     if (val) {
-      if (systemStoreState.hasAudioCache) {
+      if (hasAudioCache) {
         audioWeb.loadCache();
       } else {
         void audioWeb.download();
       }
-      dispatch(openPlay());
+      openPlay();
     } else {
-      dispatch(closePlay());
+      closePlay();
     }
     setTimeout(() => {
-      dispatch(setStorageSize());
+      setStorageSize();
     }, 100);
     playSound.click();
   };
 
   const clearCache = () => {
-    dispatch(clearStorage());
+    clearStorage();
     Toast.show('清除成功');
   };
 
@@ -71,7 +74,7 @@ const Settings = () => {
       path: '',
       arrow: (
         <Switch
-          checked={systemStoreState.visibleAmountSwitch}
+          checked={visibleAmountSwitch}
           onChange={onToggleVisibleAmountSwitch}
         />
       ),
@@ -79,12 +82,7 @@ const Settings = () => {
     {
       title: '声音开关',
       path: '',
-      arrow: (
-        <Switch
-          checked={systemStoreState.canPlay}
-          onChange={handleSoundSwitch}
-        />
-      ),
+      arrow: <Switch checked={canPlay} onChange={handleSoundSwitch} />,
     },
   ];
   const groupFour = [
@@ -94,7 +92,7 @@ const Settings = () => {
       onClick: clearCache,
       arrow: (
         <div>
-          <span>{systemStoreState.localStorageSize}</span> <Icon name="right" />
+          <span>{localStorageSize}</span> <Icon name="right" />
         </div>
       ),
     },
@@ -118,6 +116,7 @@ const Settings = () => {
 
   const goTo = (path: string) => {
     if (!path) return;
+    playSound.turnPage();
     navigate(path);
   };
 

@@ -72,3 +72,35 @@ export const topicLike = (topicId: number) => {
 export const topicUserInfoApi = (userId: string) => {
   return request.get<unknown, SuccessResponse<any>>(`/topic/user/${userId}`);
 };
+
+export interface Comment {
+  id: number;
+  content: string;
+  topic: {
+    id: string;
+    images: string[];
+    createdAt: string;
+    updatedAt: string;
+  };
+  user: {
+    id: string;
+    avatar: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetTopicIdCommentApiResponseData {
+  data: Comment[];
+  total: number;
+}
+
+export function getTopicIdCommentApi(id: string) {
+  return request.get<
+    unknown,
+    SuccessResponse<GetTopicIdCommentApiResponseData>
+  >(`/topic/${id}/comment`);
+}

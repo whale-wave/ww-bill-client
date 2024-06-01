@@ -1,35 +1,43 @@
 import UserFollowItem from '@/pages/new-follow/components';
-import {
-  useDeleteFollowMutation,
-  useGetFollowsQuery,
-  usePostFollowMutation,
-} from '@/service/follow';
-import { useAppSelector } from '@/store/hooks';
 import { showDate } from '@/utils/time';
 import { NavBar } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.scss';
+import {
+  useDeleteFollowMutation,
+  useGetFollowQuery,
+  usePostFollowMutation,
+} from '@/hooks';
+import { Follow, FollowTypeEnum } from '@/api';
+import { useCallback } from 'react';
+import { useUserStore } from '@/store';
 
 const NewFollow = () => {
-  const { id } = useAppSelector((state) => state.user.userInfo);
+  const { userInfo } = useUserStore(({ userInfo }) => ({ userInfo }));
   const navigate = useNavigate();
 
-  const handleDeleteFollow = async (id: number) => {
-    const result = await deleteFollow(id + '');
-    'data' in result && result.data.statusCode === 200 && refetch();
-  };
-  const handlePostFollow = async (id: number) => {
-    const result = await postFollow(id + '');
-    'data' in result && result.data.statusCode === 200 && refetch();
-  };
+  const onSubmit = useCallback(
+    (follow: Follow) => async () => {
+      if (follow.isFollow) {
+        await deleteFollowMutate(follow.userId + '');
+      } else {
+        await postFollowMutate(follow.userId + '');
+      }
+    },
+    [],
+  );
 
-  const { isLoading, data, refetch } = useGetFollowsQuery({
-    id: id + '',
-    type: 'fans',
+  const { isLoading, data } = useGetFollowQuery({
+    params: {
+      id: userInfo!.id + '',
+      params: {
+        type: FollowTypeEnum.FANS,
+      },
+    },
   });
+  const [deleteFollowMutate] = useDeleteFollowMutation();
+  const [postFollowMutate] = usePostFollowMutation();
 
-  const [deleteFollow] = useDeleteFollowMutation<{ data: string }>();
-  const [postFollow] = usePostFollowMutation();
   return (
     <div className="page">
       <NavBar className={styles['nav-bar']} onBack={() => navigate(-1)}>
@@ -39,7 +47,7 @@ const NewFollow = () => {
         '加载中'
       ) : (
         <div>
-          {data?.data.data.map((i) => (
+          {data?.data.map((i) => (
             <UserFollowItem
               key={i.id}
               username={i.name}
@@ -47,13 +55,7 @@ const NewFollow = () => {
               isFollow={i.isFollow}
               followTime={showDate(i.createdAt)}
               onClick={() => navigate(`/community/personal/${i.userId}`)}
-              onSubmit={async () => {
-                if (i.isFollow) {
-                  await handleDeleteFollow(i.userId);
-                } else {
-                  await handlePostFollow(i.userId);
-                }
-              }}
+              onSubmit={onSubmit(i)}
             />
           ))}
         </div>
