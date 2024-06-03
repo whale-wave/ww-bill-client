@@ -2,7 +2,7 @@ import { playSound } from '@/modules';
 import { spliceNumberByPoint, zeroFill } from '@/utils/time';
 import { FC, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { BillRecordType, checkInPost, getUserInfo } from '@/api';
+import { BillRecordType, checkInPost, getUserUserInfoApi } from '@/api';
 import { TabBar } from '@/components';
 import UserInfo from '@/pages/mine/UserInfo';
 import { useNavigate } from 'react-router-dom';
@@ -31,7 +31,7 @@ const Mine: FC = () => {
   }, []);
 
   const getInfo = async () => {
-    const { data, statusCode } = await getUserInfo();
+    const { data, statusCode } = await getUserUserInfoApi();
     if (statusCode === 200) {
       setUserInfo(data);
       setNumberInfo({
