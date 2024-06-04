@@ -1,21 +1,14 @@
 import request from '@/utils/request';
 
-// export type iconObj = {
-//   createdAt: string;
-//   icon: string;
-//   id: number;
-//   name: string;
-//   updatedAt: string;
-// };
-//
-// export type iconType = {
-//   count: number;
-//   data: iconObj[];
-// };
+export interface GetChartParams {
+  type: string;
+  category: string;
+  categoryId?: string;
+}
 
 // export type CategoryAmountType = 'add' | 'sub';
 
-export const chartListApi = (data: any) => {
+export const getChartApi = (data: GetChartParams) => {
   return request.get<unknown, SuccessResponse<any>>(`/chart`, {
     params: {
       ...data,

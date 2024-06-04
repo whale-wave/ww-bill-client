@@ -21,7 +21,7 @@
     "ant-design-mobile-chart": "^1.2.2",
     "@tanstack/react-query": "4.36.1",
     "antd-mobile": "^5.33.0-rc.17",
-    "axios": "^0.24.0",
+    "axios": "1.6.0",
     "bw-mobile": "^0.0.7",
     "dayjs": "^1.10.7",
     "html2canvas": "^1.4.1",

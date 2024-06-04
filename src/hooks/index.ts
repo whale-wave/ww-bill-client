@@ -6,3 +6,4 @@ export * from './usePostFollowMutation';
 export * from './usePutRecordMutation';
 export * from './usePostRecordMutation';
 export * from './useDeleteRecordMutation';
+export * from './useGetChartQuery';

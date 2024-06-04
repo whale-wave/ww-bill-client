@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 import styles from './list.module.scss';
 // import { DemoBlock } from '@/components/demos/demo-block';
 import { ProgressBar, Space } from 'antd-mobile';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 // import {Icon} from "bw-mobile";
 
 const List: FC = () => {
@@ -57,11 +57,11 @@ const List: FC = () => {
     },
   ]);
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const detailsChange = () => {
     console.log('11');
-    navigate('/ChartDetails');
+    // navigate('/ChartDetails');
   };
 
   return (
