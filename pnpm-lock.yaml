@@ -1,13 +1,13 @@
 lockfileVersion: '6.0'
 
 settings:
-  autoInstallPeers: false
+  autoInstallPeers: true
   excludeLinksFromLockfile: false
 
 dependencies:
   '@ant-design/charts':
     specifier: ^1.4.2
-    version: 1.4.3(@ant-design/icons@4.8.1)(antd@4.24.16)(classnames@2.5.1)(react-dom@17.0.2)(react@17.0.2)
+    version: 1.4.3(@ant-design/icons@4.8.1)(antd@4.24.16)(classnames@2.5.1)(lodash@4.17.21)(react-dom@17.0.2)(react@17.0.2)(reflect-metadata@0.1.14)
   '@ant-design/icons':
     specifier: ^4.6.0
     version: 4.8.1(react-dom@17.0.2)(react@17.0.2)
@@ -173,7 +173,7 @@ packages:
       '@jridgewell/trace-mapping': 0.3.22
     dev: true
 
-  /@ant-design/charts@1.4.3(@ant-design/icons@4.8.1)(antd@4.24.16)(classnames@2.5.1)(react-dom@17.0.2)(react@17.0.2):
+  /@ant-design/charts@1.4.3(@ant-design/icons@4.8.1)(antd@4.24.16)(classnames@2.5.1)(lodash@4.17.21)(react-dom@17.0.2)(react@17.0.2)(reflect-metadata@0.1.14):
     resolution: {integrity: sha512-Y0CJYtug+2Bjl2zvuehE39sxBITxWI49VnLl/O7olD+bwkXeY2QEDjB457dBIn+XIHizCWyWBW+wDIECvfFahw==}
     peerDependencies:
       '@ant-design/icons': ^4.6.0
@@ -182,16 +182,18 @@ packages:
       react: '>=16.8.4'
       react-dom: '>=16.8.4'
     dependencies:
-      '@ant-design/flowchart': 1.2.2(@ant-design/icons@4.8.1)(antd@4.24.16)(classnames@2.5.1)(react-dom@17.0.2)(react@17.0.2)
+      '@ant-design/flowchart': 1.2.2(@ant-design/icons@4.8.1)(antd@4.24.16)(classnames@2.5.1)(lodash@4.17.21)(react-dom@17.0.2)(react@17.0.2)(reflect-metadata@0.1.14)
       '@ant-design/graphs': 1.4.1(react-dom@17.0.2)(react@17.0.2)
       '@ant-design/icons': 4.8.1(react-dom@17.0.2)(react@17.0.2)
       '@ant-design/maps': 1.0.8(react-dom@17.0.2)(react@17.0.2)
       '@ant-design/plots': 1.2.6(react-dom@17.0.2)(react@17.0.2)
       antd: 4.24.16(react-dom@17.0.2)(react@17.0.2)
+      lodash: 4.17.21
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
     transitivePeerDependencies:
       - classnames
+      - reflect-metadata
     dev: false
 
   /@ant-design/colors@4.0.5:
@@ -206,7 +208,7 @@ packages:
       '@ctrl/tinycolor': 3.6.1
     dev: false
 
-  /@ant-design/flowchart@1.2.2(@ant-design/icons@4.8.1)(antd@4.24.16)(classnames@2.5.1)(react-dom@17.0.2)(react@17.0.2):
+  /@ant-design/flowchart@1.2.2(@ant-design/icons@4.8.1)(antd@4.24.16)(classnames@2.5.1)(lodash@4.17.21)(react-dom@17.0.2)(react@17.0.2)(reflect-metadata@0.1.14):
     resolution: {integrity: sha512-bzHZ81qqHjWIrXcCMInDB6eMTzbswaVCOAdUTCQJ+B45aybkVsU9LMCKquyOwRM7U7PWNfPC9S/lAlx2i2BvBQ==}
     peerDependencies:
       '@ant-design/icons': ^4.6.0
@@ -220,14 +222,16 @@ packages:
       '@antv/x6': 1.35.0
       '@antv/x6-react-components': 1.1.20(antd@4.24.16)(react-dom@17.0.2)(react@17.0.2)
       '@antv/x6-react-shape': 1.6.5(@antv/x6@1.35.0)(react-dom@17.0.2)(react@17.0.2)
-      '@antv/xflow': 1.1.52(@ant-design/icons@4.8.1)(antd@4.24.16)(classnames@2.5.1)(react-dom@17.0.2)(react@17.0.2)
+      '@antv/xflow': 1.1.52(@ant-design/icons@4.8.1)(antd@4.24.16)(classnames@2.5.1)(lodash@4.17.21)(react-dom@17.0.2)(react@17.0.2)(reflect-metadata@0.1.14)
       antd: 4.24.16(react-dom@17.0.2)(react@17.0.2)
+      lodash: 4.17.21
       react: 17.0.2
       react-color: 2.17.3(react@17.0.2)
       react-dom: 17.0.2(react@17.0.2)
       react-use: 17.3.1(react-dom@17.0.2)(react@17.0.2)
     transitivePeerDependencies:
       - classnames
+      - reflect-metadata
     dev: false
 
   /@ant-design/graphs@1.4.1(react-dom@17.0.2)(react@17.0.2):
@@ -983,7 +987,7 @@ packages:
       utility-types: 3.11.0
     dev: false
 
-  /@antv/xflow-core@1.1.52(@ant-design/icons@4.8.1)(@antv/x6-react-components@1.1.20)(@antv/x6-react-shape@1.6.5)(@antv/x6@1.35.0)(antd@4.24.16)(react-dom@17.0.2)(react@17.0.2):
+  /@antv/xflow-core@1.1.52(@ant-design/icons@4.8.1)(@antv/x6-react-components@1.1.20)(@antv/x6-react-shape@1.6.5)(@antv/x6@1.35.0)(antd@4.24.16)(lodash@4.17.21)(react-dom@17.0.2)(react@17.0.2):
     resolution: {integrity: sha512-62CZeOLMXvDpKOqbq/8zoDt7MUjOkGh9dKBDbxL744UgZCN5Fx4SE+qRhK5purGixTq35XzZ+b9G5wdAX4rLjw==}
     peerDependencies:
       '@ant-design/icons': ^4.6.0
@@ -1003,6 +1007,7 @@ packages:
       antd: 4.24.16(react-dom@17.0.2)(react@17.0.2)
       classnames: 2.5.1
       immer: 9.0.21
+      lodash: 4.17.21
       mana-common: 0.3.2
       mana-syringe: 0.2.2
       react: 17.0.2
@@ -1011,7 +1016,7 @@ packages:
       rxjs: 6.6.7
     dev: false
 
-  /@antv/xflow-extension@1.1.52(@ant-design/icons@4.8.1)(@antv/x6-react-components@1.1.20)(@antv/x6-react-shape@1.6.5)(@antv/x6@1.35.0)(antd@4.24.16)(classnames@2.5.1)(react-dom@17.0.2)(react@17.0.2):
+  /@antv/xflow-extension@1.1.52(@ant-design/icons@4.8.1)(@antv/x6-react-components@1.1.20)(@antv/x6-react-shape@1.6.5)(@antv/x6@1.35.0)(antd@4.24.16)(classnames@2.5.1)(lodash@4.17.21)(react-dom@17.0.2)(react@17.0.2)(reflect-metadata@0.1.14):
     resolution: {integrity: sha512-pPpx00xwucAkl5+QyxxWiOaRpKGnu0Z1+IDUEYuDvEKxms7+Ml0nDc4+CnDi1e1wr4hB3QgxgLOb0JpUTgBCfg==}
     peerDependencies:
       '@ant-design/icons': ^4.6.0
@@ -1022,12 +1027,13 @@ packages:
       classnames: ^2.2.6
       react: ^16.8.0  || ^17.0.0
       react-dom: ^16.8.0  || ^17.0.0
+      reflect-metadata: ^0.1.13
     dependencies:
       '@ant-design/icons': 4.8.1(react-dom@17.0.2)(react@17.0.2)
       '@antv/x6': 1.35.0
       '@antv/x6-react-components': 1.1.20(antd@4.24.16)(react-dom@17.0.2)(react@17.0.2)
       '@antv/x6-react-shape': 1.6.5(@antv/x6@1.35.0)(react-dom@17.0.2)(react@17.0.2)
-      '@antv/xflow-core': 1.1.52(@ant-design/icons@4.8.1)(@antv/x6-react-components@1.1.20)(@antv/x6-react-shape@1.6.5)(@antv/x6@1.35.0)(antd@4.24.16)(react-dom@17.0.2)(react@17.0.2)
+      '@antv/xflow-core': 1.1.52(@ant-design/icons@4.8.1)(@antv/x6-react-components@1.1.20)(@antv/x6-react-shape@1.6.5)(@antv/x6@1.35.0)(antd@4.24.16)(lodash@4.17.21)(react-dom@17.0.2)(react@17.0.2)
       '@antv/xflow-hook': 1.0.52
       antd: 4.24.16(react-dom@17.0.2)(react@17.0.2)
       classnames: 2.5.1
@@ -1054,7 +1060,7 @@ packages:
       toposort: 2.0.2
     dev: false
 
-  /@antv/xflow@1.1.52(@ant-design/icons@4.8.1)(antd@4.24.16)(classnames@2.5.1)(react-dom@17.0.2)(react@17.0.2):
+  /@antv/xflow@1.1.52(@ant-design/icons@4.8.1)(antd@4.24.16)(classnames@2.5.1)(lodash@4.17.21)(react-dom@17.0.2)(react@17.0.2)(reflect-metadata@0.1.14):
     resolution: {integrity: sha512-B2IApV4vG2DmMubbfXGjE+oKi2eXvPuijdHhbxwQheIWcm+VtVQscaFvwUexb4CHH5tBSnjtUeKrhRIkXop70w==}
     peerDependencies:
       '@ant-design/icons': ^4.6.0
@@ -1068,14 +1074,16 @@ packages:
       '@antv/x6': 1.35.0
       '@antv/x6-react-components': 1.1.20(antd@4.24.16)(react-dom@17.0.2)(react@17.0.2)
       '@antv/x6-react-shape': 1.6.5(@antv/x6@1.35.0)(react-dom@17.0.2)(react@17.0.2)
-      '@antv/xflow-core': 1.1.52(@ant-design/icons@4.8.1)(@antv/x6-react-components@1.1.20)(@antv/x6-react-shape@1.6.5)(@antv/x6@1.35.0)(antd@4.24.16)(react-dom@17.0.2)(react@17.0.2)
-      '@antv/xflow-extension': 1.1.52(@ant-design/icons@4.8.1)(@antv/x6-react-components@1.1.20)(@antv/x6-react-shape@1.6.5)(@antv/x6@1.35.0)(antd@4.24.16)(classnames@2.5.1)(react-dom@17.0.2)(react@17.0.2)
+      '@antv/xflow-core': 1.1.52(@ant-design/icons@4.8.1)(@antv/x6-react-components@1.1.20)(@antv/x6-react-shape@1.6.5)(@antv/x6@1.35.0)(antd@4.24.16)(lodash@4.17.21)(react-dom@17.0.2)(react@17.0.2)
+      '@antv/xflow-extension': 1.1.52(@ant-design/icons@4.8.1)(@antv/x6-react-components@1.1.20)(@antv/x6-react-shape@1.6.5)(@antv/x6@1.35.0)(antd@4.24.16)(classnames@2.5.1)(lodash@4.17.21)(react-dom@17.0.2)(react@17.0.2)(reflect-metadata@0.1.14)
       '@antv/xflow-hook': 1.1.52
       antd: 4.24.16(react-dom@17.0.2)(react@17.0.2)
+      lodash: 4.17.21
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
     transitivePeerDependencies:
       - classnames
+      - reflect-metadata
     dev: false
 
   /@babel/code-frame@7.23.5:
@@ -1106,7 +1114,7 @@ packages:
       '@babel/traverse': 7.23.9
       '@babel/types': 7.23.9
       convert-source-map: 2.0.0
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@9.4.0)
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -1328,7 +1336,7 @@ packages:
       '@babel/helper-split-export-declaration': 7.22.6
       '@babel/parser': 7.23.9
       '@babel/types': 7.23.9
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@9.4.0)
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -1449,7 +1457,7 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
       ajv: 6.12.6
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@9.4.0)
       espree: 9.6.1
       globals: 13.24.0
       ignore: 5.3.1
@@ -1488,7 +1496,7 @@ packages:
     engines: {node: '>=10.10.0'}
     dependencies:
       '@humanwhocodes/object-schema': 2.0.2
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@9.4.0)
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -1965,7 +1973,7 @@ packages:
       '@typescript-eslint/scope-manager': 5.62.0
       '@typescript-eslint/type-utils': 5.62.0(eslint@8.56.0)(typescript@5.2.2)
       '@typescript-eslint/utils': 5.62.0(eslint@8.56.0)(typescript@5.2.2)
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@9.4.0)
       eslint: 8.56.0
       graphemer: 1.4.0
       ignore: 5.3.1
@@ -2003,7 +2011,7 @@ packages:
       '@typescript-eslint/scope-manager': 5.62.0
       '@typescript-eslint/types': 5.62.0
       '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.2.2)
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@9.4.0)
       eslint: 8.56.0
       typescript: 5.2.2
     transitivePeerDependencies:
@@ -2030,7 +2038,7 @@ packages:
     dependencies:
       '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.2.2)
       '@typescript-eslint/utils': 5.62.0(eslint@8.56.0)(typescript@5.2.2)
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@9.4.0)
       eslint: 8.56.0
       tsutils: 3.21.0(typescript@5.2.2)
       typescript: 5.2.2
@@ -2054,7 +2062,7 @@ packages:
     dependencies:
       '@typescript-eslint/types': 5.62.0
       '@typescript-eslint/visitor-keys': 5.62.0
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@9.4.0)
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.6.0
@@ -2193,7 +2201,7 @@ packages:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
     dependencies:
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@9.4.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -2922,27 +2930,6 @@ packages:
     engines: {node: ^12.20.0 || >=14}
     dev: true
 
-  /commitizen@4.3.0:
-    resolution: {integrity: sha512-H0iNtClNEhT0fotHvGV3E9tDejDeS04sN1veIebsKYGMuGscFaswRoYJKmT3eW85eIJAs0F28bG2+a/9wCOfPw==}
-    engines: {node: '>= 12'}
-    hasBin: true
-    dependencies:
-      cachedir: 2.3.0
-      cz-conventional-changelog: 3.3.0(@types/node@20.11.19)(typescript@5.2.2)
-      dedent: 0.7.0
-      detect-indent: 6.1.0
-      find-node-modules: 2.1.3
-      find-root: 1.1.0
-      fs-extra: 9.1.0
-      glob: 7.2.3
-      inquirer: 8.2.5
-      is-utf8: 0.2.1
-      lodash: 4.17.21
-      minimist: 1.2.7
-      strip-bom: 4.0.0
-      strip-json-comments: 3.1.1
-    dev: true
-
   /commitizen@4.3.0(@types/node@20.11.19)(typescript@5.2.2):
     resolution: {integrity: sha512-H0iNtClNEhT0fotHvGV3E9tDejDeS04sN1veIebsKYGMuGscFaswRoYJKmT3eW85eIJAs0F28bG2+a/9wCOfPw==}
     engines: {node: '>= 12'}
@@ -3094,7 +3081,7 @@ packages:
     engines: {node: '>= 10'}
     dependencies:
       chalk: 2.4.2
-      commitizen: 4.3.0
+      commitizen: 4.3.0(@types/node@20.11.19)(typescript@5.2.2)
       conventional-commit-types: 3.0.0
       lodash.map: 4.6.0
       longest: 2.0.1
@@ -3251,18 +3238,6 @@ packages:
   /dayjs@1.11.10:
     resolution: {integrity: sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==}
     dev: false
-
-  /debug@4.3.4:
-    resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
-    engines: {node: '>=6.0'}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-    dependencies:
-      ms: 2.1.2
-    dev: true
 
   /debug@4.3.4(supports-color@9.4.0):
     resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
@@ -3881,7 +3856,7 @@ packages:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.3
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@9.4.0)
       doctrine: 3.0.0
       escape-string-regexp: 4.0.0
       eslint-scope: 7.2.2
@@ -4496,7 +4471,7 @@ packages:
     dependencies:
       '@tootallnate/once': 2.0.0
       agent-base: 6.0.2
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@9.4.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4506,7 +4481,7 @@ packages:
     engines: {node: '>= 6'}
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@9.4.0)
     transitivePeerDependencies:
       - supports-color
     dev: true

@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import style from './top.module.scss';
 import './top.module.scss';
 // import { Icon } from 'bw-mobile';
@@ -9,6 +9,8 @@ import { DemoBlock } from '@/components/demos/demo-block';
 import { Icon, NavBar } from 'bw-mobile';
 import { DropdownRef } from 'antd-mobile/es/components/dropdown';
 import { useNavigate } from 'react-router-dom';
+import { useGetChartQuery } from '@/hooks';
+import { useChartStore } from '@/store/chartStore';
 
 type statusType = {
   statusDetails: string;
@@ -46,7 +48,35 @@ const Top: FC<statusType> = ({ statusDetails }) => {
   const selectedFn = (index: number) => {
     console.log(index, 'index');
     setSelectedActive(index);
+    if (index === 0) {
+      setType('sub');
+    } else if (index === 1) {
+      setType('add');
+    }
   };
+
+  //获取store数据
+  const { setChartData, setType, type, category } = useChartStore(
+    ({ setChartData, setType, type, category }) => ({
+      setChartData,
+      setType,
+      type,
+      category,
+    }),
+  );
+  //请求列表数据
+  const { data } = useGetChartQuery({
+    params: {
+      type,
+      category,
+    },
+  });
+
+  useEffect(() => {
+    console.log(type, 'type liang');
+    console.log('列表数据 liang', data);
+    setChartData(data);
+  }, [data]);
 
   return (
     <div className={style.topContent}>
