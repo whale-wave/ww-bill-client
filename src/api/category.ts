@@ -6,6 +6,7 @@ export type iconObj = {
   id: number;
   name: string;
   updatedAt: string;
+  type: string;
 };
 
 export type iconType = {

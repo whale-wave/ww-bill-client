@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { FC, useEffect, useState } from 'react';
 import styles from './keyboard.module.scss';
-import { cateGoryApi, PutRecordApiData } from '@/api';
+import { cateGoryApi, iconObj, PutRecordApiData } from '@/api';
 import { useNavigate } from 'react-router-dom';
 import CustomRender from '@/pages/bookkeeping/component';
 import classNames from 'classnames';
@@ -14,7 +14,7 @@ import { usePostRecordMutation, usePutRecordMutation } from '@/hooks';
 
 type keyType = {
   change: (bool: boolean) => void;
-  keyToggle: number;
+  keyToggle: iconObj;
   type: string;
   name: string;
   stateList: stateType;
@@ -22,7 +22,6 @@ type keyType = {
 };
 
 const keyboard: FC<keyType> = ({
-  type,
   keyToggle,
   name,
   stateList,
@@ -354,6 +353,7 @@ const keyboard: FC<keyType> = ({
     }
     const str = Number(newTotals);
     if (totals === '0' || totals === '0.00' || totals === '-') {
+      Toast.show({ content: '请输入金额', duration: 1000 });
       return;
     }
     if (Addition) return;
@@ -372,9 +372,9 @@ const keyboard: FC<keyType> = ({
 
     const data = {
       remark,
-      categoryId: Number(keyToggle),
+      categoryId: Number(keyToggle.id),
       time: time1,
-      type: String(type),
+      type: keyToggle.type,
       amount: String(str),
     } as PutRecordApiData;
 
@@ -483,7 +483,7 @@ const keyboard: FC<keyType> = ({
 
   return (
     <>
-      {keyToggle > -1 ? (
+      {keyToggle.id > -1 ? (
         <div className={styles.keyBoard}>
           <div className={styles.top}>
             <div>
@@ -505,7 +505,7 @@ const keyboard: FC<keyType> = ({
             </div>
             <span className={styles.total}>{totals}</span>
           </div>
-          {inputToggle === false ? (
+          {!inputToggle ? (
             <div className={styles.main}>
               <div className={styles.numbers}>
                 {ArrayList.map((item, index) => (

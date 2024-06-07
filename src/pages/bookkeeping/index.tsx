@@ -10,7 +10,7 @@ import { recordChildren } from '@/pages/detail/List';
 export type stateType = [amount: string, time: string, id: number];
 
 const Bookkeeping: FC = () => {
-  const [keyToggle, setKeyToggle] = useState<number>(-1); //图标的id
+  const [keyToggle, setKeyToggle] = useState<any>({}); //图标的id
   const [keyInputPadding, setKeyInputPadding] = useState<boolean>(false); //图标的id
   const [name, setName] = useState(''); //图标选项的名称
   const [type1, setType1] = useState<CategoryAmountType>('sub'); //切换支出和收入
@@ -19,10 +19,13 @@ const Bookkeeping: FC = () => {
   const state = list;
   const [stateList, setSateList] = useState<stateType>(['', '', 1]);
 
-  const handleChangeTab = (item: iconObj) => {
+  const handleChangeTab = (item: iconObj, type1?: number, type2?: number) => {
+    console.log(item, 'item liang');
+    console.log(type1, 'type1 liang33');
+    console.log(type2, 'type2 liang33');
     if (item) {
       setName(item.name);
-      setKeyToggle(item.id);
+      setKeyToggle(item);
     }
   };
 
@@ -41,7 +44,7 @@ const Bookkeeping: FC = () => {
       const chunkKey: stateType = [state.amount, state.time, state.id];
       setSateList(chunkKey);
       navBarType(state.type as CategoryAmountType);
-      const list = {
+      const list: any = {
         createdAt: state.createdAt,
         icon: state.category.icon,
         id: state.category.id,
@@ -58,6 +61,7 @@ const Bookkeeping: FC = () => {
     const res = await cateGoryApi(type);
     const data = res.data.data;
     setMainList(data);
+    setKeyToggle({ id: -1 });
   };
 
   useEffect(() => {
@@ -84,7 +88,5 @@ const Bookkeeping: FC = () => {
     </div>
   );
 };
-
-console.log('1');
 
 export default Bookkeeping;
