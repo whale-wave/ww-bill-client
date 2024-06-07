@@ -149,6 +149,7 @@ const List: FC<timeDateProp> = ({ timeProp, change }) => {
   };
 
   const keepTwoDecimalWithReg = (num: number) => {
+    //计算小数精度问题
     return Number(num.toString().match(/^\d+(?:\.\d{0,2})?/));
   };
 
