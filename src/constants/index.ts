@@ -20,3 +20,5 @@ export const AUDIO_LIST = [
     url: '/sound/04.mp3',
   },
 ];
+
+export const COUNTDOWN_TIME_SECOND = 60;

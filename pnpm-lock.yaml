@@ -11,9 +11,15 @@ dependencies:
   '@tanstack/react-query':
     specifier: 4.36.1
     version: 4.36.1(react-dom@17.0.2)(react@17.0.2)
+  ahooks:
+    specifier: 3.8.0
+    version: 3.8.0(react@17.0.2)
   antd-mobile:
     specifier: 5.36.1
     version: 5.36.1(react-dom@17.0.2)(react@17.0.2)
+  antd-mobile-icons:
+    specifier: 0.3.0
+    version: 0.3.0
   axios:
     specifier: 1.6.0
     version: 1.6.0
@@ -1077,8 +1083,8 @@ packages:
       indent-string: 4.0.0
     dev: true
 
-  /ahooks@3.7.10(react@17.0.2):
-    resolution: {integrity: sha512-/HLYif7sFA/5qSuWKrwvjDbf3bq+sdaMrUWS7XGCDRWdC2FrG/i+u5LZdakMYc6UIgJTMQ7tGiJCV7sdU4kSIw==}
+  /ahooks@3.8.0(react@17.0.2):
+    resolution: {integrity: sha512-M01m+mxLRNNeJ/PCT3Fom26UyreTj6oMqJBetUrJnK4VNI5j6eMA543Xxo53OBXn6XibA2FXKcCCgrT6YCTtKQ==}
     engines: {node: '>=8.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -1089,6 +1095,7 @@ packages:
       js-cookie: 2.2.1
       lodash: 4.17.21
       react: 17.0.2
+      react-fast-compare: 3.2.2
       resize-observer-polyfill: 1.5.1
       screenfull: 5.2.0
       tslib: 2.6.2
@@ -1173,7 +1180,7 @@ packages:
       '@rc-component/mini-decimal': 1.1.0
       '@react-spring/web': 9.6.1(react-dom@17.0.2)(react@17.0.2)
       '@use-gesture/react': 10.3.0(react@17.0.2)
-      ahooks: 3.7.10(react@17.0.2)
+      ahooks: 3.8.0(react@17.0.2)
       antd-mobile-icons: 0.3.0
       antd-mobile-v5-count: 1.0.1
       classnames: 2.5.1

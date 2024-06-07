@@ -27,6 +27,9 @@ import Bill from '@/pages/bill';
 import NotFound from '@/pages/NotFound';
 import FirstScreen from '@/pages/FirstScreen';
 import { Root } from '@/Root';
+import ForgetPassword from '@/pages/ForgetPassword/ForgetPassword';
+import ForgetPasswordVerifyCode from '@/pages/ForgetPassword/ForgetPasswordVerifyCode';
+import ForgetPasswordRest from '@/pages/ForgetPassword/ForgetPasswordReset';
 
 export const router = createHashRouter([
   {
@@ -81,6 +84,23 @@ export const router = createHashRouter([
             <Password />
           </LoginGuard>
         ),
+      },
+      {
+        path: 'forget-password',
+        children: [
+          {
+            index: true,
+            element: <ForgetPassword />,
+          },
+          {
+            path: 'verify-code',
+            element: <ForgetPasswordVerifyCode />,
+          },
+          {
+            path: 'reset',
+            element: <ForgetPasswordRest />,
+          },
+        ],
       },
       {
         path: 'sign',

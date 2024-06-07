@@ -37,6 +37,7 @@ request.interceptors.response.use(
       console.error('请求超时');
       return response;
     }
+
     baseResponseProcess(response.data.statusCode);
     if (config.loading) errorResponseProcess(response.data);
     return response.data;
@@ -47,9 +48,9 @@ export default request;
 
 const loading = () => {
   Toast.show({
-    icon: 'loading',
-    content: '加载中',
+    content: '请稍后...',
     maskClickable: false,
+    position: 'top',
     duration: 0,
   });
 };

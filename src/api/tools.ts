@@ -1,10 +1,10 @@
 import { request } from '@/utils';
 
-export const getCaptchaApi = () => {
+export const getToolsCaptchaApi = () => {
   return request.get<unknown, any>('/tools/captcha');
 };
 
-export const getEmailCaptchaAPi = (email: string) => {
+export const getToolsEmailApi = (email: string) => {
   return request.get<unknown, any>('/tools/email', {
     params: { email },
     loading: true,
