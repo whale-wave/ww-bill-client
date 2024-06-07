@@ -116,6 +116,7 @@ const Settings = () => {
 
   const goTo = (path: string) => {
     if (!path) return;
+    playSound.turnPage();
     navigate(path);
   };
 
