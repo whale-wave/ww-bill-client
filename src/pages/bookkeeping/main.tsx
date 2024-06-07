@@ -31,8 +31,6 @@ const Main: FC<ChangePropsFn> = ({
 
   const changKeyFn = () => {
     // setActive(num);
-    console.log(active, 'active liang');
-    console.log(addActive, 'addActive liang');
   };
 
   useEffect(() => {
