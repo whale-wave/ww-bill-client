@@ -133,20 +133,23 @@ const List: FC<timeDateProp> = ({ timeProp, change }) => {
       let reduceAmount = 0;
       item[3].forEach((chunk) => {
         if (chunk.type === 'sub') {
-          reduceAmount += Number(chunk.amount) * 10 * 10;
+          reduceAmount += keepTwoDecimalWithReg(Number(chunk.amount));
         } else if (chunk.type === 'add') {
-          addAmount += Number(chunk.amount) * 10 * 10;
+          addAmount += keepTwoDecimalWithReg(Number(chunk.amount));
         }
       });
-      item.push(reduceAmount / 100, addAmount / 100);
+      item.push(reduceAmount, addAmount);
     });
-
     setRecord(record);
   };
 
   const recordFn = (chunk: recordChildren) => {
     playSound.turnPage();
     navigate(`/editing/${chunk.id}`, { state: chunk });
+  };
+
+  const keepTwoDecimalWithReg = (num: number) => {
+    return Number(num.toString().match(/^\d+(?:\.\d{0,2})?/));
   };
 
   useEffect(() => {
