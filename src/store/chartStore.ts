@@ -10,7 +10,8 @@ type State = {
 type Actions = {
   getChartData: (d: string) => void;
   setChartData: (d: any) => void;
-  setType: (d: any) => void;
+  setType: (d: string) => void;
+  setCategory: (d: string) => void;
 };
 
 export const useChartStore = create<State & Actions>((set: any, get: any) => ({
@@ -18,14 +19,19 @@ export const useChartStore = create<State & Actions>((set: any, get: any) => ({
   category: 'year', //类别 (week 按周 | month 按月 | year 按年)
   categoryId: 0, //类别id
   categoryData: [], //图表的数据和记账数据
-  getChartData: (payload: any) => {
-    console.log(payload, 'payload liang');
-  },
   setChartData: (data: any) => {
+    //保存图表数据
     set({ categoryData: data });
     console.log(get().categoryData, 'categoryData liang');
   },
+  getChartData: (payload: any) => {
+    console.log(payload, 'payload liang');
+  },
   setType: (payload: string) => {
+    //更改支出或收人
     set({ type: payload });
+  },
+  setCategory: (payload: string) => {
+    set({ category: payload });
   },
 }));

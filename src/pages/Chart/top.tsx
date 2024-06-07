@@ -41,8 +41,15 @@ const Top: FC<statusType> = ({ statusDetails }) => {
   const navigate = useNavigate();
 
   const itemListFn = (index: number) => {
-    console.log(index, 'index');
+    console.log(index, 'index 年 月 周');
     setActiveIndex(index);
+    if (index === 0) {
+      setCategory('week');
+    } else if (index === 1) {
+      setCategory('month');
+    } else if (index === 2) {
+      setCategory('year');
+    }
   };
 
   const selectedFn = (index: number) => {
@@ -56,12 +63,13 @@ const Top: FC<statusType> = ({ statusDetails }) => {
   };
 
   //获取store数据
-  const { setChartData, setType, type, category } = useChartStore(
-    ({ setChartData, setType, type, category }) => ({
+  const { setChartData, setType, type, category, setCategory } = useChartStore(
+    ({ setChartData, setType, type, category, setCategory }) => ({
       setChartData,
       setType,
       type,
       category,
+      setCategory,
     }),
   );
   //请求列表数据
@@ -76,7 +84,7 @@ const Top: FC<statusType> = ({ statusDetails }) => {
     console.log(type, 'type liang');
     console.log('列表数据 liang', data);
     setChartData(data);
-  }, [data]);
+  }, [data, type, category]);
 
   return (
     <div className={style.topContent}>
