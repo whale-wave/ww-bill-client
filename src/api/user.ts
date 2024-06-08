@@ -14,11 +14,6 @@ type UserInfo = {
   email: string;
 };
 
-type UpdateUserInfo = {
-  avatar: string;
-  name: string;
-};
-
 type UpdatePassword = {
   password: string;
   newPassword: string;
@@ -31,11 +26,19 @@ export type BillRecordType = {
   surplus: number;
 };
 
-export const getUserInfo = () => {
+export const getUserUserInfoApi = () => {
   return request.get<unknown, SuccessResponse<UserInfo>>('/user/userInfo');
 };
 
-export const putUserUserInfoApi = (data: UpdateUserInfo, loading = true) => {
+export interface usePutUserUserInfoData {
+  avatar: string;
+  name: string;
+}
+
+export const putUserUserInfoApi = (
+  data: usePutUserUserInfoData,
+  loading = false,
+) => {
   return request.put<unknown, SuccessResponse<any>>('/user/userInfo', data, {
     loading,
   });

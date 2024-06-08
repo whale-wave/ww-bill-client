@@ -30,6 +30,8 @@ import { Root } from '@/Root';
 import ForgetPassword from '@/pages/ForgetPassword/ForgetPassword';
 import ForgetPasswordVerifyCode from '@/pages/ForgetPassword/ForgetPasswordVerifyCode';
 import ForgetPasswordRest from '@/pages/ForgetPassword/ForgetPasswordReset';
+import EmailChangeCaptcha from '@/pages/EmailChange/EmailChangeCaptcha';
+import EmailChange from '@/pages/EmailChange';
 
 export const router = createHashRouter([
   {
@@ -165,7 +167,30 @@ export const router = createHashRouter([
       },
       {
         path: 'settings',
-        element: <Settings />,
+        children: [
+          {
+            index: true,
+            element: <Settings />,
+          },
+          {
+            path: 'email',
+            children: [
+              {
+                path: 'change',
+                children: [
+                  {
+                    index: true,
+                    element: <EmailChange />,
+                  },
+                  {
+                    path: 'captcha',
+                    element: <EmailChangeCaptcha />,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
         path: 'export-data',

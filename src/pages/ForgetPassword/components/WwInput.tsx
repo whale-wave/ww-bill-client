@@ -1,8 +1,10 @@
 import { Input } from 'antd-mobile';
 import { FC, useCallback, useState } from 'react';
 import { EyeInvisibleOutline, EyeOutline } from 'antd-mobile-icons';
+import classNames from 'classnames';
 
 const WwInput: FC<{
+  className?: string;
   placeholder?: string;
   value: string;
   onChange?: (value: string) => void;
@@ -13,7 +15,7 @@ const WwInput: FC<{
   onEnterPress?: () => void;
 }> = (_props) => {
   const props = _props;
-  const { clearable, onEnterPress } = props;
+  const { className, clearable, onEnterPress } = props;
   const [type, setType] = useState(props.type);
 
   const onChange = useCallback((v: string) => {
@@ -22,9 +24,10 @@ const WwInput: FC<{
 
   return (
     <div
-      className={
-        'bg-[#f6f7f8] w-[80%] min-h-[48px] flex items-center rounded-[12px] px-4'
-      }
+      className={classNames(
+        'bg-[#f6f7f8] w-[80%] min-h-[48px] flex items-center rounded-[12px] px-4',
+        className,
+      )}
     >
       <Input
         type={type}
