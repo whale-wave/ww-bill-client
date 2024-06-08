@@ -2,8 +2,10 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { COUNTDOWN_TIME_SECOND } from '@/constants';
 import { Input } from 'antd-mobile';
+import classNames from 'classnames';
 
 const WwInputVerifyCode: FC<{
+  className?: string;
   placeholder?: string;
   value: string;
   onChange?: (value: string) => void;
@@ -14,7 +16,7 @@ const WwInputVerifyCode: FC<{
   autoCountdown?: boolean;
 }> = (_props) => {
   const props = _props;
-  const { startTime, setStartTime, autoCountdown = false } = props;
+  const { startTime, setStartTime, autoCountdown = false, className } = props;
   const [now, setNow] = useState<Dayjs>();
 
   const onChange = useCallback((v: string) => {
@@ -63,9 +65,10 @@ const WwInputVerifyCode: FC<{
 
   return (
     <div
-      className={
-        'bg-[#f6f7f8] w-[80%] min-h-[48px] flex items-center rounded-[12px] px-4'
-      }
+      className={classNames(
+        'bg-[#f6f7f8] w-[80%] min-h-[48px] flex items-center rounded-[12px] px-4',
+        className,
+      )}
     >
       <Input
         className={'placeholder:text-[red]'}

@@ -1,14 +1,5 @@
 import { request } from '@/utils';
 
-export * from './auth';
-export * from './topic';
-export * from './user';
-export * from './record';
-export * from './category';
-export * from './tools';
-export * from './system';
-export * from './follow';
-
 export const uploadFile = async (body: FormData, loading = true) => {
   return request.post<unknown, SuccessResponse<{ url: string }>>(
     '/upload',
@@ -21,3 +12,13 @@ export const uploadFile = async (body: FormData, loading = true) => {
     },
   );
 };
+
+export * from './auth';
+export * from './topic';
+export * from './user';
+export * from './record';
+export * from './category';
+export * from './tools';
+export * from './system';
+export * from './follow';
+export * from './user-email';
