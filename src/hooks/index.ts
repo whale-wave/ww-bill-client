@@ -9,3 +9,5 @@ export * from './useDeleteRecordMutation';
 export * from './useGetUserUserInfoQuery';
 export * from './usePutUserUserInfoMutation';
 export * from './usePostUserEmailChangeEmailMutation';
+export * from './useGetUserAppConfigQuery';
+export * from './usePatchUserAppConfigMutation';

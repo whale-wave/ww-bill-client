@@ -1,18 +1,20 @@
 import { create } from 'zustand';
 import { clearLocalStorage, getLocalStorageSize } from '@/utils';
 import { audioWeb } from '@/modules/playSound';
+import type { UserAppConfig } from '@/api';
 
-type State = {
+interface State {
   canPlay: boolean;
   localStorageSize: number | string;
   hasAudioCache: boolean;
   visibleAmountSwitch: boolean;
   visibleAmount: boolean;
-};
+}
 
-type Actions = {
+interface Actions {
   syncAudioWebData: () => void;
   updateHasAudioCache: () => void;
+  setCanPlay: (data: boolean) => void;
   openPlay: () => void;
   closePlay: () => void;
   setStorageSize: () => void;
@@ -21,7 +23,8 @@ type Actions = {
   toggleVisibleAmountSwitch: () => void;
   setVisibleAmount: (d: boolean) => void;
   toggleVisibleAmount: () => void;
-};
+  setUserAppConfig: (data: UserAppConfig) => void;
+}
 
 const canPlay = localStorage.getItem('canPlay') === 'true' || false;
 
@@ -36,11 +39,17 @@ const initialState: State = {
 
 export const useSystemStore = create<State & Actions>((set, get) => ({
   ...initialState,
+  setUserAppConfig: (data) => {
+    set({ visibleAmount: data.isDisplayAmount, visibleAmountSwitch: data.isDisplayAmountSwitch, canPlay: data.isOpenSoundEffect });
+  },
   syncAudioWebData() {
     canPlay && audioWeb.open();
   },
   updateHasAudioCache() {
     set({ hasAudioCache: audioWeb.hasCache() });
+  },
+  setCanPlay(data: boolean) {
+    data ? get().openPlay() : get().closePlay();
   },
   openPlay() {
     set({ canPlay: true });
@@ -67,7 +76,7 @@ export const useSystemStore = create<State & Actions>((set, get) => ({
     localStorage.setItem('visibleAmountSwitch', String(data));
   },
   toggleVisibleAmountSwitch() {
-    set((s) => ({ visibleAmountSwitch: !s.visibleAmountSwitch }));
+    set(s => ({ visibleAmountSwitch: !s.visibleAmountSwitch }));
     localStorage.setItem(
       'visibleAmountSwitch',
       String(get().visibleAmountSwitch),
@@ -78,7 +87,7 @@ export const useSystemStore = create<State & Actions>((set, get) => ({
     localStorage.setItem('visibleAmount', String(data));
   },
   toggleVisibleAmount() {
-    set((s) => ({ visibleAmount: !s.visibleAmount }));
+    set(s => ({ visibleAmount: !s.visibleAmount }));
     localStorage.setItem('visibleAmount', String(get().visibleAmount));
   },
 }));

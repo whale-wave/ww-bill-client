@@ -1,22 +1,34 @@
 import { Icon } from 'bw-mobile';
 import c from 'classnames';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import type { FC } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Precision from '@/pages/detail/component';
 import styles from './top.module.scss';
-import { numType } from './index';
+import type { numType } from './index';
+import Precision from '@/pages/detail/component';
 import { useSystemStore } from '@/store';
+import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/hooks';
 
-type TopProps = {
+interface TopProps {
   change: (val: string) => void;
   numExpendIncome: numType | [];
-};
+}
 
 const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
   const navigate = useNavigate();
   // TODO: 需要调整为获取指定的字段
-  const { setVisibleAmount, visibleAmount, visibleAmountSwitch } =
-    useSystemStore();
+  const { setVisibleAmount, visibleAmount, visibleAmountSwitch, setUserAppConfig }
+    = useSystemStore();
+
+  const { data: userAppConfig } = useGetUserAppConfigQuery();
+  useEffect(() => {
+    if (!userAppConfig)
+      return;
+    setUserAppConfig(userAppConfig);
+  }, [userAppConfig]);
+
+  const [patchUserAppConfigMutate] = usePatchUserAppConfigMutation();
+
   const tabs = [
     {
       name: '账单',
@@ -37,6 +49,7 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
 
   const [visible1, setVisible1] = useState(false);
   const [yearMoth, setYearMoth] = useState<string[]>([]);
+
   const PrecisionFn = () => {
     setVisible1(true);
   };
@@ -59,10 +72,10 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
     timeDate && change(timeDate);
     if (!getYearMoth) {
       const time2 = new Date();
-      const Y = time2.getFullYear() + '年';
-      const M =
-        time2.getMonth() + 1 < 10
-          ? '0' + (time2.getMonth() + 1)
+      const Y = `${time2.getFullYear()}年`;
+      const M
+        = time2.getMonth() + 1 < 10
+          ? `0${time2.getMonth() + 1}`
           : time2.getMonth() + 1;
 
       const arrayDate = [String(Y), String(M)];
@@ -77,8 +90,12 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
 
     return visibleAmount;
   }, [visibleAmount, visibleAmountSwitch]);
-  const onToggleVisibleAmount = useCallback(() => {
+
+  const onToggleVisibleAmount = useCallback(async () => {
     setVisibleAmount(!visibleAmount);
+    await patchUserAppConfigMutate({
+      isDisplayAmount: !visibleAmount,
+    });
   }, [visibleAmount]);
 
   return (
@@ -88,19 +105,19 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
         <div className={styles['top-text-1']}>{yearMoth[0]}</div>
         <div className={c(styles['left-bottom'])}>
           <div
-            className={
-              'h-[40%] w-[1px] bg-black333 absolute -right-0 bottom-1 opacity-50'
-            }
-          ></div>
+            className="h-[40%] w-[1px] bg-black333 absolute -right-0 bottom-1 opacity-50"
+          >
+          </div>
           <div className={styles['bottom-wrapper']} onClick={PrecisionFn}>
-            <span className={styles.month}>{yearMoth[1]}</span>月{' '}
-            <Icon name="show-bottom" className={'text-[10px] mb-[2px]'} />
+            <span className={styles.month}>{yearMoth[1]}</span>
+            月
+            {' '}
+            <Icon name="show-bottom" className="text-[10px] mb-[2px]" />
             <Precision
               visible1={visible1}
               change={() => ChangeDateToggle()}
               changeTime={(time: string, arr: Array<string>) =>
-                ChangeTimeDate(time, arr)
-              }
+                ChangeTimeDate(time, arr)}
             />
           </div>
         </div>
@@ -109,24 +126,26 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
         <div className={styles['top-text-1']}>收入</div>
         <div className={styles['middle-bottom']}>
           <div className={styles['bottom-wrapper']}>
-            {isVisibleAmount ? (
-              <>
-                <span className={styles.big}>
-                  {numExpendIncome[1] && numExpendIncome[1].length
-                    ? numExpendIncome[1][0]
-                    : '0'}
-                </span>
-                <span className={styles.bigNum}>
-                  {numExpendIncome[1] &&
-                  numExpendIncome[1].length &&
-                  numExpendIncome[1][1] !== ''
-                    ? '.' + numExpendIncome[1][1]
-                    : '.00'}
-                </span>
-              </>
-            ) : (
-              <span className={c(styles.big, 'font-bold')}>*******</span>
-            )}
+            {isVisibleAmount
+              ? (
+                <>
+                  <span className={styles.big}>
+                    {numExpendIncome[1] && numExpendIncome[1].length
+                      ? numExpendIncome[1][0]
+                      : '0'}
+                  </span>
+                  <span className={styles.bigNum}>
+                    {numExpendIncome[1]
+                    && numExpendIncome[1].length
+                    && numExpendIncome[1][1] !== ''
+                      ? `.${numExpendIncome[1][1]}`
+                      : '.00'}
+                  </span>
+                </>
+                )
+              : (
+                <span className={c(styles.big, 'font-bold')}>*******</span>
+                )}
           </div>
         </div>
       </div>
@@ -134,35 +153,39 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
         <div className={styles['top-text-1']}>支出</div>
         <div className={styles['right-bottom']}>
           <div className={styles['bottom-wrapper']}>
-            {isVisibleAmount ? (
-              <>
-                <span className={styles.big}>
-                  {numExpendIncome[0] && numExpendIncome[0].length
-                    ? numExpendIncome[0][0]
-                    : '0'}
-                </span>
-                <span className={styles.bigNum}>
-                  {numExpendIncome[0] &&
-                  numExpendIncome[0].length &&
-                  numExpendIncome[0][1] !== ''
-                    ? '.' + numExpendIncome[0][1]
-                    : '.00'}
-                </span>
-              </>
-            ) : (
-              <span className={c(styles.big, 'font-bold')}>*******</span>
-            )}
+            {isVisibleAmount
+              ? (
+                <>
+                  <span className={styles.big}>
+                    {numExpendIncome[0] && numExpendIncome[0].length
+                      ? numExpendIncome[0][0]
+                      : '0'}
+                  </span>
+                  <span className={styles.bigNum}>
+                    {numExpendIncome[0]
+                    && numExpendIncome[0].length
+                    && numExpendIncome[0][1] !== ''
+                      ? `.${numExpendIncome[0][1]}`
+                      : '.00'}
+                  </span>
+                </>
+                )
+              : (
+                <span className={c(styles.big, 'font-bold')}>*******</span>
+                )}
           </div>
         </div>
       </div>
-      {visibleAmountSwitch ? (
-        <div
-          className="right-7 bottom-1/2 absolute text-[24px] px-1"
-          onClick={onToggleVisibleAmount}
-        >
-          {visibleAmount ? <Icon name="eye-close" /> : <Icon name="eye" />}
-        </div>
-      ) : null}
+      {visibleAmountSwitch
+        ? (
+          <div
+            className="right-7 bottom-1/2 absolute text-[24px] px-1"
+            onClick={onToggleVisibleAmount}
+          >
+            {visibleAmount ? <Icon name="eye-close" /> : <Icon name="eye" />}
+          </div>
+          )
+        : null}
       <div
         className={c(
           styles['list-wrapper'],
@@ -173,7 +196,7 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
         }}
       >
         <div className={c(styles.list, 'h-full flex')}>
-          {tabs.map((tab) => (
+          {tabs.map(tab => (
             <div
               className={c(
                 styles.tab,
