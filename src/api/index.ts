@@ -1,6 +1,6 @@
 import { request } from '@/utils';
 
-export const uploadFile = async (body: FormData, loading = true) => {
+export async function uploadFile(body: FormData, loading = true) {
   return request.post<unknown, SuccessResponse<{ url: string }>>(
     '/upload',
     body,
@@ -11,7 +11,7 @@ export const uploadFile = async (body: FormData, loading = true) => {
       loading,
     },
   );
-};
+}
 
 export * from './auth';
 export * from './topic';
@@ -22,3 +22,4 @@ export * from './tools';
 export * from './system';
 export * from './follow';
 export * from './user-email';
+export * from './user-app-config';

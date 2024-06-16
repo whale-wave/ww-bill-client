@@ -1,46 +1,73 @@
-import { playSound } from '@/modules';
-import { audioWeb } from '@/modules/playSound';
 import { Toast } from 'antd-mobile';
-import { List, NavBar, Gap, Switch, Icon } from 'bw-mobile';
+import { Gap, Icon, List, NavBar, Switch } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
+import type { FC } from 'react';
+import { useEffect } from 'react';
 import styles from './index.module.scss';
 import { useSystemStore } from '@/store';
+import { audioWeb } from '@/modules/playSound';
+import { playSound } from '@/modules';
+import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/hooks';
 
-const Settings = () => {
+const Settings: FC = () => {
   // TODO: 需要调整为获取指定的字段
   const {
     visibleAmountSwitch,
     openPlay,
     toggleVisibleAmountSwitch,
+    setVisibleAmount,
+    setVisibleAmountSwitch,
     hasAudioCache,
     closePlay,
     setStorageSize,
     localStorageSize,
     canPlay,
+    setCanPlay,
     clearStorage,
   } = useSystemStore();
+  const { data: userAppConfig } = useGetUserAppConfigQuery();
+  useEffect(() => {
+    if (!userAppConfig)
+      return;
+
+    setVisibleAmount(userAppConfig.isDisplayAmount);
+    setVisibleAmountSwitch(userAppConfig.isDisplayAmountSwitch);
+    setCanPlay(userAppConfig.isOpenSoundEffect);
+  }, [userAppConfig]);
+  const [patchUserAppConfigMutationMutate] = usePatchUserAppConfigMutation();
+
   const navigate = useNavigate();
   const handleBack = () => {
     playSound.turnPage();
     navigate(-1);
   };
 
-  const onToggleVisibleAmountSwitch = () => {
+  const onToggleVisibleAmountSwitch = async (val: boolean) => {
     playSound.click();
     toggleVisibleAmountSwitch();
+    await patchUserAppConfigMutationMutate({
+      isDisplayAmountSwitch: val,
+    });
   };
 
-  const handleSoundSwitch = (val: boolean) => {
+  const handleSoundSwitch = async (val: boolean) => {
     if (val) {
       if (hasAudioCache) {
         audioWeb.loadCache();
-      } else {
+      }
+      else {
         void audioWeb.download();
       }
       openPlay();
-    } else {
+    }
+    else {
       closePlay();
     }
+
+    await patchUserAppConfigMutationMutate({
+      isOpenSoundEffect: val,
+    });
+
     setTimeout(() => {
       setStorageSize();
     }, 100);
@@ -92,7 +119,9 @@ const Settings = () => {
       onClick: clearCache,
       arrow: (
         <div>
-          <span>{localStorageSize}</span> <Icon name="right" />
+          <span>{localStorageSize}</span>
+          {' '}
+          <Icon name="right" />
         </div>
       ),
     },
@@ -115,7 +144,8 @@ const Settings = () => {
   ];
 
   const goTo = (path: string) => {
-    if (!path) return;
+    if (!path)
+      return;
     playSound.turnPage();
     navigate(path);
   };
@@ -128,7 +158,7 @@ const Settings = () => {
       <div className={styles.wrapper}>
         <List>
           <Gap />
-          {groupOne.map((item) => (
+          {groupOne.map(item => (
             <List.Item
               key={item.title}
               clickable
@@ -138,7 +168,7 @@ const Settings = () => {
             </List.Item>
           ))}
           <Gap />
-          {groupTwo.map((item) => (
+          {groupTwo.map(item => (
             <List.Item
               key={item.title}
               clickable
@@ -148,7 +178,7 @@ const Settings = () => {
             </List.Item>
           ))}
           <Gap />
-          {groupThree.map((item) => (
+          {groupThree.map(item => (
             <List.Item
               key={item.title}
               clickable={false}
@@ -163,7 +193,7 @@ const Settings = () => {
             </List.Item>
           ))}
           <Gap />
-          {groupFour.map((item) => (
+          {groupFour.map(item => (
             <List.Item
               key={item.title}
               clickable
