@@ -1,16 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import { getUserUserInfoApi } from '@/api';
 import { useMemo } from 'react';
+import { getUserUserInfoApi } from '@/api';
 import { isSuccessApi } from '@/utils';
 
 export const useGetUserUserInfoQueryQueryKey = 'useGetUserUserInfoQuery';
 
-export const useGetUserUserInfoQuery = (options?: {
+export function useGetUserUserInfoQuery(options?: {
   // params?: GetUserUserInfoApiParams;
   options?: {
     enabled?: boolean;
   };
-}) => {
+}) {
   const { data: response, ...rest } = useQuery({
     queryFn: () => getUserUserInfoApi(),
     queryKey: [useGetUserUserInfoQueryQueryKey] as const,
@@ -18,7 +18,8 @@ export const useGetUserUserInfoQuery = (options?: {
   });
 
   const data = useMemo(() => {
-    if (!isSuccessApi(response)) return;
+    if (!isSuccessApi(response))
+      return;
     return response.data;
   }, [response]);
 
@@ -27,4 +28,4 @@ export const useGetUserUserInfoQuery = (options?: {
     data,
     ...rest,
   };
-};
+}
