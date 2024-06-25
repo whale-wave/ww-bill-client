@@ -1,13 +1,13 @@
-import { playSound } from '@/modules';
 import { useNavigate } from 'react-router-dom';
-import { FC } from 'react';
+import type { FC } from 'react';
 import classNames from 'classnames';
+import { playSound } from '@/modules';
 import './tab-bar.scss';
-import { Icon } from 'bw-mobile';
+import { Icon } from '@/components';
 
-type TabBarProps = {
+interface TabBarProps {
   active: number;
-};
+}
 
 export const TabBar: FC<TabBarProps> = ({ active }) => {
   const navigate = useNavigate();
@@ -27,9 +27,21 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
     },
     {
       name: '记账',
-      icon: 'community',
-      iconActive: 'community-fill',
+      icon: 'add',
       router: '/bookkeeping',
+      customRender: (tab: any) => {
+        return (
+          <div className="flex justify-center items-center flex-col relative z-[999]">
+            <div className="border-[1px] border-[#f7f7f7] border-solid p-[5px] rounded-full border-r-0 border-b-0 border-l-0 absolute bottom-[50%] bg-[#fff]">
+              <div className="bg-primary rounded-full w-[40px] h-[40px] flex justify-center items-center">
+                <Icon name={tab.icon} className="tab-icon !text-[18px]" />
+              </div>
+            </div>
+            <Icon name={tab.icon} className="tab-icon opacity-0" />
+            <span className="name">{tab.name}</span>
+          </div>
+        );
+      },
     },
     {
       name: '社区',
@@ -45,14 +57,13 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
     },
   ];
 
-  /* eslint-disable */
   const isActive = (tab: any, index: number) => {
     return index === active ? tab.iconActive : tab.icon;
   };
-  /* eslint-disable */
 
   const changeRoute = (index: number, router: string) => {
-    if (index === active) return;
+    if (index === active)
+      return;
     playSound.turnPage();
     navigate(router);
   };
@@ -62,11 +73,19 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
       {tabBarList.map((tab, index) => (
         <div
           key={tab.name}
-          className="item"
+          className="item relative"
           onClick={() => changeRoute(index, tab.router)}
         >
-          <Icon name={isActive(tab, index)} className="tab-icon" />
-          <span className="name">{tab.name}</span>
+          {
+            tab.customRender
+              ? tab.customRender(tab)
+              : (
+                <>
+                  <Icon name={isActive(tab, index)} className="tab-icon" />
+                  <span className="name">{tab.name}</span>
+                </>
+                )
+          }
         </div>
       ))}
     </div>
