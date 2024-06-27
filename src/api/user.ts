@@ -1,6 +1,6 @@
 import { request } from '@/utils';
 
-type UserInfo = {
+export interface UserInfo {
   id: number;
   userId: string;
   name: string;
@@ -12,46 +12,43 @@ type UserInfo = {
   recordCount: number;
   billRecord: BillRecordType;
   email: string;
-};
+}
 
-type UpdatePassword = {
+interface UpdatePassword {
   password: string;
   newPassword: string;
-};
+}
 
-export type BillRecordType = {
+export interface BillRecordType {
   expend: number;
   income: number;
   month: number;
   surplus: number;
-};
+}
 
-export const getUserUserInfoApi = () => {
+export function getUserUserInfoApi() {
   return request.get<unknown, SuccessResponse<UserInfo>>('/user/userInfo');
-};
+}
 
 export interface usePutUserUserInfoData {
   avatar: string;
   name: string;
 }
 
-export const putUserUserInfoApi = (
-  data: usePutUserUserInfoData,
-  loading = false,
-) => {
+export function putUserUserInfoApi(data: usePutUserUserInfoData, loading = false) {
   return request.put<unknown, SuccessResponse<any>>('/user/userInfo', data, {
     loading,
   });
-};
+}
 
-export const changePassword = (data: UpdatePassword, loading = true) => {
+export function changePassword(data: UpdatePassword, loading = true) {
   return request.put<unknown, SuccessResponse<any>>('/user/password', data, {
     loading,
   });
-};
+}
 
-export const checkInPost = (loading = true) => {
+export function checkInPost(loading = true) {
   return request.post<unknown, SuccessResponse<any>>('/check_in', null, {
     loading,
   });
-};
+}

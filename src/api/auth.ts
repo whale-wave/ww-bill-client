@@ -1,43 +1,32 @@
 import { request } from '@/utils';
+import type { UserInfo } from '@/api/user';
 
 interface LoginRes {
   token: string;
-  userInfo: {
-    id: number;
-    name: string;
-    username: string;
-    avatar: string;
-    email: string;
-  };
+  userInfo: UserInfo;
 }
 
-export const login = (
-  body:
-    | { username: string; password: string }
-    | { email: string; emailCode: string },
-  loading = true,
-) => {
+export function login(body:
+  | { username: string; password: string }
+  | { email: string; emailCode: string }, loading = true) {
   return request.post<never, SuccessResponse<LoginRes>>('/auth/login', body, {
     loading,
   });
-};
+}
 
-export const sign = (
-  body: {
-    username?: string;
-    name?: string;
-    email: string;
-    password: string;
-    emailCode: string;
-  },
-  loading = true,
-) => {
+export function sign(body: {
+  username?: string;
+  name?: string;
+  email: string;
+  password: string;
+  emailCode: string;
+}, loading = true) {
   return request.post<never, SuccessResponse<LoginRes>>('/auth/sign', body, {
     loading,
   });
-};
+}
 
-export const loginEmailCaptchaApi = (email: string, loading = true) => {
+export function loginEmailCaptchaApi(email: string, loading = true) {
   return request.get<never, SuccessResponse<unknown>>(
     '/auth/login/email/captcha',
     {
@@ -47,7 +36,7 @@ export const loginEmailCaptchaApi = (email: string, loading = true) => {
       loading,
     },
   );
-};
+}
 
 interface PostAuthPasswordForgetResetApiData {
   email: string;
@@ -69,10 +58,7 @@ export function postAuthPasswordForgetResetApi(
   );
 }
 
-export const getToolsForgetPasswordEmailApi = (
-  email: string,
-  loading = false,
-) => {
+export function getToolsForgetPasswordEmailApi(email: string, loading = false) {
   return request.get<unknown, SuccessResponse<unknown>>(
     '/auth/forget-password-email',
     {
@@ -80,15 +66,12 @@ export const getToolsForgetPasswordEmailApi = (
       loading,
     },
   );
-};
+}
 
-export const getToolsForgetPasswordEmailVerifyCodeApi = (
-  params: {
-    email: string;
-    captcha: string;
-  },
-  loading = false,
-) => {
+export function getToolsForgetPasswordEmailVerifyCodeApi(params: {
+  email: string;
+  captcha: string;
+}, loading = false) {
   return request.get<unknown, SuccessResponse<unknown>>(
     '/auth/forget-password-email/verify-code',
     {
@@ -96,4 +79,4 @@ export const getToolsForgetPasswordEmailVerifyCodeApi = (
       loading,
     },
   );
-};
+}
