@@ -1,18 +1,19 @@
-import { mergerProps } from '@/utils';
-import { spliceNumberByPoint } from '@/utils/time';
 import { DatePicker } from 'antd-mobile';
 import { Icon } from 'bw-mobile';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
-import React, { FC, useCallback } from 'react';
+import type { FC } from 'react';
+import React, { useCallback } from 'react';
 import styles from './Top.module.scss';
-import { Bill } from '@/api';
+import { spliceNumberByPoint } from '@/utils/time';
+import { mergerProps } from '@/utils';
+import type { Bill } from '@/api';
 
-type TopProps = {
+interface TopProps {
   data?: Bill;
   date: Date;
   setDate: React.Dispatch<React.SetStateAction<Date>>;
-};
+}
 
 const defaultProps = {
   data: {
@@ -60,7 +61,8 @@ const Top: FC<TopProps> = (p) => {
       >
         <span>结余</span>
         <div>
-          {spliceNumberByPoint(data.balance)[0]}.
+          {spliceNumberByPoint(data.balance)[0]}
+          .
           <span>{spliceNumberByPoint(data.balance)[1]}</span>
         </div>
       </div>
@@ -69,7 +71,8 @@ const Top: FC<TopProps> = (p) => {
           <div>
             <span>收入</span>
             <div>
-              {spliceNumberByPoint(data.income)[0]}.
+              {spliceNumberByPoint(data.income)[0]}
+              .
               <span>{spliceNumberByPoint(data.income)[1]}</span>
             </div>
           </div>
@@ -78,7 +81,8 @@ const Top: FC<TopProps> = (p) => {
           <div>
             <span>支出</span>
             <div>
-              {spliceNumberByPoint(data.expand)[0]}.
+              {spliceNumberByPoint(data.expand)[0]}
+              .
               <span>{spliceNumberByPoint(data.expand)[1]}</span>
             </div>
           </div>

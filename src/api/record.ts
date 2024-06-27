@@ -29,7 +29,7 @@ export interface GetRecordApiParams {
   endDate?: string;
 }
 
-//获取记录
+// 获取记录
 export function getRecordApi(params?: GetRecordApiParams) {
   return request.get<unknown, SuccessResponse<GetRecordApiResponseData>>(
     '/record',
@@ -73,6 +73,11 @@ export interface Bill {
   balance: number;
 }
 
+export interface GetRecordBillApiParams {
+  type: 'all' | 'year';
+  year?: number;
+}
+
 export interface GetRecordBillApiResponseData {
   month: {
     [month: string]: Bill;
@@ -81,11 +86,11 @@ export interface GetRecordBillApiResponseData {
 }
 
 // 获取账单
-export function getRecordBillApi(year: number) {
+export function getRecordBillApi(params: GetRecordBillApiParams) {
   return request.get<unknown, SuccessResponse<GetRecordBillApiResponseData>>(
     `/record/bill`,
     {
-      params: { year },
+      params,
     },
   );
 }

@@ -1,16 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { getRecordBillApi } from '@/api';
 import { useMemo } from 'react';
+import type { GetRecordBillApiParams } from '@/api';
+import { getRecordBillApi } from '@/api';
 import { isSuccessApi } from '@/utils';
 
 export const useGetRecordBillQueryQueryKey = 'useGetRecordBillQuery';
 
-export const useGetRecordBillQuery = (options?: {
-  params: number;
+export function useGetRecordBillQuery(options?: {
+  params: GetRecordBillApiParams;
   options?: {
     enabled?: boolean;
   };
-}) => {
+}) {
   const { data: response, ...rest } = useQuery({
     queryFn: ({ queryKey }) => getRecordBillApi(queryKey[1]),
     queryKey: [useGetRecordBillQueryQueryKey, options!.params] as const,
@@ -18,7 +19,8 @@ export const useGetRecordBillQuery = (options?: {
   });
 
   const data = useMemo(() => {
-    if (!isSuccessApi(response)) return;
+    if (!isSuccessApi(response))
+      return;
     return response.data;
   }, [response]);
 
@@ -27,4 +29,4 @@ export const useGetRecordBillQuery = (options?: {
     data,
     ...rest,
   };
-};
+}
