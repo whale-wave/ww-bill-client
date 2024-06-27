@@ -1,14 +1,15 @@
-import Content from '@/pages/bill/components/Content';
 import { Button } from 'bw-mobile';
 import dayjs from 'dayjs';
+import type { FC } from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames';
+import Content from '@/pages/bill/components/Content';
 import { BillTabs } from '@/pages/bill/BillTabs';
 import { BillRecordCard } from '@/pages/bill/BillRecordCard';
 import { useGetRecordBillQuery } from '@/hooks/useGetRecordBillQuery';
 
-const Bill = () => {
+const Bill: FC = () => {
   const [selectDate, setSelectDate] = useState(new Date());
   const { data, isLoading, isSuccess } = useGetRecordBillQuery({
     params: dayjs(selectDate).year(),
@@ -20,9 +21,12 @@ const Bill = () => {
   }
 
   function getList(data: any) {
+    if (!data)
+      return [];
+
     return Object.keys(data)
       .sort((a, b) => +b - +a)
-      .map((m) => ({
+      .map(m => ({
         month: `${m}月`,
         income: data[m].income,
         expand: data[m].expand,
@@ -39,7 +43,7 @@ const Bill = () => {
   }
   return (
     <div className="page">
-      <div className={'px-3 flex-grow'}>
+      <div className="px-3 flex-grow">
         <BillTabs date={selectDate} setDate={setSelectDate} />
         <BillRecordCard data={data?.all} />
         <Content data={getList(data?.month)} />

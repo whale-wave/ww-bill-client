@@ -1,24 +1,35 @@
 import { create } from 'zustand';
+import { queryClient } from '@/main';
 
-type UserInfo = {
+interface UserInfo {
   id: number | string;
   name: string;
   username: string;
   avatar: string;
   email: string;
-};
+  billRecord: {
+    expend: number;
+    income: number;
+    month: number;
+    surplus: number;
+  };
+  checkIn: boolean;
+  checkInAll: number;
+  checkInKeep: number;
+  recordCount: number;
+}
 
-type State = {
+interface State {
   token: string;
   userInfo?: UserInfo;
-};
+}
 
-type Actions = {
+interface Actions {
   setToken: (d: string) => void;
   setUserInfo: (d: UserInfo) => void;
   updateUserInfo: (d: { name: string; avatar: string }) => void;
   logOut: () => void;
-};
+}
 
 const userInfoStr = localStorage.getItem('userInfo');
 
@@ -46,5 +57,6 @@ export const useUserStore = create<State & Actions>((set, get) => ({
       userInfo: undefined,
     });
     localStorage.clear();
+    void queryClient.invalidateQueries();
   },
 }));
