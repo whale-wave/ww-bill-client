@@ -37,7 +37,7 @@ const Bill: FC = () => {
     return Object.keys(data.month)
       .sort((a, b) => +b - +a)
       .map(m => ({
-        month: `${m}月`,
+        month: `${m}${isMonthTabType ? '月' : '年'}`,
         income: data.month[m].income,
         expand: data.month[m].expand,
         balance: data.month[m].balance,
@@ -46,10 +46,12 @@ const Bill: FC = () => {
 
   return (
     <div className="page">
-      <div className="px-3 flex-grow">
+      <div className="flex-grow flex flex-col overflow-hidden">
         <BillTabs />
-        <BillRecordCard data={data?.all} />
-        <Content data={list} />
+        <div className="overflow-auto px-3 ">
+          <BillRecordCard data={data?.all} />
+          <Content data={list} />
+        </div>
       </div>
       <div className={classNames('flex-shrink-0')}>
         <Button size="full" onClick={onBack}>

@@ -1,9 +1,9 @@
+import { Toast } from 'antd-mobile';
+import axios from 'axios';
 import {
   baseResponseProcess,
   errorResponseProcess,
 } from '@/utils/requestProcess';
-import { Toast } from 'antd-mobile';
-import axios from 'axios';
 import { useUserStore } from '@/store';
 
 let host = '';
@@ -11,7 +11,7 @@ if (typeof import.meta.env.VITE_HOST === 'string')
   host = import.meta.env.VITE_HOST;
 
 const request = axios.create({
-  baseURL: host + '/api',
+  baseURL: `${host}/api`,
   timeout: 50000,
 });
 
@@ -22,13 +22,15 @@ request.interceptors.request.use((config) => {
       config.headers as { Authorization: string }
     ).Authorization = `Bearer ${token}`;
   }
-  if (config.loading) loading();
+  if (config.loading)
+    loading();
   return config;
 });
 
 request.interceptors.response.use(
   (response) => {
-    if (response.config.loading) errorResponseProcess(response.data);
+    if (response.config.loading)
+      errorResponseProcess(response.data);
     return response.data;
   },
   ({ message, response, config }) => {
@@ -39,18 +41,19 @@ request.interceptors.response.use(
     }
 
     baseResponseProcess(response.data.statusCode);
-    if (config.loading) errorResponseProcess(response.data);
+    if (config.loading)
+      errorResponseProcess(response.data);
     return response.data;
   },
 );
 
 export default request;
 
-const loading = () => {
+function loading() {
   Toast.show({
     content: '请稍后...',
     maskClickable: false,
     position: 'top',
     duration: 0,
   });
-};
+}

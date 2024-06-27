@@ -29,7 +29,7 @@ export const BillTabs: FC = memo(() => {
   }, [selectDate]);
 
   return (
-    <div className="flex py-3 mb-2">
+    <div className="flex p-3 mb-2">
       <div
         className="w-[20%] flex items-center"
         style={{

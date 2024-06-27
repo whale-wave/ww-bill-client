@@ -12,23 +12,16 @@
       font-size: 13px;
       background: #FFFFFF;
       border-bottom: 1px solid #EBEBEB;
-      .month {
-        font-size: 14px;
-        color: #6C6C6C;
-      }
       div {
         display: flex;
         justify-content: center;
         align-items: center;
         > div {
-          align-items: flex-end;
-          > span {
-            font-size: 11px;
-          }
+          transform: translateY(1px);
         }
       }
       > div:nth-child(1) {
-        width: 12%;
+        width: 14%;
       }
       > div:nth-child(2) {
         width: 26%;
@@ -40,7 +33,7 @@
         width: 26%;
       }
       > div:nth-child(5) {
-        width: 10%;
+        width: 8%;
       }
     }
   }

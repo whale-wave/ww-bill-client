@@ -28,7 +28,7 @@ const TabLIst: React.FC<TabList> = memo(() => {
     >
       {tabs.map(tab => (
         <div
-          className={classNames('py-1 px-4', {
+          className={classNames('py-[5px] px-4', {
             'bg-[#333] text-[#fff]': billTabType === tab.value,
           })}
           key={tab.value}

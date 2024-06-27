@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import type { FC } from 'react';
 import { memo, useCallback, useMemo } from 'react';
 import styles from './Content.module.scss';
-import { spliceNumberByPoint } from '@/utils/time';
 import type { Bill } from '@/api';
 import { BillTabsType } from '@/pages/Bill/typs';
 import { useBillPageStore } from '@/pages/Bill/store';
@@ -27,7 +26,7 @@ const Content: FC<ContentProps> = memo(({ data }) => {
   }, [isMonthTabType]);
 
   return (
-    <div className={classNames(styles.wrapper, 'flex-grow overflow-auto')}>
+    <div className={classNames(styles.wrapper, 'pb-4')}>
       <ul>
         <li className={styles.header}>
           <div>
@@ -49,30 +48,24 @@ const Content: FC<ContentProps> = memo(({ data }) => {
           <div />
         </li>
         {showData(data).map(i => (
-          <li key={i.month}>
-            <div className={styles.month}>{i.month}</div>
+          <li key={i.month} className="font-bold">
+            <div className="text-[14px] text-[#6C6C6C] flex-shrink-0">{i.month}</div>
             <div>
               <div>
-                {spliceNumberByPoint(i.income)[0]}
-                .
-                <span>{spliceNumberByPoint(i.income)[1]}</span>
+                {i.income}
               </div>
             </div>
             <div>
               <div>
-                {spliceNumberByPoint(i.expand)[0]}
-                .
-                <span>{spliceNumberByPoint(i.expand)[1]}</span>
+                {i.expand}
               </div>
             </div>
             <div>
               <div>
-                {spliceNumberByPoint(i.balance)[0]}
-                .
-                <span>{spliceNumberByPoint(i.balance)[1]}</span>
+                {i.balance}
               </div>
             </div>
-            <div>
+            <div style={{ opacity: isMonthTabType ? 1 : 0 }}>
               <Icon name="right" style={{ fontSize: 11 }} />
             </div>
           </li>
