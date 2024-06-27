@@ -31,16 +31,16 @@ const Bill: FC = () => {
   });
 
   const list = useMemo(() => {
-    if (!data?.month)
+    if (!data?.list)
       return [];
 
-    return Object.keys(data.month)
+    return Object.keys(data.list)
       .sort((a, b) => +b - +a)
       .map(m => ({
         month: `${m}${isMonthTabType ? '月' : '年'}`,
-        income: data.month[m].income,
-        expand: data.month[m].expand,
-        balance: data.month[m].balance,
+        income: data.list[m].income,
+        expand: data.list[m].expand,
+        balance: data.list[m].balance,
       }));
   }, [data]);
 

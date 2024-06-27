@@ -79,8 +79,8 @@ export interface GetRecordBillApiParams {
 }
 
 export interface GetRecordBillApiResponseData {
-  month: {
-    [month: string]: Bill;
+  list: {
+    [monthOrYear: string]: Bill;
   };
   all: Bill;
 }
