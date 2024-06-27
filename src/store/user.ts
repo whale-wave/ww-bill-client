@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { queryClient } from '@/main';
 
 interface UserInfo {
   id: number | string;
@@ -56,5 +57,6 @@ export const useUserStore = create<State & Actions>((set, get) => ({
       userInfo: undefined,
     });
     localStorage.clear();
+    void queryClient.invalidateQueries();
   },
 }));

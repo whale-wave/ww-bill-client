@@ -15,30 +15,21 @@ import { useGetUserUserInfoQuery } from '@/hooks';
 const Mine: FC = () => {
   const navigate = useNavigate();
 
-  const { token, setUserInfo, userInfo } = useUserStore(
-    ({ token, setUserInfo, userInfo }) => ({
-      token,
+  const { setUserInfo, token } = useUserStore(
+    ({ setUserInfo, token }) => ({
       setUserInfo,
-      userInfo,
+      token,
     }),
   );
 
-  const { data: userInfoData } = useGetUserUserInfoQuery({
+  const { data: userInfo } = useGetUserUserInfoQuery({
     options: {
       enabled: !!token,
     },
   });
 
   const checkIn = useMemo(() => {
-    if (!userInfo)
-      return false;
-    return userInfo.checkIn;
-  }, [userInfo]);
-
-  const billRecord = useMemo(() => {
-    if (!userInfo)
-      return;
-    return userInfo.billRecord;
+    return !!userInfo?.checkIn;
   }, [userInfo]);
 
   const numberInfo = useMemo(() => {
@@ -61,12 +52,10 @@ const Mine: FC = () => {
   }, [userInfo]);
 
   useEffect(() => {
-    if (!token)
+    if (!userInfo)
       return;
-    if (!userInfoData)
-      return;
-    setUserInfo(userInfoData);
-  }, [userInfoData, token]);
+    setUserInfo(userInfo);
+  }, [userInfo]);
 
   const onCheckIn = async () => {
     if (checkIn)
@@ -146,32 +135,32 @@ const Mine: FC = () => {
               onClick={() => goTo('/bill')}
             >
               <div className={classNames(styles.big, 'flex-shrink-0 relative')}>
-                {zeroFill(billRecord?.month)}
+                {zeroFill(userInfo?.billRecord?.month)}
                 <span>月</span>
               </div>
               <div className={classNames('flex flex-grow')}>
                 <div className="grow w-1/3">
                   <div className={classNames(styles.name)}>收入</div>
                   <div className={classNames(styles.money)}>
-                    {spliceNumberByPoint(billRecord?.income)[0]}
+                    {spliceNumberByPoint(userInfo?.billRecord?.income)[0]}
                     .
-                    {spliceNumberByPoint(billRecord?.income)[1]}
+                    {spliceNumberByPoint(userInfo?.billRecord?.income)[1]}
                   </div>
                 </div>
                 <div className="grow w-1/3">
                   <div className={classNames(styles.name)}>支出</div>
                   <div className={classNames(styles.money)}>
-                    {spliceNumberByPoint(billRecord?.expend)[0]}
+                    {spliceNumberByPoint(userInfo?.billRecord?.expend)[0]}
                     .
-                    {spliceNumberByPoint(billRecord?.expend)[1]}
+                    {spliceNumberByPoint(userInfo?.billRecord?.expend)[1]}
                   </div>
                 </div>
                 <div className="grow w-1/3">
                   <div className={classNames(styles.name)}>结余</div>
                   <div className={classNames(styles.money)}>
-                    {spliceNumberByPoint(billRecord?.surplus)[0]}
+                    {spliceNumberByPoint(userInfo?.billRecord?.surplus)[0]}
                     .
-                    {spliceNumberByPoint(billRecord?.surplus)[1]}
+                    {spliceNumberByPoint(userInfo?.billRecord?.surplus)[1]}
                   </div>
                 </div>
               </div>

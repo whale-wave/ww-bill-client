@@ -1,11 +1,12 @@
-import choseFile from '@/utils/choseFile';
 import { ActionSheet, Toast } from 'antd-mobile';
 import { useNavigate } from 'react-router-dom';
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import type { FC } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Button, List, Modal, NavBar } from 'bw-mobile';
-import { uploadFile } from '@/api';
 import styles from './index.module.scss';
+import { uploadFile } from '@/api';
+import choseFile from '@/utils/choseFile';
 import { useUserStore } from '@/store';
 import { useGetUserUserInfoQuery, usePutUserUserInfoMutation } from '@/hooks';
 
@@ -14,11 +15,6 @@ const UserInfo: FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const { data } = useGetUserUserInfoQuery();
   const [putUserUserInfoMutate] = usePutUserUserInfoMutation();
-
-  useEffect(() => {
-    if (!data) return;
-    setUserInfo(data);
-  }, [data]);
 
   const { logOut, setUserInfo, userInfo } = useUserStore(
     ({ logOut, userInfo, setUserInfo }) => ({
@@ -33,7 +29,7 @@ const UserInfo: FC = () => {
 
   const onLogout = () => {
     logOut();
-    navigate('/detail');
+    navigate('/login');
   };
 
   const onCancelModal = () => {
@@ -58,7 +54,8 @@ const UserInfo: FC = () => {
   const handleChangeAvatar = async () => {
     const files = await choseFile();
     const formData = new FormData();
-    if (!files) return;
+    if (!files)
+      return;
     formData.append('file', files[0]);
     const { statusCode, data } = await uploadFile(formData);
 
@@ -89,6 +86,12 @@ const UserInfo: FC = () => {
     });
   }, []);
 
+  useEffect(() => {
+    if (!data)
+      return;
+    setUserInfo(data);
+  }, [data]);
+
   return (
     <div className={classNames('page')} style={{ background: '#f2f2f7' }}>
       <NavBar back="返回" onBack={() => navigate(-1)}>
@@ -109,7 +112,7 @@ const UserInfo: FC = () => {
         <List.Item
           onClick={handleChangeAvatar}
           arrow={false}
-          extra={
+          extra={(
             <div
               className={classNames(
                 styles.avatar,
@@ -122,7 +125,7 @@ const UserInfo: FC = () => {
                 alt={userInfo?.name}
               />
             </div>
-          }
+          )}
         >
           头像
         </List.Item>
