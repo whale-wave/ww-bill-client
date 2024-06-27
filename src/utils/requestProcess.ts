@@ -1,17 +1,17 @@
-import { useUserStore } from '@/store';
 import { Toast } from 'antd-mobile';
+import { useUserStore } from '@/store';
 
-const clearTokenToLogin = (msg: string) => {
+function clearTokenToLogin(msg: string) {
   useUserStore.getState().logOut();
   Toast.show({ content: msg, icon: 'fail', duration: 1000 });
   setTimeout(() => {
     window.location.hash = '#/login';
   }, 1000);
   return msg;
-};
+}
 
-export const baseResponseProcess = (statusCode: string) => {
-  switch (parseInt(statusCode)) {
+export function baseResponseProcess(statusCode: string) {
+  switch (Number.parseInt(statusCode)) {
     case 403:
       return clearTokenToLogin('登录已过期');
     case 402:
@@ -19,21 +19,22 @@ export const baseResponseProcess = (statusCode: string) => {
     case 401:
       return clearTokenToLogin('未登录账号');
   }
-};
+}
 
-export const errorResponseProcess = (data: {
+export function errorResponseProcess(data: {
   message: string[] | string;
   statusCode: number | string;
-}) => {
-  const statusCode =
-    typeof data.statusCode === 'number'
+}) {
+  const statusCode
+    = typeof data.statusCode === 'number'
       ? data.statusCode
-      : parseInt(data.statusCode);
+      : Number.parseInt(data.statusCode);
   const params = {
     content: typeof data.message === 'string' ? data.message : data.message[0],
     position: 'top',
     duration: 1000,
   } as { content: string; icon?: string };
-  if (statusCode !== 200) delete params.icon;
+  if (statusCode !== 200)
+    delete params.icon;
   Toast.show(params);
-};
+}
