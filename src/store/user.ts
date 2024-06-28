@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import { queryClient } from '@/main';
 
 interface UserInfo {
@@ -31,18 +32,14 @@ interface Actions {
   logOut: () => void;
 }
 
-const userInfoStr = localStorage.getItem('userInfo');
-
-export const useUserStore = create<State & Actions>((set, get) => ({
-  token: localStorage.getItem('token') || '',
-  userInfo: userInfoStr ? JSON.parse(userInfoStr) : undefined,
+export const useUserStore = create<State & Actions>()(persist((set, get) => ({
+  token: '',
+  userInfo: undefined,
   setToken: (data) => {
     set({ token: data });
-    localStorage.setItem('token', data);
   },
   setUserInfo: (data) => {
     set({ userInfo: data });
-    localStorage.setItem('userInfo', JSON.stringify(data));
   },
   updateUserInfo: (data) => {
     const { name, avatar } = data;
@@ -58,5 +55,12 @@ export const useUserStore = create<State & Actions>((set, get) => ({
     });
     localStorage.clear();
     void queryClient.invalidateQueries();
+  },
+}), {
+  name: 'user-storage',
+  storage: createJSONStorage(() => localStorage),
+  partialize: (state) => {
+    const { token, userInfo } = state;
+    return { token, userInfo };
   },
 }));
