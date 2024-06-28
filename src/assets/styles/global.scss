@@ -31,6 +31,18 @@
   background-color: var(--background-color);
 }
 
+.adm-card:has(div) {
+  --adm-color-border: 'transparent';
+
+  @apply px-0;
+  .adm-card-header {
+    @apply p-[12px];
+  }
+  .adm-card-body {
+    //@apply pt-0;
+  }
+}
+
 :root {
   --theme-color: #aeeeff;
   --theme-text-color: #333;

@@ -21,7 +21,7 @@ export const BillRecordCard: FC<{ data?: Bill }> = (p) => {
   const isMonth = useMemo(() => billTabType === BillTabsType.MONTH, [billTabType]);
 
   return (
-    <Card className="!bg-primary !py-2 mb-2 text-[12px]" bodyClassName="space-y-2 !px-2">
+    <Card className="!bg-primary !py-2 !px-[12px] mb-2 text-[12px]" bodyClassName="space-y-2 !px-2 ">
       <div>
         {isMonth ? '年' : '总'}
         结余

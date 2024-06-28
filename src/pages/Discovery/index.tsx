@@ -13,7 +13,8 @@ const Discovery: React.FC<DiscoveryProps> = () => {
   return (
     <div className="page-new bg-bg-gray fixed top-0 left-0 w-full">
       <NavBar backArrow={false}>发现</NavBar>
-      <div className="flex-grow px-4 space-y-[12px] py-[12px]">
+      <div className="flex-grow px-4 space-y-[12px] pb-[12px] relative">
+        <div className="absolute w-[140%] h-[40px] bg-primary left-[-20%] top-0 rounded-b-[50%] -z-[1]"></div>
         <CurrentMonthBillCard billRecord={userInfo?.billRecord} />
         <CommonFunctionCard />
         {/* <div className={classNames('flex flex-col h-[140px] mt-[12px] pt-[12px] px-[16px] pb-[10px] bg-[#fff] rounded-[5px]')}> */}
