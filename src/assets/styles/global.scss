@@ -1,0 +1,55 @@
+#root {
+  @apply h-full;
+}
+
+.page {
+  @apply h-full overflow-hidden flex flex-col;
+}
+
+.page-new {
+  @apply h-full flex flex-col;
+}
+
+.card-rounded {
+  @apply rounded-[5px];
+}
+
+.one-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// fix and icon middle problem
+.adm-toast-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.adm-button {
+  background-color: var(--background-color);
+}
+
+:root {
+  --theme-color: #aeeeff;
+  --theme-text-color: #333;
+  --background-color: #f5f5f5;
+  -webkit-touch-callout: none; /*系统默认菜单被禁用*/
+  -webkit-user-select: none; /*webkit浏览器*/
+  -khtml-user-select: none; /*早期浏览器*/
+  -moz-user-select: none; /*火狐*/
+  -ms-user-select: none; /*IE10*/
+  user-select: none;
+}
+
+:root:root {
+  --adm-color-primary: var(--theme-color);
+  --adm-color-text: var(--theme-text-color);
+
+  .adm-dialog-action-row {
+    .adm-button {
+      --adm-color-primary: #2073ba;
+    }
+  }
+}

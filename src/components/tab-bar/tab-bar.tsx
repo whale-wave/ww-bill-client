@@ -31,7 +31,7 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
       router: '/bookkeeping',
       customRender: (tab: any) => {
         return (
-          <div className="flex justify-center items-center flex-col relative z-[999]">
+          <div className="flex justify-center items-center flex-col relative">
             <div className="border-[1px] border-[#f7f7f7] border-solid p-[5px] rounded-full border-r-0 border-b-0 border-l-0 absolute bottom-[50%] bg-[#fff]">
               <div className="bg-primary rounded-full w-[40px] h-[40px] flex justify-center items-center">
                 <Icon name={tab.icon} className="tab-icon !text-[18px]" />
@@ -44,11 +44,17 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
       },
     },
     {
-      name: '社区',
+      name: '发现',
       icon: 'community',
       iconActive: 'community-fill',
-      router: '/community',
+      router: '/discovery',
     },
+    // {
+    //   name: '社区',
+    //   icon: 'community',
+    //   iconActive: 'community-fill',
+    //   router: '/community',
+    // },
     {
       name: '我的',
       icon: 'mine',
@@ -69,25 +75,25 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
   };
 
   return (
-    <div className={classNames(['bwm-tab-bar'])}>
-      {tabBarList.map((tab, index) => (
-        <div
-          key={tab.name}
-          className="item relative"
-          onClick={() => changeRoute(index, tab.router)}
-        >
-          {
-            tab.customRender
+    <div className="h-[60px] flex-shrink-0 z-[100]">
+      <div className={classNames('bwm-tab-bar fixed bottom-0')}>
+        {tabBarList.map((tab, index) => (
+          <div
+            key={tab.name}
+            className="item relative"
+            onClick={() => changeRoute(index, tab.router)}
+          >
+            {tab.customRender
               ? tab.customRender(tab)
               : (
                 <>
                   <Icon name={isActive(tab, index)} className="tab-icon" />
                   <span className="name">{tab.name}</span>
                 </>
-                )
-          }
-        </div>
-      ))}
+                )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

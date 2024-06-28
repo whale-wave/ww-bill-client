@@ -32,6 +32,7 @@ import ForgetPasswordVerifyCode from '@/pages/ForgetPassword/ForgetPasswordVerif
 import ForgetPasswordRest from '@/pages/ForgetPassword/ForgetPasswordReset';
 import EmailChangeCaptcha from '@/pages/EmailChange/EmailChangeCaptcha';
 import EmailChange from '@/pages/EmailChange';
+import Discovery from '@/pages/Discovery';
 
 export const router = createHashRouter([
   {
@@ -45,6 +46,10 @@ export const router = createHashRouter([
       {
         path: 'bookkeeping',
         element: <Bookkeeping />,
+      },
+      {
+        path: 'discovery',
+        element: <Discovery />,
       },
       {
         path: 'community',
