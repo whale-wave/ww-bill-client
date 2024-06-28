@@ -47,6 +47,7 @@
     "commitizen": "^4.2.4",
     "cz-conventional-changelog": "3.3.0",
     "eslint": "8.57.0",
+    "eslint-plugin-format": "0.1.2",
     "eslint-plugin-react-hooks": "4.6.2",
     "eslint-plugin-react-refresh": "0.4.7",
     "husky": "9.0.11",

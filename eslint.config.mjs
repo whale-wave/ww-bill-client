@@ -1,6 +1,14 @@
 import antfu from '@antfu/eslint-config';
 
 export default antfu({
+  formatters: {
+    css: true,
+    html: true,
+    markdown: true,
+  },
+  stylistic: {
+    indent: 2,
+  },
   react: true,
   // ignores: ['vite.config.ts', 'tsconfig.json'],
 }, {
