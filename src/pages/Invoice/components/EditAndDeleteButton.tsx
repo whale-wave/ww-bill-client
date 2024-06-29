@@ -29,6 +29,7 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
   const actions = useMemo(() => {
     return [
       {
+        key: 'edit',
         label: '编辑',
         onClick: () => {
           if (!isHasInvoiceId(invoiceId))
@@ -37,6 +38,7 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
         },
       },
       {
+        key: 'delete',
         label: '删除',
         onClick: () => {
           if (!isHasInvoiceId(invoiceId))

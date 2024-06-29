@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 export interface BottomActionActionItem {
+  key: string | number;
   label?: string;
   onClick?: () => void;
   render?: (actionItem: BottomActionActionItem) => React.ReactNode;
@@ -22,7 +23,7 @@ const BottomAction: React.FC<BottomActionProps> = (props) => {
         className={classNames(className, 'fixed w-full bottom-0 left-0 flex')}
       >
         {actions.map((actionItem, index) => (
-          <React.Fragment key={actionItem.label}>
+          <React.Fragment key={actionItem.key}>
             <div
               className="flex-grow flex flex-shrink-0 justify-center items-center"
               onClick={actionItem?.onClick}
@@ -32,7 +33,7 @@ const BottomAction: React.FC<BottomActionProps> = (props) => {
                     actionItem.render(actionItem)
                   )
                 : (
-                  <div key={actionItem.label}>{actionItem.label}</div>
+                  <div>{actionItem.label}</div>
                   )}
             </div>
             {index < actions.length - 1 && (

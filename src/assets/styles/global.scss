@@ -73,6 +73,18 @@
     }
   }
 
+  .adm-form {
+    .adm-list:has(div) .adm-list-body {
+      font-size: var(--ww-font-size);
+      .adm-input-element {
+        font-size: var(--ww-font-size);
+      }
+    }
+    .adm-form-footer {
+      @apply p-6;
+    }
+  }
+
   .adm-dialog-action-row {
     //.adm-button {
     //  --adm-color-primary: #2073ba;

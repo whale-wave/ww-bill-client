@@ -13,6 +13,7 @@ const AddInvoiceButton: React.FC<AddInvoiceButtonProps> = () => {
   const actions = useMemo(() => {
     return [
       {
+        key: 'add',
         render: () => {
           return (
             <>

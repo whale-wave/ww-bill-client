@@ -29,7 +29,7 @@ export function getInvoiceByIdApi(params: GetInvoiceByIdApiParams) {
   return request.get<unknown, SuccessResponse<InvoiceEntity>>(`/invoice/${params.id}`);
 }
 
-interface PatchInvoiceApiData extends Partial<Omit<InvoiceEntity, 'id'>> {
+export interface PatchInvoiceApiData extends Partial<Omit<InvoiceEntity, 'id'>> {
 }
 
 export function patchInvoiceApi(id: string, data: PatchInvoiceApiData) {

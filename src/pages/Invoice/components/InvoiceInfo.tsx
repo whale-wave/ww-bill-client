@@ -19,7 +19,7 @@ export function getOptionListByInvoice(invoice: InvoiceEntity) {
   const options = [
     {
       key: 'companyName',
-      label: '公司名称',
+      label: '名称',
     },
     {
       key: 'taxNumber',
