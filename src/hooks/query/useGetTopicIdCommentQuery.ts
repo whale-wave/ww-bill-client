@@ -1,16 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import { getTopicIdCommentApi } from '@/api';
 import { useMemo } from 'react';
+import { getTopicIdCommentApi } from '@/api';
 import { isSuccessApi } from '@/utils';
 
 export const useGetTopicIdCommentQueryQueryKey = 'useGetTopicIdCommentQuery';
 
-export const useGetTopicIdCommentQuery = (options: {
+export function useGetTopicIdCommentQuery(options: {
   params: string;
   options?: {
     enabled?: boolean;
   };
-}) => {
+}) {
   const { data: response, ...rest } = useQuery({
     queryFn: ({ queryKey }) => getTopicIdCommentApi(queryKey[1]),
     queryKey: [useGetTopicIdCommentQueryQueryKey, options.params] as const,
@@ -18,7 +18,8 @@ export const useGetTopicIdCommentQuery = (options: {
   });
 
   const data = useMemo(() => {
-    if (!isSuccessApi(response)) return;
+    if (!isSuccessApi(response))
+      return;
     return response.data;
   }, [response]);
 
@@ -27,4 +28,4 @@ export const useGetTopicIdCommentQuery = (options: {
     data,
     ...rest,
   };
-};
+}

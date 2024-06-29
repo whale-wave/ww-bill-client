@@ -1,14 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
-import { deleteFollowApi } from '@/api';
+import { patchUserAppConfigApi } from '@/api';
 import { queryClient } from '@/main';
-import { useGetFollowQueryQueryKey } from '@/hooks/useGetFollowQuery';
+import { useGetUserAppConfigQueryQueryKey } from '@/hooks/query/useGetUserAppConfigQuery';
 
-export const useDeleteFollowMutation = () => {
+export function usePatchUserAppConfigMutation() {
   const { mutateAsync, ...rest } = useMutation({
-    mutationFn: deleteFollowApi,
+    mutationFn: patchUserAppConfigApi,
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: [useGetFollowQueryQueryKey],
+        queryKey: [useGetUserAppConfigQueryQueryKey],
       });
     },
   });
@@ -19,4 +19,4 @@ export const useDeleteFollowMutation = () => {
       ...rest,
     },
   ] as const;
-};
+}

@@ -1,14 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
-import { postFollowApi } from '@/api';
+import { deleteInvoiceApi } from '@/api';
 import { queryClient } from '@/main';
-import { useGetFollowQueryQueryKey } from '@/hooks/useGetFollowQuery';
+import { useGetInvoiceQueryQueryKey } from '@/hooks';
 
-export const usePostFollowMutation = () => {
+export function useDeleteInvoiceMutation() {
   const { mutateAsync, ...rest } = useMutation({
-    mutationFn: postFollowApi,
+    mutationFn: deleteInvoiceApi,
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: [useGetFollowQueryQueryKey],
+        queryKey: [useGetInvoiceQueryQueryKey],
       });
     },
   });
@@ -19,4 +19,4 @@ export const usePostFollowMutation = () => {
       ...rest,
     },
   ] as const;
-};
+}

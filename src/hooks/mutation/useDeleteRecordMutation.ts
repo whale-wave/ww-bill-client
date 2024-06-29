@@ -1,14 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
-import { postUserEmailChangeEmailApi } from '@/api';
+import { deleteRecordApi } from '@/api';
 import { queryClient } from '@/main';
-import { useGetUserUserInfoQueryQueryKey } from '@/hooks/useGetUserUserInfoQuery';
+import { useGetRecordQueryQueryKey } from '@/hooks/query/useGetRecordQuery';
 
-export const usePostUserEmailChangeEmailMutation = () => {
+export function useDeleteRecordMutation() {
   const { mutateAsync, ...rest } = useMutation({
-    mutationFn: postUserEmailChangeEmailApi,
+    mutationFn: deleteRecordApi,
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: [useGetUserUserInfoQueryQueryKey],
+        queryKey: [useGetRecordQueryQueryKey],
       });
     },
   });
@@ -19,4 +19,4 @@ export const usePostUserEmailChangeEmailMutation = () => {
       ...rest,
     },
   ] as const;
-};
+}

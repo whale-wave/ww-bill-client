@@ -28,7 +28,7 @@
 }
 
 .adm-button {
-  background-color: var(--background-color);
+  background-color: var(--ww-background-color);
 }
 
 .adm-card:has(div) {
@@ -38,15 +38,19 @@
   .adm-card-header {
     @apply p-[12px];
   }
+
   .adm-card-body {
     //@apply pt-0;
   }
 }
 
 :root {
-  --theme-color: #aeeeff;
-  --theme-text-color: #333;
-  --background-color: #f5f5f5;
+  --ww-theme-color: #aeeeff;
+  --ww-theme-text-color: #333;
+  --ww-background-color: #f5f5f5;
+  --ww-border-color: #d7d7d7;
+  --ww-font-size: 15px;
+
   -webkit-touch-callout: none; /*系统默认菜单被禁用*/
   -webkit-user-select: none; /*webkit浏览器*/
   -khtml-user-select: none; /*早期浏览器*/
@@ -56,12 +60,23 @@
 }
 
 :root:root {
-  --adm-color-primary: var(--theme-color);
-  --adm-color-text: var(--theme-text-color);
+  --adm-color-primary: var(--ww-theme-color);
+  --adm-color-text: var(--ww-theme-text-color);
+
+  .adm-button {
+    --adm-font-size-9: var(--ww-font-size);
+
+    @apply py-[8px] px-[12px];
+
+    &.adm-button-primary {
+      @apply text-font-black;
+    }
+  }
 
   .adm-dialog-action-row {
-    .adm-button {
-      --adm-color-primary: #2073ba;
-    }
+    //.adm-button {
+    //  --adm-color-primary: #2073ba;
+    //  --adm-font-size-9: var(--ww-font-size);
+    //}
   }
 }

@@ -1,11 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
-import { putUserUserInfoApi } from '@/api';
+import { postUserEmailChangeEmailApi } from '@/api';
 import { queryClient } from '@/main';
-import { useGetUserUserInfoQueryQueryKey } from '@/hooks/useGetUserUserInfoQuery';
+import { useGetUserUserInfoQueryQueryKey } from '@/hooks/query/useGetUserUserInfoQuery';
 
-export const usePutUserUserInfoMutation = () => {
+export function usePostUserEmailChangeEmailMutation() {
   const { mutateAsync, ...rest } = useMutation({
-    mutationFn: putUserUserInfoApi,
+    mutationFn: postUserEmailChangeEmailApi,
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: [useGetUserUserInfoQueryQueryKey],
@@ -19,4 +19,4 @@ export const usePutUserUserInfoMutation = () => {
       ...rest,
     },
   ] as const;
-};
+}

@@ -1,6 +1,6 @@
 .bg {
   z-index: 222;
-  background: var(--theme-color);
+  background: var(--ww-theme-color);
 }
 
 .logo {
