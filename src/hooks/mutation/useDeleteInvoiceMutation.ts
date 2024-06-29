@@ -1,14 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
-import { putUserUserInfoApi } from '@/api';
+import { deleteInvoiceApi } from '@/api';
 import { queryClient } from '@/main';
-import { useGetUserUserInfoQueryQueryKey } from '@/hooks/useGetUserUserInfoQuery';
+import { useGetInvoiceByIdQueryQueryKey, useGetInvoiceQueryQueryKey } from '@/hooks';
 
-export const usePutUserUserInfoMutation = () => {
+export function useDeleteInvoiceMutation() {
   const { mutateAsync, ...rest } = useMutation({
-    mutationFn: putUserUserInfoApi,
+    mutationFn: deleteInvoiceApi,
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: [useGetUserUserInfoQueryQueryKey],
+        queryKey: [useGetInvoiceQueryQueryKey, useGetInvoiceByIdQueryQueryKey],
       });
     },
   });
@@ -19,4 +19,4 @@ export const usePutUserUserInfoMutation = () => {
       ...rest,
     },
   ] as const;
-};
+}

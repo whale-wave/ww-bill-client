@@ -7,3 +7,4 @@ export { default as Icon } from './icon';
 export * from './EmailCaptchaInput';
 export * from './Input';
 export * from './CurrentMonthBillCard';
+export * from './BottomAction';

@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { getFollowApi, GetFollowApiParams } from '@/api';
 import { useMemo } from 'react';
+import type { GetFollowApiParams } from '@/api';
+import { getFollowApi } from '@/api';
 import { isSuccessApi } from '@/utils';
 
 export const useGetFollowQueryQueryKey = 'useGetFollowQuery' as const;
 
-export const useGetFollowQuery = (options?: {
+export function useGetFollowQuery(options?: {
   params: {
     id: string;
     params: GetFollowApiParams;
@@ -13,7 +14,7 @@ export const useGetFollowQuery = (options?: {
   options?: {
     enabled?: boolean;
   };
-}) => {
+}) {
   const { data: response, ...rest } = useQuery({
     queryFn: ({ queryKey }) => getFollowApi(queryKey[1], queryKey[2]),
     queryKey: [
@@ -25,7 +26,8 @@ export const useGetFollowQuery = (options?: {
   });
 
   const data = useMemo(() => {
-    if (!isSuccessApi(response)) return;
+    if (!isSuccessApi(response))
+      return;
     return response.data;
   }, [response]);
 
@@ -34,4 +36,4 @@ export const useGetFollowQuery = (options?: {
     data,
     ...rest,
   };
-};
+}

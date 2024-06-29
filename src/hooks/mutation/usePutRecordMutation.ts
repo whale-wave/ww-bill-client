@@ -1,9 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
 import { putRecordApi } from '@/api';
 import { queryClient } from '@/main';
-import { useGetRecordQueryQueryKey } from '@/hooks/useGetRecordQuery';
+import { useGetRecordQueryQueryKey } from '@/hooks/query/useGetRecordQuery';
 
-export const usePutRecordMutation = () => {
+export function usePutRecordMutation() {
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: (params: {
       id: string;
@@ -22,4 +22,4 @@ export const usePutRecordMutation = () => {
       ...rest,
     },
   ] as const;
-};
+}

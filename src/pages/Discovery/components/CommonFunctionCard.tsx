@@ -1,11 +1,21 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { ReceivePaymentOutline, TextOutline } from 'antd-mobile-icons';
 import { Card, Toast } from 'antd-mobile';
+import { useNavigate } from 'react-router-dom';
 import { Icon } from '@/components';
 
 interface CommonFunctionCardProps {}
 
+interface FunctionItem {
+  name: string;
+  icon: React.ReactNode;
+  onClick?: () => void;
+  path?: string;
+}
+
 const CommonFunctionCard: React.FC<CommonFunctionCardProps> = () => {
+  const navigate = useNavigate();
+
   const functionList = [
     {
       name: '资产管家',
@@ -19,7 +29,7 @@ const CommonFunctionCard: React.FC<CommonFunctionCardProps> = () => {
     {
       name: '发票助手',
       icon: <TextOutline />,
-      // path: '/invoice',
+      path: '/invoice',
     },
     // {
     //   name: '房贷计算器',
@@ -35,7 +45,13 @@ const CommonFunctionCard: React.FC<CommonFunctionCardProps> = () => {
         });
       },
     },
-  ];
+  ] as FunctionItem[];
+
+  const onFunctionItemClick = useCallback((functionItem: FunctionItem) => () => {
+    if (functionItem.path)
+      navigate(functionItem.path);
+    functionItem.onClick?.();
+  }, []);
 
   return (
     <Card title="常用功能" bodyClassName="!pt-0">
@@ -44,7 +60,7 @@ const CommonFunctionCard: React.FC<CommonFunctionCardProps> = () => {
           <div
             key={fnItem.name}
             className="flex flex-col justify-center items-center text-[12px] w-1/4 space-y-3"
-            onClick={fnItem?.onClick}
+            onClick={onFunctionItemClick(fnItem)}
           >
             <div className="rounded-full w-[42px] h-[42px] bg-[#f6f6f6] flex justify-center items-center text-[24px]">
               {fnItem.icon}

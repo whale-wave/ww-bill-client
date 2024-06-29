@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import Content from '@/pages/Bill/components/Content';
 import { BillTabs } from '@/pages/Bill/BillTabs';
 import { BillRecordCard } from '@/pages/Bill/BillRecordCard';
-import { useGetRecordBillQuery } from '@/hooks/useGetRecordBillQuery';
+import { useGetRecordBillQuery } from '@/hooks/query/useGetRecordBillQuery';
 import { useBillPageStore } from '@/pages/Bill/store';
 
 const Bill: FC = () => {
