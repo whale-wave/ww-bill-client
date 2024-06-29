@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReceivePaymentOutline, TextOutline } from 'antd-mobile-icons';
-import { Card } from 'antd-mobile';
+import { Card, Toast } from 'antd-mobile';
 import { Icon } from '@/components';
 
 interface CommonFunctionCardProps {}
@@ -10,7 +10,11 @@ const CommonFunctionCard: React.FC<CommonFunctionCardProps> = () => {
     {
       name: '资产管家',
       icon: <Icon name="asset-steward" />,
-      path: '/assets',
+      onClick: () => {
+        Toast.show({
+          content: '敬请期待',
+        });
+      },
     },
     {
       name: '发票助手',
@@ -25,7 +29,11 @@ const CommonFunctionCard: React.FC<CommonFunctionCardProps> = () => {
     {
       name: '汇率换算器',
       icon: <ReceivePaymentOutline />,
-      // path: '/invoice',
+      onClick: () => {
+        Toast.show({
+          content: '敬请期待',
+        });
+      },
     },
   ];
 
@@ -36,6 +44,7 @@ const CommonFunctionCard: React.FC<CommonFunctionCardProps> = () => {
           <div
             key={fnItem.name}
             className="flex flex-col justify-center items-center text-[12px] w-1/4 space-y-3"
+            onClick={fnItem?.onClick}
           >
             <div className="rounded-full w-[42px] h-[42px] bg-[#f6f6f6] flex justify-center items-center text-[24px]">
               {fnItem.icon}
