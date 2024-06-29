@@ -1,4 +1,5 @@
 import { createHashRouter } from 'react-router-dom';
+import React from 'react';
 import Bill from '@/pages/Bill';
 import { LoginGuard } from '@/components';
 import Bookkeeping from '@/pages/bookkeeping';
@@ -32,6 +33,11 @@ import ForgetPasswordVerifyCode from '@/pages/ForgetPassword/ForgetPasswordVerif
 import ForgetPasswordRest from '@/pages/ForgetPassword/ForgetPasswordReset';
 import EmailChangeCaptcha from '@/pages/EmailChange/EmailChangeCaptcha';
 import EmailChange from '@/pages/EmailChange';
+import Discovery from '@/pages/Discovery';
+import Invoice from '@/pages/Invoice';
+import InvoiceDetail from '@/pages/Invoice/InvoiceDetail';
+import InvoiceEdit from '@/pages/Invoice/InvoiceEdit';
+import InvoiceCreate from '@/pages/Invoice/InvoiceCreate';
 
 export const router = createHashRouter([
   {
@@ -43,8 +49,33 @@ export const router = createHashRouter([
         element: <FirstScreen />,
       },
       {
+        path: 'invoice',
+        children: [
+          {
+            index: true,
+            element: <Invoice />,
+          },
+          {
+            path: ':id',
+            element: <InvoiceDetail />,
+          },
+          {
+            path: ':id/edit',
+            element: <InvoiceEdit />,
+          },
+          {
+            path: 'create',
+            element: <InvoiceCreate />,
+          },
+        ],
+      },
+      {
         path: 'bookkeeping',
         element: <Bookkeeping />,
+      },
+      {
+        path: 'discovery',
+        element: <Discovery />,
       },
       {
         path: 'community',

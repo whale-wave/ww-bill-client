@@ -1,14 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
-import { postFollowApi } from '@/api';
+import { postUserEmailChangeEmailApi } from '@/api';
 import { queryClient } from '@/main';
-import { useGetFollowQueryQueryKey } from '@/hooks/useGetFollowQuery';
+import { useGetUserUserInfoQueryQueryKey } from '@/hooks/query/useGetUserUserInfoQuery';
 
-export const usePostFollowMutation = () => {
+export function usePostUserEmailChangeEmailMutation() {
   const { mutateAsync, ...rest } = useMutation({
-    mutationFn: postFollowApi,
+    mutationFn: postUserEmailChangeEmailApi,
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: [useGetFollowQueryQueryKey],
+        queryKey: [useGetUserUserInfoQueryQueryKey],
       });
     },
   });
@@ -19,4 +19,4 @@ export const usePostFollowMutation = () => {
       ...rest,
     },
   ] as const;
-};
+}

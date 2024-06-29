@@ -22,6 +22,7 @@
     "bw-mobile": "^0.0.7",
     "classnames": "^2.3.1",
     "classnames-es-ts": "^2.2.7",
+    "copy-to-clipboard": "3.3.3",
     "dayjs": "^1.10.7",
     "html2canvas": "^1.4.1",
     "i18next": "^21.6.6",
@@ -31,7 +32,7 @@
     "react-i18next": "^11.15.3",
     "react-router-dom": "6.22.0",
     "xlsx": "^0.18.5",
-    "zustand": "4.5.2"
+    "zustand": "4.5.4"
   },
   "devDependencies": {
     "@antfu/eslint-config": "2.21.1",
@@ -47,6 +48,7 @@
     "commitizen": "^4.2.4",
     "cz-conventional-changelog": "3.3.0",
     "eslint": "8.57.0",
+    "eslint-plugin-format": "0.1.2",
     "eslint-plugin-react-hooks": "4.6.2",
     "eslint-plugin-react-refresh": "0.4.7",
     "husky": "9.0.11",

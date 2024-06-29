@@ -17,45 +17,6 @@
         }
       }
     }
-    .bill {
-      height: 106px;
-      margin-top: 12px;
-      padding: 12px 16px 10px;
-      background: #FFFFFF;
-      border-radius: 5px;
-      .hd {
-        font-size: 17px;
-        color: #333233;
-      }
-      .bottom {
-        .big {
-          &::before {
-            position: absolute;
-            content: "";
-            right: 0;
-            bottom: 0;
-            transform: translateY(-50%);
-            width: 1px;
-            height: 22px;
-            background: #959595;
-          }
-          width: 61px;
-          margin-right: 18px;
-          font-size: 26px;
-          > span {
-            font-size: 14px;
-          }
-        }
-        .name {
-          font-size: 12px;
-        }
-        .money {
-          @include one-line;
-          font-size: 16px;
-        }
-      }
-    }
-
     .budget {
       height: 140px;
       margin-top: 12px;

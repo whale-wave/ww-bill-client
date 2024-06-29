@@ -1,0 +1,8 @@
+@import "global";
+@import "mixins";
+@import "reset";
+@import "@/components/reset";
+
+@tailwind components;
+@tailwind utilities;
+
