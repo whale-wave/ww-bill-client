@@ -1,12 +1,9 @@
-export const downloadCanvas = (
-  canvas: HTMLCanvasElement,
-  fileName = '蓝鲸账本',
-) => {
+export function downloadCanvas(canvas: HTMLCanvasElement, fileName = '蓝鲸账本') {
   const a = document.createElement('a');
   a.href = canvas.toDataURL('image/png');
   a.download = fileName;
   a.click();
-};
+}
 
 export function isSuccessApi<T extends SuccessResponse<any>>(
   response?: T,
@@ -17,5 +14,6 @@ export function isSuccessApi<T extends SuccessResponse<any>>(
 export * from './component';
 export * from './system';
 export * from './regular';
+export * from './math';
 
 export { default as request } from './request';
