@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
 
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { defaultHost } from './src/config';
@@ -9,6 +9,14 @@ const srcPath = resolve(__dirname, 'src');
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'es2020',
+    },
+  },
+  build: {
+    target: 'es2020',
+  },
   server: {
     proxy: {
       '/api': {
@@ -21,8 +29,8 @@ export default defineConfig({
     alias: {
       '@': srcPath,
       '~normalize.css': 'normalize.css',
-      '~mixin': srcPath + '/assets/styles',
-      classnames: 'classnames-es-ts',
+      '~mixin': `${srcPath}/assets/styles`,
+      'classnames': 'classnames-es-ts',
     },
   },
   test: {
