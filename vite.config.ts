@@ -1,5 +1,3 @@
-/// <reference types="vitest" />
-
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -11,11 +9,11 @@ const srcPath = resolve(__dirname, 'src');
 export default defineConfig({
   optimizeDeps: {
     esbuildOptions: {
-      target: 'es2020',
+      target: 'esnext',
     },
   },
   build: {
-    target: 'es2020',
+    target: 'esnext',
   },
   server: {
     proxy: {
@@ -32,10 +30,6 @@ export default defineConfig({
       '~mixin': `${srcPath}/assets/styles`,
       'classnames': 'classnames-es-ts',
     },
-  },
-  test: {
-    global: true, // 添加全局变量
-    environment: 'jsdom', // node环境下dom
   },
   css: {
     preprocessorOptions: {
