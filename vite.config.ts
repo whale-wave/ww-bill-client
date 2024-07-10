@@ -33,10 +33,6 @@ export default defineConfig({
       'classnames': 'classnames-es-ts',
     },
   },
-  test: {
-    global: true, // 添加全局变量
-    environment: 'jsdom', // node环境下dom
-  },
   css: {
     preprocessorOptions: {
       scss: {
