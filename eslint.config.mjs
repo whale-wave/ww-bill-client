@@ -10,7 +10,7 @@ export default antfu({
     indent: 2,
   },
   react: true,
-  // ignores: ['vite.config.ts', 'tsconfig.json'],
+  ignores: ['tsconfig.app.json'],
 }, {
   rules: {
     'style/semi': ['error', 'always'],

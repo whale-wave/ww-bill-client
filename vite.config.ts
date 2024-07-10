@@ -9,11 +9,11 @@ const srcPath = resolve(__dirname, 'src');
 export default defineConfig({
   optimizeDeps: {
     esbuildOptions: {
-      target: 'es2020',
+      target: 'esnext',
     },
   },
   build: {
-    target: 'es2020',
+    target: 'esnext',
   },
   server: {
     proxy: {
