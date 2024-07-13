@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from 'bw-mobile';
@@ -14,14 +14,11 @@ import { useGetUserUserInfoQuery } from '@/hooks';
 const Mine: FC = () => {
   const navigate = useNavigate();
 
-  const { setUserInfo, token } = useUserStore(
-    ({ setUserInfo, token }) => ({
-      setUserInfo,
-      token,
-    }),
-  );
+  const userInfo = useUserStore(({ userInfo }) => userInfo);
+  const token = useUserStore(({ token }) => token);
+  const setUserInfo = useUserStore(({ setUserInfo }) => setUserInfo);
 
-  const { data: userInfo } = useGetUserUserInfoQuery({
+  const { data: userInfoData } = useGetUserUserInfoQuery({
     options: {
       enabled: !!token,
     },
@@ -51,18 +48,18 @@ const Mine: FC = () => {
   }, [userInfo]);
 
   useEffect(() => {
-    if (!userInfo)
+    if (!userInfoData)
       return;
-    setUserInfo(userInfo);
-  }, [userInfo]);
+    setUserInfo(userInfoData);
+  }, [userInfoData]);
 
-  const onCheckIn = async () => {
+  const onCheckIn = useCallback(async () => {
     if (checkIn)
       return;
     await checkInPost();
-  };
+  }, [checkIn]);
 
-  const tabs = [
+  const tabs = useMemo(() => [
     {
       icon: 'msg',
       name: '消息',
@@ -85,7 +82,7 @@ const Mine: FC = () => {
       name: '设置',
       path: '/settings',
     },
-  ];
+  ], []);
 
   const goTo = (path?: string) => {
     playSound.turnPage();
