@@ -91,4 +91,12 @@
     //  --adm-font-size-9: var(--ww-font-size);
     //}
   }
+
+  .adm-list-card {
+    @apply m-0;
+  }
+
+  .adm-list-body {
+    font-size: var(--ww-font-size);
+  }
 }
