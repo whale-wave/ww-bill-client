@@ -1,11 +1,12 @@
-import CheckInfo from '@/components/CheckInfo';
-import { FC } from 'react';
+import type { FC } from 'react';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
-import styles from './UserInfo.module.scss';
 import { Icon } from 'bw-mobile';
+import { List } from 'antd-mobile';
+import styles from './UserInfo.module.scss';
+import CheckInfo from '@/components/CheckInfo';
 
-type UserInfoProps = {
+interface UserInfoProps {
   avatar?: string;
   name?: string;
   checkIn: boolean;
@@ -15,7 +16,7 @@ type UserInfoProps = {
     recordCount: number;
   };
   onCheckIn: () => void;
-};
+}
 
 const UserInfo: FC<UserInfoProps> = ({
   name,
@@ -42,9 +43,9 @@ const UserInfo: FC<UserInfoProps> = ({
           <img
             className="w-full h-full object-cover"
             src={
-              avatar ||
-              'https://bill-rearend.oss-cn-guangzhou.aliyuncs.com/static/defulatAvatar.jpg'
-            }
+                            avatar
+                            || 'https://bill-rearend.oss-cn-guangzhou.aliyuncs.com/static/defulatAvatar.jpg'
+                        }
             alt={name}
           />
         </div>
@@ -68,19 +69,11 @@ const UserInfo: FC<UserInfoProps> = ({
           transform: 'translateX(-50%)',
         }}
       >
-        <div
-          className={classNames(
-            styles.bottom,
-            'w-full h-full flex items-center',
-          )}
-        >
-          <Icon name="vip" className={styles.icon} />
-          <span className="grow" style={{ lineHeight: '15px' }}>
-            {/*升级为VIP*/}
-            暂不支持VIP功能
-          </span>
-          <Icon name="right" className={classNames(styles.right)} />
-        </div>
+        <List mode="card">
+          <List.Item prefix={<Icon name="vip" className={classNames(styles.icon, 'text-[24px]')} />}>
+            暂不支持 VIP 功能
+          </List.Item>
+        </List>
       </div>
     </div>
   );

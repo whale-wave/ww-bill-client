@@ -1,13 +1,21 @@
-import { Toast } from 'antd-mobile';
-import { Gap, Icon, List, NavBar, Switch } from 'bw-mobile';
+import { List, Switch, Toast } from 'antd-mobile';
+import { Gap, NavBar } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 import { useEffect } from 'react';
 import styles from './index.module.scss';
 import { useSystemStore } from '@/store';
 import { audioWeb } from '@/modules/playSound';
 import { playSound } from '@/modules';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/hooks';
+
+export interface CustomListItem {
+  title: string;
+  path?: string;
+  onClick?: () => void;
+  description?: string;
+  extra?: ReactNode;
+}
 
 const Settings: FC = () => {
   // TODO: 需要调整为获取指定的字段
@@ -37,9 +45,17 @@ const Settings: FC = () => {
   const [patchUserAppConfigMutationMutate] = usePatchUserAppConfigMutation();
 
   const navigate = useNavigate();
+
   const handleBack = () => {
     playSound.turnPage();
     navigate(-1);
+  };
+
+  const goTo = (path: string) => {
+    if (!path)
+      return;
+    playSound.turnPage();
+    navigate(path);
   };
 
   const onToggleVisibleAmountSwitch = async (val: boolean) => {
@@ -79,76 +95,53 @@ const Settings: FC = () => {
     Toast.show('清除成功');
   };
 
-  const groupOne = [
+  const baseListGroup = [
     {
       title: '账号设置',
       path: '/user-info',
+      onClick() {
+        goTo(this.path);
+      },
     },
   ];
-  const groupTwo = [
+  const functionListGroup = [
     {
       title: '类别设置',
-      path: '',
     },
+  ] as CustomListItem[];
+  const personalizedSettingsListGroup = [
+    {
+      title: '声音开关',
+      extra: <Switch checked={canPlay} onChange={handleSoundSwitch} />,
+    },
+  ];
+  const dataSecurityListGroup = [
     {
       title: '导出数据',
       path: '/export-data',
+      onClick() { goTo(this.path!); },
     },
-  ];
-  const groupThree = [
     {
       title: '隐藏总金额',
-      path: '',
-      arrow: (
+      extra: (
         <Switch
           checked={visibleAmountSwitch}
           onChange={onToggleVisibleAmountSwitch}
         />
       ),
+      description: '开启后, 默认隐藏首页总收支金额',
     },
-    {
-      title: '声音开关',
-      path: '',
-      arrow: <Switch checked={canPlay} onChange={handleSoundSwitch} />,
-    },
-  ];
-  const groupFour = [
+  ] as CustomListItem[];
+  const systemSettingListGroup = [
     {
       title: '清楚缓存',
-      path: '',
       onClick: clearCache,
-      arrow: (
-        <div>
-          <span>{localStorageSize}</span>
-          {' '}
-          <Icon name="right" />
-        </div>
-      ),
+      extra: (<span>{localStorageSize}</span>),
     },
     {
       title: '邀请好友',
-      path: '',
-    },
-    {
-      title: '意见反馈',
-      path: '',
-    },
-    {
-      title: '帮助',
-      path: '',
-    },
-    {
-      title: '关于蓝鲸记账',
-      path: '',
     },
   ];
-
-  const goTo = (path: string) => {
-    if (!path)
-      return;
-    playSound.turnPage();
-    navigate(path);
-  };
 
   return (
     <div className="page">
@@ -158,47 +151,46 @@ const Settings: FC = () => {
       <div className={styles.wrapper}>
         <List>
           <Gap />
-          {groupOne.map(item => (
+          {baseListGroup.map(item => (
             <List.Item
               key={item.title}
-              clickable
-              onClick={() => goTo(item.path)}
+              onClick={item.onClick.bind(item)}
             >
               {item.title}
             </List.Item>
           ))}
-          <Gap />
-          {groupTwo.map(item => (
+        </List>
+        <List header="功能设置">
+          {functionListGroup.map(item => (
             <List.Item
               key={item.title}
-              clickable
-              onClick={() => goTo(item.path)}
+              onClick={item.onClick?.bind(item)}
             >
               {item.title}
             </List.Item>
           ))}
-          <Gap />
-          {groupThree.map(item => (
+        </List>
+        <List header="个性化设置">
+          {personalizedSettingsListGroup.map(item => <List.Item key={item.title} extra={item.extra}>{item.title}</List.Item>)}
+        </List>
+        <List header="数据安全">
+          {dataSecurityListGroup.map(item => (
             <List.Item
               key={item.title}
-              clickable={false}
-              onClick={() => goTo(item.path)}
-              arrow={item.arrow}
-              style={{
-                paddingTop: 5,
-                paddingBottom: 5,
-              }}
+              extra={item.extra}
+              description={item.description}
+              onClick={item.onClick?.bind(item)}
             >
               {item.title}
             </List.Item>
           ))}
-          <Gap />
-          {groupFour.map(item => (
+        </List>
+        <List header="系统设置">
+          {systemSettingListGroup.map(item => (
             <List.Item
               key={item.title}
-              clickable
               onClick={item.onClick}
-              arrow={item.arrow}
+              extra={item.extra}
             >
               {item.title}
             </List.Item>

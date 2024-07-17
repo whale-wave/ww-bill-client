@@ -99,4 +99,10 @@
   .adm-list-body {
     font-size: var(--ww-font-size);
   }
+
+  .adm-list {
+    .adm-list-header {
+      @apply font-bold text-[12px] pt-4 text-font-black;
+    }
+  }
 }
