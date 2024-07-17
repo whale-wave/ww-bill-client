@@ -45,6 +45,7 @@
     "autoprefixer": "^10.4.1",
     "c8": "^7.11.0",
     "commitizen": "^4.2.4",
+    "cross-env": "7.0.3",
     "cz-conventional-changelog": "3.3.0",
     "eslint": "8.57.0",
     "eslint-plugin-format": "0.1.2",
