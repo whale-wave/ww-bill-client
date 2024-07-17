@@ -22,7 +22,7 @@ const BottomList: React.FC<BottomListProps> = () => {
         prefix: <div className="flex items-center text-[20px]"><EditSOutline /></div>,
       },
       {
-        title: `关于鲸浪记账 V${import.meta.env.VITE_APP_VERSION}`,
+        title: `关于鲸浪记账 v${import.meta.env.VITE_APP_VERSION}`,
         prefix: <div className="flex items-center text-[18px]"><ExclamationCircleOutline /></div>,
       },
     ];
