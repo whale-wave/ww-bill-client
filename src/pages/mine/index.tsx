@@ -10,6 +10,7 @@ import { TabBar } from '@/components';
 import UserInfo from '@/pages/mine/UserInfo';
 import { useUserStore } from '@/store';
 import { useGetUserUserInfoQuery } from '@/hooks';
+import { BottomList } from '@/pages/mine/components';
 
 const Mine: FC = () => {
   const navigate = useNavigate();
@@ -101,7 +102,7 @@ const Mine: FC = () => {
         />
 
         <div className={styles.box}>
-          <div className={classNames(styles.menu, 'flex')}>
+          <div className={classNames(styles.menu, 'flex mb-3')}>
             {tabs.map(tab => (
               <div
                 key={tab.name}
@@ -116,16 +117,7 @@ const Mine: FC = () => {
               </div>
             ))}
           </div>
-          <div
-            className={classNames(
-              styles.setting,
-              'flex items-center justify-between font-bold',
-            )}
-            onClick={() => goTo('/settings')}
-          >
-            设置
-            <Icon name="right" style={{ fontSize: 12 }} />
-          </div>
+          <BottomList />
         </div>
       </main>
       <TabBar active={4} />
