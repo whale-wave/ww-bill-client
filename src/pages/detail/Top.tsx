@@ -179,10 +179,10 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
       {visibleAmountSwitch
         ? (
           <div
-            className="right-7 bottom-1/2 absolute text-[24px] px-1"
+            className="right-4 bottom-[116px] absolute text-[18px] px-1"
             onClick={onToggleVisibleAmount}
           >
-            {visibleAmount ? <Icon name="eye-close" /> : <Icon name="eye" />}
+            {!visibleAmount ? <Icon name="eye-close" /> : <Icon name="eye" />}
           </div>
           )
         : null}
