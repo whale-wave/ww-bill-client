@@ -1,5 +1,4 @@
 import { createHashRouter } from 'react-router-dom';
-import React from 'react';
 import Bill from '@/pages/Bill';
 import { LoginGuard } from '@/components';
 import Bookkeeping from '@/pages/bookkeeping';
@@ -38,6 +37,7 @@ import Invoice from '@/pages/Invoice';
 import InvoiceDetail from '@/pages/Invoice/InvoiceDetail';
 import InvoiceEdit from '@/pages/Invoice/InvoiceEdit';
 import InvoiceCreate from '@/pages/Invoice/InvoiceCreate';
+import SearchRecord from '@/pages/SearchRecord';
 
 export const router = createHashRouter([
   {
@@ -47,6 +47,10 @@ export const router = createHashRouter([
       {
         index: true,
         element: <FirstScreen />,
+      },
+      {
+        path: 'search-record',
+        element: <SearchRecord />,
       },
       {
         path: 'invoice',

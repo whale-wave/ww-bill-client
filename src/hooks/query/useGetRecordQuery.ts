@@ -7,7 +7,7 @@ import { isSuccessApi } from '@/utils';
 export const useGetRecordQueryQueryKey = 'useGetRecordQuery' as const;
 
 export function useGetRecordQuery(options?: {
-  params: GetRecordApiParams;
+  params?: GetRecordApiParams;
   options?: {
     enabled?: boolean;
   };
