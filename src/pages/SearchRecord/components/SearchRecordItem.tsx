@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import classNames from 'classnames';
 import type { RecordEntry } from '@/api';
 import { Icon } from '@/components';
@@ -8,13 +8,14 @@ interface SearchRecordItemProps {
   index: number;
   lastIndex: number;
   record: RecordEntry;
+  onClick?: () => void;
 }
 
-const SearchRecordItem: React.FC<SearchRecordItemProps> = (props) => {
-  const { record, className, index, lastIndex } = props;
+const SearchRecordItem: React.FC<SearchRecordItemProps> = memo((props) => {
+  const { record, className, index, lastIndex, onClick } = props;
 
   return (
-    <div className={classNames('flex items-center text-[16px]', className)}>
+    <div className={classNames('flex items-center text-[16px]', className)} onClick={onClick}>
       <div className="mx-4 py-3">
         <div className="h-[35px] w-[35px] rounded-full bg-[#f4f4f4] flex justify-center items-center"><Icon className="text-[20px]" name={record.category.icon} /></div>
       </div>
@@ -32,6 +33,6 @@ const SearchRecordItem: React.FC<SearchRecordItemProps> = (props) => {
       </div>
     </div>
   );
-};
+});
 
 export default SearchRecordItem;

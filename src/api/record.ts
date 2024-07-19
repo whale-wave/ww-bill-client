@@ -17,6 +17,14 @@ export interface RecordEntry {
   updatedAt: string;
 }
 
+export interface GetRecordByIdApiParams {
+  id: string;
+}
+
+export function getRecordByIdApi(getRecordByIdApiParams: GetRecordByIdApiParams) {
+  return request.get<unknown, SuccessResponse<RecordEntry>>(`/record/${getRecordByIdApiParams.id}`);
+}
+
 export interface GetRecordApiResponseData {
   total: number;
   data: RecordEntry[];

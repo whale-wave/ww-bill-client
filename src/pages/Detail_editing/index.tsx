@@ -1,14 +1,22 @@
-import { FC, useEffect, useState } from 'react';
+import type { FC } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
+import type { recordChildren } from '../detail/List';
 import Top from '@/pages/Detail_editing/Top';
 import List from '@/pages/Detail_editing/list';
 import Footer from '@/pages/Detail_editing/footer';
-import { useLocation } from 'react-router-dom';
-import { recordChildren } from '../detail/List';
+import { useGetRecordByIdQuery } from '@/hooks/query/useGetRecordByIdQuery.ts';
 
 const Dditing: FC = () => {
   const navParams = useLocation();
+  const params = useParams();
   const dataList: recordChildren = navParams.state as recordChildren;
-  const [state, setState] = useState<recordChildren>(dataList);
+  const [_state, setState] = useState<recordChildren>(dataList);
+  const { data } = useGetRecordByIdQuery({
+    params: { id: params.id! },
+  });
+
+  const state = useMemo(() => data || _state, [data, _state]);
 
   useEffect(() => {
     setState(navParams.state as recordChildren);
@@ -16,9 +24,9 @@ const Dditing: FC = () => {
 
   return (
     <div className="page">
-      <Top state={state}></Top>
+      <Top state={state} />
       <List state={state} />
-      <Footer state={state}></Footer>
+      <Footer state={state} />
     </div>
   );
 };

@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
 import type { RecordEntry } from '@/api';
 import SearchRecordItem from '@/pages/SearchRecord/components/SearchRecordItem.tsx';
 import { math } from '@/utils';
@@ -11,8 +12,9 @@ interface RecordItemGroupProps {
   };
 }
 
-const RecordItemGroup: React.FC<RecordItemGroupProps> = (props) => {
+const RecordItemGroup: React.FC<RecordItemGroupProps> = memo((props) => {
   const { data } = props;
+  const navigate = useNavigate();
 
   const amountInfo = useMemo(() => {
     const info = [
@@ -38,6 +40,10 @@ const RecordItemGroup: React.FC<RecordItemGroupProps> = (props) => {
     return info.filter(i => i.amount !== 0);
   }, [data]);
 
+  const onRecordItemClick = useCallback((record: RecordEntry) => () => {
+    navigate(`/editing/${record.id}`, { state: record });
+  }, []);
+
   return (
     <div className="flex flex-col pt-3 border-0 border-b-[1px] border-[#ebebeb] border-solid last:border-0">
       <div className="flex justify-between text-[12px] text-[#969696] px-4 ">
@@ -58,6 +64,7 @@ const RecordItemGroup: React.FC<RecordItemGroupProps> = (props) => {
       <div>
         {data.data.map((record, index) => (
           <SearchRecordItem
+            onClick={onRecordItemClick(record)}
             index={index}
             lastIndex={data.data.length - 1}
             key={record.id}
@@ -67,6 +74,6 @@ const RecordItemGroup: React.FC<RecordItemGroupProps> = (props) => {
       </div>
     </div>
   );
-};
+});
 
 export default RecordItemGroup;
