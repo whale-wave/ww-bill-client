@@ -13,6 +13,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@ahooksjs/use-url-state": "^3.5.1",
     "@ant-design/icons": "^4.6.0",
     "@tanstack/react-query": "4.36.1",
     "ahooks": "3.8.0",

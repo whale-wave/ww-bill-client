@@ -1,20 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import type { GetRecordApiParams } from '@/api';
-import { getRecordApi } from '@/api';
+import type { GetRecordByIdApiParams } from '@/api';
+import { getRecordByIdApi } from '@/api';
 import { isSuccessApi } from '@/utils';
 
-export const useGetRecordQueryQueryKey = 'useGetRecordQuery' as const;
+export const useGetRecordByIdQueryQueryKey = 'useGetRecordByIdQuery';
 
-export function useGetRecordQuery(options?: {
-  params?: GetRecordApiParams;
+export function useGetRecordByIdQuery(options?: {
+  params: GetRecordByIdApiParams;
   options?: {
     enabled?: boolean;
   };
 }) {
   const { data: response, ...rest } = useQuery({
-    queryFn: ({ queryKey }) => getRecordApi(queryKey[1]),
-    queryKey: [useGetRecordQueryQueryKey, options!.params] as const,
+    queryFn: ({ queryKey }) => getRecordByIdApi(queryKey[1]),
+    queryKey: [useGetRecordByIdQueryQueryKey, options!.params] as const,
     ...options?.options,
   });
 
@@ -29,4 +29,4 @@ export function useGetRecordQuery(options?: {
     data,
     ...rest,
   };
-}
+};

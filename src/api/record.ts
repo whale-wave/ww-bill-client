@@ -1,6 +1,6 @@
 import request from '@/utils/request';
 
-export interface Record {
+export interface RecordEntry {
   amount: string;
   category: {
     createdAt: string;
@@ -13,20 +13,29 @@ export interface Record {
   id: number;
   remark: string;
   time: string;
-  type: string;
+  type: 'sub' | 'add';
   updatedAt: string;
+}
+
+export interface GetRecordByIdApiParams {
+  id: string;
+}
+
+export function getRecordByIdApi(getRecordByIdApiParams: GetRecordByIdApiParams) {
+  return request.get<unknown, SuccessResponse<RecordEntry>>(`/record/${getRecordByIdApiParams.id}`);
 }
 
 export interface GetRecordApiResponseData {
   total: number;
-  data: Record[];
+  data: RecordEntry[];
   expend: number;
   income: number;
 }
 
 export interface GetRecordApiParams {
-  startDate: string;
+  startDate?: string;
   endDate?: string;
+  keyword?: string;
 }
 
 // 获取记录

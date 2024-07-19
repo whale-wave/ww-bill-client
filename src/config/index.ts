@@ -6,6 +6,6 @@ export const LOCAL_SERVER = 'http://localhost:3001';
 // eslint-disable-next-line import/no-mutable-exports
 let defaultHost = '';
 defaultHost = JIN_JUN_SERVER;
-// defaultHost = LOCAL_SERVER;
+defaultHost = LOCAL_SERVER;
 
 export { defaultHost };
