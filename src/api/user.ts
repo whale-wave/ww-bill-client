@@ -47,7 +47,7 @@ export function changePassword(data: UpdatePassword, loading = true) {
   });
 }
 
-export function checkInPost(loading = true) {
+export function postCheckInApi(loading = true) {
   return request.post<unknown, SuccessResponse<any>>('/check_in', null, {
     loading,
   });
