@@ -38,6 +38,7 @@ import InvoiceDetail from '@/pages/Invoice/InvoiceDetail';
 import InvoiceEdit from '@/pages/Invoice/InvoiceEdit';
 import InvoiceCreate from '@/pages/Invoice/InvoiceCreate';
 import SearchRecord from '@/pages/SearchRecord';
+import RecordCalendar from '@/pages/RecordCalendar';
 
 export const router = createHashRouter([
   {
@@ -47,6 +48,10 @@ export const router = createHashRouter([
       {
         index: true,
         element: <FirstScreen />,
+      },
+      {
+        path: 'record-calendar',
+        element: <RecordCalendar />,
       },
       {
         path: 'search-record',
