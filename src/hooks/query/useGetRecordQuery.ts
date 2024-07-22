@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
+import { useDebounce } from 'ahooks';
 import type { GetRecordApiParams } from '@/api';
 import { getRecordApi } from '@/api';
 import { isSuccessApi } from '@/utils';
@@ -12,9 +13,10 @@ export function useGetRecordQuery(options?: {
     enabled?: boolean;
   };
 }) {
+  const debounceParams = useDebounce(options?.params, { wait: 250 });
   const { data: response, ...rest } = useQuery({
     queryFn: ({ queryKey }) => getRecordApi(queryKey[1]),
-    queryKey: [useGetRecordQueryQueryKey, options!.params] as const,
+    queryKey: [useGetRecordQueryQueryKey, debounceParams] as const,
     ...options?.options,
   });
 
