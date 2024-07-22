@@ -5,11 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import { Icon } from 'bw-mobile';
 import styles from './index.module.scss';
 import { playSound } from '@/modules';
-import { checkInPost } from '@/api';
 import { TabBar } from '@/components';
 import UserInfo from '@/pages/mine/UserInfo';
 import { useUserStore } from '@/store';
-import { useGetUserUserInfoQuery } from '@/hooks';
+import { useGetUserUserInfoQuery, usePostCheckInMutation } from '@/hooks';
 import { BottomList } from '@/pages/mine/components';
 
 const Mine: FC = () => {
@@ -24,6 +23,7 @@ const Mine: FC = () => {
       enabled: !!token,
     },
   });
+  const [postCheckInMutate] = usePostCheckInMutation();
 
   const checkIn = useMemo(() => {
     return !!userInfo?.checkIn;
@@ -57,7 +57,7 @@ const Mine: FC = () => {
   const onCheckIn = useCallback(async () => {
     if (checkIn)
       return;
-    await checkInPost();
+    await postCheckInMutate();
   }, [checkIn]);
 
   const tabs = useMemo(() => [
