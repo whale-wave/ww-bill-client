@@ -4,6 +4,8 @@ import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { DownFill } from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
+import classNames from 'classnames';
+import styles from './index.module.scss';
 
 interface RecordCalendarProps {
 }
@@ -53,7 +55,7 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
   }, []);
 
   return (
-    <div className="page-new">
+    <div className={classNames('page-new', styles['record-calendar-page'])}>
       <NavBar back="返回" right={<div onClick={onToToday}>今天</div>} className="bg-primary" onBack={onBack}>
         <div className="flex items-center justify-center space-x-2" onClick={onDatePicker}>
           <span>{selectMonthValue.format('YYYY年MM月')}</span>

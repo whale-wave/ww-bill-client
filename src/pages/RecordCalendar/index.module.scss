@@ -1,0 +1,18 @@
+.record-calendar-page {
+  :global {
+    .adm-calendar-picker-view {
+      .adm-calendar-picker-view-title,
+      .adm-calendar-picker-view-header {
+        @apply hidden;
+      }
+      .adm-calendar-picker-view-mark {
+        @apply border-b-0 text-gray96;
+      }
+      .adm-calendar-picker-view-body {
+        .adm-calendar-picker-view-cell-selected {
+          @apply bg-transparent text-inherit border-[1px] border-black333 border-solid;
+        }
+      }
+    }
+  }
+}
