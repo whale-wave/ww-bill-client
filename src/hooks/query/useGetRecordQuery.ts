@@ -7,16 +7,19 @@ import { isSuccessApi } from '@/utils';
 
 export const useGetRecordQueryQueryKey = 'useGetRecordQuery' as const;
 
-export function useGetRecordQuery(options?: {
+export function useGetRecordQuery(options: {
   params?: GetRecordApiParams;
   options?: {
     enabled?: boolean;
   };
-}) {
+  queryKey?: any[];
+} = {}) {
+  const { queryKey = [] } = options;
+
   const debounceParams = useDebounce(options?.params, { wait: 250 });
   const { data: response, ...rest } = useQuery({
     queryFn: ({ queryKey }) => getRecordApi(queryKey[1]),
-    queryKey: [useGetRecordQueryQueryKey, debounceParams] as const,
+    queryKey: [useGetRecordQueryQueryKey, debounceParams, ...queryKey] as const,
     ...options?.options,
   });
 

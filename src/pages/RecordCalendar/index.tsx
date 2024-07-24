@@ -6,6 +6,10 @@ import { DownFill } from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames';
 import styles from './index.module.scss';
+import { useGetRecordQuery } from '@/hooks';
+import type { RecordEntry } from '@/api';
+import { math } from '@/utils';
+import RecordItemGroup from '@/pages/SearchRecord/components/RecordItemGroup.tsx';
 
 interface RecordCalendarProps {
 }
@@ -13,14 +17,65 @@ interface RecordCalendarProps {
 const RecordCalendar: React.FC<RecordCalendarProps> = () => {
   const navigate = useNavigate();
 
-  const record = [];
-
   const [selectMonthValue, setSelectMonthValue] = useState<Dayjs>(dayjs());
   const [selectDateValue, setSelectDateValue] = useState<Dayjs>(dayjs());
+
+  const { data: recordList } = useGetRecordQuery({
+    params: { startDate: selectMonthValue.format('YYYY-MM-DD') },
+  });
+
   const dateMap = useMemo(() => {
-    const map = new Map<number, number>([[1721664000000, 400]]);
+    const map = new Map<number, {
+      list: RecordEntry[];
+      expend: number;
+      income: number;
+    }>();
+
+    if (!recordList)
+      return map;
+
+    recordList.data.forEach((record) => {
+      const date = dayjs(record.time).startOf('day').valueOf();
+
+      let data = map.get(date);
+      if (!data) {
+        data = {
+          list: [record],
+          expend: 0,
+          income: 0,
+        };
+
+        map.set(date, data);
+      }
+      else {
+        data.list.push(record);
+      }
+
+      if (record.type === 'sub') {
+        data.expend = math.subtract(data.expend, record.amount).toNumber();
+      }
+      else {
+        data.income = math.add(data.income, record.amount).toNumber();
+      }
+    });
+
     return map;
-  }, [record]);
+  }, [recordList]);
+
+  const list = useMemo(() => {
+    const data = dateMap.get(dayjs(selectDateValue).startOf('day').valueOf());
+
+    if (data?.list) {
+      return {
+        data: data.list,
+        time: selectDateValue.valueOf(),
+      };
+    }
+    return {
+      data: [],
+      time: dayjs().valueOf(),
+    };
+  }, [dateMap, selectDateValue]);
 
   const calendarRange = useMemo(() => {
     return {
@@ -73,8 +128,8 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
   }, []);
 
   return (
-    <div className={classNames('page-new', styles['record-calendar-page'])}>
-      <NavBar back="返回" right={<div onClick={onToToday}>今天</div>} className="bg-primary" onBack={onBack}>
+    <div className={classNames('page-new pt-[45px]', styles['record-calendar-page'])}>
+      <NavBar back="返回" right={<div onClick={onToToday}>今天</div>} className="bg-primary flex-shrink-0 fixed top-0 left-0 w-full" onBack={onBack}>
         <div className="flex items-center justify-center space-x-2" onClick={onDatePicker}>
           <span>{selectMonthValue.format('YYYY年MM月')}</span>
           <DownFill className="text-[14px]" />
@@ -89,7 +144,7 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
         value={selectDateValue.toDate()}
         onChange={onChangeDate}
         renderDate={(date) => {
-          const value = dateMap.get(dayjs(date).startOf('day').valueOf());
+          const data = dateMap.get(dayjs(date).startOf('day').valueOf());
           return (
             <div className={classNames('flex-grow flex flex-col', {
               'border-[1px] border-solid border-gray-200 rounded-[2px]': isToday(date),
@@ -103,19 +158,33 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
               </div>
               <div className="flex-grow flex flex-col text-[10px] leading-[10px]">
                 <div className="flex justify-center h-[10px] text-[#00863f]">
-                  +
-                  {value}
+                  {!!data?.income && (
+                    <>
+                      +
+                      {data.income}
+                    </>
+                  )}
                 </div>
                 <div className="flex justify-center h-[10px] text-[#cf7179]">
-                  -
-                  {value}
+                  {!!data?.expend && (
+                    <>
+                      -
+                      {data.expend}
+                    </>
+                  )}
                 </div>
               </div>
             </div>
           );
         }}
       />
-
+      <div className="hidden">
+        日均预算
+      </div>
+      <div className="h-1 bg-[#f6f7f8] flex-shrink-0" />
+      <div className="pb-8">
+        {list.data.length > 0 && <RecordItemGroup data={list} />}
+      </div>
     </div>
   );
 };

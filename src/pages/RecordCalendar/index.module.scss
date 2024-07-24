@@ -13,6 +13,8 @@
       }
 
       .adm-calendar-picker-view-body {
+        @apply h-[unset];
+
         .adm-calendar-picker-view-cells {
           .adm-calendar-picker-view-cell {
             @apply p-0 border-[1px] text-inherit border-transparent border-solid h-[56px] rounded-[2px] w-[calc(100%/7-24px/7)];
