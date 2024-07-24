@@ -13,9 +13,14 @@ interface RecordCalendarProps {
 const RecordCalendar: React.FC<RecordCalendarProps> = () => {
   const navigate = useNavigate();
 
+  const record = [];
+
   const [selectMonthValue, setSelectMonthValue] = useState<Dayjs>(dayjs());
   const [selectDateValue, setSelectDateValue] = useState<Dayjs>(dayjs());
-  const [dateMap] = useState<Map<number, number>>(new Map([[1721664000000, 400]]));
+  const dateMap = useMemo(() => {
+    const map = new Map<number, number>([[1721664000000, 400]]);
+    return map;
+  }, [record]);
 
   const calendarRange = useMemo(() => {
     return {
@@ -23,6 +28,19 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
       max: selectMonthValue.endOf('month').toDate(),
     };
   }, [selectMonthValue]);
+
+  const isToday = useCallback((date: Date) => {
+    const todayDate = dayjs().date();
+    const dateValue = dayjs(date).date();
+
+    return dateValue === todayDate;
+  }, []);
+
+  const getDateText = useCallback((date: Date) => {
+    const dateValue = dayjs(date).date();
+
+    return isToday(date) ? '今天' : dateValue;
+  }, []);
 
   const onBack = useCallback(() => {
     navigate(-1);
@@ -69,15 +87,30 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
         selectionMode="single"
         weekStartsOn="Monday"
         value={selectDateValue.toDate()}
-        renderTop={() => <div />}
-        renderBottom={() => <div />}
         onChange={onChangeDate}
         renderDate={(date) => {
           const value = dateMap.get(dayjs(date).startOf('day').valueOf());
           return (
-            <div>
-              <div>{dayjs(date).date()}</div>
-              <div>{value}</div>
+            <div className={classNames('flex-grow flex flex-col', {
+              'border-[1px] border-solid border-gray-200 rounded-[2px]': isToday(date),
+            })}
+            >
+              <div className={classNames('mt-1 flex justify-center', {
+                'text-[12px]': isToday(date),
+              })}
+              >
+                {getDateText(date)}
+              </div>
+              <div className="flex-grow flex flex-col text-[10px] leading-[10px]">
+                <div className="flex justify-center h-[10px] text-[#00863f]">
+                  +
+                  {value}
+                </div>
+                <div className="flex justify-center h-[10px] text-[#cf7179]">
+                  -
+                  {value}
+                </div>
+              </div>
             </div>
           );
         }}
