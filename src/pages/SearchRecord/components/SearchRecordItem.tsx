@@ -21,12 +21,12 @@ const SearchRecordItem: React.FC<SearchRecordItemProps> = memo((props) => {
       </div>
       <div className={classNames({
         'border-0 border-b-[1px] border-[#ebebeb] border-solid': index !== lastIndex,
-      }, 'flex flex-grow items-center py-3 pr-3 h-[59px]')}
+      }, 'flex flex-grow items-center py-3 pr-3 h-[59px] min-w-0')}
       >
-        <div className="flex-grow">
+        <div className="flex-grow overflow-hidden overflow-ellipsis whitespace-nowrap">
           {record.remark}
         </div>
-        <div>
+        <div className="ml-4">
           {record.type === 'sub' && '-'}
           {record.amount}
         </div>
