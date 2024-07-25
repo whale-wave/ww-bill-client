@@ -1,4 +1,4 @@
-import { List } from 'antd-mobile';
+import { List, Toast } from 'antd-mobile';
 import React, { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EditSOutline, ExclamationCircleOutline, SetOutline } from 'antd-mobile-icons';
@@ -21,6 +21,11 @@ const BottomList: React.FC<BottomListProps> = () => {
       {
         title: '意见反馈',
         prefix: <div className="flex items-center text-[20px]"><EditSOutline /></div>,
+        onClick: () => {
+          Toast.show({
+            content: '敬请期待',
+          });
+        },
       },
       {
         title: `关于鲸浪记账 v${pkg.version}`,

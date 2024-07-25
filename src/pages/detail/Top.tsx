@@ -4,6 +4,7 @@ import type { FC } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CalendarOutline, SearchOutline } from 'antd-mobile-icons';
+import { Toast } from 'antd-mobile';
 import styles from './top.module.scss';
 import type { numType } from './index';
 import Precision from '@/pages/detail/component';
@@ -39,12 +40,20 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
     {
       name: '资产',
       iconName: 'budget',
-      click: () => null,
+      click: () => {
+        Toast.show({
+          content: '敬请期待',
+        });
+      },
     },
     {
       name: '资产管家',
       iconName: 'asset-steward',
-      click: () => null,
+      click: () => {
+        Toast.show({
+          content: '敬请期待',
+        });
+      },
     },
   ];
 

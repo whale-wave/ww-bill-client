@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from 'bw-mobile';
+import { Toast } from 'antd-mobile';
 import styles from './index.module.scss';
 import { playSound } from '@/modules';
 import { TabBar } from '@/components';
@@ -65,30 +66,48 @@ const Mine: FC = () => {
       icon: 'msg',
       name: '消息',
       path: '/message',
+      onClick() {
+        playSound.turnPage();
+        navigate(this.path);
+      },
     },
     {
       icon: 'badge',
       name: '我的徽章',
+      onClick() {
+        Toast.show({
+          content: '敬请期待',
+        });
+      },
     },
     {
       icon: 'integral',
       name: '我的积分',
+      onClick() {
+        Toast.show({
+          content: '敬请期待',
+        });
+      },
     },
     {
       icon: 'invite',
       name: '邀请好友',
+      onClick() {
+        Toast.show({
+          content: '敬请期待',
+        });
+      },
     },
     {
       icon: 'setting',
       name: '设置',
       path: '/settings',
+      onClick() {
+        playSound.turnPage();
+        navigate(this.path);
+      },
     },
   ], []);
-
-  const goTo = (path?: string) => {
-    playSound.turnPage();
-    path && navigate(path);
-  };
 
   return (
     <div className={classNames('page', styles.wrapper)}>
@@ -110,7 +129,7 @@ const Mine: FC = () => {
                   styles.tab,
                   'w-1/4 flex flex-col justify-center items-center',
                 )}
-                onClick={() => goTo(tab.path)}
+                onClick={tab.onClick.bind(tab)}
               >
                 <Icon name={tab.icon} className={styles.icon} />
                 <span className={styles.name}>{tab.name}</span>
