@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { CalendarPickerView, DatePicker, NavBar } from 'antd-mobile';
+import { CalendarPickerView, DatePicker, ErrorBlock, NavBar } from 'antd-mobile';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { AddOutline, DownFill } from 'antd-mobile-icons';
@@ -195,7 +195,7 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
       </div>
       <div className="h-1 bg-[#f6f7f8] flex-shrink-0" />
       <div className="pb-8">
-        {list.data.length > 0 && <RecordList data={list} />}
+        {list.data.length > 0 ? <RecordList data={list} /> : <div className="flex-grow flex justify-center items-center"><ErrorBlock status="empty" title="暂无数据" description={false} /></div>}
       </div>
       <FixedPin
         onClick={onFixedPinClick}
