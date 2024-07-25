@@ -33,7 +33,7 @@ export interface GetRecordApiResponseData {
 }
 
 export interface GetRecordApiParams {
-  startDate?: string;
+  startDate?: string | number;
   endDate?: string;
   keyword?: string;
 }

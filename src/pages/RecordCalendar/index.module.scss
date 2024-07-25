@@ -1,0 +1,38 @@
+.record-calendar-page {
+  :global {
+    .adm-calendar-picker-view {
+      .adm-calendar-picker-view-title,
+      .adm-calendar-picker-view-header,
+      .adm-calendar-picker-view-cell-top,
+      .adm-calendar-picker-view-cell-bottom {
+        @apply hidden;
+      }
+
+      .adm-calendar-picker-view-mark {
+        @apply border-b-0 text-gray96;
+      }
+
+      .adm-calendar-picker-view-body {
+        @apply h-[unset];
+
+        .adm-calendar-picker-view-cells {
+          .adm-calendar-picker-view-cell {
+            @apply p-0 border-[1px] text-inherit border-transparent border-solid h-[56px] rounded-[2px] w-[calc(100%/7-24px/7)];
+
+            &:not(:nth-child(7n)) {
+              @apply mr-[4px];
+            }
+
+            &-selected {
+              @apply bg-transparent text-inherit border-black333;
+            }
+
+            &-date {
+              @apply flex flex-grow w-full h-full text-[14px];
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -432,7 +432,7 @@ const Keyboard: FC<keyType> = ({
       if (res.statusCode === 200) {
         // Touch('创建成功')
         Toast.show({ content: res.message });
-        navigate('/detail');
+        navigate(-1);
       }
     }
   };

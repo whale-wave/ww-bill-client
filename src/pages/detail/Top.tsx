@@ -3,7 +3,7 @@ import c from 'classnames';
 import type { FC } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SearchOutline } from 'antd-mobile-icons';
+import { CalendarOutline, SearchOutline } from 'antd-mobile-icons';
 import styles from './top.module.scss';
 import type { numType } from './index';
 import Precision from '@/pages/detail/component';
@@ -103,6 +103,10 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
     navigate('/search-record');
   }, []);
 
+  const onGoToRecordCalendarPage = useCallback(() => {
+    navigate('/record-calendar');
+  }, []);
+
   return (
     <div className={styles.top}>
       <div className={styles.title}>蓝鲸记账</div>
@@ -193,6 +197,7 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
         : null}
       <div className="absolute top-0 right-0 p-2">
         <SearchOutline className="text-[18px] mr-3" onClick={onGoToSearchRecordPage} />
+        <CalendarOutline className="text-[18px] mr-3" onClick={onGoToRecordCalendarPage} />
       </div>
       <div
         className={c(
