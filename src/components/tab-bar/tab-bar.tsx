@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { AddOutline } from 'antd-mobile-icons';
 import type { FC } from 'react';
 import classNames from 'classnames';
 import { playSound } from '@/modules';
@@ -33,11 +34,11 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
         return (
           <div className="flex justify-center items-center flex-col relative">
             <div className="border-[1px] border-[#f7f7f7] border-solid p-[5px] rounded-full border-r-0 border-b-0 border-l-0 absolute bottom-[50%] bg-[#fff]">
-              <div className="bg-primary rounded-full w-[40px] h-[40px] flex justify-center items-center">
-                <Icon name={tab.icon} className="tab-icon !text-[18px]" />
+              <div className="bg-primary rounded-full w-[55px] h-[55px] flex justify-center items-center">
+                <AddOutline className="text-[30px]" />
               </div>
             </div>
-            <Icon name={tab.icon} className="tab-icon opacity-0" />
+            <AddOutline className="tab-icon opacity-0" />
             <span className="name">{tab.name}</span>
           </div>
         );

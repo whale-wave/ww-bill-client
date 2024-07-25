@@ -3,6 +3,7 @@ export { default as LoginGuard } from './LoginGuard';
 export { default as TopicItem } from './TopicItem';
 export { default as Input } from './Input';
 export { default as Icon } from './icon';
+export { default as FixedPin } from './FixedPin';
 
 export * from './EmailCaptchaInput';
 export * from './Input';

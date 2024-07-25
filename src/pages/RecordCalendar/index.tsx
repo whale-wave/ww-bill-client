@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { CalendarPickerView, DatePicker, NavBar } from 'antd-mobile';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
-import { DownFill } from 'antd-mobile-icons';
+import { AddOutline, DownFill } from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames';
 import styles from './index.module.scss';
@@ -10,6 +10,7 @@ import { useGetRecordQuery } from '@/hooks';
 import type { RecordEntry } from '@/api';
 import { math } from '@/utils';
 import RecordItemGroup from '@/pages/SearchRecord/components/RecordItemGroup.tsx';
+import { FixedPin } from '@/components';
 
 interface RecordCalendarProps {
 }
@@ -52,7 +53,7 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
       }
 
       if (record.type === 'sub') {
-        data.expend = math.subtract(data.expend, record.amount).toNumber();
+        data.expend = math.add(data.expend, record.amount).toNumber();
       }
       else {
         data.income = math.add(data.income, record.amount).toNumber();
@@ -127,9 +128,18 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
     setSelectDateValue(dayjs());
   }, []);
 
+  const onFixedPinClick = useCallback(() => {
+    navigate('/bookkeeping');
+  }, []);
+
   return (
     <div className={classNames('page-new pt-[45px]', styles['record-calendar-page'])}>
-      <NavBar back="返回" right={<div onClick={onToToday}>今天</div>} className="bg-primary flex-shrink-0 fixed top-0 left-0 w-full" onBack={onBack}>
+      <NavBar
+        back="返回"
+        right={<div onClick={onToToday}>今天</div>}
+        className="bg-primary flex-shrink-0 fixed top-0 left-0 w-full"
+        onBack={onBack}
+      >
         <div className="flex items-center justify-center space-x-2" onClick={onDatePicker}>
           <span>{selectMonthValue.format('YYYY年MM月')}</span>
           <DownFill className="text-[14px]" />
@@ -185,6 +195,12 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
       <div className="pb-8">
         {list.data.length > 0 && <RecordItemGroup data={list} />}
       </div>
+      <FixedPin
+        onClick={onFixedPinClick}
+        className="w-[55px] h-[55px]"
+      >
+        <AddOutline className="text-[30px]" />
+      </FixedPin>
     </div>
   );
 };
