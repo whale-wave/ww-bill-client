@@ -9,3 +9,5 @@ export * from './EmailCaptchaInput';
 export * from './Input';
 export * from './CurrentMonthBillCard';
 export * from './BottomAction';
+export * from './RecordList';
+export * from './RecordListItem';

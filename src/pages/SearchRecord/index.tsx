@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { RecordList, Top } from '@/pages/SearchRecord/components';
+import { RecordListContainer, Top } from '@/pages/SearchRecord/components';
 
 interface SearchRecordProps {
 }
@@ -11,7 +11,7 @@ const SearchRecord: React.FC<SearchRecordProps> = () => {
   return (
     <div className="page-new">
       <Top />
-      <RecordList />
+      <RecordListContainer />
     </div>
   );
 };

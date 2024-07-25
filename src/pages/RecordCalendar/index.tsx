@@ -9,8 +9,7 @@ import styles from './index.module.scss';
 import { useGetRecordQuery } from '@/hooks';
 import type { RecordEntry } from '@/api';
 import { math } from '@/utils';
-import RecordItemGroup from '@/pages/SearchRecord/components/RecordItemGroup.tsx';
-import { FixedPin } from '@/components';
+import { FixedPin, RecordList } from '@/components';
 
 interface RecordCalendarProps {
 }
@@ -196,7 +195,7 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
       </div>
       <div className="h-1 bg-[#f6f7f8] flex-shrink-0" />
       <div className="pb-8">
-        {list.data.length > 0 && <RecordItemGroup data={list} />}
+        {list.data.length > 0 && <RecordList data={list} />}
       </div>
       <FixedPin
         onClick={onFixedPinClick}

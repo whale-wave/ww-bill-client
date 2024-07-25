@@ -2,8 +2,8 @@ import React, { memo, useCallback, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import type { RecordEntry } from '@/api';
-import SearchRecordItem from '@/pages/SearchRecord/components/SearchRecordItem.tsx';
 import { math } from '@/utils';
+import { RecordListItem } from '@/components';
 
 interface RecordItemGroupProps {
   data: {
@@ -12,7 +12,7 @@ interface RecordItemGroupProps {
   };
 }
 
-const RecordItemGroup: React.FC<RecordItemGroupProps> = memo((props) => {
+const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
   const { data } = props;
   const navigate = useNavigate();
 
@@ -63,7 +63,7 @@ const RecordItemGroup: React.FC<RecordItemGroupProps> = memo((props) => {
       </div>
       <div>
         {data.data.map((record, index) => (
-          <SearchRecordItem
+          <RecordListItem
             onClick={onRecordItemClick(record)}
             index={index}
             lastIndex={data.data.length - 1}
@@ -76,4 +76,4 @@ const RecordItemGroup: React.FC<RecordItemGroupProps> = memo((props) => {
   );
 });
 
-export default RecordItemGroup;
+export default RecordList;

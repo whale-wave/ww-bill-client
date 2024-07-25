@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import type { RecordEntry } from '@/api';
 import { Icon } from '@/components';
 
-interface SearchRecordItemProps {
+interface RecordListItemProps {
   className?: string;
   index: number;
   lastIndex: number;
@@ -11,7 +11,7 @@ interface SearchRecordItemProps {
   onClick?: () => void;
 }
 
-const SearchRecordItem: React.FC<SearchRecordItemProps> = memo((props) => {
+const RecordListItem: React.FC<RecordListItemProps> = memo((props) => {
   const { record, className, index, lastIndex, onClick } = props;
 
   return (
@@ -35,4 +35,4 @@ const SearchRecordItem: React.FC<SearchRecordItemProps> = memo((props) => {
   );
 });
 
-export default SearchRecordItem;
+export default RecordListItem;

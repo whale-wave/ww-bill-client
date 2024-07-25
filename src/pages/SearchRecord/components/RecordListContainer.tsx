@@ -4,12 +4,12 @@ import dayjs from 'dayjs';
 import { useGetRecordQuery } from '@/hooks';
 import { useRecordStore } from '@/store';
 import type { RecordEntry } from '@/api';
-import RecordItemGroup from '@/pages/SearchRecord/components/RecordItemGroup.tsx';
+import { RecordList } from '@/components';
 
 interface RecordListProps {
 }
 
-const RecordList: React.FC<RecordListProps> = () => {
+const RecordListContainer: React.FC<RecordListProps> = () => {
   const searchRecordKeyword = useRecordStore(({ searchRecordKeyword }) => searchRecordKeyword);
 
   const { data, isLoading } = useGetRecordQuery({
@@ -62,9 +62,9 @@ const RecordList: React.FC<RecordListProps> = () => {
           ? <div className="flex-grow flex justify-center items-center"><SpinLoading /></div>
           : recordGroupByDate.length === 0
             ? emptyEl
-            : (<div className="flex-grow overflow-auto pb-4 pt-[48px]">{recordGroupByDate.map(group => (<RecordItemGroup key={group.time} data={group} />))}</div>)}
+            : (<div className="flex-grow overflow-auto pb-4 pt-[48px]">{recordGroupByDate.map(group => (<RecordList key={group.time} data={group} />))}</div>)}
     </>
   );
 };
 
-export default RecordList;
+export default RecordListContainer;
