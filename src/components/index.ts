@@ -11,3 +11,4 @@ export * from './CurrentMonthBillCard';
 export * from './BottomAction';
 export * from './RecordList';
 export * from './RecordListItem';
+export * from './NavBar';
