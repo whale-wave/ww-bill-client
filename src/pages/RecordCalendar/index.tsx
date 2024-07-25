@@ -85,11 +85,8 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
     };
   }, [selectMonthValue]);
 
-  const isToday = useCallback((date: Date) => {
-    const todayDate = dayjs().startOf('day').valueOf();
-    const dateValue = dayjs(date).startOf('day').valueOf();
-
-    return dateValue === todayDate;
+  const isToday = useCallback((date: Date | Dayjs) => {
+    return dayjs().isSame(dayjs(date), 'day');
   }, []);
 
   const getDateText = useCallback((date: Date) => {
@@ -108,8 +105,11 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
       precision: 'month',
       defaultValue: selectMonthValue.toDate(),
       onConfirm: (val) => {
+        if (selectMonthValue.isSame(dayjs(val), 'month'))
+          return;
+
         setSelectMonthValue(dayjs(val));
-        if (dayjs(val).startOf('month').isSame(dayjs().startOf('month'))) {
+        if (dayjs().isSame(dayjs(val), 'month')) {
           setSelectDateValue(dayjs());
         }
         else {
@@ -124,9 +124,12 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
   }, []);
 
   const onToToday = useCallback(() => {
+    if (isToday(selectDateValue))
+      return;
+
     setSelectMonthValue(dayjs());
     setSelectDateValue(dayjs());
-  }, []);
+  }, [selectDateValue]);
 
   const onFixedPinClick = useCallback(() => {
     navigate('/bookkeeping');
