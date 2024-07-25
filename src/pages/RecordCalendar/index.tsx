@@ -85,8 +85,8 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
   }, [selectMonthValue]);
 
   const isToday = useCallback((date: Date) => {
-    const todayDate = dayjs().date();
-    const dateValue = dayjs(date).date();
+    const todayDate = dayjs().startOf('day').valueOf();
+    const dateValue = dayjs(date).startOf('day').valueOf();
 
     return dateValue === todayDate;
   }, []);
