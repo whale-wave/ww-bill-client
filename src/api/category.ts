@@ -1,24 +1,24 @@
 import request from '@/utils/request';
 
-export type iconObj = {
+export interface CategoryEntity {
   createdAt: string;
   icon: string;
   id: number;
   name: string;
   updatedAt: string;
-};
+}
 
-export type iconType = {
+export interface GetCategoryApiResponseData {
   count: number;
-  data: iconObj[];
-};
+  data: CategoryEntity[];
+}
 
 export type CategoryAmountType = 'add' | 'sub';
 
-export const cateGoryApi = (type: CategoryAmountType = 'sub') => {
-  return request.get<unknown, SuccessResponse<iconType>>(`/category`, {
+export function getCategoryApi(type: CategoryAmountType = 'sub') {
+  return request.get<unknown, SuccessResponse<GetCategoryApiResponseData>>(`/category`, {
     params: {
       type,
     },
   });
-};
+}

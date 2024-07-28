@@ -1,6 +1,13 @@
 .topContent {
   background: #aeeeff;
   padding: 10px;
+
+  :global {
+    .adm-popup.adm-dropdown-popup {
+      top: 95.948px !important;
+    }
+  }
+
   .top {
     display: flex;
     justify-content: center;
@@ -40,13 +47,6 @@
     }
   }
 }
-body {
-  :global {
-    .adm-popup.adm-dropdown-popup {
-      top: 95.948px !important;
-    }
-  }
-}
 
 .downContent {
   padding: 0 0 0 12px;
@@ -62,8 +62,8 @@ body {
       padding: 10px 0;
       height: 42px;
     }
-    &:first-child{
-      >div:last-child{
+    &:first-child {
+      > div:last-child {
         border-bottom: 1px solid #cccccc;
       }
     }
@@ -76,7 +76,7 @@ body {
       display: block;
       font-size: 28px;
     }
-    .tab-icon-duigo{
+    .tab-icon-duigo {
       display: block;
       font-size: 22px;
       margin-right: 12px;
