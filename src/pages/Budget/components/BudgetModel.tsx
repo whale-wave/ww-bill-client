@@ -130,6 +130,7 @@ export const BudgetModel: React.FC<BudgetModelProps> = ({ modelType = BudgetMode
             budgetId: budgetId!,
             data: {
               amount: _amount,
+              type,
             },
           });
 

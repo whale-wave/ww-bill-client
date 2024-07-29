@@ -80,6 +80,7 @@ export function deleteBudgetCategoryByBudgetIdApi(budgetId: string | number, dat
 
 export interface PatchBudgetAmountByBudgetIdApiData {
   amount: string;
+  type: BudgetEntityType;
 }
 
 export function patchBudgetAmountByBudgetIdApi(budgetId: string | number, data: PatchBudgetAmountByBudgetIdApiData) {
