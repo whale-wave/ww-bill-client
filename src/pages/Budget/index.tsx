@@ -2,8 +2,9 @@ import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Tiny } from '@ant-design/charts';
 import dayjs from 'dayjs';
-import { ActionSheet, Dialog } from 'antd-mobile';
+import { ActionSheet, Button, Dialog, ErrorBlock, Skeleton } from 'antd-mobile';
 import { Icon } from 'bw-mobile';
+import { AddOutline } from 'antd-mobile-icons';
 import style from './index.module.scss';
 import { useGetBudgetInfoQuery } from '@/hooks';
 import type { BudgetInfo } from '@/api/budget.ts';
@@ -196,18 +197,37 @@ const Budget: React.FC<BudgetProps> = () => {
     <div className={classNames('page-new bg-[#f6f6f6] fixed top-0 left-0 h-screen w-full pt-[45px]', style['budget-page'])} ref={dropDownWrapperRef}>
       <BudgetPageContext.Provider value={budgetPageContentValue}>
         <BudgetTop dropDownWrapperRef={dropDownWrapperRef} />
-        <div className="flex flex-grow flex-col overflow-auto ">
+        <div className="flex flex-grow flex-col overflow-auto min-h-0">
           {
             isLoading
-              ? <div>loading...</div>
+              ? (
+                <div className="flex-grow flex flex-col px-4">
+                  <Skeleton.Title animated />
+                  <Skeleton.Paragraph lineCount={5} animated />
+                </div>
+                )
               : !data?.summaryBudget
-                  ? <div>添加预算</div>
+                  ? (
+                    <div className="flex-grow flex flex-col justify-center items-center space-y-4">
+                      <div
+                        className="flex flex-col justify-center items-center space-y-4"
+                        style={{
+                          transform: 'translateY(-30%)',
+                        }}
+                      >
+                        <ErrorBlock status="empty" title="暂无预算" description={false} />
+                        <Button shape="rounded" color="primary" className="flex items-center w-[200px]">
+                          <AddOutline />
+                          <span>添加预算</span>
+                        </Button>
+                      </div>
+                    </div>
+                    )
                   : (
                     <>
                       <BudgetItem budgetEntityType={budgetEntityType} className="mb-3" data={data.summaryBudget} onClick={onBudgetClick(data.summaryBudget, BudgetItemType.ALL)} />
-
                       {!data?.categoryBudgets?.length
-                        ? <div>没有分类预算</div>
+                        ? <div className="flex-grow bg-[#fff] flex justify-center items-center"><ErrorBlock status="empty" title="未设置分类预算" description="" /></div>
                         : (
                           <>
                             <div className="bg-[#fff] p-3 text-[15px]">分类预算</div>
@@ -226,7 +246,7 @@ const Budget: React.FC<BudgetProps> = () => {
                           )}
                     </>
                     )
-          }
+           }
         </div>
       </BudgetPageContext.Provider>
     </div>
