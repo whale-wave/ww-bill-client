@@ -17,6 +17,7 @@ export interface GetBudgetInfoApiParams {
 }
 
 export interface BudgetInfo {
+  id: string;
   category?: CategoryEntity;
   budgetAmount: number;
   amount: number;
@@ -67,4 +68,20 @@ export interface PostBudgetClearApiData {
 
 export function postBudgetClearApi(data: PostBudgetClearApiData) {
   return request.post<unknown, SuccessResponse<unknown>>(`/budget/clear`, data);
+}
+
+export interface DeleteBudgetCategoryByBudgetIdApiData {
+  type: BudgetEntityType;
+}
+
+export function deleteBudgetCategoryByBudgetIdApi(budgetId: string | number, data: DeleteBudgetCategoryByBudgetIdApiData) {
+  return request.delete<unknown, SuccessResponse<unknown>>(`/budget/category/${budgetId}`, { data });
+}
+
+export interface PatchBudgetAmountByBudgetIdApiData {
+  amount: string;
+}
+
+export function patchBudgetAmountByBudgetIdApi(budgetId: string | number, data: PatchBudgetAmountByBudgetIdApiData) {
+  return request.patch<unknown, SuccessResponse<unknown>>(`/budget/${budgetId}/amount`, data);
 }

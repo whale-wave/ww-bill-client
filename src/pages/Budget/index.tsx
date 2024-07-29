@@ -8,10 +8,10 @@ import { AddOutline } from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
 import useUrlState from '@ahooksjs/use-url-state';
 import style from './index.module.scss';
-import { useGetBudgetInfoQuery, usePostBudgetClearMutation } from '@/hooks';
+import { useDeleteBudgetCategoryByBudgetIdMutation, useGetBudgetInfoQuery, usePostBudgetClearMutation } from '@/hooks';
 import type { BudgetInfo } from '@/api';
 import { BudgetEntityLevel, BudgetEntityType } from '@/api';
-import { BudgetTop, CreateBudgetModel } from '@/pages/Budget/components';
+import { BudgetModel, BudgetTop } from '@/pages/Budget/components';
 import { BudgetPageContext } from '@/pages/Budget/store/budgetPageContext.ts';
 import { BottomAction } from '@/components';
 
@@ -154,10 +154,12 @@ const Budget: React.FC<BudgetProps> = () => {
 
   const { data, isLoading } = useGetBudgetInfoQuery({ params: { type: budgetEntityType } });
   const [postBudgetClearMutate] = usePostBudgetClearMutation();
+  const [deleteBudgetCategoryByBudgetIdMutate] = useDeleteBudgetCategoryByBudgetIdMutation();
 
   const dropDownWrapperRef = useRef<HTMLDivElement>(null);
   const [isAddSummaryBudgetVisible, setIsAddSummaryBudgetVisible] = useState(false);
   const [curLevel, setCurLevel] = useState<BudgetEntityLevel | undefined>();
+  const [curBudgetId, setCurBudgetId] = useState<string | undefined>();
 
   const onBudgetClick = useCallback((budgetInfo: BudgetInfo, level: BudgetEntityLevel) => () => {
     const isAll = level === BudgetEntityLevel.SUMMARY;
@@ -169,8 +171,12 @@ const Budget: React.FC<BudgetProps> = () => {
         {
           text: isAll ? `编辑${text}度总预算` : `编辑${budgetInfo.category!.name}预算`,
           key: 'edit',
-          onClick: () => {
+          onClick: async () => {
             actionSheet.close();
+
+            setIsAddSummaryBudgetVisible(true);
+            setCurLevel(BudgetEntityLevel.CATEGORY);
+            setCurBudgetId(budgetInfo.id);
           },
         },
         {
@@ -192,8 +198,7 @@ const Budget: React.FC<BudgetProps> = () => {
               });
             }
             else {
-              // eslint-disable-next-line no-console
-              console.log('清除分类预算');
+              await deleteBudgetCategoryByBudgetIdMutate({ budgetId: budgetInfo.id, data: { type: budgetPageContentValue.budgetEntityType } });
             }
           },
         },
@@ -208,6 +213,7 @@ const Budget: React.FC<BudgetProps> = () => {
 
   const onCloseBudgetModel = useCallback(() => {
     setCurLevel(undefined);
+    setCurBudgetId(undefined);
   }, []);
 
   const onGoToCreateBudgetCategoryPage = useCallback(() => {
@@ -218,12 +224,13 @@ const Budget: React.FC<BudgetProps> = () => {
     <div className={classNames('page-new bg-[#f6f6f6] fixed top-0 left-0 h-screen w-full pt-[45px]', style['budget-page'])} ref={dropDownWrapperRef}>
       <BudgetPageContext.Provider value={budgetPageContentValue}>
         { typeof curLevel === 'number' && (
-          <CreateBudgetModel
+          <BudgetModel
             visible={isAddSummaryBudgetVisible}
             setVisible={setIsAddSummaryBudgetVisible}
             type={budgetPageContentValue.budgetEntityType}
             level={curLevel}
             onClose={onCloseBudgetModel}
+            budgetId={curBudgetId}
           />
         )}
         <BudgetTop dropDownWrapperRef={dropDownWrapperRef} />

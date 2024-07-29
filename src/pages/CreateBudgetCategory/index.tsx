@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import classNames from 'classnames';
 import { Icon, NavBar } from '@/components';
 import { useGetCategoryQuery } from '@/hooks';
-import { CreateBudgetModel } from '@/pages/Budget/components';
+import { BudgetModel } from '@/pages/Budget/components';
 import type { BudgetEntityType, CategoryEntity } from '@/api';
 import { BudgetEntityLevel } from '@/api';
 
@@ -21,7 +21,7 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
   const { data } = useGetCategoryQuery({ params: { type: 'sub' } });
 
   const onBack = useCallback(() => {
-    navigate(-1);
+    navigate(`/budget?type=${type}`, { replace: true });
   }, []);
 
   const onSelectIcon = useCallback((category: CategoryEntity) => () => {
@@ -50,7 +50,7 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
           </div>
         ))}
       </div>
-      <CreateBudgetModel visible={visible} setVisible={setVisible} type={type} level={BudgetEntityLevel.CATEGORY} onClose={onCloseModel} category={selectCategory} />
+      <BudgetModel visible={visible} setVisible={setVisible} type={type} level={BudgetEntityLevel.CATEGORY} onClose={onCloseModel} category={selectCategory} />
     </div>
   );
 };
