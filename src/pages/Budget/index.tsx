@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import useUrlState from '@ahooksjs/use-url-state';
 import style from './index.module.scss';
 import { useDeleteBudgetCategoryByBudgetIdMutation, useGetBudgetInfoQuery, usePostBudgetClearMutation } from '@/hooks';
-import type { BudgetInfo } from '@/api';
+import type { BudgetInfo, CategoryEntity } from '@/api';
 import { BudgetEntityLevel, BudgetEntityType } from '@/api';
 import { BudgetModel, BudgetTop } from '@/pages/Budget/components';
 import { BudgetPageContext } from '@/pages/Budget/store/budgetPageContext.ts';
@@ -160,32 +160,37 @@ const Budget: React.FC<BudgetProps> = () => {
   const [isAddSummaryBudgetVisible, setIsAddSummaryBudgetVisible] = useState(false);
   const [curLevel, setCurLevel] = useState<BudgetEntityLevel | undefined>();
   const [curBudgetId, setCurBudgetId] = useState<string | undefined>();
+  const [curCategory, setCurCategory] = useState<CategoryEntity | undefined>();
 
   const onBudgetClick = useCallback((budgetInfo: BudgetInfo, level: BudgetEntityLevel) => () => {
-    const isAll = level === BudgetEntityLevel.SUMMARY;
+    const isSummaryBudget = level === BudgetEntityLevel.SUMMARY;
     const text = budgetPageContentValue.budgetEntityType === BudgetEntityType.MONTH ? '月' : '年';
 
     const actionSheet = ActionSheet.show({
       cancelText: '取消',
       actions: [
         {
-          text: isAll ? `编辑${text}度总预算` : `编辑${budgetInfo.category!.name}预算`,
+          text: isSummaryBudget ? `编辑${text}度总预算` : `编辑${budgetInfo.category!.name}预算`,
           key: 'edit',
           onClick: async () => {
             actionSheet.close();
 
             setIsAddSummaryBudgetVisible(true);
-            setCurLevel(BudgetEntityLevel.CATEGORY);
+            setCurLevel(level);
             setCurBudgetId(budgetInfo.id);
+
+            if (level === BudgetEntityLevel.CATEGORY) {
+              setCurCategory(budgetInfo.category!);
+            }
           },
         },
         {
-          text: isAll ? `清除${text}度总预算` : `删除${budgetInfo.category!.name}预算`,
+          text: isSummaryBudget ? `清除${text}度总预算` : `删除${budgetInfo.category!.name}预算`,
           key: 'clear',
           onClick: async () => {
             actionSheet.close();
 
-            if (isAll) {
+            if (isSummaryBudget) {
               const confirm = await Dialog.confirm({
                 title: '警告',
                 content: '清除总预算将同时为您清除所有分类预算',
@@ -214,6 +219,7 @@ const Budget: React.FC<BudgetProps> = () => {
   const onCloseBudgetModel = useCallback(() => {
     setCurLevel(undefined);
     setCurBudgetId(undefined);
+    setCurCategory(undefined);
   }, []);
 
   const onGoToCreateBudgetCategoryPage = useCallback(() => {
@@ -231,6 +237,7 @@ const Budget: React.FC<BudgetProps> = () => {
             level={curLevel}
             onClose={onCloseBudgetModel}
             budgetId={curBudgetId}
+            category={curCategory}
           />
         )}
         <BudgetTop dropDownWrapperRef={dropDownWrapperRef} />
