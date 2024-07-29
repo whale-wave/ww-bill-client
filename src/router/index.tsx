@@ -40,6 +40,7 @@ import InvoiceCreate from '@/pages/Invoice/InvoiceCreate';
 import SearchRecord from '@/pages/SearchRecord';
 import RecordCalendar from '@/pages/RecordCalendar';
 import Budget from '@/pages/Budget';
+import CreateBudgetCategory from '@/pages/CreateBudgetCategory';
 
 export const router = createHashRouter([
   {
@@ -52,7 +53,16 @@ export const router = createHashRouter([
       },
       {
         path: 'budget',
-        element: <Budget />,
+        children: [
+          {
+            index: true,
+            element: <Budget />,
+          },
+          {
+            path: 'category/:type',
+            element: <CreateBudgetCategory />,
+          },
+        ],
       },
       {
         path: 'record-calendar',

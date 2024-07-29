@@ -42,7 +42,7 @@ export const BudgetTop: React.FC<BudgetTopProps> = (props) => {
   return (
     <NavBar className={style['budget-navbar']}>
       <Dropdown ref={dropdownRef} className="" getContainer={dropDownWrapperRef.current} arrow={<DownFill className="text-black333 text-[15px]" />}>
-        <Dropdown.Item key="month" title="月预算" className="">
+        <Dropdown.Item key="month" title={budgetPageContentValue?.budgetEntityType === BudgetEntityType.MONTH ? '月预算' : '年预算'} className="">
           <List>
             {
                 actions.map(item => (

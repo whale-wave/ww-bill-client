@@ -5,24 +5,22 @@ import dayjs from 'dayjs';
 import { ActionSheet, Button, Dialog, ErrorBlock, Skeleton } from 'antd-mobile';
 import { Icon } from 'bw-mobile';
 import { AddOutline } from 'antd-mobile-icons';
+import { useNavigate } from 'react-router-dom';
+import useUrlState from '@ahooksjs/use-url-state';
 import style from './index.module.scss';
-import { useGetBudgetInfoQuery } from '@/hooks';
-import type { BudgetInfo } from '@/api/budget.ts';
-import { BudgetEntityType } from '@/api/budget.ts';
-import { BudgetTop } from '@/pages/Budget/components';
+import { useGetBudgetInfoQuery, usePostBudgetClearMutation } from '@/hooks';
+import type { BudgetInfo } from '@/api';
+import { BudgetEntityLevel, BudgetEntityType } from '@/api';
+import { BudgetTop, CreateBudgetModel } from '@/pages/Budget/components';
 import { BudgetPageContext } from '@/pages/Budget/store/budgetPageContext.ts';
+import { BottomAction } from '@/components';
 
 const THEME_COLOR = '#aeeeff';
-
-enum BudgetItemType {
-  ALL,
-  CATEGORY,
-}
 
 export interface BudgetItemProps {
   className?: string;
   budgetEntityType: BudgetEntityType;
-  type?: BudgetItemType;
+  type?: BudgetEntityLevel;
   data: BudgetInfo;
   style?: React.CSSProperties;
   index?: number;
@@ -30,8 +28,8 @@ export interface BudgetItemProps {
   onClick: () => void;
 }
 
-export const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = BudgetItemType.ALL, className, data, style, index, lastIndex, onClick }) => {
-  const isAll = type === BudgetItemType.ALL;
+export const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = BudgetEntityLevel.SUMMARY, className, data, style, index, lastIndex, onClick }) => {
+  const isAll = type === BudgetEntityLevel.SUMMARY;
 
   const config = {
     height: 100,
@@ -147,14 +145,22 @@ interface BudgetProps {
 }
 
 const Budget: React.FC<BudgetProps> = () => {
-  const [budgetEntityType, setBudgetEntityType] = useState<BudgetEntityType>(BudgetEntityType.MONTH);
+  const [urlState] = useUrlState();
+  const typeByUrl = urlState.type;
+  const [budgetEntityType, setBudgetEntityType] = useState<BudgetEntityType>(typeByUrl ? Number(typeByUrl) : BudgetEntityType.MONTH);
   const budgetPageContentValue = useMemo(() => ({ budgetEntityType, setBudgetEntityType }), [budgetEntityType, setBudgetEntityType]);
 
-  const dropDownWrapperRef = useRef<HTMLDivElement>(null);
-  const { data, isLoading } = useGetBudgetInfoQuery({ params: { type: budgetEntityType } });
+  const navigate = useNavigate();
 
-  const onBudgetClick = useCallback((budgetInfo: BudgetInfo, type: BudgetItemType) => () => {
-    const isAll = type === BudgetItemType.ALL;
+  const { data, isLoading } = useGetBudgetInfoQuery({ params: { type: budgetEntityType } });
+  const [postBudgetClearMutate] = usePostBudgetClearMutation();
+
+  const dropDownWrapperRef = useRef<HTMLDivElement>(null);
+  const [isAddSummaryBudgetVisible, setIsAddSummaryBudgetVisible] = useState(false);
+  const [curLevel, setCurLevel] = useState<BudgetEntityLevel | undefined>();
+
+  const onBudgetClick = useCallback((budgetInfo: BudgetInfo, level: BudgetEntityLevel) => () => {
+    const isAll = level === BudgetEntityLevel.SUMMARY;
     const text = budgetPageContentValue.budgetEntityType === BudgetEntityType.MONTH ? '月' : '年';
 
     const actionSheet = ActionSheet.show({
@@ -172,6 +178,7 @@ const Budget: React.FC<BudgetProps> = () => {
           key: 'clear',
           onClick: async () => {
             actionSheet.close();
+
             if (isAll) {
               const confirm = await Dialog.confirm({
                 title: '警告',
@@ -180,8 +187,9 @@ const Budget: React.FC<BudgetProps> = () => {
               if (!confirm)
                 return;
 
-              // eslint-disable-next-line no-console
-              console.log('清除总预算');
+              await postBudgetClearMutate({
+                type: budgetPageContentValue.budgetEntityType,
+              });
             }
             else {
               // eslint-disable-next-line no-console
@@ -191,11 +199,33 @@ const Budget: React.FC<BudgetProps> = () => {
         },
       ],
     });
+  }, [budgetPageContentValue.budgetEntityType]);
+
+  const onAddSummaryBudget = useCallback(() => {
+    setIsAddSummaryBudgetVisible(true);
+    setCurLevel(BudgetEntityLevel.SUMMARY);
   }, []);
+
+  const onCloseBudgetModel = useCallback(() => {
+    setCurLevel(undefined);
+  }, []);
+
+  const onGoToCreateBudgetCategoryPage = useCallback(() => {
+    navigate(`/budget/category/${budgetPageContentValue.budgetEntityType}`, { replace: true });
+  }, [budgetPageContentValue.budgetEntityType]);
 
   return (
     <div className={classNames('page-new bg-[#f6f6f6] fixed top-0 left-0 h-screen w-full pt-[45px]', style['budget-page'])} ref={dropDownWrapperRef}>
       <BudgetPageContext.Provider value={budgetPageContentValue}>
+        { typeof curLevel === 'number' && (
+          <CreateBudgetModel
+            visible={isAddSummaryBudgetVisible}
+            setVisible={setIsAddSummaryBudgetVisible}
+            type={budgetPageContentValue.budgetEntityType}
+            level={curLevel}
+            onClose={onCloseBudgetModel}
+          />
+        )}
         <BudgetTop dropDownWrapperRef={dropDownWrapperRef} />
         <div className="flex flex-grow flex-col overflow-auto min-h-0">
           {
@@ -216,7 +246,7 @@ const Budget: React.FC<BudgetProps> = () => {
                         }}
                       >
                         <ErrorBlock status="empty" title="暂无预算" description={false} />
-                        <Button shape="rounded" color="primary" className="flex items-center w-[200px]">
+                        <Button shape="rounded" color="primary" className="flex items-center w-[200px]" onClick={onAddSummaryBudget}>
                           <AddOutline />
                           <span>添加预算</span>
                         </Button>
@@ -224,12 +254,12 @@ const Budget: React.FC<BudgetProps> = () => {
                     </div>
                     )
                   : (
-                    <>
-                      <BudgetItem budgetEntityType={budgetEntityType} className="mb-3" data={data.summaryBudget} onClick={onBudgetClick(data.summaryBudget, BudgetItemType.ALL)} />
+                    <div className="flex flex-grow flex-col">
+                      <BudgetItem budgetEntityType={budgetEntityType} className="mb-3" data={data.summaryBudget} onClick={onBudgetClick(data.summaryBudget, BudgetEntityLevel.SUMMARY)} />
                       {!data?.categoryBudgets?.length
-                        ? <div className="flex-grow bg-[#fff] flex justify-center items-center"><ErrorBlock status="empty" title="未设置分类预算" description="" /></div>
+                        ? <div className="flex-grow bg-[#fff] flex justify-center items-center mb-[50px]"><ErrorBlock status="empty" title="未设置分类预算" description="" /></div>
                         : (
-                          <>
+                          <div className="flex flex-grow flex-col overflow-auto min-h-0 pb-[50px]">
                             <div className="bg-[#fff] p-3 text-[15px]">分类预算</div>
                             {data.categoryBudgets.map((item, index) => (
                               <BudgetItem
@@ -237,14 +267,27 @@ const Budget: React.FC<BudgetProps> = () => {
                                 lastIndex={data.categoryBudgets!.length - 1}
                                 budgetEntityType={budgetEntityType}
                                 key={item.category!.id}
-                                type={BudgetItemType.CATEGORY}
+                                type={BudgetEntityLevel.CATEGORY}
                                 data={item}
-                                onClick={onBudgetClick(item, BudgetItemType.CATEGORY)}
+                                onClick={onBudgetClick(item, BudgetEntityLevel.CATEGORY)}
                               />
                             ))}
-                          </>
+                          </div>
                           )}
-                    </>
+                      <BottomAction
+                        className="h-[50px] shadow-md"
+                        actions={[{
+                          key: 'add',
+                          render: () => (
+                            <div className="flex items-center">
+                              <AddOutline />
+                              <span>添加分类预算</span>
+                            </div>
+                          ),
+                          onClick: onGoToCreateBudgetCategoryPage,
+                        }]}
+                      />
+                    </div>
                     )
            }
         </div>

@@ -1,21 +1,2 @@
 .budget-navbar {
-  :global {
-    .adm-dropdown {
-      @apply bg-transparent;
-      .adm-dropdown-item-title-arrow {
-        font-size: unset;
-        transform: rotate(0) translateY(0px);
-      }
-      .adm-dropdown-item-highlight {
-        @apply text-black333;
-      }
-    }
-    .adm-popup,
-    .adm-dropdown-popup {
-      top: 45px !important;
-    }
-    .adm-list-item-content-main {
-      @apply text-start;
-    }
-  }
 }

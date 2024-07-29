@@ -8,6 +8,10 @@ export interface CategoryEntity {
   updatedAt: string;
 }
 
+export interface GetCategoryApiParams {
+  type: CategoryAmountType;
+}
+
 export interface GetCategoryApiResponseData {
   count: number;
   data: CategoryEntity[];
@@ -15,10 +19,10 @@ export interface GetCategoryApiResponseData {
 
 export type CategoryAmountType = 'add' | 'sub';
 
-export function getCategoryApi(type: CategoryAmountType = 'sub') {
+export function getCategoryApi(params: GetCategoryApiParams = {
+  type: 'sub',
+}) {
   return request.get<unknown, SuccessResponse<GetCategoryApiResponseData>>(`/category`, {
-    params: {
-      type,
-    },
+    params,
   });
 }

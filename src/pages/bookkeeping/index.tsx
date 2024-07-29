@@ -56,7 +56,9 @@ const Bookkeeping: FC = () => {
   const [mainList, setMainList] = useState<CategoryEntity[]>([]);
 
   const cateFn = async (type: CategoryAmountType) => {
-    const res = await getCategoryApi(type);
+    const res = await getCategoryApi({
+      type,
+    });
     const data = res.data.data;
     setMainList(data);
   };

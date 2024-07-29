@@ -20,8 +20,9 @@ const BottomAction: React.FC<BottomActionProps> = (props) => {
     <>
       <div className={classNames(placeholderClassName, 'flex-shrink-0')}></div>
       <div
-        className={classNames(className, 'fixed w-full bottom-0 left-0 flex')}
+        className={classNames(className, 'fixed w-full bottom-0 left-0 flex bg-white')}
       >
+        <div className="absolute inset-x-0 top-0 h-2 bg-white shadow-md" style={{ transform: 'rotate(180deg)' }}></div>
         {actions.map((actionItem, index) => (
           <React.Fragment key={actionItem.key}>
             <div

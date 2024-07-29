@@ -24,3 +24,4 @@ export * from './follow';
 export * from './user-email';
 export * from './user-app-config';
 export * from './invoice';
+export * from './budget';
