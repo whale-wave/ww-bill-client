@@ -1,6 +1,6 @@
 import { request } from '@/utils';
 
-export interface User {
+export interface UserEntity {
   id: number;
   name: string;
   avatar: string;
@@ -16,7 +16,7 @@ export interface SystemNotify {
   isGlobal: boolean;
   updatedAt: string;
   createdAt: string;
-  user: User;
+  user: UserEntity;
 }
 
 export function getSystemNotifyApi() {

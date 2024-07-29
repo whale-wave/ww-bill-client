@@ -1,15 +1,16 @@
-import { FC, useEffect, useState } from 'react';
+import type { FC } from 'react';
+import { useEffect, useState } from 'react';
 import { Icon } from 'bw-mobile';
-import styles from './main.module.scss';
-import { iconObj } from '@/api/category';
 import classNames from 'classnames';
+import styles from './main.module.scss';
+import type { CategoryEntity } from '@/api/category';
 
-type ChangePropsFn = {
-  change: (item: iconObj) => void;
+interface ChangePropsFn {
+  change: (item: CategoryEntity) => void;
   keyToggle: number;
-  categoryList: iconObj[];
+  categoryList: CategoryEntity[];
   keyInputPadding: boolean;
-};
+}
 
 const Main: FC<ChangePropsFn> = ({
   change,
@@ -19,7 +20,7 @@ const Main: FC<ChangePropsFn> = ({
 }) => {
   const [active, setActive] = useState(-1);
 
-  const changeMainFn = (item: iconObj) => {
+  const changeMainFn = (item: CategoryEntity) => {
     setActive(item.id);
     change(item);
   };

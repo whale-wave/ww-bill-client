@@ -1,12 +1,12 @@
 import { request } from '@/utils';
-import type { User } from '@/api/system';
+import type { UserEntity } from '@/api/system';
 
 export interface UserAppConfig {
   id: string;
   isDisplayAmount: boolean;
   isDisplayAmountSwitch: boolean;
   isOpenSoundEffect: boolean;
-  user: User;
+  user: UserEntity;
 }
 
 export function getUserAppConfigApi() {

@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { Toast } from 'antd-mobile';
 import { Icon } from 'bw-mobile';
 import styles from './keyboard.module.scss';
-import { cateGoryApi } from '@/api';
+import { getCategoryApi } from '@/api';
 import type { PutRecordApiData } from '@/api';
 import CustomRender from '@/pages/bookkeeping/component';
 import { getShowTime } from '@/utils/DataTime';
@@ -484,7 +484,7 @@ const Keyboard: FC<keyType> = ({
   const changShow = async () => {
     // 回显
     if (name) {
-      const res = await cateGoryApi();
+      const res = await getCategoryApi();
       const data: any = res.data.data;
       const iconNameArr: Array<string> = [];
       data.forEach((item: any) => {

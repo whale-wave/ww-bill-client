@@ -1,29 +1,30 @@
-import { FC, useRef, useState } from 'react';
-import style from './top.module.scss';
-import './top.module.scss';
-// import { Icon } from 'bw-mobile';
-import '../../components/tab-bar/tab-bar.scss';
+import type { FC } from 'react';
+import { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Dropdown } from 'antd-mobile';
-import { DemoBlock } from '@/components/demos/demo-block';
 import { Icon, NavBar } from 'bw-mobile';
-import { DropdownRef } from 'antd-mobile/es/components/dropdown';
+import type { DropdownRef } from 'antd-mobile/es/components/dropdown';
 import { useNavigate } from 'react-router-dom';
+import style from './top.module.scss';
+import { DemoBlock } from '@/components/demos/demo-block';
+import '../../components/tab-bar/tab-bar.scss';
 
-type statusType = {
+interface SelectedType {
+  moneyType: string;
+  icon: string;
+  duigo: string;
+}
+
+interface StatusType {
   statusDetails: string;
-};
+}
 
-const Top: FC<statusType> = ({ statusDetails }) => {
-  type selectedType = {
-    moneyType: string;
-    icon: string;
-    duigo: string;
-  };
+const Top: FC<StatusType> = ({ statusDetails }) => {
   const [list] = useState(['周', '月', '年']);
   const [selectedActive, setSelectedActive] = useState(0);
+  const dropdownWrapperRef = useRef<HTMLDivElement>(null);
   const ref = useRef<DropdownRef>(null);
-  const [selectedAmountType] = useState<selectedType[]>([
+  const [selectedAmountType] = useState<SelectedType[]>([
     {
       moneyType: '支出',
       icon: 'huankuanzhichu-copy',
@@ -39,26 +40,26 @@ const Top: FC<statusType> = ({ statusDetails }) => {
   const navigate = useNavigate();
 
   const itemListFn = (index: number) => {
-    console.log(index, 'index');
     setActiveIndex(index);
   };
 
   const selectedFn = (index: number) => {
-    console.log(index, 'index');
     setSelectedActive(index);
   };
 
   return (
-    <div className={style.topContent}>
+    <div className={classNames(style.topContent)}>
+      {/* eslint-disable-next-line style/multiline-ternary */}
       {statusDetails === '1' ? (
-        <div className={style.top}>
-          {/*<div>{AmountType}</div>*/}
-          {/*<Icon name="xialaxuanze"></Icon>*/}
-          <DemoBlock title="" padding={'0'}>
+        <div className={style.top} ref={dropdownWrapperRef}>
+          {/* <div>{AmountType}</div> */}
+          {/* <Icon name="xialaxuanze"></Icon> */}
+          <DemoBlock title="" padding="0">
             <Dropdown
               ref={ref}
               closeOnClickAway={false}
               className={classNames(style.admDropdown)}
+              getContainer={dropdownWrapperRef.current}
             >
               <Dropdown.Item
                 key="sorter"
@@ -74,25 +75,29 @@ const Top: FC<statusType> = ({ statusDetails }) => {
                   {selectedAmountType.map((item, index) => (
                     <div
                       key={item.icon}
-                      className={classNames(style['itemSelected'])}
+                      className={classNames(style.itemSelected)}
                       onClick={() => selectedFn(index)}
                     >
                       <div>
                         <Icon
                           name={item.icon}
                           className={style['tab-icon']}
-                        ></Icon>
+                        >
+                        </Icon>
                       </div>
                       <div>
                         <span className={style.name}>{item.moneyType}</span>
-                        {index === selectedActive ? (
-                          <Icon
-                            name={item.duigo}
-                            className={style['tab-icon-duigo']}
-                          ></Icon>
-                        ) : (
-                          ''
-                        )}
+                        {index === selectedActive
+                          ? (
+                            <Icon
+                              name={item.duigo}
+                              className={style['tab-icon-duigo']}
+                            >
+                            </Icon>
+                            )
+                          : (
+                              ''
+                            )}
                       </div>
                     </div>
                   ))}

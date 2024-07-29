@@ -38,12 +38,10 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
       click: () => navigate('/bill'),
     },
     {
-      name: '资产',
+      name: '预算',
       iconName: 'budget',
       click: () => {
-        Toast.show({
-          content: '敬请期待',
-        });
+        navigate('/budget');
       },
     },
     {
