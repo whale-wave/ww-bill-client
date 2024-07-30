@@ -20,9 +20,11 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
   const [selectMonthValue, setSelectMonthValue] = useState<Dayjs>(dayjs());
   const [selectDateValue, setSelectDateValue] = useState<Dayjs>(dayjs());
 
-  const { data: recordList } = useGetRecordQuery({
-    params: { startDate: selectMonthValue.format('YYYY-MM-DD') },
-  });
+  const params = useMemo(() => {
+    return { startDate: selectMonthValue.format('YYYY-MM-DD') };
+  }, [selectMonthValue]);
+
+  const { data: recordList } = useGetRecordQuery({ params });
 
   const dateMap = useMemo(() => {
     const map = new Map<number, {
