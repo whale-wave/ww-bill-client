@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { AddOutline, DownFill } from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames';
+import useUrlState from '@ahooksjs/use-url-state';
 import styles from './index.module.scss';
 import { useGetRecordQuery } from '@/hooks';
 import type { RecordEntry } from '@/api';
@@ -16,9 +17,13 @@ interface RecordCalendarProps {
 
 const RecordCalendar: React.FC<RecordCalendarProps> = () => {
   const navigate = useNavigate();
+  const [urlState] = useUrlState<{
+    selectTime?: string;
+  }>();
 
-  const [selectMonthValue, setSelectMonthValue] = useState<Dayjs>(dayjs());
-  const [selectDateValue, setSelectDateValue] = useState<Dayjs>(dayjs());
+  const defaultSelectTime = urlState.selectTime ? dayjs(Number(urlState.selectTime)) : undefined;
+  const [selectMonthValue, setSelectMonthValue] = useState<Dayjs>(defaultSelectTime || dayjs());
+  const [selectDateValue, setSelectDateValue] = useState<Dayjs>(defaultSelectTime || dayjs());
 
   const params = useMemo(() => {
     return { startDate: selectMonthValue.format('YYYY-MM-DD') };

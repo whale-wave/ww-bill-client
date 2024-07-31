@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CalendarOutline, SearchOutline } from 'antd-mobile-icons';
 import { Toast } from 'antd-mobile';
+import dayjs from 'dayjs';
 import styles from './top.module.scss';
 import type { numType } from './index';
 import Precision from '@/pages/detail/component';
@@ -111,7 +112,7 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
   }, []);
 
   const onGoToRecordCalendarPage = useCallback(() => {
-    navigate('/record-calendar');
+    navigate(`/record-calendar?selectTime=${dayjs().valueOf()}`);
   }, []);
 
   return (
