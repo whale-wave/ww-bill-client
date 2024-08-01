@@ -74,7 +74,7 @@ const Bookkeeping: FC = () => {
 
   return (
     <div className={styles.bookkeeping}>
-      <NavBar change={navBarType} type={type1}></NavBar>
+      <NavBar defaultSelectDate={defaultSelectDate} change={navBarType} type={type1}></NavBar>
       <Main
         change={handleChangeTab}
         keyToggle={keyToggle}

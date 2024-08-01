@@ -139,7 +139,7 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
 
   const onFixedPinClick = useCallback(() => {
     const url = `/bookkeeping?selectTime=${selectDateValue.valueOf()}`;
-    navigate(url);
+    navigate(url, { replace: true });
   }, [selectDateValue]);
 
   return (

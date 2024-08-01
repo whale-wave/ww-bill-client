@@ -1,17 +1,20 @@
-import { CategoryAmountType } from '@/api';
-import { playSound } from '@/modules';
-import { FC, useEffect, useState } from 'react';
-import styles from './navBar.module.scss';
+import type { FC } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
+import styles from './navBar.module.scss';
+import type { CategoryAmountType } from '@/api';
+import { playSound } from '@/modules';
 
-type navBarType = {
+interface NavBarProps {
   change: (type: CategoryAmountType) => void;
   type: string;
-};
+  defaultSelectDate?: Date;
+}
 
-const navBar: FC<navBarType> = ({ change, type }) => {
+const NavBar: FC<NavBarProps> = ({ change, type, defaultSelectDate }) => {
   const [active, setActive] = useState(0);
-  const navigation = useNavigate();
+  const navigate = useNavigate();
 
   const handleChangeTab = (index: number) => {
     const type = index === 0 ? 'sub' : 'add';
@@ -21,7 +24,12 @@ const navBar: FC<navBarType> = ({ change, type }) => {
 
   const backFn = () => {
     playSound.turnPage();
-    navigation(-1);
+    if (defaultSelectDate) {
+      navigate(`/record-calendar?selectTime=${dayjs(defaultSelectDate).valueOf()}`, { replace: true });
+    }
+    else {
+      navigate(-1);
+    }
   };
 
   useEffect(() => {
@@ -49,4 +57,4 @@ const navBar: FC<navBarType> = ({ change, type }) => {
   );
 };
 
-export default navBar;
+export default NavBar;
