@@ -1,6 +1,8 @@
 import type { FC } from 'react';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import useUrlState from '@ahooksjs/use-url-state';
+import dayjs from 'dayjs';
 import styles from './index.module.scss';
 import NavBar from './navBar';
 import Main from './main';
@@ -20,6 +22,9 @@ const Bookkeeping: FC = () => {
   const list: recordChildren = navParams.state as recordChildren;
   const state = list;
   const [stateList, setSateList] = useState<stateType>(['', '', 1]);
+
+  const [{ selectTime }] = useUrlState<{ selectTime?: string }>();
+  const defaultSelectDate = selectTime ? dayjs(Number(selectTime)).toDate() : undefined;
 
   const handleChangeTab = (item: CategoryEntity) => {
     if (item) {
@@ -69,7 +74,7 @@ const Bookkeeping: FC = () => {
 
   return (
     <div className={styles.bookkeeping}>
-      <NavBar change={navBarType} type={type1}></NavBar>
+      <NavBar defaultSelectDate={defaultSelectDate} change={navBarType} type={type1}></NavBar>
       <Main
         change={handleChangeTab}
         keyToggle={keyToggle}
@@ -78,6 +83,7 @@ const Bookkeeping: FC = () => {
       >
       </Main>
       <KeyBoard
+        defaultSelectDate={defaultSelectDate}
         change={changeKeyInputToggle}
         keyToggle={keyToggle}
         name={name}

@@ -1,62 +1,64 @@
-import React, { useCallback, FC, useEffect, useState } from 'react';
+import type { FC } from 'react';
+import React, { useCallback } from 'react';
 import { DatePicker } from 'antd-mobile';
+import dayjs from 'dayjs';
 
-type CustomRender = {
+interface CustomRenderProps {
   valueDate: boolean;
   change: () => void;
-  changeTime: (value: string, time: number) => void;
-};
+  changeTime: (value: Date, time: number) => void;
+  dateValue: Date;
+  setDateValue?: (value: Date) => void;
+}
 
 // 自定义每列的渲染内容
-const CustomRender: FC<CustomRender> = ({ valueDate, change, changeTime }) => {
-  const [now, setNow] = useState(new Date());
-
+const CustomRender: FC<CustomRenderProps> = ({ valueDate, change, changeTime, dateValue }) => {
   const labelRenderer = useCallback((type: string, data: number) => {
     switch (type) {
       case 'year':
-        return data + '年';
+        return `${data}年`;
       case 'month':
-        return data + '月';
+        return `${data}月`;
       case 'day':
-        return data + '日';
+        return `${data}日`;
       case 'hour':
-        return data + '时';
+        return `${data}时`;
       case 'minute':
-        return data + '分';
+        return `${data}分`;
       case 'second':
-        return data + '秒';
+        return `${data}秒`;
       default:
         return data;
     }
   }, []);
 
   const changeDateChoice = (val: Date) => {
-    //val 组件默认选择的时间
-    const date = new Date(); //当前的时间
-    const Y = val.getFullYear() + '/';
-    const M =
-      (val.getMonth() + 1 < 10
-        ? '0' + (val.getMonth() + 1)
-        : val.getMonth() + 1) + '/';
-    const D = (val.getDate() < 10 ? '0' + val.getDate() : val.getDate()) + ' ';
-    const h = date.getHours() + ':';
-    const m = date.getMinutes() + ':';
+    // val 组件默认选择的时间
+    const date = new Date(); // 当前的时间
+    const Y = `${val.getFullYear()}/`;
+    const M
+      = `${val.getMonth() + 1 < 10
+        ? `0${val.getMonth() + 1}`
+        : val.getMonth() + 1}/`;
+    const D = `${val.getDate() < 10 ? `0${val.getDate()}` : val.getDate()} `;
+    const h = `${date.getHours()}:`;
+    const m = `${date.getMinutes()}:`;
     const s = date.getSeconds();
-    //Y + M + D + h + m + s 拼接的时间
-    //Y + M + D 应该渲染的时间
+    // Y + M + D + h + m + s 拼接的时间
+    // Y + M + D 应该渲染的时间
     const getTimeValue = Y + M + D;
 
-    //newDate 新的时间戳
-    const newDate = new Date(Y + M + D + h + m + s).getTime(); //选择的年月日和当前的选择的时候的时分秒
-    changeTime(getTimeValue, newDate);
+    // newDate 新的时间戳
+    const newDate = new Date(Y + M + D + h + m + s).getTime(); // 选择的年月日和当前的选择的时候的时分秒
+    changeTime(dayjs(getTimeValue).toDate(), newDate);
 
-    //start  //显示某月某日是星期几？
+    // start  //显示某月某日是星期几？
     // getWeekByDay(newDate2)
-    //end
+    // end
 
-    //start //获取某年某月的天数
+    // start //获取某年某月的天数
     // getDaysInOneMonth(2022,1)
-    //edn
+    // edn
   };
 
   //
@@ -67,12 +69,6 @@ const CustomRender: FC<CustomRender> = ({ valueDate, change, changeTime }) => {
   //     return d.getDate();
   // }
 
-  useEffect(() => {
-    if (!valueDate) return;
-
-    setNow(new Date());
-  }, [valueDate]);
-
   return (
     <>
       <DatePicker
@@ -81,8 +77,7 @@ const CustomRender: FC<CustomRender> = ({ valueDate, change, changeTime }) => {
         onClose={() => {
           change();
         }}
-        defaultValue={now}
-        max={now}
+        value={dateValue}
         onConfirm={(val) => {
           changeDateChoice(val);
         }}

@@ -138,8 +138,9 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
   }, [selectDateValue]);
 
   const onFixedPinClick = useCallback(() => {
-    navigate('/bookkeeping');
-  }, []);
+    const url = `/bookkeeping?selectTime=${selectDateValue.valueOf()}`;
+    navigate(url, { replace: true });
+  }, [selectDateValue]);
 
   return (
     <div className={classNames('page-new pt-[45px]', styles['record-calendar-page'])}>

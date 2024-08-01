@@ -9,7 +9,6 @@ import styles from './keyboard.module.scss';
 import { getCategoryApi } from '@/api';
 import type { PutRecordApiData } from '@/api';
 import CustomRender from '@/pages/bookkeeping/component';
-import { getShowTime } from '@/utils/DataTime';
 import type { stateType } from '@/pages/bookkeeping/index';
 import type { recordChildren } from '@/pages/detail/List';
 import { usePostRecordMutation, usePutRecordMutation } from '@/hooks';
@@ -21,6 +20,7 @@ interface keyType {
   name: string;
   stateList: stateType;
   state: recordChildren;
+  defaultSelectDate?: Date;
 }
 
 const Keyboard: FC<keyType> = ({
@@ -30,6 +30,7 @@ const Keyboard: FC<keyType> = ({
   stateList,
   state,
   change,
+  defaultSelectDate,
 }) => {
   const ArrayList = [
     {
@@ -70,6 +71,8 @@ const Keyboard: FC<keyType> = ({
     },
   ];
 
+  const defaultDateValue = defaultSelectDate ? dayjs(defaultSelectDate).toDate() : dayjs().toDate();
+
   const [inputToggle, setInputToggle] = useState(false);
   const [totals, setTotals] = useState('0.00'); // 总数
   const [num, setNum] = useState(''); // 加减号前面的数字
@@ -78,11 +81,12 @@ const Keyboard: FC<keyType> = ({
   const [completeText, setCompleteText] = useState('完成');
   const [remarkValue, setRemarkValue] = useState(''); // 备注
   const [valueDate, setValueDate] = useState(false); // 日期的显示和隐藏
-  const [DateValue, setDateValue] = useState('今天'); // 选择的日期
+  const [dateValue, setDateValue] = useState(defaultDateValue); // 选择的日期
   const [DateTimeValue, setDateTimeValue] = useState(0); // 选择的日期的时间戳
   const [active, setActive] = useState(-1); //
   const [active1, setActive1] = useState(-1); // 选择键盘样式高亮
   const navigate = useNavigate();
+  const dataValueText = dayjs(dateValue).format('YYYY/MM/DD');
 
   // TODO 拖动距离超出了数字键盘盒子的范围就取消高亮并且不输入内容!
   const changeStart = (index: number) => {
@@ -385,16 +389,7 @@ const Keyboard: FC<keyType> = ({
     if (completeText !== '完成')
       return;
 
-    // DateValue 这是确定之后的日期
-    // DateTimeValue 这是确定之后的时间戳
-    let time1 = '';
-    if (DateTimeValue === 0) {
-      // 当用户没有选择日期的时候，默认日期是当前的日期和时分秒
-      time1 = new Date().toISOString(); // ISOS保存时区
-    }
-    else if (DateTimeValue !== 0) {
-      time1 = new Date(DateTimeValue).toISOString();
-    }
+    const time1 = dayjs(dateValue).toISOString();
     const remark = remarkValue === '' ? name : remarkValue;
 
     const data = {
@@ -432,7 +427,12 @@ const Keyboard: FC<keyType> = ({
       if (res.statusCode === 200) {
         // Touch('创建成功')
         Toast.show({ content: res.message });
-        navigate(-1);
+        if (defaultDateValue) {
+          navigate(`/record-calendar?selectTime=${dayjs(defaultSelectDate).valueOf()}`, { replace: true });
+        }
+        else {
+          navigate(-1);
+        }
       }
     }
   };
@@ -469,7 +469,7 @@ const Keyboard: FC<keyType> = ({
     setRemarkValue(e.target.value);
   };
 
-  const changeTime = (value: string, time: number) => {
+  const changeTime = (value: Date, time: number) => {
     // 选择的时间
     // value 这是子组件返回的渲染的日期
     // time 这是子组件返回的时间戳的参数
@@ -477,8 +477,8 @@ const Keyboard: FC<keyType> = ({
     setDateValue(value);
   };
 
-  function isToday(value: string) {
-    return new Date(value).toDateString() === new Date().toDateString();
+  function isToday(value: Date) {
+    return dayjs().isSame(value, 'day');
   }
 
   const changShow = async () => {
@@ -500,15 +500,12 @@ const Keyboard: FC<keyType> = ({
     if (stateList[0] !== '') {
       setNum(stateList[0]);
       setTotals(stateList[0]);
-      const time = new Date(stateList[1]);
-      const value = getShowTime(time);
-      setDateValue(value);
+      setDateValue(new Date(stateList[1]));
     }
   };
 
   useEffect(() => {
     void changShow();
-    setDateValue(dayjs(new Date()).format('YYYY/MM/DD'));
   }, [stateList]);
 
   return (
@@ -568,12 +565,13 @@ const Keyboard: FC<keyType> = ({
                       onClick={CustomRenderToggle}
                     >
                       <CustomRender
+                        dateValue={dateValue}
                         valueDate={valueDate}
                         change={() => ChangeDateRender()}
                         changeTime={changeTime}
                       >
                       </CustomRender>
-                      {isToday(DateValue)
+                      {isToday(dateValue)
                         ? (
                           <>
                             <Icon name="today" style={{ fontSize: 21 }} />
@@ -581,7 +579,7 @@ const Keyboard: FC<keyType> = ({
                           </>
                           )
                         : (
-                          <span>{DateValue}</span>
+                          <span>{dataValueText}</span>
                           )}
                     </div>
                     <div
