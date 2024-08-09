@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { CalendarPickerView, DatePicker, ErrorBlock, NavBar } from 'antd-mobile';
+import { CalendarPickerView, DatePicker, ErrorBlock, FloatingBubble, NavBar } from 'antd-mobile';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { AddOutline, DownFill } from 'antd-mobile-icons';
@@ -10,7 +10,7 @@ import styles from './index.module.scss';
 import { useGetRecordQuery } from '@/hooks';
 import type { RecordEntry } from '@/api';
 import { math } from '@/utils';
-import { FixedPin, RecordList } from '@/components';
+import { RecordList } from '@/components';
 
 interface RecordCalendarProps {
 }
@@ -205,12 +205,16 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
       <div className="pb-8">
         {list.data.length > 0 ? <RecordList data={list} /> : <div className="flex-grow flex justify-center items-center"><ErrorBlock status="empty" title="暂无数据" description={false} /></div>}
       </div>
-      <FixedPin
+      <FloatingBubble
+        style={{
+          '--initial-position-top': '75%',
+          '--initial-position-right': '4%',
+          '--size': '55px',
+        }}
         onClick={onFixedPinClick}
-        className="w-[55px] h-[55px]"
       >
-        <AddOutline className="text-[30px]" />
-      </FixedPin>
+        <AddOutline className="text-[30px] text-[#333]" />
+      </FloatingBubble>
     </div>
   );
 };
