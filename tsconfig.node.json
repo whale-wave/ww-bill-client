@@ -4,6 +4,12 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    // 别名
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
     "strict": true,
     "noEmit": true,
     "allowSyntheticDefaultImports": true,

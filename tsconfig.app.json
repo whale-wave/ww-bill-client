@@ -2,12 +2,6 @@
   "compilerOptions": {
     // 参考路径
     "baseUrl": "./",
-    // 别名
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    },
     // 不允许隐式 any
     "noImplicitAny": true,
     "allowJs": false,
