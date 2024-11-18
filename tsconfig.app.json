@@ -1,43 +1,43 @@
 {
   "compilerOptions": {
-    // 参考路径
-    "baseUrl": "./",
-    // 不允许隐式 any
-    "noImplicitAny": true,
-    "allowJs": false,
-    // unKnow
-    "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true, // 禁止隐式的 any 类型，所有未明确类型的变量会报错
+    "allowJs": false, // 不允许编译 JavaScript 文件
+    "esModuleInterop": true, // 启用 ES 模块互操作性特性
+    "allowSyntheticDefaultImports": true, // 允许从没有默认导出的模块中默认导入
+    "forceConsistentCasingInFileNames": true, // 强制文件名一致的大小写
+    "resolveJsonModule": true, // 允许导入 JSON 文件
+    "paths": {
+      "@/*": [
+        "./src/*" // 将 @/* 映射到 ./src/* 目录
+      ]
+    },
     // default
-    "composite": true,
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ES2020"
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo", // 指定增量编译信息文件的路径
+    "target": "ES2020", // 将代码编译为 ES2020 版本的 JavaScript
+    "useDefineForClassFields": true, // 使用 JavaScript 的 class fields 语法
+    "lib": [ // 指定要包含在编译中的库文件
+      "ES2020", // 包含 ES2020 标准库
+      "DOM", // 包含 DOM 库
+      "DOM.Iterable", // 包含可迭代的 DOM 库
     ],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    // Bundler mode
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-    "jsx": "react-jsx",
-    // Linting
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "module": "ESNext", // 使用 ESNext 作为模块系统
+    "skipLibCheck": true, // 跳过库文件的类型检查
+    /* Bundler mode */
+    "moduleResolution": "bundler", // 使用打包器的模块解析策略
+    "allowImportingTsExtensions": true, // 允许导入带有 .ts 扩展名的模块
+    "isolatedModules": true, // 每个文件作为单独的模块进行编译
+    "moduleDetection": "force", // 强制模块检测
+    "noEmit": true, // 不生成输出文件
+    "jsx": "react-jsx", // 使用 React JSX 转换
+    /* Linting */
+    "strict": true, // 启用所有严格类型检查选项
+    "noUnusedLocals": true, // 报告未使用的局部变量
+    "noUnusedParameters": true, // 报告未使用的函数参数
+    "noFallthroughCasesInSwitch": true, // 禁止 switch 语句中的 fallthrough 情况
+    "noUncheckedSideEffectImports": true, // 禁止隐式的空值检查
   },
-  // 检查哪些文件
   "include": [
-    "src",
-    "test"
+    "src", // 包含 src 目录中的文件
+    "test" // 包含 test 目录中的文件
   ]
 }

@@ -1,22 +1,27 @@
 {
   "compilerOptions": {
-    "composite": true,
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    // 别名
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    },
-    "strict": true,
-    "noEmit": true,
-    "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true
+    // default
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo", // 指定增量编译信息文件的路径
+    "target": "ES2022", // 使用 ESNext 作为模块系统
+    "lib": [
+      "ES2023"
+    ], // 将每个文件视为独立的模块
+    "moduleDetection": "force", // 指定编译时包含的库
+    "module": "ESNext", // 跳过库文件的类型检查
+    /* Bundler mode */
+    "moduleResolution": "bundler", // 使用打包器的模块解析策略
+    "allowImportingTsExtensions": true, // 不生成输出文件
+    /* Linting */
+    "strict": true, // 报告未使用的函数参数
+    "noFallthroughCasesInSwitch": true, // 启用所有严格类型检查选项
+    "noUnusedLocals": true, // 报告未使用的局部变量
+    "noUnusedParameters": true, // 强制模块检测
+    "noEmit": true, // 允许导入 TypeScript 扩展
+    "isolatedModules": true, // 使用 ESNext 作为模块系统
+    "skipLibCheck": true, // 禁止 switch 语句中的 fallthrough 情况
+    "noUncheckedSideEffectImports": true // 禁止隐式的空值检查
   },
   "include": [
-    "vite.config.ts",
-    "src"
+    "vite.config.ts" // 包含 vite.config.ts 文件
   ]
 }
