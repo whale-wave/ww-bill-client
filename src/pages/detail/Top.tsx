@@ -4,7 +4,6 @@ import type { FC } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CalendarOutline, SearchOutline } from 'antd-mobile-icons';
-import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import styles from './top.module.scss';
 import type { numType } from './index';
@@ -49,9 +48,7 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
       name: '资产管家',
       iconName: 'asset-steward',
       click: () => {
-        Toast.show({
-          content: '敬请期待',
-        });
+        navigate('/asset-manager');
       },
     },
   ];

@@ -1,6 +1,18 @@
 import type { FC } from 'react';
+import { AddAssetAccountButton, AssetHeader, AssetInfoCard, AssetList, AssetTabBar } from './components';
 
 const AssetManager: FC = () => {
-  return <div>AssetManager</div>;
+  return (
+    <div className="page">
+      <AssetHeader />
+      <div className="flex-grow px-3">
+        <AssetInfoCard />
+        <AssetList />
+        <AddAssetAccountButton />
+      </div>
+      <AssetTabBar />
+    </div>
+  );
 };
+
 export default AssetManager;
