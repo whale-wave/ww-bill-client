@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 interface NavBarProps extends AntdNavBarProps {
 }
 
-const NavBar1: React.FC<NavBarProps> = (props) => {
+const NavBar: React.FC<NavBarProps> = (props) => {
   const navigate = useNavigate();
 
   const { className, children, back = '返回', onBack: _onBack, ...restProps } = props;
@@ -33,4 +33,4 @@ const NavBar1: React.FC<NavBarProps> = (props) => {
   );
 };
 
-export default NavBar1;
+export default NavBar;

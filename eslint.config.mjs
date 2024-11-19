@@ -26,7 +26,7 @@ export default antfu({
       multilineDetection: 'brackets',
     }],
     'no-console': ['error', {
-      allow: ['warn', 'error'],
+      allow: ['warn', 'info', 'error'],
     }],
   },
 });

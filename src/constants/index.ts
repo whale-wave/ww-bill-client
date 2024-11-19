@@ -22,3 +22,5 @@ export const AUDIO_LIST = [
 ];
 
 export const COUNTDOWN_TIME_SECOND = 60;
+
+export * from './asset';
