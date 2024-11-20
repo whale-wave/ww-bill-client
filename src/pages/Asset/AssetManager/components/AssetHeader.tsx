@@ -10,7 +10,7 @@ export const AssetHeader: FC = () => {
   }, []);
 
   return (
-    <div className="flex justify-between items-center px-3 py-3">
+    <div className="flex justify-between items-center px-3 py-3 fixed top-0 left-0 right-0 z-10 bg-white">
       <div className="flex-1 flex-shrink-0 px-2"></div>
       <div className="text-xl font-bold">资产管家</div>
       <div className="text-lg text-gray-500 flex-1 text-right px-2" onClick={handleBack}>

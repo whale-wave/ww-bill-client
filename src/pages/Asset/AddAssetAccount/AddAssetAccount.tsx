@@ -2,7 +2,7 @@ import { type FC, useCallback } from 'react';
 import { List } from 'antd-mobile';
 import { useNavigate } from 'react-router-dom';
 import { AssetGroupType } from '@/types';
-import { AssetGroupNameMap } from '@/constants';
+import { AssetGroupNameMap, ROUTES_PATH } from '@/constants';
 import { Icon, NavBar } from '@/components';
 
 const AddAssetAccount: FC = () => {
@@ -35,7 +35,7 @@ const AddAssetAccount: FC = () => {
   ];
 
   const handleAddAsset = useCallback(() => {
-    navigate('/add-asset-form');
+    navigate(ROUTES_PATH.ASSET_ADD_FORM.getPath());
   }, []);
 
   return (

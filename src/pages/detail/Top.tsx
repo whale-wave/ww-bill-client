@@ -10,6 +10,7 @@ import type { numType } from './index';
 import Precision from '@/pages/detail/component';
 import { useSystemStore } from '@/store';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/hooks';
+import { ROUTES_PATH } from '@/constants';
 
 interface TopProps {
   change: (val: string) => void;
@@ -35,20 +36,20 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
     {
       name: '账单',
       iconName: 'bill',
-      click: () => navigate('/bill'),
+      click: () => navigate(ROUTES_PATH.BILL.getPath()),
     },
     {
       name: '预算',
       iconName: 'budget',
       click: () => {
-        navigate('/budget');
+        navigate(ROUTES_PATH.BUDGET.getPath());
       },
     },
     {
       name: '资产管家',
       iconName: 'asset-steward',
       click: () => {
-        navigate('/asset-manager');
+        navigate(ROUTES_PATH.ASSET.getPath());
       },
     },
   ];

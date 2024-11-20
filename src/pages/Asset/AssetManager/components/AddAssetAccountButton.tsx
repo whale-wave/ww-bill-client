@@ -3,12 +3,13 @@ import { AddOutline } from 'antd-mobile-icons';
 import type { FC } from 'react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES_PATH } from '@/constants';
 
 export const AddAssetAccountButton: FC = () => {
   const navigate = useNavigate();
 
   const handleAddAssetAccount = useCallback(() => {
-    navigate('/add-asset-account');
+    navigate(ROUTES_PATH.ASSET_ADD_ACCOUNT.getPath());
   }, [navigate]);
 
   return (
