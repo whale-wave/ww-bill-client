@@ -1,11 +1,13 @@
 import { type FC, useCallback, useMemo } from 'react';
 import { List } from 'antd-mobile';
 import { Icon } from 'bw-mobile';
+import { useNavigate } from 'react-router-dom';
 import { math } from '@/utils';
 import { AssetGroupType, AssetType } from '@/types';
-import { AssetGroupNameMap } from '@/constants';
+import { AssetGroupNameMap, ROUTES_PATH } from '@/constants';
 
 export interface AssetItem {
+  id: string;
   group: AssetGroupType;
   type: AssetType;
   name: string;
@@ -15,8 +17,11 @@ export interface AssetItem {
 }
 
 export const AssetList: FC = () => {
+  const navigate = useNavigate();
+
   const list = [
     {
+      id: '1',
       group: AssetGroupType.CASH,
       type: AssetType.CASH,
       name: '现金',
@@ -25,6 +30,7 @@ export const AssetList: FC = () => {
       money: '50000.00',
     },
     {
+      id: '2',
       group: AssetGroupType.VIRTUAL_ACCOUNT,
       type: AssetType.ALI_PAY,
       name: '支付宝',
@@ -33,6 +39,7 @@ export const AssetList: FC = () => {
       money: '90000.00',
     },
     {
+      id: '3',
       group: AssetGroupType.DEBT,
       type: AssetType.WE_CHAT,
       name: '微信',
@@ -41,6 +48,7 @@ export const AssetList: FC = () => {
       money: '300000.00',
     },
     {
+      id: '4',
       group: AssetGroupType.DEBT,
       type: AssetType.DEBT,
       name: '债权',
@@ -79,7 +87,7 @@ export const AssetList: FC = () => {
   }, []);
 
   const handleItemClick = useCallback((item: AssetItem) => () => {
-    console.info(item);
+    navigate(ROUTES_PATH.ASSET_DETAIL.getPath(item.id));
   }, []);
 
   return (

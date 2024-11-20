@@ -20,7 +20,7 @@ const BottomAction: React.FC<BottomActionProps> = (props) => {
     <>
       <div className={classNames(placeholderClassName, 'flex-shrink-0')}></div>
       <div
-        className={classNames(className, 'fixed w-full bottom-0 left-0 flex bg-white')}
+        className={classNames(className, 'fixed w-full bottom-0 left-0 flex bg-white z-10')}
       >
         <div className="absolute inset-x-0 top-0 h-2 bg-white shadow-md" style={{ transform: 'rotate(180deg)' }}></div>
         {actions.map((actionItem, index) => (
@@ -38,7 +38,7 @@ const BottomAction: React.FC<BottomActionProps> = (props) => {
                   )}
             </div>
             {index < actions.length - 1 && (
-              <div className="w-[1px] h-[50%] bg-bg-gray"></div>
+              <div className="w-[1px] h-[50%] bg-bg-gray absolute top-1/2 left-1/2" style={{ transform: 'translate(-50%, -50%)' }}></div>
             )}
           </React.Fragment>
         ))}
