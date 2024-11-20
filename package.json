@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.1.7",
   "private": true,
+  "engines": {
+    "node": "20.14.0"
+  },
   "scripts": {
     "dev": "node scripts/dev.cjs",
     "build": "tsc -b && vite build",
@@ -67,8 +70,5 @@
   },
   "lint-staged": {
     "*": "eslint --fix"
-  },
-  "volta": {
-    "node": "20.14.0"
   }
 }
