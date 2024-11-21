@@ -1,8 +1,13 @@
 import { type FC, useCallback } from 'react';
 import { Button, Form, Input } from 'antd-mobile';
+import { useSearchParams } from 'react-router-dom';
 import { NavBar } from '@/components';
 
 const AddAssetForm: FC = () => {
+  const [query] = useSearchParams();
+  const groupId = query.get('groupId') || null;
+  const title = query.get('title') || '现金';
+
   const formConfig = [
     {
       label: '名称',
@@ -18,12 +23,15 @@ const AddAssetForm: FC = () => {
   ];
 
   const handleSave = useCallback(() => {
-    console.info('save');
+    console.info(groupId);
   }, []);
 
   return (
     <div className="page pt-[45px]">
-      <NavBar back="返回">添加自定义资产</NavBar>
+      <NavBar back="返回">
+        添加
+        {title}
+      </NavBar>
       <Form className="mt-2">
         {
           formConfig.map(item => (

@@ -264,7 +264,7 @@ export const router = createHashRouter([
             element: <AssetManager />,
           },
           {
-            path: 'add-form',
+            path: 'add-form/:id?',
             element: <AddAssetForm />,
           },
           {

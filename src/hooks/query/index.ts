@@ -7,3 +7,4 @@ export * from './useGetInvoiceQuery';
 export * from './useGetInvoiceByIdQuery';
 export * from './useGetBudgetInfoQuery';
 export * from './useGetCategoryQuery';
+export * from './useGetAssetGroupQuery';

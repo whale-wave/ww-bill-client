@@ -12,7 +12,12 @@ export const ROUTES_PATH = {
     getPath: () => '/asset',
   },
   ASSET_ADD_FORM: {
-    getPath: () => '/asset/add-form',
+    getPath: (id?: string) => {
+      if (id) {
+        return `/asset/add-form/${id}`;
+      }
+      return '/asset/add-form';
+    },
   },
   ASSET_ADD_ACCOUNT: {
     getPath: () => '/asset/add-account',
