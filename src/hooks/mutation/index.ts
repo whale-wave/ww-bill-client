@@ -14,3 +14,4 @@ export * from './usePostBudgetClearMutation';
 export * from './usePostBudgetCategoryMutation';
 export * from './useDeleteBudgetCategoryByBudgetIdMutation';
 export * from './usePatchBudgetAmountByBudgetIdMutation';
+export * from './usePostAssetMutation';

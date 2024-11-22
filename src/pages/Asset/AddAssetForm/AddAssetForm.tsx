@@ -1,33 +1,31 @@
 import { type FC, useCallback } from 'react';
-import { Button, Form, Input } from 'antd-mobile';
+import { Button, Form, Input, Toast } from 'antd-mobile';
 import { useSearchParams } from 'react-router-dom';
 import { clone } from 'lodash-es';
 import { NavBar } from '@/components';
-
-// interface FormData {
-//   name: string;
-//   amount: string;
-//   remark?: string;
-// }
+import { usePostAssetMutation } from '@/hooks';
+import type { Asset } from '@/api';
 
 function parseAmountString(value: string) {
   return String(Number(value));
 }
 
 const AddAssetForm: FC = () => {
+  const [postAssetMutate] = usePostAssetMutation();
   const [query] = useSearchParams();
   const groupId = query.get('groupId') || null;
   const title = query.get('title') || '现金';
 
   const formDataKeyParse = {
     amount: parseAmountString,
-  };
+  } as const;
 
   const formConfig = [
     {
       label: '名称',
       name: 'name',
       // readonly: true,
+      rules: [{ required: true, message: '请输入名称' }],
     },
     {
       label: '备注',
@@ -37,6 +35,7 @@ const AddAssetForm: FC = () => {
     {
       label: '金额',
       name: 'amount',
+      rules: [{ required: true, message: '请输入金额' }],
       normalize: (value: string, preValue: string) => {
         let normalizedValue = value.replace(/[^\d.]/g, ''); // Remove non-numeric and non-dot characters
         const parts = normalizedValue.split('.');
@@ -62,14 +61,28 @@ const AddAssetForm: FC = () => {
     },
   ];
 
-  const handleSave = useCallback((_formData: any) => {
+  const handleSave = useCallback(async (_formData: Pick<Asset, 'name' | 'amount' | 'comment'>) => {
+    if (!groupId) {
+      console.error('groupId is required');
+      return;
+    }
     const formData = clone(_formData);
-    Object.keys(formDataKeyParse).forEach((key) => {
+    const keys = Object.keys(formDataKeyParse) as Array<keyof typeof formDataKeyParse>;
+    keys.forEach((key) => {
       if (formData[key]) {
-        formData[key] = formDataKeyParse[key as keyof typeof formDataKeyParse](formData[key]);
+        formData[key] = formDataKeyParse[key](formData[key]);
       }
     });
-    console.info(groupId, formData);
+
+    await postAssetMutate({ ...formData, groupId });
+  }, []);
+
+  const handleFinishFailed = useCallback((errors: { errorFields: { errors: string[] }[] }) => {
+    Toast.show({
+      icon: 'fail',
+      content: errors.errorFields[0].errors[0],
+      duration: 1000,
+    });
   }, []);
 
   return (
@@ -81,11 +94,13 @@ const AddAssetForm: FC = () => {
       <Form
         className="mt-2"
         onFinish={handleSave}
+        onFinishFailed={handleFinishFailed}
         footer={(<Button type="submit" block color="primary">保存</Button>)}
+        hasFeedback={false}
       >
         {
           formConfig.map(item => (
-            <Form.Item layout="horizontal" label={item.label} key={item.label} name={item.name} normalize={item.normalize}>
+            <Form.Item layout="horizontal" label={item.label} key={item.label} name={item.name} normalize={item.normalize} rules={item.rules} required={false}>
               <Input
                 style={{ '--text-align': 'right' }}
                 placeholder={item.placeholder}
