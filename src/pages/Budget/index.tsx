@@ -2,8 +2,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { ActionSheet, Button, Dialog, ErrorBlock, Skeleton } from 'antd-mobile';
 import { AddOutline } from 'antd-mobile-icons';
-import { useNavigate } from 'react-router-dom';
-import useUrlState from '@ahooksjs/use-url-state';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import style from './index.module.scss';
 import { useDeleteBudgetCategoryByBudgetIdMutation, useGetBudgetInfoQuery, usePostBudgetClearMutation } from '@/hooks';
 import type { BudgetInfo, CategoryEntity } from '@/api';
@@ -16,8 +15,8 @@ interface BudgetProps {
 }
 
 const Budget: React.FC<BudgetProps> = () => {
-  const [urlState] = useUrlState();
-  const typeByUrl = urlState.type;
+  const [searchParams] = useSearchParams();
+  const typeByUrl = searchParams.get('type');
   const [budgetEntityType, setBudgetEntityType] = useState<BudgetEntityType>(typeByUrl ? Number(typeByUrl) : BudgetEntityType.MONTH);
   const budgetPageContentValue = useMemo(() => ({ budgetEntityType, setBudgetEntityType }), [budgetEntityType, setBudgetEntityType]);
 
@@ -120,65 +119,65 @@ const Budget: React.FC<BudgetProps> = () => {
           {
             isLoading
               ? (
-                <div className="flex-grow flex flex-col px-4">
-                  <Skeleton.Title animated />
-                  <Skeleton.Paragraph lineCount={5} animated />
-                </div>
+                  <div className="flex-grow flex flex-col px-4">
+                    <Skeleton.Title animated />
+                    <Skeleton.Paragraph lineCount={5} animated />
+                  </div>
                 )
               : !data?.summaryBudget
                   ? (
-                    <div className="flex-grow flex flex-col justify-center items-center space-y-4">
-                      <div
-                        className="flex flex-col justify-center items-center space-y-4"
-                        style={{
-                          transform: 'translateY(-30%)',
-                        }}
-                      >
-                        <ErrorBlock status="empty" title="暂无预算" description={false} />
-                        <Button shape="rounded" color="primary" className="flex items-center w-[200px]" onClick={onAddSummaryBudget}>
-                          <AddOutline />
-                          <span>添加预算</span>
-                        </Button>
+                      <div className="flex-grow flex flex-col justify-center items-center space-y-4">
+                        <div
+                          className="flex flex-col justify-center items-center space-y-4"
+                          style={{
+                            transform: 'translateY(-30%)',
+                          }}
+                        >
+                          <ErrorBlock status="empty" title="暂无预算" description={false} />
+                          <Button shape="rounded" color="primary" className="flex items-center w-[200px]" onClick={onAddSummaryBudget}>
+                            <AddOutline />
+                            <span>添加预算</span>
+                          </Button>
+                        </div>
                       </div>
-                    </div>
                     )
                   : (
-                    <div className="flex flex-grow flex-col">
-                      <BudgetItem budgetEntityType={budgetEntityType} className="mb-3" data={data.summaryBudget} onClick={onBudgetClick(data.summaryBudget, BudgetEntityLevel.SUMMARY)} />
-                      {!data?.categoryBudgets?.length
-                        ? <div className="flex-grow bg-[#fff] flex justify-center items-center mb-[50px]"><ErrorBlock status="empty" title="未设置分类预算" description="" /></div>
-                        : (
-                          <div className="flex flex-grow flex-col overflow-auto min-h-0 pb-[50px]">
-                            <div className="bg-[#fff] p-3 text-[15px]">分类预算</div>
-                            {data.categoryBudgets.map((item, index) => (
-                              <BudgetItem
-                                index={index}
-                                lastIndex={data.categoryBudgets!.length - 1}
-                                budgetEntityType={budgetEntityType}
-                                key={item.category!.id}
-                                type={BudgetEntityLevel.CATEGORY}
-                                data={item}
-                                onClick={onBudgetClick(item, BudgetEntityLevel.CATEGORY)}
-                              />
-                            ))}
-                          </div>
-                          )}
-                      <BottomAction
-                        className="h-[50px] shadow-md"
-                        actions={[{
-                          key: 'add',
-                          render: () => (
-                            <div className="flex items-center">
-                              <AddOutline />
-                              <span>添加分类预算</span>
-                            </div>
-                          ),
-                          onClick: onGoToCreateBudgetCategoryPage,
-                        }]}
-                      />
-                    </div>
+                      <div className="flex flex-grow flex-col">
+                        <BudgetItem budgetEntityType={budgetEntityType} className="mb-3" data={data.summaryBudget} onClick={onBudgetClick(data.summaryBudget, BudgetEntityLevel.SUMMARY)} />
+                        {!data?.categoryBudgets?.length
+                          ? <div className="flex-grow bg-[#fff] flex justify-center items-center mb-[50px]"><ErrorBlock status="empty" title="未设置分类预算" description="" /></div>
+                          : (
+                              <div className="flex flex-grow flex-col overflow-auto min-h-0 pb-[50px]">
+                                <div className="bg-[#fff] p-3 text-[15px]">分类预算</div>
+                                {data.categoryBudgets.map((item, index) => (
+                                  <BudgetItem
+                                    index={index}
+                                    lastIndex={data.categoryBudgets!.length - 1}
+                                    budgetEntityType={budgetEntityType}
+                                    key={item.category!.id}
+                                    type={BudgetEntityLevel.CATEGORY}
+                                    data={item}
+                                    onClick={onBudgetClick(item, BudgetEntityLevel.CATEGORY)}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                        <BottomAction
+                          className="h-[50px] shadow-md"
+                          actions={[{
+                            key: 'add',
+                            render: () => (
+                              <div className="flex items-center">
+                                <AddOutline />
+                                <span>添加分类预算</span>
+                              </div>
+                            ),
+                            onClick: onGoToCreateBudgetCategoryPage,
+                          }]}
+                        />
+                      </div>
                     )
-           }
+          }
         </div>
       </BudgetPageContext.Provider>
     </div>

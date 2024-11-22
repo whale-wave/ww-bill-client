@@ -1,7 +1,6 @@
 import type { FC } from 'react';
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import useUrlState from '@ahooksjs/use-url-state';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import styles from './index.module.scss';
 import NavBar from './navBar';
@@ -23,7 +22,8 @@ const Bookkeeping: FC = () => {
   const state = list;
   const [stateList, setSateList] = useState<stateType>(['', '', 1]);
 
-  const [{ selectTime }] = useUrlState<{ selectTime?: string }>();
+  const [searchParams] = useSearchParams();
+  const selectTime = searchParams.get('selectTime');
   const defaultSelectDate = selectTime ? dayjs(Number(selectTime)).toDate() : undefined;
 
   const handleChangeTab = (item: CategoryEntity) => {
