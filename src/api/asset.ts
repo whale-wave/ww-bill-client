@@ -6,6 +6,9 @@ export interface AssetGroup {
   icon: string;
   description: string;
   level: number;
+  fixedName: boolean;
+  type: 'add' | 'sub';
+  assetType: AssetGroupAssetType;
   parentId: string;
   createdAt: string;
   updatedAt: string;
@@ -15,6 +18,7 @@ export interface Asset {
   id: string;
   name: string;
   comment?: string;
+  cardId?: string;
   amount: string;
   createdAt: string;
   updatedAt: string;
@@ -32,6 +36,18 @@ export interface AssetRecord {
   createdAt: string;
   updatedAt: string;
   asset: Asset;
+}
+
+export enum AssetGroupAssetType {
+  NORMAL = 'normal',
+  BANK = 'bank',
+  CREDIT = 'credit',
+}
+
+export const CARD_TYPE = [AssetGroupAssetType.BANK, AssetGroupAssetType.CREDIT] as const;
+
+export function getAssetGroupByIdApi(id: string) {
+  return request.get<unknown, SuccessResponse<AssetGroup>>(`/asset/group/${id}`);
 }
 
 export function getAssetGroupApi() {
@@ -63,7 +79,9 @@ export function getAssetByIdApi(id: string) {
 }
 
 export interface GetAssetRecordApiParams {
-  assetId?: string;
+  assetId: string;
+  startTime: number;
+  endTime: number;
 }
 export function getAssetRecordApi(params: GetAssetRecordApiParams) {
   return request.get<unknown, SuccessResponse<AssetRecord[]>>(`/asset/record`, {

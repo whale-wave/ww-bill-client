@@ -10,7 +10,7 @@ const AddAssetAccount: FC = () => {
   const navigate = useNavigate();
   const [query] = useSearchParams();
   const parentId = query.get('parentId') || null;
-  const title = query.get('title') || '账户';
+  const title = '账户';
 
   const { data } = useGetAssetGroupQuery();
 
@@ -31,10 +31,10 @@ const AddAssetAccount: FC = () => {
 
   const handleAddAsset = useCallback((item: AssetGroup) => () => {
     if (hasChildren(item)) {
-      navigate(`${ROUTES_PATH.ASSET_ADD_ACCOUNT.getPath()}?parentId=${item.id}&title=${item.name}`);
+      navigate(`${ROUTES_PATH.ASSET_ADD_ACCOUNT.getPath()}?parentId=${item.id}`);
     }
     else {
-      navigate(`${ROUTES_PATH.ASSET_ADD_FORM.getPath()}?groupId=${item.id}&title=${item.name}`);
+      navigate(`${ROUTES_PATH.ASSET_ADD_FORM.getPath()}?groupId=${item.id}&assetType=${item.assetType}&type=${item.type}`);
     }
   }, []);
 

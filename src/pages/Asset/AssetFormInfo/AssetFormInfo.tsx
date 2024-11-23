@@ -1,10 +1,10 @@
-import { type FC, useCallback, useEffect } from 'react';
+import { type FC, useCallback, useEffect, useMemo } from 'react';
 import { Button, Form, Input, Toast } from 'antd-mobile';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { clone, pick } from 'lodash-es';
 import { NavBar } from '@/components';
-import { useGetAssetByIdQuery, usePatchAssetAdjustMutation, usePostAssetMutation } from '@/hooks';
-import type { Asset } from '@/api';
+import { useGetAssetByIdQuery, useGetAssetGroupById, usePatchAssetAdjustMutation, usePostAssetMutation } from '@/hooks';
+import { type Asset, CARD_TYPE } from '@/api';
 import { isSuccessApi } from '@/utils';
 
 function parseAmountString(value: string) {
@@ -14,67 +14,92 @@ function parseAmountString(value: string) {
 const AssetFormInfo: FC = () => {
   const { id: assetId } = useParams<{ id: string }>();
   const [query] = useSearchParams();
-  const groupId = query.get('groupId') || null;
-  const title = query.get('title') || '';
+  const groupId = query.get('groupId')!;
 
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
   const [postAssetMutate] = usePostAssetMutation();
   const [patchAssetAdjustMutate] = usePatchAssetAdjustMutation();
+  const { data: assetGroup } = useGetAssetGroupById({ params: groupId });
+  const { data: asset } = useGetAssetByIdQuery({ params: assetId!, options: { enabled: !!assetId } });
 
-  const { data } = useGetAssetByIdQuery({ params: assetId!, options: { enabled: !!assetId } });
   useEffect(() => {
-    if (data) {
-      const asset = pick(data, ['name', 'amount', 'comment']);
-      form.setFieldsValue(asset);
+    if (assetGroup && assetGroup?.fixedName && !asset) {
+      form.setFieldValue('name', assetGroup.name);
     }
-  }, [data]);
+  }, [assetGroup]);
+
+  const isCardType = useMemo(() => {
+    if (!assetGroup)
+      return false;
+    return CARD_TYPE.includes(assetGroup.assetType as any);
+  }, [assetGroup]);
+
+  useEffect(() => {
+    if (asset) {
+      const assetData = pick(asset, ['name', 'amount', 'comment']);
+      form.setFieldsValue(assetData);
+    }
+  }, [asset]);
 
   const formDataKeyParse = {
     amount: parseAmountString,
   } as const;
 
-  const formConfig = [
-    {
-      label: '名称',
-      name: 'name',
-      // readonly: true,
-      rules: [{ required: true, message: '请输入名称' }],
-    },
-    {
-      label: '备注',
-      placeholder: '(选填)',
-      name: 'comment',
-    },
-    {
-      label: '金额',
-      name: 'amount',
-      rules: [{ required: true, message: '请输入金额' }],
-      normalize: (value: string, preValue: string) => {
-        let normalizedValue = value.replace(/[^\d.]/g, ''); // Remove non-numeric and non-dot characters
-        const parts = normalizedValue.split('.');
-
-        if (parts.length > 2) {
-          return preValue;
-        }
-
-        if (parts[1]?.length > 2) {
-          return preValue;
-        }
-
-        if (parts[0].length > 1 && parts[0].startsWith('0')) {
-          parts[0] = parts[0].replace(/^0+/, '');
-          if (parts[0] === '') {
-            parts[0] = '0';
-          }
-          normalizedValue = parts.join('.');
-        }
-
-        return normalizedValue;
+  const formConfig = useMemo(() => {
+    const config = [
+      {
+        label: isCardType ? '所在银行' : '名称',
+        name: 'name',
+        disabled: assetGroup?.fixedName,
+        rules: [{ required: true, message: '请输入名称' }],
       },
-    },
-  ];
+      {
+        label: '卡号 (后四位)',
+        name: 'cardId',
+        placeholder: '(选填)',
+      },
+      {
+        label: '备注',
+        placeholder: '(选填)',
+        name: 'comment',
+      },
+      {
+        label: assetGroup?.type === 'sub' ? '欠款' : '余额',
+        name: 'amount',
+        rules: [{ required: true, message: '请输入金额' }],
+        normalize: (value: string, preValue: string) => {
+          let normalizedValue = value.replace(/[^\d.]/g, ''); // Remove non-numeric and non-dot characters
+          const parts = normalizedValue.split('.');
+
+          if (parts.length > 2) {
+            return preValue;
+          }
+
+          if (parts[1]?.length > 2) {
+            return preValue;
+          }
+
+          if (parts[0].length > 1 && parts[0].startsWith('0')) {
+            parts[0] = parts[0].replace(/^0+/, '');
+            if (parts[0] === '') {
+              parts[0] = '0';
+            }
+            normalizedValue = parts.join('.');
+          }
+
+          return normalizedValue;
+        },
+      },
+    ];
+
+    if (!isCardType) {
+      config.splice(1, 1);
+    }
+
+    return config;
+  }, [assetGroup, isCardType]);
 
   const handleSave = useCallback(async (_formData: Pick<Asset, 'name' | 'amount' | 'comment'>) => {
     const formData = clone(_formData);
@@ -123,7 +148,7 @@ const AssetFormInfo: FC = () => {
   return (
     <div className="page pt-[45px]">
       <NavBar back="返回">
-        {assetId ? '设置' : `添加${title}`}
+        {assetId ? '设置' : `添加${assetGroup?.name || ''}`}
       </NavBar>
       <Form
         className="mt-2"
@@ -139,7 +164,7 @@ const AssetFormInfo: FC = () => {
               <Input
                 style={{ '--text-align': 'right' }}
                 placeholder={item.placeholder}
-                // readOnly={!!item.readonly}
+                disabled={item.disabled}
               />
             </Form.Item>
           ))

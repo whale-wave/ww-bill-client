@@ -1,0 +1,10 @@
+.asset-list {
+  :global {
+    .adm-list-item-content-main {
+      @apply min-h-[60px] flex flex-col justify-center;
+    }
+    .adm-list-body {
+      @apply border-0;
+    }
+  }
+}

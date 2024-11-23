@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Dialog, Toast } from 'antd-mobile';
+import { DeleteOutline, SetOutline } from 'antd-mobile-icons';
 import type { BottomActionActionItem } from '@/components';
 import { ROUTES_PATH } from '@/constants';
 import { BottomAction } from '@/components';
@@ -25,7 +26,12 @@ export const AssetBottomActions: FC = () => {
       {
         key: 'setting',
         render: () => {
-          return '设置';
+          return (
+            <div className="flex items-center space-x-1">
+              <SetOutline className="text-lg" />
+              <div>设置</div>
+            </div>
+          );
         },
         onClick: () => {
           navigate(ROUTES_PATH.ASSET_ADD_FORM.getPath(id));
@@ -34,7 +40,12 @@ export const AssetBottomActions: FC = () => {
       {
         key: 'delete',
         render: () => {
-          return '删除资产';
+          return (
+            <div className="flex items-center space-x-1">
+              <DeleteOutline className="text-lg" />
+              <div>删除资产</div>
+            </div>
+          );
         },
         onClick: () => {
           Dialog.confirm({

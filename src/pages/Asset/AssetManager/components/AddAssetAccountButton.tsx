@@ -13,7 +13,7 @@ export const AddAssetAccountButton: FC = () => {
   }, [navigate]);
 
   return (
-    <div className="mt-3">
+    <div className="mt-4 mb-11">
       <Button color="primary" block onClick={handleAddAssetAccount}>
         <div className="flex justify-center items-center space-x-1">
           <AddOutline />

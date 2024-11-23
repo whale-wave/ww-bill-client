@@ -1,43 +1,50 @@
 import { type FC, useCallback, useMemo } from 'react';
-import { List, SwipeAction } from 'antd-mobile';
+import { Dialog, ErrorBlock, List, SwipeAction, Toast } from 'antd-mobile';
 import { Icon } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
-import { math } from '@/utils';
+import styles from './AssetList.module.scss';
+import { formatAmount, math } from '@/utils';
 import { ROUTES_PATH } from '@/constants';
-import { useGetAssetQuery } from '@/hooks';
+import { useDeleteAssetByIdMutation, useGetAssetGroupQuery, useGetAssetQuery } from '@/hooks';
 import type { Asset, AssetGroup } from '@/api';
 
 export const AssetList: FC = () => {
   const navigate = useNavigate();
   const { data: list } = useGetAssetQuery();
+  const [deleteAssetByIdMutate] = useDeleteAssetByIdMutation();
+  const { data: group } = useGetAssetGroupQuery();
+  const groupIds = useMemo(() => {
+    if (!group)
+      return [];
+    return group.map(item => item.id);
+  }, [group]);
 
   const listGroup = useMemo(() => {
-    const result: { id: string; name: string; amount: number; list: Asset[] }[] = [];
-    if (!list)
+    const result: { id: string; name: string; type: 'add' | 'sub'; amount: number; list: Asset[] }[] = [];
+    if (!list || !group)
       return result;
 
     const groupMap = new Map<string, AssetGroup>();
     const groupListMap = new Map<string, Asset[]>();
 
-    list.forEach((asset) => {
-      const group = asset.assetGroup;
-      groupMap.set(group.id, group);
+    group.forEach((assetGroup) => {
+      groupMap.set(assetGroup.id, assetGroup);
+    });
 
-      const groupId = group.id;
+    list.forEach((asset) => {
+      const groupId = asset.assetGroup.parentId ? asset.assetGroup.parentId : asset.assetGroup.id;
       const assetList = groupListMap.get(groupId) || [];
       assetList.push(asset);
       groupListMap.set(groupId, assetList);
     });
 
-    const sortOrder = Array.from(groupListMap.keys()).sort();
-
-    sortOrder.forEach((groupId) => {
+    groupIds.filter(id => groupListMap.has(id)).forEach((groupId) => {
       const assetList = groupListMap.get(groupId)!;
       result.push({
         id: groupId,
         name: groupMap.get(groupId)!.name,
+        type: groupMap.get(groupId)!.type,
         amount: assetList.reduce((sum, asset) => {
-          // TODO: 可能是负债, 需要加负号
           return math.add(sum, asset.amount).toNumber();
         }, 0),
         list: assetList,
@@ -45,18 +52,39 @@ export const AssetList: FC = () => {
     });
 
     return result;
-  }, [list]);
+  }, [list, groupIds]);
 
   const handleItemClick = useCallback((item: Asset) => () => {
     navigate(ROUTES_PATH.ASSET_DETAIL.getPath(item.id));
   }, []);
 
-  const handleDelete = useCallback((item: Asset) => () => {
-    console.info('删除', item);
+  const handleDelete = useCallback((item: Asset) => async () => {
+    Dialog.confirm({
+      title: '确认删除该资产?',
+      content: '删除后, 所有的资产变动记录也将一同被删除',
+      confirmText: '确认删除',
+      onConfirm: async () => {
+        try {
+          Toast.show({
+            icon: 'loading',
+            content: '删除中...',
+          });
+          await deleteAssetByIdMutate(item.id);
+        }
+        finally {
+          Toast.clear();
+        }
+      },
+    });
+  }, []);
+
+  const parseAmount = useCallback((amount: string | number, type: 'add' | 'sub') => {
+    const amountNumber = formatAmount(Number(amount)).toString();
+    return type === 'add' ? amountNumber : `-${amountNumber}`;
   }, []);
 
   return (
-    <div>
+    <div className={styles['asset-list']}>
       {
         listGroup.length > 0
           ? listGroup.map(group => (
@@ -65,7 +93,9 @@ export const AssetList: FC = () => {
               header={(
                 <div className="flex justify-between items-center">
                   <span>{group.name}</span>
-                  <span className="!text-[#999]">{group.amount}</span>
+                  <span className="!text-[#999]">
+                    {parseAmount(group.amount.toString(), group.type)}
+                  </span>
                 </div>
               )}
             >
@@ -89,15 +119,16 @@ export const AssetList: FC = () => {
                     description={asset.comment}
                     onClick={handleItemClick(asset)}
                     arrow={false}
-                    extra={asset.amount}
+                    extra={parseAmount(asset.amount, asset.assetGroup.type)}
                   >
                     {asset.name}
+                    {asset.cardId ? `(${asset.cardId})` : ''}
                   </List.Item>
                 </SwipeAction>
               ))}
             </List>
           ))
-          : <div className="text-center text-gray-500">暂无数据</div>
+          : <div className="my-[80px]"><ErrorBlock status="empty" description="定期更新资产账户, 轻松掌握资产状况" /></div>
       }
     </div>
   );

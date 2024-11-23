@@ -3,7 +3,7 @@ import { AddAssetAccountButton, AssetHeader, AssetInfoCard, AssetList } from './
 
 const AssetManager: FC = () => {
   return (
-    <div className="page pt-[52px]">
+    <div className="page pt-[52px] !overflow-auto">
       <AssetHeader />
       <div className="flex-grow px-3">
         <AssetInfoCard />

@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
+import { useGetAssetByIdQueryQueryKey, useGetAssetQueryQueryKey, useGetAssetRecordQueryQueryKey } from '../query';
 import type { PatchAssetAdjustApiData } from '@/api';
 import { patchAssetAdjustApi } from '@/api';
 import { queryClient } from '@/main';
-import { useGetAssetQueryQueryKey } from '@/hooks/query/useGetAssetQuery';
 
 export function usePatchAssetAdjustMutation() {
   const { mutateAsync, ...rest } = useMutation({
@@ -11,9 +11,10 @@ export function usePatchAssetAdjustMutation() {
       data: PatchAssetAdjustApiData;
     }) => patchAssetAdjustApi(params.id, params.data),
     onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [useGetAssetQueryQueryKey],
-      });
+      const queryKeys = [useGetAssetQueryQueryKey, useGetAssetByIdQueryQueryKey, useGetAssetRecordQueryQueryKey];
+      Promise.all(queryKeys.map(key => queryClient.invalidateQueries({
+        queryKey: [key],
+      })));
     },
   });
 

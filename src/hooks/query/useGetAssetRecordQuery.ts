@@ -5,15 +5,19 @@ import { isSuccessApi } from '@/utils';
 
 export const useGetAssetRecordQueryQueryKey = 'useGetAssetRecordQuery';
 
-export function useGetAssetRecordQuery(options?: {
-  params: string;
+export function useGetAssetRecordQuery(options: {
+  params: {
+    assetId: string;
+    startTime: number;
+    endTime: number;
+  };
   options?: {
     enabled?: boolean;
   };
 }) {
   const { data: response, ...rest } = useQuery({
-    queryFn: () => getAssetRecordApi({ assetId: options?.params }),
-    queryKey: [useGetAssetRecordQueryQueryKey] as const,
+    queryFn: () => getAssetRecordApi(options.params),
+    queryKey: [useGetAssetRecordQueryQueryKey, options.params] as const,
     ...options?.options,
   });
 

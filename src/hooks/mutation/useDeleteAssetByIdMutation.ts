@@ -7,9 +7,8 @@ export function useDeleteAssetByIdMutation() {
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: (params: string) => deleteAssetByIdApi(params),
     onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [useGetAssetByIdQueryQueryKey, useGetAssetQueryQueryKey],
-      });
+      const queryKey = [useGetAssetByIdQueryQueryKey, useGetAssetQueryQueryKey];
+      Promise.all(queryKey.map(key => queryClient.invalidateQueries({ queryKey: [key] })));
     },
   });
 
