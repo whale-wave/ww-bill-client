@@ -39,7 +39,7 @@ const AddAssetAccount: FC = () => {
   }, []);
 
   return (
-    <div className="page pt-[45px]">
+    <div className="page pt-[45px] !overflow-auto">
       <NavBar back="返回">
         添加
         {title}

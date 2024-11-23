@@ -27,7 +27,7 @@ export const AssetInfoCard: FC = () => {
             <div className="text-xs text-gray-500">{text}</div>
           </div>
           <div className="absolute right-4 top-3 !mt-0">
-            <Icon name="custom-assets" className="text-[28px]" />
+            <Icon name={data?.assetGroup.icon || ''} className="text-[28px]" />
           </div>
           <div className="absolute bottom-3 right-4">
             <Button
