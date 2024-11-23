@@ -1,7 +1,11 @@
 import { resolve } from 'node:path';
+import process from 'node:process';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import dotenv from 'dotenv';
 import { defaultHost } from './src/config';
+
+dotenv.config();
 
 const srcPath = resolve(__dirname, 'src');
 
@@ -18,7 +22,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: defaultHost,
+        target: process.env.DEV_HOST || defaultHost,
         changeOrigin: true,
       },
     },
