@@ -1,127 +1,103 @@
 import { type FC, useCallback, useMemo } from 'react';
-import { List } from 'antd-mobile';
+import { List, SwipeAction } from 'antd-mobile';
 import { Icon } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
 import { math } from '@/utils';
-import { AssetGroupType, AssetType } from '@/types';
-import { AssetGroupNameMap, ROUTES_PATH } from '@/constants';
-
-export interface AssetItem {
-  id: string;
-  group: AssetGroupType;
-  type: AssetType;
-  name: string;
-  icon: string;
-  remark: string;
-  money: string;
-}
+import { ROUTES_PATH } from '@/constants';
+import { useGetAssetQuery } from '@/hooks';
+import type { Asset, AssetGroup } from '@/api';
 
 export const AssetList: FC = () => {
   const navigate = useNavigate();
-
-  const list = [
-    {
-      id: '1',
-      group: AssetGroupType.CASH,
-      type: AssetType.CASH,
-      name: '现金',
-      icon: 'cash',
-      remark: '这是流动资金',
-      money: '50000.00',
-    },
-    {
-      id: '2',
-      group: AssetGroupType.VIRTUAL_ACCOUNT,
-      type: AssetType.ALI_PAY,
-      name: '支付宝',
-      icon: 'alipay',
-      remark: '这是支付宝',
-      money: '90000.00',
-    },
-    {
-      id: '3',
-      group: AssetGroupType.DEBT,
-      type: AssetType.WE_CHAT,
-      name: '微信',
-      icon: 'wechat',
-      remark: '这是微信',
-      money: '300000.00',
-    },
-    {
-      id: '4',
-      group: AssetGroupType.DEBT,
-      type: AssetType.DEBT,
-      name: '债权',
-      icon: 'debt',
-      remark: '这是债权',
-      money: '2000.00',
-    },
-  ];
+  const { data: list } = useGetAssetQuery();
 
   const listGroup = useMemo(() => {
-    const result: { type: AssetGroupType; name: string; amount: number; list: AssetItem[] }[] = [];
-    const groupMap = new Map<AssetGroupType, AssetItem[]>();
+    const result: { id: string; name: string; amount: number; list: Asset[] }[] = [];
+    if (!list)
+      return result;
 
-    list.forEach((item) => {
-      const group = item.group;
-      const groupList = groupMap.get(group) || [];
-      groupList.push(item);
-      groupMap.set(group, groupList);
+    const groupMap = new Map<string, AssetGroup>();
+    const groupListMap = new Map<string, Asset[]>();
+
+    list.forEach((asset) => {
+      const group = asset.assetGroup;
+      groupMap.set(group.id, group);
+
+      const groupId = group.id;
+      const assetList = groupListMap.get(groupId) || [];
+      assetList.push(asset);
+      groupListMap.set(groupId, assetList);
     });
 
-    const sortOrder = [AssetGroupType.CASH, AssetGroupType.VIRTUAL_ACCOUNT, AssetGroupType.DEBT];
+    const sortOrder = Array.from(groupListMap.keys()).sort();
 
-    sortOrder.forEach((type) => {
-      if (groupMap.has(type)) {
-        const list = groupMap.get(type)!;
-        result.push({
-          type,
-          name: AssetGroupNameMap[type],
-          amount: list.reduce((acc, item) => math.add(acc, item.money).toNumber(), 0),
-          list,
-        });
-      }
+    sortOrder.forEach((groupId) => {
+      const assetList = groupListMap.get(groupId)!;
+      result.push({
+        id: groupId,
+        name: groupMap.get(groupId)!.name,
+        amount: assetList.reduce((sum, asset) => {
+          // TODO: 可能是负债, 需要加负号
+          return math.add(sum, asset.amount).toNumber();
+        }, 0),
+        list: assetList,
+      });
     });
 
     return result;
+  }, [list]);
+
+  const handleItemClick = useCallback((item: Asset) => () => {
+    navigate(ROUTES_PATH.ASSET_DETAIL.getPath(item.id));
   }, []);
 
-  const handleItemClick = useCallback((item: AssetItem) => () => {
-    navigate(ROUTES_PATH.ASSET_DETAIL.getPath(item.id));
+  const handleDelete = useCallback((item: Asset) => () => {
+    console.info('删除', item);
   }, []);
 
   return (
     <div>
       {
-        listGroup.map(group => (
-          <List
-            key={group.type}
-            header={(
-              <div className="flex justify-between items-center">
-                <span>{group.name}</span>
-                <span className="!text-[#999]">{group.amount}</span>
-              </div>
-            )}
-          >
-            {group.list.map((item, index) => (
-              <List.Item
-                className="!pl-[12px] !px-0"
-                style={{
-                  '--adm-color-weak': '#333',
-                  '--adm-font-size-main': '11px',
-                }}
-                key={index}
-                prefix={<div className="flex justify-center items-center bg-gray-100 rounded-md w-[40px] h-[40px]"><Icon className="text-2xl" name={item.icon} /></div>}
-                description={item.remark}
-                onClick={handleItemClick(item)}
-                arrow={false}
-                extra={item.money}
-              >
-                {item.name}
-              </List.Item>
-            ))}
-          </List>
-        ))
+        listGroup.length > 0
+          ? listGroup.map(group => (
+            <List
+              key={group.id}
+              header={(
+                <div className="flex justify-between items-center">
+                  <span>{group.name}</span>
+                  <span className="!text-[#999]">{group.amount}</span>
+                </div>
+              )}
+            >
+              {group.list.map(asset => (
+                <SwipeAction
+                  key={asset.id}
+                  rightActions={[{
+                    key: 'delete',
+                    text: '删除',
+                    color: 'danger',
+                    onClick: handleDelete(asset),
+                  }]}
+                >
+                  <List.Item
+                    className="!pl-[12px] !px-0"
+                    style={{
+                      '--adm-color-weak': '#333',
+                      '--adm-font-size-main': '11px',
+                    }}
+                    prefix={<div className="flex justify-center items-center bg-gray-100 rounded-md w-[40px] h-[40px]"><Icon className="text-2xl" name={asset.assetGroup.icon} /></div>}
+                    description={asset.comment}
+                    onClick={handleItemClick(asset)}
+                    arrow={false}
+                    extra={asset.amount}
+                  >
+                    {asset.name}
+                  </List.Item>
+                </SwipeAction>
+              ))}
+            </List>
+          ))
+          : <div className="text-center text-gray-500">暂无数据</div>
       }
     </div>
   );

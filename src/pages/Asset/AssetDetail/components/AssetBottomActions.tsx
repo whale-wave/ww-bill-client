@@ -1,13 +1,19 @@
 import type { FC } from 'react';
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Dialog } from 'antd-mobile';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Dialog, Toast } from 'antd-mobile';
 import type { BottomActionActionItem } from '@/components';
 import { ROUTES_PATH } from '@/constants';
 import { BottomAction } from '@/components';
+import { useDeleteAssetByIdMutation } from '@/hooks';
+import { isSuccessApi } from '@/utils';
 
 export const AssetBottomActions: FC = () => {
   const navigate = useNavigate();
+  const { id: _id } = useParams<{ id: string }>();
+  const id = _id!;
+
+  const [deleteAssetByIdMutate] = useDeleteAssetByIdMutation();
 
   const actions = useMemo(() => {
     return [
@@ -22,7 +28,7 @@ export const AssetBottomActions: FC = () => {
           return '设置';
         },
         onClick: () => {
-          navigate(ROUTES_PATH.ASSET_ADD_FORM.getPath());
+          navigate(ROUTES_PATH.ASSET_ADD_FORM.getPath(id));
         },
       },
       {
@@ -35,10 +41,23 @@ export const AssetBottomActions: FC = () => {
             title: '确认删除该资产?',
             content: '删除后, 所有的资产变动记录也将一同被删除',
             confirmText: '确认删除',
-            onConfirm: () => {
-              setTimeout(() => {
-                navigate(-1);
-              }, 250);
+            onConfirm: async () => {
+              try {
+                Toast.show({
+                  icon: 'loading',
+                  content: '删除中...',
+                  duration: 0,
+                });
+                const res = await deleteAssetByIdMutate(id);
+                if (isSuccessApi(res)) {
+                  setTimeout(() => {
+                    navigate(-1);
+                  }, 250);
+                }
+              }
+              finally {
+                Toast.clear();
+              }
             },
           });
         },

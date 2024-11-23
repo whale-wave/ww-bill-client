@@ -8,3 +8,6 @@ export * from './useGetInvoiceByIdQuery';
 export * from './useGetBudgetInfoQuery';
 export * from './useGetCategoryQuery';
 export * from './useGetAssetGroupQuery';
+export * from './useGetAssetQuery';
+export * from './useGetAssetByIdQuery';
+export * from './useGetAssetRecordQuery';

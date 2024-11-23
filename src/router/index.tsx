@@ -41,7 +41,7 @@ import SearchRecord from '@/pages/SearchRecord';
 import RecordCalendar from '@/pages/RecordCalendar';
 import Budget from '@/pages/Budget';
 import CreateBudgetCategory from '@/pages/CreateBudgetCategory';
-import { AddAssetAccount, AddAssetForm, AssetDetail, AssetManager } from '@/pages/Asset';
+import { AddAssetAccount, AssetDetail, AssetFormInfo, AssetManager } from '@/pages/Asset';
 
 export const router = createHashRouter([
   {
@@ -265,7 +265,7 @@ export const router = createHashRouter([
           },
           {
             path: 'add-form/:id?',
-            element: <AddAssetForm />,
+            element: <AssetFormInfo />,
           },
           {
             path: 'add-account',

@@ -1,20 +1,35 @@
-import { type FC, useCallback } from 'react';
+import { type FC, useCallback, useEffect } from 'react';
 import { Button, Form, Input, Toast } from 'antd-mobile';
-import { useSearchParams } from 'react-router-dom';
-import { clone } from 'lodash-es';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { clone, pick } from 'lodash-es';
 import { NavBar } from '@/components';
-import { usePostAssetMutation } from '@/hooks';
+import { useGetAssetByIdQuery, usePatchAssetAdjustMutation, usePostAssetMutation } from '@/hooks';
 import type { Asset } from '@/api';
+import { isSuccessApi } from '@/utils';
 
 function parseAmountString(value: string) {
   return String(Number(value));
 }
 
-const AddAssetForm: FC = () => {
-  const [postAssetMutate] = usePostAssetMutation();
+const AssetFormInfo: FC = () => {
+  const { id: assetId } = useParams<{ id: string }>();
   const [query] = useSearchParams();
   const groupId = query.get('groupId') || null;
-  const title = query.get('title') || '现金';
+  const title = query.get('title') || '';
+
+  const [form] = Form.useForm();
+  const navigate = useNavigate();
+
+  const [postAssetMutate] = usePostAssetMutation();
+  const [patchAssetAdjustMutate] = usePatchAssetAdjustMutation();
+
+  const { data } = useGetAssetByIdQuery({ params: assetId!, options: { enabled: !!assetId } });
+  useEffect(() => {
+    if (data) {
+      const asset = pick(data, ['name', 'amount', 'comment']);
+      form.setFieldsValue(asset);
+    }
+  }, [data]);
 
   const formDataKeyParse = {
     amount: parseAmountString,
@@ -30,7 +45,7 @@ const AddAssetForm: FC = () => {
     {
       label: '备注',
       placeholder: '(选填)',
-      name: 'remark',
+      name: 'comment',
     },
     {
       label: '金额',
@@ -62,10 +77,6 @@ const AddAssetForm: FC = () => {
   ];
 
   const handleSave = useCallback(async (_formData: Pick<Asset, 'name' | 'amount' | 'comment'>) => {
-    if (!groupId) {
-      console.error('groupId is required');
-      return;
-    }
     const formData = clone(_formData);
     const keys = Object.keys(formDataKeyParse) as Array<keyof typeof formDataKeyParse>;
     keys.forEach((key) => {
@@ -74,7 +85,31 @@ const AddAssetForm: FC = () => {
       }
     });
 
-    await postAssetMutate({ ...formData, groupId });
+    if (assetId) {
+      const res = await patchAssetAdjustMutate({ id: assetId, data: formData });
+      if (isSuccessApi(res)) {
+        Toast.show({
+          icon: 'success',
+          content: '保存成功',
+          duration: 1000,
+        });
+      }
+    }
+    else {
+      if (!groupId) {
+        Toast.show({
+          icon: 'fail',
+          content: '请选择分组',
+          duration: 1000,
+        });
+        return;
+      }
+      await postAssetMutate({ ...formData, groupId });
+    }
+
+    setTimeout(() => {
+      navigate(-1);
+    }, 250);
   }, []);
 
   const handleFinishFailed = useCallback((errors: { errorFields: { errors: string[] }[] }) => {
@@ -88,8 +123,7 @@ const AddAssetForm: FC = () => {
   return (
     <div className="page pt-[45px]">
       <NavBar back="返回">
-        添加
-        {title}
+        {assetId ? '设置' : `添加${title}`}
       </NavBar>
       <Form
         className="mt-2"
@@ -97,6 +131,7 @@ const AddAssetForm: FC = () => {
         onFinishFailed={handleFinishFailed}
         footer={(<Button type="submit" block color="primary">保存</Button>)}
         hasFeedback={false}
+        form={form}
       >
         {
           formConfig.map(item => (
@@ -114,4 +149,4 @@ const AddAssetForm: FC = () => {
   );
 };
 
-export default AddAssetForm;
+export default AssetFormInfo;
