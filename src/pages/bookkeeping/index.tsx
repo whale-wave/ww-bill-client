@@ -84,6 +84,7 @@ const Bookkeeping: FC = () => {
       </Main>
       <KeyBoard
         defaultSelectDate={defaultSelectDate}
+        categoryList={mainList}
         change={changeKeyInputToggle}
         keyToggle={keyToggle}
         name={name}

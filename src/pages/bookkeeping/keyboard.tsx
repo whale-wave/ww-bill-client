@@ -7,7 +7,7 @@ import { Toast } from 'antd-mobile';
 import { Icon } from 'bw-mobile';
 import styles from './keyboard.module.scss';
 import { getCategoryApi } from '@/api';
-import type { PutRecordApiData } from '@/api';
+import type { CategoryEntity, PutRecordApiData } from '@/api';
 import CustomRender from '@/pages/bookkeeping/component';
 import type { stateType } from '@/pages/bookkeeping/index';
 import type { recordChildren } from '@/pages/detail/List';
@@ -21,16 +21,17 @@ interface keyType {
   stateList: stateType;
   state: recordChildren;
   defaultSelectDate?: Date;
+  categoryList: CategoryEntity[];
 }
 
 const Keyboard: FC<keyType> = ({
-  type,
   keyToggle,
   name,
   stateList,
   state,
   change,
   defaultSelectDate,
+  categoryList,
 }) => {
   const ArrayList = [
     {
@@ -368,6 +369,13 @@ const Keyboard: FC<keyType> = ({
 
   // 完成
   const changeCompleteFn = async () => {
+    const category = categoryList.find(i => i.id === keyToggle);
+
+    if (!category) {
+      Toast.show({ content: '请选择分类' });
+      return;
+    }
+
     setActive1(-1);
     if (active === -2) {
       setActive(-1);
@@ -396,7 +404,7 @@ const Keyboard: FC<keyType> = ({
       remark,
       categoryId: Number(keyToggle),
       time: time1,
-      type: String(type),
+      type: category.type,
       amount: String(str),
     } as PutRecordApiData;
 
@@ -513,116 +521,116 @@ const Keyboard: FC<keyType> = ({
       {keyToggle > -1
       // eslint-disable-next-line style/multiline-ternary
         ? (
-          <div className={styles.keyBoard}>
-            <div className={styles.top}>
-              <div>
-                <span>备注:</span>
-                <input
-                  type="text"
-                  placeholder="点击写备注..."
-                  value={remarkValue}
-                  onChange={changeRemark}
-                  onBlur={() => inputOnBlur()}
-                  onFocus={() => inputOnFocus()}
-                  onKeyDown={async (e) => {
-                    if (e.key === 'Enter') {
-                      e.stopPropagation();
-                      await changeCompleteFn();
-                    }
-                  }}
-                />
-              </div>
-              <span className={styles.total}>{totals}</span>
-            </div>
-            {!inputToggle
-            // eslint-disable-next-line style/multiline-ternary
-              ? (
-                <div className={styles.main}>
-                  <div className={styles.numbers}>
-                    {ArrayList.map((item, index) => (
-                      <button
-                        key={index}
-                        className={classNames([
-                          styles.keys,
-                          active === index ? styles.active : '',
-                        ])}
-                        onTouchStart={() => changeStart(index)}
-                        onTouchMove={changeMoves}
-                        onTouchEnd={() => changeEnd(index, item)}
-                      >
-                        {item.keys}
-                      </button>
-                    ))}
-                  </div>
-                  <div className={styles.right}>
-                    <div
-                      className={classNames([
-                        styles.bor,
-                        active1 === 4 ? styles.active : '',
-                      ])}
-                      onTouchStart={() => changeStart1(5)} // TODO onTouchEnd事件捕获修复在改为4
-                      onTouchMove={changeMoves}
-                      onClick={CustomRenderToggle}
-                    >
-                      <CustomRender
-                        dateValue={dateValue}
-                        valueDate={valueDate}
-                        change={() => ChangeDateRender()}
-                        changeTime={changeTime}
-                      >
-                      </CustomRender>
-                      {isToday(dateValue)
-                        ? (
-                          <>
-                            <Icon name="today" style={{ fontSize: 21 }} />
-                            <span>今天</span>
-                          </>
-                          )
-                        : (
-                          <span>{dataValueText}</span>
-                          )}
-                    </div>
-                    <div
-                      className={classNames([
-                        styles.bor,
-                        active1 === 1 ? styles.active : '',
-                      ])}
-                      onTouchStart={() => changeStart1(1)}
-                      onTouchMove={changeMoves}
-                      onTouchEnd={() => changeAddFn('+')}
-                    >
-                      +
-                    </div>
-                    <div
-                      className={classNames([
-                        styles.bor,
-                        active1 === 2 ? styles.active : '',
-                      ])}
-                      onTouchStart={() => changeStart1(2)}
-                      onTouchMove={changeMoves}
-                      onTouchEnd={() => changeAddFn('-')}
-                    >
-                      -
-                    </div>
-                    <div
-                      className={classNames([
-                        styles.bor,
-                        active1 === 3 ? styles.active1 : '',
-                      ])}
-                      onTouchStart={() => changeStart1(3)}
-                      onTouchMove={changeMoves}
-                      onTouchEnd={async () => {
+            <div className={styles.keyBoard}>
+              <div className={styles.top}>
+                <div>
+                  <span>备注:</span>
+                  <input
+                    type="text"
+                    placeholder="点击写备注..."
+                    value={remarkValue}
+                    onChange={changeRemark}
+                    onBlur={() => inputOnBlur()}
+                    onFocus={() => inputOnFocus()}
+                    onKeyDown={async (e) => {
+                      if (e.key === 'Enter') {
+                        e.stopPropagation();
                         await changeCompleteFn();
-                      }}
-                    >
-                      {completeText}
-                    </div>
-                  </div>
+                      }
+                    }}
+                  />
                 </div>
-                ) : (
-                  ''
-                )}
-          </div>
+                <span className={styles.total}>{totals}</span>
+              </div>
+              {!inputToggle
+              // eslint-disable-next-line style/multiline-ternary
+                ? (
+                    <div className={styles.main}>
+                      <div className={styles.numbers}>
+                        {ArrayList.map((item, index) => (
+                          <button
+                            key={index}
+                            className={classNames([
+                              styles.keys,
+                              active === index ? styles.active : '',
+                            ])}
+                            onTouchStart={() => changeStart(index)}
+                            onTouchMove={changeMoves}
+                            onTouchEnd={() => changeEnd(index, item)}
+                          >
+                            {item.keys}
+                          </button>
+                        ))}
+                      </div>
+                      <div className={styles.right}>
+                        <div
+                          className={classNames([
+                            styles.bor,
+                            active1 === 4 ? styles.active : '',
+                          ])}
+                          onTouchStart={() => changeStart1(5)} // TODO onTouchEnd事件捕获修复在改为4
+                          onTouchMove={changeMoves}
+                          onClick={CustomRenderToggle}
+                        >
+                          <CustomRender
+                            dateValue={dateValue}
+                            valueDate={valueDate}
+                            change={() => ChangeDateRender()}
+                            changeTime={changeTime}
+                          >
+                          </CustomRender>
+                          {isToday(dateValue)
+                            ? (
+                                <>
+                                  <Icon name="today" style={{ fontSize: 21 }} />
+                                  <span>今天</span>
+                                </>
+                              )
+                            : (
+                                <span>{dataValueText}</span>
+                              )}
+                        </div>
+                        <div
+                          className={classNames([
+                            styles.bor,
+                            active1 === 1 ? styles.active : '',
+                          ])}
+                          onTouchStart={() => changeStart1(1)}
+                          onTouchMove={changeMoves}
+                          onTouchEnd={() => changeAddFn('+')}
+                        >
+                          +
+                        </div>
+                        <div
+                          className={classNames([
+                            styles.bor,
+                            active1 === 2 ? styles.active : '',
+                          ])}
+                          onTouchStart={() => changeStart1(2)}
+                          onTouchMove={changeMoves}
+                          onTouchEnd={() => changeAddFn('-')}
+                        >
+                          -
+                        </div>
+                        <div
+                          className={classNames([
+                            styles.bor,
+                            active1 === 3 ? styles.active1 : '',
+                          ])}
+                          onTouchStart={() => changeStart1(3)}
+                          onTouchMove={changeMoves}
+                          onTouchEnd={async () => {
+                            await changeCompleteFn();
+                          }}
+                        >
+                          {completeText}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    ''
+                  )}
+            </div>
           ) : (
             ''
           )}

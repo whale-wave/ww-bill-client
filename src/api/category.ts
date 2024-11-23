@@ -5,6 +5,7 @@ export interface CategoryEntity {
   icon: string;
   id: number;
   name: string;
+  type: CategoryAmountType;
   updatedAt: string;
 }
 
