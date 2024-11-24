@@ -118,6 +118,10 @@ const AssetFormInfo: FC = () => {
           content: '保存成功',
           duration: 1000,
         });
+
+        setTimeout(() => {
+          navigate(-1);
+        }, 250);
       }
     }
     else {
@@ -130,12 +134,17 @@ const AssetFormInfo: FC = () => {
         return;
       }
       await postAssetMutate({ ...formData, groupId });
-    }
 
-    setTimeout(() => {
-      navigate(-1);
-    }, 250);
-  }, []);
+      let backLevel = -2;
+      if (assetGroup?.level === 1) {
+        backLevel = -3;
+      }
+
+      setTimeout(() => {
+        navigate(backLevel);
+      }, 250);
+    }
+  }, [assetGroup]);
 
   const handleFinishFailed = useCallback((errors: { errorFields: { errors: string[] }[] }) => {
     Toast.show({

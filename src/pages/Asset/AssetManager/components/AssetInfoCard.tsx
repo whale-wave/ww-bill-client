@@ -26,7 +26,7 @@ export const AssetInfoCard: FC = () => {
   }, [addAsset, subAsset]);
 
   return (
-    <div className="flex flex-col bg-primary rounded-lg py-4 px-5 space-y-4">
+    <div className="flex flex-col bg-primary rounded-lg py-4 px-5 space-y-7">
       <div className="flex flex-col">
         <div>
           净资产

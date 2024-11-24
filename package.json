@@ -1,7 +1,7 @@
 {
   "name": "ww-bill-client",
   "type": "module",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "private": true,
   "engines": {
     "node": ">=20.14.0"
