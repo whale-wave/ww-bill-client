@@ -54,7 +54,7 @@ const Bookkeeping: FC = () => {
         name: state.remark,
         updatedAt: state.updatedAt,
       };
-      handleChangeTab(list);
+      handleChangeTab(list as any);
     }
   }, []);
 

@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { DatePicker } from 'antd-mobile';
 import dayjs from 'dayjs';
 

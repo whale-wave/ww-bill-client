@@ -1,14 +1,15 @@
-import { Topic } from '@/api';
+import { FixedPin, ImagePreview, Share } from 'bw-mobile';
+import type { FC } from 'react';
+import { useState } from 'react';
+import type { Topic } from '@/api';
 import { TopicItem } from '@/components';
-import { ImagePreview, Share, FixedPin } from 'bw-mobile';
 import ReplyArea from '@/pages/TopicDetail/ReplyArea';
-import { FC, useState } from 'react';
 
-type MainProps = {
+interface MainProps {
   topic?: Topic;
   comments: any;
   onLike: () => void;
-};
+}
 
 const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
   const [imgVisible, setImgVisible] = useState(false);
@@ -22,7 +23,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       icon: 'wechat',
       color: '#55BA38',
       onClick: () => {
-        console.log('share.wechat(topic)');
+        console.info('share.wechat(topic)');
       },
     },
     {
@@ -31,7 +32,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       icon: 'wechat-friends',
       color: '#55BA3A',
       onClick: () => {
-        console.log('share.wechat-friends(topic)');
+        console.info('share.wechat-friends(topic)');
       },
     },
     {
@@ -40,7 +41,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       icon: 'qq',
       color: '#4EAAF7',
       onClick: () => {
-        console.log('share.qq(topic)');
+        console.info('share.qq(topic)');
       },
     },
     {
@@ -49,7 +50,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       icon: 'qq-zone',
       color: '#F3B140',
       onClick: () => {
-        console.log('share.qq-zone(topic)');
+        console.info('share.qq-zone(topic)');
       },
     },
   ];
@@ -70,10 +71,10 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       {topic && (
         <TopicItem
           data={topic!}
-          onClick={() => console.log('click item')}
-          onShare={() => console.log('share')}
+          onClick={() => console.info('click item')}
+          onShare={() => console.info('share')}
           onLike={onLike}
-          onImg={(index, src) => {
+          onImg={(_, src) => {
             setImgVisible(true);
             setImgSrc(src);
           }}

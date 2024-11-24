@@ -46,6 +46,8 @@ const AddAssetAccount: FC = () => {
       </NavBar>
       <List className="mt-2">
         {assetGroup.map(item => (
+          // eslint-disable-next-line ts/ban-ts-comment
+          // @ts-expect-error
           <List.Item style={{ '--adm-font-size-main': '11px' }} key={item.id} prefix={<Icon className="text-2xl" name={item.icon} />} description={item.description} onClick={handleAddAsset(item)}>
             {item.name}
           </List.Item>

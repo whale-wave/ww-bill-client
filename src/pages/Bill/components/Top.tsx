@@ -30,7 +30,7 @@ const Top: FC<TopProps> = (p) => {
     DatePicker.prompt({
       precision: 'year',
       defaultValue: date,
-      renderLabel: (t, v) => `${v}年`,
+      renderLabel: (_, v) => `${v}年`,
       onConfirm: setDate,
     });
   };

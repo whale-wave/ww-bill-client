@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import type { CSSProperties, FC } from 'react';
-import React from 'react';
 
 const classPrefix = 'bwm-icon';
 

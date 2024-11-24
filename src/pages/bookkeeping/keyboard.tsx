@@ -330,7 +330,7 @@ const Keyboard: FC<keyType> = ({
     changePing(keys, 5);
   };
 
-  const changeEnd = (index: number, item: { keys: number | string }) => {
+  const changeEnd = (_: number, item: { keys: number | string }) => {
     // 键盘抬起事件
     setActive(-1);
     if (active === -2)

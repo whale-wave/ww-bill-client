@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import React, { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { DatePicker } from 'antd-mobile';
 import { Icon } from 'bw-mobile';
@@ -23,7 +23,7 @@ export const BillTabs: FC = memo(() => {
     void DatePicker.prompt({
       precision: 'year',
       defaultValue: selectDate,
-      renderLabel: (t, v) => `${v}年`,
+      renderLabel: (_, v) => `${v}年`,
       onConfirm: setSelectDate,
     });
   }, [selectDate]);

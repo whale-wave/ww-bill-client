@@ -112,6 +112,8 @@ export const AssetList: FC = () => {
                   <List.Item
                     className="!pl-[12px] !px-0"
                     style={{
+                    // eslint-disable-next-line ts/ban-ts-comment
+                    // @ts-expect-error
                       '--adm-color-weak': '#333',
                       '--adm-font-size-main': '11px',
                     }}

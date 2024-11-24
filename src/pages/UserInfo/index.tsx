@@ -1,7 +1,7 @@
 import { ActionSheet, Toast } from 'antd-mobile';
 import { useNavigate } from 'react-router-dom';
 import type { FC } from 'react';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Button, List, Modal, NavBar } from 'bw-mobile';
 import styles from './index.module.scss';
