@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { NavBar } from 'bw-mobile';
 import { CurrentMonthBillCard, TabBar } from '@/components';
 import { useUserStore } from '@/store';
-import { CommonFunctionCard } from '@/pages/Discovery/components';
+import { AssetManagerCard, CommonFunctionCard } from '@/pages/Discovery/components';
 import { useGetUserUserInfoQuery } from '@/hooks';
 import CurMonthBudgetCard from '@/components/CurMonthBudgetCard/CurMonthBudgetCard.tsx';
 
@@ -28,6 +28,7 @@ const Discovery: React.FC<DiscoveryProps> = () => {
         <div className="absolute w-[140%] h-[40px] bg-primary left-[-20%] top-0 rounded-b-[50%] -z-[1]"></div>
         <CurrentMonthBillCard billRecord={userInfo?.billRecord} />
         <CurMonthBudgetCard />
+        <AssetManagerCard />
         <CommonFunctionCard />
       </div>
       <TabBar active={3} />
