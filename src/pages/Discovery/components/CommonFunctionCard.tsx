@@ -3,6 +3,7 @@ import { ReceivePaymentOutline, TextOutline } from 'antd-mobile-icons';
 import { Card, Toast } from 'antd-mobile';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '@/components';
+import { ROUTES_PATH } from '@/constants';
 
 interface CommonFunctionCardProps {}
 
@@ -21,9 +22,7 @@ const CommonFunctionCard: React.FC<CommonFunctionCardProps> = () => {
       name: '资产管家',
       icon: <Icon name="asset-steward" />,
       onClick: () => {
-        Toast.show({
-          content: '敬请期待',
-        });
+        navigate(ROUTES_PATH.ASSET.getPath());
       },
     },
     {

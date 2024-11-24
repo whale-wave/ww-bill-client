@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { AddOutline } from 'antd-mobile-icons';
-import type { FC } from 'react';
+import { type FC, useCallback } from 'react';
 import classNames from 'classnames';
+import { Toast } from 'antd-mobile';
 import { playSound } from '@/modules';
 import './tab-bar.scss';
 import { Icon } from '@/components';
@@ -25,6 +26,9 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
       icon: 'chart',
       iconActive: 'chart-fill',
       router: '/chart',
+      onClick: () => {
+        Toast.show({ content: '敬请期待' });
+      },
     },
     {
       name: '记账',
@@ -75,6 +79,15 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
     navigate(router);
   };
 
+  const handleTabBarClick = useCallback((index: number, item: any) => () => {
+    if (item.onClick) {
+      item.onClick();
+    }
+    else {
+      changeRoute(index, item.router);
+    }
+  }, []);
+
   return (
     <div className="h-[60px] flex-shrink-0 z-[100]">
       <div className={classNames('bwm-tab-bar fixed bottom-0')}>
@@ -82,15 +95,15 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
           <div
             key={tab.name}
             className="item relative"
-            onClick={() => changeRoute(index, tab.router)}
+            onClick={handleTabBarClick(index, tab)}
           >
             {tab.customRender
               ? tab.customRender(tab)
               : (
-                <>
-                  <Icon name={isActive(tab, index)} className="tab-icon" />
-                  <span className="name">{tab.name}</span>
-                </>
+                  <>
+                    <Icon name={isActive(tab, index)} className="tab-icon" />
+                    <span className="name">{tab.name}</span>
+                  </>
                 )}
           </div>
         ))}
