@@ -15,3 +15,4 @@ export * from './NavBar';
 export * from './CurMonthBudgetCard';
 export * from './BudgetItem';
 export * from './BudgetItemContent';
+export * from './TabList';

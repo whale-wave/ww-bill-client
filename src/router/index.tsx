@@ -41,7 +41,7 @@ import SearchRecord from '@/pages/SearchRecord';
 import RecordCalendar from '@/pages/RecordCalendar';
 import Budget from '@/pages/Budget';
 import CreateBudgetCategory from '@/pages/CreateBudgetCategory';
-import { AddAssetAccount, AssetDetail, AssetFormInfo, AssetManager } from '@/pages/Asset';
+import { AddAssetAccount, AssetChart, AssetDetail, AssetFormInfo, AssetManager } from '@/pages/Asset';
 
 export const router = createHashRouter([
   {
@@ -274,6 +274,10 @@ export const router = createHashRouter([
           {
             path: 'detail/:id',
             element: <AssetDetail />,
+          },
+          {
+            path: 'chart',
+            element: <AssetChart />,
           },
         ],
       },
