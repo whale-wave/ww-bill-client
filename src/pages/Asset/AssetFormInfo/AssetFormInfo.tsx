@@ -5,7 +5,7 @@ import { clone, pick } from 'lodash-es';
 import { NavBar } from '@/components';
 import { useGetAssetByIdQuery, useGetAssetGroupById, usePatchAssetAdjustMutation, usePostAssetMutation } from '@/hooks';
 import { type Asset, CARD_TYPE } from '@/api';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi, normalizeAmount } from '@/utils';
 
 function parseAmountString(value: string) {
   return String(Number(value));
@@ -69,28 +69,7 @@ const AssetFormInfo: FC = () => {
         label: assetGroup?.type === 'sub' ? '欠款' : '余额',
         name: 'amount',
         rules: [{ required: true, message: '请输入金额' }],
-        normalize: (value: string, preValue: string) => {
-          let normalizedValue = value.replace(/[^\d.]/g, ''); // Remove non-numeric and non-dot characters
-          const parts = normalizedValue.split('.');
-
-          if (parts.length > 2) {
-            return preValue;
-          }
-
-          if (parts[1]?.length > 2) {
-            return preValue;
-          }
-
-          if (parts[0].length > 1 && parts[0].startsWith('0')) {
-            parts[0] = parts[0].replace(/^0+/, '');
-            if (parts[0] === '') {
-              parts[0] = '0';
-            }
-            normalizedValue = parts.join('.');
-          }
-
-          return normalizedValue;
-        },
+        normalize: normalizeAmount,
       },
     ];
 
