@@ -1,6 +1,8 @@
 import { type FC, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AssetTabBar } from '../AssetManager/components';
+import { AssetTrendChart, CurAssetStatus } from './components';
+import { AssetRanking } from './components/AssetRanking';
 import { NavBar, TabList } from '@/components';
 
 const AssetChart: FC = () => {
@@ -40,9 +42,9 @@ const AssetChart: FC = () => {
         />
       </div>
       <div className="flex-1 px-2">
-        <div>资产走势图</div>
-        <div>当前资产状况</div>
-        <div>资产排行榜</div>
+        <AssetTrendChart />
+        <CurAssetStatus />
+        <AssetRanking />
       </div>
       <AssetTabBar activeKey="chart" />
     </div>
