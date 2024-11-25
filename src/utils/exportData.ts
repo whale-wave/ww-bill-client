@@ -1,11 +1,12 @@
 import dayjs from 'dayjs';
 import * as xlsx from 'xlsx';
+import config from '@/config';
 
-export const exportData = ({
-  sheetName = '蓝鲸记账',
+export function exportData({
+  sheetName = config.appName,
   data = [],
-  fileName = '蓝鲸记账',
-}) => {
+  fileName = config.appName,
+}) {
   const sheet = xlsx.utils.json_to_sheet(data);
   const workbook = { Sheets: { [sheetName]: sheet }, SheetNames: [sheetName] };
   const excelBuffer: any = xlsx.write(workbook, {
@@ -24,9 +25,9 @@ export const exportData = ({
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-};
+}
 
-export const exportRecordData = ({
+export function exportRecordData({
   data,
   range,
   expend,
@@ -39,7 +40,7 @@ export const exportRecordData = ({
   };
   expend: number;
   income: number;
-}) => {
+}) {
   const sheet = data.map(
     ({
       id,
@@ -80,12 +81,12 @@ export const exportRecordData = ({
 
   exportData({
     data: sheet,
-    fileName: `蓝鲸记账 - ${range.startTime}~${range.endTime}记录数据`,
+    fileName: `${config.appName} - ${range.startTime}~${range.endTime}记录数据`,
     sheetName: `${range.startTime}~${range.endTime}`,
   });
-};
+}
 
-type SheetData = {
+interface SheetData {
   id: string;
   remark: string;
   time: string;
@@ -97,4 +98,4 @@ type SheetData = {
     id: string;
     name: string;
   };
-};
+}

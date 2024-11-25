@@ -1,4 +1,6 @@
-export function downloadCanvas(canvas: HTMLCanvasElement, fileName = '蓝鲸账本') {
+import config from '@/config';
+
+export function downloadCanvas(canvas: HTMLCanvasElement, fileName = config.appName) {
   const a = document.createElement('a');
   a.href = canvas.toDataURL('image/png');
   a.download = fileName;
