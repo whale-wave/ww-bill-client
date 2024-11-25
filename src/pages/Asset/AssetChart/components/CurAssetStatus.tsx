@@ -6,36 +6,21 @@ export const CurAssetStatus: FC = () => {
     data: [
       { type: '分类一', value: 27 },
       { type: '分类二', value: 25 },
-      { type: '分类三', value: 18 },
-      { type: '分类四', value: 15 },
-      { type: '分类五', value: 10 },
-      { type: '其他', value: 5 },
     ],
     angleField: 'value',
     colorField: 'type',
     innerRadius: 0.6,
-    label: {
-      text: 'value',
-      style: {
-        fontWeight: 'bold',
-      },
-    },
-    legend: {
-      color: {
-        title: false,
-        position: 'right',
-        rowPadding: 5,
-      },
-    },
+    label: false,
+    tooltip: false,
     annotations: [
       {
         type: 'text',
         style: {
-          text: 'AntV\nCharts',
+          text: '总资产',
           x: '50%',
           y: '50%',
           textAlign: 'center',
-          fontSize: 40,
+          fontSize: 20,
           fontStyle: 'bold',
         },
       },
@@ -45,7 +30,15 @@ export const CurAssetStatus: FC = () => {
   return (
     <div>
       <div>当前资产状况</div>
-      <Pie {...config} />
+      <Pie
+        {...config}
+        autoFit
+        legend={{
+          color: {
+            position: 'bottom',
+          },
+        }}
+      />
     </div>
   );
 };
