@@ -11,6 +11,7 @@ import Precision from '@/pages/detail/component';
 import { useSystemStore } from '@/store';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/hooks';
 import { ROUTES_PATH } from '@/constants';
+import config from '@/config';
 
 interface TopProps {
   change: (val: string) => void;
@@ -115,7 +116,7 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
 
   return (
     <div className={styles.top}>
-      <div className={styles.title}>蓝鲸记账</div>
+      <div className={styles.title}>{config.appName}</div>
       <div className={c([styles.left, styles['top-text-1-wrapper']])}>
         <div className={styles['top-text-1']}>{yearMoth[0]}</div>
         <div className={c(styles['left-bottom'])}>
@@ -143,23 +144,23 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
           <div className={styles['bottom-wrapper']}>
             {isVisibleAmount
               ? (
-                <>
-                  <span className={styles.big}>
-                    {numExpendIncome[1] && numExpendIncome[1].length
-                      ? numExpendIncome[1][0]
-                      : '0'}
-                  </span>
-                  <span className={styles.bigNum}>
-                    {numExpendIncome[1]
-                    && numExpendIncome[1].length
-                    && numExpendIncome[1][1] !== ''
-                      ? `.${numExpendIncome[1][1]}`
-                      : '.00'}
-                  </span>
-                </>
+                  <>
+                    <span className={styles.big}>
+                      {numExpendIncome[1] && numExpendIncome[1].length
+                        ? numExpendIncome[1][0]
+                        : '0'}
+                    </span>
+                    <span className={styles.bigNum}>
+                      {numExpendIncome[1]
+                      && numExpendIncome[1].length
+                      && numExpendIncome[1][1] !== ''
+                        ? `.${numExpendIncome[1][1]}`
+                        : '.00'}
+                    </span>
+                  </>
                 )
               : (
-                <span className={c(styles.big, 'font-bold')}>*******</span>
+                  <span className={c(styles.big, 'font-bold')}>*******</span>
                 )}
           </div>
         </div>
@@ -170,35 +171,35 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
           <div className={styles['bottom-wrapper']}>
             {isVisibleAmount
               ? (
-                <>
-                  <span className={styles.big}>
-                    {numExpendIncome[0] && numExpendIncome[0].length
-                      ? numExpendIncome[0][0]
-                      : '0'}
-                  </span>
-                  <span className={styles.bigNum}>
-                    {numExpendIncome[0]
-                    && numExpendIncome[0].length
-                    && numExpendIncome[0][1] !== ''
-                      ? `.${numExpendIncome[0][1]}`
-                      : '.00'}
-                  </span>
-                </>
+                  <>
+                    <span className={styles.big}>
+                      {numExpendIncome[0] && numExpendIncome[0].length
+                        ? numExpendIncome[0][0]
+                        : '0'}
+                    </span>
+                    <span className={styles.bigNum}>
+                      {numExpendIncome[0]
+                      && numExpendIncome[0].length
+                      && numExpendIncome[0][1] !== ''
+                        ? `.${numExpendIncome[0][1]}`
+                        : '.00'}
+                    </span>
+                  </>
                 )
               : (
-                <span className={c(styles.big, 'font-bold')}>*******</span>
+                  <span className={c(styles.big, 'font-bold')}>*******</span>
                 )}
           </div>
         </div>
       </div>
       {visibleAmountSwitch
         ? (
-          <div
-            className="right-4 bottom-[116px] absolute text-[18px] px-1"
-            onClick={onToggleVisibleAmount}
-          >
-            {!visibleAmount ? <Icon name="eye-close" /> : <Icon name="eye" />}
-          </div>
+            <div
+              className="right-4 bottom-[116px] absolute text-[18px] px-1"
+              onClick={onToggleVisibleAmount}
+            >
+              {!visibleAmount ? <Icon name="eye-close" /> : <Icon name="eye" />}
+            </div>
           )
         : null}
       <div className="absolute top-0 right-0 p-2">
