@@ -27,6 +27,7 @@
     "classnames-es-ts": "^2.2.7",
     "copy-to-clipboard": "3.3.3",
     "dayjs": "^1.10.7",
+    "echarts": "^5.5.1",
     "html2canvas": "^1.4.1",
     "i18next": "^21.6.6",
     "lodash-es": "^4.17.21",

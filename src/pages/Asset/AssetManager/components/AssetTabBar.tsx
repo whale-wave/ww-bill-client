@@ -31,7 +31,7 @@ export const AssetTabBar: FC<{ activeKey: string }> = ({ activeKey }) => {
   }, []);
 
   return (
-    <TabBar activeKey={activeKey} onChange={onChange}>
+    <TabBar className="fixed bottom-0 w-full bg-white shadow-[0_0px_10px_rgba(0,0,0,0.1)]" activeKey={activeKey} onChange={onChange}>
       {tabs.map(tab => (
         <TabBar.Item key={tab.key} title={tab.title} icon={tab.icon} />
       ))}

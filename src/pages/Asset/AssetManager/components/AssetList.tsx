@@ -1,7 +1,7 @@
 import { type FC, useCallback, useMemo } from 'react';
 import { Dialog, ErrorBlock, List, SwipeAction, Toast } from 'antd-mobile';
-import { Icon } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
+import { IconBlock } from '../../components';
 import styles from './AssetList.module.scss';
 import { formatAmount, math } from '@/utils';
 import { ROUTES_PATH } from '@/constants';
@@ -117,7 +117,7 @@ export const AssetList: FC = () => {
                       '--adm-color-weak': '#333',
                       '--adm-font-size-main': '11px',
                     }}
-                    prefix={<div className="flex justify-center items-center bg-gray-100 rounded-md w-[40px] h-[40px]"><Icon className="text-2xl" name={asset.assetGroup.icon} /></div>}
+                    prefix={<IconBlock name={asset.assetGroup.icon} />}
                     description={asset.comment}
                     onClick={handleItemClick(asset)}
                     arrow={false}

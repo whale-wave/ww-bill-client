@@ -33,7 +33,7 @@ const AssetChart: FC = () => {
       <NavBar className="bg-white" backArrow={false} back={false} right={<div className="text-base" onClick={onBack}>返回</div>}>
         图表
       </NavBar>
-      <div className="px-2">
+      <div className="px-2 fixed top-[45px] w-full bg-white">
         <TabList
           className="w-full"
           selectValue={selectTab}
@@ -41,7 +41,7 @@ const AssetChart: FC = () => {
           onChange={setSelectTab}
         />
       </div>
-      <div className="flex-1 px-2">
+      <div className="flex-1 px-2 py-3 space-y-3 overflow-y-auto mt-[40px] mb-[50px]">
         <AssetTrendChart />
         <CurAssetStatus />
         <AssetRanking />

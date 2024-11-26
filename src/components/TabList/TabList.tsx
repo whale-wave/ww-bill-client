@@ -12,7 +12,7 @@ export const TabList: FC<{ className?: string; selectValue: any; tabs: { name: s
     >
       {tabs.map(tab => (
         <div
-          className={classNames('py-[5px] px-4 flex-1 flex justify-center items-center', {
+          className={classNames('py-[7px] px-4 flex-1 flex justify-center items-center', {
             'bg-[#333] text-[#fff]': selectValue === tab.value,
           })}
           key={tab.value}
