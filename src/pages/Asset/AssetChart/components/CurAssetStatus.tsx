@@ -14,6 +14,7 @@ import { PieChart } from 'echarts/charts';
 import { LabelLayout } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import { useMount, useUnmount } from 'ahooks';
+import { AssetStatisticalRecordType } from '../types';
 import { useAssetSummaryInfo } from '@/hooks';
 import { formatAmount } from '@/utils';
 
@@ -30,12 +31,18 @@ type EChartsOption = echarts.ComposeOption<
   TooltipComponentOption | LegendComponentOption | PieSeriesOption
 >;
 
-export const CurAssetStatus: FC = () => {
+export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
   const chartDomRef = useRef<HTMLDivElement>(null);
   const [myChart, setMyChart] = useState<echarts.ECharts>();
-  const { addAssetGroupPercent, info } = useAssetSummaryInfo();
+  const { addAssetGroupPercent, subAssetGroupPercent, info } = useAssetSummaryInfo();
 
-  const data = addAssetGroupPercent.map(item => ({
+  const groupPercent = useMemo(() => {
+    if (type === AssetStatisticalRecordType.ASSET)
+      return addAssetGroupPercent;
+    return subAssetGroupPercent;
+  }, [type, addAssetGroupPercent, subAssetGroupPercent]);
+
+  const data = groupPercent.map(item => ({
     name: item.group.name,
     value: item.percent,
   }));
@@ -62,11 +69,13 @@ export const CurAssetStatus: FC = () => {
 
   useEffect(() => {
     const maxLength = Math.max(...data.map(item => item.name.length));
+    const MIN_WIDTH = 40;
+    const width = maxLength * 14;
     const option: EChartsOption = {
       title: {
         textAlign: 'center',
-        text: '总资产',
-        subtext: formatAmount(info.totalAsset),
+        text: type === AssetStatisticalRecordType.ASSET ? '总资产' : '总负债',
+        subtext: type === AssetStatisticalRecordType.ASSET ? formatAmount(info.addAsset) : formatAmount(info.subAsset),
         top: '36%',
         left: '24%',
         textStyle: {
@@ -91,7 +100,7 @@ export const CurAssetStatus: FC = () => {
         textStyle: {
           rich: {
             name: {
-              width: maxLength * 14,
+              width: width < MIN_WIDTH ? MIN_WIDTH : width,
             },
             value: {
               width: 30,
@@ -121,7 +130,7 @@ export const CurAssetStatus: FC = () => {
 
   return (
     <div className="flex flex-col justify-center">
-      <div className="text-base py-3">当前资产状况</div>
+      <div className="text-base py-3">{type === AssetStatisticalRecordType.ASSET ? '当前资产状况' : '当前负债状况'}</div>
       <div className="w-full h-[160px]" ref={chartDomRef}></div>
     </div>
   );

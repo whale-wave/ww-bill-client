@@ -12,3 +12,4 @@ export * from './useGetAssetQuery';
 export * from './useGetAssetByIdQuery';
 export * from './useGetAssetRecordQuery';
 export * from './useGetAssetGroupById';
+export * from './useGetAssetStatisticalRecordQuery';

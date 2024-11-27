@@ -1,50 +1,60 @@
 import { type FC, useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tabs } from 'antd-mobile';
 import classNames from 'classnames';
 import { AssetTabBar } from '../AssetManager/components';
-import { AssetTrendChart, CurAssetStatus } from './components';
+import { AssetTrendChart, CurAssetStatus, CurNetAssetStatus } from './components';
 import { AssetRanking } from './components/AssetRanking';
 import styles from './AssetChart.module.scss';
+import { AssetStatisticalRecordType } from './types';
 import { NavBar, TabList } from '@/components';
 
 const AssetChart: FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const type = searchParams.get('type') as AssetStatisticalRecordType || AssetStatisticalRecordType.ASSET;
+
   const tabs = [
     {
       name: '资产',
-      value: 'asset',
+      value: AssetStatisticalRecordType.ASSET,
       children: (
         <>
-          <AssetTrendChart />
-          <CurAssetStatus />
-          <AssetRanking />
+          <AssetTrendChart type={AssetStatisticalRecordType.ASSET} />
+          <CurAssetStatus type={AssetStatisticalRecordType.ASSET} />
+          <AssetRanking type={AssetStatisticalRecordType.ASSET} />
         </>
       ),
     },
     {
       name: '负债',
-      value: 'liability',
+      value: AssetStatisticalRecordType.LIABILITY,
       children: (
         <>
-          <AssetTrendChart />
-          <CurAssetStatus />
-          <AssetRanking />
+          <AssetTrendChart type={AssetStatisticalRecordType.LIABILITY} />
+          <CurAssetStatus type={AssetStatisticalRecordType.LIABILITY} />
+          <AssetRanking type={AssetStatisticalRecordType.LIABILITY} />
         </>
       ),
     },
     {
       name: '净资产',
-      value: 'net-asset',
+      value: AssetStatisticalRecordType.NET_ASSET,
       children: (
         <>
-          <AssetTrendChart />
+          <AssetTrendChart type={AssetStatisticalRecordType.NET_ASSET} />
+          <CurNetAssetStatus />
         </>
       ),
     },
   ];
 
-  const [selectTab, setSelectTab] = useState<string>(tabs[0].value);
+  const [selectTab, setSelectTab] = useState<AssetStatisticalRecordType>(type);
+
+  const onChangeActiveKey = useCallback((key: string) => {
+    setSelectTab(key as AssetStatisticalRecordType);
+    // setSearchParams({ type: key });
+  }, []);
 
   const onBack = useCallback(() => {
     navigate(-1);
@@ -60,10 +70,10 @@ const AssetChart: FC = () => {
           className="w-full"
           selectValue={selectTab}
           tabs={tabs}
-          onChange={setSelectTab}
+          onChange={onChangeActiveKey}
         />
       </div>
-      <Tabs onChange={setSelectTab} activeKey={selectTab}>
+      <Tabs onChange={onChangeActiveKey} activeKey={selectTab}>
         {
           tabs.map(tab => (
             <Tabs.Tab key={tab.value} title={tab.name}>

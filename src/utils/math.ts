@@ -1,6 +1,7 @@
+import type { BigNumber } from 'mathjs';
 import { add, bignumber, compareNatural, divide, multiply, subtract } from 'mathjs';
 
-type AmountType = string | number;
+type AmountType = string | number | BigNumber;
 
 class MathHelper {
   private toBigNumber(n: AmountType) {
@@ -16,11 +17,11 @@ class MathHelper {
   }
 
   multiply(n1: AmountType, n2: AmountType) {
-    return multiply(this.toBigNumber(n1), this.toBigNumber(n2));
+    return multiply(this.toBigNumber(n1), this.toBigNumber(n2)) as BigNumber;
   }
 
   divide(n1: AmountType, n2: AmountType) {
-    return divide(this.toBigNumber(n1), this.toBigNumber(n2));
+    return divide(this.toBigNumber(n1), this.toBigNumber(n2)) as BigNumber;
   }
 
   compare(n1: AmountType, n2: AmountType) {

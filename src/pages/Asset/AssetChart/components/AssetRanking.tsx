@@ -4,6 +4,7 @@ import { clone } from 'lodash-es';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
 import { IconBlock } from '../../components';
+import { AssetStatisticalRecordType } from '../types';
 import { ProgressBar } from './ProgressBar';
 import styles from './AssetRanking.module.scss';
 import { useGetAssetQuery } from '@/hooks';
@@ -13,7 +14,7 @@ import { ROUTES_PATH } from '@/constants';
 
 type AssetPercentItem = Asset & { percent: number; percentStr: string };
 
-export const AssetRanking: FC = () => {
+export const AssetRanking: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
   const { data } = useGetAssetQuery();
   const navigator = useNavigate();
 
@@ -21,7 +22,17 @@ export const AssetRanking: FC = () => {
     if (!data)
       return [];
 
-    const addTypeList = data.filter(i => i.assetGroup.type === 'add').toSorted((a: Asset, b: Asset) => {
+    let filterType = 'add';
+    switch (type) {
+      case AssetStatisticalRecordType.ASSET:
+        filterType = 'add';
+        break;
+      case AssetStatisticalRecordType.LIABILITY:
+        filterType = 'sub';
+        break;
+    }
+
+    const addTypeList = data.filter(i => i.assetGroup.type === filterType).toSorted((a: Asset, b: Asset) => {
       return Number(math.subtract(b.amount, a.amount).toString());
     });
     const total = addTypeList.reduce((acc, cur) => math.add(acc, cur.amount).toNumber(), 0);
@@ -35,12 +46,12 @@ export const AssetRanking: FC = () => {
   }, [data]);
 
   const handleClickItem = useCallback((item: AssetPercentItem) => () => {
-    navigator(ROUTES_PATH.ASSET_DETAIL.getPath(item.assetGroup.id));
+    navigator(ROUTES_PATH.ASSET_DETAIL.getPath(item.id));
   }, []);
 
   return (
     <div className={classNames(styles['asset-ranking'], 'py-3 border-0 border-t-[1px] border-t-gray-100 border-solid')}>
-      <div className="text-base mb-2">资产排行榜</div>
+      <div className="text-base mb-2">{type === AssetStatisticalRecordType.ASSET ? '资产排行榜' : '负债排行榜'}</div>
       <List>
         {rankList.map(i => (
           <List.Item

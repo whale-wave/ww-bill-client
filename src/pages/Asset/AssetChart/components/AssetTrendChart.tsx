@@ -1,4 +1,4 @@
-import { type FC, useCallback, useEffect, useRef, useState } from 'react';
+import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as echarts from 'echarts/core';
 import type { GridComponentOption, MarkLineComponentOption } from 'echarts/components';
 import { GridComponent, MarkLineComponent, TooltipComponent } from 'echarts/components';
@@ -7,7 +7,12 @@ import { LineChart } from 'echarts/charts';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import { useMount, useUnmount } from 'ahooks';
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+import { DatePicker } from 'antd-mobile';
+import { AssetStatisticalRecordType } from '../types';
 import { Icon } from '@/components';
+import { useAssetStatisticalRecord, useGetAssetStatisticalRecordQuery } from '@/hooks';
 
 echarts.use([GridComponent, LineChart, CanvasRenderer, UniversalTransition, TooltipComponent, MarkLineComponent]);
 
@@ -15,16 +20,42 @@ type EChartsOption = echarts.ComposeOption<
   GridComponentOption | LineSeriesOption | MarkLineComponentOption
 >;
 
-export const AssetTrendChart: FC = () => {
+export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
+  let chartTitle = '资产走势图';
+  switch (type) {
+    case AssetStatisticalRecordType.LIABILITY:
+      chartTitle = '负债走势图';
+      break;
+    case AssetStatisticalRecordType.NET_ASSET:
+      chartTitle = '净资产走势图';
+      break;
+    default:
+      break;
+  }
+
+  const [selectYear, setSelectYear] = useState<Dayjs>(dayjs());
+  const range = useMemo(() => {
+    return {
+      startTime: selectYear.startOf('year').valueOf(),
+      endTime: selectYear.endOf('year').valueOf(),
+    };
+  }, [selectYear]);
   const chartDomRef = useRef<HTMLDivElement>(null);
   const [myChart, setMyChart] = useState<echarts.ECharts>();
-  const xAxisData = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-  const seriesData = [300, 200, 250, 300, 0, 200, 300, 200, 250, 300, 250, 200];
+  const { data } = useGetAssetStatisticalRecordQuery({ params: { ...range, type } });
+  const { groupByMonth } = useAssetStatisticalRecord(data);
+  const xAxisData = groupByMonth.map(i => `${i.month}月`);
+  const seriesData = groupByMonth.map(i => i.amount);
   const maxValue = Math.max(...seriesData);
 
-  const handleSelectYear = useCallback(() => {
-    console.info('select year');
-  }, []);
+  const handleSelectYear = useCallback(async () => {
+    const result = await DatePicker.prompt({
+      defaultValue: selectYear.toDate(),
+      precision: 'year',
+    });
+    if (result)
+      setSelectYear(dayjs(result));
+  }, [selectYear]);
 
   useMount(() => {
     const myChart = echarts.init(chartDomRef.current!);
@@ -38,9 +69,9 @@ export const AssetTrendChart: FC = () => {
   useEffect(() => {
     const option: EChartsOption = {
       grid: {
-        top: '10%',
+        top: '3%',
         left: '3%',
-        right: '3%',
+        right: '5%',
         bottom: '17%',
       },
       tooltip: {
@@ -144,9 +175,9 @@ export const AssetTrendChart: FC = () => {
   return (
     <div className="flex flex-col border-[1px] border-solid border-gray-200 rounded-lg shadow-md p-3">
       <div className="flex justify-between items-center h-[30px]">
-        <div className="text-base">资产走势图</div>
+        <div className="text-base">{chartTitle}</div>
         <div className="bg-gray-100 flex justify-center items-center rounded-md py-1 px-2 space-x-1" onClick={handleSelectYear}>
-          <div className="text-xs">2024年</div>
+          <div className="text-xs">{selectYear.format('YYYY年')}</div>
           <Icon className="text-[8px]" name="show-bottom" />
         </div>
       </div>
