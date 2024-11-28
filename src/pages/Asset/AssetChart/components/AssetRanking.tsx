@@ -1,4 +1,4 @@
-import { List } from 'antd-mobile';
+import { ErrorBlock, List } from 'antd-mobile';
 import { type FC, useCallback, useMemo } from 'react';
 import { clone } from 'lodash-es';
 import classNames from 'classnames';
@@ -50,40 +50,42 @@ export const AssetRanking: FC<{ type: AssetStatisticalRecordType }> = ({ type })
   }, []);
 
   return (
-    <div className={classNames(styles['asset-ranking'], 'py-3 border-0 border-t-[1px] border-t-gray-100 border-solid')}>
+    <div className={classNames(styles['asset-ranking'], 'pt-3 pb-8 border-0 border-t-[1px] border-t-gray-100 border-solid')}>
       <div className="text-base mb-2">{type === AssetStatisticalRecordType.ASSET ? '资产排行榜' : '负债排行榜'}</div>
       <List>
-        {rankList.map(i => (
-          <List.Item
-            key={i.id}
-            arrow={false}
-            prefix={<IconBlock name={i.assetGroup.icon} />}
-            description={(
-              <div className="mt-1">
-                {i.comment}
-              </div>
-            )}
-            onClick={handleClickItem(i)}
-          >
-            <div>
-              <div className="flex justify-between">
-                <div className="flex space-x-2">
-                  <div>
-                    {i.name}
-                  </div>
-                  <div>
-                    {i.percentStr}
-                    %
-                  </div>
+        {rankList.length > 0
+          ? rankList.map(i => (
+            <List.Item
+              key={i.id}
+              arrow={false}
+              prefix={<IconBlock name={i.assetGroup.icon} />}
+              description={(
+                <div className="mt-1">
+                  {i.comment}
                 </div>
-                <div>{formatAmount(Number(i.amount))}</div>
-              </div>
+              )}
+              onClick={handleClickItem(i)}
+            >
               <div>
-                <ProgressBar percent={i.percent} />
+                <div className="flex justify-between">
+                  <div className="flex space-x-2">
+                    <div>
+                      {i.name}
+                    </div>
+                    <div>
+                      {i.percentStr}
+                      %
+                    </div>
+                  </div>
+                  <div>{formatAmount(Number(i.amount))}</div>
+                </div>
+                <div>
+                  <ProgressBar percent={i.percent} />
+                </div>
               </div>
-            </div>
-          </List.Item>
-        ))}
+            </List.Item>
+          ))
+          : <div><ErrorBlock status="empty" title="暂无数据" description="" /></div>}
       </List>
     </div>
   );

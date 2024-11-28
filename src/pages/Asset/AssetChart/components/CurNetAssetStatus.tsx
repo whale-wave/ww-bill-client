@@ -6,8 +6,8 @@ import { themeColor } from '@/assets/styles/reset';
 export const CurNetAssetStatus: FC = () => {
   const { info } = useAssetSummaryInfo();
   const total = math.add(info.addAsset, info.subAsset);
-  let addPercent = math.divide(info.addAsset, total).toNumber();
-  let subPercent = math.divide(info.subAsset, total).toNumber();
+  let addPercent = total.isZero() ? 0.45 : math.divide(info.addAsset, total).toNumber();
+  let subPercent = total.isZero() ? 0.55 : math.divide(info.subAsset, total).toNumber();
   if (addPercent > 0.85) {
     addPercent = 0.85;
     subPercent = 0.15;
@@ -94,9 +94,11 @@ export const CurNetAssetStatus: FC = () => {
       <div className="flex justify-between text-sm px-2 py-3">
         <div>资产负债率</div>
         <div>
-          {formatAmount(
-            math.multiply(math.divide(info.subAsset, info.addAsset), 100).toNumber(),
-          )}
+          {Number(info.addAsset) === 0
+            ? '0'
+            : formatAmount(
+              math.multiply(math.divide(info.subAsset, info.addAsset), 100).toNumber(),
+            )}
           %
         </div>
       </div>
