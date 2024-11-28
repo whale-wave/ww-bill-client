@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { AddAssetAccountButton, AssetHeader, AssetInfoCard, AssetList } from './components';
+import { AddAssetAccountButton, AssetHeader, AssetInfoCard, AssetList, AssetTabBar } from './components';
 
 const AssetManager: FC = () => {
   return (
@@ -10,7 +10,7 @@ const AssetManager: FC = () => {
         <AssetList />
         <AddAssetAccountButton />
       </div>
-      {/* <AssetTabBar /> */}
+      <AssetTabBar activeKey="home" />
     </div>
   );
 };

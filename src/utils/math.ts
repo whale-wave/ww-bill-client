@@ -1,15 +1,32 @@
-import { add, bignumber, subtract } from 'mathjs';
+import type { BigNumber } from 'mathjs';
+import { add, bignumber, compareNatural, divide, multiply, subtract } from 'mathjs';
 
-type AmountType = string | number;
+type AmountType = string | number | BigNumber;
 
-class Math {
+class MathHelper {
+  private toBigNumber(n: AmountType) {
+    return bignumber(n);
+  }
+
   add(n1: AmountType, n2: AmountType) {
-    return add(bignumber(n1), bignumber(n2));
+    return add(this.toBigNumber(n1), this.toBigNumber(n2));
   }
 
   subtract(n1: AmountType, n2: AmountType) {
-    return subtract(bignumber(n1), bignumber(n2));
+    return subtract(this.toBigNumber(n1), this.toBigNumber(n2));
+  }
+
+  multiply(n1: AmountType, n2: AmountType) {
+    return multiply(this.toBigNumber(n1), this.toBigNumber(n2)) as BigNumber;
+  }
+
+  divide(n1: AmountType, n2: AmountType) {
+    return divide(this.toBigNumber(n1), this.toBigNumber(n2)) as BigNumber;
+  }
+
+  compare(n1: AmountType, n2: AmountType) {
+    return compareNatural(this.toBigNumber(n1), this.toBigNumber(n2));
   }
 }
 
-export const math = new Math();
+export const math = new MathHelper();

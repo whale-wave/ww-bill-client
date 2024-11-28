@@ -13,10 +13,10 @@
     },
     // default
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo", // 指定增量编译信息文件的路径
-    "target": "ES2020", // 将代码编译为 ES2020 版本的 JavaScript
+    "target": "ESNext", // 将代码编译为 ES2020 版本的 JavaScript
     "useDefineForClassFields": true, // 使用 JavaScript 的 class fields 语法
     "lib": [ // 指定要包含在编译中的库文件
-      "ES2020", // 包含 ES2020 标准库
+      "ESNext", // 包含 ES2020 标准库
       "DOM", // 包含 DOM 库
       "DOM.Iterable", // 包含可迭代的 DOM 库
     ],

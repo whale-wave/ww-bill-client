@@ -1,13 +1,10 @@
 export const ROUTES_PATH = {
-  // 账单
   BILL: {
     getPath: () => '/bill',
   },
-  // 预算
   BUDGET: {
     getPath: () => '/budget',
   },
-  // 资产
   ASSET: {
     getPath: () => '/asset',
   },
@@ -24,5 +21,8 @@ export const ROUTES_PATH = {
   },
   ASSET_DETAIL: {
     getPath: (id: string) => `/asset/detail/${id}`,
+  },
+  ASSET_CHART: {
+    getPath: () => '/asset/chart',
   },
 };

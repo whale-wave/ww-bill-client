@@ -1,4 +1,13 @@
+import type { AssetStatisticalRecordType } from '@/pages/Asset/AssetChart/types';
 import { request } from '@/utils';
+
+export interface AssetStatisticalRecord {
+  id: string;
+  type: AssetStatisticalRecordType;
+  amount: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface AssetGroup {
   id: string;
@@ -85,6 +94,17 @@ export interface GetAssetRecordApiParams {
 }
 export function getAssetRecordApi(params: GetAssetRecordApiParams) {
   return request.get<unknown, SuccessResponse<AssetRecord[]>>(`/asset/record`, {
+    params,
+  });
+}
+
+export interface GetAssetStatisticalRecordApiParams {
+  type: AssetStatisticalRecordType;
+  startTime: number;
+  endTime: number;
+}
+export function getAssetStatisticalRecordApi(params: GetAssetStatisticalRecordApiParams) {
+  return request.get<unknown, SuccessResponse<AssetStatisticalRecord[]>>(`/asset/statistical`, {
     params,
   });
 }

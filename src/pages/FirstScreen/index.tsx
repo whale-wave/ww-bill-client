@@ -35,7 +35,14 @@ const FirstScreen: FC = () => {
           transform: 'translateY(-33.333333%)',
         }}
       >
-        <img className={styles.logo} src={logo} alt={config.appName} />
+        <img
+          className={classNames(styles.logo, 'w-[160px] h-[160px]')}
+          style={{
+            transform: 'translateX(-8%)',
+          }}
+          src={logo}
+          alt={config.appName}
+        />
         <span className={styles['logo-text']}>{config.appName}</span>
       </div>
     </div>

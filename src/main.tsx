@@ -5,6 +5,9 @@ import '@/assets/styles/index.scss';
 import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { router } from './router';
+import { initResetStyle } from '@/assets/styles/reset';
+
+initResetStyle();
 
 export const queryClient = new QueryClient();
 
