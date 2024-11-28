@@ -45,7 +45,7 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
   const { data } = useGetAssetStatisticalRecordQuery({ params: { ...range, type } });
   const { groupByMonth } = useAssetStatisticalRecord(data);
   const xAxisData = groupByMonth.map(i => `${i.month}月`);
-  const seriesData = groupByMonth.map(i => i.amount);
+  const seriesData = groupByMonth.map(i => Number(i.amount));
   const maxValue = Math.max(...seriesData);
 
   const handleSelectYear = useCallback(async () => {
