@@ -12,6 +12,10 @@ export const CurNetAssetStatus: FC = () => {
     addPercent = 0.85;
     subPercent = 0.15;
   }
+  else if (subPercent > 0.85) {
+    subPercent = 0.85;
+    addPercent = 0.15;
+  }
   const subBgColor = '#3e414a';
 
   return (
@@ -41,7 +45,7 @@ export const CurNetAssetStatus: FC = () => {
                 >
                 </div>
                 <div
-                  className="absolute right-[-1px] top-0 w-[30px] h-[40.5px]"
+                  className="absolute right-[-1px] top-[-0.5px] w-[30px] h-[40.5px]"
                   style={{
                     clipPath: `polygon(30px 0, 100% 0, 30px 100%, 0 100%)`,
                     background: subBgColor,
