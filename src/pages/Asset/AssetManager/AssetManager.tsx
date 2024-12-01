@@ -5,7 +5,7 @@ const AssetManager: FC = () => {
   return (
     <div className="page pt-[52px] !overflow-auto">
       <AssetHeader />
-      <div className="flex-grow px-4">
+      <div className="flex-grow px-4 pb-8">
         <AssetInfoCard />
         <AssetList />
         <AddAssetAccountButton />
