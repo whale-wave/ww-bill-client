@@ -16,7 +16,7 @@ import config from '@/config';
 
 interface TopProps {
   numExpendIncome: numType | [];
-  selectTime?: Dayjs;
+  selectTime: Dayjs;
   setSelectTime: (val: Dayjs) => void;
 }
 
@@ -92,8 +92,13 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
   }, []);
 
   const onGoToRecordCalendarPage = useCallback(() => {
-    navigate(`/record-calendar?selectTime=${dayjs().valueOf()}`);
-  }, []);
+    if (dayjs().isSame(selectTime, 'month')) {
+      navigate(`/record-calendar?selectTime=${dayjs().valueOf()}`);
+    }
+    else {
+      navigate(`/record-calendar?selectTime=${selectTime.valueOf()}`);
+    }
+  }, [selectTime]);
 
   return (
     <div className={styles.top}>
@@ -111,6 +116,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
             {' '}
             <Icon name="show-bottom" className="text-[10px] mb-[2px]" />
             <Precision
+              selectTime={selectTime}
               visible1={visible1}
               change={() => ChangeDateToggle()}
               changeTime={(time: string) =>

@@ -9,7 +9,7 @@ import Top from '@/pages/detail/Top';
 export type numType = [Array<string>, Array<string>];
 
 const Detail: FC = () => {
-  const [selectTime, setSelectTime] = useState<Dayjs | undefined>();
+  const [selectTime, setSelectTime] = useState<Dayjs>(dayjs());
   const [numExpendIncome, setNumExpendIncome] = useState<numType | []>([]);
 
   const topDateTime = (arr: numType) => {
