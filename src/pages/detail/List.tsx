@@ -1,10 +1,11 @@
 import { Icon } from 'bw-mobile';
 import c from 'classnames';
 import type { FC } from 'react';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import type { Dayjs } from 'dayjs';
 import styles from './list.module.scss';
-import { getTimeValueFn, getTimedate, getWeekByDay } from '@/utils/DataTime';
+import { getTimeValueFn, getWeekByDay } from '@/utils/DataTime';
 import { playSound } from '@/modules';
 import { useGetRecordQuery } from '@/hooks';
 import { math } from '@/utils';
@@ -39,18 +40,19 @@ type recordType = [
 type numType = [Array<string>, Array<string>];
 
 interface timeDateProp {
-  timeProp: string;
+  selectTime?: Dayjs;
   change: (arr: numType) => void;
 }
 
-const List: FC<timeDateProp> = ({ timeProp, change }) => {
+const List: FC<timeDateProp> = memo(({ selectTime, change }) => {
   const [record, setRecord] = useState<recordType[]>([]);
   const navigate = useNavigate();
 
-  const time = new Date();
-  const time2 = getTimedate(time);
   const { data } = useGetRecordQuery({
-    params: { startDate: timeProp || time2 },
+    params: { startDate: selectTime?.format('YYYY-MM-DD') },
+    options: {
+      enabled: !!selectTime,
+    },
   });
 
   const Recording = async () => {
@@ -156,82 +158,82 @@ const List: FC<timeDateProp> = ({ timeProp, change }) => {
 
   useEffect(() => {
     void Recording();
-  }, [timeProp, data]);
+  }, [selectTime, data]);
 
   return (
     <div className={styles.wrapper}>
       {record.length
         ? (
-          <>
-            {record.map((item: recordType, index) => (
-              <div className={styles.group} key={index}>
-                <div className={styles.title}>
-                  <div className={styles.left}>
-                    {item[0]}
-                    {' '}
-                    {item[1]}
+            <>
+              {record.map((item: recordType, index) => (
+                <div className={styles.group} key={index}>
+                  <div className={styles.title}>
+                    <div className={styles.left}>
+                      {item[0]}
+                      {' '}
+                      {item[1]}
+                    </div>
+                    {item[5] > 0
+                      ? (
+                          <div className={styles.right}>
+                            收入：
+                            {item[5]}
+                          </div>
+                        )
+                      : (
+                          ''
+                        )}
+                    <div className={styles.right}>
+                      支出：
+                      {item[4]}
+                    </div>
                   </div>
-                  {item[5] > 0
-                    ? (
-                      <div className={styles.right}>
-                        收入：
-                        {item[5]}
+                  {item[3].map((chunk, index) => (
+                    <div
+                      className={styles.record}
+                      key={index}
+                      onClick={() => recordFn(chunk)}
+                    >
+                      <div className={c(styles.left, 'flex-shrink-0')}>
+                        <div
+                          className={c(
+                            styles.icon,
+                            'flex justify-center items-center',
+                          )}
+                        >
+                          <Icon
+                            name={chunk.category.icon}
+                            style={{ fontSize: 20 }}
+                          />
+                        </div>
                       </div>
-                      )
-                    : (
-                        ''
-                      )}
-                  <div className={styles.right}>
-                    支出：
-                    {item[4]}
-                  </div>
+                      <div className={c(styles.right, 'flex flex-grow-1 min-w-0')}>
+                        <div
+                          className={c(
+                            styles.remark,
+                            'overflow-hidden overflow-ellipsis whitespace-nowrap',
+                          )}
+                        >
+                          {chunk.remark}
+                        </div>
+                        <div className={c(styles.price, 'ml-[12px]')}>
+                          {chunk.type === 'add' ? chunk.amount : -chunk.amount}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                {item[3].map((chunk, index) => (
-                  <div
-                    className={styles.record}
-                    key={index}
-                    onClick={() => recordFn(chunk)}
-                  >
-                    <div className={c(styles.left, 'flex-shrink-0')}>
-                      <div
-                        className={c(
-                          styles.icon,
-                          'flex justify-center items-center',
-                        )}
-                      >
-                        <Icon
-                          name={chunk.category.icon}
-                          style={{ fontSize: 20 }}
-                        />
-                      </div>
-                    </div>
-                    <div className={c(styles.right, 'flex flex-grow-1 min-w-0')}>
-                      <div
-                        className={c(
-                          styles.remark,
-                          'overflow-hidden overflow-ellipsis whitespace-nowrap',
-                        )}
-                      >
-                        {chunk.remark}
-                      </div>
-                      <div className={c(styles.price, 'ml-[12px]')}>
-                        {chunk.type === 'add' ? chunk.amount : -chunk.amount}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </>
+              ))}
+            </>
           )
         : (
-          <div className={styles['not-data']}>
-            <Icon name="not-data" />
-            <span>暂无数据</span>
-          </div>
+            <div className={styles['not-data']}>
+              <Icon name="not-data" />
+              <span>暂无数据</span>
+            </div>
           )}
     </div>
   );
-};
+});
 
 export default List;

@@ -4,6 +4,7 @@ import type { FC } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CalendarOutline, SearchOutline } from 'antd-mobile-icons';
+import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import styles from './top.module.scss';
 import type { numType } from './index';
@@ -14,11 +15,12 @@ import { ROUTES_PATH } from '@/constants';
 import config from '@/config';
 
 interface TopProps {
-  change: (val: string) => void;
   numExpendIncome: numType | [];
+  selectTime?: Dayjs;
+  setSelectTime: (val: Dayjs) => void;
 }
 
-const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
+const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
   const navigate = useNavigate();
   // TODO: 需要调整为获取指定的字段
   const { setVisibleAmount, visibleAmount, visibleAmountSwitch, setUserAppConfig }
@@ -56,7 +58,6 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
   ];
 
   const [visible1, setVisible1] = useState(false);
-  const [yearMoth, setYearMoth] = useState<string[]>([]);
 
   const PrecisionFn = () => {
     setVisible1(true);
@@ -66,30 +67,10 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
     setVisible1(false);
   };
 
-  const ChangeTimeDate = async (time: string, arr: Array<string>) => {
-    sessionStorage.setItem('setYearMoth', JSON.stringify(arr));
+  const ChangeTimeDate = async (time: string) => {
     sessionStorage.setItem('timeDate', JSON.stringify(time));
-    setYearMoth(arr);
-    change(time);
+    setSelectTime(dayjs(time));
   };
-
-  useEffect(() => {
-    const getYearMoth = sessionStorage.getItem('setYearMoth');
-    const timeDate = sessionStorage.getItem('timeDate');
-    getYearMoth && setYearMoth(JSON.parse(getYearMoth));
-    timeDate && change(timeDate);
-    if (!getYearMoth) {
-      const time2 = new Date();
-      const Y = `${time2.getFullYear()}年`;
-      const M
-        = time2.getMonth() + 1 < 10
-          ? `0${time2.getMonth() + 1}`
-          : time2.getMonth() + 1;
-
-      const arrayDate = [String(Y), String(M)];
-      setYearMoth(arrayDate);
-    }
-  }, []);
 
   const isVisibleAmount = useMemo(() => {
     if (!visibleAmountSwitch) {
@@ -118,22 +99,22 @@ const Top: FC<TopProps> = ({ change, numExpendIncome }) => {
     <div className={styles.top}>
       <div className={styles.title}>{config.appName}</div>
       <div className={c([styles.left, styles['top-text-1-wrapper']])}>
-        <div className={styles['top-text-1']}>{yearMoth[0]}</div>
+        <div className={styles['top-text-1']}>{selectTime?.format('YYYY年')}</div>
         <div className={c(styles['left-bottom'])}>
           <div
             className="h-[40%] w-[1px] bg-black333 absolute -right-0 bottom-1 opacity-50"
           >
           </div>
           <div className={styles['bottom-wrapper']} onClick={PrecisionFn}>
-            <span className={styles.month}>{yearMoth[1]}</span>
+            <span className={styles.month}>{selectTime?.format('MM')}</span>
             月
             {' '}
             <Icon name="show-bottom" className="text-[10px] mb-[2px]" />
             <Precision
               visible1={visible1}
               change={() => ChangeDateToggle()}
-              changeTime={(time: string, arr: Array<string>) =>
-                ChangeTimeDate(time, arr)}
+              changeTime={(time: string) =>
+                ChangeTimeDate(time)}
             />
           </div>
         </div>

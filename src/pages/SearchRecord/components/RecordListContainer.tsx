@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { ErrorBlock, SpinLoading } from 'antd-mobile';
 import dayjs from 'dayjs';
+import { useDebounce } from 'ahooks';
 import { useGetRecordQuery } from '@/hooks';
 import { useRecordStore } from '@/store';
 import type { RecordEntry } from '@/api';
@@ -11,13 +12,14 @@ interface RecordListProps {
 
 const RecordListContainer: React.FC<RecordListProps> = () => {
   const searchRecordKeyword = useRecordStore(({ searchRecordKeyword }) => searchRecordKeyword);
+  const debounceSearchRecordKeyword = useDebounce(searchRecordKeyword, { wait: 250 });
 
   const { data, isLoading } = useGetRecordQuery({
     params: {
-      keyword: searchRecordKeyword,
+      keyword: debounceSearchRecordKeyword,
     },
     options: {
-      enabled: !!searchRecordKeyword,
+      enabled: !!debounceSearchRecordKeyword,
     },
   });
 

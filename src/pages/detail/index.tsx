@@ -1,26 +1,30 @@
+import type { FC } from 'react';
+import { useEffect, useState } from 'react';
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { TabBar } from '@/components';
 import List from '@/pages/detail/List';
 import Top from '@/pages/detail/Top';
-import { FC, useState } from 'react';
 
 export type numType = [Array<string>, Array<string>];
 
 const Detail: FC = () => {
-  const [time2, setTime2] = useState('');
+  const [selectTime, setSelectTime] = useState<Dayjs | undefined>();
   const [numExpendIncome, setNumExpendIncome] = useState<numType | []>([]);
-
-  const timeDate = (val: string) => {
-    setTime2(val);
-  };
 
   const topDateTime = (arr: numType) => {
     setNumExpendIncome(arr);
   };
 
+  useEffect(() => {
+    const timeDate = sessionStorage.getItem('timeDate');
+    timeDate && setSelectTime(dayjs(timeDate));
+  }, []);
+
   return (
     <div className="page">
-      <Top change={timeDate} numExpendIncome={numExpendIncome} />
-      <List timeProp={time2} change={topDateTime} />
+      <Top numExpendIncome={numExpendIncome} selectTime={selectTime} setSelectTime={setSelectTime} />
+      <List selectTime={selectTime} change={topDateTime} />
       <TabBar active={0} />
     </div>
   );
