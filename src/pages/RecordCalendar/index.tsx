@@ -205,10 +205,13 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
       </div>
       <FloatingBubble
         style={{
-          '--initial-position-top': '75%',
-          '--initial-position-right': '4%',
+          '--initial-position-bottom': '20%',
+          '--initial-position-right': '12px',
+          '--edge-distance': '12px',
           '--size': '55px',
         }}
+        axis="xy"
+        magnetic="x"
         onClick={onFixedPinClick}
       >
         <AddOutline className="text-[30px] text-[#333]" />
