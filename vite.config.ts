@@ -20,6 +20,8 @@ export default defineConfig((
     },
     build: {
       target: 'esnext',
+      cssCodeSplit: true,
+      manifest: true,
     },
     server: {
       proxy: {
