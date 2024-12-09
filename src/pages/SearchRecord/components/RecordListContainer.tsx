@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { ErrorBlock, SpinLoading } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useDebounce } from 'ahooks';
+import { cloneDeep } from 'lodash-es';
 import { useGetRecordQuery } from '@/hooks';
 import { useRecordStore } from '@/store';
 import type { RecordEntry } from '@/api';
@@ -27,7 +28,7 @@ const RecordListContainer: React.FC<RecordListProps> = () => {
     if (!data?.data.length)
       return [];
 
-    const recordList = data.data.reverse();
+    const recordList = cloneDeep(data.data);
 
     const result = [] as { time: number; data: RecordEntry[] }[];
 
