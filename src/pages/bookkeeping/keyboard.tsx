@@ -72,7 +72,7 @@ const Keyboard: FC<keyType> = ({
     },
   ];
 
-  const defaultDateValue = defaultSelectDate ? dayjs(defaultSelectDate).toDate() : dayjs().toDate();
+  const defaultDateValue = defaultSelectDate ? dayjs(defaultSelectDate).toDate() : undefined;
 
   const [inputToggle, setInputToggle] = useState(false);
   const [totals, setTotals] = useState('0.00'); // 总数
@@ -421,7 +421,6 @@ const Keyboard: FC<keyType> = ({
         data,
       });
       if (edit.statusCode === 200) {
-        // Touch('编辑成功')
         Toast.show({ content: edit.message });
         const chunk = Object.assign(state, data);
         chunk.status = true;
@@ -433,7 +432,6 @@ const Keyboard: FC<keyType> = ({
       data.time = time1;
       const res = await postRecordMutate(data);
       if (res.statusCode === 200) {
-        // Touch('创建成功')
         Toast.show({ content: res.message });
         if (defaultDateValue) {
           navigate(`/record-calendar?selectTime=${dayjs(defaultSelectDate).valueOf()}`, { replace: true });
