@@ -35,6 +35,9 @@ dependencies:
   copy-to-clipboard:
     specifier: 3.3.3
     version: 3.3.3
+  date-fns:
+    specifier: ^4.1.0
+    version: 4.1.0
   dayjs:
     specifier: ^1.10.7
     version: 1.11.13
@@ -47,6 +50,9 @@ dependencies:
   i18next:
     specifier: ^21.6.6
     version: 21.10.0
+  immer:
+    specifier: ^10.1.1
+    version: 10.1.1
   lodash-es:
     specifier: ^4.17.21
     version: 4.17.21
@@ -68,12 +74,15 @@ dependencies:
   react-router-dom:
     specifier: 6.24.1
     version: 6.24.1(react-dom@18.3.1)(react@18.3.1)
+  use-immer:
+    specifier: ^0.10.0
+    version: 0.10.0(immer@10.1.1)(react@18.3.1)
   xlsx:
     specifier: ^0.18.5
     version: 0.18.5
   zustand:
     specifier: 4.5.4
-    version: 4.5.4(@types/react@18.3.14)(react@18.3.1)
+    version: 4.5.4(@types/react@18.3.14)(immer@10.1.1)(react@18.3.1)
 
 devDependencies:
   '@antfu/eslint-config':
@@ -3533,6 +3542,10 @@ packages:
       is-data-view: 1.0.1
     dev: false
 
+  /date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
+    dev: false
+
   /dayjs@1.11.13:
     resolution: {integrity: sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==}
     dev: false
@@ -5212,6 +5225,10 @@ packages:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
     engines: {node: '>= 4'}
     dev: true
+
+  /immer@10.1.1:
+    resolution: {integrity: sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw==}
+    dev: false
 
   /immutable@5.0.3:
     resolution: {integrity: sha512-P8IdPQHq3lA1xVeBRi5VPqUm5HDgKnx0Ru51wZz5mjxHr5n3RWhjIpOFU7ybkUxfB+5IToy+OLaHYDBIWsv+uw==}
@@ -7811,6 +7828,16 @@ packages:
     dependencies:
       punycode: 2.3.1
 
+  /use-immer@0.10.0(immer@10.1.1)(react@18.3.1):
+    resolution: {integrity: sha512-/eVwNR4TG9Tm/dd+aHYLLaI0FLfYKlkTqKMkn78Ah/EYVzWd/zJIgpkdoFEKbhQJOGo8XN7/mWrTx0exp1c+Ug==}
+    peerDependencies:
+      immer: '>=8.0.0'
+      react: ^16.8.0 || ^17.0.1 || ^18.0.0
+    dependencies:
+      immer: 10.1.1
+      react: 18.3.1
+    dev: false
+
   /use-sync-external-store@1.2.0(react@18.3.1):
     resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
     peerDependencies:
@@ -8242,7 +8269,7 @@ packages:
       tslib: 2.3.0
     dev: false
 
-  /zustand@4.5.4(@types/react@18.3.14)(react@18.3.1):
+  /zustand@4.5.4(@types/react@18.3.14)(immer@10.1.1)(react@18.3.1):
     resolution: {integrity: sha512-/BPMyLKJPtFEvVL0E9E9BTUM63MNyhPGlvxk1XjrfWTUlV+BR8jufjsovHzrtR6YNcBEcL7cMHovL1n9xHawEg==}
     engines: {node: '>=12.7.0'}
     peerDependencies:
@@ -8258,6 +8285,7 @@ packages:
         optional: true
     dependencies:
       '@types/react': 18.3.14
+      immer: 10.1.1
       react: 18.3.1
       use-sync-external-store: 1.2.0(react@18.3.1)
     dev: false
