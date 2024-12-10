@@ -16,3 +16,4 @@ export * from './CurMonthBudgetCard';
 export * from './BudgetItem';
 export * from './BudgetItemContent';
 export * from './TabList';
+export * from './NotifyModal';
