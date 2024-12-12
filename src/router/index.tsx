@@ -1,4 +1,5 @@
 import { createHashRouter } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
 import Bill from '@/pages/Bill';
 import { LoginGuard } from '@/components';
 import Bookkeeping from '@/pages/bookkeeping';
@@ -38,10 +39,11 @@ import InvoiceDetail from '@/pages/Invoice/InvoiceDetail';
 import InvoiceEdit from '@/pages/Invoice/InvoiceEdit';
 import InvoiceCreate from '@/pages/Invoice/InvoiceCreate';
 import SearchRecord from '@/pages/SearchRecord';
-import RecordCalendar from '@/pages/RecordCalendar';
 import Budget from '@/pages/Budget';
 import CreateBudgetCategory from '@/pages/CreateBudgetCategory';
 import { AddAssetAccount, AssetChart, AssetDetail, AssetFormInfo, AssetManager } from '@/pages/Asset';
+
+const RecordCalendar = lazy(() => import('@/pages/RecordCalendar'));
 
 export const router = createHashRouter([
   {
@@ -67,7 +69,11 @@ export const router = createHashRouter([
       },
       {
         path: 'record-calendar',
-        element: <RecordCalendar />,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <RecordCalendar />
+          </Suspense>
+        ),
       },
       {
         path: 'search-record',
