@@ -48,12 +48,9 @@ export const Top: FC = () => {
   const dropdownWrapperRef = useRef<HTMLDivElement>(null);
   const ref = useRef<DropdownRef>(null);
 
-  const handleCloseDropdown = useCallback(() => {
-    ref.current?.close();
-  }, []);
-
   const handleClickAmountType = useCallback((amountType: AmountType) => () => {
     setCurrentAmountType(amountType);
+    ref.current?.close();
   }, [setCurrentAmountType]);
 
   return (
@@ -69,24 +66,20 @@ export const Top: FC = () => {
             key="sorter"
             title={currentAmountTypeItem.name}
           >
-            <div
-              onClick={handleCloseDropdown}
-            >
-              {amountTypeList.map((item, index) => (
-                <div
-                  key={item.icon}
-                  className="flex items-center h-10 relative"
-                  onClick={handleClickAmountType(item.value)}
-                >
-                  {index !== 0 && <div className="absolute right-0 top-0 w-[88%] h-[1px] bg-[#E5E5E5]" />}
-                  <div className="px-2">
-                    <Icon className="text-[28px]" name={item.icon} />
-                  </div>
-                  <span className="text-sm">{item.name}</span>
-                  {currentAmountTypeItem?.value === item.value ? <CheckOutline className="text-[20px] absolute right-2" /> : null}
+            {amountTypeList.map((item, index) => (
+              <div
+                key={item.icon}
+                className="flex items-center h-10 relative"
+                onClick={handleClickAmountType(item.value)}
+              >
+                {index !== 0 && <div className="absolute right-0 top-0 w-[88%] h-[1px] bg-[#E5E5E5]" />}
+                <div className="px-2">
+                  <Icon className="text-[28px]" name={item.icon} />
                 </div>
-              ))}
-            </div>
+                <span className="text-sm">{item.name}</span>
+                {currentAmountTypeItem?.value === item.value ? <CheckOutline className="text-[20px] absolute right-2" /> : null}
+              </div>
+            ))}
           </Dropdown.Item>
         </Dropdown>
       </div>
