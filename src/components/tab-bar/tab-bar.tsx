@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { AddOutline } from 'antd-mobile-icons';
 import { type FC, useCallback } from 'react';
 import classNames from 'classnames';
-import { Toast } from 'antd-mobile';
 import { playSound } from '@/modules';
 import './tab-bar.scss';
 import { Icon } from '@/components';
@@ -26,9 +25,6 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
       icon: 'chart',
       iconActive: 'chart-fill',
       router: '/chart',
-      onClick: () => {
-        Toast.show({ content: '敬请期待' });
-      },
     },
     {
       name: '记账',

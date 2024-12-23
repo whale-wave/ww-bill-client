@@ -4,7 +4,7 @@ import Bill from '@/pages/Bill';
 import { LoginGuard } from '@/components';
 import Bookkeeping from '@/pages/bookkeeping';
 import CateGory from '@/pages/bookkeeping/CategorySettings';
-import Chart from '@/pages/Chart';
+import { ChartHome } from '@/pages/Chart/index.ts';
 import Community from '@/pages/community';
 import FollowList from '@/pages/community/FollowList';
 import Personal from '@/pages/community/Personal';
@@ -172,7 +172,7 @@ export const router = createHashRouter([
       },
       {
         path: 'chart',
-        element: <Chart />,
+        element: <ChartHome />,
       },
       {
         path: 'ChartDetails',

@@ -6,7 +6,6 @@ import { Icon, NavBar } from 'bw-mobile';
 import type { DropdownRef } from 'antd-mobile/es/components/dropdown';
 import { useNavigate } from 'react-router-dom';
 import style from './top.module.scss';
-import { DemoBlock } from '@/components/demos/demo-block';
 import '../../components/tab-bar/tab-bar.scss';
 
 interface SelectedType {
@@ -54,57 +53,55 @@ const Top: FC<StatusType> = ({ statusDetails }) => {
         <div className={style.top} ref={dropdownWrapperRef}>
           {/* <div>{AmountType}</div> */}
           {/* <Icon name="xialaxuanze"></Icon> */}
-          <DemoBlock title="" padding="0">
-            <Dropdown
-              ref={ref}
-              closeOnClickAway={false}
-              className={classNames(style.admDropdown)}
-              getContainer={dropdownWrapperRef.current}
+          <Dropdown
+            ref={ref}
+            closeOnClickAway={false}
+            className={classNames(style.admDropdown)}
+            getContainer={dropdownWrapperRef.current}
+          >
+            <Dropdown.Item
+              key="sorter"
+              title={selectedAmountType[selectedActive].moneyType}
+              className={style.admDropdownItemActive}
             >
-              <Dropdown.Item
-                key="sorter"
-                title={selectedAmountType[selectedActive].moneyType}
-                className={style.admDropdownItemActive}
+              <div
+                className={classNames(style.downContent)}
+                onClick={() => {
+                  ref.current?.close();
+                }}
               >
-                <div
-                  className={classNames(style.downContent)}
-                  onClick={() => {
-                    ref.current?.close();
-                  }}
-                >
-                  {selectedAmountType.map((item, index) => (
-                    <div
-                      key={item.icon}
-                      className={classNames(style.itemSelected)}
-                      onClick={() => selectedFn(index)}
-                    >
-                      <div>
-                        <Icon
-                          name={item.icon}
-                          className={style['tab-icon']}
-                        >
-                        </Icon>
-                      </div>
-                      <div>
-                        <span className={style.name}>{item.moneyType}</span>
-                        {index === selectedActive
-                          ? (
+                {selectedAmountType.map((item, index) => (
+                  <div
+                    key={item.icon}
+                    className={classNames(style.itemSelected)}
+                    onClick={() => selectedFn(index)}
+                  >
+                    <div>
+                      <Icon
+                        name={item.icon}
+                        className={style['tab-icon']}
+                      >
+                      </Icon>
+                    </div>
+                    <div>
+                      <span className={style.name}>{item.moneyType}</span>
+                      {index === selectedActive
+                        ? (
                             <Icon
                               name={item.duigo}
                               className={style['tab-icon-duigo']}
                             >
                             </Icon>
-                            )
-                          : (
-                              ''
-                            )}
-                      </div>
+                          )
+                        : (
+                            ''
+                          )}
                     </div>
-                  ))}
-                </div>
-              </Dropdown.Item>
-            </Dropdown>
-          </DemoBlock>
+                  </div>
+                ))}
+              </div>
+            </Dropdown.Item>
+          </Dropdown>
         </div>
       ) : (
         <NavBar back="" onBack={() => navigate(-1)}>
