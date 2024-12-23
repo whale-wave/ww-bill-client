@@ -1,14 +1,13 @@
 import type { FC } from 'react';
-import { useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { Dropdown } from 'antd-mobile';
-import { Icon } from 'bw-mobile';
 import type { DropdownRef } from 'antd-mobile/es/components/dropdown';
+import { CheckOutline } from 'antd-mobile-icons';
 import style from '@/pages/Chart/ChartHome/components/top.module.scss';
-import '@/components/tab-bar/tab-bar.scss';
-import type { TimeRangeCategory } from '@/store';
+import type { AmountType, TimeRangeCategory } from '@/store';
 import { useChartStore } from '@/store';
-import { TabList } from '@/components';
+import { Icon, TabList } from '@/components';
 
 const timeRangeCategoryList = [
   {
@@ -49,53 +48,56 @@ export const Top: FC = () => {
   const dropdownWrapperRef = useRef<HTMLDivElement>(null);
   const ref = useRef<DropdownRef>(null);
 
+  const handleCloseDropdown = useCallback(() => {
+    ref.current?.close();
+  }, []);
+
+  const handleClickAmountType = useCallback((amountType: AmountType) => () => {
+    setCurrentAmountType(amountType);
+  }, [setCurrentAmountType]);
+
   return (
-    <div className={classNames(style.topContent, 'bg-primary')} ref={dropdownWrapperRef}>
-      <div className={style.top}>
+    <>
+      <div className={classNames(style['dropdown-wrapper'], 'bg-primary fixed top-0 left-0 right-0')} ref={dropdownWrapperRef}>
         <Dropdown
           ref={ref}
-          closeOnClickAway={false}
-          className={classNames(style.admDropdown)}
+          closeOnClickAway
+          className={classNames('!bg-primary')}
           getContainer={dropdownWrapperRef.current}
         >
           <Dropdown.Item
             key="sorter"
             title={currentAmountTypeItem.name}
-            className={style.admDropdownItemActive}
           >
             <div
-              className={classNames(style.downContent)}
-              onClick={() => {
-                ref.current?.close();
-              }}
+              onClick={handleCloseDropdown}
             >
-              {amountTypeList.map(item => (
+              {amountTypeList.map((item, index) => (
                 <div
                   key={item.icon}
-                  className={classNames(style.itemSelected)}
-                  onClick={() => setCurrentAmountType(item.value)}
+                  className="flex items-center h-10 relative"
+                  onClick={handleClickAmountType(item.value)}
                 >
-                  <div>
-                    <Icon name={item.icon} />
+                  {index !== 0 && <div className="absolute right-0 top-0 w-[88%] h-[1px] bg-[#E5E5E5]" />}
+                  <div className="px-2">
+                    <Icon className="text-[28px]" name={item.icon} />
                   </div>
-                  <div>
-                    <span className={style.name}>{item.name}</span>
-                    {currentAmountTypeItem?.value === item.value ? <Icon name="duigou-cu" /> : null}
-                  </div>
+                  <span className="text-sm">{item.name}</span>
+                  {currentAmountTypeItem?.value === item.value ? <CheckOutline className="text-[20px] absolute right-2" /> : null}
                 </div>
               ))}
             </div>
           </Dropdown.Item>
         </Dropdown>
-        <div className="px-2 fixed top-[45px] w-full bg-primary z-10">
-          <TabList
-            className="w-full"
-            selectValue={currentTimeRangeCategory}
-            tabs={timeRangeCategoryList}
-            onChange={setCurrentTimeRangeCategory}
-          />
-        </div>
       </div>
-    </div>
+      <div className="px-2 pb-3 fixed top-[42.4px] w-full bg-primary z-10">
+        <TabList
+          className="w-full"
+          selectValue={currentTimeRangeCategory}
+          tabs={timeRangeCategoryList}
+          onChange={setCurrentTimeRangeCategory}
+        />
+      </div>
+    </>
   );
 };

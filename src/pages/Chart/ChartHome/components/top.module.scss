@@ -1,73 +1,19 @@
-.topContent {
+.dropdown-wrapper {
   :global {
+    .adm-dropdown-item {
+      .adm-dropdown-item-title-text {
+        @apply text-[16px];
+      }
+      .adm-dropdown-item-title-arrow {
+        @apply text-[16px] text-[#333];
+      }
+    }
+
     .adm-popup.adm-dropdown-popup {
-      top: 95.948px !important;
+      top: 85.34px !important;
     }
-  }
-
-  .top {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    .admDropdown {
-      background: #aeeeff;
-      :global {
-        .adm-dropdown-nav {
-          border-bottom: 0px;
-        }
-      }
-    }
-    .admDropdownItemActive {
-      color: #000000;
-    }
-  }
-  .dateDay {
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 3px;
-    border: 1px solid #000000;
-    .itemList {
-      width: 33.3%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 5px 0 5px;
-      &:not(:last-child) {
-        border-right: 1px solid #000000;
-      }
-      &.active {
-        background: #000000;
-        color: #aeeeff;
-      }
-    }
-  }
-}
-
-.downContent {
-  padding: 0 0 0 12px;
-  .itemSelected {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    > div:last-child {
-      display: flex;
-      align-items: center;
-      flex: 1;
-      justify-content: space-between;
-      padding: 10px 0;
-      height: 42px;
-    }
-    &:first-child {
-      > div:last-child {
-        border-bottom: 1px solid #cccccc;
-      }
-    }
-    .name {
-      font-size: 12px;
-      font-weight: bold;
-      margin-left: 10px;
+    .adm-dropdown-item-highlight {
+      @apply text-[#333];
     }
   }
 }
