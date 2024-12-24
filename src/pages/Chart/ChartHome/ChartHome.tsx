@@ -1,13 +1,14 @@
-import type { FC } from 'react';
+import { type FC, useCallback, useState } from 'react';
 import { Tabs } from 'antd-mobile';
 import { TabBar } from '@/components';
-import { Top } from '@/pages/Chart/ChartHome/components';
+import { ChartContent, Top } from '@/pages/Chart/ChartHome/components';
+import { cn } from '@/utils';
 
 const ChartHome: FC = () => {
   const tabs = [
     {
       title: '2022年',
-      children: <div>2022年</div>,
+      children: <ChartContent />,
     },
     {
       title: '去年',
@@ -19,26 +20,34 @@ const ChartHome: FC = () => {
     },
   ];
 
+  const [activeKey, setActiveKey] = useState(tabs[0].title);
+
+  const handleTabChange = useCallback((key: string) => {
+    setActiveKey(key);
+  }, []);
+
   return (
     <>
       <Top />
-      <Tabs
-        // activeLineMode="fixed"
-        style={{
-          // '--fixed-active-line-width': '20px',
-          // '--title-font-size': '12px',
-          // '--active-title-color': '#000000',
-        }}
-        // onChange={key => tabChange(key)}
-      >
-        {
-          tabs.map(item => (
-            <Tabs.Tab title={item.title} key={item.title}>
-              {item.children}
-            </Tabs.Tab>
-          ))
-        }
-      </Tabs>
+      <div className={cn('fixed top-[calc(42.94px+42.4px)] left-0 right-0')}>
+        <Tabs
+          style={{
+            '--adm-color-primary': '#333',
+            '--content-padding': 0,
+            '--title-font-size': '14px',
+          }}
+          activeKey={activeKey}
+          onChange={handleTabChange}
+        >
+          {
+            tabs.map(item => (
+              <Tabs.Tab className="" title={item.title} key={item.title}>
+                {item.children}
+              </Tabs.Tab>
+            ))
+          }
+        </Tabs>
+      </div>
       <TabBar active={1} />
     </>
   );

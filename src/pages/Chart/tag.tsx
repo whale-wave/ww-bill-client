@@ -2,7 +2,6 @@ import type { FC } from 'react';
 import { Tabs } from 'antd-mobile';
 import styles from './tag.module.scss';
 import indexStyles from './index.module.scss';
-import ChartLine from '@/pages/Chart/chartLine';
 import List from '@/pages/Chart/list';
 
 const Tag: FC = () => {
@@ -39,13 +38,11 @@ const Tag: FC = () => {
                   <span>5424.95</span>
                 </div>
               </div>
-              <ChartLine></ChartLine>
               <List></List>
             </div>
           </Tabs.Tab>
           <Tabs.Tab title="超长的tab2" key="2">
             <div className={styles.tag_wrapper}>
-              <ChartLine></ChartLine>
               <List></List>
             </div>
           </Tabs.Tab>

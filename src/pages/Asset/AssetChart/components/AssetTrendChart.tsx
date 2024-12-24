@@ -1,4 +1,4 @@
-import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type FC, useCallback, useEffect, useMemo, useState } from 'react';
 import * as echarts from 'echarts/core';
 import type { GridComponentOption, MarkLineComponentOption } from 'echarts/components';
 import { GridComponent, MarkLineComponent, TooltipComponent } from 'echarts/components';
@@ -6,13 +6,12 @@ import type { LineSeriesOption } from 'echarts/charts';
 import { LineChart } from 'echarts/charts';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
-import { useMount, useUnmount } from 'ahooks';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { DatePicker } from 'antd-mobile';
 import { AssetStatisticalRecordType } from '../types';
 import { Icon } from '@/components';
-import { useAssetStatisticalRecord, useGetAssetStatisticalRecordQuery } from '@/hooks';
+import { useAssetStatisticalRecord, useChart, useGetAssetStatisticalRecordQuery } from '@/hooks';
 
 echarts.use([GridComponent, LineChart, CanvasRenderer, UniversalTransition, TooltipComponent, MarkLineComponent]);
 
@@ -40,13 +39,12 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
       endTime: selectYear.endOf('year').valueOf(),
     };
   }, [selectYear]);
-  const chartDomRef = useRef<HTMLDivElement>(null);
-  const [myChart, setMyChart] = useState<echarts.ECharts>();
   const { data } = useGetAssetStatisticalRecordQuery({ params: { ...range, type } });
   const { groupByMonth } = useAssetStatisticalRecord(data);
   const xAxisData = groupByMonth.map(i => `${i.month}月`);
   const seriesData = groupByMonth.map(i => Number(i.amount));
   const maxValue = Math.max(...seriesData);
+  const { chartDomRef, myChart } = useChart();
 
   const handleSelectYear = useCallback(async () => {
     const result = await DatePicker.prompt({
@@ -56,15 +54,6 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
     if (result)
       setSelectYear(dayjs(result));
   }, [selectYear]);
-
-  useMount(() => {
-    const myChart = echarts.init(chartDomRef.current!);
-    setMyChart(myChart);
-  });
-
-  useUnmount(() => {
-    myChart?.dispose();
-  });
 
   useEffect(() => {
     const option: EChartsOption = {
@@ -143,34 +132,6 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
 
     myChart?.setOption(option);
   }, [seriesData, xAxisData, myChart, maxValue]);
-
-  useEffect(() => {
-    if (!myChart)
-      return;
-
-    const chartDom = chartDomRef.current!;
-
-    const handleTouchEnd = () => {
-      myChart.dispatchAction({
-        type: 'updateAxisPointer',
-        currTrigger: 'leave',
-      });
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
-    };
-
-    chartDom.addEventListener('touchmove', handleTouchMove, { passive: false });
-    chartDom.addEventListener('touchend', handleTouchEnd);
-    chartDom.addEventListener('touchcancel', handleTouchEnd);
-
-    return () => {
-      chartDom.removeEventListener('touchmove', handleTouchMove);
-      chartDom.removeEventListener('touchend', handleTouchEnd);
-      chartDom.removeEventListener('touchcancel', handleTouchEnd);
-    };
-  }, [myChart]);
 
   return (
     <div className="flex flex-col border-[1px] border-solid border-gray-200 rounded-lg shadow-md p-3">

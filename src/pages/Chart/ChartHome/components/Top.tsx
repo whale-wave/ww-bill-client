@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { Dropdown } from 'antd-mobile';
 import type { DropdownRef } from 'antd-mobile/es/components/dropdown';
 import { CheckOutline } from 'antd-mobile-icons';
-import style from '@/pages/Chart/ChartHome/components/top.module.scss';
+import style from '@/pages/Chart/ChartHome/components/Top.module.scss';
 import type { AmountType, TimeRangeCategory } from '@/store';
 import { useChartStore } from '@/store';
 import { Icon, TabList } from '@/components';
@@ -83,7 +83,7 @@ export const Top: FC = () => {
           </Dropdown.Item>
         </Dropdown>
       </div>
-      <div className="px-2 pb-3 fixed top-[42.4px] w-full bg-primary z-10">
+      <div className="px-2 pb-3 fixed top-[42.4px] w-full bg-primary">
         <TabList
           className="w-full"
           selectValue={currentTimeRangeCategory}
