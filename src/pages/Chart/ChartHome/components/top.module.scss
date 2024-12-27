@@ -9,6 +9,10 @@
       }
     }
 
+    .adm-dropdown .adm-dropdown-nav {
+      @apply border-b-0;
+    }
+
     .adm-popup.adm-dropdown-popup {
       top: 85.34px !important;
     }

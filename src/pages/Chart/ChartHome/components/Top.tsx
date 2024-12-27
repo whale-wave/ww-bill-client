@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 import { useCallback, useMemo, useRef } from 'react';
-import classNames from 'classnames';
 import { Dropdown } from 'antd-mobile';
 import type { DropdownRef } from 'antd-mobile/es/components/dropdown';
 import { CheckOutline } from 'antd-mobile-icons';
@@ -8,6 +7,7 @@ import style from '@/pages/Chart/ChartHome/components/Top.module.scss';
 import type { AmountType, TimeRangeCategory } from '@/store';
 import { useChartStore } from '@/store';
 import { Icon, TabList } from '@/components';
+import { cn } from '@/utils';
 
 const timeRangeCategoryList = [
   {
@@ -55,11 +55,11 @@ export const Top: FC = () => {
 
   return (
     <>
-      <div className={classNames(style['dropdown-wrapper'], 'bg-primary fixed top-0 left-0 right-0')} ref={dropdownWrapperRef}>
+      <div className={cn(style['dropdown-wrapper'], 'bg-primary fixed top-0 left-0 right-0 z-10')} ref={dropdownWrapperRef}>
         <Dropdown
           ref={ref}
           closeOnClickAway
-          className={classNames('!bg-primary')}
+          className={cn('!bg-primary')}
           getContainer={dropdownWrapperRef.current}
         >
           <Dropdown.Item
