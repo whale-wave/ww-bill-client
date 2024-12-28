@@ -14,7 +14,7 @@ export const LineChart: FC = () => {
   useEffect(() => {
     const option: EChartsOption = {
       grid: {
-        top: '3%',
+        top: '12%',
         left: '3%',
         right: '5%',
         bottom: '17%',
@@ -92,7 +92,8 @@ export const LineChart: FC = () => {
             silent: true,
             data: [{ type: 'max' }],
             label: {
-              show: false,
+              show: true,
+              position: 'insideEndTop',
             },
             lineStyle: {
               color: '#33333360',
@@ -108,6 +109,6 @@ export const LineChart: FC = () => {
   }, [seriesData, xAxisData, myChart, maxValue]);
 
   return (
-    <div className={cn('h-[120px]')} ref={chartDomRef} />
+    <div className={cn('h-[150px]')} ref={chartDomRef} />
   );
 };
