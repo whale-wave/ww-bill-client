@@ -1,10 +1,17 @@
-import { type FC, useState } from 'react';
-import { List } from 'antd-mobile';
+import { type FC, useMemo } from 'react';
+import { List, Toast } from 'antd-mobile';
 import { RankingItem } from './RankingItem';
 import { cn } from '@/utils';
+import { useChartStore } from '@/store';
 
 export const RankingList: FC = () => {
-  const [list, _setList] = useState<any[]>([{ id: 1, name: '张三', value: 100 }, { id: 2, name: '李四', value: 90 }, { id: 3, name: '王五', value: 80 }]);
+  const curTab = useChartStore(state => state.curTab);
+
+  const rankingData = useMemo(() => {
+    if (!curTab)
+      return [];
+    return curTab.ranking;
+  }, [curTab]);
 
   return (
     <div>
@@ -13,8 +20,14 @@ export const RankingList: FC = () => {
         style={{ '--border-top': '0px', '--border-bottom': '0px' }}
       >
         {
-          list.map(item => (
-            <RankingItem key={item.id} onClick={() => {}} />
+          rankingData.map(item => (
+            <RankingItem
+              key={item.category.id}
+              item={item}
+              onClick={() => {
+                Toast.show('敬请期待');
+              }}
+            />
           ))
         }
       </List>

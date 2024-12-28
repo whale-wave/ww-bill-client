@@ -1,21 +1,42 @@
-import { type FC, useEffect } from 'react';
+import { type FC, useEffect, useMemo } from 'react';
 import type { EChartsOption } from 'echarts';
 import { renderToString } from 'react-dom/server';
+import { format } from 'date-fns';
 import { cn } from '@/utils';
 import { useChart } from '@/hooks';
 import { TooltipContent } from '@/pages/Chart/ChartHome/components';
+import { useChartStore } from '@/store';
 
 export const LineChart: FC = () => {
   const { chartDomRef, myChart } = useChart();
-  const seriesData = [100, 200, 300, 400, 500];
-  const xAxisData = ['1月', '3月', '6月', '9月', '12月'];
-  const maxValue = Math.max(...seriesData);
+  const curTab = useChartStore(state => state.curTab);
+
+  const seriesData = useMemo(() => {
+    if (!curTab)
+      return [];
+    return curTab.data.map(item => ({
+      value: item.amount,
+      source: item,
+    }));
+  }, [curTab]);
+
+  const xAxisData = useMemo(() => {
+    if (!curTab)
+      return [];
+    return curTab.data.map(item => format(item.value, 'MM-dd'));
+  }, [curTab]);
+
+  const maxValue = useMemo(() => {
+    if (!curTab)
+      return 0;
+    return Math.max(...curTab.data.map(item => item.amount));
+  }, [curTab]);
 
   useEffect(() => {
     const option: EChartsOption = {
       grid: {
         top: '12%',
-        left: '3%',
+        left: '4%',
         right: '5%',
         bottom: '17%',
       },
@@ -46,7 +67,7 @@ export const LineChart: FC = () => {
         },
         formatter: (_params: any) => {
           const { data } = _params[0];
-          const html = renderToString(<TooltipContent data={data} />);
+          const html = renderToString(<TooltipContent data={data.source} />);
           return html;
         },
       },
@@ -64,9 +85,9 @@ export const LineChart: FC = () => {
             opacity: 0,
           },
         },
-        axisLabel: {
-          customValues: ['1月', '3月', '6月', '9月', '12月'],
-        },
+        // axisLabel: {
+        //   customValues: ['1月', '3月', '6月', '9月', '12月'],
+        // },
       },
       yAxis: {
         type: 'value',
@@ -80,7 +101,8 @@ export const LineChart: FC = () => {
           symbolSize: 6,
           itemStyle: {
             color: (params) => {
-              return params.data === 0 ? '#fff' : '#aeeeff';
+              const data = params.data as { value: number };
+              return data.value === 0 ? '#fff' : '#aeeeff';
             },
             borderColor: '#33333390',
           },

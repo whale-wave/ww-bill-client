@@ -1,29 +1,49 @@
-import { type FC, useCallback, useState } from 'react';
+import { type FC, useCallback, useEffect } from 'react';
 import { Tabs } from 'antd-mobile';
+import { usePrevious } from 'ahooks';
 import { TabBar } from '@/components';
 import { ChartContent, Top } from '@/pages/Chart/ChartHome/components';
 import { cn } from '@/utils';
+import { useGetChartQuery } from '@/hooks';
+import { useChartStore } from '@/store';
 
 const ChartHome: FC = () => {
-  const tabs = [
-    {
-      title: '2022年',
-      children: <ChartContent />,
-    },
-    {
-      title: '去年',
-      children: <div>去年</div>,
-    },
-    {
-      title: '今年',
-      children: <div>今年</div>,
-    },
-  ];
+  const currentAmountType = useChartStore(state => state.currentAmountType);
+  const previousCurrentAmountType = usePrevious(currentAmountType);
+  const tabs = useChartStore(state => state.tabs);
+  const tabActive = useChartStore(state => state.tabActive);
+  const setTabActive = useChartStore(state => state.setTabActive);
+  const setTabsByWeek = useChartStore(state => state.setTabsByWeek);
+  const setCurTab = useChartStore(state => state.setCurTab);
 
-  const [activeKey, setActiveKey] = useState(tabs[0].title);
+  const { data } = useGetChartQuery({
+    params: {
+      type: currentAmountType,
+      category: 'week',
+    },
+  });
+
+  useEffect(() => {
+    if (!data)
+      return;
+    setTabsByWeek(data);
+  }, [data]);
+
+  useEffect(() => {
+    if (!!tabs.length && !tabActive) {
+      setTabActive(tabs.at(-1)!.key);
+    }
+  }, [tabs, tabActive]);
+
+  useEffect(() => {
+    if (previousCurrentAmountType !== currentAmountType && !!tabs.length) {
+      setTabActive(tabs.at(-1)!.key);
+      setCurTab(tabs.at(-1)!);
+    }
+  }, [currentAmountType, tabs]);
 
   const handleTabChange = useCallback((key: string) => {
-    setActiveKey(key);
+    setTabActive(key);
   }, []);
 
   return (
@@ -36,17 +56,16 @@ const ChartHome: FC = () => {
             '--content-padding': 0,
             '--title-font-size': '14px',
           }}
-          activeKey={activeKey}
+          activeKey={tabActive}
           onChange={handleTabChange}
         >
           {
-            tabs.map(item => (
-              <Tabs.Tab className="" title={item.title} key={item.title}>
-                {item.children}
-              </Tabs.Tab>
+            tabs.map(tabItem => (
+              <Tabs.Tab title={tabItem.name} key={tabItem.key} />
             ))
           }
         </Tabs>
+        <ChartContent />
       </div>
       <TabBar active={1} />
     </>

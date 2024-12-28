@@ -26,3 +26,4 @@ export * from './user-app-config';
 export * from './invoice';
 export * from './budget';
 export * from './asset';
+export * from './chart';
