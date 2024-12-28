@@ -21,6 +21,7 @@ export const LineChart: FC = () => {
       },
       tooltip: {
         triggerOn: 'mousemove',
+        appendToBody: true,
         trigger: 'axis',
         backgroundColor: '#333',
         borderWidth: 0,
