@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { useChartStore } from './chart';
 import { queryClient } from '@/main';
 
 interface UserInfo {
@@ -54,7 +55,8 @@ export const useUserStore = create<State & Actions>()(persist((set, get) => ({
       userInfo: undefined,
     });
     localStorage.clear();
-    void queryClient.invalidateQueries();
+    void queryClient.clear();
+    void useChartStore.getState().reset();
   },
 }), {
   name: 'user-storage',

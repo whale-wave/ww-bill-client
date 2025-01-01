@@ -39,6 +39,7 @@ interface Actions {
   setTabsByMonth: (d: GetChartApiResponseMonthData[]) => void;
   setTabsByYear: (d: GetChartApiResponseYearData[]) => void;
   setCurTab: (d: TabItem) => void;
+  reset: () => void;
 }
 
 export const useChartStore = create<State & Actions>()(persist((set, get) => ({
@@ -150,6 +151,15 @@ export const useChartStore = create<State & Actions>()(persist((set, get) => ({
       } as TabItem;
     });
     set({ tabs: yearList });
+  },
+  reset: () => {
+    set({
+      tabActive: '',
+      currentTimeRangeCategory: 'week',
+      currentAmountType: 'sub',
+      tabs: [],
+      curTab: undefined,
+    });
   },
 }), {
   name: 'chart-storage',
