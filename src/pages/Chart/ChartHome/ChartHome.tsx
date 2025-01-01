@@ -4,7 +4,7 @@ import { usePrevious } from 'ahooks';
 import { TabBar } from '@/components';
 import { ChartContent, Top } from '@/pages/Chart/ChartHome/components';
 import { cn } from '@/utils';
-import { isMonthData, isWeekData, useGetChartQuery } from '@/hooks';
+import { isMonthData, isWeekData, isYearData, useGetChartQuery } from '@/hooks';
 import { useChartStore } from '@/store';
 
 const ChartHome: FC = () => {
@@ -16,6 +16,7 @@ const ChartHome: FC = () => {
   const setTabActive = useChartStore(state => state.setTabActive);
   const setTabsByWeek = useChartStore(state => state.setTabsByWeek);
   const setTabsByMonth = useChartStore(state => state.setTabsByMonth);
+  const setTabsByYear = useChartStore(state => state.setTabsByYear);
   const setCurTab = useChartStore(state => state.setCurTab);
 
   const { data } = useGetChartQuery({
@@ -34,8 +35,8 @@ const ChartHome: FC = () => {
     else if (isMonthData(data)) {
       setTabsByMonth(data);
     }
-    else {
-      setTabsByWeek([]);
+    else if (isYearData(data)) {
+      setTabsByYear(data);
     }
   }, [data]);
 

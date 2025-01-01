@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { getMonth, getWeek, isSameYear, subMonths, subWeeks } from 'date-fns';
-import type { GetChartApiResponseMonthData, GetChartApiResponseMonthDataMonthItem, GetChartApiResponseWeekData, GetChartApiResponseWeekDataWeekItem } from '@/api';
+import { getMonth, getWeek, getYear, isSameYear, subMonths, subWeeks, subYears } from 'date-fns';
+import type { GetChartApiResponseMonthData, GetChartApiResponseMonthDataMonthItem, GetChartApiResponseWeekData, GetChartApiResponseWeekDataWeekItem, GetChartApiResponseYearData } from '@/api';
 
 export type TimeRangeCategory = 'week' | 'month' | 'year';
 export type AmountType = 'sub' | 'add';
@@ -16,7 +16,12 @@ export interface GetChartApiResponseMonthDataMonthItemTabItem extends GetChartAp
   key: string;
 }
 
-export type TabItem = GetChartApiResponseWeekDataWeekItemTabItem | GetChartApiResponseMonthDataMonthItemTabItem;
+export interface GetChartApiResponseYearDataYearItemTabItem extends GetChartApiResponseYearData {
+  name: string;
+  key: string;
+}
+
+export type TabItem = GetChartApiResponseWeekDataWeekItemTabItem | GetChartApiResponseMonthDataMonthItemTabItem | GetChartApiResponseYearDataYearItemTabItem;
 
 interface State {
   tabActive: string;
@@ -32,7 +37,7 @@ interface Actions {
   setCurrentAmountType: (d: AmountType) => void;
   setTabsByWeek: (d: GetChartApiResponseWeekData[]) => void;
   setTabsByMonth: (d: GetChartApiResponseMonthData[]) => void;
-  setTabsByYear: (d: any[]) => void;
+  setTabsByYear: (d: GetChartApiResponseYearData[]) => void;
   setCurTab: (d: TabItem) => void;
 }
 
@@ -122,7 +127,29 @@ export const useChartStore = create<State & Actions>()(persist((set, get) => ({
     set({ tabs: monthList });
   },
   setTabsByYear: (data) => {
-    set({ tabs: data });
+    const yearList = data.map((yearDataItem) => {
+      const now = new Date();
+      const nowYear = getYear(now);
+      const prevYear = getYear(subYears(now, 1));
+      let name = '';
+
+      if (yearDataItem.value === nowYear) {
+        name = '今年';
+      }
+      else if (yearDataItem.value === prevYear) {
+        name = '去年';
+      }
+      else {
+        name = `${yearDataItem.value}年`;
+      }
+
+      return {
+        ...yearDataItem,
+        name,
+        key: `${yearDataItem.value}`,
+      } as TabItem;
+    });
+    set({ tabs: yearList });
   },
 }), {
   name: 'chart-storage',

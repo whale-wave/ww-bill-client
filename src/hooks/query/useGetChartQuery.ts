@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import type { GetChartApiParams, GetChartApiResponse, GetChartApiResponseMonthData, GetChartApiResponseWeekData } from '@/api';
+import type { GetChartApiParams, GetChartApiResponse, GetChartApiResponseMonthData, GetChartApiResponseWeekData, GetChartApiResponseYearData } from '@/api';
 import { getChartApi } from '@/api';
 import { isSuccessApi } from '@/utils';
 
@@ -46,9 +46,14 @@ export function isMonthData(data: GetChartApiResponse): data is GetChartApiRespo
   if (!data[0].data?.length)
     return false;
 
-  return data[0].type === 'year' && data[0].data[0].type === 'month';
+  return data[0].type === 'year' && data[0].data[0].type === 'month' && ('ranking' in data[0].data[0]);
 }
 
-export function isYearData(data: GetChartApiResponse): data is any {
-  return false;
+export function isYearData(data: GetChartApiResponse): data is GetChartApiResponseYearData[] {
+  if (!data.length)
+    return false;
+  if (!data[0].data?.length)
+    return false;
+
+  return data[0].type === 'year' && ('ranking' in data[0]) && data[0].data[0].type === 'month';
 }

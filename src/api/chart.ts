@@ -52,6 +52,22 @@ export interface GetChartApiResponseMonthData {
   value: number;
 }
 
+export interface GetChartApiResponseYearDataMonthItem {
+  amount: number;
+  data: RecordEntry[];
+  type: 'month';
+  value: string;
+}
+
+export interface GetChartApiResponseYearData {
+  amount: number;
+  average: string;
+  data: GetChartApiResponseYearDataMonthItem[];
+  ranking: GetChartApiResponseRankingData[];
+  type: 'year';
+  value: number;
+}
+
 export type GetChartApiParamsCategory = 'week' | 'month' | 'year';
 
 export interface GetChartApiParams {
@@ -60,7 +76,7 @@ export interface GetChartApiParams {
   categoryId?: string;
 }
 
-export type GetChartApiResponse = GetChartApiResponseWeekData[] | GetChartApiResponseMonthData[];
+export type GetChartApiResponse = GetChartApiResponseWeekData[] | GetChartApiResponseMonthData[] | GetChartApiResponseYearData[];
 
 export function getChartApi(params: GetChartApiParams) {
   return request.get<unknown, SuccessResponse<GetChartApiResponse>>('/chart', {
