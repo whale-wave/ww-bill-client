@@ -3,10 +3,10 @@ import type { RecordEntry } from './record';
 import { request } from '@/utils';
 
 export interface GetChartApiResponseRankingData {
-  type: 'sub' | 'add';
-  percentage: string;
   amount: number;
   category: CategoryEntity;
+  percentage: string;
+  type: 'sub' | 'add';
 }
 export interface GetChartApiResponseWeekDataWeekItemDayItem {
   type: 'day';
@@ -29,14 +29,41 @@ export interface GetChartApiResponseWeekData {
   data: GetChartApiResponseWeekDataWeekItem[];
 }
 
+export interface GetChartApiResponseMonthDataDayItem {
+  amount: number;
+  data: RecordEntry[];
+  type: 'day';
+  value: string;
+}
+
+export interface GetChartApiResponseMonthDataMonthItem {
+  amount: number;
+  average: string;
+  data: GetChartApiResponseMonthDataDayItem[];
+  ranking: GetChartApiResponseRankingData[];
+  type: 'month';
+  value: number;
+}
+
+export interface GetChartApiResponseMonthData {
+  amount: number;
+  data: GetChartApiResponseMonthDataMonthItem[];
+  type: 'year';
+  value: number;
+}
+
+export type GetChartApiParamsCategory = 'week' | 'month' | 'year';
+
 export interface GetChartApiParams {
   type: 'sub' | 'add';
-  category: 'week' | 'month' | 'year';
+  category: GetChartApiParamsCategory;
   categoryId?: string;
 }
 
+export type GetChartApiResponse = GetChartApiResponseWeekData[] | GetChartApiResponseMonthData[];
+
 export function getChartApi(params: GetChartApiParams) {
-  return request.get<unknown, SuccessResponse<GetChartApiResponseWeekData[]>>('/chart', {
+  return request.get<unknown, SuccessResponse<GetChartApiResponse>>('/chart', {
     params,
   });
 }

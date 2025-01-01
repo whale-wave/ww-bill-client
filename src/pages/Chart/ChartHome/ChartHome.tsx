@@ -4,7 +4,7 @@ import { usePrevious } from 'ahooks';
 import { TabBar } from '@/components';
 import { ChartContent, Top } from '@/pages/Chart/ChartHome/components';
 import { cn } from '@/utils';
-import { useGetChartQuery } from '@/hooks';
+import { isMonthData, isWeekData, useGetChartQuery } from '@/hooks';
 import { useChartStore } from '@/store';
 
 const ChartHome: FC = () => {
@@ -12,21 +12,31 @@ const ChartHome: FC = () => {
   const previousCurrentAmountType = usePrevious(currentAmountType);
   const tabs = useChartStore(state => state.tabs);
   const tabActive = useChartStore(state => state.tabActive);
+  const currentTimeRangeCategory = useChartStore(state => state.currentTimeRangeCategory);
   const setTabActive = useChartStore(state => state.setTabActive);
   const setTabsByWeek = useChartStore(state => state.setTabsByWeek);
+  const setTabsByMonth = useChartStore(state => state.setTabsByMonth);
   const setCurTab = useChartStore(state => state.setCurTab);
 
   const { data } = useGetChartQuery({
     params: {
       type: currentAmountType,
-      category: 'week',
+      category: currentTimeRangeCategory,
     },
   });
 
   useEffect(() => {
     if (!data)
       return;
-    setTabsByWeek(data);
+    if (isWeekData(data)) {
+      setTabsByWeek(data);
+    }
+    else if (isMonthData(data)) {
+      setTabsByMonth(data);
+    }
+    else {
+      setTabsByWeek([]);
+    }
   }, [data]);
 
   useEffect(() => {

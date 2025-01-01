@@ -36,7 +36,7 @@ export const LineChart: FC = () => {
     const option: EChartsOption = {
       grid: {
         top: '12%',
-        left: '4%',
+        left: '5%',
         right: '5%',
         bottom: '17%',
       },

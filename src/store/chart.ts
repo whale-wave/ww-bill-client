@@ -1,15 +1,22 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { getWeek, isSameYear, subWeeks } from 'date-fns';
-import type { GetChartApiResponseWeekData, GetChartApiResponseWeekDataWeekItem } from '@/api';
+import { getMonth, getWeek, isSameYear, subMonths, subWeeks } from 'date-fns';
+import type { GetChartApiResponseMonthData, GetChartApiResponseMonthDataMonthItem, GetChartApiResponseWeekData, GetChartApiResponseWeekDataWeekItem } from '@/api';
 
 export type TimeRangeCategory = 'week' | 'month' | 'year';
 export type AmountType = 'sub' | 'add';
 
-export interface TabItem extends GetChartApiResponseWeekDataWeekItem {
+export interface GetChartApiResponseWeekDataWeekItemTabItem extends GetChartApiResponseWeekDataWeekItem {
   name: string;
   key: string;
 }
+
+export interface GetChartApiResponseMonthDataMonthItemTabItem extends GetChartApiResponseMonthDataMonthItem {
+  name: string;
+  key: string;
+}
+
+export type TabItem = GetChartApiResponseWeekDataWeekItemTabItem | GetChartApiResponseMonthDataMonthItemTabItem;
 
 interface State {
   tabActive: string;
@@ -24,7 +31,7 @@ interface Actions {
   setCurrentTimeRangeCategory: (d: TimeRangeCategory) => void;
   setCurrentAmountType: (d: AmountType) => void;
   setTabsByWeek: (d: GetChartApiResponseWeekData[]) => void;
-  setTabsByMonth: (d: any[]) => void;
+  setTabsByMonth: (d: GetChartApiResponseMonthData[]) => void;
   setTabsByYear: (d: any[]) => void;
   setCurTab: (d: TabItem) => void;
 }
@@ -81,7 +88,38 @@ export const useChartStore = create<State & Actions>()(persist((set, get) => ({
     set({ tabs: weekList });
   },
   setTabsByMonth: (data) => {
-    set({ tabs: data });
+    const monthList = data.reduce((acc, monthDataItem) => {
+      acc.push(...monthDataItem.data.map((monthItem) => {
+        const now = new Date();
+        const nowMonth = getMonth(now) + 1;
+        const prevMonth = getMonth(subMonths(now, 1)) + 1;
+        const isCurrentYear = isSameYear(now, new Date(`${monthDataItem.value}`));
+        let name = '';
+
+        if (isCurrentYear) {
+          if (nowMonth === monthItem.value) {
+            name = '本月';
+          }
+          else if (prevMonth === monthItem.value) {
+            name = '上月';
+          }
+          else {
+            name = `${monthItem.value}月`;
+          }
+        }
+        else {
+          name = `${monthDataItem.value}-${monthItem.value}月`;
+        }
+
+        return {
+          ...monthItem,
+          name,
+          key: `${monthDataItem.value}-${monthItem.value}`,
+        };
+      }));
+      return acc;
+    }, [] as TabItem[]);
+    set({ tabs: monthList });
   },
   setTabsByYear: (data) => {
     set({ tabs: data });
