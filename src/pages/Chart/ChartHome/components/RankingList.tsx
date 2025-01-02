@@ -15,7 +15,7 @@ export const RankingList: FC = () => {
   }, [curTab]);
 
   return (
-    <div>
+    <div className={cn('flex-shrink-0')}>
       <div className={cn('text-base px-3 pb-1 pt-2')}>
         {currentAmountType === 'sub' ? '支出' : '收入'}
         排行榜

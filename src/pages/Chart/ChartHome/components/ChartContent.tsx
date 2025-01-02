@@ -15,12 +15,12 @@ export const ChartContent: FC = () => {
   );
 
   return (
-    <div className={cn('flex flex-col h-[calc(100vh-42.94px-42.4px-37.55px-60px)] overflow-auto pb-10')}>
+    <div className={cn('fixed left-0 right-0 top-[calc(42.94px+42.4px+37.55px)] h-[calc(100%-42.94px-42.4px-37.55px-60px)] overflow-y-auto')}>
       {!curTab
         ? empty
         : (
-            <>
-              <div className={cn('flex flex-col py-2 px-1 border-0 border-b-[1px] border-b-gray-100 border-solid')}>
+            <div className={cn('flex flex-col z-10 pb-10')}>
+              <div className={cn('flex flex-col py-2 px-1 border-0 border-b-[1px] border-b-gray-100 border-solid flex-shrink-0')}>
                 <div className={cn('flex flex-col px-1')}>
                   <div className={cn('text-sm flex space-x-2')}>
                     <div>{currentAmountType === 'sub' ? '总支出:' : '总收入:'}</div>
@@ -34,7 +34,7 @@ export const ChartContent: FC = () => {
                 <LineChart />
               </div>
               <RankingList />
-            </>
+            </div>
           )}
     </div>
   );

@@ -70,7 +70,9 @@ const ChartHome: FC = () => {
   return (
     <>
       <Top />
-      <div className={cn('fixed top-[calc(42.94px+42.4px)] left-0 right-0')}>
+      <div
+        className={cn('fixed top-[calc(42.94px+42.4px)] left-0 right-0')}
+      >
         <Tabs
           style={{ ...tabStyle, ...originalStyle }}
           activeKey={tabActive}
@@ -82,8 +84,8 @@ const ChartHome: FC = () => {
             ))
           }
         </Tabs>
-        <ChartContent />
       </div>
+      <ChartContent />
       <TabBar active={1} />
     </>
   );
