@@ -1,4 +1,6 @@
-import { type FC, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
+import type { FC } from 'react';
+import type { TabsProps } from 'antd-mobile';
 import { Tabs } from 'antd-mobile';
 import { usePrevious } from 'ahooks';
 import { TabBar } from '@/components';
@@ -18,6 +20,14 @@ const ChartHome: FC = () => {
   const setTabsByMonth = useChartStore(state => state.setTabsByMonth);
   const setTabsByYear = useChartStore(state => state.setTabsByYear);
   const setCurTab = useChartStore(state => state.setCurTab);
+
+  const tabStyle: TabsProps['style'] = {
+    '--content-padding': '0px',
+    '--title-font-size': '14px',
+  };
+  const originalStyle = {
+    '--adm-color-primary': '#333',
+  };
 
   const { data } = useGetChartQuery({
     params: {
@@ -62,11 +72,7 @@ const ChartHome: FC = () => {
       <Top />
       <div className={cn('fixed top-[calc(42.94px+42.4px)] left-0 right-0')}>
         <Tabs
-          style={{
-            '--adm-color-primary': '#333',
-            '--content-padding': 0,
-            '--title-font-size': '14px',
-          }}
+          style={{ ...tabStyle, ...originalStyle }}
           activeKey={tabActive}
           onChange={handleTabChange}
         >
