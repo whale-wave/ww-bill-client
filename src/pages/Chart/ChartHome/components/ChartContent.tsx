@@ -6,6 +6,7 @@ import { useChartStore } from '@/store/chart';
 
 export const ChartContent: FC = () => {
   const curTab = useChartStore(state => state.curTab);
+  const currentAmountType = useChartStore(state => state.currentAmountType);
 
   const empty = (
     <div className={cn('flex-grow flex items-center justify-center')}>
@@ -22,7 +23,7 @@ export const ChartContent: FC = () => {
               <div className={cn('flex flex-col py-2 px-1 border-0 border-b-[1px] border-b-gray-100 border-solid')}>
                 <div className={cn('flex flex-col px-1')}>
                   <div className={cn('text-sm flex space-x-2')}>
-                    <div>总支出:</div>
+                    <div>{currentAmountType === 'sub' ? '总支出:' : '总收入:'}</div>
                     <div>{curTab.amount}</div>
                   </div>
                   <div className={cn('text-sm flex space-x-2')}>

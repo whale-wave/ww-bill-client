@@ -1,10 +1,11 @@
 import { type FC, useMemo } from 'react';
-import { format, formatDate } from 'date-fns';
+import { format } from 'date-fns';
 import { cn } from '@/utils';
 import type { GetChartApiResponseWeekDataWeekItemDayItem } from '@/api';
 import { Icon } from '@/components';
+import type { AmountType } from '@/store';
 
-export const TooltipContent: FC<{ data: GetChartApiResponseWeekDataWeekItemDayItem }> = ({ data }) => {
+export const TooltipContent: FC<{ data: GetChartApiResponseWeekDataWeekItemDayItem; currentAmountType: AmountType }> = ({ data, currentAmountType }) => {
   const list = useMemo(() => {
     return data.data.slice(0, 3);
   }, [data]);
@@ -28,7 +29,7 @@ export const TooltipContent: FC<{ data: GetChartApiResponseWeekDataWeekItemDayIt
         ))}
       </div>
       <div className={cn('flex space-x-2')}>
-        <div>当月总支出:</div>
+        <div>{currentAmountType === 'sub' ? '当月总支出:' : '当月总收入:'}</div>
         <div>{data.amount}</div>
       </div>
     </div>

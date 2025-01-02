@@ -9,6 +9,7 @@ import { useChartStore } from '@/store';
 
 export const LineChart: FC = () => {
   const { chartDomRef, myChart } = useChart();
+  const currentAmountType = useChartStore(state => state.currentAmountType);
   const curTab = useChartStore(state => state.curTab);
 
   const seriesData = useMemo(() => {
@@ -67,7 +68,7 @@ export const LineChart: FC = () => {
         },
         formatter: (_params: any) => {
           const { data } = _params[0];
-          const html = renderToString(<TooltipContent data={data.source} />);
+          const html = renderToString(<TooltipContent data={data.source} currentAmountType={currentAmountType} />);
           return html;
         },
       },

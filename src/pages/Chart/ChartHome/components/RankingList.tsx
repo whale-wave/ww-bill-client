@@ -6,6 +6,7 @@ import { useChartStore } from '@/store';
 
 export const RankingList: FC = () => {
   const curTab = useChartStore(state => state.curTab);
+  const currentAmountType = useChartStore(state => state.currentAmountType);
 
   const rankingData = useMemo(() => {
     if (!curTab)
@@ -15,7 +16,10 @@ export const RankingList: FC = () => {
 
   return (
     <div>
-      <div className={cn('text-base px-3 pb-1 pt-2')}>支出排行榜</div>
+      <div className={cn('text-base px-3 pb-1 pt-2')}>
+        {currentAmountType === 'sub' ? '支出' : '收入'}
+        排行榜
+      </div>
       <List
         style={{ '--border-top': '0px', '--border-bottom': '0px' }}
       >
