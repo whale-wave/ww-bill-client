@@ -68,7 +68,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
   };
 
   const ChangeTimeDate = async (time: string) => {
-    sessionStorage.setItem('timeDate', JSON.stringify(time));
+    sessionStorage.setItem('timeDate', time);
     setSelectTime(dayjs(time));
   };
 
