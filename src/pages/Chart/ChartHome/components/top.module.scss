@@ -1,0 +1,23 @@
+.dropdown-wrapper {
+  :global {
+    .adm-dropdown-item {
+      .adm-dropdown-item-title-text {
+        @apply text-[16px];
+      }
+      .adm-dropdown-item-title-arrow {
+        @apply text-[16px] text-[#333];
+      }
+    }
+
+    .adm-dropdown .adm-dropdown-nav {
+      @apply border-b-0;
+    }
+
+    .adm-popup.adm-dropdown-popup {
+      top: 85.34px !important;
+    }
+    .adm-dropdown-item-highlight {
+      @apply text-[#333];
+    }
+  }
+}

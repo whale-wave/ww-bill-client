@@ -25,4 +25,7 @@ export const ROUTES_PATH = {
   ASSET_CHART: {
     getPath: () => '/asset/chart',
   },
+  CHART: {
+    getPath: () => '/chart',
+  },
 };

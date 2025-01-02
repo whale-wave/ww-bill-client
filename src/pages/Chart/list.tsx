@@ -1,10 +1,8 @@
 import type { FC } from 'react';
 import { useState } from 'react';
-// import { DemoBlock } from '@/components/demos/demo-block';
 import { ProgressBar, Space } from 'antd-mobile';
 import { useNavigate } from 'react-router-dom';
 import styles from './list.module.scss';
-// import {Icon} from "bw-mobile";
 
 const List: FC = () => {
   const [moneyList] = useState([
@@ -78,7 +76,6 @@ const List: FC = () => {
             onClick={() => detailsChange()}
           >
             <div className={styles.left_wrapper}>
-              {/* <Icon name={chunk.category.icon} styles={{ fontSize: 20 }} /> */}
             </div>
             <div className={styles.right_wrapper}>
               <div className={styles.moneyType_wrapper}>
@@ -92,7 +89,6 @@ const List: FC = () => {
                 </div>
               </div>
               <div className={styles.space_wrapper}>
-                {/* <DemoBlock title="指定线条宽度"> */}
                 <Space direction="vertical" block>
                   <ProgressBar
                     percent={50}
@@ -103,7 +99,6 @@ const List: FC = () => {
                     }}
                   />
                 </Space>
-                {/* </DemoBlock> */}
               </div>
             </div>
           </div>
