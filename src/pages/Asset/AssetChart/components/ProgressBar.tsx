@@ -1,10 +1,10 @@
 import { type FC, useEffect, useRef } from 'react';
-import { themeColor } from '@/assets/styles/reset';
+import { THEME_COLOR } from '@/assets/styles/reset';
 
 export const ProgressBar: FC<{
   percent: number;
   color?: string;
-}> = ({ percent, color = themeColor }) => {
+}> = ({ percent, color = THEME_COLOR }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
 

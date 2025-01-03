@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useAssetSummaryInfo } from '@/hooks';
 import { formatAmount, math } from '@/utils';
-import { themeColor } from '@/assets/styles/reset';
+import { THEME_COLOR } from '@/assets/styles/reset';
 
 export const CurNetAssetStatus: FC = () => {
   const { info } = useAssetSummaryInfo();
@@ -30,7 +30,7 @@ export const CurNetAssetStatus: FC = () => {
           className="progress flex items-center pl-4 assets relative rounded-l-lg"
           style={{
             flex: addPercent,
-            background: themeColor,
+            background: THEME_COLOR,
           }}
         >
           资产
@@ -78,7 +78,7 @@ export const CurNetAssetStatus: FC = () => {
                   className="absolute left-[-1px] top-0 w-[30px] h-[41px]"
                   style={{
                     clipPath: `polygon(0 0, 0 100%, 0 100%, 100% 0)`,
-                    background: themeColor,
+                    background: THEME_COLOR,
                   }}
                 >
                 </div>
