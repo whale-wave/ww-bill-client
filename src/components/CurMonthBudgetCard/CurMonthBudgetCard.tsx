@@ -41,7 +41,7 @@ const CurMonthBudgetCard: React.FC<CardProps> = () => {
       onClick={onClick}
       bodyClassName="!pt-0 !px-3"
     >
-      <BudgetItemContent isSummaryBudget allowEmpty data={data?.summaryBudget} />
+      <BudgetItemContent isSummaryBudget data={data?.summaryBudget} />
     </Card>
   );
 };
