@@ -23,7 +23,7 @@ export const TooltipContent: FC<{ data: GetChartApiResponseWeekDataWeekItemDayIt
               <Icon name={item.category.icon} />
             </div>
             <div>{format(item.time, 'yy/MM/dd')}</div>
-            <div className={cn('flex-grow w-[60px]')}>{item.category.name}</div>
+            <div className={cn('flex-grow w-[60px] truncate')}>{item.remark}</div>
             <div>{item.amount}</div>
           </div>
         ))}
