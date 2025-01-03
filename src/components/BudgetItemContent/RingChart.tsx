@@ -13,10 +13,14 @@ export const RingChart: FC<RingChartProps> = memo(({ percentage, isSummaryBudget
   const { chartDomRef, myChart } = useChart();
 
   useLayoutEffect(() => {
+    if (!percentage)
+      return;
+
     const numberPercentage = Number(percentage);
     const percentageValue = Math.min(100, numberPercentage);
     const remainingPercentageValue = Math.max(0, 100 - percentageValue);
     const isOverBudget = numberPercentage < 0;
+    const subtext = `${percentageValue.toFixed(0)}%`;
 
     const titleConfig: TitleOption = {
       text: '剩余',
@@ -25,7 +29,7 @@ export const RingChart: FC<RingChartProps> = memo(({ percentage, isSummaryBudget
         color: '#666',
         fontWeight: 'normal',
       },
-      subtext: '43%',
+      subtext,
       subtextStyle: {
         fontSize: isSummaryBudget ? 14 : 13,
         color: '#333',
