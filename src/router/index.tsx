@@ -4,7 +4,7 @@ import Bill from '@/pages/Bill';
 import { LoginGuard } from '@/components';
 import Bookkeeping from '@/pages/bookkeeping';
 import CateGory from '@/pages/bookkeeping/CategorySettings';
-import { ChartHome } from '@/pages/Chart/index.ts';
+import { ChartCategory, ChartHome } from '@/pages/Chart/index.ts';
 import Community from '@/pages/community';
 import FollowList from '@/pages/community/FollowList';
 import Personal from '@/pages/community/Personal';
@@ -12,7 +12,6 @@ import Editing from '@/pages/Detail_editing';
 import Password from '@/pages/Password';
 import Sign from '@/pages/Sign';
 import UserInfo from '@/pages/UserInfo';
-import ChartDetails from '@/pages/Chart/details';
 import Mine from '@/pages/mine';
 import Share from '@/pages/Share';
 import PostTopic from '@/pages/PostTopic';
@@ -172,11 +171,16 @@ export const router = createHashRouter([
       },
       {
         path: 'chart',
-        element: <ChartHome />,
-      },
-      {
-        path: 'ChartDetails',
-        element: <ChartDetails />,
+        children: [
+          {
+            index: true,
+            element: <ChartHome />,
+          },
+          {
+            path: 'category',
+            element: <ChartCategory />,
+          },
+        ],
       },
       {
         path: 'mine',
