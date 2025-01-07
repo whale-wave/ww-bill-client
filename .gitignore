@@ -21,3 +21,4 @@ yarn-lock.json
 /pnpm-global/
 
 .env
+*storybook.log

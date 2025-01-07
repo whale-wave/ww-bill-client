@@ -1,0 +1,16 @@
+import { Meta } from "@storybook/blocks";
+import BottomAction from '@/components/BottomAction/BottomAction';
+
+<Meta title="README" />
+
+# 使用
+
+```tsx
+import { BottomAction } from '@/components';
+
+export default function() {
+  return (<BottomAction actions={[{ key: 'add', label: '添加', onClick: () => { console.log('add') } }, { key: 'delete', label: '删除', onClick: () => { console.log('delete') } }]} className="h-[50px]" placeholderClassName="h-[50px]" />);
+}
+```
+
+<BottomAction actions={[{ key: 'add', label: '添加', onClick: () => { console.log('add') } }, { key: 'delete', label: '删除', onClick: () => { console.log('delete') } }]} className="h-[50px]" placeholderClassName="h-[50px]" />

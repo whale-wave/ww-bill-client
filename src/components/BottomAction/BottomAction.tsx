@@ -8,7 +8,7 @@ export interface BottomActionActionItem {
   render?: (actionItem: BottomActionActionItem) => React.ReactNode;
 }
 
-interface BottomActionProps {
+export interface BottomActionProps {
   className?: string;
   actions: BottomActionActionItem[];
   placeholderClassName?: string;
@@ -34,7 +34,7 @@ const BottomAction: React.FC<BottomActionProps> = (props) => {
                     actionItem.render(actionItem)
                   )
                 : (
-                  <div>{actionItem.label}</div>
+                    <div>{actionItem.label}</div>
                   )}
             </div>
             {index < actions.length - 1 && (
