@@ -1,17 +1,9 @@
-import antfu from '@antfu/eslint-config';
+import avanlan from '@avanlan/eslint-config';
 import { FlatCompat } from '@eslint/eslintrc';
 
 const compat = new FlatCompat();
 
-export default antfu({
-  formatters: {
-    css: true,
-    html: true,
-    markdown: true,
-  },
-  stylistic: {
-    indent: 2,
-  },
+export default avanlan({
   react: true,
   ignores: ['tsconfig.app.json'],
 }, ...compat.config({
@@ -19,18 +11,6 @@ export default antfu({
   extends: ['plugin:@tanstack/eslint-plugin-query/recommended'],
 }), {
   rules: {
-    'style/semi': ['error', 'always'],
-    'style/member-delimiter-style': ['error', {
-      multiline: {
-        delimiter: 'semi',
-        requireLast: true,
-      },
-      singleline: {
-        delimiter: 'semi',
-        requireLast: false,
-      },
-      multilineDetection: 'brackets',
-    }],
     'no-console': ['error', {
       allow: ['warn', 'info', 'error'],
     }],
