@@ -2,10 +2,9 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './i18n';
 import '@/assets/styles/index.scss';
-import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { router } from './router';
+import { Router } from './router';
 import { initResetStyle } from '@/assets/styles/reset';
 
 initResetStyle();
@@ -19,7 +18,7 @@ root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools />
-      <RouterProvider router={router} />
+      <Router />
     </QueryClientProvider>
   </React.StrictMode>,
 );

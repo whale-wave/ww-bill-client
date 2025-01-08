@@ -14,6 +14,5 @@ export default avanlan({
     'no-console': ['error', {
       allow: ['warn', 'info', 'error'],
     }],
-    'react-refresh/only-export-components': 'off',
   },
 });

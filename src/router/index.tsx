@@ -1,4 +1,5 @@
-import { createHashRouter } from 'react-router-dom';
+import { RouterProvider, createHashRouter } from 'react-router-dom';
+import type { FC } from 'react';
 import { Suspense, lazy } from 'react';
 import Bill from '@/pages/Bill';
 import { LoginGuard } from '@/components';
@@ -44,7 +45,7 @@ import { AddAssetAccount, AssetChart, AssetDetail, AssetFormInfo, AssetManager }
 
 const RecordCalendar = lazy(() => import('@/pages/RecordCalendar'));
 
-export const router = createHashRouter([
+const router = createHashRouter([
   {
     path: '/',
     element: <Root />,
@@ -298,3 +299,7 @@ export const router = createHashRouter([
     element: <NotFound />,
   },
 ]);
+
+export const Router: FC = () => {
+  return <RouterProvider router={router} />;
+};
