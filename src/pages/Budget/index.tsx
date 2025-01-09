@@ -7,7 +7,8 @@ import style from './index.module.scss';
 import { useDeleteBudgetCategoryByBudgetIdMutation, useGetBudgetInfoQuery, usePostBudgetClearMutation } from '@/hooks';
 import type { BudgetInfo, CategoryEntity } from '@/api';
 import { BudgetEntityLevel, BudgetEntityType } from '@/api';
-import { BudgetModel, BudgetModelModelType, BudgetTop } from '@/pages/Budget/components';
+import type { BudgetModelModelType } from '@/pages/Budget/components';
+import { BudgetModel, BudgetModelModelTypeMap, BudgetTop } from '@/pages/Budget/components';
 import { BudgetPageContext } from '@/pages/Budget/store/budgetPageContext.ts';
 import { BottomAction, BudgetItem } from '@/components';
 
@@ -31,7 +32,7 @@ const Budget: React.FC<BudgetProps> = () => {
   const [curLevel, setCurLevel] = useState<BudgetEntityLevel | undefined>();
   const [curBudgetId, setCurBudgetId] = useState<string | undefined>();
   const [curCategory, setCurCategory] = useState<CategoryEntity | undefined>();
-  const [modelType, setModelType] = useState<BudgetModelModelType>(BudgetModelModelType.CREATE);
+  const [modelType, setModelType] = useState<BudgetModelModelType>(BudgetModelModelTypeMap.CREATE);
 
   const onBudgetClick = useCallback((budgetInfo: BudgetInfo, level: BudgetEntityLevel) => () => {
     const isSummaryBudget = level === BudgetEntityLevel.SUMMARY;
@@ -49,7 +50,7 @@ const Budget: React.FC<BudgetProps> = () => {
             setIsAddSummaryBudgetVisible(true);
             setCurLevel(level);
             setCurBudgetId(budgetInfo.id);
-            setModelType(BudgetModelModelType.EDIT);
+            setModelType(BudgetModelModelTypeMap.EDIT);
 
             if (level === BudgetEntityLevel.CATEGORY) {
               setCurCategory(budgetInfo.category!);
@@ -92,7 +93,7 @@ const Budget: React.FC<BudgetProps> = () => {
     setCurLevel(undefined);
     setCurBudgetId(undefined);
     setCurCategory(undefined);
-    setModelType(BudgetModelModelType.CREATE);
+    setModelType(BudgetModelModelTypeMap.CREATE);
   }, []);
 
   const onGoToCreateBudgetCategoryPage = useCallback(() => {

@@ -95,8 +95,8 @@ devDependencies:
     specifier: 2.21.1
     version: 2.21.1(@eslint-react/eslint-plugin@1.5.23)(@vue/compiler-sfc@3.5.13)(eslint-plugin-format@0.1.2)(eslint-plugin-react-hooks@4.6.2)(eslint-plugin-react-refresh@0.4.7)(eslint@8.57.0)(typescript@5.6.3)
   '@avanlan/eslint-config':
-    specifier: ^2
-    version: 2.27.6(@eslint-react/eslint-plugin@1.5.23)(@typescript-eslint/utils@8.17.0)(@vue/compiler-sfc@3.5.13)(eslint-plugin-format@0.1.2)(eslint-plugin-react-hooks@4.6.2)(eslint-plugin-react-refresh-avanlan@0.4.19)(eslint@8.57.0)(typescript@5.6.3)
+    specifier: ^2.27.7
+    version: 2.27.7(@eslint-react/eslint-plugin@1.5.23)(@typescript-eslint/utils@8.19.1)(@vue/compiler-sfc@3.5.13)(eslint-plugin-format@0.1.2)(eslint-plugin-react-hooks@4.6.2)(eslint-plugin-react-refresh@0.4.7)(eslint@8.57.0)(typescript@5.6.3)
   '@eslint-react/eslint-plugin':
     specifier: 1.5.23
     version: 1.5.23(eslint@8.57.0)(typescript@5.6.3)
@@ -148,9 +148,6 @@ devDependencies:
   eslint-plugin-react-refresh:
     specifier: 0.4.7
     version: 0.4.7(eslint@8.57.0)
-  eslint-plugin-react-refresh-avanlan:
-    specifier: ^0.4.19
-    version: 0.4.19(eslint@8.57.0)
   husky:
     specifier: 9.0.11
     version: 9.0.11
@@ -306,8 +303,8 @@ packages:
     resolution: {integrity: sha512-+562v9k4aI80m1+VuMHehNJWLOFjBnXn3tdOitzD0il5b7smkSBal4+a3oKiQTbrwMmN/TBUMDvbdoWDehgOww==}
     dev: true
 
-  /@avanlan/eslint-config@2.27.6(@eslint-react/eslint-plugin@1.5.23)(@typescript-eslint/utils@8.17.0)(@vue/compiler-sfc@3.5.13)(eslint-plugin-format@0.1.2)(eslint-plugin-react-hooks@4.6.2)(eslint-plugin-react-refresh-avanlan@0.4.19)(eslint@8.57.0)(typescript@5.6.3):
-    resolution: {integrity: sha512-VUVpSHFts9JN0RMUTJEBBYwlnOE3bZCCdwyIuAf3wNvRks9I0AQ2kFylSwK8r4X9wSRo+J97ahR6DGHcFUuXMA==}
+  /@avanlan/eslint-config@2.27.7(@eslint-react/eslint-plugin@1.5.23)(@typescript-eslint/utils@8.19.1)(@vue/compiler-sfc@3.5.13)(eslint-plugin-format@0.1.2)(eslint-plugin-react-hooks@4.6.2)(eslint-plugin-react-refresh@0.4.7)(eslint@8.57.0)(typescript@5.6.3):
+    resolution: {integrity: sha512-c/Y+DWp4H65nANUsZNe8OsjYj72ow4hC4FpdflZaSI4GGOuAeBCZwJVW9BLyxZaFDwW6xxjsUBgTQ9XSiRPQyg==}
     hasBin: true
     peerDependencies:
       '@eslint-react/eslint-plugin': ^1.5.8
@@ -318,7 +315,7 @@ packages:
       eslint-plugin-astro: ^1.2.0
       eslint-plugin-format: '>=0.1.0'
       eslint-plugin-react-hooks: ^4.6.0
-      eslint-plugin-react-refresh-avanlan: ^0.4.19
+      eslint-plugin-react-refresh: ^0.4.16
       eslint-plugin-solid: ^0.13.2
       eslint-plugin-svelte: '>=2.35.1'
       prettier-plugin-astro: ^0.13.0
@@ -339,7 +336,7 @@ packages:
         optional: true
       eslint-plugin-react-hooks:
         optional: true
-      eslint-plugin-react-refresh-avanlan:
+      eslint-plugin-react-refresh:
         optional: true
       eslint-plugin-solid:
         optional: true
@@ -359,7 +356,7 @@ packages:
       '@stylistic/eslint-plugin': 2.11.0(eslint@8.57.0)(typescript@5.6.3)
       '@typescript-eslint/eslint-plugin': 8.19.1(@typescript-eslint/parser@8.19.1)(eslint@8.57.0)(typescript@5.6.3)
       '@typescript-eslint/parser': 8.19.1(eslint@8.57.0)(typescript@5.6.3)
-      '@vitest/eslint-plugin': 1.1.24(@typescript-eslint/utils@8.17.0)(eslint@8.57.0)(typescript@5.6.3)
+      '@vitest/eslint-plugin': 1.1.24(@typescript-eslint/utils@8.19.1)(eslint@8.57.0)(typescript@5.6.3)
       eslint: 8.57.0
       eslint-config-flat-gitignore: 0.1.8
       eslint-flat-config-utils: 0.3.1
@@ -375,7 +372,7 @@ packages:
       eslint-plugin-no-only-tests: 3.3.0
       eslint-plugin-perfectionist: 3.9.1(eslint@8.57.0)(typescript@5.6.3)(vue-eslint-parser@9.4.3)
       eslint-plugin-react-hooks: 4.6.2(eslint@8.57.0)
-      eslint-plugin-react-refresh-avanlan: 0.4.19(eslint@8.57.0)
+      eslint-plugin-react-refresh: 0.4.7(eslint@8.57.0)
       eslint-plugin-regexp: 2.7.0(eslint@8.57.0)
       eslint-plugin-toml: 0.11.1(eslint@8.57.0)
       eslint-plugin-unicorn: 55.0.0(eslint@8.57.0)
@@ -618,8 +615,8 @@ packages:
     dev: true
     optional: true
 
-  /@commitlint/load@19.5.0(@types/node@22.10.1)(typescript@5.6.3):
-    resolution: {integrity: sha512-INOUhkL/qaKqwcTUvCE8iIUf5XHsEPCLY9looJ/ipzi7jtGhgmtH7OOFiNvwYgH7mA8osUWOUDV8t4E2HAi4xA==}
+  /@commitlint/load@19.6.1(@types/node@22.10.1)(typescript@5.6.3):
+    resolution: {integrity: sha512-kE4mRKWWNju2QpsCWt428XBvUH55OET2N4QKQ0bF85qS/XbsRGG1MiTByDNlEVpEPceMkDr46LNH95DtRwcsfA==}
     engines: {node: '>=v18'}
     requiresBuild: true
     dependencies:
@@ -629,7 +626,7 @@ packages:
       '@commitlint/types': 19.5.0
       chalk: 5.3.0
       cosmiconfig: 9.0.0(typescript@5.6.3)
-      cosmiconfig-typescript-loader: 5.1.0(@types/node@22.10.1)(cosmiconfig@9.0.0)(typescript@5.6.3)
+      cosmiconfig-typescript-loader: 6.1.0(@types/node@22.10.1)(cosmiconfig@9.0.0)(typescript@5.6.3)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -2210,7 +2207,7 @@ packages:
       - supports-color
     dev: true
 
-  /@vitest/eslint-plugin@1.1.24(@typescript-eslint/utils@8.17.0)(eslint@8.57.0)(typescript@5.6.3):
+  /@vitest/eslint-plugin@1.1.24(@typescript-eslint/utils@8.19.1)(eslint@8.57.0)(typescript@5.6.3):
     resolution: {integrity: sha512-7IaENe4NNy33g0iuuy5bHY69JYYRjpv4lMx6H5Wp30W7ez2baLHwxsXF5TM4wa8JDYZt8ut99Ytoj7GiDO01hw==}
     peerDependencies:
       '@typescript-eslint/utils': '>= 8.0'
@@ -2223,7 +2220,7 @@ packages:
       vitest:
         optional: true
     dependencies:
-      '@typescript-eslint/utils': 8.17.0(eslint@8.57.0)(typescript@5.6.3)
+      '@typescript-eslint/utils': 8.19.1(eslint@8.57.0)(typescript@5.6.3)
       eslint: 8.57.0
       typescript: 5.6.3
     dev: true
@@ -2254,7 +2251,7 @@ packages:
       '@vue/compiler-ssr': 3.5.13
       '@vue/shared': 3.5.13
       estree-walker: 2.0.2
-      magic-string: 0.30.14
+      magic-string: 0.30.17
       postcss: 8.4.49
       source-map-js: 1.2.1
     dev: true
@@ -2898,18 +2895,18 @@ packages:
       browserslist: 4.24.2
     dev: true
 
-  /cosmiconfig-typescript-loader@5.1.0(@types/node@22.10.1)(cosmiconfig@9.0.0)(typescript@5.6.3):
-    resolution: {integrity: sha512-7PtBB+6FdsOvZyJtlF3hEPpACq7RQX6BVGsgC7/lfVXnKMvNCu/XY3ykreqG5w/rBNdu2z8LCIKoF3kpHHdHlA==}
-    engines: {node: '>=v16'}
+  /cosmiconfig-typescript-loader@6.1.0(@types/node@22.10.1)(cosmiconfig@9.0.0)(typescript@5.6.3):
+    resolution: {integrity: sha512-tJ1w35ZRUiM5FeTzT7DtYWAFFv37ZLqSRkGi2oeCK1gPhvaWjkAtfXvLmvE1pRfxxp9aQo6ba/Pvg1dKj05D4g==}
+    engines: {node: '>=v18'}
     requiresBuild: true
     peerDependencies:
       '@types/node': '*'
-      cosmiconfig: '>=8.2'
-      typescript: '>=4'
+      cosmiconfig: '>=9'
+      typescript: '>=5'
     dependencies:
       '@types/node': 22.10.1
       cosmiconfig: 9.0.0(typescript@5.6.3)
-      jiti: 1.21.6
+      jiti: 2.4.2
       typescript: 5.6.3
     dev: true
     optional: true
@@ -2996,7 +2993,7 @@ packages:
       longest: 2.0.1
       word-wrap: 1.2.5
     optionalDependencies:
-      '@commitlint/load': 19.5.0(@types/node@22.10.1)(typescript@5.6.3)
+      '@commitlint/load': 19.6.1(@types/node@22.10.1)(typescript@5.6.3)
     transitivePeerDependencies:
       - '@types/node'
       - typescript
@@ -3729,14 +3726,6 @@ packages:
       typescript: 5.6.3
     transitivePeerDependencies:
       - supports-color
-    dev: true
-
-  /eslint-plugin-react-refresh-avanlan@0.4.19(eslint@8.57.0):
-    resolution: {integrity: sha512-LZ4AGl77CWhy0eMMsCyPVBbZkiqJ83cxlgBHWLa5i6aoUshzofYojHflPKNBdg1g/K5Jw4ZKWgCBDDoZSeBVNQ==}
-    peerDependencies:
-      eslint: '>=8.40'
-    dependencies:
-      eslint: 8.57.0
     dev: true
 
   /eslint-plugin-react-refresh@0.4.7(eslint@8.57.0):
@@ -4793,6 +4782,13 @@ packages:
     hasBin: true
     dev: true
 
+  /jiti@2.4.2:
+    resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
+    hasBin: true
+    requiresBuild: true
+    dev: true
+    optional: true
+
   /js-cookie@2.2.1:
     resolution: {integrity: sha512-HvdH2LzI/EAZcUwA8+0nKNtWHqS+ZmijLA30RwZA0bo7ToCckjK5MkGhjED9KoRcXO6BaGI3I9UIzSA1FKFPOQ==}
     dev: false
@@ -5031,8 +5027,8 @@ packages:
       yallist: 3.1.1
     dev: true
 
-  /magic-string@0.30.14:
-    resolution: {integrity: sha512-5c99P1WKTed11ZC0HMJOj6CDIue6F8ySu+bJL+85q1zBEIY8IklrJ1eiKC2NDRh3Ct3FcvmJPyQHb9erXMTJNw==}
+  /magic-string@0.30.17:
+    resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
     dev: true

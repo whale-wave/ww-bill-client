@@ -10,10 +10,12 @@ import {
 import { BudgetEntityLevel, BudgetEntityType } from '@/api/budget.ts';
 import type { CategoryEntity } from '@/api';
 
-export enum BudgetModelModelType {
-  CREATE,
-  EDIT,
-}
+export const BudgetModelModelTypeMap = {
+  CREATE: 'create',
+  EDIT: 'edit',
+} as const;
+
+export type BudgetModelModelType = (typeof BudgetModelModelTypeMap)[keyof typeof BudgetModelModelTypeMap];
 
 interface BudgetModelProps {
   modelType?: BudgetModelModelType;
@@ -26,7 +28,7 @@ interface BudgetModelProps {
   onClose: () => void;
 }
 
-export const BudgetModel: React.FC<BudgetModelProps> = ({ modelType = BudgetModelModelType.CREATE, budgetId, visible, setVisible, type, level, category, onClose }) => {
+export const BudgetModel: React.FC<BudgetModelProps> = ({ modelType = BudgetModelModelTypeMap.CREATE, budgetId, visible, setVisible, type, level, category, onClose }) => {
   const navigate = useNavigate();
 
   const [postBudgetSummaryMutate] = usePostBudgetSummaryMutation();
@@ -36,7 +38,7 @@ export const BudgetModel: React.FC<BudgetModelProps> = ({ modelType = BudgetMode
   const [amount, setAmount] = useState('');
 
   const title = useMemo(() => {
-    if (modelType === BudgetModelModelType.EDIT) {
+    if (modelType === BudgetModelModelTypeMap.EDIT) {
       if (level === BudgetEntityLevel.SUMMARY) {
         return '每月总预算';
       }
@@ -60,7 +62,7 @@ export const BudgetModel: React.FC<BudgetModelProps> = ({ modelType = BudgetMode
         return `年度${category?.name}预算`;
       }
     }
-  }, [type, level, category]);
+  }, [type, level, category, modelType]);
 
   const actions = [
     {
@@ -125,7 +127,7 @@ export const BudgetModel: React.FC<BudgetModelProps> = ({ modelType = BudgetMode
           _amount = _amount.substring(0, _amount.length - 1);
         }
 
-        if (modelType === BudgetModelModelType.EDIT) {
+        if (modelType === BudgetModelModelTypeMap.EDIT) {
           const res = await patchBudgetAmountByBudgetIdMutate({
             budgetId: budgetId!,
             data: {
