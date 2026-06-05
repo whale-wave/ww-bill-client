@@ -1,18 +1,18 @@
-import avanlan from '@avanlan/eslint-config';
-import { FlatCompat } from '@eslint/eslintrc';
+import antfu from '@antfu/eslint-config';
 
-const compat = new FlatCompat();
-
-export default avanlan({
+export default antfu({
+  stylistic: {
+    semi: true,
+  },
   react: true,
   ignores: ['tsconfig.app.json'],
-}, ...compat.config({
-  plugins: ['@tanstack/query'],
-  extends: ['plugin:@tanstack/eslint-plugin-query/recommended'],
-}), {
-  rules: {
-    'no-console': ['error', {
-      allow: ['warn', 'info', 'error'],
-    }],
-  },
+// }, ({
+//   plugins: ['@tanstack/query'],
+//   extends: ['plugin:@tanstack/eslint-plugin-query/recommended'],
+// }), {
+//   rules: {
+//     'no-console': ['error', {
+//       allow: ['warn', 'info', 'error'],
+//     }],
+//   },
 });
