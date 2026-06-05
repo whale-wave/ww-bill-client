@@ -28,4 +28,16 @@ export const ROUTES_PATH = {
   CHART: {
     getPath: () => '/chart',
   },
+  FIXED_EXPENSES: {
+    getPath: () => '/fixed-expenses',
+  },
+  FIXED_EXPENSES_CREATE: {
+    getPath: () => '/fixed-expenses/create',
+  },
+  FIXED_EXPENSES_DETAIL: {
+    getPath: (id: string) => `/fixed-expenses/${id}`,
+  },
+  FIXED_EXPENSES_EDIT: {
+    getPath: (id: string) => `/fixed-expenses/${id}/edit`,
+  },
 };

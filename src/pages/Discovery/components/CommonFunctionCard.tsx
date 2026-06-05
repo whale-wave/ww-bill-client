@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react';
-import { ReceivePaymentOutline, TextOutline } from 'antd-mobile-icons';
 import { Card, Toast } from 'antd-mobile';
+import { CalendarOutline, ReceivePaymentOutline, TextOutline } from 'antd-mobile-icons';
+import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '@/components';
 import { ROUTES_PATH } from '@/constants';
@@ -29,6 +29,13 @@ const CommonFunctionCard: React.FC<CommonFunctionCardProps> = () => {
       name: '发票助手',
       icon: <TextOutline />,
       path: '/invoice',
+    },
+    {
+      name: '固定支出',
+      icon: <CalendarOutline />,
+      onClick: () => {
+        navigate(ROUTES_PATH.FIXED_EXPENSES.getPath());
+      },
     },
     // {
     //   name: '房贷计算器',
