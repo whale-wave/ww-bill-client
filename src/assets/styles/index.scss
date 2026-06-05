@@ -1,8 +1,6 @@
-@import "global";
-@import "mixins";
-@import "reset";
-@import "@/components/reset";
+@use "global";
+@use "reset" as appReset;
+@use "@/components/reset" as componentReset;
 
 @tailwind components;
 @tailwind utilities;
-

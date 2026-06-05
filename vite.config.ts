@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
-import { createHtmlPlugin } from 'vite-plugin-html';
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import { createHtmlPlugin } from 'vite-plugin-html';
 import config from './config';
 
 const srcPath = resolve(__dirname, 'src');
@@ -42,7 +42,7 @@ export default defineConfig((
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: `@import "~mixin/mixins.scss";`,
+          additionalData: `@use "~mixin/mixins.scss" as *;`,
         },
       },
     },
