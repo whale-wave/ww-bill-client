@@ -1,15 +1,15 @@
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { NavBar } from 'bw-mobile';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { playSound } from '@/modules';
-import { WwInput } from '@/pages/ForgetPassword/components';
+import type { Dayjs } from 'dayjs';
+import type { FC } from 'react';
 import { Button } from 'antd-mobile';
-import { WwInputVerifyCode } from '@/pages/ForgetPassword/components';
-import { Dayjs } from 'dayjs';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   getToolsForgetPasswordEmailApi,
   getToolsForgetPasswordEmailVerifyCodeApi,
 } from '@/api';
+import { NavBar } from '@/components/ui/index.ts';
+import { playSound } from '@/modules';
+import { WwInput, WwInputVerifyCode } from '@/pages/ForgetPassword/components';
 
 const ForgetPasswordVerifyCode: FC = () => {
   const navigate = useNavigate();
@@ -19,7 +19,8 @@ const ForgetPasswordVerifyCode: FC = () => {
   const [startTime, setStartTime] = useState<Dayjs>();
 
   const isDisabled = useMemo(() => {
-    if (!captcha || captcha.trim().length < 6) return true;
+    if (!captcha || captcha.trim().length < 6)
+      return true;
     return false;
   }, [captcha]);
 
@@ -33,15 +34,15 @@ const ForgetPasswordVerifyCode: FC = () => {
   }, []);
 
   const onSendVerify = useCallback(async () => {
-    const getForgetPasswordEmailCaptchaRes =
-      await getToolsForgetPasswordEmailApi(email, true);
+    const getForgetPasswordEmailCaptchaRes
+      = await getToolsForgetPasswordEmailApi(email, true);
 
     return getForgetPasswordEmailCaptchaRes.statusCode === 200;
   }, [captcha]);
 
   const onSend = useCallback(async () => {
-    const getToolsForgetPasswordEmailVerifyCodeRes =
-      await getToolsForgetPasswordEmailVerifyCodeApi(
+    const getToolsForgetPasswordEmailVerifyCodeRes
+      = await getToolsForgetPasswordEmailVerifyCodeApi(
         {
           email,
           captcha,
@@ -70,14 +71,14 @@ const ForgetPasswordVerifyCode: FC = () => {
   }, [email]);
 
   return (
-    <div className={'page flex flex-col'}>
+    <div className="page flex flex-col">
       <NavBar back="返回" onBack={onGoToBack}>
         找回密码
       </NavBar>
-      <div className={'flex-grow flex flex-col items-center space-y-6 pt-10'}>
+      <div className="flex-grow flex flex-col items-center space-y-6 pt-10">
         <WwInput value={email} disabled clearable={false} />
         <WwInputVerifyCode
-          placeholder={'请输入验证码'}
+          placeholder="请输入验证码"
           value={captcha}
           onChange={setCaptcha}
           startTime={startTime}
@@ -87,7 +88,7 @@ const ForgetPasswordVerifyCode: FC = () => {
         />
         <Button
           block
-          className={'!w-[80%] !rounded-[12px] !mt-10 !text-black333'}
+          className="!w-[80%] !rounded-[12px] !mt-10 !text-black333"
           color="primary"
           size="large"
           onClick={onSend}

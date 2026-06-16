@@ -1,10 +1,10 @@
 import type { FC } from 'react';
+import { List } from 'antd-mobile';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from 'bw-mobile';
-import { List } from 'antd-mobile';
-import styles from './UserInfo.module.scss';
 import CheckInfo from '@/components/CheckInfo';
+import { Icon } from '@/components/ui/index.ts';
+import styles from './UserInfo.module.scss';
 
 interface UserInfoProps {
   avatar?: string;
@@ -43,9 +43,9 @@ const UserInfo: FC<UserInfoProps> = ({
           <img
             className="w-full h-full object-cover"
             src={
-                            avatar
-                            || 'https://bill-rearend.oss-cn-guangzhou.aliyuncs.com/static/defulatAvatar.jpg'
-                        }
+              avatar
+              || 'https://bill-rearend.oss-cn-guangzhou.aliyuncs.com/static/defulatAvatar.jpg'
+            }
             alt={name}
           />
         </div>

@@ -1,12 +1,12 @@
+import html2canvas from 'html2canvas';
+import { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { NavBar } from '@/components/ui/index.ts';
 import ShareBtn from '@/pages/Share/ShareBtn';
 import ShareCanvas from '@/pages/Share/ShareCanvas';
 import { downloadCanvas } from '@/utils';
-import { useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import html2canvas from 'html2canvas';
-import { NavBar } from 'bw-mobile';
 
-const Share = () => {
+function Share() {
   const navigator = useNavigate();
   const canvasRef = useRef<HTMLDivElement>(null);
   const saveCanvas = () => {
@@ -14,13 +14,13 @@ const Share = () => {
   };
   return (
     <div className="page">
-      <NavBar back={'返回'} backArrow={false} onBack={() => navigator(-1)}>
+      <NavBar back="返回" backArrow={false} onBack={() => navigator(-1)}>
         晒单
       </NavBar>
       <ShareCanvas canvasRef={canvasRef} />
       <ShareBtn onSave={saveCanvas} />
     </div>
   );
-};
+}
 
 export default Share;

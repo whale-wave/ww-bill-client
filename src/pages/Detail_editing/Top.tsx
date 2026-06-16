@@ -1,14 +1,14 @@
-import { playSound } from '@/modules';
-import { Icon, NavBar } from 'bw-mobile';
+import type { FC } from 'react';
+import type { recordChildren } from '@/pages/detail/List';
 import classNames from 'classnames';
-import { FC } from 'react';
-import styles from './top.module.scss';
 import { useNavigate } from 'react-router-dom';
-import { recordChildren } from '@/pages/detail/List';
+import { Icon, NavBar } from '@/components/ui/index.ts';
+import { playSound } from '@/modules';
+import styles from './top.module.scss';
 
-type stateType = {
+interface stateType {
   state: recordChildren;
-};
+}
 
 const Top: FC<stateType> = ({ state }) => {
   const navigate = useNavigate();
@@ -16,7 +16,8 @@ const Top: FC<stateType> = ({ state }) => {
     playSound.turnPage();
     if (state?.status) {
       navigate('/detail');
-    } else {
+    }
+    else {
       navigate(-1);
     }
   };

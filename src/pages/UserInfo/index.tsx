@@ -1,14 +1,14 @@
-import { ActionSheet, Toast } from 'antd-mobile';
-import { useNavigate } from 'react-router-dom';
 import type { FC } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { ActionSheet, Toast } from 'antd-mobile';
 import classNames from 'classnames';
-import { Button, List, Modal, NavBar } from 'bw-mobile';
-import styles from './index.module.scss';
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { uploadFile } from '@/api';
-import choseFile from '@/utils/choseFile';
-import { useUserStore } from '@/store';
+import { Button, List, Modal, NavBar } from '@/components/ui/index.ts';
 import { useGetUserUserInfoQuery, usePutUserUserInfoMutation } from '@/hooks';
+import { useUserStore } from '@/store';
+import choseFile from '@/utils/choseFile';
+import styles from './index.module.scss';
 
 const UserInfo: FC = () => {
   const navigate = useNavigate();

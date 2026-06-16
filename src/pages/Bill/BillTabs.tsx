@@ -1,8 +1,8 @@
 import type { FC } from 'react';
-import { memo, useCallback, useMemo } from 'react';
-import dayjs from 'dayjs';
 import { DatePicker } from 'antd-mobile';
-import { Icon } from 'bw-mobile';
+import dayjs from 'dayjs';
+import { memo, useCallback, useMemo } from 'react';
+import { Icon } from '@/components/ui/index.ts';
 import { TabList } from '@/pages/Bill/components';
 import { useBillPageStore } from '@/pages/Bill/store';
 

@@ -1,16 +1,16 @@
 import type { FC } from 'react';
-import { useCallback, useEffect, useMemo } from 'react';
-import classNames from 'classnames';
-import { useNavigate } from 'react-router-dom';
-import { Icon } from 'bw-mobile';
 import { Toast } from 'antd-mobile';
-import styles from './index.module.scss';
-import { playSound } from '@/modules';
+import classNames from 'classnames';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TabBar } from '@/components';
+import { Icon } from '@/components/ui/index.ts';
+import { useGetUserUserInfoQuery, usePostCheckInMutation } from '@/hooks';
+import { playSound } from '@/modules';
+import { BottomList } from '@/pages/mine/components';
 import UserInfo from '@/pages/mine/UserInfo';
 import { useUserStore } from '@/store';
-import { useGetUserUserInfoQuery, usePostCheckInMutation } from '@/hooks';
-import { BottomList } from '@/pages/mine/components';
+import styles from './index.module.scss';
 
 const Mine: FC = () => {
   const navigate = useNavigate();

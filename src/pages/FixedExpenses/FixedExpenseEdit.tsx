@@ -1,6 +1,6 @@
-import { NavBar } from 'bw-mobile';
 import React, { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { NavBar } from '@/components/ui/index.ts';
 import { FixedExpenseForm } from './components';
 
 const FixedExpenseEdit: React.FC = () => {

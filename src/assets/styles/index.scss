@@ -4,3 +4,12 @@
 
 @tailwind components;
 @tailwind utilities;
+
+html,
+body,
+button,
+input,
+textarea,
+select {
+  @apply font-sans;
+}

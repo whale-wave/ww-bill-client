@@ -1,9 +1,9 @@
 import type { FC } from 'react';
-import { useEffect, useState } from 'react';
-import { Icon } from 'bw-mobile';
-import classNames from 'classnames';
-import styles from './main.module.scss';
 import type { CategoryEntity } from '@/api/category';
+import classNames from 'classnames';
+import { useEffect, useState } from 'react';
+import { Icon } from '@/components/ui/index.ts';
+import styles from './main.module.scss';
 
 interface ChangePropsFn {
   change: (item: CategoryEntity) => void;

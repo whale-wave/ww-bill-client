@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { NavBar } from 'bw-mobile';
 import { CurrentMonthBillCard, TabBar } from '@/components';
-import { useUserStore } from '@/store';
-import { AssetManagerCard, CommonFunctionCard } from '@/pages/Discovery/components';
-import { useGetUserUserInfoQuery } from '@/hooks';
 import CurMonthBudgetCard from '@/components/CurMonthBudgetCard/CurMonthBudgetCard.tsx';
+import { NavBar } from '@/components/ui/index.ts';
+import { useGetUserUserInfoQuery } from '@/hooks';
+import { AssetManagerCard, CommonFunctionCard } from '@/pages/Discovery/components';
+import { useUserStore } from '@/store';
 
 interface DiscoveryProps {
 }

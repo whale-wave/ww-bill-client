@@ -1,11 +1,12 @@
-import { getToolsCaptchaApi, login, loginEmailCaptchaApi } from '@/api';
-import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
-import { Button } from 'bw-mobile';
+import type { ChangeEvent, FC } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getToolsCaptchaApi, login, loginEmailCaptchaApi } from '@/api';
 import { EmailCaptchaInput, Input } from '@/components';
-import styles from './index.module.scss';
-import { useUserStore } from '@/store';
+import { Button } from '@/components/ui/index.ts';
 import { playSound } from '@/modules';
+import { useUserStore } from '@/store';
+import styles from './index.module.scss';
 
 const Login: FC = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const Login: FC = () => {
   });
   const onUserNameFormFieldChange = useCallback(
     (field: string) => (e: ChangeEvent<HTMLInputElement>) => {
-      setUserNameForm((form) => ({ ...form, [field]: e.target.value }));
+      setUserNameForm(form => ({ ...form, [field]: e.target.value }));
     },
     [],
   );
@@ -34,14 +35,14 @@ const Login: FC = () => {
   });
   const onEmailFormFieldChange = useCallback(
     (field: string) => (e: ChangeEvent<HTMLInputElement>) => {
-      setEmailForm((form) => ({ ...form, [field]: e.target.value }));
+      setEmailForm(form => ({ ...form, [field]: e.target.value }));
     },
     [],
   );
 
   const [loginType, setLoginType] = useState('username');
   const onToggleLoginType = useCallback(() => {
-    setLoginType((type) => (type === 'username' ? 'email' : 'username'));
+    setLoginType(type => (type === 'username' ? 'email' : 'username'));
   }, []);
 
   const [svgCaption, setSvgCaption] = useState('');
@@ -63,7 +64,7 @@ const Login: FC = () => {
     if (statusCode === 200) {
       setToken(data.token);
       setUserInfo(data.userInfo);
-      setTimeout(() => navigate(-1), 1000);
+      setTimeout(navigate, 1000, -1);
     }
   }, [userNameForm, emailForm, loginType]);
 

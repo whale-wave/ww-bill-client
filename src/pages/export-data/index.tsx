@@ -1,13 +1,17 @@
-import { getRecordApi } from '@/api';
-import { exportRecordData } from '@/utils/exportData';
 import { DatePicker, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Gap, List, NavBar } from 'bw-mobile';
+import { getRecordApi } from '@/api';
+import { Button, Gap, List, NavBar } from '@/components/ui/index.ts';
+import { exportRecordData } from '@/utils/exportData';
 import styles from './index.module.scss';
 
-const ExportData = () => {
+enum ChangeType {
+  START,
+  END,
+}
+function ExportData() {
   const navigate = useNavigate();
 
   const [exportTimeRange, setExportTimeRange] = useState({
@@ -50,7 +54,8 @@ const ExportData = () => {
       defaultValue: new Date(type === ChangeType.START ? startTime : endTime),
     });
 
-    if (!selectTime) return;
+    if (!selectTime)
+      return;
 
     const setTimeValue = dayjs(selectTime).format('YYYY-MM-DD');
 
@@ -108,11 +113,6 @@ const ExportData = () => {
       </div>
     </div>
   );
-};
+}
 
 export default ExportData;
-
-enum ChangeType {
-  START,
-  END,
-}

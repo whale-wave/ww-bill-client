@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
-import { NavBar } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
+import { NavBar } from '@/components/ui/index.ts';
 import InvoiceInfoForm from '@/pages/Invoice/components/InvoiceInfoForm';
 
 interface InvoiceCreateProps {}

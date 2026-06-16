@@ -1,17 +1,19 @@
-import { addTopic, uploadFile } from '@/api';
-import { Toast } from 'antd-mobile';
-import {
-  FC,
-  useEffect,
-  useState,
+import type {
   ChangeEvent,
-  useRef,
-  useCallback,
+  FC,
   MouseEvent,
 } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
-import { Button, Icon, NavBar } from 'bw-mobile';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { useNavigate } from 'react-router-dom';
+import { addTopic, uploadFile } from '@/api';
+import { Button, Icon, NavBar } from '@/components/ui/index.ts';
 import styles from './index.module.scss';
 
 const PostTopic: FC = () => {
@@ -39,10 +41,12 @@ const PostTopic: FC = () => {
         setTimeout(() => {
           navigator('/community');
         }, 600);
-      } else {
+      }
+      else {
         Toast.show({ content: message?.[0] });
       }
-    } catch (error: any) {
+    }
+    catch (error: any) {
       const {
         data: {
           message: [msg],
@@ -61,7 +65,8 @@ const PostTopic: FC = () => {
   const changeFiles = async (e: ChangeEvent<HTMLInputElement>) => {
     const { target } = e;
     const files = target.files;
-    if (!files) return;
+    if (!files)
+      return;
     if (imgs.length + files.length > 9) {
       clearFiles();
       return Toast.show({ content: '最多上传9张图片' });
@@ -88,10 +93,12 @@ const PostTopic: FC = () => {
     try {
       for (const cb of formDataCb) {
         const res = await cb();
-        if (res) data.push(res.data.url);
+        if (res)
+          data.push(res.data.url);
       }
       Toast.clear();
-    } finally {
+    }
+    finally {
       clearFiles();
     }
 
@@ -115,7 +122,7 @@ const PostTopic: FC = () => {
       <main className="grow">
         <div
           onInput={(e: ChangeEvent<HTMLDivElement>) => {
-            setContent(e.target.innerText);
+            setContent(e.target.textContent);
           }}
           contentEditable={true}
           className={classNames('max-width-full', styles.textarea)}
@@ -126,13 +133,13 @@ const PostTopic: FC = () => {
               <div className={styles.circle} onClick={() => deleteImg(i)}>
                 <Icon name="add" className={styles.del} />
               </div>
-              <img src={img} alt="" onClick={() => console.log(1)} />
+              <img src={img} alt="" onClick={() => console.error(1)} />
             </div>
           ))}
           {imgs.length < 9 && (
             <div className={styles.img} onClick={addImg}>
               <input
-                onClick={(e) => e.stopPropagation()}
+                onClick={e => e.stopPropagation()}
                 ref={uploadRef}
                 type="file"
                 hidden

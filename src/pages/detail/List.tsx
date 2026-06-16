@@ -1,14 +1,14 @@
-import { Icon } from 'bw-mobile';
-import c from 'classnames';
+import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
+import c from 'classnames';
 import { memo, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Dayjs } from 'dayjs';
-import styles from './list.module.scss';
-import { getTimeValueFn, getWeekByDay } from '@/utils/DataTime';
-import { playSound } from '@/modules';
+import { Icon } from '@/components/ui/index.ts';
 import { useGetRecordQuery } from '@/hooks';
+import { playSound } from '@/modules';
 import { math } from '@/utils';
+import { getTimeValueFn, getWeekByDay } from '@/utils/DataTime';
+import styles from './list.module.scss';
 
 export interface recordChildren {
   amount: string;

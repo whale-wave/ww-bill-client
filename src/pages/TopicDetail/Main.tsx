@@ -1,8 +1,8 @@
-import { FixedPin, ImagePreview, Share } from 'bw-mobile';
 import type { FC } from 'react';
-import { useState } from 'react';
 import type { Topic } from '@/api';
+import { useState } from 'react';
 import { TopicItem } from '@/components';
+import { FixedPin, ImagePreview, Share } from '@/components/ui/index.ts';
 import ReplyArea from '@/pages/TopicDetail/ReplyArea';
 
 interface MainProps {
@@ -23,7 +23,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       icon: 'wechat',
       color: '#55BA38',
       onClick: () => {
-        console.info('share.wechat(topic)');
+        console.error('share.wechat(topic)');
       },
     },
     {
@@ -32,7 +32,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       icon: 'wechat-friends',
       color: '#55BA3A',
       onClick: () => {
-        console.info('share.wechat-friends(topic)');
+        console.error('share.wechat-friends(topic)');
       },
     },
     {
@@ -41,7 +41,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       icon: 'qq',
       color: '#4EAAF7',
       onClick: () => {
-        console.info('share.qq(topic)');
+        console.error('share.qq(topic)');
       },
     },
     {
@@ -50,7 +50,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       icon: 'qq-zone',
       color: '#F3B140',
       onClick: () => {
-        console.info('share.qq-zone(topic)');
+        console.error('share.qq-zone(topic)');
       },
     },
   ];
@@ -71,8 +71,8 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       {topic && (
         <TopicItem
           data={topic!}
-          onClick={() => console.info('click item')}
-          onShare={() => console.info('share')}
+          onClick={() => console.error('click item')}
+          onShare={() => console.error('share')}
           onLike={onLike}
           onImg={(_, src) => {
             setImgVisible(true);

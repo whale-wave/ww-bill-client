@@ -1,17 +1,17 @@
-import dayjs from 'dayjs';
 import type { FC } from 'react';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import classNames from 'classnames';
-import { Toast } from 'antd-mobile';
-import { Icon } from 'bw-mobile';
-import styles from './keyboard.module.scss';
-import { getCategoryApi } from '@/api';
 import type { CategoryEntity, PutRecordApiData } from '@/api';
-import CustomRender from '@/pages/bookkeeping/component';
 import type { stateType } from '@/pages/bookkeeping/index';
 import type { recordChildren } from '@/pages/detail/List';
+import { Toast } from 'antd-mobile';
+import classNames from 'classnames';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getCategoryApi } from '@/api';
+import { Icon } from '@/components/ui/index.ts';
 import { usePostRecordMutation, usePutRecordMutation } from '@/hooks';
+import CustomRender from '@/pages/bookkeeping/component';
+import styles from './keyboard.module.scss';
 
 interface keyType {
   change: (bool: boolean) => void;
@@ -449,12 +449,12 @@ const Keyboard: FC<keyType> = ({
     setActive1(index);
   };
 
-  const CustomRenderToggle = () => {
+  const onCustomRenderToggle = () => {
     // 显示组件
     setValueDate(true);
   };
 
-  const ChangeDateRender = () => {
+  const onChangeDateRender = () => {
     // 关闭组件
     setValueDate(false);
   };
@@ -568,12 +568,12 @@ const Keyboard: FC<keyType> = ({
                           ])}
                           onTouchStart={() => changeStart1(5)} // TODO onTouchEnd事件捕获修复在改为4
                           onTouchMove={changeMoves}
-                          onClick={CustomRenderToggle}
+                          onClick={onCustomRenderToggle}
                         >
                           <CustomRender
                             dateValue={dateValue}
                             valueDate={valueDate}
-                            change={() => ChangeDateRender()}
+                            change={() => onChangeDateRender()}
                             changeTime={changeTime}
                           >
                           </CustomRender>

@@ -1,12 +1,12 @@
 import type { FC } from 'react';
-import { useCallback, useState } from 'react';
-import classNames from 'classnames';
-import { useNavigate } from 'react-router-dom';
-import { Icon, ImagePreview } from 'bw-mobile';
-import styles from './ItemList.module.scss';
 import type { Topic } from '@/api';
+import classNames from 'classnames';
+import { useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { topicLike } from '@/api';
 import { TopicItem } from '@/components';
+import { Icon, ImagePreview } from '@/components/ui/index.ts';
+import styles from './ItemList.module.scss';
 
 interface ItemListProps {
   data?: Topic[];
@@ -45,7 +45,7 @@ const ItemList: FC<ItemListProps> = ({ data, fetch }) => {
                 data={i}
                 onClick={id => toDetail(id)}
                 onComment={id => toDetail(id)}
-                onShare={() => console.info('share')}
+                onShare={() => console.error('share')}
                 onLike={() => handleLike(i.id)}
                 onImg={(_, src) => {
                   setImgVisible(true);

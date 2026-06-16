@@ -1,27 +1,31 @@
-import UserFollowItem from '@/pages/new-follow/components';
-import { showDate } from '@/utils/time';
-import { NavBar } from 'bw-mobile';
+import type { Follow } from '@/api';
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './index.module.scss';
+import { FollowTypeEnum } from '@/api';
+import { NavBar } from '@/components/ui/index.ts';
 import {
   useDeleteFollowMutation,
   useGetFollowQuery,
   usePostFollowMutation,
 } from '@/hooks';
-import { Follow, FollowTypeEnum } from '@/api';
-import { useCallback } from 'react';
+import UserFollowItem from '@/pages/new-follow/components';
 import { useUserStore } from '@/store';
+import { showDate } from '@/utils/time';
+import styles from './index.module.scss';
 
-const NewFollow = () => {
+function NewFollow() {
   const { userInfo } = useUserStore(({ userInfo }) => ({ userInfo }));
   const navigate = useNavigate();
+  const [deleteFollowMutate] = useDeleteFollowMutation();
+  const [postFollowMutate] = usePostFollowMutation();
 
   const onSubmit = useCallback(
     (follow: Follow) => async () => {
       if (follow.isFollow) {
-        await deleteFollowMutate(follow.userId + '');
-      } else {
-        await postFollowMutate(follow.userId + '');
+        await deleteFollowMutate(`${follow.userId}`);
+      }
+      else {
+        await postFollowMutate(`${follow.userId}`);
       }
     },
     [],
@@ -29,39 +33,39 @@ const NewFollow = () => {
 
   const { isLoading, data } = useGetFollowQuery({
     params: {
-      id: userInfo!.id + '',
+      id: `${userInfo!.id}`,
       params: {
         type: FollowTypeEnum.FANS,
       },
     },
   });
-  const [deleteFollowMutate] = useDeleteFollowMutation();
-  const [postFollowMutate] = usePostFollowMutation();
 
   return (
     <div className="page">
       <NavBar className={styles['nav-bar']} onBack={() => navigate(-1)}>
         新增关注
       </NavBar>
-      {isLoading ? (
-        '加载中'
-      ) : (
-        <div>
-          {data?.data.map((i) => (
-            <UserFollowItem
-              key={i.id}
-              username={i.name}
-              avatar={i.avatar}
-              isFollow={i.isFollow}
-              followTime={showDate(i.createdAt)}
-              onClick={() => navigate(`/community/personal/${i.userId}`)}
-              onSubmit={onSubmit(i)}
-            />
-          ))}
-        </div>
-      )}
+      {isLoading
+        ? (
+            '加载中'
+          )
+        : (
+            <div>
+              {data?.data.map(i => (
+                <UserFollowItem
+                  key={i.id}
+                  username={i.name}
+                  avatar={i.avatar}
+                  isFollow={i.isFollow}
+                  followTime={showDate(i.createdAt)}
+                  onClick={() => navigate(`/community/personal/${i.userId}`)}
+                  onSubmit={onSubmit(i)}
+                />
+              ))}
+            </div>
+          )}
     </div>
   );
-};
+}
 
 export default NewFollow;

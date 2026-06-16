@@ -1,13 +1,13 @@
-import { List, Switch, Toast } from 'antd-mobile';
-import { Gap, NavBar } from 'bw-mobile';
-import { useNavigate } from 'react-router-dom';
 import type { FC, ReactNode } from 'react';
+import { List, Switch, Toast } from 'antd-mobile';
 import { useEffect } from 'react';
-import styles from './index.module.scss';
-import { useSystemStore } from '@/store';
-import { audioWeb } from '@/modules/playSound';
-import { playSound } from '@/modules';
+import { useNavigate } from 'react-router-dom';
+import { Gap, NavBar } from '@/components/ui/index.ts';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/hooks';
+import { playSound } from '@/modules';
+import { audioWeb } from '@/modules/playSound';
+import { useSystemStore } from '@/store';
+import styles from './index.module.scss';
 
 export interface CustomListItem {
   title: string;

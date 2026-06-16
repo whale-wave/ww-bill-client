@@ -1,9 +1,10 @@
+import type { ChangeEvent, FC } from 'react';
 import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
-import { ChangeEvent, FC, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { changePassword } from '@/api';
-import { Button, Input, NavBar } from 'bw-mobile';
+import { Button, Input, NavBar } from '@/components/ui/index.ts';
 import styles from './index.module.scss';
 
 const Password: FC = () => {
@@ -33,7 +34,8 @@ const Password: FC = () => {
       password: oldPassword,
       newPassword,
     });
-    if (statusCode === 200) setTimeout(() => navigate(-1), 1000);
+    if (statusCode === 200)
+      setTimeout(navigate, 1000, -1);
   };
 
   return (

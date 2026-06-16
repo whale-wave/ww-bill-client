@@ -1,7 +1,7 @@
-import { NavBar } from 'bw-mobile';
 import type { FC } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ErrorBlock } from 'antd-mobile';
+import { useNavigate } from 'react-router-dom';
+import { NavBar } from '@/components/ui/index.ts';
 import styles from './index.module.scss';
 
 const Message: FC = () => {

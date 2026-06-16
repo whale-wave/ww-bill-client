@@ -1,13 +1,13 @@
+import type { FC } from 'react';
+import type { Bill } from '@/api';
 import { DatePicker } from 'antd-mobile';
-import { Icon } from 'bw-mobile';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
-import type { FC } from 'react';
 import React, { useCallback } from 'react';
-import styles from './Top.module.scss';
-import { spliceNumberByPoint } from '@/utils/time';
+import { Icon } from '@/components/ui/index.ts';
 import { mergerProps } from '@/utils';
-import type { Bill } from '@/api';
+import { spliceNumberByPoint } from '@/utils/time';
+import styles from './Top.module.scss';
 
 interface TopProps {
   data?: Bill;

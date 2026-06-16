@@ -1,10 +1,10 @@
+import type { InvoiceEntity } from '@/api';
 import React, { useCallback } from 'react';
-import { NavBar } from 'bw-mobile';
 import { useNavigate } from 'react-router-dom';
+import { NavBar } from '@/components/ui/index.ts';
+import { useGetInvoiceQuery } from '@/hooks';
 import AddInvoiceButton from '@/pages/Invoice/components/AddInvoiceButton';
 import InvoiceItem from '@/pages/Invoice/components/InvoiceItem';
-import { useGetInvoiceQuery } from '@/hooks';
-import type { InvoiceEntity } from '@/api';
 
 interface InvoiceProps {}
 

@@ -1,13 +1,14 @@
-import { FC, useEffect, useState } from 'react';
-import { FixedPin } from 'bw-mobile';
-import styles from './list.module.scss';
-import { recordChildren } from '../detail/List';
-import { getTimedate, getTimeDateYear, getWeekByDay } from '@/utils/DataTime';
+import type { FC } from 'react';
+import type { recordChildren } from '../detail/List';
 import c from 'classnames';
+import { useEffect, useState } from 'react';
+import { FixedPin } from '@/components/ui/index.ts';
+import { getTimedate, getTimeDateYear, getWeekByDay } from '@/utils/DataTime';
+import styles from './list.module.scss';
 
-type stateType = {
+interface stateType {
   state: recordChildren;
-};
+}
 
 const List: FC<stateType> = ({ state }) => {
   const list = { 类型: '', 金额: '', 日期: '', 备注: '' };
@@ -33,7 +34,7 @@ const List: FC<stateType> = ({ state }) => {
     const timeDate = getTimeDateYear(date1);
     const timeDate1 = getTimedate(date1);
     const weekByDay = getWeekByDay(timeDate1);
-    time = timeDate + '  ' + weekByDay;
+    time = `${timeDate}  ${weekByDay}`;
 
     const list = [type, amount, time, remark];
     setListKeys(list);
@@ -47,7 +48,7 @@ const List: FC<stateType> = ({ state }) => {
     <div className={styles.list}>
       {Object.keys(list).map((item, index) => (
         <div className={c(styles.listItem, 'py-[20px] px-[15px]')} key={index}>
-          <span className={'flex-shrink-0'}>{item}</span>
+          <span className="flex-shrink-0">{item}</span>
           <span className={c(styles.listKeys, 'ml-[12px]')}>
             {listKeys[index]}
           </span>

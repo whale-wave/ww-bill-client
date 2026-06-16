@@ -1,17 +1,44 @@
-import { FollowTypeEnum, getFollowApi } from '@/api/follow';
-import { NavBar } from 'bw-mobile';
-import { FC, useEffect, useState } from 'react';
+import type { FC } from 'react';
+import type { FollowTypeEnum } from '@/api/follow';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { getFollowApi } from '@/api/follow';
+import { NavBar } from '@/components/ui/index.ts';
 import styles from './FollowList.module.scss';
 
-const FollowList = () => {
+const Item: FC<ItemProps> = ({ data }) => {
+  return (
+    <div className={styles.item}>
+      <img className="rounded-full overflow-hidden" src={data.avatar} alt="" />
+      <div className={styles.box}>
+        <div className={styles.name}>{data.name}</div>
+        <div className={styles.desc}>
+          <span>
+            粉丝：
+            {data.fans}
+          </span>
+          <span>
+            帖子：
+            {data.topics}
+          </span>
+        </div>
+      </div>
+      <div className={styles['btn-wrapper']}>
+        {data.isFollow
+          ? (
+              <button className={styles.active}>已关注</button>
+            )
+          : (
+              <button>+关注</button>
+            )}
+      </div>
+    </div>
+  );
+};
+function FollowList() {
   const { id, type } = useParams();
   const navigate = useNavigate();
   const [list, setList] = useState<any[]>([]);
-
-  useEffect(() => {
-    void getListData();
-  }, []);
 
   const getListData = async () => {
     const { statusCode, data } = await getFollowApi(id!, {
@@ -21,6 +48,10 @@ const FollowList = () => {
       setList(data.data);
     }
   };
+
+  useEffect(() => {
+    void getListData();
+  }, []);
 
   const followName = (type: FollowTypeEnum) => {
     return type === 'follow' ? '关注' : '粉丝';
@@ -32,14 +63,15 @@ const FollowList = () => {
         back="返回"
         onBack={() => navigate(-1)}
       >
-        阿文的{followName(type as FollowTypeEnum)}
+        阿文的
+        {followName(type as FollowTypeEnum)}
       </NavBar>
-      {list.map((i) => (
+      {list.map(i => (
         <Item key={i} data={i} />
       ))}
     </div>
   );
-};
+}
 
 export default FollowList;
 
@@ -53,25 +85,3 @@ interface ItemProps {
     topics: number;
   };
 }
-
-const Item: FC<ItemProps> = ({ data }) => {
-  return (
-    <div className={styles.item}>
-      <img className="rounded-full overflow-hidden" src={data.avatar} alt="" />
-      <div className={styles.box}>
-        <div className={styles.name}>{data.name}</div>
-        <div className={styles.desc}>
-          <span>粉丝：{data.fans}</span>
-          <span>帖子：{data.topics}</span>
-        </div>
-      </div>
-      <div className={styles['btn-wrapper']}>
-        {data.isFollow ? (
-          <button className={styles.active}>已关注</button>
-        ) : (
-          <button>+关注</button>
-        )}
-      </div>
-    </div>
-  );
-};

@@ -1,18 +1,18 @@
-import { Icon } from 'bw-mobile';
-import c from 'classnames';
+import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
+import type { numType } from './index';
+import { CalendarOutline, SearchOutline } from 'antd-mobile-icons';
+import c from 'classnames';
+import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CalendarOutline, SearchOutline } from 'antd-mobile-icons';
-import type { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
-import styles from './top.module.scss';
-import type { numType } from './index';
+import { Icon } from '@/components/ui/index.ts';
+import config from '@/config';
+import { ROUTES_PATH } from '@/constants';
+import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/hooks';
 import Precision from '@/pages/detail/component';
 import { useSystemStore } from '@/store';
-import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/hooks';
-import { ROUTES_PATH } from '@/constants';
-import config from '@/config';
+import styles from './top.module.scss';
 
 interface TopProps {
   numExpendIncome: numType | [];
@@ -59,11 +59,11 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
 
   const [visible1, setVisible1] = useState(false);
 
-  const PrecisionFn = () => {
+  const onPrecisionFn = () => {
     setVisible1(true);
   };
 
-  const ChangeDateToggle = () => {
+  const onChangeDateToggle = () => {
     setVisible1(false);
   };
 
@@ -110,7 +110,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
             className="h-[40%] w-[1px] bg-black333 absolute -right-0 bottom-1 opacity-50"
           >
           </div>
-          <div className={styles['bottom-wrapper']} onClick={PrecisionFn}>
+          <div className={styles['bottom-wrapper']} onClick={onPrecisionFn}>
             <span className={styles.month}>{selectTime?.format('MM')}</span>
             月
             {' '}
@@ -118,7 +118,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
             <Precision
               selectTime={selectTime}
               visible1={visible1}
-              change={() => ChangeDateToggle()}
+              change={() => onChangeDateToggle()}
               changeTime={(time: string) =>
                 ChangeTimeDate(time)}
             />
@@ -139,8 +139,8 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
                     </span>
                     <span className={styles.bigNum}>
                       {numExpendIncome[1]
-                      && numExpendIncome[1].length
-                      && numExpendIncome[1][1] !== ''
+                        && numExpendIncome[1].length
+                        && numExpendIncome[1][1] !== ''
                         ? `.${numExpendIncome[1][1]}`
                         : '.00'}
                     </span>
@@ -166,8 +166,8 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
                     </span>
                     <span className={styles.bigNum}>
                       {numExpendIncome[0]
-                      && numExpendIncome[0].length
-                      && numExpendIncome[0][1] !== ''
+                        && numExpendIncome[0].length
+                        && numExpendIncome[0][1] !== ''
                         ? `.${numExpendIncome[0][1]}`
                         : '.00'}
                     </span>

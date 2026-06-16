@@ -1,11 +1,12 @@
-import { sign } from '@/api';
-import { Button, NavBar } from 'bw-mobile';
+import type { ChangeEvent, CSSProperties, FC } from 'react';
 import classNames from 'classnames';
-import { CSSProperties, ChangeEvent, FC, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './index.module.scss';
+import { sign } from '@/api';
 import { EmailCaptchaInput, Input } from '@/components';
+import { Button, NavBar } from '@/components/ui/index.ts';
 import { useUserStore } from '@/store';
+import styles from './index.module.scss';
 
 const inputStyle = {
   '--prefix-width': '73px',
@@ -29,7 +30,7 @@ const Sign: FC = () => {
     const { statusCode, data } = await sign(form);
     if (statusCode === 200) {
       setToken(data.token);
-      setTimeout(() => navigate('/'), 1000);
+      setTimeout(navigate, 1000, '/');
     }
   };
 
@@ -54,8 +55,7 @@ const Sign: FC = () => {
             label="邮箱"
             value={form.email}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setFormValue('email', e.target.value)
-            }
+              setFormValue('email', e.target.value)}
             className="mt-3"
             placeholder="请输入邮箱"
           />
@@ -64,8 +64,7 @@ const Sign: FC = () => {
             label="密码"
             value={form.password}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setFormValue('password', e.target.value)
-            }
+              setFormValue('password', e.target.value)}
             className="mt-3"
             placeholder="请输入密码"
           />
@@ -74,8 +73,7 @@ const Sign: FC = () => {
             style={inputStyle}
             value={form.emailCode}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setFormValue('emailCode', e.target.value)
-            }
+              setFormValue('emailCode', e.target.value)}
           />
           <Button
             block

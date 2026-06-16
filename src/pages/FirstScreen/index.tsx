@@ -1,10 +1,10 @@
 import type { FC } from 'react';
-import { useEffect, useRef } from 'react';
 import classNames from 'classnames';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from '../../assets/images/logo.png';
-import styles from './index.module.css';
 import config from '@/config';
+import newLogo from '../../assets/images/bill-pingmian.png';
+import styles from './index.module.css';
 
 const FirstScreen: FC = () => {
   const el = useRef<HTMLDivElement>(null);
@@ -36,14 +36,11 @@ const FirstScreen: FC = () => {
         }}
       >
         <img
-          className={classNames(styles.logo, 'w-[160px] h-[160px]')}
-          style={{
-            transform: 'translateX(-8%)',
-          }}
-          src={logo}
+          className="w-[200px] h-[200px]"
+          src={newLogo}
           alt={config.appName}
         />
-        <span className={styles['logo-text']}>{config.appName}</span>
+        <span className={classNames(styles['logo-text'], 'font-display')}>{config.appName}</span>
       </div>
     </div>
   );

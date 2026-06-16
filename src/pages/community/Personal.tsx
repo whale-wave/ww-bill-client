@@ -1,9 +1,9 @@
-import { topicUserInfoApi } from '@/api';
-import Tabs from '@/pages/community/components/Personal/Tabs';
-import UserInfo from '@/pages/community/components/Personal/UserInfo';
-import { NavBar } from 'bw-mobile';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { topicUserInfoApi } from '@/api';
+import { NavBar } from '@/components/ui/index.ts';
+import Tabs from '@/pages/community/components/Personal/Tabs';
+import UserInfo from '@/pages/community/components/Personal/UserInfo';
 import styles from './Personal.module.scss';
 
 interface TopicUserInfoData {
@@ -33,7 +33,7 @@ interface TopicUserInfoData {
   follow: number;
 }
 
-const Personal = () => {
+function Personal() {
   const [data, setData] = useState<TopicUserInfoData>();
   const navigate = useNavigate();
   const routeParams = useParams();
@@ -62,6 +62,6 @@ const Personal = () => {
       <Tabs checkInfo={data?.checkInfo} topics={data?.topics.topics} />
     </div>
   );
-};
+}
 
 export default Personal;

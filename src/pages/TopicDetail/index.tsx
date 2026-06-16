@@ -1,18 +1,18 @@
 import type { FC } from 'react';
+import type {
+  TopicDetail as Detail,
+} from '@/api';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Comment, NavBar } from 'bw-mobile';
-import styles from './index.module.scss';
-import Main from './Main';
 import {
   addComment,
   getTopicDetail,
   topicLike,
 } from '@/api';
-import type {
-  TopicDetail as Detail,
-} from '@/api';
+import { Comment, NavBar } from '@/components/ui/index.ts';
 import config from '@/config';
+import styles from './index.module.scss';
+import Main from './Main';
 
 const TopicDetail: FC = () => {
   const [topic, setTopic] = useState<Detail>();

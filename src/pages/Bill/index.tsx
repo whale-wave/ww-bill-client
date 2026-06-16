@@ -1,13 +1,13 @@
-import { Button } from 'bw-mobile';
-import dayjs from 'dayjs';
 import type { FC } from 'react';
+import classNames from 'classnames';
+import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import classNames from 'classnames';
-import Content from '@/pages/Bill/components/Content';
-import { BillTabs } from '@/pages/Bill/BillTabs';
-import { BillRecordCard } from '@/pages/Bill/BillRecordCard';
+import { Button } from '@/components/ui/index.ts';
 import { useGetRecordBillQuery } from '@/hooks/query/useGetRecordBillQuery';
+import { BillRecordCard } from '@/pages/Bill/BillRecordCard';
+import { BillTabs } from '@/pages/Bill/BillTabs';
+import Content from '@/pages/Bill/components/Content';
 import { useBillPageStore } from '@/pages/Bill/store';
 
 const Bill: FC = () => {

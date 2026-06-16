@@ -1,12 +1,12 @@
-import React, { useCallback, useState } from 'react';
-import { NavBar } from 'bw-mobile';
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import { WwInput, WwInputVerifyCode } from '@/pages/ForgetPassword/components';
-import { Dayjs } from 'dayjs';
-import { getUserEmailChangeEmailCaptchaNewEmailApi } from '@/api';
+import type { Dayjs } from 'dayjs';
 import { Toast } from 'antd-mobile';
+import React, { useCallback, useState } from 'react';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { getUserEmailChangeEmailCaptchaNewEmailApi } from '@/api';
+import { NavBar } from '@/components/ui/index.ts';
 import WwButton from '@/components/WwButton';
 import { usePostUserEmailChangeEmailMutation } from '@/hooks';
+import { WwInput, WwInputVerifyCode } from '@/pages/ForgetPassword/components';
 
 interface EmailChangeProps {}
 
@@ -18,8 +18,8 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
   const [newEmail, setNewEmail] = useState<string>('');
   const [newCaptcha, setNewCaptcha] = useState<string>('');
   const [startTime, setStartTime] = useState<Dayjs>();
-  const [postUserEmailChangeEmailMutate] =
-    usePostUserEmailChangeEmailMutation();
+  const [postUserEmailChangeEmailMutate]
+    = usePostUserEmailChangeEmailMutation();
 
   const onBack = useCallback(() => navigate(-1), []);
 
@@ -31,8 +31,8 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
       });
       return false;
     }
-    const getUserEmailChangeEmailCaptchaNewEmailRes =
-      await getUserEmailChangeEmailCaptchaNewEmailApi({
+    const getUserEmailChangeEmailCaptchaNewEmailRes
+      = await getUserEmailChangeEmailCaptchaNewEmailApi({
         newEmail,
         captcha,
       });
@@ -85,32 +85,29 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
         return;
       case 200:
         setTimeout(() => navigate(-1));
-        return;
-      default:
-        return;
     }
   }, [captcha, newCaptcha, newEmail]);
 
   if (!email || !captcha) {
-    return <Navigate to={'/'} />;
+    return <Navigate to="/" />;
   }
 
   return (
-    <div className={'page'}>
-      <NavBar back={'返回'} onBack={onBack}>
+    <div className="page">
+      <NavBar back="返回" onBack={onBack}>
         修改邮箱
       </NavBar>
-      <div className={'flex flex-grow flex-col items-center'}>
-        <WwInput className={'mt-16'} value={email} readonly disabled />
+      <div className="flex flex-grow flex-col items-center">
+        <WwInput className="mt-16" value={email} readonly disabled />
         <WwInput
-          className={'mt-4'}
+          className="mt-4"
           value={newEmail}
           onChange={setNewEmail}
-          placeholder={'请输入新邮箱'}
+          placeholder="请输入新邮箱"
         />
         <WwInputVerifyCode
-          className={'mt-4'}
-          placeholder={'请输入验证码'}
+          className="mt-4"
+          placeholder="请输入验证码"
           value={newCaptcha}
           onChange={setNewCaptcha}
           startTime={startTime}

@@ -1,8 +1,8 @@
 import { Skeleton } from 'antd-mobile';
-import { NavBar } from 'bw-mobile';
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FixedExpenseCycle } from '@/api';
+import { NavBar } from '@/components/ui/index.ts';
 import { useGetFixedExpenseByIdQuery } from '@/hooks';
 import { cn } from '@/utils';
 import { EditAndDeleteButton } from './components';

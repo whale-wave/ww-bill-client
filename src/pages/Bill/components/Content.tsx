@@ -1,11 +1,11 @@
-import { Icon } from 'bw-mobile';
-import classNames from 'classnames';
 import type { FC } from 'react';
-import { memo, useCallback, useMemo } from 'react';
-import styles from './Content.module.scss';
 import type { Bill } from '@/api';
-import { BillTabsType } from '@/pages/Bill/typs';
+import classNames from 'classnames';
+import { memo, useCallback, useMemo } from 'react';
+import { Icon } from '@/components/ui/index.ts';
 import { useBillPageStore } from '@/pages/Bill/store';
+import { BillTabsType } from '@/pages/Bill/typs';
+import styles from './Content.module.scss';
 
 type DataItem = {
   month: string;

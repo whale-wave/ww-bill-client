@@ -1,14 +1,17 @@
-import { FC, useCallback, useState } from 'react';
-import { NavBar } from 'bw-mobile';
-import {
+import type { FC } from 'react';
+import type {
   NavigateOptions,
+} from 'react-router-dom';
+import { Button, Toast } from 'antd-mobile';
+import { useCallback, useState } from 'react';
+import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
+import { postAuthPasswordForgetResetApi } from '@/api';
+import { NavBar } from '@/components/ui/index.ts';
 import { playSound } from '@/modules';
 import { WwInput } from '@/pages/ForgetPassword/components';
-import { Button, Toast } from 'antd-mobile';
-import { postAuthPasswordForgetResetApi } from '@/api';
 
 const ForgetPasswordRest: FC = () => {
   const navigate = useNavigate();
@@ -57,8 +60,8 @@ const ForgetPasswordRest: FC = () => {
           replace: true,
         });
       }, 400);
-      return;
-    } else if (postAuthPasswordForgetResetRes.statusCode === 200) {
+    }
+    else if (postAuthPasswordForgetResetRes.statusCode === 200) {
       setTimeout(() => {
         navigate('/mine', {
           replace: true,
@@ -68,26 +71,26 @@ const ForgetPasswordRest: FC = () => {
   }, [password, confirmPassword, email, captcha]);
 
   return (
-    <div className={'page flex flex-col'}>
+    <div className="page flex flex-col">
       <NavBar back="返回" onBack={onGoToBack}>
         找回密码
       </NavBar>
-      <div className={'flex-grow flex flex-col items-center space-y-6 pt-10'}>
+      <div className="flex-grow flex flex-col items-center space-y-6 pt-10">
         <WwInput
           value={password}
           onChange={setPassword}
-          type={'password'}
-          placeholder={'新密码'}
+          type="password"
+          placeholder="新密码"
         />
         <WwInput
           value={confirmPassword}
           onChange={setConfirmPassword}
-          type={'password'}
-          placeholder={'确认密码'}
+          type="password"
+          placeholder="确认密码"
         />
         <Button
           block
-          className={'!w-[80%] !rounded-[12px] !mt-10 !text-black333'}
+          className="!w-[80%] !rounded-[12px] !mt-10 !text-black333"
           color="primary"
           size="large"
           onClick={onSend}
