@@ -13,11 +13,6 @@ export default defineConfig((
   // const env = loadEnv(mode, process.cwd(), '');
 
   return {
-    optimizeDeps: {
-      esbuildOptions: {
-        target: 'esnext',
-      },
-    },
     build: {
       target: 'esnext',
       cssCodeSplit: true,
