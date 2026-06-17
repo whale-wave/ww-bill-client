@@ -156,12 +156,47 @@ usePutXxxMutation
 useDeleteXxxMutation
 ```
 
-Query key 需要可复用，涉及复杂业务或会被 mutation 失效的 key 优先抽成常量或 key helper。Mutation 成功后，如果影响列表、详情、统计或用户信息，必须通过 `queryClient.invalidateQueries` 刷新相关 query。
+Query key 按业务资源组织，不按 hook 名字组织。涉及复杂业务、列表/详情组合或会被 mutation 失效的 key，优先抽成领域 key helper，例如：
+
+```ts
+export const fixedExpenseKeys = {
+  all: ['fixed-expense'] as const,
+  lists: () => [...fixedExpenseKeys.all, 'list'] as const,
+  list: (params?: GetFixedExpenseQuery) => [...fixedExpenseKeys.lists(), params] as const,
+  details: () => [...fixedExpenseKeys.all, 'detail'] as const,
+  detail: (id: string) => [...fixedExpenseKeys.details(), id] as const,
+};
+```
+
+不要新增 `useGetXxxQueryQueryKey = 'useGetXxxQuery'` 这类以 hook 名字命名的 key。hook 名字不是业务资源，后续列表、详情、统计和批量失效会变得难维护。
+
+Query hook 负责解开接口响应壳，页面优先消费派生后的业务数据，不要在页面中反复判断 `response?.statusCode`。同一领域内默认值保持一致：
+
+- 列表默认 `[]`。
+- 详情默认 `undefined`。
+- 统计或汇总对象需要提供明确的 `emptySummary` / `emptyInfo`。
+
+Query hook 参数使用 options object。请求参数放 `params`，React Query 配置放 `queryOptions`，不要只支持 `enabled` 一个字段；需要排除 `queryKey` 和 `queryFn`，由 hook 内部固定。
+
+Mutation hook 内部使用 `useQueryClient()` 获取 client，不要从 `@/main` import 全局 `queryClient`。Mutation 成功后，如果影响列表、详情、统计或用户信息，必须通过 `queryClient.invalidateQueries` 刷新相关 query。
+
+多个缓存需要失效时，必须分别调用 `invalidateQueries`，不要把多个 key 塞进同一个 `queryKey` 数组：
+
+```ts
+await Promise.all([
+  queryClient.invalidateQueries({ queryKey: fixedExpenseKeys.lists() }),
+  queryClient.invalidateQueries({ queryKey: fixedExpenseKeys.detail(id) }),
+]);
+```
+
+不要为了统一而抽象通用 CRUD hook factory。当前业务的缓存关系不完全标准化，抽象边界最多到领域 key helper、单个 query hook、单个 mutation hook，必要时再抽很小的 invalidate 工具。
 
 Hook 返回结构沿用现有模式：
 
 - query hook 返回 `response`、派生后的业务数据和 React Query 其余状态。
 - mutation hook 返回 `[mutateAsync, rest] as const`。
+
+新代码可以优先返回 mutation object，但如果改动会牵动旧页面调用，先保留 tuple 形态，避免无关重写。
 
 ## Zustand 与状态
 
