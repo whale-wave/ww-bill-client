@@ -1,53 +1,66 @@
-import type { FC } from 'react';
+import type { ComponentType, FC, LazyExoticComponent, ReactElement } from 'react';
 import { lazy, Suspense } from 'react';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { LoginGuard } from '@/components';
-import { AddAssetAccount, AssetChart, AssetDetail, AssetFormInfo, AssetManager } from '@/pages/Asset';
-import Bill from '@/pages/Bill';
-import Bookkeeping from '@/pages/bookkeeping';
-import CateGory from '@/pages/bookkeeping/CategorySettings';
-import Budget from '@/pages/Budget';
-import { ChartCategory, ChartHome } from '@/pages/Chart/index.ts';
-import CommentList from '@/pages/comment-list';
-import Community from '@/pages/community';
-import FollowList from '@/pages/community/FollowList';
-import Personal from '@/pages/community/Personal';
-import CreateBudgetCategory from '@/pages/CreateBudgetCategory';
-import Detail from '@/pages/detail';
-import Editing from '@/pages/Detail_editing';
-import Discovery from '@/pages/Discovery';
-import EmailChange from '@/pages/EmailChange';
-import EmailChangeCaptcha from '@/pages/EmailChange/EmailChangeCaptcha';
-import ExportData from '@/pages/export-data';
-import FirstScreen from '@/pages/FirstScreen';
-import FixedExpenses from '@/pages/FixedExpenses';
-import FixedExpenseCreate from '@/pages/FixedExpenses/FixedExpenseCreate';
-import FixedExpenseDetail from '@/pages/FixedExpenses/FixedExpenseDetail';
-import FixedExpenseEdit from '@/pages/FixedExpenses/FixedExpenseEdit';
-import ForgetPassword from '@/pages/ForgetPassword/ForgetPassword';
-import ForgetPasswordRest from '@/pages/ForgetPassword/ForgetPasswordReset';
-import ForgetPasswordVerifyCode from '@/pages/ForgetPassword/ForgetPasswordVerifyCode';
-import Invoice from '@/pages/Invoice';
-import InvoiceCreate from '@/pages/Invoice/InvoiceCreate';
-import InvoiceDetail from '@/pages/Invoice/InvoiceDetail';
-import InvoiceEdit from '@/pages/Invoice/InvoiceEdit';
-import Login from '@/pages/Login';
-import Message from '@/pages/Message';
-import Mine from '@/pages/mine';
-import NewFollow from '@/pages/new-follow';
-import NotFound from '@/pages/NotFound';
-import Password from '@/pages/Password';
-import PostTopic from '@/pages/PostTopic';
-import SearchRecord from '@/pages/SearchRecord';
-import Settings from '@/pages/settings';
-import Share from '@/pages/Share';
-import Sign from '@/pages/Sign';
-import SystemNotify from '@/pages/system-notify';
-import TopicDetail from '@/pages/TopicDetail';
-import UserInfo from '@/pages/UserInfo';
 import { Root } from '@/Root';
 
+const AddAssetAccount = lazy(() => import('@/pages/Asset/AddAssetAccount/AddAssetAccount'));
+const AssetChart = lazy(() => import('@/pages/Asset/AssetChart/AssetChart'));
+const AssetDetail = lazy(() => import('@/pages/Asset/AssetDetail/AssetDetail'));
+const AssetFormInfo = lazy(() => import('@/pages/Asset/AssetFormInfo/AssetFormInfo'));
+const AssetManager = lazy(() => import('@/pages/Asset/AssetManager/AssetManager'));
+const Bill = lazy(() => import('@/pages/Bill'));
+const Bookkeeping = lazy(() => import('@/pages/bookkeeping'));
+const CateGory = lazy(() => import('@/pages/bookkeeping/CategorySettings'));
+const Budget = lazy(() => import('@/pages/Budget'));
+const ChartCategory = lazy(() => import('@/pages/Chart/ChartCategory/ChartCategory'));
+const ChartHome = lazy(() => import('@/pages/Chart/ChartHome/ChartHome'));
+const CommentList = lazy(() => import('@/pages/comment-list'));
+const Community = lazy(() => import('@/pages/community'));
+const FollowList = lazy(() => import('@/pages/community/FollowList'));
+const Personal = lazy(() => import('@/pages/community/Personal'));
+const CreateBudgetCategory = lazy(() => import('@/pages/CreateBudgetCategory'));
+const Detail = lazy(() => import('@/pages/detail'));
+const Editing = lazy(() => import('@/pages/Detail_editing'));
+const Discovery = lazy(() => import('@/pages/Discovery'));
+const EmailChange = lazy(() => import('@/pages/EmailChange'));
+const EmailChangeCaptcha = lazy(() => import('@/pages/EmailChange/EmailChangeCaptcha'));
+const ExportData = lazy(() => import('@/pages/export-data'));
+const FirstScreen = lazy(() => import('@/pages/FirstScreen'));
+const FixedExpenses = lazy(() => import('@/pages/FixedExpenses'));
+const FixedExpenseCreate = lazy(() => import('@/pages/FixedExpenses/FixedExpenseCreate'));
+const FixedExpenseDetail = lazy(() => import('@/pages/FixedExpenses/FixedExpenseDetail'));
+const FixedExpenseEdit = lazy(() => import('@/pages/FixedExpenses/FixedExpenseEdit'));
+const ForgetPassword = lazy(() => import('@/pages/ForgetPassword/ForgetPassword'));
+const ForgetPasswordRest = lazy(() => import('@/pages/ForgetPassword/ForgetPasswordReset'));
+const ForgetPasswordVerifyCode = lazy(() => import('@/pages/ForgetPassword/ForgetPasswordVerifyCode'));
+const Invoice = lazy(() => import('@/pages/Invoice'));
+const InvoiceCreate = lazy(() => import('@/pages/Invoice/InvoiceCreate'));
+const InvoiceDetail = lazy(() => import('@/pages/Invoice/InvoiceDetail'));
+const InvoiceEdit = lazy(() => import('@/pages/Invoice/InvoiceEdit'));
+const Login = lazy(() => import('@/pages/Login'));
+const Message = lazy(() => import('@/pages/Message'));
+const Mine = lazy(() => import('@/pages/mine'));
+const NewFollow = lazy(() => import('@/pages/new-follow'));
+const NotFound = lazy(() => import('@/pages/NotFound'));
+const Password = lazy(() => import('@/pages/Password'));
+const PostTopic = lazy(() => import('@/pages/PostTopic'));
 const RecordCalendar = lazy(() => import('@/pages/RecordCalendar'));
+const SearchRecord = lazy(() => import('@/pages/SearchRecord'));
+const Settings = lazy(() => import('@/pages/settings'));
+const Share = lazy(() => import('@/pages/Share'));
+const Sign = lazy(() => import('@/pages/Sign'));
+const SystemNotify = lazy(() => import('@/pages/system-notify'));
+const TopicDetail = lazy(() => import('@/pages/TopicDetail'));
+const UserInfo = lazy(() => import('@/pages/UserInfo'));
+
+function withSuspense(Component: LazyExoticComponent<ComponentType>): ReactElement {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Component />
+    </Suspense>
+  );
+}
 
 const router = createHashRouter([
   {
@@ -56,92 +69,88 @@ const router = createHashRouter([
     children: [
       {
         index: true,
-        element: <FirstScreen />,
+        element: withSuspense(FirstScreen),
       },
       {
         path: 'budget',
         children: [
           {
             index: true,
-            element: <Budget />,
+            element: withSuspense(Budget),
           },
           {
             path: 'category/:type',
-            element: <CreateBudgetCategory />,
+            element: withSuspense(CreateBudgetCategory),
           },
         ],
       },
       {
         path: 'record-calendar',
-        element: (
-          <Suspense fallback={<div>Loading...</div>}>
-            <RecordCalendar />
-          </Suspense>
-        ),
+        element: withSuspense(RecordCalendar),
       },
       {
         path: 'search-record',
-        element: <SearchRecord />,
+        element: withSuspense(SearchRecord),
       },
       {
         path: 'invoice',
         children: [
           {
             index: true,
-            element: <Invoice />,
+            element: withSuspense(Invoice),
           },
           {
             path: ':id',
-            element: <InvoiceDetail />,
+            element: withSuspense(InvoiceDetail),
           },
           {
             path: ':id/edit',
-            element: <InvoiceEdit />,
+            element: withSuspense(InvoiceEdit),
           },
           {
             path: 'create',
-            element: <InvoiceCreate />,
+            element: withSuspense(InvoiceCreate),
           },
         ],
       },
       {
         path: 'bookkeeping',
-        element: <Bookkeeping />,
+        element: withSuspense(Bookkeeping),
       },
       {
         path: 'discovery',
-        element: <Discovery />,
+        element: withSuspense(Discovery),
       },
       {
         path: 'community',
         children: [
           {
             index: true,
-            element: <Community />,
+            element: withSuspense(Community),
           },
           {
             path: 'personal/:id',
-            element: <Personal />,
+            element: withSuspense(Personal),
           },
           {
             path: 'follow-list/:id/:type',
-            element: <FollowList />,
+            element: withSuspense(FollowList),
           },
         ],
       },
       {
         path: 'cateGory',
-        element: <CateGory />,
+        element: withSuspense(CateGory),
       },
       {
         path: 'editing/:id',
-        element: <Editing />,
+        element: withSuspense(Editing),
       },
       {
         path: 'user-info',
         element: (
           <LoginGuard>
-            <UserInfo />
+            {withSuspense(UserInfo)}
           </LoginGuard>
         ),
       },
@@ -149,7 +158,7 @@ const router = createHashRouter([
         path: 'password',
         element: (
           <LoginGuard>
-            <Password />
+            {withSuspense(Password)}
           </LoginGuard>
         ),
       },
@@ -158,81 +167,81 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            element: <ForgetPassword />,
+            element: withSuspense(ForgetPassword),
           },
           {
             path: 'verify-code',
-            element: <ForgetPasswordVerifyCode />,
+            element: withSuspense(ForgetPasswordVerifyCode),
           },
           {
             path: 'reset',
-            element: <ForgetPasswordRest />,
+            element: withSuspense(ForgetPasswordRest),
           },
         ],
       },
       {
         path: 'sign',
-        element: <Sign />,
+        element: withSuspense(Sign),
       },
       {
         path: 'chart',
         children: [
           {
             index: true,
-            element: <ChartHome />,
+            element: withSuspense(ChartHome),
           },
           {
             path: 'category',
-            element: <ChartCategory />,
+            element: withSuspense(ChartCategory),
           },
         ],
       },
       {
         path: 'mine',
-        element: <Mine />,
+        element: withSuspense(Mine),
       },
       {
         path: 'share',
-        element: <Share />,
+        element: withSuspense(Share),
       },
       {
         path: 'post-topic',
         element: (
           <LoginGuard>
-            <PostTopic />
+            {withSuspense(PostTopic)}
           </LoginGuard>
         ),
       },
       {
         path: 'topic-detail/:id',
-        element: <TopicDetail />,
+        element: withSuspense(TopicDetail),
       },
       {
         path: 'login',
-        element: <Login />,
+        element: withSuspense(Login),
       },
       {
         path: 'detail',
-        element: <Detail />,
+        element: withSuspense(Detail),
       },
       {
         path: 'message',
         children: [
           {
             index: true,
-            element: <Message />,
+            element: withSuspense(Message),
           },
           {
             path: 'new-follow',
-            element: <NewFollow />,
+            element: withSuspense(NewFollow),
           },
           {
             path: 'comment-list',
-            element: <CommentList />,
+            element: withSuspense(CommentList),
           },
           {
             path: 'system-notify',
-            element: <SystemNotify />,
+            element: withSuspense(SystemNotify),
           },
         ],
       },
@@ -241,7 +250,7 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            element: <Settings />,
+            element: withSuspense(Settings),
           },
           {
             path: 'email',
@@ -251,11 +260,11 @@ const router = createHashRouter([
                 children: [
                   {
                     index: true,
-                    element: <EmailChange />,
+                    element: withSuspense(EmailChange),
                   },
                   {
                     path: 'captcha',
-                    element: <EmailChangeCaptcha />,
+                    element: withSuspense(EmailChangeCaptcha),
                   },
                 ],
               },
@@ -265,34 +274,34 @@ const router = createHashRouter([
       },
       {
         path: 'export-data',
-        element: <ExportData />,
+        element: withSuspense(ExportData),
       },
       {
         path: 'bill',
-        element: <Bill />,
+        element: withSuspense(Bill),
       },
       {
         path: 'asset',
         children: [
           {
             index: true,
-            element: <AssetManager />,
+            element: withSuspense(AssetManager),
           },
           {
             path: 'add-form/:id?',
-            element: <AssetFormInfo />,
+            element: withSuspense(AssetFormInfo),
           },
           {
             path: 'add-account',
-            element: <AddAssetAccount />,
+            element: withSuspense(AddAssetAccount),
           },
           {
             path: 'detail/:id',
-            element: <AssetDetail />,
+            element: withSuspense(AssetDetail),
           },
           {
             path: 'chart',
-            element: <AssetChart />,
+            element: withSuspense(AssetChart),
           },
         ],
       },
@@ -301,19 +310,19 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            element: <FixedExpenses />,
+            element: withSuspense(FixedExpenses),
           },
           {
             path: 'create',
-            element: <FixedExpenseCreate />,
+            element: withSuspense(FixedExpenseCreate),
           },
           {
             path: ':id',
-            element: <FixedExpenseDetail />,
+            element: withSuspense(FixedExpenseDetail),
           },
           {
             path: ':id/edit',
-            element: <FixedExpenseEdit />,
+            element: withSuspense(FixedExpenseEdit),
           },
         ],
       },
@@ -321,7 +330,7 @@ const router = createHashRouter([
   },
   {
     path: '*',
-    element: <NotFound />,
+    element: withSuspense(NotFound),
   },
 ]);
 
