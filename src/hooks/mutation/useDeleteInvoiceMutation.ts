@@ -1,15 +1,16 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteInvoiceApi } from '@/api';
-import { queryClient } from '@/main';
-import { useGetInvoiceByIdQueryQueryKey, useGetInvoiceQueryQueryKey } from '@/hooks';
+import { invoiceKeys } from '@/hooks';
 
 export function useDeleteInvoiceMutation() {
+  const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: deleteInvoiceApi,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [useGetInvoiceQueryQueryKey, useGetInvoiceByIdQueryQueryKey],
-      });
+    onSuccess: async (_response, id) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(id) }),
+      ]);
     },
   });
 

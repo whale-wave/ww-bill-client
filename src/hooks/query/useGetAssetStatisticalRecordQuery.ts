@@ -1,26 +1,28 @@
+import type { UseQueryOptions } from '@tanstack/react-query';
+import type { AssetStatisticalRecord, GetAssetStatisticalRecordApiParams } from '@/api';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import type { GetAssetStatisticalRecordApiParams } from '@/api';
 import { getAssetStatisticalRecordApi } from '@/api';
+import { assetKeys } from '@/hooks/query/keys/assetKeys';
 import { isSuccessApi } from '@/utils';
-
-export const useGetAssetStatisticalRecordQueryQueryKey = 'useGetAssetStatisticalRecordQuery';
 
 export function useGetAssetStatisticalRecordQuery(options: {
   params: GetAssetStatisticalRecordApiParams;
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<AssetStatisticalRecord[]>>, 'queryFn' | 'queryKey'>;
   options?: {
     enabled?: boolean;
   };
 }) {
-  const { data: response, ...rest } = useQuery({
+  const { data: response, ...rest } = useQuery<SuccessResponse<AssetStatisticalRecord[]>>({
     queryFn: () => getAssetStatisticalRecordApi(options.params),
-    queryKey: [useGetAssetStatisticalRecordQueryQueryKey, options.params] as const,
+    queryKey: assetKeys.statisticalRecord(options.params),
+    ...options.queryOptions,
     ...options?.options,
   });
 
   const data = useMemo(() => {
     if (!isSuccessApi(response))
-      return;
+      return [];
     return response.data;
   }, [response]);
 

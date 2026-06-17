@@ -1,19 +1,22 @@
+import type { UseQueryOptions } from '@tanstack/react-query';
+import type { AssetGroup } from '@/api';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getAssetGroupByIdApi } from '@/api';
+import { assetKeys } from '@/hooks/query/keys/assetKeys';
 import { isSuccessApi } from '@/utils';
-
-export const useGetAssetGroupByIdQueryKey = 'useGetAssetGroupById';
 
 export function useGetAssetGroupById(options: {
   params: string;
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<AssetGroup>>, 'queryFn' | 'queryKey'>;
   options?: {
     enabled?: boolean;
   };
 }) {
-  const { data: response, ...rest } = useQuery({
+  const { data: response, ...rest } = useQuery<SuccessResponse<AssetGroup>>({
     queryFn: () => getAssetGroupByIdApi(options.params),
-    queryKey: [useGetAssetGroupByIdQueryKey, options.params] as const,
+    queryKey: assetKeys.group(options.params),
+    ...options.queryOptions,
     ...options?.options,
   });
 

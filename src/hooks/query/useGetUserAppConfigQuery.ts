@@ -1,18 +1,21 @@
+import type { UseQueryOptions } from '@tanstack/react-query';
+import type { UserAppConfig } from '@/api/user-app-config';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getUserAppConfigApi } from '@/api';
+import { userKeys } from '@/hooks/query/keys/userKeys';
 import { isSuccessApi } from '@/utils';
 
-export const useGetUserAppConfigQueryQueryKey = 'useGetUserAppConfigQuery';
-
 export function useGetUserAppConfigQuery(options?: {
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<UserAppConfig>>, 'queryFn' | 'queryKey'>;
   options?: {
     enabled?: boolean;
   };
 }) {
-  const { data: response, ...rest } = useQuery({
+  const { data: response, ...rest } = useQuery<SuccessResponse<UserAppConfig>>({
     queryFn: () => getUserAppConfigApi(),
-    queryKey: [useGetUserAppConfigQueryQueryKey] as const,
+    queryKey: userKeys.appConfig(),
+    ...options?.queryOptions,
     ...options?.options,
   });
 

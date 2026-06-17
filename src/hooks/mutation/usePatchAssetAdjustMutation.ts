@@ -1,20 +1,22 @@
-import { useMutation } from '@tanstack/react-query';
-import { useGetAssetByIdQueryQueryKey, useGetAssetQueryQueryKey, useGetAssetRecordQueryQueryKey } from '../query';
 import type { PatchAssetAdjustApiData } from '@/api';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { patchAssetAdjustApi } from '@/api';
-import { queryClient } from '@/main';
+import { assetKeys } from '@/hooks/query';
 
 export function usePatchAssetAdjustMutation() {
+  const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: (params: {
       id: string;
       data: PatchAssetAdjustApiData;
     }) => patchAssetAdjustApi(params.id, params.data),
-    onSuccess: () => {
-      const queryKeys = [useGetAssetQueryQueryKey, useGetAssetByIdQueryQueryKey, useGetAssetRecordQueryQueryKey];
-      Promise.all(queryKeys.map(key => queryClient.invalidateQueries({
-        queryKey: [key],
-      })));
+    onSuccess: async (_response, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: assetKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: assetKeys.detail(variables.id) }),
+        queryClient.invalidateQueries({ queryKey: assetKeys.records() }),
+        queryClient.invalidateQueries({ queryKey: assetKeys.statisticalRecords() }),
+      ]);
     },
   });
 

@@ -1,15 +1,17 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { postRecordApi } from '@/api';
-import { queryClient } from '@/main';
-import { useGetRecordQueryQueryKey } from '@/hooks/query/useGetRecordQuery';
+import { chartKeys, recordKeys } from '@/hooks/query';
 
 export function usePostRecordMutation() {
+  const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: postRecordApi,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [useGetRecordQueryQueryKey],
-      });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: recordKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: recordKeys.bills() }),
+        queryClient.invalidateQueries({ queryKey: chartKeys.all }),
+      ]);
     },
   });
 

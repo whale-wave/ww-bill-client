@@ -1,15 +1,13 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { putUserUserInfoApi } from '@/api';
-import { queryClient } from '@/main';
-import { useGetUserUserInfoQueryQueryKey } from '@/hooks/query/useGetUserUserInfoQuery';
+import { userKeys } from '@/hooks/query';
 
 export function usePutUserUserInfoMutation() {
+  const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: putUserUserInfoApi,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [useGetUserUserInfoQueryQueryKey],
-      });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: userKeys.info() });
     },
   });
 

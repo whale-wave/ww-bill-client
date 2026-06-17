@@ -1,15 +1,13 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { patchUserAppConfigApi } from '@/api';
-import { queryClient } from '@/main';
-import { useGetUserAppConfigQueryQueryKey } from '@/hooks/query/useGetUserAppConfigQuery';
+import { userKeys } from '@/hooks/query';
 
 export function usePatchUserAppConfigMutation() {
+  const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: patchUserAppConfigApi,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [useGetUserAppConfigQueryQueryKey],
-      });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: userKeys.appConfig() });
     },
   });
 

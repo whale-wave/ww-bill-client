@@ -1,9 +1,8 @@
 import type { FC } from 'react';
-import type { FollowTypeEnum } from '@/api/follow';
-import { useEffect, useState } from 'react';
+import type { Follow, FollowTypeEnum } from '@/api/follow';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getFollowApi } from '@/api/follow';
 import { NavBar } from '@/components/ui/index.ts';
+import { useGetFollowQuery } from '@/hooks';
 import styles from './FollowList.module.scss';
 
 const Item: FC<ItemProps> = ({ data }) => {
@@ -38,20 +37,17 @@ const Item: FC<ItemProps> = ({ data }) => {
 function FollowList() {
   const { id, type } = useParams();
   const navigate = useNavigate();
-  const [list, setList] = useState<any[]>([]);
-
-  const getListData = async () => {
-    const { statusCode, data } = await getFollowApi(id!, {
-      type,
-    } as { type: FollowTypeEnum });
-    if (statusCode === 200) {
-      setList(data.data);
-    }
-  };
-
-  useEffect(() => {
-    void getListData();
-  }, []);
+  const { data } = useGetFollowQuery({
+    params: {
+      id: id!,
+      params: {
+        type: type as FollowTypeEnum,
+      },
+    },
+    queryOptions: {
+      enabled: !!id && !!type,
+    },
+  });
 
   const followName = (type: FollowTypeEnum) => {
     return type === 'follow' ? '关注' : '粉丝';
@@ -66,8 +62,8 @@ function FollowList() {
         阿文的
         {followName(type as FollowTypeEnum)}
       </NavBar>
-      {list.map(i => (
-        <Item key={i} data={i} />
+      {data.data.map(i => (
+        <Item key={i.id} data={i} />
       ))}
     </div>
   );
@@ -76,12 +72,5 @@ function FollowList() {
 export default FollowList;
 
 interface ItemProps {
-  data: {
-    avatar: string;
-    name: string;
-    fans: number;
-    follow: number;
-    isFollow: boolean;
-    topics: number;
-  };
+  data: Follow;
 }

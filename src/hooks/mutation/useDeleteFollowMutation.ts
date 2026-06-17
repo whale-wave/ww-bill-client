@@ -1,15 +1,16 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteFollowApi } from '@/api';
-import { queryClient } from '@/main';
-import { useGetFollowQueryQueryKey } from '@/hooks/query/useGetFollowQuery';
+import { followKeys, userKeys } from '@/hooks/query';
 
 export function useDeleteFollowMutation() {
+  const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: deleteFollowApi,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [useGetFollowQueryQueryKey],
-      });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: followKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: userKeys.info() }),
+      ]);
     },
   });
 

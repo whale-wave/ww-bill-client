@@ -7,7 +7,6 @@ import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCategoryApi } from '@/api';
 import { Icon } from '@/components/ui/index.ts';
 import { usePostRecordMutation, usePutRecordMutation } from '@/hooks';
 import CustomRender from '@/pages/bookkeeping/component';
@@ -490,10 +489,8 @@ const Keyboard: FC<keyType> = ({
   const changShow = async () => {
     // 回显
     if (name) {
-      const res = await getCategoryApi();
-      const data: any = res.data.data;
       const iconNameArr: Array<string> = [];
-      data.forEach((item: any) => {
+      categoryList.forEach((item) => {
         iconNameArr.push(item.name);
       });
       if (iconNameArr.includes(name)) {

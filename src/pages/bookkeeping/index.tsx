@@ -1,14 +1,14 @@
 import type { FC } from 'react';
+import type { CategoryAmountType, CategoryEntity } from '@/api/category';
+import type { recordChildren } from '@/pages/detail/List';
+import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import dayjs from 'dayjs';
-import styles from './index.module.scss';
-import NavBar from './navBar';
-import Main from './main';
+import { useGetCategoryQuery } from '@/hooks';
 import KeyBoard from '@/pages/bookkeeping/keyboard';
-import type { CategoryAmountType, CategoryEntity } from '@/api/category';
-import { getCategoryApi } from '@/api/category';
-import type { recordChildren } from '@/pages/detail/List';
+import styles from './index.module.scss';
+import Main from './main';
+import NavBar from './navBar';
 
 export type stateType = [amount: string, time: string, id: number];
 
@@ -58,19 +58,11 @@ const Bookkeeping: FC = () => {
     }
   }, []);
 
-  const [mainList, setMainList] = useState<CategoryEntity[]>([]);
-
-  const cateFn = async (type: CategoryAmountType) => {
-    const res = await getCategoryApi({
-      type,
-    });
-    const data = res.data.data;
-    setMainList(data);
-  };
-
-  useEffect(() => {
-    void cateFn(type1);
-  }, [type1]);
+  const { data: mainList } = useGetCategoryQuery({
+    params: {
+      type: type1,
+    },
+  });
 
   return (
     <div className={styles.bookkeeping}>

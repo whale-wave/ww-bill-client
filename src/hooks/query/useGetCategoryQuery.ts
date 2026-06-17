@@ -1,20 +1,22 @@
+import type { UseQueryOptions } from '@tanstack/react-query';
+import type { GetCategoryApiParams, GetCategoryApiResponseData } from '@/api';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import type { GetCategoryApiParams } from '@/api';
 import { getCategoryApi } from '@/api';
+import { categoryKeys } from '@/hooks/query/keys/categoryKeys';
 import { isSuccessApi } from '@/utils';
-
-export const useGetCategoryQueryQueryKey = 'useGetCategoryQuery';
 
 export function useGetCategoryQuery(options?: {
   params?: GetCategoryApiParams;
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<GetCategoryApiResponseData>>, 'queryFn' | 'queryKey'>;
   options?: {
     enabled?: boolean;
   };
 }) {
-  const { data: response, ...rest } = useQuery({
-    queryFn: ({ queryKey }) => getCategoryApi(queryKey[1]),
-    queryKey: [useGetCategoryQueryQueryKey, options?.params] as const,
+  const { data: response, ...rest } = useQuery<SuccessResponse<GetCategoryApiResponseData>>({
+    queryFn: () => getCategoryApi(options?.params),
+    queryKey: categoryKeys.list(options?.params),
+    ...options?.queryOptions,
     ...options?.options,
   });
 

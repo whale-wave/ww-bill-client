@@ -1,14 +1,18 @@
-import { useMutation } from '@tanstack/react-query';
-import { useGetAssetByIdQueryQueryKey, useGetAssetQueryQueryKey } from '@/hooks/query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteAssetByIdApi } from '@/api';
-import { queryClient } from '@/main';
+import { assetKeys } from '@/hooks/query';
 
 export function useDeleteAssetByIdMutation() {
+  const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: (params: string) => deleteAssetByIdApi(params),
-    onSuccess: () => {
-      const queryKey = [useGetAssetByIdQueryQueryKey, useGetAssetQueryQueryKey];
-      Promise.all(queryKey.map(key => queryClient.invalidateQueries({ queryKey: [key] })));
+    onSuccess: async (_response, id) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: assetKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: assetKeys.detail(id) }),
+        queryClient.invalidateQueries({ queryKey: assetKeys.records() }),
+        queryClient.invalidateQueries({ queryKey: assetKeys.statisticalRecords() }),
+      ]);
     },
   });
 

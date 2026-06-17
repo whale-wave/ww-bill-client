@@ -1,15 +1,13 @@
-import { useMutation } from '@tanstack/react-query';
-import { queryClient } from '@/main';
-import { useGetBudgetInfoQueryQueryKey } from '@/hooks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { postBudgetClearApi } from '@/api/budget.ts';
+import { budgetKeys } from '@/hooks';
 
 export function usePostBudgetClearMutation() {
+  const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: postBudgetClearApi,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [useGetBudgetInfoQueryQueryKey],
-      });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: budgetKeys.infoRoot() });
     },
   });
 

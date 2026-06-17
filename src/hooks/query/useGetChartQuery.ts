@@ -1,26 +1,28 @@
+import type { UseQueryOptions } from '@tanstack/react-query';
+import type { GetChartApiParams, GetChartApiResponse, GetChartApiResponseMonthData, GetChartApiResponseWeekData, GetChartApiResponseYearData } from '@/api';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import type { GetChartApiParams, GetChartApiResponse, GetChartApiResponseMonthData, GetChartApiResponseWeekData, GetChartApiResponseYearData } from '@/api';
 import { getChartApi } from '@/api';
+import { chartKeys } from '@/hooks/query/keys/chartKeys';
 import { isSuccessApi } from '@/utils';
-
-export const useGetChartQueryQueryKey = 'useGetChartQuery';
 
 export function useGetChartQuery(options: {
   params: GetChartApiParams;
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<GetChartApiResponse>>, 'queryFn' | 'queryKey'>;
   options?: {
     enabled?: boolean;
   };
 }) {
-  const { data: response, ...rest } = useQuery({
+  const { data: response, ...rest } = useQuery<SuccessResponse<GetChartApiResponse>>({
     queryFn: () => getChartApi(options.params),
-    queryKey: [useGetChartQueryQueryKey, options.params] as const,
+    queryKey: chartKeys.list(options.params),
+    ...options.queryOptions,
     ...options?.options,
   });
 
   const data = useMemo(() => {
     if (!isSuccessApi(response))
-      return;
+      return [];
     return response.data;
   }, [response]);
 
