@@ -225,7 +225,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
 
   const { data: detail, isLoading } = useGetFixedExpenseByIdQuery({
     params: { id: id! },
-    options: { enabled: isEdit },
+    queryOptions: { enabled: isEdit },
   });
 
   const [postMutate] = usePostFixedExpenseMutation();

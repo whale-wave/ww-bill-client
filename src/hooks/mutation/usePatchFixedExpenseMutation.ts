@@ -1,20 +1,18 @@
 import type { UpdateFixedExpenseApiData } from '@/api';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { patchFixedExpenseApi } from '@/api';
-import {
-  useGetFixedExpenseByIdQueryQueryKey,
-  useGetFixedExpenseQueryQueryKey,
-} from '@/hooks';
-import { queryClient } from '@/main';
+import { fixedExpenseKeys } from '@/hooks/query/keys/fixedExpenseKeys';
 
 export function usePatchFixedExpenseMutation() {
+  const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: (params: { id: string; params: UpdateFixedExpenseApiData }) =>
       patchFixedExpenseApi(params.id, params.params),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [useGetFixedExpenseQueryQueryKey, useGetFixedExpenseByIdQueryQueryKey],
-      });
+    onSuccess: async (_response, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: fixedExpenseKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: fixedExpenseKeys.detail(variables.id) }),
+      ]);
     },
   });
 

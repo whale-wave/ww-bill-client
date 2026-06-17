@@ -1,18 +1,16 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteFixedExpenseApi } from '@/api';
-import {
-  useGetFixedExpenseByIdQueryQueryKey,
-  useGetFixedExpenseQueryQueryKey,
-} from '@/hooks';
-import { queryClient } from '@/main';
+import { fixedExpenseKeys } from '@/hooks/query/keys/fixedExpenseKeys';
 
 export function useDeleteFixedExpenseMutation() {
+  const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: deleteFixedExpenseApi,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [useGetFixedExpenseQueryQueryKey, useGetFixedExpenseByIdQueryQueryKey],
-      });
+    onSuccess: async (_response, id) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: fixedExpenseKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: fixedExpenseKeys.detail(id) }),
+      ]);
     },
   });
 
