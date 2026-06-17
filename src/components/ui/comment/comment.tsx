@@ -1,6 +1,6 @@
 import type { ChangeEvent, FC } from 'react';
 import classNames from 'classnames';
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Icon from '../icon';
 
 const classPrefix = 'bwm-comment';

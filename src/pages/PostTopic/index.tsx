@@ -122,7 +122,7 @@ const PostTopic: FC = () => {
       <main className="grow">
         <div
           onInput={(e: ChangeEvent<HTMLDivElement>) => {
-            setContent(e.target.textContent);
+            setContent(e.target.textContent ?? '');
           }}
           contentEditable={true}
           className={classNames('max-width-full', styles.textarea)}

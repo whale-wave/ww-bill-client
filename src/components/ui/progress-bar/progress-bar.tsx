@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 import type { BaseProps } from '../../utils';
-import React from 'react';
 import { mergerProps, withBaseProps } from '../../utils';
 
 const classPrefix = 'bwm-progress-bar';

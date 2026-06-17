@@ -1,5 +1,4 @@
 import type { ChangeEventHandler, FC } from 'react';
-import React from 'react';
 
 const classPrefix = `bwm-input`;
 

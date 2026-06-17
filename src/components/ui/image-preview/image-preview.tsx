@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import React from 'react';
 import Mask from '../mask';
 
 const classPrefix = `bwm-image-preview`;

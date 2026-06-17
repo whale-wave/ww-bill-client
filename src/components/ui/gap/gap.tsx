@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 import classNames from 'classnames';
-import React from 'react';
 import { mergerProps } from '../../utils';
 
 interface GapProps {
