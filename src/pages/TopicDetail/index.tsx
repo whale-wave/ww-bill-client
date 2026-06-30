@@ -1,40 +1,52 @@
 import type { FC } from 'react';
-import type {
-  TopicDetail as Detail,
-} from '@/api';
-import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  addComment,
-  getTopicDetail,
-  topicLike,
-} from '@/api';
 import { Comment, NavBar } from '@/components/ui/index.ts';
 import config from '@/config';
+import {
+  useGetTopicDetailQuery,
+  usePostTopicCommentMutation,
+  usePutTopicLikeMutation,
+} from '@/hooks';
 import styles from './index.module.scss';
 import Main from './Main';
 
+const emptyCommentData = {
+  commentCount: 0,
+  likeCount: 0,
+  shareCount: 0,
+};
+
 const TopicDetail: FC = () => {
-  const [topic, setTopic] = useState<Detail>();
   const navigate = useNavigate();
   const { id } = useParams();
-  const fetchTopic = async () => {
-    const { data } = await getTopicDetail(id!);
-    setTopic(data);
+  const topicId = id ?? '';
+  const numericTopicId = Number.parseInt(topicId);
+  const { data: topic } = useGetTopicDetailQuery({
+    params: {
+      id: topicId,
+    },
+    options: {
+      enabled: !!topicId,
+    },
+  });
+  const [putTopicLike] = usePutTopicLikeMutation();
+  const [postTopicComment] = usePostTopicCommentMutation();
+
+  const handleLike = async () => {
+    if (!topic)
+      return;
+    await putTopicLike(topic.id);
   };
-  useEffect(() => {
-    void fetchTopic();
-  }, []);
-  const handleLike = async (topicId: number) => {
-    await topicLike(topicId);
-    setTimeout(async () => {
-      await fetchTopic();
-    }, 100);
-  };
+
   const onSubmit = async (val: string) => {
-    await addComment(Number.parseInt(id!), { content: val });
-    await fetchTopic();
+    if (!Number.isFinite(numericTopicId))
+      return;
+    await postTopicComment({
+      body: { content: val },
+      topicId: numericTopicId,
+    });
   };
+
   return (
     <div className="page">
       <NavBar back="返回" className={styles.nav} onBack={() => navigate(-1)}>
@@ -43,12 +55,12 @@ const TopicDetail: FC = () => {
       <Main
         topic={topic}
         comments={topic?.comments}
-        onLike={() => handleLike(topic!.id)}
+        onLike={handleLike}
       />
       <Comment
         onSubmit={onSubmit}
-        data={topic!}
-        onLike={() => handleLike(topic!.id)}
+        data={topic ?? emptyCommentData}
+        onLike={handleLike}
       />
     </div>
   );

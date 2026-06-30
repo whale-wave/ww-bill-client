@@ -136,6 +136,8 @@ API 请求统一放在 `src/api/`。API 文件只负责：
 
 接口响应类型优先沿用 `SuccessResponse<T>`。如果后端金额字段以字符串返回，前端类型也保持字符串，不擅自改成 number。
 
+`request` 的 HTTP/网络失败分支必须 reject 一个带 `statusCode`、`message`、`data` 字段的 Error 对象。无 response、timeout、401/402/403 都应走统一错误处理，不在页面中自行拼 axios error 结构。HTTP 2xx 的后端业务 envelope 仍保持 resolve，由调用方或 query hook 根据 `statusCode` 判断业务成功与否。
+
 ## React Query
 
 服务端数据获取优先使用 TanStack React Query。
@@ -197,6 +199,8 @@ Hook 返回结构沿用现有模式：
 - mutation hook 返回 `[mutateAsync, rest] as const`。
 
 新代码可以优先返回 mutation object，但如果改动会牵动旧页面调用，先保留 tuple 形态，避免无关重写。
+
+社区、话题、关注相关页面禁止直接调用 `src/api/topic.ts` 或 `src/api/follow.ts` 的写接口。发帖、点赞、评论、关注和取消关注必须通过 `src/hooks/mutation/` 中的领域 mutation hook；详情、个人主页、评论列表和关注列表必须通过 `src/hooks/query/` 中的 query hook，并从 `src/hooks` barrel 导入。
 
 ## Zustand 与状态
 

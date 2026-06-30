@@ -1,6 +1,6 @@
 import { request } from '@/utils';
 
-export type Topic = {
+export interface Topic {
   id: number;
   user: {
     id: number;
@@ -15,21 +15,53 @@ export type Topic = {
   likeCount: number;
   commentCount: number;
   shareCount: number;
-};
+}
 
-export type TopicDetail = {
+export interface TopicDetail extends Topic {
   comments: {
     id: number;
     content: string;
+    createdAt: string;
+    updatedAt: string;
     user: {
       id: number;
       name: string;
       avatar: string;
     };
   }[];
-} & Topic;
+}
 
-export const getTopics = (recommend?: boolean) => {
+export interface TopicUserInfoData {
+  userInfo: {
+    avatar: string;
+    id: number;
+    name: string;
+  };
+  topics: {
+    topics: Pick<Topic, 'id' | 'images' | 'content' | 'isLike' | 'likeCount' | 'shareCount'>[];
+    total: number;
+  };
+  checkInfo: {
+    checkInCount: number;
+    checkInKeep: number;
+    recordCount: number;
+  };
+  isFollow: boolean;
+  fans: number;
+  follow: number;
+}
+
+export interface AddCommentBody {
+  content: string;
+  replyTo?: number;
+}
+
+export interface AddTopicBody {
+  content: string;
+  images?: string[];
+}
+
+export function getTopics(recommend?: boolean) {
   return request.get<
     unknown,
     SuccessResponse<{
@@ -41,37 +73,39 @@ export const getTopics = (recommend?: boolean) => {
       recommend,
     },
   });
-};
+}
 
-export const getTopicDetail = (topicId: string) => {
+export function getTopicDetail(topicId: string) {
   return request.get<unknown, SuccessResponse<TopicDetail>>(
     `/topic/${topicId}`,
   );
-};
+}
 
-export const addComment = (
+export function addComment(
   id: number,
-  body: { content: string; replyTo?: number },
-) => {
+  body: AddCommentBody,
+) {
   return request.post<unknown, SuccessResponse<unknown>>(
     `/topic/${id}/comment`,
     body,
   );
-};
+}
 
-export const addTopic = (topic: { content: string; images?: string[] }) => {
+export function addTopic(topic: AddTopicBody) {
   return request.post<unknown, SuccessResponse<unknown>>('/topic', topic);
-};
+}
 
-export const topicLike = (topicId: number) => {
+export function topicLike(topicId: number) {
   return request.put<unknown, SuccessResponse<unknown>>(
     `/topic/like/${topicId}`,
   );
-};
+}
 
-export const topicUserInfoApi = (userId: string) => {
-  return request.get<unknown, SuccessResponse<any>>(`/topic/user/${userId}`);
-};
+export function topicUserInfoApi(userId: string) {
+  return request.get<unknown, SuccessResponse<TopicUserInfoData>>(
+    `/topic/user/${userId}`,
+  );
+}
 
 export interface Comment {
   id: number;

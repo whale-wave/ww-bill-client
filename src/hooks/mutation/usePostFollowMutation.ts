@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { postFollowApi } from '@/api';
-import { followKeys, userKeys } from '@/hooks/query';
+import { followKeys, topicKeys, userKeys } from '@/hooks/query';
 
 export function usePostFollowMutation() {
   const queryClient = useQueryClient();
@@ -9,6 +9,7 @@ export function usePostFollowMutation() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: followKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: topicKeys.userInfos() }),
         queryClient.invalidateQueries({ queryKey: userKeys.info() }),
       ]);
     },

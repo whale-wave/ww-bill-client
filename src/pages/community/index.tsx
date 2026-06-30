@@ -12,7 +12,7 @@ const Community: FC = () => {
   const navigate = useNavigate();
   const recommend = tabIndex === 1 ? true : undefined;
   const queryEnabled = tabIndex !== 0;
-  const { data, refetch } = useGetTopicQuery({
+  const { data } = useGetTopicQuery({
     params: {
       recommend,
     },
@@ -38,7 +38,7 @@ const Community: FC = () => {
   return (
     <div className="page">
       <TopBar data={tabs} index={tabIndex} onChange={onChange} />
-      <ItemList data={queryEnabled ? data.topics : []} fetch={() => void refetch()} />
+      <ItemList data={queryEnabled ? data.topics : []} />
       <TabBar active={3} />
       <FixedPin onClick={handlePostTopic}>发帖</FixedPin>
     </div>

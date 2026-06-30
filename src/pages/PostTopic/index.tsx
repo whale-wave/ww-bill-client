@@ -12,8 +12,9 @@ import {
   useState,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addTopic, uploadFile } from '@/api';
+import { uploadFile } from '@/api';
 import { Button, Icon, NavBar } from '@/components/ui/index.ts';
+import { usePostTopicMutation } from '@/hooks';
 import styles from './index.module.scss';
 
 const PostTopic: FC = () => {
@@ -21,6 +22,7 @@ const PostTopic: FC = () => {
   const [content, setContent] = useState('');
   const [imgs, setImgs] = useState<string[]>([]);
   const navigator = useNavigate();
+  const [postTopic] = usePostTopicMutation();
 
   const deleteImg = (i: number) => {
     const state = [...imgs];
@@ -35,7 +37,7 @@ const PostTopic: FC = () => {
 
   const handleAddTopic = async () => {
     try {
-      const { statusCode, message } = await addTopic({ content, images: imgs });
+      const { statusCode, message } = await postTopic({ content, images: imgs });
       if (statusCode === 200) {
         Toast.show({ content: '发布成功', duration: 600 });
         setTimeout(() => {
@@ -47,12 +49,7 @@ const PostTopic: FC = () => {
       }
     }
     catch (error: any) {
-      const {
-        data: {
-          message: [msg],
-        },
-      } = error;
-      console.error(msg);
+      console.error(error);
     }
   };
 
@@ -107,7 +104,7 @@ const PostTopic: FC = () => {
 
   useEffect(() => {
     clearFiles();
-  }, [imgs]);
+  }, [clearFiles, imgs]);
 
   return (
     <div className={classNames('page', styles.wrapper)}>
@@ -129,7 +126,7 @@ const PostTopic: FC = () => {
         />
         <div className={classNames(styles.imgs, 'flex flex-wrap')}>
           {imgs.map((img, i) => (
-            <div key={img + i} className={styles.img}>
+            <div key={img} className={styles.img}>
               <div className={styles.circle} onClick={() => deleteImg(i)}>
                 <Icon name="add" className={styles.del} />
               </div>

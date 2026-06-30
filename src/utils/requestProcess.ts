@@ -10,8 +10,8 @@ function clearTokenToLogin(msg: string) {
   return msg;
 }
 
-export function baseResponseProcess(statusCode: string) {
-  switch (Number.parseInt(statusCode)) {
+export function baseResponseProcess(statusCode: number | string) {
+  switch (Number.parseInt(`${statusCode}`)) {
     case 403:
       return clearTokenToLogin('登录已过期');
     case 402:

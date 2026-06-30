@@ -3,6 +3,7 @@ import { List, Switch, Toast } from 'antd-mobile';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Gap, NavBar } from '@/components/ui/index.ts';
+import { ROUTES_PATH } from '@/constants';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/hooks';
 import { playSound } from '@/modules';
 import { audioWeb } from '@/modules/playSound';
@@ -107,6 +108,10 @@ const Settings: FC = () => {
   const functionListGroup = [
     {
       title: '类别设置',
+      path: ROUTES_PATH.CATEGORY_SETTINGS.getPath(),
+      onClick() {
+        goTo(this.path!);
+      },
     },
   ] as CustomListItem[];
   const personalizedSettingsListGroup = [

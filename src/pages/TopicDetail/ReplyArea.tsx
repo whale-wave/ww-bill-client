@@ -1,11 +1,12 @@
-import { showDate } from '@/utils/time';
+import type { FC } from 'react';
+import type { TopicDetail } from '@/api';
 import classNames from 'classnames';
-import { FC } from 'react';
+import { showDate } from '@/utils/time';
 import styles from './ReplyArea.module.scss';
 
-type ReplyProps = {
-  comments: any;
-};
+interface ReplyProps {
+  comments?: TopicDetail['comments'];
+}
 
 const ReplyArea: FC<ReplyProps> = ({ comments }) => {
   return (
@@ -25,48 +26,38 @@ const ReplyArea: FC<ReplyProps> = ({ comments }) => {
           'flex justify-center items-center flex-wrap',
         )}
       >
-        {comments && comments.length > 0 ? (
-          // TODO: item any fix
-          comments.map((item: any) => (
-            <div
-              className={classNames(styles.item, 'w-full relative')}
-              key={item.id}
-            >
-              <main className="flex">
-                <div
-                  className={classNames(
-                    styles.avatar,
-                    'rounded-full overflow-hidden',
-                  )}
-                >
-                  <img
-                    className="w-full h-full object-cover"
-                    src={item.user.avatar}
-                    alt={item.user.name}
-                  />
-                </div>
-                <div className={classNames(styles.right, 'flex-grow')}>
-                  <div>{item.user.name}</div>
-                  <div className={styles.content}>{item.content}</div>
-                  <div className={styles.time}>
-                    {showDate(item.createdAt)}
-                    {/*<span className={classNames(styles.report, 'text-center')}>*/}
-                    {/*  6回复*/}
-                    {/*</span>*/}
+        {comments && comments.length > 0
+          ? comments.map(item => (
+              <div
+                className={classNames(styles.item, 'w-full relative')}
+                key={item.id}
+              >
+                <main className="flex">
+                  <div
+                    className={classNames(
+                      styles.avatar,
+                      'rounded-full overflow-hidden',
+                    )}
+                  >
+                    <img
+                      className="w-full h-full object-cover"
+                      src={item.user.avatar}
+                      alt={item.user.name}
+                    />
                   </div>
-                </div>
-              </main>
-              {/*<footer>*/}
-              {/*  <div className={styles['reply-box']}>*/}
-              {/*    <span className={styles.name}>A_憨憨_：</span>*/}
-              {/*    哈哈哈*/}
-              {/*  </div>*/}
-              {/*</footer>*/}
-            </div>
-          ))
-        ) : (
-          <div className={styles.empty}>暂无评论，点击写评论</div>
-        )}
+                  <div className={classNames(styles.right, 'flex-grow')}>
+                    <div>{item.user.name}</div>
+                    <div className={styles.content}>{item.content}</div>
+                    <div className={styles.time}>
+                      {showDate(item.createdAt)}
+                    </div>
+                  </div>
+                </main>
+              </div>
+            ))
+          : (
+              <div className={styles.empty}>暂无评论，点击写评论</div>
+            )}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 # ww-bill-client 前端整理与里程碑计划
 
-更新时间：2026-06-25
+更新时间：2026-06-26
 
 ## 目标
 
@@ -14,49 +14,51 @@
 | --- | --- | --- |
 | 启动与明细 | `/`, `/detail` | 已有首屏跳转、明细列表、金额展示配置等基础流程 |
 | 记账与编辑 | `/bookkeeping`, `/editing/:id`, `/record-calendar`, `/search-record` | 已有新增、编辑、删除、日历、搜索等核心流程 |
-| 账单与导出分享 | `/bill`, `/export-data`, `/share` | 账单和导出已有实现，分享页仍偏示例/占位 |
+| 账单与导出分享 | `/bill`, `/export-data`, `/share` | 账单和导出已有实现，分享页已完成 state/query 真实数据首版改造，仍缺调用方端到端接入 |
 | 预算 | `/budget`, `/budget/category/:type` | 已有总预算、分类预算、增删改清等流程 |
 | 资产 | `/asset`, `/asset/add-account`, `/asset/add-form/:id?`, `/asset/detail/:id`, `/asset/chart` | 新实现较完整，React Query/key/mutation 相对规范 |
-| 图表 | `/chart`, `/chart/category` | 首页图表已有实现，分类详情页未完成 |
+| 图表 | `/chart`, `/chart/category` | 首页图表已有实现，分类详情已有排行榜进入后的首版明细页 |
 | 发票助手 | `/invoice`, `/invoice/create`, `/invoice/:id`, `/invoice/:id/edit` | 新实现较完整，列表/详情/新增/编辑/删除闭环存在 |
 | 固定支出 | `/fixed-expenses`, `/fixed-expenses/create`, `/fixed-expenses/:id`, `/fixed-expenses/:id/edit` | 新实现较完整，表单与缓存失效较规范 |
 | 发现与社区 | `/discovery`, `/community`, `/community/personal/:id`, `/post-topic`, `/topic-detail/:id` | 社区基础浏览/发帖/评论存在，但数据层与分享交互未收敛 |
-| 消息 | `/message`, `/message/new-follow`, `/message/comment-list`, `/message/system-notify` | 子页面存在，消息首页仍为空态且无入口 |
-| 我的与设置 | `/mine`, `/settings`, `/user-info`, `/password`, `/settings/email/change/*` | 基础用户信息、签到、设置存在，多处入口仍占位 |
+| 消息 | `/message`, `/message/new-follow`, `/message/comment-list`, `/message/system-notify` | 首页已有新关注、评论、系统通知三个入口和稳定空态，仍缺未读/摘要数据接口或端到端验证 |
+| 我的与设置 | `/mine`, `/settings`, `/user-info`, `/password`, `/settings/email/change/*`, `/category` | 基础用户信息、签到、设置存在；类别设置已支持查看收入/支出分类，管理动作暂不暴露 |
 | 认证 | `/login`, `/sign`, `/forget-password/*` | 登录、注册、找回密码基础流程存在 |
 
 ## 未完成和占位功能
 
 ### P0 必须优先处理
 
-1. 图表分类详情页未实现
+1. 图表分类详情页仍需后续验收打磨
 
-- 证据：`src/pages/Chart/ChartCategory/ChartCategory.tsx` 只渲染占位文本。
-- 关联断点：`src/pages/Chart/ChartHome/components/RankingList.tsx` 的分类排行榜点击仅提示“敬请期待”。
-- 期望：从图表首页分类排行进入 `/chart/category`，携带统计维度、收支类型、分类 ID，重新请求或复用 `/chart` 数据并展示分类明细列表。
+- 当前进展：分类排行榜点击已进入 `/chart/category`，携带分类 ID、统计维度、收支类型和当前 tab 上下文；详情页已展示分类金额、占比、周期摘要和明细记录，并通过 `/chart` 查询作为刷新/直达兜底。
+- 仍需确认：不同时间维度、空数据、接口返回被 `categoryId` 过滤时的端到端表现；当前质量门禁仍被 pnpm trust policy 阻塞，不能视为完整验收完成。
+- 期望：在依赖校验恢复后完成 lint/type 验证和手动回归，再补充必要的异常态或视觉打磨。
 
-2. 分享页仍是示例数据和半成品交互
+2. 分享页已完成首版真实数据改造，仍缺调用方端到端接入验证
 
-- 证据：`src/pages/Share/ShareCanvas.tsx` 使用硬编码展示数据，`src/pages/Share/ShareBtn.tsx` 的“微信”按钮没有事件。
-- 期望：分享页从路由 state/query 或业务查询读取真实账单/流水/统计数据；保存图片流程需要错误处理；暂不能做微信分享时应隐藏入口或改为明确的系统分享能力。
+- 当前进展：`/share` 已支持从 `location.state.record`、`location.state.shareData`、直接 state 字段或 URL query 中读取 `amount`、`type`、`categoryName/category`、`remark`、`time/date`；核心字段缺失时展示明确空态，不再使用硬编码业务样例兜底。保存图片已增加空节点保护、异常捕获和 Toast 反馈；原不可用“微信”入口已替换为系统分享能力，环境不支持时复制链接。
+- 仍需确认：当前未发现业务页面主动跳转 `/share` 的调用方，缺少从账单/明细等入口传入 state/query 的端到端验证；质量门禁仍受 pnpm trust policy 阻塞，不能视为完整验收完成。
+- 期望：补齐业务入口到 `/share` 的真实传参，并在依赖校验恢复后完成 lint/type 与手动回归。
 
 ### P1 影响主流程体验
 
-1. 消息首页没有功能入口
+1. 消息首页缺未读/摘要数据接口或端到端验证
 
-- 证据：`src/pages/Message/index.tsx` 只展示空态，但路由已注册 `/message/new-follow`、`/message/comment-list`、`/message/system-notify`。
-- 期望：消息首页提供新关注、评论、系统通知入口，并展示未读/最近消息摘要；没有数据时展示可操作空态。
+- 当前进展：`/message` 已提供新关注、评论、系统通知三个可点击入口；没有首页摘要接口时展示稳定说明，引导进入对应子页查看最新消息。
+- 后续期望：补齐未读数或最近消息摘要接口，并完成从首页到三个子消息页的端到端验证。
 
-2. 类别设置未完成
+2. 类别设置仍需接口确认和端到端验证
 
-- 证据：`src/pages/bookkeeping/CategorySettings/index.tsx` 只是占位；`src/pages/settings/index.tsx` 中“类别设置”没有 path/onClick。
-- 期望：补齐收入/支出分类查看、排序、新增、编辑、隐藏或删除策略；如果后端能力不足，应先隐藏入口。
+- 当前进展：`/category` 已不再是占位；设置页“类别设置”可进入该页，页面展示支出/收入两个分类列表，并使用 `GET /category?type=sub|add` 读取分类。
+- 当前边界：新增/编辑/删除/隐藏等管理动作暂不暴露；页面提示“当前仅支持查看，新增/编辑/删除待接口能力确认后开放”。
+- 仍需确认：服务端新增接口当前需要 multipart file 且 create 只取 name/file、未设置非空 `type`；删除也缺少引用检查。管理动作需要接口能力和风险策略明确后再开放，并补端到端验证。
 
 3. 登录保护边界不足
 
-- 证据：当前只保护 `/user-info`、`/password`、`/post-topic`，大量需要 token 或用户数据的页面未包 `LoginGuard`。
-- 建议纳入保护：`/mine`、`/settings`、`/message/*`、`/export-data`、`/budget`、`/asset/*`、`/invoice/*`、`/fixed-expenses/*`、`/bill`、`/share`、`/record-calendar`、`/search-record`。
-- 期望：统一定义需要登录的业务路由，避免未登录时出现空数据、接口 401 后跳转闪烁或页面运行时错误。
+- 进展：`/user-info`、`/password`、`/post-topic` 继续使用 `LoginGuard`；`/mine`、`/settings/*`、`/message/*`、`/export-data`、`/budget`、`/budget/category/:type`、`/asset/*`、`/invoice/*`、`/fixed-expenses/*`、`/bill`、`/share`、`/record-calendar`、`/search-record`、`/community/*`、`/topic-detail/:id`、`/category` 已纳入登录保护。
+- 保留公开：`/`、`/login`、`/sign`、`/forget-password/*`、`/detail`、`/bookkeeping`、`/editing/:id`、`/chart`、`/chart/category`、`/discovery`、`/cateGory` 兼容跳转和 `*` 未命中页不包 `LoginGuard`。
+- 后续期望：继续把受保护业务路由集中维护，避免未登录时出现空数据、接口 401 后跳转闪烁或页面运行时错误。
 
 ### P2 可排期完善
 
@@ -107,13 +109,13 @@
 
 1. `ROUTES_PATH` 覆盖不完整
 
-- `src/constants/route.ts` 只覆盖账单、预算、资产、图表、固定支出。
-- 许多导航仍散落字符串：`/message`、`/settings`、`/invoice`、`/search-record`、`/community` 等。
+- `src/constants/route.ts` 已补入一批守卫和导航整理直接相关的常用路由：`/mine`、`/settings`、`/message`、`/export-data`、`/record-calendar`、`/search-record`、`/invoice`、`/community`、`/topic-detail/:id`、`/share`、`/category`。
+- 许多导航仍散落字符串，后续仍需分批替换到 `ROUTES_PATH`。
 - 建议：先补齐常用业务路由常量，再分批替换跳转字符串。
 
 2. 命名遗留
 
-- `/cateGory` 和 `CateGory` 大小写异常。
+- `/cateGory` 大小写异常；当前已新增规范 `/category` 并保留 `/cateGory` 到 `/category` 的 case-sensitive 兼容重定向。
 - `Detail_editing` 使用下划线和大写混合。
 - `BotomList` 拼写错误。
 - 建议：低风险情况下新增兼容路由再迁移命名；避免一次性大范围改路径造成历史链接失效。
@@ -134,11 +136,12 @@
 
 ### 工程卫生
 
-1. 类型检查通过，lint 未通过
+1. 当前质量门禁被依赖校验阻塞
 
-- `pnpm lint:type` 当前通过。
-- `pnpm lint` 当前失败：636 个问题，491 个 error，145 个 warning，其中大量格式/import 问题可自动修复。
-- 主要类别：import 排序、type-only import、格式缩进、React hooks 依赖、render purity、重复声明、`shims.axios.d.ts` 规则问题。
+- 当前执行 `pnpm lint:type` 和 `pnpm lint` 时，pnpm 在进入 TypeScript/ESLint 前被依赖供应链策略阻塞。
+- 当前阻塞错误：`ERR_PNPM_TRUST_DOWNGRADE`，涉及 `synckit@0.9.3`、`tailwind-merge@2.6.1`、`undici-types@6.21.0`。
+- 历史审计结果：此前 `pnpm lint:type` 通过；此前 `pnpm lint` 失败：636 个问题，491 个 error，145 个 warning，其中大量格式/import 问题可自动修复。
+- 历史 lint 主要类别：import 排序、type-only import、格式缩进、React hooks 依赖、render purity、重复声明、`shims.axios.d.ts` 规则问题。
 
 2. 测试体系缺失
 
@@ -215,19 +218,21 @@
 
 任务：
 
-- 实现 `/chart/category`：支持从排行榜进入分类统计详情。
-- 改造 `/share`：使用真实数据，保存图片有错误处理；不能支持的分享按钮隐藏或替换为可用能力。
+- 完善 `/chart/category`：排行榜进入分类统计详情已有首版实现，后续补齐依赖校验恢复后的验证与细节打磨。
+- 改造 `/share`：已支持 state/query 真实数据、无数据空态、保存图片错误处理、系统分享或复制链接；后续补齐调用方端到端接入和质量门禁验证。
 - 实现 `/message` 首页：新关注、评论、系统通知入口和空态。
-- 处理类别设置：实现分类管理最小闭环，或隐藏入口并保留路由兼容。
-- 梳理登录保护：为需要 token 的业务页面统一包 `LoginGuard`。
+- 处理类别设置：已完成可查看收入/支出分类的最小切片；新增/编辑/删除/隐藏暂不暴露，后续待接口能力和风险策略确认。
+- 继续梳理登录保护：本轮已覆盖 token 依赖的主要业务路由，后续新增业务页需同步确认是否包 `LoginGuard`。
 
 验收标准：
 
-- 图表排行榜点击不再出现“敬请期待”。
-- 分享页不再展示硬编码业务数据。
+- 图表排行榜点击进入 `/chart/category`，并能展示分类金额、占比、周期摘要和明细记录。
+- 分享页不再展示硬编码业务数据；从业务入口传入真实 state/query 时可渲染分享卡，直达无数据时展示空态。
 - 消息首页能进入三个子消息页。
+- 设置页“类别设置”能进入 `/category`，并可查看支出/收入分类；页面不出现不可用管理动作。
 - 未登录访问受保护页面时行为一致。
-- `pnpm lint`、`pnpm lint:type` 通过。
+- 类别设置的新增/编辑/删除仍需接口能力确认和端到端验证后再纳入验收。
+- `pnpm lint`、`pnpm lint:type` 在 pnpm trust policy 解除阻塞后通过。
 
 ### M3：收敛数据层和缓存一致性
 
@@ -263,9 +268,9 @@
 
 任务：
 
-- 补齐 `ROUTES_PATH`，覆盖认证、明细、记账、搜索、日历、发票、社区、消息、我的、设置等常用路由。
+- 继续补齐 `ROUTES_PATH`，覆盖认证、明细、记账等剩余常用路由，并替换页面中的裸路径字符串。
 - 分批替换页面中的裸路径字符串。
-- 为 `/cateGory` 增加规范路径兼容方案，例如新增 `/category-settings`，旧路径保留跳转或重定向。
+- 保持 `/category` 为分类设置主路径，`/cateGory` 仅作为兼容重定向保留。
 - 规划 `Detail_editing`、`BotomList` 等命名迁移，不和业务功能改动混在同一批。
 - 明确 TabBar 中发现/社区入口关系，并修正 active index。
 
@@ -354,4 +359,3 @@
 - 路由改名需要保留兼容入口，避免历史链接失效。
 - 组件归一应以“迁移引用 + 保持视觉行为一致”为先，不在同批重设计 UI。
 - 社区/topic 数据层改造要和后端返回结构对齐，优先补类型，再迁移页面。
-

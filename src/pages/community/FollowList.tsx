@@ -1,6 +1,7 @@
 import type { FC } from 'react';
-import type { Follow, FollowTypeEnum } from '@/api/follow';
+import type { Follow } from '@/api/follow';
 import { useNavigate, useParams } from 'react-router-dom';
+import { FollowTypeEnum } from '@/api/follow';
 import { NavBar } from '@/components/ui/index.ts';
 import { useGetFollowQuery } from '@/hooks';
 import styles from './FollowList.module.scss';
@@ -37,11 +38,15 @@ const Item: FC<ItemProps> = ({ data }) => {
 function FollowList() {
   const { id, type } = useParams();
   const navigate = useNavigate();
+  const followType
+    = type === FollowTypeEnum.FOLLOW || type === FollowTypeEnum.FANS
+      ? type
+      : FollowTypeEnum.FOLLOW;
   const { data } = useGetFollowQuery({
     params: {
-      id: id!,
+      id: id ?? '',
       params: {
-        type: type as FollowTypeEnum,
+        type: followType,
       },
     },
     queryOptions: {
@@ -50,7 +55,7 @@ function FollowList() {
   });
 
   const followName = (type: FollowTypeEnum) => {
-    return type === 'follow' ? '关注' : '粉丝';
+    return type === FollowTypeEnum.FOLLOW ? '关注' : '粉丝';
   };
   return (
     <div>
@@ -60,7 +65,7 @@ function FollowList() {
         onBack={() => navigate(-1)}
       >
         阿文的
-        {followName(type as FollowTypeEnum)}
+        {followName(followType)}
       </NavBar>
       {data.data.map(i => (
         <Item key={i.id} data={i} />

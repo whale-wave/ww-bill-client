@@ -1,10 +1,10 @@
 import { Toast } from 'antd-mobile';
 import axios from 'axios';
+import { useUserStore } from '@/store';
 import {
   baseResponseProcess,
   errorResponseProcess,
 } from '@/utils/requestProcess';
-import { useUserStore } from '@/store';
 
 let host = '';
 if (typeof import.meta.env.VITE_HOST === 'string')
@@ -33,17 +33,35 @@ request.interceptors.response.use(
       errorResponseProcess(response.data);
     return response.data;
   },
-  ({ message, response, config }) => {
-    if (message.includes('timeout')) {
+  (error) => {
+    const { code, config, message, response } = error;
+
+    if (code === 'ECONNABORTED' || message?.includes('timeout')) {
+      Toast.clear();
       Toast.show({ content: '请求超时', icon: 'fail', duration: 1000 });
       console.error('请求超时');
-      return response;
+      return Promise.reject(createRequestError({
+        data: null,
+        message: ['请求超时'],
+        statusCode: 408,
+      }));
     }
 
-    baseResponseProcess(response.data.statusCode);
-    if (config.loading)
-      errorResponseProcess(response.data);
-    return response.data;
+    if (!response) {
+      Toast.clear();
+      Toast.show({ content: '网络异常，请稍后重试', icon: 'fail', duration: 1000 });
+      return Promise.reject(createRequestError({
+        data: null,
+        message: ['网络异常，请稍后重试'],
+        statusCode: 0,
+      }));
+    }
+
+    const responseData = normalizeErrorResponse(response);
+    baseResponseProcess(responseData.statusCode);
+    if (config?.loading)
+      errorResponseProcess(responseData);
+    return Promise.reject(createRequestError(responseData));
   },
 );
 
@@ -56,4 +74,21 @@ function loading() {
     position: 'top',
     duration: 0,
   });
+}
+
+function createRequestError(response: ReturnType<typeof normalizeErrorResponse>) {
+  return Object.assign(new Error(response.message[0]), response);
+}
+
+function normalizeErrorResponse(response: {
+  data?: Partial<SuccessResponse<unknown>>;
+  status: number;
+  statusText?: string;
+}) {
+  const message = response.data?.message ?? response.statusText ?? '请求失败';
+  return {
+    data: response.data?.data ?? null,
+    message: Array.isArray(message) ? message : [message],
+    statusCode: response.data?.statusCode ?? response.status,
+  };
 }

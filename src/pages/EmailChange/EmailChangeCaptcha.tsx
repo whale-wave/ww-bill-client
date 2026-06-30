@@ -11,7 +11,7 @@ import { WwInput, WwInputVerifyCode } from '@/pages/ForgetPassword/components';
 
 interface EmailChangeProps {}
 
-const EmailChange: React.FC<EmailChangeProps> = () => {
+const EmailChangeCaptcha: React.FC<EmailChangeProps> = () => {
   const navigate = useNavigate();
   const [urlSearchParams] = useSearchParams();
   const email = urlSearchParams.get('email') || '';
@@ -62,4 +62,4 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
   );
 };
 
-export default EmailChange;
+export default EmailChangeCaptcha;

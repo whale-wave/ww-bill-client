@@ -1,13 +1,13 @@
 import type { FC } from 'react';
-import type { Topic } from '@/api';
+import type { TopicDetail } from '@/api';
 import { useState } from 'react';
 import { TopicItem } from '@/components';
 import { FixedPin, ImagePreview, Share } from '@/components/ui/index.ts';
 import ReplyArea from '@/pages/TopicDetail/ReplyArea';
 
 interface MainProps {
-  topic?: Topic;
-  comments: any;
+  topic?: TopicDetail;
+  comments?: TopicDetail['comments'];
   onLike: () => void;
 }
 
@@ -70,7 +70,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       />
       {topic && (
         <TopicItem
-          data={topic!}
+          data={topic}
           onClick={() => console.error('click item')}
           onShare={() => console.error('share')}
           onLike={onLike}

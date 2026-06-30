@@ -1,13 +1,13 @@
 import type { FC } from 'react';
+import type { recordChildren } from '../detail/List';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import type { recordChildren } from '../detail/List';
-import Top from '@/pages/Detail_editing/Top';
-import List from '@/pages/Detail_editing/list';
-import Footer from '@/pages/Detail_editing/footer';
 import { useGetRecordByIdQuery } from '@/hooks/query/useGetRecordByIdQuery.ts';
+import Footer from '@/pages/Detail_editing/footer';
+import List from '@/pages/Detail_editing/list';
+import Top from '@/pages/Detail_editing/Top';
 
-const Dditing: FC = () => {
+const Editing: FC = () => {
   const navParams = useLocation();
   const params = useParams();
   const dataList: recordChildren = navParams.state as recordChildren;
@@ -31,4 +31,4 @@ const Dditing: FC = () => {
   );
 };
 
-export default Dditing;
+export default Editing;

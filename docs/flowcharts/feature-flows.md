@@ -35,7 +35,7 @@ ww-bill-client/
 | 固定支出 | `src/pages/FixedExpenses/*` | `/fixed-expense/*` |
 | 社区 | `src/pages/community`, `src/pages/TopicDetail`, `src/pages/PostTopic` | `/topic/*`, `/follow/*`, `/upload` |
 | 消息 | `src/pages/Message`, `src/pages/new-follow`, `src/pages/comment-list`, `src/pages/system-notify` | `/follow/*`, `/topic/:id/comment`, `/system_notify` |
-| 我的与设置 | `src/pages/mine`, `src/pages/UserInfo`, `src/pages/Password`, `src/pages/settings`, `src/pages/EmailChange` | `/user/*`, `/check_in`, `/user-app-config`, `/user-email/*` |
+| 我的与设置 | `src/pages/mine`, `src/pages/UserInfo`, `src/pages/Password`, `src/pages/settings`, `src/pages/EmailChange`, `src/pages/bookkeeping/CategorySettings` | `/user/*`, `/check_in`, `/user-app-config`, `/user-email/*`, `/category` |
 
 ## 应用启动与路由
 
@@ -47,16 +47,23 @@ flowchart TD
   Detail --> Top["Top 查询用户配置与快捷入口"]
   Detail --> List["List 查询 /record 并按日期展示流水"]
   Top --> Feature{"用户选择功能"}
-  Feature --> Bookkeeping["/bookkeeping 记账"]
-  Feature --> Budget["/budget 预算"]
-  Feature --> Asset["/asset 资产"]
-  Feature --> Bill["/bill 账单"]
-  Feature --> Calendar["/record-calendar 日历"]
-  Feature --> Search["/search-record 搜索"]
-  Feature --> Mine["/mine 我的"]
+  Feature --> PublicRoute["公开路由: /bookkeeping、/detail、/chart、/discovery"]
+  Feature --> ProtectedRoute["LoginGuard 保护路由"]
+  PublicRoute --> Bookkeeping["/bookkeeping 记账"]
+  ProtectedRoute --> HasToken{"本地有 token?"}
+  HasToken -->|否| LoginRedirect["跳转 /login"]
+  HasToken -->|是| Budget["/budget 预算"]
+  HasToken -->|是| Asset["/asset 资产"]
+  HasToken -->|是| Bill["/bill 账单"]
+  HasToken -->|是| Calendar["/record-calendar 日历"]
+  HasToken -->|是| Search["/search-record 搜索"]
+  HasToken -->|是| Mine["/mine 我的"]
+  HasToken -->|是| MoreProtected["/invoice、/message、/settings、/fixed-expenses、/community 等"]
 ```
 
 源码入口：`src/router/index.tsx`, `src/pages/FirstScreen/index.tsx`, `src/pages/detail/*`。
+
+路由保护说明：`/user-info`、`/password`、`/post-topic` 继续由 `LoginGuard` 保护；预算、发票、社区、消息、设置、资产、固定支出等父级/index 与子路由，以及 `/mine`、`/share`、`/export-data`、`/bill`、`/record-calendar`、`/search-record`、`/topic-detail/:id`、`/category` 均按 token 登录态访问。`/login`、`/sign`、`/forget-password/*`、`/detail`、`/bookkeeping`、`/editing/:id`、`/chart/*`、`/discovery` 与未命中页保持公开；`/cateGory` 是未包 `LoginGuard` 的兼容重定向，最终进入受保护的 `/category`。
 
 ## 登录、注册与找回密码
 
@@ -139,9 +146,15 @@ flowchart TD
   ExportApi --> BuildFile["exportData 生成导出数据"]
   BuildFile --> ExportDone["Toast 提示导出成功"]
 
-  Detail --> Share["/share"]
-  Share --> Canvas["ShareCanvas 读取页面数据并绘制分享图"]
-  Canvas --> SaveShare["ShareBtn 触发保存或分享"]
+  Detail --> ShareEntry["账单/明细等业务入口准备真实分享数据"]
+  ShareEntry --> Share["/share 携带 location.state 或 URL query"]
+  Share --> NormalizeShare["规范化 amount、type、categoryName、remark、time/date"]
+  NormalizeShare --> ShareValid{"核心字段完整?"}
+  ShareValid -->|是| Canvas["ShareCanvas 渲染真实分享卡片"]
+  Canvas --> SaveShare["保存图片: html2canvas -> downloadCanvas"]
+  Canvas --> SystemShare["系统分享 navigator.share"]
+  Canvas --> CopyShare["不支持系统分享时复制当前链接"]
+  ShareValid -->|否| ShareEmpty["空态: 提示从账单/明细入口进入"]
 ```
 
 源码入口：`src/pages/Bill/*`, `src/pages/export-data/index.tsx`, `src/pages/Share/*`, `src/api/record.ts`, `src/utils/exportData.ts`。
@@ -210,12 +223,17 @@ flowchart TD
   ChartHome["/chart"] --> PickRange["选择统计范围与收支类型"]
   PickRange --> ChartApi["useGetChartQuery -> GET /chart"]
   ChartApi --> ChartView["展示总额、分类占比和趋势"]
-  ChartView --> CategoryDetail["/chart/category"]
-  CategoryDetail --> SameApi["携带分类或时间条件再次 GET /chart"]
-  SameApi --> CategoryList["展示分类下的明细统计"]
+  ChartView --> RankingClick["点击分类排行榜项"]
+  RankingClick --> CategoryDetail["/chart/category?categoryId&type&category&tabKey 作为规范上下文"]
+  RankingClick --> RouteState["route state 携带 rankingItem、当前 tab、收支类型和时间维度"]
+  CategoryDetail --> SameApi["useGetChartQuery 携带 categoryId 再次 GET /chart"]
+  RouteState --> MatchState{"route state 与 URL 参数匹配?"}
+  MatchState -->|是| CategorySummary["作为缓存/展示提示渲染分类金额、占比、周期摘要和明细记录"]
+  MatchState -->|否| SameApi
+  SameApi --> CategorySummary
 ```
 
-源码入口：`src/pages/Chart/*`, `src/hooks/useChart.ts`, `src/api/chart.ts`。
+源码入口：`src/pages/Chart/*`, `src/hooks/query/useGetChartQuery.ts`, `src/api/chart.ts`。
 
 ## 发票助手
 
@@ -289,14 +307,17 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  Message["/message"] --> Type{"消息类型"}
-  Type --> NewFollow["/message/new-follow"]
+  Message["/message 首页"] --> EmptySummary["无首页摘要数据时展示稳定说明"]
+  Message --> NewFollowEntry["入口：新关注"]
+  Message --> CommentEntry["入口：评论"]
+  Message --> NotifyEntry["入口：系统通知"]
+  NewFollowEntry --> NewFollow["/message/new-follow"]
   NewFollow --> FollowList["GET /follow/:id?type=fans 查看粉丝或关注"]
   FollowList --> FollowToggle["POST/DELETE /follow/:id"]
-  Type --> CommentList["/message/comment-list"]
+  CommentEntry --> CommentList["/message/comment-list"]
   CommentList --> CommentApi["GET /topic/:id/comment"]
   CommentApi --> TopicDetail["点击进入 /topic-detail/:id"]
-  Type --> SystemNotify["/message/system-notify"]
+  NotifyEntry --> SystemNotify["/message/system-notify"]
   SystemNotify --> NotifyApi["GET /system_notify"]
   NotifyApi --> RenderNotify["展示系统通知"]
 ```
@@ -323,6 +344,13 @@ flowchart TD
   QueryConfig --> ToggleConfig["切换配置项"]
   ToggleConfig --> PatchConfig["PATCH /user-app-config"]
   Settings --> ClearCache["清除本地缓存"]
+  Settings --> CategorySettings["类别设置 -> /category"]
+  CategorySettings --> CategoryType{"选择分类类型"}
+  CategoryType --> SubCategory["支出列表: GET /category?type=sub"]
+  CategoryType --> AddCategory["收入列表: GET /category?type=add"]
+  SubCategory --> CategoryList["展示分类图标和名称"]
+  AddCategory --> CategoryList
+  CategoryList --> Unsupported["新增/编辑/删除/隐藏动作不展示；页面说明待接口能力确认后开放"]
 
   EmailChange --> VerifyOld["GET /user-email/change-email/captcha 与 verify"]
   VerifyOld --> InputNew["输入新邮箱"]
@@ -330,4 +358,4 @@ flowchart TD
   SendNew --> SubmitNew["POST /user-email/change-email"]
 ```
 
-源码入口：`src/pages/mine/*`, `src/pages/UserInfo/index.tsx`, `src/pages/Password/index.tsx`, `src/pages/settings/index.tsx`, `src/pages/EmailChange/*`, `src/api/user.ts`, `src/api/user-app-config.ts`, `src/api/user-email.ts`。
+源码入口：`src/pages/mine/*`, `src/pages/UserInfo/index.tsx`, `src/pages/Password/index.tsx`, `src/pages/settings/index.tsx`, `src/pages/EmailChange/*`, `src/pages/bookkeeping/CategorySettings/index.tsx`, `src/api/user.ts`, `src/api/user-app-config.ts`, `src/api/user-email.ts`, `src/api/category.ts`。

@@ -15,6 +15,7 @@ import styles from './index.module.scss';
 
 function NewFollow() {
   const { userInfo } = useUserStore(({ userInfo }) => ({ userInfo }));
+  const userId = userInfo?.id ? `${userInfo.id}` : '';
   const navigate = useNavigate();
   const [deleteFollowMutate] = useDeleteFollowMutation();
   const [postFollowMutate] = usePostFollowMutation();
@@ -28,15 +29,18 @@ function NewFollow() {
         await postFollowMutate(`${follow.userId}`);
       }
     },
-    [],
+    [deleteFollowMutate, postFollowMutate],
   );
 
   const { isLoading, data } = useGetFollowQuery({
     params: {
-      id: `${userInfo!.id}`,
+      id: userId,
       params: {
         type: FollowTypeEnum.FANS,
       },
+    },
+    options: {
+      enabled: !!userId,
     },
   });
 

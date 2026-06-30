@@ -13,7 +13,7 @@ import { NavBar } from '@/components/ui/index.ts';
 import { playSound } from '@/modules';
 import { WwInput } from '@/pages/ForgetPassword/components';
 
-const ForgetPasswordRest: FC = () => {
+const ForgetPasswordReset: FC = () => {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -102,4 +102,4 @@ const ForgetPasswordRest: FC = () => {
   );
 };
 
-export default ForgetPasswordRest;
+export default ForgetPasswordReset;

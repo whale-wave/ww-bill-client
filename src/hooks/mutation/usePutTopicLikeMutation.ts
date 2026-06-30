@@ -1,16 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteFollowApi } from '@/api';
-import { followKeys, topicKeys, userKeys } from '@/hooks/query';
+import { topicLike } from '@/api';
+import { topicKeys } from '@/hooks/query';
 
-export function useDeleteFollowMutation() {
+export function usePutTopicLikeMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
-    mutationFn: deleteFollowApi,
-    onSuccess: async () => {
+    mutationFn: topicLike,
+    onSuccess: async (_data, topicId) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: followKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: topicKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: topicKeys.detail(`${topicId}`) }),
         queryClient.invalidateQueries({ queryKey: topicKeys.userInfos() }),
-        queryClient.invalidateQueries({ queryKey: userKeys.info() }),
       ]);
     },
   });

@@ -28,6 +28,15 @@ export const ROUTES_PATH = {
   CHART: {
     getPath: () => '/chart',
   },
+  CATEGORY_SETTINGS: {
+    getPath: () => '/category',
+  },
+  COMMUNITY: {
+    getPath: () => '/community',
+  },
+  EXPORT_DATA: {
+    getPath: () => '/export-data',
+  },
   FIXED_EXPENSES: {
     getPath: () => '/fixed-expenses',
   },
@@ -39,5 +48,38 @@ export const ROUTES_PATH = {
   },
   FIXED_EXPENSES_EDIT: {
     getPath: (id: string) => `/fixed-expenses/${id}/edit`,
+  },
+  INVOICE: {
+    getPath: () => '/invoice',
+  },
+  MESSAGE: {
+    getPath: () => '/message',
+  },
+  MESSAGE_NEW_FOLLOW: {
+    getPath: () => '/message/new-follow',
+  },
+  MESSAGE_COMMENT_LIST: {
+    getPath: () => '/message/comment-list',
+  },
+  MESSAGE_SYSTEM_NOTIFY: {
+    getPath: () => '/message/system-notify',
+  },
+  MINE: {
+    getPath: () => '/mine',
+  },
+  RECORD_CALENDAR: {
+    getPath: () => '/record-calendar',
+  },
+  SEARCH_RECORD: {
+    getPath: () => '/search-record',
+  },
+  SETTINGS: {
+    getPath: () => '/settings',
+  },
+  SHARE: {
+    getPath: () => '/share',
+  },
+  TOPIC_DETAIL: {
+    getPath: (id: string) => `/topic-detail/${id}`,
   },
 };

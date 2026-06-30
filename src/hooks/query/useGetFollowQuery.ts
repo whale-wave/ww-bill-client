@@ -6,7 +6,7 @@ import { getFollowApi } from '@/api';
 import { followKeys } from '@/hooks/query/keys/followKeys';
 import { isSuccessApi } from '@/utils';
 
-export function useGetFollowQuery(options?: {
+export function useGetFollowQuery(options: {
   params: {
     id: string;
     params: GetFollowApiParams;
@@ -17,10 +17,10 @@ export function useGetFollowQuery(options?: {
   };
 }) {
   const { data: response, ...rest } = useQuery<SuccessResponse<FollowData>>({
-    queryFn: () => getFollowApi(options!.params.id, options!.params.params),
-    queryKey: followKeys.list(options!.params.id, options!.params.params),
-    ...options?.queryOptions,
-    ...options?.options,
+    queryFn: () => getFollowApi(options.params.id, options.params.params),
+    queryKey: followKeys.list(options.params.id, options.params.params),
+    ...options.queryOptions,
+    ...options.options,
   });
 
   const data = useMemo(() => {

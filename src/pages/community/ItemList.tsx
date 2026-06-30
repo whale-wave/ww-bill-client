@@ -3,30 +3,27 @@ import type { Topic } from '@/api';
 import classNames from 'classnames';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { topicLike } from '@/api';
 import { TopicItem } from '@/components';
 import { Icon, ImagePreview } from '@/components/ui/index.ts';
+import { usePutTopicLikeMutation } from '@/hooks';
 import styles from './ItemList.module.scss';
 
 interface ItemListProps {
   data?: Topic[];
-  fetch: () => void;
 }
 
-const ItemList: FC<ItemListProps> = ({ data, fetch }) => {
+const ItemList: FC<ItemListProps> = ({ data }) => {
   const navigate = useNavigate();
+  const [putTopicLike] = usePutTopicLikeMutation();
   const handleLike = async (topicId: number) => {
-    await topicLike(topicId);
-    setTimeout(async () => {
-      await fetch();
-    }, 100);
+    await putTopicLike(topicId);
   };
   const [imgVisible, setImgVisible] = useState(false);
   const [imgSrc, setImgSrc] = useState('');
 
   const toDetail = useCallback((id: number) => {
     navigate(`/topic-detail/${id}`);
-  }, []);
+  }, [navigate]);
 
   return (
     <div

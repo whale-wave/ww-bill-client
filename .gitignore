@@ -4,6 +4,9 @@ dist
 dist-ssr
 *.local
 
+# TypeScript
+*.tsbuildinfo
+
 .vscode
 .idea
 

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { NavBar } from '@/components/ui/index.ts';
-import { useGetTopicIdCommentQuery } from '@/hooks/query/useGetTopicIdCommentQuery';
+import { useGetTopicIdCommentQuery } from '@/hooks';
 import CommentListItem from '@/pages/comment-list/components';
 import { useUserStore } from '@/store';
 import { showDate } from '@/utils/time';
@@ -8,8 +8,12 @@ import { showDate } from '@/utils/time';
 function CommentList() {
   const { userInfo } = useUserStore(({ userInfo }) => ({ userInfo }));
   const navigate = useNavigate();
+  const userId = userInfo?.id ? `${userInfo.id}` : '';
   const { data, isLoading } = useGetTopicIdCommentQuery({
-    params: `${userInfo!.id}`,
+    params: userId,
+    options: {
+      enabled: !!userId,
+    },
   });
 
   return (

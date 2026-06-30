@@ -1,18 +1,44 @@
-import { type FC, useMemo } from 'react';
-import { List, Toast } from 'antd-mobile';
-import { RankingItem } from './RankingItem';
-import { cn } from '@/utils';
+import type { FC } from 'react';
+import { List } from 'antd-mobile';
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useChartStore } from '@/store';
+import { cn } from '@/utils';
+import { RankingItem } from './RankingItem';
 
 export const RankingList: FC = () => {
+  const navigate = useNavigate();
   const curTab = useChartStore(state => state.curTab);
   const currentAmountType = useChartStore(state => state.currentAmountType);
+  const currentTimeRangeCategory = useChartStore(state => state.currentTimeRangeCategory);
 
   const rankingData = useMemo(() => {
     if (!curTab)
       return [];
     return curTab.ranking;
   }, [curTab]);
+
+  const onRankingItemClick = (item: (typeof rankingData)[number]) => {
+    const searchParams = new URLSearchParams({
+      categoryId: String(item.category.id),
+      type: currentAmountType,
+      category: currentTimeRangeCategory,
+    });
+
+    if (curTab?.key)
+      searchParams.set('tabKey', curTab.key);
+
+    navigate(`/chart/category?${searchParams.toString()}`, {
+      state: {
+        rankingItem: item,
+        tabKey: curTab?.key,
+        tabName: curTab?.name,
+        amountType: currentAmountType,
+        timeRangeCategory: currentTimeRangeCategory,
+        curTab,
+      },
+    });
+  };
 
   return (
     <div className={cn('flex-shrink-0')}>
@@ -28,9 +54,7 @@ export const RankingList: FC = () => {
             <RankingItem
               key={item.category.id}
               item={item}
-              onClick={() => {
-                Toast.show('敬请期待');
-              }}
+              onClick={() => onRankingItemClick(item)}
             />
           ))
         }

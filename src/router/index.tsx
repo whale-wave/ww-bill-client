@@ -1,6 +1,6 @@
 import type { ComponentType, FC, LazyExoticComponent, ReactElement } from 'react';
 import { lazy, Suspense } from 'react';
-import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { LoginGuard } from '@/components';
 import { Root } from '@/Root';
 
@@ -11,7 +11,7 @@ const AssetFormInfo = lazy(() => import('@/pages/Asset/AssetFormInfo/AssetFormIn
 const AssetManager = lazy(() => import('@/pages/Asset/AssetManager/AssetManager'));
 const Bill = lazy(() => import('@/pages/Bill'));
 const Bookkeeping = lazy(() => import('@/pages/bookkeeping'));
-const CateGory = lazy(() => import('@/pages/bookkeeping/CategorySettings'));
+const CategorySettings = lazy(() => import('@/pages/bookkeeping/CategorySettings'));
 const Budget = lazy(() => import('@/pages/Budget'));
 const ChartCategory = lazy(() => import('@/pages/Chart/ChartCategory/ChartCategory'));
 const ChartHome = lazy(() => import('@/pages/Chart/ChartHome/ChartHome'));
@@ -32,7 +32,7 @@ const FixedExpenseCreate = lazy(() => import('@/pages/FixedExpenses/FixedExpense
 const FixedExpenseDetail = lazy(() => import('@/pages/FixedExpenses/FixedExpenseDetail'));
 const FixedExpenseEdit = lazy(() => import('@/pages/FixedExpenses/FixedExpenseEdit'));
 const ForgetPassword = lazy(() => import('@/pages/ForgetPassword/ForgetPassword'));
-const ForgetPasswordRest = lazy(() => import('@/pages/ForgetPassword/ForgetPasswordReset'));
+const ForgetPasswordReset = lazy(() => import('@/pages/ForgetPassword/ForgetPasswordReset'));
 const ForgetPasswordVerifyCode = lazy(() => import('@/pages/ForgetPassword/ForgetPasswordVerifyCode'));
 const Invoice = lazy(() => import('@/pages/Invoice'));
 const InvoiceCreate = lazy(() => import('@/pages/Invoice/InvoiceCreate'));
@@ -62,6 +62,10 @@ function withSuspense(Component: LazyExoticComponent<ComponentType>): ReactEleme
   );
 }
 
+function withLoginGuard(element: ReactElement): ReactElement {
+  return <LoginGuard>{element}</LoginGuard>;
+}
+
 const router = createHashRouter([
   {
     path: '/',
@@ -76,40 +80,40 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            element: withSuspense(Budget),
+            element: withLoginGuard(withSuspense(Budget)),
           },
           {
             path: 'category/:type',
-            element: withSuspense(CreateBudgetCategory),
+            element: withLoginGuard(withSuspense(CreateBudgetCategory)),
           },
         ],
       },
       {
         path: 'record-calendar',
-        element: withSuspense(RecordCalendar),
+        element: withLoginGuard(withSuspense(RecordCalendar)),
       },
       {
         path: 'search-record',
-        element: withSuspense(SearchRecord),
+        element: withLoginGuard(withSuspense(SearchRecord)),
       },
       {
         path: 'invoice',
         children: [
           {
             index: true,
-            element: withSuspense(Invoice),
+            element: withLoginGuard(withSuspense(Invoice)),
           },
           {
             path: ':id',
-            element: withSuspense(InvoiceDetail),
+            element: withLoginGuard(withSuspense(InvoiceDetail)),
           },
           {
             path: ':id/edit',
-            element: withSuspense(InvoiceEdit),
+            element: withLoginGuard(withSuspense(InvoiceEdit)),
           },
           {
             path: 'create',
-            element: withSuspense(InvoiceCreate),
+            element: withLoginGuard(withSuspense(InvoiceCreate)),
           },
         ],
       },
@@ -126,21 +130,27 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            element: withSuspense(Community),
+            element: withLoginGuard(withSuspense(Community)),
           },
           {
             path: 'personal/:id',
-            element: withSuspense(Personal),
+            element: withLoginGuard(withSuspense(Personal)),
           },
           {
             path: 'follow-list/:id/:type',
-            element: withSuspense(FollowList),
+            element: withLoginGuard(withSuspense(FollowList)),
           },
         ],
       },
       {
+        path: 'category',
+        caseSensitive: true,
+        element: withLoginGuard(withSuspense(CategorySettings)),
+      },
+      {
         path: 'cateGory',
-        element: withSuspense(CateGory),
+        caseSensitive: true,
+        element: <Navigate to="/category" replace />,
       },
       {
         path: 'editing/:id',
@@ -148,19 +158,11 @@ const router = createHashRouter([
       },
       {
         path: 'user-info',
-        element: (
-          <LoginGuard>
-            {withSuspense(UserInfo)}
-          </LoginGuard>
-        ),
+        element: withLoginGuard(withSuspense(UserInfo)),
       },
       {
         path: 'password',
-        element: (
-          <LoginGuard>
-            {withSuspense(Password)}
-          </LoginGuard>
-        ),
+        element: withLoginGuard(withSuspense(Password)),
       },
       {
         path: 'forget-password',
@@ -175,7 +177,7 @@ const router = createHashRouter([
           },
           {
             path: 'reset',
-            element: withSuspense(ForgetPasswordRest),
+            element: withSuspense(ForgetPasswordReset),
           },
         ],
       },
@@ -198,23 +200,19 @@ const router = createHashRouter([
       },
       {
         path: 'mine',
-        element: withSuspense(Mine),
+        element: withLoginGuard(withSuspense(Mine)),
       },
       {
         path: 'share',
-        element: withSuspense(Share),
+        element: withLoginGuard(withSuspense(Share)),
       },
       {
         path: 'post-topic',
-        element: (
-          <LoginGuard>
-            {withSuspense(PostTopic)}
-          </LoginGuard>
-        ),
+        element: withLoginGuard(withSuspense(PostTopic)),
       },
       {
         path: 'topic-detail/:id',
-        element: withSuspense(TopicDetail),
+        element: withLoginGuard(withSuspense(TopicDetail)),
       },
       {
         path: 'login',
@@ -229,19 +227,19 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            element: withSuspense(Message),
+            element: withLoginGuard(withSuspense(Message)),
           },
           {
             path: 'new-follow',
-            element: withSuspense(NewFollow),
+            element: withLoginGuard(withSuspense(NewFollow)),
           },
           {
             path: 'comment-list',
-            element: withSuspense(CommentList),
+            element: withLoginGuard(withSuspense(CommentList)),
           },
           {
             path: 'system-notify',
-            element: withSuspense(SystemNotify),
+            element: withLoginGuard(withSuspense(SystemNotify)),
           },
         ],
       },
@@ -250,7 +248,7 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            element: withSuspense(Settings),
+            element: withLoginGuard(withSuspense(Settings)),
           },
           {
             path: 'email',
@@ -260,11 +258,11 @@ const router = createHashRouter([
                 children: [
                   {
                     index: true,
-                    element: withSuspense(EmailChange),
+                    element: withLoginGuard(withSuspense(EmailChange)),
                   },
                   {
                     path: 'captcha',
-                    element: withSuspense(EmailChangeCaptcha),
+                    element: withLoginGuard(withSuspense(EmailChangeCaptcha)),
                   },
                 ],
               },
@@ -274,34 +272,34 @@ const router = createHashRouter([
       },
       {
         path: 'export-data',
-        element: withSuspense(ExportData),
+        element: withLoginGuard(withSuspense(ExportData)),
       },
       {
         path: 'bill',
-        element: withSuspense(Bill),
+        element: withLoginGuard(withSuspense(Bill)),
       },
       {
         path: 'asset',
         children: [
           {
             index: true,
-            element: withSuspense(AssetManager),
+            element: withLoginGuard(withSuspense(AssetManager)),
           },
           {
             path: 'add-form/:id?',
-            element: withSuspense(AssetFormInfo),
+            element: withLoginGuard(withSuspense(AssetFormInfo)),
           },
           {
             path: 'add-account',
-            element: withSuspense(AddAssetAccount),
+            element: withLoginGuard(withSuspense(AddAssetAccount)),
           },
           {
             path: 'detail/:id',
-            element: withSuspense(AssetDetail),
+            element: withLoginGuard(withSuspense(AssetDetail)),
           },
           {
             path: 'chart',
-            element: withSuspense(AssetChart),
+            element: withLoginGuard(withSuspense(AssetChart)),
           },
         ],
       },
@@ -310,19 +308,19 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            element: withSuspense(FixedExpenses),
+            element: withLoginGuard(withSuspense(FixedExpenses)),
           },
           {
             path: 'create',
-            element: withSuspense(FixedExpenseCreate),
+            element: withLoginGuard(withSuspense(FixedExpenseCreate)),
           },
           {
             path: ':id',
-            element: withSuspense(FixedExpenseDetail),
+            element: withLoginGuard(withSuspense(FixedExpenseDetail)),
           },
           {
             path: ':id/edit',
-            element: withSuspense(FixedExpenseEdit),
+            element: withLoginGuard(withSuspense(FixedExpenseEdit)),
           },
         ],
       },
