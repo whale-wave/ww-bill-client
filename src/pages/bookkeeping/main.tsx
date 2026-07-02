@@ -18,19 +18,15 @@ const Main: FC<ChangePropsFn> = ({
   categoryList,
   keyInputPadding,
 }) => {
-  const [active, setActive] = useState(-1);
+  const [activeId, setActiveId] = useState(-1);
 
-  const changeMainFn = (item: CategoryEntity) => {
-    setActive(item.id);
+  const handleSelectCategory = (item: CategoryEntity) => {
+    setActiveId(item.id);
     change(item);
   };
 
-  const changKeyFn = (num: number) => {
-    setActive(num);
-  };
-
   useEffect(() => {
-    changKeyFn(Number(keyToggle));
+    setActiveId(Number(keyToggle));
   }, [keyToggle]);
 
   return (
@@ -42,15 +38,15 @@ const Main: FC<ChangePropsFn> = ({
       )}
     >
       <div className={styles.main_wrapper}>
-        {categoryList.map((item, index) => (
+        {categoryList.map(item => (
           <div
             className={styles.wrapper_item}
-            key={index}
-            onClick={() => changeMainFn(item)}
+            key={item.id}
+            onClick={() => handleSelectCategory(item)}
           >
             <div
               className={
-                active === item.id ? styles.newClass_icon_backGround : ''
+                activeId === item.id ? styles.newClass_icon_backGround : ''
               }
             >
               <Icon name={item.icon} style={{ fontSize: 30 }} />

@@ -13,78 +13,72 @@ import NavBar from './navBar';
 export type stateType = [amount: string, time: string, id: number];
 
 const Bookkeeping: FC = () => {
-  const [keyToggle, setKeyToggle] = useState<number>(-1); // 图标的id
-  const [keyInputPadding, setKeyInputPadding] = useState<boolean>(false); // 图标的id
-  const [name, setName] = useState(''); // 图标选项的名称
-  const [type1, setType1] = useState<CategoryAmountType>('sub'); // 切换支出和收入
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number>(-1);
+  const [keyInputPadding, setKeyInputPadding] = useState<boolean>(false);
+  const [selectedCategoryName, setSelectedCategoryName] = useState('');
+  const [recordType, setRecordType] = useState<CategoryAmountType>('sub');
   const navParams = useLocation();
-  const list: recordChildren = navParams.state as recordChildren;
-  const state = list;
-  const [stateList, setSateList] = useState<stateType>(['', '', 1]);
+  const editState = navParams.state as recordChildren;
+  const [stateList, setStateList] = useState<stateType>(['', '', 1]);
 
   const [searchParams] = useSearchParams();
   const selectTime = searchParams.get('selectTime');
   const defaultSelectDate = selectTime ? dayjs(Number(selectTime)).toDate() : undefined;
 
-  const handleChangeTab = (item: CategoryEntity) => {
-    if (item) {
-      setName(item.name);
-      setKeyToggle(item.id);
-    }
+  const handleSelectCategory = (item: CategoryEntity) => {
+    setSelectedCategoryName(item.name);
+    setSelectedCategoryId(item.id);
   };
 
-  const changeKeyInputToggle = (bool: boolean) => {
+  const handleKeyInputToggle = (bool: boolean) => {
     setKeyInputPadding(bool);
   };
 
-  const navBarType = (type: CategoryAmountType) => {
-    setType1(type);
+  const handleTypeChange = (type: CategoryAmountType) => {
+    setRecordType(type);
   };
 
   useEffect(() => {
-    if (state) {
-      // 回显
-      const chunkKey: stateType = [state.amount, state.time, state.id];
-      setSateList(chunkKey);
-      navBarType(state.type as CategoryAmountType);
-      const list = {
-        createdAt: state.createdAt,
-        icon: state.category.icon,
-        id: state.category.id,
-        name: state.remark,
-        updatedAt: state.updatedAt,
+    if (editState) {
+      const chunkKey: stateType = [editState.amount, editState.time, editState.id];
+      setStateList(chunkKey);
+      handleTypeChange(editState.type as CategoryAmountType);
+      const category = {
+        createdAt: editState.createdAt,
+        icon: editState.category.icon,
+        id: editState.category.id,
+        name: editState.remark,
+        updatedAt: editState.updatedAt,
       };
-      handleChangeTab(list as any);
+      handleSelectCategory(category as any);
     }
-  }, []);
+  }, [editState]);
 
   const { data: mainList } = useGetCategoryQuery({
     params: {
-      type: type1,
+      type: recordType,
     },
   });
 
   return (
     <div className={styles.bookkeeping}>
-      <NavBar defaultSelectDate={defaultSelectDate} change={navBarType} type={type1}></NavBar>
+      <NavBar defaultSelectDate={defaultSelectDate} change={handleTypeChange} type={recordType} />
       <Main
-        change={handleChangeTab}
-        keyToggle={keyToggle}
+        change={handleSelectCategory}
+        keyToggle={selectedCategoryId}
         categoryList={mainList}
         keyInputPadding={keyInputPadding}
-      >
-      </Main>
+      />
       <KeyBoard
         defaultSelectDate={defaultSelectDate}
         categoryList={mainList}
-        change={changeKeyInputToggle}
-        keyToggle={keyToggle}
-        name={name}
-        type={type1}
+        change={handleKeyInputToggle}
+        keyToggle={selectedCategoryId}
+        name={selectedCategoryName}
+        type={recordType}
         stateList={stateList}
-        state={state}
-      >
-      </KeyBoard>
+        state={editState}
+      />
     </div>
   );
 };

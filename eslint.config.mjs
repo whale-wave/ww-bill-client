@@ -5,6 +5,7 @@ export default antfu({
     semi: true,
   },
   react: true,
+  formatters: true,
   ignores: ['tsconfig.app.json'],
 // }, ({
 //   plugins: ['@tanstack/query'],

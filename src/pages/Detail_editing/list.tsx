@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { recordChildren } from '../detail/List';
 import c from 'classnames';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { FixedPin } from '@/components/ui/index.ts';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/utils/DataTime';
 import styles from './list.module.scss';
@@ -11,46 +11,32 @@ interface stateType {
 }
 
 const List: FC<stateType> = ({ state }) => {
-  const list = { 类型: '', 金额: '', 日期: '', 备注: '' };
-  const [listKeys, setListKeys] = useState([
-    'type',
-    'amount',
-    'time',
-    'remark',
-  ]);
+  const displayItems = useMemo(() => {
+    const typeMap: Record<string, string> = {
+      sub: '支出',
+      add: '收入',
+    };
 
-  const createFn = () => {
-    const { amount, remark } = state;
-    let { type, time } = state;
-    switch (type) {
-      case 'sub':
-        type = '支出';
-        break;
-      case 'add':
-        type = '收入';
-        break;
-    }
-    const date1 = new Date(time);
-    const timeDate = getTimeDateYear(date1);
-    const timeDate1 = getTimedate(date1);
+    const date = new Date(state.time);
+    const timeDate = getTimeDateYear(date);
+    const timeDate1 = getTimedate(date);
     const weekByDay = getWeekByDay(timeDate1);
-    time = `${timeDate}  ${weekByDay}`;
 
-    const list = [type, amount, time, remark];
-    setListKeys(list);
-  };
-
-  useEffect(() => {
-    createFn();
-  }, []);
+    return [
+      { label: '类型', value: typeMap[state.type] || state.type },
+      { label: '金额', value: state.amount },
+      { label: '日期', value: `${timeDate}  ${weekByDay}` },
+      { label: '备注', value: state.remark },
+    ];
+  }, [state]);
 
   return (
     <div className={styles.list}>
-      {Object.keys(list).map((item, index) => (
-        <div className={c(styles.listItem, 'py-[20px] px-[15px]')} key={index}>
-          <span className="flex-shrink-0">{item}</span>
+      {displayItems.map(item => (
+        <div className={c(styles.listItem, 'py-[20px] px-[15px]')} key={item.label}>
+          <span className="flex-shrink-0">{item.label}</span>
           <span className={c(styles.listKeys, 'ml-[12px]')}>
-            {listKeys[index]}
+            {item.value}
           </span>
         </div>
       ))}
