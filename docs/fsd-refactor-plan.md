@@ -763,6 +763,37 @@ export function useChartTabs(timeRange: TimeRangeCategory) {
 
 commit `17 files changed, +29/-395`。tsc + eslint 通过。
 
+### P3.1 asset 实体抽取 — 2026-07-04 ✅
+
+第一个 entity,作为 per-entity sub-PR 模板。
+
+**新建 `entities/asset/`**:
+- `types.ts` ← 合并 `types/asset.ts`(AssetGroupType、AssetType)+ `pages/Asset/AssetChart/types.ts`(AssetStatisticalRecordType)+ api/asset.ts 内联类型(Asset、AssetGroup、AssetRecord、AssetStatisticalRecord、AssetGroupAssetType)
+- `api.ts` ← `api/asset.ts`(接口函数 + 请求/响应类型,AssetStatisticalRecordType 改从 `./types` 导入)
+- `keys.ts` ← `hooks/query/keys/assetKeys.ts`(类型改从 `./api` 导入)
+- `hooks.ts` ← 聚合 6 query + 3 mutation hook(9 个原文件合并,internal import 改 `./api` `./keys`)
+- `constants.ts` ← `constants/asset.ts`(AssetGroupType 改从 `./types` 导入)
+- `lib/use-asset-summary.ts` ← `hooks/useAssetSummaryInfo.ts`(import 改 `../api` `../hooks`)
+- `lib/use-asset-statistical-record.ts` ← `hooks/useAssetStatisticalRecord.ts`
+- `index.ts` barrel
+
+**删除**:`types/` 目录(空)、`pages/Asset/AssetChart/types.ts`、9 个旧 hook 文件
+
+**Barrel 清理**:`api/index.ts`、`hooks/index.ts`、`hooks/query/index.ts`、`hooks/mutation/index.ts`、`constants/index.ts`、`types/index.ts` 移除 asset re-export
+
+**Consumer 更新**(13 个页面/组件):`@/api` / `@/hooks` → `@/entities/asset`(所有 consumer 只 import asset 相关项,无混入,可直接替换)
+
+**附带修复**:`shared/lib/play-sound.ts` 的 `playSound` 从 default export 改为 named export — P2.1 迁移时 `@/modules` barrel 把 default 转 named,移到 `shared/lib/play-sound.ts` 后丢了 named export,被 tsc 增量缓存掩盖,清缓存后暴露并修复
+
+**验证**:`npx tsc -b --noEmit`(清缓存)0 error;`npx eslint` 0 error
+**commit** `3c1a2b1`,39 文件,+294/-335
+
+**模板经验**(供后续 entity 参考):
+- tsc 增量缓存(`.tsbuildinfo`)可能掩盖错误,entity 迁移后清缓存复验
+- consumer 若只 import 单 entity 项,可 sed 直接替换 `@/api`/`@/hooks` → `@/entities/<x>`
+- hooks 聚合到单文件 `hooks.ts` 可行(9 个 hook ~280 行)
+- 跨层类型(如 `AssetStatisticalRecordType` 在 pages/)随 entity 一起收敛
+
 ---
 
 本方案到此。后续推进从 P1 起步,每阶段独立 PR。
