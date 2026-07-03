@@ -1,4 +1,4 @@
-import type { FixedExpenseEntity } from '@/api';
+import type { FixedExpenseEntity } from '@/entities/fixed-expense';
 import React, { memo, useCallback } from 'react';
 import { cn } from '@/shared/lib';
 import {

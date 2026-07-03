@@ -1,7 +1,6 @@
 export * from './keys/budgetKeys';
 export * from './keys/categoryKeys';
 export * from './keys/chartKeys';
-export * from './keys/fixedExpenseKeys';
 export * from './keys/followKeys';
 export * from './keys/recordKeys';
 export * from './keys/systemKeys';
@@ -10,8 +9,6 @@ export * from './keys/userKeys';
 export * from './useGetBudgetInfoQuery';
 export * from './useGetCategoryQuery';
 export * from './useGetChartQuery';
-export * from './useGetFixedExpenseByIdQuery';
-export * from './useGetFixedExpenseQuery';
 export * from './useGetFollowQuery';
 export * from './useGetRecordQuery';
 export * from './useGetSystemNotifyQuery';

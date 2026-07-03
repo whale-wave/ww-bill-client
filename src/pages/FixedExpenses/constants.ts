@@ -4,7 +4,7 @@ import {
   FixedExpensePriority,
   FixedExpenseStatus,
   FixedExpenseType,
-} from '@/api';
+} from '@/entities/fixed-expense';
 
 export const cycleLabelMap: Record<FixedExpenseCycle, string> = {
   [FixedExpenseCycle.WEEKLY]: '周',

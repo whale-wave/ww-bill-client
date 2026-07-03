@@ -1,4 +1,4 @@
-import type { GetFixedExpenseQuery } from '@/api';
+import type { GetFixedExpenseQuery } from './api';
 
 export const fixedExpenseKeys = {
   all: ['fixed-expense'] as const,

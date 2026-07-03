@@ -1,4 +1,4 @@
-import type { FixedExpenseSummary } from '@/api';
+import type { FixedExpenseSummary } from '@/entities/fixed-expense';
 import React, { memo } from 'react';
 import { cn } from '@/shared/lib';
 import { formatThousands } from '../utils';

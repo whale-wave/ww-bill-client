@@ -1,10 +1,9 @@
 import type { StatusTabOption } from './constants';
-import type { FixedExpenseEntity } from '@/api';
+import type { FixedExpenseEntity } from '@/entities/fixed-expense';
 import { Dialog, ErrorBlock, Skeleton, SwipeAction, Toast } from 'antd-mobile';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FixedExpenseStatus } from '@/api';
-import { useDeleteFixedExpenseMutation, useGetFixedExpenseQuery } from '@/hooks';
+import { FixedExpenseStatus, useDeleteFixedExpenseMutation, useGetFixedExpenseQuery } from '@/entities/fixed-expense';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { NavBar } from '@/shared/ui';
 import {

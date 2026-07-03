@@ -17,7 +17,6 @@ export * from './auth';
 export * from './budget';
 export * from './category';
 export * from './chart';
-export * from './fixed-expense';
 export * from './follow';
 export * from './record';
 export * from './system';

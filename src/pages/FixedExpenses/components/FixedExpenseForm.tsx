@@ -1,6 +1,6 @@
 import type {
   CreateFixedExpenseApiData,
-} from '@/api';
+} from '@/entities/fixed-expense';
 import {
   Button,
   DatePicker,
@@ -22,12 +22,10 @@ import {
   FixedExpensePriority,
   FixedExpenseStatus,
   FixedExpenseType,
-} from '@/api';
-import {
   useGetFixedExpenseByIdQuery,
   usePatchFixedExpenseMutation,
   usePostFixedExpenseMutation,
-} from '@/hooks';
+} from '@/entities/fixed-expense';
 import { cn, normalizeAmount } from '@/shared/lib';
 import {
   currencyOptions,

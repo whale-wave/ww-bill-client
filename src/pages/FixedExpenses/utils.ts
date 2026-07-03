@@ -1,4 +1,4 @@
-import type { FixedExpenseCurrency } from '@/api';
+import type { FixedExpenseCurrency } from '@/entities/fixed-expense';
 import dayjs from 'dayjs';
 import { currencySymbolMap } from './constants';
 

@@ -3,7 +3,7 @@ import { Dialog, Toast } from 'antd-mobile';
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BottomAction } from '@/components';
-import { useDeleteFixedExpenseMutation } from '@/hooks';
+import { useDeleteFixedExpenseMutation } from '@/entities/fixed-expense';
 import { ROUTES_PATH } from '@/shared/config/routes';
 
 interface EditAndDeleteButtonProps {
