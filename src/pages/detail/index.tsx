@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { TabBar } from '@/components';
-import List from '@/entities/record';
+import List from '@/pages/detail/List';
 import Top from '@/pages/detail/Top';
 
 export type numType = [Array<string>, Array<string>];

@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGetRecordBillQuery } from '@/hooks/query/useGetRecordBillQuery';
+import { useGetRecordBillQuery } from '@/entities/record';
 import { BillRecordCard } from '@/pages/Bill/BillRecordCard';
 import { BillTabs } from '@/pages/Bill/BillTabs';
 import Content from '@/pages/Bill/components/Content';

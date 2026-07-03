@@ -3,7 +3,7 @@ import { Dialog, Toast } from 'antd-mobile';
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BottomAction } from '@/components';
-import { useDeleteInvoiceMutation } from '@/hooks/mutation/useDeleteInvoiceMutation';
+import { useDeleteInvoiceMutation } from '@/entities/invoice';
 
 interface EditAndDeleteButtonProps {
   invoiceId?: string;

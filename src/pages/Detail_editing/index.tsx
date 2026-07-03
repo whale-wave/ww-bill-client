@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { recordChildren } from '@/entities/record';
 import { useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { useGetRecordByIdQuery } from '@/hooks/query/useGetRecordByIdQuery.ts';
+import { useGetRecordByIdQuery } from '@/entities/record';
 import Footer from '@/pages/Detail_editing/footer';
 import List from '@/pages/Detail_editing/list';
 import Top from '@/pages/Detail_editing/Top';
