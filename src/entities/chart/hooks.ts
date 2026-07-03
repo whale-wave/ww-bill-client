@@ -1,10 +1,16 @@
 import type { UseQueryOptions } from '@tanstack/react-query';
-import type { GetChartApiParams, GetChartApiResponse, GetChartApiResponseMonthData, GetChartApiResponseWeekData, GetChartApiResponseYearData } from '@/api';
+import type {
+  GetChartApiParams,
+  GetChartApiResponse,
+  GetChartApiResponseMonthData,
+  GetChartApiResponseWeekData,
+  GetChartApiResponseYearData,
+} from './api';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { getChartApi } from '@/api';
-import { chartKeys } from '@/hooks/query/keys/chartKeys';
 import { isSuccessApi } from '@/shared/api';
+import { getChartApi } from './api';
+import { chartKeys } from './keys';
 
 export function useGetChartQuery(options: {
   params: GetChartApiParams;

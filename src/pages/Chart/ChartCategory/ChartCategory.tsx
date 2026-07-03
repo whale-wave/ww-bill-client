@@ -1,13 +1,13 @@
 import type { FC } from 'react';
-import type { GetChartApiParamsCategory, GetChartApiResponse, GetChartApiResponseRankingData } from '@/api';
+import type { GetChartApiParamsCategory, GetChartApiResponse, GetChartApiResponseRankingData } from '@/entities/chart';
 import type { RecordEntry } from '@/entities/record';
 import type { AmountType, TabItem, TimeRangeCategory } from '@/store/chart';
 import { ErrorBlock, List, SpinLoading } from 'antd-mobile';
 import { useMemo } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Icon, NavBar } from '@/components';
+import { isMonthData, isWeekData, isYearData, useGetChartQuery } from '@/entities/chart';
 import { RecordListItem } from '@/entities/record';
-import { isMonthData, isWeekData, isYearData, useGetChartQuery } from '@/hooks';
 import { cn, math } from '@/shared/lib';
 
 interface ChartCategoryLocationState {

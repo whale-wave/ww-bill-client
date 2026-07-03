@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { GetChartApiResponseWeekDataWeekItemDayItem } from '@/api';
+import type { GetChartApiResponseWeekDataWeekItemDayItem } from '@/entities/chart';
 import type { AmountType } from '@/store';
 import { format } from 'date-fns';
 import { useMemo } from 'react';

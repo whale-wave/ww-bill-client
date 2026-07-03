@@ -1,4 +1,4 @@
-import type { GetChartApiResponseMonthData, GetChartApiResponseMonthDataMonthItem, GetChartApiResponseWeekData, GetChartApiResponseWeekDataWeekItem, GetChartApiResponseYearData } from '@/api';
+import type { GetChartApiResponseMonthData, GetChartApiResponseMonthDataMonthItem, GetChartApiResponseWeekData, GetChartApiResponseWeekDataWeekItem, GetChartApiResponseYearData } from '@/entities/chart';
 import { getMonth, getWeek, getYear, isSameYear, subMonths, subWeeks, subYears } from 'date-fns';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';

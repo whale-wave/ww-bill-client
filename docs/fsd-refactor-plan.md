@@ -870,3 +870,19 @@ vite build 通过,eslint 0 error(6 pre-existing warning)。
 - **跨实体依赖修复**:`useDeleteFollowMutation`、`usePostFollowMutation` 原 import `topicKeys` from `@/hooks/query` 做 query invalidation(follow 变更需刷新 topic user-info),改为 `@/entities/topic`(follow entity 待 P3.8 抽取)
 
 vite build 通过,eslint 0 error。
+
+---
+
+### P3.7 chart 实体抽取 — 2026-07-04 ✅
+
+`api/chart.ts`、`hooks/query/keys/chartKeys.ts`、`useGetChartQuery` hook + 3 type guards(`isWeekData`/`isMonthData`/`isYearData`)→ `entities/chart/`。
+
+**结构**:`api.ts`、`keys.ts`、`hooks.ts`(1 query + 3 type guards)、`index.ts` barrel。无 UI 组件(chart 页面组件内联在 pages)。
+
+**关键处理**:
+- **解决 P3.4a 遗留过渡引用**:`entities/record/hooks.ts` 的 `chartKeys` 从 `@/hooks/query` 改 `@/entities/chart`,删除过渡注释
+- `api.ts` 仍引 `RecordEntry` from `@/entities/record`、`CategoryEntity` from `@/api/category`(record 已抽,category 待 P3.8)
+- `api/index.ts`、`hooks/query/index.ts` 删 chart re-export
+- 6 consumer 更新:`Chart/ChartHome/ChartHome.tsx`(hooks + type guards)、`Chart/ChartHome/components/RankingItem.tsx`(type)、`Chart/ChartHome/components/TooltipContent.tsx`(type)、`Chart/ChartCategory/ChartCategory.tsx`(types + hooks)、`store/chart.ts`(5 types — chart store,P5 将删除)
+
+vite build 通过,eslint 0 error。

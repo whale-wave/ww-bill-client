@@ -15,7 +15,6 @@ export async function uploadFile(body: FormData, loading = true) {
 
 export * from './auth';
 export * from './category';
-export * from './chart';
 export * from './follow';
 export * from './system';
 export * from './tools';

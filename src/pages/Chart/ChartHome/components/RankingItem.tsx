@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { GetChartApiResponseRankingData } from '@/api';
+import type { GetChartApiResponseRankingData } from '@/entities/chart';
 import { List } from 'antd-mobile';
 import { useMemo } from 'react';
 import { Icon } from '@/components';

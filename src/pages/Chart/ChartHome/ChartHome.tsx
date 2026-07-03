@@ -4,7 +4,7 @@ import { usePrevious } from 'ahooks';
 import { Tabs } from 'antd-mobile';
 import { useCallback, useEffect } from 'react';
 import { TabBar } from '@/components';
-import { isMonthData, isWeekData, isYearData, useGetChartQuery } from '@/hooks';
+import { isMonthData, isWeekData, isYearData, useGetChartQuery } from '@/entities/chart';
 import { ChartContent, Top } from '@/pages/Chart/ChartHome/components';
 import { cn } from '@/shared/lib';
 import { useChartStore } from '@/store';

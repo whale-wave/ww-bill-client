@@ -10,8 +10,7 @@ import type {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Toast } from 'antd-mobile';
 import { useEffect, useMemo, useRef } from 'react';
-// transitional: chartKeys still in old hooks layer until chart entity extracted
-import { chartKeys } from '@/hooks/query';
+import { chartKeys } from '@/entities/chart';
 import { isSuccessApi } from '@/shared/api';
 import { deleteRecordApi, getRecordApi, getRecordBillApi, getRecordByIdApi, postRecordApi, putRecordApi } from './api';
 import { recordKeys } from './keys';
