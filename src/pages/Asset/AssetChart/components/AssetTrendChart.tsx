@@ -1,17 +1,19 @@
-import { type FC, useCallback, useEffect, useMemo, useState } from 'react';
-import * as echarts from 'echarts/core';
-import type { GridComponentOption, MarkLineComponentOption } from 'echarts/components';
-import { GridComponent, MarkLineComponent, TooltipComponent } from 'echarts/components';
+import type { Dayjs } from 'dayjs';
 import type { LineSeriesOption } from 'echarts/charts';
+import type { GridComponentOption, MarkLineComponentOption } from 'echarts/components';
+import type { FC } from 'react';
+import { DatePicker } from 'antd-mobile';
+import dayjs from 'dayjs';
 import { LineChart } from 'echarts/charts';
+import { GridComponent, MarkLineComponent, TooltipComponent } from 'echarts/components';
+import * as echarts from 'echarts/core';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
-import type { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
-import { DatePicker } from 'antd-mobile';
-import { AssetStatisticalRecordType } from '../types';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '@/components';
-import { useAssetStatisticalRecord, useChart, useGetAssetStatisticalRecordQuery } from '@/hooks';
+import { useAssetStatisticalRecord, useGetAssetStatisticalRecordQuery } from '@/hooks';
+import { useChart } from '@/shared/lib/use-chart';
+import { AssetStatisticalRecordType } from '../types';
 
 echarts.use([GridComponent, LineChart, CanvasRenderer, UniversalTransition, TooltipComponent, MarkLineComponent]);
 

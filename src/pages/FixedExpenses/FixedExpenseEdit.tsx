@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { NavBar } from '@/components/ui/index.ts';
+import { NavBar } from '@/shared/ui';
 import { FixedExpenseForm } from './components';
 
 const FixedExpenseEdit: React.FC = () => {

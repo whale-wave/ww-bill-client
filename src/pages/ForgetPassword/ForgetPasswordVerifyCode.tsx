@@ -7,9 +7,9 @@ import {
   getToolsForgetPasswordEmailApi,
   getToolsForgetPasswordEmailVerifyCodeApi,
 } from '@/api';
-import { NavBar } from '@/components/ui/index.ts';
-import { playSound } from '@/modules';
 import { WwInput, WwInputVerifyCode } from '@/pages/ForgetPassword/components';
+import { playSound } from '@/shared/lib/play-sound';
+import { NavBar } from '@/shared/ui';
 
 const ForgetPasswordVerifyCode: FC = () => {
   const navigate = useNavigate();

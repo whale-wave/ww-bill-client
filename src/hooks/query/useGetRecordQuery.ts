@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getRecordApi } from '@/api';
 import { recordKeys } from '@/hooks/query/keys/recordKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 const emptyRecordInfo: GetRecordApiResponseData = {
   total: 0,

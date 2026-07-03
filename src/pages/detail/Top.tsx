@@ -6,11 +6,11 @@ import c from 'classnames';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from '@/components/ui/index.ts';
-import config from '@/config';
-import { ROUTES_PATH } from '@/constants';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/hooks';
 import Precision from '@/pages/detail/component';
+import config from '@/shared/config';
+import { ROUTES_PATH } from '@/shared/config/routes';
+import { Icon } from '@/shared/ui';
 import { useSystemStore } from '@/store';
 import styles from './top.module.scss';
 

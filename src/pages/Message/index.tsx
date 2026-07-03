@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { NavBar } from '@/components/ui/index.ts';
-import { ROUTES_PATH } from '@/constants/route';
+import { ROUTES_PATH } from '@/shared/config/routes';
+import { NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const messageItems = [

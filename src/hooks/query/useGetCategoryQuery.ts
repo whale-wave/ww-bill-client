@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getCategoryApi } from '@/api';
 import { categoryKeys } from '@/hooks/query/keys/categoryKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 export function useGetCategoryQuery(options?: {
   params?: GetCategoryApiParams;

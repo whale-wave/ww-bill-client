@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { CategoryEntity } from '@/api/category';
 import classNames from 'classnames';
 import { useEffect, useState } from 'react';
-import { Icon } from '@/components/ui/index.ts';
+import { Icon } from '@/shared/ui';
 import styles from './main.module.scss';
 
 interface ChangePropsFn {

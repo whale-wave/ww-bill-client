@@ -2,12 +2,12 @@ import { Button, Skeleton, Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import React, { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { NavBar } from '@/components/ui/index.ts';
 import { useGetInvoiceByIdQuery } from '@/hooks';
 import EditAndDeleteButton from '@/pages/Invoice/components/EditAndDeleteButton';
 import InvoiceInfo, {
   getOptionListByInvoice,
 } from '@/pages/Invoice/components/InvoiceInfo';
+import { NavBar } from '@/shared/ui';
 
 interface InvoiceDetailProps {}
 

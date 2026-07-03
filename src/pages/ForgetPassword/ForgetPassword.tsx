@@ -4,10 +4,10 @@ import { Button, Dialog, Toast } from 'antd-mobile';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getToolsForgetPasswordEmailApi } from '@/api';
-import { NavBar } from '@/components/ui/index.ts';
-import { playSound } from '@/modules';
 import { WwInput } from '@/pages/ForgetPassword/components';
-import { isEmail } from '@/utils';
+import { isEmail } from '@/shared/lib';
+import { playSound } from '@/shared/lib/play-sound';
+import { NavBar } from '@/shared/ui';
 
 const ForgetPassword: FC = () => {
   const navigate = useNavigate();

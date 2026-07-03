@@ -1,5 +1,5 @@
 import type { FC, RefObject } from 'react';
-import config from '@/config';
+import config from '@/shared/config';
 import styles from './ShareCanvas.module.scss';
 
 export interface ShareData {

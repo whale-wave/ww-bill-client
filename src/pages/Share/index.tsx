@@ -4,11 +4,11 @@ import copy from 'copy-to-clipboard';
 import html2canvas from 'html2canvas';
 import { useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { NavBar } from '@/components/ui/index.ts';
-import config from '@/config';
 import ShareBtn from '@/pages/Share/ShareBtn';
 import ShareCanvas from '@/pages/Share/ShareCanvas';
-import { downloadCanvas } from '@/utils';
+import config from '@/shared/config';
+import { downloadCanvas } from '@/shared/lib';
+import { NavBar } from '@/shared/ui';
 
 type ShareSource = Record<string, unknown>;
 

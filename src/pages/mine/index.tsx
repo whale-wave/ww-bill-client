@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TabBar } from '@/components';
-import { Icon } from '@/components/ui/index.ts';
 import { useGetUserUserInfoQuery, usePostCheckInMutation } from '@/hooks';
-import { playSound } from '@/modules';
 import { BottomList } from '@/pages/mine/components';
 import UserInfo from '@/pages/mine/UserInfo';
+import { playSound } from '@/shared/lib/play-sound';
+import { Icon } from '@/shared/ui';
 import { useUserStore } from '@/store';
 import styles from './index.module.scss';
 

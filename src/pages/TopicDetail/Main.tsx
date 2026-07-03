@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import type { TopicDetail } from '@/api';
 import { useState } from 'react';
 import { TopicItem } from '@/components';
-import { FixedPin, ImagePreview, Share } from '@/components/ui/index.ts';
 import ReplyArea from '@/pages/TopicDetail/ReplyArea';
+import { FixedPin, ImagePreview, Share } from '@/shared/ui';
 
 interface MainProps {
   topic?: TopicDetail;

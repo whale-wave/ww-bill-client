@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getFixedExpenseApi } from '@/api';
 import { fixedExpenseKeys } from '@/hooks/query/keys/fixedExpenseKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 const emptySummary: FixedExpenseSummary = {
   monthlyTotal: '0',

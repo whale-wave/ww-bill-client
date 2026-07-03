@@ -4,9 +4,9 @@ import { DatePicker } from 'antd-mobile';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import React, { useCallback } from 'react';
-import { Icon } from '@/components/ui/index.ts';
-import { mergerProps } from '@/utils';
-import { spliceNumberByPoint } from '@/utils/time';
+import { mergerProps } from '@/shared/lib';
+import { spliceNumberByPoint } from '@/shared/lib/time';
+import { Icon } from '@/shared/ui';
 import styles from './Top.module.scss';
 
 interface TopProps {

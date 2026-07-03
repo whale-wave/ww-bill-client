@@ -1,7 +1,7 @@
 import type { FC, MouseEvent } from 'react';
 import classNames from 'classnames';
-import { Icon } from '@/components/ui/index.ts';
-import { showDate } from '@/utils/time';
+import { showDate } from '@/shared/lib/time';
+import { Icon } from '@/shared/ui';
 import styles from './TopicItem.module.scss';
 
 interface TopicItemProps {

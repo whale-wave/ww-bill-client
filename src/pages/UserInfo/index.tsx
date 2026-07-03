@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadFile } from '@/api';
-import { Button, List, Modal, NavBar } from '@/components/ui/index.ts';
 import { useGetUserUserInfoQuery, usePutUserUserInfoMutation } from '@/hooks';
+import choseFile from '@/shared/lib/chose-file';
+import { Button, List, Modal, NavBar } from '@/shared/ui';
 import { useUserStore } from '@/store';
-import choseFile from '@/utils/choseFile';
 import styles from './index.module.scss';
 
 const UserInfo: FC = () => {

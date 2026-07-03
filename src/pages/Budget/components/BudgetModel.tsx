@@ -1,15 +1,16 @@
-import React, { useMemo, useState } from 'react';
+import type { CategoryEntity } from '@/api';
 import { Dialog, Input, Modal } from 'antd-mobile';
 import { isNaN } from 'mathjs';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { BudgetEntityLevel, BudgetEntityType } from '@/api/budget.ts';
 import {
   usePatchBudgetAmountByBudgetIdMutation,
   usePostBudgetCategoryMutation,
   usePostBudgetSummaryMutation,
 } from '@/hooks';
-import { BudgetEntityLevel, BudgetEntityType } from '@/api/budget.ts';
-import type { CategoryEntity } from '@/api';
 
+// eslint-disable-next-line react-refresh/only-export-components -- constant map used alongside component
 export const BudgetModelModelTypeMap = {
   CREATE: 'create',
   EDIT: 'edit',

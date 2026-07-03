@@ -4,8 +4,8 @@ import classNames from 'classnames';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TopicItem } from '@/components';
-import { Icon, ImagePreview } from '@/components/ui/index.ts';
 import { usePutTopicLikeMutation } from '@/hooks';
+import { Icon, ImagePreview } from '@/shared/ui';
 import styles from './ItemList.module.scss';
 
 interface ItemListProps {

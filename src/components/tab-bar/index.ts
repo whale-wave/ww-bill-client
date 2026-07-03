@@ -1,4 +1,4 @@
-import './tab-bar.scss';
 import { TabBar } from './tab-bar';
+import './tab-bar.scss';
 
 export default TabBar;

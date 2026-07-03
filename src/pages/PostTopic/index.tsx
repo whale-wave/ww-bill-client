@@ -13,8 +13,8 @@ import {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadFile } from '@/api';
-import { Button, Icon, NavBar } from '@/components/ui/index.ts';
 import { usePostTopicMutation } from '@/hooks';
+import { Button, Icon, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const PostTopic: FC = () => {

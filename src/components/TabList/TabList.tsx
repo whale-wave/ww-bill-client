@@ -1,5 +1,6 @@
+import type { FC } from 'react';
 import classNames from 'classnames';
-import { type FC, useCallback } from 'react';
+import { useCallback } from 'react';
 
 export const TabList: FC<{ className?: string; selectValue: any; tabs: { name: string; value: any }[]; onChange: (value: any) => void }> = ({ className, selectValue, tabs, onChange }) => {
   const handleChange = useCallback((value: any) => () => {

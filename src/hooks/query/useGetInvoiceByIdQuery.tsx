@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getInvoiceByIdApi } from '@/api';
 import { invoiceKeys } from '@/hooks/query/keys/invoiceKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 export function useGetInvoiceByIdQuery(options: {
   params: GetInvoiceByIdApiParams;

@@ -1,7 +1,7 @@
 import { List, Toast } from 'antd-mobile';
+import { EditSOutline, ExclamationCircleOutline, SetOutline } from 'antd-mobile-icons';
 import React, { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EditSOutline, ExclamationCircleOutline, SetOutline } from 'antd-mobile-icons';
 import pkg from '../../../../../package.json';
 
 interface BottomListProps {

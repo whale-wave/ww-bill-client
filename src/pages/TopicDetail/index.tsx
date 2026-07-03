@@ -1,12 +1,12 @@
 import type { FC } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Comment, NavBar } from '@/components/ui/index.ts';
-import config from '@/config';
 import {
   useGetTopicDetailQuery,
   usePostTopicCommentMutation,
   usePutTopicLikeMutation,
 } from '@/hooks';
+import config from '@/shared/config';
+import { Comment, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 import Main from './Main';
 

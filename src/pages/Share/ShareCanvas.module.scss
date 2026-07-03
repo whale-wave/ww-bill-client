@@ -75,7 +75,10 @@
         linear-gradient(rgba(51, 50, 51, 0.2) 1px, transparent 1px),
         linear-gradient(90deg, rgba(51, 50, 51, 0.2) 1px, transparent 1px),
         linear-gradient(135deg, #6ac1f9, #f6d365 52%, #ea6453);
-      background-size: 18px 18px, 18px 18px, 100% 100%;
+      background-size:
+        18px 18px,
+        18px 18px,
+        100% 100%;
     }
     .posterTitle {
       font-size: 26px;

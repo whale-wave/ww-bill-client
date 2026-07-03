@@ -28,7 +28,7 @@ import {
   usePatchFixedExpenseMutation,
   usePostFixedExpenseMutation,
 } from '@/hooks';
-import { cn, normalizeAmount } from '@/utils';
+import { cn, normalizeAmount } from '@/shared/lib';
 import {
   currencyOptions,
   cycleOptions,

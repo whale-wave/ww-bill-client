@@ -1,7 +1,8 @@
+import type { FC } from 'react';
+import classNames from 'classnames';
+import { useState } from 'react';
 import { TopicItem } from '@/components';
 import CheckInfo from '@/components/CheckInfo';
-import classNames from 'classnames';
-import { FC, useState } from 'react';
 import styles from './Tabs.module.scss';
 
 interface TabsProps {
@@ -37,17 +38,14 @@ const Tabs: FC<TabsProps> = ({ checkInfo, topics }) => {
   );
 };
 
-const tabContent = (index: number, checkInfo: any, topics: any) => {
-  switch (index) {
-    case 0:
-      return <Home checkInfo={checkInfo} topics={topics} />;
-    case 1:
-      return <Topics topics={topics} />;
-    case 2:
-      return <Topics topics={topics} />;
-    default:
-      return <Home checkInfo={checkInfo} topics={topics} />;
-  }
+const Topics: FC<{ topics: any }> = ({ topics }) => {
+  return (
+    <div>
+      {topics?.map((topic: any, index: any) => (
+        <TopicItem key={index} data={topic} />
+      ))}
+    </div>
+  );
 };
 
 interface HomeProps {
@@ -68,14 +66,17 @@ const Home: FC<HomeProps> = ({ checkInfo, topics }) => {
   );
 };
 
-const Topics: FC<{ topics: any }> = ({ topics }) => {
-  return (
-    <div>
-      {topics?.map((topic: any, index: any) => (
-        <TopicItem key={index} data={topic} />
-      ))}
-    </div>
-  );
-};
+function tabContent(index: number, checkInfo: any, topics: any) {
+  switch (index) {
+    case 0:
+      return <Home checkInfo={checkInfo} topics={topics} />;
+    case 1:
+      return <Topics topics={topics} />;
+    case 2:
+      return <Topics topics={topics} />;
+    default:
+      return <Home checkInfo={checkInfo} topics={topics} />;
+  }
+}
 
 export default Tabs;

@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getFollowApi } from '@/api';
 import { followKeys } from '@/hooks/query/keys/followKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 export function useGetFollowQuery(options: {
   params: {

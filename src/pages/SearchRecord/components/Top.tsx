@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useRef } from 'react';
 import type { SearchBarRef } from 'antd-mobile';
 import { SearchBar } from 'antd-mobile';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecordStore } from '@/store';
 

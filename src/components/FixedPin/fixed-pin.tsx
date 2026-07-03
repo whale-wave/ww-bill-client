@@ -1,6 +1,6 @@
 import type { CSSProperties, FC, MouseEvent } from 'react';
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
 
 const classPrefix = 'bwm-fixed-pin';
 

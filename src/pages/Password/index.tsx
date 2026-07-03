@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { changePassword } from '@/api';
-import { Button, Input, NavBar } from '@/components/ui/index.ts';
+import { Button, Input, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const Password: FC = () => {

@@ -1,9 +1,9 @@
+import type { FC } from 'react';
 import { Button } from 'antd-mobile';
 import { AddOutline } from 'antd-mobile-icons';
-import type { FC } from 'react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES_PATH } from '@/constants';
+import { ROUTES_PATH } from '@/shared/config/routes';
 
 export const AddAssetAccountButton: FC = () => {
   const navigate = useNavigate();

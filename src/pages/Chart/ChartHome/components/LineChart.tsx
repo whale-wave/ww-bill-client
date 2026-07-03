@@ -1,10 +1,11 @@
-import { type FC, useEffect, useMemo } from 'react';
 import type { EChartsOption } from 'echarts';
-import { renderToString } from 'react-dom/server';
+import type { FC } from 'react';
 import { format } from 'date-fns';
-import { cn } from '@/utils';
-import { useChart } from '@/hooks';
+import { useEffect, useMemo } from 'react';
+import { renderToString } from 'react-dom/server';
 import { TooltipContent } from '@/pages/Chart/ChartHome/components';
+import { cn } from '@/shared/lib';
+import { useChart } from '@/shared/lib/use-chart';
 import { useChartStore } from '@/store';
 
 export const LineChart: FC = () => {

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sign } from '@/api';
 import { EmailCaptchaInput, Input } from '@/components';
-import { Button, NavBar } from '@/components/ui/index.ts';
+import { Button, NavBar } from '@/shared/ui';
 import { useUserStore } from '@/store';
 import styles from './index.module.scss';
 

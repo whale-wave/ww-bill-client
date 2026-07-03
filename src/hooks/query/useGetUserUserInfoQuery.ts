@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getUserUserInfoApi } from '@/api';
 import { userKeys } from '@/hooks/query/keys/userKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 export function useGetUserUserInfoQuery(options?: {
   // params?: GetUserUserInfoApiParams;

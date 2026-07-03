@@ -1,11 +1,11 @@
-import { List } from 'antd-mobile';
 import type { FC } from 'react';
+import type { GetChartApiResponseRankingData } from '@/api';
+import { List } from 'antd-mobile';
 import { useMemo } from 'react';
-import styles from './RankingItem.module.scss';
 import { Icon } from '@/components';
 import { ProgressBar } from '@/pages/Asset/AssetChart/components';
-import { cn } from '@/utils';
-import type { GetChartApiResponseRankingData } from '@/api';
+import { cn } from '@/shared/lib';
+import styles from './RankingItem.module.scss';
 
 export const RankingItem: FC<{ item: GetChartApiResponseRankingData; onClick: () => void }> = ({ item, onClick }) => {
   const percent = useMemo(() => {

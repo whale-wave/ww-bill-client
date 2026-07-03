@@ -1,8 +1,8 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import type { InvoiceEntity } from '@/api';
+import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
 import copy from 'copy-to-clipboard';
-import { Toast } from 'antd-mobile';
-import type { InvoiceEntity } from '@/api';
+import React, { memo, useCallback, useMemo } from 'react';
 
 interface InvoiceInfoProps {
   invoice: InvoiceEntity;

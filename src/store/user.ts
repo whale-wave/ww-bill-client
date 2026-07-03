@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { useChartStore } from './chart';
 import { queryClient } from '@/main';
+import { useChartStore } from './chart';
 
 interface UserInfo {
   id: number | string;

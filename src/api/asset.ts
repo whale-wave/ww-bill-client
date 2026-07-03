@@ -1,5 +1,5 @@
 import type { AssetStatisticalRecordType } from '@/pages/Asset/AssetChart/types';
-import { request } from '@/utils';
+import { request } from '@/shared/api';
 
 export interface AssetStatisticalRecord {
   id: string;

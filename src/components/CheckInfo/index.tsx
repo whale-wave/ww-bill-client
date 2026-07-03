@@ -1,5 +1,5 @@
+import type { FC } from 'react';
 import classNames from 'classnames';
-import { FC } from 'react';
 import './index.scss';
 
 interface CheckInfoProps {

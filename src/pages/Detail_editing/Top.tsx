@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import type { recordChildren } from '@/pages/detail/List';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
-import { Icon, NavBar } from '@/components/ui/index.ts';
-import { playSound } from '@/modules';
+import { playSound } from '@/shared/lib/play-sound';
+import { Icon, NavBar } from '@/shared/ui';
 import styles from './top.module.scss';
 
 interface stateType {

@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { ErrorBlock } from 'antd-mobile';
 import { LineChart, RankingList } from '@/pages/Chart/ChartHome/components';
-import { cn } from '@/utils';
+import { cn } from '@/shared/lib';
 import { useChartStore } from '@/store/chart';
 
 export const ChartContent: FC = () => {

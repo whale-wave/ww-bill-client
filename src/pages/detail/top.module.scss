@@ -3,13 +3,7 @@
   height: 182px;
   position: relative;
   flex-shrink: 0;
-  background: linear-gradient(
-    180deg,
-    var(--ww-theme-color) 0%,
-    var(--ww-theme-color) 75%,
-    #fefefe 89%,
-    #fefefe 100%
-  );
+  background: linear-gradient(180deg, var(--ww-theme-color) 0%, var(--ww-theme-color) 75%, #fefefe 89%, #fefefe 100%);
   &-text-1 {
     font-size: 13px;
     font-weight: 400;

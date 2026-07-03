@@ -1,10 +1,10 @@
-import React from 'react';
-import classNames from 'classnames';
-import { useNavigate } from 'react-router-dom';
-import { RightOutline } from 'antd-mobile-icons';
 import { Card } from 'antd-mobile';
-import { playSound } from '@/modules';
-import { spliceNumberByPoint, zeroFill } from '@/utils/time';
+import { RightOutline } from 'antd-mobile-icons';
+import classNames from 'classnames';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { playSound } from '@/shared/lib/play-sound';
+import { spliceNumberByPoint, zeroFill } from '@/shared/lib/time';
 
 interface CurrentMonthBillCardProps {
   billRecord?: {

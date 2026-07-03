@@ -1,18 +1,18 @@
+import type { FC } from 'react';
 import classNames from 'classnames';
-import { FC } from 'react';
 import styles from './TopBar.module.scss';
 
-type TabData = {
+interface TabData {
   name: string;
   onClick: () => void;
   [key: string]: string | ((...args: unknown[]) => void);
-};
+}
 
-type TopBarProps = {
+interface TopBarProps {
   data: TabData[];
   index: number;
   onChange: (index: number) => void;
-};
+}
 
 const TopBar: FC<TopBarProps> = ({ data, index, onChange }) => {
   return (

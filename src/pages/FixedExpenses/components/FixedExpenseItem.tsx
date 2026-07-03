@@ -1,6 +1,6 @@
 import type { FixedExpenseEntity } from '@/api';
 import React, { memo, useCallback } from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/shared/lib';
 import {
   cycleLabelMap,
   priorityBarColorMap,

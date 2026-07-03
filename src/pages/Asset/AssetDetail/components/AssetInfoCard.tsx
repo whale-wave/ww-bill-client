@@ -1,9 +1,10 @@
+import type { FC } from 'react';
 import { Button } from 'antd-mobile';
-import { type FC, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { AssetAdjustPopup } from './AssetAdjustPopup';
 import { Icon } from '@/components';
 import { useGetAssetByIdQuery } from '@/hooks';
+import { AssetAdjustPopup } from './AssetAdjustPopup';
 
 export const AssetInfoCard: FC = () => {
   const { id } = useParams<{ id: string }>();

@@ -3,12 +3,12 @@ import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/index.ts';
 import { useGetRecordBillQuery } from '@/hooks/query/useGetRecordBillQuery';
 import { BillRecordCard } from '@/pages/Bill/BillRecordCard';
 import { BillTabs } from '@/pages/Bill/BillTabs';
 import Content from '@/pages/Bill/components/Content';
 import { useBillPageStore } from '@/pages/Bill/store';
+import { Button } from '@/shared/ui';
 
 const Bill: FC = () => {
   const navigate = useNavigate();

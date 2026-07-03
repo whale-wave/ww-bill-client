@@ -1,7 +1,8 @@
+import type { FC } from 'react';
 import { Input } from 'antd-mobile';
-import { FC, useCallback, useState } from 'react';
 import { EyeInvisibleOutline, EyeOutline } from 'antd-mobile-icons';
 import classNames from 'classnames';
+import { useCallback, useState } from 'react';
 
 const WwInput: FC<{
   className?: string;
@@ -31,7 +32,7 @@ const WwInput: FC<{
     >
       <Input
         type={type}
-        className={'placeholder:text-[red]'}
+        className="placeholder:text-[red]"
         placeholder={props.placeholder}
         clearable={clearable}
         onlyShowClearWhenFocus={false}
@@ -43,20 +44,22 @@ const WwInput: FC<{
       />
       {props.type === 'password' && (
         <div
-          className={'flex-shrink-0'}
+          className="flex-shrink-0"
           onClick={() => setType(type === 'text' ? 'password' : 'text')}
         >
-          {type === 'text' ? (
-            <EyeOutline
-              className={'text-[20px]'}
-              onClick={() => setType('text')}
-            />
-          ) : (
-            <EyeInvisibleOutline
-              className={'text-[20px]'}
-              onClick={() => setType('password')}
-            />
-          )}
+          {type === 'text'
+            ? (
+                <EyeOutline
+                  className="text-[20px]"
+                  onClick={() => setType('text')}
+                />
+              )
+            : (
+                <EyeInvisibleOutline
+                  className="text-[20px]"
+                  onClick={() => setType('password')}
+                />
+              )}
         </div>
       )}
     </div>

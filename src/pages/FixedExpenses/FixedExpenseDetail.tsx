@@ -2,9 +2,9 @@ import { Skeleton } from 'antd-mobile';
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FixedExpenseCycle } from '@/api';
-import { NavBar } from '@/components/ui/index.ts';
 import { useGetFixedExpenseByIdQuery } from '@/hooks';
-import { cn } from '@/utils';
+import { cn } from '@/shared/lib';
+import { NavBar } from '@/shared/ui';
 import { EditAndDeleteButton } from './components';
 import {
   currencyLabelMap,

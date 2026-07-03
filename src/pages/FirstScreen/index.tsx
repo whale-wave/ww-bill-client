@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import classNames from 'classnames';
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import config from '@/config';
+import config from '@/shared/config';
 import newLogo from '../../assets/images/bill-pingmian.png';
 import styles from './index.module.css';
 

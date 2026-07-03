@@ -2,9 +2,9 @@ import type { FC } from 'react';
 import type { Bill } from '@/api';
 import classNames from 'classnames';
 import { memo, useCallback, useMemo } from 'react';
-import { Icon } from '@/components/ui/index.ts';
 import { useBillPageStore } from '@/pages/Bill/store';
 import { BillTabsType } from '@/pages/Bill/typs';
+import { Icon } from '@/shared/ui';
 import styles from './Content.module.scss';
 
 type DataItem = {

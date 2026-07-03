@@ -1,12 +1,12 @@
-import { useCallback, useEffect } from 'react';
-import type { FC } from 'react';
 import type { TabsProps } from 'antd-mobile';
-import { Tabs } from 'antd-mobile';
+import type { FC } from 'react';
 import { usePrevious } from 'ahooks';
+import { Tabs } from 'antd-mobile';
+import { useCallback, useEffect } from 'react';
 import { TabBar } from '@/components';
-import { ChartContent, Top } from '@/pages/Chart/ChartHome/components';
-import { cn } from '@/utils';
 import { isMonthData, isWeekData, isYearData, useGetChartQuery } from '@/hooks';
+import { ChartContent, Top } from '@/pages/Chart/ChartHome/components';
+import { cn } from '@/shared/lib';
 import { useChartStore } from '@/store';
 
 const ChartHome: FC = () => {

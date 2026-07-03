@@ -1,13 +1,14 @@
-import { type FC, useCallback, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import type { FC } from 'react';
 import { Tabs } from 'antd-mobile';
 import classNames from 'classnames';
+import { useCallback, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { NavBar, TabList } from '@/components';
 import { AssetTabBar } from '../AssetManager/components';
+import styles from './AssetChart.module.scss';
 import { AssetTrendChart, CurAssetStatus, CurNetAssetStatus } from './components';
 import { AssetRanking } from './components/AssetRanking';
-import styles from './AssetChart.module.scss';
 import { AssetStatisticalRecordType } from './types';
-import { NavBar, TabList } from '@/components';
 
 const AssetChart: FC = () => {
   const navigate = useNavigate();

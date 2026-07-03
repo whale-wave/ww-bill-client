@@ -1,6 +1,6 @@
 import type { FC } from 'react';
-import { AssetBottomActions, AssetInfoCard, AssetRecordList } from './components';
 import { NavBar } from '@/components';
+import { AssetBottomActions, AssetInfoCard, AssetRecordList } from './components';
 
 const AssetDetail: FC = () => {
   return (

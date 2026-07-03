@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getAssetApi } from '@/api';
 import { assetKeys } from '@/hooks/query/keys/assetKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 export function useGetAssetQuery(options?: {
   queryOptions?: Omit<UseQueryOptions<SuccessResponse<Asset[]>>, 'queryFn' | 'queryKey'>;

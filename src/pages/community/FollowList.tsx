@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import type { Follow } from '@/api/follow';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FollowTypeEnum } from '@/api/follow';
-import { NavBar } from '@/components/ui/index.ts';
 import { useGetFollowQuery } from '@/hooks';
+import { NavBar } from '@/shared/ui';
 import styles from './FollowList.module.scss';
 
 const Item: FC<ItemProps> = ({ data }) => {

@@ -1,5 +1,5 @@
-import { mergerProps } from '@/utils';
-import { FC } from 'react';
+import type { FC } from 'react';
+import { mergerProps } from '@/shared/lib';
 
 const classPrefix = 'bwm-comment-list-item';
 

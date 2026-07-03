@@ -1,9 +1,10 @@
-import { type FC, useMemo } from 'react';
-import { format } from 'date-fns';
-import { cn } from '@/utils';
+import type { FC } from 'react';
 import type { GetChartApiResponseWeekDataWeekItemDayItem } from '@/api';
-import { Icon } from '@/components';
 import type { AmountType } from '@/store';
+import { format } from 'date-fns';
+import { useMemo } from 'react';
+import { Icon } from '@/components';
+import { cn } from '@/shared/lib';
 
 export const TooltipContent: FC<{ data: GetChartApiResponseWeekDataWeekItemDayItem; currentAmountType: AmountType }> = ({ data, currentAmountType }) => {
   const list = useMemo(() => {

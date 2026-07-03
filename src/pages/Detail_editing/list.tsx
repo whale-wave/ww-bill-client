@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import type { recordChildren } from '../detail/List';
 import c from 'classnames';
 import { useMemo } from 'react';
-import { FixedPin } from '@/components/ui/index.ts';
-import { getTimedate, getTimeDateYear, getWeekByDay } from '@/utils/DataTime';
+import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
+import { FixedPin } from '@/shared/ui';
 import styles from './list.module.scss';
 
 interface stateType {

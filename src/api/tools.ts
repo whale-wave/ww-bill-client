@@ -1,12 +1,12 @@
-import { request } from '@/utils';
+import { request } from '@/shared/api';
 
-export const getToolsCaptchaApi = () => {
+export function getToolsCaptchaApi() {
   return request.get<unknown, any>('/tools/captcha');
-};
+}
 
-export const getToolsEmailApi = (email: string) => {
+export function getToolsEmailApi(email: string) {
   return request.get<unknown, any>('/tools/email', {
     params: { email },
     loading: true,
   });
-};
+}

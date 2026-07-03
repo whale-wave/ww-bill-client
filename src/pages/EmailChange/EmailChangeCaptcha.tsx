@@ -5,9 +5,9 @@ import {
   getUserEmailChangeEmailCaptchaApi,
   getUserEmailChangeEmailCaptchaVerifyApi,
 } from '@/api/user-email';
-import { NavBar } from '@/components/ui/index.ts';
 import WwButton from '@/components/WwButton';
 import { WwInput, WwInputVerifyCode } from '@/pages/ForgetPassword/components';
+import { NavBar } from '@/shared/ui';
 
 interface EmailChangeProps {}
 

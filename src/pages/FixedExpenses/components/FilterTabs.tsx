@@ -1,6 +1,6 @@
 import type { StatusTabOption } from '../constants';
 import React, { memo } from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/shared/lib';
 import { statusTabOptions } from '../constants';
 
 interface FilterTabsProps {

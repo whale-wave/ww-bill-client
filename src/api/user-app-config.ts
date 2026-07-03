@@ -1,5 +1,5 @@
-import { request } from '@/utils';
 import type { UserEntity } from '@/api/system';
+import { request } from '@/shared/api';
 
 export interface UserAppConfig {
   id: string;

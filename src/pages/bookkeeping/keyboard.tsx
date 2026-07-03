@@ -7,9 +7,9 @@ import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from '@/components/ui/index.ts';
 import { usePostRecordMutation, usePutRecordMutation } from '@/hooks';
 import CustomRender from '@/pages/bookkeeping/component';
+import { Icon } from '@/shared/ui';
 import styles from './keyboard.module.scss';
 
 interface keyType {

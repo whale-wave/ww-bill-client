@@ -1,11 +1,12 @@
+import type { FC } from 'react';
+import type { AssetRecord } from '@/api';
 import { DatePicker, Dialog, ErrorBlock, List } from 'antd-mobile';
-import { type FC, useCallback, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import dayjs from 'dayjs';
 import classNames from 'classnames';
+import dayjs from 'dayjs';
+import { useCallback, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Icon } from '@/components';
 import { useGetAssetRecordQuery } from '@/hooks';
-import type { AssetRecord } from '@/api';
 
 export const AssetRecordList: FC = () => {
   const params = useParams();
@@ -70,14 +71,14 @@ export const AssetRecordList: FC = () => {
       {
         dayListGroup.length > 0
           ? dayListGroup.map(({ date, list }) => (
-            <List header={date} key={date}>
-              {list.map(record => (
-                <List.Item key={record.id} onClick={handleClickRecord(record)} description={record.comment} prefix={<div className="text-[20px] rounded-full bg-gray-50 w-[40px] h-[40px] flex items-center justify-center"><Icon name="budget" /></div>} extra={`${record.type === 'sub' ? '-' : '+'}${record.amount}`}>
-                  {record.name}
-                </List.Item>
-              ))}
-            </List>
-          ))
+              <List header={date} key={date}>
+                {list.map(record => (
+                  <List.Item key={record.id} onClick={handleClickRecord(record)} description={record.comment} prefix={<div className="text-[20px] rounded-full bg-gray-50 w-[40px] h-[40px] flex items-center justify-center"><Icon name="budget" /></div>} extra={`${record.type === 'sub' ? '-' : '+'}${record.amount}`}>
+                    {record.name}
+                  </List.Item>
+                ))}
+              </List>
+            ))
           : <div className="mt-[100px]"><ErrorBlock status="empty" /></div>
       }
     </div>

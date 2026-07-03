@@ -1,8 +1,9 @@
-import { type FC, memo, useLayoutEffect } from 'react';
 import type { EChartsOption } from 'echarts';
 import type { TitleOption } from 'echarts/types/dist/shared';
-import { useChart } from '@/hooks';
+import type { FC } from 'react';
+import { memo, useLayoutEffect } from 'react';
 import { THEME_COLOR } from '@/assets/styles/reset';
+import { useChart } from '@/shared/lib/use-chart';
 
 interface RingChartProps {
   percentage?: string;

@@ -3,7 +3,7 @@ import { List } from 'antd-mobile';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
 import CheckInfo from '@/components/CheckInfo';
-import { Icon } from '@/components/ui/index.ts';
+import { Icon } from '@/shared/ui';
 import styles from './UserInfo.module.scss';
 
 interface UserInfoProps {

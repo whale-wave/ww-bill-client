@@ -1,5 +1,5 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
 
 export interface BottomActionActionItem {
   key: string | number;
@@ -34,7 +34,7 @@ const BottomAction: React.FC<BottomActionProps> = (props) => {
                     actionItem.render(actionItem)
                   )
                 : (
-                  <div>{actionItem.label}</div>
+                    <div>{actionItem.label}</div>
                   )}
             </div>
             {index < actions.length - 1 && (

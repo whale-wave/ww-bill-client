@@ -6,7 +6,7 @@ import { Toast } from 'antd-mobile';
 import { useEffect, useMemo, useRef } from 'react';
 import { getRecordBillApi } from '@/api';
 import { recordKeys } from '@/hooks/query/keys/recordKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 const emptyBill: GetRecordBillApiResponseData = {
   list: {},

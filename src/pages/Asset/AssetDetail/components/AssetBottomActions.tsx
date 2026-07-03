@@ -1,13 +1,13 @@
 import type { FC } from 'react';
-import { useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import type { BottomActionActionItem } from '@/components';
 import { Dialog, Toast } from 'antd-mobile';
 import { DeleteOutline, SetOutline } from 'antd-mobile-icons';
-import type { BottomActionActionItem } from '@/components';
-import { ROUTES_PATH } from '@/constants';
+import { useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { BottomAction } from '@/components';
 import { useDeleteAssetByIdMutation } from '@/hooks';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
+import { ROUTES_PATH } from '@/shared/config/routes';
 
 export const AssetBottomActions: FC = () => {
   const navigate = useNavigate();

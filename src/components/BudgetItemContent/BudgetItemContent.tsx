@@ -1,6 +1,6 @@
+import type { BudgetInfo } from '@/api';
 import React, { memo } from 'react';
 import { RingChart } from './RingChart';
-import type { BudgetInfo } from '@/api';
 
 interface BudgetItemContentProps {
   isSummaryBudget: boolean;

@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getChartApi } from '@/api';
 import { chartKeys } from '@/hooks/query/keys/chartKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 export function useGetChartQuery(options: {
   params: GetChartApiParams;

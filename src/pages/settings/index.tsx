@@ -2,11 +2,10 @@ import type { FC, ReactNode } from 'react';
 import { List, Switch, Toast } from 'antd-mobile';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Gap, NavBar } from '@/components/ui/index.ts';
-import { ROUTES_PATH } from '@/constants';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/hooks';
-import { playSound } from '@/modules';
-import { audioWeb } from '@/modules/playSound';
+import { ROUTES_PATH } from '@/shared/config/routes';
+import { audioWeb, playSound } from '@/shared/lib/play-sound';
+import { Gap, NavBar } from '@/shared/ui';
 import { useSystemStore } from '@/store';
 import styles from './index.module.scss';
 

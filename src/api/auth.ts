@@ -1,5 +1,5 @@
-import { request } from '@/utils';
 import type { UserInfo } from '@/api/user';
+import { request } from '@/shared/api';
 
 interface LoginRes {
   token: string;

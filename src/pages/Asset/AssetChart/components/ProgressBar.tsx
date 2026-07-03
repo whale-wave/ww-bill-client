@@ -1,4 +1,5 @@
-import { type FC, useEffect, useRef } from 'react';
+import type { FC } from 'react';
+import { useEffect, useRef } from 'react';
 import { THEME_COLOR } from '@/assets/styles/reset';
 
 export const ProgressBar: FC<{

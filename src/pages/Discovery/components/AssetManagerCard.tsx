@@ -1,9 +1,10 @@
-import { type FC, useCallback } from 'react';
+import type { FC } from 'react';
 import { Card } from 'antd-mobile';
 import { RightOutline } from 'antd-mobile-icons';
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES_PATH } from '@/constants';
 import { useAssetSummaryInfo } from '@/hooks';
+import { ROUTES_PATH } from '@/shared/config/routes';
 
 export const AssetManagerCard: FC = () => {
   const navigate = useNavigate();

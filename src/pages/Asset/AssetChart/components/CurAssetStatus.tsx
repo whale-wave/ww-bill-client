@@ -1,22 +1,23 @@
-import { type FC, useEffect, useMemo, useRef, useState } from 'react';
-import * as echarts from 'echarts/core';
+import type { PieSeriesOption } from 'echarts/charts';
 import type {
   LegendComponentOption,
   TooltipComponentOption,
 } from 'echarts/components';
+import type { FC } from 'react';
+import { useMount, useUnmount } from 'ahooks';
+import { PieChart } from 'echarts/charts';
 import {
   LegendComponent,
   TitleComponent,
   TooltipComponent,
 } from 'echarts/components';
-import type { PieSeriesOption } from 'echarts/charts';
-import { PieChart } from 'echarts/charts';
+import * as echarts from 'echarts/core';
 import { LabelLayout } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
-import { useMount, useUnmount } from 'ahooks';
-import { AssetStatisticalRecordType } from '../types';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAssetSummaryInfo } from '@/hooks';
-import { formatAmount } from '@/utils';
+import { formatAmount } from '@/shared/lib';
+import { AssetStatisticalRecordType } from '../types';
 
 echarts.use([
   TooltipComponent,

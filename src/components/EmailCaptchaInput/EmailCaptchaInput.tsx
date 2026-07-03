@@ -1,6 +1,8 @@
-import { FC, useRef, useState } from 'react';
-import { Input, InputProps } from '../Input';
+import type { FC } from 'react';
+import type { InputProps } from '../Input';
+import { useRef, useState } from 'react';
 import { getToolsEmailApi } from '@/api';
+import { Input } from '../Input';
 
 const WAIT_TIME = 60;
 
@@ -30,7 +32,8 @@ export const EmailCaptchaInput: FC<
   const handleEmail = async () => {
     const { email } = props;
 
-    if (typeof email !== 'string') return;
+    if (typeof email !== 'string')
+      return;
 
     const res = await sendEmailApi(email);
     const canSend = res.statusCode === 200;
@@ -46,15 +49,20 @@ export const EmailCaptchaInput: FC<
       label="验证码"
       className="mt-3"
       placeholder="请输入邮箱验证码"
-      suffix={
+      suffix={(
         <>
-          {sendEmailStatus ? (
-            <span style={{ color: '#ddd' }}>{sendEmailWaitTime}秒后重试</span>
-          ) : (
-            <span onClick={handleEmail}>获取验证码</span>
-          )}
+          {sendEmailStatus
+            ? (
+                <span style={{ color: '#ddd' }}>
+                  {sendEmailWaitTime}
+                  秒后重试
+                </span>
+              )
+            : (
+                <span onClick={handleEmail}>获取验证码</span>
+              )}
         </>
-      }
+      )}
     />
   );
 };

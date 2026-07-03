@@ -1,10 +1,11 @@
-import { useNavigate } from 'react-router-dom';
+import type { FC } from 'react';
 import { AddOutline } from 'antd-mobile-icons';
-import { type FC, useCallback } from 'react';
 import classNames from 'classnames';
-import { playSound } from '@/modules';
-import './tab-bar.scss';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Icon } from '@/components';
+import { playSound } from '@/shared/lib/play-sound';
+import './tab-bar.scss';
 
 interface TabBarProps {
   active: number;

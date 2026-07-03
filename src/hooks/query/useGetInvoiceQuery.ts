@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getInvoiceApi } from '@/api';
 import { invoiceKeys } from '@/hooks/query/keys/invoiceKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 export function useGetInvoiceQuery(options?: {
   queryOptions?: Omit<UseQueryOptions<SuccessResponse<InvoiceEntity[]>>, 'queryFn' | 'queryKey'>;

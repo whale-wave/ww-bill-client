@@ -1,10 +1,11 @@
-import { type FC, useCallback, useMemo } from 'react';
+import type { FC } from 'react';
+import type { AssetGroup } from '@/api';
 import { List } from 'antd-mobile';
+import { useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ROUTES_PATH } from '@/constants';
 import { Icon, NavBar } from '@/components';
 import { useGetAssetGroupQuery } from '@/hooks';
-import type { AssetGroup } from '@/api';
+import { ROUTES_PATH } from '@/shared/config/routes';
 
 const AddAssetAccount: FC = () => {
   const navigate = useNavigate();

@@ -1,20 +1,20 @@
 .nav-bar {
-  background: #FEFEFE;
+  background: #fefefe;
 }
 
 .content {
   flex-grow: 1;
   overflow: auto;
   padding: 12px 16px 24px;
-  background: #F5F5F5;
+  background: #f5f5f5;
 }
 
 .summary {
   margin-bottom: 12px;
   padding: 12px 14px;
   border-radius: 8px;
-  background: #FFFFFF;
-  color: #7A7D80;
+  background: #ffffff;
+  color: #7a7d80;
   font-size: 13px;
   line-height: 1.5;
 }
@@ -24,7 +24,7 @@
   flex-direction: column;
   overflow: hidden;
   border-radius: 8px;
-  background: #FFFFFF;
+  background: #ffffff;
 }
 
 .item {
@@ -36,7 +36,7 @@
   position: relative;
   padding: 13px 16px;
   border: 0;
-  background: #FFFFFF;
+  background: #ffffff;
   color: inherit;
   font: inherit;
   text-align: left;
@@ -46,24 +46,24 @@
   &::before {
     height: 1px;
     position: absolute;
-    content: "";
+    content: '';
     right: 16px;
     bottom: 0;
     left: 16px;
-    background: #EBEBEB;
+    background: #ebebeb;
   }
   &:last-child::before {
     display: none;
   }
   &:hover {
-    background: #FAFAFA;
+    background: #fafafa;
   }
   &:active {
-    background: #F2F3F5;
+    background: #f2f3f5;
   }
   &:focus-visible {
     z-index: 1;
-    outline: 2px solid #1677FF;
+    outline: 2px solid #1677ff;
     outline-offset: -3px;
   }
   .title {
@@ -81,7 +81,7 @@
 .description {
   display: block;
   margin-top: 4px;
-  color: #8B8E91;
+  color: #8b8e91;
   font-size: 13px;
   line-height: 18px;
 }
@@ -89,7 +89,7 @@
 .arrow {
   flex-shrink: 0;
   margin-left: 12px;
-  color: #B7BABD;
+  color: #b7babd;
   font-size: 24px;
   line-height: 1;
 }

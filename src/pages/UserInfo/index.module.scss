@@ -1,7 +1,7 @@
 .avatar {
   width: 35px;
   height: 35px;
-  background: #F5F5F5;
+  background: #f5f5f5;
 }
 
 .inner-input {
@@ -10,18 +10,18 @@
   margin: 0 auto;
   padding: 0 7px;
   display: block;
-  background: #FFFFFF;
-  border: 1px solid #B2B2B2;
+  background: #ffffff;
+  border: 1px solid #b2b2b2;
   border-radius: 5px;
   &::placeholder {
-    color: #C5C5C5;
+    color: #c5c5c5;
   }
 }
 
 .out {
   font-size: 14px;
   height: 45px;
-  background: #FFF;
+  background: #fff;
   box-shadow: none;
 }
 
@@ -31,9 +31,8 @@
     width: 100%;
     height: 30px;
     padding-left: 7px;
-    background: #FFFFFF;
+    background: #ffffff;
     border-radius: 5px;
-    border: 1px solid #B2B2B2;
+    border: 1px solid #b2b2b2;
   }
 }
-

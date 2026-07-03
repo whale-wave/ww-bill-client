@@ -1,9 +1,9 @@
-import { CSSProperties, ChangeEventHandler, FC, ReactNode } from 'react';
+import type { ChangeEventHandler, CSSProperties, FC, ReactNode } from 'react';
 import c from 'classnames';
 
 const classPrefix = `wwb-input`;
 
-export type InputProps = {
+export interface InputProps {
   className?: string;
   label?: string;
   value?: string | number;
@@ -12,7 +12,7 @@ export type InputProps = {
   suffix?: ReactNode;
   style?: CSSProperties;
   onChange?: ChangeEventHandler;
-};
+}
 
 export const Input: FC<InputProps> = ({
   className = '',

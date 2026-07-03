@@ -1,4 +1,4 @@
-import request from '@/utils/request';
+import { request } from '@/shared/api';
 
 export interface RecordEntry {
   amount: string;

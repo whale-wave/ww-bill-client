@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react';
 import type { NavBarProps as AntdNavBarProps } from 'antd-mobile';
 import { NavBar as AntdNavBar } from 'antd-mobile';
 import classNames from 'classnames';
+import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface NavBarProps extends AntdNavBarProps {

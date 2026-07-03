@@ -1,6 +1,6 @@
 import type { Dispatch } from 'react';
-import { createContext } from 'react';
 import type { BudgetEntityType } from '@/api/budget.ts';
+import { createContext } from 'react';
 
 interface BudgetPageContextType {
   budgetEntityType: BudgetEntityType;

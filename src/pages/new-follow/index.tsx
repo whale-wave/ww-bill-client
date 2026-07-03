@@ -2,15 +2,15 @@ import type { Follow } from '@/api';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FollowTypeEnum } from '@/api';
-import { NavBar } from '@/components/ui/index.ts';
 import {
   useDeleteFollowMutation,
   useGetFollowQuery,
   usePostFollowMutation,
 } from '@/hooks';
 import UserFollowItem from '@/pages/new-follow/components';
+import { showDate } from '@/shared/lib/time';
+import { NavBar } from '@/shared/ui';
 import { useUserStore } from '@/store';
-import { showDate } from '@/utils/time';
 import styles from './index.module.scss';
 
 function NewFollow() {

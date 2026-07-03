@@ -1,8 +1,10 @@
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import dayjs, { Dayjs } from 'dayjs';
-import { COUNTDOWN_TIME_SECOND } from '@/constants';
+import type { Dayjs } from 'dayjs';
+import type { FC } from 'react';
 import { Input } from 'antd-mobile';
 import classNames from 'classnames';
+import dayjs from 'dayjs';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { COUNTDOWN_TIME_SECOND } from '@/constants';
 
 const WwInputVerifyCode: FC<{
   className?: string;
@@ -36,12 +38,14 @@ const WwInputVerifyCode: FC<{
   }, [props.onSend]);
 
   useEffect(() => {
-    if (!startTime || !now) return;
+    if (!startTime || !now)
+      return;
 
     const timer = setInterval(() => {
       if (now.diff(startTime, 'second') < COUNTDOWN_TIME_SECOND) {
         setNow(dayjs());
-      } else {
+      }
+      else {
         setNow(undefined);
         clearInterval(timer);
       }
@@ -53,7 +57,8 @@ const WwInputVerifyCode: FC<{
   }, [startTime, now]);
 
   const remainingTime = useMemo(() => {
-    if (!startTime || !now) return 0;
+    if (!startTime || !now)
+      return 0;
     return COUNTDOWN_TIME_SECOND - now.diff(startTime, 'second');
   }, [startTime, now]);
 
@@ -71,7 +76,7 @@ const WwInputVerifyCode: FC<{
       )}
     >
       <Input
-        className={'placeholder:text-[red]'}
+        className="placeholder:text-[red]"
         placeholder={props.placeholder}
         clearable
         onlyShowClearWhenFocus={false}
@@ -79,15 +84,18 @@ const WwInputVerifyCode: FC<{
         onChange={onChange}
         maxLength={6}
       />
-      {!remainingTime ? (
-        <div className={'flex-shrink-0'} onClick={onSend}>
-          重新获取
-        </div>
-      ) : (
-        <div className={'flex-shrink-0 text-[#ccc]'}>
-          {remainingTime}s重新获取
-        </div>
-      )}
+      {!remainingTime
+        ? (
+            <div className="flex-shrink-0" onClick={onSend}>
+              重新获取
+            </div>
+          )
+        : (
+            <div className="flex-shrink-0 text-[#ccc]">
+              {remainingTime}
+              s重新获取
+            </div>
+          )}
     </div>
   );
 };

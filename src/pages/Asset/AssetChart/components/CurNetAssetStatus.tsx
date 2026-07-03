@@ -1,7 +1,7 @@
 import type { FC } from 'react';
-import { useAssetSummaryInfo } from '@/hooks';
-import { formatAmount, math } from '@/utils';
 import { THEME_COLOR } from '@/assets/styles/reset';
+import { useAssetSummaryInfo } from '@/hooks';
+import { formatAmount, math } from '@/shared/lib';
 
 export const CurNetAssetStatus: FC = () => {
   const { info } = useAssetSummaryInfo();
@@ -97,8 +97,8 @@ export const CurNetAssetStatus: FC = () => {
           {Number(info.addAsset) === 0
             ? '0'
             : formatAmount(
-              math.multiply(math.divide(info.subAsset, info.addAsset), 100).toNumber(),
-            )}
+                math.multiply(math.divide(info.subAsset, info.addAsset), 100).toNumber(),
+              )}
           %
         </div>
       </div>

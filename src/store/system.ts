@@ -1,7 +1,7 @@
-import { create } from 'zustand';
-import { clearLocalStorage, getLocalStorageSize } from '@/utils';
-import { audioWeb } from '@/modules/playSound';
 import type { UserAppConfig } from '@/api';
+import { create } from 'zustand';
+import { clearLocalStorage, getLocalStorageSize } from '@/shared/lib';
+import { audioWeb } from '@/shared/lib/play-sound';
 
 interface State {
   canPlay: boolean;

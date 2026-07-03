@@ -3,8 +3,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getToolsCaptchaApi, login, loginEmailCaptchaApi } from '@/api';
 import { EmailCaptchaInput, Input } from '@/components';
-import { Button } from '@/components/ui/index.ts';
-import { playSound } from '@/modules';
+import { playSound } from '@/shared/lib/play-sound';
+import { Button } from '@/shared/ui';
 import { useUserStore } from '@/store';
 import styles from './index.module.scss';
 

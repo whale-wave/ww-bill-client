@@ -1,8 +1,8 @@
-import { stopPropagation } from '@/utils';
-import { FC } from 'react';
+import type { FC } from 'react';
 import classNames from 'classnames';
+import { stopPropagation } from '@/shared/lib';
 
-interface UserFollowItem {
+interface UserFollowItemProps {
   avatar?: string;
   username: string;
   followTime: string;
@@ -20,7 +20,7 @@ const defaultProps = {
 
 const classPrefix = 'bwm-user-follow-item';
 
-export const UserFollowItem: FC<UserFollowItem> = (p) => {
+export const UserFollowItem: FC<UserFollowItemProps> = (p) => {
   const props = Object.assign({ ...defaultProps }, p);
   return (
     <div
@@ -31,11 +31,13 @@ export const UserFollowItem: FC<UserFollowItem> = (p) => {
       <div className={`${classPrefix}-box`}>
         <span className={`${classPrefix}-box-username`}>{props.username}</span>
         <span className={`${classPrefix}-box-desc`}>
-          {props.followTime} 开始关注你了
+          {props.followTime}
+          {' '}
+          开始关注你了
         </span>
       </div>
       <button
-        onClick={(e) => stopPropagation(e, props.onSubmit)}
+        onClick={e => stopPropagation(e, props.onSubmit)}
         className={classNames({
           follow: props.isFollow,
         })}

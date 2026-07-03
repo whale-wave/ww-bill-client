@@ -1,9 +1,9 @@
-import React, { memo, useCallback, useMemo } from 'react';
-import dayjs from 'dayjs';
-import { useNavigate } from 'react-router-dom';
 import type { RecordEntry } from '@/api';
-import { math } from '@/utils';
+import dayjs from 'dayjs';
+import React, { memo, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { RecordListItem } from '@/components';
+import { math } from '@/shared/lib';
 
 interface RecordItemGroupProps {
   data: {
@@ -50,15 +50,15 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
         <div className="text-[13px]">{dayjs(data.time).format('YYYY年MM月DD日')}</div>
         <div className="flex space-x-3">
           {
-              amountInfo.map(item => (
-                <div key={item.type}>
-                  {item.name}
-                  :
-                  {' '}
-                  {item.amount}
-                </div>
-              ))
-            }
+            amountInfo.map(item => (
+              <div key={item.type}>
+                {item.name}
+                :
+                {' '}
+                {item.amount}
+              </div>
+            ))
+          }
         </div>
       </div>
       <div>

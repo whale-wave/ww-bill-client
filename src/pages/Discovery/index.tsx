@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { CurrentMonthBillCard, TabBar } from '@/components';
 import CurMonthBudgetCard from '@/components/CurMonthBudgetCard/CurMonthBudgetCard.tsx';
-import { NavBar } from '@/components/ui/index.ts';
 import { useGetUserUserInfoQuery } from '@/hooks';
 import { AssetManagerCard, CommonFunctionCard } from '@/pages/Discovery/components';
+import { NavBar } from '@/shared/ui';
 import { useUserStore } from '@/store';
 
 interface DiscoveryProps {

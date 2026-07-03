@@ -1,9 +1,11 @@
 import type { PopupProps } from 'antd-mobile';
-import { Button, Input, Popup } from 'antd-mobile';
-import { type FC, useCallback, useEffect, useRef, useState } from 'react';
+import type { FC } from 'react';
 import type { Asset } from '@/api';
+import { Button, Input, Popup } from 'antd-mobile';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePatchAssetAdjustMutation } from '@/hooks';
-import { isSuccessApi, normalizeAmount } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
+import { normalizeAmount } from '@/shared/lib';
 
 export interface AssetAdjustPopupProps extends PopupProps {
   onMaskClick?: () => void;

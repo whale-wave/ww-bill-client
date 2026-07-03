@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
+import type { BudgetInfo } from '@/api';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
+import React, { memo } from 'react';
 import { BudgetEntityLevel, BudgetEntityType } from '@/api';
-import type { BudgetInfo } from '@/api';
 import { BudgetItemContent, Icon } from '@/components';
 
 export interface BudgetItemProps {
@@ -29,24 +29,24 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
       onClick={onClick}
     >
       {
-                typeof index === 'number' && typeof lastIndex === 'number' && index !== lastIndex && <div className="absolute w-[95%] h-[1px] bg-[#f3f3f3] right-0 bottom-0"></div>
-            }
+        typeof index === 'number' && typeof lastIndex === 'number' && index !== lastIndex && <div className="absolute w-[95%] h-[1px] bg-[#f3f3f3] right-0 bottom-0"></div>
+      }
       <div className="flex items-center justify-between flex-shrink-0">
         <div>
           { isSummaryBudget
             ? (
-              <div className="text-[15px]">
-                {budgetEntityType === BudgetEntityType.MONTH ? `${dayjs().format('MM')}月` : `${dayjs().format('YYYY')}年`}
-                总预算
-              </div>
+                <div className="text-[15px]">
+                  {budgetEntityType === BudgetEntityType.MONTH ? `${dayjs().format('MM')}月` : `${dayjs().format('YYYY')}年`}
+                  总预算
+                </div>
               )
             : (
-              <div className="flex items-center justify-center space-x-2">
-                <div className="rounded-full text-[15px] bg-[#f2f2f2] w-[22px] h-[22px] flex justify-center items-center">
-                  <Icon name={data.category!.icon} />
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="rounded-full text-[15px] bg-[#f2f2f2] w-[22px] h-[22px] flex justify-center items-center">
+                    <Icon name={data.category!.icon} />
+                  </div>
+                  <div className="flex items-center" style={{ transform: 'translateY(0px)' }}>{data.category!.name}</div>
                 </div>
-                <div className="flex items-center" style={{ transform: 'translateY(0px)' }}>{data.category!.name}</div>
-              </div>
               )}
         </div>
         <div className="text-[13px] text-[#6C6C6C]">编辑</div>

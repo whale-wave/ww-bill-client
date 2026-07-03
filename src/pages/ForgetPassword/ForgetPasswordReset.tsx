@@ -9,9 +9,9 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { postAuthPasswordForgetResetApi } from '@/api';
-import { NavBar } from '@/components/ui/index.ts';
-import { playSound } from '@/modules';
 import { WwInput } from '@/pages/ForgetPassword/components';
+import { playSound } from '@/shared/lib/play-sound';
+import { NavBar } from '@/shared/ui';
 
 const ForgetPasswordReset: FC = () => {
   const navigate = useNavigate();

@@ -1,6 +1,6 @@
-import { request } from '@/utils';
 import type { CategoryEntity } from '@/api/category.ts';
 import type { UserEntity } from '@/api/system.ts';
+import { request } from '@/shared/api';
 
 export enum BudgetEntityLevel {
   SUMMARY = 0,

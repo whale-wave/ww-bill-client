@@ -1,4 +1,4 @@
-$class-prefix-user-follow-item: "bwm-user-follow-item";
+$class-prefix-user-follow-item: 'bwm-user-follow-item';
 
 .#{$class-prefix-user-follow-item} {
   display: flex;
@@ -6,13 +6,13 @@ $class-prefix-user-follow-item: "bwm-user-follow-item";
   padding: 11px 16px 13px;
   position: relative;
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     bottom: 0;
     right: 0;
     width: 360px;
     height: 1px;
-    background: #E9EBEE;
+    background: #e9ebee;
   }
   img {
     width: 47px;
@@ -28,21 +28,21 @@ $class-prefix-user-follow-item: "bwm-user-follow-item";
     &-username {
       font-size: 16px;
       font-weight: bold;
-      color: #1C1C1F;
+      color: #1c1c1f;
     }
     &-desc {
       font-size: 12px;
-      color: #888B92;
+      color: #888b92;
     }
   }
   button {
     width: 54px;
     height: 25px;
-    background: #FFFFFF;
+    background: #ffffff;
     border-radius: 13px 13px 13px 13px;
-    border: 1px solid #E8E8E8;
+    border: 1px solid #e8e8e8;
     &.follow {
-      color: #92979F;
+      color: #92979f;
     }
   }
 }

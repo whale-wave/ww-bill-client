@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getBudgetInfoApi } from '@/api/budget.ts';
 import { budgetKeys } from '@/hooks/query/keys/budgetKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 const emptyBudgetInfo: GetBudgetInfoApiResponseData = {
   categoryBudgets: [],

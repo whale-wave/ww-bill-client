@@ -1,8 +1,8 @@
-type iconType = {
+interface iconType {
   id?: number;
   name: string;
   icon: string;
-};
+}
 
 const mainList: iconType[] = [
   {
@@ -143,11 +143,11 @@ const mainList: iconType[] = [
   },
 ];
 
-const mainListFn = () => {
+function mainListFn() {
   for (let i = 0; i < mainList.length; i++) {
     mainList[i].id = i + 1;
   }
-};
+}
 
 mainListFn();
 

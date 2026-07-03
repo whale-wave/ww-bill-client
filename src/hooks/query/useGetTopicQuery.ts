@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getTopics } from '@/api';
 import { topicKeys } from '@/hooks/query/keys/topicKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 interface GetTopicQueryData {
   topics: Topic[];

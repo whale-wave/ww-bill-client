@@ -3,10 +3,10 @@ import { Toast } from 'antd-mobile';
 import React, { useCallback, useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { getUserEmailChangeEmailCaptchaNewEmailApi } from '@/api';
-import { NavBar } from '@/components/ui/index.ts';
 import WwButton from '@/components/WwButton';
 import { usePostUserEmailChangeEmailMutation } from '@/hooks';
 import { WwInput, WwInputVerifyCode } from '@/pages/ForgetPassword/components';
+import { NavBar } from '@/shared/ui';
 
 interface EmailChangeProps {}
 

@@ -1,8 +1,9 @@
-import { type FC, useCallback } from 'react';
+import type { FC } from 'react';
 import { TabBar } from 'antd-mobile';
 import { HistogramOutline, ReceiptOutline } from 'antd-mobile-icons';
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES_PATH } from '@/constants';
+import { ROUTES_PATH } from '@/shared/config/routes';
 
 export const AssetTabBar: FC<{ activeKey: string }> = ({ activeKey }) => {
   const navigate = useNavigate();

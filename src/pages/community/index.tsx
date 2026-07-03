@@ -2,10 +2,10 @@ import type { FC } from 'react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TabBar } from '@/components';
-import { FixedPin } from '@/components/ui/index.ts';
 import { useGetTopicQuery } from '@/hooks';
 import ItemList from '@/pages/community/ItemList';
 import TopBar from '@/pages/community/TopBar';
+import { FixedPin } from '@/shared/ui';
 
 const Community: FC = () => {
   const [tabIndex, setTabIndex] = useState(2);

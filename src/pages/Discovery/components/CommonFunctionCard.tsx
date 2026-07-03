@@ -3,7 +3,7 @@ import { CalendarOutline, ReceivePaymentOutline, TextOutline } from 'antd-mobile
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '@/components';
-import { ROUTES_PATH } from '@/constants';
+import { ROUTES_PATH } from '@/shared/config/routes';
 
 interface CommonFunctionCardProps {}
 

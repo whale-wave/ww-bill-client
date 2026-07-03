@@ -1,12 +1,13 @@
-import { type FC, useCallback, useMemo } from 'react';
+import type { FC } from 'react';
+import type { Asset, AssetGroup } from '@/api';
 import { Dialog, ErrorBlock, List, SwipeAction, Toast } from 'antd-mobile';
+import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDeleteAssetByIdMutation, useGetAssetGroupQuery, useGetAssetQuery } from '@/hooks';
+import { ROUTES_PATH } from '@/shared/config/routes';
+import { formatAmount, math } from '@/shared/lib';
 import { IconBlock } from '../../components';
 import styles from './AssetList.module.scss';
-import { formatAmount, math } from '@/utils';
-import { ROUTES_PATH } from '@/constants';
-import { useDeleteAssetByIdMutation, useGetAssetGroupQuery, useGetAssetQuery } from '@/hooks';
-import type { Asset, AssetGroup } from '@/api';
 
 export const AssetList: FC = () => {
   const navigate = useNavigate();
@@ -88,48 +89,48 @@ export const AssetList: FC = () => {
       {
         listGroup.length > 0
           ? listGroup.map(group => (
-            <List
-              key={group.id}
-              header={(
-                <div className="flex justify-between items-center">
-                  <span>{group.name}</span>
-                  <span className="!text-[#999]">
-                    {parseAmount(group.amount.toString(), group.type)}
-                  </span>
-                </div>
-              )}
-            >
-              {group.list.map(asset => (
-                <SwipeAction
-                  key={asset.id}
-                  rightActions={[{
-                    key: 'delete',
-                    text: '删除',
-                    color: 'danger',
-                    onClick: handleDelete(asset),
-                  }]}
-                >
-                  <List.Item
-                    className="!pl-[12px] !px-0"
-                    style={{
-                    // eslint-disable-next-line ts/ban-ts-comment
-                    // @ts-expect-error
-                      '--adm-color-weak': '#333',
-                      '--adm-font-size-main': '11px',
-                    }}
-                    prefix={<IconBlock name={asset.assetGroup.icon} />}
-                    description={asset.comment}
-                    onClick={handleItemClick(asset)}
-                    arrow={false}
-                    extra={parseAmount(asset.amount, asset.assetGroup.type)}
+              <List
+                key={group.id}
+                header={(
+                  <div className="flex justify-between items-center">
+                    <span>{group.name}</span>
+                    <span className="!text-[#999]">
+                      {parseAmount(group.amount.toString(), group.type)}
+                    </span>
+                  </div>
+                )}
+              >
+                {group.list.map(asset => (
+                  <SwipeAction
+                    key={asset.id}
+                    rightActions={[{
+                      key: 'delete',
+                      text: '删除',
+                      color: 'danger',
+                      onClick: handleDelete(asset),
+                    }]}
                   >
-                    {asset.name}
-                    {asset.cardId ? `(${asset.cardId})` : ''}
-                  </List.Item>
-                </SwipeAction>
-              ))}
-            </List>
-          ))
+                    <List.Item
+                      className="!pl-[12px] !px-0"
+                      style={{
+                        // eslint-disable-next-line ts/ban-ts-comment
+                        // @ts-expect-error
+                        '--adm-color-weak': '#333',
+                        '--adm-font-size-main': '11px',
+                      }}
+                      prefix={<IconBlock name={asset.assetGroup.icon} />}
+                      description={asset.comment}
+                      onClick={handleItemClick(asset)}
+                      arrow={false}
+                      extra={parseAmount(asset.amount, asset.assetGroup.type)}
+                    >
+                      {asset.name}
+                      {asset.cardId ? `(${asset.cardId})` : ''}
+                    </List.Item>
+                  </SwipeAction>
+                ))}
+              </List>
+            ))
           : <div className="my-[80px]"><ErrorBlock status="empty" description="定期更新资产账户, 轻松掌握资产状况" /></div>
       }
     </div>

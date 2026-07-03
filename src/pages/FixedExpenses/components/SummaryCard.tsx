@@ -1,6 +1,6 @@
 import type { FixedExpenseSummary } from '@/api';
 import React, { memo } from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/shared/lib';
 import { formatThousands } from '../utils';
 
 interface SummaryCardProps {

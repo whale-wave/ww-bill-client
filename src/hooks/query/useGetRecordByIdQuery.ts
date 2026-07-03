@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getRecordByIdApi } from '@/api';
 import { recordKeys } from '@/hooks/query/keys/recordKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 export function useGetRecordByIdQuery(options?: {
   params: GetRecordByIdApiParams;

@@ -1,6 +1,6 @@
 import type { CategoryEntity } from './category';
 import type { RecordEntry } from './record';
-import { request } from '@/utils';
+import { request } from '@/shared/api';
 
 export interface GetChartApiResponseRankingData {
   amount: number;

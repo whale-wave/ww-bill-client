@@ -1,4 +1,4 @@
-// import { FixedPin } from '@/components/ui/index.ts';
+// import { FixedPin } from '@/shared/ui';
 
 // export default () => {
 //   const onClick = () => {

@@ -3,9 +3,9 @@ import type { CategoryAmountType, CategoryEntity } from '@/api';
 import { ErrorBlock, SpinLoading } from 'antd-mobile';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Icon, NavBar } from '@/components/ui/index.ts';
 import { useGetCategoryQuery } from '@/hooks';
-import { playSound } from '@/modules';
+import { playSound } from '@/shared/lib/play-sound';
+import { Icon, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
 interface CategoryTab {

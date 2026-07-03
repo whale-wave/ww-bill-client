@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import { List } from 'antd-mobile';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/shared/lib';
 import { useChartStore } from '@/store';
-import { cn } from '@/utils';
 import { RankingItem } from './RankingItem';
 
 export const RankingList: FC = () => {

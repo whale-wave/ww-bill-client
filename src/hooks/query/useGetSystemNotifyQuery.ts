@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getSystemNotifyApi } from '@/api';
 import { systemKeys } from '@/hooks/query/keys/systemKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 export function useGetSystemNotifyQuery(options?: {
   queryOptions?: Omit<UseQueryOptions<SuccessResponse<SystemNotify[]>>, 'queryFn' | 'queryKey'>;

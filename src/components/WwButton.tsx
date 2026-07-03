@@ -1,5 +1,5 @@
-import React from 'react';
 import { Button } from 'antd-mobile';
+import React from 'react';
 
 interface WwButtonProps {
   onClick: () => void;
@@ -12,7 +12,7 @@ const WwButton: React.FC<WwButtonProps> = (props) => {
   return (
     <Button
       block
-      className={'!w-[80%] !rounded-[12px] !mt-10 !text-black333'}
+      className="!w-[80%] !rounded-[12px] !mt-10 !text-black333"
       color="primary"
       size="large"
       onClick={onClick}

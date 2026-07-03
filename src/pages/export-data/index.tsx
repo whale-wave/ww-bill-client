@@ -3,8 +3,8 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRecordApi } from '@/api';
-import { Button, Gap, List, NavBar } from '@/components/ui/index.ts';
-import { exportRecordData } from '@/utils/exportData';
+import { exportRecordData } from '@/shared/lib/export-data';
+import { Button, Gap, List, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
 enum ChangeType {

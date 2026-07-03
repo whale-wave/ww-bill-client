@@ -1,10 +1,10 @@
 import type { FC } from 'react';
+import type { CategoryAmountType } from '@/api';
+import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import dayjs from 'dayjs';
+import { playSound } from '@/shared/lib/play-sound';
 import styles from './navBar.module.scss';
-import type { CategoryAmountType } from '@/api';
-import { playSound } from '@/modules';
 
 interface NavBarProps {
   change: (type: CategoryAmountType) => void;

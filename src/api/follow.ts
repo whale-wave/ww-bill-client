@@ -1,4 +1,4 @@
-import { request } from '@/utils';
+import { request } from '@/shared/api';
 
 export enum FollowTypeEnum {
   FOLLOW = 'follow',

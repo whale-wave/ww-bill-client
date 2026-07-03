@@ -1,6 +1,6 @@
+import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import { DatePicker, Space } from 'antd-mobile';
-import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 
 interface CustomRender {

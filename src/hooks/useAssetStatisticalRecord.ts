@@ -1,6 +1,6 @@
+import type { AssetStatisticalRecord } from '@/api';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
-import type { AssetStatisticalRecord } from '@/api';
 
 export function useAssetStatisticalRecord(data?: AssetStatisticalRecord[]) {
   const groupByMonth = useMemo(() => {

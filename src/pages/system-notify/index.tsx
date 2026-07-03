@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { NavBar } from '@/components/ui/index.ts';
 import { useGetSystemNotifyQuery } from '@/hooks';
 import CommentListItem from '@/pages/comment-list/components';
-import { showDate } from '@/utils/time';
+import { showDate } from '@/shared/lib/time';
+import { NavBar } from '@/shared/ui';
 
 function SystemNotify() {
   const navigate = useNavigate();

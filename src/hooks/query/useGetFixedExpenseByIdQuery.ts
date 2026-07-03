@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getFixedExpenseByIdApi } from '@/api';
 import { fixedExpenseKeys } from '@/hooks/query/keys/fixedExpenseKeys';
-import { isSuccessApi } from '@/utils';
+import { isSuccessApi } from '@/shared/api';
 
 interface UseGetFixedExpenseByIdQueryOptions {
   params: GetFixedExpenseByIdApiParams;

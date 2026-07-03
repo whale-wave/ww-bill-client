@@ -1,6 +1,6 @@
-import React, { memo } from 'react';
-import classNames from 'classnames';
 import type { RecordEntry } from '@/api';
+import classNames from 'classnames';
+import React, { memo } from 'react';
 import { Icon } from '@/components';
 
 interface RecordListItemProps {

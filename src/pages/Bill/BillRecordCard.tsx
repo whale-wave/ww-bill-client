@@ -1,10 +1,10 @@
-import { Card } from 'antd-mobile';
 import type { FC } from 'react';
-import { useMemo } from 'react';
-import { mergerProps } from '@/utils';
 import type { Bill } from '@/api';
-import { BillTabsType } from '@/pages/Bill/typs';
+import { Card } from 'antd-mobile';
+import { useMemo } from 'react';
 import { useBillPageStore } from '@/pages/Bill/store';
+import { BillTabsType } from '@/pages/Bill/typs';
+import { mergerProps } from '@/shared/lib';
 
 const defaultProps = {
   data: {

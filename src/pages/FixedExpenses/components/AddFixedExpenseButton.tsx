@@ -3,7 +3,7 @@ import { AddOutline } from 'antd-mobile-icons';
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BottomAction } from '@/components';
-import { ROUTES_PATH } from '@/constants/route';
+import { ROUTES_PATH } from '@/shared/config/routes';
 
 const AddFixedExpenseButton: React.FC = () => {
   const navigate = useNavigate();
