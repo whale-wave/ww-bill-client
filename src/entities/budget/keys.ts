@@ -1,4 +1,4 @@
-import type { GetBudgetInfoApiParams } from '@/api';
+import type { GetBudgetInfoApiParams } from './api';
 
 export const budgetKeys = {
   all: ['budget'] as const,

@@ -3,12 +3,13 @@ import { Dialog, Input, Modal } from 'antd-mobile';
 import { isNaN } from 'mathjs';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BudgetEntityLevel, BudgetEntityType } from '@/api/budget.ts';
 import {
+  BudgetEntityLevel,
+  BudgetEntityType,
   usePatchBudgetAmountByBudgetIdMutation,
   usePostBudgetCategoryMutation,
   usePostBudgetSummaryMutation,
-} from '@/hooks';
+} from '@/entities/budget';
 
 // eslint-disable-next-line react-refresh/only-export-components -- constant map used alongside component
 export const BudgetModelModelTypeMap = {

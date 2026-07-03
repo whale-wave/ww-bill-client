@@ -834,3 +834,21 @@ commit 31 文件,+250/-266。UI 组件(RecordList、RecordListItem、CurrentMont
 ---
 
 本方案到此。后续推进从 P1 起步,每阶段独立 PR。
+
+---
+
+### P3.5 budget 实体抽取 — 2026-07-04 ✅
+
+`api/budget.ts`、`hooks/query/keys/budgetKeys.ts`、1 query + 5 mutation hooks、3 UI 组件(BudgetItem、BudgetItemContent+RingChart、CurMonthBudgetCard)→ `entities/budget/`。
+
+**结构**:`api.ts`、`keys.ts`、`hooks.ts`(6 hooks 聚合)、`ui/`(4 文件)、`index.ts` barrel。
+
+**关键处理**:
+- `api.ts` 仍引 `CategoryEntity` from `@/api/category`、`UserEntity` from `@/api/system`(过渡,待 category/user entity 抽取)
+- UI 内部 import 全改相对路径(`../api`、`../hooks`、`./BudgetItemContent`);`BudgetItem`/`CurMonthBudgetCard` 的 `Icon` 从 `@/components` 改 `@/shared/ui`
+- entity barrel 导出 3 个 UI 组件(default → named re-export)
+- `components/index.ts` 删 `BudgetItem`、`BudgetItemContent`、`CurMonthBudgetCard` re-export
+- `api/index.ts`、`hooks/query/index.ts`、`hooks/mutation/index.ts` 删 budget re-export
+- 6 consumer 更新:`Budget/index.tsx`(MIXED — `BudgetInfo`/`BudgetEntityLevel`/`BudgetEntityType`/`BudgetItem`/3 hooks 合并到 entity,`CategoryEntity`/`BottomAction` 留原处)、`Budget/components/BudgetTop.tsx`、`Budget/components/BudgetModel.tsx`(3 mutations 从 `@/hooks` 改 entity)、`Budget/store/budgetPageContext.ts`、`CreateBudgetCategory/index.tsx`(MIXED — `BudgetEntityType`/`BudgetEntityLevel` 拆到 entity,`CategoryEntity` 留 `@/api`)、`Discovery/index.tsx`(`CurMonthBudgetCard` 从直接文件路径改 entity barrel)
+
+vite build 通过,eslint 0 error(6 pre-existing warning)。

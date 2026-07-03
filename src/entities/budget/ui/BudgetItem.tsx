@@ -1,9 +1,10 @@
-import type { BudgetInfo } from '@/api';
+import type { BudgetInfo } from '../api';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import React, { memo } from 'react';
-import { BudgetEntityLevel, BudgetEntityType } from '@/api';
-import { BudgetItemContent, Icon } from '@/components';
+import { Icon } from '@/shared/ui';
+import { BudgetEntityLevel, BudgetEntityType } from '../api';
+import BudgetItemContent from './BudgetItemContent';
 
 export interface BudgetItemProps {
   className?: string;

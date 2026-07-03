@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { CurrentMonthBillCard, TabBar } from '@/components';
-import CurMonthBudgetCard from '@/components/CurMonthBudgetCard/CurMonthBudgetCard.tsx';
+import { CurMonthBudgetCard } from '@/entities/budget';
 import { useGetUserUserInfoQuery } from '@/hooks';
 import { AssetManagerCard, CommonFunctionCard } from '@/pages/Discovery/components';
 import { NavBar } from '@/shared/ui';

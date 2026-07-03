@@ -3,9 +3,9 @@ import { AddOutline, RightOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BudgetEntityType } from '@/api';
-import { BudgetItemContent } from '@/components';
-import { useGetBudgetInfoQuery } from '@/hooks';
+import { BudgetEntityType } from '../api';
+import { useGetBudgetInfoQuery } from '../hooks';
+import BudgetItemContent from './BudgetItemContent';
 
 interface CardProps {
 }

@@ -3,8 +3,8 @@ import type { RefObject } from 'react';
 import { Dropdown, List } from 'antd-mobile';
 import { CheckOutline, DownFill } from 'antd-mobile-icons';
 import React, { useContext, useMemo, useRef } from 'react';
-import { BudgetEntityType } from '@/api/budget.ts';
 import { NavBar } from '@/components';
+import { BudgetEntityType } from '@/entities/budget';
 import style from '@/pages/Budget/components/BudgetTop.module.scss';
 import { BudgetPageContext } from '@/pages/Budget/store/budgetPageContext.ts';
 

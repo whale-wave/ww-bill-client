@@ -1,4 +1,4 @@
-import type { BudgetInfo } from '@/api';
+import type { BudgetInfo } from '../api';
 import React, { memo } from 'react';
 import { RingChart } from './RingChart';
 
