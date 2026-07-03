@@ -794,6 +794,26 @@ commit `17 files changed, +29/-395`。tsc + eslint 通过。
 - hooks 聚合到单文件 `hooks.ts` 可行(9 个 hook ~280 行)
 - 跨层类型(如 `AssetStatisticalRecordType` 在 pages/)随 entity 一起收敛
 
+### P3.2 invoice 实体抽取 — 2026-07-04 ✅
+
+较 asset 简单(无独立 types/constants/lib)。`entities/invoice/` 含 api、keys、hooks(5 聚合)、index。5 个 consumer(`pages/Invoice/*`)全 import invoice 项,直接 sed。commit 17 文件,+130/-150。
+
+### P3.3 fixed-expense 实体抽取 — 2026-07-04 ✅
+
+5 enum + 多类型。`entities/fixed-expense/` 含 api、keys、hooks(5 聚合)、index。8 个 consumer(`pages/FixedExpenses/*` 含 constants.ts、utils.ts)全 fixed-expense 项,直接 sed。commit `25aae2e`,25 文件。
+
+### P3.4a record 实体抽取(数据层)— 2026-07-04 ✅
+
+最大实体(api 105 行 + 6 hooks + 跨页类型)。`entities/record/` 含 api、keys、hooks(6 聚合)、types、index。
+
+**关键处理**:
+- `recordChildren` 类型从 `pages/detail/List.tsx` 移到 `entities/record/types.ts`,消除 6 处跨页 import(`@/pages/detail/List` / `../detail/List`)
+- 2 个 MIXED consumer 拆分:`bookkeeping/keyboard.tsx`(`CategoryEntity` 留 `@/api` + `PutRecordApiData` 转 entity)、`Chart/ChartCategory.tsx`(chart 类型留 `@/api` + `RecordEntry` 转 entity)
+- `pages/detail/List.tsx` 移除 interface 定义,改 import
+- record hooks 暂从 `@/hooks/query` 引 `chartKeys`(过渡,chart entity 抽取后改 `@/entities/chart`)
+
+commit 31 文件,+250/-266。UI 组件(RecordList、RecordListItem、CurrentMonthBillCard)留 P3.4b。
+
 ---
 
 本方案到此。后续推进从 P1 起步,每阶段独立 PR。
