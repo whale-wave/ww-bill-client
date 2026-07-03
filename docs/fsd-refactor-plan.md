@@ -648,6 +648,35 @@ export function useChartTabs(timeRange: TimeRangeCategory) {
 | `docs/frontend-audit-roadmap.md` | P7 收尾 | 标注 M4(ROUTES_PATH)/ M5(组件归一)与本方案 P6/P2-P3 的对应关系,避免重复执行 |
 | `docs/flowcharts/feature-flows.md` | 不动 | 业务流程文档与结构无关 |
 
+### 12.2 `shared/ui` 清理规则(antd-mobile 替代)
+
+`shared/ui/`(原 `components/ui/`)是早期参考 antd-mobile 封装的组件库,后因维护成本已整体迁回 antd-mobile。重构中按以下规则清理:
+
+- **发现页面已用 antd-mobile 同类组件** → 删除 `shared/ui/` 对应组件(迁移引用后删)
+- **无 antd-mobile 替代** → 保留 `shared/ui/` 组件
+
+`shared/ui/` 现有组件与 antd-mobile 对应关系(待逐个核查页面实际用法):
+
+| shared/ui 组件 | antd-mobile 对应 | 处理倾向 |
+|---------------|-----------------|----------|
+| button | `Button` | 核查后删 |
+| input | `Input` | 核查后删 |
+| list | `List` + `ListItem` | 核查后删 |
+| mask | `Mask` | 核查后删 |
+| modal | `Dialog` / `Modal` | 核查后删 |
+| nav-bar | `NavBar` | 核查后删 |
+| progress-bar | `ProgressBar` | 核查后删 |
+| progress-circle | `ProgressCircle` | 核查后删 |
+| switch | `Switch` | 核查后删 |
+| image-preview | `ImageViewer` | 核查后删 |
+| icon | (无直接对应,有 `antd-mobile-icons`) | 保留 |
+| comment | (无) | 保留 |
+| fixed-pin | (无) | 保留 |
+| gap | (无) | 保留 |
+| share | (无) | 保留 |
+
+执行时机:P3 接触页面时顺带核查;或单独一个清理 PR。不盲删 — 必须确认页面已切到 antd-mobile 再删。
+
 ---
 
 ## 13. 决策记录(本次方案裁决)
