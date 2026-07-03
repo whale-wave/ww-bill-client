@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useAssetSummaryInfo } from '@/hooks';
+import { useAssetSummaryInfo } from '@/entities/asset';
 
 export const AssetInfoCard: FC = () => {
   const { formatInfo } = useAssetSummaryInfo();

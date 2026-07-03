@@ -1,12 +1,11 @@
 import type { FC } from 'react';
-import type { Asset } from '@/api';
+import type { Asset } from '@/entities/asset';
 import { Button, Form, Input, Toast } from 'antd-mobile';
 import { clone, pick } from 'lodash-es';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { CARD_TYPE } from '@/api';
 import { NavBar } from '@/components';
-import { useGetAssetByIdQuery, useGetAssetGroupById, usePatchAssetAdjustMutation, usePostAssetMutation } from '@/hooks';
+import { CARD_TYPE, useGetAssetByIdQuery, useGetAssetGroupById, usePatchAssetAdjustMutation, usePostAssetMutation } from '@/entities/asset';
 import { isSuccessApi } from '@/shared/api';
 import { normalizeAmount } from '@/shared/lib';
 

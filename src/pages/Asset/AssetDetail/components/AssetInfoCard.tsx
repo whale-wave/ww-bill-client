@@ -3,7 +3,7 @@ import { Button } from 'antd-mobile';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Icon } from '@/components';
-import { useGetAssetByIdQuery } from '@/hooks';
+import { useGetAssetByIdQuery } from '@/entities/asset';
 import { AssetAdjustPopup } from './AssetAdjustPopup';
 
 export const AssetInfoCard: FC = () => {

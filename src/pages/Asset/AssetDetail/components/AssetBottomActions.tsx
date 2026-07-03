@@ -5,7 +5,7 @@ import { DeleteOutline, SetOutline } from 'antd-mobile-icons';
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BottomAction } from '@/components';
-import { useDeleteAssetByIdMutation } from '@/hooks';
+import { useDeleteAssetByIdMutation } from '@/entities/asset';
 import { isSuccessApi } from '@/shared/api';
 import { ROUTES_PATH } from '@/shared/config/routes';
 

@@ -1,4 +1,4 @@
-import type { AssetStatisticalRecord } from '@/api';
+import type { AssetStatisticalRecord } from '../api';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 

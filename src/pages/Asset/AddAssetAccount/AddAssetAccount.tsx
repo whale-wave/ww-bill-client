@@ -1,10 +1,10 @@
 import type { FC } from 'react';
-import type { AssetGroup } from '@/api';
+import type { AssetGroup } from '@/entities/asset';
 import { List } from 'antd-mobile';
 import { useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Icon, NavBar } from '@/components';
-import { useGetAssetGroupQuery } from '@/hooks';
+import { useGetAssetGroupQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 
 const AddAssetAccount: FC = () => {

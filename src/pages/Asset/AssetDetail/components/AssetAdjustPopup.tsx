@@ -1,9 +1,9 @@
 import type { PopupProps } from 'antd-mobile';
 import type { FC } from 'react';
-import type { Asset } from '@/api';
+import type { Asset } from '@/entities/asset';
 import { Button, Input, Popup } from 'antd-mobile';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { usePatchAssetAdjustMutation } from '@/hooks';
+import { usePatchAssetAdjustMutation } from '@/entities/asset';
 import { isSuccessApi } from '@/shared/api';
 import { normalizeAmount } from '@/shared/lib';
 

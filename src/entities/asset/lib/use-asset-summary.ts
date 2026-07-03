@@ -1,7 +1,7 @@
-import type { AssetGroup } from '@/api';
+import type { AssetGroup } from '../api';
 import { useMemo } from 'react';
 import { formatAmount, math } from '@/shared/lib';
-import { useGetAssetQuery } from './query';
+import { useGetAssetQuery } from '../hooks';
 
 type Result = { group: AssetGroup; percent: number; percentStr: string }[];
 

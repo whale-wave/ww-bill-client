@@ -1,12 +1,12 @@
 import type { FC } from 'react';
-import type { AssetRecord } from '@/api';
+import type { AssetRecord } from '@/entities/asset';
 import { DatePicker, Dialog, ErrorBlock, List } from 'antd-mobile';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Icon } from '@/components';
-import { useGetAssetRecordQuery } from '@/hooks';
+import { useGetAssetRecordQuery } from '@/entities/asset';
 
 export const AssetRecordList: FC = () => {
   const params = useParams();

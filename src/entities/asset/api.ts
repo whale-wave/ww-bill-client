@@ -1,4 +1,4 @@
-import type { AssetStatisticalRecordType } from '@/pages/Asset/AssetChart/types';
+import type { AssetStatisticalRecordType } from './types';
 import { request } from '@/shared/api';
 
 export interface AssetStatisticalRecord {

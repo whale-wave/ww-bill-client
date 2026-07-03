@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import { useCallback, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { NavBar, TabList } from '@/components';
+import { AssetStatisticalRecordType } from '@/entities/asset';
 import { AssetTabBar } from '../AssetManager/components';
 import styles from './AssetChart.module.scss';
 import { AssetTrendChart, CurAssetStatus, CurNetAssetStatus } from './components';
 import { AssetRanking } from './components/AssetRanking';
-import { AssetStatisticalRecordType } from './types';
 
 const AssetChart: FC = () => {
   const navigate = useNavigate();

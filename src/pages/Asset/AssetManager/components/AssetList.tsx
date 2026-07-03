@@ -1,9 +1,9 @@
 import type { FC } from 'react';
-import type { Asset, AssetGroup } from '@/api';
+import type { Asset, AssetGroup } from '@/entities/asset';
 import { Dialog, ErrorBlock, List, SwipeAction, Toast } from 'antd-mobile';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDeleteAssetByIdMutation, useGetAssetGroupQuery, useGetAssetQuery } from '@/hooks';
+import { useDeleteAssetByIdMutation, useGetAssetGroupQuery, useGetAssetQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { formatAmount, math } from '@/shared/lib';
 import { IconBlock } from '../../components';

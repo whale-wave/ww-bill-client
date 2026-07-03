@@ -11,3 +11,9 @@ export enum AssetType {
   WE_CHAT = 'WeChat',
   DEBT = 'Debt',
 }
+
+export enum AssetStatisticalRecordType {
+  ASSET = 'asset',
+  LIABILITY = 'liability',
+  NET_ASSET = 'net_asset',
+}

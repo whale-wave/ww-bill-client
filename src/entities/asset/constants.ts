@@ -1,4 +1,4 @@
-import { AssetGroupType } from '@/types';
+import { AssetGroupType } from './types';
 
 export const AssetGroupNameMap = {
   [AssetGroupType.CASH]: '现金',

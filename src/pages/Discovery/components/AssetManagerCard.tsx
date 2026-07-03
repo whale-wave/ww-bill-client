@@ -3,7 +3,7 @@ import { Card } from 'antd-mobile';
 import { RightOutline } from 'antd-mobile-icons';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAssetSummaryInfo } from '@/hooks';
+import { useAssetSummaryInfo } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 
 export const AssetManagerCard: FC = () => {

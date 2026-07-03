@@ -15,9 +15,8 @@ import * as echarts from 'echarts/core';
 import { LabelLayout } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useAssetSummaryInfo } from '@/hooks';
+import { AssetStatisticalRecordType, useAssetSummaryInfo } from '@/entities/asset';
 import { formatAmount } from '@/shared/lib';
-import { AssetStatisticalRecordType } from '../types';
 
 echarts.use([
   TooltipComponent,

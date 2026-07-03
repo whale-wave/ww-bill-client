@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { THEME_COLOR } from '@/assets/styles/reset';
-import { useAssetSummaryInfo } from '@/hooks';
+import { useAssetSummaryInfo } from '@/entities/asset';
 import { formatAmount, math } from '@/shared/lib';
 
 export const CurNetAssetStatus: FC = () => {

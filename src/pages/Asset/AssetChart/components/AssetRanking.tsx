@@ -1,15 +1,14 @@
 import type { FC } from 'react';
-import type { Asset } from '@/api';
+import type { Asset } from '@/entities/asset';
 import { ErrorBlock, List } from 'antd-mobile';
 import classNames from 'classnames';
 import { clone } from 'lodash-es';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGetAssetQuery } from '@/hooks';
+import { AssetStatisticalRecordType, useGetAssetQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { formatAmount, math } from '@/shared/lib';
 import { IconBlock } from '../../components';
-import { AssetStatisticalRecordType } from '../types';
 import styles from './AssetRanking.module.scss';
 import { ProgressBar } from './ProgressBar';
 

@@ -11,9 +11,8 @@ import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '@/components';
-import { useAssetStatisticalRecord, useGetAssetStatisticalRecordQuery } from '@/hooks';
+import { AssetStatisticalRecordType, useAssetStatisticalRecord, useGetAssetStatisticalRecordQuery } from '@/entities/asset';
 import { useChart } from '@/shared/lib/use-chart';
-import { AssetStatisticalRecordType } from '../types';
 
 echarts.use([GridComponent, LineChart, CanvasRenderer, UniversalTransition, TooltipComponent, MarkLineComponent]);
 

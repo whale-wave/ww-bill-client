@@ -1,4 +1,4 @@
-import type { GetAssetRecordApiParams, GetAssetStatisticalRecordApiParams } from '@/api';
+import type { GetAssetRecordApiParams, GetAssetStatisticalRecordApiParams } from './api';
 
 export const assetKeys = {
   all: ['asset'] as const,
