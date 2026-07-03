@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { Bill } from '@/api';
+import type { Bill } from '@/entities/record';
 import classNames from 'classnames';
 import { memo, useCallback, useMemo } from 'react';
 import { useBillPageStore } from '@/pages/Bill/store';

@@ -1,5 +1,5 @@
 import type { Dayjs } from 'dayjs';
-import type { RecordEntry } from '@/api';
+import type { RecordEntry } from '@/entities/record';
 import { CalendarPickerView, DatePicker, ErrorBlock, FloatingBubble, NavBar } from 'antd-mobile';
 import { AddOutline, DownFill } from 'antd-mobile-icons';
 import classNames from 'classnames';
@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RecordList } from '@/components';
-import { useGetRecordQuery } from '@/hooks';
+import { useGetRecordQuery } from '@/entities/record';
 import { math } from '@/shared/lib';
 import styles from './index.module.scss';
 

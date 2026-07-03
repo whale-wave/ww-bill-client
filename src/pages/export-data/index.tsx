@@ -2,7 +2,7 @@ import { DatePicker, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getRecordApi } from '@/api';
+import { getRecordApi } from '@/entities/record';
 import { exportRecordData } from '@/shared/lib/export-data';
 import { Button, Gap, List, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';

@@ -1,10 +1,10 @@
 import type { FC } from 'react';
-import type { recordChildren } from '../detail/List';
+import type { recordChildren } from '@/entities/record';
 import { Toast } from 'antd-mobile';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Popup from '@/components/Popup';
-import { useDeleteRecordMutation } from '@/hooks';
+import { useDeleteRecordMutation } from '@/entities/record';
 import styles from './footer.module.scss';
 
 interface stateType {

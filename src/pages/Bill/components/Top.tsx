@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { Bill } from '@/api';
+import type { Bill } from '@/entities/record';
 import { DatePicker } from 'antd-mobile';
 import classNames from 'classnames';
 import dayjs from 'dayjs';

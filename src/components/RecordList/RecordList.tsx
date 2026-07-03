@@ -1,4 +1,4 @@
-import type { RecordEntry } from '@/api';
+import type { RecordEntry } from '@/entities/record';
 import dayjs from 'dayjs';
 import React, { memo, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';

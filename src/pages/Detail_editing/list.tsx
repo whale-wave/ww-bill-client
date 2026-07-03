@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { recordChildren } from '../detail/List';
+import type { recordChildren } from '@/entities/record';
 import c from 'classnames';
 import { useMemo } from 'react';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';

@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { CategoryAmountType, CategoryEntity } from '@/api/category';
-import type { recordChildren } from '@/pages/detail/List';
+import type { recordChildren } from '@/entities/record';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';

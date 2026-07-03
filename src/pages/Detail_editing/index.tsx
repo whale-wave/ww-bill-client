@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { recordChildren } from '../detail/List';
+import type { recordChildren } from '@/entities/record';
 import { useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { useGetRecordByIdQuery } from '@/hooks/query/useGetRecordByIdQuery.ts';

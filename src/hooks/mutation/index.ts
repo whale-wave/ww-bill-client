@@ -1,6 +1,5 @@
 export * from './useDeleteBudgetCategoryByBudgetIdMutation';
 export * from './useDeleteFollowMutation';
-export * from './useDeleteRecordMutation';
 export * from './usePatchBudgetAmountByBudgetIdMutation';
 export * from './usePatchUserAppConfigMutation';
 export * from './usePostBudgetCategoryMutation';
@@ -8,10 +7,8 @@ export * from './usePostBudgetClearMutation';
 export * from './usePostBudgetSummaryMutation';
 export * from './usePostCheckInMutation';
 export * from './usePostFollowMutation';
-export * from './usePostRecordMutation';
 export * from './usePostTopicCommentMutation';
 export * from './usePostTopicMutation';
 export * from './usePostUserEmailChangeEmailMutation';
-export * from './usePutRecordMutation';
 export * from './usePutTopicLikeMutation';
 export * from './usePutUserUserInfoMutation';

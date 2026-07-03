@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { Bill } from '@/api';
+import type { Bill } from '@/entities/record';
 import { Card } from 'antd-mobile';
 import { useMemo } from 'react';
 import { useBillPageStore } from '@/pages/Bill/store';

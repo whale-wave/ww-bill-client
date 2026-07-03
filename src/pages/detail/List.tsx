@@ -1,32 +1,15 @@
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
+import type { recordChildren } from '@/entities/record';
 import c from 'classnames';
 import { memo, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGetRecordQuery } from '@/hooks';
+import { useGetRecordQuery } from '@/entities/record';
 import { math } from '@/shared/lib';
 import { getTimeValueFn, getWeekByDay } from '@/shared/lib/date-time';
 import { playSound } from '@/shared/lib/play-sound';
 import { Icon } from '@/shared/ui';
 import styles from './list.module.scss';
-
-export interface recordChildren {
-  amount: string;
-  category: {
-    createdAt: string;
-    icon: string;
-    id: number;
-    name: string;
-    updatedAt: string;
-  };
-  createdAt: string;
-  id: number;
-  remark: string;
-  time: string;
-  type: string;
-  updatedAt: string;
-  status?: boolean;
-}
 
 type recordType = [
   string,

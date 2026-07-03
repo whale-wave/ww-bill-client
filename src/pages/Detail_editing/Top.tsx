@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { recordChildren } from '@/pages/detail/List';
+import type { recordChildren } from '@/entities/record';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
 import { playSound } from '@/shared/lib/play-sound';

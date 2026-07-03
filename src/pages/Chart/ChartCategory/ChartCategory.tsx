@@ -1,5 +1,6 @@
 import type { FC } from 'react';
-import type { GetChartApiParamsCategory, GetChartApiResponse, GetChartApiResponseRankingData, RecordEntry } from '@/api';
+import type { GetChartApiParamsCategory, GetChartApiResponse, GetChartApiResponseRankingData } from '@/api';
+import type { RecordEntry } from '@/entities/record';
 import type { AmountType, TabItem, TimeRangeCategory } from '@/store/chart';
 import { ErrorBlock, List, SpinLoading } from 'antd-mobile';
 import { useMemo } from 'react';

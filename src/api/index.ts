@@ -18,7 +18,6 @@ export * from './budget';
 export * from './category';
 export * from './chart';
 export * from './follow';
-export * from './record';
 export * from './system';
 export * from './tools';
 export * from './topic';

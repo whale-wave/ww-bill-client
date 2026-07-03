@@ -1,4 +1,4 @@
-import type { GetRecordApiParams, GetRecordBillApiParams } from '@/api';
+import type { GetRecordApiParams, GetRecordBillApiParams } from './api';
 
 export const recordKeys = {
   all: ['record'] as const,

@@ -1,4 +1,4 @@
-import type { RecordEntry } from '@/api';
+import type { RecordEntry } from '@/entities/record';
 import classNames from 'classnames';
 import React, { memo } from 'react';
 import { Icon } from '@/components';
