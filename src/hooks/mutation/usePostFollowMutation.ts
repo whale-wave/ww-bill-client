@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { postFollowApi } from '@/api';
-import { followKeys, topicKeys, userKeys } from '@/hooks/query';
+import { topicKeys } from '@/entities/topic';
+import { followKeys, userKeys } from '@/hooks/query';
 
 export function usePostFollowMutation() {
   const queryClient = useQueryClient();

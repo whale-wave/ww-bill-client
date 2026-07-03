@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TabBar } from '@/components';
-import { useGetTopicQuery } from '@/hooks';
+import { useGetTopicQuery } from '@/entities/topic';
 import ItemList from '@/pages/community/ItemList';
 import TopBar from '@/pages/community/TopBar';
 import { FixedPin } from '@/shared/ui';

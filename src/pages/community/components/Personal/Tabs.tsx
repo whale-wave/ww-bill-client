@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 import classNames from 'classnames';
 import { useState } from 'react';
-import { TopicItem } from '@/components';
 import CheckInfo from '@/components/CheckInfo';
+import { TopicItem } from '@/entities/topic';
 import styles from './Tabs.module.scss';
 
 interface TabsProps {

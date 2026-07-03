@@ -19,7 +19,6 @@ export * from './chart';
 export * from './follow';
 export * from './system';
 export * from './tools';
-export * from './topic';
 export * from './user';
 export * from './user-app-config';
 export * from './user-email';

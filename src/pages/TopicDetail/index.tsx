@@ -4,7 +4,7 @@ import {
   useGetTopicDetailQuery,
   usePostTopicCommentMutation,
   usePutTopicLikeMutation,
-} from '@/hooks';
+} from '@/entities/topic';
 import config from '@/shared/config';
 import { Comment, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';

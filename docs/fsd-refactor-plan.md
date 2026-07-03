@@ -852,3 +852,21 @@ commit 31 文件,+250/-266。UI 组件(RecordList、RecordListItem、CurrentMont
 - 6 consumer 更新:`Budget/index.tsx`(MIXED — `BudgetInfo`/`BudgetEntityLevel`/`BudgetEntityType`/`BudgetItem`/3 hooks 合并到 entity,`CategoryEntity`/`BottomAction` 留原处)、`Budget/components/BudgetTop.tsx`、`Budget/components/BudgetModel.tsx`(3 mutations 从 `@/hooks` 改 entity)、`Budget/store/budgetPageContext.ts`、`CreateBudgetCategory/index.tsx`(MIXED — `BudgetEntityType`/`BudgetEntityLevel` 拆到 entity,`CategoryEntity` 留 `@/api`)、`Discovery/index.tsx`(`CurMonthBudgetCard` 从直接文件路径改 entity barrel)
 
 vite build 通过,eslint 0 error(6 pre-existing warning)。
+
+---
+
+### P3.6 topic 实体抽取 — 2026-07-04 ✅
+
+`api/topic.ts`、`hooks/query/keys/topicKeys.ts`、4 query + 3 mutation hooks、`TopicItem` UI 组件 → `entities/topic/`。
+
+**结构**:`api.ts`、`keys.ts`、`hooks.ts`(7 hooks 聚合)、`ui/TopicItem.tsx`+`TopicItem.module.scss`、`index.ts` barrel。
+
+**关键处理**:
+- `TopicItem` 原有内联 `data` prop 类型(11 字段)替换为 entity 的 `Topic` interface,消除重复类型定义
+- entity barrel 导出 `TopicItem`(named re-export,因 TopicItem 本身是 named export)
+- `components/index.ts` 删 `TopicItem` re-export
+- `api/index.ts`、`hooks/query/index.ts`、`hooks/mutation/index.ts` 删 topic 相关 re-export
+- 9 consumer 更新:`TopicDetail/index.tsx`(3 hooks)、`TopicDetail/Main.tsx`(`TopicDetail` type + `TopicItem`)、`TopicDetail/ReplyArea.tsx`(`TopicDetail` type)、`comment-list/index.tsx`、`PostTopic/index.tsx`、`community/index.tsx`、`community/ItemList.tsx`(`Topic` type + `TopicItem` + `usePutTopicLikeMutation` 合并)、`community/Personal.tsx`、`community/components/Personal/Tabs.tsx`
+- **跨实体依赖修复**:`useDeleteFollowMutation`、`usePostFollowMutation` 原 import `topicKeys` from `@/hooks/query` 做 query invalidation(follow 变更需刷新 topic user-info),改为 `@/entities/topic`(follow entity 待 P3.8 抽取)
+
+vite build 通过,eslint 0 error。

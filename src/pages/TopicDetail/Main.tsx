@@ -1,7 +1,7 @@
 import type { FC } from 'react';
-import type { TopicDetail } from '@/api';
+import type { TopicDetail } from '@/entities/topic';
 import { useState } from 'react';
-import { TopicItem } from '@/components';
+import { TopicItem } from '@/entities/topic';
 import ReplyArea from '@/pages/TopicDetail/ReplyArea';
 import { FixedPin, ImagePreview, Share } from '@/shared/ui';
 

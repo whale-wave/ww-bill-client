@@ -1,10 +1,9 @@
 import type { FC } from 'react';
-import type { Topic } from '@/api';
+import type { Topic } from '@/entities/topic';
 import classNames from 'classnames';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TopicItem } from '@/components';
-import { usePutTopicLikeMutation } from '@/hooks';
+import { TopicItem, usePutTopicLikeMutation } from '@/entities/topic';
 import { Icon, ImagePreview } from '@/shared/ui';
 import styles from './ItemList.module.scss';
 

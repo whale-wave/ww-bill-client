@@ -13,7 +13,7 @@ import {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadFile } from '@/api';
-import { usePostTopicMutation } from '@/hooks';
+import { usePostTopicMutation } from '@/entities/topic';
 import { Button, Icon, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 

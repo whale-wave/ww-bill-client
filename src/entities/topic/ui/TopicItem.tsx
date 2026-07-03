@@ -1,26 +1,12 @@
 import type { FC, MouseEvent } from 'react';
+import type { Topic } from '../api';
 import classNames from 'classnames';
 import { showDate } from '@/shared/lib/time';
 import { Icon } from '@/shared/ui';
 import styles from './TopicItem.module.scss';
 
 interface TopicItemProps {
-  data: {
-    id: number;
-    content: string;
-    images: string[];
-    user: {
-      id: number;
-      avatar: string;
-      name: string;
-    };
-    isLike: boolean;
-    shareCount: number;
-    commentCount: number;
-    likeCount: number;
-    createdAt: string;
-    updatedAt: string;
-  };
+  data: Topic;
   onClick?: (id: number) => void;
   onImg?: (index: number, src: string) => void;
   onLike?: (id: number) => void;

@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { TopicDetail } from '@/api';
+import type { TopicDetail } from '@/entities/topic';
 import classNames from 'classnames';
 import { showDate } from '@/shared/lib/time';
 import styles from './ReplyArea.module.scss';

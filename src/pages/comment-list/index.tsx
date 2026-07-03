@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useGetTopicIdCommentQuery } from '@/hooks';
+import { useGetTopicIdCommentQuery } from '@/entities/topic';
 import CommentListItem from '@/pages/comment-list/components';
 import { showDate } from '@/shared/lib/time';
 import { NavBar } from '@/shared/ui';

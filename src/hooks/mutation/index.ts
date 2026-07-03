@@ -2,8 +2,5 @@ export * from './useDeleteFollowMutation';
 export * from './usePatchUserAppConfigMutation';
 export * from './usePostCheckInMutation';
 export * from './usePostFollowMutation';
-export * from './usePostTopicCommentMutation';
-export * from './usePostTopicMutation';
 export * from './usePostUserEmailChangeEmailMutation';
-export * from './usePutTopicLikeMutation';
 export * from './usePutUserUserInfoMutation';
