@@ -24,3 +24,5 @@ yarn-lock.json
 /pnpm-global/
 
 .env
+
+.tokensave

@@ -11,5 +11,6 @@ export * from './amount';
 export * from './class-name';
 export * from './component';
 export * from './math';
+export * from './play-sound';
 export * from './regular';
 export * from './system';
