@@ -751,6 +751,18 @@ export function useChartTabs(timeRange: TimeRangeCategory) {
 **验证**:每子步 `npx tsc -b --noEmit` 通过;关键文件 `npx eslint --fix` exit 0
 **改动**:234 文件(P2 全程累计)
 
+### P2.6 shared/ui 清理(antd-mobile 替代)— 2026-07-04 ✅
+
+按 §12.2 规则核查 `shared/ui` 各组件实际引用,删除 0 引用且有 antd-mobile 对应的组件:
+- 删 `progress-bar/`(0 引用,antd-mobile 有 `ProgressBar`)
+- 删 `progress-circle/`(0 引用,antd-mobile 有 `ProgressCircle`)
+- 删 `switch/`(0 引用,settings 页已用 antd-mobile `Switch`)
+- 保留 `mask/`(虽 0 页面引用,但是 `image-preview`/`share`/`modal` 的内部依赖)
+- 保留 `button`/`input`/`list`/`modal`/`nav-bar`/`image-preview`(仍有页面引用,待后续核查是否已切 antd-mobile)
+- 保留 `icon`/`comment`/`fixed-pin`/`gap`/`share`(无 antd-mobile 对应)
+
+commit `17 files changed, +29/-395`。tsc + eslint 通过。
+
 ---
 
 本方案到此。后续推进从 P1 起步,每阶段独立 PR。
