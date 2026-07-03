@@ -816,4 +816,21 @@ commit 31 文件,+250/-266。UI 组件(RecordList、RecordListItem、CurrentMont
 
 ---
 
+### P3.4b record 实体 UI 组件迁移 — 2026-07-04 ✅
+
+`components/RecordList/`、`components/RecordListItem/` → `entities/record/ui/`。
+
+**关键处理**:
+- `RecordList.tsx`、`RecordListItem.tsx` 移入 `entities/record/ui/`
+- 内部 import 改相对路径:`RecordEntry` → `../types`(避免 barrel 循环)、`RecordListItem` → `./RecordListItem`(default import)
+- `RecordListItem` 的 `Icon` 从 `@/components` 改 `@/shared/ui`(`components/icon` 是 `shared/ui/icon` 的副本,P2 遗留)
+- entity barrel 增 `export { default as RecordList/RecordListItem } from './ui/...'`
+- `components/index.ts` 删 `RecordList`、`RecordListItem` re-export
+- 3 consumer 更新:`RecordCalendar`、`SearchRecord/RecordListContainer`(`RecordList` + `useGetRecordQuery` 合并一行)、`ChartCategory`(`RecordListItem` 拆到 entity,`Icon/NavBar` 留 `@/components`)
+- `CurrentMonthBillCard` **不迁移**:不依赖 record entity(prop shape `{month,income,expend,surplus}` 与 entity `Bill` 不同),留 `components/` 待后续清理
+
+**P3.4a 遗漏修复**(独立 commit `006f2b3`):`detail/index.tsx` 的 `List` 被 sed 误改为 `@/entities/record`(实为 `pages/detail/List.tsx` 的 UI 组件);`api/chart.ts`、`Bill/index.tsx`、`Detail_editing/index.tsx`、`Invoice/EditAndDeleteButton.tsx` 的模块引用未随迁移更新。全部修复,vite build 通过。
+
+---
+
 本方案到此。后续推进从 P1 起步,每阶段独立 PR。

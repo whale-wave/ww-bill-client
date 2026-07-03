@@ -5,7 +5,8 @@ import type { AmountType, TabItem, TimeRangeCategory } from '@/store/chart';
 import { ErrorBlock, List, SpinLoading } from 'antd-mobile';
 import { useMemo } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Icon, NavBar, RecordListItem } from '@/components';
+import { Icon, NavBar } from '@/components';
+import { RecordListItem } from '@/entities/record';
 import { isMonthData, isWeekData, isYearData, useGetChartQuery } from '@/hooks';
 import { cn, math } from '@/shared/lib';
 

@@ -1,7 +1,7 @@
-import type { RecordEntry } from '@/entities/record';
+import type { RecordEntry } from '../types';
 import classNames from 'classnames';
 import React, { memo } from 'react';
-import { Icon } from '@/components';
+import { Icon } from '@/shared/ui';
 
 interface RecordListItemProps {
   className?: string;

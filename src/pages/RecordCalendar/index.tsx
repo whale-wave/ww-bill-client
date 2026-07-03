@@ -6,8 +6,7 @@ import classNames from 'classnames';
 import dayjs from 'dayjs';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { RecordList } from '@/components';
-import { useGetRecordQuery } from '@/entities/record';
+import { RecordList, useGetRecordQuery } from '@/entities/record';
 import { math } from '@/shared/lib';
 import styles from './index.module.scss';
 

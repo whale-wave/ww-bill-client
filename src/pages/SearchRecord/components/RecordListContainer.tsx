@@ -4,8 +4,7 @@ import { ErrorBlock, SpinLoading } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import React, { useMemo } from 'react';
-import { RecordList } from '@/components';
-import { useGetRecordQuery } from '@/entities/record';
+import { RecordList, useGetRecordQuery } from '@/entities/record';
 import { useRecordStore } from '@/store';
 
 interface RecordListProps {

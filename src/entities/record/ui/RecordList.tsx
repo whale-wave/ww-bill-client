@@ -1,9 +1,9 @@
-import type { RecordEntry } from '@/entities/record';
+import type { RecordEntry } from '../types';
 import dayjs from 'dayjs';
 import React, { memo, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RecordListItem } from '@/components';
 import { math } from '@/shared/lib';
+import RecordListItem from './RecordListItem';
 
 interface RecordItemGroupProps {
   data: {

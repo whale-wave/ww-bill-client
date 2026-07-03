@@ -11,8 +11,6 @@ export { default as Input } from './Input';
 export * from './Input';
 export { default as LoginGuard } from './LoginGuard';
 export * from './NavBar';
-export * from './RecordList';
-export * from './RecordListItem';
 export { default as TabBar } from './tab-bar';
 export * from './TabList';
 export { default as TopicItem } from './TopicItem';
