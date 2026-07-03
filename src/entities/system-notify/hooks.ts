@@ -1,10 +1,10 @@
 import type { UseQueryOptions } from '@tanstack/react-query';
-import type { SystemNotify } from '@/api';
+import type { SystemNotify } from './api';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { getSystemNotifyApi } from '@/api';
-import { systemKeys } from '@/hooks/query/keys/systemKeys';
 import { isSuccessApi } from '@/shared/api';
+import { getSystemNotifyApi } from './api';
+import { systemKeys } from './keys';
 
 export function useGetSystemNotifyQuery(options?: {
   queryOptions?: Omit<UseQueryOptions<SuccessResponse<SystemNotify[]>>, 'queryFn' | 'queryKey'>;

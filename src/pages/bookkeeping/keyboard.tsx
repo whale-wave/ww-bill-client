@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { CategoryEntity } from '@/api';
+import type { CategoryEntity } from '@/entities/category';
 import type { PutRecordApiData, recordChildren } from '@/entities/record';
 import type { stateType } from '@/pages/bookkeeping/index';
 import { Toast } from 'antd-mobile';

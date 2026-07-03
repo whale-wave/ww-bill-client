@@ -8,7 +8,7 @@ import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
-import { postAuthPasswordForgetResetApi } from '@/api';
+import { postAuthPasswordForgetResetApi } from '@/entities/auth';
 import { WwInput } from '@/pages/ForgetPassword/components';
 import { playSound } from '@/shared/lib/play-sound';
 import { NavBar } from '@/shared/ui';

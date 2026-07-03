@@ -1,4 +1,4 @@
-import type { GetFollowApiParams } from '@/api';
+import type { GetFollowApiParams } from './api';
 
 export const followKeys = {
   all: ['follow'] as const,

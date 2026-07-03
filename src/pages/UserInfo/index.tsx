@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadFile } from '@/api';
-import { useGetUserUserInfoQuery, usePutUserUserInfoMutation } from '@/hooks';
+import { useGetUserUserInfoQuery, usePutUserUserInfoMutation } from '@/entities/user';
 import choseFile from '@/shared/lib/chose-file';
 import { Button, List, Modal, NavBar } from '@/shared/ui';
 import { useUserStore } from '@/store';

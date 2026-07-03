@@ -873,6 +873,33 @@ vite build 通过,eslint 0 error。
 
 ---
 
+### P3.8 剩余小实体抽取 — 2026-07-04 ✅
+
+抽取 8 个实体:`category`、`user`、`system-notify`、`follow`、`user-app-config`、`user-email`、`auth`、`tools`。**`hooks/` 目录整体删除**,**`api/index.ts` 仅保留 `uploadFile`**。
+
+**各实体结构**:
+| 实体 | api | keys | hooks | ui |
+|------|-----|------|-------|-----|
+| category | ✅ | ✅ | 1 query | — |
+| user | ✅(含 UserEntity 迁入) | ✅ | 2 query/mutation | — |
+| system-notify | ✅ | ✅ | 1 query | — |
+| follow | ✅ | ✅ | 3(1 query + 2 mutation) | — |
+| user-app-config | ✅ | —(用 userKeys) | 2(1 query + 1 mutation) | — |
+| user-email | ✅ | —(用 userKeys) | 1 mutation | — |
+| auth | ✅ | — | — | — |
+| tools | ✅ | — | — | — |
+
+**关键处理**:
+- `UserEntity` 从 `api/system.ts` 迁入 `entities/user/api.ts`(跨实体引用:budget、user-app-config、system-notify),`api/system.ts` → `entities/system-notify/api.ts` 改引 `@/entities/user`
+- `user-app-config`、`user-email` 无独立 keys,复用 `userKeys` from `@/entities/user`(跨实体 query invalidation)
+- follow hooks 跨实体引 `topicKeys` from `@/entities/topic`、`userKeys` from `@/entities/user`
+- 删除 `src/hooks/` 整个目录(query/keys/、mutation/、barrels 全删)
+- `api/index.ts` 仅保留 `uploadFile`,删全部 `export * from './auth'` 等
+- ~25 consumer 更新:settings、detail/Top、system-notify page、FollowList、new-follow、Personal/UserInfo、EmailChange(2 文件)、ForgetPassword(3 文件)、Sign、Login、EmailCaptchaInput、store/system、bookkeeping(main/index/navBar/keyboard/CategorySettings)、CreateBudgetCategory、Budget(index/BudgetModel)、Password、Discovery、mine、UserInfo
+
+vite build 通过,eslint 0 error。**P3 实体层抽取全部完成**。
+---
+
 ### P3.7 chart 实体抽取 — 2026-07-04 ✅
 
 `api/chart.ts`、`hooks/query/keys/chartKeys.ts`、`useGetChartQuery` hook + 3 type guards(`isWeekData`/`isMonthData`/`isYearData`)→ `entities/chart/`。

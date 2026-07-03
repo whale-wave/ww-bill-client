@@ -1,4 +1,4 @@
-import type { GetCategoryApiParams } from '@/api';
+import type { GetCategoryApiParams } from './api';
 
 export const categoryKeys = {
   all: ['category'] as const,

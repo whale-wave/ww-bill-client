@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { CurrentMonthBillCard, TabBar } from '@/components';
 import { CurMonthBudgetCard } from '@/entities/budget';
-import { useGetUserUserInfoQuery } from '@/hooks';
+import { useGetUserUserInfoQuery } from '@/entities/user';
 import { AssetManagerCard, CommonFunctionCard } from '@/pages/Discovery/components';
 import { NavBar } from '@/shared/ui';
 import { useUserStore } from '@/store';

@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TabBar } from '@/components';
-import { useGetUserUserInfoQuery, usePostCheckInMutation } from '@/hooks';
+import { useGetUserUserInfoQuery, usePostCheckInMutation } from '@/entities/user';
 import { BottomList } from '@/pages/mine/components';
 import UserInfo from '@/pages/mine/UserInfo';
 import { playSound } from '@/shared/lib/play-sound';

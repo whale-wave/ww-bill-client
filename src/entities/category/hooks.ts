@@ -1,10 +1,10 @@
 import type { UseQueryOptions } from '@tanstack/react-query';
-import type { GetCategoryApiParams, GetCategoryApiResponseData } from '@/api';
+import type { GetCategoryApiParams, GetCategoryApiResponseData } from './api';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { getCategoryApi } from '@/api';
-import { categoryKeys } from '@/hooks/query/keys/categoryKeys';
 import { isSuccessApi } from '@/shared/api';
+import { getCategoryApi } from './api';
+import { categoryKeys } from './keys';
 
 export function useGetCategoryQuery(options?: {
   params?: GetCategoryApiParams;
@@ -31,4 +31,4 @@ export function useGetCategoryQuery(options?: {
     data,
     ...rest,
   };
-};
+}

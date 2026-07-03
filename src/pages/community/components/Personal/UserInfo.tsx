@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   useDeleteFollowMutation,
   usePostFollowMutation,
-} from '@/hooks';
+} from '@/entities/follow';
 import { useUserStore } from '@/store';
 import styles from './UserInfo.module.scss';
 

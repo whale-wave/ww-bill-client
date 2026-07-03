@@ -1,10 +1,10 @@
 import type { FC } from 'react';
-import type { CategoryAmountType, CategoryEntity } from '@/api/category';
+import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
 import type { recordChildren } from '@/entities/record';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { useGetCategoryQuery } from '@/hooks';
+import { useGetCategoryQuery } from '@/entities/category';
 import KeyBoard from '@/pages/bookkeeping/keyboard';
 import styles from './index.module.scss';
 import Main from './main';

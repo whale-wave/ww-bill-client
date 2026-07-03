@@ -1,4 +1,4 @@
-import type { UserInfo } from '@/api/user';
+import type { UserInfo } from '@/entities/user';
 import { request } from '@/shared/api';
 
 interface LoginRes {

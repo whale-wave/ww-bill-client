@@ -6,7 +6,7 @@ import c from 'classnames';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/hooks';
+import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
 import Precision from '@/pages/detail/component';
 import config from '@/shared/config';
 import { ROUTES_PATH } from '@/shared/config/routes';

@@ -1,4 +1,4 @@
-import type { UserEntity } from '@/api/system';
+import type { UserEntity } from '@/entities/user';
 import { request } from '@/shared/api';
 
 export interface UserAppConfig {

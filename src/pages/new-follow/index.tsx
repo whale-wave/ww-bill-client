@@ -1,12 +1,12 @@
-import type { Follow } from '@/api';
+import type { Follow } from '@/entities/follow';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FollowTypeEnum } from '@/api';
 import {
+  FollowTypeEnum,
   useDeleteFollowMutation,
   useGetFollowQuery,
   usePostFollowMutation,
-} from '@/hooks';
+} from '@/entities/follow';
 import UserFollowItem from '@/pages/new-follow/components';
 import { showDate } from '@/shared/lib/time';
 import { NavBar } from '@/shared/ui';

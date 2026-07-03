@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { CategoryAmountType } from '@/api';
+import type { CategoryAmountType } from '@/entities/category';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';

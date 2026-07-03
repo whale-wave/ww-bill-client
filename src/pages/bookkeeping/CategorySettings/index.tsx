@@ -1,9 +1,9 @@
 import type { FC } from 'react';
-import type { CategoryAmountType, CategoryEntity } from '@/api';
+import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
 import { ErrorBlock, SpinLoading } from 'antd-mobile';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGetCategoryQuery } from '@/hooks';
+import { useGetCategoryQuery } from '@/entities/category';
 import { playSound } from '@/shared/lib/play-sound';
 import { Icon, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';

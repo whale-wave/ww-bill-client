@@ -1,13 +1,5 @@
+import type { UserEntity } from '@/entities/user';
 import { request } from '@/shared/api';
-
-export interface UserEntity {
-  id: number;
-  name: string;
-  avatar: string;
-  email: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export interface SystemNotify {
   id: number;

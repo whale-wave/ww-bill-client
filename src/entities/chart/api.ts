@@ -1,4 +1,4 @@
-import type { CategoryEntity } from './category';
+import type { CategoryEntity } from '@/entities/category';
 import type { RecordEntry } from '@/entities/record';
 import { request } from '@/shared/api';
 

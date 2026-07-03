@@ -1,5 +1,5 @@
-import type { CategoryEntity } from '@/api';
 import type { BudgetInfo } from '@/entities/budget';
+import type { CategoryEntity } from '@/entities/category';
 import type { BudgetModelModelType } from '@/pages/Budget/components';
 import { ActionSheet, Button, Dialog, ErrorBlock, Skeleton } from 'antd-mobile';
 import { AddOutline } from 'antd-mobile-icons';

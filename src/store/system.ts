@@ -1,4 +1,4 @@
-import type { UserAppConfig } from '@/api';
+import type { UserAppConfig } from '@/entities/user-app-config';
 import { create } from 'zustand';
 import { clearLocalStorage, getLocalStorageSize } from '@/shared/lib';
 import { audioWeb } from '@/shared/lib/play-sound';

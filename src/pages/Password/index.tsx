@@ -3,7 +3,7 @@ import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { changePassword } from '@/api';
+import { changePassword } from '@/entities/user';
 import { Button, Input, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 

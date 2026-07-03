@@ -1,8 +1,9 @@
 import type { ChangeEvent, FC } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getToolsCaptchaApi, login, loginEmailCaptchaApi } from '@/api';
 import { EmailCaptchaInput, Input } from '@/components';
+import { login, loginEmailCaptchaApi } from '@/entities/auth';
+import { getToolsCaptchaApi } from '@/entities/tools';
 import { playSound } from '@/shared/lib/play-sound';
 import { Button } from '@/shared/ui';
 import { useUserStore } from '@/store';

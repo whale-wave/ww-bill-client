@@ -12,12 +12,3 @@ export async function uploadFile(body: FormData, loading = true) {
     },
   );
 }
-
-export * from './auth';
-export * from './category';
-export * from './follow';
-export * from './system';
-export * from './tools';
-export * from './user';
-export * from './user-app-config';
-export * from './user-email';

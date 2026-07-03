@@ -6,7 +6,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   getToolsForgetPasswordEmailApi,
   getToolsForgetPasswordEmailVerifyCodeApi,
-} from '@/api';
+} from '@/entities/auth';
 import { WwInput, WwInputVerifyCode } from '@/pages/ForgetPassword/components';
 import { playSound } from '@/shared/lib/play-sound';
 import { NavBar } from '@/shared/ui';

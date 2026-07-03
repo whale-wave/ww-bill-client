@@ -1,11 +1,11 @@
 import type { Dayjs } from 'dayjs';
 import React, { useCallback, useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import WwButton from '@/components/WwButton';
 import {
   getUserEmailChangeEmailCaptchaApi,
   getUserEmailChangeEmailCaptchaVerifyApi,
-} from '@/api/user-email';
-import WwButton from '@/components/WwButton';
+} from '@/entities/user-email';
 import { WwInput, WwInputVerifyCode } from '@/pages/ForgetPassword/components';
 import { NavBar } from '@/shared/ui';
 

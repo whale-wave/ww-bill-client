@@ -1,4 +1,4 @@
-import type { CategoryEntity } from '@/api';
+import type { CategoryEntity } from '@/entities/category';
 import { Dialog, Input, Modal } from 'antd-mobile';
 import { isNaN } from 'mathjs';
 import React, { useMemo, useState } from 'react';

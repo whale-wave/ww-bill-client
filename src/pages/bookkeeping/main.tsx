@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { CategoryEntity } from '@/api/category';
+import type { CategoryEntity } from '@/entities/category';
 import classNames from 'classnames';
 import { useEffect, useState } from 'react';
 import { Icon } from '@/shared/ui';

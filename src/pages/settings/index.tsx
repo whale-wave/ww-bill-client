@@ -2,7 +2,7 @@ import type { FC, ReactNode } from 'react';
 import { List, Switch, Toast } from 'antd-mobile';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/hooks';
+import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { audioWeb, playSound } from '@/shared/lib/play-sound';
 import { Gap, NavBar } from '@/shared/ui';

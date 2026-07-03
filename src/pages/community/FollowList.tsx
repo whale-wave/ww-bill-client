@@ -1,8 +1,7 @@
 import type { FC } from 'react';
-import type { Follow } from '@/api/follow';
+import type { Follow } from '@/entities/follow';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FollowTypeEnum } from '@/api/follow';
-import { useGetFollowQuery } from '@/hooks';
+import { FollowTypeEnum, useGetFollowQuery } from '@/entities/follow';
 import { NavBar } from '@/shared/ui';
 import styles from './FollowList.module.scss';
 
