@@ -2,7 +2,7 @@ import { Button, Skeleton, Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import React, { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useGetInvoiceByIdQuery } from '@/hooks';
+import { useGetInvoiceByIdQuery } from '@/entities/invoice';
 import EditAndDeleteButton from '@/pages/Invoice/components/EditAndDeleteButton';
 import InvoiceInfo, {
   getOptionListByInvoice,

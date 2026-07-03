@@ -1,4 +1,4 @@
-import type { InvoiceEntity } from '@/api';
+import type { InvoiceEntity } from '@/entities/invoice';
 import classNames from 'classnames';
 import React, { memo, useCallback } from 'react';
 

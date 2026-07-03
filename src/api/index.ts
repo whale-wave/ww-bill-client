@@ -19,7 +19,6 @@ export * from './category';
 export * from './chart';
 export * from './fixed-expense';
 export * from './follow';
-export * from './invoice';
 export * from './record';
 export * from './system';
 export * from './tools';

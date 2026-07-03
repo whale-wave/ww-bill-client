@@ -1,4 +1,4 @@
-import type { InvoiceEntity } from '@/api';
+import type { InvoiceEntity } from '@/entities/invoice';
 import { Button, Form, Input } from 'antd-mobile';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +6,7 @@ import {
   useGetInvoiceByIdQuery,
   usePatchInvoiceMutation,
   usePostInvoiceMutation,
-} from '@/hooks';
+} from '@/entities/invoice';
 
 interface InvoiceInfoFormProps {
   id?: string;

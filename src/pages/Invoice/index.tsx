@@ -1,7 +1,7 @@
-import type { InvoiceEntity } from '@/api';
+import type { InvoiceEntity } from '@/entities/invoice';
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGetInvoiceQuery } from '@/hooks';
+import { useGetInvoiceQuery } from '@/entities/invoice';
 import AddInvoiceButton from '@/pages/Invoice/components/AddInvoiceButton';
 import InvoiceItem from '@/pages/Invoice/components/InvoiceItem';
 import { NavBar } from '@/shared/ui';

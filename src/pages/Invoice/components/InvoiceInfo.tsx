@@ -1,4 +1,4 @@
-import type { InvoiceEntity } from '@/api';
+import type { InvoiceEntity } from '@/entities/invoice';
 import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
 import copy from 'copy-to-clipboard';
