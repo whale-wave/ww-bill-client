@@ -52,11 +52,11 @@ const router = createHashRouter([
       },
       {
         path: 'record-calendar',
-        lazy: lazyGuardedPage(() => import('@/pages/record-calendar')),
+        lazy: lazyGuardedPage(() => import('@/pages/record/record-calendar/RecordCalendarPage')),
       },
       {
         path: 'search-record',
-        lazy: lazyGuardedPage(() => import('@/pages/search-record')),
+        lazy: lazyGuardedPage(() => import('@/pages/record/search-record/SearchRecordPage')),
       },
       {
         path: 'invoice',
@@ -81,7 +81,7 @@ const router = createHashRouter([
       },
       {
         path: 'bookkeeping',
-        lazy: lazyPage(() => import('@/pages/bookkeeping')),
+        lazy: lazyPage(() => import('@/pages/record/bookkeeping/BookkeepingPage')),
       },
       {
         path: 'discovery',
@@ -107,7 +107,7 @@ const router = createHashRouter([
       {
         path: 'category',
         caseSensitive: true,
-        lazy: lazyGuardedPage(() => import('@/pages/bookkeeping/CategorySettings')),
+        lazy: lazyGuardedPage(() => import('@/pages/category-settings/CategorySettingsPage')),
       },
       {
         path: 'cateGory',
@@ -116,7 +116,7 @@ const router = createHashRouter([
       },
       {
         path: 'editing/:id',
-        lazy: lazyPage(() => import('@/pages/detail-editing')),
+        lazy: lazyPage(() => import('@/pages/record/editing/EditingPage')),
       },
       {
         path: 'user-info',
@@ -182,7 +182,7 @@ const router = createHashRouter([
       },
       {
         path: 'detail',
-        lazy: lazyPage(() => import('@/pages/detail')),
+        lazy: lazyPage(() => import('@/pages/record/detail/DetailPage')),
       },
       {
         path: 'message',

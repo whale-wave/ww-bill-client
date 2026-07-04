@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { useGetCategoryQuery } from '@/entities/category';
-import KeyBoard from '@/pages/bookkeeping/keyboard';
+import KeyBoard from '@/pages/record/bookkeeping/keyboard';
 import styles from './index.module.scss';
 import Main from './main';
 import NavBar from './navBar';

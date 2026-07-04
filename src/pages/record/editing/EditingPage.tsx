@@ -3,9 +3,9 @@ import type { recordChildren } from '@/entities/record';
 import { useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { useGetRecordByIdQuery } from '@/entities/record';
-import Footer from '@/pages/detail-editing/footer';
-import List from '@/pages/detail-editing/list';
-import Top from '@/pages/detail-editing/Top';
+import Footer from '@/pages/record/editing/footer';
+import List from '@/pages/record/editing/list';
+import Top from '@/pages/record/editing/Top';
 
 const Editing: FC = () => {
   const navParams = useLocation();

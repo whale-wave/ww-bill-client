@@ -2,8 +2,8 @@ import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
-import List from '@/pages/detail/List';
-import Top from '@/pages/detail/Top';
+import List from '@/pages/record/detail/List';
+import Top from '@/pages/record/detail/Top';
 import { TabBar } from '@/widgets/layout';
 
 export type numType = [Array<string>, Array<string>];

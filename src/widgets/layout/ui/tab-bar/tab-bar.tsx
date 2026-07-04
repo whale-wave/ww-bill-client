@@ -9,9 +9,9 @@ import './tab-bar.scss';
 
 /** Preload route chunks on hover/touch for instant-feel navigation. */
 const routePrefetch: Record<string, () => Promise<unknown>> = {
-  '/detail': () => import('@/pages/detail'),
+  '/detail': () => import('@/pages/record/detail/DetailPage'),
   '/chart': () => import('@/pages/chart/ChartHome/ChartHome'),
-  '/bookkeeping': () => import('@/pages/bookkeeping'),
+  '/bookkeeping': () => import('@/pages/record/bookkeeping/BookkeepingPage'),
   '/discovery': () => import('@/pages/discovery'),
   '/mine': () => import('@/pages/mine'),
 };

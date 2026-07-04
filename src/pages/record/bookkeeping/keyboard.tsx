@@ -1,14 +1,14 @@
 import type { FC } from 'react';
 import type { CategoryEntity } from '@/entities/category';
 import type { PutRecordApiData, recordChildren } from '@/entities/record';
-import type { stateType } from '@/pages/bookkeeping/index';
+import type { stateType } from '@/pages/record/bookkeeping/index';
 import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePostRecordMutation, usePutRecordMutation } from '@/entities/record';
-import CustomRender from '@/pages/bookkeeping/ui';
+import CustomRender from '@/pages/record/bookkeeping/ui';
 import { Icon } from '@/shared/ui';
 import styles from './keyboard.module.scss';
 

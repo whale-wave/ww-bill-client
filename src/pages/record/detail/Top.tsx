@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
-import Precision from '@/pages/detail/ui';
+import Precision from '@/pages/record/detail/ui';
 import config from '@/shared/config';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { Icon } from '@/shared/ui';
