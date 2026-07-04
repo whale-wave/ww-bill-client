@@ -3,8 +3,8 @@ import type { FC } from 'react';
 import { format } from 'date-fns';
 import { useEffect, useMemo } from 'react';
 import { renderToString } from 'react-dom/server';
-import { useChartHome } from '@/pages/chart/ChartHome/model/chart-home-context';
-import { TooltipContent } from '@/pages/chart/ChartHome/ui';
+import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';
+import { TooltipContent } from '@/pages/chart/chart-home/ui';
 import { cn } from '@/shared/lib';
 import { useChart } from '@/shared/lib/use-chart';
 

@@ -3,7 +3,7 @@ import type { Bill } from '@/entities/record';
 import { Card } from 'antd-mobile';
 import { useMemo } from 'react';
 import { useBillPageStore } from '@/pages/bill/store';
-import { BillTabsType } from '@/pages/bill/typs';
+import { BillTabsType } from '@/pages/bill/types';
 import { mergerProps } from '@/shared/lib';
 
 const defaultProps = {

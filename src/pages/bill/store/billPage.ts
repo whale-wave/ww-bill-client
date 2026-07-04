@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { BillTabsType } from '@/pages/bill/typs';
+import { BillTabsType } from '@/pages/bill/types';
 
 interface State {
   billTabType: BillTabsType;

@@ -4,8 +4,8 @@ import type { AmountType, TimeRangeCategory } from '@/entities/chart';
 import { Dropdown } from 'antd-mobile';
 import { CheckOutline } from 'antd-mobile-icons';
 import { useCallback, useMemo, useRef } from 'react';
-import { useChartHome } from '@/pages/chart/ChartHome/model/chart-home-context';
-import style from '@/pages/chart/ChartHome/ui/Top.module.scss';
+import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';
+import style from '@/pages/chart/chart-home/ui/Top.module.scss';
 import { cn } from '@/shared/lib';
 import { Icon, TabList } from '@/shared/ui';
 

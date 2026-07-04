@@ -152,11 +152,11 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            lazy: lazyPage(() => import('@/pages/chart/ChartHome/ChartHomePage')),
+            lazy: lazyPage(() => import('@/pages/chart/chart-home/ChartHomePage')),
           },
           {
             path: 'category',
-            lazy: lazyPage(() => import('@/pages/chart/ChartCategory/ChartCategoryPage')),
+            lazy: lazyPage(() => import('@/pages/chart/chart-category/ChartCategoryPage')),
           },
         ],
       },

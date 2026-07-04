@@ -3,7 +3,7 @@ import type { Bill } from '@/entities/record';
 import classNames from 'classnames';
 import { memo, useCallback, useMemo } from 'react';
 import { useBillPageStore } from '@/pages/bill/store';
-import { BillTabsType } from '@/pages/bill/typs';
+import { BillTabsType } from '@/pages/bill/types';
 import { Icon } from '@/shared/ui';
 import styles from './Content.module.scss';
 

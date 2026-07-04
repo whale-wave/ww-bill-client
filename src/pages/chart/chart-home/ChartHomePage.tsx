@@ -2,9 +2,9 @@ import type { TabsProps } from 'antd-mobile';
 import type { FC } from 'react';
 import { Tabs } from 'antd-mobile';
 import { useCallback } from 'react';
-import { useChartHome } from '@/pages/chart/ChartHome/model/chart-home-context';
-import { ChartHomeProvider } from '@/pages/chart/ChartHome/model/ChartHomeProvider';
-import { ChartContent, Top } from '@/pages/chart/ChartHome/ui';
+import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';
+import { ChartHomeProvider } from '@/pages/chart/chart-home/model/ChartHomeProvider';
+import { ChartContent, Top } from '@/pages/chart/chart-home/ui';
 import { cn } from '@/shared/lib';
 import { TabBar } from '@/widgets/layout';
 

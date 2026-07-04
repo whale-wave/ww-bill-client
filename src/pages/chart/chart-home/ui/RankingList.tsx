@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { List } from 'antd-mobile';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useChartHome } from '@/pages/chart/ChartHome/model/chart-home-context';
+import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';
 import { cn } from '@/shared/lib';
 import { RankingItem } from './RankingItem';
 

@@ -1,2 +1,2 @@
-export * from './ChartCategory';
-export * from './ChartHome';
+export * from './chart-category';
+export * from './chart-home';

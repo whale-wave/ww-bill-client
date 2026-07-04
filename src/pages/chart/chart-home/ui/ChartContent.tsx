@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { ErrorBlock } from 'antd-mobile';
-import { useChartHome } from '@/pages/chart/ChartHome/model/chart-home-context';
-import { LineChart, RankingList } from '@/pages/chart/ChartHome/ui';
+import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';
+import { LineChart, RankingList } from '@/pages/chart/chart-home/ui';
 import { cn } from '@/shared/lib';
 
 export const ChartContent: FC = () => {
