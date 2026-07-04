@@ -1,17 +1,15 @@
 import type { SearchBarRef } from 'antd-mobile';
 import { SearchBar } from 'antd-mobile';
 import React, { useCallback, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useRecordStore } from '@/store';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 interface TopProps {
 }
 
 const Top: React.FC<TopProps> = () => {
   const navigate = useNavigate();
-
-  const searchRecordKeyword = useRecordStore(({ searchRecordKeyword }) => searchRecordKeyword);
-  const setSearchRecordKeyword = useRecordStore(({ setSearchRecordKeyword }) => setSearchRecordKeyword);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchRecordKeyword = searchParams.get('q') ?? '';
   const searchBarRef = useRef<SearchBarRef>(null);
 
   const onBack = useCallback(() => {
@@ -19,8 +17,8 @@ const Top: React.FC<TopProps> = () => {
   }, []);
 
   const onChange = useCallback((v: string) => {
-    setSearchRecordKeyword(v);
-  }, []);
+    setSearchParams({ q: v }, { replace: true });
+  }, [setSearchParams]);
 
   useEffect(() => {
     searchBarRef.current?.focus();

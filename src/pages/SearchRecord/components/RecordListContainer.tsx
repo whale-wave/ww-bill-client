@@ -4,14 +4,15 @@ import { ErrorBlock, SpinLoading } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import React, { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { RecordList, useGetRecordQuery } from '@/entities/record';
-import { useRecordStore } from '@/store';
 
 interface RecordListProps {
 }
 
 const RecordListContainer: React.FC<RecordListProps> = () => {
-  const searchRecordKeyword = useRecordStore(({ searchRecordKeyword }) => searchRecordKeyword);
+  const [searchParams] = useSearchParams();
+  const searchRecordKeyword = searchParams.get('q') ?? '';
   const debounceSearchRecordKeyword = useDebounce(searchRecordKeyword, { wait: 250 });
 
   const { data, isLoading } = useGetRecordQuery({
