@@ -1,13 +1,13 @@
 import type { FC, JSX } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useUserStore } from '../model/store';
+import { useAuthStore } from '../model/store';
 
 interface LoginGuardProps {
   children: JSX.Element;
 }
 
 const LoginGuard: FC<LoginGuardProps> = ({ children }) => {
-  const { token } = useUserStore(({ token }) => ({ token }));
+  const { token } = useAuthStore(({ token }) => ({ token }));
   const location = useLocation();
   if (token)
     return children;

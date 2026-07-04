@@ -7,14 +7,14 @@ import {
   useGetFollowQuery,
   usePostFollowMutation,
 } from '@/entities/follow';
-import { useUserStore } from '@/features/auth';
+import { useGetUserUserInfoQuery } from '@/entities/user';
 import UserFollowItem from '@/pages/new-follow/components';
 import { showDate } from '@/shared/lib/time';
 import { NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
 function NewFollow() {
-  const { userInfo } = useUserStore(({ userInfo }) => ({ userInfo }));
+  const { data: userInfo } = useGetUserUserInfoQuery();
   const userId = userInfo?.id ? `${userInfo.id}` : '';
   const navigate = useNavigate();
   const [deleteFollowMutate] = useDeleteFollowMutation();

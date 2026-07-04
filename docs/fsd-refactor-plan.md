@@ -985,3 +985,31 @@ vite build 通过,eslint 0 error。
 
 **消除的反模式**:RQ data → store 复制(useEffect sync)、服务端偏好本地化(localStorage canPlay/visibleAmount)
 验证:tsc 0 error,vite build exit 0,eslint 0 error(3 pre-existing warnings)
+
+### P5.4 useUserStore → useAuthStore 瘦身 — 2026-07-04 ✅
+
+P5 最后一步,也是影响面最大的一步。`useUserStore` 瘦身为 `useAuthStore`(只留 `token` + `setToken` + `logOut`),`userInfo` 全面改 RQ `useGetUserUserInfoQuery()`。
+
+**`features/auth/model/store.ts`** 重写:
+- 状态只剩 `token`;action 只留 `setToken` + `logOut`
+- 删 `userInfo`/`setUserInfo`/`updateUserInfo`(→ RQ)
+- persist `name` 改 `'auth-storage'`(原 `'user-storage'`,符合 §7.3 规范;旧 key 由 `logOut` 的 `localStorage.clear()` 清理)
+- `partialize` 只持久化 `token`(§7.3 规范)
+- `logOut`:删 `useChartStore.reset()` 耦合(P5.2 已删 chart store),保留 `localStorage.clear()` + `queryClient.clear()`(P6 将 queryClient.clear 移至 App.tsx 编排)
+
+**`features/auth/index.ts`**:导出 `useAuthStore`(替 `useUserStore`)
+
+**auth 内部**:`login-guard.tsx`、`main.tsx`(setAuthDeps)改 `useAuthStore`
+
+**9 个 consumer 重构**:
+- **`Root.tsx`**:删 `setUserInfo` + localStorage hydrate(userInfo 由 RQ 管理);`token` 改 `useAuthStore`
+- **`Discovery`**:删 `useUserStore` + RQ→store sync useEffect;`useGetUserUserInfoQuery().data` 直接当 `userInfo`
+- **`Login`**:`setToken` 改 `useAuthStore`;删 `setUserInfo(data.userInfo)`;改 `queryClient.setQueryData(userKeys.info(), { statusCode: 200, data: data.userInfo })` 预填 RQ 缓存(避免登录后额外请求 + 消除 loading flash)
+- **`Sign`**:同 Login,补 `queryClient.setQueryData` 预填缓存
+- **`UserInfo`**:`logOut` 改 `useAuthStore`;`userInfo` 改 RQ;删 RQ→store sync useEffect;加 `if (!userInfo) return <SpinLoading/>` loading guard(原 store hydrate 保证非空,改 RQ 后需处理 loading);`name` 状态改为 open modal 时从 `userInfo.name` 初始化(避免 set-state-in-effect);`onChangeName`/`handleChangeAvatar` 加 `if (!userInfo) return` guard
+- **`comment-list`**、**`community/Personal/UserInfo`**、**`new-follow`**:`userInfo` 改 RQ `data`
+- **`mine`**:删 `useUserStore` + RQ→store sync useEffect + `enabled: !!token`(LoginGuard 保证有 token);`useGetUserUserInfoQuery().data` 直接当 `userInfo`
+
+**消除的反模式**:服务端数据(userInfo)进 Zustand + RQ→store 复制 useEffect
+验证:tsc 0 error,vite build exit 0,eslint 0 error(7 pre-existing warnings)
+**P5 完成**:4 个 store 全部消除(record/chart/system 删除,user→auth 瘦身),`src/store/` 目录已删

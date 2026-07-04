@@ -3,7 +3,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { initResetStyle } from '@/assets/styles/reset';
-import { useUserStore } from '@/features/auth';
+import { useAuthStore } from '@/features/auth';
 import { setAuthDeps } from '@/shared/api';
 import { Router } from './router';
 import './i18n';
@@ -15,8 +15,8 @@ export const queryClient = new QueryClient();
 
 // Wire auth token/logout into shared/api (FSD: shared cannot import features)
 setAuthDeps({
-  tokenGetter: () => useUserStore.getState().token,
-  logoutHandler: () => useUserStore.getState().logOut(),
+  tokenGetter: () => useAuthStore.getState().token,
+  logoutHandler: () => useAuthStore.getState().logOut(),
 });
 
 const container = document.getElementById('root')!;

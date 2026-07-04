@@ -4,20 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components';
 import { login, loginEmailCaptchaApi } from '@/entities/auth';
 import { getToolsCaptchaApi } from '@/entities/tools';
-import { useUserStore } from '@/features/auth';
+import { userKeys } from '@/entities/user';
+import { useAuthStore } from '@/features/auth';
 import { EmailCaptchaInput } from '@/features/email-captcha';
+import { queryClient } from '@/main';
 import { playSound } from '@/shared/lib/play-sound';
 import { Button } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const Login: FC = () => {
   const navigate = useNavigate();
-  const { setToken, setUserInfo } = useUserStore(
-    ({ setToken, setUserInfo }) => ({
-      setToken,
-      setUserInfo,
-    }),
-  );
+  const { setToken } = useAuthStore(({ setToken }) => ({ setToken }));
 
   const [userNameForm, setUserNameForm] = useState({
     username: '',
@@ -65,7 +62,11 @@ const Login: FC = () => {
     );
     if (statusCode === 200) {
       setToken(data.token);
-      setUserInfo(data.userInfo);
+      queryClient.setQueryData(userKeys.info(), {
+        statusCode: 200,
+        message: '',
+        data: data.userInfo,
+      });
       setTimeout(navigate, 1000, -1);
     }
   }, [userNameForm, emailForm, loginType]);

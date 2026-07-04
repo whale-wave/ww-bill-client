@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { useGetTopicIdCommentQuery } from '@/entities/topic';
-import { useUserStore } from '@/features/auth';
+import { useGetUserUserInfoQuery } from '@/entities/user';
 import CommentListItem from '@/pages/comment-list/components';
 import { showDate } from '@/shared/lib/time';
 import { NavBar } from '@/shared/ui';
 
 function CommentList() {
-  const { userInfo } = useUserStore(({ userInfo }) => ({ userInfo }));
+  const { data: userInfo } = useGetUserUserInfoQuery();
   const navigate = useNavigate();
   const userId = userInfo?.id ? `${userInfo.id}` : '';
   const { data, isLoading } = useGetTopicIdCommentQuery({

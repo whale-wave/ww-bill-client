@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { CurrentMonthBillCard, TabBar } from '@/components';
 import { CurMonthBudgetCard } from '@/entities/budget';
 import { useGetUserUserInfoQuery } from '@/entities/user';
-import { useUserStore } from '@/features/auth';
 import { AssetManagerCard, CommonFunctionCard } from '@/pages/Discovery/components';
 import { NavBar } from '@/shared/ui';
 
@@ -10,16 +9,7 @@ interface DiscoveryProps {
 }
 
 const Discovery: React.FC<DiscoveryProps> = () => {
-  const userInfo = useUserStore(({ userInfo }) => userInfo);
-  const setUserInfo = useUserStore(({ setUserInfo }) => setUserInfo);
-  const { data } = useGetUserUserInfoQuery();
-
-  useEffect(() => {
-    if (!data)
-      return;
-
-    setUserInfo(data);
-  }, [data]);
+  const { data: userInfo } = useGetUserUserInfoQuery();
 
   return (
     <div className="page-new bg-bg-gray fixed top-0 left-0 w-full">

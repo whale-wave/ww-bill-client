@@ -2,65 +2,27 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { queryClient } from '@/main';
 
-interface UserInfo {
-  id: number | string;
-  name: string;
-  username: string;
-  avatar: string;
-  email: string;
-  billRecord: {
-    expend: number;
-    income: number;
-    month: number;
-    surplus: number;
-  };
-  checkIn: boolean;
-  checkInAll: number;
-  checkInKeep: number;
-  recordCount: number;
-}
-
-interface State {
+interface AuthState {
   token: string;
-  userInfo?: UserInfo;
 }
 
-interface Actions {
-  setToken: (d: string) => void;
-  setUserInfo: (d: UserInfo) => void;
-  updateUserInfo: (d: { name: string; avatar: string }) => void;
+interface AuthActions {
+  setToken: (token: string) => void;
   logOut: () => void;
 }
 
-export const useUserStore = create<State & Actions>()(persist((set, get) => ({
+export const useAuthStore = create<AuthState & AuthActions>()(persist(set => ({
   token: '',
-  userInfo: undefined,
-  setToken: (data) => {
-    set({ token: data });
-  },
-  setUserInfo: (data) => {
-    set({ userInfo: data });
-  },
-  updateUserInfo: (data) => {
-    const { name, avatar } = data;
-    const userInfo = get().userInfo;
-    if (userInfo) {
-      set({ userInfo: { ...userInfo, name, avatar } });
-    }
+  setToken: (token) => {
+    set({ token });
   },
   logOut: () => {
-    set({
-      token: '',
-      userInfo: undefined,
-    });
+    set({ token: '' });
     localStorage.clear();
     void queryClient.clear();
   },
 }), {
-  name: 'user-storage',
+  name: 'auth-storage',
   storage: createJSONStorage(() => localStorage),
-  partialize: (state) => {
-    const { token, userInfo } = state;
-    return { token, userInfo };
-  },
+  partialize: state => ({ token: state.token }),
 }));

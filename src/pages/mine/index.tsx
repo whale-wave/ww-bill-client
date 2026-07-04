@@ -1,11 +1,10 @@
 import type { FC } from 'react';
 import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TabBar } from '@/components';
 import { useGetUserUserInfoQuery, usePostCheckInMutation } from '@/entities/user';
-import { useUserStore } from '@/features/auth';
 import { BottomList } from '@/pages/mine/components';
 import UserInfo from '@/pages/mine/UserInfo';
 import { playSound } from '@/shared/lib/play-sound';
@@ -15,15 +14,7 @@ import styles from './index.module.scss';
 const Mine: FC = () => {
   const navigate = useNavigate();
 
-  const userInfo = useUserStore(({ userInfo }) => userInfo);
-  const token = useUserStore(({ token }) => token);
-  const setUserInfo = useUserStore(({ setUserInfo }) => setUserInfo);
-
-  const { data: userInfoData } = useGetUserUserInfoQuery({
-    options: {
-      enabled: !!token,
-    },
-  });
+  const { data: userInfo } = useGetUserUserInfoQuery();
   const [postCheckInMutate] = usePostCheckInMutation();
 
   const checkIn = useMemo(() => {
@@ -49,17 +40,11 @@ const Mine: FC = () => {
     };
   }, [userInfo]);
 
-  useEffect(() => {
-    if (!userInfoData)
-      return;
-    setUserInfo(userInfoData);
-  }, [userInfoData]);
-
   const onCheckIn = useCallback(async () => {
     if (checkIn)
       return;
     await postCheckInMutate();
-  }, [checkIn]);
+  }, [checkIn, postCheckInMutate]);
 
   const tabs = useMemo(() => [
     {

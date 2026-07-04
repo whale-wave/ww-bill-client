@@ -1,11 +1,11 @@
 import type { FC } from 'react';
-import { ActionSheet, Toast } from 'antd-mobile';
+import { ActionSheet, SpinLoading, Toast } from 'antd-mobile';
 import classNames from 'classnames';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadFile } from '@/api';
 import { useGetUserUserInfoQuery, usePutUserUserInfoMutation } from '@/entities/user';
-import { useUserStore } from '@/features/auth';
+import { useAuthStore } from '@/features/auth';
 import choseFile from '@/shared/lib/chose-file';
 import { Button, List, Modal, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
@@ -13,17 +13,10 @@ import styles from './index.module.scss';
 const UserInfo: FC = () => {
   const navigate = useNavigate();
   const [modalVisible, setModalVisible] = useState(false);
-  const { data } = useGetUserUserInfoQuery();
+  const { data: userInfo } = useGetUserUserInfoQuery();
   const [putUserUserInfoMutate] = usePutUserUserInfoMutation();
-
-  const { logOut, setUserInfo, userInfo } = useUserStore(
-    ({ logOut, userInfo, setUserInfo }) => ({
-      logOut,
-      setUserInfo,
-      userInfo,
-    }),
-  );
-  const [name, setName] = useState(userInfo!.name);
+  const { logOut } = useAuthStore(({ logOut }) => ({ logOut }));
+  const [name, setName] = useState('');
 
   const onGoToPassword = useCallback(() => navigate('/password'), []);
 
@@ -34,17 +27,22 @@ const UserInfo: FC = () => {
 
   const onCancelModal = () => {
     setModalVisible(false);
-    setName(userInfo!.name);
+    if (userInfo)
+      setName(userInfo.name);
   };
 
   const onOpenChangeNameModel = () => {
+    if (userInfo)
+      setName(userInfo.name);
     setModalVisible(true);
   };
 
   const onChangeName = async () => {
+    if (!userInfo)
+      return;
     const { statusCode } = await putUserUserInfoMutate({
       name,
-      avatar: userInfo!.avatar,
+      avatar: userInfo.avatar,
     });
     if (statusCode === 200) {
       setModalVisible(false);
@@ -52,6 +50,8 @@ const UserInfo: FC = () => {
   };
 
   const handleChangeAvatar = async () => {
+    if (!userInfo)
+      return;
     const files = await choseFile();
     const formData = new FormData();
     if (!files)
@@ -65,7 +65,7 @@ const UserInfo: FC = () => {
     }
 
     await putUserUserInfoMutate({
-      name: userInfo!.name,
+      name: userInfo.name,
       avatar: data.url,
     });
   };
@@ -84,13 +84,20 @@ const UserInfo: FC = () => {
       ],
       cancelText: '取消',
     });
-  }, []);
+  }, [navigate, userInfo]);
 
-  useEffect(() => {
-    if (!data)
-      return;
-    setUserInfo(data);
-  }, [data]);
+  if (!userInfo) {
+    return (
+      <div className={classNames('page')} style={{ background: '#f2f2f7' }}>
+        <NavBar back="返回" onBack={() => navigate(-1)}>
+          个人信息
+        </NavBar>
+        <div className="flex justify-center items-center py-20">
+          <SpinLoading />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={classNames('page')} style={{ background: '#f2f2f7' }}>
@@ -121,25 +128,25 @@ const UserInfo: FC = () => {
             >
               <img
                 className="w-full h-full object-cover"
-                src={userInfo?.avatar}
-                alt={userInfo?.name}
+                src={userInfo.avatar}
+                alt={userInfo.name}
               />
             </div>
           )}
         >
           头像
         </List.Item>
-        <List.Item clickable arrow={false} extra={userInfo?.username}>
+        <List.Item clickable arrow={false} extra={userInfo.username}>
           账号ID
         </List.Item>
         <List.Item
           clickable
-          extra={userInfo?.email}
+          extra={userInfo.email}
           onClick={onChangeEmailActionSheet}
         >
           邮箱
         </List.Item>
-        <List.Item extra={userInfo?.name} onClick={onOpenChangeNameModel}>
+        <List.Item extra={userInfo.name} onClick={onOpenChangeNameModel}>
           昵称
         </List.Item>
       </List>

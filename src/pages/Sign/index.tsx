@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components';
 import { sign } from '@/entities/auth';
-import { useUserStore } from '@/features/auth';
+import { userKeys } from '@/entities/user';
+import { useAuthStore } from '@/features/auth';
 import { EmailCaptchaInput } from '@/features/email-captcha';
+import { queryClient } from '@/main';
 import { Button, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
@@ -19,7 +21,7 @@ const Sign: FC = () => {
     password: '',
     emailCode: '',
   });
-  const { setToken } = useUserStore(({ setToken }) => ({ setToken }));
+  const { setToken } = useAuthStore(({ setToken }) => ({ setToken }));
 
   const navigate = useNavigate();
 
@@ -31,6 +33,11 @@ const Sign: FC = () => {
     const { statusCode, data } = await sign(form);
     if (statusCode === 200) {
       setToken(data.token);
+      queryClient.setQueryData(userKeys.info(), {
+        statusCode: 200,
+        message: '',
+        data: data.userInfo,
+      });
       setTimeout(navigate, 1000, '/');
     }
   };

@@ -5,7 +5,7 @@ import {
   useDeleteFollowMutation,
   usePostFollowMutation,
 } from '@/entities/follow';
-import { useUserStore } from '@/features/auth';
+import { useGetUserUserInfoQuery } from '@/entities/user';
 import styles from './UserInfo.module.scss';
 
 interface UserInfoProps {
@@ -26,7 +26,7 @@ const UserInfo: FC<UserInfoProps> = ({
   fansCount,
 }) => {
   const navigate = useNavigate();
-  const { userInfo } = useUserStore(({ userInfo }) => ({ userInfo }));
+  const { data: userInfo } = useGetUserUserInfoQuery();
   const [postFollow] = usePostFollowMutation();
   const [deleteFollow] = useDeleteFollowMutation();
 
