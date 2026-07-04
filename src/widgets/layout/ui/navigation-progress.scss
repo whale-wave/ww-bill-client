@@ -1,0 +1,29 @@
+.nav-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+
+  &__bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 30%;
+    background: var(--adm-color-primary, #333);
+    animation: nav-progress-slide 1s ease-in-out infinite;
+  }
+}
+
+@keyframes nav-progress-slide {
+  0% {
+    left: -30%;
+  }
+  100% {
+    left: 100%;
+  }
+}

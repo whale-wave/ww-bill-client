@@ -1,70 +1,31 @@
-import type { ComponentType, FC, LazyExoticComponent, ReactElement } from 'react';
-import { Suspense } from 'react';
+import type { ComponentType, FC } from 'react';
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { LoginGuard } from '@/features/auth';
 import { RootLayout } from '@/widgets/layout';
-import {
-  AddAssetAccount,
-  AssetChart,
-  AssetDetail,
-  AssetFormInfo,
-  AssetManager,
-  Bill,
-  Bookkeeping,
-  Budget,
-  CategorySettings,
-  ChartCategory,
-  ChartHome,
-  CommentList,
-  Community,
-  CreateBudgetCategory,
-  Detail,
-  Discovery,
-  Editing,
-  EmailChange,
-  EmailChangeCaptcha,
-  ExportData,
-  FirstScreen,
-  FixedExpenseCreate,
-  FixedExpenseDetail,
-  FixedExpenseEdit,
-  FixedExpenses,
-  FollowList,
-  ForgetPassword,
-  ForgetPasswordReset,
-  ForgetPasswordVerifyCode,
-  Invoice,
-  InvoiceCreate,
-  InvoiceDetail,
-  InvoiceEdit,
-  Login,
-  Message,
-  Mine,
-  NewFollow,
-  NotFound,
-  Password,
-  Personal,
-  PostTopic,
-  RecordCalendar,
-  SearchRecord,
-  Settings,
-  Share,
-  Sign,
-  SystemNotify,
-  TopicDetail,
-  UserInfo,
-} from './lazy-pages';
 
-function withSuspense(Component: LazyExoticComponent<ComponentType>): ReactElement {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Component />
-    </Suspense>
-  );
+/**
+ * Wrap a page component with LoginGuard. The wrapper is created once per
+ * route (lazy resolves once and React Router caches the result), so the
+ * component identity is stable across renders.
+ */
+function withGuard(Comp: ComponentType): ComponentType {
+  return function GuardedRoute() {
+    return <LoginGuard><Comp /></LoginGuard>;
+  };
 }
 
-function withLoginGuard(element: ReactElement): ReactElement {
-  return <LoginGuard>{element}</LoginGuard>;
+/**
+ * Lazy route helper — no Suspense boundary. React Router keeps the current
+ * page mounted while the chunk loads, so there's no flash/fallback. This is
+ * the "native app" navigation feel.
+ */
+function lazyPage(loader: () => Promise<{ default: ComponentType }>) {
+  return () => loader().then(m => ({ Component: m.default }));
+}
+
+/** Same as lazyPage but wraps the component in LoginGuard. */
+function lazyGuardedPage(loader: () => Promise<{ default: ComponentType }>) {
+  return () => loader().then(m => ({ Component: withGuard(m.default) }));
 }
 
 const router = createHashRouter([
@@ -74,79 +35,79 @@ const router = createHashRouter([
     children: [
       {
         index: true,
-        element: withSuspense(FirstScreen),
+        lazy: lazyPage(() => import('@/pages/first-screen')),
       },
       {
         path: 'budget',
         children: [
           {
             index: true,
-            element: withLoginGuard(withSuspense(Budget)),
+            lazy: lazyGuardedPage(() => import('@/pages/budget')),
           },
           {
             path: 'category/:type',
-            element: withLoginGuard(withSuspense(CreateBudgetCategory)),
+            lazy: lazyGuardedPage(() => import('@/pages/create-budget-category')),
           },
         ],
       },
       {
         path: 'record-calendar',
-        element: withLoginGuard(withSuspense(RecordCalendar)),
+        lazy: lazyGuardedPage(() => import('@/pages/record-calendar')),
       },
       {
         path: 'search-record',
-        element: withLoginGuard(withSuspense(SearchRecord)),
+        lazy: lazyGuardedPage(() => import('@/pages/search-record')),
       },
       {
         path: 'invoice',
         children: [
           {
             index: true,
-            element: withLoginGuard(withSuspense(Invoice)),
+            lazy: lazyGuardedPage(() => import('@/pages/invoice')),
           },
           {
             path: ':id',
-            element: withLoginGuard(withSuspense(InvoiceDetail)),
+            lazy: lazyGuardedPage(() => import('@/pages/invoice/InvoiceDetail')),
           },
           {
             path: ':id/edit',
-            element: withLoginGuard(withSuspense(InvoiceEdit)),
+            lazy: lazyGuardedPage(() => import('@/pages/invoice/InvoiceEdit')),
           },
           {
             path: 'create',
-            element: withLoginGuard(withSuspense(InvoiceCreate)),
+            lazy: lazyGuardedPage(() => import('@/pages/invoice/InvoiceCreate')),
           },
         ],
       },
       {
         path: 'bookkeeping',
-        element: withSuspense(Bookkeeping),
+        lazy: lazyPage(() => import('@/pages/bookkeeping')),
       },
       {
         path: 'discovery',
-        element: withSuspense(Discovery),
+        lazy: lazyPage(() => import('@/pages/discovery')),
       },
       {
         path: 'community',
         children: [
           {
             index: true,
-            element: withLoginGuard(withSuspense(Community)),
+            lazy: lazyGuardedPage(() => import('@/pages/community')),
           },
           {
             path: 'personal/:id',
-            element: withLoginGuard(withSuspense(Personal)),
+            lazy: lazyGuardedPage(() => import('@/pages/community/Personal')),
           },
           {
             path: 'follow-list/:id/:type',
-            element: withLoginGuard(withSuspense(FollowList)),
+            lazy: lazyGuardedPage(() => import('@/pages/community/FollowList')),
           },
         ],
       },
       {
         path: 'category',
         caseSensitive: true,
-        element: withLoginGuard(withSuspense(CategorySettings)),
+        lazy: lazyGuardedPage(() => import('@/pages/bookkeeping/CategorySettings')),
       },
       {
         path: 'cateGory',
@@ -155,92 +116,92 @@ const router = createHashRouter([
       },
       {
         path: 'editing/:id',
-        element: withSuspense(Editing),
+        lazy: lazyPage(() => import('@/pages/detail-editing')),
       },
       {
         path: 'user-info',
-        element: withLoginGuard(withSuspense(UserInfo)),
+        lazy: lazyGuardedPage(() => import('@/pages/user-info')),
       },
       {
         path: 'password',
-        element: withLoginGuard(withSuspense(Password)),
+        lazy: lazyGuardedPage(() => import('@/pages/password')),
       },
       {
         path: 'forget-password',
         children: [
           {
             index: true,
-            element: withSuspense(ForgetPassword),
+            lazy: lazyPage(() => import('@/pages/forget-password/ForgetPassword')),
           },
           {
             path: 'verify-code',
-            element: withSuspense(ForgetPasswordVerifyCode),
+            lazy: lazyPage(() => import('@/pages/forget-password/ForgetPasswordVerifyCode')),
           },
           {
             path: 'reset',
-            element: withSuspense(ForgetPasswordReset),
+            lazy: lazyPage(() => import('@/pages/forget-password/ForgetPasswordReset')),
           },
         ],
       },
       {
         path: 'sign',
-        element: withSuspense(Sign),
+        lazy: lazyPage(() => import('@/pages/sign')),
       },
       {
         path: 'chart',
         children: [
           {
             index: true,
-            element: withSuspense(ChartHome),
+            lazy: lazyPage(() => import('@/pages/chart/ChartHome/ChartHome')),
           },
           {
             path: 'category',
-            element: withSuspense(ChartCategory),
+            lazy: lazyPage(() => import('@/pages/chart/ChartCategory/ChartCategory')),
           },
         ],
       },
       {
         path: 'mine',
-        element: withLoginGuard(withSuspense(Mine)),
+        lazy: lazyGuardedPage(() => import('@/pages/mine')),
       },
       {
         path: 'share',
-        element: withLoginGuard(withSuspense(Share)),
+        lazy: lazyGuardedPage(() => import('@/pages/share')),
       },
       {
         path: 'post-topic',
-        element: withLoginGuard(withSuspense(PostTopic)),
+        lazy: lazyGuardedPage(() => import('@/pages/post-topic')),
       },
       {
         path: 'topic-detail/:id',
-        element: withLoginGuard(withSuspense(TopicDetail)),
+        lazy: lazyGuardedPage(() => import('@/pages/topic-detail')),
       },
       {
         path: 'login',
-        element: withSuspense(Login),
+        lazy: lazyPage(() => import('@/pages/login')),
       },
       {
         path: 'detail',
-        element: withSuspense(Detail),
+        lazy: lazyPage(() => import('@/pages/detail')),
       },
       {
         path: 'message',
         children: [
           {
             index: true,
-            element: withLoginGuard(withSuspense(Message)),
+            lazy: lazyGuardedPage(() => import('@/pages/message')),
           },
           {
             path: 'new-follow',
-            element: withLoginGuard(withSuspense(NewFollow)),
+            lazy: lazyGuardedPage(() => import('@/pages/new-follow')),
           },
           {
             path: 'comment-list',
-            element: withLoginGuard(withSuspense(CommentList)),
+            lazy: lazyGuardedPage(() => import('@/pages/comment-list')),
           },
           {
             path: 'system-notify',
-            element: withLoginGuard(withSuspense(SystemNotify)),
+            lazy: lazyGuardedPage(() => import('@/pages/system-notify')),
           },
         ],
       },
@@ -249,7 +210,7 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            element: withLoginGuard(withSuspense(Settings)),
+            lazy: lazyGuardedPage(() => import('@/pages/settings')),
           },
           {
             path: 'email',
@@ -259,11 +220,11 @@ const router = createHashRouter([
                 children: [
                   {
                     index: true,
-                    element: withLoginGuard(withSuspense(EmailChange)),
+                    lazy: lazyGuardedPage(() => import('@/pages/email-change')),
                   },
                   {
                     path: 'captcha',
-                    element: withLoginGuard(withSuspense(EmailChangeCaptcha)),
+                    lazy: lazyGuardedPage(() => import('@/pages/email-change/EmailChangeCaptcha')),
                   },
                 ],
               },
@@ -273,34 +234,34 @@ const router = createHashRouter([
       },
       {
         path: 'export-data',
-        element: withLoginGuard(withSuspense(ExportData)),
+        lazy: lazyGuardedPage(() => import('@/pages/export-data')),
       },
       {
         path: 'bill',
-        element: withLoginGuard(withSuspense(Bill)),
+        lazy: lazyGuardedPage(() => import('@/pages/bill')),
       },
       {
         path: 'asset',
         children: [
           {
             index: true,
-            element: withLoginGuard(withSuspense(AssetManager)),
+            lazy: lazyGuardedPage(() => import('@/pages/asset/AssetManager/AssetManager')),
           },
           {
             path: 'add-form/:id?',
-            element: withLoginGuard(withSuspense(AssetFormInfo)),
+            lazy: lazyGuardedPage(() => import('@/pages/asset/AssetFormInfo/AssetFormInfo')),
           },
           {
             path: 'add-account',
-            element: withLoginGuard(withSuspense(AddAssetAccount)),
+            lazy: lazyGuardedPage(() => import('@/pages/asset/AddAssetAccount/AddAssetAccount')),
           },
           {
             path: 'detail/:id',
-            element: withLoginGuard(withSuspense(AssetDetail)),
+            lazy: lazyGuardedPage(() => import('@/pages/asset/AssetDetail/AssetDetail')),
           },
           {
             path: 'chart',
-            element: withLoginGuard(withSuspense(AssetChart)),
+            lazy: lazyGuardedPage(() => import('@/pages/asset/AssetChart/AssetChart')),
           },
         ],
       },
@@ -309,19 +270,19 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            element: withLoginGuard(withSuspense(FixedExpenses)),
+            lazy: lazyGuardedPage(() => import('@/pages/fixed-expenses')),
           },
           {
             path: 'create',
-            element: withLoginGuard(withSuspense(FixedExpenseCreate)),
+            lazy: lazyGuardedPage(() => import('@/pages/fixed-expenses/FixedExpenseCreate')),
           },
           {
             path: ':id',
-            element: withLoginGuard(withSuspense(FixedExpenseDetail)),
+            lazy: lazyGuardedPage(() => import('@/pages/fixed-expenses/FixedExpenseDetail')),
           },
           {
             path: ':id/edit',
-            element: withLoginGuard(withSuspense(FixedExpenseEdit)),
+            lazy: lazyGuardedPage(() => import('@/pages/fixed-expenses/FixedExpenseEdit')),
           },
         ],
       },
@@ -329,7 +290,7 @@ const router = createHashRouter([
   },
   {
     path: '*',
-    element: withSuspense(NotFound),
+    lazy: lazyPage(() => import('@/pages/not-found')),
   },
 ]);
 

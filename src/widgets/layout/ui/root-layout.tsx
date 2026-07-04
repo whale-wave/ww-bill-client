@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom';
 import { useGetUserAppConfigQuery } from '@/entities/user-app-config';
 import { useAuthStore } from '@/features/auth';
 import { audioWeb } from '@/shared/lib';
+import { NavigationProgress } from './navigation-progress';
 
 export const RootLayout: FC = () => {
   const { token } = useAuthStore(({ token }) => ({ token }));
@@ -22,5 +23,10 @@ export const RootLayout: FC = () => {
       audioWeb.close();
   }, [userAppConfig?.isOpenSoundEffect]);
 
-  return <Outlet />;
+  return (
+    <>
+      <NavigationProgress />
+      <Outlet />
+    </>
+  );
 };

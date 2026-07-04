@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '@/components';
+import { prefetchRoute } from '@/router/prefetch';
 import { playSound } from '@/shared/lib/play-sound';
 import './tab-bar.scss';
 
@@ -93,6 +94,8 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
             key={tab.name}
             className="item relative"
             onClick={handleTabBarClick(index, tab)}
+            onMouseEnter={() => prefetchRoute(tab.router)}
+            onTouchStart={() => prefetchRoute(tab.router)}
           >
             {tab.customRender
               ? tab.customRender(tab)
