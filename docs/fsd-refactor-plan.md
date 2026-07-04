@@ -1039,3 +1039,17 @@ P5 最后一步,也是影响面最大的一步。`useUserStore` 瘦身为 `useAu
 - ROUTES_PATH 替换裸字符串:暂不做(路由路径已在单文件集中管理,替换为 ROUTES_PATH 调用增加间接层但无行为收益,优先级低,留待后续)
 验证:tsc 0 error,vite build exit 0,eslint 0 error
 **P6 完成**(LoginGuard 经审计留 features/auth;queryClient 放 shared/api 而非 app/)
+
+### P7 pages kebab-case 重命名 — 2026-07-04 ✅
+
+23 个 PascalCase/snake_case 页面目录统一改 kebab-case(扁平重命名,不做嵌套域重组):
+`Asset→asset`、`Bill→bill`、`Budget→budget`、`Chart→chart`、`CreateBudgetCategory→create-budget-category`、`Detail_editing→detail-editing`、`Discovery→discovery`、`EmailChange→email-change`、`FirstScreen→first-screen`、`FixedExpenses→fixed-expenses`、`ForgetPassword→forget-password`、`Invoice→invoice`、`Login→login`、`Message→message`、`NotFound→not-found`、`Password→password`、`PostTopic→post-topic`、`RecordCalendar→record-calendar`、`SearchRecord→search-record`、`Share→share`、`Sign→sign`、`TopicDetail→topic-detail`、`UserInfo→user-info`
+
+- 两步 `git mv`(case-insensitive FS 兼容)
+- `sed` 批量替换 `@/pages/OldName` → `@/pages/new-name`(.ts/.tsx)
+- `pages/**/component/`(单数)→ `ui/`(bookkeeping、detail 2 处)
+
+**未做(偏离计划,降低风险)**:
+- 嵌套域重组(`Asset/` → `asset/{asset-manager,...}/`、`record/`、`auth/`、`user/` 等命名空间)— 涉及内层目录+文件重命名,150+ 文件,自主执行风险过高,留待用户确认后手动推进
+- `*Page.tsx` 文件后缀 — 同上,大规模文件重命名
+验证:tsc 0 error,vite build exit 0,eslint 0 error(118 pre-existing warnings)

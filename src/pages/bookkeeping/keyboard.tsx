@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePostRecordMutation, usePutRecordMutation } from '@/entities/record';
-import CustomRender from '@/pages/bookkeeping/component';
+import CustomRender from '@/pages/bookkeeping/ui';
 import { Icon } from '@/shared/ui';
 import styles from './keyboard.module.scss';
 
