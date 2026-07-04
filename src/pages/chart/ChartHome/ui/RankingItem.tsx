@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { GetChartApiResponseRankingData } from '@/entities/chart';
 import { List } from 'antd-mobile';
 import { useMemo } from 'react';
-import { ProgressBar } from '@/pages/asset/AssetChart/ui';
+import { ProgressBar } from '@/pages/asset/asset-chart/ui';
 import { cn } from '@/shared/lib';
 import { Icon } from '@/shared/ui';
 import styles from './RankingItem.module.scss';

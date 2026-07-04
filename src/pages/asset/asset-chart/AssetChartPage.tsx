@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AssetStatisticalRecordType } from '@/entities/asset';
 import { NavBar, TabList } from '@/shared/ui';
-import { AssetTabBar } from '../AssetManager/ui';
+import { AssetTabBar } from '../asset-manager/ui';
 import styles from './AssetChart.module.scss';
 import { AssetTrendChart, CurAssetStatus, CurNetAssetStatus } from './ui';
 import { AssetRanking } from './ui/AssetRanking';

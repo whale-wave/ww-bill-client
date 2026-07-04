@@ -245,23 +245,23 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            lazy: lazyGuardedPage(() => import('@/pages/asset/AssetManager/AssetManager')),
+            lazy: lazyGuardedPage(() => import('@/pages/asset/asset-manager/AssetManagerPage')),
           },
           {
             path: 'add-form/:id?',
-            lazy: lazyGuardedPage(() => import('@/pages/asset/AssetFormInfo/AssetFormInfo')),
+            lazy: lazyGuardedPage(() => import('@/pages/asset/asset-form-info/AssetFormInfoPage')),
           },
           {
             path: 'add-account',
-            lazy: lazyGuardedPage(() => import('@/pages/asset/AddAssetAccount/AddAssetAccount')),
+            lazy: lazyGuardedPage(() => import('@/pages/asset/add-asset-account/AddAssetAccountPage')),
           },
           {
             path: 'detail/:id',
-            lazy: lazyGuardedPage(() => import('@/pages/asset/AssetDetail/AssetDetail')),
+            lazy: lazyGuardedPage(() => import('@/pages/asset/asset-detail/AssetDetailPage')),
           },
           {
             path: 'chart',
-            lazy: lazyGuardedPage(() => import('@/pages/asset/AssetChart/AssetChart')),
+            lazy: lazyGuardedPage(() => import('@/pages/asset/asset-chart/AssetChartPage')),
           },
         ],
       },
