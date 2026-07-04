@@ -135,23 +135,49 @@ pnpm test
 
 ### 前端目录职责
 
-`ww-bill-client` 主要目录：
+`ww-bill-client` 已迁移到 Feature-Sliced Design (FSD) 架构。主要目录：
 
 ```text
 src/
-├── api/          API 请求函数、请求参数类型、响应类型
-├── assets/       静态资源、图片、全局样式
-├── components/   跨页面复用业务组件和项目内基础组件
-├── config/       前端配置
-├── constants/    常量
-├── hooks/        通用 Hook、React Query query/mutation Hook
-├── modules/      非 React 业务模块或浏览器能力封装
-├── pages/        路由页面和页面局部组件
-├── router/       Hash Router 配置
-├── store/        Zustand 全局状态
-├── types/        全局类型
-└── utils/        工具函数、请求实例、响应处理
+├── app/           应用初始化 — App.tsx (Provider 装配) + router.tsx (路由树)
+├── pages/         路由页面 (薄编排层, kebab-case 目录 + *Page.tsx 命名)
+├── widgets/       页面级组合组件 (仅 layout: RootLayout + TabBar)
+├── features/      跨页面可复用用户能力 (auth, email-captcha)
+├── entities/      业务实体 — api + keys + hooks + types + ui (项目最厚的层)
+├── shared/        跨切面共享
+│   ├── api/       HTTP 实例 + SuccessResponse + upload + 拦截器
+│   ├── lib/       纯工具 + 第三方封装 + 通用 hook
+│   ├── ui/        设计系统 (基础组件, 无 antd-mobile 对应的保留)
+│   └── config/    env 配置 + 路由常量
+└── assets/        静态资源、图片、全局样式
 ```
+
+**FSD 导入方向** (硬性规则): `app → pages → widgets → features → entities → shared`。上层可导入下层，同层 slice 之间禁止互相导入。每个 slice 通过 `index.ts` 暴露 public API。
+
+**Page 规范**:
+- 目录: kebab-case (如 `pages/record/bookkeeping/`)
+- 文件: `*Page.tsx` (如 `BookkeepingPage.tsx`)
+- 私有组件: `ui/` (非 `components/`)
+- 页面级状态: `model/` (非 `store/` 或 `hooks/`)
+
+**Entity 结构**:
+```
+entities/record/
+├── api.ts        # 接口函数 + 请求/响应类型
+├── keys.ts       # query key factory
+├── hooks.ts      # useGet/usePost/usePut/useDelete hooks
+├── types.ts      # 实体领域类型
+├── ui/           # 实体级展示原语
+└── index.ts      # public API barrel
+```
+
+状态管理原则:
+- 服务端数据 → React Query (不进 Zustand)
+- 派生数据 → useMemo (不进 store)
+- 鉴权 token → features/auth/model/store.ts (Zustand persist)
+- 用户偏好 → entities/user-app-config (RQ)
+- 搜索/筛选 → URL search params
+- 页面 UI 状态 → pages/<page>/model/ 或组件 local state
 
 `ww-bill-admin` 主要目录：
 
@@ -172,7 +198,7 @@ src/
 
 ### 页面与组件
 
-页面统一放在 `src/pages/`。页面私有组件优先放在对应页面目录下的 `components/`。跨页面复用的业务组件按项目现有边界放入 `src/components/`、`src/shared/ui/` 或 `src/widgets/`。
+页面统一放在 `src/pages/`。页面私有组件优先放在对应页面目录下的 `ui/`。跨页面复用的业务组件按项目现有边界放入 `src/entities/*/ui/`、`src/shared/ui/` 或 `src/widgets/`。
 
 组件抽象遵循三次原则：
 
@@ -210,7 +236,7 @@ Hook 放在组件顶部，推荐顺序：
 
 前端请求必须复用项目已有 request 实例和错误处理，不在页面组件中直接使用 axios 请求后端。
 
-`ww-bill-client` API 请求统一放在 `src/api/`，新增 API 后需要在 `src/api/index.ts` 中按现有方式导出。接口响应类型优先沿用 `SuccessResponse<T>`。如果后端金额字段以字符串返回，前端类型也保持字符串，不擅自改成 number。
+`ww-bill-client` API 请求统一放在 `src/entities/<entity>/api.ts` 或 `src/shared/api/`，新增 API 后需要在对应 entity 的 `index.ts` 中按现有方式导出。接口响应类型优先沿用 `SuccessResponse<T>`。如果后端金额字段以字符串返回，前端类型也保持字符串，不擅自改成 number。
 
 `ww-bill-client` 的 `request` HTTP/网络失败分支必须 reject 一个带 `statusCode`、`message`、`data` 字段的 Error 对象。无 response、timeout、401/402/403 都应走统一错误处理，不在页面中自行拼 axios error 结构。HTTP 2xx 的后端业务 envelope 仍保持 resolve，由调用方或 query hook 根据 `statusCode` 判断业务成功与否。
 
@@ -265,7 +291,7 @@ Mutation hook 内部使用 `useQueryClient()` 获取 client，不要 import 全�
 
 ### 前端路由
 
-`ww-bill-client` 路由统一维护在 `src/router/index.tsx`，项目使用 `createHashRouter`，不要擅自切换为 browser router。新增页面后在 `src/pages/` 中创建页面入口，在路由文件中注册 path 和 element，需要登录访问的页面使用 `LoginGuard` 包裹，大体量页面沿用现有 `lazy` 和 `Suspense` 模式。路由 path、导航目标和常量应优先复用 `src/constants/route.ts` 中已有约定。
+`ww-bill-client` 路由统一维护在 `src/app/router.tsx`，项目使用 `createHashRouter`，不要擅自切换为 browser router。新增页面后在 `src/pages/` 中创建 kebab-case 目录 + `*Page.tsx` 入口，在路由文件中注册 path 和 lazy import，需要登录访问的页面使用 `lazyGuardedPage`。路由路径常量优先复用 `src/shared/config/routes.ts` 中的 `ROUTES_PATH`。
 
 `ww-bill-admin` 使用 TanStack React Router，路由组织按现有 `src/app`、`src/pages` 和布局组件约定执行，不混入 React Router 6 写法。
 
@@ -277,7 +303,7 @@ Mutation hook 内部使用 `useQueryClient()` 获取 client，不要 import 全�
 
 - 移动端交互优先使用 Ant Design Mobile。
 - 样式优先使用 Tailwind CSS、项目已有 Sass、`global.scss` 中的全局类和 `DESIGN.md` 中的规则。
-- 图标优先复用 `antd-mobile-icons` 或 `src/components/icon`。
+- 图标优先复用 `antd-mobile-icons` 或 `src/shared/ui/icon`。
 - 页面根容器优先使用 `.page` 或 `.page-new`。
 - 主色通过 `var(--ww-theme-color)`、`bg-primary` 或 `text-primary` 使用。
 - Ant Design Mobile 变量已在 `global.scss` 中做全局映射，不随意改全局变量。
