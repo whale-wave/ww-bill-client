@@ -1013,3 +1013,20 @@ P5 最后一步,也是影响面最大的一步。`useUserStore` 瘦身为 `useAu
 **消除的反模式**:服务端数据(userInfo)进 Zustand + RQ→store 复制 useEffect
 验证:tsc 0 error,vite build exit 0,eslint 0 error(7 pre-existing warnings)
 **P5 完成**:4 个 store 全部消除(record/chart/system 删除,user→auth 瘦身),`src/store/` 目录已删
+
+### P6.1 app/ 层 + RootLayout → widgets/layout — 2026-07-04 ✅
+
+- `src/app/App.tsx`:新根组件(QueryClientProvider + Router)
+- `src/main.tsx`:瘦身为 createRoot + `<App />` + setAuthDeps wiring
+- `src/shared/api/query-client.ts`:queryClient 单例(**偏离计划**:计划说放 `app/query-client.ts`,但 features/auth 的 logOut 在 React 外需要 queryClient,FSD 规定 features 不能 import app,故放 shared/api)
+- `features/auth` store、Login、Sign:queryClient 改 `@/shared/api`(Login/Sign 用 `useQueryClient` hook;store 直接 import 单例)
+- `Root.tsx` → `widgets/layout/ui/root-layout.tsx`(RootLayout);router 改 import `@/widgets/layout`
+
+### P6.2 tab-bar → widgets/layout — 2026-07-04 ✅
+
+- `git mv components/tab-bar widgets/layout/ui/tab-bar`
+- `widgets/layout/index.ts` 导出 `TabBar`
+- `components/index.ts` 删 TabBar re-export
+- 5 个 consumer(community、detail、mine、Discovery、ChartHome)改 `@/widgets/layout`
+- LoginGuard 暂留 `features/auth`(是 auth feature,非 layout 组件;计划原列 widgets/layout 经审计保留)
+验证:tsc 0 error,vite build exit 0,eslint 0 error

@@ -2,9 +2,9 @@ import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
-import { TabBar } from '@/components';
 import List from '@/pages/detail/List';
 import Top from '@/pages/detail/Top';
+import { TabBar } from '@/widgets/layout';
 
 export type numType = [Array<string>, Array<string>];
 

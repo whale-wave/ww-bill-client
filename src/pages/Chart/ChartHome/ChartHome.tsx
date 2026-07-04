@@ -2,11 +2,11 @@ import type { TabsProps } from 'antd-mobile';
 import type { FC } from 'react';
 import { Tabs } from 'antd-mobile';
 import { useCallback } from 'react';
-import { TabBar } from '@/components';
 import { ChartContent, Top } from '@/pages/Chart/ChartHome/components';
 import { useChartHome } from '@/pages/Chart/ChartHome/model/chart-home-context';
 import { ChartHomeProvider } from '@/pages/Chart/ChartHome/model/ChartHomeProvider';
 import { cn } from '@/shared/lib';
+import { TabBar } from '@/widgets/layout';
 
 const ChartHomeInner: FC = () => {
   const { tabs, tabActive, setTabActive } = useChartHome();

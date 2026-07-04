@@ -3,12 +3,12 @@ import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TabBar } from '@/components';
 import { useGetUserUserInfoQuery, usePostCheckInMutation } from '@/entities/user';
 import { BottomList } from '@/pages/mine/components';
 import UserInfo from '@/pages/mine/UserInfo';
 import { playSound } from '@/shared/lib/play-sound';
 import { Icon } from '@/shared/ui';
+import { TabBar } from '@/widgets/layout';
 import styles from './index.module.scss';
 
 const Mine: FC = () => {
