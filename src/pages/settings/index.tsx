@@ -1,12 +1,12 @@
 import type { FC, ReactNode } from 'react';
 import { List, Switch, Toast } from 'antd-mobile';
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { clearLocalStorage, getLocalStorageSize } from '@/shared/lib';
 import { audioWeb, playSound } from '@/shared/lib/play-sound';
 import { Gap, NavBar } from '@/shared/ui';
-import { useSystemStore } from '@/store';
 import styles from './index.module.scss';
 
 export interface CustomListItem {
@@ -18,31 +18,12 @@ export interface CustomListItem {
 }
 
 const Settings: FC = () => {
-  // TODO: 需要调整为获取指定的字段
-  const {
-    visibleAmountSwitch,
-    openPlay,
-    toggleVisibleAmountSwitch,
-    setVisibleAmount,
-    setVisibleAmountSwitch,
-    hasAudioCache,
-    closePlay,
-    setStorageSize,
-    localStorageSize,
-    canPlay,
-    setCanPlay,
-    clearStorage,
-  } = useSystemStore();
   const { data: userAppConfig } = useGetUserAppConfigQuery();
-  useEffect(() => {
-    if (!userAppConfig)
-      return;
+  const canPlay = userAppConfig?.isOpenSoundEffect ?? false;
+  const visibleAmountSwitch = userAppConfig?.isDisplayAmountSwitch ?? false;
 
-    setVisibleAmount(userAppConfig.isDisplayAmount);
-    setVisibleAmountSwitch(userAppConfig.isDisplayAmountSwitch);
-    setCanPlay(userAppConfig.isOpenSoundEffect);
-  }, [userAppConfig]);
-  const [patchUserAppConfigMutationMutate] = usePatchUserAppConfigMutation();
+  const [patchUserAppConfigMutate] = usePatchUserAppConfigMutation();
+  const [localStorageSize, setLocalStorageSize] = useState(() => getLocalStorageSize());
 
   const navigate = useNavigate();
 
@@ -60,38 +41,36 @@ const Settings: FC = () => {
 
   const onToggleVisibleAmountSwitch = async (val: boolean) => {
     playSound.click();
-    toggleVisibleAmountSwitch();
-    await patchUserAppConfigMutationMutate({
+    await patchUserAppConfigMutate({
       isDisplayAmountSwitch: val,
     });
   };
 
   const handleSoundSwitch = async (val: boolean) => {
     if (val) {
-      if (hasAudioCache) {
+      if (audioWeb.hasCache()) {
         audioWeb.loadCache();
       }
       else {
         void audioWeb.download();
       }
-      openPlay();
+      audioWeb.open();
     }
     else {
-      closePlay();
+      audioWeb.close();
     }
 
-    await patchUserAppConfigMutationMutate({
+    await patchUserAppConfigMutate({
       isOpenSoundEffect: val,
     });
 
-    setTimeout(() => {
-      setStorageSize();
-    }, 100);
+    setLocalStorageSize(getLocalStorageSize());
     playSound.click();
   };
 
   const clearCache = () => {
-    clearStorage();
+    clearLocalStorage();
+    setLocalStorageSize(getLocalStorageSize());
     Toast.show('清除成功');
   };
 

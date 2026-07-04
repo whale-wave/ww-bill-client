@@ -4,14 +4,13 @@ import type { numType } from './index';
 import { CalendarOutline, SearchOutline } from 'antd-mobile-icons';
 import c from 'classnames';
 import dayjs from 'dayjs';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
 import Precision from '@/pages/detail/component';
 import config from '@/shared/config';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { Icon } from '@/shared/ui';
-import { useSystemStore } from '@/store';
 import styles from './top.module.scss';
 
 interface TopProps {
@@ -22,16 +21,10 @@ interface TopProps {
 
 const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
   const navigate = useNavigate();
-  // TODO: 需要调整为获取指定的字段
-  const { setVisibleAmount, visibleAmount, visibleAmountSwitch, setUserAppConfig }
-    = useSystemStore();
 
   const { data: userAppConfig } = useGetUserAppConfigQuery();
-  useEffect(() => {
-    if (!userAppConfig)
-      return;
-    setUserAppConfig(userAppConfig);
-  }, [userAppConfig]);
+  const visibleAmount = userAppConfig?.isDisplayAmount ?? false;
+  const visibleAmountSwitch = userAppConfig?.isDisplayAmountSwitch ?? false;
 
   const [patchUserAppConfigMutate] = usePatchUserAppConfigMutation();
 
@@ -81,11 +74,10 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
   }, [visibleAmount, visibleAmountSwitch]);
 
   const onToggleVisibleAmount = useCallback(async () => {
-    setVisibleAmount(!visibleAmount);
     await patchUserAppConfigMutate({
       isDisplayAmount: !visibleAmount,
     });
-  }, [visibleAmount]);
+  }, [visibleAmount, patchUserAppConfigMutate]);
 
   const onGoToSearchRecordPage = useCallback(() => {
     navigate('/search-record');

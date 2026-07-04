@@ -973,3 +973,15 @@ vite build 通过,eslint 0 error。
 
 **行为改进**:切换 range/amount 时 `curTab` 自动 resolve 到末尾 tab(原 store 切 range 时 tabActive 残留旧 key、curTab stale)
 验证:tsc 0 error,vite build exit 0,eslint 0 error(1 pre-existing warning:LineChart useEffect deps)
+
+### P5.3 useSystemStore 删除 — 2026-07-04 ✅
+
+`store/system.ts` 删除,`src/store/` 目录整体清空(所有 store 已迁出:user→features/auth,chart/record 已删)。
+
+3 个 consumer 重构:
+- **`Root.tsx`**:`syncAudioWebData()` 消除。改 `useGetUserAppConfigQuery({ options: { enabled: Boolean(token) } })`(未登录不请求);新增 useEffect 在 config 到达后 `audioWeb.open()/close()`。`audioWeb.loadCache()` 保留。消除 store→audioWeb 中间层
+- **`pages/settings/index.tsx`**:全量重构。`canPlay`/`visibleAmountSwitch` 直接读 `useGetUserAppConfigQuery().data`(消除 RQ→store sync useEffect);写改 `usePatchUserAppConfigMutation`。`openPlay`/`closePlay`/`hasAudioCache` 改 `audioWeb` 直接调用。`localStorageSize`/`setStorageSize`/`clearStorage` 改 `useState` + `getLocalStorageSize`/`clearLocalStorage`(`@/shared/lib`)
+- **`pages/detail/Top.tsx`**:`visibleAmount`/`visibleAmountSwitch` 直接读 RQ data(消除 `setUserAppConfig` sync useEffect + `setVisibleAmount` store 写);`onToggleVisibleAmount` 只调 mutation
+
+**消除的反模式**:RQ data → store 复制(useEffect sync)、服务端偏好本地化(localStorage canPlay/visibleAmount)
+验证:tsc 0 error,vite build exit 0,eslint 0 error(3 pre-existing warnings)
