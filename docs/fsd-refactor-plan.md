@@ -1030,3 +1030,12 @@ P5 最后一步,也是影响面最大的一步。`useUserStore` 瘦身为 `useAu
 - 5 个 consumer(community、detail、mine、Discovery、ChartHome)改 `@/widgets/layout`
 - LoginGuard 暂留 `features/auth`(是 auth feature,非 layout 组件;计划原列 widgets/layout 经审计保留)
 验证:tsc 0 error,vite build exit 0,eslint 0 error
+
+### P6.3 router 拆分 — 2026-07-04 ✅
+
+- `src/router/lazy-pages.tsx`:所有 `lazy(() => import(...))` 声明(只导出 lazy 组件,避免 react-refresh/only-export-components)
+- `src/router/index.tsx`:route tree + `Router` 组件 + `withSuspense`/`withLoginGuard` 内部 helper(从 lazy-pages 移入,非导出)
+- `/cateGory` 兼容重定向保留(`<Navigate to="/category" replace />`)
+- ROUTES_PATH 替换裸字符串:暂不做(路由路径已在单文件集中管理,替换为 ROUTES_PATH 调用增加间接层但无行为收益,优先级低,留待后续)
+验证:tsc 0 error,vite build exit 0,eslint 0 error
+**P6 完成**(LoginGuard 经审计留 features/auth;queryClient 放 shared/api 而非 app/)
