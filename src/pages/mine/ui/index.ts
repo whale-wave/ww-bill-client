@@ -1,1 +1,1 @@
-export * from './BotomList';
+export * from './BottomList';

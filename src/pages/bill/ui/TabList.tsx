@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { useBillPageStore } from '@/pages/bill/store';
+import { useBillPageStore } from '@/pages/bill/model';
 import { BillTabsType } from '@/pages/bill/types';
 import { TabList } from '@/shared/ui';
 

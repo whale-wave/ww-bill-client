@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { Bill } from '@/entities/record';
 import { Card } from 'antd-mobile';
 import { useMemo } from 'react';
-import { useBillPageStore } from '@/pages/bill/store';
+import { useBillPageStore } from '@/pages/bill/model';
 import { BillTabsType } from '@/pages/bill/types';
 import { mergerProps } from '@/shared/lib';
 

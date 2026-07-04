@@ -4,7 +4,7 @@ import { Dropdown, List } from 'antd-mobile';
 import { CheckOutline, DownFill } from 'antd-mobile-icons';
 import React, { useContext, useMemo, useRef } from 'react';
 import { BudgetEntityType } from '@/entities/budget';
-import { BudgetPageContext } from '@/pages/budget/store/budgetPageContext.ts';
+import { BudgetPageContext } from '@/pages/budget/model/budgetPageContext.ts';
 import style from '@/pages/budget/ui/BudgetTop.module.scss';
 import { NavBar } from '@/shared/ui';
 

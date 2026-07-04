@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { DatePicker } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { memo, useCallback, useMemo } from 'react';
-import { useBillPageStore } from '@/pages/bill/store';
+import { useBillPageStore } from '@/pages/bill/model';
 import { TabList } from '@/pages/bill/ui';
 import { Icon } from '@/shared/ui';
 

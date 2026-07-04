@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGetRecordBillQuery } from '@/entities/record';
 import { BillRecordCard } from '@/pages/bill/BillRecordCard';
 import { BillTabs } from '@/pages/bill/BillTabs';
-import { useBillPageStore } from '@/pages/bill/store';
+import { useBillPageStore } from '@/pages/bill/model';
 import Content from '@/pages/bill/ui/Content';
 import { Button } from '@/shared/ui';
 

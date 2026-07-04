@@ -14,7 +14,7 @@ import {
   useGetBudgetInfoQuery,
   usePostBudgetClearMutation,
 } from '@/entities/budget';
-import { BudgetPageContext } from '@/pages/budget/store/budgetPageContext.ts';
+import { BudgetPageContext } from '@/pages/budget/model/budgetPageContext.ts';
 import { BudgetModel, BudgetModelModelTypeMap, BudgetTop } from '@/pages/budget/ui';
 import { BottomAction } from '@/shared/ui';
 import style from './index.module.scss';

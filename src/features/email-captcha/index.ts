@@ -1,1 +1,1 @@
-export * from './ui/email-captcha-input';
+export { EmailCaptchaInput } from './ui/email-captcha-input';

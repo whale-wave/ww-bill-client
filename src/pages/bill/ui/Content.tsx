@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { Bill } from '@/entities/record';
 import classNames from 'classnames';
 import { memo, useCallback, useMemo } from 'react';
-import { useBillPageStore } from '@/pages/bill/store';
+import { useBillPageStore } from '@/pages/bill/model';
 import { BillTabsType } from '@/pages/bill/types';
 import { Icon } from '@/shared/ui';
 import styles from './Content.module.scss';
