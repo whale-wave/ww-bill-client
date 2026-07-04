@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import InvoiceInfoForm from '@/pages/invoice/components/InvoiceInfoForm';
+import InvoiceInfoForm from '@/pages/invoice/ui/InvoiceInfoForm';
 import { NavBar } from '@/shared/ui';
 
 interface InvoiceEditProps {

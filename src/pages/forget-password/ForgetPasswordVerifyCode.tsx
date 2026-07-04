@@ -7,7 +7,7 @@ import {
   getToolsForgetPasswordEmailApi,
   getToolsForgetPasswordEmailVerifyCodeApi,
 } from '@/entities/auth';
-import { WwInput, WwInputVerifyCode } from '@/pages/forget-password/components';
+import { WwInput, WwInputVerifyCode } from '@/pages/forget-password/ui';
 import { playSound } from '@/shared/lib/play-sound';
 import { NavBar } from '@/shared/ui';
 

@@ -4,7 +4,7 @@ import { Button, Dialog, Toast } from 'antd-mobile';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getToolsForgetPasswordEmailApi } from '@/entities/auth';
-import { WwInput } from '@/pages/forget-password/components';
+import { WwInput } from '@/pages/forget-password/ui';
 import { isEmail } from '@/shared/lib';
 import { playSound } from '@/shared/lib/play-sound';
 import { NavBar } from '@/shared/ui';

@@ -4,10 +4,10 @@ import type { RecordEntry } from '@/entities/record';
 import { ErrorBlock, List, SpinLoading } from 'antd-mobile';
 import { useMemo } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Icon, NavBar } from '@/components';
 import { isMonthData, isWeekData, isYearData, useGetChartQuery } from '@/entities/chart';
 import { RecordListItem } from '@/entities/record';
 import { cn, math } from '@/shared/lib';
+import { Icon, NavBar } from '@/shared/ui';
 
 interface ChartCategoryLocationState {
   rankingItem?: GetChartApiResponseRankingData;

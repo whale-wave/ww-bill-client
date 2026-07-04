@@ -1,6 +1,6 @@
 @use 'global';
 @use 'reset' as appReset;
-@use '@/components/reset' as componentReset;
+@use 'reset-component' as componentReset;
 
 @tailwind components;
 @tailwind utilities;

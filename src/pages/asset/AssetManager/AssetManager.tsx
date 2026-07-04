@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { AddAssetAccountButton, AssetHeader, AssetInfoCard, AssetList, AssetTabBar } from './components';
+import { AddAssetAccountButton, AssetHeader, AssetInfoCard, AssetList, AssetTabBar } from './ui';
 
 const AssetManager: FC = () => {
   return (

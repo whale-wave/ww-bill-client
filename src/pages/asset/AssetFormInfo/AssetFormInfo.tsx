@@ -4,10 +4,10 @@ import { Button, Form, Input, Toast } from 'antd-mobile';
 import { clone, pick } from 'lodash-es';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { NavBar } from '@/components';
 import { CARD_TYPE, useGetAssetByIdQuery, useGetAssetGroupById, usePatchAssetAdjustMutation, usePostAssetMutation } from '@/entities/asset';
 import { isSuccessApi } from '@/shared/api';
 import { normalizeAmount } from '@/shared/lib';
+import { NavBar } from '@/shared/ui';
 
 function parseAmountString(value: string) {
   return String(Number(value));

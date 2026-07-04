@@ -2,10 +2,9 @@ import type { Dayjs } from 'dayjs';
 import { Toast } from 'antd-mobile';
 import React, { useCallback, useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import WwButton from '@/components/WwButton';
 import { getUserEmailChangeEmailCaptchaNewEmailApi, usePostUserEmailChangeEmailMutation } from '@/entities/user-email';
-import { WwInput, WwInputVerifyCode } from '@/pages/forget-password/components';
-import { NavBar } from '@/shared/ui';
+import { WwInput, WwInputVerifyCode } from '@/pages/forget-password/ui';
+import { NavBar, WwButton } from '@/shared/ui';
 
 interface EmailChangeProps {}
 

@@ -12,7 +12,7 @@ import {
   FixedExpenseItem,
   SummaryCard,
   UpcomingList,
-} from './components';
+} from './ui';
 
 const FixedExpenses: React.FC = () => {
   const navigate = useNavigate();

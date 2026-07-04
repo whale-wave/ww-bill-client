@@ -2,14 +2,13 @@ import type { ChangeEvent, FC } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Input } from '@/components';
 import { login, loginEmailCaptchaApi } from '@/entities/auth';
 import { getToolsCaptchaApi } from '@/entities/tools';
 import { userKeys } from '@/entities/user';
 import { useAuthStore } from '@/features/auth';
 import { EmailCaptchaInput } from '@/features/email-captcha';
 import { playSound } from '@/shared/lib/play-sound';
-import { Button } from '@/shared/ui';
+import { Button, Input } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const Login: FC = () => {

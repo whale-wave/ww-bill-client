@@ -1,12 +1,11 @@
 import type { BudgetInfo } from '@/entities/budget';
 import type { CategoryEntity } from '@/entities/category';
-import type { BudgetModelModelType } from '@/pages/budget/components';
+import type { BudgetModelModelType } from '@/pages/budget/ui';
 import { ActionSheet, Button, Dialog, ErrorBlock, Skeleton } from 'antd-mobile';
 import { AddOutline } from 'antd-mobile-icons';
 import classNames from 'classnames';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { BottomAction } from '@/components';
 import {
   BudgetEntityLevel,
   BudgetEntityType,
@@ -15,8 +14,9 @@ import {
   useGetBudgetInfoQuery,
   usePostBudgetClearMutation,
 } from '@/entities/budget';
-import { BudgetModel, BudgetModelModelTypeMap, BudgetTop } from '@/pages/budget/components';
 import { BudgetPageContext } from '@/pages/budget/store/budgetPageContext.ts';
+import { BudgetModel, BudgetModelModelTypeMap, BudgetTop } from '@/pages/budget/ui';
+import { BottomAction } from '@/shared/ui';
 import style from './index.module.scss';
 
 interface BudgetProps {

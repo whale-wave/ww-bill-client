@@ -3,10 +3,10 @@ import type { CategoryEntity } from '@/entities/category';
 import classNames from 'classnames';
 import React, { useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Icon, NavBar } from '@/components';
 import { BudgetEntityLevel } from '@/entities/budget';
 import { useGetCategoryQuery } from '@/entities/category';
-import { BudgetModel } from '@/pages/budget/components';
+import { BudgetModel } from '@/pages/budget/ui';
+import { Icon, NavBar } from '@/shared/ui';
 
 interface CreateBudgetCategoryProps {
 }

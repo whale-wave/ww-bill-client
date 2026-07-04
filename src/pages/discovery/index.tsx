@@ -1,9 +1,8 @@
 import React from 'react';
-import { CurrentMonthBillCard } from '@/components';
 import { CurMonthBudgetCard } from '@/entities/budget';
 import { useGetUserUserInfoQuery } from '@/entities/user';
-import { AssetManagerCard, CommonFunctionCard } from '@/pages/discovery/components';
-import { NavBar } from '@/shared/ui';
+import { AssetManagerCard, CommonFunctionCard } from '@/pages/discovery/ui';
+import { CurrentMonthBillCard, NavBar } from '@/shared/ui';
 import { TabBar } from '@/widgets/layout';
 
 interface DiscoveryProps {

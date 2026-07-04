@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { NavBar } from '@/shared/ui';
-import { FixedExpenseForm } from './components';
+import { FixedExpenseForm } from './ui';
 
 const FixedExpenseEdit: React.FC = () => {
   const navigate = useNavigate();

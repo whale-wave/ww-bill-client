@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import { DatePicker } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { memo, useCallback, useMemo } from 'react';
-import { TabList } from '@/pages/bill/components';
 import { useBillPageStore } from '@/pages/bill/store';
+import { TabList } from '@/pages/bill/ui';
 import { Icon } from '@/shared/ui';
 
 export const BillTabs: FC = memo(() => {

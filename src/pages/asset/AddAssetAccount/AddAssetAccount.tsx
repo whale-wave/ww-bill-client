@@ -3,9 +3,9 @@ import type { AssetGroup } from '@/entities/asset';
 import { List } from 'antd-mobile';
 import { useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Icon, NavBar } from '@/components';
 import { useGetAssetGroupQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { Icon, NavBar } from '@/shared/ui';
 
 const AddAssetAccount: FC = () => {
   const navigate = useNavigate();

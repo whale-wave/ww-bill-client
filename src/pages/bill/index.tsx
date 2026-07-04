@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { useGetRecordBillQuery } from '@/entities/record';
 import { BillRecordCard } from '@/pages/bill/BillRecordCard';
 import { BillTabs } from '@/pages/bill/BillTabs';
-import Content from '@/pages/bill/components/Content';
 import { useBillPageStore } from '@/pages/bill/store';
+import Content from '@/pages/bill/ui/Content';
 import { Button } from '@/shared/ui';
 
 const Bill: FC = () => {

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { RecordListContainer, Top } from '@/pages/search-record/components';
+import { RecordListContainer, Top } from '@/pages/search-record/ui';
 
 interface SearchRecordProps {
 }

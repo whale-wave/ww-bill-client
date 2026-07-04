@@ -3,12 +3,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Input } from '@/components';
 import { sign } from '@/entities/auth';
 import { userKeys } from '@/entities/user';
 import { useAuthStore } from '@/features/auth';
 import { EmailCaptchaInput } from '@/features/email-captcha';
-import { Button, NavBar } from '@/shared/ui';
+import { Button, Input, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const inputStyle = {

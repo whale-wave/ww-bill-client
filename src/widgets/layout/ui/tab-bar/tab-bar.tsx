@@ -3,10 +3,22 @@ import { AddOutline } from 'antd-mobile-icons';
 import classNames from 'classnames';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from '@/components';
-import { prefetchRoute } from '@/router/prefetch';
 import { playSound } from '@/shared/lib/play-sound';
+import { Icon } from '@/shared/ui';
 import './tab-bar.scss';
+
+/** Preload route chunks on hover/touch for instant-feel navigation. */
+const routePrefetch: Record<string, () => Promise<unknown>> = {
+  '/detail': () => import('@/pages/detail'),
+  '/chart': () => import('@/pages/chart/ChartHome/ChartHome'),
+  '/bookkeeping': () => import('@/pages/bookkeeping'),
+  '/discovery': () => import('@/pages/discovery'),
+  '/mine': () => import('@/pages/mine'),
+};
+
+function prefetchRoute(path: string): void {
+  routePrefetch[path]?.().catch(() => {});
+}
 
 interface TabBarProps {
   active: number;

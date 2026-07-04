@@ -4,7 +4,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FixedExpenseCycle, useGetFixedExpenseByIdQuery } from '@/entities/fixed-expense';
 import { cn } from '@/shared/lib';
 import { NavBar } from '@/shared/ui';
-import { EditAndDeleteButton } from './components';
 import {
   currencyLabelMap,
   cycleLabelMap,
@@ -14,6 +13,7 @@ import {
   typeIconMap,
   typeLabelMap,
 } from './constants';
+import { EditAndDeleteButton } from './ui';
 import { formatAmountWithCurrency, formatDate, formatNextBillingDate } from './utils';
 
 const Row: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (

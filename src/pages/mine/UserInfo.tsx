@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { List } from 'antd-mobile';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
-import CheckInfo from '@/components/CheckInfo';
+import { CheckInfo } from '@/entities/follow';
 import { Icon } from '@/shared/ui';
 import styles from './UserInfo.module.scss';
 

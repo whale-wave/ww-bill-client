@@ -3,10 +3,10 @@ import copy from 'copy-to-clipboard';
 import React, { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetInvoiceByIdQuery } from '@/entities/invoice';
-import EditAndDeleteButton from '@/pages/invoice/components/EditAndDeleteButton';
+import EditAndDeleteButton from '@/pages/invoice/ui/EditAndDeleteButton';
 import InvoiceInfo, {
   getOptionListByInvoice,
-} from '@/pages/invoice/components/InvoiceInfo';
+} from '@/pages/invoice/ui/InvoiceInfo';
 import { NavBar } from '@/shared/ui';
 
 interface InvoiceDetailProps {}

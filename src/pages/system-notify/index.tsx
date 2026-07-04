@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useGetSystemNotifyQuery } from '@/entities/system-notify';
-import CommentListItem from '@/pages/comment-list/components';
+import CommentListItem from '@/pages/comment-list/ui';
 import { showDate } from '@/shared/lib/time';
 import { NavBar } from '@/shared/ui';
 

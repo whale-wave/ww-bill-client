@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetUserUserInfoQuery, usePostCheckInMutation } from '@/entities/user';
-import { BottomList } from '@/pages/mine/components';
+import { BottomList } from '@/pages/mine/ui';
 import UserInfo from '@/pages/mine/UserInfo';
 import { playSound } from '@/shared/lib/play-sound';
 import { Icon } from '@/shared/ui';

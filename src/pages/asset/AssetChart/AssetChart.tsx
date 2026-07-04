@@ -3,12 +3,12 @@ import { Tabs } from 'antd-mobile';
 import classNames from 'classnames';
 import { useCallback, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { NavBar, TabList } from '@/components';
 import { AssetStatisticalRecordType } from '@/entities/asset';
-import { AssetTabBar } from '../AssetManager/components';
+import { NavBar, TabList } from '@/shared/ui';
+import { AssetTabBar } from '../AssetManager/ui';
 import styles from './AssetChart.module.scss';
-import { AssetTrendChart, CurAssetStatus, CurNetAssetStatus } from './components';
-import { AssetRanking } from './components/AssetRanking';
+import { AssetTrendChart, CurAssetStatus, CurNetAssetStatus } from './ui';
+import { AssetRanking } from './ui/AssetRanking';
 
 const AssetChart: FC = () => {
   const navigate = useNavigate();

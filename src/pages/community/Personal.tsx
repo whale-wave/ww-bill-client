@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetTopicUserInfoQuery } from '@/entities/topic';
-import Tabs from '@/pages/community/components/Personal/Tabs';
-import UserInfo from '@/pages/community/components/Personal/UserInfo';
+import Tabs from '@/pages/community/ui/Personal/Tabs';
+import UserInfo from '@/pages/community/ui/Personal/UserInfo';
 import { NavBar } from '@/shared/ui';
 import styles from './Personal.module.scss';
 

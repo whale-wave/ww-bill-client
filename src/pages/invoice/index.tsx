@@ -2,8 +2,8 @@ import type { InvoiceEntity } from '@/entities/invoice';
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetInvoiceQuery } from '@/entities/invoice';
-import AddInvoiceButton from '@/pages/invoice/components/AddInvoiceButton';
-import InvoiceItem from '@/pages/invoice/components/InvoiceItem';
+import AddInvoiceButton from '@/pages/invoice/ui/AddInvoiceButton';
+import InvoiceItem from '@/pages/invoice/ui/InvoiceItem';
 import { NavBar } from '@/shared/ui';
 
 interface InvoiceProps {}

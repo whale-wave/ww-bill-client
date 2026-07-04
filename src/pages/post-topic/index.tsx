@@ -12,8 +12,8 @@ import {
   useState,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { uploadFile } from '@/api';
 import { usePostTopicMutation } from '@/entities/topic';
+import { uploadFile } from '@/shared/api';
 import { Button, Icon, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
