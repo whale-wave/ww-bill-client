@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { CurrentMonthBillCard, TabBar } from '@/components';
 import { CurMonthBudgetCard } from '@/entities/budget';
 import { useGetUserUserInfoQuery } from '@/entities/user';
+import { useUserStore } from '@/features/auth';
 import { AssetManagerCard, CommonFunctionCard } from '@/pages/Discovery/components';
 import { NavBar } from '@/shared/ui';
-import { useUserStore } from '@/store';
 
 interface DiscoveryProps {
 }

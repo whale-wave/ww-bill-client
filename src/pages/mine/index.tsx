@@ -5,11 +5,11 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TabBar } from '@/components';
 import { useGetUserUserInfoQuery, usePostCheckInMutation } from '@/entities/user';
+import { useUserStore } from '@/features/auth';
 import { BottomList } from '@/pages/mine/components';
 import UserInfo from '@/pages/mine/UserInfo';
 import { playSound } from '@/shared/lib/play-sound';
 import { Icon } from '@/shared/ui';
-import { useUserStore } from '@/store';
 import styles from './index.module.scss';
 
 const Mine: FC = () => {

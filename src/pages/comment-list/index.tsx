@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useGetTopicIdCommentQuery } from '@/entities/topic';
+import { useUserStore } from '@/features/auth';
 import CommentListItem from '@/pages/comment-list/components';
 import { showDate } from '@/shared/lib/time';
 import { NavBar } from '@/shared/ui';
-import { useUserStore } from '@/store';
 
 function CommentList() {
   const { userInfo } = useUserStore(({ userInfo }) => ({ userInfo }));

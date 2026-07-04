@@ -1,8 +1,8 @@
 import { Toast } from 'antd-mobile';
-import { useUserStore } from '@/store';
+import { handleAuthLogout } from './auth-injection';
 
 function clearTokenToLogin(msg: string) {
-  useUserStore.getState().logOut();
+  handleAuthLogout();
   Toast.show({ content: msg, icon: 'fail', duration: 1000 });
   setTimeout(() => {
     window.location.hash = '#/login';

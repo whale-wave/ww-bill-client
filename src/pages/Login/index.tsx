@@ -1,12 +1,13 @@
 import type { ChangeEvent, FC } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EmailCaptchaInput, Input } from '@/components';
+import { Input } from '@/components';
 import { login, loginEmailCaptchaApi } from '@/entities/auth';
 import { getToolsCaptchaApi } from '@/entities/tools';
+import { useUserStore } from '@/features/auth';
+import { EmailCaptchaInput } from '@/features/email-captcha';
 import { playSound } from '@/shared/lib/play-sound';
 import { Button } from '@/shared/ui';
-import { useUserStore } from '@/store';
 import styles from './index.module.scss';
 
 const Login: FC = () => {

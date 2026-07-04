@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
+import { useUserStore } from '@/features/auth';
 import { audioWeb } from '@/shared/lib';
-import { useSystemStore, useUserStore } from '@/store';
+import { useSystemStore } from '@/store';
 
 export function Root() {
   const { setUserInfo } = useUserStore(({ setUserInfo }) => ({ setUserInfo }));

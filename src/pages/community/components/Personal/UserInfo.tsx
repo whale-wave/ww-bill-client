@@ -5,7 +5,7 @@ import {
   useDeleteFollowMutation,
   usePostFollowMutation,
 } from '@/entities/follow';
-import { useUserStore } from '@/store';
+import { useUserStore } from '@/features/auth';
 import styles from './UserInfo.module.scss';
 
 interface UserInfoProps {

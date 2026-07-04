@@ -912,4 +912,32 @@ vite build 通过,eslint 0 error。**P3 实体层抽取全部完成**。
 - `api/index.ts`、`hooks/query/index.ts` 删 chart re-export
 - 6 consumer 更新:`Chart/ChartHome/ChartHome.tsx`(hooks + type guards)、`Chart/ChartHome/components/RankingItem.tsx`(type)、`Chart/ChartHome/components/TooltipContent.tsx`(type)、`Chart/ChartCategory/ChartCategory.tsx`(types + hooks)、`store/chart.ts`(5 types — chart store,P5 将删除)
 
+### P4 features/ 落地(auth + email-captcha)— 2026-07-04 ✅
+
+第一个 features 层切片。范围经审计收敛为两个真 feature:auth(用户态 store + LoginGuard)、email-captcha(带验证码逻辑的受控输入)。Share 判定为展示型组件留在 shared/ui,check-in 只是单 hook 调用无需 feature。
+
+**`features/auth/`**:
+- `model/store.ts` ← `git mv store/user.ts`(useUserStore 整体迁入,P5 再瘦身为 useAuthStore;暂保留 userInfo/setUserInfo/setToken/logOut,跨 store 耦合 useChartStore.reset() 待 P5 处理)
+- `ui/login-guard.tsx` ← `git mv components/LoginGuard/index.tsx`(import 改 `../model/store`)
+- `index.ts` barrel:`export { useUserStore }` + `export { default as LoginGuard }`
+
+**`features/email-captcha/`**:
+- `ui/email-captcha-input.tsx` ← `git mv components/EmailCaptchaInput/EmailCaptchaInput.tsx`(`../Input` → `@/components`,Input 仍在 components/)
+- `index.ts` ← `git mv components/EmailCaptchaInput/index.ts`,改为 `export * from './ui/email-captcha-input'`
+
+**shared → features 反向依赖处理(auth token 注入)**:
+- shared/api/http.ts 需要 token、request-process.ts 需要 logout,但 shared 不能 import features
+- 新建 `shared/api/auth-injection.ts`:`setAuthDeps`/`getAuthToken`/`handleAuthLogout`,默认空实现
+- http.ts:`useUserStore.getState().token` → `getAuthToken()`;request-process.ts:`useUserStore.getState().logOut()` → `handleAuthLogout()`
+- `shared/api/index.ts` 导出 `setAuthDeps`
+- `main.tsx` 启动时注入真实实现:`setAuthDeps({ tokenGetter: () => useUserStore.getState().token, logoutHandler: () => useUserStore.getState().logOut() })`
+
+**Consumer 更新**:
+- `store/index.ts` 删 `export * from './user'`;`components/index.ts` 删 LoginGuard + EmailCaptchaInput 两条 re-export
+- 9 个 useUserStore consumer 改 `@/store` → `@/features/auth`:Root、Discovery、Login、Sign、UserInfo、comment-list、community/components/Personal/UserInfo、mine、new-follow
+- `router/index.tsx`:LoginGuard 改 `@/components` → `@/features/auth`
+- Login、Sign 拆分 EmailCaptchaInput(→ `@/features/email-captcha`)+ Input(留 `@/components`)import
+
+**验证**:`npx tsc --noEmit`(清缓存)0 error;`npx vite build` exit 0;`npx eslint --fix <changed>` 0 error(仅 pre-existing react/exhaustive-deps warnings)
+**改动**:18 文件(含 4 git mv),P3.8 后 `src/hooks/` 已删
 vite build 通过,eslint 0 error。

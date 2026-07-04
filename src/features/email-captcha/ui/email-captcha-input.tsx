@@ -1,8 +1,8 @@
 import type { FC } from 'react';
-import type { InputProps } from '../Input';
+import type { InputProps } from '@/components';
 import { useRef, useState } from 'react';
+import { Input } from '@/components';
 import { getToolsEmailApi } from '@/entities/tools';
-import { Input } from '../Input';
 
 const WAIT_TIME = 60;
 

@@ -2,10 +2,11 @@ import type { ChangeEvent, CSSProperties, FC } from 'react';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EmailCaptchaInput, Input } from '@/components';
+import { Input } from '@/components';
 import { sign } from '@/entities/auth';
+import { useUserStore } from '@/features/auth';
+import { EmailCaptchaInput } from '@/features/email-captcha';
 import { Button, NavBar } from '@/shared/ui';
-import { useUserStore } from '@/store';
 import styles from './index.module.scss';
 
 const inputStyle = {

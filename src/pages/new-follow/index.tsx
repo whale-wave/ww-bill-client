@@ -7,10 +7,10 @@ import {
   useGetFollowQuery,
   usePostFollowMutation,
 } from '@/entities/follow';
+import { useUserStore } from '@/features/auth';
 import UserFollowItem from '@/pages/new-follow/components';
 import { showDate } from '@/shared/lib/time';
 import { NavBar } from '@/shared/ui';
-import { useUserStore } from '@/store';
 import styles from './index.module.scss';
 
 function NewFollow() {

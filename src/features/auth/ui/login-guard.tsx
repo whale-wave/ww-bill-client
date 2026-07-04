@@ -1,6 +1,6 @@
 import type { FC, JSX } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useUserStore } from '@/store';
+import { useUserStore } from '../model/store';
 
 interface LoginGuardProps {
   children: JSX.Element;

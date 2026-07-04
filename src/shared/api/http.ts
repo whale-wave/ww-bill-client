@@ -1,6 +1,6 @@
 import { Toast } from 'antd-mobile';
 import axios from 'axios';
-import { useUserStore } from '@/store';
+import { getAuthToken } from './auth-injection';
 import {
   baseResponseProcess,
   errorResponseProcess,
@@ -16,7 +16,7 @@ const request = axios.create({
 });
 
 request.interceptors.request.use((config) => {
-  const token = useUserStore.getState().token;
+  const token = getAuthToken();
   if (token) {
     (
       config.headers as { Authorization: string }
