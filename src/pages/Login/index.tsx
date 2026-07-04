@@ -1,4 +1,5 @@
 import type { ChangeEvent, FC } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components';
@@ -7,13 +8,13 @@ import { getToolsCaptchaApi } from '@/entities/tools';
 import { userKeys } from '@/entities/user';
 import { useAuthStore } from '@/features/auth';
 import { EmailCaptchaInput } from '@/features/email-captcha';
-import { queryClient } from '@/main';
 import { playSound } from '@/shared/lib/play-sound';
 import { Button } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const Login: FC = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { setToken } = useAuthStore(({ setToken }) => ({ setToken }));
 
   const [userNameForm, setUserNameForm] = useState({

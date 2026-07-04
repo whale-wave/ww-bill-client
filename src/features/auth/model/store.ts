@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { queryClient } from '@/main';
+import { queryClient } from '@/shared/api';
 
 interface AuthState {
   token: string;

@@ -1,4 +1,5 @@
 import type { ChangeEvent, CSSProperties, FC } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +8,6 @@ import { sign } from '@/entities/auth';
 import { userKeys } from '@/entities/user';
 import { useAuthStore } from '@/features/auth';
 import { EmailCaptchaInput } from '@/features/email-captcha';
-import { queryClient } from '@/main';
 import { Button, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
@@ -21,6 +21,7 @@ const Sign: FC = () => {
     password: '',
     emailCode: '',
   });
+  const queryClient = useQueryClient();
   const { setToken } = useAuthStore(({ setToken }) => ({ setToken }));
 
   const navigate = useNavigate();

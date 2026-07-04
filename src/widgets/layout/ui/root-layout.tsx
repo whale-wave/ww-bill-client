@@ -1,10 +1,11 @@
+import type { FC } from 'react';
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useGetUserAppConfigQuery } from '@/entities/user-app-config';
 import { useAuthStore } from '@/features/auth';
 import { audioWeb } from '@/shared/lib';
 
-export function Root() {
+export const RootLayout: FC = () => {
   const { token } = useAuthStore(({ token }) => ({ token }));
   const { data: userAppConfig } = useGetUserAppConfigQuery({
     options: { enabled: Boolean(token) },
@@ -22,4 +23,4 @@ export function Root() {
   }, [userAppConfig?.isOpenSoundEffect]);
 
   return <Outlet />;
-}
+};

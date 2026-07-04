@@ -2,7 +2,7 @@ import type { ComponentType, FC, LazyExoticComponent, ReactElement } from 'react
 import { lazy, Suspense } from 'react';
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { LoginGuard } from '@/features/auth';
-import { Root } from '@/Root';
+import { RootLayout } from '@/widgets/layout';
 
 const AddAssetAccount = lazy(() => import('@/pages/Asset/AddAssetAccount/AddAssetAccount'));
 const AssetChart = lazy(() => import('@/pages/Asset/AssetChart/AssetChart'));
@@ -69,7 +69,7 @@ function withLoginGuard(element: ReactElement): ReactElement {
 const router = createHashRouter([
   {
     path: '/',
-    element: <Root />,
+    element: <RootLayout />,
     children: [
       {
         index: true,
