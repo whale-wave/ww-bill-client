@@ -9,7 +9,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { postAuthPasswordForgetResetApi } from '@/entities/auth';
-import { WwInput } from '@/pages/forget-password/ui';
+import { WwInput } from '@/pages/auth/forget-password/ui';
 import { playSound } from '@/shared/lib/play-sound';
 import { NavBar } from '@/shared/ui';
 

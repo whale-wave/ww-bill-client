@@ -120,32 +120,32 @@ const router = createHashRouter([
       },
       {
         path: 'user-info',
-        lazy: lazyGuardedPage(() => import('@/pages/user-info')),
+        lazy: lazyGuardedPage(() => import('@/pages/user/user-info/UserInfoPage')),
       },
       {
         path: 'password',
-        lazy: lazyGuardedPage(() => import('@/pages/password')),
+        lazy: lazyGuardedPage(() => import('@/pages/user/password/PasswordPage')),
       },
       {
         path: 'forget-password',
         children: [
           {
             index: true,
-            lazy: lazyPage(() => import('@/pages/forget-password/ForgetPassword')),
+            lazy: lazyPage(() => import('@/pages/auth/forget-password/ForgetPasswordPage')),
           },
           {
             path: 'verify-code',
-            lazy: lazyPage(() => import('@/pages/forget-password/ForgetPasswordVerifyCode')),
+            lazy: lazyPage(() => import('@/pages/auth/forget-password/VerifyCodePage')),
           },
           {
             path: 'reset',
-            lazy: lazyPage(() => import('@/pages/forget-password/ForgetPasswordReset')),
+            lazy: lazyPage(() => import('@/pages/auth/forget-password/ResetPage')),
           },
         ],
       },
       {
         path: 'sign',
-        lazy: lazyPage(() => import('@/pages/sign')),
+        lazy: lazyPage(() => import('@/pages/auth/sign/SignPage')),
       },
       {
         path: 'chart',
@@ -178,7 +178,7 @@ const router = createHashRouter([
       },
       {
         path: 'login',
-        lazy: lazyPage(() => import('@/pages/login')),
+        lazy: lazyPage(() => import('@/pages/auth/login/LoginPage')),
       },
       {
         path: 'detail',
@@ -220,11 +220,11 @@ const router = createHashRouter([
                 children: [
                   {
                     index: true,
-                    lazy: lazyGuardedPage(() => import('@/pages/email-change')),
+                    lazy: lazyGuardedPage(() => import('@/pages/user/email-change/EmailChangePage')),
                   },
                   {
                     path: 'captcha',
-                    lazy: lazyGuardedPage(() => import('@/pages/email-change/EmailChangeCaptcha')),
+                    lazy: lazyGuardedPage(() => import('@/pages/user/email-change/EmailChangeCaptchaPage')),
                   },
                 ],
               },

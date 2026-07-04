@@ -5,7 +5,7 @@ import {
   getUserEmailChangeEmailCaptchaApi,
   getUserEmailChangeEmailCaptchaVerifyApi,
 } from '@/entities/user-email';
-import { WwInput, WwInputVerifyCode } from '@/pages/forget-password/ui';
+import { WwInput, WwInputVerifyCode } from '@/pages/auth/forget-password/ui';
 import { NavBar, WwButton } from '@/shared/ui';
 
 interface EmailChangeProps {}
