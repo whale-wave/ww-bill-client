@@ -941,3 +941,35 @@ vite build 通过,eslint 0 error。**P3 实体层抽取全部完成**。
 **验证**:`npx tsc --noEmit`(清缓存)0 error;`npx vite build` exit 0;`npx eslint --fix <changed>` 0 error(仅 pre-existing react/exhaustive-deps warnings)
 **改动**:18 文件(含 4 git mv),P3.8 后 `src/hooks/` 已删
 vite build 通过,eslint 0 error。
+### P5.1 useRecordStore → URL params — 2026-07-04 ✅
+
+`store/record.ts`(searchRecordKeyword)删除。SearchRecord 页 2 个 consumer 改 `useSearchParams`:
+- `Top.tsx`:SearchBar value 读 `?q=`,`onChange` 写 `?q=`(`replace:true` 避免每次按键污染历史)
+- `RecordListContainer.tsx`:读 `?q=` 喂给 `useDebounce` + `useGetRecordQuery`
+- `store/index.ts` 删 `export * from './record'`
+行为:搜索词可分享;后退行为不变(原 store 也无后退支持)
+验证:tsc 0 error,vite build exit 0,eslint 0 error
+
+### P5.2 useChartStore → Context + useMemo + URL params — 2026-07-04 ✅
+
+`store/chart.ts` 删除。chart 页 6 consumer 全改。这是 P5 最复杂一步。
+
+**类型迁移** → `entities/chart/types.ts`:`TimeRangeCategory`、`AmountType`、`WeekTabItem`/`MonthTabItem`/`YearTabItem`/`TabItem`(原 store/chart.ts 的 `*TabItem` 接口 + `TabItem` union)。`entities/chart/index.ts` 加 `export * from './types'`。
+
+**派生函数** → `pages/Chart/ChartHome/model/derive-tabs.ts`:`deriveWeekTabs`/`deriveMonthTabs`/`deriveYearTabs`(从 store 的 `setTabsByWeek/Month/Year` 提取为纯函数,返回 `*TabItem[]`)。
+
+**页内状态** → `pages/Chart/ChartHome/model/`:
+- `chart-home-context.ts`:`ChartHomeContext` + `useChartHome` hook + `ChartHomeContextValue` 类型(无组件,避免 react-refresh/only-export-components)
+- `ChartHomeProvider.tsx`:`ChartHomeProvider` 组件。URL params(`?amount=sub|add`、`?range=week|month|year`、`?tab=`)驱动状态;`useGetChartQuery` 取数;`useMemo` 派生 `tabs`(用 type guards + `derive*Tabs`);`useMemo` 派生 `curTab`(`tabs.find(key=urlTab) ?? tabs.at(-1)` — 无匹配时默认末尾 tab,比原 store 更健壮);`useCallback` 稳定 setter;`useMemo` 稳定 context value
+
+**Consumer 更新**(6 文件):
+- `ChartHome.tsx`:拆 `ChartHomeInner`(消费 context)+ `ChartHome`(包 `ChartHomeProvider`)。删 3 个 store-sync useEffect(usePrevious/setTabsByX/setTabActive+setCurTab)— 全部由 context 的 useMemo 替代
+- `components/Top.tsx`:useChartHome + types 从 `@/entities/chart`
+- `components/LineChart.tsx`、`ChartContent.tsx`、`RankingList.tsx`:useChartHome
+- `components/TooltipContent.tsx`:`AmountType` 从 `@/entities/chart`
+- `pages/Chart/ChartCategory/ChartCategory.tsx`:`AmountType`/`TabItem`/`TimeRangeCategory` 从 `@/entities/chart`
+
+**auth store 解耦**:`features/auth/model/store.ts` 的 `logOut` 删 `useChartStore.getState().reset()`(chart store 已删;chart 状态改为 URL params,登出后导航离开自然清除)。跨 store 耦合消除。
+
+**行为改进**:切换 range/amount 时 `curTab` 自动 resolve 到末尾 tab(原 store 切 range 时 tabActive 残留旧 key、curTab stale)
+验证:tsc 0 error,vite build exit 0,eslint 0 error(1 pre-existing warning:LineChart useEffect deps)

@@ -2,15 +2,13 @@ import type { FC } from 'react';
 import { List } from 'antd-mobile';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useChartHome } from '@/pages/Chart/ChartHome/model/chart-home-context';
 import { cn } from '@/shared/lib';
-import { useChartStore } from '@/store';
 import { RankingItem } from './RankingItem';
 
 export const RankingList: FC = () => {
   const navigate = useNavigate();
-  const curTab = useChartStore(state => state.curTab);
-  const currentAmountType = useChartStore(state => state.currentAmountType);
-  const currentTimeRangeCategory = useChartStore(state => state.currentTimeRangeCategory);
+  const { curTab, currentAmountType, currentTimeRangeCategory } = useChartHome();
 
   const rankingData = useMemo(() => {
     if (!curTab)

@@ -1,12 +1,11 @@
 import type { FC } from 'react';
 import { ErrorBlock } from 'antd-mobile';
 import { LineChart, RankingList } from '@/pages/Chart/ChartHome/components';
+import { useChartHome } from '@/pages/Chart/ChartHome/model/chart-home-context';
 import { cn } from '@/shared/lib';
-import { useChartStore } from '@/store/chart';
 
 export const ChartContent: FC = () => {
-  const curTab = useChartStore(state => state.curTab);
-  const currentAmountType = useChartStore(state => state.currentAmountType);
+  const { curTab, currentAmountType } = useChartHome();
 
   const empty = (
     <div className={cn('flex-grow flex items-center justify-center')}>

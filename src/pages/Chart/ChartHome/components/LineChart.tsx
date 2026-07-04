@@ -4,14 +4,13 @@ import { format } from 'date-fns';
 import { useEffect, useMemo } from 'react';
 import { renderToString } from 'react-dom/server';
 import { TooltipContent } from '@/pages/Chart/ChartHome/components';
+import { useChartHome } from '@/pages/Chart/ChartHome/model/chart-home-context';
 import { cn } from '@/shared/lib';
 import { useChart } from '@/shared/lib/use-chart';
-import { useChartStore } from '@/store';
 
 export const LineChart: FC = () => {
   const { chartDomRef, myChart } = useChart();
-  const currentAmountType = useChartStore(state => state.currentAmountType);
-  const curTab = useChartStore(state => state.curTab);
+  const { currentAmountType, curTab } = useChartHome();
 
   const seriesData = useMemo(() => {
     if (!curTab)

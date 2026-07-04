@@ -1,25 +1,15 @@
 import type { TabsProps } from 'antd-mobile';
 import type { FC } from 'react';
-import { usePrevious } from 'ahooks';
 import { Tabs } from 'antd-mobile';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { TabBar } from '@/components';
-import { isMonthData, isWeekData, isYearData, useGetChartQuery } from '@/entities/chart';
 import { ChartContent, Top } from '@/pages/Chart/ChartHome/components';
+import { useChartHome } from '@/pages/Chart/ChartHome/model/chart-home-context';
+import { ChartHomeProvider } from '@/pages/Chart/ChartHome/model/ChartHomeProvider';
 import { cn } from '@/shared/lib';
-import { useChartStore } from '@/store';
 
-const ChartHome: FC = () => {
-  const currentAmountType = useChartStore(state => state.currentAmountType);
-  const previousCurrentAmountType = usePrevious(currentAmountType);
-  const tabs = useChartStore(state => state.tabs);
-  const tabActive = useChartStore(state => state.tabActive);
-  const currentTimeRangeCategory = useChartStore(state => state.currentTimeRangeCategory);
-  const setTabActive = useChartStore(state => state.setTabActive);
-  const setTabsByWeek = useChartStore(state => state.setTabsByWeek);
-  const setTabsByMonth = useChartStore(state => state.setTabsByMonth);
-  const setTabsByYear = useChartStore(state => state.setTabsByYear);
-  const setCurTab = useChartStore(state => state.setCurTab);
+const ChartHomeInner: FC = () => {
+  const { tabs, tabActive, setTabActive } = useChartHome();
 
   const tabStyle: TabsProps['style'] = {
     '--content-padding': '0px',
@@ -29,43 +19,9 @@ const ChartHome: FC = () => {
     '--adm-color-primary': '#333',
   };
 
-  const { data } = useGetChartQuery({
-    params: {
-      type: currentAmountType,
-      category: currentTimeRangeCategory,
-    },
-  });
-
-  useEffect(() => {
-    if (!data)
-      return;
-    if (isWeekData(data)) {
-      setTabsByWeek(data);
-    }
-    else if (isMonthData(data)) {
-      setTabsByMonth(data);
-    }
-    else if (isYearData(data)) {
-      setTabsByYear(data);
-    }
-  }, [data]);
-
-  useEffect(() => {
-    if (!!tabs.length && !tabActive) {
-      setTabActive(tabs.at(-1)!.key);
-    }
-  }, [tabs, tabActive]);
-
-  useEffect(() => {
-    if (previousCurrentAmountType !== currentAmountType && !!tabs.length) {
-      setTabActive(tabs.at(-1)!.key);
-      setCurTab(tabs.at(-1)!);
-    }
-  }, [currentAmountType, tabs]);
-
   const handleTabChange = useCallback((key: string) => {
     setTabActive(key);
-  }, []);
+  }, [setTabActive]);
 
   return (
     <>
@@ -88,6 +44,14 @@ const ChartHome: FC = () => {
       <ChartContent />
       <TabBar active={1} />
     </>
+  );
+};
+
+const ChartHome: FC = () => {
+  return (
+    <ChartHomeProvider>
+      <ChartHomeInner />
+    </ChartHomeProvider>
   );
 };
 

@@ -1,7 +1,6 @@
 import type { FC } from 'react';
-import type { GetChartApiParamsCategory, GetChartApiResponse, GetChartApiResponseRankingData } from '@/entities/chart';
+import type { AmountType, GetChartApiParamsCategory, GetChartApiResponse, GetChartApiResponseRankingData, TabItem, TimeRangeCategory } from '@/entities/chart';
 import type { RecordEntry } from '@/entities/record';
-import type { AmountType, TabItem, TimeRangeCategory } from '@/store/chart';
 import { ErrorBlock, List, SpinLoading } from 'antd-mobile';
 import { useMemo } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';

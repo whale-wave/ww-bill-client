@@ -1,13 +1,13 @@
 import type { DropdownRef } from 'antd-mobile/es/components/dropdown';
 import type { FC } from 'react';
-import type { AmountType, TimeRangeCategory } from '@/store';
+import type { AmountType, TimeRangeCategory } from '@/entities/chart';
 import { Dropdown } from 'antd-mobile';
 import { CheckOutline } from 'antd-mobile-icons';
 import { useCallback, useMemo, useRef } from 'react';
 import { Icon, TabList } from '@/components';
 import style from '@/pages/Chart/ChartHome/components/Top.module.scss';
+import { useChartHome } from '@/pages/Chart/ChartHome/model/chart-home-context';
 import { cn } from '@/shared/lib';
-import { useChartStore } from '@/store';
 
 const timeRangeCategoryList = [
   {
@@ -35,13 +35,10 @@ const amountTypeList = [
     icon: 'jiekuanshouru-copy',
     value: 'add',
   },
-] as { name: string; icon: string; value: 'sub' | 'add' }[];
+] as { name: string; icon: string; value: AmountType }[];
 
 export const Top: FC = () => {
-  const currentTimeRangeCategory = useChartStore(state => state.currentTimeRangeCategory);
-  const setCurrentTimeRangeCategory = useChartStore(state => state.setCurrentTimeRangeCategory);
-  const currentAmountType = useChartStore(state => state.currentAmountType);
-  const setCurrentAmountType = useChartStore(state => state.setCurrentAmountType);
+  const { currentTimeRangeCategory, setCurrentTimeRangeCategory, currentAmountType, setCurrentAmountType } = useChartHome();
 
   const currentAmountTypeItem = useMemo(() => amountTypeList.find(item => item.value === currentAmountType)!, [currentAmountType]);
 
