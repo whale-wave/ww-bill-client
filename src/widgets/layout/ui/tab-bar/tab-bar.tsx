@@ -10,10 +10,10 @@ import './tab-bar.scss';
 /** Preload route chunks on hover/touch for instant-feel navigation. */
 const routePrefetch: Record<string, () => Promise<unknown>> = {
   '/detail': () => import('@/pages/record/detail/DetailPage'),
-  '/chart': () => import('@/pages/chart/ChartHome/ChartHome'),
+  '/chart': () => import('@/pages/chart/ChartHome/ChartHomePage'),
   '/bookkeeping': () => import('@/pages/record/bookkeeping/BookkeepingPage'),
-  '/discovery': () => import('@/pages/discovery'),
-  '/mine': () => import('@/pages/mine'),
+  '/discovery': () => import('@/pages/discovery/DiscoveryPage'),
+  '/mine': () => import('@/pages/mine/MinePage'),
 };
 
 function prefetchRoute(path: string): void {

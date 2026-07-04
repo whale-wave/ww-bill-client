@@ -35,18 +35,18 @@ const router = createHashRouter([
     children: [
       {
         index: true,
-        lazy: lazyPage(() => import('@/pages/first-screen')),
+        lazy: lazyPage(() => import('@/pages/first-screen/FirstScreenPage')),
       },
       {
         path: 'budget',
         children: [
           {
             index: true,
-            lazy: lazyGuardedPage(() => import('@/pages/budget')),
+            lazy: lazyGuardedPage(() => import('@/pages/budget/BudgetPage')),
           },
           {
             path: 'category/:type',
-            lazy: lazyGuardedPage(() => import('@/pages/create-budget-category')),
+            lazy: lazyGuardedPage(() => import('@/pages/create-budget-category/CreateBudgetCategoryPage')),
           },
         ],
       },
@@ -85,22 +85,22 @@ const router = createHashRouter([
       },
       {
         path: 'discovery',
-        lazy: lazyPage(() => import('@/pages/discovery')),
+        lazy: lazyPage(() => import('@/pages/discovery/DiscoveryPage')),
       },
       {
         path: 'community',
         children: [
           {
             index: true,
-            lazy: lazyGuardedPage(() => import('@/pages/community')),
+            lazy: lazyGuardedPage(() => import('@/pages/community/CommunityPage')),
           },
           {
             path: 'personal/:id',
-            lazy: lazyGuardedPage(() => import('@/pages/community/Personal')),
+            lazy: lazyGuardedPage(() => import('@/pages/community/PersonalPage')),
           },
           {
             path: 'follow-list/:id/:type',
-            lazy: lazyGuardedPage(() => import('@/pages/community/FollowList')),
+            lazy: lazyGuardedPage(() => import('@/pages/community/FollowListPage')),
           },
         ],
       },
@@ -152,29 +152,29 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            lazy: lazyPage(() => import('@/pages/chart/ChartHome/ChartHome')),
+            lazy: lazyPage(() => import('@/pages/chart/ChartHome/ChartHomePage')),
           },
           {
             path: 'category',
-            lazy: lazyPage(() => import('@/pages/chart/ChartCategory/ChartCategory')),
+            lazy: lazyPage(() => import('@/pages/chart/ChartCategory/ChartCategoryPage')),
           },
         ],
       },
       {
         path: 'mine',
-        lazy: lazyGuardedPage(() => import('@/pages/mine')),
+        lazy: lazyGuardedPage(() => import('@/pages/mine/MinePage')),
       },
       {
         path: 'share',
-        lazy: lazyGuardedPage(() => import('@/pages/share')),
+        lazy: lazyGuardedPage(() => import('@/pages/share/SharePage')),
       },
       {
         path: 'post-topic',
-        lazy: lazyGuardedPage(() => import('@/pages/post-topic')),
+        lazy: lazyGuardedPage(() => import('@/pages/post-topic/PostTopicPage')),
       },
       {
         path: 'topic-detail/:id',
-        lazy: lazyGuardedPage(() => import('@/pages/topic-detail')),
+        lazy: lazyGuardedPage(() => import('@/pages/topic-detail/TopicDetailPage')),
       },
       {
         path: 'login',
@@ -189,19 +189,19 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            lazy: lazyGuardedPage(() => import('@/pages/message')),
+            lazy: lazyGuardedPage(() => import('@/pages/message/MessagePage')),
           },
           {
             path: 'new-follow',
-            lazy: lazyGuardedPage(() => import('@/pages/new-follow')),
+            lazy: lazyGuardedPage(() => import('@/pages/new-follow/NewFollowPage')),
           },
           {
             path: 'comment-list',
-            lazy: lazyGuardedPage(() => import('@/pages/comment-list')),
+            lazy: lazyGuardedPage(() => import('@/pages/comment-list/CommentListPage')),
           },
           {
             path: 'system-notify',
-            lazy: lazyGuardedPage(() => import('@/pages/system-notify')),
+            lazy: lazyGuardedPage(() => import('@/pages/system-notify/SystemNotifyPage')),
           },
         ],
       },
@@ -210,7 +210,7 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            lazy: lazyGuardedPage(() => import('@/pages/settings')),
+            lazy: lazyGuardedPage(() => import('@/pages/settings/SettingsPage')),
           },
           {
             path: 'email',
@@ -234,11 +234,11 @@ const router = createHashRouter([
       },
       {
         path: 'export-data',
-        lazy: lazyGuardedPage(() => import('@/pages/export-data')),
+        lazy: lazyGuardedPage(() => import('@/pages/export-data/ExportDataPage')),
       },
       {
         path: 'bill',
-        lazy: lazyGuardedPage(() => import('@/pages/bill')),
+        lazy: lazyGuardedPage(() => import('@/pages/bill/BillPage')),
       },
       {
         path: 'asset',
@@ -270,19 +270,19 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            lazy: lazyGuardedPage(() => import('@/pages/fixed-expenses')),
+            lazy: lazyGuardedPage(() => import('@/pages/fixed-expense/FixedExpensePage')),
           },
           {
             path: 'create',
-            lazy: lazyGuardedPage(() => import('@/pages/fixed-expenses/FixedExpenseCreate')),
+            lazy: lazyGuardedPage(() => import('@/pages/fixed-expense/FixedExpenseCreatePage')),
           },
           {
             path: ':id',
-            lazy: lazyGuardedPage(() => import('@/pages/fixed-expenses/FixedExpenseDetail')),
+            lazy: lazyGuardedPage(() => import('@/pages/fixed-expense/FixedExpenseDetailPage')),
           },
           {
             path: ':id/edit',
-            lazy: lazyGuardedPage(() => import('@/pages/fixed-expenses/FixedExpenseEdit')),
+            lazy: lazyGuardedPage(() => import('@/pages/fixed-expense/FixedExpenseEditPage')),
           },
         ],
       },
@@ -290,7 +290,7 @@ const router = createHashRouter([
   },
   {
     path: '*',
-    lazy: lazyPage(() => import('@/pages/not-found')),
+    lazy: lazyPage(() => import('@/pages/not-found/NotFoundPage')),
   },
 ]);
 
