@@ -50,7 +50,7 @@ const Bookkeeping: FC = () => {
         name: editState.remark,
         updatedAt: editState.updatedAt,
       };
-      handleSelectCategory(category as any);
+      handleSelectCategory(category as unknown as CategoryEntity);
     }
   }, [editState]);
 

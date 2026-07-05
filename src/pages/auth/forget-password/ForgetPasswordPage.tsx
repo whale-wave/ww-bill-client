@@ -17,7 +17,7 @@ const ForgetPassword: FC = () => {
 
   const onGoTo = useCallback((v: string | Partial<Path> | number) => {
     playSound.turnPage();
-    navigate(v as any);
+    navigate(v as Parameters<typeof navigate>[0]);
   }, []);
 
   const onGoToBack = useCallback(() => {

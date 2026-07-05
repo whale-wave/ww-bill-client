@@ -133,7 +133,7 @@ const Keyboard: FC<KeyType> = ({
       const edit = await putRecordMutate({ id: `${stateList[2]}`, data });
       if (edit.statusCode === 200) {
         Toast.show({ content: edit.message });
-        const chunk = Object.assign(state, data) as any;
+        const chunk = { ...state, ...data, status: true };
         chunk.status = true;
         navigate(`/editing/${state.id}`, { state: chunk, replace: true });
       }

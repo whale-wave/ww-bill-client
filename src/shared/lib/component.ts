@@ -30,7 +30,7 @@ export function withBaseProps<P extends BaseProps>(props: P, element: ReactEleme
 }
 
 export function composeExportComponent<C, O extends Record<string, any>>(com: C, otherCom: O): C & O {
-  const res = com as any;
+  const res = com as unknown as Record<string, unknown>;
   for (const key in otherCom) {
     if (Object.hasOwn(otherCom, key)) {
       res[key] = otherCom[key];

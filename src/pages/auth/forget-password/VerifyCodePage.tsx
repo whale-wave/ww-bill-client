@@ -26,7 +26,7 @@ const ForgetPasswordVerifyCode: FC = () => {
 
   const onGoTo = useCallback((v: string | number) => {
     playSound.turnPage();
-    navigate(v as any);
+    navigate(v as Parameters<typeof navigate>[0]);
   }, []);
 
   const onGoToBack = useCallback(() => {
