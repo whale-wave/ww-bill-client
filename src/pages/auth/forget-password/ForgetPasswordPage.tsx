@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import type { Path } from 'react-router-dom';
 import { Button, Dialog, Toast } from 'antd-mobile';

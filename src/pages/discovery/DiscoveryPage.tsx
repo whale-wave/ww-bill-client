@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import React from 'react';
 import { CurMonthBudgetCard } from '@/entities/budget';
 import { useGetUserUserInfoQuery } from '@/entities/user';

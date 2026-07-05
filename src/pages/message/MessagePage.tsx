@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/shared/i18n';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
@@ -23,6 +24,7 @@ const messageItems = [
 ];
 
 const Message: FC = () => {
+  const { t } = useTranslation('common');
   const navigate = useNavigate();
 
   return (

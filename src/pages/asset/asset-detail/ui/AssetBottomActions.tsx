@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import type { BottomActionActionItem } from '@/shared/ui';
 import { Dialog, Toast } from 'antd-mobile';

@@ -9,6 +9,7 @@ import { math } from '@/shared/lib';
 import { getTimeValueFn, getWeekByDay } from '@/shared/lib/date-time';
 import { playSound } from '@/shared/lib/play-sound';
 import { Icon } from '@/shared/ui';
+import { useTranslation } from '@/shared/i18n';
 import styles from './list.module.scss';
 
 type recordType = [
@@ -30,6 +31,7 @@ interface timeDateProp {
 const List: FC<timeDateProp> = memo(({ selectTime, change }) => {
   const [record, setRecord] = useState<recordType[]>([]);
   const navigate = useNavigate();
+  const { t } = useTranslation('record');
 
   const { data } = useGetRecordQuery({
     params: { startDate: selectTime?.format('YYYY-MM-DD') },
@@ -159,7 +161,7 @@ const List: FC<timeDateProp> = memo(({ selectTime, change }) => {
                     {item[5] > 0
                       ? (
                           <div className={styles.right}>
-                            收入：
+                            {t('common:amount.income')}：
                             {item[5]}
                           </div>
                         )
@@ -167,7 +169,7 @@ const List: FC<timeDateProp> = memo(({ selectTime, change }) => {
                           ''
                         )}
                     <div className={styles.right}>
-                      支出：
+                      {t('common:amount.expend')}：
                       {item[4]}
                     </div>
                   </div>
@@ -213,7 +215,7 @@ const List: FC<timeDateProp> = memo(({ selectTime, change }) => {
         : (
             <div className={styles['not-data']}>
               <Icon name="not-data" />
-              <span>暂无数据</span>
+              <span>{t('common:empty')}</span>
             </div>
           )}
     </div>

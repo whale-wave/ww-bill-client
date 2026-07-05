@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { StatusTabOption } from './constants';
 import type { FixedExpenseEntity } from '@/entities/fixed-expense';
 import { Dialog, ErrorBlock, Skeleton, SwipeAction, Toast } from 'antd-mobile';

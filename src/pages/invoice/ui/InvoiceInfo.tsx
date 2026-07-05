@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { InvoiceEntity } from '@/entities/invoice';
 import { Toast } from 'antd-mobile';
 import classNames from 'classnames';

@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playSound } from '@/shared/lib/play-sound';
+import { useTranslation } from '@/shared/i18n';
 import styles from './navBar.module.scss';
 
 interface NavBarProps {
@@ -15,6 +16,7 @@ interface NavBarProps {
 const NavBar: FC<NavBarProps> = ({ change, type, defaultSelectDate }) => {
   const [active, setActive] = useState(0);
   const navigate = useNavigate();
+  const { t } = useTranslation('record');
 
   const handleChangeTab = (index: number) => {
     const type = index === 0 ? 'sub' : 'add';
@@ -40,10 +42,10 @@ const NavBar: FC<NavBarProps> = ({ change, type, defaultSelectDate }) => {
   return (
     <div className={styles.top}>
       <span className={styles.cancel} onClick={() => backFn()}>
-        取消
+        {t('common:nav.cancel')}
       </span>
       <p>
-        {['支出', '收入'].map((item, index) => (
+        {[t('bookkeeping.expend'), t('bookkeeping.income')].map((item, index) => (
           <span
             key={index}
             className={index === active ? styles.active : ''}

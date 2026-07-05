@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC, RefObject } from 'react';
 import config from '@/shared/config';
 import styles from './ShareCanvas.module.scss';

@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { ChangeEvent, FC } from 'react';
 import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
@@ -8,6 +9,7 @@ import { Button, Input, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const Password: FC = () => {
+  const { t } = useTranslation('user');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [rePassword, setRePassword] = useState('');

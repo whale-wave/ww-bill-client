@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { InvoiceEntity } from '@/entities/invoice';
 import { Button, Form, Input } from 'antd-mobile';
 import React, { useCallback, useEffect, useMemo } from 'react';

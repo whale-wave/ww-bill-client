@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TopicItem, usePutTopicLikeMutation } from '@/entities/topic';
+import { useTranslation } from '@/shared/i18n';
 import { Icon, ImagePreview } from '@/shared/ui';
 import styles from './ItemList.module.scss';
 
@@ -13,6 +14,7 @@ interface ItemListProps {
 
 const ItemList: FC<ItemListProps> = ({ data }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation('community');
   const [putTopicLike] = usePutTopicLikeMutation();
   const handleLike = async (topicId: number) => {
     await putTopicLike(topicId);
@@ -62,7 +64,7 @@ const ItemList: FC<ItemListProps> = ({ data }) => {
               }}
             >
               <Icon name="not-data" block className={styles['not-data']} />
-              <span className={styles['not-data-text']}>暂无数据</span>
+              <span className={styles['not-data-text']}>{t('common:empty')}</span>
             </div>
           )}
     </div>

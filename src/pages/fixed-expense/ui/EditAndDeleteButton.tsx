@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { BottomActionActionItem } from '@/shared/ui';
 import { Dialog, Toast } from 'antd-mobile';
 import React, { useCallback, useMemo } from 'react';

@@ -2,6 +2,7 @@ import { Skeleton } from 'antd-mobile';
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FixedExpenseCycle, useGetFixedExpenseByIdQuery } from '@/entities/fixed-expense';
+import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import { NavBar } from '@/shared/ui';
 import {
@@ -35,6 +36,7 @@ const Card: React.FC<{ title?: string; children: React.ReactNode; className?: st
 );
 
 const FixedExpenseDetail: React.FC = () => {
+  const { t } = useTranslation('fixed-expense');
   const navigate = useNavigate();
   const { id } = useParams() as { id: string };
   const { data: detail, isLoading } = useGetFixedExpenseByIdQuery({ params: { id } });
@@ -48,7 +50,7 @@ const FixedExpenseDetail: React.FC = () => {
 
   return (
     <div className="page-new overflow-hidden">
-      <NavBar onBack={onBack}>固定支出详情</NavBar>
+      <NavBar back={t('common:nav.back')} onBack={onBack}>{t('detail.title')}</NavBar>
       <div className="flex-grow space-y-3 overflow-auto bg-bg-gray px-3 py-3">
         {isLoading || !detail
           ? (
@@ -91,7 +93,7 @@ const FixedExpenseDetail: React.FC = () => {
                   )}
                 </div>
 
-                <Card title="基础信息">
+                <Card title={t('form.basicInfo')}>
                   <Row label="类型" value={typeLabelMap[detail.type]} />
                   <Row label="优先级" value={priorityLabelMap[detail.priority]} />
                   <Row label="币种" value={currencyLabelMap[detail.currency]} />
@@ -101,20 +103,20 @@ const FixedExpenseDetail: React.FC = () => {
                   )}
                 </Card>
 
-                <Card title="账单与日期">
+                <Card title={t('form.billAndDate')}>
                   <Row label="账单日" value={detail.billingDay ? `每月 ${detail.billingDay} 日` : undefined} />
                   <Row label="下次账单日期" value={formatDate(detail.nextBillingDate)} />
                   <Row label="开始日期" value={formatDate(detail.startDate)} />
                   <Row label="结束日期" value={formatDate(detail.endDate)} />
                 </Card>
 
-                <Card title="支付信息">
+                <Card title={t('form.paymentInfo')}>
                   <Row label="服务商" value={detail.provider} />
                   <Row label="账号" value={detail.account} />
                   <Row label="支付方式" value={detail.paymentMethod} />
                 </Card>
 
-                <Card title="状态与提醒">
+                <Card title={t('form.statusAndPriority')}>
                   <Row label="自动续费" value={detail.autoRenew ? '是' : '否'} />
                   <Row label="开启提醒" value={detail.reminderEnabled ? '是' : '否'} />
                   {detail.reminderEnabled && (

@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
 import { Button, Form, Input, Toast } from 'antd-mobile';

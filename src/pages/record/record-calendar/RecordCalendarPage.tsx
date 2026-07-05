@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { Dayjs } from 'dayjs';
 import type { RecordEntry } from '@/entities/record';
 import { CalendarPickerView, DatePicker, ErrorBlock, FloatingBubble, NavBar } from 'antd-mobile';

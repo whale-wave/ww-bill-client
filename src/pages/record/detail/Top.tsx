@@ -11,6 +11,7 @@ import Precision from '@/pages/record/detail/ui';
 import config from '@/shared/config';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { Icon } from '@/shared/ui';
+import { useTranslation } from '@/shared/i18n';
 import styles from './top.module.scss';
 
 interface TopProps {
@@ -21,6 +22,7 @@ interface TopProps {
 
 const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation('record');
 
   const { data: userAppConfig } = useGetUserAppConfigQuery();
   const visibleAmount = userAppConfig?.isDisplayAmount ?? false;
@@ -30,12 +32,12 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
 
   const tabs = [
     {
-      name: '账单',
+      name: t('bill:title'),
       iconName: 'bill',
       click: () => navigate(ROUTES_PATH.BILL.getPath()),
     },
     {
-      name: '预算',
+      name: t('budget:title'),
       iconName: 'budget',
       click: () => {
         navigate(ROUTES_PATH.BUDGET.getPath());
@@ -104,7 +106,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
           </div>
           <div className={styles['bottom-wrapper']} onClick={onPrecisionFn}>
             <span className={styles.month}>{selectTime?.format('MM')}</span>
-            月
+            {t('common:time.month')}
             {' '}
             <Icon name="show-bottom" className="text-[10px] mb-[2px]" />
             <Precision
@@ -118,7 +120,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
         </div>
       </div>
       <div className={c([styles.middle, styles['top-text-1-wrapper']])}>
-        <div className={styles['top-text-1']}>收入</div>
+        <div className={styles['top-text-1']}>{t('common:amount.income')}</div>
         <div className={styles['middle-bottom']}>
           <div className={styles['bottom-wrapper']}>
             {isVisibleAmount
@@ -145,7 +147,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
         </div>
       </div>
       <div className={c([styles.right, styles['top-text-1-wrapper']])}>
-        <div className={styles['top-text-1']}>支出</div>
+        <div className={styles['top-text-1']}>{t('common:amount.expend')}</div>
         <div className={styles['right-bottom']}>
           <div className={styles['bottom-wrapper']}>
             {isVisibleAmount

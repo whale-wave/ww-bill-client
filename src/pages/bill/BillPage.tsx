@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import classNames from 'classnames';
 import dayjs from 'dayjs';

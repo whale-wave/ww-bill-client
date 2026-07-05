@@ -1,9 +1,11 @@
+import { useTranslation } from '@/shared/i18n';
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NavBar } from '@/shared/ui';
 import { FixedExpenseForm } from './ui';
 
 const FixedExpenseCreate: React.FC = () => {
+  const { t } = useTranslation('fixed-expense');
   const navigate = useNavigate();
   const onBack = useCallback(() => navigate(-1), [navigate]);
 

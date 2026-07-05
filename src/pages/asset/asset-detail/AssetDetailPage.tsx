@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { NavBar } from '@/shared/ui';
 import { AssetBottomActions, AssetInfoCard, AssetRecordList } from './ui';

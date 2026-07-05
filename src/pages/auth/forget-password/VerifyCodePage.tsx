@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import { Button } from 'antd-mobile';

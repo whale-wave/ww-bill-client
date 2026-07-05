@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import { Card, Toast } from 'antd-mobile';
 import { CalendarOutline, ReceivePaymentOutline, TextOutline } from 'antd-mobile-icons';
 import React, { useCallback } from 'react';

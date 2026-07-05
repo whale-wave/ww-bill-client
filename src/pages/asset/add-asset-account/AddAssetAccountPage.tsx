@@ -6,12 +6,13 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetAssetGroupQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { Icon, NavBar } from '@/shared/ui';
+import { useTranslation } from '@/shared/i18n';
 
 const AddAssetAccount: FC = () => {
+  const { t } = useTranslation('asset');
   const navigate = useNavigate();
   const [query] = useSearchParams();
   const parentId = query.get('parentId') || null;
-  const title = '账户';
 
   const { data } = useGetAssetGroupQuery();
 
@@ -41,9 +42,8 @@ const AddAssetAccount: FC = () => {
 
   return (
     <div className="page pt-[45px] !overflow-auto">
-      <NavBar back="返回">
-        添加
-        {title}
+      <NavBar back={t('common:nav.back')}>
+        {t('addAccount')}
       </NavBar>
       <List className="mt-2">
         {assetGroup.map(item => (

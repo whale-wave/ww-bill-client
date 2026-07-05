@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { ActionSheet, SpinLoading, Toast } from 'antd-mobile';
 import classNames from 'classnames';
@@ -11,6 +12,7 @@ import { Button, List, Modal, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const UserInfo: FC = () => {
+  const { t } = useTranslation('user');
   const navigate = useNavigate();
   const [modalVisible, setModalVisible] = useState(false);
   const { data: userInfo } = useGetUserUserInfoQuery();

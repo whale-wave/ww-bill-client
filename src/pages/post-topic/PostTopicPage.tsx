@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type {
   ChangeEvent,
   FC,
@@ -18,6 +19,7 @@ import { Button, Icon, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const PostTopic: FC = () => {
+  const { t } = useTranslation('community');
   const uploadRef = useRef<HTMLInputElement>(null);
   const [content, setContent] = useState('');
   const [imgs, setImgs] = useState<string[]>([]);

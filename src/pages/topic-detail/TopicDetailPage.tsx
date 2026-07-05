@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -18,6 +19,7 @@ const emptyCommentData = {
 
 const TopicDetail: FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation('community');
   const { id } = useParams();
   const topicId = id ?? '';
   const numericTopicId = Number.parseInt(topicId);
@@ -49,7 +51,7 @@ const TopicDetail: FC = () => {
 
   return (
     <div className="page">
-      <NavBar back="返回" className={styles.nav} onBack={() => navigate(-1)}>
+      <NavBar back={t('common:nav.back')} className={styles.nav} onBack={() => navigate(-1)}>
         {config.appName}
       </NavBar>
       <Main

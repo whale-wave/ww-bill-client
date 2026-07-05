@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { BudgetInfo } from '@/entities/budget';
 import type { CategoryEntity } from '@/entities/category';
 import type { BudgetModelModelType } from '@/pages/budget/ui';

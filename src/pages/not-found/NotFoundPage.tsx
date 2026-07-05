@@ -1,4 +1,5 @@
-import type { FC } from 'react';
+import { useTranslation } from '@/shared/i18n';
+import { NavBar } from 'react';
 
 const NotFound: FC = () => {
   return <div>Nof Found</div>;

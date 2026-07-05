@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
@@ -12,6 +13,7 @@ import { TabBar } from '@/widgets/layout';
 import styles from './index.module.scss';
 
 const Mine: FC = () => {
+  const { t } = useTranslation('user');
   const navigate = useNavigate();
 
   const { data: userInfo } = useGetUserUserInfoQuery();

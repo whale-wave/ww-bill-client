@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
 import { playSound } from '@/shared/lib/play-sound';
 import { Icon, NavBar } from '@/shared/ui';
+import { useTranslation } from '@/shared/i18n';
 import styles from './top.module.scss';
 
 interface stateType {
@@ -12,6 +13,7 @@ interface stateType {
 
 const Top: FC<stateType> = ({ state }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation('record');
   const back = () => {
     playSound.turnPage();
     if (state?.status) {
@@ -24,7 +26,7 @@ const Top: FC<stateType> = ({ state }) => {
 
   return (
     <div>
-      <NavBar backArrow={false} onBack={() => back()} back="返回"></NavBar>
+      <NavBar backArrow={false} onBack={() => back()} back={t('common:nav.back')}></NavBar>
       <div className={styles.top}>
         <div className={styles.main}>
           <div

@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { Dayjs } from 'dayjs';
 import { Toast } from 'antd-mobile';
 import React, { useCallback, useState } from 'react';

@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
 import { ErrorBlock, SpinLoading } from 'antd-mobile';
@@ -95,6 +96,7 @@ const CategoryList: FC<CategoryListProps> = ({
 };
 
 const CategorySettings: FC = () => {
+  const { t } = useTranslation('common');
   const navigate = useNavigate();
   const [activeKey, setActiveKey] = useState<CategoryAmountType>('sub');
   const subCategoryQuery = useGetCategoryQuery({

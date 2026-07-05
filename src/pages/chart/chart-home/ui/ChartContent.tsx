@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { ErrorBlock } from 'antd-mobile';
 import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';

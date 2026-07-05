@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { ChangeEvent, CSSProperties, FC } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
@@ -15,6 +16,7 @@ const inputStyle = {
 } as CSSProperties;
 
 const Sign: FC = () => {
+  const { t } = useTranslation('auth');
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -44,8 +46,8 @@ const Sign: FC = () => {
 
   return (
     <div className={classNames(styles.wrapper, 'page')}>
-      <NavBar back="返回" backArrow={false} onBack={() => navigate(-1)}>
-        注册
+      <NavBar back={t('common:nav.back')} backArrow={false} onBack={() => navigate(-1)}>
+        {t('sign.title')}
       </NavBar>
       <main
         className={classNames(
@@ -60,21 +62,21 @@ const Sign: FC = () => {
         >
           <Input
             style={inputStyle}
-            label="邮箱"
+            label={t('sign.email')}
             value={form.email}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setFormValue('email', e.target.value)}
             className="mt-3"
-            placeholder="请输入邮箱"
+            placeholder={t('validation.emailRequired')}
           />
           <Input
             style={inputStyle}
-            label="密码"
+            label={t('sign.password')}
             value={form.password}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setFormValue('password', e.target.value)}
             className="mt-3"
-            placeholder="请输入密码"
+            placeholder={t('validation.passwordRequired')}
           />
           <EmailCaptchaInput
             email={form.email}
@@ -88,7 +90,7 @@ const Sign: FC = () => {
             style={{ margin: '40px 0 14px 0' }}
             onClick={handleSign}
           >
-            注册
+            {t('sign.submit')}
           </Button>
         </div>
       </main>
