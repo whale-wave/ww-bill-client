@@ -1,0 +1,29 @@
+{
+  "title": "固定支出",
+  "create": "新增固定支出",
+  "detail": "固定支出详情",
+  "edit": "编辑固定支出",
+  "list": {
+    "upcoming": "即将到期",
+    "all": "全部",
+    "empty": "暂无固定支出"
+  },
+  "form": {
+    "name": "名称",
+    "amount": "金额",
+    "cycle": "扣款周期",
+    "nextDate": "下一次实际扣款的日期",
+    "autoRenew": "到期是否会被自动扣款续约",
+    "priority": "优先级",
+    "note": "备注",
+    "noteHint": "例如每月10号扣房租",
+    "save": "保存"
+  },
+  "cycle": {
+    "daily": "每天",
+    "weekly": "每周",
+    "monthly": "每月",
+    "quarterly": "每季度",
+    "yearly": "每年"
+  }
+}

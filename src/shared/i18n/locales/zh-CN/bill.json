@@ -1,0 +1,13 @@
+{
+  "title": "账单",
+  "income": "收入",
+  "expend": "支出",
+  "balance": "结余",
+  "surplus": "结余",
+  "monthCard": {
+    "title": "账单",
+    "income": "收入",
+    "expend": "支出",
+    "surplus": "结余"
+  }
+}

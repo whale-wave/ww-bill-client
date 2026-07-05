@@ -4,7 +4,7 @@ import { App } from '@/app/App';
 import { initResetStyle } from '@/assets/styles/reset';
 import { useAuthStore } from '@/features/auth';
 import { setAuthDeps } from '@/shared/api';
-import './i18n';
+import '@/shared/i18n';
 import '@/assets/styles/index.scss';
 
 initResetStyle();

@@ -1,0 +1,30 @@
+{
+  "title": "资产管理",
+  "netAsset": "净资产",
+  "netAssetChart": "净资产走势图",
+  "addAsset": "添加资产",
+  "addAccount": "添加账户",
+  "assetDetail": "资产详情",
+  "deleteAsset": "删除资产",
+  "adjustAsset": "调整资产",
+  "form": {
+    "title": "资产信息",
+    "name": "资产名称",
+    "amount": "金额",
+    "type": "类型",
+    "account": "账户",
+    "save": "保存",
+    "saveSuccess": "保存成功",
+    "note": "备注",
+    "noteHint": "先填这些基本信息即可创建"
+  },
+  "types": {
+    "cash": "现金",
+    "bank": "银行卡",
+    "alipay": "支付宝",
+    "wechat": "微信",
+    "invest": "投资",
+    "loan": "贷款",
+    "other": "其他"
+  }
+}

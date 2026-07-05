@@ -1,0 +1,26 @@
+{
+  "title": "设置",
+  "personal": "个性化设置",
+  "sound": {
+    "title": "声音设置",
+    "effect": "音效开关",
+    "effectDesc": "关闭后仍显示在列表"
+  },
+  "amount": {
+    "title": "金额设置",
+    "visible": "金额可见性",
+    "visibleDesc": "关闭后金额以***显示",
+    "decimal": "小数位数"
+  },
+  "export": "导出数据",
+  "about": "关于鲸浪记账",
+  "storage": {
+    "title": "缓存管理",
+    "size": "缓存大小",
+    "clear": "清除缓存",
+    "cleared": "缓存已清除"
+  },
+  "notify": {
+    "title": "系统通知"
+  }
+}

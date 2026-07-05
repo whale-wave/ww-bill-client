@@ -1,0 +1,16 @@
+{
+  "title": "发票",
+  "create": "新增发票",
+  "detail": "发票详情",
+  "edit": "编辑发票",
+  "delete": "删除",
+  "form": {
+    "name": "发票抬头",
+    "amount": "金额",
+    "number": "发票号码",
+    "date": "开票日期",
+    "type": "类型",
+    "note": "备注",
+    "save": "保存"
+  }
+}

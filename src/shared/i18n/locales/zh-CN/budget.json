@@ -1,0 +1,20 @@
+{
+  "title": "预算",
+  "totalBudget": "总预算",
+  "categoryBudget": "分类预算",
+  "remain": "剩余",
+  "used": "已用",
+  "percent": "占比",
+  "createCategory": "创建分类预算",
+  "exceedWarning": "分类预算之和已超过总预算",
+  "actions": {
+    "clear": "清空",
+    "save": "保存",
+    "delete": "删除"
+  },
+  "model": {
+    "title": "预算类型",
+    "summary": "总预算",
+    "category": "分类预算"
+  }
+}

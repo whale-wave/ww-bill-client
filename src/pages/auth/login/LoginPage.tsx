@@ -7,11 +7,13 @@ import { getToolsCaptchaApi } from '@/entities/tools';
 import { userKeys } from '@/entities/user';
 import { useAuthStore } from '@/features/auth';
 import { EmailCaptchaInput } from '@/features/email-captcha';
+import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { Button, Input } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const Login: FC = () => {
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { setToken } = useAuthStore(({ setToken }) => ({ setToken }));
@@ -150,7 +152,7 @@ const Login: FC = () => {
           <span onClick={onGoToForgetPassword}>忘记密码</span>
         </div>
         <Button className="mt-[40px]" block onClick={handleLogin}>
-          登录
+          {t('login.submit')}
         </Button>
         <div className={styles.bottom}>
           <span className={styles.back} onClick={() => navigate(-1)}>

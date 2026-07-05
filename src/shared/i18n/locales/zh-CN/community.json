@@ -1,0 +1,27 @@
+{
+  "title": "社区",
+  "postTopic": "发帖",
+  "topicDetail": "话题详情",
+  "comment": "评论",
+  "reply": "回复",
+  "commentList": "全部评论",
+  "follow": "关注",
+  "followList": "关注列表",
+  "newFollow": "新的关注",
+  "personal": "个人主页",
+  "post": {
+    "title": "发帖",
+    "content": "分享你的想法...",
+    "publish": "发布",
+    "publishSuccess": "发布成功",
+    "participate": "参与话题"
+  },
+  "share": {
+    "title": "分享",
+    "shareBill": "分享账单",
+    "shareSuccess": "分享成功",
+    "shareToFriend": "分享好友"
+  },
+  "like": "点赞",
+  "noMore": "没有更多了"
+}
