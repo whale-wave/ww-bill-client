@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import type { SupportedLang } from '@/shared/i18n';
 import { ActionSheet, List, Switch, Toast } from 'antd-mobile';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -71,7 +71,7 @@ const Settings: FC = () => {
     playSound.click();
   };
 
-  const currentLang = useMemo(() => i18n.language as SupportedLang, []);
+  const [currentLang, setCurrentLang] = useState<SupportedLang>(() => i18n.language as SupportedLang);
 
   const handleSwitchLang = useCallback(() => {
     const langEntries = Object.entries(SUPPORTED_LANGS) as [SupportedLang, string][];
@@ -82,6 +82,7 @@ const Settings: FC = () => {
         bold: key === currentLang,
         onClick: () => {
           i18n.changeLanguage(key);
+          setCurrentLang(key);
           Toast.show(t('language.changed'));
         },
       })),

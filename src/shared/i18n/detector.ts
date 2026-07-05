@@ -3,25 +3,17 @@ import { DEFAULT_LANG, LANG_STORAGE_KEY, SUPPORTED_LANGS } from './config';
 
 /**
  * Detect the user's preferred language.
- * Priority: localStorage → browser language → default (zh-CN).
+ * Priority: localStorage explicit choice → default (zh-CN).
+ *
+ * We intentionally skip browser language detection because on macOS
+ * navigator.language often returns "en" regardless of the user's actual
+ * preference. Users can manually switch in Settings → Language.
  */
 export function detectLanguage(): SupportedLang {
-  // 1. Persisted preference
   const stored = localStorage.getItem(LANG_STORAGE_KEY);
   if (stored && stored in SUPPORTED_LANGS) {
     return stored as SupportedLang;
   }
-
-  // 2. Browser preference
-  const browserLang = navigator.language;
-  if (browserLang === 'zh-CN' || browserLang.startsWith('zh')) {
-    return 'zh-CN';
-  }
-  if (browserLang.startsWith('en')) {
-    return 'en';
-  }
-
-  // 3. Default
   return DEFAULT_LANG;
 }
 
