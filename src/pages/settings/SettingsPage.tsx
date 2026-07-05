@@ -75,7 +75,7 @@ const Settings: FC = () => {
 
   const handleSwitchLang = useCallback(() => {
     const langEntries = Object.entries(SUPPORTED_LANGS) as [SupportedLang, string][];
-    ActionSheet.show({
+    const sheet = ActionSheet.show({
       actions: langEntries.map(([key, label]) => ({
         text: label,
         key,
@@ -83,6 +83,7 @@ const Settings: FC = () => {
         onClick: () => {
           i18n.changeLanguage(key);
           setCurrentLang(key);
+          sheet.close();
           Toast.show(t('language.changed'));
         },
       })),
