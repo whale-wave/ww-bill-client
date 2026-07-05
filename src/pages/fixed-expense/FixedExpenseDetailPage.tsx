@@ -37,7 +37,6 @@ const Card: React.FC<{ title?: string; children: React.ReactNode; className?: st
 const FixedExpenseDetail: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams() as { id: string };
-
   const { data: detail, isLoading } = useGetFixedExpenseByIdQuery({ params: { id } });
 
   const onBack = useCallback(() => navigate(-1), [navigate]);

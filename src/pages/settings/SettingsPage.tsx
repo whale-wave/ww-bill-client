@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
 import { clearLocalStorage, getLocalStorageSize } from '@/shared/lib';
 import { audioWeb, playSound } from '@/shared/lib/play-sound';
 import { Gap, NavBar } from '@/shared/ui';
@@ -18,6 +19,7 @@ export interface CustomListItem {
 }
 
 const Settings: FC = () => {
+  const { t } = useTranslation('settings');
   const { data: userAppConfig } = useGetUserAppConfigQuery();
   const canPlay = userAppConfig?.isOpenSoundEffect ?? false;
   const visibleAmountSwitch = userAppConfig?.isDisplayAmountSwitch ?? false;
@@ -71,12 +73,12 @@ const Settings: FC = () => {
   const clearCache = () => {
     clearLocalStorage();
     setLocalStorageSize(getLocalStorageSize());
-    Toast.show('清除成功');
+    Toast.show(t('storage.cleared'));
   };
 
   const baseListGroup = [
     {
-      title: '账号设置',
+      title: t('account.title'),
       path: '/user-info',
       onClick() {
         goTo(this.path);
@@ -85,7 +87,7 @@ const Settings: FC = () => {
   ];
   const functionListGroup = [
     {
-      title: '类别设置',
+      title: t('category.title'),
       path: ROUTES_PATH.CATEGORY_SETTINGS.getPath(),
       onClick() {
         goTo(this.path!);
@@ -94,18 +96,18 @@ const Settings: FC = () => {
   ] as CustomListItem[];
   const personalizedSettingsListGroup = [
     {
-      title: '声音开关',
+      title: t('sound.effect'),
       extra: <Switch checked={canPlay} onChange={handleSoundSwitch} />,
     },
   ];
   const dataSecurityListGroup = [
     {
-      title: '导出数据',
+      title: t('export'),
       path: '/export-data',
       onClick() { goTo(this.path!); },
     },
     {
-      title: '隐藏总金额',
+      title: t('amount.visible'),
       extra: (
         <Switch
           checked={visibleAmountSwitch}
@@ -117,19 +119,19 @@ const Settings: FC = () => {
   ] as CustomListItem[];
   const systemSettingListGroup = [
     {
-      title: '清楚缓存',
+      title: t('storage.clear'),
       onClick: clearCache,
       extra: (<span>{localStorageSize}</span>),
     },
     {
-      title: '邀请好友',
+      title: t('invite'),
     },
   ];
 
   return (
     <div className="page">
-      <NavBar back="返回" onBack={handleBack}>
-        设置
+      <NavBar back={t('common:nav.back')} onBack={handleBack}>
+        {t('title')}
       </NavBar>
       <div className={styles.wrapper}>
         <List>
@@ -143,7 +145,7 @@ const Settings: FC = () => {
             </List.Item>
           ))}
         </List>
-        <List header="功能设置">
+        <List header={t('function.title')}>
           {functionListGroup.map(item => (
             <List.Item
               key={item.title}
@@ -153,10 +155,10 @@ const Settings: FC = () => {
             </List.Item>
           ))}
         </List>
-        <List header="个性化设置">
+        <List header={t('personal')}>
           {personalizedSettingsListGroup.map(item => <List.Item key={item.title} extra={item.extra}>{item.title}</List.Item>)}
         </List>
-        <List header="数据安全">
+        <List header={t('dataSecurity')}>
           {dataSecurityListGroup.map(item => (
             <List.Item
               key={item.title}
@@ -168,7 +170,7 @@ const Settings: FC = () => {
             </List.Item>
           ))}
         </List>
-        <List header="系统设置">
+        <List header={t('system')}>
           {systemSettingListGroup.map(item => (
             <List.Item
               key={item.title}
