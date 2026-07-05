@@ -1,29 +1,85 @@
 {
-  "title": "固定支出",
-  "create": "新增固定支出",
-  "detail": "固定支出详情",
-  "edit": "编辑固定支出",
-  "list": {
-    "upcoming": "即将到期",
-    "all": "全部",
-    "empty": "暂无固定支出"
-  },
   "form": {
+    "title": "固定支出",
+    "create": "新增固定支出",
+    "edit": "编辑固定支出",
+    "basicInfo": "必填信息",
+    "billAndDate": "账单与日期",
+    "paymentInfo": "支付信息",
+    "statusAndPriority": "状态与优先级",
+    "advanced": "高级设置",
     "name": "名称",
+    "namePlaceholder": "请输入名称",
     "amount": "金额",
-    "cycle": "扣款周期",
-    "nextDate": "下一次实际扣款的日期",
-    "autoRenew": "到期是否会被自动扣款续约",
+    "amountPlaceholder": "请输入金额",
+    "amountRequired": "金额必须大于 0",
+    "currency": "币种",
+    "cycle": "支出周期",
+    "customCycleDays": "自定义天数",
+    "customDaysMin": "自定义天数必须 >= 1",
+    "billingDay": "账单日",
+    "nextBillingDate": "下一次实际扣款的日期",
+    "startDate": "开始日期",
+    "endDate": "结束日期",
+    "selectDate": "请选择日期",
+    "type": "类型",
+    "status": "状态",
+    "active": "生效中",
+    "activeDesc": "生效中月支出",
+    "autoRenew": "自动续费",
+    "autoRenewDesc": "到期是否会被自动扣款续约",
     "priority": "优先级",
-    "note": "备注",
-    "noteHint": "例如每月10号扣房租",
-    "save": "保存"
+    "sortOrder": "排序权重",
+    "sortOrderDesc": "数字越小越靠前",
+    "includeInStats": "纳入支出汇总",
+    "includeInStatsDesc": "会计入但不计入顶部月汇总会按周期换算到月",
+    "provider": "服务商",
+    "providerPlaceholder": "例如百度云",
+    "account": "账号",
+    "accountPlaceholder": "百度云会员",
+    "paymentMethod": "支付方式",
+    "comment": "备注",
+    "commentPlaceholder": "例如每月10号扣房租",
+    "reminder": "提醒",
+    "reminderEnabled": "开启提醒",
+    "reminderEnabledDesc": "开启后会在到期前推送提醒",
+    "reminderDaysAhead": "提前提醒天数",
+    "reminderDaysAheadDesc": "列表会显示倒计时",
+    "reminderDaysBefore": "天提醒",
+    "optional": "可选",
+    "required": "必填",
+    "save": "保存",
+    "saveSuccess": "保存成功",
+    "createSuccess": "创建成功",
+    "fillForm": "请完善表单"
+  },
+  "list": {
+    "title": "固定支出",
+    "all": "全部",
+    "upcoming": "即将到期",
+    "empty": "暂无固定支出",
+    "add": "新增",
+    "monthlyExpense": "生效中月支出"
+  },
+  "detail": {
+    "title": "固定支出详情",
+    "edit": "编辑",
+    "delete": "删除"
   },
   "cycle": {
     "daily": "每天",
     "weekly": "每周",
     "monthly": "每月",
-    "quarterly": "每季度",
-    "yearly": "每年"
+    "quarterly": "每季",
+    "yearly": "每年",
+    "custom": "自定义"
+  },
+  "currency": {
+    "cny": "人民币",
+    "defaultCny": "默认人民币"
+  },
+  "provider": {
+    "alipay": "支付宝",
+    "baiduCloud": "百度云"
   }
 }

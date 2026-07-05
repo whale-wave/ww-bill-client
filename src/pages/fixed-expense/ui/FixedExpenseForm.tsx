@@ -26,6 +26,7 @@ import {
   usePatchFixedExpenseMutation,
   usePostFixedExpenseMutation,
 } from '@/entities/fixed-expense';
+import { useTranslation } from '@/shared/i18n';
 import { cn, normalizeAmount } from '@/shared/lib';
 import {
   currencyOptions,
@@ -217,6 +218,7 @@ const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
 
 const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
   const { id } = props;
+  const { t } = useTranslation('fixed-expense');
   const navigate = useNavigate();
 
   const isEdit = useMemo(() => !!id, [id]);
@@ -310,11 +312,11 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
 
     if (id) {
       await patchMutate({ id, params: payload });
-      void Toast.show({ icon: 'success', content: '保存成功' });
+      void Toast.show({ icon: 'success', content: t('form.saveSuccess') });
     }
     else {
       await postMutate(payload);
-      void Toast.show({ icon: 'success', content: '创建成功' });
+      void Toast.show({ icon: 'success', content: t('form.createSuccess') });
     }
 
     navigate(-1);
@@ -333,14 +335,14 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
       className="ww-fixed-expense-form"
       footer={(
         <Button block type="submit" color="primary" size="large">
-          {isEdit ? '保存修改' : '保存'}
+          {isEdit ? t('form.save') : t('form.save')}
         </Button>
       )}
     >
-      <Section title="必填信息" required description="先填这些基本信息即可创建">
+      <Section title={t('form.basicInfo')} required description={t('form.basicInfo')}>
         <Form.Item
           name="name"
-          label={<RequiredLabel text="名称" />}
+          label={<RequiredLabel text={t('form.name')} />}
           rules={[{ required: true, message: '请输入名称' }]}
         >
           <Input placeholder="例如:百度云会员" clearable />
@@ -354,17 +356,17 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
             {
               validator: async (_, value) => {
                 if (!value || Number(value) <= 0)
-                  throw new Error('金额必须大于 0');
+                  throw new Error(t('form.amountRequired'));
               },
             },
           ]}
           normalize={normalizeAmount as any}
         >
-          <Input type="text" inputMode="decimal" placeholder="请输入金额" clearable />
+          <Input type="text" inputMode="decimal" placeholder={t('form.amountPlaceholder')} clearable />
         </Form.Item>
         <Form.Item
           name="cycle"
-          label={<RequiredLabel text="支出周期" />}
+          label={<RequiredLabel text={t('form.cycle')} />}
           description="决定金额按多久扣一次,系统会折算成月支出"
         >
           <Selector columns={3} options={cycleOptions} />
@@ -372,7 +374,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
         {cycleValue === FixedExpenseCycle.CUSTOM && (
           <Form.Item
             name="customCycleDays"
-            label={<RequiredLabel text="自定义天数" />}
+            label={<RequiredLabel text={t('form.customCycleDays')} />}
             description="例如每 45 天扣一次,就填 45"
             rules={[
               {
@@ -387,29 +389,29 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
             <Stepper min={1} max={3650} />
           </Form.Item>
         )}
-        <Form.Item name="type" label="类型" description="影响列表中的图标与归类">
+        <Form.Item name="type" label={t('form.type')} description="影响列表中的图标与归类">
           <Selector columns={3} options={typeOptions} />
         </Form.Item>
       </Section>
 
-      <Section title="状态与优先级">
+      <Section title={t('form.statusAndPriority')}>
         <Form.Item
           name="status"
-          label="状态"
+          label={t('form.status')}
           description="只有 '生效中' 会计入 '生效中月支出'"
         >
           <Selector columns={4} options={statusOptions} />
         </Form.Item>
         <Form.Item
           name="priority"
-          label="优先级"
+          label={t('form.priority')}
           description="以左侧色条形式展示在列表 (红=必要)"
         >
           <Selector columns={3} options={priorityOptions} />
         </Form.Item>
         <Form.Item
           name="autoRenew"
-          label="自动续费"
+          label={t('form.autoRenew')}
           description="到期是否会被自动扣款续约,仅作记录"
           childElementPosition="right"
         >
@@ -418,62 +420,62 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
       </Section>
 
       <Section
-        title="账单与日期"
+        title={t('form.billAndDate')}
         description="均为可选,填写后可获得到期倒计时"
         collapsible
         defaultOpen
       >
         <Form.Item
           name="nextBillingDate"
-          label="下次账单日期"
+          label={t('form.nextBillingDate')}
           description="下一次实际扣款的日期,列表会显示倒计时"
           childElementPosition="right"
         >
-          <DatePickerField placeholder="请选择" />
+          <DatePickerField placeholder={t('form.selectDate')} />
         </Form.Item>
         <Form.Item
           name="billingDay"
-          label="账单日"
+          label={t('form.billingDay')}
           description="每月固定第几号扣款,仅用于展示"
           childElementPosition="right"
         >
           <BillingDayField />
         </Form.Item>
-        <Form.Item name="startDate" label="开始日期" childElementPosition="right">
-          <DatePickerField placeholder="可选" />
+        <Form.Item name="startDate" label={t('form.startDate')} childElementPosition="right">
+          <DatePickerField placeholder={t('form.optional')} />
         </Form.Item>
         <Form.Item
           name="endDate"
-          label="结束日期"
+          label={t('form.endDate')}
           description="到期后请手动改为 '已过期' 状态"
           childElementPosition="right"
         >
-          <DatePickerField placeholder="可选" />
+          <DatePickerField placeholder={t('form.optional')} />
         </Form.Item>
       </Section>
 
       <Section
-        title="支付信息"
+        title={t('form.paymentInfo')}
         description="可选,方便日后查找"
         collapsible
         defaultOpen={false}
       >
-        <Form.Item name="provider" label="服务商">
+        <Form.Item name="provider" label={t('form.provider')}>
           <Input placeholder="例如:百度云" clearable />
         </Form.Item>
-        <Form.Item name="account" label="账号">
-          <Input placeholder="可选" clearable />
+        <Form.Item name="account" label={t('form.account')}>
+          <Input placeholder={t('form.optional')} clearable />
         </Form.Item>
-        <Form.Item name="paymentMethod" label="支付方式">
+        <Form.Item name="paymentMethod" label={t('form.paymentMethod')}>
           <Input placeholder="例如:支付宝" clearable />
         </Form.Item>
       </Section>
 
-      <Section title="提醒" collapsible defaultOpen={false}>
+      <Section title={t('form.reminder')} collapsible defaultOpen={false}>
         <Form.Item
           name="reminderEnabled"
-          label="开启提醒"
-          description="开启后会在到期前推送提醒"
+          label={t('form.reminderEnabled')}
+          description={t('form.reminderEnabledDesc')}
           childElementPosition="right"
         >
           <Switch />
@@ -481,7 +483,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
         {reminderEnabled && (
           <Form.Item
             name="reminderDaysBefore"
-            label="提前提醒天数"
+            label={t('form.reminderDaysAhead')}
             description="例如设为 3,则在到期前 3 天提醒"
             childElementPosition="right"
           >
@@ -490,32 +492,32 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
         )}
       </Section>
 
-      <Section title="其他">
+      <Section title={t('form.reminder')}>
         <Form.Item
           name="includeInStatistics"
-          label="纳入支出汇总"
+          label={t('form.includeInStats')}
           description="关闭后仍显示在列表,但不计入顶部月/年总支出"
           childElementPosition="right"
         >
           <Switch />
         </Form.Item>
-        <Form.Item name="comment" label="备注">
-          <TextArea placeholder="可选" maxLength={200} rows={2} showCount />
+        <Form.Item name="comment" label={t('form.comment')}>
+          <TextArea placeholder={t('form.optional')} maxLength={200} rows={2} showCount />
         </Form.Item>
       </Section>
 
       <Section
-        title="高级设置"
+        title={t('form.advanced')}
         description="一般无需调整"
         collapsible
         defaultOpen={false}
       >
-        <Form.Item name="currency" label="币种" description="默认人民币">
+        <Form.Item name="currency" label={t('form.currency')} description={t('form.currency.defaultCny')}>
           <Selector columns={3} options={currencyOptions} />
         </Form.Item>
         <Form.Item
           name="sort"
-          label="排序权重"
+          label={t('form.sortOrder')}
           description="数字越小越靠前,推荐 10/20/30 间隔以便插入"
           childElementPosition="right"
         >
