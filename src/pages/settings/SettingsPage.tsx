@@ -186,7 +186,7 @@ const Settings: FC = () => {
           ))}
         </List>
         <List header={t('personal')}>
-          {personalizedSettingsListGroup.map(item => <List.Item key={item.title} extra={item.extra}>{item.title}</List.Item>)}
+          {personalizedSettingsListGroup.map(item => <List.Item key={item.title} extra={item.extra} onClick={item.onClick}>{item.title}</List.Item>)}
         </List>
         <List header={t('dataSecurity')}>
           {dataSecurityListGroup.map(item => (
