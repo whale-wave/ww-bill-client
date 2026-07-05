@@ -2,6 +2,26 @@
   "title": "图表",
   "category": "分类统计",
   "categoryDetail": "分类详情",
+  "categoryStat": "分类统计",
+  "categoryAmount": "分类金额",
+  "percent": "占比",
+  "period": "周期",
+  "periodTotal": "周期总额",
+  "average": "平均值",
+  "currentPeriod": "当前周期",
+  "recordList": "明细记录",
+  "noRecords": "暂无明细记录",
+  "missingParams": "缺少分类统计参数",
+  "missingParamsHint": "请从图表排行榜进入分类详情。",
+  "loadFail": "分类统计加载失败",
+  "loadFailHint": "请返回图表页后重试。",
+  "byPeriod": "按{{period}}统计",
+  "ranking": {
+    "title": "排行",
+    "amount": "金额",
+    "percent": "占比",
+    "count": "笔数"
+  },
   "tabs": {
     "week": "周",
     "month": "月",
@@ -10,12 +30,5 @@
   "amount": {
     "income": "收入",
     "expend": "支出"
-  },
-  "ranking": {
-    "title": "排行",
-    "amount": "金额",
-    "percent": "占比",
-    "count": "笔数"
-  },
-  "loadFail": "分类统计加载失败"
+  }
 }
