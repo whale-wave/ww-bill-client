@@ -9,12 +9,14 @@
   "exceedWarning": "分类预算之和已超过总预算",
   "actions": {
     "clear": "清空",
-    "save": "保存",
-    "delete": "删除"
+    "save": "确认",
+    "delete": "删除",
+    "cancel": "取消"
   },
   "model": {
     "title": "预算类型",
     "summary": "总预算",
-    "category": "分类预算"
+    "category": "分类预算",
+    "amountPlaceholder": "请输入预算金额"
   }
 }

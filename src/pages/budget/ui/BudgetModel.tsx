@@ -1,22 +1,17 @@
 import type { CategoryEntity } from '@/entities/category';
 import { Dialog, Input, Modal } from 'antd-mobile';
-import { isNaN } from 'mathjs';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BudgetEntityLevel,
   BudgetEntityType,
-  usePatchBudgetAmountByBudgetIdMutation,
-  usePostBudgetCategoryMutation,
-  usePostBudgetSummaryMutation,
 } from '@/entities/budget';
+import { useTranslation } from '@/shared/i18n';
+import { useBudgetSubmit } from '../model/useBudgetSubmit';
+import { ERROR_MAP, normalizeAmount, validateAmount } from '../model/validateAmount';
 
-// eslint-disable-next-line react-refresh/only-export-components -- constant map used alongside component
-export const BudgetModelModelTypeMap = {
-  CREATE: 'create',
-  EDIT: 'edit',
-} as const;
-
+// eslint-disable-next-line react-refresh/only-export-components
+export const BudgetModelModelTypeMap = { CREATE: 'create', EDIT: 'edit' } as const;
 export type BudgetModelModelType = (typeof BudgetModelModelTypeMap)[keyof typeof BudgetModelModelTypeMap];
 
 interface BudgetModelProps {
@@ -30,201 +25,65 @@ interface BudgetModelProps {
   onClose: () => void;
 }
 
-export const BudgetModel: React.FC<BudgetModelProps> = ({ modelType = BudgetModelModelTypeMap.CREATE, budgetId, visible, setVisible, type, level, category, onClose }) => {
+export const BudgetModel: React.FC<BudgetModelProps> = ({
+  modelType = BudgetModelModelTypeMap.CREATE,
+  budgetId,
+  visible,
+  setVisible,
+  type,
+  level,
+  category,
+  onClose,
+}) => {
+  const { t } = useTranslation('budget');
   const navigate = useNavigate();
-
-  const [postBudgetSummaryMutate] = usePostBudgetSummaryMutation();
-  const [postBudgetCategoryMutate] = usePostBudgetCategoryMutation();
-  const [patchBudgetAmountByBudgetIdMutate] = usePatchBudgetAmountByBudgetIdMutation();
-
+  const { submit } = useBudgetSubmit();
   const [amount, setAmount] = useState('');
 
   const title = useMemo(() => {
-    if (modelType === BudgetModelModelTypeMap.EDIT) {
-      if (level === BudgetEntityLevel.SUMMARY) {
-        return '每月总预算';
-      }
-      else {
-        return `每月${category?.name}预算`;
-      }
+    const isMonthly = type === BudgetEntityType.MONTH;
+    const scope = isMonthly ? '每月' : '年度';
+    const catName = category?.name ?? '';
+    if (level === BudgetEntityLevel.SUMMARY) {
+      return isMonthly ? '每月总预算' : '年度总预算';
     }
-    else if (type === BudgetEntityType.MONTH) {
-      if (level === BudgetEntityLevel.SUMMARY) {
-        return '每月总预算';
-      }
-      else {
-        return `每月${category?.name}预算`;
-      }
+    return `${scope}${catName}预算`;
+  }, [type, level, category]);
+
+  const handleConfirm = async () => {
+    const error = validateAmount(amount);
+    if (error) {
+      return Dialog.alert({ content: ERROR_MAP[error] });
     }
-    else {
-      if (level === BudgetEntityLevel.SUMMARY) {
-        return '年度总预算';
-      }
-      else {
-        return `年度${category?.name}预算`;
-      }
-    }
-  }, [type, level, category, modelType]);
 
-  const actions = [
-    {
-      key: 'confirm',
-      text: '确认',
-      primary: true,
-      onClick: async () => {
-        const [before, after] = amount.split('.');
-        let _amount = amount;
+    const normalizedAmount = normalizeAmount(amount);
 
-        if (!amount) {
-          return Dialog.alert({
-            content: '请输入金额',
-          });
-        }
-
-        if (Number(amount) === 0) {
-          return Dialog.alert({
-            content: '预算不能为 0',
-          });
-        }
-
-        if (amount.split('').filter(s => s === '.').length > 1) {
-          return Dialog.alert({
-            content: '请输入正确的金额',
-          });
-        }
-
-        if (!before) {
-          return Dialog.alert({
-            content: '请输入正确的金额',
-          });
-        }
-
-        if (isNaN(Number(before))) {
-          return Dialog.alert({
-            content: '请输入正确的金额',
-          });
-        }
-
-        if (before.length > 9) {
-          return Dialog.alert({
-            content: '最多 9 位数字',
-          });
-        }
-
-        if (after) {
-          if (isNaN(Number(after))) {
-            return Dialog.alert({
-              content: '请输入正确的金额',
-            });
-          }
-
-          if (after.length > 2) {
-            return Dialog.alert({
-              content: '最多 2 位小数',
-            });
-          }
-        }
-
-        if (_amount.lastIndexOf('.') === _amount.length - 1) {
-          _amount = _amount.substring(0, _amount.length - 1);
-        }
-
-        if (modelType === BudgetModelModelTypeMap.EDIT) {
-          const res = await patchBudgetAmountByBudgetIdMutate({
-            budgetId: budgetId!,
-            data: {
-              amount: _amount,
-              type,
-            },
-          });
-
-          if (res.statusCode === 4017) {
-            navigate(`/budget?type=${type}`, { replace: true });
-
-            setTimeout(() => {
-              Dialog.alert({
-                content: '分类预算之和已超过总预算, 将自动更新总预算',
-                confirmText: '好的',
-              });
-            }, 250);
-          }
-          else if (res.statusCode !== 200) {
-            await Dialog.alert({
-              content: res.message,
-            });
-          }
-          else {
-            navigate(`/budget?type=${type}`, { replace: true });
-          }
-        }
-        else if (level === BudgetEntityLevel.SUMMARY) {
-          const res = await postBudgetSummaryMutate({
-            type,
-            amount: _amount,
-          });
-
-          if (res.statusCode === 4017) {
-            navigate(`/budget?type=${type}`, { replace: true });
-
-            setTimeout(() => {
-              Dialog.alert({
-                content: '分类预算之和已超过总预算, 将自动更新总预算',
-                confirmText: '好的',
-              });
-            }, 250);
-          }
-          else if (res.statusCode !== 200) {
-            await Dialog.alert({
-              content: res.message,
-            });
-          }
-          else {
-            navigate(`/budget?type=${type}`, { replace: true });
-          }
-        }
-        else {
-          const res = await postBudgetCategoryMutate({
-            type,
-            amount: _amount,
-            category: category!.id,
-          });
-
-          if (res.statusCode === 4017) {
-            navigate(`/budget?type=${type}`, { replace: true });
-
-            setTimeout(() => {
-              Dialog.alert({
-                content: '分类预算之和已超过总预算, 将自动更新总预算',
-                confirmText: '好的',
-              });
-            }, 250);
-          }
-          else if (res.statusCode !== 200) {
-            await Dialog.alert({
-              content: res.message,
-            });
-          }
-          else {
-            navigate(`/budget?type=${type}`, { replace: true });
-          }
-        }
-
+    const warning = await submit({
+      modelType,
+      level,
+      type,
+      category,
+      budgetId,
+      amount: normalizedAmount,
+      onSuccess: () => {
         setVisible(false);
         setAmount('');
+        navigate(`/budget?type=${type}`, { replace: true });
       },
-    },
-    {
-      key: 'cancel',
-      text: '取消',
-      onClick: () => {
-        setVisible(false);
-        setAmount('');
-        setTimeout(() => {
-          onClose();
-        }, 500);
-      },
-    },
-  ];
+    });
+
+    if (warning) {
+      setTimeout(() => {
+        Dialog.alert({ content: warning, confirmText: t('actions.save') });
+      }, 250);
+    }
+  };
+
+  const handleCancel = () => {
+    setVisible(false);
+    setAmount('');
+    setTimeout(onClose, 500);
+  };
 
   return (
     <Modal
@@ -233,15 +92,21 @@ export const BudgetModel: React.FC<BudgetModelProps> = ({ modelType = BudgetMode
       content={(
         <div className="py-3">
           <div className="!bg-[#fcfcfc] p-2">
-            <Input type="number" placeholder="请输入预算金额" value={amount} onChange={setAmount} />
+            <Input
+              type="number"
+              placeholder={t('model.amountPlaceholder')}
+              value={amount}
+              onChange={setAmount}
+            />
           </div>
         </div>
       )}
-      onClose={() => {
-        setVisible(false);
-      }}
+      onClose={() => setVisible(false)}
       afterClose={onClose}
-      actions={actions}
+      actions={[
+        { key: 'confirm', text: t('actions.save'), primary: true, onClick: handleConfirm },
+        { key: 'cancel', text: t('actions.cancel'), onClick: handleCancel },
+      ]}
       closeOnMaskClick
     />
   );
