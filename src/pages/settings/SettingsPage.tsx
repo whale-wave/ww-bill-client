@@ -1,11 +1,11 @@
 import type { FC, ReactNode } from 'react';
+import type { SupportedLang } from '@/shared/i18n';
 import { ActionSheet, List, Switch, Toast } from 'antd-mobile';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { i18n, SUPPORTED_LANGS, useTranslation } from '@/shared/i18n';
-import type { SupportedLang } from '@/shared/i18n';
 import { clearLocalStorage, getLocalStorageSize } from '@/shared/lib';
 import { audioWeb, playSound } from '@/shared/lib/play-sound';
 import { Gap, NavBar } from '@/shared/ui';

@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -7,6 +6,7 @@ import {
   usePutTopicLikeMutation,
 } from '@/entities/topic';
 import config from '@/shared/config';
+import { useTranslation } from '@/shared/i18n';
 import { Comment, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 import Main from './Main';

@@ -14,8 +14,13 @@
     "oldPassword": "Current Password",
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
+    "oldPasswordPlaceholder": "Enter current password",
+    "newPasswordPlaceholder": "Enter new password",
+    "confirmPasswordPlaceholder": "Confirm new password",
     "save": "Save Changes",
-    "saveSuccess": "Saved successfully"
+    "saveSuccess": "Saved successfully",
+    "done": "Done",
+    "passwordMismatch": "Passwords do not match"
   },
   "email": {
     "title": "Change Email",

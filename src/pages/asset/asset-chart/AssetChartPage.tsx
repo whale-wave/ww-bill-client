@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { Tabs } from 'antd-mobile';
 import classNames from 'classnames';

@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import { useNavigate } from 'react-router-dom';
 import { useGetSystemNotifyQuery } from '@/entities/system-notify';
 import CommentListItem from '@/pages/comment-list/ui';

@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import type { Asset, AssetGroup } from '@/entities/asset';
 import { Dialog, ErrorBlock, List, SwipeAction, Toast } from 'antd-mobile';

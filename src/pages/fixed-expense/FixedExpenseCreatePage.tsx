@@ -1,6 +1,6 @@
-import { useTranslation } from '@/shared/i18n';
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/shared/i18n';
 import { NavBar } from '@/shared/ui';
 import { FixedExpenseForm } from './ui';
 

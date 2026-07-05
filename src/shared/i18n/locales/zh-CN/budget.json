@@ -18,5 +18,15 @@
     "summary": "总预算",
     "category": "分类预算",
     "amountPlaceholder": "请输入预算金额"
-  }
+  },
+  "warning": "警告",
+  "clearSummaryBudgetWarning": "清除总预算将同时为您清除所有分类预算",
+  "emptyBudget": "暂无预算",
+  "addBudget": "添加预算",
+  "emptyCategoryBudget": "未设置分类预算",
+  "addCategoryBudget": "添加分类预算",
+  "editSummaryBudget": "编辑{{period}}度总预算",
+  "editCategoryBudget": "编辑{{category}}预算",
+  "clearSummaryBudget": "清除{{period}}度总预算",
+  "deleteCategoryBudget": "删除{{category}}预算"
 }

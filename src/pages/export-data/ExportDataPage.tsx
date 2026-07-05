@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import { DatePicker, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';

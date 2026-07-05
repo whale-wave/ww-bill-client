@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useTranslation } from '@/shared/i18n';
 import styles from './ShareBtn.module.scss';
 
 interface ShareBtnProps {
@@ -7,26 +8,27 @@ interface ShareBtnProps {
 }
 
 const ShareBtn: FC<ShareBtnProps> = ({ onSave, onShare }) => {
+  const { t } = useTranslation('community');
   return (
     <div className={styles.wrapper}>
       <button
         className={styles.btn}
         type="button"
-        aria-label="保存图片"
+        aria-label={t('share.saveImage')}
         onClick={onSave}
       >
         <i className={styles.icon} aria-hidden="true" />
-        <span>保存图片</span>
+        <span>{t('share.saveImage')}</span>
       </button>
       {onShare && (
         <button
           className={styles.btn}
           type="button"
-          aria-label="分享账单"
+          aria-label={t('share.shareBill')}
           onClick={onShare}
         >
           <i className={`${styles.icon} ${styles.shareIcon}`} aria-hidden="true" />
-          <span>分享</span>
+          <span>{t('common:action.share')}</span>
         </button>
       )}
     </div>

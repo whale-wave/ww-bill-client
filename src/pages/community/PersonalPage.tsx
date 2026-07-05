@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetTopicUserInfoQuery } from '@/entities/topic';
-import { useTranslation } from '@/shared/i18n';
 import Tabs from '@/pages/community/ui/Personal/Tabs';
 import UserInfo from '@/pages/community/ui/Personal/UserInfo';
+import { useTranslation } from '@/shared/i18n';
 import { NavBar } from '@/shared/ui';
 import styles from './Personal.module.scss';
 

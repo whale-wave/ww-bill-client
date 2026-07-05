@@ -5,8 +5,8 @@ import { useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetAssetGroupQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
-import { Icon, NavBar } from '@/shared/ui';
 import { useTranslation } from '@/shared/i18n';
+import { Icon, NavBar } from '@/shared/ui';
 
 const AddAssetAccount: FC = () => {
   const { t } = useTranslation('asset');

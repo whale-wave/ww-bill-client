@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { BudgetInfo } from '@/entities/budget';
 import type { CategoryEntity } from '@/entities/category';
 import type { BudgetModelModelType } from '@/pages/budget/ui';
@@ -17,6 +16,7 @@ import {
 } from '@/entities/budget';
 import { BudgetPageContext } from '@/pages/budget/model/budgetPageContext.ts';
 import { BudgetModel, BudgetModelModelTypeMap, BudgetTop } from '@/pages/budget/ui';
+import { useTranslation } from '@/shared/i18n';
 import { BottomAction } from '@/shared/ui';
 import style from './index.module.scss';
 
@@ -24,6 +24,7 @@ interface BudgetProps {
 }
 
 const Budget: React.FC<BudgetProps> = () => {
+  const { t } = useTranslation('budget');
   const [searchParams] = useSearchParams();
   const typeByUrl = searchParams.get('type');
   const [budgetEntityType, setBudgetEntityType] = useState<BudgetEntityType>(typeByUrl ? Number(typeByUrl) : BudgetEntityType.MONTH);
@@ -44,13 +45,13 @@ const Budget: React.FC<BudgetProps> = () => {
 
   const onBudgetClick = useCallback((budgetInfo: BudgetInfo, level: BudgetEntityLevel) => () => {
     const isSummaryBudget = level === BudgetEntityLevel.SUMMARY;
-    const text = budgetPageContentValue.budgetEntityType === BudgetEntityType.MONTH ? '月' : '年';
+    const text = budgetPageContentValue.budgetEntityType === BudgetEntityType.MONTH ? t('common:time.month') : t('common:time.year');
 
     const actionSheet = ActionSheet.show({
-      cancelText: '取消',
+      cancelText: t('common:nav.cancel'),
       actions: [
         {
-          text: isSummaryBudget ? `编辑${text}度总预算` : `编辑${budgetInfo.category!.name}预算`,
+          text: isSummaryBudget ? t('editSummaryBudget', { period: text }) : t('editCategoryBudget', { category: budgetInfo.category!.name }),
           key: 'edit',
           onClick: async () => {
             actionSheet.close();
@@ -66,15 +67,15 @@ const Budget: React.FC<BudgetProps> = () => {
           },
         },
         {
-          text: isSummaryBudget ? `清除${text}度总预算` : `删除${budgetInfo.category!.name}预算`,
+          text: isSummaryBudget ? t('clearSummaryBudget', { period: text }) : t('deleteCategoryBudget', { category: budgetInfo.category!.name }),
           key: 'clear',
           onClick: async () => {
             actionSheet.close();
 
             if (isSummaryBudget) {
               const confirm = await Dialog.confirm({
-                title: '警告',
-                content: '清除总预算将同时为您清除所有分类预算',
+                title: t('warning'),
+                content: t('clearSummaryBudgetWarning'),
               });
               if (!confirm)
                 return;
@@ -90,7 +91,7 @@ const Budget: React.FC<BudgetProps> = () => {
         },
       ],
     });
-  }, [budgetPageContentValue.budgetEntityType]);
+  }, [budgetPageContentValue.budgetEntityType, t]);
 
   const onAddSummaryBudget = useCallback(() => {
     setIsAddSummaryBudgetVisible(true);
@@ -142,10 +143,10 @@ const Budget: React.FC<BudgetProps> = () => {
                             transform: 'translateY(-30%)',
                           }}
                         >
-                          <ErrorBlock status="empty" title="暂无预算" description={false} />
+                          <ErrorBlock status="empty" title={t('emptyBudget')} description={false} />
                           <Button shape="rounded" color="primary" className="flex items-center w-[200px]" onClick={onAddSummaryBudget}>
                             <AddOutline />
-                            <span>添加预算</span>
+                            <span>{t('addBudget')}</span>
                           </Button>
                         </div>
                       </div>
@@ -154,10 +155,10 @@ const Budget: React.FC<BudgetProps> = () => {
                       <div className="flex flex-grow flex-col">
                         <BudgetItem budgetEntityType={budgetEntityType} className="mb-3" data={data.summaryBudget} onClick={onBudgetClick(data.summaryBudget, BudgetEntityLevel.SUMMARY)} />
                         {!data?.categoryBudgets?.length
-                          ? <div className="flex-grow bg-[#fff] flex justify-center items-center mb-[50px]"><ErrorBlock status="empty" title="未设置分类预算" description="" /></div>
+                          ? <div className="flex-grow bg-[#fff] flex justify-center items-center mb-[50px]"><ErrorBlock status="empty" title={t('emptyCategoryBudget')} description="" /></div>
                           : (
                               <div className="flex flex-grow flex-col overflow-auto min-h-0 pb-[50px]">
-                                <div className="bg-[#fff] p-3 text-[15px]">分类预算</div>
+                                <div className="bg-[#fff] p-3 text-[15px]">{t('categoryBudget')}</div>
                                 {data.categoryBudgets.map((item, index) => (
                                   <BudgetItem
                                     index={index}
@@ -178,7 +179,7 @@ const Budget: React.FC<BudgetProps> = () => {
                             render: () => (
                               <div className="flex items-center">
                                 <AddOutline />
-                                <span>添加分类预算</span>
+                                <span>{t('addCategoryBudget')}</span>
                               </div>
                             ),
                             onClick: onGoToCreateBudgetCategoryPage,

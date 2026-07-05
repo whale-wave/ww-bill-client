@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { Dayjs } from 'dayjs';
 import React, { useCallback, useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';

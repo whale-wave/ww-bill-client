@@ -1,6 +1,6 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC, RefObject } from 'react';
 import config from '@/shared/config';
+import { useTranslation } from '@/shared/i18n';
 import styles from './ShareCanvas.module.scss';
 
 export interface ShareData {
@@ -30,8 +30,9 @@ function getAmountParts(amount: string) {
 }
 
 const ShareCanvas: FC<ShareCanvasProps> = ({ canvasRef, data }) => {
+  const { t } = useTranslation('community');
   const amountParts = getAmountParts(data.amount);
-  const typeText = data.type === 'add' ? '收入' : '支出';
+  const typeText = data.type === 'add' ? t('common:amount.income') : t('common:amount.expend');
 
   return (
     <div
@@ -46,7 +47,7 @@ const ShareCanvas: FC<ShareCanvasProps> = ({ canvasRef, data }) => {
           </div>
           <div>{data.dateText}</div>
           <div className={styles.type}>{data.categoryName}</div>
-          <div className={styles.desc}>{data.remark || '暂无备注'}</div>
+          <div className={styles.desc}>{data.remark || t('share.noRemark')}</div>
           <div className={styles.money}>
             {typeText}
             <div>
@@ -59,8 +60,8 @@ const ShareCanvas: FC<ShareCanvasProps> = ({ canvasRef, data }) => {
         <footer>
           <div className={styles.poster}>
             <div className={styles.posterTitle}>{config.appName}</div>
-            <div className={styles.posterText}>记录这一笔真实账单</div>
-            <div className={styles.linkHint}>分享链接随按钮生成</div>
+            <div className={styles.posterText}>{t('share.recordBill')}</div>
+            <div className={styles.linkHint}>{t('share.linkHint')}</div>
           </div>
         </footer>
       </div>

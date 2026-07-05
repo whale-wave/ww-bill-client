@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { BudgetEntityType } from '@/entities/budget';
 import type { CategoryEntity } from '@/entities/category';
 import classNames from 'classnames';

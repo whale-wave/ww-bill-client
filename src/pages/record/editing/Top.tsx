@@ -2,9 +2,9 @@ import type { FC } from 'react';
 import type { recordChildren } from '@/entities/record';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { Icon, NavBar } from '@/shared/ui';
-import { useTranslation } from '@/shared/i18n';
 import styles from './top.module.scss';
 
 interface stateType {

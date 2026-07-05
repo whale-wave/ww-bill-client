@@ -37,7 +37,8 @@
   "confirm": {
     "delete": "确认删除",
     "deleteWarning": "删除后数据不可恢复!",
-    "deleteSuccess": "删除成功"
+    "deleteSuccess": "删除成功",
+    "copySuccess": "复制成功"
   },
   "time": {
     "today": "今天",
@@ -51,5 +52,22 @@
     "balance": "结余",
     "surplus": "结余"
   },
-  "empty": "暂无数据"
+  "empty": "暂无数据",
+  "categorySettings": {
+    "title": "类别设置",
+    "notice": "当前仅支持查看，新增/编辑/删除待接口能力确认后开放。",
+    "loading": "正在加载",
+    "category": "分类",
+    "loadFail": "分类加载失败",
+    "loadFailDesc": "请稍后返回重试。",
+    "emptyDesc": "接口暂未返回可查看分类。"
+  },
+  "commonFunctions": {
+    "title": "常用功能",
+    "assetSteward": "资产管家",
+    "invoiceAssistant": "发票助手",
+    "fixedExpenses": "固定支出",
+    "exchangeRateConverter": "汇率换算器",
+    "comingSoon": "敬请期待"
+  }
 }

@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { InvoiceEntity } from '@/entities/invoice';
 import { Button, Form, Input } from 'antd-mobile';
 import React, { useCallback, useEffect, useMemo } from 'react';
@@ -8,6 +7,7 @@ import {
   usePatchInvoiceMutation,
   usePostInvoiceMutation,
 } from '@/entities/invoice';
+import { useTranslation } from '@/shared/i18n';
 
 interface InvoiceInfoFormProps {
   id?: string;
@@ -36,33 +36,35 @@ const InvoiceInfoForm: React.FC<InvoiceInfoFormProps> = (props) => {
   }, []);
   const [formAction] = Form.useForm();
 
+  const { t } = useTranslation('invoice');
+
   const formOptions = [
     {
-      label: '名称',
+      label: t('form.companyName'),
       name: 'companyName',
       required: true,
-      rules: [{ required: true, message: '名称不能为空' }],
+      rules: [{ required: true, message: t('form.companyNameRequired') }],
     },
     {
-      label: '税号',
+      label: t('form.taxNumber'),
       name: 'taxNumber',
       required: true,
-      rules: [{ required: true, message: '税号不能为空' }],
+      rules: [{ required: true, message: t('form.taxNumberRequired') }],
     },
     {
-      label: '单位地址',
+      label: t('form.companyAddress'),
       name: 'companyAddress',
     },
     {
-      label: '电话号码',
+      label: t('form.phone'),
       name: 'phone',
     },
     {
-      label: '开户银行',
+      label: t('form.accountOpeningBank'),
       name: 'accountOpeningBank',
     },
     {
-      label: '银行账号',
+      label: t('form.bankAccount'),
       name: 'bankAccount',
     },
   ];
@@ -104,7 +106,7 @@ const InvoiceInfoForm: React.FC<InvoiceInfoFormProps> = (props) => {
       requiredMarkStyle="none"
       footer={(
         <Button block type="submit" color="primary" size="large">
-          保存
+          {t('form.save')}
         </Button>
       )}
       onFinish={onSave}
@@ -118,7 +120,7 @@ const InvoiceInfoForm: React.FC<InvoiceInfoFormProps> = (props) => {
           rules={option.rules}
         >
           <Input
-            placeholder={`请输入${option.label}${option.required ? ' (必填)' : ''}`}
+            placeholder={`${t('form.placeholder')}${option.label}${option.required ? t('form.required') : ''}`}
             clearable
           />
         </Form.Item>

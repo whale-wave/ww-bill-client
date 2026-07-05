@@ -9,7 +9,8 @@
     "expend": "支出",
     "category": "分类",
     "chooseCategory": "选择分类",
-    "saveSuccess": "保存成功"
+    "saveSuccess": "保存成功",
+    "selectTime": "时间选择"
   },
   "detail": {
     "title": "明细",

@@ -3,9 +3,11 @@ import { AddOutline } from 'antd-mobile-icons';
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
 import { BottomAction } from '@/shared/ui';
 
 const AddFixedExpenseButton: React.FC = () => {
+  const { t } = useTranslation('fixed-expense');
   const navigate = useNavigate();
 
   const actions = useMemo(() => {
@@ -15,7 +17,7 @@ const AddFixedExpenseButton: React.FC = () => {
         render: () => (
           <div className="flex items-center space-x-1 font-medium" style={{ color: '#3a87c4' }}>
             <AddOutline />
-            <span>添加固定支出</span>
+            <span>{t('list.addFixedExpense')}</span>
           </div>
         ),
         onClick: () => {
@@ -23,7 +25,7 @@ const AddFixedExpenseButton: React.FC = () => {
         },
       },
     ] as BottomActionActionItem[];
-  }, [navigate]);
+  }, [navigate, t]);
 
   return (
     <BottomAction className="h-[50px]" placeholderClassName="h-[50px]" actions={actions} />

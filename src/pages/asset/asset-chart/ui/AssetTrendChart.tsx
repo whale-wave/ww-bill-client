@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { Dayjs } from 'dayjs';
 import type { LineSeriesOption } from 'echarts/charts';
 import type { GridComponentOption, MarkLineComponentOption } from 'echarts/components';

@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { ChangeEvent, CSSProperties, FC } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
@@ -8,6 +7,7 @@ import { sign } from '@/entities/auth';
 import { userKeys } from '@/entities/user';
 import { useAuthStore } from '@/features/auth';
 import { EmailCaptchaInput } from '@/features/email-captcha';
+import { useTranslation } from '@/shared/i18n';
 import { Button, Input, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 

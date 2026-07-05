@@ -4,6 +4,8 @@
   "detail": "Invoice Details",
   "edit": "Edit Invoice",
   "delete": "Delete",
+  "invoiceNotFetched": "Invoice information not retrieved",
+  "copyInfo": "Copy Info",
   "form": {
     "name": "Invoice Title",
     "amount": "Amount",

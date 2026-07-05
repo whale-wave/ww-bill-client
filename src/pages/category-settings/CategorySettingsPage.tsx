@@ -1,10 +1,10 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
 import { ErrorBlock, SpinLoading } from 'antd-mobile';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetCategoryQuery } from '@/entities/category';
+import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { Icon, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
@@ -14,22 +14,12 @@ interface CategoryTab {
   label: string;
 }
 
-const categoryTabs: CategoryTab[] = [
-  {
-    key: 'sub',
-    label: '支出',
-  },
-  {
-    key: 'add',
-    label: '收入',
-  },
-];
-
 interface CategoryListProps {
   data: CategoryEntity[];
   isError: boolean;
   isLoading: boolean;
   tabLabel: string;
+  t: (key: string, options?: any) => string;
 }
 
 const CategoryList: FC<CategoryListProps> = ({
@@ -37,15 +27,16 @@ const CategoryList: FC<CategoryListProps> = ({
   isError,
   isLoading,
   tabLabel,
+  t,
 }) => {
   if (isLoading) {
     return (
       <div className={styles.state}>
         <SpinLoading />
         <span>
-          正在加载
+          {t('categorySettings.loading')}
           {tabLabel}
-          分类
+          {t('categorySettings.category')}
         </span>
       </div>
     );
@@ -56,8 +47,8 @@ const CategoryList: FC<CategoryListProps> = ({
       <div className={styles.empty}>
         <ErrorBlock
           status="default"
-          title={`${tabLabel}分类加载失败`}
-          description="请稍后返回重试。"
+          title={`${tabLabel}${t('categorySettings.loadFail')}`}
+          description={t('categorySettings.loadFailDesc')}
         />
       </div>
     );
@@ -68,8 +59,8 @@ const CategoryList: FC<CategoryListProps> = ({
       <div className={styles.empty}>
         <ErrorBlock
           status="empty"
-          title={`暂无${tabLabel}分类`}
-          description="接口暂未返回可查看分类。"
+          title={`${t('empty')}${tabLabel}${t('categorySettings.category')}`}
+          description={t('categorySettings.emptyDesc')}
         />
       </div>
     );
@@ -86,7 +77,7 @@ const CategoryList: FC<CategoryListProps> = ({
             <div className={styles.name}>{item.name}</div>
             <div className={styles.meta}>
               {tabLabel}
-              分类
+              {t('categorySettings.category')}
             </div>
           </div>
         </div>
@@ -110,9 +101,20 @@ const CategorySettings: FC = () => {
     },
   });
 
+  const categoryTabs = useMemo((): CategoryTab[] => [
+    {
+      key: 'sub',
+      label: t('amount.expend'),
+    },
+    {
+      key: 'add',
+      label: t('amount.income'),
+    },
+  ], [t]);
+
   const activeTab = useMemo(() => {
     return categoryTabs.find(item => item.key === activeKey) || categoryTabs[0];
-  }, [activeKey]);
+  }, [activeKey, categoryTabs]);
   const activeQuery = activeKey === 'sub' ? subCategoryQuery : addCategoryQuery;
 
   const handleBack = () => {
@@ -130,14 +132,14 @@ const CategorySettings: FC = () => {
 
   return (
     <div className="page">
-      <NavBar back="返回" onBack={handleBack}>
-        类别设置
+      <NavBar back={t('nav.back')} onBack={handleBack}>
+        {t('categorySettings.title')}
       </NavBar>
       <div className={styles.wrapper}>
         <div className={styles.notice}>
-          当前仅支持查看，新增/编辑/删除待接口能力确认后开放。
+          {t('categorySettings.notice')}
         </div>
-        <div className={styles.segmented} role="tablist" aria-label="分类类型">
+        <div className={styles.segmented} role="tablist" aria-label={`${t('categorySettings.category')}类型`}>
           {categoryTabs.map(tab => (
             <button
               aria-selected={activeKey === tab.key}
@@ -156,6 +158,7 @@ const CategorySettings: FC = () => {
           isError={activeQuery.isError}
           isLoading={activeQuery.isLoading}
           tabLabel={activeTab.label}
+          t={t}
         />
       </div>
     </div>

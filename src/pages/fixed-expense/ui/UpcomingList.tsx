@@ -1,5 +1,6 @@
 import type { FixedExpenseEntity } from '@/entities/fixed-expense';
 import React, { memo } from 'react';
+import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import { typeIconMap } from '../constants';
 import {
@@ -22,6 +23,7 @@ const toneBgClass = {
 } as const;
 
 const UpcomingList: React.FC<UpcomingListProps> = memo((props) => {
+  const { t } = useTranslation('fixed-expense');
   const { className, items, onClickItem } = props;
 
   if (!items.length)
@@ -30,13 +32,13 @@ const UpcomingList: React.FC<UpcomingListProps> = memo((props) => {
   return (
     <div className={cn(className)}>
       <div className="mb-2 flex items-center justify-between px-1">
-        <span className="text-[13px] font-medium text-slate-800">即将到期</span>
+        <span className="text-[13px] font-medium text-slate-800">{t('list.upcoming')}</span>
         <span className="text-[11px] text-font-gray">
-          共
+          {t('list.total')}
           {' '}
           {items.length}
           {' '}
-          项
+          {t('list.items')}
         </span>
       </div>
       <div className="-mx-3 flex space-x-2 overflow-x-auto px-3 pb-1">

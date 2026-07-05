@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type {
   ChangeEvent,
   FC,
@@ -15,6 +14,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { usePostTopicMutation } from '@/entities/topic';
 import { uploadFile } from '@/shared/api';
+import { useTranslation } from '@/shared/i18n';
 import { Button, Icon, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 

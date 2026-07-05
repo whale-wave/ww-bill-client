@@ -1,10 +1,10 @@
-import { useTranslation } from '@/shared/i18n';
 import type { BottomActionActionItem } from '@/shared/ui';
 import { Dialog, Toast } from 'antd-mobile';
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDeleteFixedExpenseMutation } from '@/entities/fixed-expense';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
 import { BottomAction } from '@/shared/ui';
 
 interface EditAndDeleteButtonProps {
@@ -13,6 +13,7 @@ interface EditAndDeleteButtonProps {
 
 const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
   const { fixedExpenseId } = props;
+  const { t } = useTranslation('fixed-expense');
   const navigate = useNavigate();
 
   const [deleteMutate] = useDeleteFixedExpenseMutation();
@@ -20,15 +21,15 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
   const ensureId = useCallback((id?: string): id is string => {
     if (id)
       return true;
-    void Toast.show({ content: '未获取到固定支出信息' });
+    void Toast.show({ content: t('detail.noFixedExpenseInfo') });
     return false;
-  }, []);
+  }, [t]);
 
   const actions = useMemo(() => {
     return [
       {
         key: 'edit',
-        label: '编辑',
+        label: t('detail.edit'),
         onClick: () => {
           if (!ensureId(fixedExpenseId))
             return;
@@ -37,22 +38,22 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
       },
       {
         key: 'delete',
-        render: () => <span className="text-rose-500">删除</span>,
+        render: () => <span className="text-rose-500">{t('detail.delete')}</span>,
         onClick: () => {
           if (!ensureId(fixedExpenseId))
             return;
           void Dialog.confirm({
-            content: '确定删除该固定支出?',
+            content: t('detail.confirmDelete'),
             onConfirm: async () => {
               await deleteMutate(fixedExpenseId);
-              void Toast.show({ icon: 'success', content: '删除成功' });
+              void Toast.show({ icon: 'success', content: t('detail.deleteSuccess') });
               navigate(-1);
             },
           });
         },
       },
     ] as BottomActionActionItem[];
-  }, [fixedExpenseId, ensureId, deleteMutate, navigate]);
+  }, [fixedExpenseId, ensureId, deleteMutate, navigate, t]);
 
   return (
     <BottomAction className="h-[50px]" placeholderClassName="h-[50px]" actions={actions} />

@@ -1,4 +1,4 @@
-import { request } from '@/shared/api';
+import { request, type SuccessResponse } from '@/shared/api';
 
 export enum FixedExpenseCurrency {
   CNY = 'CNY',

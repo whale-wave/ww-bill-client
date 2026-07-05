@@ -4,14 +4,14 @@ import type { numType } from './index';
 import { CalendarOutline, SearchOutline } from 'antd-mobile-icons';
 import c from 'classnames';
 import dayjs from 'dayjs';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
 import Precision from '@/pages/record/detail/ui';
 import config from '@/shared/config';
 import { ROUTES_PATH } from '@/shared/config/routes';
-import { Icon } from '@/shared/ui';
 import { useTranslation } from '@/shared/i18n';
+import { Icon } from '@/shared/ui';
+import { useVisibleAmount } from '../model/useVisibleAmount';
 import styles from './top.module.scss';
 
 interface TopProps {
@@ -23,12 +23,12 @@ interface TopProps {
 const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
   const navigate = useNavigate();
   const { t } = useTranslation('record');
-
-  const { data: userAppConfig } = useGetUserAppConfigQuery();
-  const visibleAmount = userAppConfig?.isDisplayAmount ?? false;
-  const visibleAmountSwitch = userAppConfig?.isDisplayAmountSwitch ?? false;
-
-  const [patchUserAppConfigMutate] = usePatchUserAppConfigMutation();
+  const {
+    visibleAmount,
+    visibleAmountSwitch,
+    isVisibleAmount,
+    onToggleVisibleAmount,
+  } = useVisibleAmount();
 
   const tabs = [
     {
@@ -44,7 +44,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
       },
     },
     {
-      name: '资产管家',
+      name: t('common:commonFunctions.assetSteward'),
       iconName: 'asset-steward',
       click: () => {
         navigate(ROUTES_PATH.ASSET.getPath());
@@ -66,20 +66,6 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
     sessionStorage.setItem('timeDate', time);
     setSelectTime(dayjs(time));
   };
-
-  const isVisibleAmount = useMemo(() => {
-    if (!visibleAmountSwitch) {
-      return true;
-    }
-
-    return visibleAmount;
-  }, [visibleAmount, visibleAmountSwitch]);
-
-  const onToggleVisibleAmount = useCallback(async () => {
-    await patchUserAppConfigMutate({
-      isDisplayAmount: !visibleAmount,
-    });
-  }, [visibleAmount, patchUserAppConfigMutate]);
 
   const onGoToSearchRecordPage = useCallback(() => {
     navigate('/search-record');

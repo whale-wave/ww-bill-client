@@ -3,8 +3,8 @@ import type { CategoryAmountType } from '@/entities/category';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { playSound } from '@/shared/lib/play-sound';
 import { useTranslation } from '@/shared/i18n';
+import { playSound } from '@/shared/lib/play-sound';
 import styles from './navBar.module.scss';
 
 interface NavBarProps {

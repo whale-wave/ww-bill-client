@@ -10,7 +10,7 @@ import type {
 } from './api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { isSuccessApi } from '@/shared/api';
+import { isSuccessApi, type SuccessResponse } from '@/shared/api';
 import {
   deleteAssetByIdApi,
   getAssetApi,

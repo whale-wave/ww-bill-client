@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { StatusTabOption } from './constants';
 import type { FixedExpenseEntity } from '@/entities/fixed-expense';
 import { Dialog, ErrorBlock, Skeleton, SwipeAction, Toast } from 'antd-mobile';
@@ -6,6 +5,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FixedExpenseStatus, useDeleteFixedExpenseMutation, useGetFixedExpenseQuery } from '@/entities/fixed-expense';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
 import { NavBar } from '@/shared/ui';
 import {
   AddFixedExpenseButton,
@@ -16,6 +16,7 @@ import {
 } from './ui';
 
 const FixedExpenses: React.FC = () => {
+  const { t } = useTranslation('fixed-expense');
   const navigate = useNavigate();
   const [statusTab, setStatusTab] = useState<StatusTabOption['key']>('all');
 
@@ -59,17 +60,17 @@ const FixedExpenses: React.FC = () => {
 
   const onDeleteItem = useCallback((item: FixedExpenseEntity) => {
     void Dialog.confirm({
-      content: `确定删除"${item.name}"?`,
+      content: `${t('list.confirmDelete')}"${item.name}"?`,
       onConfirm: async () => {
         await deleteMutate(item.id);
-        void Toast.show({ icon: 'success', content: '删除成功' });
+        void Toast.show({ icon: 'success', content: t('common:confirm.deleteSuccess') });
       },
     });
-  }, [deleteMutate]);
+  }, [deleteMutate, t]);
 
   return (
     <div className="page-new overflow-hidden">
-      <NavBar onBack={onBack}>固定支出</NavBar>
+      <NavBar onBack={onBack} back={t('common:nav.back')}>{t('list.title')}</NavBar>
 
       <div className="flex-grow h-0 overflow-auto bg-bg-gray">
         <div className="px-3 pt-3">
@@ -103,8 +104,8 @@ const FixedExpenses: React.FC = () => {
                   <div className="mt-10">
                     <ErrorBlock
                       status="empty"
-                      title="暂无固定支出"
-                      description="点击下方按钮添加你的第一笔"
+                      title={t('list.empty')}
+                      description={t('list.emptyDescription')}
                     />
                   </div>
                 )
@@ -115,13 +116,13 @@ const FixedExpenses: React.FC = () => {
                       rightActions={[
                         {
                           key: 'edit',
-                          text: '编辑',
+                          text: t('common:action.edit'),
                           color: 'primary',
                           onClick: () => onEditItem(item),
                         },
                         {
                           key: 'delete',
-                          text: '删除',
+                          text: t('common:action.delete'),
                           color: 'danger',
                           onClick: () => onDeleteItem(item),
                         },

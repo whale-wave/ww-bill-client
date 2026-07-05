@@ -58,24 +58,69 @@
     "all": "全部",
     "upcoming": "即将到期",
     "empty": "暂无固定支出",
+    "emptyDescription": "点击下方按钮添加你的第一笔",
+    "confirmDelete": "确定删除",
     "add": "新增",
-    "monthlyExpense": "生效中月支出"
+    "addFixedExpense": "添加固定支出",
+    "monthlyExpense": "生效中月支出",
+    "total": "共",
+    "items": "项"
+  },
+  "summary": {
+    "monthlyExpected": "本月预计支出",
+    "yearlyTotal": "年化支出",
+    "active": "生效中",
+    "itemCount": "项数"
   },
   "detail": {
     "title": "固定支出详情",
     "edit": "编辑",
-    "delete": "删除"
+    "delete": "删除",
+    "noFixedExpenseInfo": "未获取到固定支出信息",
+    "confirmDelete": "确定删除该固定支出?",
+    "deleteSuccess": "删除成功"
   },
   "cycle": {
     "daily": "每天",
     "weekly": "每周",
+    "weeklyShort": "周",
     "monthly": "每月",
+    "monthlyShort": "月",
     "quarterly": "每季",
+    "quarterlyShort": "季度",
+    "halfYearly": "半年",
     "yearly": "每年",
+    "yearlyShort": "年",
     "custom": "自定义"
+  },
+  "status": {
+    "active": "生效中",
+    "paused": "已暂停",
+    "cancelled": "已取消",
+    "expired": "已过期"
+  },
+  "type": {
+    "subscription": "订阅",
+    "utility": "水电燃气",
+    "housing": "房屋居住",
+    "transport": "出行交通",
+    "family": "家庭补贴",
+    "work": "工作开销",
+    "other": "其他"
+  },
+  "priority": {
+    "must": "必要",
+    "normal": "普通",
+    "optional": "可选"
   },
   "currency": {
     "cny": "人民币",
+    "cnyWithSymbol": "人民币 (¥)",
+    "usd": "美元 ($)",
+    "hkd": "港币 (HK$)",
+    "jpy": "日元 (¥)",
+    "eur": "欧元 (€)",
+    "gbp": "英镑 (£)",
     "defaultCny": "默认人民币"
   },
   "provider": {

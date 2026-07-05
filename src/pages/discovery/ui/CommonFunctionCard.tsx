@@ -1,9 +1,9 @@
-import { useTranslation } from '@/shared/i18n';
 import { Card, Toast } from 'antd-mobile';
 import { CalendarOutline, ReceivePaymentOutline, TextOutline } from 'antd-mobile-icons';
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
 import { Icon } from '@/shared/ui';
 
 interface CommonFunctionCardProps {}
@@ -16,23 +16,24 @@ interface FunctionItem {
 }
 
 const CommonFunctionCard: React.FC<CommonFunctionCardProps> = () => {
+  const { t } = useTranslation('common');
   const navigate = useNavigate();
 
   const functionList = [
     {
-      name: '资产管家',
+      name: t('commonFunctions.assetSteward'),
       icon: <Icon name="asset-steward" />,
       onClick: () => {
         navigate(ROUTES_PATH.ASSET.getPath());
       },
     },
     {
-      name: '发票助手',
+      name: t('commonFunctions.invoiceAssistant'),
       icon: <TextOutline />,
       path: '/invoice',
     },
     {
-      name: '固定支出',
+      name: t('commonFunctions.fixedExpenses'),
       icon: <CalendarOutline />,
       onClick: () => {
         navigate(ROUTES_PATH.FIXED_EXPENSES.getPath());
@@ -44,11 +45,11 @@ const CommonFunctionCard: React.FC<CommonFunctionCardProps> = () => {
     //   path: '/invoice',
     // },
     {
-      name: '汇率换算器',
+      name: t('commonFunctions.exchangeRateConverter'),
       icon: <ReceivePaymentOutline />,
       onClick: () => {
         Toast.show({
-          content: '敬请期待',
+          content: t('commonFunctions.comingSoon'),
         });
       },
     },
@@ -61,7 +62,7 @@ const CommonFunctionCard: React.FC<CommonFunctionCardProps> = () => {
   }, []);
 
   return (
-    <Card title="常用功能" bodyClassName="!pt-0">
+    <Card title={t('commonFunctions.title')} bodyClassName="!pt-0">
       <div className="flex-grow flex pt-1">
         {functionList.map(fnItem => (
           <div

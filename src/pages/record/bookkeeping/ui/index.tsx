@@ -1,8 +1,8 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { DatePicker } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useCallback } from 'react';
+import { useTranslation } from '@/shared/i18n';
 
 interface CustomRenderProps {
   valueDate: boolean;
@@ -14,24 +14,25 @@ interface CustomRenderProps {
 
 // 自定义每列的渲染内容
 const CustomRender: FC<CustomRenderProps> = ({ valueDate, change, changeTime, dateValue }) => {
+  const { t } = useTranslation(['common', 'record']);
   const labelRenderer = useCallback((type: string, data: number) => {
     switch (type) {
       case 'year':
-        return `${data}年`;
+        return `${data}${t('common:time.year')}`;
       case 'month':
-        return `${data}月`;
+        return `${data}${t('common:time.month')}`;
       case 'day':
-        return `${data}日`;
+        return `${data}${t('common:time.day')}`;
       case 'hour':
-        return `${data}时`;
+        return `${data}${t('common:time.hour')}`;
       case 'minute':
-        return `${data}分`;
+        return `${data}${t('common:time.minute')}`;
       case 'second':
-        return `${data}秒`;
+        return `${data}${t('common:time.second')}`;
       default:
         return data;
     }
-  }, []);
+  }, [t]);
 
   const changeDateChoice = (val: Date) => {
     // val 组件默认选择的时间
@@ -73,7 +74,7 @@ const CustomRender: FC<CustomRenderProps> = ({ valueDate, change, changeTime, da
   return (
     <>
       <DatePicker
-        title="时间选择"
+        title={t('record:bookkeeping.selectTime')}
         visible={valueDate}
         onClose={() => {
           change();

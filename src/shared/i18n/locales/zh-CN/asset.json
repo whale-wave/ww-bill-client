@@ -7,6 +7,11 @@
   "assetDetail": "资产详情",
   "deleteAsset": "删除资产",
   "adjustAsset": "调整资产",
+  "setting": "设置",
+  "confirmDeleteTitle": "确认删除该资产?",
+  "confirmDeleteContent": "删除后, 所有的资产变动记录也将一同被删除",
+  "confirmDelete": "确认删除",
+  "deleting": "删除中...",
   "form": {
     "title": "资产信息",
     "name": "资产名称",

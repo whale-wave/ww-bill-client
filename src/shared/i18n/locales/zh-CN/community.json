@@ -31,7 +31,11 @@
     "cancelled": "已取消分享",
     "fail": "分享失败，请稍后重试",
     "empty": "暂无可分享账单",
-    "emptyHint": "请从账单、明细等业务入口进入分享页。"
+    "emptyHint": "请从账单、明细等业务入口进入分享页。",
+    "saveImage": "保存图片",
+    "noRemark": "暂无备注",
+    "recordBill": "记录这一笔真实账单",
+    "linkHint": "分享链接随按钮生成"
   },
   "like": "点赞",
   "noMore": "没有更多了"

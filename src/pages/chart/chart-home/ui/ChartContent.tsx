@@ -1,16 +1,17 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { ErrorBlock } from 'antd-mobile';
 import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';
 import { LineChart, RankingList } from '@/pages/chart/chart-home/ui';
+import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 
 export const ChartContent: FC = () => {
+  const { t } = useTranslation('chart');
   const { curTab, currentAmountType } = useChartHome();
 
   const empty = (
     <div className={cn('flex-grow flex items-center justify-center')}>
-      <ErrorBlock status="empty" title="快去记一笔吧~" description='点击 "记账" 按钮，开始记录你的财务数据.' />
+      <ErrorBlock status="empty" title={t('emptyTitle')} description={t('emptyDescription')} />
     </div>
   );
 
@@ -23,11 +24,11 @@ export const ChartContent: FC = () => {
               <div className={cn('flex flex-col py-2 px-1 border-0 border-b-[1px] border-b-gray-100 border-solid flex-shrink-0')}>
                 <div className={cn('flex flex-col px-1')}>
                   <div className={cn('text-sm flex space-x-2')}>
-                    <div>{currentAmountType === 'sub' ? '总支出:' : '总收入:'}</div>
+                    <div>{currentAmountType === 'sub' ? t('totalExpend') : t('totalIncome')}</div>
                     <div>{curTab.amount}</div>
                   </div>
                   <div className={cn('text-sm flex space-x-2')}>
-                    <div>平均值:</div>
+                    <div>{t('averageLabel')}</div>
                     <div>{curTab.average}</div>
                   </div>
                 </div>

@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
@@ -7,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGetUserUserInfoQuery, usePostCheckInMutation } from '@/entities/user';
 import { BottomList } from '@/pages/mine/ui';
 import UserInfo from '@/pages/mine/UserInfo';
+import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { Icon } from '@/shared/ui';
 import { TabBar } from '@/widgets/layout';

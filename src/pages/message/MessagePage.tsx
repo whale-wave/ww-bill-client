@@ -1,44 +1,44 @@
 import type { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from '@/shared/i18n';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
 import { NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
-
-const messageItems = [
-  {
-    title: '新关注',
-    description: '进入查看最新关注你的用户',
-    path: ROUTES_PATH.MESSAGE_NEW_FOLLOW.getPath(),
-  },
-  {
-    title: '评论',
-    description: '进入查看收到的最新评论',
-    path: ROUTES_PATH.MESSAGE_COMMENT_LIST.getPath(),
-  },
-  {
-    title: '系统通知',
-    description: '进入查看系统通知和提醒',
-    path: ROUTES_PATH.MESSAGE_SYSTEM_NOTIFY.getPath(),
-  },
-];
 
 const Message: FC = () => {
   const { t } = useTranslation('common');
   const navigate = useNavigate();
 
+  const messageItems = [
+    {
+      title: t('message.newFollow.title'),
+      description: t('message.newFollow.description'),
+      path: ROUTES_PATH.MESSAGE_NEW_FOLLOW.getPath(),
+    },
+    {
+      title: t('message.comment.title'),
+      description: t('message.comment.description'),
+      path: ROUTES_PATH.MESSAGE_COMMENT_LIST.getPath(),
+    },
+    {
+      title: t('message.systemNotify.title'),
+      description: t('message.systemNotify.description'),
+      path: ROUTES_PATH.MESSAGE_SYSTEM_NOTIFY.getPath(),
+    },
+  ];
+
   return (
     <div className="page">
       <NavBar
         onBack={() => navigate(-1)}
-        back="返回"
+        back={t('nav.back')}
         className={styles['nav-bar']}
       >
-        消息
+        {t('message.title')}
       </NavBar>
       <div className={styles.content}>
         <div className={styles.summary}>
-          暂无首页未读或摘要数据，选择下方入口查看最新消息。
+          {t('message.emptySummary')}
         </div>
         <div className={styles.list}>
           {messageItems.map(item => (

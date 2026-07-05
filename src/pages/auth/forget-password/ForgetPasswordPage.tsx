@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import type { Path } from 'react-router-dom';
 import { Button, Dialog, Toast } from 'antd-mobile';
@@ -6,6 +5,7 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getToolsForgetPasswordEmailApi } from '@/entities/auth';
 import { WwInput } from '@/pages/auth/forget-password/ui';
+import { useTranslation } from '@/shared/i18n';
 import { isEmail } from '@/shared/lib';
 import { playSound } from '@/shared/lib/play-sound';
 import { NavBar } from '@/shared/ui';

@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { ActionSheet, SpinLoading, Toast } from 'antd-mobile';
 import classNames from 'classnames';
@@ -7,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGetUserUserInfoQuery, usePutUserUserInfoMutation } from '@/entities/user';
 import { useAuthStore } from '@/features/auth';
 import { uploadFile } from '@/shared/api';
+import { useTranslation } from '@/shared/i18n';
 import choseFile from '@/shared/lib/chose-file';
 import { Button, List, Modal, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
@@ -62,7 +62,7 @@ const UserInfo: FC = () => {
     const { statusCode, data } = await uploadFile(formData);
 
     if (statusCode !== 200) {
-      Toast.show({ content: '更新失败', icon: 'fail' });
+      Toast.show({ content: t('info.updateFailed'), icon: 'fail' });
       return;
     }
 
@@ -76,7 +76,7 @@ const UserInfo: FC = () => {
     const actionSheet = ActionSheet.show({
       actions: [
         {
-          text: '更换邮箱',
+          text: t('info.changeEmail'),
           key: 'edit',
           onClick: () => {
             navigate(`/settings/email/change/captcha?email=${userInfo?.email}`);
@@ -84,15 +84,15 @@ const UserInfo: FC = () => {
           },
         },
       ],
-      cancelText: '取消',
+      cancelText: t('common:nav.cancel'),
     });
   }, [navigate, userInfo]);
 
   if (!userInfo) {
     return (
       <div className={classNames('page')} style={{ background: '#f2f2f7' }}>
-        <NavBar back="返回" onBack={() => navigate(-1)}>
-          个人信息
+        <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
+          {t('info.title')}
         </NavBar>
         <div className="flex justify-center items-center py-20">
           <SpinLoading />
@@ -103,8 +103,8 @@ const UserInfo: FC = () => {
 
   return (
     <div className={classNames('page')} style={{ background: '#f2f2f7' }}>
-      <NavBar back="返回" onBack={() => navigate(-1)}>
-        个人信息
+      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
+        {t('info.title')}
       </NavBar>
       <Modal visible={modalVisible} onOk={onChangeName} onClose={onCancelModal}>
         <div className={styles.modal}>
@@ -112,7 +112,7 @@ const UserInfo: FC = () => {
             className={styles['modal-input']}
             value={name}
             onChange={({ target: { value } }) => setName(value)}
-            placeholder="请输入2-12位昵称"
+            placeholder={t('info.namePlaceholder')}
           />
         </div>
       </Modal>
@@ -136,27 +136,27 @@ const UserInfo: FC = () => {
             </div>
           )}
         >
-          头像
+          {t('info.avatar')}
         </List.Item>
         <List.Item clickable arrow={false} extra={userInfo.username}>
-          账号ID
+          {t('info.accountId')}
         </List.Item>
         <List.Item
           clickable
           extra={userInfo.email}
           onClick={onChangeEmailActionSheet}
         >
-          邮箱
+          {t('info.email')}
         </List.Item>
         <List.Item extra={userInfo.name} onClick={onOpenChangeNameModel}>
-          昵称
+          {t('info.nickname')}
         </List.Item>
       </List>
       <List style={{ margin: '10px 0' }}>
-        <List.Item onClick={onGoToPassword}>修改密码</List.Item>
+        <List.Item onClick={onGoToPassword}>{t('password.title')}</List.Item>
       </List>
       <Button size="full" className={styles.out} onClick={onLogout}>
-        退出登录
+        {t('common:action.logout')}
       </Button>
     </div>
   );

@@ -2,9 +2,9 @@ import type { FC } from 'react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetTopicQuery } from '@/entities/topic';
-import { useTranslation } from '@/shared/i18n';
 import ItemList from '@/pages/community/ItemList';
 import TopBar from '@/pages/community/TopBar';
+import { useTranslation } from '@/shared/i18n';
 import { FixedPin } from '@/shared/ui';
 import { TabBar } from '@/widgets/layout';
 

@@ -1,13 +1,16 @@
 import type { FixedExpenseEntity } from '@/entities/fixed-expense';
 import React, { memo, useCallback } from 'react';
+import {
+  FixedExpenseCycle,
+  FixedExpenseStatus,
+  FixedExpenseType,
+} from '@/entities/fixed-expense';
+import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import {
-  cycleLabelMap,
   priorityBarColorMap,
   statusColorMap,
-  statusLabelMap,
   typeIconMap,
-  typeLabelMap,
 } from '../constants';
 import {
   formatAmountWithCurrency,
@@ -29,6 +32,7 @@ const toneTextClass: Record<ReturnType<typeof getNextBillingTone>, string> = {
 };
 
 const FixedExpenseItem: React.FC<FixedExpenseItemProps> = memo((props) => {
+  const { t } = useTranslation('fixed-expense');
   const { className, item, onClick: _onClick } = props;
 
   const onClick = useCallback(() => {
@@ -38,6 +42,32 @@ const FixedExpenseItem: React.FC<FixedExpenseItemProps> = memo((props) => {
   const statusColor = statusColorMap[item.status];
   const tone = getNextBillingTone(item.nextBillingDate);
   const nextBillingText = formatNextBillingDate(item.nextBillingDate);
+
+  const cycleKeyMap: Record<FixedExpenseCycle, string> = {
+    [FixedExpenseCycle.WEEKLY]: 'cycle.weeklyShort',
+    [FixedExpenseCycle.MONTHLY]: 'cycle.monthlyShort',
+    [FixedExpenseCycle.QUARTERLY]: 'cycle.quarterlyShort',
+    [FixedExpenseCycle.HALF_YEARLY]: 'cycle.halfYearly',
+    [FixedExpenseCycle.YEARLY]: 'cycle.yearlyShort',
+    [FixedExpenseCycle.CUSTOM]: 'cycle.custom',
+  };
+
+  const statusKeyMap: Record<FixedExpenseStatus, string> = {
+    [FixedExpenseStatus.ACTIVE]: 'status.active',
+    [FixedExpenseStatus.PAUSED]: 'status.paused',
+    [FixedExpenseStatus.CANCELLED]: 'status.cancelled',
+    [FixedExpenseStatus.EXPIRED]: 'status.expired',
+  };
+
+  const typeKeyMap: Record<FixedExpenseType, string> = {
+    [FixedExpenseType.SUBSCRIPTION]: 'type.subscription',
+    [FixedExpenseType.UTILITY]: 'type.utility',
+    [FixedExpenseType.HOUSING]: 'type.housing',
+    [FixedExpenseType.TRANSPORT]: 'type.transport',
+    [FixedExpenseType.FAMILY]: 'type.family',
+    [FixedExpenseType.WORK]: 'type.work',
+    [FixedExpenseType.OTHER]: 'type.other',
+  };
 
   return (
     <div
@@ -62,7 +92,7 @@ const FixedExpenseItem: React.FC<FixedExpenseItemProps> = memo((props) => {
             </span>
             <span className="text-[11px] text-font-gray">
               /
-              {cycleLabelMap[item.cycle]}
+              {t(cycleKeyMap[item.cycle])}
             </span>
           </div>
         </div>
@@ -77,14 +107,14 @@ const FixedExpenseItem: React.FC<FixedExpenseItemProps> = memo((props) => {
               )}
             >
               <span className={cn('h-1.5 w-1.5 rounded-full', statusColor.dot)} />
-              <span>{statusLabelMap[item.status]}</span>
+              <span>{t(statusKeyMap[item.status])}</span>
             </span>
             <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-600">
-              {typeLabelMap[item.type]}
+              {t(typeKeyMap[item.type])}
             </span>
             {item.autoRenew && (
               <span className="rounded bg-cyan-50 px-1.5 py-0.5 text-[11px] text-cyan-700">
-                自动续费
+                {t('form.autoRenew')}
               </span>
             )}
           </div>

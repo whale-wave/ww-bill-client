@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import type { BottomActionActionItem } from '@/shared/ui';
 import { Dialog, Toast } from 'antd-mobile';
@@ -8,9 +7,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useDeleteAssetByIdMutation } from '@/entities/asset';
 import { isSuccessApi } from '@/shared/api';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
 import { BottomAction } from '@/shared/ui';
 
 export const AssetBottomActions: FC = () => {
+  const { t } = useTranslation('asset');
   const navigate = useNavigate();
   const { id: _id } = useParams<{ id: string }>();
   const id = _id!;
@@ -30,7 +31,7 @@ export const AssetBottomActions: FC = () => {
           return (
             <div className="flex items-center space-x-1">
               <SetOutline className="text-lg" />
-              <div>设置</div>
+              <div>{t('setting')}</div>
             </div>
           );
         },
@@ -44,20 +45,20 @@ export const AssetBottomActions: FC = () => {
           return (
             <div className="flex items-center space-x-1">
               <DeleteOutline className="text-lg" />
-              <div>删除资产</div>
+              <div>{t('deleteAsset')}</div>
             </div>
           );
         },
         onClick: () => {
           Dialog.confirm({
-            title: '确认删除该资产?',
-            content: '删除后, 所有的资产变动记录也将一同被删除',
-            confirmText: '确认删除',
+            title: t('confirmDeleteTitle'),
+            content: t('confirmDeleteContent'),
+            confirmText: t('confirmDelete'),
             onConfirm: async () => {
               try {
                 Toast.show({
                   icon: 'loading',
-                  content: '删除中...',
+                  content: t('deleting'),
                   duration: 0,
                 });
                 const res = await deleteAssetByIdMutate(id);

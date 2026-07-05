@@ -37,7 +37,8 @@
   "confirm": {
     "delete": "Confirm Delete",
     "deleteWarning": "Data cannot be recovered after deletion!",
-    "deleteSuccess": "Deleted successfully"
+    "deleteSuccess": "Deleted successfully",
+    "copySuccess": "Copied successfully"
   },
   "time": {
     "today": "Today",
@@ -51,5 +52,39 @@
     "balance": "Balance",
     "surplus": "Surplus"
   },
-  "empty": "No data"
+  "empty": "No data",
+  "categorySettings": {
+    "title": "Category Settings",
+    "notice": "Currently only viewing is supported. Adding/editing/deleting will be available after API capability confirmation.",
+    "loading": "Loading",
+    "category": "Category",
+    "loadFail": "Failed to load categories",
+    "loadFailDesc": "Please return and try again later.",
+    "empty": "No categories",
+    "emptyDesc": "The API has not returned any viewable categories."
+  },
+  "message": {
+    "title": "Messages",
+    "emptySummary": "No homepage unread or summary data yet. Choose an entry below to view the latest messages.",
+    "newFollow": {
+      "title": "New Followers",
+      "description": "Tap to view users who recently followed you"
+    },
+    "comment": {
+      "title": "Comments",
+      "description": "Tap to view the latest comments you received"
+    },
+    "systemNotify": {
+      "title": "System Notifications",
+      "description": "Tap to view system notifications and reminders"
+    }
+  },
+  "commonFunctions": {
+    "title": "Common Functions",
+    "assetSteward": "Asset Steward",
+    "invoiceAssistant": "Invoice Assistant",
+    "fixedExpenses": "Fixed Expenses",
+    "exchangeRateConverter": "Exchange Rate Converter",
+    "comingSoon": "Coming Soon"
+  }
 }

@@ -1,9 +1,9 @@
-import { useTranslation } from '@/shared/i18n';
 import type { InvoiceEntity } from '@/entities/invoice';
 import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
 import copy from 'copy-to-clipboard';
 import React, { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from '@/shared/i18n';
 
 interface InvoiceInfoProps {
   invoice: InvoiceEntity;
@@ -16,31 +16,31 @@ interface OptionItem {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export function getOptionListByInvoice(invoice: InvoiceEntity) {
+export function getOptionListByInvoice(invoice: InvoiceEntity, t: (key: string) => string) {
   const options = [
     {
       key: 'companyName',
-      label: '名称',
+      label: t('form.companyName'),
     },
     {
       key: 'taxNumber',
-      label: '税号',
+      label: t('form.taxNumber'),
     },
     {
       key: 'companyAddress',
-      label: '单位地址',
+      label: t('form.companyAddress'),
     },
     {
       key: 'phone',
-      label: '电话号码',
+      label: t('form.phone'),
     },
     {
       key: 'accountOpeningBank',
-      label: '开户银行',
+      label: t('form.accountOpeningBank'),
     },
     {
       key: 'bankAccount',
-      label: '银行账号',
+      label: t('form.bankAccount'),
     },
   ] as OptionItem[];
 
@@ -55,9 +55,10 @@ export function getOptionListByInvoice(invoice: InvoiceEntity) {
 
 const InvoiceInfo: React.FC<InvoiceInfoProps> = memo((props) => {
   const { invoice } = props;
+  const { t } = useTranslation('invoice');
   const list = useMemo(() => {
-    return getOptionListByInvoice(invoice);
-  }, [invoice]);
+    return getOptionListByInvoice(invoice, t);
+  }, [invoice, t]);
 
   const leftColumnWidth = 'w-[94px]';
   const columnHeight = 'h-[36px]';
@@ -70,7 +71,7 @@ const InvoiceInfo: React.FC<InvoiceInfoProps> = memo((props) => {
       copy(value);
 
       void Toast.show({
-        content: '复制成功',
+        content: t('common:confirm.copySuccess'),
       });
     },
     [],
