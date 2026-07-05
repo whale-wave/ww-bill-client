@@ -73,7 +73,7 @@ const ForgetPasswordVerifyCode: FC = () => {
 
   return (
     <div className="page flex flex-col">
-      <NavBar back="返回" onBack={onGoToBack}>
+      <NavBar back={t('common:nav.back')} onBack={onGoToBack}>
         找回密码
       </NavBar>
       <div className="flex-grow flex flex-col items-center space-y-6 pt-10">

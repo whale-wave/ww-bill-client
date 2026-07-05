@@ -11,6 +11,7 @@ import { playSound } from '@/shared/lib/play-sound';
 import { NavBar } from '@/shared/ui';
 
 const ForgetPassword: FC = () => {
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
 
@@ -52,11 +53,11 @@ const ForgetPassword: FC = () => {
 
   return (
     <div className="page flex flex-col">
-      <NavBar back="返回" onBack={onGoToBack}>
-        找回密码
+      <NavBar back={t('common:nav.back')} onBack={onGoToBack}>
+        {t('forgetPassword.title')}
       </NavBar>
       <div className="flex-grow flex flex-col items-center space-y-6 pt-10">
-        <WwInput placeholder="请输入邮箱" value={email} onChange={setEmail} />
+        <WwInput placeholder={t('forgetPassword.email')} value={email} onChange={setEmail} />
         <Button
           block
           className="!w-[80%] !rounded-[12px] !mt-10 !text-black333"
@@ -64,7 +65,7 @@ const ForgetPassword: FC = () => {
           size="large"
           onClick={onSend}
         >
-          下一步
+          {t('common:nav.next')}
         </Button>
       </div>
     </div>
