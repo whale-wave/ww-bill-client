@@ -1,18 +1,21 @@
 import type { FC } from 'react';
 import type { CategoryEntity } from '@/entities/category';
 import type { PutRecordApiData, recordChildren } from '@/entities/record';
-import type { stateType } from '@/pages/record/bookkeeping/index';
+import type { stateType } from '@/pages/record/bookkeeping/BookkeepingPage';
 import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePostRecordMutation, usePutRecordMutation } from '@/entities/record';
-import CustomRender from '@/pages/record/bookkeeping/ui';
+import { useTranslation } from '@/shared/i18n';
 import { Icon } from '@/shared/ui';
 import styles from './keyboard.module.scss';
+import { KEYPAD_LAYOUT } from './model/constants';
+import { useCalculator } from './model/useCalculator';
+import CustomRender from './ui';
 
-interface keyType {
+interface KeyType {
   change: (bool: boolean) => void;
   keyToggle: number;
   type: string;
@@ -23,7 +26,7 @@ interface keyType {
   categoryList: CategoryEntity[];
 }
 
-const Keyboard: FC<keyType> = ({
+const Keyboard: FC<KeyType> = ({
   keyToggle,
   name,
   stateList,
@@ -32,346 +35,72 @@ const Keyboard: FC<keyType> = ({
   defaultSelectDate,
   categoryList,
 }) => {
-  const ArrayList = [
-    {
-      keys: 7,
-    },
-    {
-      keys: 8,
-    },
-    {
-      keys: 9,
-    },
-    {
-      keys: 4,
-    },
-    {
-      keys: 5,
-    },
-    {
-      keys: 6,
-    },
-    {
-      keys: 1,
-    },
-    {
-      keys: 2,
-    },
-    {
-      keys: 3,
-    },
-    {
-      keys: '.',
-    },
-    {
-      keys: 0,
-    },
-    {
-      keys: 'x',
-    },
-  ];
-
-  const defaultDateValue = defaultSelectDate ? dayjs(defaultSelectDate).toDate() : undefined;
-
-  const [inputToggle, setInputToggle] = useState(false);
-  const [totals, setTotals] = useState('0.00'); // 总数
-  const [num, setNum] = useState(''); // 加减号前面的数字
-  const [addNum, setAddNum] = useState(''); // 加减号后面的数字
-  const [Addition, setAddition] = useState(''); // 存储加减号
-  const [completeText, setCompleteText] = useState('完成');
-  const [remarkValue, setRemarkValue] = useState(''); // 备注
-  const [valueDate, setValueDate] = useState(false); // 日期的显示和隐藏
-  const [dateValue, setDateValue] = useState(defaultDateValue || dayjs().toDate()); // 选择的日期
-  const [DateTimeValue, setDateTimeValue] = useState(0); // 选择的日期的时间戳
-  const [active, setActive] = useState(-1); //
-  const [active1, setActive1] = useState(-1); // 选择键盘样式高亮
+  const { t } = useTranslation('record');
+  const calc = useCalculator();
   const navigate = useNavigate();
-  const dataValueText = dayjs(dateValue).format('YYYY/MM/DD');
-
-  // TODO 拖动距离超出了数字键盘盒子的范围就取消高亮并且不输入内容!
-  const changeStart = (index: number) => {
-    // 长按事件
-    setActive(index);
-  };
-  const changeMoves = (e: any) => {
-    // 拖动事件
-    /*
-             * pageX-光标的x轴距离
-             * offsetWidth-这个元素的width的宽度
-             * offsetLeft-这个元素的left的距离
-             * */
-    if (
-      e.touches[0].pageY - e.touches[0].target.offsetTop < 0
-      || e.touches[0].pageY - e.touches[0].target.offsetTop > 46
-    ) {
-      setActive(-2);
-      setActive1(-1);
-    }
-    if (
-      e.touches[0].pageX - e.touches[0].target.offsetLeft < 0
-      || e.touches[0].pageX - e.touches[0].target.offsetLeft > 80
-    ) {
-      setActive(-2);
-      setActive1(-1);
-    }
-  };
-
-  // 拼接
-  const changePing = (keys: string | number, toggle?: number) => {
-    const lastIndex = totals.lastIndexOf('+');
-    const lastIndex1 = totals.lastIndexOf('-');
-    let orders: Array<string> = [];
-    let str;
-    if (toggle === 1) {
-      // num数字
-      orders = [num];
-      orders.push(String(keys));
-      str = orders.join('');
-      setNum(String(str));
-      setTotals(String(str));
-    }
-    else if (toggle === 2) {
-      // addNum数字
-      orders = [addNum];
-      orders.push(String(keys));
-      str = orders.join('');
-      setAddNum(String(str));
-      setTotals(num + Addition + String(str));
-      setCompleteText('=');
-    }
-    else if (toggle === 3) {
-      // 加减拼接
-
-      if (addNum !== '') {
-        if (addNum === '.') {
-          if (keys === '+' || keys === '-') {
-            setAddition(String(keys));
-            setAddNum('');
-            setTotals(num + String(keys));
-            return;
-          }
-          else if (keys === '') {
-            setAddition(String(keys));
-            setAddNum('');
-            setTotals(num);
-            return num;
-          }
-          return;
-        }
-
-        if (Addition === '+') {
-          const num1 = Number(num) * 10 * 10;
-          const num2 = Number(addNum) * 10 * 10;
-          const NewTotals = (num1 + num2) / 100;
-          setNum(String(NewTotals));
-          setAddNum('');
-          setTotals(String(NewTotals) + keys);
-          setAddition(String(keys));
-          setCompleteText('完成');
-          return String(NewTotals);
-        }
-        else if (Addition === '-') {
-          const num1 = Number(num) * 10 * 10;
-          const num2 = Number(addNum) * 10 * 10;
-          const NewTotals = (num1 - num2) / 100;
-          setNum(String(NewTotals));
-          setAddNum('');
-          setTotals(String(NewTotals) + keys);
-          setAddition(String(keys));
-          setCompleteText('完成');
-          return String(NewTotals);
-        }
-      }
-      else if (addNum === '') {
-        // 不存在的时候
-        setAddition(String(keys));
-        setTotals(num + String(keys));
-        return num;
-      }
-    }
-    else if (toggle === 4) {
-      // 小数点
-
-      if (!Addition.includes('+') && !Addition.includes('-')) {
-        if (num.includes('.'))
-          return;
-        // 加减都不存在,就赋值给num
-        if (totals === '0') {
-          setNum(`0${String(keys)}`);
-          setTotals(`0${String(keys)}`);
-        }
-        else {
-          setNum(num + String(keys));
-          setTotals(num + String(keys));
-        }
-      }
-      else if (Addition.includes('+') || Addition.includes('-')) {
-        // 减号不在第一位的时候
-        // 并且存在加号或者减号,就赋值给addNum
-        if (addNum.includes('.'))
-          return;
-        setAddNum(addNum + String(keys));
-        setTotals(num + Addition + addNum + String(keys));
-      }
-    }
-    else if (toggle === 5) {
-      // 点击了删除
-      if (!Addition.includes('+') && !Addition.includes('-')) {
-        const newNum = num.slice(0, num.length - 1);
-        if (newNum === '') {
-          setNum('');
-          setTotals('0');
-          return;
-        }
-        setNum(newNum);
-        setTotals(newNum);
-      }
-      else if (Addition.includes('+') || Addition.includes('-')) {
-        const newAddNum = addNum.slice(0, addNum.length - 1);
-
-        let str1;
-        if (lastIndex + 1 === totals.length) {
-          // 删除加号
-          str1 = totals.slice(0, totals.length - 1);
-          setAddition('');
-          setTotals(str1);
-          return;
-        }
-        else if (lastIndex1 + 1 === totals.length) {
-          // 删除减号
-          str1 = totals.slice(0, totals.length - 1);
-          setAddition('');
-          setTotals(str1);
-          return;
-        }
-
-        if (newAddNum === '') {
-          setAddNum('');
-          setTotals(`${num + Addition}`);
-          setCompleteText('完成');
-          return;
-        }
-        setAddNum(newAddNum);
-        setTotals(num + Addition + newAddNum);
-      }
-    }
-  };
-
-  // 数字
-  const changeNumber = (keys: string | number) => {
-    let orders: Array<string> = [];
-    let str;
-
-    if (totals === '-') {
-      return;
-    }
-
-    if (totals === '0' && keys === 0) {
-      return;
-    }
-
-    if (Addition.includes('+') || Addition.includes('-')) {
-      if (addNum.includes('.')) {
-        // 存在点时候，后面就只能跟两个想小数
-        const dianIndex = addNum.indexOf('.');
-        if (addNum.length > dianIndex + 2)
-          return;
-      }
-      else if (addNum.length === 8) {
-        return;
-      }
-      changePing(keys, 2);
-      return;
-    }
-
-    if (num === '0') {
-      orders = [String(keys)];
-      str = String(orders);
-      setNum(str);
-      setTotals(str);
-      return;
-    }
-
-    if (num !== '') {
-      const Index = totals.indexOf('-');
-      if (num.includes('.')) {
-        // 存在点时候，后面就只能跟两个想小数
-        const dianIndex = num.indexOf('.');
-        if (num.length > dianIndex + 2)
-          return;
-      }
-      else if (num.length === 8) {
-        return;
-      }
-      if (Index === 0 && !num.includes('.')) {
-        if (num.length === 9)
-          return;
-      }
-      changePing(keys, 1);
-    }
-    else if (num === '') {
-      orders = [String(keys)];
-      str = String(orders);
-      setNum(str);
-      setTotals(str);
-    }
-  };
-
-  // 小数点
-  const changeDian = (keys: string | number) => {
-    if (totals === '0.00' || totals === '-')
-      return;
-    changePing(keys, 4);
-  };
-
-  // 删除
-  const changeDelete = (keys: string | number) => {
-    changePing(keys, 5);
-  };
-
-  const changeEnd = (_: number, item: { keys: number | string }) => {
-    // 键盘抬起事件
-    setActive(-1);
-    if (active === -2)
-      return;
-    if (typeof item.keys === 'number') {
-      changeNumber(item.keys);
-    }
-    else if (item.keys === '.') {
-      changeDian(item.keys);
-    }
-    else if (item.keys === 'x') {
-      changeDelete(item.keys);
-    }
-  };
-
-  // 这是阻止右键菜单的出现的情况
-  document.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-  });
-
-  // 加号 减号
-  const changeAddFn = (str: string) => {
-    setActive1(-1);
-    if (active === -2) {
-      setActive(-1);
-      return;
-    }
-    if (totals === '0' || totals === '0.00' || totals === '-') {
-      return;
-    }
-    changePing(str, 3);
-  };
-
   const [postRecordMutate] = usePostRecordMutation();
   const [putRecordMutate] = usePutRecordMutation();
 
-  // 完成
-  const changeCompleteFn = async () => {
-    const category = categoryList.find(i => i.id === keyToggle);
+  const defaultDateValue = useMemo(
+    () => (defaultSelectDate ? dayjs(defaultSelectDate).toDate() : undefined),
+    [defaultSelectDate],
+  );
 
+  const [inputToggle, setInputToggle] = useState(false);
+  const [remarkValue, setRemarkValue] = useState('');
+  const [valueDate, setValueDate] = useState(false);
+  const [dateValue, setDateValue] = useState(() => defaultDateValue || dayjs().toDate());
+  const [dateTimeValue, setDateTimeValue] = useState(0);
+  const [active, setActive] = useState(-1);
+  const [active1, setActive1] = useState(-1);
+
+  const dataValueText = useMemo(() => dayjs(dateValue).format('YYYY/MM/DD'), [dateValue]);
+  const isToday = useMemo(() => dayjs().isSame(dateValue, 'day'), [dateValue]);
+
+  // Touch handlers
+  const changeStart = useCallback((index: number) => setActive(index), []);
+  const changeMoves = useCallback((e: React.TouchEvent) => {
+    const el = e.touches[0].target as HTMLElement;
+    const dy = e.touches[0].pageY - el.offsetTop;
+    const dx = e.touches[0].pageX - el.offsetLeft;
+    if (dy < 0 || dy > 46 || dx < 0 || dx > 80) {
+      setActive(-2);
+      setActive1(-1);
+    }
+  }, []);
+
+  const changeEnd = useCallback(
+    (_: number, item: { keys: number | string }) => {
+      setActive(-1);
+      if (active === -2)
+        return;
+      if (typeof item.keys === 'number')
+        calc.inputDigit(item.keys);
+      else if (item.keys === '.')
+        calc.inputDecimal();
+      else if (item.keys === 'x')
+        calc.inputDelete();
+    },
+    [active, calc],
+  );
+
+  const inputOperator = useCallback(
+    (op: string) => {
+      setActive1(-1);
+      if (active === -2) {
+        setActive(-1);
+        return;
+      }
+      calc.inputOperator(op);
+    },
+    [active, calc],
+  );
+
+  // Submit (create or edit)
+  const handleSubmit = useCallback(async () => {
+    const category = categoryList.find(i => i.id === keyToggle);
     if (!category) {
-      Toast.show({ content: '请选择分类' });
+      Toast.show({ content: t('bookkeeping.chooseCategory') });
       return;
     }
 
@@ -380,256 +109,190 @@ const Keyboard: FC<keyType> = ({
       setActive(-1);
       return;
     }
-    let newTotals;
-    if (Addition === '+' || Addition === '-') {
-      newTotals = changePing('', 3);
-    }
-    else if (Addition !== '+' && Addition !== '-') {
-      newTotals = totals;
-    }
-    const str = Number(newTotals);
-    if (totals === '0' || totals === '0.00' || totals === '-') {
-      return;
-    }
-    if (Addition)
-      return;
-    if (completeText !== '完成')
+    if (!calc.canSubmit())
       return;
 
-    const time1 = dayjs(dateValue).toISOString();
+    const resolvedAmount = calc.resolveAmount();
+    if (!resolvedAmount)
+      return;
+
+    const time = dayjs(dateValue).toISOString();
     const remark = remarkValue === '' ? name : remarkValue;
-
-    const data = {
+    const data: PutRecordApiData = {
       remark,
       categoryId: Number(keyToggle),
-      time: time1,
+      time,
       type: category.type,
-      amount: String(str),
-    } as PutRecordApiData;
+      amount: String(Number(resolvedAmount)),
+    };
 
     if (stateList[0] !== '') {
-      // 编辑
-      if (DateTimeValue !== 0) {
-        data.time = time1;
-      }
-      else {
+      // Edit
+      if (dateTimeValue === 0)
         data.time = stateList[1];
-      }
-      const edit = await putRecordMutate({
-        id: `${stateList[2]}`,
-        data,
-      });
+      const edit = await putRecordMutate({ id: `${stateList[2]}`, data });
       if (edit.statusCode === 200) {
         Toast.show({ content: edit.message });
-        const chunk = Object.assign(state, data);
+        const chunk = Object.assign(state, data) as any;
         chunk.status = true;
         navigate(`/editing/${state.id}`, { state: chunk, replace: true });
       }
     }
-    else if (stateList[0] === '') {
-      // 新增
-      data.time = time1;
+    else {
+      // Create
       const res = await postRecordMutate(data);
       if (res.statusCode === 200) {
         Toast.show({ content: res.message });
         if (defaultDateValue) {
-          navigate(`/record-calendar?selectTime=${dayjs(defaultSelectDate).valueOf()}`, { replace: true });
+          navigate(
+            `/record-calendar?selectTime=${dayjs(defaultSelectDate).valueOf()}`,
+            { replace: true },
+          );
         }
         else {
           navigate(-1);
         }
       }
     }
-  };
+  }, [
+    categoryList,
+    keyToggle,
+    calc,
+    dateValue,
+    remarkValue,
+    name,
+    stateList,
+    dateTimeValue,
+    putRecordMutate,
+    postRecordMutate,
+    state,
+    navigate,
+    defaultDateValue,
+    defaultSelectDate,
+    active,
+    t,
+  ]);
 
-  // 加减以及完成的点击高亮
-  const changeStart1 = (index: number) => {
-    // 长按事件
-    setActive1(index);
-  };
-
-  const onCustomRenderToggle = () => {
-    // 显示组件
-    setValueDate(true);
-  };
-
-  const onChangeDateRender = () => {
-    // 关闭组件
-    setValueDate(false);
-  };
-
-  const inputOnBlur = () => {
-    change(false);
-    setInputToggle(false);
-  };
-
-  const inputOnFocus = () => {
-    change(true);
-    setInputToggle(true);
-  };
-
-  // TODO: any
-  const changeRemark = (e: any) => {
-    // 备注
-    setRemarkValue(e.target.value);
-  };
-
-  const changeTime = (value: Date, time: number) => {
-    // 选择的时间
-    // value 这是子组件返回的渲染的日期
-    // time 这是子组件返回的时间戳的参数
-    setDateTimeValue(time);
-    setDateValue(value);
-  };
-
-  function isToday(value: Date) {
-    return dayjs().isSame(value, 'day');
-  }
-
-  const changShow = async () => {
-    // 回显
+  // Init form from edit state
+  useEffect(() => {
     if (name) {
-      const iconNameArr: Array<string> = [];
-      categoryList.forEach((item) => {
-        iconNameArr.push(item.name);
-      });
-      if (iconNameArr.includes(name)) {
-        setRemarkValue('');
-      }
-      else {
-        setRemarkValue(name);
-      }
+      const iconNames = categoryList.map(i => i.name);
+      setRemarkValue(iconNames.includes(name) ? '' : name);
     }
     if (stateList[0] !== '') {
-      setNum(stateList[0]);
-      setTotals(stateList[0]);
+      calc.setNum(stateList[0]);
+      calc.setTotals(stateList[0]);
       setDateValue(new Date(stateList[1]));
     }
-  };
+  }, [stateList, name, categoryList, calc]);
 
+  // Prevent context menu
   useEffect(() => {
-    void changShow();
-  }, [stateList]);
+    const handler = (e: Event) => e.preventDefault();
+    document.addEventListener('contextmenu', handler);
+    return () => document.removeEventListener('contextmenu', handler);
+  }, []);
+
+  if (keyToggle <= -1)
+    return null;
 
   return (
-    <>
-      {keyToggle > -1
-      // eslint-disable-next-line style/multiline-ternary
-        ? (
-            <div className={styles.keyBoard}>
-              <div className={styles.top}>
-                <div>
-                  <span>备注:</span>
-                  <input
-                    type="text"
-                    placeholder="点击写备注..."
-                    value={remarkValue}
-                    onChange={changeRemark}
-                    onBlur={() => inputOnBlur()}
-                    onFocus={() => inputOnFocus()}
-                    onKeyDown={async (e) => {
-                      if (e.key === 'Enter') {
-                        e.stopPropagation();
-                        await changeCompleteFn();
-                      }
-                    }}
-                  />
-                </div>
-                <span className={styles.total}>{totals}</span>
-              </div>
-              {!inputToggle
-              // eslint-disable-next-line style/multiline-ternary
+    <div className={styles.keyBoard}>
+      <div className={styles.top}>
+        <div>
+          <span>
+            {t('bookkeeping.note')}
+            :
+          </span>
+          <input
+            type="text"
+            placeholder={t('bookkeeping.notePlaceholder')}
+            value={remarkValue}
+            onChange={e => setRemarkValue(e.target.value)}
+            onBlur={() => {
+              change(false);
+              setInputToggle(false);
+            }}
+            onFocus={() => {
+              change(true);
+              setInputToggle(true);
+            }}
+            onKeyDown={async (e) => {
+              if (e.key === 'Enter') {
+                e.stopPropagation();
+                await handleSubmit();
+              }
+            }}
+          />
+        </div>
+        <span className={styles.total}>{calc.totals}</span>
+      </div>
+
+      {!inputToggle && (
+        <div className={styles.main}>
+          <div className={styles.numbers}>
+            {KEYPAD_LAYOUT.map((item, index) => (
+              <button
+                key={String(item.keys)}
+                className={classNames([styles.keys, active === index ? styles.active : ''])}
+                onTouchStart={() => changeStart(index)}
+                onTouchMove={changeMoves}
+                onTouchEnd={() => changeEnd(index, item)}
+              >
+                {item.keys}
+              </button>
+            ))}
+          </div>
+
+          <div className={styles.right}>
+            <div
+              className={classNames([styles.bor, active1 === 4 ? styles.active : ''])}
+              onTouchStart={() => changeStart(5)}
+              onTouchMove={changeMoves}
+              onClick={() => setValueDate(true)}
+            >
+              <CustomRender
+                dateValue={dateValue}
+                valueDate={valueDate}
+                change={() => setValueDate(false)}
+                changeTime={(value: Date, time: number) => {
+                  setDateTimeValue(time);
+                  setDateValue(value);
+                }}
+              />
+              {isToday
                 ? (
-                    <div className={styles.main}>
-                      <div className={styles.numbers}>
-                        {ArrayList.map((item, index) => (
-                          <button
-                            key={index}
-                            className={classNames([
-                              styles.keys,
-                              active === index ? styles.active : '',
-                            ])}
-                            onTouchStart={() => changeStart(index)}
-                            onTouchMove={changeMoves}
-                            onTouchEnd={() => changeEnd(index, item)}
-                          >
-                            {item.keys}
-                          </button>
-                        ))}
-                      </div>
-                      <div className={styles.right}>
-                        <div
-                          className={classNames([
-                            styles.bor,
-                            active1 === 4 ? styles.active : '',
-                          ])}
-                          onTouchStart={() => changeStart1(5)} // TODO onTouchEnd事件捕获修复在改为4
-                          onTouchMove={changeMoves}
-                          onClick={onCustomRenderToggle}
-                        >
-                          <CustomRender
-                            dateValue={dateValue}
-                            valueDate={valueDate}
-                            change={() => onChangeDateRender()}
-                            changeTime={changeTime}
-                          >
-                          </CustomRender>
-                          {isToday(dateValue)
-                            ? (
-                                <>
-                                  <Icon name="today" style={{ fontSize: 21 }} />
-                                  <span>今天</span>
-                                </>
-                              )
-                            : (
-                                <span>{dataValueText}</span>
-                              )}
-                        </div>
-                        <div
-                          className={classNames([
-                            styles.bor,
-                            active1 === 1 ? styles.active : '',
-                          ])}
-                          onTouchStart={() => changeStart1(1)}
-                          onTouchMove={changeMoves}
-                          onTouchEnd={() => changeAddFn('+')}
-                        >
-                          +
-                        </div>
-                        <div
-                          className={classNames([
-                            styles.bor,
-                            active1 === 2 ? styles.active : '',
-                          ])}
-                          onTouchStart={() => changeStart1(2)}
-                          onTouchMove={changeMoves}
-                          onTouchEnd={() => changeAddFn('-')}
-                        >
-                          -
-                        </div>
-                        <div
-                          className={classNames([
-                            styles.bor,
-                            active1 === 3 ? styles.active1 : '',
-                          ])}
-                          onTouchStart={() => changeStart1(3)}
-                          onTouchMove={changeMoves}
-                          onTouchEnd={async () => {
-                            await changeCompleteFn();
-                          }}
-                        >
-                          {completeText}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    ''
-                  )}
+                    <>
+                      <Icon name="today" style={{ fontSize: 21 }} />
+                      <span>{t('common:time.today')}</span>
+                    </>
+                  )
+                : <span>{dataValueText}</span>}
             </div>
-          ) : (
-            ''
-          )}
-    </>
+            {['+', '-'].map(op => (
+              <div
+                key={op}
+                className={classNames([styles.bor, active1 === (op === '+' ? 1 : 2) ? styles.active : ''])}
+                onTouchStart={() => changeStart(op === '+' ? 1 : 2)}
+                onTouchMove={changeMoves}
+                onTouchEnd={() => inputOperator(op)}
+              >
+                {op}
+              </div>
+            ))}
+            <div
+              className={classNames([styles.bor, active1 === 3 ? styles.active1 : ''])}
+              onTouchStart={() => changeStart(3)}
+              onTouchMove={changeMoves}
+              onTouchEnd={handleSubmit}
+            >
+              {calc.completeText}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
+
 export default Keyboard;
