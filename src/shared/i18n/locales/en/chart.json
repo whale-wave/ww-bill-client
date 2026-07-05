@@ -1,0 +1,34 @@
+{
+  "title": "Charts",
+  "category": "Category Stats",
+  "categoryDetail": "Category Detail",
+  "categoryStat": "Category Statistics",
+  "categoryAmount": "Category Amount",
+  "percent": "Percentage",
+  "period": "Period",
+  "periodTotal": "Period Total",
+  "average": "Average",
+  "currentPeriod": "Current Period",
+  "recordList": "Record List",
+  "noRecords": "No records",
+  "missingParams": "Missing category parameters",
+  "missingParamsHint": "Please enter from chart ranking.",
+  "loadFail": "Failed to load category stats",
+  "loadFailHint": "Please go back and try again.",
+  "byPeriod": "By {{period}}",
+  "ranking": {
+    "title": "Ranking",
+    "amount": "Amount",
+    "percent": "Percentage",
+    "count": "Count"
+  },
+  "tabs": {
+    "week": "Week",
+    "month": "Month",
+    "year": "Year"
+  },
+  "amount": {
+    "income": "Income",
+    "expend": "Expense"
+  }
+}

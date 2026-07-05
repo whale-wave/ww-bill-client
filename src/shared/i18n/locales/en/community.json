@@ -1,0 +1,38 @@
+{
+  "title": "Community",
+  "postTopic": "Post",
+  "topicDetail": "Topic Detail",
+  "comment": "Comments",
+  "reply": "Reply",
+  "commentList": "All Comments",
+  "follow": "Follow",
+  "followList": "Following",
+  "newFollow": "New Followers",
+  "personal": "Profile",
+  "post": {
+    "title": "New Post",
+    "content": "Share your thoughts...",
+    "publish": "Publish",
+    "publishSuccess": "Published successfully",
+    "participate": "Join Topic"
+  },
+  "share": {
+    "title": "Share",
+    "billShare": "Bill Share",
+    "shareBill": "Share Bill",
+    "shareSuccess": "Shared successfully",
+    "shareToFriend": "Share to Friend",
+    "noData": "No share image available",
+    "saved": "Image saved",
+    "saveFail": "Failed to save image, please try again",
+    "success": "Shared successfully",
+    "copied": "Link copied",
+    "unsupported": "Share not supported in this environment",
+    "cancelled": "Share cancelled",
+    "fail": "Failed to share, please try again",
+    "empty": "Nothing to share",
+    "emptyHint": "Please enter the share page from bill or record."
+  },
+  "like": "Like",
+  "noMore": "No more content"
+}

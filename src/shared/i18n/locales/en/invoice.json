@@ -1,0 +1,16 @@
+{
+  "title": "Invoice",
+  "create": "Add Invoice",
+  "detail": "Invoice Details",
+  "edit": "Edit Invoice",
+  "delete": "Delete",
+  "form": {
+    "name": "Invoice Title",
+    "amount": "Amount",
+    "number": "Invoice Number",
+    "date": "Invoice Date",
+    "type": "Type",
+    "note": "Note",
+    "save": "Save"
+  }
+}

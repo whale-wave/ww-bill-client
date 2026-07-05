@@ -1,0 +1,13 @@
+{
+  "title": "Bill",
+  "income": "Income",
+  "expend": "Expense",
+  "balance": "Balance",
+  "surplus": "Surplus",
+  "monthCard": {
+    "title": "Bill",
+    "income": "Income",
+    "expend": "Expense",
+    "surplus": "Surplus"
+  }
+}

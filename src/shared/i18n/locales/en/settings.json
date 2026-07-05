@@ -1,0 +1,45 @@
+{
+  "title": "Settings",
+  "personal": "Personalization",
+  "account": {
+    "title": "Account Settings"
+  },
+  "category": {
+    "title": "Category Settings"
+  },
+  "language": {
+    "title": "Language",
+    "switch": "Language",
+    "zh-CN": "中文",
+    "en": "English",
+    "changed": "Language changed"
+  },
+  "sound": {
+    "title": "Sound Settings",
+    "effect": "Sound Effects",
+    "effectDesc": "Still shown in list when disabled"
+  },
+  "amount": {
+    "title": "Amount Settings",
+    "visible": "Hide Total Amount",
+    "visibleDesc": "Hide home page total amount when enabled",
+    "decimal": "Decimal Places"
+  },
+  "function": {
+    "title": "Functions"
+  },
+  "dataSecurity": "Data & Security",
+  "export": "Export Data",
+  "about": "About WhaleWave",
+  "invite": "Invite Friends",
+  "system": "System",
+  "storage": {
+    "title": "Cache Management",
+    "size": "Cache Size",
+    "clear": "Clear Cache",
+    "cleared": "Cache cleared"
+  },
+  "notify": {
+    "title": "System Notifications"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "nav": {
+    "back": "Back",
+    "save": "Save",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "close": "Close",
+    "loading": "Loading...",
+    "uploading": "Uploading...",
+    "next": "Next"
+  },
+  "action": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "search": "Search",
+    "share": "Share",
+    "export": "Export",
+    "logout": "Logout",
+    "saveChange": "Save Changes",
+    "create": "Create"
+  },
+  "tabBar": {
+    "detail": "Records",
+    "chart": "Charts",
+    "bookkeeping": "Book",
+    "discovery": "Discover",
+    "mine": "Me"
+  },
+  "error": {
+    "loadFail": "Failed to load, please try again",
+    "saveFail": "Failed to save, please try again",
+    "shareFail": "Failed to share, please try again",
+    "saveImageFail": "Failed to save image, please try again",
+    "networkError": "Network error, please try again"
+  },
+  "confirm": {
+    "delete": "Confirm Delete",
+    "deleteWarning": "Data cannot be recovered after deletion!",
+    "deleteSuccess": "Deleted successfully"
+  },
+  "time": {
+    "today": "Today",
+    "month": "",
+    "year": "",
+    "day": ""
+  },
+  "amount": {
+    "income": "Income",
+    "expend": "Expense",
+    "balance": "Balance",
+    "surplus": "Surplus"
+  },
+  "empty": "No data"
+}

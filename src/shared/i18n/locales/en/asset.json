@@ -1,0 +1,30 @@
+{
+  "title": "Assets",
+  "netAsset": "Net Assets",
+  "netAssetChart": "Net Asset Trend",
+  "addAsset": "Add Asset",
+  "addAccount": "Add Account",
+  "assetDetail": "Asset Details",
+  "deleteAsset": "Delete Asset",
+  "adjustAsset": "Adjust Asset",
+  "form": {
+    "title": "Asset Info",
+    "name": "Asset Name",
+    "amount": "Amount",
+    "type": "Type",
+    "account": "Account",
+    "save": "Save",
+    "saveSuccess": "Saved successfully",
+    "note": "Note",
+    "noteHint": "Fill in the basic info to create"
+  },
+  "types": {
+    "cash": "Cash",
+    "bank": "Bank Card",
+    "alipay": "Alipay",
+    "wechat": "WeChat",
+    "invest": "Investment",
+    "loan": "Loan",
+    "other": "Other"
+  }
+}

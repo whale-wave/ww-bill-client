@@ -1,10 +1,11 @@
 import type { FC, ReactNode } from 'react';
-import { List, Switch, Toast } from 'antd-mobile';
-import { useState } from 'react';
+import { ActionSheet, List, Switch, Toast } from 'antd-mobile';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
 import { ROUTES_PATH } from '@/shared/config/routes';
-import { useTranslation } from '@/shared/i18n';
+import { i18n, SUPPORTED_LANGS, useTranslation } from '@/shared/i18n';
+import type { SupportedLang } from '@/shared/i18n';
 import { clearLocalStorage, getLocalStorageSize } from '@/shared/lib';
 import { audioWeb, playSound } from '@/shared/lib/play-sound';
 import { Gap, NavBar } from '@/shared/ui';
@@ -70,6 +71,24 @@ const Settings: FC = () => {
     playSound.click();
   };
 
+  const currentLang = useMemo(() => i18n.language as SupportedLang, []);
+
+  const handleSwitchLang = useCallback(() => {
+    const langEntries = Object.entries(SUPPORTED_LANGS) as [SupportedLang, string][];
+    ActionSheet.show({
+      actions: langEntries.map(([key, label]) => ({
+        text: label,
+        key,
+        bold: key === currentLang,
+        onClick: () => {
+          i18n.changeLanguage(key);
+          Toast.show(t('language.changed'));
+        },
+      })),
+      cancelText: t('common:nav.cancel'),
+    });
+  }, [currentLang, t]);
+
   const clearCache = () => {
     clearLocalStorage();
     setLocalStorageSize(getLocalStorageSize());
@@ -95,6 +114,15 @@ const Settings: FC = () => {
     },
   ] as CustomListItem[];
   const personalizedSettingsListGroup = [
+    {
+      title: t('language.switch'),
+      extra: (
+        <span className="text-[14px] text-[#969696]">
+          {SUPPORTED_LANGS[currentLang]}
+        </span>
+      ),
+      onClick: handleSwitchLang,
+    },
     {
       title: t('sound.effect'),
       extra: <Switch checked={canPlay} onChange={handleSoundSwitch} />,

@@ -1,0 +1,34 @@
+{
+  "info": {
+    "title": "Profile",
+    "avatar": "Avatar",
+    "accountId": "Account ID",
+    "email": "Email",
+    "nickname": "Nickname",
+    "changeNickname": "Change Nickname",
+    "changeEmail": "Change Email",
+    "namePlaceholder": "Enter 2-12 character nickname"
+  },
+  "password": {
+    "title": "Change Password",
+    "oldPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "save": "Save Changes",
+    "saveSuccess": "Saved successfully"
+  },
+  "email": {
+    "title": "Change Email",
+    "newEmail": "New Email",
+    "captcha": "Verification Code",
+    "sendCaptcha": "Send Code",
+    "verify": "Verify",
+    "change": "Change",
+    "success": "Email changed successfully"
+  },
+  "checkIn": {
+    "keep": "Streak Days",
+    "allDays": "Total Days",
+    "recordCount": "Total Records"
+  }
+}

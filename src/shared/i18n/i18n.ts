@@ -1,37 +1,68 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-
 import { DEFAULT_LANG } from './config';
 import { detectLanguage } from './detector';
-// Locale JSON imports — all loaded at build time since the app is small enough
-import asset from './locales/zh-CN/asset.json';
-import auth from './locales/zh-CN/auth.json';
-import bill from './locales/zh-CN/bill.json';
-import budget from './locales/zh-CN/budget.json';
-import chart from './locales/zh-CN/chart.json';
-import common from './locales/zh-CN/common.json';
-import community from './locales/zh-CN/community.json';
-import fixedExpense from './locales/zh-CN/fixed-expense.json';
-import invoice from './locales/zh-CN/invoice.json';
-import record from './locales/zh-CN/record.json';
 
-import settings from './locales/zh-CN/settings.json';
-import user from './locales/zh-CN/user.json';
+// zh-CN locales
+import zhAsset from './locales/zh-CN/asset.json';
+import zhAuth from './locales/zh-CN/auth.json';
+import zhBill from './locales/zh-CN/bill.json';
+import zhBudget from './locales/zh-CN/budget.json';
+import zhChart from './locales/zh-CN/chart.json';
+import zhCommon from './locales/zh-CN/common.json';
+import zhCommunity from './locales/zh-CN/community.json';
+import zhFixedExpense from './locales/zh-CN/fixed-expense.json';
+import zhInvoice from './locales/zh-CN/invoice.json';
+import zhRecord from './locales/zh-CN/record.json';
+import zhSettings from './locales/zh-CN/settings.json';
+import zhUser from './locales/zh-CN/user.json';
+
+// en locales
+import enAsset from './locales/en/asset.json';
+import enAuth from './locales/en/auth.json';
+import enBill from './locales/en/bill.json';
+import enBudget from './locales/en/budget.json';
+import enChart from './locales/en/chart.json';
+import enCommon from './locales/en/common.json';
+import enCommunity from './locales/en/community.json';
+import enFixedExpense from './locales/en/fixed-expense.json';
+import enInvoice from './locales/en/invoice.json';
+import enRecord from './locales/en/record.json';
+import enSettings from './locales/en/settings.json';
+import enUser from './locales/en/user.json';
+
+export type { SupportedLang } from './config';
+export { SUPPORTED_LANGS, DEFAULT_LANG } from './config';
+export { detectLanguage, setLanguage } from './detector';
 
 const resources = {
   'zh-CN': {
-    asset,
-    auth,
-    bill,
-    budget,
-    chart,
-    common,
-    community,
-    'fixed-expense': fixedExpense,
-    invoice,
-    record,
-    settings,
-    user,
+    asset: zhAsset,
+    auth: zhAuth,
+    bill: zhBill,
+    budget: zhBudget,
+    chart: zhChart,
+    common: zhCommon,
+    community: zhCommunity,
+    'fixed-expense': zhFixedExpense,
+    invoice: zhInvoice,
+    record: zhRecord,
+    settings: zhSettings,
+    user: zhUser,
+  },
+  en: {
+    asset: enAsset,
+    auth: enAuth,
+    bill: enBill,
+    budget: enBudget,
+    chart: enChart,
+    common: enCommon,
+    community: enCommunity,
+    'fixed-expense': enFixedExpense,
+    invoice: enInvoice,
+    record: enRecord,
+    settings: enSettings,
+    user: enUser,
   },
 };
 
@@ -40,7 +71,7 @@ i18n.use(initReactI18next).init({
   lng: detectLanguage(),
   fallbackLng: DEFAULT_LANG,
   interpolation: {
-    escapeValue: false, // React already escapes output
+    escapeValue: false,
   },
 });
 

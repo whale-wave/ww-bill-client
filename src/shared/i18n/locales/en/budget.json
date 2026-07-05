@@ -1,0 +1,22 @@
+{
+  "title": "Budget",
+  "totalBudget": "Total Budget",
+  "categoryBudget": "Category Budget",
+  "remain": "Remaining",
+  "used": "Used",
+  "percent": "Percentage",
+  "createCategory": "Create Category Budget",
+  "exceedWarning": "Category budgets exceed total budget",
+  "actions": {
+    "clear": "Clear",
+    "save": "Confirm",
+    "delete": "Delete",
+    "cancel": "Cancel"
+  },
+  "model": {
+    "title": "Budget Type",
+    "summary": "Total Budget",
+    "category": "Category Budget",
+    "amountPlaceholder": "Enter budget amount"
+  }
+}

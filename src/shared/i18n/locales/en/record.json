@@ -1,0 +1,36 @@
+{
+  "bookkeeping": {
+    "title": "Add Record",
+    "amount": "Amount",
+    "note": "Note",
+    "notePlaceholder": "Add a note...",
+    "save": "Save",
+    "income": "Income",
+    "expend": "Expense",
+    "category": "Category",
+    "chooseCategory": "Please select a category",
+    "saveSuccess": "Saved successfully"
+  },
+  "detail": {
+    "title": "Records",
+    "income": "Income",
+    "expend": "Expense",
+    "balance": "Balance",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Confirm Delete",
+    "deleteWarning": "Data cannot be recovered after deletion!"
+  },
+  "editing": {
+    "title": "Edit Record"
+  },
+  "calendar": {
+    "title": "Calendar",
+    "noRecord": "No records"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search records...",
+    "noResult": "No results"
+  }
+}
