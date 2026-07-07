@@ -8,6 +8,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { i18n, SUPPORTED_LANGS, useTranslation } from '@/shared/i18n';
 import { clearLocalStorage, getLocalStorageSize } from '@/shared/lib';
 import { audioWeb, playSound } from '@/shared/lib/play-sound';
+import { useSeniorMode } from '@/shared/lib/senior-mode';
 import { Gap, NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
@@ -24,6 +25,7 @@ const Settings: FC = () => {
   const { data: userAppConfig } = useGetUserAppConfigQuery();
   const canPlay = userAppConfig?.isOpenSoundEffect ?? false;
   const visibleAmountSwitch = userAppConfig?.isDisplayAmountSwitch ?? false;
+  const { isSeniorMode, toggleSeniorMode } = useSeniorMode();
 
   const [patchUserAppConfigMutate] = usePatchUserAppConfigMutation();
   const [localStorageSize, setLocalStorageSize] = useState(() => getLocalStorageSize());
@@ -128,6 +130,11 @@ const Settings: FC = () => {
     {
       title: t('sound.effect'),
       extra: <Switch checked={canPlay} onChange={handleSoundSwitch} />,
+    },
+    {
+      title: t('seniorMode.switch'),
+      description: t('seniorMode.desc'),
+      extra: <Switch checked={isSeniorMode} onChange={toggleSeniorMode} />,
     },
   ];
   const dataSecurityListGroup = [

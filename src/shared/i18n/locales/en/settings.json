@@ -44,5 +44,9 @@
   },
   "amountVisible": {
     "description": "Hide home page totals"
+  },
+  "seniorMode": {
+    "switch": "Senior Mode",
+    "desc": "Enlarge fonts globally for better readability"
   }
 }

@@ -44,5 +44,9 @@
   },
   "amountVisible": {
     "description": "开启后, 默认隐藏首页总收支金额"
+  },
+  "seniorMode": {
+    "switch": "老人模式",
+    "desc": "开启后将放大全局字体，更适合长辈使用"
   }
 }
