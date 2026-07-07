@@ -1,4 +1,4 @@
-import type { Dayjs } from 'dayjs';
+import dayjs, { type Dayjs } from 'dayjs';
 import type { recordChildren } from '@/entities/record';
 import { useEffect, useState } from 'react';
 import { useGetRecordQuery } from '@/entities/record';

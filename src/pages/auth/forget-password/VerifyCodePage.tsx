@@ -1,4 +1,4 @@
-import type { Dayjs } from 'dayjs';
+import dayjs, { type Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import { Button } from 'antd-mobile';
 import { useCallback, useEffect, useMemo, useState } from 'react';

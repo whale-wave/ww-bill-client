@@ -1,4 +1,4 @@
-import type { Dayjs } from 'dayjs';
+import dayjs, { type Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import type { recordChildren } from '@/entities/record';
 import c from 'classnames';

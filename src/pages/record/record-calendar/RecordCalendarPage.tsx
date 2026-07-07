@@ -1,6 +1,7 @@
 import { CalendarPickerView, ErrorBlock, FloatingBubble, NavBar } from 'antd-mobile';
 import { AddOutline, DownFill } from 'antd-mobile-icons';
 import classNames from 'classnames';
+import dayjs from 'dayjs';
 import React from 'react';
 import { RecordList } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
