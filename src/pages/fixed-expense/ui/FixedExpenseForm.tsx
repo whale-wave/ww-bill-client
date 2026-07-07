@@ -369,7 +369,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
         collapsible
         defaultOpen={false}
       >
-        <Form.Item name="currency" label={t('form.currency')} description={t('form.currency.defaultCny')}>
+        <Form.Item name="currency" label={t('form.currency.label')} description={t('form.currency.defaultCny')}>
           <Selector columns={3} options={currencyOptions} />
         </Form.Item>
         <Form.Item

@@ -27,7 +27,7 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
       },
       {
         type: 'sub',
-        name: t('type.expend'),
+        name: t('type.expense'),
         amount: 0,
       },
     ];

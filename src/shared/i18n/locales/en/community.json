@@ -37,7 +37,13 @@
     "content": "Share your thoughts...",
     "publish": "Publish",
     "publishSuccess": "Published successfully",
-    "participate": "Join Topic"
+    "participate": "Join Topic",
+    "success": "Published",
+    "maxImages": "Max {{count}} images",
+    "uploading": "Uploading...",
+    "joinTopic": "Join topic",
+    "topicTip": "Choose a topic to reach more people",
+    "publishButton": "Publish"
   },
   "share": {
     "title": "Share",

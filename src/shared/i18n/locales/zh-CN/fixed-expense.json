@@ -13,7 +13,10 @@
     "amount": "金额",
     "amountPlaceholder": "请输入金额",
     "amountRequired": "请输入金额",
-    "currency": "币种",
+    "currency": {
+      "label": "币种",
+      "defaultCny": "默认使用人民币"
+    },
     "cycle": "支出周期",
     "customCycleDays": "自定义天数",
     "customDaysMin": "自定义天数必须 >= 1",
@@ -81,7 +84,13 @@
     "addFixedExpense": "添加固定支出",
     "monthlyExpense": "生效中月支出",
     "total": "合计",
-    "items": "项"
+    "items": "项",
+    "todayDue": "今天到期",
+    "tomorrowDue": "明天到期",
+    "daysLaterDue": "{{days}}天后到期",
+    "dateDue": "{{date}}到期",
+    "yesterdayOverdue": "昨天已逾期",
+    "overdueDays": "已逾期{{days}}天"
   },
   "summary": {
     "monthlyExpected": "月预计支出",

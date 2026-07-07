@@ -25,10 +25,10 @@ const List: FC<stateType> = ({ state }) => {
     const weekByDay = getWeekByDay(timeDate1);
 
     return [
-      { label: t('detail.type'), value: typeMap[state.type] || state.type },
-      { label: t('detail.amount'), value: state.amount },
-      { label: t('detail.date'), value: `${timeDate}  ${weekByDay}` },
-      { label: t('detail.remark'), value: state.remark },
+      { label: t('edit.type'), value: typeMap[state.type] || state.type },
+      { label: t('edit.amount'), value: state.amount },
+      { label: t('edit.date'), value: `${timeDate}  ${weekByDay}` },
+      { label: t('edit.remark'), value: state.remark },
     ];
   }, [state]);
 
@@ -42,7 +42,7 @@ const List: FC<stateType> = ({ state }) => {
           </span>
         </div>
       ))}
-      <FixedPin>{t('detail.share')}</FixedPin>
+      <FixedPin>{t('edit.share')}</FixedPin>
     </div>
   );
 };

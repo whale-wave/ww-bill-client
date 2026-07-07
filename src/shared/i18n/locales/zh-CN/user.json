@@ -66,6 +66,8 @@
       "verify": "验证"
     },
     "back": "返回",
-    "submit": "修改"
+    "submit": "修改",
+    "verifyEmail": "请验证新邮箱",
+    "enterCaptcha": "请输入验证码"
   }
 }

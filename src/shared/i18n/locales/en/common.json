@@ -47,7 +47,25 @@
     "month": "",
     "year": "",
     "day": "",
-    "week": "Week"
+    "week": "Week",
+    "hour": "h",
+    "minute": "m",
+    "second": "s",
+    "relative": {
+      "future": "in {{s}}",
+      "past": "{{s}} ago",
+      "justNow": "just now",
+      "oneMinAgo": "1 minute ago",
+      "minutesAgo": "{{count}} minutes ago",
+      "oneHourAgo": "1 hour ago",
+      "hoursAgo": "{{count}} hours ago",
+      "oneDayAgo": "1 day ago",
+      "daysAgo": "{{count}} days ago",
+      "oneMonthAgo": "1 month ago",
+      "monthsAgo": "{{count}} months ago",
+      "oneYearAgo": "1 year ago",
+      "yearsAgo": "{{count}} years ago"
+    }
   },
   "amount": {
     "income": "Income",
@@ -114,7 +132,9 @@
     "longDate": "{{year}}-{{month}}-{{day}}"
   },
   "placeholder": {
-    "writeComment": "Write a comment..."
+    "writeComment": "Write a comment...",
+    "selectStartTime": "Select start time",
+    "selectEndTime": "Select end time"
   },
   "share": {
     "collect": "Collect",
@@ -141,7 +161,9 @@
     "selectStartTime": "Select start time",
     "selectEndTime": "Select end time",
     "exportSuccess": "Export successful",
-    "fileName": "{{appName}}_{{startTime}}_{{endTime}}.xlsx"
+    "fileName": "{{appName}}_{{startTime}}_{{endTime}}.xlsx",
+    "totalExpense": "Total Expenses",
+    "noDate": "No date"
   },
   "avatar": "Avatar",
   "coverImage": "Cover"

@@ -1,5 +1,6 @@
 {
   "title": "资产管理",
+  "assetChartTitle": "资产图表",
   "netAsset": "净资产",
   "netAssetChart": "净资产走势图",
   "addAsset": "添加资产",
@@ -57,7 +58,9 @@
     "liabilityTrend": "负债走势图",
     "netAssetTrend": "净资产走势图",
     "assetRanking": "资产排行榜",
-    "liabilityRanking": "负债排行榜"
+    "liabilityRanking": "负债排行榜",
+    "monthSuffix": "月",
+    "yearSuffix": "年"
   },
   "manager": {
     "title": "资产管家",
@@ -83,7 +86,10 @@
   "back": "返回",
   "tab": {
     "assets": "资产",
-    "chart": "图表"
+    "chart": "图表",
+    "asset": "资产",
+    "liability": "负债",
+    "netAsset": "净资产"
   },
   "group": {
     "cash": "现金",

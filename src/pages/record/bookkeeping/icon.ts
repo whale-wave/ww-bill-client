@@ -21,7 +21,7 @@ export function getMainList(): iconType[] {
       icon: 'riyongbaihuo',
     },
     {
-      name: i18n.t('record:category.transportation'),
+      name: i18n.t('record:category.transport'),
       icon: 'jiaotong',
     },
     {
@@ -29,7 +29,7 @@ export function getMainList(): iconType[] {
       icon: 'shucai',
     },
     {
-      name: i18n.t('record:category.fruit'),
+      name: i18n.t('record:category.fruits'),
       icon: 'shuiguo',
     },
     {
@@ -133,7 +133,7 @@ export function getMainList(): iconType[] {
       icon: 'caipiao',
     },
     {
-      name: i18n.t('record:category.friendsFamily'),
+      name: i18n.t('record:category.familyFriends'),
       icon: 'a-24-30_fuzhi-04',
     },
     {

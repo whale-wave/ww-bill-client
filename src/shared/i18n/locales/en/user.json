@@ -66,6 +66,8 @@
       "verify": "Verify"
     },
     "back": "Back",
-    "submit": "Change"
+    "submit": "Change",
+    "verifyEmail": "Verify your new email",
+    "enterCaptcha": "Enter verification code"
   }
 }

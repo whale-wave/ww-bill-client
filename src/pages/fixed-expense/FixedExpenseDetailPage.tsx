@@ -99,7 +99,7 @@ const FixedExpenseDetail: React.FC = () => {
                   <Row label={t('detail.currency')} value={currencyLabelMap[detail.currency]} />
                   <Row label={t('detail.cycle')} value={cycleLabelMap[detail.cycle]} />
                   {detail.cycle === FixedExpenseCycle.CUSTOM && (
-                    <Row label={t('detail.customDays')} value={detail.customCycleDays ? t('detail.days', { days: detail.customCycleDays }) : undefined} />
+                    <Row label={t('detail.customCycleDays')} value={detail.customCycleDays ? t('detail.days', { days: detail.customCycleDays }) : undefined} />
                   )}
                 </Card>
 
@@ -123,7 +123,7 @@ const FixedExpenseDetail: React.FC = () => {
                     <Row label={t('detail.reminderDaysBefore')} value={t('detail.days', { days: detail.reminderDaysBefore })} />
                   )}
                   <Row label={t('detail.includeInStatistics')} value={detail.includeInStatistics ? t('detail.yes') : t('detail.no')} />
-                  <Row label={t('detail.sortWeight')} value={detail.sort} />
+                  <Row label={t('detail.sort')} value={detail.sort} />
                 </Card>
 
                 {detail.comment && (

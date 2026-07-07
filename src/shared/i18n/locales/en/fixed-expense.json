@@ -13,7 +13,10 @@
     "amount": "Amount",
     "amountPlaceholder": "Enter amount",
     "amountRequired": "Please enter amount",
-    "currency": "Currency",
+    "currency": {
+      "label": "Currency",
+      "defaultCny": "Default to CNY"
+    },
     "cycle": "Cycle",
     "customCycleDays": "Custom Days",
     "customDaysMin": "Custom days must be >= 1",
@@ -81,7 +84,13 @@
     "confirmDelete": "Confirm Delete",
     "emptyDescription": "No fixed expenses",
     "items": "items",
-    "total": "Total"
+    "total": "Total",
+    "todayDue": "Due today",
+    "tomorrowDue": "Due tomorrow",
+    "daysLaterDue": "Due in {{days}} days",
+    "dateDue": "Due on {{date}}",
+    "yesterdayOverdue": "Overdue since yesterday",
+    "overdueDays": "{{days}} days overdue"
   },
   "detail": {
     "title": "Fixed Expense Detail",

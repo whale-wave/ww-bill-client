@@ -1,33 +1,39 @@
 {
   "title": "Assets",
+  "assetChartTitle": "Asset Chart",
   "netAsset": "Net Assets",
   "netAssetChart": "Net Asset Trend",
   "addAsset": "Add Asset",
   "addAccount": "Add Account",
-  "assetDetail": "Asset Details",
+  "assetDetail": "Asset Detail",
   "deleteAsset": "Delete Asset",
   "adjustAsset": "Adjust Asset",
+  "setting": "Settings",
+  "confirmDeleteTitle": "Confirm delete this asset?",
+  "confirmDeleteContent": "All asset change records will be deleted together",
+  "confirmDelete": "Confirm Delete",
+  "deleting": "Deleting...",
   "form": {
-    "title": "Asset Info",
+    "title": "Asset Information",
     "name": "Asset Name",
     "amount": "Amount",
     "type": "Type",
     "account": "Account",
     "save": "Save",
-    "saveSuccess": "Saved successfully",
+    "saveSuccess": "Save successful",
     "note": "Note",
-    "noteHint": "Fill in the basic info to create",
+    "noteHint": "Fill in basic info to create",
     "bank": "Bank",
-    "nameRequired": "Please enter name",
+    "nameRequired": "Please enter a name",
     "cardNumber": "Card Number (last 4 digits)",
     "optional": "(Optional)",
-    "remark": "Note",
+    "remark": "Remark",
     "debt": "Debt",
     "balance": "Balance",
     "amountRequired": "Please enter amount",
-    "selectGroup": "Please select group",
+    "selectGroup": "Please select a group",
     "add": "Add",
-    "edit": "Edit"
+    "edit": "Settings"
   },
   "types": {
     "cash": "Cash",
@@ -52,23 +58,25 @@
     "liabilityTrend": "Liability Trend",
     "netAssetTrend": "Net Asset Trend",
     "assetRanking": "Asset Ranking",
-    "liabilityRanking": "Liability Ranking"
+    "liabilityRanking": "Liability Ranking",
+    "monthSuffix": "",
+    "yearSuffix": ""
   },
   "manager": {
-    "title": "Asset Steward",
+    "title": "Asset Manager",
     "asset": "Assets",
     "liability": "Liabilities",
     "netAsset": "Net Assets",
     "addAccount": "Add Account",
-    "emptyDescription": "Update accounts to track your finances",
+    "emptyDescription": "Update asset accounts regularly to manage your finances",
     "confirmDeleteTitle": "Confirm delete this asset?",
-    "confirmDeleteContent": "All records will also be deleted",
+    "confirmDeleteContent": "All asset change records will be deleted together",
     "confirmDelete": "Confirm Delete",
     "deleting": "Deleting..."
   },
   "detail": {
-    "recordList": "Transaction History",
-    "title": "Asset Details"
+    "recordList": "Transaction Records",
+    "title": "Asset Detail"
   },
   "adjust": {
     "current": "Adjust Current",
@@ -78,7 +86,10 @@
   "back": "Back",
   "tab": {
     "assets": "Assets",
-    "chart": "Chart"
+    "chart": "Chart",
+    "asset": "Assets",
+    "liability": "Liabilities",
+    "netAsset": "Net Assets"
   },
   "group": {
     "cash": "Cash",
@@ -89,10 +100,5 @@
     "netWorth": "Net Worth",
     "assets": "Assets",
     "liabilities": "Liabilities"
-  },
-  "confirmDelete": "Confirm Delete",
-  "confirmDeleteContent": "All records will also be deleted",
-  "confirmDeleteTitle": "Confirm delete this asset?",
-  "deleting": "Deleting...",
-  "setting": "Settings"
+  }
 }

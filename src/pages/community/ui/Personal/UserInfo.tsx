@@ -55,12 +55,12 @@ const UserInfo: FC<UserInfoProps> = ({
           <div onClick={() => data && goToFollowListPage(data.id, 'follow')}>
             <span>{followCount || 0}</span>
             {' '}
-            {t('follow.following')}
+            {t('userInfo.followedButton')}
           </div>
           <div onClick={() => data && goToFollowListPage(data.id, 'fans')}>
             <span>{fansCount || 0}</span>
             {' '}
-            {t('follow.fans')}
+            {t('userInfo.fansLabel')}
           </div>
         </div>
       </div>
@@ -69,10 +69,10 @@ const UserInfo: FC<UserInfoProps> = ({
           && data.id !== userInfo?.id
           && (isFollow
             ? (
-                <button onClick={() => unFollowUser(data.id)}>{t('follow.following')}</button>
+                <button onClick={() => unFollowUser(data.id)}>{t('userInfo.followedButton')}</button>
               )
             : (
-                <button onClick={() => followUser(data.id)}>{t('follow.follow')}</button>
+                <button onClick={() => followUser(data.id)}>{t('userInfo.followButton')}</button>
               ))}
       </div>
     </div>

@@ -19,11 +19,11 @@ const Item: FC<ItemProps> = ({ data, t }) => {
         <div className={styles.name}>{data.name}</div>
         <div className={styles.desc}>
           <span>
-            {t('follow.fansLabel')}
+            {t('followList.fansLabel')}
             {data.fans}
           </span>
           <span>
-            {t('follow.topicsLabel')}
+            {t('followList.topicsLabel')}
             {data.topics}
           </span>
         </div>
@@ -31,10 +31,10 @@ const Item: FC<ItemProps> = ({ data, t }) => {
       <div className={styles['btn-wrapper']}>
         {data.isFollow
           ? (
-              <button className={styles.active}>{t('follow.following')}</button>
+              <button className={styles.active}>{t('followList.followed')}</button>
             )
           : (
-              <button>{t('follow.follow')}</button>
+              <button>{t('followList.follow')}</button>
             )}
       </div>
     </div>
@@ -62,7 +62,7 @@ function FollowList() {
   });
 
   const followName = (type: FollowTypeEnum) => {
-    return type === FollowTypeEnum.FOLLOW ? t('follow.following') : t('follow.fans');
+    return type === FollowTypeEnum.FOLLOW ? t('followList.followed') : t('followList.fans');
   };
 
   return (
