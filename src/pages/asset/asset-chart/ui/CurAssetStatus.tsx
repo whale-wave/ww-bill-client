@@ -16,6 +16,7 @@ import { LabelLayout } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AssetStatisticalRecordType, useAssetSummaryInfo } from '@/entities/asset';
+import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
 
 echarts.use([
@@ -32,6 +33,7 @@ type EChartsOption = echarts.ComposeOption<
 >;
 
 export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
+  const { t } = useTranslation('asset');
   const chartDomRef = useRef<HTMLDivElement>(null);
   const [myChart, setMyChart] = useState<echarts.ECharts>();
   const { addAssetGroupPercent, subAssetGroupPercent, info } = useAssetSummaryInfo();
@@ -74,7 +76,7 @@ export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type 
     const option: EChartsOption = {
       title: {
         textAlign: 'center',
-        text: type === AssetStatisticalRecordType.ASSET ? '总资产' : '总负债',
+        text: type === AssetStatisticalRecordType.ASSET ? t('chart.totalAsset') : t('chart.totalLiability'),
         subtext: type === AssetStatisticalRecordType.ASSET ? formatAmount(info.addAsset) : formatAmount(info.subAsset),
         top: '36%',
         left: '24%',
@@ -126,11 +128,11 @@ export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type 
     };
 
     myChart?.setOption(option);
-  }, [myChart, data, percentMap, total, info.totalAsset]);
+  }, [myChart, data, percentMap, total, info.totalAsset, t]);
 
   return (
     <div className="flex flex-col justify-center">
-      <div className="text-base py-3">{type === AssetStatisticalRecordType.ASSET ? '当前资产状况' : '当前负债状况'}</div>
+      <div className="text-base py-3">{type === AssetStatisticalRecordType.ASSET ? t('chart.currentAssetStatus') : t('chart.currentLiabilityStatus')}</div>
       <div className="w-full h-[160px]" ref={chartDomRef}></div>
     </div>
   );

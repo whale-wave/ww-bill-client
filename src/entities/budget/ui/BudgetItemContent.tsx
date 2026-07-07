@@ -1,5 +1,6 @@
 import type { BudgetInfo } from '../api';
 import React, { memo } from 'react';
+import { useTranslation } from '@/shared/i18n';
 import { RingChart } from './RingChart';
 
 interface BudgetItemContentProps {
@@ -8,6 +9,7 @@ interface BudgetItemContentProps {
 }
 
 const BudgetItemContent: React.FC<BudgetItemContentProps> = memo((props) => {
+  const { t } = useTranslation('budget');
   const { data, isSummaryBudget } = props;
 
   return (
@@ -15,20 +17,20 @@ const BudgetItemContent: React.FC<BudgetItemContentProps> = memo((props) => {
       <div className="flex justify-center items-center mr-2"><RingChart isSummaryBudget={isSummaryBudget} percentage={data?.remainingPercentage} /></div>
       <div className="flex-grow flex flex-col justify-center space-y-3">
         <div className="flex justify-between items-center text-[15px] border-0 border-b-[1px] border-solid border-[#f3f3f3] pb-1">
-          <div>剩余预算:</div>
+          <div>{t('content.remainingBudget')}</div>
           <div className="text-[15px]">{data?.remaining || '0.00'}</div>
         </div>
         <div className="flex justify-between items-center text-[12px] text-[#666]">
           <div>
-            {isSummaryBudget && '本月'}
-            预算:
+            {isSummaryBudget && t('content.thisMonth')}
+            {t('content.budget')}
           </div>
           <div>{data?.budgetAmount || '0.00'}</div>
         </div>
         <div className="flex justify-between items-center text-[12px] text-[#666]">
           <div>
-            {isSummaryBudget && '本月'}
-            支出:
+            {isSummaryBudget && t('content.thisMonth')}
+            {t('content.expense')}
           </div>
           <div>{data?.amount || '0.00'}</div>
         </div>

@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import type { Asset, AssetGroup } from '@/entities/asset';
 import { Dialog, ErrorBlock, List, SwipeAction, Toast } from 'antd-mobile';
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDeleteAssetByIdMutation, useGetAssetGroupQuery, useGetAssetQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -10,6 +11,7 @@ import { IconBlock } from '../../ui';
 import styles from './AssetList.module.scss';
 
 export const AssetList: FC = () => {
+  const { t } = useTranslation('asset');
   const navigate = useNavigate();
   const { data: list } = useGetAssetQuery();
   const [deleteAssetByIdMutate] = useDeleteAssetByIdMutation();
@@ -61,14 +63,14 @@ export const AssetList: FC = () => {
 
   const handleDelete = useCallback((item: Asset) => async () => {
     Dialog.confirm({
-      title: '确认删除该资产?',
-      content: '删除后, 所有的资产变动记录也将一同被删除',
-      confirmText: '确认删除',
+      title: t('manager.confirmDeleteTitle'),
+      content: t('manager.confirmDeleteContent'),
+      confirmText: t('manager.confirmDelete'),
       onConfirm: async () => {
         try {
           Toast.show({
             icon: 'loading',
-            content: '删除中...',
+            content: t('manager.deleting'),
           });
           await deleteAssetByIdMutate(item.id);
         }
@@ -105,7 +107,7 @@ export const AssetList: FC = () => {
                     key={asset.id}
                     rightActions={[{
                       key: 'delete',
-                      text: '删除',
+                      text: t('manager.confirmDelete'),
                       color: 'danger',
                       onClick: handleDelete(asset),
                     }]}
@@ -131,7 +133,7 @@ export const AssetList: FC = () => {
                 ))}
               </List>
             ))
-          : <div className="my-[80px]"><ErrorBlock status="empty" description="定期更新资产账户, 轻松掌握资产状况" /></div>
+          : <div className="my-[80px]"><ErrorBlock status="empty" description={t("manager.emptyDescription")} /></div>
       }
     </div>
   );

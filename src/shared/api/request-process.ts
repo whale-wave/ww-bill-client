@@ -1,5 +1,6 @@
 import { Toast } from 'antd-mobile';
 import { handleAuthLogout } from './auth-injection';
+import { i18n } from '@/shared/i18n';
 
 function clearTokenToLogin(msg: string) {
   handleAuthLogout();
@@ -13,11 +14,11 @@ function clearTokenToLogin(msg: string) {
 export function baseResponseProcess(statusCode: number | string) {
   switch (Number.parseInt(`${statusCode}`)) {
     case 403:
-      return clearTokenToLogin('登录已过期');
+      return clearTokenToLogin(i18n.t('common:api.loginExpired'));
     case 402:
-      return clearTokenToLogin('身份验证失败');
+      return clearTokenToLogin(i18n.t('common:api.authFailed'));
     case 401:
-      return clearTokenToLogin('未登录账号');
+      return clearTokenToLogin(i18n.t('common:api.notLoggedIn'));
   }
 }
 

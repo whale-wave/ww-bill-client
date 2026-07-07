@@ -6,6 +6,7 @@ import {
   usePostFollowMutation,
 } from '@/entities/follow';
 import { useGetUserUserInfoQuery } from '@/entities/user';
+import { useTranslation } from '@/shared/i18n';
 import styles from './UserInfo.module.scss';
 
 interface UserInfoProps {
@@ -25,6 +26,7 @@ const UserInfo: FC<UserInfoProps> = ({
   followCount,
   fansCount,
 }) => {
+  const { t } = useTranslation('community');
   const navigate = useNavigate();
   const { data: userInfo } = useGetUserUserInfoQuery();
   const [postFollow] = usePostFollowMutation();
@@ -48,17 +50,17 @@ const UserInfo: FC<UserInfoProps> = ({
         <img src={data?.avatar} alt="" />
       </div>
       <div className={styles.middle}>
-        <span className={styles.name}>{data?.name || '我是小可爱'}</span>
+        <span className={styles.name}>{data?.name || t('userInfo.defaultName')}</span>
         <div className={styles.desc}>
           <div onClick={() => data && goToFollowListPage(data.id, 'follow')}>
             <span>{followCount || 0}</span>
             {' '}
-            关注
+            {t('follow.following')}
           </div>
           <div onClick={() => data && goToFollowListPage(data.id, 'fans')}>
             <span>{fansCount || 0}</span>
             {' '}
-            粉丝
+            {t('follow.fans')}
           </div>
         </div>
       </div>
@@ -67,10 +69,10 @@ const UserInfo: FC<UserInfoProps> = ({
           && data.id !== userInfo?.id
           && (isFollow
             ? (
-                <button onClick={() => unFollowUser(data.id)}>已关注</button>
+                <button onClick={() => unFollowUser(data.id)}>{t('follow.following')}</button>
               )
             : (
-                <button onClick={() => followUser(data.id)}>+关注</button>
+                <button onClick={() => followUser(data.id)}>{t('follow.follow')}</button>
               ))}
       </div>
     </div>

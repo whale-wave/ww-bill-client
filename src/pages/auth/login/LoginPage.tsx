@@ -89,8 +89,8 @@ const Login: FC = () => {
           <>
             <div>
               <Input
-                label="邮箱"
-                placeholder="请输入邮箱"
+                label={t('login.emailLabel')}
+                placeholder={t('login.emailPlaceholder')}
                 onChange={onEmailFormFieldChange('email')}
                 value={emailForm.email}
               />
@@ -109,16 +109,16 @@ const Login: FC = () => {
           <>
             <div>
               <Input
-                label="账号"
-                placeholder="请输入账号ID或邮箱"
+                label={t('login.usernameLabel')}
+                placeholder={t('login.usernamePlaceholder')}
                 onChange={onUserNameFormFieldChange('username')}
                 value={userNameForm.username}
               />
             </div>
             <div className="mt-3">
               <Input
-                label="密码"
-                placeholder="请输入密码"
+                label={t('login.passwordLabel')}
+                placeholder={t('login.passwordPlaceholder')}
                 type="password"
                 onChange={onUserNameFormFieldChange('password')}
                 value={userNameForm.password}
@@ -126,8 +126,8 @@ const Login: FC = () => {
             </div>
             <div className="mt-3 relative">
               <Input
-                label="验证码"
-                placeholder="请输入验证码"
+                label={t('login.captchaLabel')}
+                placeholder={t('login.captchaPlaceholder')}
                 onChange={onUserNameFormFieldChange('captcha')}
                 value={userNameForm.captcha}
               />
@@ -147,19 +147,19 @@ const Login: FC = () => {
         )}
         <div className="flex justify-between w-full mt-[20px]">
           <span onClick={onToggleLoginType}>
-            {loginType === 'username' ? '邮箱登录' : '账号密码登录'}
+            {loginType === 'username' ? t('login.emailLogin') : t('login.usernamePasswordLogin')}
           </span>
-          <span onClick={onGoToForgetPassword}>忘记密码</span>
+          <span onClick={onGoToForgetPassword}>{t('login.forgotPassword')}</span>
         </div>
         <Button className="mt-[40px]" block onClick={handleLogin}>
           {t('login.submit')}
         </Button>
         <div className={styles.bottom}>
           <span className={styles.back} onClick={() => navigate(-1)}>
-            返回
+            {t('login.back')}
           </span>
           <span className={styles.sign} onClick={() => navigate('/sign')}>
-            注册
+            {t('login.register')}
           </span>
         </div>
       </div>

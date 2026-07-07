@@ -51,7 +51,7 @@ const Mine: FC = () => {
   const tabs = useMemo(() => [
     {
       icon: 'msg',
-      name: '消息',
+      name: t('tabs.message'),
       path: '/message',
       onClick() {
         playSound.turnPage();
@@ -60,41 +60,41 @@ const Mine: FC = () => {
     },
     {
       icon: 'badge',
-      name: '我的徽章',
+      name: t('tabs.myBadges'),
       onClick() {
         Toast.show({
-          content: '敬请期待',
+          content: t('tabs.comingSoon'),
         });
       },
     },
     {
       icon: 'integral',
-      name: '我的积分',
+      name: t('tabs.myPoints'),
       onClick() {
         Toast.show({
-          content: '敬请期待',
+          content: t('tabs.comingSoon'),
         });
       },
     },
     {
       icon: 'invite',
-      name: '邀请好友',
+      name: t('tabs.inviteFriends'),
       onClick() {
         Toast.show({
-          content: '敬请期待',
+          content: t('tabs.comingSoon'),
         });
       },
     },
     {
       icon: 'setting',
-      name: '设置',
+      name: t('tabs.settings'),
       path: '/settings',
       onClick() {
         playSound.turnPage();
         navigate(this.path);
       },
     },
-  ], []);
+  ], [t]);
 
   return (
     <div className={classNames('page', styles.wrapper)}>

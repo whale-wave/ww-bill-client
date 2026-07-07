@@ -2,6 +2,7 @@ import type { ChangeEvent, FC } from 'react';
 import classNames from 'classnames';
 import { useRef, useState } from 'react';
 import Icon from '../icon';
+import { useTranslation } from '@/shared/i18n';
 
 const classPrefix = 'bwm-comment';
 
@@ -37,6 +38,7 @@ interface CommentProps {
 }
 
 export const Comment: FC<CommentProps> = ({ onSubmit, data, onShare, onLike, onStart }) => {
+  const { t } = useTranslation('common');
   const textareaEl = useRef<HTMLTextAreaElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [content, setContent] = useState('');
@@ -49,7 +51,7 @@ export const Comment: FC<CommentProps> = ({ onSubmit, data, onShare, onLike, onS
           [`${classPrefix}-test-editing`]: isEditing,
         })}
         value={content}
-        placeholder="写评论..."
+        placeholder={t('placeholder.writeComment')}
         onBlur={() => {
           setIsEditing(false);
           textareaEl.current?.removeAttribute('style');

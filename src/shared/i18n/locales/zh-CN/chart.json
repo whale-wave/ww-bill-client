@@ -25,15 +25,58 @@
     "title": "排行",
     "amount": "金额",
     "percent": "占比",
-    "count": "笔数"
+    "count": "笔数",
+    "expendTitle": "支出排行榜",
+    "incomeTitle": "收入排行榜"
   },
   "tabs": {
     "week": "周",
     "month": "月",
     "year": "年"
   },
+  "tab": {
+    "thisWeek": "本周",
+    "lastWeek": "上周",
+    "thisMonth": "本月",
+    "lastMonth": "上月",
+    "thisYear": "今年",
+    "lastYear": "去年",
+    "weekNumber": "第{{week}}周",
+    "yearWeekNumber": "{{year}}年第{{week}}周",
+    "monthNumber": "{{month}}月",
+    "yearMonthNumber": "{{year}}年{{month}}月",
+    "yearNumber": "{{year}}年"
+  },
   "amount": {
     "income": "收入",
     "expend": "支出"
+  },
+  "amountType": {
+    "expense": "支出",
+    "income": "收入"
+  },
+  "timeRange": {
+    "week": "周",
+    "month": "月",
+    "year": "年"
+  },
+  "periodLabel": {
+    "yearWeek": "{{year}}年第{{week}}周",
+    "yearMonth": "{{year}}年{{month}}月",
+    "yearOnly": "{{year}}年",
+    "weekSuffix": "周",
+    "monthSuffix": "月",
+    "yearSuffix": "年"
+  },
+  "tooltip": {
+    "noExpenses": "没有费用",
+    "maxTransactions": "最大3笔交易",
+    "totalExpenseThisMonth": "当月总支出:",
+    "totalIncomeThisMonth": "当月总收入:",
+    "top3Transactions": "交易前三",
+    "monthlyTotal": {
+      "expend": "当月总支出:",
+      "income": "当月总收入:"
+    }
   }
 }

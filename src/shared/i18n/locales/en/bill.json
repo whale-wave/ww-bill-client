@@ -9,5 +9,13 @@
     "income": "Income",
     "expend": "Expense",
     "surplus": "Surplus"
-  }
+  },
+  "total": "Total",
+  "monthlyBill": "Monthly Bill",
+  "yearlyBill": "Yearly Bill",
+  "period": "",
+  "month": "Month",
+  "year": "Year",
+  "detail": "Bill",
+  "back": "Back"
 }

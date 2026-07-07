@@ -10,6 +10,7 @@ import {
   usePostBudgetSummaryMutation,
 } from '@/entities/budget';
 import { BudgetModelModelTypeMap } from '../ui/BudgetModel';
+import { useTranslation } from '@/shared/i18n';
 
 interface SubmitParams {
   modelType: BudgetModelModelType;
@@ -22,6 +23,7 @@ interface SubmitParams {
 }
 
 export function useBudgetSubmit() {
+  const { t } = useTranslation('budget');
   const [postSummaryMutate] = usePostBudgetSummaryMutation();
   const [postCategoryMutate] = usePostBudgetCategoryMutation();
   const [patchAmountMutate] = usePatchBudgetAmountByBudgetIdMutation();
@@ -32,10 +34,10 @@ export function useBudgetSubmit() {
     const handleResult = async (statusCode: number, message?: string): Promise<string | null> => {
       if (statusCode === 4017) {
         onSuccess();
-        return '分类预算之和已超过总预算, 将自动更新总预算';
+        return t('warning.categoryBudgetExceedsTotal');
       }
       if (statusCode !== 200) {
-        return message ?? '操作失败';
+        return message ?? t('error.operationFailed');
       }
       onSuccess();
       return null;

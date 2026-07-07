@@ -11,6 +11,7 @@ import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AssetStatisticalRecordType, useAssetStatisticalRecord, useGetAssetStatisticalRecordQuery } from '@/entities/asset';
+import { useTranslation } from '@/shared/i18n';
 import { useChart } from '@/shared/lib/use-chart';
 import { Icon } from '@/shared/ui';
 
@@ -21,13 +22,14 @@ type EChartsOption = echarts.ComposeOption<
 >;
 
 export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
-  let chartTitle = '资产走势图';
+  const { t } = useTranslation('asset');
+  let chartTitle = t('chart.assetTrend');
   switch (type) {
     case AssetStatisticalRecordType.LIABILITY:
-      chartTitle = '负债走势图';
+      chartTitle = t('chart.liabilityTrend');
       break;
     case AssetStatisticalRecordType.NET_ASSET:
-      chartTitle = '净资产走势图';
+      chartTitle = t('chart.netAssetTrend');
       break;
     default:
       break;
@@ -42,7 +44,7 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
   }, [selectYear]);
   const { data } = useGetAssetStatisticalRecordQuery({ params: { ...range, type } });
   const { groupByMonth } = useAssetStatisticalRecord(data);
-  const xAxisData = groupByMonth.map(i => `${i.month}月`);
+  const xAxisData = groupByMonth.map(i => `${i.month}${t('chart.monthSuffix')}`);
   const seriesData = groupByMonth.map(i => Number(i.amount));
   const maxValue = Math.max(...seriesData);
   const { chartDomRef, myChart } = useChart();
@@ -92,7 +94,13 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
           },
         },
         axisLabel: {
-          customValues: ['1月', '3月', '6月', '9月', '12月'],
+          customValues: [
+            `1${t('chart.monthSuffix')}`,
+            `3${t('chart.monthSuffix')}`,
+            `6${t('chart.monthSuffix')}`,
+            `9${t('chart.monthSuffix')}`,
+            `12${t('chart.monthSuffix')}`,
+          ],
         },
       },
       yAxis: {
@@ -132,14 +140,14 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
     };
 
     myChart?.setOption(option);
-  }, [seriesData, xAxisData, myChart, maxValue]);
+  }, [seriesData, xAxisData, myChart, maxValue, t]);
 
   return (
     <div className="flex flex-col border-[1px] border-solid border-gray-200 rounded-lg shadow-md p-3">
       <div className="flex justify-between items-center h-[30px]">
         <div className="text-base">{chartTitle}</div>
         <div className="bg-gray-100 flex justify-center items-center rounded-md py-1 px-2 space-x-1" onClick={handleSelectYear}>
-          <div className="text-xs">{selectYear.format('YYYY年')}</div>
+          <div className="text-xs">{selectYear.format('YYYY')}{t('chart.yearSuffix')}</div>
           <Icon className="text-[8px]" name="show-bottom" />
         </div>
       </div>

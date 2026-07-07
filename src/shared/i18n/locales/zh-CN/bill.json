@@ -9,5 +9,13 @@
     "income": "收入",
     "expend": "支出",
     "surplus": "结余"
-  }
+  },
+  "total": "总",
+  "monthlyBill": "月账单",
+  "yearlyBill": "年账单",
+  "period": "份",
+  "month": "月",
+  "year": "年",
+  "detail": "账单",
+  "back": "返回"
 }

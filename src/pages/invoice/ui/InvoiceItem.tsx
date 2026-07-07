@@ -1,6 +1,7 @@
 import type { InvoiceEntity } from '@/entities/invoice';
 import classNames from 'classnames';
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from '@/shared/i18n';
 
 interface InvoiceItemProps {
   className?: string;
@@ -10,6 +11,7 @@ interface InvoiceItemProps {
 
 const InvoiceItem: React.FC<InvoiceItemProps> = memo((props) => {
   const { className, invoice, onClick: _onClick } = props;
+  const { t } = useTranslation('invoice');
 
   const onClick = useCallback(() => {
     _onClick?.(invoice);
@@ -25,7 +27,7 @@ const InvoiceItem: React.FC<InvoiceItemProps> = memo((props) => {
           </div>
         </div>
         <div className="space-x-2 text-font-gray text-[12px]">
-          <span>税号:</span>
+          <span>{t('form.taxNumber')}:</span>
           <span>{invoice.taxNumber}</span>
         </div>
       </div>

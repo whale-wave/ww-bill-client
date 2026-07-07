@@ -3,6 +3,7 @@ import { AddOutline } from 'antd-mobile-icons';
 import classNames from 'classnames';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { Icon } from '@/shared/ui';
 import './tab-bar.scss';
@@ -25,23 +26,24 @@ interface TabBarProps {
 }
 
 export const TabBar: FC<TabBarProps> = ({ active }) => {
+  const { t } = useTranslation('common');
   const navigate = useNavigate();
 
   const tabBarList = [
     {
-      name: '明细',
+      name: t('tabBar.detail'),
       icon: 'detail',
       iconActive: 'detail-fill',
       router: '/detail',
     },
     {
-      name: '图表',
+      name: t('tabBar.chart'),
       icon: 'chart',
       iconActive: 'chart-fill',
       router: '/chart',
     },
     {
-      name: '记账',
+      name: t('tabBar.bookkeeping'),
       icon: 'add',
       router: '/bookkeeping',
       customRender: (tab: any) => {
@@ -59,7 +61,7 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
       },
     },
     {
-      name: '发现',
+      name: t('tabBar.discovery'),
       icon: 'community',
       iconActive: 'community-fill',
       router: '/discovery',
@@ -71,7 +73,7 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
     //   router: '/community',
     // },
     {
-      name: '我的',
+      name: t('tabBar.mine'),
       icon: 'mine',
       iconActive: 'mine-fill',
       router: '/mine',

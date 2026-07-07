@@ -12,7 +12,7 @@ export function useRecordCalendar() {
   const { t } = useTranslation('record');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const selectTime = searchParams.get('selectTime');
+  const selectTime = searchParams.get('bookkeeping.selectTime');
 
   const defaultSelectTime = selectTime ? dayjs(Number(selectTime)) : undefined;
   const [selectMonthValue, setSelectMonthValue] = useState<Dayjs>(defaultSelectTime || dayjs());
@@ -90,7 +90,7 @@ export function useRecordCalendar() {
 
   const getDateText = useCallback((date: Date) => {
     const dateValue = dayjs(date).date();
-    return isToday(date) ? t('common:today') : dateValue;
+    return isToday(date) ? t('common:time.today') : dateValue;
   }, [t, isToday]);
 
   const onBack = useCallback(() => {

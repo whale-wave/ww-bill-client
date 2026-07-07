@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import type { Bill } from '@/entities/record';
 import classNames from 'classnames';
 import { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBillPageStore } from '@/pages/bill/model';
 import { BillTabsType } from '@/pages/bill/types';
 import { Icon } from '@/shared/ui';
@@ -16,34 +17,34 @@ interface ContentProps {
 }
 
 const Content: FC<ContentProps> = memo(({ data }) => {
+  const { t } = useTranslation('bill');
   const billTabType = useBillPageStore(({ billTabType }) => billTabType);
   const isMonthTabType = useMemo(() => billTabType === BillTabsType.MONTH, [billTabType]);
 
   const showData = useCallback((data: DataItem[]) => {
     if (data.length > 0)
       return data;
-    return [{ month: `1${isMonthTabType ? '月' : '年'}`, income: 0, expand: 0, balance: 0 }];
-  }, [isMonthTabType]);
+    return [{ month: `1${isMonthTabType ? t('month') : t('year')}`, income: 0, expand: 0, balance: 0 }];
+  }, [isMonthTabType, t]);
 
   return (
     <div className={classNames(styles.wrapper, 'pb-4')}>
       <ul>
         <li className={styles.header}>
           <div>
-            {isMonthTabType ? '月' : '年'}
-            份
+            {isMonthTabType ? t('month') : t('year')}
           </div>
           <div>
-            {isMonthTabType ? '月' : '年'}
-            收入
+            {isMonthTabType ? t('month') : t('year')}
+            {t('income')}
           </div>
           <div>
-            {isMonthTabType ? '月' : '年'}
-            支出
+            {isMonthTabType ? t('month') : t('year')}
+            {t('expend')}
           </div>
           <div>
-            {isMonthTabType ? '月' : '年'}
-            结余
+            {isMonthTabType ? t('month') : t('year')}
+            {t('balance')}
           </div>
           <div />
         </li>

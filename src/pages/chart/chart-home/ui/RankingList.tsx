@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { List } from 'antd-mobile';
 import { useMemo } from 'react';
@@ -7,6 +8,7 @@ import { cn } from '@/shared/lib';
 import { RankingItem } from './RankingItem';
 
 export const RankingList: FC = () => {
+  const { t } = useTranslation('chart');
   const navigate = useNavigate();
   const { curTab, currentAmountType, currentTimeRangeCategory } = useChartHome();
 
@@ -41,8 +43,8 @@ export const RankingList: FC = () => {
   return (
     <div className={cn('flex-shrink-0')}>
       <div className={cn('text-base px-3 pb-1 pt-2')}>
-        {currentAmountType === 'sub' ? '支出' : '收入'}
-        排行榜
+        {currentAmountType === 'sub' ? t('amountType.expense') : t('amountType.income')}
+        {t('ranking.title')}
       </div>
       <List
         style={{ '--border-top': '0px', '--border-bottom': '0px' }}

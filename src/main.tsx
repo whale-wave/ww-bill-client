@@ -1,4 +1,5 @@
 import React from 'react';
+import { Inspector } from 'react-dev-inspector';
 import { createRoot } from 'react-dom/client';
 import { App } from '@/app/App';
 import { initResetStyle } from '@/assets/styles/reset';
@@ -20,6 +21,7 @@ const root = createRoot(container);
 
 root.render(
   <React.StrictMode>
+    {import.meta.env.DEV && <Inspector keys={['Alt', 'Shift', 'X']} />}
     <App />
   </React.StrictMode>,
 );

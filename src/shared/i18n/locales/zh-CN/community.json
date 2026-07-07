@@ -3,12 +3,35 @@
   "postTopic": "发帖",
   "topicDetail": "话题详情",
   "comment": "评论",
-  "reply": "回复",
-  "commentList": "全部评论",
+  "reply": {
+    "allComments": "全部评论",
+    "sortByHot": "按热度",
+    "empty": "暂无评论，点击写评论"
+  },
+  "commentList": {
+    "back": "返回",
+    "title": "评论",
+    "loading": "加载中..."
+  },
   "follow": "关注",
-  "followList": "关注列表",
+  "followList": {
+    "fansLabel": "粉丝：",
+    "topicsLabel": "帖子：",
+    "followed": "已关注",
+    "follow": "+关注",
+    "fans": "粉丝",
+    "userNamePrefix": "阿文的",
+    "startedFollowing": "开始关注你了"
+  },
   "newFollow": "新的关注",
-  "personal": "个人主页",
+  "personal": {
+    "tab": {
+      "home": "主页",
+      "topics": "帖子",
+      "favorites": "收藏"
+    },
+    "achievementTitle": "记账成就"
+  },
   "post": {
     "title": "发帖",
     "content": "分享你的想法...",
@@ -35,8 +58,23 @@
     "saveImage": "保存图片",
     "noRemark": "暂无备注",
     "recordBill": "记录这一笔真实账单",
-    "linkHint": "分享链接随按钮生成"
+    "linkHint": "分享链接随按钮生成",
+    "wechat": "微信",
+    "wechatMoments": "微信朋友圈",
+    "qqZone": "QQ空间",
+    "share": "分享"
   },
   "like": "点赞",
-  "noMore": "没有更多了"
+  "noMore": "没有更多了",
+  "tab": {
+    "recommended": "推荐",
+    "latest": "最新"
+  },
+  "userInfo": {
+    "defaultName": "我是小可爱",
+    "followLabel": "关注",
+    "fansLabel": "粉丝",
+    "followedButton": "已关注",
+    "followButton": "+关注"
+  }
 }

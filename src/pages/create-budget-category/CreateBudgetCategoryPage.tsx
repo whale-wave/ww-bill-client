@@ -7,12 +7,14 @@ import { BudgetEntityLevel } from '@/entities/budget';
 import { useGetCategoryQuery } from '@/entities/category';
 import { BudgetModel } from '@/pages/budget/ui';
 import { Icon, NavBar } from '@/shared/ui';
+import { useTranslation } from '@/shared/i18n';
 
 interface CreateBudgetCategoryProps {
 }
 
 const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation(['common', 'budget']);
   const { type: _type } = useParams() as { type: string };
   const type = Number(_type) as BudgetEntityType;
 
@@ -35,8 +37,8 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
   }, []);
 
   return (
-    <div className="page-new pt-[45px]">
-      <NavBar back={false} backArrow={false} right={<div onClick={onBack}>取消</div>}>选择类别</NavBar>
+    <div className="page-new">
+      <NavBar back={false} backArrow={false} right={<div onClick={onBack}>{t('nav.cancel')}</div>}>{t('budget:createCategory')}</NavBar>
       <div className="flex flex-wrap flex-grow overflow-auto pb-8">
         {data.map(c => (
           <div className="w-[24.9%] flex flex-col justify-center items-center py-2" key={c.id} onClick={onSelectIcon(c)}>

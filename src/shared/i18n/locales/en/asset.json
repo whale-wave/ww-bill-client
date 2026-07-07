@@ -16,7 +16,18 @@
     "save": "Save",
     "saveSuccess": "Saved successfully",
     "note": "Note",
-    "noteHint": "Fill in the basic info to create"
+    "noteHint": "Fill in the basic info to create",
+    "bank": "Bank",
+    "nameRequired": "Please enter name",
+    "cardNumber": "Card Number (last 4 digits)",
+    "optional": "(Optional)",
+    "remark": "Note",
+    "debt": "Debt",
+    "balance": "Balance",
+    "amountRequired": "Please enter amount",
+    "selectGroup": "Please select group",
+    "add": "Add",
+    "edit": "Edit"
   },
   "types": {
     "cash": "Cash",
@@ -26,5 +37,62 @@
     "invest": "Investment",
     "loan": "Loan",
     "other": "Other"
-  }
+  },
+  "chart": {
+    "asset": "Assets",
+    "liability": "Liabilities",
+    "netAsset": "Net Assets",
+    "currentAssetStatus": "Current Asset Status",
+    "currentLiabilityStatus": "Current Liability Status",
+    "currentNetAssetStatus": "Current Net Asset Status",
+    "assetLiabilityRatio": "Asset-Liability Ratio",
+    "totalAsset": "Total Assets",
+    "totalLiability": "Total Liabilities",
+    "assetTrend": "Asset Trend",
+    "liabilityTrend": "Liability Trend",
+    "netAssetTrend": "Net Asset Trend",
+    "assetRanking": "Asset Ranking",
+    "liabilityRanking": "Liability Ranking"
+  },
+  "manager": {
+    "title": "Asset Steward",
+    "asset": "Assets",
+    "liability": "Liabilities",
+    "netAsset": "Net Assets",
+    "addAccount": "Add Account",
+    "emptyDescription": "Update accounts to track your finances",
+    "confirmDeleteTitle": "Confirm delete this asset?",
+    "confirmDeleteContent": "All records will also be deleted",
+    "confirmDelete": "Confirm Delete",
+    "deleting": "Deleting..."
+  },
+  "detail": {
+    "recordList": "Transaction History",
+    "title": "Asset Details"
+  },
+  "adjust": {
+    "current": "Adjust Current",
+    "amountPlaceholder": "Enter adjusted amount",
+    "submit": "Adjust"
+  },
+  "back": "Back",
+  "tab": {
+    "assets": "Assets",
+    "chart": "Chart"
+  },
+  "group": {
+    "cash": "Cash",
+    "virtualAccount": "Virtual Account",
+    "debtClaim": "Debt Claim"
+  },
+  "summary": {
+    "netWorth": "Net Worth",
+    "assets": "Assets",
+    "liabilities": "Liabilities"
+  },
+  "confirmDelete": "Confirm Delete",
+  "confirmDeleteContent": "All records will also be deleted",
+  "confirmDeleteTitle": "Confirm delete this asset?",
+  "deleting": "Deleting...",
+  "setting": "Settings"
 }

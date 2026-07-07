@@ -2,25 +2,26 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import 'dayjs/locale/zh-cn';
+import { i18n } from '@/shared/i18n';
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
 
 dayjs.updateLocale('en', {
   relativeTime: {
-    future: '%s后',
-    past: '%s前',
-    s: '刚刚',
-    m: '1分钟前',
-    mm: '%d分钟前',
-    h: '1小时前',
-    hh: '%d小时前',
-    d: '1天前',
-    dd: '%d天前',
-    M: '1个月前',
-    MM: '%d个月前',
-    y: '1年前',
-    yy: '%d年前',
+    future: (s: string) => i18n.t('common:time.relative.future', { s }),
+    past: (s: string) => i18n.t('common:time.relative.past', { s }),
+    s: () => i18n.t('common:time.relative.justNow'),
+    m: () => i18n.t('common:time.relative.oneMinAgo'),
+    mm: (d: number) => i18n.t('common:time.relative.minutesAgo', { count: d }),
+    h: () => i18n.t('common:time.relative.oneHourAgo'),
+    hh: (d: number) => i18n.t('common:time.relative.hoursAgo', { count: d }),
+    d: () => i18n.t('common:time.relative.oneDayAgo'),
+    dd: (d: number) => i18n.t('common:time.relative.daysAgo', { count: d }),
+    M: () => i18n.t('common:time.relative.oneMonthAgo'),
+    MM: (d: number) => i18n.t('common:time.relative.monthsAgo', { count: d }),
+    y: () => i18n.t('common:time.relative.oneYearAgo'),
+    yy: (d: number) => i18n.t('common:time.relative.yearsAgo', { count: d }),
   },
 });
 

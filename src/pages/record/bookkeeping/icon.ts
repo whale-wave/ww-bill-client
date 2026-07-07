@@ -1,154 +1,154 @@
+import { i18n } from '@/shared/i18n';
+
 interface iconType {
   id?: number;
   name: string;
   icon: string;
 }
 
-const mainList: iconType[] = [
-  {
-    name: '餐饮',
-    icon: 'canyin1',
-  },
-  {
-    name: '购物',
-    icon: 'icon-',
-  },
-  {
-    name: '日用',
-    icon: 'riyongbaihuo',
-  },
-  {
-    name: '交通',
-    icon: 'jiaotong',
-  },
-  {
-    name: '蔬菜',
-    icon: 'shucai',
-  },
-  {
-    name: '水果',
-    icon: 'shuiguo',
-  },
-  {
-    name: '零食',
-    icon: 'lingshi',
-  },
-  {
-    name: '运动',
-    icon: 'yundong',
-  },
-  {
-    name: '娱乐',
-    icon: 'yule',
-  },
-  {
-    name: '通讯',
-    icon: 'tongxun',
-  },
-  {
-    name: '服饰',
-    icon: 'fushi',
-  },
-  {
-    name: '美容',
-    icon: 'shouye',
-  },
-  {
-    name: '住房',
-    icon: 'zhufang',
-  },
-  {
-    name: '居家',
-    icon: 'jiajujiafang',
-  },
-  {
-    name: '孩子',
-    icon: 'shouye1',
-  },
-  {
-    name: '长辈',
-    icon: 'grandfather',
-  },
-  {
-    name: '社交',
-    icon: 'shejiao',
-  },
-  {
-    name: '旅行',
-    icon: 'lvhang-',
-  },
-  {
-    name: '烟酒',
-    icon: 'yanjiu',
-  },
-  {
-    name: '数码',
-    icon: 'shujuxian',
-  },
-  {
-    name: '汽车',
-    icon: 'qiche',
-  },
-  {
-    name: '医疗',
-    icon: 'yiliao',
-  },
-  {
-    name: '书籍',
-    icon: 'shuji',
-  },
-  {
-    name: '学习',
-    icon: 'xuexiwangke',
-  },
-  {
-    name: '宠物',
-    icon: 'xiedaichongwu',
-  },
-  {
-    name: '礼金',
-    icon: 'tuijianlijin',
-  },
-  {
-    name: '礼物',
-    icon: 'liwu',
-  },
-  {
-    name: '办公',
-    icon: 'bangong',
-  },
-  {
-    name: '维修',
-    icon: 'weixiu',
-  },
-  {
-    name: '捐赠',
-    icon: 'aixinjuanzeng',
-  },
-  {
-    name: '彩票',
-    icon: 'caipiao',
-  },
-  {
-    name: '亲友',
-    icon: 'a-24-30_fuzhi-04',
-  },
-  {
-    name: '快递',
-    icon: 'kuaidiyuan',
-  },
-  {
-    name: '设置',
-    icon: 'shezhi',
-  },
-];
+export function getMainList(): iconType[] {
+  const list = [
+    {
+      name: i18n.t('record:category.food'),
+      icon: 'canyin1',
+    },
+    {
+      name: i18n.t('record:category.shopping'),
+      icon: 'icon-',
+    },
+    {
+      name: i18n.t('record:category.daily'),
+      icon: 'riyongbaihuo',
+    },
+    {
+      name: i18n.t('record:category.transportation'),
+      icon: 'jiaotong',
+    },
+    {
+      name: i18n.t('record:category.vegetables'),
+      icon: 'shucai',
+    },
+    {
+      name: i18n.t('record:category.fruit'),
+      icon: 'shuiguo',
+    },
+    {
+      name: i18n.t('record:category.snacks'),
+      icon: 'lingshi',
+    },
+    {
+      name: i18n.t('record:category.sports'),
+      icon: 'yundong',
+    },
+    {
+      name: i18n.t('record:category.entertainment'),
+      icon: 'yule',
+    },
+    {
+      name: i18n.t('record:category.communication'),
+      icon: 'tongxun',
+    },
+    {
+      name: i18n.t('record:category.clothing'),
+      icon: 'fushi',
+    },
+    {
+      name: i18n.t('record:category.beauty'),
+      icon: 'shouye',
+    },
+    {
+      name: i18n.t('record:category.housing'),
+      icon: 'zhufang',
+    },
+    {
+      name: i18n.t('record:category.home'),
+      icon: 'jiajujiafang',
+    },
+    {
+      name: i18n.t('record:category.children'),
+      icon: 'shouye1',
+    },
+    {
+      name: i18n.t('record:category.elders'),
+      icon: 'grandfather',
+    },
+    {
+      name: i18n.t('record:category.social'),
+      icon: 'shejiao',
+    },
+    {
+      name: i18n.t('record:category.travel'),
+      icon: 'lvhang-',
+    },
+    {
+      name: i18n.t('record:category.tobaccoAlcohol'),
+      icon: 'yanjiu',
+    },
+    {
+      name: i18n.t('record:category.digital'),
+      icon: 'shujuxian',
+    },
+    {
+      name: i18n.t('record:category.car'),
+      icon: 'qiche',
+    },
+    {
+      name: i18n.t('record:category.medical'),
+      icon: 'yiliao',
+    },
+    {
+      name: i18n.t('record:category.books'),
+      icon: 'shuji',
+    },
+    {
+      name: i18n.t('record:category.study'),
+      icon: 'xuexiwangke',
+    },
+    {
+      name: i18n.t('record:category.pets'),
+      icon: 'xiedaichongwu',
+    },
+    {
+      name: i18n.t('record:category.giftMoney'),
+      icon: 'tuijianlijin',
+    },
+    {
+      name: i18n.t('record:category.gifts'),
+      icon: 'liwu',
+    },
+    {
+      name: i18n.t('record:category.office'),
+      icon: 'bangong',
+    },
+    {
+      name: i18n.t('record:category.repair'),
+      icon: 'weixiu',
+    },
+    {
+      name: i18n.t('record:category.donation'),
+      icon: 'aixinjuanzeng',
+    },
+    {
+      name: i18n.t('record:category.lottery'),
+      icon: 'caipiao',
+    },
+    {
+      name: i18n.t('record:category.friendsFamily'),
+      icon: 'a-24-30_fuzhi-04',
+    },
+    {
+      name: i18n.t('record:category.delivery'),
+      icon: 'kuaidiyuan',
+    },
+    {
+      name: i18n.t('record:category.settings'),
+      icon: 'shezhi',
+    },
+  ];
 
-function mainListFn() {
-  for (let i = 0; i < mainList.length; i++) {
-    mainList[i].id = i + 1;
+  for (let i = 0; i < list.length; i++) {
+    list[i].id = i + 1;
   }
+
+  return list;
 }
-
-mainListFn();
-
-export default mainList;

@@ -33,8 +33,39 @@
     "success": "邮箱修改成功"
   },
   "checkIn": {
-    "keep": "已连续打卡",
+    "keep": "连续打卡",
     "allDays": "记账总天数",
-    "recordCount": "记账总笔数"
+    "recordCount": "记账总笔数",
+    "alreadyCheckedIn": "已打卡",
+    "button": "打卡"
+  },
+  "notLoggedIn": "未登录",
+  "vipNotSupported": "暂不支持 VIP 功能",
+  "tabs": {
+    "message": "消息",
+    "myBadges": "我的徽章",
+    "comingSoon": "敬请期待",
+    "myPoints": "我的积分",
+    "inviteFriends": "邀请好友",
+    "settings": "设置"
+  },
+  "bottomList": {
+    "settings": "设置",
+    "feedback": "意见反馈",
+    "about": "关于鲸浪记账 v{{version}}"
+  },
+  "emailChange": {
+    "title": "修改邮箱",
+    "newEmail": {
+      "placeholder": "请输入新邮箱",
+      "captchaPlaceholder": "请输入验证码"
+    },
+    "captcha": {
+      "title": "验证邮箱",
+      "placeholder": "请输入验证码",
+      "verify": "验证"
+    },
+    "back": "返回",
+    "submit": "修改"
   }
 }

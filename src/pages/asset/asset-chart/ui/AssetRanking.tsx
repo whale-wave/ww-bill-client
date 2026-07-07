@@ -7,6 +7,7 @@ import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AssetStatisticalRecordType, useGetAssetQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
 import { formatAmount, math } from '@/shared/lib';
 import { IconBlock } from '../../ui';
 import styles from './AssetRanking.module.scss';
@@ -15,8 +16,9 @@ import { ProgressBar } from './ProgressBar';
 type AssetPercentItem = Asset & { percent: number; percentStr: string };
 
 export const AssetRanking: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
+  const { t } = useTranslation('asset');
   const { data } = useGetAssetQuery();
-  const navigator = useNavigate();
+  const navigate = useNavigate();
 
   const rankList = useMemo(() => {
     if (!data)
@@ -46,12 +48,12 @@ export const AssetRanking: FC<{ type: AssetStatisticalRecordType }> = ({ type })
   }, [data]);
 
   const handleClickItem = useCallback((item: AssetPercentItem) => () => {
-    navigator(ROUTES_PATH.ASSET_DETAIL.getPath(item.id));
-  }, []);
+    navigate(ROUTES_PATH.ASSET_DETAIL.getPath(item.id));
+  }, [navigate]);
 
   return (
     <div className={classNames(styles['asset-ranking'], 'pt-3 pb-8 border-0 border-t-[1px] border-t-gray-100 border-solid')}>
-      <div className="text-base mb-2">{type === AssetStatisticalRecordType.ASSET ? '资产排行榜' : '负债排行榜'}</div>
+      <div className="text-base mb-2">{type === AssetStatisticalRecordType.ASSET ? t('chart.assetRanking') : t('chart.liabilityRanking')}</div>
       <List>
         {rankList.length > 0
           ? rankList.map(i => (
@@ -85,7 +87,7 @@ export const AssetRanking: FC<{ type: AssetStatisticalRecordType }> = ({ type })
                 </div>
               </List.Item>
             ))
-          : <div><ErrorBlock status="empty" title="暂无数据" description="" /></div>}
+          : <div><ErrorBlock status="empty" title={t('common:empty')} description="" /></div>}
       </List>
     </div>
   );

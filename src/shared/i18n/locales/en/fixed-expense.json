@@ -9,10 +9,10 @@
     "statusAndPriority": "Status & Priority",
     "advanced": "Advanced",
     "name": "Name",
-    "namePlaceholder": "Enter name",
+    "namePlaceholder": "e.g. AWS",
     "amount": "Amount",
     "amountPlaceholder": "Enter amount",
-    "amountRequired": "Amount must be greater than 0",
+    "amountRequired": "Please enter amount",
     "currency": "Currency",
     "cycle": "Cycle",
     "customCycleDays": "Custom Days",
@@ -30,9 +30,9 @@
     "autoRenewDesc": "Will it auto-renew on expiry",
     "priority": "Priority",
     "sortOrder": "Sort Order",
-    "sortOrderDesc": "Lower numbers appear first",
+    "sortOrderDesc": "Use 10/20/30 intervals for easy insertion",
     "includeInStats": "Include in stats",
-    "includeInStatsDesc": "Counted in total but not monthly summary",
+    "includeInStatsDesc": "Still in list, hidden from monthly total",
     "provider": "Provider",
     "providerPlaceholder": "e.g. AWS",
     "account": "Account",
@@ -46,12 +46,29 @@
     "reminderDaysAhead": "Days Ahead",
     "reminderDaysAheadDesc": "Show countdown in list",
     "reminderDaysBefore": "days ahead",
-    "optional": "Optional",
+    "optional": "(Optional)",
     "required": "Required",
     "save": "Save",
     "saveSuccess": "Saved successfully",
     "createSuccess": "Created successfully",
-    "fillForm": "Please fill in the form"
+    "fillForm": "Please fill in the form",
+    "clear": "Clear",
+    "nameRequired": "Please enter name",
+    "amountDescription": "Per-cycle charge, normalized to monthly",
+    "cycleDescription": "Billing interval, normalized to monthly",
+    "customCycleDaysDescription": "e.g. 45 for every 45 days",
+    "typeDescription": "Affects icon & category in list",
+    "statusDescription": "Only 'Active' counts toward monthly total",
+    "priorityDescription": "Colored bar in list (Red=Essential)",
+    "billAndDateDescription": "Optional. Fill in for due date countdown",
+    "nextBillingDateDescription": "Shown as countdown in list",
+    "billingDayDescription": "Fixed day of month, display only",
+    "endDateDescription": "Change to 'Expired' manually after end date",
+    "paymentInfoDescription": "Optional, helps with search",
+    "paymentMethodPlaceholder": "e.g. Alipay",
+    "reminderDaysBeforeDescription": "e.g. 3 to remind 3 days before due",
+    "advancedDescription": "Usually no need to adjust",
+    "pleaseComplete": "Please complete the form"
   },
   "list": {
     "title": "Fixed Expenses",
@@ -59,12 +76,42 @@
     "upcoming": "Upcoming",
     "empty": "No fixed expenses",
     "add": "Add",
-    "monthlyExpense": "Active Monthly"
+    "monthlyExpense": "Active Monthly",
+    "addFixedExpense": "Add Fixed Expense",
+    "confirmDelete": "Confirm Delete",
+    "emptyDescription": "No fixed expenses",
+    "items": "items",
+    "total": "Total"
   },
   "detail": {
     "title": "Fixed Expense Detail",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "type": "Type",
+    "priority": "Priority",
+    "currency": "Currency",
+    "cycle": "Cycle",
+    "customCycleDays": "Custom Days",
+    "billingDay": "Billing Day",
+    "nextBillingDate": "Next Billing Date",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "provider": "Provider",
+    "account": "Account",
+    "paymentMethod": "Payment Method",
+    "autoRenew": "Auto Renew",
+    "reminderEnabled": "Reminder",
+    "reminderDaysBefore": "Remind Before",
+    "includeInStatistics": "Include in Stats",
+    "sort": "Sort Order",
+    "comment": "Note",
+    "yes": "Yes",
+    "no": "No",
+    "days": "{{count}} days",
+    "monthlyDay": "Day {{day}} of each month",
+    "confirmDelete": "Confirm Delete",
+    "deleteSuccess": "Deleted successfully",
+    "noFixedExpenseInfo": "No fixed expense info"
   },
   "cycle": {
     "daily": "Daily",
@@ -72,14 +119,110 @@
     "monthly": "Monthly",
     "quarterly": "Quarterly",
     "yearly": "Yearly",
-    "custom": "Custom"
+    "custom": "Custom",
+    "halfYearly": "Half Yearly",
+    "halfYearlyShort": "Half Year",
+    "monthlyShort": "Month",
+    "quarterlyShort": "Quarter",
+    "weeklyShort": "Week",
+    "yearlyShort": "Year"
   },
   "currency": {
     "cny": "CNY",
-    "defaultCny": "Default CNY"
+    "defaultCny": "Default CNY",
+    "cnyWithSymbol": "CNY (¥)",
+    "eur": "EUR (€)",
+    "gbp": "GBP (£)",
+    "hkd": "HKD (HK$)",
+    "jpy": "JPY (¥)",
+    "usd": "USD ($)"
   },
   "provider": {
     "alipay": "Alipay",
     "baiduCloud": "Baidu Cloud"
+  },
+  "constants": {
+    "cycle": {
+      "week": "Week",
+      "month": "Month",
+      "quarter": "Quarter",
+      "halfYear": "Half Year",
+      "year": "Year",
+      "custom": "Custom"
+    },
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    },
+    "type": {
+      "subscription": "Subscription",
+      "utility": "Utilities",
+      "housing": "Housing",
+      "transport": "Transport",
+      "family": "Family",
+      "work": "Work",
+      "other": "Other"
+    },
+    "priority": {
+      "must": "Essential",
+      "normal": "Normal",
+      "optional": "Optional"
+    },
+    "statusTab": {
+      "all": "All",
+      "active": "Active",
+      "paused": "Paused",
+      "expired": "Expired"
+    },
+    "currency": {
+      "cny": "CNY (¥)",
+      "usd": "USD ($)",
+      "hkd": "HKD (HK$)",
+      "jpy": "JPY (¥)",
+      "eur": "EUR (€)",
+      "gbp": "GBP (£)"
+    }
+  },
+  "utils": {
+    "todayDue": "Due today",
+    "tomorrowDue": "Due tomorrow",
+    "daysLaterDue": "Due in {{count}} days",
+    "dateDue": "Due {{date}}",
+    "yesterdayOverdue": "Overdue yesterday",
+    "overdueDays": "{{count}} days overdue"
+  },
+  "create": {
+    "title": "Add Fixed Expense"
+  },
+  "edit": {
+    "title": "Edit Fixed Expense"
+  },
+  "priority": {
+    "must": "Essential",
+    "normal": "Normal",
+    "optional": "Optional"
+  },
+  "status": {
+    "active": "Active",
+    "cancelled": "Cancelled",
+    "expired": "Expired",
+    "paused": "Paused"
+  },
+  "summary": {
+    "active": "Active",
+    "itemCount": "Items",
+    "monthlyExpected": "Monthly Expected",
+    "yearlyTotal": "Yearly Total"
+  },
+  "type": {
+    "family": "Family",
+    "housing": "Housing",
+    "other": "Other",
+    "subscription": "Subscription",
+    "transport": "Transport",
+    "utility": "Utilities",
+    "work": "Work"
   }
 }

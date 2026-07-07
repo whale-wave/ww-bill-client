@@ -1,3 +1,4 @@
+import { i18n } from '@/shared/i18n';
 import { useCallback, useState } from 'react';
 
 export interface CalculatorState {

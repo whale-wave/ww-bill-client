@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import React, { useCallback } from 'react';
 import Mask from '../mask';
+import { useTranslation } from '@/shared/i18n';
 
 const classPrefix = 'bwm-modal';
 
@@ -15,12 +16,13 @@ interface ModalProps {
 
 const defaultProps = {
   visible: false,
-  title: '标题',
 };
 
 export const Modal: FC<ModalProps> = (p) => {
+  const { t } = useTranslation('common');
   const props = Object.assign({}, defaultProps, p);
   const { visible, onClose, children, title, onCancel, onOk } = props;
+  const displayTitle = title === undefined || title === '标题' ? t('nav.title') : title;
 
   const onCancelClose = useCallback(() => {
     if (!onCancel && onClose)
@@ -36,14 +38,14 @@ export const Modal: FC<ModalProps> = (p) => {
           className={`${classPrefix}-content`}
           onClick={e => e.stopPropagation()}
         >
-          <header>{title}</header>
+          <header>{displayTitle}</header>
           <main>{children}</main>
           <footer>
             <button className={`${classPrefix}-cancel`} onClick={onCancelClose}>
-              取消
+              {t('nav.cancel')}
             </button>
             <button className={`${classPrefix}-ok`} onClick={onOk}>
-              确认
+              {t('nav.confirm')}
             </button>
           </footer>
         </div>

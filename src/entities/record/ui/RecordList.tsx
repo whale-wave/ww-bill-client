@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { RecordEntry } from '../types';
 import dayjs from 'dayjs';
 import React, { memo, useCallback, useMemo } from 'react';
@@ -14,18 +15,19 @@ interface RecordItemGroupProps {
 
 const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
   const { data } = props;
+  const { t } = useTranslation('record');
   const navigate = useNavigate();
 
   const amountInfo = useMemo(() => {
     const info = [
       {
         type: 'add',
-        name: '收入',
+        name: t('type.income'),
         amount: 0,
       },
       {
         type: 'sub',
-        name: '支出',
+        name: t('type.expend'),
         amount: 0,
       },
     ];
@@ -38,11 +40,11 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
     });
 
     return info.filter(i => i.amount !== 0);
-  }, [data]);
+  }, [data, t]);
 
   const onRecordItemClick = useCallback((record: RecordEntry) => () => {
     navigate(`/editing/${record.id}`, { state: record });
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="flex flex-col pt-3 border-0 border-b-[1px] border-[#ebebeb] border-solid last:border-0">

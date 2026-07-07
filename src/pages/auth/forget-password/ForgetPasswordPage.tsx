@@ -26,13 +26,13 @@ const ForgetPassword: FC = () => {
 
   const onSend = useCallback(() => {
     if (!isEmail(email)) {
-      Toast.show({ position: 'top', content: '邮箱格式错误' });
+      Toast.show({ position: 'top', content: t('forgetPassword.emailFormatError') });
       return;
     }
     void Dialog.confirm({
       content: (
         <div className="flex flex-col items-center font-bold">
-          <div>请确认邮箱</div>
+          <div>{t('forgetPassword.confirmEmail')}</div>
           <div>{email}</div>
         </div>
       ),

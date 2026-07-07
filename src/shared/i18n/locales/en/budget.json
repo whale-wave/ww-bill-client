@@ -6,7 +6,7 @@
   "used": "Used",
   "percent": "Percentage",
   "createCategory": "Create Category Budget",
-  "exceedWarning": "Category budgets exceed total budget",
+  "exceedWarning": "Category budgets exceed total",
   "actions": {
     "clear": "Clear",
     "save": "Confirm",
@@ -14,9 +14,65 @@
     "cancel": "Cancel"
   },
   "model": {
-    "title": "Budget Type",
+    "title": {
+      "monthlySummary": "Monthly Total Budget",
+      "yearlySummary": "Yearly Total Budget",
+      "monthlyCategory": "{{category}} Monthly Budget",
+      "yearlyCategory": "{{category}} Yearly Budget"
+    },
     "summary": "Total Budget",
     "category": "Category Budget",
     "amountPlaceholder": "Enter budget amount"
-  }
+  },
+  "dropdown": {
+    "monthlyBudget": "Monthly Budget",
+    "yearlyBudget": "Yearly Budget"
+  },
+  "validation": {
+    "amountRequired": "Please enter amount",
+    "amountCannotBeZero": "Budget cannot be 0",
+    "invalidAmount": "Please enter a valid amount",
+    "maxDigits": "Max 9 digits",
+    "maxDecimals": "Max 2 decimal places"
+  },
+  "content": {
+    "remainingBudget": "Remaining Budget:",
+    "monthlyBudget": "Monthly Budget:",
+    "budget": "Budget:",
+    "monthlyExpense": "Monthly Expense:",
+    "expense": "Expense:",
+    "thisMonth": "This Month"
+  },
+  "ringChart": {
+    "remaining": "Remaining",
+    "overBudget": "Over Budget"
+  },
+  "item": {
+    "edit": "Edit",
+    "summary": {
+      "month": "{{month}} Summary Budget",
+      "year": "{{year}} Summary Budget"
+    }
+  },
+  "card": {
+    "currentMonthTotalBudget": "Monthly Total Budget",
+    "setBudget": "Set Budget",
+    "currentMonthSummary": "{{month}} Budget Summary"
+  },
+  "warning": {
+    "title": "Warning",
+    "categoryBudgetExceedsTotal": "Category budgets exceed total. Auto-updating total."
+  },
+  "error": {
+    "operationFailed": "Operation failed"
+  },
+  "addBudget": "Add Budget",
+  "addCategoryBudget": "Add Category Budget",
+  "clearSummaryBudget": "Clear {{period}} Total Budget",
+  "clearSummaryBudgetWarning": "This will also clear all category budgets",
+  "deleteCategoryBudget": "Delete {{category}} Budget",
+  "editCategoryBudget": "Edit {{category}} Budget",
+  "editSummaryBudget": "Edit {{period}} Total Budget",
+  "emptyBudget": "No budget set",
+  "emptyCategoryBudget": "No category budget set"
 }

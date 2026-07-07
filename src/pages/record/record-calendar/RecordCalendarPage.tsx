@@ -28,10 +28,10 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
   } = useRecordCalendar();
 
   return (
-    <div className={classNames('page-new pt-[45px]', styles['record-calendar-page'])}>
+    <div className={classNames('page-new', styles['record-calendar-page'])}>
       <NavBar
         back={t('common:nav.back')}
-        right={<div onClick={onToToday}>{t('common:today')}</div>}
+        right={<div onClick={onToToday}>{t('common:time.today')}</div>}
         className="bg-primary flex-shrink-0 fixed top-0 left-0 w-full"
         onBack={onBack}
       >
@@ -84,7 +84,7 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
         }}
       />
       <div className="hidden">
-        日均预算
+        {t('calendar.dailyBudget')}
       </div>
       <div className="h-1 bg-[#f6f7f8] flex-shrink-0" />
       <div className="pb-8">

@@ -1,13 +1,14 @@
 import { isNaN } from 'mathjs';
+import { i18n } from '@/shared/i18n';
 
 export type AmountError = 'required' | 'zero' | 'invalid' | 'maxDigits' | 'maxDecimals';
 
 const ERROR_MAP: Record<AmountError, string> = {
-  required: '请输入金额',
-  zero: '预算不能为 0',
-  invalid: '请输入正确的金额',
-  maxDigits: '最多 9 位数字',
-  maxDecimals: '最多 2 位小数',
+  required: i18n.t('budget:validation.amountRequired'),
+  zero: i18n.t('budget:validation.amountCannotBeZero'),
+  invalid: i18n.t('budget:validation.invalidAmount'),
+  maxDigits: i18n.t('budget:validation.maxDigits'),
+  maxDecimals: i18n.t('budget:validation.maxDecimals'),
 };
 
 export function validateAmount(raw: string): AmountError | null {

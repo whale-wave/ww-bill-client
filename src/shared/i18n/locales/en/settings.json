@@ -22,7 +22,7 @@
   "amount": {
     "title": "Amount Settings",
     "visible": "Hide Total Amount",
-    "visibleDesc": "Hide home page total amount when enabled",
+    "visibleDesc": "Hide home page totals when enabled",
     "decimal": "Decimal Places"
   },
   "function": {
@@ -41,5 +41,8 @@
   },
   "notify": {
     "title": "System Notifications"
+  },
+  "amountVisible": {
+    "description": "Hide home page totals"
   }
 }

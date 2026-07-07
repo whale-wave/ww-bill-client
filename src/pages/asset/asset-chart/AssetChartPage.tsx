@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useCallback, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AssetStatisticalRecordType } from '@/entities/asset';
+import { useTranslation } from '@/shared/i18n';
 import { NavBar, TabList } from '@/shared/ui';
 import { AssetTabBar } from '../asset-manager/ui';
 import styles from './AssetChart.module.scss';
@@ -11,13 +12,14 @@ import { AssetTrendChart, CurAssetStatus, CurNetAssetStatus } from './ui';
 import { AssetRanking } from './ui/AssetRanking';
 
 const AssetChart: FC = () => {
+  const { t } = useTranslation('asset');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const type = searchParams.get('type') as AssetStatisticalRecordType || AssetStatisticalRecordType.ASSET;
+  const type = searchParams.get('chart.asset') as AssetStatisticalRecordType || AssetStatisticalRecordType.ASSET;
 
   const tabs = [
     {
-      name: '资产',
+      name: t('tab.asset'),
       value: AssetStatisticalRecordType.ASSET,
       children: (
         <>
@@ -28,7 +30,7 @@ const AssetChart: FC = () => {
       ),
     },
     {
-      name: '负债',
+      name: t('tab.liability'),
       value: AssetStatisticalRecordType.LIABILITY,
       children: (
         <>
@@ -39,7 +41,7 @@ const AssetChart: FC = () => {
       ),
     },
     {
-      name: '净资产',
+      name: t('tab.netAsset'),
       value: AssetStatisticalRecordType.NET_ASSET,
       children: (
         <>
@@ -62,9 +64,9 @@ const AssetChart: FC = () => {
   }, [navigate]);
 
   return (
-    <div className={classNames(styles['asset-chart'], 'page-new pt-[45px]')}>
-      <NavBar className="bg-white z-10" backArrow={false} back={false} right={<div className="text-base" onClick={onBack}>返回</div>}>
-        图表
+    <div className={classNames(styles['asset-chart'], 'page-new')}>
+      <NavBar className="bg-white z-10" backArrow={false} back={false} right={<div className="text-base" onClick={onBack}>{t('common:nav.back')}</div>}>
+        {t('title.assetChart')}
       </NavBar>
       <div className="px-2 fixed top-[45px] w-full bg-white z-10">
         <TabList

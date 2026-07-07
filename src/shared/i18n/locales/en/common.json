@@ -7,7 +7,8 @@
     "close": "Close",
     "loading": "Loading...",
     "uploading": "Uploading...",
-    "next": "Next"
+    "next": "Next",
+    "title": "Title"
   },
   "action": {
     "edit": "Edit",
@@ -28,23 +29,25 @@
     "mine": "Me"
   },
   "error": {
-    "loadFail": "Failed to load, please try again",
-    "saveFail": "Failed to save, please try again",
-    "shareFail": "Failed to share, please try again",
-    "saveImageFail": "Failed to save image, please try again",
-    "networkError": "Network error, please try again"
+    "loadFail": "Load failed. Try again.",
+    "saveFail": "Save failed. Try again.",
+    "shareFail": "Share failed. Try again.",
+    "saveImageFail": "Save image failed. Try again.",
+    "networkError": "Network error. Try again."
   },
   "confirm": {
     "delete": "Confirm Delete",
-    "deleteWarning": "Data cannot be recovered after deletion!",
+    "deleteWarning": "This cannot be undone!",
     "deleteSuccess": "Deleted successfully",
-    "copySuccess": "Copied successfully"
+    "copySuccess": "Copied successfully",
+    "confirmDelete": "Confirm Delete"
   },
   "time": {
     "today": "Today",
     "month": "",
     "year": "",
-    "day": ""
+    "day": "",
+    "week": "Week"
   },
   "amount": {
     "income": "Income",
@@ -55,28 +58,28 @@
   "empty": "No data",
   "categorySettings": {
     "title": "Category Settings",
-    "notice": "Currently only viewing is supported. Adding/editing/deleting will be available after API capability confirmation.",
+    "notice": "View-only. Add/edit/delete coming soon.",
     "loading": "Loading",
     "category": "Category",
     "loadFail": "Failed to load categories",
-    "loadFailDesc": "Please return and try again later.",
+    "loadFailDesc": "Please go back and try again.",
     "empty": "No categories",
-    "emptyDesc": "The API has not returned any viewable categories."
+    "emptyDesc": "No categories available."
   },
   "message": {
     "title": "Messages",
-    "emptySummary": "No homepage unread or summary data yet. Choose an entry below to view the latest messages.",
+    "emptySummary": "No messages yet. Tap below to view.",
     "newFollow": {
       "title": "New Followers",
-      "description": "Tap to view users who recently followed you"
+      "description": "Users who recently followed you"
     },
     "comment": {
       "title": "Comments",
-      "description": "Tap to view the latest comments you received"
+      "description": "Latest comments you received"
     },
     "systemNotify": {
       "title": "System Notifications",
-      "description": "Tap to view system notifications and reminders"
+      "description": "System notifications & reminders"
     }
   },
   "commonFunctions": {
@@ -85,6 +88,61 @@
     "invoiceAssistant": "Invoice Assistant",
     "fixedExpenses": "Fixed Expenses",
     "exchangeRateConverter": "Exchange Rate Converter",
-    "comingSoon": "Coming Soon"
-  }
+    "comingSoon": "Coming Soon",
+    "discovery": "Discover"
+  },
+  "api": {
+    "requestTimeout": "Request timeout",
+    "networkError": "Network error, please try again",
+    "loading": "Please wait...",
+    "requestFailed": "Request failed",
+    "loginExpired": "Login expired",
+    "authFailed": "Authentication failed",
+    "notLoggedIn": "Not logged in"
+  },
+  "dateTime": {
+    "sunday": "Sunday",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "yearSuffix": "",
+    "monthSuffix": "",
+    "daySuffix": "",
+    "longDate": "{{year}}-{{month}}-{{day}}"
+  },
+  "placeholder": {
+    "writeComment": "Write a comment..."
+  },
+  "share": {
+    "collect": "Collect",
+    "copyLink": "Copy Link"
+  },
+  "export": {
+    "recordId": "Record ID",
+    "remark": "Remark",
+    "amount": "Amount",
+    "recordTime": "Record Time",
+    "type": "Type",
+    "typeExpend": "Expense",
+    "typeIncome": "Income",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "categoryId": "Category ID",
+    "category": "Category",
+    "totalIncome": "Total Income",
+    "totalExpend": "Total Expense",
+    "totalSurplus": "Total Balance",
+    "title": "Export Data",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "selectStartTime": "Select start time",
+    "selectEndTime": "Select end time",
+    "exportSuccess": "Export successful",
+    "fileName": "{{appName}}_{{startTime}}_{{endTime}}.xlsx"
+  },
+  "avatar": "Avatar",
+  "coverImage": "Cover"
 }

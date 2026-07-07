@@ -3,6 +3,7 @@ import type { RefObject } from 'react';
 import { Dropdown, List } from 'antd-mobile';
 import { CheckOutline, DownFill } from 'antd-mobile-icons';
 import React, { useContext, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BudgetEntityType } from '@/entities/budget';
 import { BudgetPageContext } from '@/pages/budget/model/budgetPageContext.ts';
 import style from '@/pages/budget/ui/BudgetTop.module.scss';
@@ -13,6 +14,7 @@ interface BudgetTopProps {
 }
 
 export const BudgetTop: React.FC<BudgetTopProps> = (props) => {
+  const { t } = useTranslation('budget');
   const { dropDownWrapperRef } = props;
 
   const budgetPageContentValue = useContext(BudgetPageContext);
@@ -20,7 +22,7 @@ export const BudgetTop: React.FC<BudgetTopProps> = (props) => {
 
   const actions = useMemo(() => [
     {
-      title: '月预算',
+      title: t('dropdown.monthlyBudget'),
       key: BudgetEntityType.MONTH,
       onClick: () => {
         budgetPageContentValue?.setBudgetEntityType(BudgetEntityType.MONTH);
@@ -29,7 +31,7 @@ export const BudgetTop: React.FC<BudgetTopProps> = (props) => {
       },
     },
     {
-      title: '年预算',
+      title: t('dropdown.yearlyBudget'),
       key: BudgetEntityType.YEAR,
       onClick: () => {
         budgetPageContentValue?.setBudgetEntityType(BudgetEntityType.YEAR);
@@ -37,12 +39,12 @@ export const BudgetTop: React.FC<BudgetTopProps> = (props) => {
         dropdownRef.current?.close();
       },
     },
-  ], []);
+  ], [t]);
 
   return (
     <NavBar className={style['budget-navbar']}>
       <Dropdown ref={dropdownRef} className="" getContainer={dropDownWrapperRef.current} arrow={<DownFill className="text-black333 text-[15px]" />}>
-        <Dropdown.Item key="month" title={budgetPageContentValue?.budgetEntityType === BudgetEntityType.MONTH ? '月预算' : '年预算'} className="">
+        <Dropdown.Item key="month" title={budgetPageContentValue?.budgetEntityType === BudgetEntityType.MONTH ? t('dropdown.monthlyBudget') : t('dropdown.yearlyBudget')} className="">
           <List>
             {
               actions.map(item => (

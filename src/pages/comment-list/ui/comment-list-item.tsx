@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { mergerProps } from '@/shared/lib';
 
@@ -18,12 +19,13 @@ const defaultProps = {
 };
 
 export const CommentListItem: FC<CommentListItemProps> = (p) => {
+  const { t } = useTranslation('common');
   const props = mergerProps(defaultProps, p);
   return (
     <div className={classPrefix} onClick={props.onClick}>
       <div className={`${classPrefix}-left`}>
         <div className={`${classPrefix}-left-img`}>
-          <img src={props.avatar} alt="头像" />
+          <img src={props.avatar} alt={t("common:avatar")} />
         </div>
       </div>
       <div className={`${classPrefix}-middle`}>
@@ -37,7 +39,7 @@ export const CommentListItem: FC<CommentListItemProps> = (p) => {
       </div>
       {props.coverPicture && (
         <div className={`${classPrefix}-right`}>
-          <img src={props.coverPicture} alt="封面图" />
+          <img src={props.coverPicture} alt={t("common:coverImage")} />
         </div>
       )}
     </div>

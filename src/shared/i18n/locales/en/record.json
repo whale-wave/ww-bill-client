@@ -9,7 +9,9 @@
     "expend": "Expense",
     "category": "Category",
     "chooseCategory": "Please select a category",
-    "saveSuccess": "Saved successfully"
+    "saveSuccess": "Saved successfully",
+    "complete": "Done",
+    "selectTime": "Select Time"
   },
   "detail": {
     "title": "Records",
@@ -19,18 +21,66 @@
     "edit": "Edit",
     "delete": "Delete",
     "confirmDelete": "Confirm Delete",
-    "deleteWarning": "Data cannot be recovered after deletion!"
+    "deleteWarning": "This cannot be undone!"
   },
   "editing": {
     "title": "Edit Record"
   },
   "calendar": {
     "title": "Calendar",
-    "noRecord": "No records"
+    "noRecord": "No records",
+    "dailyBudget": "Daily Budget"
   },
   "search": {
     "title": "Search",
-    "placeholder": "Search records...",
+    "placeholder": "Search category/tag/note",
     "noResult": "No results"
+  },
+  "type": {
+    "expense": "Expense",
+    "income": "Income"
+  },
+  "edit": {
+    "type": "Type",
+    "amount": "Amount",
+    "date": "Date",
+    "remark": "Note",
+    "share": "Share"
+  },
+  "category": {
+    "food": "Food",
+    "shopping": "Shopping",
+    "daily": "Daily",
+    "transport": "Transport",
+    "vegetables": "Vegetables",
+    "fruits": "Fruits",
+    "snacks": "Snacks",
+    "sports": "Sports",
+    "entertainment": "Entertainment",
+    "communication": "Communication",
+    "clothing": "Clothing",
+    "beauty": "Beauty",
+    "housing": "Housing",
+    "home": "Home",
+    "children": "Children",
+    "elders": "Elders",
+    "social": "Social",
+    "travel": "Travel",
+    "tobaccoAlcohol": "Tobacco & Alcohol",
+    "digital": "Digital",
+    "car": "Car",
+    "medical": "Medical",
+    "books": "Books",
+    "study": "Study",
+    "pets": "Pets",
+    "giftMoney": "Gift Money",
+    "gifts": "Gifts",
+    "office": "Office",
+    "repair": "Repair",
+    "donation": "Donation",
+    "lottery": "Lottery",
+    "familyFriends": "Family & Friends",
+    "delivery": "Delivery",
+    "settings": "Settings"
   }
 }

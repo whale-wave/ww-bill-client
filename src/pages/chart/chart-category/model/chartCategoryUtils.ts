@@ -2,9 +2,10 @@ import type { AmountType, GetChartApiParamsCategory, GetChartApiResponse, GetCha
 import type { RecordEntry } from '@/entities/record';
 import { isMonthData, isWeekData, isYearData } from '@/entities/chart';
 import { math } from '@/shared/lib';
+import { i18n } from '@/shared/i18n';
 
-export const amountTypeName: Record<AmountType, string> = { sub: '支出', add: '收入' };
-export const timeRangeName: Record<TimeRangeCategory, string> = { week: '周', month: '月', year: '年' };
+export const amountTypeName: Record<AmountType, string> = { sub: i18n.t('chart:amount.expend'), add: i18n.t('chart:amount.income') };
+export const timeRangeName: Record<TimeRangeCategory, string> = { week: i18n.t('chart:tabs.week'), month: i18n.t('chart:tabs.month'), year: i18n.t('chart:tabs.year') };
 
 export interface ChartCategoryLocationState {
   rankingItem?: GetChartApiResponseRankingData;
@@ -55,7 +56,7 @@ export function getPeriodsFromData(data: GetChartApiResponse, category: TimeRang
   if (category === 'week' && isWeekData(data)) {
     return data.flatMap(yearItem => yearItem.data.map(weekItem => ({
       key: `${yearItem.value}-${weekItem.value}`,
-      name: `${yearItem.value}年第${weekItem.value}周`,
+      name: i18n.t('chart:periodLabel.yearWeek', { year: yearItem.value, week: weekItem.value }),
       amount: weekItem.amount,
       average: weekItem.average,
       ranking: weekItem.ranking,
@@ -65,7 +66,7 @@ export function getPeriodsFromData(data: GetChartApiResponse, category: TimeRang
   if (category === 'month' && isMonthData(data)) {
     return data.flatMap(yearItem => yearItem.data.map(monthItem => ({
       key: `${yearItem.value}-${monthItem.value}`,
-      name: `${yearItem.value}年${monthItem.value}月`,
+      name: i18n.t('chart:periodLabel.yearMonth', { year: yearItem.value, month: monthItem.value }),
       amount: monthItem.amount,
       average: monthItem.average,
       ranking: monthItem.ranking,
@@ -75,7 +76,7 @@ export function getPeriodsFromData(data: GetChartApiResponse, category: TimeRang
   if (category === 'year' && isYearData(data)) {
     return data.map(yearItem => ({
       key: `${yearItem.value}`,
-      name: `${yearItem.value}年`,
+      name: i18n.t('chart:periodLabel.yearOnly', { year: yearItem.value }),
       amount: yearItem.amount,
       average: yearItem.average,
       ranking: yearItem.ranking,

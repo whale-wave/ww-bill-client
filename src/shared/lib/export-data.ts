@@ -1,101 +1,60 @@
 import dayjs from 'dayjs';
 import * as xlsx from 'xlsx';
 import config from '@/shared/config';
+import { i18n } from '@/shared/i18n';
 
-export function exportData({
-  sheetName = config.appName,
-  data = [],
-  fileName = config.appName,
-}) {
-  const sheet = xlsx.utils.json_to_sheet(data);
-  const workbook = { Sheets: { [sheetName]: sheet }, SheetNames: [sheetName] };
-  const excelBuffer: any = xlsx.write(workbook, {
-    bookType: 'xlsx',
-    type: 'array',
-  });
-  // 转成blob对象
-  const blob = new Blob([excelBuffer], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8',
-  });
-  // 创建一个a标签
-  const href = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = href;
-  link.download = `${fileName}.xlsx`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+function parseTime(val: string): dayjs.Dayjs {
+  const ts = Number(val);
+  return !Number.isNaN(ts) ? dayjs(ts) : dayjs(val);
 }
 
-export function exportRecordData({
-  data,
-  range,
-  expend,
-  income,
-}: {
-  data: any;
-  range: {
-    startTime: string;
-    endTime: string;
-  };
-  expend: number;
-  income: number;
-}) {
-  const sheet = data.map(
-    ({
-      id,
-      remark,
-      time,
-      type,
-      createdAt,
-      updatedAt,
-      amount,
-      category: { id: categoryId, name: categoryName },
-    }: SheetData) => ({
-      记录ID: id,
-      备注: remark,
-      金额: amount,
-      记账时间: dayjs(time).format('YYYY-MM-DD HH:mm:ss'),
-      类型: type === 'sub' ? '支出' : '收入',
-      创建时间: dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss'),
-      更新时间: dayjs(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
-      类别ID: categoryId,
-      类别: categoryName,
-    }),
-  );
+export function exportData(data: any) {
+  if (data && data.length > 0) {
+    const sheetData = data.map((item) => {
+      const { id, remark, amount, time, type, createTime, updateTime } = item;
+      const { category } = item;
+      const { id: cId = '', name: cName = '' } = category || {};
+      return {
+        [i18n.t('common:export.recordId')]: id,
+        [i18n.t('common:export.remark')]: remark,
+        [i18n.t('common:export.amount')]: amount,
+        [i18n.t('common:export.recordTime')]: parseTime(time).format('YYYY-MM-DD HH:mm:ss'),
+        [i18n.t('common:export.type')]: type === 'sub' ? i18n.t('common:export.typeExpend') : i18n.t('common:export.typeIncome'),
+        [i18n.t('common:export.createdAt')]: parseTime(createTime).format('YYYY-MM-DD HH:mm:ss'),
+        [i18n.t('common:export.updatedAt')]: parseTime(updateTime).format('YYYY-MM-DD HH:mm:ss'),
+        [i18n.t('common:export.categoryId')]: cId,
+        [i18n.t('common:export.category')]: cName,
+      };
+    });
 
-  sheet.push({
-    记录ID: '总收入',
-    备注: income,
-  });
+    const sheet = xlsx.utils.json_to_sheet(sheetData);
+    const { totalIncome, totalExpend } = data.reduce(
+      (prev: any, next: any) => {
+        if (next.type === 'add') {
+          prev.totalIncome += Number(next.amount);
+        }
+        else if (next.type === 'sub') {
+          prev.totalExpend += Number(next.amount);
+        }
+        return prev;
+      },
+      { totalIncome: 0, totalExpend: 0 },
+    );
+    const surplus = totalIncome - totalExpend;
 
-  sheet.push({
-    记录ID: '总支出',
-    备注: expend,
-  });
+    const extraData = [
+      [i18n.t('common:export.totalIncome'), totalIncome, i18n.t('common:export.totalExpense'), totalExpend, i18n.t('common:export.totalSurplus'), surplus],
+    ];
+    xlsx.utils.sheet_add_aoa(sheet, extraData, { origin: -1 });
+    const book = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(book, sheet, 'Sheet1');
 
-  sheet.push({
-    记录ID: '总结余',
-    备注: income - expend,
-  });
-
-  exportData({
-    data: sheet,
-    fileName: `${config.appName} - ${range.startTime}~${range.endTime}记录数据`,
-    sheetName: `${range.startTime}~${range.endTime}`,
-  });
+    const appName = config.APP_NAME;
+    const startTime = parseTime(data[0].createTime).format('YYYY-MM-DD');
+    const endTime = parseTime(data[data.length - 1].createTime).format('YYYY-MM-DD');
+    const fileName = i18n.t('common:export.fileName', { appName, startTime, endTime });
+    xlsx.writeFile(book, fileName, { bookType: 'xlsx' });
+  }
 }
 
-interface SheetData {
-  id: string;
-  remark: string;
-  time: string;
-  type: string;
-  createdAt: string;
-  updatedAt: string;
-  amount: string;
-  category: {
-    id: string;
-    name: string;
-  };
-}
+export default exportData;

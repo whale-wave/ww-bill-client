@@ -2,16 +2,18 @@ import type { FC } from 'react';
 import { TabBar } from 'antd-mobile';
 import { HistogramOutline, ReceiptOutline } from 'antd-mobile-icons';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
 
 export const AssetTabBar: FC<{ activeKey: string }> = ({ activeKey }) => {
+  const { t } = useTranslation('asset');
   const navigate = useNavigate();
 
   const tabs = [
     {
       key: 'home',
-      title: '资产',
+      title: t('tab.assets'),
       icon: <ReceiptOutline />,
       onClick: () => {
         navigate(ROUTES_PATH.ASSET.getPath(), { replace: true });
@@ -19,7 +21,7 @@ export const AssetTabBar: FC<{ activeKey: string }> = ({ activeKey }) => {
     },
     {
       key: 'chart',
-      title: '图表',
+      title: t('tab.chart'),
       icon: <HistogramOutline />,
       onClick: () => {
         navigate(ROUTES_PATH.ASSET_CHART.getPath(), { replace: true });

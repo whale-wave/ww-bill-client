@@ -12,7 +12,7 @@ const FixedExpenseEdit: React.FC = () => {
 
   return (
     <div className="page-new overflow-hidden">
-      <NavBar onBack={onBack}>编辑固定支出</NavBar>
+      <NavBar onBack={onBack}>{t('form.edit')}</NavBar>
       <div className="flex-grow overflow-auto bg-bg-gray pb-4">
         <FixedExpenseForm id={id} />
       </div>

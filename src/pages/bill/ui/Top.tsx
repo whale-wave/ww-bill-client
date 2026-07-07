@@ -4,6 +4,7 @@ import { DatePicker } from 'antd-mobile';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import React, { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { mergerProps } from '@/shared/lib';
 import { spliceNumberByPoint } from '@/shared/lib/time';
 import { Icon } from '@/shared/ui';
@@ -25,19 +26,20 @@ const defaultProps = {
 
 const Top: FC<TopProps> = (p) => {
   const { data, setDate, date } = mergerProps({ ...defaultProps }, p);
+  const { t } = useTranslation('bill');
 
   const onSelectYear = () => {
     DatePicker.prompt({
       precision: 'year',
       defaultValue: date,
-      renderLabel: (_, v) => `${v}年`,
+      renderLabel: (_, v) => `${v}${t('year')}`,
       onConfirm: setDate,
     });
   };
 
   const showYear = useCallback(() => {
-    return dayjs(date).format('YYYY年');
-  }, [date]);
+    return dayjs(date).format(`YYYY${t('year')}`);
+  }, [date, t]);
 
   return (
     <div className={classNames(styles.wrapper, 'flex flex-col flex-shrink-0')}>
@@ -50,7 +52,7 @@ const Top: FC<TopProps> = (p) => {
             <Icon name="show-bottom" style={{ fontSize: 12, marginLeft: 4 }} />
           </div>
         </span>
-        <div>账单</div>
+        <div>{t('detail')}</div>
         <span />
       </div>
       <div
@@ -59,7 +61,7 @@ const Top: FC<TopProps> = (p) => {
           'flex flex-col justify-around items-center flex-grow',
         )}
       >
-        <span>结余</span>
+        <span>{t('balance')}</span>
         <div>
           {spliceNumberByPoint(data.balance)[0]}
           .
@@ -69,7 +71,7 @@ const Top: FC<TopProps> = (p) => {
       <div className={classNames(styles.bottom, 'flex flex-shrink-0')}>
         <div className={styles.income}>
           <div>
-            <span>收入</span>
+            <span>{t('income')}</span>
             <div>
               {spliceNumberByPoint(data.income)[0]}
               .
@@ -79,7 +81,7 @@ const Top: FC<TopProps> = (p) => {
         </div>
         <div className={styles.expand}>
           <div>
-            <span>支出</span>
+            <span>{t('expend')}</span>
             <div>
               {spliceNumberByPoint(data.expand)[0]}
               .

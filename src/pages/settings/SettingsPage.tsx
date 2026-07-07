@@ -144,7 +144,7 @@ const Settings: FC = () => {
           onChange={onToggleVisibleAmountSwitch}
         />
       ),
-      description: '开启后, 默认隐藏首页总收支金额',
+      description: t('amount.visibleDesc'),
     },
   ] as CustomListItem[];
   const systemSettingListGroup = [

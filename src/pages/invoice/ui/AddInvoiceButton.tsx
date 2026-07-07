@@ -2,6 +2,7 @@ import type { BottomActionActionItem } from '@/shared/ui';
 import { AddOutline } from 'antd-mobile-icons';
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/shared/i18n';
 import { BottomAction } from '@/shared/ui';
 
 interface AddInvoiceButtonProps {
@@ -9,6 +10,7 @@ interface AddInvoiceButtonProps {
 
 const AddInvoiceButton: React.FC<AddInvoiceButtonProps> = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation('invoice');
 
   const actions = useMemo(() => {
     return [
@@ -19,7 +21,7 @@ const AddInvoiceButton: React.FC<AddInvoiceButtonProps> = () => {
             <>
               <AddOutline />
               <span>
-                添加发票信息
+                {t('addInvoiceInfo')}
               </span>
             </>
           );
@@ -29,7 +31,7 @@ const AddInvoiceButton: React.FC<AddInvoiceButtonProps> = () => {
         },
       },
     ] as BottomActionActionItem[];
-  }, []);
+  }, [t]);
 
   return (
     <BottomAction className="h-[50px]" placeholderClassName="h-[50px]" actions={actions}></BottomAction>);

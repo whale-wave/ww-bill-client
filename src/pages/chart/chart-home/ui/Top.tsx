@@ -4,41 +4,43 @@ import type { AmountType, TimeRangeCategory } from '@/entities/chart';
 import { Dropdown } from 'antd-mobile';
 import { CheckOutline } from 'antd-mobile-icons';
 import { useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';
 import style from '@/pages/chart/chart-home/ui/Top.module.scss';
 import { cn } from '@/shared/lib';
 import { Icon, TabList } from '@/shared/ui';
 
-const timeRangeCategoryList = [
-  {
-    name: '周',
-    value: 'week',
-  },
-  {
-    name: '月',
-    value: 'month',
-  },
-  {
-    name: '年',
-    value: 'year',
-  },
-] as { name: string; value: TimeRangeCategory }[];
-
-const amountTypeList = [
-  {
-    name: '支出',
-    icon: 'huankuanzhichu-copy',
-    value: 'sub',
-  },
-  {
-    name: '收入',
-    icon: 'jiekuanshouru-copy',
-    value: 'add',
-  },
-] as { name: string; icon: string; value: AmountType }[];
-
 export const Top: FC = () => {
+  const { t } = useTranslation('chart');
   const { currentTimeRangeCategory, setCurrentTimeRangeCategory, currentAmountType, setCurrentAmountType } = useChartHome();
+
+  const timeRangeCategoryList = useMemo(() => [
+    {
+      name: t('tabs.week'),
+      value: 'week',
+    },
+    {
+      name: t('tabs.month'),
+      value: 'month',
+    },
+    {
+      name: t('tabs.year'),
+      value: 'year',
+    },
+  ] as { name: string; value: TimeRangeCategory }[], [t]);
+
+  const amountTypeList = useMemo(() => [
+    {
+      name: t('amount.expend'),
+      icon: 'huankuanzhichu-copy',
+      value: 'sub',
+    },
+    {
+      name: t('amount.income'),
+      icon: 'jiekuanshouru-copy',
+      value: 'add',
+    },
+  ] as { name: string; icon: string; value: AmountType }[], [t]);
 
   const currentAmountTypeItem = useMemo(() => amountTypeList.find(item => item.value === currentAmountType)!, [currentAmountType]);
 

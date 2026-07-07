@@ -4,6 +4,7 @@ import { Input } from 'antd-mobile';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from '@/shared/i18n';
 
 const COUNTDOWN_TIME_SECOND = 60;
 
@@ -18,6 +19,7 @@ const WwInputVerifyCode: FC<{
   onSend?: () => Promise<boolean>;
   autoCountdown?: boolean;
 }> = (_props) => {
+  const { t } = useTranslation('auth');
   const props = _props;
   const { startTime, setStartTime, autoCountdown = false, className } = props;
   const [now, setNow] = useState<Dayjs>();
@@ -88,13 +90,12 @@ const WwInputVerifyCode: FC<{
       {!remainingTime
         ? (
             <div className="flex-shrink-0" onClick={onSend}>
-              重新获取
+              {t('sign.resendCaptcha')}
             </div>
           )
         : (
             <div className="flex-shrink-0 text-[#ccc]">
-              {remainingTime}
-              s重新获取
+              {t('retry.afterSeconds', { seconds: remainingTime })}
             </div>
           )}
     </div>

@@ -11,7 +11,7 @@ const FixedExpenseCreate: React.FC = () => {
 
   return (
     <div className="page-new overflow-hidden">
-      <NavBar onBack={onBack}>新增固定支出</NavBar>
+      <NavBar onBack={onBack}>{t('form.create')}</NavBar>
       <div className="flex-grow overflow-auto bg-bg-gray pb-4">
         <FixedExpenseForm />
       </div>

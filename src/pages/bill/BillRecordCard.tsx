@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import type { Bill } from '@/entities/record';
 import { Card } from 'antd-mobile';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBillPageStore } from '@/pages/bill/model';
 import { BillTabsType } from '@/pages/bill/types';
 import { mergerProps } from '@/shared/lib';
@@ -16,6 +17,7 @@ const defaultProps = {
 
 export const BillRecordCard: FC<{ data?: Bill }> = (p) => {
   const { data } = mergerProps({ ...defaultProps }, p);
+  const { t } = useTranslation('bill');
 
   const billTabType = useBillPageStore(({ billTabType }) => billTabType);
   const isMonth = useMemo(() => billTabType === BillTabsType.MONTH, [billTabType]);
@@ -23,22 +25,22 @@ export const BillRecordCard: FC<{ data?: Bill }> = (p) => {
   return (
     <Card className="!bg-primary !py-2 !px-[12px] mb-2 text-[12px]" bodyClassName="space-y-2 !px-2 ">
       <div>
-        {isMonth ? '年' : '总'}
-        结余
+        {isMonth ? t('year') : t('total')}
+        {t('balance')}
       </div>
       <div className="text-[24px] font-bold">{data?.balance || 0}</div>
       <div className="flex">
         <div className="w-[50%] space-x-1">
           <span>
-            {isMonth ? '年' : '总'}
-            收入
+            {isMonth ? t('year') : t('total')}
+            {t('income')}
           </span>
           <span className="text-[15px] font-bold">{data?.income || 0}</span>
         </div>
         <div className="w-[50%] space-x-1">
           <span>
-            {isMonth ? '年' : '总'}
-            支出
+            {isMonth ? t('year') : t('total')}
+            {t('expend')}
           </span>
           <span className="text-[15px] font-bold">{data?.expand || 0}</span>
         </div>

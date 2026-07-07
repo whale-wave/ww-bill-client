@@ -3,12 +3,35 @@
   "postTopic": "Post",
   "topicDetail": "Topic Detail",
   "comment": "Comments",
-  "reply": "Reply",
-  "commentList": "All Comments",
+  "reply": {
+    "allComments": "All Comments",
+    "sortByHot": "Popular",
+    "empty": "No comments yet, tap to comment"
+  },
+  "commentList": {
+    "back": "Back",
+    "title": "Comments",
+    "loading": "Loading..."
+  },
   "follow": "Follow",
-  "followList": "Following",
+  "followList": {
+    "fansLabel": "Followers: ",
+    "topicsLabel": "Posts: ",
+    "followed": "Following",
+    "follow": "+Follow",
+    "fans": "Followers",
+    "userNamePrefix": "'s ",
+    "startedFollowing": "started following you"
+  },
   "newFollow": "New Followers",
-  "personal": "Profile",
+  "personal": {
+    "tab": {
+      "home": "Home",
+      "topics": "Posts",
+      "favorites": "Favorites"
+    },
+    "achievementTitle": "Bookkeeping Achievements"
+  },
   "post": {
     "title": "New Post",
     "content": "Share your thoughts...",
@@ -24,15 +47,34 @@
     "shareToFriend": "Share to Friend",
     "noData": "No share image available",
     "saved": "Image saved",
-    "saveFail": "Failed to save image, please try again",
+    "saveFail": "Failed to save. Try again.",
     "success": "Shared successfully",
     "copied": "Link copied",
-    "unsupported": "Share not supported in this environment",
+    "unsupported": "Sharing not supported here",
     "cancelled": "Share cancelled",
     "fail": "Failed to share, please try again",
     "empty": "Nothing to share",
-    "emptyHint": "Please enter the share page from bill or record."
+    "emptyHint": "Enter from bill or record page.",
+    "wechat": "WeChat",
+    "wechatMoments": "Moments",
+    "qqZone": "QZone",
+    "share": "Share",
+    "linkHint": "Share link generated with button",
+    "noRemark": "No remark",
+    "recordBill": "Record this real bill",
+    "saveImage": "Save Image"
   },
   "like": "Like",
-  "noMore": "No more content"
+  "noMore": "No more content",
+  "tab": {
+    "recommended": "Recommended",
+    "latest": "Latest"
+  },
+  "userInfo": {
+    "defaultName": "Anonymous",
+    "followLabel": "Following",
+    "fansLabel": "Followers",
+    "followedButton": "Following",
+    "followButton": "+Follow"
+  }
 }

@@ -14,12 +14,20 @@
     "cancel": "取消"
   },
   "model": {
-    "title": "预算类型",
+    "title": {
+      "monthlySummary": "月度总预算",
+      "yearlySummary": "年度总预算",
+      "monthlyCategory": "{{category}}月预算",
+      "yearlyCategory": "{{category}}年预算"
+    },
     "summary": "总预算",
     "category": "分类预算",
     "amountPlaceholder": "请输入预算金额"
   },
-  "warning": "警告",
+  "warning": {
+    "title": "警告",
+    "categoryBudgetExceedsTotal": "分类预算之和已超过总预算, 将自动更新总预算"
+  },
   "clearSummaryBudgetWarning": "清除总预算将同时为您清除所有分类预算",
   "emptyBudget": "暂无预算",
   "addBudget": "添加预算",
@@ -28,5 +36,43 @@
   "editSummaryBudget": "编辑{{period}}度总预算",
   "editCategoryBudget": "编辑{{category}}预算",
   "clearSummaryBudget": "清除{{period}}度总预算",
-  "deleteCategoryBudget": "删除{{category}}预算"
+  "deleteCategoryBudget": "删除{{category}}预算",
+  "dropdown": {
+    "monthlyBudget": "月预算",
+    "yearlyBudget": "年预算"
+  },
+  "validation": {
+    "amountRequired": "请输入金额",
+    "amountCannotBeZero": "预算不能为 0",
+    "invalidAmount": "请输入正确的金额",
+    "maxDigits": "最多 9 位数字",
+    "maxDecimals": "最多 2 位小数"
+  },
+  "content": {
+    "remainingBudget": "剩余预算:",
+    "monthlyBudget": "本月预算:",
+    "budget": "预算:",
+    "monthlyExpense": "本月支出:",
+    "expense": "支出:",
+    "thisMonth": "本月"
+  },
+  "ringChart": {
+    "remaining": "剩余",
+    "overBudget": "已超支"
+  },
+  "item": {
+    "edit": "编辑",
+    "summary": {
+      "month": "{{month}}月总预算",
+      "year": "{{year}}年总预算"
+    }
+  },
+  "card": {
+    "currentMonthTotalBudget": "月总预算",
+    "setBudget": "设置预算",
+    "currentMonthSummary": "{{month}}月预算总览"
+  },
+  "error": {
+    "operationFailed": "操作失败"
+  }
 }

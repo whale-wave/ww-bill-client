@@ -115,8 +115,8 @@ export function useFixedExpenseForm(id?: string) {
 
   const onFinishFailed = useCallback((errorInfo: any) => {
     const first = errorInfo?.errorFields?.[0]?.errors?.[0];
-    void Toast.show({ icon: 'fail', content: first || '请完善表单' });
-  }, []);
+    void Toast.show({ icon: 'fail', content: first || t('form.pleaseComplete') });
+  }, [t]);
 
   const onFinish = useCallback(async (values: FormValues) => {
     if (isDisabled)

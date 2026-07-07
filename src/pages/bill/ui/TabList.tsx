@@ -1,4 +1,5 @@
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBillPageStore } from '@/pages/bill/model';
 import { BillTabsType } from '@/pages/bill/types';
 import { TabList } from '@/shared/ui';
@@ -6,15 +7,16 @@ import { TabList } from '@/shared/ui';
 interface BillTabListProps {}
 
 const BillTabList: React.FC<BillTabListProps> = memo(() => {
+  const { t } = useTranslation('bill');
   const { billTabType, setBillTabTab } = useBillPageStore(({ billTabType, setBillTabTab }) => ({ billTabType, setBillTabTab }));
 
   const tabs = [
     {
-      name: '月账单',
+      name: t('monthlyBill'),
       value: BillTabsType.MONTH,
     },
     {
-      name: '年账单',
+      name: t('yearlyBill'),
       value: BillTabsType.YEAR,
     },
   ];

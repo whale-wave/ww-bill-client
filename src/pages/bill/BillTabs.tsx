@@ -2,18 +2,20 @@ import type { FC } from 'react';
 import { DatePicker } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBillPageStore } from '@/pages/bill/model';
 import { TabList } from '@/pages/bill/ui';
 import { Icon } from '@/shared/ui';
 
 export const BillTabs: FC = memo(() => {
+  const { t } = useTranslation('bill');
   const selectDate = useBillPageStore(({ selectDate }) => selectDate);
   const setSelectDate = useBillPageStore(({ setSelectDate }) => setSelectDate);
 
   const { getIsMonthTabType } = useBillPageStore(({ getIsMonthTabType }) => ({ getIsMonthTabType }));
 
   const showYear = useMemo(() => {
-    return dayjs(selectDate).format('YYYY年');
+    return dayjs(selectDate).format(`YYYY${t('year')}`);
   }, [selectDate]);
 
   const onSelectYear = useCallback(() => {
@@ -23,7 +25,7 @@ export const BillTabs: FC = memo(() => {
     void DatePicker.prompt({
       precision: 'year',
       defaultValue: selectDate,
-      renderLabel: (_, v) => `${v}年`,
+      renderLabel: (_, v) => `${v}${t('year')}`,
       onConfirm: setSelectDate,
     });
   }, [selectDate]);

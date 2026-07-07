@@ -12,7 +12,7 @@ const AddAssetAccount: FC = () => {
   const { t } = useTranslation('asset');
   const navigate = useNavigate();
   const [query] = useSearchParams();
-  const parentId = query.get('parentId') || null;
+  const parentId = query.get('form.selectGroup') || null;
 
   const { data } = useGetAssetGroupQuery();
 
@@ -41,7 +41,7 @@ const AddAssetAccount: FC = () => {
   }, []);
 
   return (
-    <div className="page pt-[45px] !overflow-auto">
+    <div className="page !overflow-auto">
       <NavBar back={t('common:nav.back')}>
         {t('addAccount')}
       </NavBar>

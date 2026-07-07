@@ -2,20 +2,22 @@ import type { FC } from 'react';
 import type { AmountType, GetChartApiResponseWeekDataWeekItemDayItem } from '@/entities/chart';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/shared/lib';
 import { Icon } from '@/shared/ui';
 
 export const TooltipContent: FC<{ data: GetChartApiResponseWeekDataWeekItemDayItem; currentAmountType: AmountType }> = ({ data, currentAmountType }) => {
+  const { t } = useTranslation('chart');
   const list = useMemo(() => {
     return data.data.slice(0, 3);
   }, [data]);
 
   if (list.length === 0)
-    return <div className={cn('py-1 px-7')}>没有费用</div>;
+    return <div className={cn('py-1 px-7')}>{t('tooltip.noExpenses')}</div>;
 
   return (
     <div className={cn('text-xs')}>
-      <div className={cn('text-[#fff] bg-[#4e4c4d] py-1 flex items-center justify-center rounded-md')}>最大3笔交易</div>
+      <div className={cn('text-[#fff] bg-[#4e4c4d] py-1 flex items-center justify-center rounded-md')}>{t('tooltip.top3Transactions')}</div>
       <div className={cn('flex flex-col mt-2 mb-1')}>
         {list.map(item => (
           <div key={item.id} className={cn('flex items-center h-[24px] space-x-3')}>
@@ -29,7 +31,7 @@ export const TooltipContent: FC<{ data: GetChartApiResponseWeekDataWeekItemDayIt
         ))}
       </div>
       <div className={cn('flex space-x-2')}>
-        <div>{currentAmountType === 'sub' ? '当月总支出:' : '当月总收入:'}</div>
+        <div>{currentAmountType === 'sub' ? t('tooltip.monthlyTotal.expend') : t('tooltip.monthlyTotal.income')}</div>
         <div>{data.amount}</div>
       </div>
     </div>

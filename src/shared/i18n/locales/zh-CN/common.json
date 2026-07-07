@@ -7,7 +7,8 @@
     "close": "关闭",
     "loading": "加载中...",
     "uploading": "上传中...",
-    "next": "下一步"
+    "next": "下一步",
+    "title": "标题"
   },
   "action": {
     "edit": "编辑",
@@ -38,13 +39,15 @@
     "delete": "确认删除",
     "deleteWarning": "删除后数据不可恢复!",
     "deleteSuccess": "删除成功",
-    "copySuccess": "复制成功"
+    "copySuccess": "复制成功",
+    "confirmDelete": "确认删除"
   },
   "time": {
     "today": "今天",
     "month": "月",
     "year": "年",
-    "day": "日"
+    "day": "日",
+    "week": "周"
   },
   "amount": {
     "income": "收入",
@@ -60,7 +63,8 @@
     "category": "分类",
     "loadFail": "分类加载失败",
     "loadFailDesc": "请稍后返回重试。",
-    "emptyDesc": "接口暂未返回可查看分类。"
+    "emptyDesc": "接口暂未返回可查看分类。",
+    "empty": "暂无分类"
   },
   "commonFunctions": {
     "title": "常用功能",
@@ -68,6 +72,77 @@
     "invoiceAssistant": "发票助手",
     "fixedExpenses": "固定支出",
     "exchangeRateConverter": "汇率换算器",
-    "comingSoon": "敬请期待"
-  }
+    "comingSoon": "敬请期待",
+    "discovery": "发现"
+  },
+  "api": {
+    "requestTimeout": "请求超时",
+    "networkError": "网络异常，请稍后重试",
+    "loading": "请稍后...",
+    "requestFailed": "请求失败",
+    "loginExpired": "登录已过期",
+    "authFailed": "身份验证失败",
+    "notLoggedIn": "未登录账号"
+  },
+  "dateTime": {
+    "sunday": "星期日",
+    "monday": "星期一",
+    "tuesday": "星期二",
+    "wednesday": "星期三",
+    "thursday": "星期四",
+    "friday": "星期五",
+    "saturday": "星期六",
+    "yearSuffix": "年",
+    "monthSuffix": "月",
+    "daySuffix": "日",
+    "longDate": "{{year}}年{{month}}月{{day}}日"
+  },
+  "placeholder": {
+    "writeComment": "写评论..."
+  },
+  "share": {
+    "collect": "收藏",
+    "copyLink": "复制链接"
+  },
+  "export": {
+    "recordId": "记录ID",
+    "remark": "备注",
+    "amount": "金额",
+    "recordTime": "记账时间",
+    "type": "类型",
+    "typeExpend": "支出",
+    "typeIncome": "收入",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "categoryId": "类别ID",
+    "category": "类别",
+    "totalIncome": "总收入",
+    "totalExpend": "总支出",
+    "totalSurplus": "总结余",
+    "title": "导出数据",
+    "startTime": "开始时间",
+    "endTime": "结束时间",
+    "selectStartTime": "请选择开始时间",
+    "selectEndTime": "请选择结束时间",
+    "exportSuccess": "导出成功",
+    "fileName": "{{appName}}_{{startTime}}_{{endTime}}.xlsx"
+  },
+  "message": {
+    "newFollow": {
+      "title": "新的关注",
+      "description": "查看最近关注你的人"
+    },
+    "comment": {
+      "title": "评论",
+      "description": "查看你收到的最新评论"
+    },
+    "systemNotify": {
+      "title": "系统通知",
+      "description": "查看系统通知和提醒"
+    },
+    "emptySummary": "暂无首页未读或汇总数据，选择下方入口查看最新消息。",
+    "title": "消息"
+  },
+  "avatar": "头像",
+  "coverImage": "封面图"
 }

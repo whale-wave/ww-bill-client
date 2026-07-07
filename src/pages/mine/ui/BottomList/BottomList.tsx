@@ -2,37 +2,39 @@ import { List, Toast } from 'antd-mobile';
 import { EditSOutline, ExclamationCircleOutline, SetOutline } from 'antd-mobile-icons';
 import React, { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/shared/i18n';
 import pkg from '../../../../../package.json';
 
 interface BottomListProps {
 }
 
 const BottomList: React.FC<BottomListProps> = () => {
+  const { t } = useTranslation('user');
   const navigate = useNavigate();
   const list = useMemo(() => {
     return [
       {
-        title: '设置',
+        title: t('bottomList.settings'),
         prefix: <div className="flex items-center text-[20px]"><SetOutline /></div>,
         onClick: () => {
           navigate('/settings');
         },
       },
       {
-        title: '意见反馈',
+        title: t('bottomList.feedback'),
         prefix: <div className="flex items-center text-[20px]"><EditSOutline /></div>,
         onClick: () => {
           Toast.show({
-            content: '敬请期待',
+            content: t('tabs.comingSoon'),
           });
         },
       },
       {
-        title: `关于鲸浪记账 v${pkg.version}`,
+        title: t('bottomList.about', { version: pkg.version }),
         prefix: <div className="flex items-center text-[18px]"><ExclamationCircleOutline /></div>,
       },
     ];
-  }, []);
+  }, [t]);
 
   useEffect(() => {
   }, []);

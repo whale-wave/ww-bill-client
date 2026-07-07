@@ -10,7 +10,8 @@
     "category": "分类",
     "chooseCategory": "选择分类",
     "saveSuccess": "保存成功",
-    "selectTime": "时间选择"
+    "selectTime": "时间选择",
+    "complete": "完成"
   },
   "detail": {
     "title": "明细",
@@ -27,11 +28,59 @@
   },
   "calendar": {
     "title": "日历",
-    "noRecord": "暂无记录"
+    "noRecord": "暂无记录",
+    "dailyBudget": "日均预算"
   },
   "search": {
     "title": "搜索",
-    "placeholder": "搜索记录...",
+    "placeholder": "搜索类别/标签/备注",
     "noResult": "暂无搜索结果"
+  },
+  "type": {
+    "expense": "支出",
+    "income": "收入"
+  },
+  "edit": {
+    "type": "类型",
+    "amount": "金额",
+    "date": "日期",
+    "remark": "备注",
+    "share": "分享"
+  },
+  "category": {
+    "food": "餐饮",
+    "shopping": "购物",
+    "daily": "日用",
+    "transport": "交通",
+    "vegetables": "蔬菜",
+    "fruits": "水果",
+    "snacks": "零食",
+    "sports": "运动",
+    "entertainment": "娱乐",
+    "communication": "通讯",
+    "clothing": "服饰",
+    "beauty": "美容",
+    "housing": "住房",
+    "home": "居家",
+    "children": "孩子",
+    "elders": "长辈",
+    "social": "社交",
+    "travel": "旅行",
+    "tobaccoAlcohol": "烟酒",
+    "digital": "数码",
+    "car": "汽车",
+    "medical": "医疗",
+    "books": "书籍",
+    "study": "学习",
+    "pets": "宠物",
+    "giftMoney": "礼金",
+    "gifts": "礼物",
+    "office": "办公",
+    "repair": "维修",
+    "donation": "捐赠",
+    "lottery": "彩票",
+    "familyFriends": "亲友",
+    "delivery": "快递",
+    "settings": "设置"
   }
 }

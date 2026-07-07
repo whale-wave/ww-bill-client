@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { List } from 'antd-mobile';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/shared/i18n';
 import { CheckInfo } from '@/entities/follow';
 import { Icon } from '@/shared/ui';
 import styles from './UserInfo.module.scss';
@@ -25,6 +26,7 @@ const UserInfo: FC<UserInfoProps> = ({
   onCheckIn,
   numberInfo,
 }) => {
+  const { t } = useTranslation('user');
   const navigate = useNavigate();
   const toUserInfo = () => navigate('/user-info');
 
@@ -49,7 +51,7 @@ const UserInfo: FC<UserInfoProps> = ({
             alt={name}
           />
         </div>
-        <span>{name || '未登录'}</span>
+        <span>{name || t('notLoggedIn')}</span>
       </div>
       <CheckInfo className="absolute" data={numberInfo} />
       {name && (
@@ -57,7 +59,7 @@ const UserInfo: FC<UserInfoProps> = ({
           className="absolute flex justify-center items-center"
           onClick={onCheckIn}
         >
-          {checkIn ? '已打卡' : '打卡'}
+          {checkIn ? t('checkIn.alreadyCheckedIn') : t('checkIn.button')}
         </button>
       )}
       <div
@@ -71,7 +73,7 @@ const UserInfo: FC<UserInfoProps> = ({
       >
         <List mode="card">
           <List.Item prefix={<Icon name="vip" className={classNames(styles.icon, 'text-[24px]')} />}>
-            暂不支持 VIP 功能
+            {t('vipNotSupported')}
           </List.Item>
         </List>
       </div>

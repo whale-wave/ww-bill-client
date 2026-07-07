@@ -6,7 +6,12 @@ import { useTranslation } from '@/shared/i18n';
 import { NavBar } from '@/shared/ui';
 import styles from './FollowList.module.scss';
 
-const Item: FC<ItemProps> = ({ data }) => {
+interface ItemProps {
+  data: Follow;
+  t: (key: string) => string;
+}
+
+const Item: FC<ItemProps> = ({ data, t }) => {
   return (
     <div className={styles.item}>
       <img className="rounded-full overflow-hidden" src={data.avatar} alt="" />
@@ -14,11 +19,11 @@ const Item: FC<ItemProps> = ({ data }) => {
         <div className={styles.name}>{data.name}</div>
         <div className={styles.desc}>
           <span>
-            粉丝：
+            {t('follow.fansLabel')}
             {data.fans}
           </span>
           <span>
-            帖子：
+            {t('follow.topicsLabel')}
             {data.topics}
           </span>
         </div>
@@ -26,15 +31,16 @@ const Item: FC<ItemProps> = ({ data }) => {
       <div className={styles['btn-wrapper']}>
         {data.isFollow
           ? (
-              <button className={styles.active}>已关注</button>
+              <button className={styles.active}>{t('follow.following')}</button>
             )
           : (
-              <button>+关注</button>
+              <button>{t('follow.follow')}</button>
             )}
       </div>
     </div>
   );
 };
+
 function FollowList() {
   const { id, type } = useParams();
   const navigate = useNavigate();
@@ -56,8 +62,9 @@ function FollowList() {
   });
 
   const followName = (type: FollowTypeEnum) => {
-    return type === FollowTypeEnum.FOLLOW ? t('follow') : '粉丝';
+    return type === FollowTypeEnum.FOLLOW ? t('follow.following') : t('follow.fans');
   };
+
   return (
     <div>
       <NavBar
@@ -65,18 +72,14 @@ function FollowList() {
         back={t('common:nav.back')}
         onBack={() => navigate(-1)}
       >
-        阿文的
+        {t('followList.userNamePrefix')}
         {followName(followType)}
       </NavBar>
       {data.data.map(i => (
-        <Item key={i.id} data={i} />
+        <Item key={i.id} data={i} t={t} />
       ))}
     </div>
   );
 }
 
 export default FollowList;
-
-interface ItemProps {
-  data: Follow;
-}

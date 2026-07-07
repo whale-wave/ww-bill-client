@@ -42,13 +42,12 @@ export const BudgetModel: React.FC<BudgetModelProps> = ({
 
   const title = useMemo(() => {
     const isMonthly = type === BudgetEntityType.MONTH;
-    const scope = isMonthly ? '每月' : '年度';
     const catName = category?.name ?? '';
     if (level === BudgetEntityLevel.SUMMARY) {
-      return isMonthly ? '每月总预算' : '年度总预算';
+      return isMonthly ? t('model.title.monthlySummary') : t('model.title.yearlySummary');
     }
-    return `${scope}${catName}预算`;
-  }, [type, level, category]);
+    return isMonthly ? t('model.title.monthlyCategory', { category: catName }) : t('model.title.yearlyCategory', { category: catName });
+  }, [type, level, category, t]);
 
   const handleConfirm = async () => {
     const error = validateAmount(amount);

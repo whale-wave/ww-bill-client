@@ -20,7 +20,9 @@
     "title": "Ranking",
     "amount": "Amount",
     "percent": "Percentage",
-    "count": "Count"
+    "count": "Count",
+    "expendTitle": "Expense Ranking",
+    "incomeTitle": "Income Ranking"
   },
   "tabs": {
     "week": "Week",
@@ -30,5 +32,51 @@
   "amount": {
     "income": "Income",
     "expend": "Expense"
-  }
+  },
+  "amountType": {
+    "expense": "Expense",
+    "income": "Income"
+  },
+  "timeRange": {
+    "week": "Week",
+    "month": "Month",
+    "year": "Year"
+  },
+  "periodLabel": {
+    "yearWeek": "Week {{week}}, {{year}}",
+    "yearMonth": "{{month}}/{{year}}",
+    "yearOnly": "{{year}}",
+    "weekSuffix": "",
+    "monthSuffix": "",
+    "yearSuffix": ""
+  },
+  "tooltip": {
+    "noExpenses": "No expenses",
+    "maxTransactions": "Max 3 transactions",
+    "totalExpenseThisMonth": "Total expense this month:",
+    "totalIncomeThisMonth": "Total income this month:",
+    "top3Transactions": "Top 3 Transactions",
+    "monthlyTotal": {
+      "expend": "Total expense this month:",
+      "income": "Total income this month:"
+    }
+  },
+  "tab": {
+    "thisWeek": "This Week",
+    "lastWeek": "Last Week",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month",
+    "thisYear": "This Year",
+    "lastYear": "Last Year",
+    "weekNumber": "Week {{week}}",
+    "yearWeekNumber": "Week {{week}}, {{year}}",
+    "monthNumber": "Month {{month}}",
+    "yearMonthNumber": "{{month}}/{{year}}",
+    "yearNumber": "{{year}}"
+  },
+  "averageLabel": "Average:",
+  "totalExpend": "Total Expense:",
+  "totalIncome": "Total Income:",
+  "emptyTitle": "Start recording~",
+  "emptyDescription": "Tap \"Book\" to start recording."
 }

@@ -1,5 +1,6 @@
 import type { FixedExpenseCurrency } from '@/entities/fixed-expense';
 import dayjs from 'dayjs';
+import { i18n } from '@/shared/i18n';
 import { currencySymbolMap } from './constants';
 
 export function formatAmountWithCurrency(amount: string | number, currency?: FixedExpenseCurrency) {
@@ -24,16 +25,16 @@ export function formatNextBillingDate(date?: string) {
   const diff = target.diff(today, 'day');
 
   if (diff === 0)
-    return '今天到期';
+    return i18n.t('fixed-expense:list.todayDue');
   if (diff === 1)
-    return '明天到期';
+    return i18n.t('fixed-expense:list.tomorrowDue');
   if (diff > 1 && diff <= 7)
-    return `${diff} 天后到期`;
+    return i18n.t('fixed-expense:list.daysLaterDue', { days: diff });
   if (diff > 7)
-    return target.format('M月D日 到期');
+    return i18n.t('fixed-expense:list.dateDue', { date: target.format('M月D日') });
   if (diff === -1)
-    return '昨天已到期';
-  return `已逾期 ${Math.abs(diff)} 天`;
+    return i18n.t('fixed-expense:list.yesterdayOverdue');
+  return i18n.t('fixed-expense:list.overdueDays', { days: Math.abs(diff) });
 }
 
 export function getNextBillingTone(date?: string): 'urgent' | 'soon' | 'normal' | 'overdue' {

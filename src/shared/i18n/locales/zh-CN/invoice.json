@@ -8,21 +8,32 @@
   "copyInfo": "复制信息",
   "form": {
     "name": "发票抬头",
-    "companyName": "名称",
+    "companyName": "公司名称",
     "taxNumber": "税号",
-    "companyAddress": "单位地址",
-    "phone": "电话号码",
+    "companyAddress": "公司地址",
+    "phone": "电话",
     "accountOpeningBank": "开户银行",
     "bankAccount": "银行账号",
-    "companyNameRequired": "名称不能为空",
-    "taxNumberRequired": "税号不能为空",
+    "companyNameRequired": "请输入公司名称",
+    "taxNumberRequired": "请输入税号",
     "placeholder": "请输入",
-    "required": " (必填)",
+    "required": "请输入",
     "amount": "金额",
     "number": "发票号码",
     "date": "开票日期",
     "type": "类型",
     "note": "备注",
     "save": "保存"
+  },
+  "indexTitle": "发票助手",
+  "createTitle": "添加发票",
+  "editTitle": "编辑抬头",
+  "taxNumber": "税号:",
+  "addInvoiceInfo": "添加发票信息",
+  "editButton": {
+    "edit": "编辑",
+    "delete": "删除",
+    "confirmDelete": "确定删除该发票信息?",
+    "notFetched": "未获取到发票信息"
   }
 }

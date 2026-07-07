@@ -74,7 +74,7 @@ const Budget: React.FC<BudgetProps> = () => {
 
             if (isSummaryBudget) {
               const confirm = await Dialog.confirm({
-                title: t('warning'),
+                title: t('warning.title'),
                 content: t('clearSummaryBudgetWarning'),
               });
               if (!confirm)
@@ -110,7 +110,7 @@ const Budget: React.FC<BudgetProps> = () => {
   }, [budgetPageContentValue.budgetEntityType]);
 
   return (
-    <div className={classNames('page-new bg-[#f6f6f6] fixed top-0 left-0 h-screen w-full pt-[45px]', style['budget-page'])} ref={dropDownWrapperRef}>
+    <div className={classNames('page-new bg-[#f6f6f6] fixed top-0 left-0 h-screen w-full', style['budget-page'])} ref={dropDownWrapperRef}>
       <BudgetPageContext.Provider value={budgetPageContentValue}>
         { typeof curLevel === 'number' && (
           <BudgetModel

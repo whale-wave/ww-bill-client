@@ -1,3 +1,4 @@
+import { i18n } from '@/shared/i18n';
 import type { UseQueryOptions } from '@tanstack/react-query';
 import type { ToastHandler } from 'antd-mobile/es/components/toast';
 import type {
@@ -119,7 +120,7 @@ export function useGetRecordBillQuery(options?: {
       return;
     }
     loadingToastHandle.current = Toast.show({
-      content: '数据加载中',
+      content: i18n.t('common:api.loading'),
       duration: 0,
       position: 'top',
     });

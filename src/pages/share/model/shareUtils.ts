@@ -1,3 +1,4 @@
+import { i18n } from '@/shared/i18n';
 import type { ShareData } from '@/pages/share/ShareCanvas';
 
 type ShareSource = Record<string, unknown>;
@@ -18,9 +19,9 @@ function readString(source: ShareSource | undefined, keys: string[]): string {
 }
 
 function normalizeType(value: string): ShareData['type'] | '' {
-  if (value === 'sub' || value === '支出')
+  if (value === 'sub' || value === i18n.t('common:export.typeExpend'))
     return 'sub';
-  if (value === 'add' || value === '收入')
+  if (value === 'add' || value === i18n.t('common:export.typeIncome'))
     return 'add';
   return '';
 }
@@ -34,7 +35,7 @@ function formatDateText(value: string): string {
   const year = date.getFullYear();
   const month = `${date.getMonth() + 1}`.padStart(2, '0');
   const day = `${date.getDate()}`.padStart(2, '0');
-  return `${year}年${month}月${day}日`;
+  return i18n.t('common:dateTime.longDate', { year, month, day });
 }
 
 export function normalizeShareData(source: ShareSource | undefined): ShareData | null {
@@ -50,7 +51,7 @@ export function normalizeShareData(source: ShareSource | undefined): ShareData |
   if (!amount || !type || !categoryName)
     return null;
 
-  return { amount, type, categoryName, remark, dateText: dateText || '未记录日期' };
+  return { amount, type, categoryName, remark, dateText: dateText || i18n.t('common:export.noDate') };
 }
 
 export function getSourceFromSearchParams(searchParams: URLSearchParams): ShareSource {

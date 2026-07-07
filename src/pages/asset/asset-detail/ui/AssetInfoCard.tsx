@@ -1,16 +1,18 @@
 import type { FC } from 'react';
 import { Button } from 'antd-mobile';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useGetAssetByIdQuery } from '@/entities/asset';
 import { Icon } from '@/shared/ui';
 import { AssetAdjustPopup } from './AssetAdjustPopup';
 
 export const AssetInfoCard: FC = () => {
+  const { t } = useTranslation('asset');
   const { id } = useParams<{ id: string }>();
   const { data } = useGetAssetByIdQuery({ params: id! });
   const [adjustPopupVisible, setAdjustPopupVisible] = useState(false);
-  const text = data?.assetGroup.type === 'sub' ? '欠款' : '余额';
+  const text = data?.assetGroup.type === 'sub' ? t('form.debt') : t('form.balance');
 
   return (
     <>
@@ -37,7 +39,7 @@ export const AssetInfoCard: FC = () => {
               color="primary"
               onClick={() => setAdjustPopupVisible(true)}
             >
-              调整
+              {t('adjust.submit')}
               {text}
             </Button>
           </div>

@@ -8,14 +8,16 @@ import {
   getToolsForgetPasswordEmailVerifyCodeApi,
 } from '@/entities/auth';
 import { WwInput, WwInputVerifyCode } from '@/pages/auth/forget-password/ui';
+import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { NavBar } from '@/shared/ui';
 
 const ForgetPasswordVerifyCode: FC = () => {
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const [captcha, setCaptcha] = useState('');
   const [urlSearchParams] = useSearchParams();
-  const [email] = useState(urlSearchParams.get('email') || '');
+  const [email] = useState(urlSearchParams.get('login.email') || '');
   const [startTime, setStartTime] = useState<Dayjs>();
 
   const isDisabled = useMemo(() => {
@@ -73,12 +75,12 @@ const ForgetPasswordVerifyCode: FC = () => {
   return (
     <div className="page flex flex-col">
       <NavBar back={t('common:nav.back')} onBack={onGoToBack}>
-        找回密码
+        {t('forgetPassword.title')}
       </NavBar>
       <div className="flex-grow flex flex-col items-center space-y-6 pt-10">
         <WwInput value={email} disabled clearable={false} />
         <WwInputVerifyCode
-          placeholder="请输入验证码"
+          placeholder={t('captcha.placeholder')}
           value={captcha}
           onChange={setCaptcha}
           startTime={startTime}
@@ -94,7 +96,7 @@ const ForgetPasswordVerifyCode: FC = () => {
           onClick={onSend}
           disabled={isDisabled}
         >
-          下一步
+          {t('common:nav.next')}
         </Button>
       </div>
     </div>

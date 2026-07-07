@@ -10,7 +10,8 @@ import {
 } from 'antd-mobile';
 import { DownOutline, RightOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { FixedExpenseCycle } from '@/entities/fixed-expense';
 import { useTranslation } from '@/shared/i18n';
 import { cn, normalizeAmount } from '@/shared/lib';
 import {
@@ -45,6 +46,7 @@ const Section: React.FC<SectionProps> = ({
   className,
   children,
 }) => {
+  const { t } = useTranslation('fixed-expense');
   const [open, setOpen] = useState(defaultOpen);
   const expanded = !collapsible || open;
 
@@ -65,7 +67,7 @@ const Section: React.FC<SectionProps> = ({
             )}
             <span className="text-[13px] font-medium text-slate-800">{title}</span>
             {required && (
-              <span className="rounded bg-rose-50 px-1 text-[10px] text-rose-500">必填</span>
+              <span className="rounded bg-rose-50 px-1 text-[10px] text-rose-500">{t('form.required')}</span>
             )}
           </div>
           {description && (
@@ -93,7 +95,8 @@ interface DatePickerFieldProps {
 }
 
 const DatePickerField: React.FC<DatePickerFieldProps> = (props) => {
-  const { value, onChange, placeholder = '请选择日期', clearable = true, min, max } = props;
+  const { t } = useTranslation('fixed-expense');
+  const { value, onChange, placeholder = t('form.selectDate'), clearable = true, min, max } = props;
   const [visible, setVisible] = useState(false);
 
   const display = useMemo(() => (value ? dayjs(value).format('YYYY-MM-DD') : ''), [value]);
@@ -115,7 +118,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = (props) => {
               onChange?.(undefined);
             }}
           >
-            清除
+            {t('form.clear')}
           </span>
         )}
       </div>
@@ -140,16 +143,14 @@ interface BillingDayFieldProps {
 }
 
 const BillingDayField: React.FC<BillingDayFieldProps> = ({ value, onChange }) => {
+  const { t } = useTranslation('fixed-expense');
+
   return (
     <div className="flex items-center space-x-2">
       <Stepper min={1} max={31} allowEmpty value={value as any} onChange={onChange as any} />
       {typeof value === 'number' && value >= 1 && value <= 31 && (
         <span className="text-[12px] text-font-gray">
-          每月第
-          {' '}
-          {value}
-          {' '}
-          日
+          {t('detail.monthlyDay', { day: value })}
         </span>
       )}
     </div>
@@ -199,16 +200,16 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
         <Form.Item
           name="name"
           label={<RequiredLabel text={t('form.name')} />}
-          rules={[{ required: true, message: '请输入名称' }]}
+          rules={[{ required: true, message: t('form.nameRequired') }]}
         >
-          <Input placeholder="例如:百度云会员" clearable />
+          <Input placeholder={t('form.namePlaceholder')} clearable />
         </Form.Item>
         <Form.Item
           name="amount"
-          label={<RequiredLabel text="金额" />}
-          description="单期实际扣款金额,汇总会按周期换算到月"
+          label={<RequiredLabel text={t('form.amount')} />}
+          description={t('form.amountDescription')}
           rules={[
-            { required: true, message: '请输入金额' },
+            { required: true, message: t('form.amountRequired') },
             {
               validator: async (_, value) => {
                 if (!value || Number(value) <= 0)
@@ -223,7 +224,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
         <Form.Item
           name="cycle"
           label={<RequiredLabel text={t('form.cycle')} />}
-          description="决定金额按多久扣一次,系统会折算成月支出"
+          description={t('form.cycleDescription')}
         >
           <Selector columns={3} options={cycleOptions} />
         </Form.Item>
@@ -231,12 +232,12 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
           <Form.Item
             name="customCycleDays"
             label={<RequiredLabel text={t('form.customCycleDays')} />}
-            description="例如每 45 天扣一次,就填 45"
+            description={t('form.customCycleDaysDescription')}
             rules={[
               {
                 validator: async (_, value) => {
                   if (!value || value < 1)
-                    throw new Error('自定义天数必须 ≥ 1');
+                    throw new Error(t('form.customDaysMin'));
                 },
               },
             ]}
@@ -245,7 +246,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
             <Stepper min={1} max={3650} />
           </Form.Item>
         )}
-        <Form.Item name="type" label={t('form.type')} description="影响列表中的图标与归类">
+        <Form.Item name="type" label={t('form.type')} description={t('form.typeDescription')}>
           <Selector columns={3} options={typeOptions} />
         </Form.Item>
       </Section>
@@ -254,21 +255,21 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
         <Form.Item
           name="status"
           label={t('form.status')}
-          description="只有 '生效中' 会计入 '生效中月支出'"
+          description={t('form.statusDescription')}
         >
           <Selector columns={4} options={statusOptions} />
         </Form.Item>
         <Form.Item
           name="priority"
           label={t('form.priority')}
-          description="以左侧色条形式展示在列表 (红=必要)"
+          description={t('form.priorityDescription')}
         >
           <Selector columns={3} options={priorityOptions} />
         </Form.Item>
         <Form.Item
           name="autoRenew"
           label={t('form.autoRenew')}
-          description="到期是否会被自动扣款续约,仅作记录"
+          description={t('form.autoRenewDesc')}
           childElementPosition="right"
         >
           <Switch />
@@ -277,14 +278,14 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
 
       <Section
         title={t('form.billAndDate')}
-        description="均为可选,填写后可获得到期倒计时"
+        description={t('form.billAndDateDescription')}
         collapsible
         defaultOpen
       >
         <Form.Item
           name="nextBillingDate"
           label={t('form.nextBillingDate')}
-          description="下一次实际扣款的日期,列表会显示倒计时"
+          description={t('form.nextBillingDateDescription')}
           childElementPosition="right"
         >
           <DatePickerField placeholder={t('form.selectDate')} />
@@ -292,7 +293,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
         <Form.Item
           name="billingDay"
           label={t('form.billingDay')}
-          description="每月固定第几号扣款,仅用于展示"
+          description={t('form.billingDayDescription')}
           childElementPosition="right"
         >
           <BillingDayField />
@@ -303,7 +304,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
         <Form.Item
           name="endDate"
           label={t('form.endDate')}
-          description="到期后请手动改为 '已过期' 状态"
+          description={t('form.endDateDescription')}
           childElementPosition="right"
         >
           <DatePickerField placeholder={t('form.optional')} />
@@ -312,18 +313,18 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
 
       <Section
         title={t('form.paymentInfo')}
-        description="可选,方便日后查找"
+        description={t('form.paymentInfoDescription')}
         collapsible
         defaultOpen={false}
       >
         <Form.Item name="provider" label={t('form.provider')}>
-          <Input placeholder="例如:百度云" clearable />
+          <Input placeholder={t('form.providerPlaceholder')} clearable />
         </Form.Item>
         <Form.Item name="account" label={t('form.account')}>
           <Input placeholder={t('form.optional')} clearable />
         </Form.Item>
         <Form.Item name="paymentMethod" label={t('form.paymentMethod')}>
-          <Input placeholder="例如:支付宝" clearable />
+          <Input placeholder={t('form.paymentMethodPlaceholder')} clearable />
         </Form.Item>
       </Section>
 
@@ -340,7 +341,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
           <Form.Item
             name="reminderDaysBefore"
             label={t('form.reminderDaysAhead')}
-            description="例如设为 3,则在到期前 3 天提醒"
+            description={t('form.reminderDaysBeforeDescription')}
             childElementPosition="right"
           >
             <Stepper min={0} max={60} />
@@ -352,7 +353,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
         <Form.Item
           name="includeInStatistics"
           label={t('form.includeInStats')}
-          description="关闭后仍显示在列表,但不计入顶部月/年总支出"
+          description={t('form.includeInStatsDesc')}
           childElementPosition="right"
         >
           <Switch />
@@ -364,7 +365,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
 
       <Section
         title={t('form.advanced')}
-        description="一般无需调整"
+        description={t('form.advancedDescription')}
         collapsible
         defaultOpen={false}
       >
@@ -374,7 +375,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
         <Form.Item
           name="sort"
           label={t('form.sortOrder')}
-          description="数字越小越靠前,推荐 10/20/30 间隔以便插入"
+          description={t('form.sortOrderDesc')}
           childElementPosition="right"
         >
           <Stepper min={-99} max={99} />

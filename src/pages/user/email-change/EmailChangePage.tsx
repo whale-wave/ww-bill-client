@@ -5,10 +5,12 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { getUserEmailChangeEmailCaptchaNewEmailApi, usePostUserEmailChangeEmailMutation } from '@/entities/user-email';
 import { WwInput, WwInputVerifyCode } from '@/pages/auth/forget-password/ui';
 import { NavBar, WwButton } from '@/shared/ui';
+import { useTranslation } from '@/shared/i18n';
 
 interface EmailChangeProps {}
 
 const EmailChange: React.FC<EmailChangeProps> = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [urlSearchParams] = useSearchParams();
   const email = urlSearchParams.get('email') || '';
@@ -24,7 +26,7 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
   const onSendNewCaptcha = useCallback(async () => {
     if (!newEmail.trim()) {
       Toast.show({
-        content: '请输入新邮箱',
+        content: t('user:emailChange.newEmail.placeholder'),
         position: 'top',
       });
       return false;
@@ -48,12 +50,12 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
       default:
         return false;
     }
-  }, [newEmail, captcha]);
+  }, [newEmail, captcha, t]);
 
   const onSendChangeEmail = useCallback(async () => {
     if (!newEmail.trim()) {
       Toast.show({
-        content: '请输入新邮箱',
+        content: t('user:emailChange.newEmail.placeholder'),
         position: 'top',
       });
       return;
@@ -61,7 +63,7 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
 
     if (!newCaptcha.trim()) {
       Toast.show({
-        content: '请输入验证码',
+        content: t('user:emailChange.newEmail.captchaPlaceholder'),
         position: 'top',
       });
       return;
@@ -84,7 +86,7 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
       case 200:
         setTimeout(() => navigate(-1));
     }
-  }, [captcha, newCaptcha, newEmail]);
+  }, [captcha, newCaptcha, newEmail, t]);
 
   if (!email || !captcha) {
     return <Navigate to="/" />;
@@ -92,8 +94,8 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
 
   return (
     <div className="page">
-      <NavBar back="返回" onBack={onBack}>
-        修改邮箱
+      <NavBar back={t('common:nav.back')} onBack={onBack}>
+        {t('user:emailChange.title')}
       </NavBar>
       <div className="flex flex-grow flex-col items-center">
         <WwInput className="mt-16" value={email} readonly disabled />
@@ -101,18 +103,18 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
           className="mt-4"
           value={newEmail}
           onChange={setNewEmail}
-          placeholder="请输入新邮箱"
+          placeholder={t('user:emailChange.newEmail.placeholder')}
         />
         <WwInputVerifyCode
           className="mt-4"
-          placeholder="请输入验证码"
+          placeholder={t('user:emailChange.newEmail.captchaPlaceholder')}
           value={newCaptcha}
           onChange={setNewCaptcha}
           startTime={startTime}
           setStartTime={setStartTime}
           onSend={onSendNewCaptcha}
         />
-        <WwButton onClick={onSendChangeEmail}>修改</WwButton>
+        <WwButton onClick={onSendChangeEmail}>{t('user:emailChange.submit')}</WwButton>
       </div>
     </div>
   );

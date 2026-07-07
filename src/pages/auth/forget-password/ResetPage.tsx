@@ -10,15 +10,17 @@ import {
 } from 'react-router-dom';
 import { postAuthPasswordForgetResetApi } from '@/entities/auth';
 import { WwInput } from '@/pages/auth/forget-password/ui';
+import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { NavBar } from '@/shared/ui';
 
 const ForgetPasswordReset: FC = () => {
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [urlSearchParams] = useSearchParams();
-  const email = urlSearchParams.get('email')!;
+  const email = urlSearchParams.get('login.email')!;
   const captcha = urlSearchParams.get('captcha')!;
 
   const onGoTo = useCallback(
@@ -35,12 +37,12 @@ const ForgetPasswordReset: FC = () => {
 
   const onSend = useCallback(async () => {
     if (!password || !confirmPassword) {
-      Toast.show({ content: '请输入密码', position: 'top' });
+      Toast.show({ content: t('forgetPassword.pleaseEnterPassword'), position: 'top' });
       return;
     }
 
     if (password !== confirmPassword) {
-      Toast.show({ content: '两次密码不一致', position: 'top' });
+      Toast.show({ content: t('forgetPassword.passwordMismatch'), position: 'top' });
       return;
     }
 
@@ -73,20 +75,20 @@ const ForgetPasswordReset: FC = () => {
   return (
     <div className="page flex flex-col">
       <NavBar back={t('common:nav.back')} onBack={onGoToBack}>
-        找回密码
+        {t('forgetPassword.title')}
       </NavBar>
       <div className="flex-grow flex flex-col items-center space-y-6 pt-10">
         <WwInput
           value={password}
           onChange={setPassword}
           type="password"
-          placeholder="新密码"
+          placeholder={t('forgetPassword.newPassword')}
         />
         <WwInput
           value={confirmPassword}
           onChange={setConfirmPassword}
           type="password"
-          placeholder="确认密码"
+          placeholder={t('forgetPassword.confirmPassword')}
         />
         <Button
           block
@@ -95,7 +97,7 @@ const ForgetPasswordReset: FC = () => {
           size="large"
           onClick={onSend}
         >
-          下一步
+          {t('common:nav.next')}
         </Button>
       </div>
     </div>

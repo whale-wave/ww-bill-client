@@ -5,6 +5,7 @@ import {
   baseResponseProcess,
   errorResponseProcess,
 } from './request-process';
+import { i18n } from '@/shared/i18n';
 
 let host = '';
 if (typeof import.meta.env.VITE_HOST === 'string')
@@ -38,21 +39,21 @@ request.interceptors.response.use(
 
     if (code === 'ECONNABORTED' || message?.includes('timeout')) {
       Toast.clear();
-      Toast.show({ content: '请求超时', icon: 'fail', duration: 1000 });
+      Toast.show({ content: i18n.t('common:api.requestTimeout'), icon: 'fail', duration: 1000 });
       console.error('请求超时');
       return Promise.reject(createRequestError({
         data: null,
-        message: ['请求超时'],
+        message: [i18n.t('common:api.requestTimeout')],
         statusCode: 408,
       }));
     }
 
     if (!response) {
       Toast.clear();
-      Toast.show({ content: '网络异常，请稍后重试', icon: 'fail', duration: 1000 });
+      Toast.show({ content: i18n.t('common:api.networkError'), icon: 'fail', duration: 1000 });
       return Promise.reject(createRequestError({
         data: null,
-        message: ['网络异常，请稍后重试'],
+        message: [i18n.t('common:api.networkError')],
         statusCode: 0,
       }));
     }
@@ -69,7 +70,7 @@ export default request;
 
 function loading() {
   Toast.show({
-    content: '请稍后...',
+    content: i18n.t('common:api.loading'),
     maskClickable: false,
     position: 'top',
     duration: 0,
@@ -85,7 +86,7 @@ function normalizeErrorResponse(response: {
   status: number;
   statusText?: string;
 }) {
-  const message = response.data?.message ?? response.statusText ?? '请求失败';
+  const message = response.data?.message ?? response.statusText ?? i18n.t('common:api.requestFailed');
   return {
     data: response.data?.data ?? null,
     message: Array.isArray(message) ? message : [message],

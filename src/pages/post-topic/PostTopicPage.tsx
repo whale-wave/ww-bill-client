@@ -41,7 +41,7 @@ const PostTopic: FC = () => {
     try {
       const { statusCode, message } = await postTopic({ content, images: imgs });
       if (statusCode === 200) {
-        Toast.show({ content: '发布成功', duration: 600 });
+        Toast.show({ content: t('post.success'), duration: 600 });
         setTimeout(() => {
           navigator('/community');
         }, 600);
@@ -68,12 +68,12 @@ const PostTopic: FC = () => {
       return;
     if (imgs.length + files.length > 9) {
       clearFiles();
-      return Toast.show({ content: '最多上传9张图片' });
+      return Toast.show({ content: t('post.maxImages') });
     }
 
     Toast.show({
       icon: 'loading',
-      content: '上传中...',
+      content: t('post.uploading'),
       duration: 0,
       maskClickable: false,
     });
@@ -112,11 +112,11 @@ const PostTopic: FC = () => {
     <div className={classNames('page', styles.wrapper)}>
       <NavBar
         className={styles.top}
-        back="取消"
+        back={t('common:nav.cancel')}
         backArrow={false}
         onBack={() => navigator(-1)}
       >
-        发帖
+        {t('post.title')}
       </NavBar>
       <main className="grow">
         <div
@@ -158,14 +158,14 @@ const PostTopic: FC = () => {
         </div>
         <footer className="flex items-center">
           <div className="flex-grow flex items-center justify-between">
-            <span>#参与话题</span>
-            <div>选择合适的话题会有更多赞~</div>
+            <span>{t('post.joinTopic')}</span>
+            <div>{t('post.topicTip')}</div>
           </div>
           <Icon name="left" />
         </footer>
       </main>
       <Button size="full" onClick={handleAddTopic}>
-        发表
+        {t('post.publishButton')}
       </Button>
     </div>
   );

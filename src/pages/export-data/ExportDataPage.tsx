@@ -3,8 +3,9 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRecordApi } from '@/entities/record';
-import { exportRecordData } from '@/shared/lib/export-data';
+import { exportData } from '@/shared/lib/export-data';
 import { Button, Gap, List, NavBar } from '@/shared/ui';
+import { useTranslation } from '@/shared/i18n';
 import styles from './index.module.scss';
 
 enum ChangeType {
@@ -12,6 +13,7 @@ enum ChangeType {
   END,
 }
 function ExportData() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [exportTimeRange, setExportTimeRange] = useState({
@@ -30,14 +32,9 @@ function ExportData() {
       return Toast.show(res.message);
     }
 
-    exportRecordData({
-      data: res.data.data,
-      range: exportTimeRange,
-      expend: res.data.expend,
-      income: res.data.income,
-    });
+    exportData(res.data.data);
 
-    Toast.show('导出成功');
+    Toast.show(t('common:export.exportSuccess'));
   };
 
   const init = () => {
@@ -83,31 +80,31 @@ function ExportData() {
 
   return (
     <div className="page">
-      <NavBar back="返回" onBack={() => navigate(-1)}>
-        导出数据
+      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
+        {t('common:export.title')}
       </NavBar>
       <div className={styles.wrapper}>
         <Gap />
         <List>
           <List.Item
-            extra={exportTimeRange.startTime || '请选择开始时间'}
+            extra={exportTimeRange.startTime || t('common:placeholder.selectStartTime')}
             onClick={() => handleChangeTime(ChangeType.START)}
             clickable
           >
-            开始时间
+            {t('common:export.startTime')}
           </List.Item>
           <List.Item
-            extra={exportTimeRange.endTime || '请选择结束时间'}
+            extra={exportTimeRange.endTime || t('common:placeholder.selectEndTime')}
             onClick={() => handleChangeTime(ChangeType.END)}
             clickable
           >
-            结束时间
+            {t('common:export.endTime')}
           </List.Item>
         </List>
         <Gap height={92} />
         <div style={{ padding: '0 32px' }}>
           <Button block onClick={() => handleExportData()}>
-            导出
+            {t('common:action.export')}
           </Button>
         </div>
       </div>

@@ -5,22 +5,27 @@ import {
   FixedExpenseStatus,
   FixedExpenseType,
 } from '@/entities/fixed-expense';
+import { i18n } from '@/shared/i18n';
 
-export const cycleLabelMap: Record<FixedExpenseCycle, string> = {
-  [FixedExpenseCycle.WEEKLY]: '周',
-  [FixedExpenseCycle.MONTHLY]: '月',
-  [FixedExpenseCycle.QUARTERLY]: '季度',
-  [FixedExpenseCycle.HALF_YEARLY]: '半年',
-  [FixedExpenseCycle.YEARLY]: '年',
-  [FixedExpenseCycle.CUSTOM]: '自定义',
-};
+export const getCycleLabelMap = (): Record<FixedExpenseCycle, string> => ({
+  [FixedExpenseCycle.WEEKLY]: i18n.t('fixed-expense:cycle.weeklyShort'),
+  [FixedExpenseCycle.MONTHLY]: i18n.t('fixed-expense:cycle.monthlyShort'),
+  [FixedExpenseCycle.QUARTERLY]: i18n.t('fixed-expense:cycle.quarterlyShort'),
+  [FixedExpenseCycle.HALF_YEARLY]: i18n.t('fixed-expense:cycle.halfYearlyShort'),
+  [FixedExpenseCycle.YEARLY]: i18n.t('fixed-expense:cycle.yearlyShort'),
+  [FixedExpenseCycle.CUSTOM]: i18n.t('fixed-expense:cycle.custom'),
+});
 
-export const statusLabelMap: Record<FixedExpenseStatus, string> = {
-  [FixedExpenseStatus.ACTIVE]: '生效中',
-  [FixedExpenseStatus.PAUSED]: '已暂停',
-  [FixedExpenseStatus.CANCELLED]: '已取消',
-  [FixedExpenseStatus.EXPIRED]: '已过期',
-};
+export const cycleLabelMap: Record<FixedExpenseCycle, string> = getCycleLabelMap();
+
+export const getStatusLabelMap = (): Record<FixedExpenseStatus, string> => ({
+  [FixedExpenseStatus.ACTIVE]: i18n.t('fixed-expense:status.active'),
+  [FixedExpenseStatus.PAUSED]: i18n.t('fixed-expense:status.paused'),
+  [FixedExpenseStatus.CANCELLED]: i18n.t('fixed-expense:status.cancelled'),
+  [FixedExpenseStatus.EXPIRED]: i18n.t('fixed-expense:status.expired'),
+});
+
+export const statusLabelMap: Record<FixedExpenseStatus, string> = getStatusLabelMap();
 
 export const statusColorMap: Record<FixedExpenseStatus, { bg: string; text: string; dot: string }> = {
   [FixedExpenseStatus.ACTIVE]: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500' },
@@ -29,15 +34,17 @@ export const statusColorMap: Record<FixedExpenseStatus, { bg: string; text: stri
   [FixedExpenseStatus.EXPIRED]: { bg: 'bg-rose-50', text: 'text-rose-600', dot: 'bg-rose-500' },
 };
 
-export const typeLabelMap: Record<FixedExpenseType, string> = {
-  [FixedExpenseType.SUBSCRIPTION]: '订阅',
-  [FixedExpenseType.UTILITY]: '水电燃气',
-  [FixedExpenseType.HOUSING]: '房屋居住',
-  [FixedExpenseType.TRANSPORT]: '出行交通',
-  [FixedExpenseType.FAMILY]: '家庭补贴',
-  [FixedExpenseType.WORK]: '工作开销',
-  [FixedExpenseType.OTHER]: '其他',
-};
+export const getTypeLabelMap = (): Record<FixedExpenseType, string> => ({
+  [FixedExpenseType.SUBSCRIPTION]: i18n.t('fixed-expense:type.subscription'),
+  [FixedExpenseType.UTILITY]: i18n.t('fixed-expense:type.utility'),
+  [FixedExpenseType.HOUSING]: i18n.t('fixed-expense:type.housing'),
+  [FixedExpenseType.TRANSPORT]: i18n.t('fixed-expense:type.transport'),
+  [FixedExpenseType.FAMILY]: i18n.t('fixed-expense:type.family'),
+  [FixedExpenseType.WORK]: i18n.t('fixed-expense:type.work'),
+  [FixedExpenseType.OTHER]: i18n.t('fixed-expense:type.other'),
+});
+
+export const typeLabelMap: Record<FixedExpenseType, string> = getTypeLabelMap();
 
 export const typeIconMap: Record<FixedExpenseType, string> = {
   [FixedExpenseType.SUBSCRIPTION]: '🎬',
@@ -49,11 +56,13 @@ export const typeIconMap: Record<FixedExpenseType, string> = {
   [FixedExpenseType.OTHER]: '📦',
 };
 
-export const priorityLabelMap: Record<FixedExpensePriority, string> = {
-  [FixedExpensePriority.MUST]: '必要',
-  [FixedExpensePriority.NORMAL]: '普通',
-  [FixedExpensePriority.OPTIONAL]: '可选',
-};
+export const getPriorityLabelMap = (): Record<FixedExpensePriority, string> => ({
+  [FixedExpensePriority.MUST]: i18n.t('fixed-expense:priority.must'),
+  [FixedExpensePriority.NORMAL]: i18n.t('fixed-expense:priority.normal'),
+  [FixedExpensePriority.OPTIONAL]: i18n.t('fixed-expense:priority.optional'),
+});
+
+export const priorityLabelMap: Record<FixedExpensePriority, string> = getPriorityLabelMap();
 
 export const priorityBarColorMap: Record<FixedExpensePriority, string> = {
   [FixedExpensePriority.MUST]: 'bg-rose-400',
@@ -61,14 +70,16 @@ export const priorityBarColorMap: Record<FixedExpensePriority, string> = {
   [FixedExpensePriority.OPTIONAL]: 'bg-slate-200',
 };
 
-export const currencyLabelMap: Record<FixedExpenseCurrency, string> = {
-  [FixedExpenseCurrency.CNY]: '人民币 (¥)',
-  [FixedExpenseCurrency.USD]: '美元 ($)',
-  [FixedExpenseCurrency.HKD]: '港币 (HK$)',
-  [FixedExpenseCurrency.JPY]: '日元 (¥)',
-  [FixedExpenseCurrency.EUR]: '欧元 (€)',
-  [FixedExpenseCurrency.GBP]: '英镑 (£)',
-};
+export const getCurrencyLabelMap = (): Record<FixedExpenseCurrency, string> => ({
+  [FixedExpenseCurrency.CNY]: i18n.t('fixed-expense:currency.cnyWithSymbol'),
+  [FixedExpenseCurrency.USD]: i18n.t('fixed-expense:currency.usd'),
+  [FixedExpenseCurrency.HKD]: i18n.t('fixed-expense:currency.hkd'),
+  [FixedExpenseCurrency.JPY]: i18n.t('fixed-expense:currency.jpy'),
+  [FixedExpenseCurrency.EUR]: i18n.t('fixed-expense:currency.eur'),
+  [FixedExpenseCurrency.GBP]: i18n.t('fixed-expense:currency.gbp'),
+});
+
+export const currencyLabelMap: Record<FixedExpenseCurrency, string> = getCurrencyLabelMap();
 
 export const currencySymbolMap: Record<FixedExpenseCurrency, string> = {
   [FixedExpenseCurrency.CNY]: '¥',
@@ -79,39 +90,51 @@ export const currencySymbolMap: Record<FixedExpenseCurrency, string> = {
   [FixedExpenseCurrency.GBP]: '£',
 };
 
-export const cycleOptions = Object.values(FixedExpenseCycle).map(value => ({
-  label: cycleLabelMap[value],
+export const getCycleOptions = () => Object.values(FixedExpenseCycle).map(value => ({
+  label: getCycleLabelMap()[value],
   value,
 }));
 
-export const statusOptions = Object.values(FixedExpenseStatus).map(value => ({
-  label: statusLabelMap[value],
+export const cycleOptions = getCycleOptions();
+
+export const getStatusOptions = () => Object.values(FixedExpenseStatus).map(value => ({
+  label: getStatusLabelMap()[value],
   value,
 }));
 
-export const typeOptions = Object.values(FixedExpenseType).map(value => ({
-  label: typeLabelMap[value],
+export const statusOptions = getStatusOptions();
+
+export const getTypeOptions = () => Object.values(FixedExpenseType).map(value => ({
+  label: getTypeLabelMap()[value],
   value,
 }));
 
-export const priorityOptions = Object.values(FixedExpensePriority).map(value => ({
-  label: priorityLabelMap[value],
+export const typeOptions = getTypeOptions();
+
+export const getPriorityOptions = () => Object.values(FixedExpensePriority).map(value => ({
+  label: getPriorityLabelMap()[value],
   value,
 }));
 
-export const currencyOptions = Object.values(FixedExpenseCurrency).map(value => ({
-  label: currencyLabelMap[value],
+export const priorityOptions = getPriorityOptions();
+
+export const getCurrencyOptions = () => Object.values(FixedExpenseCurrency).map(value => ({
+  label: getCurrencyLabelMap()[value],
   value,
 }));
+
+export const currencyOptions = getCurrencyOptions();
 
 export interface StatusTabOption {
   key: 'all' | FixedExpenseStatus;
   label: string;
 }
 
-export const statusTabOptions: StatusTabOption[] = [
-  { key: 'all', label: '全部' },
-  { key: FixedExpenseStatus.ACTIVE, label: '生效中' },
-  { key: FixedExpenseStatus.PAUSED, label: '已暂停' },
-  { key: FixedExpenseStatus.EXPIRED, label: '已过期' },
+export const getStatusTabOptions = (): StatusTabOption[] => [
+  { key: 'all', label: i18n.t('fixed-expense:list.all') },
+  { key: FixedExpenseStatus.ACTIVE, label: i18n.t('fixed-expense:status.active') },
+  { key: FixedExpenseStatus.PAUSED, label: i18n.t('fixed-expense:status.paused') },
+  { key: FixedExpenseStatus.EXPIRED, label: i18n.t('fixed-expense:status.expired') },
 ];
+
+export const statusTabOptions: StatusTabOption[] = getStatusTabOptions();

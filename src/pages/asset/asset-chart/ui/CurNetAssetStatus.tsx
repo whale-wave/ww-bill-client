@@ -1,9 +1,11 @@
 import type { FC } from 'react';
 import { THEME_COLOR } from '@/assets/styles/reset';
 import { useAssetSummaryInfo } from '@/entities/asset';
+import { useTranslation } from '@/shared/i18n';
 import { formatAmount, math } from '@/shared/lib';
 
 export const CurNetAssetStatus: FC = () => {
+  const { t } = useTranslation('asset');
   const { info } = useAssetSummaryInfo();
   const total = math.add(info.addAsset, info.subAsset);
   let addPercent = total.isZero() ? 0.45 : math.divide(info.addAsset, total).toNumber();
@@ -20,7 +22,7 @@ export const CurNetAssetStatus: FC = () => {
 
   return (
     <div className="flex flex-col">
-      <div className="text-base py-3">当前净资产状况</div>
+      <div className="text-base py-3">{t('chart.currentNetAssetStatus')}</div>
       <div className="flex justify-between text-sm px-2 pb-2">
         <div>{formatAmount(info.addAsset)}</div>
         <div>{formatAmount(info.subAsset)}</div>
@@ -33,7 +35,7 @@ export const CurNetAssetStatus: FC = () => {
             background: THEME_COLOR,
           }}
         >
-          资产
+          {t('chart.asset')}
           {
             addPercent > subPercent && (
               <>
@@ -63,7 +65,7 @@ export const CurNetAssetStatus: FC = () => {
             background: subBgColor,
           }}
         >
-          负债
+          {t('chart.liability')}
           {
             subPercent > addPercent && (
               <>
@@ -88,11 +90,11 @@ export const CurNetAssetStatus: FC = () => {
         </div>
       </div>
       <div className="flex justify-between text-sm px-2 py-3 mt-3">
-        <div>净资产</div>
+        <div>{t('chart.netAsset')}</div>
         <div>{formatAmount(info.totalAsset)}</div>
       </div>
       <div className="flex justify-between text-sm px-2 py-3">
-        <div>资产负债率</div>
+        <div>{t('chart.assetLiabilityRatio')}</div>
         <div>
           {Number(info.addAsset) === 0
             ? '0'

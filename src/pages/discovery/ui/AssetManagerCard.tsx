@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { Card } from 'antd-mobile';
 import { RightOutline } from 'antd-mobile-icons';
@@ -7,31 +8,32 @@ import { useAssetSummaryInfo } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 
 export const AssetManagerCard: FC = () => {
+  const { t } = useTranslation('asset');
   const navigate = useNavigate();
   const { formatInfo } = useAssetSummaryInfo();
 
   const handleClick = useCallback(() => {
     navigate(ROUTES_PATH.ASSET.getPath());
-  }, []);
+  }, [navigate]);
 
   const data = [
     {
-      title: '净资产',
+      title: t('asset:manager.netAsset'),
       value: formatInfo.totalAsset,
     },
     {
-      title: '资产',
+      title: t('asset:manager.asset'),
       value: formatInfo.addAsset,
     },
     {
-      title: '负债',
+      title: t('asset:manager.liability'),
       value: formatInfo.subAsset,
     },
   ] as const;
 
   return (
     <Card
-      title="资产管家"
+      title={t("asset:manager.title")}
       extra={
         <RightOutline />
       }

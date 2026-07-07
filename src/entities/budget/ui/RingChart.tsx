@@ -3,6 +3,7 @@ import type { TitleOption } from 'echarts/types/dist/shared';
 import type { FC } from 'react';
 import { memo, useLayoutEffect } from 'react';
 import { THEME_COLOR } from '@/assets/styles/reset';
+import { i18n } from '@/shared/i18n';
 import { useChart } from '@/shared/lib/use-chart';
 
 interface RingChartProps {
@@ -24,7 +25,7 @@ export const RingChart: FC<RingChartProps> = memo(({ percentage, isSummaryBudget
     const subtext = `${percentageValue.toFixed(0)}%`;
 
     const titleConfig: TitleOption = {
-      text: '剩余',
+      text: i18n.t('budget:ringChart.remaining'),
       textStyle: {
         fontSize: isSummaryBudget ? 12 : 11,
         color: '#666',
@@ -41,7 +42,7 @@ export const RingChart: FC<RingChartProps> = memo(({ percentage, isSummaryBudget
     };
 
     const overBudgetTextConfig: TitleOption = {
-      text: '已超支',
+      text: i18n.t('budget:ringChart.overBudget'),
       textStyle: {
         fontSize: isSummaryBudget ? 16 : 14,
         color: '#e84149',

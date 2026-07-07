@@ -94,40 +94,40 @@ const FixedExpenseDetail: React.FC = () => {
                 </div>
 
                 <Card title={t('form.basicInfo')}>
-                  <Row label="类型" value={typeLabelMap[detail.type]} />
-                  <Row label="优先级" value={priorityLabelMap[detail.priority]} />
-                  <Row label="币种" value={currencyLabelMap[detail.currency]} />
-                  <Row label="支出周期" value={cycleLabelMap[detail.cycle]} />
+                  <Row label={t('detail.type')} value={typeLabelMap[detail.type]} />
+                  <Row label={t('detail.priority')} value={priorityLabelMap[detail.priority]} />
+                  <Row label={t('detail.currency')} value={currencyLabelMap[detail.currency]} />
+                  <Row label={t('detail.cycle')} value={cycleLabelMap[detail.cycle]} />
                   {detail.cycle === FixedExpenseCycle.CUSTOM && (
-                    <Row label="自定义天数" value={detail.customCycleDays ? `${detail.customCycleDays} 天` : undefined} />
+                    <Row label={t('detail.customDays')} value={detail.customCycleDays ? t('detail.days', { days: detail.customCycleDays }) : undefined} />
                   )}
                 </Card>
 
                 <Card title={t('form.billAndDate')}>
-                  <Row label="账单日" value={detail.billingDay ? `每月 ${detail.billingDay} 日` : undefined} />
-                  <Row label="下次账单日期" value={formatDate(detail.nextBillingDate)} />
-                  <Row label="开始日期" value={formatDate(detail.startDate)} />
-                  <Row label="结束日期" value={formatDate(detail.endDate)} />
+                  <Row label={t('detail.billingDay')} value={detail.billingDay ? t('detail.monthlyDay', { day: detail.billingDay }) : undefined} />
+                  <Row label={t('detail.nextBillingDate')} value={formatDate(detail.nextBillingDate)} />
+                  <Row label={t('detail.startDate')} value={formatDate(detail.startDate)} />
+                  <Row label={t('detail.endDate')} value={formatDate(detail.endDate)} />
                 </Card>
 
                 <Card title={t('form.paymentInfo')}>
-                  <Row label="服务商" value={detail.provider} />
-                  <Row label="账号" value={detail.account} />
-                  <Row label="支付方式" value={detail.paymentMethod} />
+                  <Row label={t('detail.provider')} value={detail.provider} />
+                  <Row label={t('detail.account')} value={detail.account} />
+                  <Row label={t('detail.paymentMethod')} value={detail.paymentMethod} />
                 </Card>
 
                 <Card title={t('form.statusAndPriority')}>
-                  <Row label="自动续费" value={detail.autoRenew ? '是' : '否'} />
-                  <Row label="开启提醒" value={detail.reminderEnabled ? '是' : '否'} />
+                  <Row label={t('detail.autoRenew')} value={detail.autoRenew ? t('detail.yes') : t('detail.no')} />
+                  <Row label={t('detail.reminderEnabled')} value={detail.reminderEnabled ? t('detail.yes') : t('detail.no')} />
                   {detail.reminderEnabled && (
-                    <Row label="提前提醒" value={`${detail.reminderDaysBefore} 天`} />
+                    <Row label={t('detail.reminderDaysBefore')} value={t('detail.days', { days: detail.reminderDaysBefore })} />
                   )}
-                  <Row label="纳入支出汇总" value={detail.includeInStatistics ? '是' : '否'} />
-                  <Row label="排序权重" value={detail.sort} />
+                  <Row label={t('detail.includeInStatistics')} value={detail.includeInStatistics ? t('detail.yes') : t('detail.no')} />
+                  <Row label={t('detail.sortWeight')} value={detail.sort} />
                 </Card>
 
                 {detail.comment && (
-                  <Card title="备注">
+                  <Card title={t('detail.comment')}>
                     <div className="py-2 text-[14px] text-font-black">{detail.comment}</div>
                   </Card>
                 )}

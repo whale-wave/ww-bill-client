@@ -2,10 +2,12 @@ import { useNavigate } from 'react-router-dom';
 import { useGetTopicIdCommentQuery } from '@/entities/topic';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import CommentListItem from '@/pages/comment-list/ui';
+import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
 import { NavBar } from '@/shared/ui';
 
 function CommentList() {
+  const { t } = useTranslation('community');
   const { data: userInfo } = useGetUserUserInfoQuery();
   const navigate = useNavigate();
   const userId = userInfo?.id ? `${userInfo.id}` : '';
@@ -21,15 +23,15 @@ function CommentList() {
       <NavBar
         style={{ background: '#fff' }}
         onBack={() => navigate(-1)}
-        back="返回"
+        back={t('commentList.back')}
       >
-        评论
+        {t('commentList.title')}
       </NavBar>
       {isLoading
         ? (
             <div className="loading">
               <div className="loading-icon" />
-              加载中...
+              {t('commentList.loading')}
             </div>
           )
         : (

@@ -3,6 +3,7 @@ import type { TopicDetail } from '@/entities/topic';
 import { useState } from 'react';
 import { TopicItem } from '@/entities/topic';
 import ReplyArea from '@/pages/topic-detail/ReplyArea';
+import { useTranslation } from '@/shared/i18n';
 import { FixedPin, ImagePreview, Share } from '@/shared/ui';
 
 interface MainProps {
@@ -12,6 +13,7 @@ interface MainProps {
 }
 
 const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
+  const { t } = useTranslation('community');
   const [imgVisible, setImgVisible] = useState(false);
   const [imgSrc, setImgSrc] = useState('');
   const [shareVisible, setShareVisible] = useState(false);
@@ -19,7 +21,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
   const shares = [
     {
       id: 1,
-      name: '微信',
+      name: t('share.wechat'),
       icon: 'wechat',
       color: '#55BA38',
       onClick: () => {
@@ -28,7 +30,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
     },
     {
       id: 2,
-      name: '微信朋友圈',
+      name: t('share.wechatMoments'),
       icon: 'wechat-friends',
       color: '#55BA3A',
       onClick: () => {
@@ -46,7 +48,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
     },
     {
       id: 4,
-      name: 'QQ空间',
+      name: t('share.qqZone'),
       icon: 'qq-zone',
       color: '#F3B140',
       onClick: () => {
@@ -62,7 +64,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
         visible={shareVisible}
         onClose={() => setShareVisible(false)}
       />
-      <FixedPin onClick={() => setShareVisible(true)}>操作</FixedPin>
+      <FixedPin onClick={() => setShareVisible(true)}>{t('share.share')}</FixedPin>
       <ImagePreview
         visible={imgVisible}
         image={imgSrc}

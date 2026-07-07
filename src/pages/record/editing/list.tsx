@@ -4,6 +4,7 @@ import c from 'classnames';
 import { useMemo } from 'react';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
 import { FixedPin } from '@/shared/ui';
+import { useTranslation } from '@/shared/i18n';
 import styles from './list.module.scss';
 
 interface stateType {
@@ -11,10 +12,11 @@ interface stateType {
 }
 
 const List: FC<stateType> = ({ state }) => {
+  const { t } = useTranslation('record');
   const displayItems = useMemo(() => {
     const typeMap: Record<string, string> = {
-      sub: '支出',
-      add: '收入',
+      sub: t('type.expense'),
+      add: t('type.income'),
     };
 
     const date = new Date(state.time);
@@ -23,10 +25,10 @@ const List: FC<stateType> = ({ state }) => {
     const weekByDay = getWeekByDay(timeDate1);
 
     return [
-      { label: '类型', value: typeMap[state.type] || state.type },
-      { label: '金额', value: state.amount },
-      { label: '日期', value: `${timeDate}  ${weekByDay}` },
-      { label: '备注', value: state.remark },
+      { label: t('detail.type'), value: typeMap[state.type] || state.type },
+      { label: t('detail.amount'), value: state.amount },
+      { label: t('detail.date'), value: `${timeDate}  ${weekByDay}` },
+      { label: t('detail.remark'), value: state.remark },
     ];
   }, [state]);
 
@@ -40,7 +42,7 @@ const List: FC<stateType> = ({ state }) => {
           </span>
         </div>
       ))}
-      <FixedPin>分享</FixedPin>
+      <FixedPin>{t('detail.share')}</FixedPin>
     </div>
   );
 };

@@ -25,8 +25,8 @@ const Community: FC = () => {
 
   const tabs = useMemo(() => [
     { name: t('follow'), onClick: () => undefined },
-    { name: '推荐', onClick: () => undefined },
-    { name: '最新', onClick: () => undefined },
+    { name: t('tab.recommended'), onClick: () => undefined },
+    { name: t('tab.latest'), onClick: () => undefined },
   ], [t]);
 
   const onChange = (key: number) => {

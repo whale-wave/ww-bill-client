@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import classNames from 'classnames';
 import { useState } from 'react';
@@ -11,7 +12,8 @@ interface TabsProps {
 }
 
 const Tabs: FC<TabsProps> = ({ checkInfo, topics }) => {
-  const tabs = [{ name: '主页' }, { name: '帖子' }, { name: '收藏' }];
+  const { t } = useTranslation('community');
+  const tabs = [{ name: t('personal.tab.home') }, { name: t('personal.tab.topics') }, { name: t('personal.tab.favorites') }];
   const [activeTab, setActiveTab] = useState(0);
 
   const changeIndex = (index: number) => {
@@ -54,10 +56,12 @@ interface HomeProps {
 }
 
 const Home: FC<HomeProps> = ({ checkInfo, topics }) => {
+  const { t } = useTranslation('community');
+
   return (
     <div>
       <div>
-        <div className={styles.achieve}>记账成就</div>
+        <div className={styles.achieve}>{t("personal.achievementTitle")}</div>
         <CheckInfo className={styles['check-info']} data={checkInfo} />
       </div>
       <div style={{ backgroundColor: '#F6F7F8', height: 8 }} />

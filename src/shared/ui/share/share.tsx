@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import Button from '../button';
 import Mask from '../mask';
+import { useTranslation } from '@/shared/i18n';
 
 const classPrefix = 'bwm-share';
 
@@ -38,23 +39,24 @@ const defaultProps = {
 };
 
 export const Share: FC<ShareProps> = (p) => {
+  const { t } = useTranslation('common');
   const props = Object.assign({}, defaultProps, p);
   const { visible, onClose, onStart, onCopyUrl, onDelete, shares } = props;
 
   const opts = [
     {
       id: 1,
-      name: '搜藏',
+      name: t('share.collect'),
       onClick: onStart,
     },
     {
       id: 2,
-      name: '删除',
+      name: t('action.delete'),
       onClick: onDelete,
     },
     {
       id: 3,
-      name: '复制链接',
+      name: t('share.copyLink'),
       onClick: onCopyUrl,
     },
   ];
@@ -75,7 +77,7 @@ export const Share: FC<ShareProps> = (p) => {
           </div>
         </div>
         <Button className={`${classPrefix}-btn`} size="full" block onClick={onClose}>
-          取消
+          {t('nav.cancel')}
         </Button>
       </div>
     </Mask>

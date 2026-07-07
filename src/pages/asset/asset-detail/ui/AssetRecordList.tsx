@@ -4,11 +4,13 @@ import { DatePicker, Dialog, ErrorBlock, List } from 'antd-mobile';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useGetAssetRecordQuery } from '@/entities/asset';
 import { Icon } from '@/shared/ui';
 
 export const AssetRecordList: FC = () => {
+  const { t } = useTranslation('asset');
   const params = useParams();
   const { id } = params as { id: string };
 
@@ -62,7 +64,7 @@ export const AssetRecordList: FC = () => {
   return (
     <div className={classNames('mt-3')}>
       <div className="flex items-center justify-between px-3">
-        <div className="text-base font-bold">收支明细</div>
+        <div className="text-base font-bold">{t("detail.recordList")}</div>
         <div className="flex items-center text-xm space-x-1" onClick={handleSelectMonth}>
           <div>{selectMonth.format('YYYY年MM月')}</div>
           <Icon name="show-bottom" className="text-[10px]" />

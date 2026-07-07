@@ -7,7 +7,8 @@
     "nickname": "Nickname",
     "changeNickname": "Change Nickname",
     "changeEmail": "Change Email",
-    "namePlaceholder": "Enter 2-12 character nickname"
+    "namePlaceholder": "Enter 2-12 character nickname",
+    "updateFailed": "Update failed"
   },
   "password": {
     "title": "Change Password",
@@ -32,8 +33,39 @@
     "success": "Email changed successfully"
   },
   "checkIn": {
-    "keep": "Streak Days",
+    "keep": "Streak",
     "allDays": "Total Days",
-    "recordCount": "Total Records"
+    "recordCount": "Total Records",
+    "alreadyCheckedIn": "Checked In",
+    "button": "Check In"
+  },
+  "notLoggedIn": "Not logged in",
+  "vipNotSupported": "VIP not yet supported",
+  "tabs": {
+    "message": "Messages",
+    "myBadges": "My Badges",
+    "comingSoon": "Coming Soon",
+    "myPoints": "My Points",
+    "inviteFriends": "Invite Friends",
+    "settings": "Settings"
+  },
+  "bottomList": {
+    "settings": "Settings",
+    "feedback": "Feedback",
+    "about": "About WhaleWave v{{version}}"
+  },
+  "emailChange": {
+    "title": "Change Email",
+    "newEmail": {
+      "placeholder": "Enter new email",
+      "captchaPlaceholder": "Enter verification code"
+    },
+    "captcha": {
+      "title": "Verify Email",
+      "placeholder": "Enter verification code",
+      "verify": "Verify"
+    },
+    "back": "Back",
+    "submit": "Change"
   }
 }

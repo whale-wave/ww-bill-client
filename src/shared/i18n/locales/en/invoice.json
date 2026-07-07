@@ -13,6 +13,27 @@
     "date": "Invoice Date",
     "type": "Type",
     "note": "Note",
-    "save": "Save"
+    "save": "Save",
+    "accountOpeningBank": "Bank",
+    "bankAccount": "Bank Account",
+    "companyAddress": "Company Address",
+    "companyName": "Company Name",
+    "companyNameRequired": "Please enter company name",
+    "phone": "Phone",
+    "placeholder": "Please enter",
+    "required": "Please enter",
+    "taxNumber": "Tax Number",
+    "taxNumberRequired": "Please enter tax number"
+  },
+  "indexTitle": "Invoice Assistant",
+  "createTitle": "Add Invoice",
+  "editTitle": "Edit Invoice",
+  "taxNumber": "Tax No.:",
+  "addInvoiceInfo": "Add Invoice Info",
+  "editButton": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Confirm delete this invoice?",
+    "notFetched": "Invoice info not fetched"
   }
 }

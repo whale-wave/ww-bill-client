@@ -9,10 +9,10 @@
     "statusAndPriority": "状态与优先级",
     "advanced": "高级设置",
     "name": "名称",
-    "namePlaceholder": "请输入名称",
+    "namePlaceholder": "例如:百度云会员",
     "amount": "金额",
     "amountPlaceholder": "请输入金额",
-    "amountRequired": "金额必须大于 0",
+    "amountRequired": "请输入金额",
     "currency": "币种",
     "cycle": "支出周期",
     "customCycleDays": "自定义天数",
@@ -30,11 +30,11 @@
     "autoRenewDesc": "到期是否会被自动扣款续约",
     "priority": "优先级",
     "sortOrder": "排序权重",
-    "sortOrderDesc": "数字越小越靠前",
+    "sortOrderDesc": "数字越小越靠前,推荐 10/20/30 间隔以便插入",
     "includeInStats": "纳入支出汇总",
     "includeInStatsDesc": "会计入但不计入顶部月汇总会按周期换算到月",
     "provider": "服务商",
-    "providerPlaceholder": "例如百度云",
+    "providerPlaceholder": "例如:百度云",
     "account": "账号",
     "accountPlaceholder": "百度云会员",
     "paymentMethod": "支付方式",
@@ -46,39 +46,78 @@
     "reminderDaysAhead": "提前提醒天数",
     "reminderDaysAheadDesc": "列表会显示倒计时",
     "reminderDaysBefore": "天提醒",
-    "optional": "可选",
+    "optional": "(选填)",
     "required": "必填",
     "save": "保存",
     "saveSuccess": "保存成功",
     "createSuccess": "创建成功",
-    "fillForm": "请完善表单"
+    "fillForm": "请完善表单",
+    "clear": "清除",
+    "nameRequired": "请输入名称",
+    "amountDescription": "单期实际扣款金额,汇总会按周期换算到月",
+    "cycleDescription": "决定金额按多久扣一次,系统会折算成月支出",
+    "customCycleDaysDescription": "例如每 45 天扣一次,就填 45",
+    "typeDescription": "影响列表中的图标与归类",
+    "statusDescription": "只有 '生效中' 会计入 '生效中月支出'",
+    "priorityDescription": "以左侧色条形式展示在列表 (红=必要)",
+    "billAndDateDescription": "均为可选,填写后可获得到期倒计时",
+    "nextBillingDateDescription": "下一次实际扣款的日期,列表会显示倒计时",
+    "billingDayDescription": "每月固定第几号扣款,仅用于展示",
+    "endDateDescription": "到期后请手动改为 '已过期' 状态",
+    "paymentInfoDescription": "可选,方便日后查找",
+    "paymentMethodPlaceholder": "例如:支付宝",
+    "reminderDaysBeforeDescription": "例如设为 3,则在到期前 3 天提醒",
+    "advancedDescription": "一般无需调整",
+    "pleaseComplete": "请完善表单"
   },
   "list": {
     "title": "固定支出",
     "all": "全部",
     "upcoming": "即将到期",
     "empty": "暂无固定支出",
-    "emptyDescription": "点击下方按钮添加你的第一笔",
-    "confirmDelete": "确定删除",
+    "emptyDescription": "暂无固定支出",
+    "confirmDelete": "确认删除",
     "add": "新增",
     "addFixedExpense": "添加固定支出",
     "monthlyExpense": "生效中月支出",
-    "total": "共",
+    "total": "合计",
     "items": "项"
   },
   "summary": {
-    "monthlyExpected": "本月预计支出",
-    "yearlyTotal": "年化支出",
+    "monthlyExpected": "月预计支出",
+    "yearlyTotal": "年总支出",
     "active": "生效中",
-    "itemCount": "项数"
+    "itemCount": "项目数"
   },
   "detail": {
     "title": "固定支出详情",
     "edit": "编辑",
     "delete": "删除",
-    "noFixedExpenseInfo": "未获取到固定支出信息",
-    "confirmDelete": "确定删除该固定支出?",
-    "deleteSuccess": "删除成功"
+    "noFixedExpenseInfo": "无固定支出信息",
+    "confirmDelete": "确认删除",
+    "deleteSuccess": "删除成功",
+    "type": "类型",
+    "priority": "优先级",
+    "currency": "币种",
+    "cycle": "支出周期",
+    "customCycleDays": "自定义天数",
+    "billingDay": "账单日",
+    "nextBillingDate": "下次账单日期",
+    "startDate": "开始日期",
+    "endDate": "结束日期",
+    "provider": "服务商",
+    "account": "账号",
+    "paymentMethod": "支付方式",
+    "autoRenew": "自动续费",
+    "reminderEnabled": "开启提醒",
+    "reminderDaysBefore": "提前提醒",
+    "includeInStatistics": "纳入支出汇总",
+    "sort": "排序权重",
+    "comment": "备注",
+    "yes": "是",
+    "no": "否",
+    "days": "{{count}} 天",
+    "monthlyDay": "每月 {{day}} 日"
   },
   "cycle": {
     "daily": "每天",
@@ -89,6 +128,7 @@
     "quarterly": "每季",
     "quarterlyShort": "季度",
     "halfYearly": "半年",
+    "halfYearlyShort": "半年",
     "yearly": "每年",
     "yearlyShort": "年",
     "custom": "自定义"
@@ -102,10 +142,10 @@
   "type": {
     "subscription": "订阅",
     "utility": "水电燃气",
-    "housing": "房屋居住",
-    "transport": "出行交通",
-    "family": "家庭补贴",
-    "work": "工作开销",
+    "housing": "住房",
+    "transport": "交通",
+    "family": "家庭",
+    "work": "工作",
     "other": "其他"
   },
   "priority": {
@@ -126,5 +166,63 @@
   "provider": {
     "alipay": "支付宝",
     "baiduCloud": "百度云"
+  },
+  "constants": {
+    "cycle": {
+      "week": "周",
+      "month": "月",
+      "quarter": "季度",
+      "halfYear": "半年",
+      "year": "年",
+      "custom": "自定义"
+    },
+    "status": {
+      "active": "生效中",
+      "paused": "已暂停",
+      "cancelled": "已取消",
+      "expired": "已过期"
+    },
+    "type": {
+      "subscription": "订阅",
+      "utility": "水电燃气",
+      "housing": "住房",
+      "transport": "交通",
+      "family": "家庭",
+      "work": "工作",
+      "other": "其他"
+    },
+    "priority": {
+      "must": "必要",
+      "normal": "普通",
+      "optional": "可选"
+    },
+    "statusTab": {
+      "all": "全部",
+      "active": "生效中",
+      "paused": "已暂停",
+      "expired": "已过期"
+    },
+    "currency": {
+      "cny": "人民币 (¥)",
+      "usd": "美元 ($)",
+      "hkd": "港币 (HK$)",
+      "jpy": "日元 (¥)",
+      "eur": "欧元 (€)",
+      "gbp": "英镑 (£)"
+    }
+  },
+  "utils": {
+    "todayDue": "今天到期",
+    "tomorrowDue": "明天到期",
+    "daysLaterDue": "{{count}} 天后到期",
+    "dateDue": "{{date}} 到期",
+    "yesterdayOverdue": "昨天已到期",
+    "overdueDays": "已逾期 {{count}} 天"
+  },
+  "create": {
+    "title": "新增固定支出"
+  },
+  "edit": {
+    "title": "编辑固定支出"
   }
 }

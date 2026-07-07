@@ -8,6 +8,7 @@ import type {
   YearTabItem,
 } from '@/entities/chart';
 import { getMonth, getWeek, getYear, isSameYear, subMonths, subWeeks, subYears } from 'date-fns';
+import { i18n } from '@/shared/i18n';
 
 export function deriveWeekTabs(data: GetChartApiResponseWeekData[]): WeekTabItem[] {
   return data.reduce<WeekTabItem[]>((acc, weekDataItem) => {
@@ -19,16 +20,16 @@ export function deriveWeekTabs(data: GetChartApiResponseWeekData[]): WeekTabItem
       let name = '';
 
       if (nowWeek === weekItem.value) {
-        name = '本周';
+        name = i18n.t('chart:tab.thisWeek');
       }
       else if (prevWeek === weekItem.value) {
-        name = '上周';
+        name = i18n.t('chart:tab.lastWeek');
       }
       else if (isCurrentYear) {
-        name = `${weekItem.value}周`;
+        name = i18n.t('chart:tab.weekNumber', { week: weekItem.value });
       }
       else {
-        name = `${weekDataItem.value}-${weekItem.value}周`;
+        name = i18n.t('chart:tab.yearWeekNumber', { year: weekDataItem.value, week: weekItem.value });
       }
 
       return {
@@ -52,17 +53,17 @@ export function deriveMonthTabs(data: GetChartApiResponseMonthData[]): MonthTabI
 
       if (isCurrentYear) {
         if (nowMonth === monthItem.value) {
-          name = '本月';
+          name = i18n.t('chart:tab.thisMonth');
         }
         else if (prevMonth === monthItem.value) {
-          name = '上月';
+          name = i18n.t('chart:tab.lastMonth');
         }
         else {
-          name = `${monthItem.value}月`;
+          name = i18n.t('chart:tab.monthNumber', { month: monthItem.value });
         }
       }
       else {
-        name = `${monthDataItem.value}-${monthItem.value}月`;
+        name = i18n.t('chart:tab.yearMonthNumber', { year: monthDataItem.value, month: monthItem.value });
       }
 
       return {
@@ -83,13 +84,13 @@ export function deriveYearTabs(data: GetChartApiResponseYearData[]): YearTabItem
     let name = '';
 
     if (yearDataItem.value === nowYear) {
-      name = '今年';
+      name = i18n.t('chart:tab.thisYear');
     }
     else if (yearDataItem.value === prevYear) {
-      name = '去年';
+      name = i18n.t('chart:tab.lastYear');
     }
     else {
-      name = `${yearDataItem.value}年`;
+      name = i18n.t('chart:tab.yearNumber', { year: yearDataItem.value });
     }
 
     return {

@@ -3,6 +3,7 @@ import { Dialog, Toast } from 'antd-mobile';
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDeleteInvoiceMutation } from '@/entities/invoice';
+import { useTranslation } from '@/shared/i18n';
 import { BottomAction } from '@/shared/ui';
 
 interface EditAndDeleteButtonProps {
@@ -12,6 +13,7 @@ interface EditAndDeleteButtonProps {
 const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
   const { invoiceId } = props;
   const navigate = useNavigate();
+  const { t } = useTranslation('invoice');
 
   const [deleteInvoiceMutate] = useDeleteInvoiceMutation();
 
@@ -20,17 +22,17 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
       return true;
 
     void Toast.show({
-      content: '未获取到发票信息',
+      content: t('invoiceNotFetched'),
     });
 
     return false;
-  }, []);
+  }, [t]);
 
   const actions = useMemo(() => {
     return [
       {
         key: 'edit',
-        label: '编辑',
+        label: t('editButton.edit'),
         onClick: () => {
           if (!isHasInvoiceId(invoiceId))
             return;
@@ -39,12 +41,12 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
       },
       {
         key: 'delete',
-        label: '删除',
+        label: t('delete'),
         onClick: () => {
           if (!isHasInvoiceId(invoiceId))
             return;
           void Dialog.confirm({
-            content: '确定删除该发票信息?',
+            content: t('editButton.confirmDelete'),
             onConfirm: async () => {
               await deleteInvoiceMutate(invoiceId);
               navigate(-1);
@@ -53,7 +55,7 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
         },
       },
     ] as BottomActionActionItem[];
-  }, [invoiceId]);
+  }, [invoiceId, t, isHasInvoiceId, deleteInvoiceMutate, navigate]);
 
   return (
     <BottomAction

@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import classNames from 'classnames';
 import { stopPropagation } from '@/shared/lib';
@@ -21,19 +22,20 @@ const defaultProps = {
 const classPrefix = 'bwm-user-follow-item';
 
 export const UserFollowItem: FC<UserFollowItemProps> = (p) => {
+  const { t } = useTranslation(['community', 'common']);
   const props = Object.assign({ ...defaultProps }, p);
   return (
     <div
       className={classNames(classPrefix, props.className)}
       onClick={props.onClick}
     >
-      <img onClick={props.onAvatar} src={props.avatar || ''} alt="头像" />
+      <img onClick={props.onAvatar} src={props.avatar || ''} alt={t("common:avatar")} />
       <div className={`${classPrefix}-box`}>
         <span className={`${classPrefix}-box-username`}>{props.username}</span>
         <span className={`${classPrefix}-box-desc`}>
           {props.followTime}
           {' '}
-          开始关注你了
+          {t("community:followList.startedFollowing")}
         </span>
       </div>
       <button
@@ -42,7 +44,7 @@ export const UserFollowItem: FC<UserFollowItemProps> = (p) => {
           follow: props.isFollow,
         })}
       >
-        {props.isFollow ? '已关注' : '+关注'}
+        {props.isFollow ? t('community:followList.followed') : t('community:followList.follow')}
       </button>
     </div>
   );

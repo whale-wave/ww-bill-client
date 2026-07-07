@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { FC, MouseEvent } from 'react';
 import type { Topic } from '../api';
 import classNames from 'classnames';
@@ -24,6 +25,8 @@ export const TopicItem: FC<TopicItemProps> = ({
   onComment,
   onAvatar,
 }) => {
+  const { t } = useTranslation('community');
+
   function stopPropagation<T extends (...p: any[]) => void>(
     e: MouseEvent,
     fn: T,
@@ -43,11 +46,11 @@ export const TopicItem: FC<TopicItemProps> = ({
           <img
             className="w-full h-full object-cover"
             src={data.user.avatar}
-            alt={data.user.name || '默认名字'}
+            alt={data.user.name || t('userInfo.defaultName')}
           />
         </div>
         <div className="flex-grow">
-          <div className={styles.name}>{data.user.name || '默认名字'}</div>
+          <div className={styles.name}>{data.user.name || t('userInfo.defaultName')}</div>
           <div className={styles.time}>{showDate(data.createdAt)}</div>
         </div>
       </div>

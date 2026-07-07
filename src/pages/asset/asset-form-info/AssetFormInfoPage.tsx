@@ -3,6 +3,7 @@ import type { Asset } from '@/entities/asset';
 import { Button, Form, Input, Toast } from 'antd-mobile';
 import { clone, pick } from 'lodash-es';
 import { useCallback, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CARD_TYPE, useGetAssetByIdQuery, useGetAssetGroupById, usePatchAssetAdjustMutation, usePostAssetMutation } from '@/entities/asset';
 import { isSuccessApi } from '@/shared/api';
@@ -14,6 +15,7 @@ function parseAmountString(value: string) {
 }
 
 const AssetFormInfo: FC = () => {
+  const { t } = useTranslation(['asset', 'common']);
   const { id: assetId } = useParams<{ id: string }>();
   const [query] = useSearchParams();
   const groupId = query.get('groupId')!;
@@ -52,25 +54,25 @@ const AssetFormInfo: FC = () => {
   const formConfig = useMemo(() => {
     const config = [
       {
-        label: isCardType ? '所在银行' : '名称',
+        label: isCardType ? t('form.bank') : t('form.name'),
         name: 'name',
         disabled: assetGroup?.fixedName,
-        rules: [{ required: true, message: '请输入名称' }],
+        rules: [{ required: true, message: t('form.nameRequired') }],
       },
       {
-        label: '卡号 (后四位)',
+        label: t('form.cardNumber'),
         name: 'cardId',
-        placeholder: '(选填)',
+        placeholder: t('form.optional'),
       },
       {
-        label: '备注',
-        placeholder: '(选填)',
+        label: t('form.remark'),
+        placeholder: t('form.optional'),
         name: 'comment',
       },
       {
-        label: assetGroup?.type === 'sub' ? '欠款' : '余额',
+        label: assetGroup?.type === 'sub' ? t('form.debt') : t('form.balance'),
         name: 'amount',
-        rules: [{ required: true, message: '请输入金额' }],
+        rules: [{ required: true, message: t('form.amountRequired') }],
         normalize: normalizeAmount,
       },
     ];
@@ -96,7 +98,7 @@ const AssetFormInfo: FC = () => {
       if (isSuccessApi(res)) {
         Toast.show({
           icon: 'success',
-          content: '保存成功',
+          content: t('form.saveSuccess'),
           duration: 1000,
         });
 
@@ -109,7 +111,7 @@ const AssetFormInfo: FC = () => {
       if (!groupId) {
         Toast.show({
           icon: 'fail',
-          content: '请选择分组',
+          content: t('form.selectGroup'),
           duration: 1000,
         });
         return;
@@ -136,15 +138,15 @@ const AssetFormInfo: FC = () => {
   }, []);
 
   return (
-    <div className="page pt-[45px]">
-      <NavBar back="返回">
-        {assetId ? '设置' : `添加${assetGroup?.name || ''}`}
+    <div className="page">
+      <NavBar back={t('common:nav.back')}>
+        {assetId ? t('form.edit') : `${t('form.add')}${assetGroup?.name || ''}`}
       </NavBar>
       <Form
         className="mt-2"
         onFinish={handleSave}
         onFinishFailed={handleFinishFailed}
-        footer={(<Button type="submit" block color="primary">保存</Button>)}
+        footer={(<Button type="submit" block color="primary">{t('form.save')}</Button>)}
         hasFeedback={false}
         form={form}
       >

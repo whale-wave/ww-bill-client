@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useGetRecordBillQuery } from '@/entities/record';
 import { BillRecordCard } from '@/pages/bill/BillRecordCard';
 import { BillTabs } from '@/pages/bill/BillTabs';
@@ -12,6 +13,7 @@ import { Button } from '@/shared/ui';
 
 const Bill: FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation('bill');
 
   const selectDate = useBillPageStore(({ selectDate }) => selectDate);
   const isMonthTabType = useBillPageStore(({ getIsMonthTabType }) => getIsMonthTabType());
@@ -37,7 +39,7 @@ const Bill: FC = () => {
     return Object.keys(data.list)
       .sort((a, b) => +b - +a)
       .map(m => ({
-        month: `${m}${isMonthTabType ? '月' : '年'}`,
+        month: `${m}${isMonthTabType ? t('month') : t('year')}`,
         income: data.list[m].income,
         expand: data.list[m].expand,
         balance: data.list[m].balance,
@@ -55,7 +57,7 @@ const Bill: FC = () => {
       </div>
       <div className={classNames('flex-shrink-0')}>
         <Button size="full" onClick={onBack}>
-          返回
+          {t('back')}
         </Button>
       </div>
     </div>

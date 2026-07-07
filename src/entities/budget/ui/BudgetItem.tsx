@@ -2,6 +2,7 @@ import type { BudgetInfo } from '../api';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import React, { memo } from 'react';
+import { useTranslation } from '@/shared/i18n';
 import { Icon } from '@/shared/ui';
 import { BudgetEntityLevel, BudgetEntityType } from '../api';
 import BudgetItemContent from './BudgetItemContent';
@@ -18,6 +19,7 @@ export interface BudgetItemProps {
 }
 
 const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = BudgetEntityLevel.SUMMARY, className, data, style, index, lastIndex, onClick }) => {
+  const { t } = useTranslation('budget');
   const isSummaryBudget = type === BudgetEntityLevel.SUMMARY;
 
   return (
@@ -37,8 +39,10 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
           { isSummaryBudget
             ? (
                 <div className="text-[15px]">
-                  {budgetEntityType === BudgetEntityType.MONTH ? `${dayjs().format('MM')}月` : `${dayjs().format('YYYY')}年`}
-                  总预算
+                  {budgetEntityType === BudgetEntityType.MONTH
+                    ? t('item.summary.month', { month: dayjs().format('MM') })
+                    : t('item.summary.year', { year: dayjs().format('YYYY') })
+                  }
                 </div>
               )
             : (
@@ -50,7 +54,7 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
                 </div>
               )}
         </div>
-        <div className="text-[13px] text-[#6C6C6C]">编辑</div>
+        <div className="text-[13px] text-[#6C6C6C]">{t('item.edit')}</div>
       </div>
       <BudgetItemContent isSummaryBudget={isSummaryBudget} data={data} />
     </div>

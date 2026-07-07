@@ -21,7 +21,18 @@
     "save": "保存",
     "saveSuccess": "保存成功",
     "note": "备注",
-    "noteHint": "先填这些基本信息即可创建"
+    "noteHint": "先填这些基本信息即可创建",
+    "bank": "所在银行",
+    "nameRequired": "请输入名称",
+    "cardNumber": "卡号 (后四位)",
+    "optional": "(选填)",
+    "remark": "备注",
+    "debt": "欠款",
+    "balance": "余额",
+    "amountRequired": "请输入金额",
+    "selectGroup": "请选择分组",
+    "add": "添加",
+    "edit": "设置"
   },
   "types": {
     "cash": "现金",
@@ -31,5 +42,57 @@
     "invest": "投资",
     "loan": "贷款",
     "other": "其他"
+  },
+  "chart": {
+    "asset": "资产",
+    "liability": "负债",
+    "netAsset": "净资产",
+    "currentAssetStatus": "当前资产状况",
+    "currentLiabilityStatus": "当前负债状况",
+    "currentNetAssetStatus": "当前净资产状况",
+    "assetLiabilityRatio": "资产负债率",
+    "totalAsset": "总资产",
+    "totalLiability": "总负债",
+    "assetTrend": "资产走势图",
+    "liabilityTrend": "负债走势图",
+    "netAssetTrend": "净资产走势图",
+    "assetRanking": "资产排行榜",
+    "liabilityRanking": "负债排行榜"
+  },
+  "manager": {
+    "title": "资产管家",
+    "asset": "资产",
+    "liability": "负债",
+    "netAsset": "净资产",
+    "addAccount": "添加账户",
+    "emptyDescription": "定期更新资产账户, 轻松掌握资产状况",
+    "confirmDeleteTitle": "确认删除该资产?",
+    "confirmDeleteContent": "删除后, 所有的资产变动记录也将一同被删除",
+    "confirmDelete": "确认删除",
+    "deleting": "删除中..."
+  },
+  "detail": {
+    "recordList": "收支明细",
+    "title": "资产详情"
+  },
+  "adjust": {
+    "current": "调整当前",
+    "amountPlaceholder": "请输入调整后的金额",
+    "submit": "调整"
+  },
+  "back": "返回",
+  "tab": {
+    "assets": "资产",
+    "chart": "图表"
+  },
+  "group": {
+    "cash": "现金",
+    "virtualAccount": "虚拟账户",
+    "debtClaim": "债权"
+  },
+  "summary": {
+    "netWorth": "净资产",
+    "assets": "资产",
+    "liabilities": "负债"
   }
 }

@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import type { InputProps } from '@/shared/ui';
 import { useRef, useState } from 'react';
 import { getToolsEmailApi } from '@/entities/tools';
+import { useTranslation } from '@/shared/i18n';
 import { Input } from '@/shared/ui';
 
 const WAIT_TIME = 60;
@@ -12,6 +13,7 @@ export const EmailCaptchaInput: FC<
     sendEmailApi?: (email: string) => Promise<any>;
   }
 > = (props) => {
+  const { t } = useTranslation('auth');
   const sendEmailApi = props.sendEmailApi || getToolsEmailApi;
 
   const sendEmailWaitTimeRef = useRef(WAIT_TIME);
@@ -46,20 +48,19 @@ export const EmailCaptchaInput: FC<
   return (
     <Input
       {...props}
-      label="验证码"
+      label={t('captcha')}
       className="mt-3"
-      placeholder="请输入邮箱验证码"
+      placeholder={t('emailCaptcha.placeholder')}
       suffix={(
         <>
           {sendEmailStatus
             ? (
                 <span style={{ color: '#ddd' }}>
-                  {sendEmailWaitTime}
-                  秒后重试
+                  {t('retry.afterSeconds', { seconds: sendEmailWaitTime })}
                 </span>
               )
             : (
-                <span onClick={handleEmail}>获取验证码</span>
+                <span onClick={handleEmail}>{t('getCaptcha')}</span>
               )}
         </>
       )}

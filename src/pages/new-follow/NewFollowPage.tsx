@@ -1,3 +1,4 @@
+import { useTranslation } from '@/shared/i18n';
 import type { Follow } from '@/entities/follow';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +15,7 @@ import { NavBar } from '@/shared/ui';
 import styles from './index.module.scss';
 
 function NewFollow() {
+  const { t } = useTranslation(['community', 'common']);
   const { data: userInfo } = useGetUserUserInfoQuery();
   const userId = userInfo?.id ? `${userInfo.id}` : '';
   const navigate = useNavigate();
@@ -47,11 +49,11 @@ function NewFollow() {
   return (
     <div className="page">
       <NavBar className={styles['nav-bar']} onBack={() => navigate(-1)}>
-        新增关注
+        {t('community:newFollow')}
       </NavBar>
       {isLoading
         ? (
-            '加载中'
+            t('common:nav.loading')
           )
         : (
             <div>

@@ -7,10 +7,12 @@ import {
 } from '@/entities/user-email';
 import { WwInput, WwInputVerifyCode } from '@/pages/auth/forget-password/ui';
 import { NavBar, WwButton } from '@/shared/ui';
+import { useTranslation } from '@/shared/i18n';
 
 interface EmailChangeProps {}
 
 const EmailChangeCaptcha: React.FC<EmailChangeProps> = () => {
+  const { t } = useTranslation('user');
   const navigate = useNavigate();
   const [urlSearchParams] = useSearchParams();
   const email = urlSearchParams.get('email') || '';
@@ -41,21 +43,21 @@ const EmailChangeCaptcha: React.FC<EmailChangeProps> = () => {
 
   return (
     <div className="page">
-      <NavBar back="返回" onBack={onBack}>
-        验证邮箱
+      <NavBar back={t('emailChange.back')} onBack={onBack}>
+        {t('emailChange.verifyEmail')}
       </NavBar>
       <div className="flex flex-grow flex-col items-center">
         <WwInput className="mt-16" value={email} readonly disabled />
         <WwInputVerifyCode
           className="mt-4"
-          placeholder="请输入验证码"
+          placeholder={t('emailChange.enterCaptcha')}
           value={captcha}
           onChange={setCaptcha}
           startTime={startTime}
           setStartTime={setStartTime}
           onSend={onSendCaptcha}
         />
-        <WwButton onClick={onCaptchaVerify}>验证</WwButton>
+        <WwButton onClick={onCaptchaVerify}>{t("emailChange.captcha.verify")}</WwButton>
       </div>
     </div>
   );

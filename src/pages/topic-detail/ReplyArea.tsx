@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import type { TopicDetail } from '@/entities/topic';
 import classNames from 'classnames';
+import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
 import styles from './ReplyArea.module.scss';
 
@@ -9,6 +10,8 @@ interface ReplyProps {
 }
 
 const ReplyArea: FC<ReplyProps> = ({ comments }) => {
+  const { t } = useTranslation('community');
+
   return (
     <div>
       <header
@@ -17,8 +20,8 @@ const ReplyArea: FC<ReplyProps> = ({ comments }) => {
           'flex items-center justify-between',
         )}
       >
-        <span>全部评论</span>
-        <div>按热度</div>
+        <span>{t('reply.allComments')}</span>
+        <div>{t('reply.sortByHot')}</div>
       </header>
       <div
         className={classNames(
@@ -56,7 +59,7 @@ const ReplyArea: FC<ReplyProps> = ({ comments }) => {
               </div>
             ))
           : (
-              <div className={styles.empty}>暂无评论，点击写评论</div>
+              <div className={styles.empty}>{t('reply.empty')}</div>
             )}
       </div>
     </div>
