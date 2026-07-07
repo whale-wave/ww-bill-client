@@ -1,4 +1,6 @@
 import { resolve } from 'node:path';
+import { inspectorServer } from '@react-dev-inspector/vite-plugin';
+import babel from '@rolldown/plugin-babel';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
@@ -42,7 +44,11 @@ export default defineConfig((
       },
     },
     plugins: [
+      inspectorServer(),
       react(),
+      babel({
+        plugins: ['@react-dev-inspector/babel-plugin'],
+      }),
       createHtmlPlugin({
         inject: {
           data: {
