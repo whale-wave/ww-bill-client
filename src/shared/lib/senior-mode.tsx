@@ -2,11 +2,6 @@ import { type FC, type ReactNode, createContext, useCallback, useContext, useEff
 
 const STORAGE_KEY = 'app-senior-mode';
 
-/** 老人模式字号 */
-const SENIOR_FONT_SIZE = '20px';
-/** 正常字号 */
-const NORMAL_FONT_SIZE = '15px';
-
 export function getSeniorMode(): boolean {
   return localStorage.getItem(STORAGE_KEY) === 'true';
 }
@@ -16,14 +11,15 @@ export function setSeniorMode(enabled: boolean): void {
 }
 
 /**
- * 根据开关状态修改全局 --ww-font-size CSS 变量。
- * antd-mobile 组件和全局样式均引用此变量，修改后即可实现全局字体缩放。
+ * Toggle senior mode by adding/removing the `senior` class on <html>.
+ * CSS variables in global.scss handle the actual font scaling:
+ *   - :root defines normal font scale (xs/sm/base/lg/xl/2xl)
+ *   - html.senior overrides all font variables to larger sizes
+ * This approach scales both antd-mobile components AND Tailwind semantic classes
+ * (text-xs, text-sm, text-base, text-lg, text-xl, text-2xl) in one shot.
  */
 export function applySeniorMode(enabled: boolean): void {
-  document.documentElement.style.setProperty(
-    '--ww-font-size',
-    enabled ? SENIOR_FONT_SIZE : NORMAL_FONT_SIZE,
-  );
+  document.documentElement.classList.toggle('senior', enabled);
 }
 
 interface SeniorModeContextValue {

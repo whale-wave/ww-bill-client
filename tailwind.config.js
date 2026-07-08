@@ -49,6 +49,14 @@ module.exports = {
         'gray96': '#969696',
         'black333': '#333333',
       },
+      fontSize: {
+        'xs': 'var(--ww-font-size-xs)',
+        'sm': 'var(--ww-font-size-sm)',
+        'base': 'var(--ww-font-size-base)',
+        'lg': 'var(--ww-font-size-lg)',
+        'xl': 'var(--ww-font-size-xl)',
+        '2xl': 'var(--ww-font-size-2xl)',
+      },
       borderRadius: {
         'radius-small': '4px',
       },
