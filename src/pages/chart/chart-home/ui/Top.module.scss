@@ -2,10 +2,10 @@
   :global {
     .adm-dropdown-item {
       .adm-dropdown-item-title-text {
-        @apply text-[16px];
+        @apply text-base;
       }
       .adm-dropdown-item-title-arrow {
-        @apply text-[16px] text-[#333];
+        @apply text-base text-[#333];
       }
     }
 

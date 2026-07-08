@@ -5,26 +5,26 @@
   .top {
     height: 42px;
     div {
-      font-size: 18px;
+      font-size: var(--ww-font-size-lg);
     }
     span {
       flex-grow: 1;
       width: 20%;
       margin-left: 19px;
       > div {
-        font-size: 17px;
+        font-size: var(--ww-font-size-lg);
       }
     }
   }
   .total {
     > span {
-      font-size: 12px;
+      font-size: var(--ww-font-size-sm);
       color: #71673e;
     }
     > div {
-      font-size: 36px;
+      font-size: var(--ww-font-size-2xl);
       > span {
-        font-size: 28px;
+        font-size: var(--ww-font-size-2xl);
       }
     }
   }
@@ -40,15 +40,15 @@
         align-items: baseline;
         > span {
           width: 24px;
-          font-size: 12px;
+          font-size: var(--ww-font-size-sm);
           color: #6e643e;
           margin-right: 4px;
           white-space: nowrap;
         }
         > div {
-          font-size: 18px;
+          font-size: var(--ww-font-size-lg);
           > span {
-            font-size: 14px;
+            font-size: var(--ww-font-size-base);
           }
         }
       }

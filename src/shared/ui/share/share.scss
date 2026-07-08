@@ -40,13 +40,13 @@ $class-prefix-share: 'bwm-share';
     width: 87px;
     > span {
       margin-top: 10px;
-      font-size: 12px;
+      font-size: var(--ww-font-size-sm);
       color: #323232;
       text-align: center;
     }
   }
   &-btn {
-    font-size: 17px;
+    font-size: var(--ww-font-size-lg);
     color: #333233;
     background: #f4f4f4;
   }

@@ -5,7 +5,7 @@
     position: relative;
     padding: 12px;
     height: 156px;
-    font-size: 13px;
+    font-size: var(--ww-font-size-sm);
     color: #333233;
     background: #fff;
     .qccode {
@@ -22,20 +22,20 @@
         width: 71px;
         height: 71px;
         border-radius: 12px;
-        font-size: 32px;
+        font-size: var(--ww-font-size-2xl);
         font-weight: 600;
         color: #fff;
         background: linear-gradient(135deg, #6ac1f9, #ea6453);
       }
       span {
         margin-top: 6px;
-        font-size: 12px;
+        font-size: var(--ww-font-size-sm);
       }
     }
     .type {
       max-width: 170px;
       margin: 7px 0 5px 0;
-      font-size: 22px;
+      font-size: var(--ww-font-size-xl);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -52,10 +52,10 @@
       align-items: baseline;
       div {
         margin-left: 12px;
-        font-size: 23px;
+        font-size: var(--ww-font-size-xl);
         color: #ea6453;
         span {
-          font-size: 33px;
+          font-size: var(--ww-font-size-2xl);
         }
       }
     }
@@ -81,17 +81,17 @@
         100% 100%;
     }
     .posterTitle {
-      font-size: 26px;
+      font-size: var(--ww-font-size-2xl);
       font-weight: 600;
     }
     .posterText {
       margin: 8px 0 20px;
-      font-size: 13px;
+      font-size: var(--ww-font-size-sm);
     }
     .linkHint {
       padding: 8px 14px;
       border-radius: 16px;
-      font-size: 12px;
+      font-size: var(--ww-font-size-sm);
       color: #333233;
       background: rgba(255, 255, 255, 0.85);
     }

@@ -6,7 +6,7 @@ $class-prefix-list: 'bwm-list';
   &-body {
     background: #fff;
     overflow: hidden;
-    font-size: 17px;
+    font-size: var(--ww-font-size-lg);
   }
 
   &-body-inner {
@@ -47,12 +47,12 @@ $class-prefix-list-item: 'bwm-list-item';
     }
     &-main {
       flex: auto;
-      font-size: 14px;
+      font-size: var(--ww-font-size-base);
     }
     &-extra {
       flex: none;
       padding-left: 12px;
-      font-size: 13px;
+      font-size: var(--ww-font-size-sm);
       color: #969696;
     }
     &-arrow {
@@ -60,7 +60,7 @@ $class-prefix-list-item: 'bwm-list-item';
       display: flex;
       align-items: center;
       margin-left: 4px;
-      font-size: 11px;
+      font-size: var(--ww-font-size-xs);
       color: #969696;
     }
   }

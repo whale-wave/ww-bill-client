@@ -6,9 +6,9 @@
     padding: 0 16px;
   }
   span {
-    font-size: 20px;
+    font-size: var(--ww-font-size-xl);
   }
   p {
-    font-size: 12px;
+    font-size: var(--ww-font-size-sm);
   }
 }

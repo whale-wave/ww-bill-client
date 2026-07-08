@@ -5,7 +5,7 @@
   flex-shrink: 0;
   background: linear-gradient(180deg, var(--ww-theme-color) 0%, var(--ww-theme-color) 75%, #fefefe 89%, #fefefe 100%);
   &-text-1 {
-    font-size: 13px;
+    font-size: var(--ww-font-size-sm);
     font-weight: 400;
     color: #333333;
     &-wrapper {
@@ -20,7 +20,7 @@
     left: 50%;
     top: 5px;
     transform: translateX(-50%);
-    font-size: 22px;
+    font-size: var(--ww-font-size-xl);
     font-weight: bold;
     color: #323334;
   }
@@ -30,11 +30,11 @@
     &-bottom {
       height: 40px;
       width: 70px;
-      font-size: 14px;
+      font-size: var(--ww-font-size-base);
       font-weight: 400;
       color: #333333;
       .month {
-        font-size: 28px;
+        font-size: var(--ww-font-size-2xl);
         font-weight: 400;
       }
     }
@@ -45,7 +45,7 @@
     &-bottom {
       height: 37px;
       position: relative;
-      font-size: 14px;
+      font-size: var(--ww-font-size-base);
       font-weight: 400;
       color: #333333;
       vertical-align: bottom;
@@ -53,10 +53,10 @@
   }
 
   .big {
-    @apply text-[19px] leading-[19px];
+    @apply text-lg leading-[19px];
   }
   .bigNum {
-    font-size: 11px;
+    font-size: var(--ww-font-size-xs);
   }
 
   .right {
@@ -80,11 +80,11 @@
       box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.16);
       border-radius: 8px;
       > .tab {
-        font-size: 12px;
+        font-size: var(--ww-font-size-sm);
         color: #333333;
         :global {
           .icon {
-            font-size: 25px;
+            font-size: var(--ww-font-size-2xl);
           }
         }
         span {

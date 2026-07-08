@@ -3,7 +3,7 @@
   display: flex;
 
   > .cancel {
-    font-size: 16px;
+    font-size: var(--ww-font-size-base);
     font-weight: 400;
     color: #000000;
     opacity: 1;
@@ -18,7 +18,7 @@
     justify-content: center;
 
     > span {
-      font-size: 18px;
+      font-size: var(--ww-font-size-lg);
       font-weight: 400;
       color: #000000;
       opacity: 1;

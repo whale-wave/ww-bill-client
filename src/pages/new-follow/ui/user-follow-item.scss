@@ -26,12 +26,12 @@ $class-prefix-user-follow-item: 'bwm-user-follow-item';
     display: flex;
     flex-direction: column;
     &-username {
-      font-size: 16px;
+      font-size: var(--ww-font-size-base);
       font-weight: bold;
       color: #1c1c1f;
     }
     &-desc {
-      font-size: 12px;
+      font-size: var(--ww-font-size-sm);
       color: #888b92;
     }
   }

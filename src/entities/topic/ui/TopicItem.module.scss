@@ -14,11 +14,11 @@
     > div {
       .name {
         font-weight: 600;
-        font-size: 16px;
+        font-size: var(--ww-font-size-base);
         color: #1c1c1f;
       }
       .time {
-        font-size: 12px;
+        font-size: var(--ww-font-size-sm);
         color: #9a9ea9;
       }
     }
@@ -29,7 +29,7 @@
     transform: translateY(-7px);
     .content {
       margin-bottom: 12px;
-      font-size: 16px;
+      font-size: var(--ww-font-size-base);
       color: #333233;
     }
     .imgs {
@@ -52,9 +52,9 @@
         flex-shrink: 0;
         display: flex;
         align-items: center;
-        font-size: 14px;
+        font-size: var(--ww-font-size-base);
         svg {
-          font-size: 21px;
+          font-size: var(--ww-font-size-xl);
           margin-right: 5px;
         }
       }

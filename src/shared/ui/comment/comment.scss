@@ -31,7 +31,7 @@ $class-prefix-comment: 'bwm-comment';
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 20px;
+    font-size: var(--ww-font-size-xl);
   }
   &-box {
     color: #9b9da8;
@@ -40,7 +40,7 @@ $class-prefix-comment: 'bwm-comment';
       left: 100%;
       transform: translateX(2px);
       position: absolute;
-      font-size: 10px;
+      font-size: var(--ww-font-size-xs);
     }
   }
 }

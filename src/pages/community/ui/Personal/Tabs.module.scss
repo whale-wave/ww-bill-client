@@ -5,7 +5,7 @@
     line-height: 36px;
     flex-grow: 1;
     text-align: center;
-    font-size: 14px;
+    font-size: var(--ww-font-size-base);
     color: #888b92;
     &.active {
       position: relative;
@@ -29,18 +29,18 @@
 
 .achieve {
   padding: 13px 16px 0;
-  font-size: 14px;
+  font-size: var(--ww-font-size-base);
   font-weight: bold;
   color: #1c1d1f;
 }
 
 .check-info {
   .font-bold {
-    font-size: 16px;
+    font-size: var(--ww-font-size-base);
     color: #1c1d1f;
   }
   p {
-    font-size: 12px;
+    font-size: var(--ww-font-size-sm);
     color: #8c8f95;
   }
 }

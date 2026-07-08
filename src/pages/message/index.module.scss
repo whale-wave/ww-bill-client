@@ -15,7 +15,7 @@
   border-radius: 8px;
   background: #ffffff;
   color: #7a7d80;
-  font-size: 13px;
+  font-size: var(--ww-font-size-sm);
   line-height: 1.5;
 }
 
@@ -68,7 +68,7 @@
   }
   .title {
     display: block;
-    font-size: 15px;
+    font-size: var(--ww-font-size-base);
     line-height: 22px;
     color: #323334;
   }
@@ -82,7 +82,7 @@
   display: block;
   margin-top: 4px;
   color: #8b8e91;
-  font-size: 13px;
+  font-size: var(--ww-font-size-sm);
   line-height: 18px;
 }
 
@@ -90,6 +90,6 @@
   flex-shrink: 0;
   margin-left: 12px;
   color: #b7babd;
-  font-size: 24px;
+  font-size: var(--ww-font-size-2xl);
   line-height: 1;
 }

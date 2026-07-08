@@ -11,13 +11,13 @@ $class-prefix-nav-bar: 'bwm-nav-bar';
   &-left,
   &-right {
     flex: 1;
-    font-size: 16px;
+    font-size: var(--ww-font-size-base);
   }
 
   &-title {
     flex: auto;
     text-align: center;
-    font-size: 18px;
+    font-size: var(--ww-font-size-lg);
   }
 
   &-right {

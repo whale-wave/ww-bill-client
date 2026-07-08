@@ -2,14 +2,14 @@
   height: 46px;
   flex-shrink: 0;
   padding-left: 15px;
-  font-size: 16px;
+  font-size: var(--ww-font-size-base);
   color: #94969a;
   background: #fefefe;
   border-bottom: 1px solid #d9d9d9;
   .title {
     width: 67px;
     &.active {
-      font-size: 18px;
+      font-size: var(--ww-font-size-lg);
       font-weight: 600;
       color: #333233;
       &::before {

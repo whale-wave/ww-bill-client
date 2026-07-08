@@ -25,7 +25,7 @@
       height: 39px;
 
       span:nth-child(1) {
-        font-size: 13px;
+        font-size: var(--ww-font-size-sm);
         font-weight: 400;
         color: #333233;
         opacity: 1;
@@ -49,7 +49,7 @@
     }
 
     > .total {
-      font-size: 26px;
+      font-size: var(--ww-font-size-2xl);
       font-weight: 400;
       color: #000000;
       opacity: 1;
@@ -82,7 +82,7 @@
         background: #f3f3f3;
         border-top: 1px solid #ccc;
         border-right: 1px solid #ccc;
-        font-size: 21px;
+        font-size: var(--ww-font-size-xl);
         font-weight: 400;
         color: #333233;
         opacity: 1;
@@ -106,7 +106,7 @@
         height: 46.5px;
 
         &.bor {
-          font-size: 14px;
+          font-size: var(--ww-font-size-base);
           border-top: 1px solid #ccc;
 
           &:nth-child(1) {

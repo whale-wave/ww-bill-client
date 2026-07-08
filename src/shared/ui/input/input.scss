@@ -6,7 +6,7 @@ $class-prefix-input: 'bwm-input';
   outline: none;
   &::placeholder {
     color: #ddd;
-    font-size: 15px;
+    font-size: var(--ww-font-size-base);
   }
   &-wrapper {
     --width: 100%;
@@ -17,7 +17,7 @@ $class-prefix-input: 'bwm-input';
     align-items: center;
     width: var(--width);
     height: 40px;
-    font-size: 22px;
+    font-size: var(--ww-font-size-xl);
     color: #333233;
     border-bottom: var(--border-inner);
   }
@@ -25,6 +25,6 @@ $class-prefix-input: 'bwm-input';
     width: var(--prefix-width);
     padding-right: 28px;
     flex-shrink: 0;
-    font-size: 15px;
+    font-size: var(--ww-font-size-base);
   }
 }

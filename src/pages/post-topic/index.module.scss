@@ -10,7 +10,7 @@
       width: 100%;
       min-height: 45px;
       margin: 17px 0;
-      font-size: 16px;
+      font-size: var(--ww-font-size-base);
       &:empty:before {
         color: #9d9d9d;
         content: '请输入内容';
@@ -45,13 +45,13 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(45deg);
-            font-size: 12px;
+            font-size: var(--ww-font-size-sm);
           }
         }
         .add {
           position: absolute;
           top: 50%;
-          font-size: 23px;
+          font-size: var(--ww-font-size-xl);
         }
       }
     }
@@ -64,7 +64,7 @@
     border-bottom: 1px solid #d9d9d9;
     > div {
       padding: 0 9px;
-      font-size: 14px;
+      font-size: var(--ww-font-size-base);
       span {
         color: #9d9d9d;
       }
@@ -80,7 +80,7 @@
     }
     :global {
       .icon {
-        font-size: 12px;
+        font-size: var(--ww-font-size-sm);
         transform: rotate(180deg);
       }
     }

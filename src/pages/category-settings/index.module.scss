@@ -11,7 +11,7 @@
   border: 1px solid #ededed;
   border-radius: 8px;
   color: #666;
-  font-size: 13px;
+  font-size: var(--ww-font-size-sm);
   line-height: 20px;
   background: #fff;
 }
@@ -35,7 +35,7 @@
   color: #666;
   cursor: pointer;
   font: inherit;
-  font-size: 14px;
+  font-size: var(--ww-font-size-base);
   background: transparent;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
@@ -85,7 +85,7 @@
   height: 38px;
   border-radius: 50%;
   color: #333;
-  font-size: 22px;
+  font-size: var(--ww-font-size-xl);
   background: #f6f6f6;
 }
 
@@ -96,7 +96,7 @@
 .name {
   overflow: hidden;
   color: #222;
-  font-size: 15px;
+  font-size: var(--ww-font-size-base);
   font-weight: 500;
   line-height: 22px;
   text-overflow: ellipsis;
@@ -106,7 +106,7 @@
 .meta {
   margin-top: 2px;
   color: #999;
-  font-size: 12px;
+  font-size: var(--ww-font-size-sm);
   line-height: 18px;
 }
 
@@ -117,7 +117,7 @@
   justify-content: center;
   min-height: 220px;
   color: #777;
-  font-size: 14px;
+  font-size: var(--ww-font-size-base);
 }
 
 .state {

@@ -41,19 +41,19 @@ $class-prefix-comment-list-item: 'bwm-comment-list-item';
       flex-direction: column;
       &-name {
         margin-bottom: 4px;
-        font-size: 14px;
+        font-size: var(--ww-font-size-base);
         font-weight: bold;
         color: #333233;
       }
       &-time {
-        font-size: 12px;
+        font-size: var(--ww-font-size-sm);
         color: #a4a4a4;
       }
     }
     &-bottom {
       margin-top: 4px;
       p {
-        font-size: 16px;
+        font-size: var(--ww-font-size-base);
         color: #333233;
         word-break: break-all;
       }

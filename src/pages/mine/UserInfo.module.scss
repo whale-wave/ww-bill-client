@@ -24,7 +24,7 @@
     }
     span {
       margin-left: 10px;
-      font-size: 18px;
+      font-size: var(--ww-font-size-lg);
       color: #000;
     }
   }
@@ -34,7 +34,7 @@
     height: 26px;
     top: 58px;
     right: 24px;
-    font-size: 15px;
+    font-size: var(--ww-font-size-base);
     color: #000;
     background: #fff;
     border-radius: 13px;
@@ -48,13 +48,13 @@
     height: 55px;
     border-radius: 5px;
     background: #fff;
-    font-size: 15px;
+    font-size: var(--ww-font-size-base);
     .icon {
-      font-size: 30px;
+      font-size: var(--ww-font-size-2xl);
       margin-right: 7px;
     }
     .right {
-      font-size: 12px;
+      font-size: var(--ww-font-size-sm);
     }
   }
 }

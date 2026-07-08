@@ -3,7 +3,7 @@ $class-prefix-button: 'bwm-button';
 .#{$class-prefix-button} {
   height: 50px;
   display: inline-block;
-  font-size: 16px;
+  font-size: var(--ww-font-size-base);
   color: #333233;
   border-radius: 11px;
   background: #aeeeff;

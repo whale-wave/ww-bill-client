@@ -2,14 +2,14 @@
   > ul {
     .header {
       height: 32px;
-      font-size: 10px;
+      font-size: var(--ww-font-size-xs);
       color: #969696;
     }
     > li {
       display: flex;
       color: #333233;
       height: 55px;
-      font-size: 13px;
+      font-size: var(--ww-font-size-sm);
       background: #ffffff;
       border-bottom: 1px solid #ebebeb;
       div {

@@ -14,10 +14,10 @@
       color: #969696;
       border-bottom: 1px solid #ebebeb;
       .left {
-        font-size: 13px;
+        font-size: var(--ww-font-size-sm);
       }
       .right {
-        font-size: 12px;
+        font-size: var(--ww-font-size-sm);
       }
     }
     .record {
@@ -45,7 +45,7 @@
         justify-content: space-between;
         align-items: center;
         padding-right: 16px;
-        font-size: 16px;
+        font-size: var(--ww-font-size-base);
         font-weight: 400;
         color: #333333;
         border-bottom: 1px solid #ebebeb;
@@ -76,7 +76,7 @@
       }
     }
     span {
-      font-size: 14px;
+      font-size: var(--ww-font-size-base);
       color: #e0e0e0;
     }
   }

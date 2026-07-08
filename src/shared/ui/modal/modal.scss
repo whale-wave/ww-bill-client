@@ -16,7 +16,7 @@ $class-prefix-modal: 'bwm-modal';
       align-items: center;
       justify-content: center;
       min-height: 58px;
-      font-size: 17px;
+      font-size: var(--ww-font-size-lg);
       font-weight: bold;
       color: #010101;
     }
@@ -29,7 +29,7 @@ $class-prefix-modal: 'bwm-modal';
       button {
         width: 50%;
         height: 42px;
-        font-size: 16px;
+        font-size: var(--ww-font-size-base);
       }
       $buttonColor: #356eef;
       .#{$class-prefix-modal}-cancel {

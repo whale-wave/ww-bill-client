@@ -11,10 +11,10 @@
   .item {
     .tab-icon {
       display: block;
-      font-size: 22px;
+      font-size: var(--ww-font-size-xl);
     }
     .name {
-      font-size: 12px;
+      font-size: var(--ww-font-size-sm);
       font-weight: bold;
     }
   }

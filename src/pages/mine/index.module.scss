@@ -9,11 +9,11 @@
       border-radius: 5px;
       .tab {
         .icon {
-          font-size: 25px;
+          font-size: var(--ww-font-size-2xl);
         }
         .name {
           margin-top: 4px;
-          font-size: 12px;
+          font-size: var(--ww-font-size-sm);
         }
       }
     }
@@ -24,11 +24,11 @@
       background: #ffffff;
       border-radius: 5px;
       .hd {
-        font-size: 17px;
+        font-size: var(--ww-font-size-lg);
         color: #333233;
         p {
           margin-right: 9px;
-          font-size: 12px;
+          font-size: var(--ww-font-size-sm);
           color: #999;
         }
       }
@@ -40,7 +40,7 @@
       padding: 0 16px;
       background: #ffffff;
       border-radius: 5px;
-      font-size: 17px;
+      font-size: var(--ww-font-size-lg);
     }
   }
 }
