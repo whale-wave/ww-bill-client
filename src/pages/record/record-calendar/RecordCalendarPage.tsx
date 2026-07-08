@@ -38,7 +38,7 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
       >
         <div className="flex items-center justify-center space-x-2" onClick={onDatePicker}>
           <span>{selectMonthValue.format('YYYY年MM月')}</span>
-          <DownFill className="text-[14px]" />
+          <DownFill className="text-base" />
         </div>
       </NavBar>
       <CalendarPickerView
@@ -57,12 +57,12 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
             })}
             >
               <div className={classNames('mt-1 flex justify-center', {
-                'text-[12px]': isToday(date),
+                'text-sm': isToday(date),
               })}
               >
                 {getDateText(date)}
               </div>
-              <div className="flex-grow flex flex-col text-[10px] leading-[10px]">
+              <div className="flex-grow flex flex-col text-xs leading-[10px]">
                 <div className="flex justify-center h-[10px] text-[#00863f]">
                   {!!data?.income && (
                     <>
@@ -102,7 +102,7 @@ const RecordCalendar: React.FC<RecordCalendarProps> = () => {
         magnetic="x"
         onClick={onFixedPinClick}
       >
-        <AddOutline className="text-[30px] text-[#333]" />
+        <AddOutline className="text-2xl text-[#333]" />
       </FloatingBubble>
     </div>
   );

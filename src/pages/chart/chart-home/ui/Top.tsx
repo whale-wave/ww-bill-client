@@ -73,10 +73,10 @@ export const Top: FC = () => {
               >
                 {index !== 0 && <div className="absolute right-0 top-0 w-[88%] h-[1px] bg-[#E5E5E5]" />}
                 <div className="px-2">
-                  <Icon className="text-[28px]" name={item.icon} />
+                  <Icon className="text-2xl" name={item.icon} />
                 </div>
                 <span className="text-sm">{item.name}</span>
-                {currentAmountTypeItem?.value === item.value ? <CheckOutline className="text-[20px] absolute right-2" /> : null}
+                {currentAmountTypeItem?.value === item.value ? <CheckOutline className="text-xl absolute right-2" /> : null}
               </div>
             ))}
           </Dropdown.Item>

@@ -78,7 +78,7 @@ const InvoiceInfo: React.FC<InvoiceInfoProps> = memo((props) => {
   );
 
   return (
-    <div className="rounded-radius-small overflow-hidden border-solid border-[1px] border-[var(--ww-border-color)] text-[13px]">
+    <div className="rounded-radius-small overflow-hidden border-solid border-[1px] border-[var(--ww-border-color)] text-sm">
       {list.map((i, index) => (
         <React.Fragment key={i.label}>
           {index === 0 && (

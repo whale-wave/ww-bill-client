@@ -47,7 +47,7 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
               'bg-[#ccc]': selectCategory?.id !== c.id,
             })}
             >
-              <Icon className="text-[30px]" name={c.icon} />
+              <Icon className="text-2xl" name={c.icon} />
             </div>
             <div>{c.name}</div>
           </div>

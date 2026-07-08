@@ -38,7 +38,7 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
         <div>
           { isSummaryBudget
             ? (
-                <div className="text-[15px]">
+                <div className="text-base">
                   {budgetEntityType === BudgetEntityType.MONTH
                     ? t('item.summary.month', { month: dayjs().format('MM') })
                     : t('item.summary.year', { year: dayjs().format('YYYY') })
@@ -47,14 +47,14 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
               )
             : (
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="rounded-full text-[15px] bg-[#f2f2f2] w-[22px] h-[22px] flex justify-center items-center">
+                  <div className="rounded-full text-base bg-[#f2f2f2] w-[22px] h-[22px] flex justify-center items-center">
                     <Icon name={data.category!.icon} />
                   </div>
                   <div className="flex items-center" style={{ transform: 'translateY(0px)' }}>{data.category!.name}</div>
                 </div>
               )}
         </div>
-        <div className="text-[13px] text-[#6C6C6C]">{t('item.edit')}</div>
+        <div className="text-sm text-[#6C6C6C]">{t('item.edit')}</div>
       </div>
       <BudgetItemContent isSummaryBudget={isSummaryBudget} data={data} />
     </div>

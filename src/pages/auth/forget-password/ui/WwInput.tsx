@@ -50,13 +50,13 @@ const WwInput: FC<{
           {type === 'text'
             ? (
                 <EyeOutline
-                  className="text-[20px]"
+                  className="text-xl"
                   onClick={() => setType('text')}
                 />
               )
             : (
                 <EyeInvisibleOutline
-                  className="text-[20px]"
+                  className="text-xl"
                   onClick={() => setType('password')}
                 />
               )}

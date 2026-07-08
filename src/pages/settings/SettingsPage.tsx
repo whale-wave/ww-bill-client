@@ -121,7 +121,7 @@ const Settings: FC = () => {
     {
       title: t('language.switch'),
       extra: (
-        <span className="text-[14px] text-[#969696]">
+        <span className="text-base text-[#969696]">
           {SUPPORTED_LANGS[currentLang]}
         </span>
       ),

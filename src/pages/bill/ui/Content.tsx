@@ -50,7 +50,7 @@ const Content: FC<ContentProps> = memo(({ data }) => {
         </li>
         {showData(data).map(i => (
           <li key={i.month} className="font-bold">
-            <div className="text-[14px] text-[#6C6C6C] flex-shrink-0">{i.month}</div>
+            <div className="text-base text-[#6C6C6C] flex-shrink-0">{i.month}</div>
             <div>
               <div>
                 {i.income}

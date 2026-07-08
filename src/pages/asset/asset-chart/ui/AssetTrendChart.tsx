@@ -148,7 +148,7 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
         <div className="text-base">{chartTitle}</div>
         <div className="bg-gray-100 flex justify-center items-center rounded-md py-1 px-2 space-x-1" onClick={handleSelectYear}>
           <div className="text-xs">{selectYear.format('YYYY')}{t('chart.yearSuffix')}</div>
-          <Icon className="text-[8px]" name="show-bottom" />
+          <Icon className="text-xs" name="show-bottom" />
         </div>
       </div>
       <div className="h-[120px]" ref={chartDomRef} />

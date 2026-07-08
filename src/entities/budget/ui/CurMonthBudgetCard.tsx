@@ -28,7 +28,7 @@ const CurMonthBudgetCard: React.FC<CardProps> = () => {
   }, []);
 
   const SettingBudgetButton = (
-    <div className="flex items-center bg-primary space-x-1 py-[6px] px-2 text-[13px] rounded-[4px]">
+    <div className="flex items-center bg-primary space-x-1 py-[6px] px-2 text-sm rounded-[4px]">
       <div><AddOutline /></div>
       <div>{t('card.setBudget')}</div>
     </div>

@@ -19,8 +19,8 @@ import { formatAmountWithCurrency, formatDate, formatNextBillingDate } from './u
 
 const Row: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="flex items-start justify-between py-2.5">
-    <span className="text-[13px] text-font-gray">{label}</span>
-    <span className="ml-3 max-w-[60%] text-right text-[14px] text-font-black">
+    <span className="text-sm text-font-gray">{label}</span>
+    <span className="ml-3 max-w-[60%] text-right text-base text-font-black">
       {value || <span className="text-font-gray">--</span>}
     </span>
   </div>
@@ -29,7 +29,7 @@ const Row: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, valu
 const Card: React.FC<{ title?: string; children: React.ReactNode; className?: string }> = ({ title, children, className }) => (
   <div className={cn('rounded-xl bg-white p-3 shadow-sm', className)}>
     {title && (
-      <div className="mb-1 text-[12px] font-medium text-font-gray">{title}</div>
+      <div className="mb-1 text-sm font-medium text-font-gray">{title}</div>
     )}
     <div className="divide-y divide-bg-gray">{children}</div>
   </div>
@@ -68,26 +68,26 @@ const FixedExpenseDetail: React.FC = () => {
                   <div className="absolute -right-10 -top-14 h-36 w-36 rounded-full bg-white/15" />
                   <div className="absolute -bottom-14 -left-6 h-28 w-28 rounded-full bg-white/10" />
                   <div className="relative flex items-center space-x-2 text-white">
-                    <span className="text-[22px]">{typeIconMap[detail.type]}</span>
-                    <span className="text-[16px] font-medium">{detail.name}</span>
+                    <span className="text-xl">{typeIconMap[detail.type]}</span>
+                    <span className="text-base font-medium">{detail.name}</span>
                     {statusColor && (
-                      <span className="ml-auto inline-flex items-center space-x-1 rounded-full bg-white/25 px-2 py-0.5 text-[11px] backdrop-blur">
+                      <span className="ml-auto inline-flex items-center space-x-1 rounded-full bg-white/25 px-2 py-0.5 text-xs backdrop-blur">
                         <span className={cn('h-1.5 w-1.5 rounded-full', statusColor.dot)} />
                         <span>{statusLabelMap[detail.status]}</span>
                       </span>
                     )}
                   </div>
                   <div className="relative mt-3 flex items-baseline space-x-1 text-white">
-                    <span className="text-[28px] font-bold leading-none drop-shadow-sm">
+                    <span className="text-2xl font-bold leading-none drop-shadow-sm">
                       {formatAmountWithCurrency(detail.amount, detail.currency)}
                     </span>
-                    <span className="text-[12px] text-white/80">
+                    <span className="text-sm text-white/80">
                       /
                       {cycleLabelMap[detail.cycle]}
                     </span>
                   </div>
                   {detail.nextBillingDate && (
-                    <div className="relative mt-2 text-[12px] text-white/85">
+                    <div className="relative mt-2 text-sm text-white/85">
                       {formatNextBillingDate(detail.nextBillingDate)}
                     </div>
                   )}
@@ -128,7 +128,7 @@ const FixedExpenseDetail: React.FC = () => {
 
                 {detail.comment && (
                   <Card title={t('detail.comment')}>
-                    <div className="py-2 text-[14px] text-font-black">{detail.comment}</div>
+                    <div className="py-2 text-base text-font-black">{detail.comment}</div>
                   </Card>
                 )}
               </>

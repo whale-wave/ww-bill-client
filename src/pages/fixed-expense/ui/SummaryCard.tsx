@@ -27,15 +27,15 @@ const SummaryCard: React.FC<SummaryCardProps> = memo((props) => {
       <div className="absolute -bottom-14 -left-6 h-28 w-28 rounded-full bg-white/10" />
 
       <div className="relative text-white">
-        <div className="text-[12px] text-white/80">{t('summary.monthlyExpected')}</div>
+        <div className="text-sm text-white/80">{t('summary.monthlyExpected')}</div>
         <div className="mt-1 flex items-baseline space-x-1">
-          <span className="text-[14px] font-medium text-white/90">¥</span>
-          <span className="text-[30px] font-bold leading-none text-white drop-shadow-sm">
+          <span className="text-base font-medium text-white/90">¥</span>
+          <span className="text-2xl font-bold leading-none text-white drop-shadow-sm">
             {formatThousands(summary.monthlyTotal)}
           </span>
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-white/20 p-3 text-[12px] backdrop-blur">
+        <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-white/20 p-3 text-sm backdrop-blur">
           <div className="flex flex-col">
             <span className="text-white/75">{t('summary.yearlyTotal')}</span>
             <span className="mt-1 font-semibold text-white">

@@ -67,10 +67,10 @@ const CommonFunctionCard: React.FC<CommonFunctionCardProps> = () => {
         {functionList.map(fnItem => (
           <div
             key={fnItem.name}
-            className="flex flex-col justify-center items-center text-[12px] w-1/4 space-y-3"
+            className="flex flex-col justify-center items-center text-sm w-1/4 space-y-3"
             onClick={onFunctionItemClick(fnItem)}
           >
-            <div className="rounded-full w-[42px] h-[42px] bg-[#f6f6f6] flex justify-center items-center text-[24px]">
+            <div className="rounded-full w-[42px] h-[42px] bg-[#f6f6f6] flex justify-center items-center text-2xl">
               {fnItem.icon}
             </div>
             <span>{fnItem.name}</span>

@@ -67,7 +67,7 @@ export const AssetRecordList: FC = () => {
         <div className="text-base font-bold">{t("detail.recordList")}</div>
         <div className="flex items-center text-xm space-x-1" onClick={handleSelectMonth}>
           <div>{selectMonth.format('YYYY年MM月')}</div>
-          <Icon name="show-bottom" className="text-[10px]" />
+          <Icon name="show-bottom" className="text-xs" />
         </div>
       </div>
       {
@@ -75,7 +75,7 @@ export const AssetRecordList: FC = () => {
           ? dayListGroup.map(({ date, list }) => (
               <List header={date} key={date}>
                 {list.map(record => (
-                  <List.Item key={record.id} onClick={handleClickRecord(record)} description={record.comment} prefix={<div className="text-[20px] rounded-full bg-gray-50 w-[40px] h-[40px] flex items-center justify-center"><Icon name="budget" /></div>} extra={`${record.type === 'sub' ? '-' : '+'}${record.amount}`}>
+                  <List.Item key={record.id} onClick={handleClickRecord(record)} description={record.comment} prefix={<div className="text-xl rounded-full bg-gray-50 w-[40px] h-[40px] flex items-center justify-center"><Icon name="budget" /></div>} extra={`${record.type === 'sub' ? '-' : '+'}${record.amount}`}>
                     {record.name}
                   </List.Item>
                 ))}

@@ -36,7 +36,7 @@ const FilterTabs: React.FC<FilterTabsProps> = memo((props) => {
           <div
             key={tab.key}
             className={cn(
-              'flex-shrink-0 cursor-pointer rounded-full px-3 py-1 text-[12px] transition-colors',
+              'flex-shrink-0 cursor-pointer rounded-full px-3 py-1 text-sm transition-colors',
               active
                 ? 'font-medium text-white shadow-sm'
                 : 'border border-slate-200 bg-white text-slate-500',

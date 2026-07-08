@@ -23,26 +23,26 @@ export const BillRecordCard: FC<{ data?: Bill }> = (p) => {
   const isMonth = useMemo(() => billTabType === BillTabsType.MONTH, [billTabType]);
 
   return (
-    <Card className="!bg-primary !py-2 !px-[12px] mb-2 text-[12px]" bodyClassName="space-y-2 !px-2 ">
+    <Card className="!bg-primary !py-2 !px-[12px] mb-2 text-sm" bodyClassName="space-y-2 !px-2 ">
       <div>
         {isMonth ? t('year') : t('total')}
         {t('balance')}
       </div>
-      <div className="text-[24px] font-bold">{data?.balance || 0}</div>
+      <div className="text-2xl font-bold">{data?.balance || 0}</div>
       <div className="flex">
         <div className="w-[50%] space-x-1">
           <span>
             {isMonth ? t('year') : t('total')}
             {t('income')}
           </span>
-          <span className="text-[15px] font-bold">{data?.income || 0}</span>
+          <span className="text-base font-bold">{data?.income || 0}</span>
         </div>
         <div className="w-[50%] space-x-1">
           <span>
             {isMonth ? t('year') : t('total')}
             {t('expend')}
           </span>
-          <span className="text-[15px] font-bold">{data?.expand || 0}</span>
+          <span className="text-base font-bold">{data?.expand || 0}</span>
         </div>
       </div>
     </Card>

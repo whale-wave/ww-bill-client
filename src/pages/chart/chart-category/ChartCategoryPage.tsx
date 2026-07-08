@@ -106,11 +106,11 @@ const ChartCategory: FC = () => {
         <div className={cn('bg-white px-4 pt-5 pb-4 border-0 border-b-[1px] border-[#eee] border-solid')}>
           <div className={cn('flex items-center')}>
             <div className={cn('w-[44px] h-[44px] rounded-full bg-[#f4f4f4] flex items-center justify-center mr-3')}>
-              {categoryInfo?.icon ? <Icon name={categoryInfo.icon} className={cn('text-[24px]')} /> : null}
+              {categoryInfo?.icon ? <Icon name={categoryInfo.icon} className={cn('text-2xl')} /> : null}
             </div>
             <div className={cn('min-w-0 flex-grow')}>
-              <div className={cn('text-[18px] font-medium truncate')}>{categoryInfo?.name || t('categoryStat')}</div>
-              <div className={cn('text-[12px] text-[#969696] mt-1')}>
+              <div className={cn('text-lg font-medium truncate')}>{categoryInfo?.name || t('categoryStat')}</div>
+              <div className={cn('text-sm text-[#969696] mt-1')}>
                 {periodName || t('currentPeriod')}
                 {currentType ? ` · ${amountTypeName[currentType]}` : null}
                 {currentCategory ? ` · ${t('byPeriod', { period: timeRangeName[currentCategory] })}` : null}
@@ -120,17 +120,17 @@ const ChartCategory: FC = () => {
 
           <div className={cn('grid grid-cols-2 gap-3 mt-5')}>
             <div>
-              <div className={cn('text-[12px] text-[#969696]')}>{t('categoryAmount')}</div>
-              <div className={cn('text-[24px] leading-8 mt-1')}>{totalAmount ?? '--'}</div>
+              <div className={cn('text-sm text-[#969696]')}>{t('categoryAmount')}</div>
+              <div className={cn('text-2xl leading-8 mt-1')}>{totalAmount ?? '--'}</div>
             </div>
             <div>
-              <div className={cn('text-[12px] text-[#969696]')}>{t('percent')}</div>
-              <div className={cn('text-[24px] leading-8 mt-1')}>{percentage ? `${percentage}%` : '--'}</div>
+              <div className={cn('text-sm text-[#969696]')}>{t('percent')}</div>
+              <div className={cn('text-2xl leading-8 mt-1')}>{percentage ? `${percentage}%` : '--'}</div>
             </div>
           </div>
         </div>
 
-        <div className={cn('bg-white mt-2 px-4 py-3 text-[14px]')}>
+        <div className={cn('bg-white mt-2 px-4 py-3 text-base')}>
           <div className={cn('flex justify-between py-1')}>
             <span className={cn('text-[#969696]')}>{t('period')}</span>
             <span>{periodName || '--'}</span>

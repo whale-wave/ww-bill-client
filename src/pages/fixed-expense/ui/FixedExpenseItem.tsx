@@ -81,16 +81,16 @@ const FixedExpenseItem: React.FC<FixedExpenseItemProps> = memo((props) => {
       <div className="flex flex-grow flex-col px-3 py-3">
         <div className="flex items-start justify-between">
           <div className="flex flex-grow items-center space-x-2 overflow-hidden pr-2">
-            <span className="text-[18px]">{typeIconMap[item.type]}</span>
-            <span className="truncate text-[15px] font-medium text-slate-800">
+            <span className="text-lg">{typeIconMap[item.type]}</span>
+            <span className="truncate text-base font-medium text-slate-800">
               {item.name}
             </span>
           </div>
           <div className="flex flex-shrink-0 items-baseline space-x-0.5 text-slate-900">
-            <span className="text-[16px] font-semibold">
+            <span className="text-base font-semibold">
               {formatAmountWithCurrency(item.amount, item.currency)}
             </span>
-            <span className="text-[11px] text-font-gray">
+            <span className="text-xs text-font-gray">
               /
               {t(cycleKeyMap[item.cycle])}
             </span>
@@ -101,7 +101,7 @@ const FixedExpenseItem: React.FC<FixedExpenseItemProps> = memo((props) => {
           <div className="flex items-center space-x-1.5">
             <span
               className={cn(
-                'inline-flex items-center space-x-1 rounded px-1.5 py-0.5 text-[11px]',
+                'inline-flex items-center space-x-1 rounded px-1.5 py-0.5 text-xs',
                 statusColor.bg,
                 statusColor.text,
               )}
@@ -109,17 +109,17 @@ const FixedExpenseItem: React.FC<FixedExpenseItemProps> = memo((props) => {
               <span className={cn('h-1.5 w-1.5 rounded-full', statusColor.dot)} />
               <span>{t(statusKeyMap[item.status])}</span>
             </span>
-            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-600">
+            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">
               {t(typeKeyMap[item.type])}
             </span>
             {item.autoRenew && (
-              <span className="rounded bg-cyan-50 px-1.5 py-0.5 text-[11px] text-cyan-700">
+              <span className="rounded bg-cyan-50 px-1.5 py-0.5 text-xs text-cyan-700">
                 {t('form.autoRenew')}
               </span>
             )}
           </div>
           {nextBillingText && (
-            <span className={cn('text-[11px]', toneTextClass[tone])}>
+            <span className={cn('text-xs', toneTextClass[tone])}>
               {nextBillingText}
             </span>
           )}

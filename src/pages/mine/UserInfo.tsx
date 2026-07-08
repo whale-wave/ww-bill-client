@@ -72,7 +72,7 @@ const UserInfo: FC<UserInfoProps> = ({
         }}
       >
         <List mode="card">
-          <List.Item prefix={<Icon name="vip" className={classNames(styles.icon, 'text-[24px]')} />}>
+          <List.Item prefix={<Icon name="vip" className={classNames(styles.icon, 'text-2xl')} />}>
             {t('vipNotSupported')}
           </List.Item>
         </List>

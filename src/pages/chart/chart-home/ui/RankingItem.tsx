@@ -16,7 +16,7 @@ export const RankingItem: FC<{ item: GetChartApiResponseRankingData; onClick: ()
     <List.Item
       className={cn(styles['ranking-item'], 'text-sm')}
       arrow={false}
-      prefix={<div className={cn('flex items-center justify-center w-full h-full')}><div className={cn('flex items-center justify-center w-[34px] h-[34px] rounded-full bg-gray-100')}><Icon name={item.category.icon} className={cn('text-[18px]')} /></div></div>}
+      prefix={<div className={cn('flex items-center justify-center w-full h-full')}><div className={cn('flex items-center justify-center w-[34px] h-[34px] rounded-full bg-gray-100')}><Icon name={item.category.icon} className={cn('text-lg')} /></div></div>}
       onClick={onClick}
     >
       <div>

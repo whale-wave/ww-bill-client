@@ -48,8 +48,8 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
 
   return (
     <div className="flex flex-col pt-3 border-0 border-b-[1px] border-[#ebebeb] border-solid last:border-0">
-      <div className="flex justify-between text-[12px] text-[#969696] px-4 ">
-        <div className="text-[13px]">{dayjs(data.time).format('YYYY年MM月DD日')}</div>
+      <div className="flex justify-between text-sm text-[#969696] px-4 ">
+        <div className="text-sm">{dayjs(data.time).format('YYYY年MM月DD日')}</div>
         <div className="flex space-x-3">
           {
             amountInfo.map(item => (

@@ -44,7 +44,7 @@ export const AssetManagerCard: FC = () => {
         {data.map(item => (
           <div className="flex-1 flex flex-col flex-shrink-0 space-y-1" key={item.title}>
             <div className="text-xs text-text-gray">{item.title}</div>
-            <div className="text-[18px] text-text-black">{item.value}</div>
+            <div className="text-lg text-text-black">{item.value}</div>
           </div>
         ))}
       </div>

@@ -65,13 +65,13 @@ const Section: React.FC<SectionProps> = ({
             {required && (
               <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
             )}
-            <span className="text-[13px] font-medium text-slate-800">{title}</span>
+            <span className="text-sm font-medium text-slate-800">{title}</span>
             {required && (
-              <span className="rounded bg-rose-50 px-1 text-[10px] text-rose-500">{t('form.required')}</span>
+              <span className="rounded bg-rose-50 px-1 text-xs text-rose-500">{t('form.required')}</span>
             )}
           </div>
           {description && (
-            <span className="mt-0.5 text-[11px] text-font-gray">{description}</span>
+            <span className="mt-0.5 text-xs text-font-gray">{description}</span>
           )}
         </div>
         {collapsible && (
@@ -112,7 +112,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = (props) => {
         </span>
         {clearable && display && (
           <span
-            className="ml-2 text-[12px] text-font-gray"
+            className="ml-2 text-sm text-font-gray"
             onClick={(e) => {
               e.stopPropagation();
               onChange?.(undefined);
@@ -149,7 +149,7 @@ const BillingDayField: React.FC<BillingDayFieldProps> = ({ value, onChange }) =>
     <div className="flex items-center space-x-2">
       <Stepper min={1} max={31} allowEmpty value={value as any} onChange={onChange as any} />
       {typeof value === 'number' && value >= 1 && value <= 31 && (
-        <span className="text-[12px] text-font-gray">
+        <span className="text-sm text-font-gray">
           {t('detail.monthlyDay', { day: value })}
         </span>
       )}

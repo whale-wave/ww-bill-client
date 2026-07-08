@@ -94,7 +94,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
             <span className={styles.month}>{selectTime?.format('MM')}</span>
             {t('common:time.month')}
             {' '}
-            <Icon name="show-bottom" className="text-[10px] mb-[2px]" />
+            <Icon name="show-bottom" className="text-xs mb-[2px]" />
             <Precision
               selectTime={selectTime}
               visible1={visible1}
@@ -162,7 +162,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
       {visibleAmountSwitch
         ? (
             <div
-              className="right-4 bottom-[116px] absolute text-[18px] px-1"
+              className="right-4 bottom-[116px] absolute text-lg px-1"
               onClick={onToggleVisibleAmount}
             >
               {!visibleAmount ? <Icon name="eye-close" /> : <Icon name="eye" />}
@@ -170,8 +170,8 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
           )
         : null}
       <div className="absolute top-0 right-0 p-2">
-        <SearchOutline className="text-[18px] mr-3" onClick={onGoToSearchRecordPage} />
-        <CalendarOutline className="text-[18px] mr-3" onClick={onGoToRecordCalendarPage} />
+        <SearchOutline className="text-lg mr-3" onClick={onGoToSearchRecordPage} />
+        <CalendarOutline className="text-lg mr-3" onClick={onGoToRecordCalendarPage} />
       </div>
       <div
         className={c(

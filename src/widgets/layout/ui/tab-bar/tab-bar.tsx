@@ -51,7 +51,7 @@ export const TabBar: FC<TabBarProps> = ({ active }) => {
           <div className="flex justify-center items-center flex-col relative">
             <div className="border-[1px] border-[#f7f7f7] border-solid p-[5px] rounded-full border-r-0 border-b-0 border-l-0 absolute bottom-[50%] bg-[#fff]">
               <div className="bg-primary rounded-full w-[55px] h-[55px] flex justify-center items-center">
-                <AddOutline className="text-[30px]" />
+                <AddOutline className="text-2xl" />
               </div>
             </div>
             <AddOutline className="tab-icon opacity-0" />

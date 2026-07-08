@@ -32,8 +32,8 @@ const UpcomingList: React.FC<UpcomingListProps> = memo((props) => {
   return (
     <div className={cn(className)}>
       <div className="mb-2 flex items-center justify-between px-1">
-        <span className="text-[13px] font-medium text-slate-800">{t('list.upcoming')}</span>
-        <span className="text-[11px] text-font-gray">
+        <span className="text-sm font-medium text-slate-800">{t('list.upcoming')}</span>
+        <span className="text-xs text-font-gray">
           {t('list.total')}
           {' '}
           {items.length}
@@ -51,15 +51,15 @@ const UpcomingList: React.FC<UpcomingListProps> = memo((props) => {
               onClick={() => onClickItem?.(item)}
             >
               <div className="flex items-center space-x-1">
-                <span className="text-[14px]">{typeIconMap[item.type]}</span>
-                <span className="truncate text-[13px] text-slate-800">{item.name}</span>
+                <span className="text-base">{typeIconMap[item.type]}</span>
+                <span className="truncate text-sm text-slate-800">{item.name}</span>
               </div>
-              <div className="mt-2 text-[15px] font-semibold text-slate-900">
+              <div className="mt-2 text-base font-semibold text-slate-900">
                 {formatAmountWithCurrency(item.amount, item.currency)}
               </div>
               <div
                 className={cn(
-                  'mt-2 self-start rounded px-1.5 py-0.5 text-[11px]',
+                  'mt-2 self-start rounded px-1.5 py-0.5 text-xs',
                   toneBgClass[tone],
                 )}
               >

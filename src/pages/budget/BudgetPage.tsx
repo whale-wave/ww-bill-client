@@ -158,7 +158,7 @@ const Budget: React.FC<BudgetProps> = () => {
                           ? <div className="flex-grow bg-[#fff] flex justify-center items-center mb-[50px]"><ErrorBlock status="empty" title={t('emptyCategoryBudget')} description="" /></div>
                           : (
                               <div className="flex flex-grow flex-col overflow-auto min-h-0 pb-[50px]">
-                                <div className="bg-[#fff] p-3 text-[15px]">{t('categoryBudget')}</div>
+                                <div className="bg-[#fff] p-3 text-base">{t('categoryBudget')}</div>
                                 {data.categoryBudgets.map((item, index) => (
                                   <BudgetItem
                                     index={index}

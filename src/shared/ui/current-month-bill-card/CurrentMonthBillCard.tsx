@@ -46,10 +46,10 @@ const CurrentMonthBillCard: React.FC<CurrentMonthBillCardProps> = ({ billRecord 
   return (
     <Card title={t('bill:monthCard.title')} extra={<RightOutline />} onClick={() => goTo('/bill')} bodyClassName="!pt-0">
       <div className="px-[12px] pt-[4px] flex-grow flex">
-        <div className={classNames('flex-shrink-0 relative w-[61px] mr-[18px] text-[26px] flex items-center')}>
+        <div className={classNames('flex-shrink-0 relative w-[61px] mr-[18px] text-2xl flex items-center')}>
           <div>
             {zeroFill(billRecord?.month)}
-            <span className="text-[14px]">{t('common:dateTime.monthSuffix')}</span>
+            <span className="text-base">{t('common:dateTime.monthSuffix')}</span>
           </div>
           <div className="absolute right-0 bottom-1/2 w-[1px] h-[22px] bg-[#959595]" style={{ transform: 'translateY(50%)' }} />
         </div>
@@ -57,8 +57,8 @@ const CurrentMonthBillCard: React.FC<CurrentMonthBillCardProps> = ({ billRecord 
           {
             mapList.map(i => (
               <div className="grow w-1/3 space-y-2" key={i.name}>
-                <div className={classNames('text-[12px]')}>{i.name}</div>
-                <div className={classNames('text-[16px] one-line')}>
+                <div className={classNames('text-sm')}>{i.name}</div>
+                <div className={classNames('text-base one-line')}>
                   {i.leftValue}
                   .
                   {i.rightValue}
