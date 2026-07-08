@@ -80,6 +80,14 @@ html.senior {
   --ww-font-size-lg: 23px;
   --ww-font-size-xl: 27px;
   --ww-font-size-2xl: 32px;
+
+  // Detail page top bar increase height for scaled fonts
+  .record-detail-top {
+    height: 220px !important;
+  }
+  .record-detail-top .list-wrapper {
+    height: 90px !important;
+  }
 }
 
 :root:root {

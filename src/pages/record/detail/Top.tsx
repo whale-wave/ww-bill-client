@@ -81,7 +81,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
   }, [selectTime]);
 
   return (
-    <div className={styles.top}>
+    <div className={c(styles.top, 'record-detail-top')}>
       <div className={styles.title}>{config.appName}</div>
       <div className={c([styles.left, styles['top-text-1-wrapper']])}>
         <div className={styles['top-text-1']}>{selectTime?.format('YYYY年')}</div>
