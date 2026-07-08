@@ -1,8 +1,9 @@
 .top {
   width: 100%;
-  height: 182px;
+  height: 12.13em;
   position: relative;
   flex-shrink: 0;
+  font-size: var(--ww-font-size-base);
   background: linear-gradient(180deg, var(--ww-theme-color) 0%, var(--ww-theme-color) 75%, #fefefe 89%, #fefefe 100%);
   &-text-1 {
     font-size: var(--ww-font-size-sm);
@@ -12,13 +13,13 @@
       display: flex;
       flex-direction: column;
       position: absolute;
-      top: 50px;
+      top: 3.33em;
     }
   }
   .title {
     position: absolute;
     left: 50%;
-    top: 5px;
+    top: 0.33em;
     transform: translateX(-50%);
     font-size: var(--ww-font-size-xl);
     font-weight: bold;
@@ -26,10 +27,10 @@
   }
 
   .left {
-    left: 20px;
+    left: 1.33em;
     &-bottom {
-      height: 40px;
-      width: 70px;
+      height: 2.67em;
+      width: 4.67em;
       font-size: var(--ww-font-size-base);
       font-weight: 400;
       color: #333333;
@@ -41,9 +42,9 @@
   }
 
   .middle {
-    left: 121px;
+    left: 8.07em;
     &-bottom {
-      height: 37px;
+      height: 2.47em;
       position: relative;
       font-size: var(--ww-font-size-base);
       font-weight: 400;
@@ -60,9 +61,9 @@
   }
 
   .right {
-    left: 230px;
+    left: 15.33em;
     &-bottom {
-      height: 37px;
+      height: 2.47em;
       position: relative;
     }
   }
@@ -73,12 +74,12 @@
   }
 
   .list-wrapper {
-    height: 68px;
-    padding: 0 10px 0;
+    height: 4.53em;
+    padding: 0 0.67em 0;
     .list {
       background: #fefefe;
-      box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.16);
-      border-radius: 8px;
+      box-shadow: 0.07em 0.07em 0.27em rgba(0, 0, 0, 0.16);
+      border-radius: 0.53em;
       > .tab {
         font-size: var(--ww-font-size-sm);
         color: #333333;
@@ -88,7 +89,7 @@
           }
         }
         span {
-          margin-top: 4px;
+          margin-top: 0.27em;
         }
       }
     }
