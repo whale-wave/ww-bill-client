@@ -2,6 +2,7 @@
 @use 'reset' as appReset;
 @use 'reset-component' as componentReset;
 
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 

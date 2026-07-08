@@ -69,12 +69,6 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    :global {
-      .icon {
-        color: #e0e0e0;
-        font-size: 100px;
-      }
-    }
     span {
       font-size: var(--ww-font-size-base);
       color: #e0e0e0;

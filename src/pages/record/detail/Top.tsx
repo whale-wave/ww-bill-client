@@ -1,9 +1,8 @@
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import type { numType } from './index';
-import { CalendarOutline, SearchOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
-import { Triangle } from 'lucide-react';
+import { CalendarDays, Eye, EyeOff, Search, Triangle } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Precision from '@/pages/record/detail/ui';
@@ -97,7 +96,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
             <Triangle
               className={cn(
                 'ml-1 mb-[2px] inline-block transition-transform duration-200 ease-in-out',
-                visible1 ? '[transform:rotate(0deg)]' : '[transform:rotate(180deg)]',
+                visible1 ? 'rotate-0' : 'rotate-180',
               )}
               fill="currentColor"
               size={10}
@@ -173,18 +172,18 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
               className="right-4 bottom-[116px] absolute text-lg px-1"
               onClick={onToggleVisibleAmount}
             >
-              {!visibleAmount ? <Icon name="eye-close" /> : <Icon name="eye" />}
+              {!visibleAmount ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />}
             </div>
           )
         : null}
-      <div className="absolute top-0 right-0 p-2">
-        <SearchOutline className="text-lg mr-3" onClick={onGoToSearchRecordPage} />
-        <CalendarOutline className="text-lg mr-3" onClick={onGoToRecordCalendarPage} />
+      <div className="absolute top-0 right-0 p-2 flex items-center gap-3">
+        <Search size={18} strokeWidth={2} onClick={onGoToSearchRecordPage} />
+        <CalendarDays size={18} strokeWidth={2} onClick={onGoToRecordCalendarPage} />
       </div>
       <div
         className={cn(
           styles['list-wrapper'],
-          'w-full absolute bottom-0 left-1/2 [transform:translateX(-50%)]',
+          'w-full absolute bottom-0 left-1/2 -translate-x-1/2',
         )}
       >
         <div className={cn(styles.list, 'h-full flex')}>

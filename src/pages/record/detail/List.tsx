@@ -1,7 +1,8 @@
-import dayjs, { type Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import type { recordChildren } from '@/entities/record';
 import c from 'classnames';
+import { PackageOpen } from 'lucide-react';
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/shared/i18n';
@@ -41,8 +42,8 @@ const List: FC<timeDateProp> = memo(({ selectTime, change }) => {
       {record.length
         ? (
             <>
-              {record.map((item: recordType, index) => (
-                <div className={styles.group} key={index}>
+              {record.map((item: recordType) => (
+                <div className={styles.group} key={`${item[0]}-${item[1]}`}>
                   <div className={styles.title}>
                     <div className={styles.left}>
                       {item[0]}
@@ -66,10 +67,10 @@ const List: FC<timeDateProp> = memo(({ selectTime, change }) => {
                       {item[4]}
                     </div>
                   </div>
-                  {item[3].map((chunk, index) => (
+                  {item[3].map(chunk => (
                     <div
                       className={styles.record}
-                      key={index}
+                      key={chunk.id}
                       onClick={() => recordFn(chunk)}
                     >
                       <div className={c(styles.left, 'flex-shrink-0')}>
@@ -81,7 +82,7 @@ const List: FC<timeDateProp> = memo(({ selectTime, change }) => {
                         >
                           <Icon
                             name={chunk.category.icon}
-                            style={{ fontSize: 20 }}
+                            className="text-xl"
                           />
                         </div>
                       </div>
@@ -107,7 +108,7 @@ const List: FC<timeDateProp> = memo(({ selectTime, change }) => {
           )
         : (
             <div className={styles['not-data']}>
-              <Icon name="not-data" />
+              <PackageOpen className="text-[#e0e0e0]" size={100} strokeWidth={1.5} />
               <span>{t('common:empty')}</span>
             </div>
           )}
