@@ -1,0 +1,164 @@
+#root {
+  @apply h-full;
+}
+
+.page {
+  @apply h-full overflow-hidden flex flex-col;
+}
+
+.page-new {
+  @apply h-full flex flex-col;
+}
+
+.card-rounded {
+  @apply rounded-[5px];
+}
+
+.one-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// fix and icon middle problem
+.adm-toast-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.adm-button {
+  background-color: var(--ww-background-color);
+}
+
+.adm-card:has(div) {
+  --adm-color-border: 'transparent';
+
+  @apply px-0;
+  .adm-card-header {
+    @apply p-[12px];
+  }
+
+  .adm-card-body {
+    //@apply pt-0;
+  }
+}
+
+:root {
+  --ww-theme-text-color: #333;
+  --ww-background-color: #f5f5f5;
+  --ww-border-color: #d7d7d7;
+
+  /* Font scale: semantic size variables for Tailwind integration */
+  --ww-font-size-xs: 11px;
+  --ww-font-size-sm: 12px;
+  --ww-font-size-base: 15px;
+  --ww-font-size-lg: 17px;
+  --ww-font-size-xl: 20px;
+  --ww-font-size-2xl: 24px;
+
+  /* Backward-compatible alias for antd-mobile components */
+  --ww-font-size: var(--ww-font-size-base);
+
+  --ww-font-family-sans: theme('fontFamily.sans');
+  --adm-font-family: var(--ww-font-family-sans);
+  --bwm-font-family: var(--ww-font-family-sans);
+
+  -webkit-touch-callout: none; /*系统默认菜单被禁用*/
+  -webkit-user-select: none; /*webkit浏览器*/
+  -khtml-user-select: none; /*早期浏览器*/
+  -moz-user-select: none; /*火狐*/
+  -ms-user-select: none; /*IE10*/
+  user-select: none;
+}
+
+/* Senior mode: scale all font variables up */
+html.senior {
+  --ww-font-size-xs: 16px;
+  --ww-font-size-sm: 17px;
+  --ww-font-size-base: 21px;
+  --ww-font-size-lg: 23px;
+  --ww-font-size-xl: 27px;
+  --ww-font-size-2xl: 32px;
+
+  // Detail page top bar increase height for scaled fonts
+  .record-detail-top {
+    height: 220px !important;
+  }
+  .record-detail-top .list-wrapper {
+    height: 90px !important;
+  }
+
+  // Adjust content positioning to prevent overlap
+  .record-detail-top .top-text-1-wrapper {
+    top: 65px !important;
+  }
+  .record-detail-top .title {
+    top: 8px !important;
+  }
+  .record-detail-top .left-bottom {
+    height: 55px !important;
+  }
+  .record-detail-top .middle-bottom {
+    height: 50px !important;
+  }
+  .record-detail-top .right-bottom {
+    height: 50px !important;
+  }
+}
+
+:root:root {
+  --adm-color-primary: var(--ww-theme-color);
+  --adm-color-text: var(--ww-theme-text-color);
+  --adm-font-family: var(--ww-font-family-sans);
+  --bwm-font-family: var(--ww-font-family-sans);
+
+  .adm-button {
+    --adm-font-size-9: var(--ww-font-size);
+
+    @apply py-[8px] px-[12px];
+
+    &.adm-button-primary {
+      @apply text-font-black;
+    }
+  }
+
+  .adm-form {
+    .adm-list:has(div) .adm-list-body {
+      font-size: var(--ww-font-size);
+      .adm-input-element {
+        font-size: var(--ww-font-size);
+      }
+    }
+    .adm-form-footer {
+      @apply p-6;
+    }
+  }
+
+  .adm-dialog-action-row {
+    //.adm-button {
+    //  --adm-color-primary: #2073ba;
+    //  --adm-font-size-9: var(--ww-font-size);
+    //}
+  }
+
+  .adm-list-card {
+    @apply m-0;
+  }
+
+  .adm-list-body {
+    font-size: var(--ww-font-size);
+  }
+
+  .adm-list {
+    .adm-list-header {
+      @apply font-bold text-sm pt-4 text-font-black;
+    }
+    .adm-list-item-content-main {
+      @apply py-[10px];
+    }
+    .adm-list-item {
+      @apply pl-[20px];
+    }
+  }
+}

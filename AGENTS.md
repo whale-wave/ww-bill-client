@@ -318,6 +318,8 @@ Mutation hook 内部使用 `useQueryClient()` 获取 client，不要 import 全�
 通用样式要求：
 
 - 常规布局、间距、颜色、字号优先使用现有 Tailwind class 或已有样式体系。
+- 每次新增或修改样式、处理 `style` 属性、CSS Module、Sass 或全局 CSS 时，先判断能否迁移为 Tailwind class；能用 Tailwind 清晰表达的布局、间距、尺寸、定位、变换、过渡、颜色、字号等，不新增或保留行内 style / 简单 CSS。
+- 当前前端样式入口未引入 `@tailwind base`，Tailwind 的 `translate-*`、`rotate-*`、`scale-*` 等 transform 工具类依赖未初始化的 `--tw-*` 变量时可能失效；迁移 transform 行内样式时，优先使用 Tailwind arbitrary property（如 `[transform:translateX(-50%)]`、`[transform:rotate(180deg)]`），除非已经确认对应页面有完整变量初始化。
 - 页面级样式只保留复杂选择器、第三方组件局部覆盖、伪元素、keyframes 或无法清晰表达为 class 的局部修正。
 - UI 改动后检查 `DESIGN.md` 是否需要同步更新；工程执行规则写入 `AGENTS.md`，视觉规则写入 `DESIGN.md`。
 

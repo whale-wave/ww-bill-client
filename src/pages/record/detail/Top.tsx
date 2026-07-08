@@ -2,14 +2,15 @@ import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import type { numType } from './index';
 import { CalendarOutline, SearchOutline } from 'antd-mobile-icons';
-import c from 'classnames';
 import dayjs from 'dayjs';
+import { Triangle } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Precision from '@/pages/record/detail/ui';
 import config from '@/shared/config';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { cn } from '@/shared/lib';
 import { Icon } from '@/shared/ui';
 import { useVisibleAmount } from '../model/useVisibleAmount';
 import styles from './top.module.scss';
@@ -69,7 +70,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
 
   const onGoToSearchRecordPage = useCallback(() => {
     navigate('/search-record');
-  }, []);
+  }, [navigate]);
 
   const onGoToRecordCalendarPage = useCallback(() => {
     if (dayjs().isSame(selectTime, 'month')) {
@@ -78,23 +79,30 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
     else {
       navigate(`/record-calendar?selectTime=${selectTime.valueOf()}`);
     }
-  }, [selectTime]);
+  }, [navigate, selectTime]);
 
   return (
-    <div className={c(styles.top, 'record-detail-top')}>
+    <div className={cn(styles.top, 'record-detail-top')}>
       <div className={styles.title}>{config.appName}</div>
-      <div className={c([styles.left, styles['top-text-1-wrapper']])}>
+      <div className={cn([styles.left, styles['top-text-1-wrapper']])}>
         <div className={styles['top-text-1']}>{selectTime?.format('YYYY年')}</div>
-        <div className={c(styles['left-bottom'])}>
+        <div className={cn(styles['left-bottom'])}>
           <div
-            className="h-[40%] w-[1px] bg-black333 absolute -right-0 bottom-1 opacity-50"
+            className="h-[40%] w-[1px] bg-black333 absolute -right-2 bottom-1 opacity-50"
           >
           </div>
-          <div className={styles['bottom-wrapper']} onClick={onPrecisionFn}>
+          <div className={cn(styles['bottom-wrapper'], 'w-[300px]')} onClick={onPrecisionFn}>
             <span className={styles.month}>{selectTime?.format('MM')}</span>
             {t('common:time.month')}
-            {' '}
-            <Icon name="show-bottom" className="text-xs mb-[2px]" />
+            <Triangle
+              className={cn(
+                'ml-1 mb-[2px] inline-block transition-transform duration-200 ease-in-out',
+                visible1 ? '[transform:rotate(0deg)]' : '[transform:rotate(180deg)]',
+              )}
+              fill="currentColor"
+              size={10}
+              stroke="none"
+            />
             <Precision
               selectTime={selectTime}
               visible1={visible1}
@@ -105,7 +113,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
           </div>
         </div>
       </div>
-      <div className={c([styles.middle, styles['top-text-1-wrapper']])}>
+      <div className={cn([styles.middle, styles['top-text-1-wrapper']])}>
         <div className={styles['top-text-1']}>{t('common:amount.income')}</div>
         <div className={styles['middle-bottom']}>
           <div className={styles['bottom-wrapper']}>
@@ -127,12 +135,12 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
                   </>
                 )
               : (
-                  <span className={c(styles.big, 'font-bold')}>*******</span>
+                  <span className={cn(styles.big, 'font-bold')}>*******</span>
                 )}
           </div>
         </div>
       </div>
-      <div className={c([styles.right, styles['top-text-1-wrapper']])}>
+      <div className={cn([styles.right, styles['top-text-1-wrapper']])}>
         <div className={styles['top-text-1']}>{t('common:amount.expend')}</div>
         <div className={styles['right-bottom']}>
           <div className={styles['bottom-wrapper']}>
@@ -154,7 +162,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
                   </>
                 )
               : (
-                  <span className={c(styles.big, 'font-bold')}>*******</span>
+                  <span className={cn(styles.big, 'font-bold')}>*******</span>
                 )}
           </div>
         </div>
@@ -174,18 +182,15 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
         <CalendarOutline className="text-lg mr-3" onClick={onGoToRecordCalendarPage} />
       </div>
       <div
-        className={c(
+        className={cn(
           styles['list-wrapper'],
-          'w-full absolute bottom-0 left-1/2',
+          'w-full absolute bottom-0 left-1/2 [transform:translateX(-50%)]',
         )}
-        style={{
-          transform: 'translateX(-50%)',
-        }}
       >
-        <div className={c(styles.list, 'h-full flex')}>
+        <div className={cn(styles.list, 'h-full flex')}>
           {tabs.map(tab => (
             <div
-              className={c(
+              className={cn(
                 styles.tab,
                 'flex-shrink-0 flex-grow flex flex-col justify-center items-center',
               )}
