@@ -88,6 +88,23 @@ html.senior {
   .record-detail-top .list-wrapper {
     height: 90px !important;
   }
+
+  // Adjust content positioning to prevent overlap
+  .record-detail-top .top-text-1-wrapper {
+    top: 65px !important;
+  }
+  .record-detail-top .title {
+    top: 8px !important;
+  }
+  .record-detail-top .left-bottom {
+    height: 55px !important;
+  }
+  .record-detail-top .middle-bottom {
+    height: 50px !important;
+  }
+  .record-detail-top .right-bottom {
+    height: 50px !important;
+  }
 }
 
 :root:root {
