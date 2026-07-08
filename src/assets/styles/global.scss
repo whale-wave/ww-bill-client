@@ -1,9 +1,55 @@
+#root {
+  @apply h-full;
+}
+
+.page {
+  @apply h-full overflow-hidden flex flex-col;
+}
+
+.page-new {
+  @apply h-full flex flex-col;
+}
+
+.card-rounded {
+  @apply rounded-[5px];
+}
+
+.one-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// fix and icon middle problem
+.adm-toast-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.adm-button {
+  background-color: var(--ww-background-color);
+}
+
+.adm-card:has(div) {
+  --adm-color-border: 'transparent';
+
+  @apply px-0;
+  .adm-card-header {
+    @apply p-[12px];
+  }
+
+  .adm-card-body {
+    //@apply pt-0;
+  }
+}
+
 :root {
   --ww-theme-text-color: #333;
   --ww-background-color: #f5f5f5;
   --ww-border-color: #d7d7d7;
 
-  // Font scale: semantic size variables for Tailwind integration
+  /* Font scale: semantic size variables for Tailwind integration */
   --ww-font-size-xs: 11px;
   --ww-font-size-sm: 12px;
   --ww-font-size-base: 15px;
@@ -35,32 +81,21 @@ html.senior {
   --ww-font-size-xl: 27px;
   --ww-font-size-2xl: 32px;
 
-  // Detail page top bar increase height for scaled fonts
+  // Detail page top bar minimal adjustments
   .record-detail-top {
-    height: 250px !important;
+    height: 220px !important;
   }
   .record-detail-top .list-wrapper {
-    height: 100px !important;
+    height: 90px !important;
   }
-
-  // Adjust content positioning to prevent overlap
   .record-detail-top .top-text-1-wrapper {
-    top: 80px !important;
+    top: 65px !important;
   }
-  .record-detail-top .title {
-    top: 8px !important;
+  .record-detail-top .top-text-1 {
+    margin-bottom: 10px !important;
   }
-  .record-detail-top .left-bottom,
-  .record-detail-top .middle-bottom,
-  .record-detail-top .right-bottom {
-    height: 85px !important;
-    flex-direction: column !important;
-    gap: 10px !important;
-    display: flex !important;
-  }
-  .record-detail-top .bottom-wrapper {
-    display: flex !important;
-    flex-direction: column !important;
+  .record-detail-top .left-bottom {
+    height: 55px !important;
   }
 }
 
@@ -80,80 +115,42 @@ html.senior {
     }
   }
 
-  .adm-badge-count {
-    @apply px-[6px];
-  }
-
-  .adm-button-disabled {
-    opacity: 0.5;
-  }
-
   .adm-form {
-    @apply text-font-black;
-
-    --adm-color-border: var(--ww-border-color);
-  }
-
-  .adm-list-default-body {
-    @apply bg-white px-[16px];
-  }
-
-  .adm-list-body-inner {
-    @apply border-0;
-  }
-
-  .adm-cell {
-    @apply border-0;
-
-    padding-top: 16px !important;
-    padding-bottom: 16px !important;
-  }
-
-  .adm-input-element {
-    @apply text-[15px];
-  }
-
-  .adm-popup .adm-center-popup {
-    @apply bg-white rounded-[8px];
-  }
-
-  .adm-dialog-footer {
-    @apply border-border-primary;
-  }
-
-  .adm-dialog-button {
-    @apply text-font-black py-[10px];
-
-    :global {
-      .adm-button-default {
-        @apply border-0 text-[14px];
+    .adm-list:has(div) .adm-list-body {
+      font-size: var(--ww-font-size);
+      .adm-input-element {
+        font-size: var(--ww-font-size);
       }
     }
+    .adm-form-footer {
+      @apply p-6;
+    }
   }
 
-  .adm-result {
-    @apply text-[16px];
+  .adm-dialog-action-row {
+    //.adm-button {
+    //  --adm-color-primary: #2073ba;
+    //  --adm-font-size-9: var(--ww-font-size);
+    //}
   }
 
-  .adm-action-sheet-cancel {
-    &-button {
-      @apply mt-[10px];
+  .adm-list-card {
+    @apply m-0;
+  }
+
+  .adm-list-body {
+    font-size: var(--ww-font-size);
+  }
+
+  .adm-list {
+    .adm-list-header {
+      @apply font-bold text-sm pt-4 text-font-black;
+    }
+    .adm-list-item-content-main {
+      @apply py-[10px];
+    }
+    .adm-list-item {
+      @apply pl-[20px];
     }
   }
 }
-
-body {
-  @apply bg-bg-gray text-[15px] font-sans text-font-black;
-}
-
-@media screen and (min-width: 420px) {
-  body {
-    max-width: 420px;
-    margin: 0 auto;
-    position: relative;
-  }
-}
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
