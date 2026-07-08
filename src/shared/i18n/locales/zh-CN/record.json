@@ -28,6 +28,7 @@
   },
   "calendar": {
     "title": "日历",
+    "selectMonth": "选择月份",
     "noRecord": "暂无记录",
     "dailyBudget": "日均预算"
   },

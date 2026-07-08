@@ -28,6 +28,7 @@
   },
   "calendar": {
     "title": "Calendar",
+    "selectMonth": "Select month",
     "noRecord": "No records",
     "dailyBudget": "Daily Budget"
   },
