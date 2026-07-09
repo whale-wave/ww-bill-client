@@ -1,6 +1,7 @@
+import type { FC } from 'react';
 import { List, Toast } from 'antd-mobile';
-import { EditSOutline, ExclamationCircleOutline, SetOutline } from 'antd-mobile-icons';
-import React, { useEffect, useMemo } from 'react';
+import { Info, PencilLine, Settings } from 'lucide-react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/shared/i18n';
 import pkg from '../../../../../package.json';
@@ -8,21 +9,23 @@ import pkg from '../../../../../package.json';
 interface BottomListProps {
 }
 
-const BottomList: React.FC<BottomListProps> = () => {
+const iconClassName = 'text-black333';
+
+const BottomList: FC<BottomListProps> = () => {
   const { t } = useTranslation('user');
   const navigate = useNavigate();
   const list = useMemo(() => {
     return [
       {
         title: t('bottomList.settings'),
-        prefix: <div className="flex items-center text-xl"><SetOutline /></div>,
+        prefix: <Settings className={iconClassName} size={18} strokeWidth={1.8} />,
         onClick: () => {
           navigate('/settings');
         },
       },
       {
         title: t('bottomList.feedback'),
-        prefix: <div className="flex items-center text-xl"><EditSOutline /></div>,
+        prefix: <PencilLine className={iconClassName} size={18} strokeWidth={1.8} />,
         onClick: () => {
           Toast.show({
             content: t('tabs.comingSoon'),
@@ -31,13 +34,10 @@ const BottomList: React.FC<BottomListProps> = () => {
       },
       {
         title: t('bottomList.about', { version: pkg.version }),
-        prefix: <div className="flex items-center text-lg"><ExclamationCircleOutline /></div>,
+        prefix: <Info className={iconClassName} size={18} strokeWidth={1.8} />,
       },
     ];
-  }, [t]);
-
-  useEffect(() => {
-  }, []);
+  }, [navigate, t]);
 
   return (
     <List mode="card">
