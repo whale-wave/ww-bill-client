@@ -44,6 +44,7 @@ const UpcomingList: React.FC<UpcomingListProps> = memo((props) => {
       <div className="-mx-3 flex space-x-2 overflow-x-auto px-3 pb-1">
         {items.map((item) => {
           const tone = getNextBillingTone(item.nextBillingDate);
+          const TypeIcon = typeIconMap[item.type];
           return (
             <div
               key={item.id}
@@ -51,7 +52,9 @@ const UpcomingList: React.FC<UpcomingListProps> = memo((props) => {
               onClick={() => onClickItem?.(item)}
             >
               <div className="flex items-center space-x-1">
-                <span className="text-base">{typeIconMap[item.type]}</span>
+                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600">
+                  <TypeIcon size={13} strokeWidth={1.8} />
+                </span>
                 <span className="truncate text-sm text-slate-800">{item.name}</span>
               </div>
               <div className="mt-2 text-base font-semibold text-slate-900">

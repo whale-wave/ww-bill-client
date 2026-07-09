@@ -42,6 +42,7 @@ const FixedExpenseItem: React.FC<FixedExpenseItemProps> = memo((props) => {
   const statusColor = statusColorMap[item.status];
   const tone = getNextBillingTone(item.nextBillingDate);
   const nextBillingText = formatNextBillingDate(item.nextBillingDate);
+  const TypeIcon = typeIconMap[item.type];
 
   const cycleKeyMap: Record<FixedExpenseCycle, string> = {
     [FixedExpenseCycle.WEEKLY]: 'cycle.weeklyShort',
@@ -81,7 +82,9 @@ const FixedExpenseItem: React.FC<FixedExpenseItemProps> = memo((props) => {
       <div className="flex flex-grow flex-col px-3 py-3">
         <div className="flex items-start justify-between">
           <div className="flex flex-grow items-center space-x-2 overflow-hidden pr-2">
-            <span className="text-lg">{typeIconMap[item.type]}</span>
+            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600">
+              <TypeIcon size={15} strokeWidth={1.8} />
+            </span>
             <span className="truncate text-base font-medium text-slate-800">
               {item.name}
             </span>

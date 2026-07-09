@@ -47,6 +47,7 @@ const FixedExpenseDetail: React.FC = () => {
     () => (detail ? statusColorMap[detail.status] : undefined),
     [detail],
   );
+  const TypeIcon = detail ? typeIconMap[detail.type] : undefined;
 
   return (
     <div className="page-new overflow-hidden">
@@ -68,7 +69,11 @@ const FixedExpenseDetail: React.FC = () => {
                   <div className="absolute -right-10 -top-14 h-36 w-36 rounded-full bg-white/15" />
                   <div className="absolute -bottom-14 -left-6 h-28 w-28 rounded-full bg-white/10" />
                   <div className="relative flex items-center space-x-2 text-white">
-                    <span className="text-xl">{typeIconMap[detail.type]}</span>
+                    {TypeIcon && (
+                      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-white/20">
+                        <TypeIcon size={17} strokeWidth={1.8} />
+                      </span>
+                    )}
                     <span className="text-base font-medium">{detail.name}</span>
                     {statusColor && (
                       <span className="ml-auto inline-flex items-center space-x-1 rounded-full bg-white/25 px-2 py-0.5 text-xs backdrop-blur">
