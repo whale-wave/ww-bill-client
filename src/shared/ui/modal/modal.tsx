@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import React, { useCallback } from 'react';
-import Mask from '../mask';
 import { useTranslation } from '@/shared/i18n';
+import Mask from '../mask';
 
 const classPrefix = 'bwm-modal';
 
@@ -20,7 +20,7 @@ const defaultProps = {
 
 export const Modal: FC<ModalProps> = (p) => {
   const { t } = useTranslation('common');
-  const props = Object.assign({}, defaultProps, p);
+  const props = { ...defaultProps, ...p };
   const { visible, onClose, children, title, onCancel, onOk } = props;
   const displayTitle = title === undefined || title === '标题' ? t('nav.title') : title;
 

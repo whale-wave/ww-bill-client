@@ -29,18 +29,18 @@ const ForgetPasswordVerifyCode: FC = () => {
   const onGoTo = useCallback((v: string | number) => {
     playSound.turnPage();
     navigate(v as Parameters<typeof navigate>[0]);
-  }, []);
+  }, [navigate]);
 
   const onGoToBack = useCallback(() => {
     onGoTo(-1);
-  }, []);
+  }, [onGoTo]);
 
   const onSendVerify = useCallback(async () => {
     const getForgetPasswordEmailCaptchaRes
       = await getToolsForgetPasswordEmailApi(email, true);
 
     return getForgetPasswordEmailCaptchaRes.statusCode === 200;
-  }, [captcha]);
+  }, [email]);
 
   const onSend = useCallback(async () => {
     const getToolsForgetPasswordEmailVerifyCodeRes
@@ -64,13 +64,13 @@ const ForgetPasswordVerifyCode: FC = () => {
         );
       }, 400);
     }
-  }, [email, captcha]);
+  }, [captcha, email, navigate]);
 
   useEffect(() => {
     if (!email) {
       onGoTo('/mine');
     }
-  }, [email]);
+  }, [email, onGoTo]);
 
   return (
     <div className="page flex flex-col">

@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { Card } from 'antd-mobile';
 import { RightOutline } from 'antd-mobile-icons';
@@ -6,6 +5,7 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAssetSummaryInfo } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
 
 export const AssetManagerCard: FC = () => {
   const { t } = useTranslation('asset');
@@ -33,7 +33,7 @@ export const AssetManagerCard: FC = () => {
 
   return (
     <Card
-      title={t("asset:manager.title")}
+      title={t('asset:manager.title')}
       extra={
         <RightOutline />
       }

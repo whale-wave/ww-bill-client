@@ -7,9 +7,10 @@ import type {
   GetFixedExpenseQuery,
   UpdateFixedExpenseApiData,
 } from './api';
+import type { SuccessResponse } from '@/shared/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { isSuccessApi, type SuccessResponse } from '@/shared/api';
+import { isSuccessApi } from '@/shared/api';
 import { deleteFixedExpenseApi, getFixedExpenseApi, getFixedExpenseByIdApi, patchFixedExpenseApi, postFixedExpenseApi } from './api';
 import { fixedExpenseKeys } from './keys';
 

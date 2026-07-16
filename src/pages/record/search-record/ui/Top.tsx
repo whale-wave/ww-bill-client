@@ -1,8 +1,8 @@
-import { useTranslation } from '@/shared/i18n';
 import type { SearchBarRef } from 'antd-mobile';
 import { SearchBar } from 'antd-mobile';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from '@/shared/i18n';
 
 interface TopProps {
 }
@@ -16,7 +16,7 @@ const Top: React.FC<TopProps> = () => {
 
   const onBack = useCallback(() => {
     navigate(-1);
-  }, []);
+  }, [navigate]);
 
   const onChange = useCallback((v: string) => {
     setSearchParams({ q: v }, { replace: true });
@@ -28,7 +28,7 @@ const Top: React.FC<TopProps> = () => {
 
   return (
     <div className="bg-primary py-2 pl-4 pr-1 fixed top-0 right-0 w-full">
-      <SearchBar ref={searchBarRef} style={{ '--background': '#fff' }} value={searchRecordKeyword} placeholder={t("search.placeholder")} showCancelButton={() => true} onCancel={onBack} onChange={onChange} />
+      <SearchBar ref={searchBarRef} style={{ '--background': '#fff' }} value={searchRecordKeyword} placeholder={t('search.placeholder')} showCancelButton={() => true} onCancel={onBack} onChange={onChange} />
     </div>
   );
 };

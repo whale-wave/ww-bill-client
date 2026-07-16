@@ -109,18 +109,18 @@ export function useGetRecordBillQuery(options?: {
     return response.data;
   }, [response]);
 
-  const loadingToastHandle = useRef<ToastHandler | null>(null);
+  const loadingToastHandleRef = useRef<ToastHandler | null>(null);
 
   useEffect(() => {
-    if (!isNotDataLoading && !loadingToastHandle.current)
+    if (!isNotDataLoading && !loadingToastHandleRef.current)
       return;
 
-    if (loadingToastHandle.current) {
-      loadingToastHandle.current.close();
-      loadingToastHandle.current = null;
+    if (loadingToastHandleRef.current) {
+      loadingToastHandleRef.current.close();
+      loadingToastHandleRef.current = null;
       return;
     }
-    loadingToastHandle.current = Toast.show({
+    loadingToastHandleRef.current = Toast.show({
       content: i18n.t('common:api.loading'),
       duration: 0,
       position: 'top',

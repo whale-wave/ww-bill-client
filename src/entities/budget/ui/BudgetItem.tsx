@@ -41,8 +41,7 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
                 <div className="text-base">
                   {budgetEntityType === BudgetEntityType.MONTH
                     ? t('item.summary.month', { month: dayjs().format('MM') })
-                    : t('item.summary.year', { year: dayjs().format('YYYY') })
-                  }
+                    : t('item.summary.year', { year: dayjs().format('YYYY') })}
                 </div>
               )
             : (

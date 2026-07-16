@@ -25,7 +25,7 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
 
   const onBack = useCallback(() => {
     navigate(`/budget?type=${type}`, { replace: true });
-  }, []);
+  }, [navigate, type]);
 
   const onSelectIcon = useCallback((category: CategoryEntity) => () => {
     setSelectCategory(category);

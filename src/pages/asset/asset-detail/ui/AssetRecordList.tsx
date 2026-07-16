@@ -14,7 +14,7 @@ export const AssetRecordList: FC = () => {
   const params = useParams();
   const { id } = params as { id: string };
 
-  const [selectMonth, setSelectMonth] = useState(dayjs());
+  const [selectMonth, setSelectMonth] = useState(() => dayjs());
   const startTime = useMemo(() => dayjs(selectMonth).startOf('month').valueOf(), [selectMonth]);
   const endTime = useMemo(() => dayjs(selectMonth).endOf('month').valueOf(), [selectMonth]);
 
@@ -64,7 +64,7 @@ export const AssetRecordList: FC = () => {
   return (
     <div className={classNames('mt-3')}>
       <div className="flex items-center justify-between px-3">
-        <div className="text-base font-bold">{t("detail.recordList")}</div>
+        <div className="text-base font-bold">{t('detail.recordList')}</div>
         <div className="flex items-center text-xm space-x-1" onClick={handleSelectMonth}>
           <div>{selectMonth.format('YYYY年MM月')}</div>
           <Icon name="show-bottom" className="text-xs" />

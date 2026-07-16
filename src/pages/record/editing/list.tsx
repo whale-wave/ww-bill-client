@@ -2,9 +2,9 @@ import type { FC } from 'react';
 import type { recordChildren } from '@/entities/record';
 import c from 'classnames';
 import { useMemo } from 'react';
+import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
 import { FixedPin } from '@/shared/ui';
-import { useTranslation } from '@/shared/i18n';
 import styles from './list.module.scss';
 
 interface stateType {
@@ -30,7 +30,7 @@ const List: FC<stateType> = ({ state }) => {
       { label: t('edit.date'), value: `${timeDate}  ${weekByDay}` },
       { label: t('edit.remark'), value: state.remark },
     ];
-  }, [state]);
+  }, [state, t]);
 
   return (
     <div className={styles.list}>

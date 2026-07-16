@@ -21,7 +21,7 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
   const [postUserEmailChangeEmailMutate]
     = usePostUserEmailChangeEmailMutation();
 
-  const onBack = useCallback(() => navigate(-1), []);
+  const onBack = useCallback(() => navigate(-1), [navigate]);
 
   const onSendNewCaptcha = useCallback(async () => {
     if (!newEmail.trim()) {
@@ -50,7 +50,7 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
       default:
         return false;
     }
-  }, [newEmail, captcha, t]);
+  }, [captcha, email, navigate, newEmail, t]);
 
   const onSendChangeEmail = useCallback(async () => {
     if (!newEmail.trim()) {
@@ -86,7 +86,7 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
       case 200:
         setTimeout(() => navigate(-1));
     }
-  }, [captcha, newCaptcha, newEmail, t]);
+  }, [captcha, email, navigate, newCaptcha, newEmail, postUserEmailChangeEmailMutate, t]);
 
   if (!email || !captcha) {
     return <Navigate to="/" />;

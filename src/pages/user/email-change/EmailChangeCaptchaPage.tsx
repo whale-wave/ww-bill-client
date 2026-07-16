@@ -19,7 +19,7 @@ const EmailChangeCaptcha: React.FC<EmailChangeProps> = () => {
   const [captcha, setCaptcha] = useState<string>('');
   const [startTime, setStartTime] = useState<Dayjs>();
 
-  const onBack = useCallback(() => navigate(-1), []);
+  const onBack = useCallback(() => navigate(-1), [navigate]);
 
   const onSendCaptcha = useCallback(async () => {
     const getUserEmailChangeEmailCaptchaRes
@@ -35,7 +35,7 @@ const EmailChangeCaptcha: React.FC<EmailChangeProps> = () => {
         replace: true,
       });
     }
-  }, [captcha, email]);
+  }, [captcha, email, navigate]);
 
   if (!email) {
     return <Navigate to="/" />;

@@ -1,8 +1,8 @@
 import type { ChangeEvent, FC } from 'react';
 import classNames from 'classnames';
 import { useRef, useState } from 'react';
-import Icon from '../icon';
 import { useTranslation } from '@/shared/i18n';
+import Icon from '../icon';
 
 const classPrefix = 'bwm-comment';
 
@@ -39,14 +39,14 @@ interface CommentProps {
 
 export const Comment: FC<CommentProps> = ({ onSubmit, data, onShare, onLike, onStart }) => {
   const { t } = useTranslation('common');
-  const textareaEl = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [content, setContent] = useState('');
 
   return (
     <div className={classPrefix}>
       <textarea
-        ref={textareaEl}
+        ref={textareaRef}
         className={classNames(`${classPrefix}-test`, {
           [`${classPrefix}-test-editing`]: isEditing,
         })}
@@ -54,11 +54,11 @@ export const Comment: FC<CommentProps> = ({ onSubmit, data, onShare, onLike, onS
         placeholder={t('placeholder.writeComment')}
         onBlur={() => {
           setIsEditing(false);
-          textareaEl.current?.removeAttribute('style');
+          textareaRef.current?.removeAttribute('style');
         }}
         onFocus={() => {
           setIsEditing(true);
-          const el = textareaEl.current;
+          const el = textareaRef.current;
           setTimeout(() => {
             el && (el.style.height = `${el.scrollHeight}px`);
           }, 0);
@@ -68,8 +68,8 @@ export const Comment: FC<CommentProps> = ({ onSubmit, data, onShare, onLike, onS
             e.stopPropagation();
             onSubmit?.(content);
             setTimeout(setContent, 0, '');
-            textareaEl.current?.removeAttribute('style');
-            textareaEl.current?.blur();
+            textareaRef.current?.removeAttribute('style');
+            textareaRef.current?.blur();
           }
         }}
         onInput={(e: ChangeEvent<HTMLTextAreaElement>) => {

@@ -1,4 +1,3 @@
-import { useTranslation } from '@/shared/i18n';
 import type { Follow } from '@/entities/follow';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +9,7 @@ import {
 } from '@/entities/follow';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import UserFollowItem from '@/pages/new-follow/ui';
+import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
 import { NavBar } from '@/shared/ui';
 import styles from './index.module.scss';

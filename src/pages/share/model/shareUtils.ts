@@ -1,5 +1,5 @@
-import { i18n } from '@/shared/i18n';
 import type { ShareData } from '@/pages/share/ShareCanvas';
+import { i18n } from '@/shared/i18n';
 
 type ShareSource = Record<string, unknown>;
 

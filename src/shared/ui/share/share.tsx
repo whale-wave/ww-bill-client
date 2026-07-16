@@ -1,7 +1,7 @@
 import type { FC } from 'react';
+import { useTranslation } from '@/shared/i18n';
 import Button from '../button';
 import Mask from '../mask';
-import { useTranslation } from '@/shared/i18n';
 
 const classPrefix = 'bwm-share';
 
@@ -40,7 +40,7 @@ const defaultProps = {
 
 export const Share: FC<ShareProps> = (p) => {
   const { t } = useTranslation('common');
-  const props = Object.assign({}, defaultProps, p);
+  const props = { ...defaultProps, ...p };
   const { visible, onClose, onStart, onCopyUrl, onDelete, shares } = props;
 
   const opts = [

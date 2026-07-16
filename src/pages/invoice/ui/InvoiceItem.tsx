@@ -27,7 +27,10 @@ const InvoiceItem: React.FC<InvoiceItemProps> = memo((props) => {
           </div>
         </div>
         <div className="space-x-2 text-font-gray text-sm">
-          <span>{t('form.taxNumber')}:</span>
+          <span>
+            {t('form.taxNumber')}
+            :
+          </span>
           <span>{invoice.taxNumber}</span>
         </div>
       </div>

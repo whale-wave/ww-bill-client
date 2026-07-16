@@ -1,8 +1,8 @@
 import type { AmountType, GetChartApiParamsCategory, GetChartApiResponse, GetChartApiResponseRankingData, TabItem, TimeRangeCategory } from '@/entities/chart';
 import type { RecordEntry } from '@/entities/record';
 import { isMonthData, isWeekData, isYearData } from '@/entities/chart';
-import { math } from '@/shared/lib';
 import { i18n } from '@/shared/i18n';
+import { math } from '@/shared/lib';
 
 export const amountTypeName: Record<AmountType, string> = { sub: i18n.t('chart:amount.expend'), add: i18n.t('chart:amount.income') };
 export const timeRangeName: Record<TimeRangeCategory, string> = { week: i18n.t('chart:tabs.week'), month: i18n.t('chart:tabs.month'), year: i18n.t('chart:tabs.year') };

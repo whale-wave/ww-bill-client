@@ -1,7 +1,7 @@
-import { useTranslation } from '@/shared/i18n';
 import { useNavigate } from 'react-router-dom';
 import { useGetSystemNotifyQuery } from '@/entities/system-notify';
 import CommentListItem from '@/pages/comment-list/ui';
+import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
 import { NavBar } from '@/shared/ui';
 
@@ -15,7 +15,7 @@ function SystemNotify() {
 
   return (
     <div>
-      <NavBar back={t("common:nav.back")} onBack={() => navigate(-1)}>
+      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
         {t('common:message.systemNotify.title')}
       </NavBar>
       {data.map((i: any) => {

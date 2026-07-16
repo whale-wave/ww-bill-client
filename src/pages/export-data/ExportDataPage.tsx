@@ -3,9 +3,9 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRecordApi } from '@/entities/record';
+import { useTranslation } from '@/shared/i18n';
 import { exportData } from '@/shared/lib/export-data';
 import { Button, Gap, List, NavBar } from '@/shared/ui';
-import { useTranslation } from '@/shared/i18n';
 import styles from './index.module.scss';
 
 enum ChangeType {

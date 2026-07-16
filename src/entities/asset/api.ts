@@ -1,5 +1,6 @@
 import type { AssetStatisticalRecordType } from './types';
-import { request, type SuccessResponse } from '@/shared/api';
+import type { SuccessResponse } from '@/shared/api';
+import { request } from '@/shared/api';
 
 export interface AssetStatisticalRecord {
   id: string;

@@ -3,9 +3,9 @@ import { RightOutline } from 'antd-mobile-icons';
 import classNames from 'classnames';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { spliceNumberByPoint, zeroFill } from '@/shared/lib/time';
-import { useTranslation } from '@/shared/i18n';
 
 interface CurrentMonthBillCardProps {
   billRecord?: {

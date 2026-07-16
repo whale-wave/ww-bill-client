@@ -1,9 +1,9 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import { List } from 'antd-mobile';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';
+import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import { RankingItem } from './RankingItem';
 

@@ -1,6 +1,7 @@
 import type { CategoryEntity } from '@/entities/category';
 import type { UserEntity } from '@/entities/user';
-import { request, type SuccessResponse } from '@/shared/api';
+import type { SuccessResponse } from '@/shared/api';
+import { request } from '@/shared/api';
 
 export enum BudgetEntityLevel {
   SUMMARY = 0,

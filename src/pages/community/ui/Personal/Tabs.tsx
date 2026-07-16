@@ -1,9 +1,9 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { CheckInfo } from '@/entities/follow';
 import { TopicItem } from '@/entities/topic';
+import { useTranslation } from '@/shared/i18n';
 import styles from './Tabs.module.scss';
 
 interface TabsProps {
@@ -43,8 +43,8 @@ const Tabs: FC<TabsProps> = ({ checkInfo, topics }) => {
 const Topics: FC<{ topics: any }> = ({ topics }) => {
   return (
     <div>
-      {topics?.map((topic: any, index: any) => (
-        <TopicItem key={index} data={topic} />
+      {topics?.map((topic: any) => (
+        <TopicItem key={topic.id} data={topic} />
       ))}
     </div>
   );
@@ -61,7 +61,7 @@ const Home: FC<HomeProps> = ({ checkInfo, topics }) => {
   return (
     <div>
       <div>
-        <div className={styles.achieve}>{t("personal.achievementTitle")}</div>
+        <div className={styles.achieve}>{t('personal.achievementTitle')}</div>
         <CheckInfo className={styles['check-info']} data={checkInfo} />
       </div>
       <div style={{ backgroundColor: '#F6F7F8', height: 8 }} />

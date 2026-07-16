@@ -55,11 +55,11 @@ export const AssetList: FC = () => {
     });
 
     return result;
-  }, [list, groupIds]);
+  }, [list, group, groupIds]);
 
   const handleItemClick = useCallback((item: Asset) => () => {
     navigate(ROUTES_PATH.ASSET_DETAIL.getPath(item.id));
-  }, []);
+  }, [navigate]);
 
   const handleDelete = useCallback((item: Asset) => async () => {
     Dialog.confirm({
@@ -79,7 +79,7 @@ export const AssetList: FC = () => {
         }
       },
     });
-  }, []);
+  }, [deleteAssetByIdMutate, t]);
 
   const parseAmount = useCallback((amount: string | number, type: 'add' | 'sub') => {
     const amountNumber = formatAmount(Number(amount)).toString();
@@ -133,7 +133,7 @@ export const AssetList: FC = () => {
                 ))}
               </List>
             ))
-          : <div className="my-[80px]"><ErrorBlock status="empty" description={t("manager.emptyDescription")} /></div>
+          : <div className="my-[80px]"><ErrorBlock status="empty" description={t('manager.emptyDescription')} /></div>
       }
     </div>
   );

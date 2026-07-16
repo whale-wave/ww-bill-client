@@ -9,8 +9,8 @@ import {
   usePostBudgetCategoryMutation,
   usePostBudgetSummaryMutation,
 } from '@/entities/budget';
-import { BudgetModelModelTypeMap } from '../ui/BudgetModel';
 import { useTranslation } from '@/shared/i18n';
+import { BudgetModelModelTypeMap } from '../ui/BudgetModel';
 
 interface SubmitParams {
   modelType: BudgetModelModelType;

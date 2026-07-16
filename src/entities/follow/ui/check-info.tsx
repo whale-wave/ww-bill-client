@@ -22,7 +22,7 @@ const defaultProps = {
 
 const CheckInfo: FC<CheckInfoProps> = (p) => {
   const { t } = useTranslation('user');
-  const props = Object.assign({ ...defaultProps }, p);
+  const props = { ...defaultProps, ...p };
   return (
     <div className={classNames('middle flex w-full', props.className)}>
       <div className="grow flex flex-col justify-center items-center">

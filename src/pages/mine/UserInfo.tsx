@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import { List } from 'antd-mobile';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from '@/shared/i18n';
 import { CheckInfo } from '@/entities/follow';
+import { useTranslation } from '@/shared/i18n';
 import { Icon } from '@/shared/ui';
 import styles from './UserInfo.module.scss';
 

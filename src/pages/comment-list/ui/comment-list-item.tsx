@@ -1,5 +1,5 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC } from 'react';
+import { useTranslation } from '@/shared/i18n';
 import { mergerProps } from '@/shared/lib';
 
 const classPrefix = 'bwm-comment-list-item';
@@ -25,7 +25,7 @@ export const CommentListItem: FC<CommentListItemProps> = (p) => {
     <div className={classPrefix} onClick={props.onClick}>
       <div className={`${classPrefix}-left`}>
         <div className={`${classPrefix}-left-img`}>
-          <img src={props.avatar} alt={t("common:avatar")} />
+          <img src={props.avatar} alt={t('common:avatar')} />
         </div>
       </div>
       <div className={`${classPrefix}-middle`}>
@@ -39,7 +39,7 @@ export const CommentListItem: FC<CommentListItemProps> = (p) => {
       </div>
       {props.coverPicture && (
         <div className={`${classPrefix}-right`}>
-          <img src={props.coverPicture} alt={t("common:coverImage")} />
+          <img src={props.coverPicture} alt={t('common:coverImage')} />
         </div>
       )}
     </div>
