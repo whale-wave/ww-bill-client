@@ -575,21 +575,23 @@ export function useChartTabs(timeRange: TimeRangeCategory) {
 
 #### P9 验证日志 — 2026-07-16
 
-在一个新的 shell 中使用 Node `v22.23.1`、pnpm `11.7.0`，按顺序得到以下结果：
+在一个新的 shell 中使用 Node `v22.23.1`、pnpm `10.34.3`，按顺序得到以下结果：
 
 - `CI=true pnpm install --frozen-lockfile`：exit 0；lockfile 已是最新，安装完成。
 - `pnpm lint:type`：exit 0；`tsc -b --noEmit` 通过。
 - `pnpm lint`：exit 0；0 errors、82 warnings。
-- `pnpm test`：exit 0；Vitest `v4.1.10`，4/4 test files、13/13 tests 通过，耗时 3.70s。
-- `pnpm build`：exit 0；TypeScript build 与 Vite `v8.0.16` production build 通过，转换 5,608 modules，Vite 构建耗时 3.84s；保留现有大于 500 kB 的 chunk advisory。
+- `pnpm test`：exit 0；Vitest `v4.1.10`，6/6 test files、17/17 tests 通过，耗时 2.06s。
+- `pnpm build`：exit 0；TypeScript build 与 Vite `v8.0.16` production build 通过，转换 5,608 modules，Vite 构建耗时 2.09s；保留现有大于 500 kB 的 chunk advisory。
 - `git diff --check`：exit 0，无输出。
 - `git ls-files 'dist/**' '*.tsbuildinfo' 'coverage/**'`：无输出；未跟踪构建、TypeScript build-info 或 coverage 产物。
 
-浏览器冒烟在 `http://localhost:3231/` 执行。独立 UI 验证通过：`/detail` 可渲染首页/流水空态、合计与导航；`/chart` 可渲染支出页、周/月/年 tab 与预期空态；`/sign` 可渲染邮箱、密码、邮箱验证码字段并接受三项输入；`/forget-password` 可渲染绑定邮箱字段与“下一步”；登录壳可渲染账号、密码、验证码、登录、返回和注册控件；受保护路由会重定向到登录页而不是崩溃。
+浏览器冒烟在 `http://localhost:3231/` 执行。人工完成图片验证码后，账号/密码登录成功进入 `/detail`。登录/注册/找回密码壳、受保护路由重定向、既有流水详情与编辑、预算、资产、发票、固定支出、图表周/月/年切换与类别排行详情、社区与话题详情、语言切换刷新持久化、老年模式 `html.senior` 切换与刷新持久化、直接 `/share` 明确空态均通过。记账冒烟创建并更新了一条支出 `0.1`、类别“餐饮”、备注“P9 烟测记录”的测试流水，详情页回读一致，验证后已删除该测试数据。
 
-后续 workspace 审计找到同级 `ww-bill-service` 与其远端测试数据库。使用项目要求的 Node `v24.15.0` 启动现有服务产物后，`http://localhost:3001` 正常提供 API，服务启动流程也创建了默认测试管理员；客户端登录页已预填该测试账号。图片验证码按浏览器安全规则必须由用户人工完成，但连续三次恢复检查时验证码字段仍为空，因此登录没有提交。受保护流程仍未能完成：记账类别/备注提交；既有流水详情/编辑；预算、资产、发票、固定支出 API 页面；图表类别排行/详情；社区、话题、关注、评论和系统通知；受保护设置中的语言与老年模式持久化；受保护的直接 `/share` 空态。
+冒烟同时发现并修复了三个客户端稳定性问题：设置页语言切换未写入 `app-lang`；记账键盘只监听 touch 事件而无法响应标准 click；记账的“完成”判断写反且编辑初始化 effect 会持续清空用户备注。相关回归测试已加入本次 17 项测试。
 
-因此本次只证明质量门禁和独立 UI 子集通过；P9 仍为“进行中”，冒烟与 P9 完成项保持未勾选。M2 的真实分享入口也仍未完成。
+剩余阻塞均位于 P9 规定不得修改的同级 `ww-bill-service`：`/message/new-follow` 的 `GET /follow/2?type=fans` 被全局 whitelist 以“property type should not exist”拒绝，其 DTO 只有 Swagger 装饰器而没有 class-validator 装饰器；`/message/comment-list` 在当前用户无自有话题时触发服务端空 `IN (:...topicIdsArr)`；`/message/system-notify` 的 `GET /system_notify` 请求被服务端拒绝并停留在重试 loading。三个路由本身均能加载，但子页数据冒烟未通过。
+
+因此 P9 仍为“进行中”，冒烟与 P9 完成项保持未勾选。M2 真实分享入口未开始，没有混入本阶段。
 
 ### 9.2 P5 状态管理重写的风险缓解
 
