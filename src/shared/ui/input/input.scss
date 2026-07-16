@@ -27,4 +27,8 @@ $class-prefix-input: 'bwm-input';
     flex-shrink: 0;
     font-size: var(--ww-font-size-base);
   }
+  &-suffix {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
 }

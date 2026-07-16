@@ -1,6 +1,6 @@
 import { Toast } from 'antd-mobile';
-import { handleAuthLogout } from './auth-injection';
 import { i18n } from '@/shared/i18n';
+import { handleAuthLogout } from './auth-injection';
 
 function clearTokenToLogin(msg: string) {
   handleAuthLogout();

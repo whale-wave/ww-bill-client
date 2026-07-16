@@ -1,3 +1,4 @@
+import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
 
 export interface Topic {

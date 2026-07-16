@@ -1,21 +1,6 @@
+import type { RecordEntry } from './types';
+import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
-
-export interface RecordEntry {
-  amount: string;
-  category: {
-    createdAt: string;
-    icon: string;
-    id: number;
-    name: string;
-    updatedAt: string;
-  };
-  createdAt: string;
-  id: number;
-  remark: string;
-  time: string;
-  type: 'sub' | 'add';
-  updatedAt: string;
-}
 
 export interface GetRecordByIdApiParams {
   id: string;

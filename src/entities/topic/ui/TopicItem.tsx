@@ -1,7 +1,7 @@
-import { useTranslation } from '@/shared/i18n';
 import type { FC, MouseEvent } from 'react';
 import type { Topic } from '../api';
 import classNames from 'classnames';
+import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
 import { Icon } from '@/shared/ui';
 import styles from './TopicItem.module.scss';

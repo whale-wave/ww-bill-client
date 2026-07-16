@@ -1,34 +1,39 @@
-import type { ChangeEventHandler, FC } from 'react';
+import type { ChangeEventHandler, CSSProperties, FC, ReactNode } from 'react';
 
 const classPrefix = `bwm-input`;
 
-interface InputProps {
+export interface InputProps {
   className?: string;
-  label?: string;
-  value?: string | number;
-  type?: string;
+  label?: ReactNode;
+  onChange?: ChangeEventHandler<HTMLInputElement>;
   placeholder?: string;
-  onChange?: ChangeEventHandler;
+  style?: CSSProperties;
+  suffix?: ReactNode;
+  type?: string;
+  value?: string | number;
 }
 
 export const Input: FC<InputProps> = ({
   className = '',
   label = 'input',
+  onChange,
+  placeholder,
+  style,
+  suffix,
   type = 'text',
   value,
-  placeholder,
-  onChange,
 }) => {
   return (
-    <label className={`${classPrefix}-wrapper ${className}`}>
+    <label className={`${classPrefix}-wrapper ${className}`} style={style}>
       {label && <span className={`${classPrefix}-name`}>{label}</span>}
       <input
-        onChange={onChange}
         className={classPrefix}
-        type={type}
+        onChange={onChange}
         placeholder={placeholder}
+        type={type}
         value={value}
       />
+      {suffix && <span className={`${classPrefix}-suffix`}>{suffix}</span>}
     </label>
   );
 };

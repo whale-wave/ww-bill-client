@@ -1,3 +1,4 @@
+import type { SuccessResponse } from './types';
 import request from './http';
 
 export async function uploadFile(body: FormData, loading = true) {

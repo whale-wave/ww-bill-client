@@ -6,7 +6,7 @@ export { default as FixedPin } from './fixed-pin';
 export { default as Gap } from './gap';
 export { default as Icon } from './icon';
 export { default as ImagePreview } from './image-preview';
-export { default as Input } from './input';
+export { default as Input, type InputProps } from './input';
 export { default as List } from './list';
 export { default as Mask } from './mask';
 export { default as Modal } from './modal';

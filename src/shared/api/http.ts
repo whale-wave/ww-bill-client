@@ -1,11 +1,12 @@
+import type { SuccessResponse } from './types';
 import { Toast } from 'antd-mobile';
 import axios from 'axios';
+import { i18n } from '@/shared/i18n';
 import { getAuthToken } from './auth-injection';
 import {
   baseResponseProcess,
   errorResponseProcess,
 } from './request-process';
-import { i18n } from '@/shared/i18n';
 
 let host = '';
 if (typeof import.meta.env.VITE_HOST === 'string')
@@ -86,7 +87,7 @@ function normalizeErrorResponse(response: {
   status: number;
   statusText?: string;
 }) {
-  const message = response.data?.message ?? response.statusText ?? i18n.t('common:api.requestFailed');
+  const message = response.data?.message ?? response.statusText ?? i18n.t('common:api.requestFailed')!;
   return {
     data: response.data?.data ?? null,
     message: Array.isArray(message) ? message : [message],

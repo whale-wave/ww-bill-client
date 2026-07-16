@@ -1,4 +1,5 @@
 import type { UserEntity } from '@/entities/user';
+import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
 
 export interface UserAppConfig {

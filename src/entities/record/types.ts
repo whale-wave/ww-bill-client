@@ -1,4 +1,4 @@
-export interface recordChildren {
+export interface RecordEntry {
   amount: string;
   category: {
     createdAt: string;
@@ -10,8 +10,11 @@ export interface recordChildren {
   createdAt: string;
   id: number;
   remark: string;
-  time: string;
-  type: string;
-  updatedAt: string;
   status?: boolean;
+  time: string;
+  type: 'sub' | 'add';
+  updatedAt: string;
 }
+
+/** @deprecated Use RecordEntry. Kept temporarily for existing page state types. */
+export type recordChildren = RecordEntry;

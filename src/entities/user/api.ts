@@ -1,3 +1,4 @@
+import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
 
 export interface UserEntity {
@@ -45,19 +46,19 @@ export interface usePutUserUserInfoData {
 }
 
 export function putUserUserInfoApi(data: usePutUserUserInfoData, loading = false) {
-  return request.put<unknown, SuccessResponse<any>>('/user/userInfo', data, {
+  return request.put<unknown, SuccessResponse<unknown>>('/user/userInfo', data, {
     loading,
   });
 }
 
 export function changePassword(data: UpdatePassword, loading = true) {
-  return request.put<unknown, SuccessResponse<any>>('/user/password', data, {
+  return request.put<unknown, SuccessResponse<unknown>>('/user/password', data, {
     loading,
   });
 }
 
 export function postCheckInApi(loading = true) {
-  return request.post<unknown, SuccessResponse<any>>('/check_in', null, {
+  return request.post<unknown, SuccessResponse<unknown>>('/check_in', null, {
     loading,
   });
 }

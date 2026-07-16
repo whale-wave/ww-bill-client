@@ -1,5 +1,6 @@
 import type { UseQueryOptions } from '@tanstack/react-query';
 import type { SystemNotify } from './api';
+import type { SuccessResponse } from '@/shared/api';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { isSuccessApi } from '@/shared/api';
