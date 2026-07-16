@@ -1,12 +1,37 @@
-# ww-bill-client 前端整理与里程碑计划
+# ww-bill-client 前端整理与里程碑计划（历史基线与当前收口）
 
-更新时间：2026-06-26
+更新时间：2026-07-16
+
+## 文档状态
+
+本文档的功能盘点和 M0-M7 原始拆分形成于 2026-06-26，保留为当时的审计基线。其 `src/api`、`src/hooks`、`src/store`、PascalCase 页面路径和“不重建分层体系”等描述已经被 2026-07-04 至 2026-07-05 完成的 FSD 迁移取代，不再作为当前目录规范。
+
+当前工程规范以根目录 `AGENTS.md` 为准，FSD 迁移事实与偏差以 [`fsd-refactor-plan.md`](./fsd-refactor-plan.md) 为准；本文档后半部分的历史任务只用于解释决策来源，不能直接交给实现者执行。
+
+## 当前执行状态
+
+| 原里程碑 | 当前状态 | 结论 |
+| --- | --- | --- |
+| M0 产品取舍 | 已完成 | `/category`、登录保护和 P0/P1 入口边界已有明确实现 |
+| M1 质量门禁 | 已恢复 | 2026-07-16 fresh gate 中 install、lint:type、lint、test、build 和 diff-check 均通过；ESLint 为 0 errors / 82 warnings |
+| M2 用户功能 | 基本完成 | 图表分类详情、消息入口、类别只读和登录保护已完成；分享真实入口未闭合 |
+| M3 数据层 | 主体完成、验证通过 | entity/query/mutation 和请求错误契约已迁移，`pnpm lint:type` 与 production build 已通过 |
+| M4 路由命名 | 已完成 | 页面目录、路由树和懒加载已按 FSD 重组，并保留兼容路由 |
+| M5 组件工具 | 主体完成、验证通过 | shared/entities/widgets 已重新分层，lint/type/build 均通过；保留 82 个非阻塞 warning 后续分类治理 |
+| M6 测试 | 最小闭环完成 | 已接入 Vitest；2026-07-16 fresh gate 中 3/3 test files、11/11 tests 通过 |
+| M7 文档 | 进行中 | `AGENTS.md` 已更新，本文档和流程图正在回填当前路径 |
+
+### 当前优先级
+
+1. 在后端、测试凭据和既有数据可用时补完登录、记账、业务页面、设置持久化与 `/share` 空态的浏览器冒烟，并据此关闭 P9。
+2. 从账单或明细补 `/share` 真实入口，闭合仍未完成的 M2。
+3. 按 hook 依赖、纯度、数组 key 和遗留组件模式分类治理当前 82 个非阻塞 ESLint warning。
 
 ## 目标
 
-本计划用于整理 `ww-bill-client` 当前前端实现状态，明确还没有实做完成的功能、代码与文件组织的主要问题，并给出可分阶段执行的里程碑。执行时应遵守项目现有边界：不引入新的 UI 框架，不重建分层体系，优先沿用 `src/api`、`src/hooks/query`、`src/hooks/mutation`、`src/store`、`src/pages`、`src/components` 的既有职责。
+本计划最初用于整理 `ww-bill-client` 在 2026-06-26 的实现状态。以下“功能地图”“代码与文件组织问题”和原始 M0-M7 是历史快照；当前实现已经迁移到 `app/pages/widgets/features/entities/shared` 分层。
 
-## 当前功能地图
+## 2026-06-26 功能地图（历史）
 
 已注册路由集中在 `src/router/index.tsx`，文档流程集中在 `docs/flowcharts/feature-flows.md`。
 
@@ -160,7 +185,7 @@
 - `README.md` 只有安装和开发命令。
 - 缺少环境变量说明、脚本说明、质量门禁、测试策略、发布/构建说明。
 
-## 建议里程碑
+## 2026-06-26 建议里程碑（历史）
 
 ### M0：确认整理口径和冻结新增债务
 
@@ -343,7 +368,7 @@
 - README 能支持从零启动项目。
 - docs 能解释主要功能流、质量门禁和新增功能约定。
 
-## 推荐执行顺序
+## 2026-06-26 推荐执行顺序（历史）
 
 1. M0 先确认产品取舍。
 2. M1 单独做质量门禁，避免后续每个 PR 都被旧 lint 噪音污染。

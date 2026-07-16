@@ -24,24 +24,24 @@ ww-bill-client/
 
 | 功能 | 主要页面 | 主要 API |
 | --- | --- | --- |
-| 启动与导航 | `src/pages/FirstScreen`, `src/router/index.tsx`, `src/pages/detail` | `/record`, `/user-app-config` |
-| 登录注册与找回密码 | `src/pages/Login`, `src/pages/Sign`, `src/pages/ForgetPassword` | `/tools/captcha`, `/tools/email`, `/auth/*` |
-| 记账与流水 | `src/pages/bookkeeping`, `src/pages/detail`, `src/pages/Detail_editing`, `src/pages/RecordCalendar`, `src/pages/SearchRecord` | `/record`, `/category` |
-| 账单与导出分享 | `src/pages/Bill`, `src/pages/export-data`, `src/pages/Share` | `/record/bill`, `/record` |
-| 预算 | `src/pages/Budget`, `src/pages/CreateBudgetCategory` | `/budget/*`, `/category` |
-| 资产 | `src/pages/Asset/*` | `/asset/*` |
-| 图表 | `src/pages/Chart/*` | `/chart` |
-| 发票助手 | `src/pages/Invoice/*` | `/invoice/*` |
-| 固定支出 | `src/pages/FixedExpenses/*` | `/fixed-expense/*` |
-| 社区 | `src/pages/community`, `src/pages/TopicDetail`, `src/pages/PostTopic` | `/topic/*`, `/follow/*`, `/upload` |
-| 消息 | `src/pages/Message`, `src/pages/new-follow`, `src/pages/comment-list`, `src/pages/system-notify` | `/follow/*`, `/topic/:id/comment`, `/system_notify` |
-| 我的与设置 | `src/pages/mine`, `src/pages/UserInfo`, `src/pages/Password`, `src/pages/settings`, `src/pages/EmailChange`, `src/pages/bookkeeping/CategorySettings` | `/user/*`, `/check_in`, `/user-app-config`, `/user-email/*`, `/category` |
+| 启动与导航 | `src/pages/first-screen`, `src/app/router.tsx`, `src/pages/record/detail` | `/record`, `/user-app-config` |
+| 登录注册与找回密码 | `src/pages/auth/login`, `src/pages/auth/sign`, `src/pages/auth/forget-password` | `/tools/captcha`, `/tools/email`, `/auth/*` |
+| 记账与流水 | `src/pages/record/bookkeeping`, `src/pages/record/detail`, `src/pages/record/editing`, `src/pages/record/record-calendar`, `src/pages/record/search-record` | `/record`, `/category` |
+| 账单与导出分享 | `src/pages/bill`, `src/pages/export-data`, `src/pages/share` | `/record/bill`, `/record` |
+| 预算 | `src/pages/budget`, `src/pages/create-budget-category` | `/budget/*`, `/category` |
+| 资产 | `src/pages/asset/*` | `/asset/*` |
+| 图表 | `src/pages/chart/*` | `/chart` |
+| 发票助手 | `src/pages/invoice/*` | `/invoice/*` |
+| 固定支出 | `src/pages/fixed-expense/*` | `/fixed-expense/*` |
+| 社区 | `src/pages/community`, `src/pages/topic-detail`, `src/pages/post-topic` | `/topic/*`, `/follow/*`, `/upload` |
+| 消息 | `src/pages/message`, `src/pages/new-follow`, `src/pages/comment-list`, `src/pages/system-notify` | `/follow/*`, `/topic/:id/comment`, `/system_notify` |
+| 我的与设置 | `src/pages/mine`, `src/pages/user/user-info`, `src/pages/user/password`, `src/pages/settings`, `src/pages/user/email-change`, `src/pages/category-settings` | `/user/*`, `/check_in`, `/user-app-config`, `/user-email/*`, `/category` |
 
 ## 应用启动与路由
 
 ```mermaid
 flowchart TD
-  Start["打开应用"] --> Router["createHashRouter 加载 Root"]
+  Start["打开应用"] --> Router["createHashRouter 加载 RootLayout"]
   Router --> First["/ 首屏 FirstScreen"]
   First --> Detail["跳转 /detail 明细首页"]
   Detail --> Top["Top 查询用户配置与快捷入口"]
@@ -61,7 +61,7 @@ flowchart TD
   HasToken -->|是| MoreProtected["/invoice、/message、/settings、/fixed-expenses、/community 等"]
 ```
 
-源码入口：`src/router/index.tsx`, `src/pages/FirstScreen/index.tsx`, `src/pages/detail/*`。
+源码入口：`src/app/router.tsx`, `src/pages/first-screen/FirstScreenPage.tsx`, `src/pages/record/detail/*`, `src/widgets/layout/*`。
 
 路由保护说明：`/user-info`、`/password`、`/post-topic` 继续由 `LoginGuard` 保护；预算、发票、社区、消息、设置、资产、固定支出等父级/index 与子路由，以及 `/mine`、`/share`、`/export-data`、`/bill`、`/record-calendar`、`/search-record`、`/topic-detail/:id`、`/category` 均按 token 登录态访问。`/login`、`/sign`、`/forget-password/*`、`/detail`、`/bookkeeping`、`/editing/:id`、`/chart/*`、`/discovery` 与未命中页保持公开；`/cateGory` 是未包 `LoginGuard` 的兼容重定向，最终进入受保护的 `/category`。
 
@@ -77,7 +77,7 @@ flowchart TD
   PasswordLogin --> SubmitLogin["提交 /auth/login"]
   SendLoginEmail --> SubmitLogin
   SubmitLogin --> LoginOk{"登录成功?"}
-  LoginOk -->|是| StoreToken["保存 token 与用户信息"]
+  LoginOk -->|是| StoreToken["保存 token 并预填用户 Query 缓存"]
   StoreToken --> Back["返回上一页或首页"]
   LoginOk -->|否| ShowError["Toast 提示错误"]
 
@@ -93,7 +93,7 @@ flowchart TD
   Reset --> Done["重置成功后返回我的页"]
 ```
 
-源码入口：`src/pages/Login/index.tsx`, `src/pages/Sign/index.tsx`, `src/pages/ForgetPassword/*`, `src/api/auth.ts`, `src/api/tools.ts`。
+源码入口：`src/pages/auth/login/LoginPage.tsx`, `src/pages/auth/sign/SignPage.tsx`, `src/pages/auth/forget-password/*`, `src/entities/auth`, `src/entities/tools`, `src/features/auth`, `src/features/email-captcha`。
 
 ## 记账、明细、编辑与搜索
 
@@ -129,7 +129,7 @@ flowchart TD
   Search --> SearchQuery["按 keyword GET /record"]
 ```
 
-源码入口：`src/pages/detail/*`, `src/pages/bookkeeping/*`, `src/pages/Detail_editing/*`, `src/pages/RecordCalendar/index.tsx`, `src/pages/SearchRecord/*`, `src/api/record.ts`。
+源码入口：`src/pages/record/detail/*`, `src/pages/record/bookkeeping/*`, `src/pages/record/editing/*`, `src/pages/record/record-calendar/*`, `src/pages/record/search-record/*`, `src/entities/record`。
 
 ## 账单、导出与分享
 
@@ -146,7 +146,7 @@ flowchart TD
   ExportApi --> BuildFile["exportData 生成导出数据"]
   BuildFile --> ExportDone["Toast 提示导出成功"]
 
-  Detail --> ShareEntry["账单/明细等业务入口准备真实分享数据"]
+  Detail -. 待接入 .-> ShareEntry["账单/明细等业务入口准备真实分享数据"]
   ShareEntry --> Share["/share 携带 location.state 或 URL query"]
   Share --> NormalizeShare["规范化 amount、type、categoryName、remark、time/date"]
   NormalizeShare --> ShareValid{"核心字段完整?"}
@@ -157,7 +157,9 @@ flowchart TD
   ShareValid -->|否| ShareEmpty["空态: 提示从账单/明细入口进入"]
 ```
 
-源码入口：`src/pages/Bill/*`, `src/pages/export-data/index.tsx`, `src/pages/Share/*`, `src/api/record.ts`, `src/utils/exportData.ts`。
+源码入口：`src/pages/bill/*`, `src/pages/export-data/ExportDataPage.tsx`, `src/pages/share/*`, `src/entities/record`, `src/shared/lib/export-data.ts`。
+
+当前缺口：截至 2026-07-16，源码中未发现账单、图表或明细主动跳转 `/share` 的调用方；流程图中的分享入口仍是计划链路，不代表端到端已完成。
 
 ## 预算
 
@@ -186,7 +188,7 @@ flowchart TD
   DeleteApi --> Refresh
 ```
 
-源码入口：`src/pages/Budget/*`, `src/pages/CreateBudgetCategory/index.tsx`, `src/api/budget.ts`。
+源码入口：`src/pages/budget/*`, `src/pages/create-budget-category/CreateBudgetCategoryPage.tsx`, `src/entities/budget`。
 
 ## 资产
 
@@ -214,7 +216,7 @@ flowchart TD
   Statistical --> RenderChart["展示资产趋势图"]
 ```
 
-源码入口：`src/pages/Asset/*`, `src/api/asset.ts`, `src/hooks/useAssetSummaryInfo.ts`, `src/hooks/useAssetStatisticalRecord.ts`。
+源码入口：`src/pages/asset/*`, `src/entities/asset`。
 
 ## 图表
 
@@ -233,7 +235,7 @@ flowchart TD
   SameApi --> CategorySummary
 ```
 
-源码入口：`src/pages/Chart/*`, `src/hooks/query/useGetChartQuery.ts`, `src/api/chart.ts`。
+源码入口：`src/pages/chart/*`, `src/entities/chart`。
 
 ## 发票助手
 
@@ -255,7 +257,7 @@ flowchart TD
   Delete --> BackList
 ```
 
-源码入口：`src/pages/Invoice/*`, `src/api/invoice.ts`。
+源码入口：`src/pages/invoice/*`, `src/entities/invoice`。
 
 ## 固定支出
 
@@ -278,7 +280,7 @@ flowchart TD
   Delete --> BackList
 ```
 
-源码入口：`src/pages/FixedExpenses/*`, `src/api/fixed-expense.ts`。
+源码入口：`src/pages/fixed-expense/*`, `src/entities/fixed-expense`。
 
 ## 社区、关注与评论
 
@@ -301,7 +303,7 @@ flowchart TD
   Upload --> SubmitTopic["POST /topic 发布内容"]
 ```
 
-源码入口：`src/pages/community/*`, `src/pages/TopicDetail/*`, `src/pages/PostTopic/index.tsx`, `src/api/topic.ts`, `src/api/follow.ts`, `src/api/index.ts`。
+源码入口：`src/pages/community/*`, `src/pages/topic-detail/*`, `src/pages/post-topic/PostTopicPage.tsx`, `src/entities/topic`, `src/entities/follow`。
 
 ## 消息
 
@@ -322,7 +324,7 @@ flowchart TD
   NotifyApi --> RenderNotify["展示系统通知"]
 ```
 
-源码入口：`src/pages/Message/index.tsx`, `src/pages/new-follow/index.tsx`, `src/pages/comment-list/index.tsx`, `src/pages/system-notify/index.tsx`。
+源码入口：`src/pages/message/MessagePage.tsx`, `src/pages/new-follow/NewFollowPage.tsx`, `src/pages/comment-list/CommentListPage.tsx`, `src/pages/system-notify/SystemNotifyPage.tsx`。
 
 ## 我的、用户信息与设置
 
@@ -358,4 +360,4 @@ flowchart TD
   SendNew --> SubmitNew["POST /user-email/change-email"]
 ```
 
-源码入口：`src/pages/mine/*`, `src/pages/UserInfo/index.tsx`, `src/pages/Password/index.tsx`, `src/pages/settings/index.tsx`, `src/pages/EmailChange/*`, `src/pages/bookkeeping/CategorySettings/index.tsx`, `src/api/user.ts`, `src/api/user-app-config.ts`, `src/api/user-email.ts`, `src/api/category.ts`。
+源码入口：`src/pages/mine/*`, `src/pages/user/user-info/UserInfoPage.tsx`, `src/pages/user/password/PasswordPage.tsx`, `src/pages/settings/SettingsPage.tsx`, `src/pages/user/email-change/*`, `src/pages/category-settings/CategorySettingsPage.tsx`, `src/entities/user`, `src/entities/user-app-config`, `src/entities/user-email`, `src/entities/category`。

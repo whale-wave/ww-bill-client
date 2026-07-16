@@ -1,10 +1,12 @@
 # ww-bill-client FSD 重构方案
 
-> 本文件是 ww-bill-client 从当前技术分层架构迁移到 Feature-Sliced Design(FSD)的权威方案,对齐 `ww-bill-admin` 的 FSD 落地形态。包含:目标结构、命名与导出规范、状态管理规范、迁移映射、阶段计划、验收清单。
+> 本文件是 ww-bill-client 从原技术分层架构迁移到 Feature-Sliced Design(FSD)的原始权威迁移方案,对齐 `ww-bill-admin` 的 FSD 落地形态。包含:目标结构、命名与导出规范、状态管理规范、迁移映射、阶段计划、验收清单。
 >
-> 本方案**忽略现有组织规范**,以通用前端工程最佳实践为基准。状态管理部分不考虑迁移成本,严格按最佳实践重写。
+> 本方案制定时**忽略了当时的组织规范**,以通用前端工程最佳实践为基准。状态管理部分不考虑迁移成本,严格按最佳实践重写；迁移完成后的现行约束以 `AGENTS.md` 为准。
 >
 > 创建日期:2026-07-04。基准 commit:`f27c9ff`。
+>
+> **当前状态（2026-07-16）**：P1-P8 的结构迁移已经完成并合入 `feat/admin-base`；本文件前半部分保留原始设计与当时的决策语境。当前目录和编码规范以 `AGENTS.md` 为准。2026-07-16 复核发现 lint/type/build 回归，因此新增 P9 稳定化阶段，历史日志中的“0 error / build 通过”只代表对应提交当时的验证结果。
 
 ---
 
@@ -552,15 +554,44 @@ export function useChartTabs(timeRange: TimeRangeCategory) {
 |------|------|------|------|
 | **P1 卫生修复** ✅ 已完成 | 实际执行:删 `store/record.ts` 死 persist(partialize 返回 `{}`,persist 无操作,store 本体保留待 P5 改 URL params);合并 `components/utils/`(baseProps + 重复的 composeExportComponent/mergerProps)入 `utils/component.ts`,删 `components/utils/` 目录,5 个 `ui/` 组件 import 改 `@/utils`。**未执行(已修正判断)**:`WwButton` 不是 `ui/button` 的重复(它是 antd-mobile Button 样式封装,仍被 EmailChange 使用),保留;`SuccessResponse` 显式 export 与 `shims.axios.d.ts` 迁移属结构性改动,并入 P2 | 低 | 0.5d |
 | **P2 shared/ 落地** ✅ 已完成 | 新建 `shared/{api,lib,ui,config}`;迁 `utils/` `modules/` `config/` `constants/route.ts` `components/ui/`;迁 `hooks/useChart.ts` → `shared/lib/`;更新 `@/` import。详见 §14 P2 日志 | 中 | 2d |
-| **P3 entities/ 落地** | 按实体拆 `api/` + `hooks/query/` + `hooks/query/keys/` + `types/` → `entities/<x>/{api,keys,hooks,types,ui}`;`recordChildren` 下沉 `entities/record/types.ts`;逐实体迁移(asset → invoice → fixed-expense → record → budget → topic → 余下);**query key 工厂逻辑零改动**(只改文件位置,避免缓存失效) | 中高 | 3-4d |
-| **P4 features/ 落地** | 抽 `features/auth`(store 瘦身 + login-guard)、`features/email-captcha`、`features/share`、`features/check-in`;`features/record-form` 视 bookkeeping/editing 表单重合度决定是否抽;更新 pages 引用 | 中 | 1-2d |
-| **P5 状态管理重写** | 删 `useSystemStore`(偏好归 RQ + sound 单例);删 `useChartStore`(改 useMemo + URL params);`useUserStore` 瘦身为 `useAuthStore`(只留 token);`userInfo` 改 RQ query;`searchRecordKeyword` 改 URL params;bill 页 store 改 URL params 或保留 | **高**(行为变化) | 2d |
-| **P6 app/ + widgets/ 落地** | `main.tsx` 拆 `App.tsx` + `query-client.ts`;`router/index.tsx` 拆 `router.tsx` + `lazy-pages.tsx`;`Root.tsx` → `widgets/layout/root-layout.tsx`;`LoginGuard` + `tab-bar` → `widgets/layout/`;引入 `ROUTES_PATH` 替换裸字符串(roadmap M4);保留 `/cateGory` 兼容重定向 | 中 | 1d |
-| **P7 pages 重命名 + 收尾** | 全量 pages kebab-case 化 + `*Page.tsx` 化;`Detail_editing`→`record/editing`;`detail`→`record/detail`;`component/`→`ui/`;删空目录(`api/` `hooks/` `components/` `store/` `types/` `constants/` `modules/` `utils/` `router/` `config/`);更新 AGENTS.md client 目录职责段 | 中(改 import 多) | 1-2d |
+| **P3 entities/ 落地** ✅ 已完成 | 按实体拆 `api/` + `hooks/query/` + `hooks/query/keys/` + `types/` → `entities/<x>/{api,keys,hooks,types,ui}`;`recordChildren` 下沉 `entities/record/types.ts`;逐实体迁移(asset → invoice → fixed-expense → record → budget → topic → 余下);**query key 工厂逻辑零改动**(只改文件位置,避免缓存失效) | 中高 | 3-4d |
+| **P4 features/ 落地** ✅ 已完成 | 抽 `features/auth` 与 `features/email-captcha`;share/check-in/record-form 经复核未为单一调用提前抽象 | 中 | 1-2d |
+| **P5 状态管理重写** ✅ 已完成 | 删除 record/chart/system store，`useUserStore` 瘦身为 `useAuthStore`;服务端数据回归 React Query，页面筛选改 URL/Context | **高**(行为变化) | 2d |
+| **P6 app/ + widgets/ 落地** ✅ 已完成 | 建立 `app/`、`widgets/layout/`、`shared/api/query-client`;LoginGuard 经复核保留在 auth feature;路由已拆分并懒加载 | 中 | 1d |
+| **P7 pages 重命名 + 收尾** ✅ 已完成 | 先完成 kebab-case，再通过 P8 完成 auth/user/record/asset 等命名空间、`*Page.tsx` 和遗留目录清理 | 中(改 import 多) | 1-2d |
+| **P8 结构补洞** ✅ 已完成 | 清理 `src/components`/`constants`，完成页面命名空间、`*Page.tsx`、chart 子目录、ambient 类型和 barrel 补洞 | 中 | 实际 1d |
+| **P9 合并后稳定化** 进行中 | 同步依赖，修复 TypeScript/barrel/导入断裂，清零 ESLint error，新增 Vitest 最小闭环，完成核心路径冒烟 | 高 | 2-4d |
 
-**总预计:10.5-13.5 工作日**。P3、P5 是关键风险点:P3 体量大(建议 per-entity 子 PR),P5 改变运行时行为(需充分冒烟)。
+原 P1-P8 已实施。当前只按 P9 重新估算，不再使用原“10.5-13.5 工作日”作为剩余工期。
 
-### 9.1 P5 状态管理重写的风险缓解
+### 9.1 P9 合并后稳定化
+
+- [x] 在可交互终端或明确的 CI 环境按 `pnpm-lock.yaml` 同步依赖；当前非 TTY 环境直接运行 pnpm 会因 `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY` 中止。
+- [x] 运行 `pnpm lint:type`，优先修复共享契约和 barrel：`SuccessResponse` 显式导入/导出、`RecordEntry`、`InputProps`、chart 页面 index 路径和新增依赖解析。
+- [x] 运行 `pnpm lint`，先修复当前 79 个 error，再把 111 个 warning 按 hook 依赖、纯度、数组 key 和遗留组件模式分批处理。
+- [x] 确认 `pnpm build` 通过后新增 Vitest `test` 脚本，覆盖金额/时间/分享规范化、query key 和路由参数解析等纯逻辑。
+- [ ] 手工冒烟覆盖登录/注册/找回密码、记账/编辑、预算、资产、发票、固定支出、图表、分享、社区、语言切换和老年模式。
+- [ ] P9 完成后回填本节与 §10 验收清单；不得引用 P1-P8 的历史通过记录代替当前结果。
+
+#### P9 验证日志 — 2026-07-16
+
+在一个新的 shell 中使用 Node `v22.23.1`、pnpm `11.7.0`，按顺序得到以下结果：
+
+- `CI=true pnpm install --frozen-lockfile`：exit 0；lockfile 已是最新，安装完成。
+- `pnpm lint:type`：exit 0；`tsc -b --noEmit` 通过。
+- `pnpm lint`：exit 0；0 errors、82 warnings。
+- `pnpm test`：exit 0；Vitest `v4.1.10`，3/3 test files、11/11 tests 通过，耗时 747ms。
+- `pnpm build`：exit 0；TypeScript build 与 Vite `v8.0.16` production build 通过，转换 5,608 modules，Vite 构建耗时 5.30s；保留现有大于 500 kB 的 chunk advisory。
+- `git diff --check`：exit 0，无输出。
+- `git ls-files 'dist/**' '*.tsbuildinfo' 'coverage/**'`：无输出；未跟踪构建、TypeScript build-info 或 coverage 产物。
+
+浏览器冒烟在 `http://localhost:3231/` 执行。独立 UI 验证通过：`/detail` 可渲染首页/流水空态、合计与导航；`/chart` 可渲染支出页、周/月/年 tab 与预期空态；`/sign` 可渲染邮箱、密码、邮箱验证码字段并接受三项输入；`/forget-password` 可渲染绑定邮箱字段与“下一步”；登录壳可渲染账号、密码、验证码、登录、返回和注册控件；受保护路由会重定向到登录页而不是崩溃。
+
+后端代理确认 `ECONNREFUSED` / Bad Gateway，且没有可用测试凭据和既有数据，因此以下流程未能完成：用户名/密码成功登录；验证码支持的注册和找回密码后续步骤；记账类别/备注提交；既有流水详情/编辑；预算、资产、发票、固定支出 API 页面；图表类别排行/详情；社区、话题、关注、评论和系统通知；受保护设置中的语言与老年模式持久化；受保护的直接 `/share` 空态。浏览器控制台中的 normalized request errors 均来自不可用 API。
+
+因此本次只证明质量门禁和独立 UI 子集通过；P9 仍为“进行中”，冒烟与 P9 完成项保持未勾选。M2 的真实分享入口也仍未完成。
+
+### 9.2 P5 状态管理重写的风险缓解
 
 - `useAuthStore` 瘦身后,所有读 `useUserStore(s => s.userInfo)` 处改 `useGetCurrentUserQuery()` —— 全局搜索替换,逐处验证
 - `useChartStore` 删除后,chart 页 tabs 改 useMemo —— 验证 tab 切换、数据刷新、登出后无残留
@@ -1053,3 +1084,15 @@ P5 最后一步,也是影响面最大的一步。`useUserStore` 瘦身为 `useAu
 - 嵌套域重组(`Asset/` → `asset/{asset-manager,...}/`、`record/`、`auth/`、`user/` 等命名空间)— 涉及内层目录+文件重命名,150+ 文件,自主执行风险过高,留待用户确认后手动推进
 - `*Page.tsx` 文件后缀 — 同上,大规模文件重命名
 验证:tsc 0 error,vite build exit 0,eslint 0 error(118 pre-existing warnings)
+
+### P8 结构补洞 — 2026-07-05 ✅
+
+P8 通过多个小提交完成 P7 当时主动延期的高风险结构收口：
+
+- 删除剩余 `src/components/` 和 `constants/`，补齐 shared/entity public API。
+- 建立 `pages/auth/`、`pages/user/`、`pages/record/` 和 `pages/asset/` 命名空间。
+- 将固定支出、chart 子目录及其余页面统一为 kebab-case，并补齐主要 `*Page.tsx` 命名。
+- 清理 ambient 类型、旧 `store` 命名、拼写和 barrel 缺口。
+- 同期加入路由级 lazy/prefetch 与导航进度条，随后 `AGENTS.md` 回填 FSD 规范。
+
+上述完成状态来自 P8 对应提交；它不代表 2026-07-16 合并后的质量门禁仍通过，当前结果以 P9 为准。
