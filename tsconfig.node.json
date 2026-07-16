@@ -22,6 +22,7 @@
     "noUncheckedSideEffectImports": true // 禁止隐式的空值检查
   },
   "include": [
-    "vite.config.ts" // 包含 vite.config.ts 文件
+    "vite.config.ts", // 包含 vite.config.ts 文件
+    "vitest.config.ts"
   ]
 }
