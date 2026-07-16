@@ -23,8 +23,8 @@
 
 ### 当前优先级
 
-1. 客户端登录、记账、业务页、设置持久化和 `/share` 空态冒烟已通过；先修复同级服务的 follow DTO whitelist、无自有话题时的空评论查询和 system-notify 请求失败，再关闭 P9。
-2. 从账单或明细补 `/share` 真实入口，闭合仍未完成的 M2。
+1. P9 已关闭：客户端 fresh gate 与核心冒烟通过，同级服务的 follow DTO whitelist、空评论查询和 system-notify 大数据量请求也已修复并完成认证回归。
+2. 下一阶段再从账单或明细补 `/share` 真实入口，闭合仍未完成的 M2；本轮没有启动 M2。
 3. 按 hook 依赖、纯度、数组 key 和遗留组件模式分类治理当前 82 个非阻塞 ESLint warning。
 
 ## 目标
@@ -46,7 +46,7 @@
 | 发票助手 | `/invoice`, `/invoice/create`, `/invoice/:id`, `/invoice/:id/edit` | 新实现较完整，列表/详情/新增/编辑/删除闭环存在 |
 | 固定支出 | `/fixed-expenses`, `/fixed-expenses/create`, `/fixed-expenses/:id`, `/fixed-expenses/:id/edit` | 新实现较完整，表单与缓存失效较规范 |
 | 发现与社区 | `/discovery`, `/community`, `/community/personal/:id`, `/post-topic`, `/topic-detail/:id` | 社区基础浏览/发帖/评论存在，但数据层与分享交互未收敛 |
-| 消息 | `/message`, `/message/new-follow`, `/message/comment-list`, `/message/system-notify` | 首页已有新关注、评论、系统通知三个入口和稳定空态，仍缺未读/摘要数据接口或端到端验证 |
+| 消息 | `/message`, `/message/new-follow`, `/message/comment-list`, `/message/system-notify` | 首页已有三个入口；子页服务端阻塞已修复并完成认证端到端验证，仍缺未读/摘要数据接口 |
 | 我的与设置 | `/mine`, `/settings`, `/user-info`, `/password`, `/settings/email/change/*`, `/category` | 基础用户信息、签到、设置存在；类别设置已支持查看收入/支出分类，管理动作暂不暴露 |
 | 认证 | `/login`, `/sign`, `/forget-password/*` | 登录、注册、找回密码基础流程存在 |
 
@@ -68,10 +68,10 @@
 
 ### P1 影响主流程体验
 
-1. 消息首页缺未读/摘要数据接口或端到端验证
+1. 消息首页缺未读/摘要数据接口
 
-- 当前进展：`/message` 已提供新关注、评论、系统通知三个可点击入口；没有首页摘要接口时展示稳定说明。端到端冒烟已证明三个子路由能加载，但后端分别受 follow DTO whitelist、空话题 ID 评论查询和 system-notify 请求失败阻塞。
-- 后续期望：先修复上述三个服务端契约/空数据问题，再完成子页数据的端到端验证；未读数或最近消息摘要接口仍为后续增强。
+- 当前进展：`/message` 已提供新关注、评论、系统通知三个可点击入口；没有首页摘要接口时展示稳定说明。服务端 follow DTO whitelist、空话题 ID 评论查询和 system-notify 无界读取均已修复，认证端到端冒烟确认三个子页可加载，系统通知页稳定渲染最近 50 条记录。
+- 后续期望：未读数或最近消息摘要接口仍为后续增强，不属于 P9。
 
 2. 类别设置仍需接口确认和端到端验证
 

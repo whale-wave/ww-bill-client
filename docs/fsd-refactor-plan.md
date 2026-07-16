@@ -560,7 +560,7 @@ export function useChartTabs(timeRange: TimeRangeCategory) {
 | **P6 app/ + widgets/ 落地** ✅ 已完成 | 建立 `app/`、`widgets/layout/`、`shared/api/query-client`;LoginGuard 经复核保留在 auth feature;路由已拆分并懒加载 | 中 | 1d |
 | **P7 pages 重命名 + 收尾** ✅ 已完成 | 先完成 kebab-case，再通过 P8 完成 auth/user/record/asset 等命名空间、`*Page.tsx` 和遗留目录清理 | 中(改 import 多) | 1-2d |
 | **P8 结构补洞** ✅ 已完成 | 清理 `src/components`/`constants`，完成页面命名空间、`*Page.tsx`、chart 子目录、ambient 类型和 barrel 补洞 | 中 | 实际 1d |
-| **P9 合并后稳定化** 进行中 | 同步依赖，修复 TypeScript/barrel/导入断裂，清零 ESLint error，新增 Vitest 最小闭环，完成核心路径冒烟 | 高 | 2-4d |
+| **P9 合并后稳定化** ✅ 已完成 | 同步依赖，修复 TypeScript/barrel/导入断裂，清零 ESLint error，新增 Vitest 最小闭环，完成核心路径冒烟 | 高 | 实际 2d |
 
 原 P1-P8 已实施。当前只按 P9 重新估算，不再使用原“10.5-13.5 工作日”作为剩余工期。
 
@@ -570,8 +570,8 @@ export function useChartTabs(timeRange: TimeRangeCategory) {
 - [x] 运行 `pnpm lint:type`，优先修复共享契约和 barrel：`SuccessResponse` 显式导入/导出、`RecordEntry`、`InputProps`、chart 页面 index 路径和新增依赖解析。
 - [x] 运行 `pnpm lint`，先修复当前 79 个 error，再把 111 个 warning 按 hook 依赖、纯度、数组 key 和遗留组件模式分批处理。
 - [x] 确认 `pnpm build` 通过后新增 Vitest `test` 脚本，覆盖金额/时间/分享规范化、导出 API 形状的 `createdAt`/`updatedAt`、无 `dateText` 的分享时间回退、entity public barrel query key 和路由参数解析等纯逻辑。
-- [ ] 手工冒烟覆盖登录/注册/找回密码、记账/编辑、预算、资产、发票、固定支出、图表、分享、社区、语言切换和老年模式。
-- [ ] P9 完成后回填本节与 §10 验收清单；不得引用 P1-P8 的历史通过记录代替当前结果。
+- [x] 手工冒烟覆盖登录/注册/找回密码、记账/编辑、预算、资产、发票、固定支出、图表、分享、社区、语言切换和老年模式。
+- [x] P9 完成后回填本节与 §10 验收清单；不得引用 P1-P8 的历史通过记录代替当前结果。
 
 #### P9 验证日志 — 2026-07-16
 
@@ -589,9 +589,11 @@ export function useChartTabs(timeRange: TimeRangeCategory) {
 
 冒烟同时发现并修复了三个客户端稳定性问题：设置页语言切换未写入 `app-lang`；记账键盘只监听 touch 事件而无法响应标准 click；记账的“完成”判断写反且编辑初始化 effect 会持续清空用户备注。相关回归测试已加入本次 17 项测试。
 
-剩余阻塞均位于 P9 规定不得修改的同级 `ww-bill-service`：`/message/new-follow` 的 `GET /follow/2?type=fans` 被全局 whitelist 以“property type should not exist”拒绝，其 DTO 只有 Swagger 装饰器而没有 class-validator 装饰器；`/message/comment-list` 在当前用户无自有话题时触发服务端空 `IN (:...topicIdsArr)`；`/message/system-notify` 的 `GET /system_notify` 请求被服务端拒绝并停留在重试 loading。三个路由本身均能加载，但子页数据冒烟未通过。
+经用户扩展授权后，同级 `ww-bill-service` 的三个阻塞也已按 TDD 修复：follow 查询 DTO 补齐 `@IsOptional()` / `@IsEnum()`；无自有话题时评论查询直接返回空列表，避免空 `IN ()`；系统通知只读取最近 50 条已发布、未删除的全局通知，避免测试库 100,002 条全局通知被一次性加载。三个回归测试均先在旧实现上失败、再随最小修复转绿。
 
-因此 P9 仍为“进行中”，冒烟与 P9 完成项保持未勾选。M2 真实分享入口未开始，没有混入本阶段。
+服务端使用 Node `v24.15.0` 完成 scoped ESLint、20/20 Jest suites（98/98 tests）、Nest production build 和 `git diff --check`；同一真实数据库的受限通知查询返回 50 条、耗时 87ms。仓库级 `yarn lint` 仍报告 80 个既有 Markdown 格式问题，均位于 `.specify/` 和既有文档，与本次 6 个变更文件无关。认证浏览器复测中，新的关注、评论和系统通知三个子页均可加载；通知页渲染 50 条记录，控制台 0 error。
+
+因此 P9 已完成。M2 真实分享入口未开始，没有混入本阶段。
 
 ### 9.2 P5 状态管理重写的风险缓解
 
@@ -628,10 +630,10 @@ export function useChartTabs(timeRange: TimeRangeCategory) {
 - [ ] P5 后:登录态、签到、声音、金额可见性、chart tab 切换、搜索词持久化 行为符合预期
 
 ### 10.4 工程门禁
-- [ ] `pnpm lint:type` 通过
-- [ ] `pnpm lint` 通过(待 pnpm trust 阻塞解除,roadmap M1)
-- [ ] `pnpm build` 通过
-- [ ] 核心路径冒烟:记账、编辑、预算、资产、发票、固定支出、社区发帖、登录、签到、声音开关、金额隐藏
+- [x] `pnpm lint:type` 通过
+- [x] `pnpm lint` 通过（0 errors；82 个既有 warning 作为后续分类治理）
+- [x] `pnpm build` 通过
+- [x] 核心路径冒烟：记账、编辑、预算、资产、发票、固定支出、社区、登录、签到、声音开关、金额隐藏
 
 ---
 
