@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
 import { ROUTES_PATH } from '@/shared/config/routes';
-import { i18n, SUPPORTED_LANGS, useTranslation } from '@/shared/i18n';
+import { changeLanguage, i18n, SUPPORTED_LANGS, useTranslation } from '@/shared/i18n';
 import { clearLocalStorage, getLocalStorageSize } from '@/shared/lib';
 import { audioWeb, playSound } from '@/shared/lib/play-sound';
 import { useSeniorMode } from '@/shared/lib/senior-mode';
@@ -83,7 +83,7 @@ const Settings: FC = () => {
         key,
         bold: key === currentLang,
         onClick: () => {
-          i18n.changeLanguage(key);
+          void changeLanguage(key);
           setCurrentLang(key);
           sheet.close();
           Toast.show(t('language.changed'));

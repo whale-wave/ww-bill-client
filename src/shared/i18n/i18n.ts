@@ -1,7 +1,8 @@
+import type { SupportedLang } from './config';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { DEFAULT_LANG } from './config';
-import { detectLanguage } from './detector';
+import { detectLanguage, setLanguage } from './detector';
 
 // en locales
 import enAsset from './locales/en/asset.json';
@@ -74,5 +75,10 @@ i18n.use(initReactI18next).init({
     escapeValue: false,
   },
 });
+
+export async function changeLanguage(lang: SupportedLang): Promise<void> {
+  setLanguage(lang);
+  await i18n.changeLanguage(lang);
+}
 
 export default i18n;

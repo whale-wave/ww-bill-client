@@ -21,7 +21,7 @@ interface KeyType {
   type: string;
   name: string;
   stateList: stateType;
-  state: recordChildren;
+  state?: recordChildren;
   defaultSelectDate?: Date;
   categoryList: CategoryEntity[];
 }
@@ -37,6 +37,7 @@ const Keyboard: FC<KeyType> = ({
 }) => {
   const { t } = useTranslation('record');
   const calc = useCalculator();
+  const { setNum: setCalculatorNum, setTotals: setCalculatorTotals } = calc;
   const navigate = useNavigate();
   const [postRecordMutate] = usePostRecordMutation();
   const [putRecordMutate] = usePutRecordMutation();
@@ -126,7 +127,7 @@ const Keyboard: FC<KeyType> = ({
       amount: String(Number(resolvedAmount)),
     };
 
-    if (stateList[0] !== '') {
+    if (stateList[0] !== '' && state) {
       // Edit
       if (dateTimeValue === 0)
         data.time = stateList[1];
@@ -173,18 +174,22 @@ const Keyboard: FC<KeyType> = ({
     t,
   ]);
 
-  // Init form from edit state
+  // Init the remark from edit state without resetting later user input.
   useEffect(() => {
     if (name) {
       const iconNames = categoryList.map(i => i.name);
       setRemarkValue(iconNames.includes(name) ? '' : name);
     }
+  }, [name, categoryList]);
+
+  // Init amount and date from edit state.
+  useEffect(() => {
     if (stateList[0] !== '') {
-      calc.setNum(stateList[0]);
-      calc.setTotals(stateList[0]);
+      setCalculatorNum(stateList[0]);
+      setCalculatorTotals(stateList[0]);
       setDateValue(new Date(stateList[1]));
     }
-  }, [stateList, name, categoryList, calc]);
+  }, [stateList, setCalculatorNum, setCalculatorTotals]);
 
   // Prevent context menu
   useEffect(() => {
@@ -237,7 +242,7 @@ const Keyboard: FC<KeyType> = ({
                 className={classNames([styles.keys, active === index ? styles.active : ''])}
                 onTouchStart={() => changeStart(index)}
                 onTouchMove={changeMoves}
-                onTouchEnd={() => changeEnd(index, item)}
+                onClick={() => changeEnd(index, item)}
               >
                 {item.keys}
               </button>
@@ -275,7 +280,7 @@ const Keyboard: FC<KeyType> = ({
                 className={classNames([styles.bor, active1 === (op === '+' ? 1 : 2) ? styles.active : ''])}
                 onTouchStart={() => changeStart(op === '+' ? 1 : 2)}
                 onTouchMove={changeMoves}
-                onTouchEnd={() => inputOperator(op)}
+                onClick={() => inputOperator(op)}
               >
                 {op}
               </div>
@@ -284,7 +289,7 @@ const Keyboard: FC<KeyType> = ({
               className={classNames([styles.bor, active1 === 3 ? styles.active1 : ''])}
               onTouchStart={() => changeStart(3)}
               onTouchMove={changeMoves}
-              onTouchEnd={handleSubmit}
+              onClick={handleSubmit}
             >
               {calc.completeText}
             </div>

@@ -203,7 +203,7 @@ export function useCalculator() {
       return false;
     if (addition)
       return false;
-    return completeText !== '完成';
+    return completeText === '完成';
   }, [totals, addition, completeText]);
 
   const inputOperatorState = useCallback(

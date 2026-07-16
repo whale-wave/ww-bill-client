@@ -18,7 +18,7 @@ const Bookkeeping: FC = () => {
   const [selectedCategoryName, setSelectedCategoryName] = useState('');
   const [recordType, setRecordType] = useState<CategoryAmountType>('sub');
   const navParams = useLocation();
-  const editState = navParams.state as recordChildren;
+  const editState = navParams.state as recordChildren | undefined;
   const [stateList, setStateList] = useState<stateType>(['', '', 1]);
 
   const [searchParams] = useSearchParams();
