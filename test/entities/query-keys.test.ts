@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { assetKeys } from '@/entities/asset/keys';
-import { budgetKeys } from '@/entities/budget/keys';
-import { recordKeys } from '@/entities/record/keys';
-import { topicKeys } from '@/entities/topic/keys';
+import { assetKeys } from '@/entities/asset';
+import { budgetKeys } from '@/entities/budget';
+import { recordKeys } from '@/entities/record';
+import { topicKeys } from '@/entities/topic';
 
 describe('query key factories', () => {
   it('creates stable record list and detail keys', () => {

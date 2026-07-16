@@ -5,6 +5,7 @@ import {
   isShareCancelError,
   normalizeShareData,
 } from '@/pages/share/model/shareUtils';
+import { i18n } from '@/shared/i18n';
 
 describe('share utilities', () => {
   it('normalizes a record-shaped source', () => {
@@ -20,6 +21,25 @@ describe('share utilities', () => {
       categoryName: '餐饮',
       remark: '午餐',
       dateText: '2026-07-16',
+    });
+  });
+
+  it('formats a record time when dateText is absent', () => {
+    expect(normalizeShareData({
+      amount: '88.00',
+      type: 'sub',
+      category: { name: '餐饮' },
+      time: '2026-07-16 12:30:00',
+    })).toEqual({
+      amount: '88.00',
+      type: 'sub',
+      categoryName: '餐饮',
+      remark: '',
+      dateText: i18n.t('common:dateTime.longDate', {
+        year: 2026,
+        month: '07',
+        day: '16',
+      }),
     });
   });
 
