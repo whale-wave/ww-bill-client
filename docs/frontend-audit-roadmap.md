@@ -14,17 +14,17 @@
 | --- | --- | --- |
 | M0 产品取舍 | 已完成 | `/category`、登录保护和 P0/P1 入口边界已有明确实现 |
 | M1 质量门禁 | 已恢复 | 2026-07-16 fresh gate 中 install、lint:type、lint、test、build 和 diff-check 均通过；ESLint 为 0 errors / 82 warnings |
-| M2 用户功能 | 基本完成 | 图表分类详情、消息入口、类别只读和登录保护已完成；分享真实入口未闭合 |
+| M2 用户功能 | 已完成 | 图表分类详情、消息入口、类别只读和登录保护已完成；记录详情 `/editing/:id` 已提供携带真实记录进入 `/share` 的分享入口，并完成认证端到端验证 |
 | M3 数据层 | 主体完成、验证通过 | entity/query/mutation 和请求错误契约已迁移，`pnpm lint:type` 与 production build 已通过 |
 | M4 路由命名 | 已完成 | 页面目录、路由树和懒加载已按 FSD 重组，并保留兼容路由 |
 | M5 组件工具 | 主体完成、验证通过 | shared/entities/widgets 已重新分层，lint/type/build 均通过；保留 82 个非阻塞 warning 后续分类治理 |
-| M6 测试 | 最小闭环完成 | 已接入 Vitest；2026-07-16 fresh gate 中 6/6 test files、17/17 tests 通过，覆盖导出/分享契约、query key、语言持久化与记账输入/提交回归 |
+| M6 测试 | 最小闭环完成 | 已接入 Vitest；2026-07-16 fresh gate 中 7/7 test files、18/18 tests 通过，覆盖导出/分享契约、query key、语言持久化与记账输入/提交回归 |
 | M7 文档 | 进行中 | `AGENTS.md` 已更新，本文档和流程图正在回填当前路径 |
 
 ### 当前优先级
 
 1. P9 已关闭：客户端 fresh gate 与核心冒烟通过，同级服务的 follow DTO whitelist、空评论查询和 system-notify 大数据量请求也已修复并完成认证回归。
-2. 下一阶段再从账单或明细补 `/share` 真实入口，闭合仍未完成的 M2；本轮没有启动 M2。
+2. M2 已关闭：记录详情 `/editing/:id` 的分享控件可把真实记录带入 `/share`，state/query 恢复、无数据空态、系统分享取消处理和测试数据清理均已完成认证回归。
 3. 按 hook 依赖、纯度、数组 key 和遗留组件模式分类治理当前 82 个非阻塞 ESLint warning。
 
 ## 目标
@@ -39,7 +39,7 @@
 | --- | --- | --- |
 | 启动与明细 | `/`, `/detail` | 已有首屏跳转、明细列表、金额展示配置等基础流程 |
 | 记账与编辑 | `/bookkeeping`, `/editing/:id`, `/record-calendar`, `/search-record` | 已有新增、编辑、删除、日历、搜索等核心流程 |
-| 账单与导出分享 | `/bill`, `/export-data`, `/share` | 账单和导出已有实现，分享页已完成 state/query 真实数据首版改造，仍缺调用方端到端接入 |
+| 账单与导出分享 | `/bill`, `/export-data`, `/share` | 账单和导出已有实现；记录详情可携带真实记录进入 `/share`，分享页支持 state/query 恢复与无数据空态，并已完成认证端到端验证 |
 | 预算 | `/budget`, `/budget/category/:type` | 已有总预算、分类预算、增删改清等流程 |
 | 资产 | `/asset`, `/asset/add-account`, `/asset/add-form/:id?`, `/asset/detail/:id`, `/asset/chart` | 新实现较完整，React Query/key/mutation 相对规范 |
 | 图表 | `/chart`, `/chart/category` | 首页图表已有实现，分类详情已有排行榜进入后的首版明细页 |
@@ -57,14 +57,14 @@
 1. 图表分类详情页仍需后续验收打磨
 
 - 当前进展：分类排行榜点击已进入 `/chart/category`，携带分类 ID、统计维度、收支类型和当前 tab 上下文；详情页已展示分类金额、占比、周期摘要和明细记录，并通过 `/chart` 查询作为刷新/直达兜底。
-- 仍需确认：不同时间维度、空数据、接口返回被 `categoryId` 过滤时的端到端表现；当前质量门禁仍被 pnpm trust policy 阻塞，不能视为完整验收完成。
-- 期望：在依赖校验恢复后完成 lint/type 验证和手动回归，再补充必要的异常态或视觉打磨。
+- 仍需确认：不同时间维度、空数据、接口返回被 `categoryId` 过滤时的端到端表现；工程质量门禁已恢复，这些场景仍需单独手动回归，不能视为视觉与异常态打磨完成。
+- 期望：后续补充上述场景的手动回归，再完善必要的异常态或视觉细节。
 
-2. 分享页已完成首版真实数据改造，仍缺调用方端到端接入验证
+2. 分享页真实数据与记录详情入口已完成
 
-- 当前进展：`/share` 已支持从 `location.state.record`、`location.state.shareData`、直接 state 字段或 URL query 中读取 `amount`、`type`、`categoryName/category`、`remark`、`time/date`；核心字段缺失时展示明确空态，不再使用硬编码业务样例兜底。保存图片已增加空节点保护、异常捕获和 Toast 反馈；原不可用“微信”入口已替换为系统分享能力，环境不支持时复制链接。
-- 仍需确认：当前未发现业务页面主动跳转 `/share` 的调用方，缺少从账单/明细等入口传入 state/query 的端到端验证；质量门禁仍受 pnpm trust policy 阻塞，不能视为完整验收完成。
-- 期望：补齐业务入口到 `/share` 的真实传参，并在依赖校验恢复后完成 lint/type 与手动回归。
+- 完成范围：记录详情 `/editing/:id` 的“分享”控件以 `location.state.record` 将真实记录带入 `/share`；分享页也支持 `location.state.shareData`、直接 state 字段或 URL query，并在核心字段缺失时展示明确空态。系统分享能力已替代不可用“微信”入口，环境不支持时保留复制链接兜底。
+- 验证结果：真实支出记录 `0.12` / `餐饮` / `M2 分享验收` 可进入完整分享卡，返回同一详情、query-only 恢复、直接空态、原生分享取消提示、删除后搜索无结果和浏览器 console 0 errors 均已验证；fresh gate 的 lint:type、lint、test、build 与 diff-check 均通过。
+- 观测边界：浏览器中“保存图片”执行两次且没有 console error，但 Codex In-app Browser 未暴露 data-URL 锚点下载事件，也未捕获成功 Toast，因此不把文件下载回执记为已验证。
 
 ### P1 影响主流程体验
 
@@ -244,7 +244,7 @@
 任务：
 
 - 完善 `/chart/category`：排行榜进入分类统计详情已有首版实现，后续补齐依赖校验恢复后的验证与细节打磨。
-- 改造 `/share`：已支持 state/query 真实数据、无数据空态、保存图片错误处理、系统分享或复制链接；后续补齐调用方端到端接入和质量门禁验证。
+- 改造 `/share`：已支持 state/query 真实数据、无数据空态、保存图片错误处理、系统分享或复制链接；记录详情真实入口与认证端到端验证已闭合。
 - 实现 `/message` 首页：新关注、评论、系统通知入口和空态。
 - 处理类别设置：已完成可查看收入/支出分类的最小切片；新增/编辑/删除/隐藏暂不暴露，后续待接口能力和风险策略确认。
 - 继续梳理登录保护：本轮已覆盖 token 依赖的主要业务路由，后续新增业务页需同步确认是否包 `LoginGuard`。
@@ -257,7 +257,17 @@
 - 设置页“类别设置”能进入 `/category`，并可查看支出/收入分类；页面不出现不可用管理动作。
 - 未登录访问受保护页面时行为一致。
 - 类别设置的新增/编辑/删除仍需接口能力确认和端到端验证后再纳入验收。
-- `pnpm lint`、`pnpm lint:type` 在 pnpm trust policy 解除阻塞后通过。
+- `pnpm lint`、`pnpm lint:type`、`pnpm test` 和 `pnpm build` 均通过。
+
+#### M2 验证日志 — 2026-07-16
+
+- fresh gate：`CI=true pnpm install --frozen-lockfile`、`pnpm lint:type`、`pnpm lint`、`pnpm test`、`pnpm build` 和 `git diff --check` 均 exit 0；ESLint 为 0 errors / 82 warnings，Vitest 为 7/7 test files、18/18 tests，`git ls-files 'dist/**' '*.tsbuildinfo' 'coverage/**'` 无输出。
+- 真实记录入口：在认证会话创建 ID `9` 的支出记录（`0.12`、`餐饮`、`M2 分享验收`、2026-07-16），详情地址为 `/#/editing/9`；详情显示完整字段且只有一个“分享”入口，点击后进入 `/#/share`，卡片显示 `2026年07月16日`、`餐饮`、`M2 分享验收`、`支出` 和 `0.12`。
+- 返回与分享：分享页返回精确回到 `/#/editing/9`，再次进入分享页后，“分享账单”调用原生分享；环境取消后页面显示“已取消分享”，验证 Abort/NotAllowed 取消分支。由于走原生分享分支，剪贴板为空，不把复制兜底记为本次已验证。
+- 图片观测边界：“保存图片”执行两次且浏览器 console 没有报错；Codex In-app Browser 未把 data-URL 锚点下载暴露为可观测 download event，也未捕获成功 Toast，因此不声明已收到下载文件。
+- query 与空态：按页面契约直接打开 `/#/share?amount=0.12&type=sub&categoryName=%E9%A4%90%E9%A5%AE&dateText=2026%E5%B9%B407%E6%9C%8816%E6%97%A5&remark=M2+%E5%88%86%E4%BA%AB%E9%AA%8C%E6%94%B6`，无 route state 时恢复相同完整卡片；直接打开无 state/query 的 `/#/share` 显示“暂无可分享账单”和“请从账单、明细等业务入口进入分享页。”
+- 清理与 console：删除 ID `9` 后搜索 `M2 分享验收` 返回无结果并显示“删除成功”；同时删除本轮浏览器尝试遗留的 ID `8`（`0.12` / `购物`），最终列表回到测试前可见记录 `953 汽车`、`555 书籍`。最终浏览器 console errors 为 0，服务端口 3001 和客户端端口 3231 随后均已关闭。
+- 范围边界：M2 的记录分享闭环已关闭；类别新增/编辑/删除、消息未读/摘要接口和社区分享仍是后续工作，本日志不把它们标记为完成。
 
 ### M3：收敛数据层和缓存一致性
 
