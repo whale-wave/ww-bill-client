@@ -18,7 +18,7 @@
 | M3 数据层 | 主体完成、验证通过 | entity/query/mutation 和请求错误契约已迁移，`pnpm lint:type` 与 production build 已通过 |
 | M4 路由命名 | 已完成 | 页面目录、路由树和懒加载已按 FSD 重组，并保留兼容路由 |
 | M5 组件工具 | 主体完成、验证通过 | shared/entities/widgets 已重新分层，lint/type/build 均通过；保留 82 个非阻塞 warning 后续分类治理 |
-| M6 测试 | 最小闭环完成 | 已接入 Vitest；2026-07-16 fresh gate 中 3/3 test files、11/11 tests 通过 |
+| M6 测试 | 最小闭环完成 | 已接入 Vitest；2026-07-16 fresh gate 中 4/4 test files、13/13 tests 通过，新增导出 API 时间字段与分享时间回退回归覆盖 |
 | M7 文档 | 进行中 | `AGENTS.md` 已更新，本文档和流程图正在回填当前路径 |
 
 ### 当前优先级

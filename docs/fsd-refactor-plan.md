@@ -569,7 +569,7 @@ export function useChartTabs(timeRange: TimeRangeCategory) {
 - [x] 在可交互终端或明确的 CI 环境按 `pnpm-lock.yaml` 同步依赖；当前非 TTY 环境直接运行 pnpm 会因 `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY` 中止。
 - [x] 运行 `pnpm lint:type`，优先修复共享契约和 barrel：`SuccessResponse` 显式导入/导出、`RecordEntry`、`InputProps`、chart 页面 index 路径和新增依赖解析。
 - [x] 运行 `pnpm lint`，先修复当前 79 个 error，再把 111 个 warning 按 hook 依赖、纯度、数组 key 和遗留组件模式分批处理。
-- [x] 确认 `pnpm build` 通过后新增 Vitest `test` 脚本，覆盖金额/时间/分享规范化、query key 和路由参数解析等纯逻辑。
+- [x] 确认 `pnpm build` 通过后新增 Vitest `test` 脚本，覆盖金额/时间/分享规范化、导出 API 形状的 `createdAt`/`updatedAt`、无 `dateText` 的分享时间回退、entity public barrel query key 和路由参数解析等纯逻辑。
 - [ ] 手工冒烟覆盖登录/注册/找回密码、记账/编辑、预算、资产、发票、固定支出、图表、分享、社区、语言切换和老年模式。
 - [ ] P9 完成后回填本节与 §10 验收清单；不得引用 P1-P8 的历史通过记录代替当前结果。
 
@@ -580,8 +580,8 @@ export function useChartTabs(timeRange: TimeRangeCategory) {
 - `CI=true pnpm install --frozen-lockfile`：exit 0；lockfile 已是最新，安装完成。
 - `pnpm lint:type`：exit 0；`tsc -b --noEmit` 通过。
 - `pnpm lint`：exit 0；0 errors、82 warnings。
-- `pnpm test`：exit 0；Vitest `v4.1.10`，3/3 test files、11/11 tests 通过，耗时 747ms。
-- `pnpm build`：exit 0；TypeScript build 与 Vite `v8.0.16` production build 通过，转换 5,608 modules，Vite 构建耗时 5.30s；保留现有大于 500 kB 的 chunk advisory。
+- `pnpm test`：exit 0；Vitest `v4.1.10`，4/4 test files、13/13 tests 通过，耗时 3.70s。
+- `pnpm build`：exit 0；TypeScript build 与 Vite `v8.0.16` production build 通过，转换 5,608 modules，Vite 构建耗时 3.84s；保留现有大于 500 kB 的 chunk advisory。
 - `git diff --check`：exit 0，无输出。
 - `git ls-files 'dist/**' '*.tsbuildinfo' 'coverage/**'`：无输出；未跟踪构建、TypeScript build-info 或 coverage 产物。
 
