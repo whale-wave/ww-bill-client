@@ -1,1 +1,1 @@
-export { default as ChartCategory } from './ChartCategory';
+export { default as ChartCategory } from './ChartCategoryPage';

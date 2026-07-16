@@ -65,7 +65,7 @@ const AssetChart: FC = () => {
 
   return (
     <div className={classNames(styles['asset-chart'], 'page-new')}>
-      <NavBar className="bg-white z-10" backArrow={false} back={false} right={<div className="text-base" onClick={onBack}>{t('common:nav.back')}</div>}>
+      <NavBar className="bg-white z-10" backArrow={false} back={null} right={<div className="text-base" onClick={onBack}>{t('common:nav.back')}</div>}>
         {t('assetChartTitle')}
       </NavBar>
       <div className="px-2 fixed top-[45px] w-full bg-white z-10">

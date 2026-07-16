@@ -3,6 +3,20 @@ import * as xlsx from 'xlsx';
 import config from '@/shared/config';
 import { i18n } from '@/shared/i18n';
 
+interface ExportRecord {
+  amount: string;
+  category?: {
+    id?: number;
+    name?: string;
+  } | null;
+  createTime: string;
+  id: number;
+  remark: string;
+  time: string;
+  type: string;
+  updateTime: string;
+}
+
 function parseTime(val: string): dayjs.Dayjs {
   const ts = Number(val);
   return !Number.isNaN(ts) ? dayjs(ts) : dayjs(val);
@@ -10,7 +24,7 @@ function parseTime(val: string): dayjs.Dayjs {
 
 export function exportData(data: any) {
   if (data && data.length > 0) {
-    const sheetData = data.map((item) => {
+    const sheetData = data.map((item: ExportRecord) => {
       const { id, remark, amount, time, type, createTime, updateTime } = item;
       const { category } = item;
       const { id: cId = '', name: cName = '' } = category || {};
@@ -49,7 +63,7 @@ export function exportData(data: any) {
     const book = xlsx.utils.book_new();
     xlsx.utils.book_append_sheet(book, sheet, 'Sheet1');
 
-    const appName = config.APP_NAME;
+    const appName = config.appName;
     const startTime = parseTime(data[0].createTime).format('YYYY-MM-DD');
     const endTime = parseTime(data[data.length - 1].createTime).format('YYYY-MM-DD');
     const fileName = i18n.t('common:export.fileName', { appName, startTime, endTime });

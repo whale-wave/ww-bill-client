@@ -1,4 +1,4 @@
-import dayjs, { type Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import React, { useCallback, useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -6,8 +6,8 @@ import {
   getUserEmailChangeEmailCaptchaVerifyApi,
 } from '@/entities/user-email';
 import { WwInput, WwInputVerifyCode } from '@/pages/auth/forget-password/ui';
-import { NavBar, WwButton } from '@/shared/ui';
 import { useTranslation } from '@/shared/i18n';
+import { NavBar, WwButton } from '@/shared/ui';
 
 interface EmailChangeProps {}
 
@@ -57,7 +57,7 @@ const EmailChangeCaptcha: React.FC<EmailChangeProps> = () => {
           setStartTime={setStartTime}
           onSend={onSendCaptcha}
         />
-        <WwButton onClick={onCaptchaVerify}>{t("emailChange.captcha.verify")}</WwButton>
+        <WwButton onClick={onCaptchaVerify}>{t('emailChange.captcha.verify')}</WwButton>
       </div>
     </div>
   );

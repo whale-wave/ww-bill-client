@@ -146,9 +146,8 @@ export function getMainList(): iconType[] {
     },
   ];
 
-  for (let i = 0; i < list.length; i++) {
-    list[i].id = i + 1;
-  }
-
-  return list;
+  return list.map((item, index) => ({
+    ...item,
+    id: index + 1,
+  }));
 }

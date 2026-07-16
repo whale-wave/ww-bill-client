@@ -1,6 +1,6 @@
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
-import type { numType } from './index';
+import type { numType } from './DetailPage';
 import dayjs from 'dayjs';
 import { CalendarDays, Eye, EyeOff, Search, Triangle } from 'lucide-react';
 import { useCallback, useState } from 'react';

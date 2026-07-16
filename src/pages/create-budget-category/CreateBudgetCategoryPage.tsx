@@ -6,8 +6,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { BudgetEntityLevel } from '@/entities/budget';
 import { useGetCategoryQuery } from '@/entities/category';
 import { BudgetModel } from '@/pages/budget/ui';
-import { Icon, NavBar } from '@/shared/ui';
 import { useTranslation } from '@/shared/i18n';
+import { Icon, NavBar } from '@/shared/ui';
 
 interface CreateBudgetCategoryProps {
 }
@@ -38,7 +38,7 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
 
   return (
     <div className="page-new">
-      <NavBar back={false} backArrow={false} right={<div onClick={onBack}>{t('nav.cancel')}</div>}>{t('budget:createCategory')}</NavBar>
+      <NavBar back={null} backArrow={false} right={<div onClick={onBack}>{t('nav.cancel')}</div>}>{t('budget:createCategory')}</NavBar>
       <div className="flex flex-wrap flex-grow overflow-auto pb-8">
         {data.map(c => (
           <div className="w-[24.9%] flex flex-col justify-center items-center py-2" key={c.id} onClick={onSelectIcon(c)}>

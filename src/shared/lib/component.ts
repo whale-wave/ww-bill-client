@@ -36,7 +36,7 @@ export function composeExportComponent<C, O extends Record<string, any>>(com: C,
       res[key] = otherCom[key];
     }
   }
-  return res;
+  return res as C & O;
 }
 
 export function stopPropagation(e: MouseEvent<any>, event?: (...params: any[]) => void, ...params: any[]) {
