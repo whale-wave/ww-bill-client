@@ -27,13 +27,7 @@ M2 的图表分类详情、消息子页、类别只读和登录保护已经完�
 
 ### 采用：通过 React Router state 传递流水
 
-点击流水详情页的固定入口后调用：
-
-```ts
-navigate(ROUTES_PATH.SHARE.getPath(), {
-  state: { record: state },
-});
-```
+点击流水详情页的固定入口后调用 `navigate(ROUTES_PATH.SHARE.getPath(), { state: { record: state } })`。
 
 优点：
 
