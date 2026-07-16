@@ -2,6 +2,8 @@ import type { FC } from 'react';
 import type { recordChildren } from '@/entities/record';
 import c from 'classnames';
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
 import { FixedPin } from '@/shared/ui';
@@ -13,6 +15,12 @@ interface stateType {
 
 const List: FC<stateType> = ({ state }) => {
   const { t } = useTranslation('record');
+  const navigate = useNavigate();
+  const handleShare = () => {
+    navigate(ROUTES_PATH.SHARE.getPath(), {
+      state: { record: state },
+    });
+  };
   const displayItems = useMemo(() => {
     const typeMap: Record<string, string> = {
       sub: t('type.expense'),
@@ -42,7 +50,7 @@ const List: FC<stateType> = ({ state }) => {
           </span>
         </div>
       ))}
-      <FixedPin>{t('edit.share')}</FixedPin>
+      <FixedPin onClick={handleShare}>{t('edit.share')}</FixedPin>
     </div>
   );
 };
