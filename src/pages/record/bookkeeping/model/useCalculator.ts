@@ -191,13 +191,6 @@ export function useCalculator() {
     [totals, changePing],
   );
 
-  const resolveAmount = useCallback((): string | undefined => {
-    if (addition === '+' || addition === '-') {
-      return changePing('', 3);
-    }
-    return totals;
-  }, [addition, totals, changePing]);
-
   const canSubmit = useCallback(() => {
     if (totals === '0' || totals === '0.00' || totals === '-')
       return false;
@@ -205,6 +198,15 @@ export function useCalculator() {
       return false;
     return completeText === '完成';
   }, [totals, addition, completeText]);
+
+  const resolveAmount = useCallback((): string | undefined => {
+    if (addition === '+' || addition === '-') {
+      if (addNum === '' || addNum === '.')
+        return undefined;
+      return changePing('', 3);
+    }
+    return canSubmit() ? totals : undefined;
+  }, [addition, addNum, totals, changePing, canSubmit]);
 
   const inputOperatorState = useCallback(
     (op: string) => {

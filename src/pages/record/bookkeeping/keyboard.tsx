@@ -110,11 +110,8 @@ const Keyboard: FC<KeyType> = ({
       setActive(-1);
       return;
     }
-    if (!calc.canSubmit())
-      return;
-
     const resolvedAmount = calc.resolveAmount();
-    if (!resolvedAmount)
+    if (resolvedAmount === undefined)
       return;
 
     const time = dayjs(dateValue).toISOString();

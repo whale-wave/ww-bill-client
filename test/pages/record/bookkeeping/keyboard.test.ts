@@ -115,6 +115,90 @@ describe('bookkeeping keyboard', () => {
     }));
   });
 
+  it('submits a completed addition expression', async () => {
+    postRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    const props: ComponentProps<typeof Keyboard> = {
+      categoryList: [foodCategory],
+      change: vi.fn(),
+      keyToggle: 1,
+      name: '餐饮',
+      state: undefined,
+      stateList: ['', '', 1],
+      type: 'sub',
+    };
+
+    act(() => root.render(createElement(Keyboard, props)));
+    cleanup = () => act(() => root.unmount());
+
+    const oneButton = [...container.querySelectorAll('button')]
+      .find(element => element.textContent === '1');
+    const twoButton = [...container.querySelectorAll('button')]
+      .find(element => element.textContent === '2');
+    const addControl = [...container.querySelectorAll('div')]
+      .find(element => element.textContent === '+' && element.children.length === 0);
+
+    expect(oneButton).toBeDefined();
+    expect(addControl).toBeDefined();
+    expect(twoButton).toBeDefined();
+
+    act(() => oneButton?.click());
+    act(() => addControl?.click());
+    act(() => twoButton?.click());
+
+    const completeControl = [...container.querySelectorAll('div')]
+      .find(element => element.textContent === '=' && element.children.length === 0);
+
+    expect(completeControl).toBeDefined();
+
+    await act(async () => completeControl?.click());
+
+    expect(postRecord).toHaveBeenCalledWith(expect.objectContaining({ amount: '3' }));
+  });
+
+  it('submits a completed subtraction expression', async () => {
+    postRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    const props: ComponentProps<typeof Keyboard> = {
+      categoryList: [foodCategory],
+      change: vi.fn(),
+      keyToggle: 1,
+      name: '餐饮',
+      state: undefined,
+      stateList: ['', '', 1],
+      type: 'sub',
+    };
+
+    act(() => root.render(createElement(Keyboard, props)));
+    cleanup = () => act(() => root.unmount());
+
+    const fiveButton = [...container.querySelectorAll('button')]
+      .find(element => element.textContent === '5');
+    const threeButton = [...container.querySelectorAll('button')]
+      .find(element => element.textContent === '3');
+    const subtractControl = [...container.querySelectorAll('div')]
+      .find(element => element.textContent === '-' && element.children.length === 0);
+
+    expect(fiveButton).toBeDefined();
+    expect(subtractControl).toBeDefined();
+    expect(threeButton).toBeDefined();
+
+    act(() => fiveButton?.click());
+    act(() => subtractControl?.click());
+    act(() => threeButton?.click());
+
+    const completeControl = [...container.querySelectorAll('div')]
+      .find(element => element.textContent === '=' && element.children.length === 0);
+
+    expect(completeControl).toBeDefined();
+
+    await act(async () => completeControl?.click());
+
+    expect(postRecord).toHaveBeenCalledWith(expect.objectContaining({ amount: '2' }));
+  });
+
   it('keeps a remark entered while editing an existing record', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
