@@ -9,14 +9,11 @@ import config from './config';
 const srcPath = resolve(__dirname, 'src');
 
 // https://vitejs.dev/config/
-export default defineConfig((
-  // { mode }
-) => {
+export default defineConfig(({ command }) => {
   // const env = loadEnv(mode, process.cwd(), '');
 
   return {
     build: {
-      target: 'esnext',
       cssCodeSplit: true,
       manifest: true,
     },
@@ -44,11 +41,15 @@ export default defineConfig((
       },
     },
     plugins: [
-      inspectorServer(),
+      ...(command === 'serve' ? [inspectorServer()] : []),
       react(),
-      babel({
-        plugins: ['@react-dev-inspector/babel-plugin'],
-      }),
+      ...(command === 'serve'
+        ? [
+            babel({
+              plugins: ['@react-dev-inspector/babel-plugin'],
+            }),
+          ]
+        : []),
       createHtmlPlugin({
         inject: {
           data: {

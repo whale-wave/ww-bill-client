@@ -9,6 +9,5 @@ trustPolicyExclude:
 
 allowBuilds:
   '@parcel/watcher': true
-  electron: set this to true or false
   esbuild: true
   unrs-resolver: true
