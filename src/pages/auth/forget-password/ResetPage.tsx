@@ -3,12 +3,13 @@ import type {
   NavigateOptions,
 } from 'react-router-dom';
 import { Button, Toast } from 'antd-mobile';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
 import { postAuthPasswordForgetResetApi } from '@/entities/auth';
+import { readPasswordRecoveryParams } from '@/pages/auth/forget-password/model/params';
 import { WwInput } from '@/pages/auth/forget-password/ui';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
@@ -20,20 +21,20 @@ const ForgetPasswordReset: FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [urlSearchParams] = useSearchParams();
-  const email = urlSearchParams.get('login.email')!;
-  const captcha = urlSearchParams.get('captcha')!;
+  const { captcha, email } = readPasswordRecoveryParams(urlSearchParams);
 
   const onGoTo = useCallback(
-    (v: string | number, options?: NavigateOptions) => {
+    (to: string, options?: NavigateOptions) => {
       playSound.turnPage();
-      navigate(v as any, options);
+      navigate(to, options);
     },
-    [],
+    [navigate],
   );
 
   const onGoToBack = useCallback(() => {
-    onGoTo(-1);
-  }, []);
+    playSound.turnPage();
+    navigate(-1);
+  }, [navigate]);
 
   const onSend = useCallback(async () => {
     if (!password || !confirmPassword) {
@@ -70,7 +71,13 @@ const ForgetPasswordReset: FC = () => {
         });
       }, 400);
     }
-  }, [password, confirmPassword, email, captcha]);
+  }, [password, confirmPassword, email, captcha, navigate, onGoTo, t]);
+
+  useEffect(() => {
+    if (!email || !captcha) {
+      navigate('/forget-password', { replace: true });
+    }
+  }, [captcha, email, navigate]);
 
   return (
     <div className="page flex flex-col">

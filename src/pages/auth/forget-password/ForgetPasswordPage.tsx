@@ -1,9 +1,9 @@
 import type { FC } from 'react';
-import type { Path } from 'react-router-dom';
 import { Button, Dialog, Toast } from 'antd-mobile';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getToolsForgetPasswordEmailApi } from '@/entities/auth';
+import { buildVerifyCodePath } from '@/pages/auth/forget-password/model/params';
 import { WwInput } from '@/pages/auth/forget-password/ui';
 import { useTranslation } from '@/shared/i18n';
 import { isEmail } from '@/shared/lib';
@@ -15,14 +15,15 @@ const ForgetPassword: FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
 
-  const onGoTo = useCallback((v: string | Partial<Path> | number) => {
+  const onGoTo = useCallback((to: string) => {
     playSound.turnPage();
-    navigate(v as Parameters<typeof navigate>[0]);
-  }, []);
+    navigate(to);
+  }, [navigate]);
 
   const onGoToBack = useCallback(() => {
-    onGoTo(-1);
-  }, []);
+    playSound.turnPage();
+    navigate(-1);
+  }, [navigate]);
 
   const onSend = useCallback(() => {
     if (!isEmail(email)) {
@@ -42,14 +43,12 @@ const ForgetPassword: FC = () => {
 
         if (getForgetPasswordEmailCaptchaRes.statusCode === 200) {
           setTimeout(() => {
-            onGoTo(
-              `/forget-password/verify-code?email=${encodeURIComponent(email)}`,
-            );
+            onGoTo(buildVerifyCodePath(email));
           }, 200);
         }
       },
     });
-  }, [email]);
+  }, [email, onGoTo, t]);
 
   return (
     <div className="page flex flex-col">

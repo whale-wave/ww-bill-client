@@ -7,6 +7,10 @@ import {
   getToolsForgetPasswordEmailApi,
   getToolsForgetPasswordEmailVerifyCodeApi,
 } from '@/entities/auth';
+import {
+  buildResetPath,
+  readPasswordRecoveryParams,
+} from '@/pages/auth/forget-password/model/params';
 import { WwInput, WwInputVerifyCode } from '@/pages/auth/forget-password/ui';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
@@ -17,7 +21,7 @@ const ForgetPasswordVerifyCode: FC = () => {
   const navigate = useNavigate();
   const [captcha, setCaptcha] = useState('');
   const [urlSearchParams] = useSearchParams();
-  const [email] = useState(urlSearchParams.get('login.email') || '');
+  const { email } = readPasswordRecoveryParams(urlSearchParams);
   const [startTime, setStartTime] = useState<Dayjs>();
 
   const isDisabled = useMemo(() => {
@@ -26,14 +30,10 @@ const ForgetPasswordVerifyCode: FC = () => {
     return false;
   }, [captcha]);
 
-  const onGoTo = useCallback((v: string | number) => {
-    playSound.turnPage();
-    navigate(v as Parameters<typeof navigate>[0]);
-  }, [navigate]);
-
   const onGoToBack = useCallback(() => {
-    onGoTo(-1);
-  }, [onGoTo]);
+    playSound.turnPage();
+    navigate(-1);
+  }, [navigate]);
 
   const onSendVerify = useCallback(async () => {
     const getForgetPasswordEmailCaptchaRes
@@ -55,9 +55,7 @@ const ForgetPasswordVerifyCode: FC = () => {
     if (getToolsForgetPasswordEmailVerifyCodeRes.statusCode === 200) {
       setTimeout(() => {
         navigate(
-          `/forget-password/reset?email=${encodeURIComponent(
-            email,
-          )}&captcha=${encodeURIComponent(captcha)}`,
+          buildResetPath({ captcha, email }),
           {
             replace: true,
           },
@@ -68,9 +66,9 @@ const ForgetPasswordVerifyCode: FC = () => {
 
   useEffect(() => {
     if (!email) {
-      onGoTo('/mine');
+      navigate('/forget-password', { replace: true });
     }
-  }, [email, onGoTo]);
+  }, [email, navigate]);
 
   return (
     <div className="page flex flex-col">
