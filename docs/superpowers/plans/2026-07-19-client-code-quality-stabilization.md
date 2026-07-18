@@ -362,6 +362,8 @@ Remaining risks are intentionally deferred to future batches: the dependency/sec
 
 The final code review identified four gaps after the first evidence pass. Commit `e7f9cfa` closes them by rejecting non-finite, zero, and negative calculator results before they can enter submittable state; adding rendered-page/router coverage for the complete password-recovery flow and missing-parameter redirects; adding regression cases for incomplete expressions and repeated completion clicks; and localizing the jsdom type declaration to `test/setup.ts` instead of exposing it to the production source type domain.
 
+Re-review then found that applying the final-value rule during every operator fold blocked recoverable chains such as `1 - 2 + 3 = 2`. Commit `a75a0ca` distinguishes operator folding from final resolution: zero and negative intermediate values may continue, while the submitted result must still be finite and greater than zero. Rendered-keyboard tests cover both negative and zero intermediate values, and the final reviewer reported no remaining Critical or Important findings.
+
 Fresh verification was rerun from a frozen dependency installation after those review fixes:
 
 | Command | Result | Final measured evidence |
@@ -369,12 +371,12 @@ Fresh verification was rerun from a frozen dependency installation after those r
 | `CI=true pnpm install --frozen-lockfile` | exit 0 | Lockfile current; pnpm `10.34.3`. |
 | `pnpm lint:type` | exit 0 | `tsc -b --noEmit` completed without diagnostics. |
 | `pnpm lint` | exit 0 | 0 errors, 71 warnings; no increase from the first evidence pass. |
-| `pnpm test` | exit 0 | 11 test files passed; 37 tests passed; no Node flags. |
+| `pnpm test` | exit 0 | 11 test files passed; 39 tests passed; no Node flags. |
 | `pnpm build` | exit 0 | Production Vite 8 build completed; 5,610 modules transformed. |
 | `pnpm build:docker` | exit 0 | Docker-mode Vite build completed; 5,610 modules transformed. |
 | `git diff --check` | exit 0 | No whitespace errors. |
 | `git ls-files 'dist/**' '*.tsbuildinfo' 'coverage/**'` | exit 0 | No tracked build, TypeScript, or coverage artifacts. |
 | `rg -n 'data-inspector-relative-path' dist/assets` | no matches | No production Inspector attributes found. |
-| `git status --short --branch` | exit 0 | Clean worktree before this documentation update; branch was eight commits ahead of its remote. |
+| `git status --short --branch` | exit 0 | Clean worktree before this documentation update; branch was ten commits ahead of its remote. |
 
 The deferred-risk list above is unchanged. Both production builds still report the existing advisory for JavaScript chunks larger than 500 kB.
