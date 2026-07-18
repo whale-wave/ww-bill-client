@@ -8,6 +8,11 @@ export interface CalculatorState {
   completeText: string;
 }
 
+function isSubmittableAmount(value: string | number): boolean {
+  const amount = Number(value);
+  return Number.isFinite(amount) && amount > 0;
+}
+
 export function useCalculator() {
   const [totals, setTotals] = useState('0.00');
   const [num, setNum] = useState('');
@@ -48,7 +53,10 @@ export function useCalculator() {
           const n1 = Number(num) * 100;
           const n2 = Number(addNum) * 100;
           if (addition === '+') {
-            const result = String((n1 + n2) / 100);
+            const numericResult = (n1 + n2) / 100;
+            if (!isSubmittableAmount(numericResult))
+              return undefined;
+            const result = String(numericResult);
             setNum(result);
             setAddNum('');
             setTotals(result + keys);
@@ -57,7 +65,10 @@ export function useCalculator() {
             return result;
           }
           if (addition === '-') {
-            const result = String((n1 - n2) / 100);
+            const numericResult = (n1 - n2) / 100;
+            if (!isSubmittableAmount(numericResult))
+              return undefined;
+            const result = String(numericResult);
             setNum(result);
             setAddNum('');
             setTotals(result + keys);
@@ -192,7 +203,7 @@ export function useCalculator() {
   );
 
   const canSubmit = useCallback(() => {
-    if (totals === '0' || totals === '0.00' || totals === '-')
+    if (!isSubmittableAmount(totals))
       return false;
     if (addition)
       return false;

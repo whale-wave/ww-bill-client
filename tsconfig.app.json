@@ -20,7 +20,6 @@
       "DOM", // 包含 DOM 库
       "DOM.Iterable", // 包含可迭代的 DOM 库
     ],
-    "types": ["vitest/jsdom"], // Vitest jsdom 环境提供的全局 jsdom 实例
     "module": "ESNext", // 使用 ESNext 作为模块系统
     "skipLibCheck": true, // 跳过库文件的类型检查
     /* Bundler mode */
