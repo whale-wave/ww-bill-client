@@ -1,6 +1,6 @@
 import type { InvoiceEntity } from '@/entities/invoice';
 import { Button, Form, Input } from 'antd-mobile';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   useGetInvoiceByIdQuery,
@@ -17,23 +17,16 @@ const InvoiceInfoForm: React.FC<InvoiceInfoFormProps> = (props) => {
   const { id } = props;
   const navigate = useNavigate();
 
-  const isEdit = useMemo(() => !!id, []);
+  const isEdit = Boolean(id);
 
   const { data: invoice, isLoading } = useGetInvoiceByIdQuery({
-    params: { id: id! },
+    params: { id: id ?? '' },
     options: {
       enabled: isEdit,
     },
   });
 
-  const isDisabled = useMemo(() => {
-    if (id) {
-      return isLoading;
-    }
-    else {
-      return false;
-    }
-  }, []);
+  const isDisabled = isEdit && isLoading;
   const [formAction] = Form.useForm();
 
   const { t } = useTranslation('invoice');
@@ -89,7 +82,7 @@ const InvoiceInfoForm: React.FC<InvoiceInfoFormProps> = (props) => {
 
       navigate(-1);
     },
-    [isEdit],
+    [id, isDisabled, navigate, patchInvoiceMutate, postInvoiceMutate],
   );
 
   useEffect(() => {
@@ -97,7 +90,7 @@ const InvoiceInfoForm: React.FC<InvoiceInfoFormProps> = (props) => {
       return;
 
     formAction.setFieldsValue(invoice);
-  }, [invoice]);
+  }, [formAction, invoice]);
   return (
     <Form
       initialValues={invoice}

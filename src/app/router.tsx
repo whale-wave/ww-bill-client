@@ -116,7 +116,7 @@ const router = createHashRouter([
       },
       {
         path: 'editing/:id',
-        lazy: lazyPage(() => import('@/pages/record/editing/EditingPage')),
+        lazy: lazyGuardedPage(() => import('@/pages/record/editing/EditingPage')),
       },
       {
         path: 'user-info',
