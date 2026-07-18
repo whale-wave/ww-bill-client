@@ -258,6 +258,34 @@ describe('bookkeeping keyboard', () => {
     expect(postRecord).toHaveBeenCalledWith(expect.objectContaining({ amount: '2' }));
   });
 
+  it('submits a positive chain after a negative intermediate result', async () => {
+    const container = renderKeyboard();
+
+    clickKey(container, '1');
+    clickOperator(container, '-');
+    clickKey(container, '2');
+    clickOperator(container, '+');
+    clickKey(container, '3');
+    await clickCompletion(container);
+
+    expect(postRecord).toHaveBeenCalledWith(expect.objectContaining({ amount: '2' }));
+    expect(putRecord).not.toHaveBeenCalled();
+  });
+
+  it('submits a positive chain after a zero intermediate result', async () => {
+    const container = renderKeyboard();
+
+    clickKey(container, '1');
+    clickOperator(container, '-');
+    clickKey(container, '1');
+    clickOperator(container, '+');
+    clickKey(container, '2');
+    await clickCompletion(container);
+
+    expect(postRecord).toHaveBeenCalledWith(expect.objectContaining({ amount: '2' }));
+    expect(putRecord).not.toHaveBeenCalled();
+  });
+
   it('rejects a zero result on repeated completion clicks', async () => {
     const container = renderKeyboard();
 

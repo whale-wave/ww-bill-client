@@ -54,7 +54,7 @@ export function useCalculator() {
           const n2 = Number(addNum) * 100;
           if (addition === '+') {
             const numericResult = (n1 + n2) / 100;
-            if (!isSubmittableAmount(numericResult))
+            if (keys === '' && !isSubmittableAmount(numericResult))
               return undefined;
             const result = String(numericResult);
             setNum(result);
@@ -66,7 +66,7 @@ export function useCalculator() {
           }
           if (addition === '-') {
             const numericResult = (n1 - n2) / 100;
-            if (!isSubmittableAmount(numericResult))
+            if (keys === '' && !isSubmittableAmount(numericResult))
               return undefined;
             const result = String(numericResult);
             setNum(result);
