@@ -26,6 +26,7 @@
 **Test runtime**
 
 - Modify: `test/setup.ts`
+- Modify: `tsconfig.app.json`
 
 **Password recovery contract**
 
@@ -34,6 +35,7 @@
 - Modify: `src/pages/auth/forget-password/VerifyCodePage.tsx`
 - Modify: `src/pages/auth/forget-password/ResetPage.tsx`
 - Create: `test/pages/auth/forget-password-params.test.ts`
+- Create: `test/pages/auth/forget-password-flow.test.ts`
 
 **Async detail reliability**
 
@@ -219,7 +221,8 @@ Expected GREEN: both new files pass and TypeScript exits 0.
 **Interfaces:**
 
 - `resolveAmount(): string | undefined` is the only page-level gate for a submitted amount.
-- Incomplete expressions such as `1 +` remain non-submittable.
+- Submitted amounts must be finite and greater than zero.
+- Incomplete expressions such as `1 +` and `1 + .` remain non-submittable.
 
 - [x] **Step 1: Add failing addition and subtraction tests**
 
@@ -354,3 +357,24 @@ Baseline: `dd54e93` (`build(client): stabilize production toolchain`). Tasks 1â€
 | `git status --short` | exit 0 | No output before Task 6 documentation edits. |
 
 Remaining risks are intentionally deferred to future batches: the dependency/security audit and upgrades, FSD dependency-direction follow-up, an application-level `ErrorBoundary`, the remaining ESLint-warning cleanup, and accessibility work. The 71 warnings recorded here are not claimed resolved; the Vite builds also retain their existing large-chunk advisory.
+
+## Post-Review Closure and Final Verification â€” 2026-07-19
+
+The final code review identified four gaps after the first evidence pass. Commit `e7f9cfa` closes them by rejecting non-finite, zero, and negative calculator results before they can enter submittable state; adding rendered-page/router coverage for the complete password-recovery flow and missing-parameter redirects; adding regression cases for incomplete expressions and repeated completion clicks; and localizing the jsdom type declaration to `test/setup.ts` instead of exposing it to the production source type domain.
+
+Fresh verification was rerun from a frozen dependency installation after those review fixes:
+
+| Command | Result | Final measured evidence |
+| --- | --- | --- |
+| `CI=true pnpm install --frozen-lockfile` | exit 0 | Lockfile current; pnpm `10.34.3`. |
+| `pnpm lint:type` | exit 0 | `tsc -b --noEmit` completed without diagnostics. |
+| `pnpm lint` | exit 0 | 0 errors, 71 warnings; no increase from the first evidence pass. |
+| `pnpm test` | exit 0 | 11 test files passed; 37 tests passed; no Node flags. |
+| `pnpm build` | exit 0 | Production Vite 8 build completed; 5,610 modules transformed. |
+| `pnpm build:docker` | exit 0 | Docker-mode Vite build completed; 5,610 modules transformed. |
+| `git diff --check` | exit 0 | No whitespace errors. |
+| `git ls-files 'dist/**' '*.tsbuildinfo' 'coverage/**'` | exit 0 | No tracked build, TypeScript, or coverage artifacts. |
+| `rg -n 'data-inspector-relative-path' dist/assets` | no matches | No production Inspector attributes found. |
+| `git status --short --branch` | exit 0 | Clean worktree before this documentation update; branch was eight commits ahead of its remote. |
+
+The deferred-risk list above is unchanged. Both production builds still report the existing advisory for JavaScript chunks larger than 500 kB.
