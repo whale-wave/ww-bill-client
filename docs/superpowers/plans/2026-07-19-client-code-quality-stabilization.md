@@ -69,7 +69,7 @@
 - Consumes: Vitest `jsdom` environment configured with URL `http://localhost/`.
 - Produces: a working global `localStorage` before i18n initialization and before test module collection.
 
-- [ ] **Step 1: Reproduce the existing collection failure**
+- [x] **Step 1: Reproduce the existing collection failure**
 
 Run:
 
@@ -79,7 +79,7 @@ pnpm test
 
 Expected RED on Node 26: seven suites fail before collecting tests with `Cannot read properties of undefined (reading 'getItem')` from `detectLanguage`.
 
-- [ ] **Step 2: Bind jsdom storage before importing i18n**
+- [x] **Step 2: Bind jsdom storage before importing i18n**
 
 Replace the static i18n side-effect import with setup ordering equivalent to:
 
@@ -96,7 +96,7 @@ await import('@/shared/i18n');
 
 Keep the existing `AudioContext` stub and `beforeEach(() => localStorage.clear())` after this initialization.
 
-- [ ] **Step 3: Verify ordinary execution without Node flags**
+- [x] **Step 3: Verify ordinary execution without Node flags**
 
 Run:
 
@@ -121,7 +121,7 @@ Expected GREEN: 7 test files and 18 tests pass without `NODE_OPTIONS` and withou
 
 - Produces: `buildVerifyCodePath(email: string): string`, `buildResetPath(params: { captcha: string; email: string }): string`, and `readPasswordRecoveryParams(searchParams: URLSearchParams): { captcha: string; email: string }`.
 
-- [ ] **Step 1: Write the failing URL-contract test**
+- [x] **Step 1: Write the failing URL-contract test**
 
 The test must round-trip Unicode and `+` characters through both navigation steps:
 
@@ -139,15 +139,15 @@ expect(readPasswordRecoveryParams(resetUrl.searchParams)).toEqual({
 
 Run `pnpm test test/pages/auth/forget-password-params.test.ts` and confirm RED because the module does not exist.
 
-- [ ] **Step 2: Implement one query-string contract**
+- [x] **Step 2: Implement one query-string contract**
 
 Use `URLSearchParams` in `params.ts`; the only accepted keys are `email` and `captcha`. Both builders return the existing hash-router-relative paths beginning with `/forget-password/`.
 
-- [ ] **Step 3: Migrate all three pages**
+- [x] **Step 3: Migrate all three pages**
 
 The first page uses `buildVerifyCodePath`, the verification page reads with `readPasswordRecoveryParams` and navigates with `buildResetPath`, and the reset page uses the same reader. Missing email on the verification page, or missing email/captcha on the reset page, navigates to `/forget-password` with `replace: true`. Separate numeric back navigation from string navigation so no `as any` remains.
 
-- [ ] **Step 4: Verify the contract and touched pages**
+- [x] **Step 4: Verify the contract and touched pages**
 
 Run:
 
@@ -174,15 +174,15 @@ Expected GREEN: the new test passes and TypeScript exits 0.
 - Invoice form derives `isEdit = Boolean(id)` and `isDisabled = isEdit && isLoading` on every render.
 - Record editing renders detail children only when a `RecordEntry` exists.
 
-- [ ] **Step 1: Add the failing invoice regression**
+- [x] **Step 1: Add the failing invoice regression**
 
 Mock the invoice query so the first render returns `{ data: undefined, isLoading: true }`, then rerender with a valid invoice and `isLoading: false`. Assert the form changes from disabled to enabled and submitting calls `patchInvoiceMutate` with the current `id` and values. Confirm RED because the current empty-dependency memo and stale callback remain locked to the first render.
 
-- [ ] **Step 2: Fix invoice derivation and callback dependencies**
+- [x] **Step 2: Fix invoice derivation and callback dependencies**
 
 Replace both empty-dependency memos with direct boolean expressions, memoize `formOptions` only if all dependencies are complete, and make `onSave` depend on `id`, `isDisabled`, both mutations, and `navigate`. Keep list/detail invalidation in the existing entity hooks.
 
-- [ ] **Step 3: Add failing record-detail state tests**
+- [x] **Step 3: Add failing record-detail state tests**
 
 With no location state, verify three hook results:
 
@@ -192,11 +192,11 @@ With no location state, verify three hook results:
 
 Confirm RED because the existing page immediately renders all children with `undefined`.
 
-- [ ] **Step 4: Implement explicit record states and guard the route**
+- [x] **Step 4: Implement explicit record states and guard the route**
 
 Use `RecordEntry` instead of the deprecated `recordChildren` type in the page. Prefer a valid location-state record while a refresh is in flight. Without a record, render centered `SpinLoading` or `ErrorBlock`; only success renders Top/List/Footer. Change `editing/:id` from `lazyPage` to `lazyGuardedPage`.
 
-- [ ] **Step 5: Verify both detail flows**
+- [x] **Step 5: Verify both detail flows**
 
 Run:
 
@@ -221,19 +221,19 @@ Expected GREEN: both new files pass and TypeScript exits 0.
 - `resolveAmount(): string | undefined` is the only page-level gate for a submitted amount.
 - Incomplete expressions such as `1 +` remain non-submittable.
 
-- [ ] **Step 1: Add failing addition and subtraction tests**
+- [x] **Step 1: Add failing addition and subtraction tests**
 
 Using the existing keyboard component test harness, click `1`, `+`, `2`, `=` and expect `postRecord` amount `3`. In a separate test click `5`, `-`, `3`, `=` and expect amount `2`. Confirm RED because `handleSubmit` currently returns before `resolveAmount()`.
 
-- [ ] **Step 2: Make resolution validate both normal and expression states**
+- [x] **Step 2: Make resolution validate both normal and expression states**
 
 For an operator expression, `resolveAmount` returns `undefined` unless `addNum` is a complete number; otherwise it computes through the existing cent-scaled `changePing` path. For a normal amount, it returns `undefined` unless existing `canSubmit()` rules pass. Update dependencies accordingly.
 
-- [ ] **Step 3: Use resolution as the page's single submit gate**
+- [x] **Step 3: Use resolution as the page's single submit gate**
 
 Remove the preceding `calc.canSubmit()` early return in `keyboard.tsx`; immediately return only when `calc.resolveAmount()` is `undefined`.
 
-- [ ] **Step 4: Verify calculator behavior**
+- [x] **Step 4: Verify calculator behavior**
 
 Run:
 
@@ -260,7 +260,7 @@ Expected GREEN: existing keyboard tests plus addition and subtraction pass.
 - Vite production builds contain no Inspector source-coordinate attributes.
 - Local, CI, and Docker use pnpm `10.34.3`; Docker uses Node `24.15.0` and a frozen lockfile.
 
-- [ ] **Step 1: Capture the production leakage**
+- [x] **Step 1: Capture the production leakage**
 
 Run `pnpm build` and then:
 
@@ -270,15 +270,15 @@ rg -n "data-inspector-relative-path" dist/assets
 
 Expected RED: at least one built JavaScript asset contains the attribute.
 
-- [ ] **Step 2: Restrict Inspector and restore the browser target**
+- [x] **Step 2: Restrict Inspector and restore the browser target**
 
 Use `defineConfig(({ command }) => ...)`; include `inspectorServer()` and the Inspector Babel plugin only when `command === 'serve'`. Remove `build.target: 'esnext'` so Vite 8 uses `baseline-widely-available`. Keep React, HTML injection, aliases, Sass data, proxy, manifest, and CSS splitting unchanged.
 
-- [ ] **Step 3: Pin pnpm and make Docker installation reproducible**
+- [x] **Step 3: Pin pnpm and make Docker installation reproducible**
 
 Add `"packageManager": "pnpm@10.34.3"`. Change `build:docker` to `tsc -b && vite build --mode docker`. Use `FROM node:24.15.0-alpine`, install `pnpm@10.34.3`, copy `pnpm-workspace.yaml` with the manifest/lockfile, and run `pnpm install --frozen-lockfile`. Remove the non-boolean `electron` line from `allowBuilds`.
 
-- [ ] **Step 4: Verify config and production output**
+- [x] **Step 4: Verify config and production output**
 
 Run:
 
@@ -304,7 +304,7 @@ Expected GREEN: both builds exit 0 and the Inspector attribute check has no outp
 
 - Produces: fresh evidence for every configured quality gate and an explicit remaining-risk handoff.
 
-- [ ] **Step 1: Run the complete gate from a clean dependency graph**
+- [x] **Step 1: Run the complete gate from a clean dependency graph**
 
 Run:
 
@@ -320,7 +320,7 @@ git diff --check
 
 Expected: every command exits 0; lint warning count is at most 82; all tests pass without Node flags.
 
-- [ ] **Step 2: Check repository hygiene and production instrumentation**
+- [x] **Step 2: Check repository hygiene and production instrumentation**
 
 Run:
 
@@ -332,6 +332,25 @@ git status --short
 
 Expected: no tracked build artifacts, no Inspector attributes, and only the planned source/test/config/docs changes are present before the final commit.
 
-- [ ] **Step 3: Record measured results**
+- [x] **Step 3: Record measured results**
 
 Mark completed task checkboxes and append exact file/test/warning counts. Keep unresolved security, dependency, FSD, ErrorBoundary, warning cleanup, and accessibility work listed in the design document as future batches; do not claim they were fixed.
+
+## Verification Evidence — 2026-07-19
+
+Baseline: `dd54e93` (`build(client): stabilize production toolchain`). Tasks 1–5 changed 21 files: 15 source/configuration files, 5 test files, and 1 task report. This task adds this tracked evidence record only; `.superpowers/sdd/task-6-report.md` is an ignored external review artifact and is not part of this commit.
+
+| Command | Result | Measured evidence |
+| --- | --- | --- |
+| `CI=true pnpm install --frozen-lockfile` | exit 0 | Lockfile already current; pnpm `10.34.3`. |
+| `pnpm lint:type` | exit 0 | `tsc -b --noEmit` completed without diagnostics. |
+| `pnpm lint` | exit 0 | 0 errors, 71 warnings (below the 82-warning ceiling). |
+| `pnpm test` | exit 0 | 10 test files passed; 27 tests passed; no Node flags. |
+| `pnpm build` | exit 0 | Production Vite 8 build completed; 5,610 modules transformed. |
+| `pnpm build:docker` | exit 0 | Docker-mode Vite build completed; 5,610 modules transformed. |
+| `git diff --check` | exit 0 | No whitespace errors. |
+| `git ls-files 'dist/**' '*.tsbuildinfo' 'coverage/**'` | exit 0 | No tracked build, TypeScript, or coverage artifacts. |
+| `rg -n "data-inspector-relative-path" dist/assets \|\| true` | exit 0 | No production Inspector attributes found. |
+| `git status --short` | exit 0 | No output before Task 6 documentation edits. |
+
+Remaining risks are intentionally deferred to future batches: the dependency/security audit and upgrades, FSD dependency-direction follow-up, an application-level `ErrorBoundary`, the remaining ESLint-warning cleanup, and accessibility work. The 71 warnings recorded here are not claimed resolved; the Vite builds also retain their existing large-chunk advisory.
