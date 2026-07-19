@@ -139,7 +139,7 @@ const AssetFormInfo: FC = () => {
 
   return (
     <div className="page">
-      <NavBar back={t('common:nav.back')}>
+      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
         {assetId ? t('form.edit') : `${t('form.add')}${assetGroup?.name || ''}`}
       </NavBar>
       <Form

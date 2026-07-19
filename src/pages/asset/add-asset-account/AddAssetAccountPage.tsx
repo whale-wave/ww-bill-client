@@ -42,7 +42,7 @@ const AddAssetAccount: FC = () => {
 
   return (
     <div className="page !overflow-auto">
-      <NavBar back={t('common:nav.back')}>
+      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
         {t('addAccount')}
       </NavBar>
       <List className="mt-2">
