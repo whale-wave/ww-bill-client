@@ -1,18 +1,17 @@
 import type { FC } from 'react';
-import type { AssetGroup } from '@/entities/asset';
 import { List } from 'antd-mobile';
 import { useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetAssetGroupQuery } from '@/entities/asset';
-import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { Icon, NavBar } from '@/shared/ui';
+import { getAssetGroupNavigationPath, getAssetGroupParentId } from './model/asset-group-navigation';
 
 const AddAssetAccount: FC = () => {
   const { t } = useTranslation('asset');
   const navigate = useNavigate();
   const [query] = useSearchParams();
-  const parentId = query.get('form.selectGroup') || null;
+  const parentId = getAssetGroupParentId(query);
 
   const { data } = useGetAssetGroupQuery();
 
@@ -25,20 +24,9 @@ const AddAssetAccount: FC = () => {
     return data.filter(i => i.level === 0);
   }, [data, parentId]);
 
-  const hasChildren = useCallback((item: AssetGroup) => {
-    if (!data)
-      return false;
-    return data.some(i => i.parentId === item.id);
-  }, [data]);
-
-  const handleAddAsset = useCallback((item: AssetGroup) => () => {
-    if (hasChildren(item)) {
-      navigate(`${ROUTES_PATH.ASSET_ADD_ACCOUNT.getPath()}?parentId=${item.id}`);
-    }
-    else {
-      navigate(`${ROUTES_PATH.ASSET_ADD_FORM.getPath()}?groupId=${item.id}&assetType=${item.assetType}&type=${item.type}`);
-    }
-  }, []);
+  const handleAddAsset = useCallback((item: (typeof assetGroup)[number]) => () => {
+    navigate(getAssetGroupNavigationPath(item, data ?? []));
+  }, [data, navigate]);
 
   return (
     <div className="page !overflow-auto">
