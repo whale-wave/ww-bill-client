@@ -4,6 +4,7 @@ import { Dropdown, List } from 'antd-mobile';
 import { CheckOutline, DownFill } from 'antd-mobile-icons';
 import React, { useContext, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { BudgetEntityType } from '@/entities/budget';
 import { BudgetPageContext } from '@/pages/budget/model/budgetPageContext.ts';
 import style from '@/pages/budget/ui/BudgetTop.module.scss';
@@ -16,7 +17,7 @@ interface BudgetTopProps {
 export const BudgetTop: React.FC<BudgetTopProps> = (props) => {
   const { t } = useTranslation('budget');
   const { dropDownWrapperRef } = props;
-
+  const navigate = useNavigate();
   const budgetPageContentValue = useContext(BudgetPageContext);
   const dropdownRef = useRef<DropdownRef>(null);
 
@@ -42,7 +43,7 @@ export const BudgetTop: React.FC<BudgetTopProps> = (props) => {
   ], [t]);
 
   return (
-    <NavBar className={style['budget-navbar']}>
+    <NavBar className={style['budget-navbar']} onBack={() => navigate(-1)}>
       <Dropdown ref={dropdownRef} className="" getContainer={dropDownWrapperRef.current} arrow={<DownFill className="text-black333 text-base" />}>
         <Dropdown.Item key="month" title={budgetPageContentValue?.budgetEntityType === BudgetEntityType.MONTH ? t('dropdown.monthlyBudget') : t('dropdown.yearlyBudget')} className="">
           <List>
