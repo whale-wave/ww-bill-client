@@ -14,7 +14,12 @@ function clearTokenToLogin(msg: string) {
 export function baseResponseProcess(statusCode: number | string) {
   switch (Number.parseInt(`${statusCode}`)) {
     case 403:
-      return clearTokenToLogin(i18n.t('common:api.loginExpired'));
+      Toast.show({
+        content: i18n.t('common:api.forbidden'),
+        icon: 'fail',
+        duration: 1000,
+      });
+      return i18n.t('common:api.forbidden');
     case 402:
       return clearTokenToLogin(i18n.t('common:api.authFailed'));
     case 401:

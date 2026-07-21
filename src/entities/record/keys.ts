@@ -4,6 +4,22 @@ export const recordKeys = {
   all: ['record'] as const,
   lists: () => [...recordKeys.all, 'list'] as const,
   list: (params?: GetRecordApiParams) => [...recordKeys.lists(), params] as const,
+  ledgerRoot: (ledgerId: string) => [...recordKeys.all, 'ledger', ledgerId] as const,
+  ledgerListRoot: (ledgerId: string) => [...recordKeys.ledgerRoot(ledgerId), 'list'] as const,
+  ledgerList: (ledgerId: string, params?: GetRecordApiParams) => [
+    ...recordKeys.ledgerListRoot(ledgerId),
+    params,
+  ] as const,
+  ledgerDetails: (ledgerId: string) => [...recordKeys.ledgerRoot(ledgerId), 'detail'] as const,
+  ledgerDetail: (ledgerId: string, recordId: string) => [
+    ...recordKeys.ledgerDetails(ledgerId),
+    recordId,
+  ] as const,
+  ledgerBills: (ledgerId: string) => [...recordKeys.ledgerRoot(ledgerId), 'bill'] as const,
+  ledgerBill: (ledgerId: string, params: GetRecordBillApiParams) => [
+    ...recordKeys.ledgerBills(ledgerId),
+    params,
+  ] as const,
   details: () => [...recordKeys.all, 'detail'] as const,
   detail: (params: { id: string }) => [...recordKeys.details(), params.id] as const,
   bills: () => [...recordKeys.all, 'bill'] as const,

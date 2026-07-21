@@ -12,9 +12,22 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Toast } from 'antd-mobile';
 import { useEffect, useMemo, useRef } from 'react';
 import { chartKeys } from '@/entities/chart';
-import { isSuccessApi } from '@/shared/api';
+import { assertSuccessApi, isSuccessApi } from '@/shared/api';
 import { i18n } from '@/shared/i18n';
-import { deleteRecordApi, getRecordApi, getRecordBillApi, getRecordByIdApi, postRecordApi, putRecordApi } from './api';
+import {
+  deleteLedgerRecordApi,
+  deleteRecordApi,
+  getLedgerRecordBillApi,
+  getLedgerRecordByIdApi,
+  getLedgerRecordsApi,
+  getRecordApi,
+  getRecordBillApi,
+  getRecordByIdApi,
+  postLedgerRecordApi,
+  postRecordApi,
+  putLedgerRecordApi,
+  putRecordApi,
+} from './api';
 import { recordKeys } from './keys';
 
 const emptyRecordInfo: GetRecordApiResponseData = {
@@ -58,6 +71,90 @@ export function useGetRecordQuery(options: {
     data,
     ...rest,
   };
+}
+
+export function useLedgerRecordsQuery(options: {
+  params: { ledgerId: string; filters?: GetRecordApiParams };
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<GetRecordApiResponseData>>, 'queryFn' | 'queryKey'>;
+}) {
+  const { ledgerId, filters } = options.params;
+  const { data: response, ...rest } = useQuery<SuccessResponse<GetRecordApiResponseData>>({
+    queryFn: async () => assertSuccessApi(await getLedgerRecordsApi(ledgerId, filters)),
+    queryKey: recordKeys.ledgerList(ledgerId, filters),
+    ...options.queryOptions,
+  });
+  return {
+    response,
+    data: isSuccessApi(response) ? response.data : emptyRecordInfo,
+    ...rest,
+  };
+}
+
+export function useLedgerRecordQuery(options: {
+  params: { ledgerId: string; recordId: string };
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<RecordEntry>>, 'queryFn' | 'queryKey'>;
+}) {
+  const { ledgerId, recordId } = options.params;
+  const { data: response, ...rest } = useQuery<SuccessResponse<RecordEntry>>({
+    queryFn: async () => assertSuccessApi(await getLedgerRecordByIdApi(ledgerId, recordId)),
+    queryKey: recordKeys.ledgerDetail(ledgerId, recordId),
+    ...options.queryOptions,
+  });
+  return { response, data: response?.data, ...rest };
+}
+
+export function useLedgerRecordBillQuery(options: {
+  params: { ledgerId: string; filters: GetRecordBillApiParams };
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<GetRecordBillApiResponseData>>, 'queryFn' | 'queryKey'>;
+}) {
+  const { ledgerId, filters } = options.params;
+  const { data: response, ...rest } = useQuery<SuccessResponse<GetRecordBillApiResponseData>>({
+    queryFn: async () => assertSuccessApi(await getLedgerRecordBillApi(ledgerId, filters)),
+    queryKey: recordKeys.ledgerBill(ledgerId, filters),
+    ...options.queryOptions,
+  });
+  return { response, data: response?.data ?? emptyBill, ...rest };
+}
+
+function useLedgerRecordMutation<TVariables extends { ledgerId: string }>(
+  mutationFn: (variables: TVariables) => Promise<SuccessResponse<unknown>>,
+) {
+  const queryClient = useQueryClient();
+  const { mutateAsync, ...rest } = useMutation({
+    mutationFn,
+    onSuccess: async (_response, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: recordKeys.ledgerRoot(variables.ledgerId) }),
+        queryClient.invalidateQueries({ queryKey: chartKeys.ledgerRoot(variables.ledgerId) }),
+      ]);
+    },
+    onError: async (error, variables) => {
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409) {
+        await queryClient.invalidateQueries({ queryKey: recordKeys.ledgerRoot(variables.ledgerId) });
+      }
+    },
+  });
+  return [mutateAsync, rest] as const;
+}
+
+export function useCreateLedgerRecordMutation() {
+  return useLedgerRecordMutation((options: {
+    ledgerId: string;
+    data: Parameters<typeof postLedgerRecordApi>[1];
+  }) => postLedgerRecordApi(options.ledgerId, options.data).then(assertSuccessApi));
+}
+
+export function useUpdateLedgerRecordMutation() {
+  return useLedgerRecordMutation((options: {
+    ledgerId: string;
+    recordId: string;
+    data: Parameters<typeof putLedgerRecordApi>[2];
+  }) => putLedgerRecordApi(options.ledgerId, options.recordId, options.data).then(assertSuccessApi));
+}
+
+export function useDeleteLedgerRecordMutation() {
+  return useLedgerRecordMutation((options: { ledgerId: string; recordId: string; version: number }) =>
+    deleteLedgerRecordApi(options.ledgerId, options.recordId, options.version).then(assertSuccessApi));
 }
 
 export function useGetRecordByIdQuery(options?: {
@@ -185,11 +282,11 @@ export function usePutRecordMutation() {
 export function useDeleteRecordMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
-    mutationFn: deleteRecordApi,
-    onSuccess: async (_response, id) => {
+    mutationFn: (params: { id: string; version: number }) => deleteRecordApi(params.id, params.version),
+    onSuccess: async (_response, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: recordKeys.lists() }),
-        queryClient.invalidateQueries({ queryKey: recordKeys.detail({ id }) }),
+        queryClient.invalidateQueries({ queryKey: recordKeys.detail({ id: variables.id }) }),
         queryClient.invalidateQueries({ queryKey: recordKeys.bills() }),
         queryClient.invalidateQueries({ queryKey: chartKeys.all }),
       ]);

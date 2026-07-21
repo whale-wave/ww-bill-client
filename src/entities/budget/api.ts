@@ -17,6 +17,10 @@ export interface GetBudgetInfoApiParams {
   type: BudgetEntityType;
 }
 
+export interface GetLedgerBudgetInfoApiParams extends GetBudgetInfoApiParams {
+  periodStart?: string;
+}
+
 export interface BudgetInfo {
   id: string;
   category?: CategoryEntity;
@@ -35,6 +39,16 @@ export function getBudgetInfoApi(params: GetBudgetInfoApiParams) {
   return request.get<unknown, SuccessResponse<GetBudgetInfoApiResponseData>>(`/budget/info`, {
     params,
   });
+}
+
+export function getLedgerBudgetInfoApi(
+  ledgerId: string,
+  params: GetLedgerBudgetInfoApiParams,
+) {
+  return request.get<unknown, SuccessResponse<GetBudgetInfoApiResponseData>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/budgets/info`,
+    { params },
+  );
 }
 
 export interface BudgetEntity {
@@ -86,4 +100,73 @@ export interface PatchBudgetAmountByBudgetIdApiData {
 
 export function patchBudgetAmountByBudgetIdApi(budgetId: string | number, data: PatchBudgetAmountByBudgetIdApiData) {
   return request.patch<unknown, SuccessResponse<unknown>>(`/budget/${budgetId}/amount`, data);
+}
+
+export interface LedgerBudgetPeriodData {
+  type: BudgetEntityType;
+  periodStart?: string;
+}
+
+export interface PostLedgerBudgetSummaryApiData extends LedgerBudgetPeriodData {
+  amount: string;
+}
+
+export function postLedgerBudgetSummaryApi(
+  ledgerId: string,
+  data: PostLedgerBudgetSummaryApiData,
+) {
+  return request.post<unknown, SuccessResponse<unknown>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/budgets/summary`,
+    data,
+  );
+}
+
+export interface PostLedgerBudgetCategoryApiData extends PostLedgerBudgetSummaryApiData {
+  category: number;
+}
+
+export function postLedgerBudgetCategoryApi(
+  ledgerId: string,
+  data: PostLedgerBudgetCategoryApiData,
+) {
+  return request.post<unknown, SuccessResponse<unknown>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/budgets/category`,
+    data,
+  );
+}
+
+export function postLedgerBudgetClearApi(
+  ledgerId: string,
+  data: LedgerBudgetPeriodData,
+) {
+  return request.post<unknown, SuccessResponse<unknown>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/budgets/clear`,
+    data,
+  );
+}
+
+export function deleteLedgerBudgetCategoryApi(
+  ledgerId: string,
+  budgetId: string,
+  data: LedgerBudgetPeriodData,
+) {
+  return request.delete<unknown, SuccessResponse<unknown>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/budgets/category/${encodeURIComponent(budgetId)}`,
+    { data },
+  );
+}
+
+export interface PatchLedgerBudgetAmountApiData extends LedgerBudgetPeriodData {
+  amount: string;
+}
+
+export function patchLedgerBudgetAmountApi(
+  ledgerId: string,
+  budgetId: string,
+  data: PatchLedgerBudgetAmountApiData,
+) {
+  return request.patch<unknown, SuccessResponse<unknown>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/budgets/${encodeURIComponent(budgetId)}/amount`,
+    data,
+  );
 }

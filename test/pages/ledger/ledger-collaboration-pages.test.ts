@@ -1,0 +1,457 @@
+import type { ReactNode } from 'react';
+import { act, createElement } from 'react';
+import { createRoot } from 'react-dom/client';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  LedgerCapability,
+  LedgerKind,
+  LedgerRole,
+  LedgerStatus,
+} from '@/entities/ledger';
+import LedgerInvitePage from '@/pages/ledger-invite/LedgerInvitePage';
+import LedgerJoinRequestDetailPage from '@/pages/ledger-join-request-detail/LedgerJoinRequestDetailPage';
+import LedgerJoinPage from '@/pages/ledger-join/LedgerJoinPage';
+import LedgerMemberDetailPage from '@/pages/ledger-member-detail/LedgerMemberDetailPage';
+
+const hooks = vi.hoisted(() => ({
+  createInvitation: vi.fn(),
+  decideJoinRequest: vi.fn(),
+  removeMember: vi.fn(),
+  revokeInvitation: vi.fn(),
+  submitJoinRequest: vi.fn(),
+  transferOwnership: vi.fn(),
+  updateMember: vi.fn(),
+  useCreateInvitationMutation: vi.fn(),
+  useDecideJoinRequestMutation: vi.fn(),
+  useLedgerJoinRequestsQuery: vi.fn(),
+  useLedgerMembersQuery: vi.fn(),
+  useLedgerQuery: vi.fn(),
+  useRemoveLedgerMemberMutation: vi.fn(),
+  useRevokeInvitationMutation: vi.fn(),
+  useSubmitJoinRequestMutation: vi.fn(),
+  useTransferLedgerOwnershipMutation: vi.fn(),
+  useUpdateLedgerMemberMutation: vi.fn(),
+}));
+
+const dialogConfirm = vi.hoisted(() => vi.fn());
+const toastShow = vi.hoisted(() => vi.fn());
+
+vi.mock('@/entities/ledger', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/entities/ledger')>();
+  return {
+    ...actual,
+    useCreateInvitationMutation: hooks.useCreateInvitationMutation,
+    useDecideJoinRequestMutation: hooks.useDecideJoinRequestMutation,
+    useLedgerJoinRequestsQuery: hooks.useLedgerJoinRequestsQuery,
+    useLedgerMembersQuery: hooks.useLedgerMembersQuery,
+    useLedgerQuery: hooks.useLedgerQuery,
+    useRemoveLedgerMemberMutation: hooks.useRemoveLedgerMemberMutation,
+    useRevokeInvitationMutation: hooks.useRevokeInvitationMutation,
+    useSubmitJoinRequestMutation: hooks.useSubmitJoinRequestMutation,
+    useTransferLedgerOwnershipMutation: hooks.useTransferLedgerOwnershipMutation,
+    useUpdateLedgerMemberMutation: hooks.useUpdateLedgerMemberMutation,
+  };
+});
+
+vi.mock('@/entities/user', () => ({
+  useGetUserUserInfoQuery: () => ({ data: { id: 1 } }),
+}));
+
+vi.mock('antd-mobile', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('antd-mobile')>();
+  return { ...actual, Dialog: { confirm: dialogConfirm }, Toast: { show: toastShow } };
+});
+
+vi.mock('@/shared/i18n', () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
+
+const ledger = {
+  capabilities: [LedgerCapability.MEMBER_INVITE],
+  createdAt: '2026-07-21T00:00:00.000Z',
+  createdByUserId: 1,
+  iconKey: 'custom',
+  id: 'ledger/a',
+  kind: LedgerKind.CUSTOM,
+  monthStartDay: 1,
+  myRole: LedgerRole.OWNER,
+  name: '共享账本',
+  ownerUserId: 1,
+  status: LedgerStatus.ACTIVE,
+  themeKey: 'cyan',
+  updatedAt: '2026-07-21T00:00:00.000Z',
+  version: 1,
+};
+
+let cleanup: (() => void) | undefined;
+
+function render(path: string, routePath: string, element: ReactNode) {
+  const container = document.createElement('div');
+  const root = createRoot(container);
+  const router = createMemoryRouter([{ path: routePath, element }], {
+    initialEntries: [path],
+  });
+  act(() => root.render(createElement(RouterProvider, { router })));
+  cleanup = () => act(() => root.unmount());
+  return container;
+}
+
+beforeEach(() => {
+  Object.values(hooks).forEach(mock => mock.mockReset());
+  dialogConfirm.mockReset();
+  dialogConfirm.mockResolvedValue(true);
+  toastShow.mockReset();
+  hooks.useLedgerQuery.mockReturnValue({
+    data: ledger,
+    isError: false,
+    isLoading: false,
+    refetch: vi.fn(),
+  });
+  hooks.useCreateInvitationMutation.mockReturnValue([
+    hooks.createInvitation,
+    { isLoading: false },
+  ]);
+  hooks.useRevokeInvitationMutation.mockReturnValue([
+    hooks.revokeInvitation,
+    { isLoading: false },
+  ]);
+  hooks.useSubmitJoinRequestMutation.mockReturnValue([
+    hooks.submitJoinRequest,
+    { isLoading: false },
+  ]);
+  hooks.useDecideJoinRequestMutation.mockReturnValue([
+    hooks.decideJoinRequest,
+    { isLoading: false },
+  ]);
+  hooks.useUpdateLedgerMemberMutation.mockReturnValue([
+    hooks.updateMember,
+    { isLoading: false },
+  ]);
+  hooks.useRemoveLedgerMemberMutation.mockReturnValue([
+    hooks.removeMember,
+    { isLoading: false },
+  ]);
+  hooks.useTransferLedgerOwnershipMutation.mockReturnValue([
+    hooks.transferOwnership,
+    { isLoading: false },
+  ]);
+  hooks.useLedgerJoinRequestsQuery.mockReturnValue({
+    data: [],
+    isError: false,
+    isLoading: false,
+    refetch: vi.fn(),
+  });
+  hooks.useLedgerMembersQuery.mockReturnValue({
+    data: [],
+    isError: false,
+    isLoading: false,
+    refetch: vi.fn(),
+  });
+});
+
+describe('ledger reviewer and member editing pages', () => {
+  it('approves the URL-scoped request with an assignable role and optimistic version', async () => {
+    hooks.useLedgerQuery.mockReturnValue({
+      data: {
+        ...ledger,
+        capabilities: [LedgerCapability.MEMBER_REVIEW],
+      },
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.useLedgerJoinRequestsQuery.mockReturnValue({
+      data: [{
+        applicant: { id: 2, name: '小勇' },
+        applicantRemark: '我是小勇',
+        createdAt: '2026-07-21T00:00:00.000Z',
+        expiresAt: '2026-07-22T00:00:00.000Z',
+        id: 'request/a',
+        ledger: { iconKey: 'custom', id: 'ledger/a', name: '共享账本', themeKey: 'cyan' },
+        status: 'PENDING',
+        updatedAt: '2026-07-21T00:00:00.000Z',
+        version: 4,
+      }],
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.decideJoinRequest.mockResolvedValue({ data: {} });
+    const container = render(
+      '/ledgers/ledger%2Fa/join-requests/request%2Fa',
+      '/ledgers/:ledgerId/join-requests/:requestId',
+      createElement(LedgerJoinRequestDetailPage),
+    );
+    await act(async () => {
+      [...container.querySelectorAll('button')]
+        .find(button => button.textContent === 'requestDetail.approve')
+        ?.click();
+      await Promise.resolve();
+    });
+
+    expect(hooks.decideJoinRequest).toHaveBeenCalledWith({
+      data: {
+        assignedRole: LedgerRole.ADMIN,
+        decision: 'APPROVED',
+        version: 4,
+      },
+      ledgerId: 'ledger/a',
+      requestId: 'request/a',
+    });
+  });
+
+  it('updates a member nickname with the member URL and current version', async () => {
+    hooks.useLedgerQuery.mockReturnValue({
+      data: {
+        ...ledger,
+        capabilities: [LedgerCapability.MEMBER_READ, LedgerCapability.MEMBER_MANAGE],
+      },
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.useLedgerMembersQuery.mockReturnValue({
+      data: [{
+        capabilities: [],
+        id: 'member/a',
+        joinedAt: '2026-07-21T00:00:00.000Z',
+        nickname: '小勇',
+        role: LedgerRole.BOOKKEEPER,
+        status: 'ACTIVE',
+        user: { id: 2, name: '小勇' },
+        version: 3,
+      }],
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.updateMember.mockResolvedValue({ data: {} });
+    const container = render(
+      '/ledgers/ledger%2Fa/members/member%2Fa',
+      '/ledgers/:ledgerId/members/:memberId',
+      createElement(LedgerMemberDetailPage),
+    );
+    const input = container.querySelector<HTMLInputElement>('#member-nickname');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    await act(async () => {
+      setter?.call(input, '小勇同学');
+      input?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => {
+      container.querySelector('form')?.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
+      await Promise.resolve();
+    });
+
+    expect(hooks.updateMember).toHaveBeenCalledWith({
+      data: { nickname: '小勇同学', version: 3 },
+      ledgerId: 'ledger/a',
+      memberId: 'member/a',
+    });
+  });
+
+  it('does not expose a self-nickname write while the ledger is suspended', () => {
+    hooks.useLedgerQuery.mockReturnValue({
+      data: {
+        ...ledger,
+        capabilities: [LedgerCapability.MEMBER_READ],
+        status: LedgerStatus.SUSPENDED,
+      },
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.useLedgerMembersQuery.mockReturnValue({
+      data: [{
+        capabilities: [],
+        id: 'member/me',
+        joinedAt: '2026-07-21T00:00:00.000Z',
+        nickname: '我',
+        role: LedgerRole.BOOKKEEPER,
+        status: 'ACTIVE',
+        user: { id: 1, name: '我' },
+        version: 3,
+      }],
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+
+    const container = render(
+      '/ledgers/ledger%2Fa/members/member%2Fme',
+      '/ledgers/:ledgerId/members/:memberId',
+      createElement(LedgerMemberDetailPage),
+    );
+
+    expect(container.querySelector<HTMLInputElement>('#member-nickname')?.disabled).toBe(true);
+    expect(container.querySelector<HTMLButtonElement>('button[type="submit"]')).toBeNull();
+  });
+
+  it('removes a manageable member with the current version', async () => {
+    hooks.useLedgerQuery.mockReturnValue({
+      data: {
+        ...ledger,
+        capabilities: [LedgerCapability.MEMBER_READ, LedgerCapability.MEMBER_MANAGE],
+      },
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.useLedgerMembersQuery.mockReturnValue({
+      data: [{
+        capabilities: [],
+        id: 'member/a',
+        joinedAt: '2026-07-21T00:00:00.000Z',
+        nickname: '小勇',
+        role: LedgerRole.BOOKKEEPER,
+        status: 'ACTIVE',
+        user: { id: 2, name: '小勇' },
+        version: 4,
+      }],
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.removeMember.mockResolvedValue({ data: {} });
+    const container = render(
+      '/ledgers/ledger%2Fa/members/member%2Fa',
+      '/ledgers/:ledgerId/members/:memberId',
+      createElement(LedgerMemberDetailPage),
+    );
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-member-remove"]')?.click());
+
+    expect(hooks.removeMember).toHaveBeenCalledWith({ ledgerId: 'ledger/a', memberId: 'member/a', version: 4 });
+  });
+
+  it('transfers ownership using both member versions', async () => {
+    hooks.useLedgerQuery.mockReturnValue({
+      data: {
+        ...ledger,
+        capabilities: [LedgerCapability.MEMBER_READ, LedgerCapability.OWNERSHIP_TRANSFER],
+      },
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.useLedgerMembersQuery.mockReturnValue({
+      data: [
+        {
+          capabilities: [],
+          id: 'member/owner',
+          joinedAt: '2026-07-21T00:00:00.000Z',
+          nickname: '我',
+          role: LedgerRole.OWNER,
+          status: 'ACTIVE',
+          user: { id: 1, name: '我' },
+          version: 7,
+        },
+        {
+          capabilities: [],
+          id: 'member/a',
+          joinedAt: '2026-07-21T00:00:00.000Z',
+          nickname: '小勇',
+          role: LedgerRole.ADMIN,
+          status: 'ACTIVE',
+          user: { id: 2, name: '小勇' },
+          version: 4,
+        },
+      ],
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.transferOwnership.mockResolvedValue({ data: {} });
+    const container = render(
+      '/ledgers/ledger%2Fa/members/member%2Fa',
+      '/ledgers/:ledgerId/members/:memberId',
+      createElement(LedgerMemberDetailPage),
+    );
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-ownership-transfer"]')?.click());
+
+    expect(hooks.transferOwnership).toHaveBeenCalledWith({
+      data: { ownerVersion: 7, targetMemberId: 'member/a', targetVersion: 4 },
+      ledgerId: 'ledger/a',
+    });
+  });
+});
+
+afterEach(() => {
+  cleanup?.();
+  cleanup = undefined;
+});
+
+describe('ledger invitation page', () => {
+  it('requires explicit sharing consent and prevents duplicate generation', async () => {
+    let resolveInvite: ((value: unknown) => void) | undefined;
+    hooks.createInvitation.mockReturnValue(new Promise(resolve => resolveInvite = resolve));
+    const container = render(
+      '/ledgers/ledger%2Fa/invites',
+      '/ledgers/:ledgerId/invites',
+      createElement(LedgerInvitePage),
+    );
+    const generate = container.querySelector<HTMLButtonElement>('[data-testid="generate-invitation"]');
+    expect(generate?.disabled).toBe(true);
+
+    await act(async () => {
+      container.querySelector<HTMLElement>('[data-testid="invite-consent"]')?.click();
+    });
+    expect(generate?.disabled).toBe(false);
+
+    await act(async () => {
+      generate?.click();
+      generate?.click();
+      await Promise.resolve();
+    });
+    expect(hooks.createInvitation).toHaveBeenCalledOnce();
+    expect(hooks.createInvitation).toHaveBeenCalledWith({
+      data: expect.objectContaining({ sharingConsentConfirmed: true }),
+      ledgerId: 'ledger/a',
+    });
+
+    await act(async () => resolveInvite?.({
+      data: {
+        code: 'ABC123',
+        expiresAt: '2099-01-01T00:00:00.000Z',
+        id: 'invite-1',
+        ledgerId: 'ledger/a',
+        status: 'ACTIVE',
+        version: 1,
+      },
+      message: 'ok',
+      statusCode: 201,
+    }));
+    expect(container.textContent).toContain('ABC123');
+  });
+});
+
+describe('ledger join page', () => {
+  it('submits normalized code and trimmed 1-30 character remark', async () => {
+    hooks.submitJoinRequest.mockResolvedValue({ data: { id: 'request-1' } });
+    const container = render('/ledgers/join', '/ledgers/join', createElement(LedgerJoinPage));
+    const fields = container.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea');
+    const inputSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    const textareaSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+    await act(async () => {
+      inputSetter?.call(fields[0], ' ab/c ');
+      fields[0].dispatchEvent(new Event('input', { bubbles: true }));
+      textareaSetter?.call(fields[1], ' 我是小勇 ');
+      fields[1].dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => {
+      container.querySelector<HTMLFormElement>('form')?.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
+      await Promise.resolve();
+    });
+
+    expect(hooks.submitJoinRequest).toHaveBeenCalledWith({
+      code: 'AB/C',
+      data: expect.objectContaining({ remark: '我是小勇' }),
+    });
+    expect(container.textContent).toContain('join.submittedTitle');
+  });
+});

@@ -1,0 +1,411 @@
+{
+  "common": {
+    "loading": "Loading",
+    "loadError": "Unable to load",
+    "loadErrorDescription": "Check your connection and try again.",
+    "retry": "Try Again",
+    "invalidLedger": "Invalid ledger address",
+    "invalidLedgerDescription": "This link does not include a valid ledger identifier.",
+    "noPermission": "Permission required",
+    "noPermissionDescription": "Your ledger role does not allow this action.",
+    "unknownUser": "Unknown member",
+    "done": "Done",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "center": {
+    "title": "My Ledgers",
+    "systemSection": "Default Ledger",
+    "customSection": "Created & Shared Ledgers",
+    "create": "Create Ledger",
+    "join": "Join a Ledger",
+    "applications": "My Join Requests",
+    "loading": "Loading ledgers",
+    "loadError": "Unable to load ledgers",
+    "loadErrorDescription": "Check your connection and try again.",
+    "retry": "Try Again",
+    "empty": "No ledgers yet",
+    "emptyDescription": "Create a ledger to organize finances by scenario.",
+    "customEmpty": "No created or joined ledgers yet",
+    "template": "Template: {{template}}",
+    "theme": "Theme: {{theme}}"
+  },
+  "templates": {
+    "title": "Choose a Ledger Template",
+    "subtitle": "Choose a scenario. You can change the name and month start day next.",
+    "loading": "Loading templates",
+    "loadError": "Unable to load templates",
+    "loadErrorDescription": "Ledger templates are unavailable. Try again later.",
+    "retry": "Try Again",
+    "empty": "No templates available",
+    "emptyDescription": "The template service did not return any creatable ledger types."
+  },
+  "create": {
+    "title": "Create Ledger",
+    "selectedTemplate": "Selected Template",
+    "templateVersion": "Template version: v{{version}}",
+    "name": "Ledger Name",
+    "namePlaceholder": "Enter a ledger name",
+    "monthStartDay": "Month Starts On",
+    "monthStartDayDescription": "Used for monthly bills and budgets. Choose a day from 1 to 28.",
+    "monthStartDayValue": "Day {{day}} of each month",
+    "submit": "Create Ledger",
+    "submitting": "Creating",
+    "success": "Ledger created",
+    "loadError": "Unable to load the template",
+    "loadErrorDescription": "We could not verify the selected template. Try again.",
+    "retry": "Try Again",
+    "invalidTemplate": "Choose a ledger template first",
+    "invalidTemplateDescription": "Select a scenario from the template list before creating a ledger.",
+    "chooseTemplate": "Choose Template",
+    "failed": "Unable to create the ledger. Try again.",
+    "validation": {
+      "nameRequired": "Enter a ledger name",
+      "monthStartDayRange": "The month start day must be an integer from 1 to 28"
+    }
+  },
+  "detail": {
+    "title": "Ledger Details",
+    "loading": "Loading ledger",
+    "loadError": "Unable to load the ledger",
+    "loadErrorDescription": "Return to the ledger center and try again.",
+    "invalidLedger": "Invalid ledger address",
+    "invalidLedgerDescription": "This link does not contain a valid ledger identifier.",
+    "basicInfo": "Basic Information",
+    "template": "Ledger Template",
+    "theme": "Theme Key",
+    "role": "My Role",
+    "status": "Ledger Status",
+    "monthStartDay": "Month Start Day",
+    "monthStartDayValue": "Day {{day}}",
+    "modules": "Ledger Modules",
+    "comingSoon": "Coming Soon",
+    "module": {
+      "records": "Records",
+      "budget": "Budgets",
+      "charts": "Charts",
+      "settings": "Ledger Settings"
+    },
+    "collaboration": "Collaboration",
+    "collaborationItem": {
+      "members": "Ledger Members",
+      "invite": "Invite Members",
+      "requests": "Review Requests"
+    }
+  },
+  "invite": {
+    "title": "Invite Ledger Members",
+    "generateTitle": "Create a Ledger Invitation",
+    "description": "The code is valid for 24 hours. An administrator must still approve each request.",
+    "consent": "I understand and agree to share this ledger's data with approved members",
+    "generate": "Generate Code",
+    "generated": "Invitation generated",
+    "generateFailed": "Unable to generate an invitation. Try again.",
+    "codeTitle": "Ledger Invitation Code",
+    "expiresIn": "Expires in {{countdown}}",
+    "copy": "Copy",
+    "copied": "Invitation code copied",
+    "copyFailed": "Copy failed. Copy the code manually.",
+    "wechat": "WeChat",
+    "wechatPlaceholder": "WeChat sharing will be enabled in the mini-program environment.",
+    "regenerate": "Generate a New Code",
+    "revoke": "Revoke Invitation",
+    "revoked": "Invitation revoked",
+    "revokeFailed": "Unable to revoke the invitation. Try again."
+  },
+  "join": {
+    "title": "Join a Ledger",
+    "code": "Invitation Code",
+    "codePlaceholder": "Enter the invitation code",
+    "remark": "Request Message",
+    "remarkPlaceholder": "Tell the owner who you are, up to 30 characters",
+    "submit": "Send Request",
+    "submitFailed": "Unable to send the join request. Try again.",
+    "submittedTitle": "Join Request Sent",
+    "submittedDescription": "The request is valid for 24 hours. The ledger appears after approval.",
+    "validation": {
+      "codeRequired": "Enter an invitation code",
+      "remarkRequired": "Enter a request message",
+      "remarkTooLong": "The request message cannot exceed 30 characters",
+      "invalid": "Check the entered information"
+    }
+  },
+  "preview": {
+    "title": "Confirm Ledger Request",
+    "loading": "Validating invitation",
+    "loadError": "Invitation unavailable",
+    "loadErrorDescription": "The invitation may be expired, revoked, or already used.",
+    "invalid": "Invalid invitation",
+    "invalidDescription": "This link does not contain an invitation code.",
+    "expiresAt": "Invitation expires at {{date}}",
+    "confirm": "Request to Join"
+  },
+  "applications": {
+    "title": "My Join Requests",
+    "loading": "Loading requests",
+    "loadError": "Unable to load requests",
+    "loadErrorDescription": "Join request history is temporarily unavailable.",
+    "empty": "No join requests",
+    "emptyDescription": "Enter an invitation code to request access to another ledger."
+  },
+  "members": {
+    "title": "Ledger Members ({{count}})",
+    "loading": "Loading members",
+    "loadError": "Unable to load members",
+    "loadErrorDescription": "Ledger members are temporarily unavailable.",
+    "empty": "No members",
+    "emptyDescription": "This ledger has no active members to display.",
+    "noNickname": "No ledger nickname"
+  },
+  "memberDetail": {
+    "title": "Member Details",
+    "invalid": "Invalid member address",
+    "invalidDescription": "This link is missing a ledger or member identifier.",
+    "notFound": "Member not found",
+    "notFoundDescription": "The member may have left or been removed.",
+    "joinedAt": "Joined",
+    "nickname": "Ledger Nickname",
+    "role": "Member Role",
+    "capabilityHint": "This role has {{count}} ledger permissions. Permissions come from the server role policy.",
+    "saved": "Member updated",
+    "saveFailed": "Unable to update the member. Try again.",
+    "remove": "Remove Member",
+    "removeConfirmTitle": "Remove this member?",
+    "removeConfirmDescription": "This member will immediately lose access to the ledger.",
+    "removeConfirmAction": "Remove Member",
+    "removed": "Member removed",
+    "removeFailed": "Unable to remove the member; their data may have changed",
+    "transferOwnership": "Transfer Ownership",
+    "transferConfirmTitle": "Transfer ledger ownership?",
+    "transferConfirmDescription": "The selected member will become the owner and you will lose owner privileges.",
+    "transferConfirmAction": "Transfer Ownership",
+    "transferred": "Ledger ownership transferred",
+    "transferFailed": "Unable to transfer ownership; member data may have changed",
+    "validation": {
+      "nicknameTooLong": "The ledger nickname cannot exceed 30 characters",
+      "noChanges": "There are no changes to save",
+      "invalidRole": "A member cannot be made owner directly",
+      "noPermissionChanges": "There are no editable changes to save",
+      "invalid": "Check the entered information"
+    }
+  },
+  "requests": {
+    "title": "Review Join Requests",
+    "loading": "Loading requests",
+    "loadError": "Unable to load requests",
+    "loadErrorDescription": "Ledger join requests are temporarily unavailable.",
+    "empty": "No join requests",
+    "emptyDescription": "New join requests will appear here.",
+    "pending": "Pending",
+    "history": "History"
+  },
+  "requestDetail": {
+    "title": "Review Request",
+    "invalid": "Invalid request address",
+    "invalidDescription": "This link is missing a ledger or request identifier.",
+    "notFound": "Request not found",
+    "notFoundDescription": "The request may have expired or belong to another ledger.",
+    "remark": "Request Message",
+    "createdAt": "Requested at {{date}}",
+    "assignedRole": "Role After Joining",
+    "decisionRemark": "Review Note (Optional)",
+    "decisionRemarkPlaceholder": "Up to 500 characters",
+    "roleRequired": "Choose a role for the new member",
+    "approve": "Approve",
+    "reject": "Reject",
+    "ignore": "Ignore",
+    "processed": "Request processed",
+    "processFailed": "Unable to process the request. The data may have changed; try again.",
+    "alreadyProcessed": "This request has already been processed.",
+    "resultRole": "Assigned role: {{role}}"
+  },
+  "joinRequestStatus": {
+    "PENDING": "Pending",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "IGNORED": "Ignored",
+    "CANCELLED": "Cancelled",
+    "EXPIRED": "Expired"
+  },
+  "memberStatus": {
+    "ACTIVE": "Active",
+    "LEFT": "Left",
+    "REMOVED": "Removed"
+  },
+  "records": {
+    "title": "Ledger Records",
+    "create": "New Record",
+    "detail": "Record Details",
+    "edit": "Edit Record",
+    "delete": "Delete",
+    "search": "Search Records",
+    "calendar": "Calendar",
+    "amount": "Amount",
+    "remark": "Note",
+    "category": "Category",
+    "date": "Date",
+    "tags": "Tags",
+    "saved": "Record saved",
+    "saveFailed": "Unable to save the record",
+    "deleteFailed": "Delete failed; the record may have changed",
+    "conflict": "This record was changed by another member. Latest data has been refreshed.",
+    "notFound": "Record not found",
+    "familyPolicy": "Family visibility and totals",
+    "familyPolicyHint": "Choose whether family can see it, count it, or keep it private",
+    "familyPolicyStates": {
+      "SHARED_COUNTED": "Family visible · Counted",
+      "SHARED_UNCOUNTED": "Family visible · Not counted",
+      "PRIVATE": "Only me"
+    },
+    "summary": "Income {{income}} · Expense {{expense}}",
+    "type": { "add": "Income", "sub": "Expense" }
+  },
+  "budget": {
+    "title": "Budget",
+    "remaining": "Remaining This Month",
+    "amount": "Budget Amount",
+    "saveFailed": "Unable to save the budget"
+  },
+  "charts": {
+    "title": "Charts",
+    "total": "Total",
+    "netNoRanking": "Net combines income and expenses, so no category ranking is shown.",
+    "metric": { "expense": "Expense", "income": "Income", "net": "Net" },
+    "period": { "week": "Week", "month": "Month", "year": "Year" },
+    "display": { "pie": "Share", "line": "Trend" }
+  },
+  "settings": {
+    "title": "Ledger Settings",
+    "basic": "Basic Information",
+    "name": "Ledger Name",
+    "monthStartDay": "Month Start Day",
+    "icon": "Ledger Icon",
+    "theme": "Theme Color",
+    "iconOptions": {
+      "wallet": "Wallet",
+      "briefcase": "Briefcase",
+      "receipt": "Receipt",
+      "building": "Company",
+      "users": "Team",
+      "store": "Store"
+    },
+    "themeOptions": {
+      "blue": "Blue",
+      "green": "Green",
+      "amber": "Amber",
+      "orange": "Orange",
+      "indigo": "Indigo",
+      "pink": "Pink"
+    },
+    "preferences": "My Preferences",
+    "hideTotal": "Hide Total Amount",
+    "dailySummary": "Show Daily Summary",
+    "defaultRecordType": "Default Record Type",
+    "defaultChartPeriod": "Default Chart Period",
+    "defaultChartMetric": "Default Chart Metric",
+    "defaultChartDisplay": "Default Chart Style",
+    "expense": "Expense",
+    "income": "Income",
+    "net": "Net",
+    "management": "Management",
+    "categories": "Categories",
+    "tags": "Tags",
+    "members": "Members",
+    "recovery": "Recently Deleted",
+    "transfer": "Move Between Ledgers",
+    "export": "Export Data",
+    "archive": "Archive Ledger Permanently",
+    "archiveConfirmTitle": "Archive this ledger permanently?",
+    "archiveConfirmDescription": "All members will lose access and pending invitations and requests will be closed. Data remains available for administrative audit, and users cannot undo this action.",
+    "archiveConfirmAction": "Archive Ledger",
+    "leave": "Leave Ledger",
+    "leaveConfirmTitle": "Leave this ledger?",
+    "leaveConfirmDescription": "You will no longer be able to view or add records in this ledger.",
+    "leaveConfirmAction": "Leave Ledger",
+    "leaveFailed": "Unable to leave; member data may have changed",
+    "saved": "Saved",
+    "saveFailed": "Save failed; the data may have changed",
+    "archiveFailed": "Archive failed; the data may have changed"
+  },
+  "categories": { "title": "Categories", "name": "Category Name", "create": "Add", "delete": "Delete", "saveFailed": "Unable to save category" },
+  "tags": { "title": "Tags", "name": "Tag Name", "create": "Add", "archive": "Archive", "saveFailed": "Unable to save tag" },
+  "recovery": { "title": "Recently Deleted", "restore": "Restore", "failed": "Restore failed; the data may have changed" },
+  "transfer": {
+    "title": "Move Between Ledgers",
+    "target": "Target Ledger",
+    "chooseTarget": "Choose a target ledger",
+    "chooseRecords": "Choose records to move",
+    "selectedCount": "{{count}} selected",
+    "noRecords": "This ledger has no records that can be moved",
+    "maximumRecords": "You can move up to 100 records at a time",
+    "categoryMappings": "Category mappings",
+    "categoryMappingLabel": "Move {{name}} to",
+    "chooseCategory": "Choose a target category",
+    "tagHandling": "Tag handling",
+    "tagStrategy": {
+      "drop": "Remove tags",
+      "map": "Map to target tags"
+    },
+    "tagMappingLabel": "Move {{name}} to",
+    "chooseTag": "Choose a target tag",
+    "preview": "Preview Move",
+    "previewSummary": "{{ready}} ready, {{conflicts}} conflicts",
+    "previewFailed": "Unable to preview the move",
+    "execute": "Move Records",
+    "done": "Records moved",
+    "failed": "Unable to move records"
+  },
+  "export": {
+    "title": "Export Ledger",
+    "format": "File Format",
+    "create": "Create Export",
+    "download": "Download File",
+    "failed": "Unable to create export",
+    "status": { "PENDING": "Preparing", "COMPLETED": "Ready to download", "FAILED": "Export failed" }
+  },
+  "kind": {
+    "SYSTEM_DEFAULT": "System Default Ledger",
+    "CUSTOM": "Custom Ledger"
+  },
+  "role": {
+    "OWNER": "Owner",
+    "ADMIN": "Administrator",
+    "BOOKKEEPER": "Bookkeeper",
+    "VIEWER": "Viewer"
+  },
+  "status": {
+    "ACTIVE": "Active",
+    "SUSPENDED": "Suspended",
+    "ARCHIVED": "Archived"
+  },
+  "template": {
+    "system-default": {
+      "name": "Personal Default Ledger",
+      "description": "Your system-provided personal bookkeeping space"
+    },
+    "business": {
+      "name": "Business Ledger",
+      "description": "Track everyday business income and expenses"
+    },
+    "reimbursement": {
+      "name": "Reimbursement Ledger",
+      "description": "Organize expenses that need reimbursement"
+    },
+    "company": {
+      "name": "Company Ledger",
+      "description": "Manage company purchasing and shared expenses"
+    },
+    "team": {
+      "name": "Team Ledger",
+      "description": "Track team fees, events, and shared funds"
+    },
+    "micro-business": {
+      "name": "Micro-business Ledger",
+      "description": "Track reselling, purchasing, and customer payments"
+    },
+    "custom": {
+      "name": "Custom Ledger",
+      "description": "Create a ledger tailored to your own scenario"
+    }
+  }
+}

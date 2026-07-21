@@ -1,8 +1,9 @@
 import type { FC } from 'react';
 import { List, Toast } from 'antd-mobile';
-import { Info, PencilLine, Settings } from 'lucide-react';
+import { BookOpen, House, Info, PencilLine, Settings } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import pkg from '../../../../../package.json';
 
@@ -16,6 +17,20 @@ const BottomList: FC<BottomListProps> = () => {
   const navigate = useNavigate();
   const list = useMemo(() => {
     return [
+      {
+        title: t('ledger:center.title'),
+        prefix: <BookOpen className={iconClassName} size={18} strokeWidth={1.8} />,
+        onClick: () => {
+          navigate(ROUTES_PATH.LEDGERS.getPath());
+        },
+      },
+      {
+        title: t('household:common.title'),
+        prefix: <House className={iconClassName} size={18} strokeWidth={1.8} />,
+        onClick: () => {
+          navigate(ROUTES_PATH.HOUSEHOLD.getPath());
+        },
+      },
       {
         title: t('bottomList.settings'),
         prefix: <Settings className={iconClassName} size={18} strokeWidth={1.8} />,

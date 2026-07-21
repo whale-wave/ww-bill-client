@@ -1,0 +1,411 @@
+{
+  "common": {
+    "loading": "正在加载",
+    "loadError": "加载失败",
+    "loadErrorDescription": "请检查网络后重试。",
+    "retry": "重新加载",
+    "invalidLedger": "账本地址无效",
+    "invalidLedgerDescription": "当前链接没有包含有效的账本标识。",
+    "noPermission": "暂无权限",
+    "noPermissionDescription": "你的账本角色没有此项操作权限。",
+    "unknownUser": "未知成员",
+    "done": "完成",
+    "cancel": "取消",
+    "save": "保存"
+  },
+  "center": {
+    "title": "我的账本",
+    "systemSection": "默认账本",
+    "customSection": "自建与共享账本",
+    "create": "创建账本",
+    "join": "加入他人账本",
+    "applications": "我的加入申请",
+    "loading": "正在加载账本",
+    "loadError": "账本加载失败",
+    "loadErrorDescription": "请检查网络后重试。",
+    "retry": "重新加载",
+    "empty": "暂无账本",
+    "emptyDescription": "创建一个账本，开始按不同场景管理收支。",
+    "customEmpty": "还没有自建或加入的账本",
+    "template": "模板：{{template}}",
+    "theme": "主题：{{theme}}"
+  },
+  "templates": {
+    "title": "选择账本模板",
+    "subtitle": "选择使用场景，后续仍可修改账本名称和月起始日。",
+    "loading": "正在加载模板",
+    "loadError": "模板加载失败",
+    "loadErrorDescription": "暂时无法获取账本模板，请稍后重试。",
+    "retry": "重新加载",
+    "empty": "暂无可用模板",
+    "emptyDescription": "模板服务暂未返回可创建的账本类型。"
+  },
+  "create": {
+    "title": "创建账本",
+    "selectedTemplate": "已选模板",
+    "templateVersion": "模板版本：v{{version}}",
+    "name": "账本名称",
+    "namePlaceholder": "请输入账本名称",
+    "monthStartDay": "每月开始于",
+    "monthStartDayDescription": "用于月度账单与预算统计，可选择 1 至 28 日。",
+    "monthStartDayValue": "每月 {{day}} 日",
+    "submit": "创建账本",
+    "submitting": "正在创建",
+    "success": "账本创建成功",
+    "loadError": "模板加载失败",
+    "loadErrorDescription": "无法确认所选模板，请稍后重试。",
+    "retry": "重新加载",
+    "invalidTemplate": "请先选择账本模板",
+    "invalidTemplateDescription": "创建账本前需要从模板列表选择一个使用场景。",
+    "chooseTemplate": "选择模板",
+    "failed": "创建账本失败，请稍后重试",
+    "validation": {
+      "nameRequired": "请输入账本名称",
+      "monthStartDayRange": "每月开始日必须是 1 至 28 的整数"
+    }
+  },
+  "detail": {
+    "title": "账本详情",
+    "loading": "正在加载账本",
+    "loadError": "账本加载失败",
+    "loadErrorDescription": "请返回账本中心后重试。",
+    "invalidLedger": "账本地址无效",
+    "invalidLedgerDescription": "当前链接没有包含有效的账本标识。",
+    "basicInfo": "基本信息",
+    "template": "账本模板",
+    "theme": "主题标识",
+    "role": "我的角色",
+    "status": "账本状态",
+    "monthStartDay": "每月开始日",
+    "monthStartDayValue": "{{day}} 日",
+    "modules": "账本功能",
+    "comingSoon": "即将开放",
+    "module": {
+      "records": "账单明细",
+      "budget": "预算管理",
+      "charts": "统计图表",
+      "settings": "账本设置"
+    },
+    "collaboration": "协作管理",
+    "collaborationItem": {
+      "members": "账本成员",
+      "invite": "邀请成员",
+      "requests": "待审批申请"
+    }
+  },
+  "invite": {
+    "title": "邀请记账成员",
+    "generateTitle": "生成加入账本的邀请码",
+    "description": "邀请码生成后 24 小时内有效。申请人提交后仍需管理员审批。",
+    "consent": "我已了解并同意将该账本中的数据共享给加入者",
+    "generate": "生成邀请码",
+    "generated": "邀请码已生成",
+    "generateFailed": "生成邀请码失败，请稍后重试",
+    "codeTitle": "加入账本的邀请码",
+    "expiresIn": "有效期剩余 {{countdown}}",
+    "copy": "复制",
+    "copied": "邀请码已复制",
+    "copyFailed": "复制失败，请手动复制邀请码",
+    "wechat": "微信",
+    "wechatPlaceholder": "微信分享能力将在小程序环境中启用",
+    "regenerate": "重新生成",
+    "revoke": "撤销邀请码",
+    "revoked": "邀请码已撤销",
+    "revokeFailed": "撤销邀请码失败，请稍后重试"
+  },
+  "join": {
+    "title": "加入账本",
+    "code": "邀请码",
+    "codePlaceholder": "请输入邀请码",
+    "remark": "申请附言",
+    "remarkPlaceholder": "告诉对方你是谁，最多 30 字",
+    "submit": "提交申请",
+    "submitFailed": "提交加入申请失败，请稍后重试",
+    "submittedTitle": "加入申请已发送",
+    "submittedDescription": "申请 24 小时内有效。通过后即可在我的账本中查看。",
+    "validation": {
+      "codeRequired": "请输入邀请码",
+      "remarkRequired": "请输入申请附言",
+      "remarkTooLong": "申请附言不能超过 30 字",
+      "invalid": "请检查输入内容"
+    }
+  },
+  "preview": {
+    "title": "确认加入账本",
+    "loading": "正在验证邀请码",
+    "loadError": "邀请码不可用",
+    "loadErrorDescription": "邀请码可能已过期、被撤销或已经使用。",
+    "invalid": "邀请码无效",
+    "invalidDescription": "当前链接没有包含邀请码。",
+    "expiresAt": "邀请码有效至 {{date}}",
+    "confirm": "申请加入"
+  },
+  "applications": {
+    "title": "我的加入申请",
+    "loading": "正在加载申请",
+    "loadError": "申请加载失败",
+    "loadErrorDescription": "暂时无法获取申请记录，请稍后重试。",
+    "empty": "暂无加入申请",
+    "emptyDescription": "输入邀请码申请加入其他人的账本。"
+  },
+  "members": {
+    "title": "账本成员（{{count}}）",
+    "loading": "正在加载成员",
+    "loadError": "成员加载失败",
+    "loadErrorDescription": "暂时无法获取账本成员，请稍后重试。",
+    "empty": "暂无成员",
+    "emptyDescription": "当前账本没有可显示的活跃成员。",
+    "noNickname": "未设置账本昵称"
+  },
+  "memberDetail": {
+    "title": "成员详情",
+    "invalid": "成员地址无效",
+    "invalidDescription": "当前链接缺少账本或成员标识。",
+    "notFound": "未找到成员",
+    "notFoundDescription": "成员可能已退出或被移除。",
+    "joinedAt": "加入时间",
+    "nickname": "账本内昵称",
+    "role": "成员角色",
+    "capabilityHint": "当前角色包含 {{count}} 项账本权限。权限由服务端角色策略决定。",
+    "saved": "成员信息已保存",
+    "saveFailed": "保存成员信息失败，请稍后重试",
+    "remove": "移除成员",
+    "removeConfirmTitle": "确认移除该成员？",
+    "removeConfirmDescription": "移除后该成员将无法继续访问此账本。",
+    "removeConfirmAction": "确认移除",
+    "removed": "成员已移除",
+    "removeFailed": "移除失败，成员信息可能已更新",
+    "transferOwnership": "转让所有权",
+    "transferConfirmTitle": "确认转让账本所有权？",
+    "transferConfirmDescription": "转让后对方将成为所有者，你将不再拥有所有者权限。",
+    "transferConfirmAction": "确认转让",
+    "transferred": "账本所有权已转让",
+    "transferFailed": "转让失败，成员信息可能已更新",
+    "validation": {
+      "nicknameTooLong": "账本内昵称不能超过 30 字",
+      "noChanges": "没有需要保存的修改",
+      "invalidRole": "不能将成员直接设置为所有者",
+      "noPermissionChanges": "当前可编辑范围内没有修改",
+      "invalid": "请检查输入内容"
+    }
+  },
+  "requests": {
+    "title": "加入申请审批",
+    "loading": "正在加载申请",
+    "loadError": "申请加载失败",
+    "loadErrorDescription": "暂时无法获取账本申请，请稍后重试。",
+    "empty": "暂无加入申请",
+    "emptyDescription": "收到新的加入申请后会显示在这里。",
+    "pending": "待处理",
+    "history": "历史申请"
+  },
+  "requestDetail": {
+    "title": "审批申请",
+    "invalid": "申请地址无效",
+    "invalidDescription": "当前链接缺少账本或申请标识。",
+    "notFound": "未找到申请",
+    "notFoundDescription": "申请可能已过期或不属于当前账本。",
+    "remark": "申请附言",
+    "createdAt": "申请于 {{date}}",
+    "assignedRole": "加入后的角色",
+    "decisionRemark": "处理备注（可选）",
+    "decisionRemarkPlaceholder": "最多 500 字",
+    "roleRequired": "请选择加入后的角色",
+    "approve": "同意加入",
+    "reject": "拒绝",
+    "ignore": "忽略",
+    "processed": "申请已处理",
+    "processFailed": "处理申请失败，数据可能已更新，请重试",
+    "alreadyProcessed": "该申请已经处理，无法再次操作。",
+    "resultRole": "分配角色：{{role}}"
+  },
+  "joinRequestStatus": {
+    "PENDING": "待审批",
+    "APPROVED": "已通过",
+    "REJECTED": "已拒绝",
+    "IGNORED": "已忽略",
+    "CANCELLED": "已取消",
+    "EXPIRED": "已过期"
+  },
+  "memberStatus": {
+    "ACTIVE": "使用中",
+    "LEFT": "已退出",
+    "REMOVED": "已移除"
+  },
+  "records": {
+    "title": "账本明细",
+    "create": "新建记录",
+    "detail": "记录详情",
+    "edit": "编辑记录",
+    "delete": "删除",
+    "search": "搜索记录",
+    "calendar": "日历",
+    "amount": "金额",
+    "remark": "备注",
+    "category": "分类",
+    "date": "日期",
+    "tags": "标签",
+    "saved": "记录已保存",
+    "saveFailed": "保存失败，请重试",
+    "deleteFailed": "删除失败，数据可能已更新",
+    "conflict": "记录已被其他成员修改，已刷新最新数据",
+    "notFound": "未找到记录",
+    "familyPolicy": "家庭可见与统计",
+    "familyPolicyHint": "可随时设为家庭可见、不计入统计或仅自己可见",
+    "familyPolicyStates": {
+      "SHARED_COUNTED": "家庭可见·计入",
+      "SHARED_UNCOUNTED": "家庭可见·不计入",
+      "PRIVATE": "仅自己可见"
+    },
+    "summary": "收入 {{income}} · 支出 {{expense}}",
+    "type": { "add": "收入", "sub": "支出" }
+  },
+  "budget": {
+    "title": "预算管理",
+    "remaining": "本月剩余预算",
+    "amount": "预算金额",
+    "saveFailed": "预算保存失败"
+  },
+  "charts": {
+    "title": "统计图表",
+    "total": "合计",
+    "netNoRanking": "净额由收入与支出聚合，不提供分类排行。",
+    "metric": { "expense": "支出", "income": "收入", "net": "净额" },
+    "period": { "week": "周", "month": "月", "year": "年" },
+    "display": { "pie": "占比", "line": "趋势" }
+  },
+  "settings": {
+    "title": "账本设置",
+    "basic": "基本信息",
+    "name": "账本名称",
+    "monthStartDay": "每月开始日",
+    "icon": "账本图标",
+    "theme": "主题颜色",
+    "iconOptions": {
+      "wallet": "钱包",
+      "briefcase": "公文包",
+      "receipt": "票据",
+      "building": "公司",
+      "users": "团队",
+      "store": "店铺"
+    },
+    "themeOptions": {
+      "blue": "蓝色",
+      "green": "绿色",
+      "amber": "琥珀色",
+      "orange": "橙色",
+      "indigo": "靛蓝色",
+      "pink": "粉色"
+    },
+    "preferences": "我的偏好",
+    "hideTotal": "隐藏总金额",
+    "dailySummary": "显示每日汇总",
+    "defaultRecordType": "默认记账类型",
+    "defaultChartPeriod": "默认图表周期",
+    "defaultChartMetric": "默认图表指标",
+    "defaultChartDisplay": "默认图表样式",
+    "expense": "支出",
+    "income": "收入",
+    "net": "净额",
+    "management": "管理",
+    "categories": "分类管理",
+    "tags": "标签管理",
+    "members": "成员管理",
+    "recovery": "最近删除",
+    "transfer": "跨账本迁移",
+    "export": "导出数据",
+    "archive": "永久归档账本",
+    "archiveConfirmTitle": "确认永久归档账本？",
+    "archiveConfirmDescription": "归档后所有成员将失去访问权限，未处理邀请和申请会被关闭。原账本数据保留在后台审计中，此操作不可由用户撤销。",
+    "archiveConfirmAction": "确认归档",
+    "leave": "退出账本",
+    "leaveConfirmTitle": "确认退出账本？",
+    "leaveConfirmDescription": "退出后你将无法继续查看或记录该账本中的数据。",
+    "leaveConfirmAction": "确认退出",
+    "leaveFailed": "退出失败，成员信息可能已更新",
+    "saved": "保存成功",
+    "saveFailed": "保存失败，数据可能已更新",
+    "archiveFailed": "归档失败，数据可能已更新"
+  },
+  "categories": { "title": "分类管理", "name": "分类名称", "create": "新增", "delete": "删除", "saveFailed": "分类保存失败" },
+  "tags": { "title": "标签管理", "name": "标签名称", "create": "新增", "archive": "归档", "saveFailed": "标签保存失败" },
+  "recovery": { "title": "最近删除", "restore": "恢复", "failed": "恢复失败，数据可能已更新" },
+  "transfer": {
+    "title": "跨账本迁移",
+    "target": "目标账本",
+    "chooseTarget": "请选择目标账本",
+    "chooseRecords": "选择要迁移的记录",
+    "selectedCount": "已选 {{count}} 条",
+    "noRecords": "当前账本暂无可迁移记录",
+    "maximumRecords": "单次最多迁移 100 条记录",
+    "categoryMappings": "分类对应关系",
+    "categoryMappingLabel": "{{name}} 转入",
+    "chooseCategory": "请选择目标分类",
+    "tagHandling": "标签处理",
+    "tagStrategy": {
+      "drop": "不保留标签",
+      "map": "映射到目标标签"
+    },
+    "tagMappingLabel": "{{name}} 转入",
+    "chooseTag": "请选择目标标签",
+    "preview": "预检迁移",
+    "previewSummary": "可迁移 {{ready}} 条，冲突 {{conflicts}} 条",
+    "previewFailed": "预检失败",
+    "execute": "确认迁移",
+    "done": "迁移完成",
+    "failed": "迁移失败"
+  },
+  "export": {
+    "title": "导出账本",
+    "format": "文件格式",
+    "create": "创建导出任务",
+    "download": "下载文件",
+    "failed": "创建导出失败",
+    "status": { "PENDING": "正在生成", "COMPLETED": "可以下载", "FAILED": "生成失败" }
+  },
+  "kind": {
+    "SYSTEM_DEFAULT": "系统默认账本",
+    "CUSTOM": "自定义账本"
+  },
+  "role": {
+    "OWNER": "所有者",
+    "ADMIN": "管理员",
+    "BOOKKEEPER": "记账成员",
+    "VIEWER": "只读成员"
+  },
+  "status": {
+    "ACTIVE": "使用中",
+    "SUSPENDED": "已停用",
+    "ARCHIVED": "已归档"
+  },
+  "template": {
+    "system-default": {
+      "name": "个人默认账本",
+      "description": "系统默认的个人记账空间"
+    },
+    "business": {
+      "name": "生意账本",
+      "description": "适合日常经营收支记录"
+    },
+    "reimbursement": {
+      "name": "报销账本",
+      "description": "适合记录和整理报销账目"
+    },
+    "company": {
+      "name": "公司账本",
+      "description": "适合公司采购与公共支出管理"
+    },
+    "team": {
+      "name": "团队账本",
+      "description": "适合班费、团建与团队经费记录"
+    },
+    "micro-business": {
+      "name": "微商账本",
+      "description": "适合代购、卖货等往来账目"
+    },
+    "custom": {
+      "name": "自定义账本",
+      "description": "创建符合自己场景的专属账本"
+    }
+  }
+}

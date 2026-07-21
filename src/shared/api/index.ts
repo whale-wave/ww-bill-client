@@ -1,3 +1,5 @@
+export { assertSuccessApi } from './assert-success';
+export type { ApiEnvelopeError } from './assert-success';
 export { setAuthDeps } from './auth-injection';
 export { default as request } from './http';
 export { isSuccessApi } from './is-success';

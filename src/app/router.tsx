@@ -241,6 +241,189 @@ const router = createHashRouter([
         lazy: lazyGuardedPage(() => import('@/pages/bill/BillPage')),
       },
       {
+        path: 'household',
+        children: [
+          {
+            index: true,
+            lazy: lazyGuardedPage(() => import('@/pages/household-entry/HouseholdEntryPage')),
+          },
+          {
+            path: 'create',
+            lazy: lazyGuardedPage(() => import('@/pages/household-create/HouseholdCreatePage')),
+          },
+          {
+            path: 'join',
+            lazy: lazyGuardedPage(() => import('@/pages/household-join/HouseholdJoinPage')),
+          },
+        ],
+      },
+      {
+        path: 'household-invitations/:code',
+        lazy: lazyGuardedPage(() => import('@/pages/household-invitation-preview/HouseholdInvitationPreviewPage')),
+      },
+      {
+        path: 'households',
+        children: [
+          {
+            path: ':householdId/invitation',
+            lazy: lazyGuardedPage(() => import('@/pages/household-invitation/HouseholdInvitationPage')),
+          },
+          {
+            path: ':householdId/records/search',
+            lazy: lazyGuardedPage(() => import('@/pages/household-record-search/HouseholdRecordSearchPage')),
+          },
+          {
+            path: ':householdId/records/:recordId/policy',
+            lazy: lazyGuardedPage(() => import('@/pages/household-record-policy/HouseholdRecordPolicyPage')),
+          },
+          {
+            path: ':householdId/records/:recordId',
+            lazy: lazyGuardedPage(() => import('@/pages/household-record-detail/HouseholdRecordDetailPage')),
+          },
+          {
+            path: ':householdId/records',
+            lazy: lazyGuardedPage(() => import('@/pages/household-records/HouseholdRecordsPage')),
+          },
+          {
+            path: ':householdId/calendar',
+            lazy: lazyGuardedPage(() => import('@/pages/household-calendar/HouseholdCalendarPage')),
+          },
+          {
+            path: ':householdId/budgets',
+            lazy: lazyGuardedPage(() => import('@/pages/household-budgets/HouseholdBudgetsPage')),
+          },
+          {
+            path: ':householdId/charts',
+            lazy: lazyGuardedPage(() => import('@/pages/household-charts/HouseholdChartsPage')),
+          },
+          {
+            path: ':householdId/settings',
+            lazy: lazyGuardedPage(() => import('@/pages/household-settings/HouseholdSettingsPage')),
+          },
+          {
+            path: ':householdId/export',
+            lazy: lazyGuardedPage(() => import('@/pages/household-export/HouseholdExportPage')),
+          },
+          {
+            path: ':householdId/members',
+            lazy: lazyGuardedPage(() => import('@/pages/household-members/HouseholdMembersPage')),
+          },
+          {
+            path: ':householdId',
+            lazy: lazyGuardedPage(() => import('@/pages/household-home/HouseholdHomePage')),
+          },
+        ],
+      },
+      {
+        path: 'ledgers',
+        children: [
+          {
+            index: true,
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-center/LedgerCenterPage')),
+          },
+          {
+            path: 'templates',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-templates/LedgerTemplatesPage')),
+          },
+          {
+            path: 'create',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-create/LedgerCreatePage')),
+          },
+          {
+            path: 'join',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-join/LedgerJoinPage')),
+          },
+          {
+            path: 'applications',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-applications/LedgerApplicationsPage')),
+          },
+          {
+            path: ':ledgerId/records/search',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-record-search/LedgerRecordSearchPage')),
+          },
+          {
+            path: ':ledgerId/records/new',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-record-create/LedgerRecordCreatePage')),
+          },
+          {
+            path: ':ledgerId/records/:recordId/edit',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-record-edit/LedgerRecordEditPage')),
+          },
+          {
+            path: ':ledgerId/records/:recordId',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-record-detail/LedgerRecordDetailPage')),
+          },
+          {
+            path: ':ledgerId/records',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-records/LedgerRecordsPage')),
+          },
+          {
+            path: ':ledgerId/calendar',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-calendar/LedgerCalendarPage')),
+          },
+          {
+            path: ':ledgerId/budget',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-budget/LedgerBudgetPage')),
+          },
+          {
+            path: ':ledgerId/charts',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-charts/LedgerChartsPage')),
+          },
+          {
+            path: ':ledgerId/settings/categories',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-categories/LedgerCategoriesPage')),
+          },
+          {
+            path: ':ledgerId/settings/tags',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-tags/LedgerTagsPage')),
+          },
+          {
+            path: ':ledgerId/settings',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-settings/LedgerSettingsPage')),
+          },
+          {
+            path: ':ledgerId/recovery',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-recovery/LedgerRecoveryPage')),
+          },
+          {
+            path: ':ledgerId/transfer',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-transfer/LedgerTransferPage')),
+          },
+          {
+            path: ':ledgerId/export',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-export/LedgerExportPage')),
+          },
+          {
+            path: ':ledgerId/invites',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-invite/LedgerInvitePage')),
+          },
+          {
+            path: ':ledgerId/members',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-members/LedgerMembersPage')),
+          },
+          {
+            path: ':ledgerId/members/:memberId',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-member-detail/LedgerMemberDetailPage')),
+          },
+          {
+            path: ':ledgerId/join-requests',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-join-requests/LedgerJoinRequestsPage')),
+          },
+          {
+            path: ':ledgerId/join-requests/:requestId',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-join-request-detail/LedgerJoinRequestDetailPage')),
+          },
+          {
+            path: ':ledgerId',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-detail/LedgerDetailPage')),
+          },
+        ],
+      },
+      {
+        path: 'ledger-invites/:code',
+        lazy: lazyGuardedPage(() => import('@/pages/ledger-invitation-preview/LedgerInvitationPreviewPage')),
+      },
+      {
         path: 'asset',
         children: [
           {

@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { CategoryEntity } from '@/entities/category';
-import type { PutRecordApiData, recordChildren } from '@/entities/record';
+import type { PostRecordApiData, recordChildren } from '@/entities/record';
 import type { stateType } from '@/pages/record/bookkeeping/BookkeepingPage';
 import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
@@ -116,7 +116,7 @@ const Keyboard: FC<KeyType> = ({
 
     const time = dayjs(dateValue).toISOString();
     const remark = remarkValue === '' ? name : remarkValue;
-    const data: PutRecordApiData = {
+    const data: PostRecordApiData = {
       remark,
       categoryId: Number(keyToggle),
       time,
@@ -128,7 +128,7 @@ const Keyboard: FC<KeyType> = ({
       // Edit
       if (dateTimeValue === 0)
         data.time = stateList[1];
-      const edit = await putRecordMutate({ id: `${stateList[2]}`, data });
+      const edit = await putRecordMutate({ id: `${stateList[2]}`, data: { ...data, version: state.version } });
       if (edit.statusCode === 200) {
         Toast.show({ content: edit.message });
         const chunk = { ...state, ...data, status: true };

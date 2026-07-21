@@ -98,6 +98,40 @@
     "systemNotify": {
       "title": "System Notifications",
       "description": "System notifications & reminders"
+    },
+    "notificationCenter": {
+      "markAllRead": "Mark all read",
+      "markRead": "Mark read",
+      "delete": "Delete",
+      "open": "Open",
+      "unread": "Unread",
+      "statusFilter": "Notification status",
+      "typeFilter": "Notification type",
+      "allStatuses": "All statuses",
+      "allTypes": "All types",
+      "loadMore": "Load more",
+      "loadingMore": "Loading",
+      "retry": "Try again",
+      "empty": "No notifications",
+      "emptyHint": "There are no notifications for these filters.",
+      "loadFailed": "Failed to load notifications",
+      "loadFailedHint": "Please try again later.",
+      "actionFailed": "Action failed. Please try again.",
+      "deleteConfirmTitle": "Delete notification",
+      "deleteConfirmContent": "The notification will move to the archived list.",
+      "statuses": {
+        "UNREAD": "Unread",
+        "READ": "Read",
+        "ARCHIVED": "Archived"
+      },
+      "types": {
+        "HOUSEHOLD_STATUS_CHANGED": "Household status",
+        "LEDGER_JOIN_REQUEST": "Join request",
+        "LEDGER_JOIN_APPROVED": "Request approved",
+        "LEDGER_JOIN_REJECTED": "Request rejected",
+        "LEDGER_MEMBER_CHANGED": "Member update",
+        "LEDGER_STATUS_CHANGED": "Ledger status"
+      }
     }
   },
   "commonFunctions": {
@@ -114,6 +148,7 @@
     "networkError": "Network error, please try again",
     "loading": "Please wait...",
     "requestFailed": "Request failed",
+    "forbidden": "You do not have permission to access this resource",
     "loginExpired": "Login expired",
     "authFailed": "Authentication failed",
     "notLoggedIn": "Not logged in"

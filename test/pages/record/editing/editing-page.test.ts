@@ -105,6 +105,7 @@ describe('record editing page', () => {
       time: '2026-07-16T12:30:00.000Z',
       type: 'sub',
       updatedAt: '2026-07-16T12:30:00.000Z',
+      version: 3,
     };
     queryResult.data = record;
     queryResult.isError = false;
@@ -133,6 +134,7 @@ describe('record editing page', () => {
       time: '2026-07-16T12:30:00.000Z',
       type: 'sub',
       updatedAt: '2026-07-16T12:30:00.000Z',
+      version: 3,
     };
     location.state = record;
     queryResult.data = undefined;

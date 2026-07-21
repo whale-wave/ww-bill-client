@@ -24,7 +24,7 @@ const Footer: FC<stateType> = ({ state }) => {
       content: t('record:detail.deleteWarning'),
       title: t('common:confirm.delete'),
       onConfirm: async () => {
-        const res = await deleteRecordMutate(`${state.id}`);
+        const res = await deleteRecordMutate({ id: `${state.id}`, version: state.version });
         if (res.statusCode === 200 && res.message === '删除成功') {
           Toast.show({ content: res.message });
           navigate('/detail');

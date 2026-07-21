@@ -33,12 +33,29 @@ export function getRecordApi(params?: GetRecordApiParams) {
   );
 }
 
-interface PostRecordApiData {
+export function getLedgerRecordsApi(
+  ledgerId: string,
+  params?: GetRecordApiParams,
+) {
+  return request.get<unknown, SuccessResponse<GetRecordApiResponseData>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/records`,
+    { params },
+  );
+}
+
+export function getLedgerRecordByIdApi(ledgerId: string, recordId: string) {
+  return request.get<unknown, SuccessResponse<RecordEntry>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/records/${encodeURIComponent(recordId)}`,
+  );
+}
+
+export interface PostRecordApiData {
   remark: string;
   categoryId: number;
-  type: string;
+  type: 'add' | 'sub';
   amount: string;
   time: string;
+  tagIds?: string[];
 }
 
 // 创建记录
@@ -46,7 +63,16 @@ export function postRecordApi(data: PostRecordApiData) {
   return request.post<unknown, SuccessResponse<undefined>>(`/record`, data);
 }
 
-export interface PutRecordApiData extends PostRecordApiData {}
+export function postLedgerRecordApi(ledgerId: string, data: PostRecordApiData) {
+  return request.post<unknown, SuccessResponse<undefined>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/records`,
+    data,
+  );
+}
+
+export interface PutRecordApiData extends Partial<PostRecordApiData> {
+  version: number;
+}
 
 // 更新记录
 export function putRecordApi(id: string, data: PutRecordApiData) {
@@ -56,9 +82,33 @@ export function putRecordApi(id: string, data: PutRecordApiData) {
   );
 }
 
+export function putLedgerRecordApi(
+  ledgerId: string,
+  recordId: string,
+  data: PutRecordApiData,
+) {
+  return request.put<unknown, SuccessResponse<undefined>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/records/${encodeURIComponent(recordId)}`,
+    data,
+  );
+}
+
 // 删除记录
-export function deleteRecordApi(id: string) {
-  return request.delete<unknown, SuccessResponse<undefined>>(`/record/${id}`);
+export function deleteRecordApi(id: string, version: number) {
+  return request.delete<unknown, SuccessResponse<undefined>>(`/record/${id}`, {
+    params: { version },
+  });
+}
+
+export function deleteLedgerRecordApi(
+  ledgerId: string,
+  recordId: string,
+  version: number,
+) {
+  return request.delete<unknown, SuccessResponse<undefined>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/records/${encodeURIComponent(recordId)}`,
+    { params: { version } },
+  );
 }
 
 export interface Bill {
@@ -86,5 +136,15 @@ export function getRecordBillApi(params: GetRecordBillApiParams) {
     {
       params,
     },
+  );
+}
+
+export function getLedgerRecordBillApi(
+  ledgerId: string,
+  params: GetRecordBillApiParams,
+) {
+  return request.get<unknown, SuccessResponse<GetRecordBillApiResponseData>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/records/bill`,
+    { params },
   );
 }

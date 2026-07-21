@@ -1,7 +1,7 @@
 import type { ChangeEvent, FC } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { login, loginEmailCaptchaApi } from '@/entities/auth';
 import { getToolsCaptchaApi } from '@/entities/tools';
 import { userKeys } from '@/entities/user';
@@ -12,8 +12,35 @@ import { playSound } from '@/shared/lib/play-sound';
 import { Button, Input } from '@/shared/ui';
 import styles from './index.module.scss';
 
+interface RedirectLocation {
+  pathname: string;
+  search: string;
+  hash: string;
+}
+
+function getSafeRedirectLocation(from: unknown): RedirectLocation | '/' {
+  if (!from || typeof from !== 'object')
+    return '/';
+
+  const { hash, pathname, search } = from as Record<string, unknown>;
+  if (
+    typeof pathname !== 'string'
+    || !pathname.startsWith('/')
+    || /^\/[\\/]/.test(pathname)
+  ) {
+    return '/';
+  }
+
+  return {
+    pathname,
+    search: typeof search === 'string' && search.startsWith('?') ? search : '',
+    hash: typeof hash === 'string' && hash.startsWith('#') ? hash : '',
+  };
+}
+
 const Login: FC = () => {
   const { t } = useTranslation('auth');
+  const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { setToken } = useAuthStore(({ setToken }) => ({ setToken }));
@@ -69,18 +96,19 @@ const Login: FC = () => {
         message: '',
         data: data.userInfo,
       });
-      setTimeout(navigate, 1000, -1);
+      const redirectLocation = getSafeRedirectLocation(location.state?.from);
+      setTimeout(navigate, 1000, redirectLocation, { replace: true });
     }
-  }, [userNameForm, emailForm, loginType]);
+  }, [emailForm, location.state, loginType, navigate, queryClient, setToken, userNameForm]);
 
   const onGoToForgetPassword = useCallback(() => {
     playSound.turnPage();
     navigate('/forget-password');
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     void getCaptcha();
-  }, []);
+  }, [getCaptcha]);
 
   return (
     <div className="page justify-center items-center">

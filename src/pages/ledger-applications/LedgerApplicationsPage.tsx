@@ -1,0 +1,78 @@
+import type { FC } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  LedgerJoinRequestStatus,
+  useMyJoinRequestsQuery,
+} from '@/entities/ledger';
+import {
+  CollaborationQueryState,
+  CollaborationStatusBadge,
+  LedgerSummaryBlock,
+} from '@/pages/ledger-collaboration/ui';
+import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
+import { NavBar } from '@/shared/ui';
+
+const LedgerApplicationsPage: FC = () => {
+  const { t } = useTranslation('ledger');
+  const navigate = useNavigate();
+  const query = useMyJoinRequestsQuery();
+
+  return (
+    <div className="page-new overflow-hidden bg-bg-gray">
+      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
+        {t('applications.title')}
+      </NavBar>
+      <main className="min-h-0 flex-grow overflow-auto pb-6">
+        {query.isLoading && (
+          <CollaborationQueryState title={t('applications.loading')} type="loading" />
+        )}
+        {query.isError && (
+          <CollaborationQueryState
+            description={t('applications.loadErrorDescription')}
+            onRetry={() => query.refetch()}
+            retryLabel={t('common.retry')}
+            title={t('applications.loadError')}
+            type="error"
+          />
+        )}
+        {!query.isLoading && !query.isError && !query.data.length && (
+          <CollaborationQueryState
+            description={t('applications.emptyDescription')}
+            title={t('applications.empty')}
+            type="empty"
+          />
+        )}
+        {!query.isLoading && !query.isError && query.data.length > 0 && (
+          <div className="space-y-3 pt-3">
+            {query.data.map(request => (
+              <button
+                className="block w-full border-0 bg-white p-0 text-left active:bg-slate-50"
+                disabled={request.status !== LedgerJoinRequestStatus.APPROVED}
+                key={request.id}
+                onClick={() => navigate(ROUTES_PATH.LEDGER_DETAIL.getPath(request.ledger.id))}
+                type="button"
+              >
+                <LedgerSummaryBlock ledger={request.ledger} />
+                <div className="flex items-center justify-between border-0 border-t border-solid border-[#EBEBEB] px-4 py-3">
+                  <div className="min-w-0 pr-3">
+                    <p className="one-line text-sm text-font-black">{request.applicantRemark}</p>
+                    <p className="mt-1 text-xs text-font-gray">
+                      {new Date(request.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <CollaborationStatusBadge
+                    label={t(`joinRequestStatus.${request.status}`)}
+                    status={request.status}
+                  />
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default LedgerApplicationsPage;

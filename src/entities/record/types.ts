@@ -14,6 +14,15 @@ export interface RecordEntry {
   time: string;
   type: 'sub' | 'add';
   updatedAt: string;
+  version: number;
+  ledgerId?: string;
+  tags?: Array<{
+    id: string;
+    name: string;
+    colorKey?: string;
+    iconKey?: string;
+    status?: 'ACTIVE' | 'ARCHIVED';
+  }>;
 }
 
 /** @deprecated Use RecordEntry. Kept temporarily for existing page state types. */

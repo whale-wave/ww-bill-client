@@ -98,6 +98,7 @@
     "networkError": "网络异常，请稍后重试",
     "loading": "请稍后...",
     "requestFailed": "请求失败",
+    "forbidden": "无权限访问",
     "loginExpired": "登录已过期",
     "authFailed": "身份验证失败",
     "notLoggedIn": "未登录账号"
@@ -161,6 +162,40 @@
     "systemNotify": {
       "title": "系统通知",
       "description": "查看系统通知和提醒"
+    },
+    "notificationCenter": {
+      "markAllRead": "全部已读",
+      "markRead": "标为已读",
+      "delete": "删除",
+      "open": "查看",
+      "unread": "未读",
+      "statusFilter": "通知状态",
+      "typeFilter": "通知类型",
+      "allStatuses": "全部状态",
+      "allTypes": "全部类型",
+      "loadMore": "加载更多",
+      "loadingMore": "正在加载",
+      "retry": "重新加载",
+      "empty": "暂无通知",
+      "emptyHint": "当前筛选条件下没有通知。",
+      "loadFailed": "通知加载失败",
+      "loadFailedHint": "请稍后重试。",
+      "actionFailed": "操作失败，请重试",
+      "deleteConfirmTitle": "删除通知",
+      "deleteConfirmContent": "删除后通知将移入已归档列表。",
+      "statuses": {
+        "UNREAD": "未读",
+        "READ": "已读",
+        "ARCHIVED": "已归档"
+      },
+      "types": {
+        "HOUSEHOLD_STATUS_CHANGED": "家庭状态",
+        "LEDGER_JOIN_REQUEST": "加入申请",
+        "LEDGER_JOIN_APPROVED": "申请通过",
+        "LEDGER_JOIN_REJECTED": "申请未通过",
+        "LEDGER_MEMBER_CHANGED": "成员变更",
+        "LEDGER_STATUS_CHANGED": "账本状态"
+      }
     },
     "emptySummary": "暂无首页未读或汇总数据，选择下方入口查看最新消息。",
     "title": "消息"

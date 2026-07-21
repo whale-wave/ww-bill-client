@@ -9,8 +9,8 @@ import type {
 import type { SuccessResponse } from '@/shared/api';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { isSuccessApi } from '@/shared/api';
-import { getChartApi } from './api';
+import { assertSuccessApi, isSuccessApi } from '@/shared/api';
+import { getChartApi, getLedgerChartApi } from './api';
 import { chartKeys } from './keys';
 
 export function useGetChartQuery(options: {
@@ -35,6 +35,23 @@ export function useGetChartQuery(options: {
 
   return {
     data,
+    response,
+    ...rest,
+  };
+}
+
+export function useLedgerChartQuery(options: {
+  params: { ledgerId: string; filters: GetChartApiParams };
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<GetChartApiResponse>>, 'queryFn' | 'queryKey'>;
+}) {
+  const { ledgerId, filters } = options.params;
+  const { data: response, ...rest } = useQuery<SuccessResponse<GetChartApiResponse>>({
+    queryFn: async () => assertSuccessApi(await getLedgerChartApi(ledgerId, filters)),
+    queryKey: chartKeys.ledgerList(ledgerId, filters),
+    ...options.queryOptions,
+  });
+  return {
+    data: isSuccessApi(response) ? response.data : [],
     response,
     ...rest,
   };

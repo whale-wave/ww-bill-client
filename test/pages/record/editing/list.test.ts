@@ -38,6 +38,7 @@ const record: RecordEntry = {
   time: '2026-07-16T12:30:00.000Z',
   type: 'sub',
   updatedAt: '2026-07-16T12:30:00.000Z',
+  version: 3,
 };
 
 let cleanup: (() => void) | undefined;

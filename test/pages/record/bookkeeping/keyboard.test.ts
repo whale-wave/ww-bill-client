@@ -50,6 +50,7 @@ const existingRecord: RecordEntry = {
   time: '2026-07-16T00:00:00.000Z',
   type: 'sub',
   updatedAt: '',
+  version: 3,
 };
 
 function renderKeyboard(overrides: Partial<ComponentProps<typeof Keyboard>> = {}) {

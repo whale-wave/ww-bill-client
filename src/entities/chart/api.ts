@@ -84,3 +84,13 @@ export function getChartApi(params: GetChartApiParams) {
     params,
   });
 }
+
+export function getLedgerChartApi(
+  ledgerId: string,
+  params: GetChartApiParams,
+) {
+  return request.get<unknown, SuccessResponse<GetChartApiResponse>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/charts`,
+    { params },
+  );
+}
