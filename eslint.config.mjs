@@ -6,7 +6,8 @@ export default antfu({
   },
   react: true,
   formatters: true,
-  ignores: ['tsconfig.app.json'],
+  // TODO: md eslint
+  ignores: ['tsconfig.app.json', '**/*.md'],
 }, {
   files: ['test/setup.ts'],
   rules: {
