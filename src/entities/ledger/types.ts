@@ -135,6 +135,24 @@ export interface Ledger {
   capabilities: readonly LedgerCapability[];
 }
 
+export interface MyLedgerMembership {
+  id: string;
+  version: number;
+  sortOrder: number;
+}
+
+export interface LedgerListItem extends Ledger {
+  activeMemberCount: number;
+  recordCount: number;
+  myMembership: MyLedgerMembership;
+}
+
+export interface LedgerOrderResult {
+  ledgerId: string;
+  sortOrder: number;
+  memberVersion: number;
+}
+
 export interface LedgerTemplate {
   key: CreatableLedgerTemplateKey;
   version: 1;

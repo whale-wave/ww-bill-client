@@ -1,11 +1,44 @@
-import type { UseQueryOptions } from '@tanstack/react-query';
-import type { UserAppConfig } from './api';
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query';
+import type {
+  LedgerQuickSwitchPreference,
+  PatchLedgerQuickSwitchApiData,
+  UserAppConfig,
+} from './api';
 import type { SuccessResponse } from '@/shared/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { userKeys } from '@/entities/user';
-import { isSuccessApi } from '@/shared/api';
-import { getUserAppConfigApi, patchUserAppConfigApi } from './api';
+import { assertSuccessApi, isSuccessApi } from '@/shared/api';
+import {
+  getUserAppConfigApi,
+  patchLedgerQuickSwitchApi,
+  patchUserAppConfigApi,
+} from './api';
+
+export async function patchLedgerQuickSwitchMutationFn(
+  data: PatchLedgerQuickSwitchApiData,
+) {
+  return assertSuccessApi(await patchLedgerQuickSwitchApi(data));
+}
+
+export function cacheLedgerQuickSwitchResponse(
+  queryClient: QueryClient,
+  response: SuccessResponse<LedgerQuickSwitchPreference>,
+) {
+  queryClient.setQueryData<SuccessResponse<UserAppConfig> | undefined>(
+    userKeys.appConfig(),
+    current => current
+      ? {
+          ...current,
+          data: {
+            ...current.data,
+            isLedgerQuickSwitchEnabled: response.data.enabled,
+            ledgerQuickSwitchVersion: response.data.version,
+          },
+        }
+      : current,
+  );
+}
 
 export function useGetUserAppConfigQuery(options?: {
   queryOptions?: Omit<UseQueryOptions<SuccessResponse<UserAppConfig>>, 'queryFn' | 'queryKey'>;
@@ -48,4 +81,20 @@ export function usePatchUserAppConfigMutation() {
       ...rest,
     },
   ] as const;
+}
+
+export function usePatchLedgerQuickSwitchMutation() {
+  const queryClient = useQueryClient();
+  const { mutateAsync, ...rest } = useMutation({
+    mutationFn: patchLedgerQuickSwitchMutationFn,
+    onSuccess: (response) => {
+      cacheLedgerQuickSwitchResponse(queryClient, response);
+    },
+    onError: async (error) => {
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
+        await queryClient.invalidateQueries({ queryKey: userKeys.appConfig() });
+    },
+  });
+
+  return [mutateAsync, rest] as const;
 }

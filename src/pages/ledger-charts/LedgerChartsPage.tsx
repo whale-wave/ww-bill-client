@@ -1,11 +1,13 @@
 import type { GetChartApiResponse } from '@/entities/chart';
-import { Button, NavBar, SpinLoading } from 'antd-mobile';
+import type { Ledger } from '@/entities/ledger';
+import { Button, SpinLoading } from 'antd-mobile';
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useLedgerChartQuery } from '@/entities/chart';
 import { LedgerCapability, LedgerChartDisplay, LedgerChartMetric, LedgerChartPeriod, useLedgerPreferencesQuery } from '@/entities/ledger';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
+import { LedgerSwitcherHeader } from '@/features/ledger-switcher';
 import { useTranslation } from '@/shared/i18n';
+import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 import { getLedgerChartTotal } from './model';
 
 function sumChart(data: GetChartApiResponse) {
@@ -51,13 +53,29 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
   );
 }
 
-export default function LedgerChartsPage() {
+function LedgerChartsWorkspace({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string }) {
   const { t } = useTranslation('ledger');
-  const navigate = useNavigate();
   return (
-    <div className="page-new bg-bg-gray">
-      <NavBar onBack={() => navigate(-1)}>{t('charts.title')}</NavBar>
-      <LedgerScopeBoundary capability={LedgerCapability.CHART_READ}>{({ ledgerId }) => <ChartContent ledgerId={ledgerId} />}</LedgerScopeBoundary>
+    <>
+      <LedgerSwitcherHeader titleContent={<span>{t('charts.title')}</span>} />
+      <main className="min-h-0 flex-grow overflow-auto">
+        <ChartContent ledgerId={ledgerId} />
+      </main>
+      <LedgerWorkspaceTabBar
+        activeKey="charts"
+        capabilities={ledger.capabilities}
+        ledgerId={ledgerId}
+      />
+    </>
+  );
+}
+
+export default function LedgerChartsPage() {
+  return (
+    <div className="page-new overflow-hidden bg-bg-gray">
+      <LedgerScopeBoundary capability={LedgerCapability.CHART_READ}>
+        {scope => <LedgerChartsWorkspace {...scope} />}
+      </LedgerScopeBoundary>
     </div>
   );
 }

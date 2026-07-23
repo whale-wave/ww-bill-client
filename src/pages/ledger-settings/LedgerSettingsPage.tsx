@@ -155,7 +155,7 @@ export default function LedgerSettingsPage() {
     submittingRef.current = true;
     try {
       await leaveLedger({ ledgerId, version: currentMember.version });
-      navigate(ROUTES_PATH.LEDGERS.getPath(), { replace: true });
+      navigate(ROUTES_PATH.DETAIL.getPath(), { replace: true });
     }
     catch (error) {
       if (isConflict(error))
@@ -182,7 +182,7 @@ export default function LedgerSettingsPage() {
     submittingRef.current = true;
     try {
       await archiveLedger({ ledgerId, data: { confirmed: true, version: ledger.version } });
-      navigate(ROUTES_PATH.LEDGERS.getPath(), { replace: true });
+      navigate(ROUTES_PATH.DETAIL.getPath(), { replace: true });
     }
     catch (error) {
       if (isConflict(error))

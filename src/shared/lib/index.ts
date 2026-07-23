@@ -13,4 +13,5 @@ export * from './component';
 export * from './math';
 export * from './play-sound';
 export * from './regular';
+export * from './route-prefetch';
 export * from './system';

@@ -13,6 +13,37 @@
     "cancel": "取消",
     "save": "保存"
   },
+  "switcher": {
+    "cancel": "取消",
+    "create": "创建账本",
+    "currentCustom": "当前账本",
+    "currentPersonal": "当前为个人账本",
+    "currentSettings": "当前账本设置",
+    "customEmpty": "还没有自定义账本",
+    "loadError": "账本列表加载失败",
+    "loadErrorDescription": "请检查网络后重试",
+    "loading": "正在加载账本",
+    "manage": "账本管理",
+    "memberCount": "{{count}} 人",
+    "more": "更多账本操作",
+    "personal": "个人账本",
+    "preferences": "快捷入口设置",
+    "recordCount": "{{count}} 笔记录",
+    "retry": "重新加载",
+    "returnPersonal": "返回个人账本",
+    "selected": "当前账本",
+    "switch": "切换账本"
+  },
+  "preferences": {
+    "title": "账本设置",
+    "quickSwitch": "分账本快捷入口",
+    "description": "开启后，可在账本首页快速切换账本",
+    "updateFailed": "设置保存失败，请稍后重试",
+    "conflict": "设置已在其他页面更新，已获取最新配置"
+  },
+  "workspace": {
+    "createDenied": "当前账本没有记账权限"
+  },
   "center": {
     "title": "我的账本",
     "systemSection": "默认账本",
@@ -116,15 +147,18 @@
   "join": {
     "title": "加入账本",
     "code": "邀请码",
+    "codeGuide": "输入邀请码，加入他人创建的账本",
     "codePlaceholder": "请输入邀请码",
     "remark": "申请附言",
-    "remarkPlaceholder": "告诉对方你是谁，最多 30 字",
-    "submit": "提交申请",
+    "remarkGuide": "请输入你的附言，告诉对方你是谁",
+    "remarkPlaceholder": "请输入，最多30字",
+    "submit": "提交",
     "submitFailed": "提交加入申请失败，请稍后重试",
     "submittedTitle": "加入申请已发送",
     "submittedDescription": "申请 24 小时内有效。通过后即可在我的账本中查看。",
     "validation": {
       "codeRequired": "请输入邀请码",
+      "codeInvalid": "请输入有效的 6 位邀请码",
       "remarkRequired": "请输入申请附言",
       "remarkTooLong": "申请附言不能超过 30 字",
       "invalid": "请检查输入内容"

@@ -1,5 +1,13 @@
-import type { FC, FormEvent } from 'react';
-import { Button, Toast } from 'antd-mobile';
+import type { FC } from 'react';
+import {
+  Button,
+  Form,
+  Input,
+  NavBar,
+  SafeArea,
+  TextArea,
+  Toast,
+} from 'antd-mobile';
 import { CheckCircleFill } from 'antd-mobile-icons';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,10 +15,11 @@ import { useSubmitJoinRequestMutation } from '@/entities/ledger';
 import {
   createIdempotencyKey,
   getErrorMessage,
+  normalizeInvitationCode,
   validateJoinRequest,
 } from '@/pages/ledger-collaboration/model';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
+import './ledger-join.scss';
 
 const LedgerJoinPage: FC = () => {
   const { t } = useTranslation('ledger');
@@ -20,10 +29,10 @@ const LedgerJoinPage: FC = () => {
   const [remark, setRemark] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const submittingRef = useRef(false);
 
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
+  const handleSubmit = async () => {
     if (submittingRef.current)
       return;
     let validated: ReturnType<typeof validateJoinRequest>;
@@ -32,11 +41,14 @@ const LedgerJoinPage: FC = () => {
     }
     catch (error) {
       const key = error instanceof Error ? error.message : 'invalid';
-      setErrorMessage(t(`join.validation.${key}`));
+      const message = t(`join.validation.${key}`);
+      setErrorMessage(message);
+      Toast.show({ content: message });
       return;
     }
 
     submittingRef.current = true;
+    setIsSubmitting(true);
     setErrorMessage('');
     try {
       await submitJoinRequest({
@@ -55,18 +67,29 @@ const LedgerJoinPage: FC = () => {
     }
     finally {
       submittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
+  const isFormValid = /^[A-HJ-NP-Z2-9]{6}$/.test(code)
+    && remark.trim().length >= 1
+    && remark.trim().length <= 30;
+  const isLoading = isSubmitting || mutation.isLoading;
+
   return (
-    <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
+    <div className="page-new ledger-join-page">
+      <SafeArea position="top" />
+      <NavBar
+        back={t('common:nav.back')}
+        className="ledger-join-navbar"
+        onBack={() => navigate(-1)}
+      >
         {t('join.title')}
       </NavBar>
-      <main className="min-h-0 flex-grow overflow-auto px-4 pb-6 pt-6">
+      <main className="ledger-join-content">
         {submitted
           ? (
-              <div className="flex flex-col items-center rounded bg-white px-5 py-12 text-center">
+              <div className="ledger-join-submitted">
                 <CheckCircleFill className="text-6xl text-green-500" />
                 <h1 className="mt-5 text-2xl font-medium text-font-black">
                   {t('join.submittedTitle')}
@@ -85,48 +108,68 @@ const LedgerJoinPage: FC = () => {
               </div>
             )
           : (
-              <form className="rounded bg-white px-4 py-6" onSubmit={handleSubmit}>
-                <label className="block text-base text-font-black" htmlFor="ledger-invite-code">
-                  {t('join.code')}
-                </label>
-                <input
-                  autoCapitalize="characters"
-                  className="mt-3 h-[52px] w-full box-border rounded border-0 bg-bg-gray px-3 text-base outline-none"
-                  id="ledger-invite-code"
-                  maxLength={100}
-                  onChange={event => setCode(event.target.value)}
-                  placeholder={t('join.codePlaceholder')}
-                  value={code}
-                />
-                <label className="mt-6 block text-base text-font-black" htmlFor="ledger-join-remark">
-                  {t('join.remark')}
-                </label>
-                <textarea
-                  className="mt-3 min-h-[120px] w-full resize-none box-border rounded border-0 bg-bg-gray p-3 text-base leading-6 outline-none"
-                  id="ledger-join-remark"
-                  maxLength={30}
-                  onChange={event => setRemark(event.target.value)}
-                  placeholder={t('join.remarkPlaceholder')}
-                  value={remark}
-                />
-                <div className="mt-2 text-right text-xs text-font-gray">
-                  {remark.length}
-                  /30
-                </div>
+              <Form
+                className="ledger-join-form"
+                layout="vertical"
+                onFinish={handleSubmit}
+              >
+                <section
+                  className="ledger-join-field-group"
+                  data-testid="ledger-join-code-field"
+                >
+                  <label className="ledger-join-field-label" htmlFor="ledger-invite-code">
+                    {t('join.codeGuide')}
+                  </label>
+                  <div className="ledger-join-input-shell">
+                    <Form.Item noStyle>
+                      <Input
+                        autoCapitalize="characters"
+                        clearable
+                        id="ledger-invite-code"
+                        maxLength={100}
+                        onChange={value => setCode(normalizeInvitationCode(value))}
+                        placeholder={t('join.codePlaceholder')}
+                        value={code}
+                      />
+                    </Form.Item>
+                  </div>
+                </section>
+                <section
+                  className="ledger-join-field-group"
+                  data-testid="ledger-join-remark-field"
+                >
+                  <label className="ledger-join-field-label" htmlFor="ledger-join-remark">
+                    {t('join.remarkGuide')}
+                  </label>
+                  <div className="ledger-join-textarea-shell">
+                    <Form.Item noStyle>
+                      <TextArea
+                        autoSize={{ minRows: 2, maxRows: 4 }}
+                        id="ledger-join-remark"
+                        maxLength={30}
+                        onChange={setRemark}
+                        placeholder={t('join.remarkPlaceholder')}
+                        showCount
+                        value={remark}
+                      />
+                    </Form.Item>
+                  </div>
+                </section>
                 {errorMessage && (
-                  <p className="mt-3 text-sm text-red-500" role="alert">{errorMessage}</p>
+                  <p className="ledger-join-error" role="alert">{errorMessage}</p>
                 )}
                 <Button
                   block
-                  className="mt-6"
+                  className="ledger-join-submit"
                   color="primary"
-                  disabled={mutation.isLoading}
-                  loading={mutation.isLoading}
+                  data-testid="ledger-join-submit"
+                  disabled={!isFormValid || isLoading}
+                  loading={isLoading}
                   type="submit"
                 >
                   {t('join.submit')}
                 </Button>
-              </form>
+              </Form>
             )}
       </main>
     </div>

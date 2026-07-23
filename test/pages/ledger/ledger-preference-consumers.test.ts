@@ -18,7 +18,9 @@ import LedgerChartsPage from '@/pages/ledger-charts/LedgerChartsPage';
 import LedgerRecordsPage from '@/pages/ledger-records/LedgerRecordsPage';
 
 const hooks = vi.hoisted(() => ({
+  useGetUserAppConfigQuery: vi.fn(),
   useLedgerChartQuery: vi.fn(),
+  useLedgerNavigationQuery: vi.fn(),
   useLedgerPreferencesQuery: vi.fn(),
   useLedgerQuery: vi.fn(),
   useLedgerRecordsQuery: vi.fn(),
@@ -26,8 +28,13 @@ const hooks = vi.hoisted(() => ({
 
 vi.mock('@/entities/ledger', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/ledger')>()),
+  useLedgerNavigationQuery: hooks.useLedgerNavigationQuery,
   useLedgerPreferencesQuery: hooks.useLedgerPreferencesQuery,
   useLedgerQuery: hooks.useLedgerQuery,
+}));
+
+vi.mock('@/entities/user-app-config', () => ({
+  useGetUserAppConfigQuery: hooks.useGetUserAppConfigQuery,
 }));
 
 vi.mock('@/entities/chart', async importOriginal => ({
@@ -97,6 +104,17 @@ function renderPage(element: ReactNode) {
 beforeEach(() => {
   Object.values(hooks).forEach(mock => mock.mockReset());
   hooks.useLedgerQuery.mockReturnValue({ data: ledger, isError: false, isLoading: false, refetch: vi.fn() });
+  hooks.useLedgerNavigationQuery.mockReturnValue({
+    data: [],
+    isError: false,
+    isLoading: false,
+    refetch: vi.fn(),
+  });
+  hooks.useGetUserAppConfigQuery.mockReturnValue({
+    data: { isLedgerQuickSwitchEnabled: false, ledgerQuickSwitchVersion: 1 },
+    isError: false,
+    isLoading: false,
+  });
   hooks.useLedgerPreferencesQuery.mockReturnValue({ data: preference, isError: false, isLoading: false });
   hooks.useLedgerRecordsQuery.mockReturnValue({
     data: { data: [], expend: 5, income: 10, total: 0 },

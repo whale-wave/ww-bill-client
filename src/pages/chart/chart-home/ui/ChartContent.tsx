@@ -16,7 +16,7 @@ export const ChartContent: FC = () => {
   );
 
   return (
-    <div className={cn('fixed left-0 right-0 top-[calc(42.94px+42.4px+37.55px)] h-[calc(100%-42.94px-42.4px-37.55px-60px)] overflow-y-auto')}>
+    <div className={cn('min-h-0 flex-grow overflow-y-auto')}>
       {!curTab
         ? empty
         : (

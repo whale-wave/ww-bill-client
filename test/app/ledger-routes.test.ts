@@ -33,10 +33,13 @@ describe('ledger page routes', () => {
     ['/ledgers/templates', 'templates'],
     ['/ledgers/create', 'create'],
     ['/ledgers/join', 'join'],
+    ['/ledgers/management', 'management'],
+    ['/ledgers/preferences', 'preferences'],
     ['/ledgers/applications', 'applications'],
     ['/ledger-invites/AB%2FC', 'ledger-invites/:code'],
     ['/ledgers/ledger%2Fa', ':ledgerId'],
     ['/ledgers/ledger%2Fa/records', ':ledgerId/records'],
+    ['/ledgers/ledger%2Fa/bill', ':ledgerId/bill'],
     ['/ledgers/ledger%2Fa/budget', ':ledgerId/budget'],
     ['/ledgers/ledger%2Fa/charts', ':ledgerId/charts'],
     ['/ledgers/ledger%2Fa/settings', ':ledgerId/settings'],
@@ -59,5 +62,18 @@ describe('ledger page routes', () => {
     expect(route).toBeDefined();
     expect(route?.path).toBe(expectedPath);
     expect(route?.lazy).toBeTypeOf('function');
+  });
+
+  it('registers static ledger pages before the ledger ID parameter', () => {
+    const root = routerCapture.state.routes[0] as RouteObject;
+    const ledgerRoutes = root.children?.find(route => route.path === 'ledgers')?.children;
+    const managementIndex = ledgerRoutes?.findIndex(route => route.path === 'management') ?? -1;
+    const preferencesIndex = ledgerRoutes?.findIndex(route => route.path === 'preferences') ?? -1;
+    const ledgerIdIndex = ledgerRoutes?.findIndex(route => route.path === ':ledgerId') ?? -1;
+
+    expect(managementIndex).toBeGreaterThanOrEqual(0);
+    expect(ledgerIdIndex).toBeGreaterThan(managementIndex);
+    expect(preferencesIndex).toBeGreaterThanOrEqual(0);
+    expect(ledgerIdIndex).toBeGreaterThan(preferencesIndex);
   });
 });

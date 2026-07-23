@@ -2,6 +2,8 @@ import type { GetLedgerMembersApiParams, GetLedgersApiParams } from './api';
 
 export const ledgerKeys = {
   all: ['ledger'] as const,
+  navigation: () => [...ledgerKeys.all, 'navigation'] as const,
+  management: () => [...ledgerKeys.all, 'management'] as const,
   lists: () => [...ledgerKeys.all, 'list'] as const,
   list: (params?: GetLedgersApiParams) => [...ledgerKeys.lists(), params] as const,
   templateRoot: () => [...ledgerKeys.all, 'template'] as const,

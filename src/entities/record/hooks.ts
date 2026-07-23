@@ -1,4 +1,4 @@
-import type { UseQueryOptions } from '@tanstack/react-query';
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query';
 import type { ToastHandler } from 'antd-mobile/es/components/toast';
 import type {
   GetRecordApiParams,
@@ -45,6 +45,26 @@ const emptyBill: GetRecordBillApiResponseData = {
     balance: 0,
   },
 };
+
+const ledgerNavigationKey = ['ledger', 'navigation'] as const;
+
+export function invalidateRecordCountNavigationCache(queryClient: QueryClient) {
+  return queryClient.invalidateQueries({ queryKey: ledgerNavigationKey });
+}
+
+async function invalidateLedgerRecordSuccessCaches(
+  queryClient: QueryClient,
+  ledgerId: string,
+  invalidatesRecordCount: boolean,
+) {
+  const invalidations = [
+    queryClient.invalidateQueries({ queryKey: recordKeys.ledgerRoot(ledgerId) }),
+    queryClient.invalidateQueries({ queryKey: chartKeys.ledgerRoot(ledgerId) }),
+  ];
+  if (invalidatesRecordCount)
+    invalidations.push(invalidateRecordCountNavigationCache(queryClient));
+  await Promise.all(invalidations);
+}
 
 export function useGetRecordQuery(options: {
   params?: GetRecordApiParams;
@@ -118,18 +138,28 @@ export function useLedgerRecordBillQuery(options: {
 
 function useLedgerRecordMutation<TVariables extends { ledgerId: string }>(
   mutationFn: (variables: TVariables) => Promise<SuccessResponse<unknown>>,
+  invalidatesRecordCount = false,
 ) {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn,
     onSuccess: async (_response, variables) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: recordKeys.ledgerRoot(variables.ledgerId) }),
-        queryClient.invalidateQueries({ queryKey: chartKeys.ledgerRoot(variables.ledgerId) }),
-      ]);
+      await invalidateLedgerRecordSuccessCaches(
+        queryClient,
+        variables.ledgerId,
+        invalidatesRecordCount,
+      );
     },
     onError: async (error, variables) => {
       if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409) {
+        if (invalidatesRecordCount) {
+          await invalidateLedgerRecordSuccessCaches(
+            queryClient,
+            variables.ledgerId,
+            invalidatesRecordCount,
+          );
+          return;
+        }
         await queryClient.invalidateQueries({ queryKey: recordKeys.ledgerRoot(variables.ledgerId) });
       }
     },
@@ -141,7 +171,7 @@ export function useCreateLedgerRecordMutation() {
   return useLedgerRecordMutation((options: {
     ledgerId: string;
     data: Parameters<typeof postLedgerRecordApi>[1];
-  }) => postLedgerRecordApi(options.ledgerId, options.data).then(assertSuccessApi));
+  }) => postLedgerRecordApi(options.ledgerId, options.data).then(assertSuccessApi), true);
 }
 
 export function useUpdateLedgerRecordMutation() {
@@ -154,7 +184,7 @@ export function useUpdateLedgerRecordMutation() {
 
 export function useDeleteLedgerRecordMutation() {
   return useLedgerRecordMutation((options: { ledgerId: string; recordId: string; version: number }) =>
-    deleteLedgerRecordApi(options.ledgerId, options.recordId, options.version).then(assertSuccessApi));
+    deleteLedgerRecordApi(options.ledgerId, options.recordId, options.version).then(assertSuccessApi), true);
 }
 
 export function useGetRecordByIdQuery(options?: {
@@ -242,6 +272,7 @@ export function usePostRecordMutation() {
         queryClient.invalidateQueries({ queryKey: recordKeys.lists() }),
         queryClient.invalidateQueries({ queryKey: recordKeys.bills() }),
         queryClient.invalidateQueries({ queryKey: chartKeys.all }),
+        invalidateRecordCountNavigationCache(queryClient),
       ]);
     },
   });
@@ -284,12 +315,11 @@ export function useDeleteRecordMutation() {
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: (params: { id: string; version: number }) => deleteRecordApi(params.id, params.version),
     onSuccess: async (_response, variables) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: recordKeys.lists() }),
-        queryClient.invalidateQueries({ queryKey: recordKeys.detail({ id: variables.id }) }),
-        queryClient.invalidateQueries({ queryKey: recordKeys.bills() }),
-        queryClient.invalidateQueries({ queryKey: chartKeys.all }),
-      ]);
+      await invalidatePersonalDeleteRecordCaches(queryClient, variables.id);
+    },
+    onError: async (error, variables) => {
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
+        await invalidatePersonalDeleteRecordCaches(queryClient, variables.id);
     },
   });
 
@@ -299,4 +329,17 @@ export function useDeleteRecordMutation() {
       ...rest,
     },
   ] as const;
+}
+
+async function invalidatePersonalDeleteRecordCaches(
+  queryClient: QueryClient,
+  recordId: string,
+) {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: recordKeys.lists() }),
+    queryClient.invalidateQueries({ queryKey: recordKeys.detail({ id: recordId }) }),
+    queryClient.invalidateQueries({ queryKey: recordKeys.bills() }),
+    queryClient.invalidateQueries({ queryKey: chartKeys.all }),
+    invalidateRecordCountNavigationCache(queryClient),
+  ]);
 }

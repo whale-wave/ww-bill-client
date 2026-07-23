@@ -4,6 +4,7 @@ import type {
   GetLedgersApiParams,
   PatchLedgerApiData,
   PatchLedgerJoinRequestApiData,
+  PatchLedgerManagementOrderApiData,
   PatchLedgerMemberApiData,
   PatchLedgerPreferencesApiData,
   PostArchiveLedgerApiData,
@@ -17,7 +18,9 @@ import type {
   Ledger,
   LedgerInvitationPreview,
   LedgerJoinRequest,
+  LedgerListItem,
   LedgerMember,
+  LedgerOrderResult,
   LedgerPreference,
   LedgerTemplate,
 } from './types';
@@ -30,6 +33,7 @@ import {
   getLedgerApi,
   getLedgerInvitationPreviewApi,
   getLedgerJoinRequestsApi,
+  getLedgerManagementApi,
   getLedgerMembersApi,
   getLedgerPreferencesApi,
   getLedgersApi,
@@ -37,6 +41,7 @@ import {
   getMyLedgerJoinRequestsApi,
   patchLedgerApi,
   patchLedgerJoinRequestApi,
+  patchLedgerManagementOrderApi,
   patchLedgerMemberApi,
   patchLedgerPreferencesApi,
   postArchiveLedgerApi,
@@ -50,6 +55,14 @@ import { ledgerKeys } from './keys';
 
 export async function getLedgersQueryFn(params?: GetLedgersApiParams) {
   return assertSuccessApi(await getLedgersApi(params));
+}
+
+export async function getLedgerNavigationQueryFn() {
+  return getLedgersQueryFn();
+}
+
+export async function getLedgerManagementQueryFn() {
+  return assertSuccessApi(await getLedgerManagementApi());
 }
 
 export async function getLedgerTemplatesQueryFn() {
@@ -73,6 +86,12 @@ export async function updateLedgerMutationFn(options: {
   data: PatchLedgerApiData;
 }) {
   return assertSuccessApi(await patchLedgerApi(options.ledgerId, options.data));
+}
+
+export async function reorderLedgersMutationFn(
+  data: PatchLedgerManagementOrderApiData,
+) {
+  return assertSuccessApi(await patchLedgerManagementOrderApi(data));
 }
 
 export async function updateLedgerPreferencesMutationFn(options: {
@@ -186,16 +205,114 @@ export async function cacheCreatedLedgerResponse<TLedger extends { id: string }>
   response: SuccessResponse<TLedger>,
 ) {
   queryClient.setQueryData(ledgerKeys.detail(response.data.id), response);
-  await queryClient.invalidateQueries({ queryKey: ledgerKeys.lists() });
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: ledgerKeys.lists() }),
+    queryClient.invalidateQueries({ queryKey: ledgerKeys.navigation() }),
+    queryClient.invalidateQueries({ queryKey: ledgerKeys.management() }),
+  ]);
+}
+
+export async function cacheReorderedLedgerManagementResponse(
+  queryClient: QueryClient,
+  response: SuccessResponse<LedgerOrderResult[]>,
+) {
+  queryClient.setQueryData<SuccessResponse<LedgerListItem[]> | undefined>(
+    ledgerKeys.management(),
+    (current) => {
+      if (!current)
+        return current;
+
+      const ledgerById = new Map(current.data.map(ledger => [ledger.id, ledger]));
+      const orderedIds = new Set(response.data.map(item => item.ledgerId));
+      const reordered = response.data.flatMap((item) => {
+        const ledger = ledgerById.get(item.ledgerId);
+        if (!ledger)
+          return [];
+        return [{
+          ...ledger,
+          myMembership: {
+            ...ledger.myMembership,
+            sortOrder: item.sortOrder,
+            version: item.memberVersion,
+          },
+        }];
+      });
+      const unmentioned = current.data.filter(ledger => !orderedIds.has(ledger.id));
+
+      return { ...current, data: [...reordered, ...unmentioned] };
+    },
+  );
+  await queryClient.invalidateQueries({ queryKey: ledgerKeys.navigation() });
+}
+
+export async function invalidateLedgerNavigationAndManagementCaches(
+  queryClient: QueryClient,
+) {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: ledgerKeys.navigation() }),
+    queryClient.invalidateQueries({ queryKey: ledgerKeys.management() }),
+  ]);
+}
+
+interface UseLedgerListQueryOptions<TQueryKey extends readonly unknown[]> {
+  queryOptions?: Omit<
+    UseQueryOptions<
+      SuccessResponse<LedgerListItem[]>,
+      unknown,
+      SuccessResponse<LedgerListItem[]>,
+      TQueryKey
+    >,
+    'queryFn' | 'queryKey'
+  >;
+}
+
+export function useLedgerNavigationQuery(
+  options: UseLedgerListQueryOptions<ReturnType<typeof ledgerKeys.navigation>> = {},
+) {
+  const { data: response, ...rest } = useQuery({
+    queryFn: getLedgerNavigationQueryFn,
+    queryKey: ledgerKeys.navigation(),
+    ...options.queryOptions,
+  });
+
+  return { response, data: response?.data ?? [], ...rest };
+}
+
+export function useLedgerManagementQuery(
+  options: UseLedgerListQueryOptions<ReturnType<typeof ledgerKeys.management>> = {},
+) {
+  const { data: response, ...rest } = useQuery({
+    queryFn: getLedgerManagementQueryFn,
+    queryKey: ledgerKeys.management(),
+    ...options.queryOptions,
+  });
+
+  return { response, data: response?.data ?? [], ...rest };
+}
+
+export function useReorderLedgersMutation() {
+  const queryClient = useQueryClient();
+  const { mutateAsync, ...rest } = useMutation({
+    mutationFn: reorderLedgersMutationFn,
+    onSuccess: async (response) => {
+      await cacheReorderedLedgerManagementResponse(queryClient, response);
+    },
+    onError: async (error) => {
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
+        await invalidateLedgerNavigationAndManagementCaches(queryClient);
+    },
+  });
+
+  return [mutateAsync, rest] as const;
 }
 
 interface UseGetLedgersQueryOptions {
   params?: GetLedgersApiParams;
   queryOptions?: Omit<
     UseQueryOptions<
-      SuccessResponse<Ledger[]>,
+      SuccessResponse<LedgerListItem[]>,
       unknown,
-      SuccessResponse<Ledger[]>,
+      SuccessResponse<LedgerListItem[]>,
       ReturnType<typeof ledgerKeys.list>
     >,
     'queryFn' | 'queryKey'
@@ -311,11 +428,16 @@ export function usePatchLedgerMutation() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ledgerKeys.lists() }),
         queryClient.invalidateQueries({ queryKey: ledgerKeys.detail(variables.ledgerId) }),
+        invalidateLedgerNavigationAndManagementCaches(queryClient),
       ]);
     },
     onError: async (error, variables) => {
-      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
-        await queryClient.invalidateQueries({ queryKey: ledgerKeys.detail(variables.ledgerId) });
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ledgerKeys.detail(variables.ledgerId) }),
+          invalidateLedgerNavigationAndManagementCaches(queryClient),
+        ]);
+      }
     },
   });
 
@@ -344,13 +466,25 @@ export function useArchiveLedgerMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: archiveLedgerMutationFn,
-    onSuccess: async (response, variables) => {
-      queryClient.setQueryData(ledgerKeys.detail(variables.ledgerId), response);
-      await queryClient.invalidateQueries({ queryKey: ledgerKeys.lists() });
+    onSuccess: async (_response, variables) => {
+      queryClient.removeQueries({
+        exact: true,
+        queryKey: ledgerKeys.detail(variables.ledgerId),
+      });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ledgerKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: ledgerKeys.membersRoot(variables.ledgerId) }),
+        invalidateLedgerNavigationAndManagementCaches(queryClient),
+      ]);
     },
     onError: async (error, variables) => {
-      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
-        await queryClient.invalidateQueries({ queryKey: ledgerKeys.detail(variables.ledgerId) });
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ledgerKeys.detail(variables.ledgerId) }),
+          queryClient.invalidateQueries({ queryKey: ledgerKeys.membersRoot(variables.ledgerId) }),
+          invalidateLedgerNavigationAndManagementCaches(queryClient),
+        ]);
+      }
     },
   });
   return [mutateAsync, rest] as const;
@@ -476,6 +610,7 @@ export function useSubmitJoinRequestMutation() {
         queryClient.invalidateQueries({
           queryKey: ledgerKeys.joinRequests(response.data.ledger.id),
         }),
+        invalidateLedgerNavigationAndManagementCaches(queryClient),
       ]);
     },
   });
@@ -494,7 +629,18 @@ export function useDecideJoinRequestMutation() {
         queryClient.invalidateQueries({
           queryKey: ledgerKeys.membersRoot(variables.ledgerId),
         }),
+        invalidateLedgerNavigationAndManagementCaches(queryClient),
       ]);
+    },
+    onError: async (error, variables) => {
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409) {
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: ledgerKeys.membersRoot(variables.ledgerId),
+          }),
+          invalidateLedgerNavigationAndManagementCaches(queryClient),
+        ]);
+      }
     },
   });
   return [mutateAsync, rest] as const;
@@ -505,9 +651,22 @@ export function useUpdateLedgerMemberMutation() {
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: updateLedgerMemberMutationFn,
     onSuccess: async (_response, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: ledgerKeys.membersRoot(variables.ledgerId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ledgerKeys.membersRoot(variables.ledgerId),
+        }),
+        invalidateLedgerNavigationAndManagementCaches(queryClient),
+      ]);
+    },
+    onError: async (error, variables) => {
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409) {
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: ledgerKeys.membersRoot(variables.ledgerId),
+          }),
+          invalidateLedgerNavigationAndManagementCaches(queryClient),
+        ]);
+      }
     },
   });
   return [mutateAsync, rest] as const;
@@ -518,13 +677,20 @@ export function useRemoveLedgerMemberMutation() {
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: removeLedgerMemberMutationFn,
     onSuccess: async (_response, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: ledgerKeys.membersRoot(variables.ledgerId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ledgerKeys.membersRoot(variables.ledgerId),
+        }),
+        invalidateLedgerNavigationAndManagementCaches(queryClient),
+      ]);
     },
     onError: async (error, variables) => {
-      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
-        await queryClient.invalidateQueries({ queryKey: ledgerKeys.membersRoot(variables.ledgerId) });
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ledgerKeys.membersRoot(variables.ledgerId) }),
+          invalidateLedgerNavigationAndManagementCaches(queryClient),
+        ]);
+      }
     },
   });
   return [mutateAsync, rest] as const;
@@ -539,7 +705,16 @@ export function useLeaveLedgerMutation() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ledgerKeys.lists() }),
         queryClient.invalidateQueries({ queryKey: ledgerKeys.membersRoot(variables.ledgerId) }),
+        invalidateLedgerNavigationAndManagementCaches(queryClient),
       ]);
+    },
+    onError: async (error, variables) => {
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ledgerKeys.membersRoot(variables.ledgerId) }),
+          invalidateLedgerNavigationAndManagementCaches(queryClient),
+        ]);
+      }
     },
   });
   return [mutateAsync, rest] as const;
@@ -554,6 +729,7 @@ export function useTransferLedgerOwnershipMutation() {
         queryClient.invalidateQueries({ queryKey: ledgerKeys.lists() }),
         queryClient.invalidateQueries({ queryKey: ledgerKeys.detail(variables.ledgerId) }),
         queryClient.invalidateQueries({ queryKey: ledgerKeys.membersRoot(variables.ledgerId) }),
+        invalidateLedgerNavigationAndManagementCaches(queryClient),
       ]);
     },
     onError: async (error, variables) => {
@@ -561,6 +737,7 @@ export function useTransferLedgerOwnershipMutation() {
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ledgerKeys.detail(variables.ledgerId) }),
           queryClient.invalidateQueries({ queryKey: ledgerKeys.membersRoot(variables.ledgerId) }),
+          invalidateLedgerNavigationAndManagementCaches(queryClient),
         ]);
       }
     },

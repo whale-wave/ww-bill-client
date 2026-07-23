@@ -13,6 +13,37 @@
     "cancel": "Cancel",
     "save": "Save"
   },
+  "switcher": {
+    "cancel": "Cancel",
+    "create": "Create Ledger",
+    "currentCustom": "Current Ledger",
+    "currentPersonal": "Personal ledger is active",
+    "currentSettings": "Current Ledger Settings",
+    "customEmpty": "No custom ledgers yet",
+    "loadError": "Unable to load ledgers",
+    "loadErrorDescription": "Check your connection and try again",
+    "loading": "Loading ledgers",
+    "manage": "Manage Ledgers",
+    "memberCount": "{{count}} members",
+    "more": "More ledger actions",
+    "personal": "Personal Ledger",
+    "preferences": "Quick Switch Settings",
+    "recordCount": "{{count}} records",
+    "retry": "Try Again",
+    "returnPersonal": "Return to Personal Ledger",
+    "selected": "Current ledger",
+    "switch": "Switch Ledger"
+  },
+  "preferences": {
+    "title": "Ledger Settings",
+    "quickSwitch": "Ledger Quick Switch",
+    "description": "Turn this on to switch ledgers quickly from the ledger home page",
+    "updateFailed": "Unable to update this setting. Try again.",
+    "conflict": "This setting changed on another page. The latest value has been loaded."
+  },
+  "workspace": {
+    "createDenied": "You do not have permission to add records to this ledger"
+  },
   "center": {
     "title": "My Ledgers",
     "systemSection": "Default Ledger",
@@ -125,6 +156,7 @@
     "submittedDescription": "The request is valid for 24 hours. The ledger appears after approval.",
     "validation": {
       "codeRequired": "Enter an invitation code",
+      "codeInvalid": "Enter a valid 6-character invitation code",
       "remarkRequired": "Enter a request message",
       "remarkTooLong": "The request message cannot exceed 30 characters",
       "invalid": "Check the entered information"

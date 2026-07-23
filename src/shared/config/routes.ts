@@ -3,6 +3,12 @@ function encodeRouteSegment(value: string | number) {
 }
 
 export const ROUTES_PATH = {
+  DETAIL: {
+    getPath: () => '/detail',
+  },
+  BOOKKEEPING: {
+    getPath: () => '/bookkeeping',
+  },
   BILL: {
     getPath: () => '/bill',
   },
@@ -37,6 +43,9 @@ export const ROUTES_PATH = {
   },
   COMMUNITY: {
     getPath: () => '/community',
+  },
+  DISCOVERY: {
+    getPath: () => '/discovery',
   },
   EXPORT_DATA: {
     getPath: () => '/export-data',
@@ -123,6 +132,9 @@ export const ROUTES_PATH = {
   },
   LEDGER_APPLICATIONS: {
     getPath: () => '/ledgers/applications',
+  },
+  LEDGER_PREFERENCES: {
+    getPath: () => '/ledgers/preferences',
   },
   LEDGER_INVITE: {
     getPath: (code: string) => `/ledger-invites/${encodeRouteSegment(code)}`,

@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import type { Ledger, LedgerCapability } from '@/entities/ledger';
 import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
-import { useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { useLedgerQuery } from '@/entities/ledger';
+import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 
 export interface LedgerScope {
@@ -13,6 +14,13 @@ export interface LedgerScope {
 interface LedgerScopeBoundaryProps {
   capability?: LedgerCapability;
   children: (scope: LedgerScope) => ReactNode;
+}
+
+function isDeterministicallyLostLedger(error: unknown) {
+  if (typeof error !== 'object' || error === null || !('statusCode' in error))
+    return false;
+
+  return error.statusCode === 403 || error.statusCode === 404;
 }
 
 export function LedgerScopeBoundary({
@@ -43,6 +51,9 @@ export function LedgerScopeBoundary({
       </div>
     );
   }
+
+  if (ledgerQuery.isError && isDeterministicallyLostLedger(ledgerQuery.error))
+    return <Navigate replace to={ROUTES_PATH.DETAIL.getPath()} />;
 
   if (ledgerQuery.isError || !ledgerQuery.data) {
     return (

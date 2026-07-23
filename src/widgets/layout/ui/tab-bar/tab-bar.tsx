@@ -1,126 +1,180 @@
-import type { FC } from 'react';
-import { AddOutline } from 'antd-mobile-icons';
-import classNames from 'classnames';
-import { useCallback } from 'react';
+import type {
+  FC,
+  KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent as ReactMouseEvent,
+  TouchEvent as ReactTouchEvent,
+} from 'react';
+import { TabBar as AntTabBar } from 'antd-mobile';
+import {
+  AddOutline,
+  BillOutline,
+  CompassOutline,
+  HistogramOutline,
+  UserOutline,
+} from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { playSound } from '@/shared/lib/play-sound';
-import { Icon } from '@/shared/ui';
+import { playSound, prefetchRoute } from '@/shared/lib';
 import './tab-bar.scss';
 
-/** Preload route chunks on hover/touch for instant-feel navigation. */
-const routePrefetch: Record<string, () => Promise<unknown>> = {
-  '/detail': () => import('@/pages/record/detail/DetailPage'),
-  '/chart': () => import('@/pages/chart/chart-home/ChartHomePage'),
-  '/bookkeeping': () => import('@/pages/record/bookkeeping/BookkeepingPage'),
-  '/discovery': () => import('@/pages/discovery/DiscoveryPage'),
-  '/mine': () => import('@/pages/mine/MinePage'),
-};
+export type PersonalTabKey
+  = | 'detail'
+    | 'chart'
+    | 'bookkeeping'
+    | 'discovery'
+    | 'mine';
 
-function prefetchRoute(path: string): void {
-  routePrefetch[path]?.().catch(() => {});
+interface PersonalTab {
+  key: PersonalTabKey;
+  route: string;
+  translationKey: string;
+  icon: typeof BillOutline;
+  prominent?: boolean;
 }
 
-interface TabBarProps {
-  active: number;
+const personalTabs: readonly PersonalTab[] = [
+  {
+    icon: BillOutline,
+    key: 'detail',
+    route: ROUTES_PATH.DETAIL.getPath(),
+    translationKey: 'tabBar.detail',
+  },
+  {
+    icon: HistogramOutline,
+    key: 'chart',
+    route: ROUTES_PATH.CHART.getPath(),
+    translationKey: 'tabBar.chart',
+  },
+  {
+    icon: AddOutline,
+    key: 'bookkeeping',
+    prominent: true,
+    route: ROUTES_PATH.BOOKKEEPING.getPath(),
+    translationKey: 'tabBar.bookkeeping',
+  },
+  {
+    icon: CompassOutline,
+    key: 'discovery',
+    route: ROUTES_PATH.DISCOVERY.getPath(),
+    translationKey: 'tabBar.discovery',
+  },
+  {
+    icon: UserOutline,
+    key: 'mine',
+    route: ROUTES_PATH.MINE.getPath(),
+    translationKey: 'tabBar.mine',
+  },
+];
+
+function prefetchPersonalRoute(key: PersonalTabKey): void {
+  prefetchRoute(`personal-${key}`);
 }
 
-export const TabBar: FC<TabBarProps> = ({ active }) => {
+function getPrefetchKey(
+  event: ReactMouseEvent<HTMLDivElement> | ReactTouchEvent<HTMLDivElement>,
+) {
+  if (!(event.target instanceof Element))
+    return;
+  return event.target.closest<HTMLElement>('[data-prefetch-key]')?.dataset.prefetchKey;
+}
+
+function handleTabArrowKey(event: ReactKeyboardEvent<HTMLButtonElement>) {
+  if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key))
+    return;
+
+  const tabList = event.currentTarget.closest<HTMLElement>('[role="tablist"]');
+  const tabs = Array.from(tabList?.querySelectorAll<HTMLButtonElement>('[role="tab"]') ?? []);
+  const currentIndex = tabs.indexOf(event.currentTarget);
+  if (currentIndex < 0 || !tabs.length)
+    return;
+  event.preventDefault();
+
+  if (event.key === 'Home') {
+    tabs[0]?.focus();
+    return;
+  }
+  if (event.key === 'End') {
+    tabs.at(-1)?.focus();
+    return;
+  }
+  const direction = event.key === 'ArrowRight' ? 1 : -1;
+  tabs[(currentIndex + direction + tabs.length) % tabs.length]?.focus();
+}
+
+export interface TabBarProps {
+  /** String key used by the official Ant Design Mobile TabBar API. */
+  activeKey?: PersonalTabKey;
+  /** Temporary compatibility for pages that have not migrated to string keys yet. */
+  active?: number;
+}
+
+export const TabBar: FC<TabBarProps> = ({ active, activeKey }) => {
   const { t } = useTranslation('common');
   const navigate = useNavigate();
+  const resolvedActiveKey = activeKey ?? personalTabs[active ?? 0]?.key ?? 'detail';
 
-  const tabBarList = [
-    {
-      name: t('tabBar.detail'),
-      icon: 'detail',
-      iconActive: 'detail-fill',
-      router: '/detail',
-    },
-    {
-      name: t('tabBar.chart'),
-      icon: 'chart',
-      iconActive: 'chart-fill',
-      router: '/chart',
-    },
-    {
-      name: t('tabBar.bookkeeping'),
-      icon: 'add',
-      router: '/bookkeeping',
-      customRender: (tab: any) => {
-        return (
-          <div className="flex justify-center items-center flex-col relative">
-            <div className="border-[1px] border-[#f7f7f7] border-solid p-[5px] rounded-full border-r-0 border-b-0 border-l-0 absolute bottom-[50%] bg-[#fff]">
-              <div className="bg-primary rounded-full w-[55px] h-[55px] flex justify-center items-center">
-                <AddOutline className="text-2xl" />
-              </div>
-            </div>
-            <AddOutline className="tab-icon opacity-0" />
-            <span className="name">{tab.name}</span>
-          </div>
-        );
-      },
-    },
-    {
-      name: t('tabBar.discovery'),
-      icon: 'community',
-      iconActive: 'community-fill',
-      router: '/discovery',
-    },
-    // {
-    //   name: '社区',
-    //   icon: 'community',
-    //   iconActive: 'community-fill',
-    //   router: '/community',
-    // },
-    {
-      name: t('tabBar.mine'),
-      icon: 'mine',
-      iconActive: 'mine-fill',
-      router: '/mine',
-    },
-  ];
-
-  const isActive = (tab: any, index: number) => {
-    return index === active ? tab.iconActive : tab.icon;
-  };
-
-  const changeRoute = (index: number, router: string) => {
-    if (index === active)
+  const handleChange = (key: string) => {
+    const tab = personalTabs.find(item => item.key === key);
+    if (!tab || tab.key === resolvedActiveKey)
       return;
+
     playSound.turnPage();
-    navigate(router);
+    navigate(tab.route);
   };
 
-  const handleTabBarClick = useCallback((index: number, item: any) => () => {
-    if (item.onClick) {
-      item.onClick();
-    }
-    else {
-      changeRoute(index, item.router);
-    }
-  }, []);
+  const handlePrefetch = (
+    event: ReactMouseEvent<HTMLDivElement> | ReactTouchEvent<HTMLDivElement>,
+  ) => {
+    const key = getPrefetchKey(event);
+    if (key && personalTabs.some(tab => tab.key === key))
+      prefetchPersonalRoute(key as PersonalTabKey);
+  };
 
   return (
-    <div className="h-[60px] flex-shrink-0 z-[100]">
-      <div className={classNames('bwm-tab-bar fixed bottom-0')}>
-        {tabBarList.map((tab, index) => (
-          <div
-            key={tab.name}
-            className="item relative"
-            onClick={handleTabBarClick(index, tab)}
-            onMouseEnter={() => prefetchRoute(tab.router)}
-            onTouchStart={() => prefetchRoute(tab.router)}
-          >
-            {tab.customRender
-              ? tab.customRender(tab)
-              : (
-                  <>
-                    <Icon name={isActive(tab, index)} className="tab-icon" />
-                    <span className="name">{tab.name}</span>
-                  </>
+    <div className="ww-tab-bar-spacer">
+      <div
+        aria-label={t('tabBar.navigation')}
+        className="ww-tab-bar ww-personal-tab-bar"
+        onMouseOver={handlePrefetch}
+        onTouchStart={handlePrefetch}
+        role="tablist"
+      >
+        <AntTabBar activeKey={resolvedActiveKey} onChange={handleChange} safeArea>
+          {personalTabs.map((tab) => {
+            const Icon = tab.icon;
+            const label = t(tab.translationKey);
+            return (
+              <AntTabBar.Item
+                aria-disabled="false"
+                className={tab.prominent ? 'ww-tab-bar__item--prominent' : undefined}
+                data-prefetch-key={tab.key}
+                data-route={tab.route}
+                data-tab-key={tab.key}
+                icon={active => (
+                  <button
+                    aria-selected={active}
+                    className="ww-tab-bar__button"
+                    onFocus={() => prefetchPersonalRoute(tab.key)}
+                    onKeyDown={handleTabArrowKey}
+                    role="tab"
+                    tabIndex={active ? 0 : -1}
+                    type="button"
+                  >
+                    <span className={tab.prominent
+                      ? 'ww-tab-bar__button-icon ww-tab-bar__create-icon'
+                      : 'ww-tab-bar__button-icon'}
+                    >
+                      <Icon aria-hidden="true" />
+                    </span>
+                    <span className="ww-tab-bar__button-label">{label}</span>
+                  </button>
                 )}
-          </div>
-        ))}
+                key={tab.key}
+              />
+            );
+          })}
+        </AntTabBar>
       </div>
     </div>
   );

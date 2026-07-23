@@ -2,16 +2,20 @@ import { QueryClient } from '@tanstack/react-query';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   cacheCreatedLedgerResponse,
+  cacheReorderedLedgerManagementResponse,
   createLedgerInvitationMutationFn,
   createLedgerMutationFn,
   decideLedgerJoinRequestMutationFn,
   getLedgerInvitationPreviewQueryFn,
   getLedgerJoinRequestsQueryFn,
+  getLedgerManagementQueryFn,
   getLedgerMembersQueryFn,
   getLedgerQueryFn,
   getLedgersQueryFn,
   getLedgerTemplatesQueryFn,
   getMyLedgerJoinRequestsQueryFn,
+  invalidateLedgerNavigationAndManagementCaches,
+  reorderLedgersMutationFn,
   revokeLedgerInvitationMutationFn,
   submitLedgerJoinRequestMutationFn,
   updateLedgerMemberMutationFn,
@@ -29,12 +33,14 @@ const api = vi.hoisted(() => ({
   getLedgerInvitationPreviewApi: vi.fn(),
   getLedgerJoinRequestsApi: vi.fn(),
   getLedgerMembersApi: vi.fn(),
+  getLedgerManagementApi: vi.fn(),
   getLedgersApi: vi.fn(),
   getLedgerTemplatesApi: vi.fn(),
   getMyLedgerJoinRequestsApi: vi.fn(),
   deleteLedgerInvitationApi: vi.fn(),
   patchLedgerJoinRequestApi: vi.fn(),
   patchLedgerMemberApi: vi.fn(),
+  patchLedgerManagementOrderApi: vi.fn(),
   patchLedgerApi: vi.fn(),
   postLedgerInvitationApi: vi.fn(),
   postLedgerJoinRequestApi: vi.fn(),
@@ -98,6 +104,16 @@ describe('ledger React Query functions', () => {
     ['ledger members', () => {
       api.getLedgerMembersApi.mockResolvedValue(failedEnvelope);
       return getLedgerMembersQueryFn('ledger-1', { status: LedgerMemberStatus.ACTIVE });
+    }],
+    ['management list', () => {
+      api.getLedgerManagementApi.mockResolvedValue(failedEnvelope);
+      return getLedgerManagementQueryFn();
+    }],
+    ['reorder ledgers', () => {
+      api.patchLedgerManagementOrderApi.mockResolvedValue(failedEnvelope);
+      return reorderLedgersMutationFn({
+        items: [{ ledgerId: 'ledger-1', memberVersion: 2 }],
+      });
     }],
     ['create invitation', () => {
       api.postLedgerInvitationApi.mockResolvedValue(failedEnvelope);
@@ -169,5 +185,62 @@ describe('ledger React Query functions', () => {
 
     expect(queryClient.getQueryData(ledgerKeys.detail('ledger-1'))).toBe(response);
     expect(queryClient.getQueryState(listKey)?.isInvalidated).toBe(true);
+  });
+
+  it('writes returned member versions into management cache and invalidates navigation', async () => {
+    const queryClient = new QueryClient();
+    const navigationKey = ledgerKeys.navigation();
+    const managementResponse = {
+      data: [
+        {
+          id: 'ledger-1',
+          myMembership: { id: 'member-1', sortOrder: 9, version: 2 },
+        },
+        {
+          id: 'ledger-2',
+          myMembership: { id: 'member-2', sortOrder: 8, version: 5 },
+        },
+      ],
+      message: '成功',
+      statusCode: 200,
+    };
+    const reorderResponse = {
+      data: [
+        { ledgerId: 'ledger-2', memberVersion: 6, sortOrder: 0 },
+        { ledgerId: 'ledger-1', memberVersion: 3, sortOrder: 1 },
+      ],
+      message: '成功',
+      statusCode: 200,
+    };
+    queryClient.setQueryData(ledgerKeys.management(), managementResponse);
+    queryClient.setQueryData(navigationKey, { data: [] });
+
+    await cacheReorderedLedgerManagementResponse(queryClient, reorderResponse);
+
+    expect(queryClient.getQueryData(ledgerKeys.management())).toEqual({
+      ...managementResponse,
+      data: [
+        {
+          id: 'ledger-2',
+          myMembership: { id: 'member-2', sortOrder: 0, version: 6 },
+        },
+        {
+          id: 'ledger-1',
+          myMembership: { id: 'member-1', sortOrder: 1, version: 3 },
+        },
+      ],
+    });
+    expect(queryClient.getQueryState(navigationKey)?.isInvalidated).toBe(true);
+  });
+
+  it('invalidates navigation and management presentation caches separately', async () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(ledgerKeys.navigation(), { data: [] });
+    queryClient.setQueryData(ledgerKeys.management(), { data: [] });
+
+    await invalidateLedgerNavigationAndManagementCaches(queryClient);
+
+    expect(queryClient.getQueryState(ledgerKeys.navigation())?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(ledgerKeys.management())?.isInvalidated).toBe(true);
   });
 });

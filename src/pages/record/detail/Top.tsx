@@ -2,11 +2,11 @@ import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import type { numType } from './DetailPage';
 import dayjs from 'dayjs';
-import { CalendarDays, Eye, EyeOff, Search, Triangle } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { Eye, EyeOff, Triangle } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LedgerSwitcherHeader } from '@/features/ledger-switcher';
 import Precision from '@/pages/record/detail/ui';
-import config from '@/shared/config';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
@@ -67,22 +67,28 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
     setSelectTime(dayjs(time));
   };
 
-  const onGoToSearchRecordPage = useCallback(() => {
-    navigate('/search-record');
-  }, [navigate]);
+  const headerActions = useMemo(() => {
+    const calendarTime = dayjs().isSame(selectTime, 'month')
+      ? dayjs().valueOf()
+      : selectTime.valueOf();
 
-  const onGoToRecordCalendarPage = useCallback(() => {
-    if (dayjs().isSame(selectTime, 'month')) {
-      navigate(`/record-calendar?selectTime=${dayjs().valueOf()}`);
-    }
-    else {
-      navigate(`/record-calendar?selectTime=${selectTime.valueOf()}`);
-    }
-  }, [navigate, selectTime]);
+    return [
+      {
+        key: 'search-records',
+        path: ROUTES_PATH.SEARCH_RECORD.getPath(),
+        text: t('search.title'),
+      },
+      {
+        key: 'record-calendar',
+        path: `${ROUTES_PATH.RECORD_CALENDAR.getPath()}?selectTime=${calendarTime}`,
+        text: t('calendar.title'),
+      },
+    ];
+  }, [selectTime, t]);
 
   return (
     <div className={cn(styles.top, 'record-detail-top')}>
-      <div className={styles.title}>{config.appName}</div>
+      <LedgerSwitcherHeader leadingActions={headerActions} />
       <div className={cn([styles.left, styles['top-text-1-wrapper']])}>
         <div className={styles['top-text-1']}>{selectTime?.format('YYYY年')}</div>
         <div className={cn(styles['left-bottom'])}>
@@ -176,10 +182,6 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
             </div>
           )
         : null}
-      <div className="absolute top-0 right-0 p-2 flex items-center gap-3">
-        <Search size={18} strokeWidth={2} onClick={onGoToSearchRecordPage} />
-        <CalendarDays size={18} strokeWidth={2} onClick={onGoToRecordCalendarPage} />
-      </div>
       <div
         className={cn(
           styles['list-wrapper'],

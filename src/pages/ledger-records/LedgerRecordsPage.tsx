@@ -1,14 +1,17 @@
-import { Button, ErrorBlock, NavBar, SearchBar, SpinLoading } from 'antd-mobile';
+import type { Ledger } from '@/entities/ledger';
+import { Button, ErrorBlock, SearchBar, SpinLoading } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { LedgerCapability, useLedgerPreferencesQuery } from '@/entities/ledger';
 import { useLedgerRecordsQuery } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
+import { LedgerSwitcherHeader } from '@/features/ledger-switcher';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 
-function RecordsContent({ ledgerId, canCreate }: { ledgerId: string; canCreate: boolean }) {
+function RecordsContent({ ledgerId }: { ledgerId: string }) {
   const { t } = useTranslation('ledger');
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,22 +54,32 @@ function RecordsContent({ ledgerId, canCreate }: { ledgerId: string; canCreate: 
           </span>
         </button>
       ))}
-      {canCreate && <Button className="fixed bottom-4 left-4 right-4" color="primary" onClick={() => navigate(ROUTES_PATH.LEDGER_RECORD_CREATE.getPath(ledgerId))}>{t('records.create')}</Button>}
+    </>
+  );
+}
+
+function LedgerRecordsWorkspace({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string }) {
+  return (
+    <>
+      <LedgerSwitcherHeader ledgerName={ledger.name} />
+      <main className="min-h-0 flex-grow overflow-auto pb-3">
+        <RecordsContent ledgerId={ledgerId} />
+      </main>
+      <LedgerWorkspaceTabBar
+        activeKey="records"
+        capabilities={ledger.capabilities}
+        ledgerId={ledgerId}
+      />
     </>
   );
 }
 
 export default function LedgerRecordsPage() {
-  const { t } = useTranslation('ledger');
-  const navigate = useNavigate();
   return (
     <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar onBack={() => navigate(-1)}>{t('records.title')}</NavBar>
-      <main className="min-h-0 flex-grow overflow-auto pb-20">
-        <LedgerScopeBoundary capability={LedgerCapability.RECORD_READ}>
-          {({ ledger, ledgerId }) => <RecordsContent canCreate={ledger.capabilities.includes(LedgerCapability.RECORD_CREATE)} ledgerId={ledgerId} />}
-        </LedgerScopeBoundary>
-      </main>
+      <LedgerScopeBoundary capability={LedgerCapability.RECORD_READ}>
+        {scope => <LedgerRecordsWorkspace {...scope} />}
+      </LedgerScopeBoundary>
     </div>
   );
 }

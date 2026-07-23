@@ -10,15 +10,28 @@ import {
 } from '@/pages/ledger-collaboration/model';
 
 describe('ledger collaboration page model', () => {
-  it('normalizes codes and validates the 1-30 character remark contract', () => {
-    expect(normalizeInvitationCode(' ab/c  ')).toBe('AB/C');
-    expect(validateJoinRequest(' CODE ', ' 我是小勇 ')).toEqual({
-      code: 'CODE',
+  it('normalizes codes and validates the six-character invitation alphabet', () => {
+    expect(normalizeInvitationCode(' a b c 2 3 4 ')).toBe('ABC234');
+    expect(validateJoinRequest(' ab c234 ', ' 我是小勇 ')).toEqual({
+      code: 'ABC234',
       remark: '我是小勇',
     });
     expect(() => validateJoinRequest('', '我是小勇')).toThrow('codeRequired');
-    expect(() => validateJoinRequest('CODE', ' '.repeat(2))).toThrow('remarkRequired');
-    expect(() => validateJoinRequest('CODE', '勇'.repeat(31))).toThrow('remarkTooLong');
+    expect(() => validateJoinRequest('ABC23', '我是小勇')).toThrow('codeInvalid');
+    expect(() => validateJoinRequest('ABC2345', '我是小勇')).toThrow('codeInvalid');
+    expect(() => validateJoinRequest('ABC230', '我是小勇')).toThrow('codeInvalid');
+    expect(() => validateJoinRequest('ABC231', '我是小勇')).toThrow('codeInvalid');
+    expect(() => validateJoinRequest('ABCI23', '我是小勇')).toThrow('codeInvalid');
+    expect(() => validateJoinRequest('ABCO23', '我是小勇')).toThrow('codeInvalid');
+  });
+
+  it('requires a trimmed 1-30 character join remark', () => {
+    expect(validateJoinRequest('ABC234', ' 勇 ')).toEqual({
+      code: 'ABC234',
+      remark: '勇',
+    });
+    expect(() => validateJoinRequest('ABC234', ' '.repeat(2))).toThrow('remarkRequired');
+    expect(() => validateJoinRequest('ABC234', '勇'.repeat(31))).toThrow('remarkTooLong');
   });
 
   it('only offers roles the current reviewer may assign', () => {

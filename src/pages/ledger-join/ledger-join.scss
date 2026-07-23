@@ -1,0 +1,136 @@
+.ledger-join-page {
+  min-height: 0;
+  overflow: hidden;
+  background: #fff;
+  color: var(--ww-theme-text-color);
+}
+
+.ledger-join-navbar {
+  --height: 49px;
+  --border-bottom: 1px solid #ebebeb;
+
+  flex: 0 0 auto;
+  background: #fff;
+
+  .adm-nav-bar-title {
+    font-size: var(--ww-font-size-lg);
+    font-weight: 500;
+  }
+}
+
+.ledger-join-content {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 30px 31px 28px;
+}
+
+.ledger-join-form {
+  --border-inner: none;
+  --border-top: none;
+  --border-bottom: none;
+
+  background: transparent;
+
+  > .adm-list-body {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+}
+
+.ledger-join-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  & + & {
+    margin-top: 29px;
+  }
+}
+
+.ledger-join-field-label {
+  display: block;
+  color: var(--ww-theme-text-color);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.ledger-join-input-shell,
+.ledger-join-textarea-shell {
+  border-radius: 8px;
+  background: #f7f7f9;
+}
+
+.ledger-join-input-shell {
+  display: flex;
+  min-height: 60px;
+  align-items: center;
+  padding: 0 20px;
+
+  .adm-input {
+    --font-size: 16px;
+    --placeholder-color: #aeb4bd;
+  }
+}
+
+.ledger-join-textarea-shell {
+  min-height: 100px;
+  padding: 14px 20px 10px;
+
+  .adm-text-area {
+    --font-size: 16px;
+    --placeholder-color: #aeb4bd;
+
+    min-height: 76px;
+  }
+
+  .adm-text-area-count {
+    color: #b5bac1;
+    font-size: 12px;
+  }
+}
+
+.ledger-join-error {
+  margin: 12px 0 0;
+  color: var(--adm-color-danger);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.ledger-join-submit {
+  --border-radius: 14px;
+
+  height: 49px;
+  margin-top: 44px;
+  border: 0;
+  font-size: 16px;
+
+  &.adm-button-disabled {
+    --text-color: #aeb3b8 !important;
+    --background-color: #edf0f2 !important;
+    --border-color: #edf0f2 !important;
+
+    border-color: #edf0f2;
+    background: #edf0f2;
+    color: #aeb3b8 !important;
+    opacity: 1;
+  }
+}
+
+.ledger-join-submitted {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50px 20px;
+  background: #fff;
+  text-align: center;
+}
+
+@media (max-width: 359px) {
+  .ledger-join-content {
+    padding-inline: 20px;
+  }
+}

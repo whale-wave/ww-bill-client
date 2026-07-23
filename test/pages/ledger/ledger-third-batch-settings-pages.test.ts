@@ -134,6 +134,7 @@ function renderPage(pathname: string, routePath: string, element: ReactNode) {
     { path: '/ledgers/:ledgerId/settings/categories', element: createElement('div', null, 'categories-target') },
     { path: '/ledgers/:ledgerId/settings/tags', element: createElement('div', null, 'tags-target') },
     { path: '/ledgers/:ledgerId/members', element: createElement('div', null, 'members-target') },
+    { path: '/detail', element: createElement('div', null, 'personal-detail-target') },
     { path: '/ledgers', element: createElement('div', null, 'ledgers-target') },
   ].filter((route, index, routes) => routes.findIndex(candidate => candidate.path === route.path) === index), { initialEntries: [pathname] });
   act(() => root.render(createElement(RouterProvider, { router })));
@@ -260,6 +261,20 @@ describe('ledger settings', () => {
     expect(container.querySelector('[data-testid="ledger-settings-tags"]')).toBeNull();
   });
 
+  it('returns an owner to personal detail after archiving the current ledger', async () => {
+    hooks.archiveLedger.mockResolvedValue({ data: {} });
+    const { container, router } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-archive"]')?.click());
+
+    expect(hooks.archiveLedger).toHaveBeenCalledWith({
+      data: { confirmed: true, version: 3 },
+      ledgerId: 'ledger/a',
+    });
+    expect(router.state.location.pathname).toBe('/detail');
+    expect(router.state.historyAction).toBe('REPLACE');
+  });
+
   it('disables member preference writes while the ledger is suspended', () => {
     hooks.useLedgerQuery.mockReturnValue(query({
       ...ledger,
@@ -292,7 +307,7 @@ describe('ledger settings', () => {
     await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-leave"]')?.click());
 
     expect(hooks.leaveLedger).toHaveBeenCalledWith({ ledgerId: 'ledger/a', version: 5 });
-    expect(router.state.location.pathname).toBe('/ledgers');
+    expect(router.state.location.pathname).toBe('/detail');
     expect(router.state.historyAction).toBe('REPLACE');
   });
 });

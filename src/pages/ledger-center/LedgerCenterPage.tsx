@@ -1,158 +1,320 @@
-import type { FC } from 'react';
-import type { Ledger } from '@/entities/ledger';
-import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
-import { AddOutline, FileOutline, TeamOutline } from 'antd-mobile-icons';
-import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import type { LedgerListItem } from '@/entities/ledger';
 import {
-  LedgerCard,
+  Button,
+  Dialog,
+  ErrorBlock,
+  NavBar,
+  SafeArea,
+  SpinLoading,
+  Toast,
+} from 'antd-mobile';
+import { SetOutline } from 'antd-mobile-icons';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useBeforeUnload, useBlocker, useNavigate } from 'react-router-dom';
+import {
   LedgerKind,
-  useLedgersQuery,
+  LedgerRole,
+  LedgerStatus,
+  useArchiveLedgerMutation,
+  useLeaveLedgerMutation,
+  useLedgerManagementQuery,
+  useReorderLedgersMutation,
 } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
-import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
+import { LedgerManagementFooter } from './ui/LedgerManagementFooter';
+import { LedgerManagementGrid } from './ui/LedgerManagementGrid';
+import { SortableLedgerGrid } from './ui/SortableLedgerGrid';
+import './ledger-center.scss';
 
-function getLedgerTemplateKey(ledger: Ledger) {
-  if (ledger.templateKey)
-    return ledger.templateKey;
-
-  return ledger.kind === LedgerKind.SYSTEM_DEFAULT ? 'system-default' : 'custom';
+function isConflict(error: unknown) {
+  return typeof error === 'object'
+    && error !== null
+    && 'statusCode' in error
+    && error.statusCode === 409;
 }
 
-const LedgerCenterPage: FC = () => {
-  const { t } = useTranslation('ledger');
+function hasSameOrder(
+  left: readonly LedgerListItem[],
+  right: readonly LedgerListItem[],
+) {
+  return left.length === right.length
+    && left.every((ledger, index) => ledger.id === right[index]?.id);
+}
+
+function LedgerCenterPage() {
   const navigate = useNavigate();
-  const ledgerQuery = useLedgersQuery();
+  const managementQuery = useLedgerManagementQuery();
+  const [reorderLedgers, reorderState] = useReorderLedgersMutation();
+  const [archiveLedger, archiveState] = useArchiveLedgerMutation();
+  const [leaveLedger, leaveState] = useLeaveLedgerMutation();
+  const [sorting, setSorting] = useState(false);
+  const [draft, setDraft] = useState<LedgerListItem[]>([]);
 
-  const groupedLedgers = useMemo(() => ({
-    custom: ledgerQuery.data.filter(ledger => ledger.kind === LedgerKind.CUSTOM),
-    system: ledgerQuery.data.filter(ledger => ledger.kind === LedgerKind.SYSTEM_DEFAULT),
-  }), [ledgerQuery.data]);
+  const customLedgers = useMemo(
+    () => managementQuery.data.filter(ledger => ledger.kind === LedgerKind.CUSTOM),
+    [managementQuery.data],
+  );
+  const dirty = sorting && !hasSameOrder(draft, customLedgers);
+  const blocker = useBlocker(dirty);
+  const blockerDialogOpenRef = useRef(false);
+  const isMountedRef = useRef(true);
+  const isMutating = reorderState.isLoading
+    || archiveState.isLoading
+    || leaveState.isLoading;
 
-  const handleBack = () => navigate(-1);
-  const handleCreate = () => navigate(ROUTES_PATH.LEDGER_TEMPLATES.getPath());
-  const handleOpenLedger = (ledgerId: string) => {
-    navigate(ROUTES_PATH.LEDGER_DETAIL.getPath(ledgerId));
+  const resetDraft = () => {
+    setDraft(customLedgers);
+    setSorting(false);
   };
 
-  const renderLedger = (ledger: Ledger) => {
-    const templateKey = getLedgerTemplateKey(ledger);
-    const templateName = t(`template.${templateKey}.name`);
+  const refreshAfterConflict = async () => {
+    resetDraft();
+    await managementQuery.refetch();
+    Toast.show({
+      content: '账本列表已更新，请重新排序',
+      icon: 'fail',
+    });
+  };
+
+  useEffect(() => () => {
+    isMountedRef.current = false;
+  }, []);
+
+  useEffect(() => {
+    if (blocker.state !== 'blocked' || blockerDialogOpenRef.current)
+      return;
+
+    blockerDialogOpenRef.current = true;
+    void Dialog.confirm({
+      cancelText: '继续排序',
+      confirmText: '放弃',
+      content: '当前排序尚未保存，离开后更改会丢失。',
+      title: '放弃排序？',
+    }).then((confirmed) => {
+      if (!isMountedRef.current)
+        return;
+      blockerDialogOpenRef.current = false;
+      if (blocker.state !== 'blocked')
+        return;
+      if (confirmed)
+        blocker.proceed();
+      else
+        blocker.reset();
+    });
+  }, [blocker]);
+
+  const handleBeforeUnload = useCallback((event: BeforeUnloadEvent) => {
+    if (!dirty)
+      return;
+    event.preventDefault();
+    event.returnValue = '';
+  }, [dirty]);
+  useBeforeUnload(handleBeforeUnload);
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  const enterSortMode = () => {
+    setDraft(customLedgers);
+    setSorting(true);
+  };
+
+  const handleSave = async () => {
+    if (isMutating)
+      return;
+    try {
+      await reorderLedgers({
+        items: draft.map(ledger => ({
+          ledgerId: ledger.id,
+          memberVersion: ledger.myMembership.version,
+        })),
+      });
+      setSorting(false);
+      Toast.show({ content: '账本排序已保存', icon: 'success' });
+    }
+    catch (error) {
+      if (isConflict(error)) {
+        await refreshAfterConflict();
+        return;
+      }
+      Toast.show({ content: '保存排序失败，请稍后重试', icon: 'fail' });
+    }
+  };
+
+  const handleRemove = async (ledger: LedgerListItem) => {
+    if (ledger.status === LedgerStatus.SUSPENDED) {
+      Toast.show({ content: '账本已被平台暂停，暂不能归档或退出' });
+      return;
+    }
+    if (isMutating)
+      return;
+
+    const isOwner = ledger.myRole === LedgerRole.OWNER;
+    const actionLabel = isOwner ? '归档' : '退出';
+    const confirmed = await Dialog.confirm({
+      cancelText: '取消',
+      confirmText: actionLabel,
+      content: isOwner
+        ? '归档后该账本及其记录将不再出现在你的账本列表中。'
+        : '退出后将无法继续查看或记录此账本。',
+      title: `${actionLabel}“${ledger.name}”？`,
+    });
+    if (!confirmed)
+      return;
+
+    try {
+      if (isOwner) {
+        await archiveLedger({
+          data: { confirmed: true, version: ledger.version },
+          ledgerId: ledger.id,
+        });
+      }
+      else {
+        await leaveLedger({
+          ledgerId: ledger.id,
+          version: ledger.myMembership.version,
+        });
+      }
+      setDraft(current => current.filter(item => item.id !== ledger.id));
+      Toast.show({ content: `已${actionLabel}${ledger.name}`, icon: 'success' });
+    }
+    catch (error) {
+      if (isConflict(error)) {
+        await refreshAfterConflict();
+        return;
+      }
+      Toast.show({ content: `${actionLabel}账本失败，请稍后重试`, icon: 'fail' });
+    }
+  };
+
+  const renderContent = () => {
+    if (managementQuery.isLoading) {
+      return (
+        <div className="ledger-center-state" data-testid="ledger-center-loading">
+          <SpinLoading />
+          <span>正在加载账本</span>
+        </div>
+      );
+    }
+
+    if (managementQuery.isError) {
+      return (
+        <div className="ledger-center-state">
+          <ErrorBlock
+            description="请检查网络后重试。"
+            status="default"
+            title="账本加载失败"
+          />
+          <Button
+            color="primary"
+            data-testid="ledger-center-retry"
+            onClick={() => void managementQuery.refetch()}
+          >
+            重新加载
+          </Button>
+        </div>
+      );
+    }
+
+    if (!customLedgers.length) {
+      return (
+        <div className="ledger-center-empty">
+          <ErrorBlock
+            description="创建新账本，或通过邀请码加入他人账本。"
+            status="empty"
+            title="还没有自定义账本"
+          />
+          <div className="ledger-center-empty__actions">
+            <Button
+              color="primary"
+              data-testid="ledger-empty-create"
+              onClick={() => navigate(ROUTES_PATH.LEDGER_TEMPLATES.getPath())}
+            >
+              创建账本
+            </Button>
+            <Button
+              data-testid="ledger-empty-join"
+              onClick={() => navigate(ROUTES_PATH.LEDGER_JOIN.getPath())}
+            >
+              加入账本
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    const suspendedNote = customLedgers.some(
+      ledger => ledger.status === LedgerStatus.SUSPENDED,
+    )
+      ? (
+          <p className="ledger-center-suspended-note" role="status">
+            账本已被平台暂停，暂不能归档或退出
+          </p>
+        )
+      : null;
 
     return (
-      <LedgerCard
-        key={ledger.id}
-        kindLabel={t(`kind.${ledger.kind}`)}
-        ledger={ledger}
-        onClick={() => handleOpenLedger(ledger.id)}
-        roleLabel={t(`role.${ledger.myRole}`)}
-        statusLabel={t(`status.${ledger.status}`)}
-        templateLabel={t('center.template', { template: templateName })}
-        themeLabel={t('center.theme', { theme: ledger.themeKey })}
-      />
+      <>
+        {suspendedNote}
+        {sorting
+          ? (
+              <SortableLedgerGrid
+                ledgers={draft}
+                onOrderChange={setDraft}
+                onRemove={ledger => void handleRemove(ledger)}
+              />
+            )
+          : (
+              <LedgerManagementGrid
+                ledgers={customLedgers}
+                onEnterSortMode={enterSortMode}
+                onOpen={ledgerId => navigate(ROUTES_PATH.LEDGER_RECORDS.getPath(ledgerId))}
+              />
+            )}
+      </>
     );
   };
 
   return (
-    <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={handleBack}>
-        {t('center.title')}
+    <div className="page-new ledger-center-page">
+      <SafeArea position="top" />
+      <NavBar
+        back="返回"
+        className="ledger-center-navbar"
+        onBack={handleBack}
+        right={(
+          <Button
+            aria-label="账本快捷设置"
+            className="ledger-center-navbar__settings"
+            fill="none"
+            onClick={() => navigate(ROUTES_PATH.LEDGER_PREFERENCES.getPath())}
+            size="small"
+            type="button"
+          >
+            <SetOutline aria-hidden="true" />
+          </Button>
+        )}
+      >
+        账本管理
       </NavBar>
-      <main className="min-h-0 flex-grow overflow-auto px-3 pb-[84px] pt-3">
-        <section className="mb-4 grid grid-cols-2 gap-2">
-          <button
-            className="card-rounded flex min-h-[64px] items-center border-0 bg-white px-3 text-left active:bg-slate-50"
-            onClick={() => navigate(ROUTES_PATH.LEDGER_JOIN.getPath())}
-            type="button"
-          >
-            <TeamOutline className="mr-2 text-xl text-font-black" />
-            <span className="text-sm text-font-black">{t('center.join')}</span>
-          </button>
-          <button
-            className="card-rounded flex min-h-[64px] items-center border-0 bg-white px-3 text-left active:bg-slate-50"
-            onClick={() => navigate(ROUTES_PATH.LEDGER_APPLICATIONS.getPath())}
-            type="button"
-          >
-            <FileOutline className="mr-2 text-xl text-font-black" />
-            <span className="text-sm text-font-black">{t('center.applications')}</span>
-          </button>
-        </section>
-        {ledgerQuery.isLoading && (
-          <div className="flex min-h-[240px] flex-col items-center justify-center gap-3 text-sm text-font-gray" data-testid="ledger-center-loading">
-            <SpinLoading />
-            <span>{t('center.loading')}</span>
-          </div>
-        )}
-
-        {!ledgerQuery.isLoading && ledgerQuery.isError && (
-          <div className="flex min-h-[300px] flex-col items-center justify-center gap-4">
-            <ErrorBlock
-              description={t('center.loadErrorDescription')}
-              status="default"
-              title={t('center.loadError')}
-            />
-            <Button
-              color="primary"
-              data-testid="ledger-center-retry"
-              onClick={() => void ledgerQuery.refetch()}
-            >
-              {t('center.retry')}
-            </Button>
-          </div>
-        )}
-
-        {!ledgerQuery.isLoading && !ledgerQuery.isError && !ledgerQuery.data.length && (
-          <div className="flex min-h-[340px] items-center justify-center">
-            <ErrorBlock
-              description={t('center.emptyDescription')}
-              status="empty"
-              title={t('center.empty')}
-            />
-          </div>
-        )}
-
-        {!ledgerQuery.isLoading && !ledgerQuery.isError && ledgerQuery.data.length > 0 && (
-          <div className="space-y-4">
-            {groupedLedgers.system.length > 0 && (
-              <section aria-labelledby="system-ledger-heading">
-                <h2 className="mb-2 px-1 text-sm font-medium text-font-black" id="system-ledger-heading">
-                  {t('center.systemSection')}
-                </h2>
-                <div className="space-y-2">
-                  {groupedLedgers.system.map(renderLedger)}
-                </div>
-              </section>
-            )}
-            <section aria-labelledby="custom-ledger-heading">
-              <h2 className="mb-2 px-1 text-sm font-medium text-font-black" id="custom-ledger-heading">
-                {t('center.customSection')}
-              </h2>
-              {groupedLedgers.custom.length
-                ? (
-                    <div className="space-y-2">
-                      {groupedLedgers.custom.map(renderLedger)}
-                    </div>
-                  )
-                : (
-                    <div className="card-rounded bg-white px-4 py-6 text-center text-sm text-font-gray">
-                      {t('center.customEmpty')}
-                    </div>
-                  )}
-            </section>
-          </div>
-        )}
+      <main className="ledger-center-content">
+        {renderContent()}
       </main>
-      <div className="fixed inset-x-0 bottom-0 z-10 border-0 border-t border-solid border-[#EBEBEB] bg-white p-3">
-        <Button block color="primary" onClick={handleCreate} size="large">
-          <span className="flex items-center justify-center gap-1">
-            <AddOutline />
-            {t('center.create')}
-          </span>
-        </Button>
-      </div>
+      {(
+        !managementQuery.isLoading
+        && !managementQuery.isError
+        && customLedgers.length > 0
+      ) && (
+        <LedgerManagementFooter
+          isSaving={reorderState.isLoading}
+          onCreate={() => navigate(ROUTES_PATH.LEDGER_TEMPLATES.getPath())}
+          onSave={() => void handleSave()}
+          sorting={sorting}
+        />
+      )}
     </div>
   );
-};
+}
 
 export default LedgerCenterPage;

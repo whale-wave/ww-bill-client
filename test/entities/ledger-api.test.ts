@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   getLedgerApi,
+  getLedgerManagementApi,
   getLedgersApi,
   getLedgerTemplatesApi,
   patchLedgerApi,
+  patchLedgerManagementOrderApi,
   postLedgerApi,
 } from '@/entities/ledger/api';
 import { LedgerStatus } from '@/entities/ledger/types';
@@ -37,6 +39,25 @@ describe('ledger api', () => {
     getLedgerTemplatesApi();
 
     expect(get).toHaveBeenCalledWith('/ledgers/templates');
+  });
+
+  it('requests the dedicated ledger management list', () => {
+    getLedgerManagementApi();
+
+    expect(get).toHaveBeenCalledWith('/ledgers/management');
+  });
+
+  it('patches ledger order without reshaping member versions', () => {
+    const data = {
+      items: [
+        { ledgerId: 'ledger/a b', memberVersion: 3 },
+        { ledgerId: 'ledger-2', memberVersion: 8 },
+      ],
+    };
+
+    patchLedgerManagementOrderApi(data);
+
+    expect(patch).toHaveBeenCalledWith('/ledgers/management/order', data);
   });
 
   it('encodes the ledger id in detail and update urls', () => {

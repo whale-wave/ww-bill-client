@@ -17,7 +17,7 @@
     }
 
     .adm-popup.adm-dropdown-popup {
-      top: 45px !important;
+      top: calc(45px + env(safe-area-inset-top)) !important;
     }
 
     .adm-list-item-content-main {

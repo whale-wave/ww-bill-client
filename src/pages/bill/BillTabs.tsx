@@ -1,51 +1,47 @@
+import type { DropdownRef } from 'antd-mobile/es/components/dropdown';
 import type { FC } from 'react';
-import { DatePicker } from 'antd-mobile';
-import dayjs from 'dayjs';
-import { memo, useCallback, useMemo } from 'react';
+import { Dropdown, List } from 'antd-mobile';
+import { CheckOutline, DownFill } from 'antd-mobile-icons';
+import { memo, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBillPageStore } from '@/pages/bill/model';
-import { TabList } from '@/pages/bill/ui';
-import { Icon } from '@/shared/ui';
+import { BillTabsType } from '@/pages/bill/types';
 
 export const BillTabs: FC = memo(() => {
   const { t } = useTranslation('bill');
-  const selectDate = useBillPageStore(({ selectDate }) => selectDate);
-  const setSelectDate = useBillPageStore(({ setSelectDate }) => setSelectDate);
-
-  const { getIsMonthTabType } = useBillPageStore(({ getIsMonthTabType }) => ({ getIsMonthTabType }));
-
-  const showYear = useMemo(() => {
-    return dayjs(selectDate).format(`YYYY${t('year')}`);
-  }, [selectDate]);
-
-  const onSelectYear = useCallback(() => {
-    if (!getIsMonthTabType())
-      return;
-
-    void DatePicker.prompt({
-      precision: 'year',
-      defaultValue: selectDate,
-      renderLabel: (_, v) => `${v}${t('year')}`,
-      onConfirm: setSelectDate,
-    });
-  }, [selectDate]);
+  const billTabType = useBillPageStore(({ billTabType }) => billTabType);
+  const setBillTabTab = useBillPageStore(({ setBillTabTab }) => setBillTabTab);
+  const dropdownRef = useRef<DropdownRef>(null);
+  const options = useMemo(() => [
+    { label: t('monthlyBill'), value: BillTabsType.MONTH },
+    { label: t('yearlyBill'), value: BillTabsType.YEAR },
+  ], [t]);
+  const current = options.find(option => option.value === billTabType) ?? options[0]!;
+  const handleChange = useCallback((value: BillTabsType) => {
+    setBillTabTab(value);
+    dropdownRef.current?.close();
+  }, [setBillTabTab]);
 
   return (
-    <div className="flex p-3 mb-2">
-      <div
-        className="w-[20%] flex items-center"
-        style={{
-          opacity: getIsMonthTabType() ? 1 : 0,
-        }}
-        onClick={onSelectYear}
-      >
-        {showYear}
-        <Icon name="show-bottom" style={{ fontSize: 12, marginLeft: 4 }} />
-      </div>
-      <div className="flex flex-grow justify-center">
-        <TabList />
-      </div>
-      <div className="w-[20%]" />
-    </div>
+    <Dropdown
+      arrow={<DownFill className="text-sm text-black333" />}
+      className="min-w-[96px]"
+      closeOnClickAway
+      ref={dropdownRef}
+    >
+      <Dropdown.Item key="bill-period" title={current.label}>
+        <List>
+          {options.map(option => (
+            <List.Item
+              arrow={option.value === billTabType ? <CheckOutline /> : null}
+              key={option.value}
+              onClick={() => handleChange(option.value)}
+            >
+              {option.label}
+            </List.Item>
+          ))}
+        </List>
+      </Dropdown.Item>
+    </Dropdown>
   );
 });

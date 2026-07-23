@@ -1,4 +1,4 @@
-import type { UseQueryOptions } from '@tanstack/react-query';
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query';
 import type {
   GetLedgerRecoveryRecordsApiParams,
   GetLedgerTagsApiParams,
@@ -32,6 +32,51 @@ import {
   postLedgerTransferPreviewApi,
 } from './api';
 import { ledgerDataKeys } from './keys';
+
+const ledgerNavigationKey = ['ledger', 'navigation'] as const;
+const recordRootKey = ['record'] as const;
+const recordLedgerRootKey = (ledgerId: string) => ['record', 'ledger', ledgerId] as const;
+
+export function invalidateLedgerRecordCountCache(queryClient: QueryClient) {
+  return queryClient.invalidateQueries({ queryKey: ledgerNavigationKey });
+}
+
+export async function invalidateLedgerRestoreCaches(
+  queryClient: QueryClient,
+  ledgerId: string,
+) {
+  await Promise.all([
+    invalidateLedgerRecordCountCache(queryClient),
+    queryClient.invalidateQueries({ queryKey: recordRootKey }),
+    queryClient.invalidateQueries({ queryKey: recordLedgerRootKey(ledgerId) }),
+  ]);
+}
+
+export async function invalidateLedgerTransferCaches(
+  queryClient: QueryClient,
+  ledgerIds: { sourceLedgerId: string; targetLedgerId: string },
+) {
+  await Promise.all([
+    invalidateLedgerRecordCountCache(queryClient),
+    queryClient.invalidateQueries({ queryKey: recordRootKey }),
+    queryClient.invalidateQueries({
+      queryKey: recordLedgerRootKey(ledgerIds.sourceLedgerId),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: recordLedgerRootKey(ledgerIds.targetLedgerId),
+    }),
+  ]);
+}
+
+async function invalidateLedgerRestoreMutationCaches(
+  queryClient: QueryClient,
+  ledgerId: string,
+) {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: ledgerDataKeys.recovery(ledgerId) }),
+    invalidateLedgerRestoreCaches(queryClient, ledgerId),
+  ]);
+}
 
 export async function getLedgerTagsQueryFn(ledgerId: string, params?: GetLedgerTagsApiParams) {
   return assertSuccessApi(await getLedgerTagsApi(ledgerId, params));
@@ -172,13 +217,13 @@ export function useRestoreLedgerRecordMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: restoreLedgerRecordMutationFn,
-    onSuccess: async (_response, variables) => Promise.all([
-      queryClient.invalidateQueries({ queryKey: ledgerDataKeys.recovery(variables.ledgerId) }),
-      queryClient.invalidateQueries({ queryKey: ['record', 'ledger', variables.ledgerId] }),
-    ]),
+    onSuccess: async (_response, variables) => invalidateLedgerRestoreMutationCaches(
+      queryClient,
+      variables.ledgerId,
+    ),
     onError: async (error, variables) => {
       if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
-        await queryClient.invalidateQueries({ queryKey: ledgerDataKeys.recovery(variables.ledgerId) });
+        await invalidateLedgerRestoreMutationCaches(queryClient, variables.ledgerId);
     },
   });
   return [mutateAsync, rest] as const;
@@ -201,10 +246,14 @@ export function useExecuteLedgerTransferMutation() {
     LedgerTransferRequest
   >({
     mutationFn: executeLedgerTransferMutationFn,
-    onSuccess: async (_response, variables) => Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['record', 'ledger', variables.sourceLedgerId] }),
-      queryClient.invalidateQueries({ queryKey: ['record', 'ledger', variables.targetLedgerId] }),
-    ]),
+    onSuccess: async (_response, variables) => invalidateLedgerTransferCaches(
+      queryClient,
+      variables,
+    ),
+    onError: async (error, variables) => {
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
+        await invalidateLedgerTransferCaches(queryClient, variables);
+    },
   });
   return [mutateAsync, rest] as const;
 }

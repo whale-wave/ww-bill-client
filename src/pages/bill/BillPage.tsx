@@ -1,67 +1,13 @@
 import type { FC } from 'react';
-import classNames from 'classnames';
-import dayjs from 'dayjs';
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { useGetRecordBillQuery } from '@/entities/record';
-import { BillRecordCard } from '@/pages/bill/BillRecordCard';
-import { BillTabs } from '@/pages/bill/BillTabs';
-import { useBillPageStore } from '@/pages/bill/model';
-import Content from '@/pages/bill/ui/Content';
-import { Button } from '@/shared/ui';
+import { useBillWorkspaceQueryParams } from '@/pages/bill/model';
+import { BillWorkspaceView } from '@/pages/bill/ui/BillWorkspaceView';
 
 const Bill: FC = () => {
-  const navigate = useNavigate();
-  const { t } = useTranslation('bill');
+  const params = useBillWorkspaceQueryParams();
+  const query = useGetRecordBillQuery({ params });
 
-  const selectDate = useBillPageStore(({ selectDate }) => selectDate);
-  const isMonthTabType = useBillPageStore(({ getIsMonthTabType }) => getIsMonthTabType());
-
-  const onBack = () => {
-    navigate(-1);
-  };
-
-  const params = useMemo(() => {
-    if (isMonthTabType)
-      return { type: 'year' as const, year: dayjs(selectDate).year() };
-    return { type: 'all' as const };
-  }, [selectDate, isMonthTabType]);
-
-  const { data } = useGetRecordBillQuery({
-    params,
-  });
-
-  const list = useMemo(() => {
-    if (!data?.list)
-      return [];
-
-    return Object.keys(data.list)
-      .sort((a, b) => +b - +a)
-      .map(m => ({
-        month: `${m}${isMonthTabType ? t('month') : t('year')}`,
-        income: data.list[m].income,
-        expand: data.list[m].expand,
-        balance: data.list[m].balance,
-      }));
-  }, [data, isMonthTabType, t]);
-
-  return (
-    <div className="page">
-      <div className="flex-grow flex flex-col overflow-hidden">
-        <BillTabs />
-        <div className="overflow-auto px-3 ">
-          <BillRecordCard data={data?.all} />
-          <Content data={list} />
-        </div>
-      </div>
-      <div className={classNames('flex-shrink-0')}>
-        <Button size="full" onClick={onBack}>
-          {t('back')}
-        </Button>
-      </div>
-    </div>
-  );
+  return <BillWorkspaceView query={query} />;
 };
 
 export default Bill;

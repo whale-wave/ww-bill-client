@@ -9,7 +9,7 @@ export function getErrorMessage(error: unknown, fallback: string) {
 }
 
 export function normalizeInvitationCode(value: string) {
-  return value.trim().toUpperCase();
+  return value.replace(/\s+/g, '').toUpperCase();
 }
 
 export function validateJoinRequest(codeValue: string, remarkValue: string) {
@@ -17,6 +17,8 @@ export function validateJoinRequest(codeValue: string, remarkValue: string) {
   const remark = remarkValue.trim();
   if (!code)
     throw new Error('codeRequired');
+  if (!/^[A-HJ-NP-Z2-9]{6}$/.test(code))
+    throw new Error('codeInvalid');
   if (!remark)
     throw new Error('remarkRequired');
   if (remark.length > 30)

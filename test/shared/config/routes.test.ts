@@ -3,11 +3,15 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 
 describe('ledger route builders', () => {
   it('builds global ledger workflow routes', () => {
+    expect(ROUTES_PATH.DETAIL.getPath()).toBe('/detail');
+    expect(ROUTES_PATH.BOOKKEEPING.getPath()).toBe('/bookkeeping');
+    expect(ROUTES_PATH.DISCOVERY.getPath()).toBe('/discovery');
     expect(ROUTES_PATH.LEDGERS.getPath()).toBe('/ledgers');
     expect(ROUTES_PATH.LEDGER_TEMPLATES.getPath()).toBe('/ledgers/templates');
     expect(ROUTES_PATH.LEDGER_CREATE.getPath()).toBe('/ledgers/create');
     expect(ROUTES_PATH.LEDGER_JOIN.getPath()).toBe('/ledgers/join');
     expect(ROUTES_PATH.LEDGER_APPLICATIONS.getPath()).toBe('/ledgers/applications');
+    expect(ROUTES_PATH.LEDGER_PREFERENCES.getPath()).toBe('/ledgers/preferences');
     expect(ROUTES_PATH.LEDGER_INVITE.getPath('A/B C')).toBe('/ledger-invites/A%2FB%20C');
   });
 

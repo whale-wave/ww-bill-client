@@ -4,6 +4,7 @@ import type {
   LedgerInvitation,
   LedgerInvitationPreview,
   LedgerJoinRequest,
+  LedgerListItem,
   LedgerMember,
   LedgerTemplate,
   LedgerTemplateKey,
@@ -112,6 +113,18 @@ describe('ledger domain contract', () => {
       .toEqualTypeOf<CreatableLedgerTemplateKey | 'system-default'>();
     expectTypeOf<Ledger['templateKey']>()
       .toEqualTypeOf<LedgerTemplateKey | undefined>();
+  });
+
+  it('keeps list-only counts and membership versions off ledger detail', () => {
+    expectTypeOf<LedgerListItem['activeMemberCount']>().toEqualTypeOf<number>();
+    expectTypeOf<LedgerListItem['recordCount']>().toEqualTypeOf<number>();
+    expectTypeOf<LedgerListItem['myMembership']>().toEqualTypeOf<{
+      id: string;
+      sortOrder: number;
+      version: number;
+    }>();
+    expectTypeOf<Ledger>().not.toHaveProperty('recordCount');
+    expectTypeOf<Ledger>().not.toHaveProperty('myMembership');
   });
 
   it('defines the public template catalog fields', () => {

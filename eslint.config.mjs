@@ -5,8 +5,15 @@ export default antfu({
     semi: true,
   },
   react: true,
-  formatters: true,
-  // TODO: md eslint
+  // Plans/specs contain illustrative, intentionally incomplete code snippets.
+  // Keep formatting support for project assets, but do not parse Markdown as source.
+  markdown: false,
+  formatters: {
+    css: true,
+    graphql: true,
+    html: true,
+    markdown: false,
+  },
   ignores: ['tsconfig.app.json', '**/*.md'],
 }, {
   files: ['test/setup.ts'],

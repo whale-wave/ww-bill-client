@@ -47,7 +47,7 @@ const LedgerCreatePage: FC = () => {
     try {
       const response = await createLedger(buildLedgerCreatePayload(values, templateKey));
       void Toast.show({ content: t('create.success'), icon: 'success' });
-      navigate(ROUTES_PATH.LEDGER_DETAIL.getPath(response.data.id), { replace: true });
+      navigate(ROUTES_PATH.LEDGER_RECORDS.getPath(response.data.id), { replace: true });
     }
     catch (error) {
       void Toast.show({

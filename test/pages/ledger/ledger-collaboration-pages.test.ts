@@ -429,6 +429,26 @@ describe('ledger invitation page', () => {
 });
 
 describe('ledger join page', () => {
+  it('uses the reference-style guided field layout instead of a compact settings card', () => {
+    const container = render('/ledgers/join', '/ledgers/join', createElement(LedgerJoinPage));
+
+    expect(container.querySelector('.ledger-join-page')).not.toBeNull();
+    expect(container.querySelector('[data-testid="ledger-join-code-field"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="ledger-join-remark-field"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="ledger-join-submit"]')).not.toBeNull();
+  });
+
+  it('uses official mobile form controls and disables an empty submission', () => {
+    const container = render('/ledgers/join', '/ledgers/join', createElement(LedgerJoinPage));
+
+    expect(container.querySelector('.adm-nav-bar')).not.toBeNull();
+    expect(container.querySelector('.adm-form')).not.toBeNull();
+    expect(container.querySelector('.adm-input')).not.toBeNull();
+    expect(container.querySelector('.adm-text-area')).not.toBeNull();
+    expect(container.querySelector<HTMLButtonElement>('button[type="submit"]')?.disabled)
+      .toBe(true);
+  });
+
   it('submits normalized code and trimmed 1-30 character remark', async () => {
     hooks.submitJoinRequest.mockResolvedValue({ data: { id: 'request-1' } });
     const container = render('/ledgers/join', '/ledgers/join', createElement(LedgerJoinPage));
@@ -436,11 +456,12 @@ describe('ledger join page', () => {
     const inputSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
     const textareaSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
     await act(async () => {
-      inputSetter?.call(fields[0], ' ab/c ');
+      inputSetter?.call(fields[0], ' a b c 2 3 4 ');
       fields[0].dispatchEvent(new Event('input', { bubbles: true }));
       textareaSetter?.call(fields[1], ' 我是小勇 ');
       fields[1].dispatchEvent(new Event('input', { bubbles: true }));
     });
+    expect(fields[0].value).toBe('ABC234');
     await act(async () => {
       container.querySelector<HTMLFormElement>('form')?.dispatchEvent(
         new Event('submit', { bubbles: true, cancelable: true }),
@@ -449,9 +470,71 @@ describe('ledger join page', () => {
     });
 
     expect(hooks.submitJoinRequest).toHaveBeenCalledWith({
-      code: 'AB/C',
-      data: expect.objectContaining({ remark: '我是小勇' }),
+      code: 'ABC234',
+      data: {
+        idempotencyKey: expect.stringMatching(/^ledger-join-/),
+        remark: '我是小勇',
+      },
     });
     expect(container.textContent).toContain('join.submittedTitle');
+  });
+
+  it('keeps an overlength normalized code disabled and does not submit it', async () => {
+    const container = render('/ledgers/join', '/ledgers/join', createElement(LedgerJoinPage));
+    const fields = container.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea');
+    const inputSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    const textareaSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+    await act(async () => {
+      inputSetter?.call(fields[0], ' a b c 2 3 4 5 ');
+      fields[0].dispatchEvent(new Event('input', { bubbles: true }));
+      textareaSetter?.call(fields[1], '我是小勇');
+      fields[1].dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    expect(fields[0].value).toBe('ABC2345');
+    expect(container.querySelector<HTMLButtonElement>('button[type="submit"]')?.disabled)
+      .toBe(true);
+
+    await act(async () => {
+      container.querySelector<HTMLFormElement>('form')?.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
+      await Promise.resolve();
+    });
+
+    expect(hooks.submitJoinRequest).not.toHaveBeenCalled();
+  });
+
+  it('guards a loading join request against duplicate submissions', async () => {
+    let resolveRequest!: (value: unknown) => void;
+    hooks.submitJoinRequest.mockReturnValue(new Promise((resolve) => {
+      resolveRequest = resolve;
+    }));
+    const container = render('/ledgers/join', '/ledgers/join', createElement(LedgerJoinPage));
+    const fields = container.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea');
+    const inputSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    const textareaSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+    await act(async () => {
+      inputSetter?.call(fields[0], 'ABC234');
+      fields[0].dispatchEvent(new Event('input', { bubbles: true }));
+      textareaSetter?.call(fields[1], '我是小勇');
+      fields[1].dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    await act(async () => {
+      const form = container.querySelector<HTMLFormElement>('form');
+      form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      await Promise.resolve();
+    });
+
+    expect(hooks.submitJoinRequest).toHaveBeenCalledTimes(1);
+    expect(container.querySelector<HTMLButtonElement>('button[type="submit"]')?.disabled)
+      .toBe(true);
+
+    await act(async () => {
+      resolveRequest({ data: { id: 'request-1' } });
+      await Promise.resolve();
+    });
   });
 });

@@ -7,6 +7,12 @@ import {
 } from '@/entities/ledger';
 
 describe('ledger query keys', () => {
+  it('keeps navigation and management caches stable and separate', () => {
+    expect(ledgerKeys.navigation()).toEqual(['ledger', 'navigation']);
+    expect(ledgerKeys.management()).toEqual(['ledger', 'management']);
+    expect(ledgerKeys.navigation()).not.toEqual(ledgerKeys.management());
+  });
+
   it('isolates list filters', () => {
     const activeCustom = ledgerKeys.list({
       kind: LedgerKind.CUSTOM,

@@ -69,7 +69,7 @@ UserAppConfigEntity.isLedgerQuickSwitchEnabled: boolean; // default false
 UserAppConfigEntity.ledgerQuickSwitchVersion: number; // default 1
 ```
 
-- [ ] **Step 1: Write failing metadata tests**
+- [x] **Step 1: Write failing metadata tests**
 
   In `ledger-entities.metadata.spec.ts`, assert:
 
@@ -78,7 +78,7 @@ UserAppConfigEntity.ledgerQuickSwitchVersion: number; // default 1
   - partial index `IDX_ledger_member_user_active_sort` covers user/order/join/id.
   - both user config fields exist, are non-null, and version has `>= 1` check.
 
-- [ ] **Step 2: Run the focused test and confirm failure**
+- [x] **Step 2: Run the focused test and confirm failure**
 
   ```bash
   pnpm exec jest src/entity/ledger-entities.metadata.spec.ts --runInBand
@@ -86,11 +86,11 @@ UserAppConfigEntity.ledgerQuickSwitchVersion: number; // default 1
 
   Expected: missing metadata assertions fail.
 
-- [ ] **Step 3: Add entity fields, check constraints, and index**
+- [x] **Step 3: Add entity fields, check constraints, and index**
 
   Use explicit `nullable: false`; do not depend on TypeScript optional properties for database nullability.
 
-- [ ] **Step 4: Write the SQL migration before changing application behavior**
+- [x] **Step 4: Write the SQL migration before changing application behavior**
 
   The migration must:
 
@@ -106,13 +106,13 @@ UserAppConfigEntity.ledgerQuickSwitchVersion: number; // default 1
 
   Important: an idempotent rerun must not overwrite already saved sort orders.
 
-- [ ] **Step 5: Add migration-plan tests and run them**
+- [x] **Step 5: Add migration-plan tests and run them**
 
   ```bash
   pnpm exec jest src/database/sql-migration-plan.spec.ts src/entity/ledger-entities.metadata.spec.ts --runInBand
   ```
 
-- [ ] **Step 6: Document rollout guardrails**
+- [x] **Step 6: Document rollout guardrails**
 
   Add `20260722` after the existing `20260721` batch; call out `ORM_SYNCHRONIZE=false`, backup, repeat-run validation, and migration-before-service deployment.
 
@@ -144,7 +144,7 @@ interface LedgerListItemView extends LedgerAccessView {
 }
 ```
 
-- [ ] **Step 1: Add failing service tests**
+- [x] **Step 1: Add failing service tests**
 
   Cover all of these independently:
 
@@ -157,19 +157,19 @@ interface LedgerListItemView extends LedgerAccessView {
   - `findManagement` fixes kind to CUSTOM and status to ACTIVE/SUSPENDED.
   - `findManagement` never returns system default even if a malformed row reaches the mapper.
 
-- [ ] **Step 2: Confirm the tests fail**
+- [x] **Step 2: Confirm the tests fail**
 
   ```bash
   pnpm exec jest src/modules/ledger/ledger.service.spec.ts --runInBand
   ```
 
-- [ ] **Step 3: Replace `Repository.find()` with one QueryBuilder projection**
+- [x] **Step 3: Replace `Repository.find()` with one QueryBuilder projection**
 
   Use membership as the root, join ledger, and add correlated subqueries or explicit grouped counts. `LedgerEntity` has no `records` reverse relation, so do not call relation-count on `ledger.records`. Count `RecordEntity` by `record.ledgerId = ledger.id AND record.deletedAt IS NULL`, use `getRawAndEntities()` / `getRawMany()`, and convert PostgreSQL COUNT strings through `Number(...)`. Do not call member or record repositories inside a `.map()`.
 
   Detail `findOne()` continues returning `LedgerAccessView`; only list endpoints return `LedgerListItemView`.
 
-- [ ] **Step 4: Add the static management controller route before `:id`**
+- [x] **Step 4: Add the static management controller route before `:id`**
 
   ```ts
   @Get('management')
@@ -182,7 +182,7 @@ interface LedgerListItemView extends LedgerAccessView {
   It must appear before `@Get(':id')`, so `management` is never parsed as UUID.
   `GET /ledgers/management`, `PATCH /ledgers/management/order`, and `PATCH /user-app-config/ledger-quick-switch` must all use the existing `sendSuccess({ data })` envelope.
 
-- [ ] **Step 5: Add controller tests and run both suites**
+- [x] **Step 5: Add controller tests and run both suites**
 
   ```bash
   pnpm exec jest src/modules/ledger/ledger.controller.spec.ts src/modules/ledger/ledger.service.spec.ts --runInBand
@@ -216,11 +216,11 @@ class ReorderLedgersDto {
 }
 ```
 
-- [ ] **Step 1: Write failing DTO tests**
+- [x] **Step 1: Write failing DTO tests**
 
   Reject non-array, duplicate IDs, invalid UUID, version 0, and more than 500 items. Accept an empty list only when the user currently has zero custom ledgers; collection equality remains a service concern.
 
-- [ ] **Step 2: Write failing service transaction tests**
+- [x] **Step 2: Write failing service transaction tests**
 
   Assert:
 
@@ -234,13 +234,13 @@ class ReorderLedgersDto {
   - SQLSTATE `40001` becomes HTTP 409;
   - another user's ordering is untouched.
 
-- [ ] **Step 3: Run the failing tests**
+- [x] **Step 3: Run the failing tests**
 
   ```bash
   pnpm exec jest src/modules/ledger/dto/ledger-management.dto.spec.ts src/modules/ledger/ledger.service.spec.ts --runInBand
   ```
 
-- [ ] **Step 4: Implement `LedgerService.reorder()`**
+- [x] **Step 4: Implement `LedgerService.reorder()`**
 
   Return the new versions so the client can immediately perform leave without a stale member version:
 
@@ -248,11 +248,11 @@ class ReorderLedgersDto {
   Array<{ ledgerId: string; sortOrder: number; memberVersion: number }>
   ```
 
-- [ ] **Step 5: Register `PATCH /ledgers/management/order` before `PATCH :id`**
+- [x] **Step 5: Register `PATCH /ledgers/management/order` before `PATCH :id`**
 
   Keep route order explicit. Add controller delegation and validation tests.
 
-- [ ] **Step 6: Run focused service tests**
+- [x] **Step 6: Run focused service tests**
 
   ```bash
   pnpm exec jest src/modules/ledger/dto/ledger-management.dto.spec.ts src/modules/ledger/ledger.controller.spec.ts src/modules/ledger/ledger.service.spec.ts --runInBand
@@ -285,25 +285,25 @@ PATCH /user-app-config/ledger-quick-switch
 { "data": { "enabled": true, "version": 2 } }
 ```
 
-- [ ] **Step 1: Write failing DTO, service, and controller tests**
+- [x] **Step 1: Write failing DTO, service, and controller tests**
 
   Test boolean validation, version >= 1, current-user isolation, successful CAS increment and returned next version, stale version 409, missing legacy config auto-create, and duplicate create race recovery. Race recovery is only valid after the migration verifies and enforces uniqueness of `user_app_config."userId"`.
 
-- [ ] **Step 2: Run and confirm failure**
+- [x] **Step 2: Run and confirm failure**
 
   ```bash
   pnpm exec jest src/modules/user-app-config --runInBand
   ```
 
-- [ ] **Step 3: Implement `findOrCreateForUser()` and `updateLedgerQuickSwitch()`**
+- [x] **Step 3: Implement `findOrCreateForUser()` and `updateLedgerQuickSwitch()`**
 
   Preserve the old general PATCH behavior for display amount and sound. The new dedicated endpoint is the only versioned path for ledger quick switch.
 
-- [ ] **Step 4: Ensure GET exposes the two additive fields**
+- [x] **Step 4: Ensure GET exposes the two additive fields**
 
   Do not expose a separate active ledger ID. Do not require the client to fetch any ledger preference to render this switch.
 
-- [ ] **Step 5: Run user-config tests**
+- [x] **Step 5: Run user-config tests**
 
   ```bash
   pnpm exec jest src/modules/user-app-config --runInBand
@@ -320,19 +320,19 @@ PATCH /user-app-config/ledger-quick-switch
 - Modify: `src/modules/ledger/ledger-collaboration.service.spec.ts`
 - Modify: `src/modules/admin/ledgers/admin-ledgers.service.spec.ts`
 
-- [ ] **Step 1: Add a failing default-ledger leave test**
+- [x] **Step 1: Add a failing default-ledger leave test**
 
   A forged `POST /ledgers/:id/leave` against `SYSTEM_DEFAULT` must return 403 explicitly, not merely fail because the caller is OWNER.
 
-- [ ] **Step 2: Implement the explicit kind guard inside the existing locked transaction**
+- [x] **Step 2: Implement the explicit kind guard inside the existing locked transaction**
 
   Do not relax ownership or suspended-ledger policies as part of this task.
 
-- [ ] **Step 3: Add admin regression assertions**
+- [x] **Step 3: Add admin regression assertions**
 
   Verify the admin list still includes/filter `SYSTEM_DEFAULT` and its projection does not contain `sortOrder`, `myMembership`, or quick-switch fields.
 
-- [ ] **Step 4: Run focused tests**
+- [x] **Step 4: Run focused tests**
 
   ```bash
   pnpm exec jest src/modules/ledger/ledger-collaboration.service.spec.ts src/modules/admin/ledgers/admin-ledgers.service.spec.ts --runInBand
@@ -377,17 +377,17 @@ interface LedgerListItem extends Ledger {
 }
 ```
 
-- [ ] **Step 1: Write failing API and key tests**
+- [x] **Step 1: Write failing API and key tests**
 
   Cover `GET /ledgers/management`, `PATCH /ledgers/management/order`, dedicated quick-switch PATCH, encoded IDs, and stable `navigation()` / `management()` keys.
 
-- [ ] **Step 2: Run focused tests**
+- [x] **Step 2: Run focused tests**
 
   ```bash
   pnpm test -- test/entities/ledger-api.test.ts test/entities/ledger-query-functions.test.ts test/entities/ledger-keys.test.ts test/entities/ledger-types.test.ts test/entities/user-app-config-ledger-preference.test.ts
   ```
 
-- [ ] **Step 3: Implement typed API functions and hooks**
+- [x] **Step 3: Implement typed API functions and hooks**
 
   Add:
 
@@ -400,13 +400,13 @@ interface LedgerListItem extends Ledger {
 
   Keep `getLedgerApi()` typed as `Ledger`; list-only fields must not become required on detail responses.
 
-- [ ] **Step 4: Encode cache invalidation rules**
+- [x] **Step 4: Encode cache invalidation rules**
 
   Reorder writes returned member versions to management cache and invalidates navigation. Create/join/approve/archive/leave invalidate both navigation and management roots.
 
   Because the switcher shows `recordCount`, personal/custom record create, delete, and restore must invalidate navigation. Transfer execution must invalidate navigation plus both source and target record roots. Add assertions for personal→custom, custom→personal, and custom→custom rather than leaving a stale count until reload.
 
-- [ ] **Step 5: Run type and entity tests**
+- [x] **Step 5: Run type and entity tests**
 
   ```bash
   pnpm lint:type
@@ -427,17 +427,17 @@ interface LedgerListItem extends Ledger {
 - Add: `test/features/ledger-switcher-navigation.test.ts`
 - Modify: `test/shared/config/routes.test.ts`
 
-- [ ] **Step 1: Write table-driven failing tests**
+- [x] **Step 1: Write table-driven failing tests**
 
   Cover personal/custom mapping for records, create, bill, budget, charts; URL encoding; unknown surface fallback; system default conversion to personal scope; and circle target `/detail`.
 
-- [ ] **Step 2: Run and confirm failure**
+- [x] **Step 2: Run and confirm failure**
 
   ```bash
   pnpm test -- test/features/ledger-switcher-navigation.test.ts test/shared/config/routes.test.ts
   ```
 
-- [ ] **Step 3: Implement pure functions only**
+- [x] **Step 3: Implement pure functions only**
 
   Suggested signatures:
 
@@ -452,11 +452,11 @@ interface LedgerListItem extends Ledger {
   `SYSTEM_DEFAULT` becomes `{ type: 'personal', label: '个人账本' }` and never carries a public navigation ledger ID.
   For custom targets, require `RECORD_CREATE`, `RECORD_READ`, `BUDGET_READ`, or `CHART_READ` as appropriate. If the requested surface is unavailable, fall back to records when `RECORD_READ` exists, otherwise to `/ledgers/:ledgerId`.
 
-- [ ] **Step 4: Add missing route builders**
+- [x] **Step 4: Add missing route builders**
 
   Add personal detail/bookkeeping builders and `LEDGER_PREFERENCES`; keep `LEDGER_BILL` and make its route real in Task 12.
 
-- [ ] **Step 5: Run tests and typecheck**
+- [x] **Step 5: Run tests and typecheck**
 
   ```bash
   pnpm test -- test/features/ledger-switcher-navigation.test.ts test/shared/config/routes.test.ts
@@ -479,7 +479,7 @@ interface LedgerListItem extends Ledger {
 
 **Official components:** `NavBar`, `Popup` or `Dropdown`, `List`, `Button`, `ActionSheet`, `SpinLoading`, `ErrorBlock`, `SafeArea`.
 
-- [ ] **Step 1: Write failing interaction tests using `createElement`**
+- [x] **Step 1: Write failing interaction tests using `createElement`**
 
   Assert:
 
@@ -494,21 +494,21 @@ interface LedgerListItem extends Ledger {
   - personal records More actions preserve search and calendar navigation with their current date parameters;
   - loading, error/retry, and personal-only empty states render.
 
-- [ ] **Step 2: Confirm failure**
+- [x] **Step 2: Confirm failure**
 
   ```bash
   pnpm test -- test/features/ledger-switcher-header.test.ts
   ```
 
-- [ ] **Step 3: Implement with Ant Design Mobile**
+- [x] **Step 3: Implement with Ant Design Mobile**
 
   Keep `MiniProgramCapsule` stateless. Use real icons from `antd-mobile-icons`; do not draw ellipsis/circle with text, CSS art, or inline SVG.
 
-- [ ] **Step 4: Apply design tokens**
+- [x] **Step 4: Apply design tokens**
 
   Capsule, selected state, header, and buttons derive from `var(--ww-theme-color)` / existing global tokens. Do not copy competitor blue/yellow.
 
-- [ ] **Step 5: Run focused test and lint the changed files**
+- [x] **Step 5: Run focused test and lint the changed files**
 
   ```bash
   pnpm test -- test/features/ledger-switcher-header.test.ts
@@ -528,21 +528,21 @@ interface LedgerListItem extends Ledger {
 - Modify: `src/widgets/layout/index.ts`
 - Add: `test/widgets/layout/tab-bar.test.ts`
 
-- [ ] **Step 1: Write failing navigation tests**
+- [x] **Step 1: Write failing navigation tests**
 
   Cover five personal targets, three custom targets, string `activeKey`, route prefetch, custom create capability, disabled Toast, and safe-area padding.
 
-- [ ] **Step 2: Run the test and confirm failure**
+- [x] **Step 2: Run the test and confirm failure**
 
   ```bash
   pnpm test -- test/widgets/layout/tab-bar.test.ts
   ```
 
-- [ ] **Step 3: Replace layout primitives with official `TabBar`**
+- [x] **Step 3: Replace layout primitives with official `TabBar`**
 
   Keep existing business hierarchy: the personal middle “记账” remains visually prominent. Do not keep `any` tab objects or old `@/shared/ui` Icon merely to reproduce the previous wrapper.
 
-- [ ] **Step 4: Implement `LedgerWorkspaceTabBar`**
+- [x] **Step 4: Implement `LedgerWorkspaceTabBar`**
 
   Required items:
 
@@ -552,7 +552,7 @@ interface LedgerListItem extends Ledger {
   图表 -> /ledgers/:id/charts
   ```
 
-- [ ] **Step 5: Run test and typecheck**
+- [x] **Step 5: Run test and typecheck**
 
   ```bash
   pnpm test -- test/widgets/layout/tab-bar.test.ts
@@ -584,7 +584,7 @@ interface LedgerListItem extends Ledger {
 pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
 ```
 
-- [ ] **Step 1: Add failing page tests before installing/implementing drag behavior**
+- [x] **Step 1: Add failing page tests before installing/implementing drag behavior**
 
   Assert:
 
@@ -605,13 +605,13 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
   - empty/error/loading/suspended states are complete.
   - empty state exposes both create-template and join-ledger actions.
 
-- [ ] **Step 2: Run and confirm failure**
+- [x] **Step 2: Run and confirm failure**
 
   ```bash
   pnpm test -- test/pages/ledger/ledger-page-interactions.test.ts
   ```
 
-- [ ] **Step 3: Install dnd-kit and implement sortable grid**
+- [x] **Step 3: Install dnd-kit and implement sortable grid**
 
   Use:
 
@@ -627,15 +627,15 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
 
   Do not make a click on a card accidentally start dragging.
 
-- [ ] **Step 4: Implement the cover card and fixed footers**
+- [x] **Step 4: Implement the cover card and fixed footers**
 
   Use official `Grid`, `NavBar`, `Button`, `Dialog`, `Toast`, `ErrorBlock`, `SpinLoading`, `SafeArea`, `Tag`. The card visual, remove overlay, and drag shell are the only custom pieces.
 
-- [ ] **Step 5: Wire archive/leave/cache behavior**
+- [x] **Step 5: Wire archive/leave/cache behavior**
 
   Reuse current hooks after Task 6 invalidation changes. Never fetch members per card.
 
-- [ ] **Step 6: Run focused tests, lint, and typecheck**
+- [x] **Step 6: Run focused tests, lint, and typecheck**
 
   ```bash
   pnpm test -- test/pages/ledger/ledger-page-interactions.test.ts
@@ -659,29 +659,29 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
 - Modify: `test/pages/ledger/ledger-collaboration-pages.test.ts`
 - Modify: `test/pages/ledger/ledger-collaboration-model.test.ts`
 
-- [ ] **Step 1: Write failing preference-page tests**
+- [x] **Step 1: Write failing preference-page tests**
 
   Verify current value, correct version submission, Promise loading state, success cache update, failure rollback, and 409 refresh.
 
-- [ ] **Step 2: Write failing join form tests**
+- [x] **Step 2: Write failing join form tests**
 
   Verify official components, uppercase/no-space normalization, exactly six characters matching `[A-HJ-NP-Z2-9]{6}` (reject `0/1/I/O`), remark 1–30, empty disabled, loading guard, existing success state, and existing idempotency key.
 
-- [ ] **Step 3: Run the tests and confirm failure**
+- [x] **Step 3: Run the tests and confirm failure**
 
   ```bash
   pnpm test -- test/pages/ledger/ledger-preferences-page.test.ts test/pages/ledger/ledger-collaboration-pages.test.ts test/pages/ledger/ledger-collaboration-model.test.ts test/app/ledger-routes.test.ts
   ```
 
-- [ ] **Step 4: Register `/ledgers/preferences` before `:ledgerId`**
+- [x] **Step 4: Register `/ledgers/preferences` before `:ledgerId`**
 
   Static route ordering is part of the test. Use official `NavBar`, `List`, `Switch`, `SafeArea`.
 
-- [ ] **Step 5: Replace raw join inputs and custom NavBar**
+- [x] **Step 5: Replace raw join inputs and custom NavBar**
 
   Use official `Form`, `Input`, `TextArea`, `Button`, `NavBar`, `Toast`. Preserve the accepted submission flow and API contract.
 
-- [ ] **Step 6: Run focused tests and typecheck**
+- [x] **Step 6: Run focused tests and typecheck**
 
   ```bash
   pnpm test -- test/pages/ledger test/app/ledger-routes.test.ts
@@ -721,7 +721,7 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
 - Add: `test/pages/ledger/ledger-workspace-navigation.test.ts`
 - Modify: `test/pages/ledger/ledger-preference-consumers.test.ts`
 
-- [ ] **Step 1: Write failing integration tests**
+- [x] **Step 1: Write failing integration tests**
 
   Cover:
 
@@ -738,33 +738,33 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
   - missing custom bill route is registered and uses scoped bill hook.
   - remote ledger 403/404 redirects to personal detail, while a valid ledger lacking one requested capability only shows the existing permission state.
 
-- [ ] **Step 2: Run and confirm failure**
+- [x] **Step 2: Run and confirm failure**
 
   ```bash
   pnpm test -- test/pages/ledger/ledger-workspace-navigation.test.ts test/app/ledger-routes.test.ts test/pages/ledger/ledger-preference-consumers.test.ts
   ```
 
-- [ ] **Step 3: Integrate the header on records home surfaces**
+- [x] **Step 3: Integrate the header on records home surfaces**
 
   Replace the personal static `config.appName` title and the custom static “账本明细” title with `LedgerSwitcherHeader` while preserving their surrounding totals/month controls.
 
-- [ ] **Step 4: Integrate capsule on filter-title surfaces**
+- [x] **Step 4: Integrate capsule on filter-title surfaces**
 
   Personal and custom charts, budget, and bill keep their filter titles. Compose only `MiniProgramCapsule` + ActionSheet/Panel entry; update the personal chart fixed offsets in `Top.module.scss` / `ChartContent.tsx` and the budget header spacing deliberately instead of stacking absolute bars blindly.
 
-- [ ] **Step 5: Add `LedgerBillPage` inside the existing bill page slice**
+- [x] **Step 5: Add `LedgerBillPage` inside the existing bill page slice**
 
   Do not import one page slice from another. Keep `LedgerBillPage.tsx` and private `BillWorkspaceView.tsx` under `src/pages/bill`, refactor the shared rendering to accept data/filters, then bind personal to `useGetRecordBillQuery` and custom to `useLedgerRecordBillQuery`. Wrap custom bill with `LedgerScopeBoundary` for `RECORD_READ`; without the capability it must not fire the bill query.
 
-- [ ] **Step 6: Redirect deterministically lost ledger access**
+- [x] **Step 6: Redirect deterministically lost ledger access**
 
   Extend `LedgerScopeBoundary` so a ledger detail query that deterministically returns 403/404 redirects with replace to `/detail`. Do not redirect when the ledger exists but lacks the page-specific capability; keep the permission ErrorBlock in that case. Mutation-originated archive/leave also navigates after success.
 
-- [ ] **Step 7: Add appropriate tab bars**
+- [x] **Step 7: Add appropriate tab bars**
 
   Personal pages keep the official personal TabBar; custom records/charts use `LedgerWorkspaceTabBar`. The record-create page may omit the bottom bar while editing, but return navigation must preserve the ledger ID.
 
-- [ ] **Step 8: Run integration tests, lint, and typecheck**
+- [x] **Step 8: Run integration tests, lint, and typecheck**
 
   ```bash
   pnpm test -- test/pages/ledger/ledger-workspace-navigation.test.ts test/app/ledger-routes.test.ts test/pages/ledger/ledger-preference-consumers.test.ts
@@ -784,7 +784,7 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
 - Verify/Modify only if failing: `ww-bill-admin/src/pages/ledgers/LedgerPages.test.tsx`
 - Verify: `ww-bill-admin/src/entities/types.ts`
 
-- [ ] **Step 1: Run existing admin service and UI tests**
+- [x] **Step 1: Run existing admin service and UI tests**
 
   ```bash
   cd /Users/avan/Code/whale-wave/bill/ww-bill-service
@@ -794,7 +794,7 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
   pnpm test -- src/pages/ledgers/LedgerPages.test.tsx
   ```
 
-- [ ] **Step 2: Add regression assertions only where coverage is absent**
+- [x] **Step 2: Add regression assertions only where coverage is absent**
 
   Required invariants:
 
@@ -804,7 +804,7 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
   - admin `getUserDetail().preferences` remains limited to `hideAmount`, `sound`, and `amountDisplay`, without quick-switch fields;
   - admin archive protection for SYSTEM_DEFAULT still passes.
 
-- [ ] **Step 3: Do not add an admin sorting or quick-switch page**
+- [x] **Step 3: Do not add an admin sorting or quick-switch page**
 
   These fields are user-private product preferences, not governance data.
 
@@ -819,7 +819,7 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
 - Update if needed: `ww-bill-service/docs/migration-runbook.md`
 - Update if needed: `ww-bill-client/docs/superpowers/specs/2026-07-22-ledger-management-workspace-switcher-design.md`
 
-- [ ] **Step 1: Rehearse SQL on a disposable database**
+- [x] **Step 1: Rehearse SQL on a disposable database**
 
   Preconditions:
 
@@ -845,7 +845,7 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
 
   Expected: the final query still returns the chosen row with `sortOrder = 73`; a second migration run does not re-rank it.
 
-- [ ] **Step 2: Run the full service gate**
+- [x] **Step 2: Run the full service gate**
 
   ```bash
   cd /Users/avan/Code/whale-wave/bill/ww-bill-service
@@ -855,7 +855,7 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
   git diff --check
   ```
 
-- [ ] **Step 3: Run the full client gate**
+- [x] **Step 3: Run the full client gate**
 
   ```bash
   cd /Users/avan/Code/whale-wave/bill/ww-bill-client
@@ -866,7 +866,7 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
   git diff --check
   ```
 
-- [ ] **Step 4: Run the full admin gate**
+- [x] **Step 4: Run the full admin gate**
 
   ```bash
   cd /Users/avan/Code/whale-wave/bill/ww-bill-admin
@@ -876,7 +876,7 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
   git diff --check
   ```
 
-- [ ] **Step 5: Perform reference-vs-build visual QA at 390×844**
+- [x] **Step 5: Perform reference-vs-build visual QA at 390×844**
 
   Capture and compare these exact states:
 
@@ -890,7 +890,7 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
 
   Compare reference and implementation side-by-side at the same viewport. Fix spacing, card dimensions, font weight, borders, radii, fixed footer overlap, and safe-area errors; screenshots alone are not acceptance.
 
-- [ ] **Step 6: Exercise concurrency and destructive flows manually**
+- [x] **Step 6: Exercise concurrency and destructive flows manually**
 
   - reorder the same list in two tabs; second save must refresh on 409;
   - change a member role while another tab attempts leave;
@@ -899,7 +899,7 @@ pnpm add @dnd-kit/core@6.3.1 @dnd-kit/sortable@10.0.0 @dnd-kit/utilities@3.2.2
   - forged default archive/leave fails;
   - quick switch changes in two tabs conflict safely.
 
-- [ ] **Step 7: Final scope audit**
+- [x] **Step 7: Final scope audit**
 
   Confirm no unrelated household, asset, invoice, fixed-expense, or admin preference changes entered the diff. Confirm no commit or push occurred without explicit user authorization.
 

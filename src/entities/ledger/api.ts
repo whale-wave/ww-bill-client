@@ -10,8 +10,10 @@ import type {
   LedgerJoinDecision,
   LedgerJoinRequest,
   LedgerKind,
+  LedgerListItem,
   LedgerMember,
   LedgerMemberStatus,
+  LedgerOrderResult,
   LedgerOwnershipTransfer,
   LedgerPreference,
   LedgerRecordType,
@@ -28,8 +30,34 @@ export interface GetLedgersApiParams {
 }
 
 export function getLedgersApi(params?: GetLedgersApiParams) {
-  return request.get<unknown, SuccessResponse<Ledger[]>>('/ledgers', { params });
+  return request.get<unknown, SuccessResponse<LedgerListItem[]>>('/ledgers', { params });
 }
+
+export function getLedgerManagementApi() {
+  return request.get<unknown, SuccessResponse<LedgerListItem[]>>(
+    '/ledgers/management',
+  );
+}
+
+export interface LedgerOrderItem {
+  ledgerId: string;
+  memberVersion: number;
+}
+
+export interface PatchLedgerManagementOrderApiData {
+  items: LedgerOrderItem[];
+}
+
+export function patchLedgerManagementOrderApi(
+  data: PatchLedgerManagementOrderApiData,
+) {
+  return request.patch<unknown, SuccessResponse<LedgerOrderResult[]>>(
+    '/ledgers/management/order',
+    data,
+  );
+}
+
+export const patchLedgerOrderApi = patchLedgerManagementOrderApi;
 
 export function getLedgerTemplatesApi() {
   return request.get<unknown, SuccessResponse<LedgerTemplate[]>>('/ledgers/templates');

@@ -22,6 +22,7 @@
     "create": "创建"
   },
   "tabBar": {
+    "navigation": "主导航",
     "detail": "明细",
     "chart": "图表",
     "bookkeeping": "记账",

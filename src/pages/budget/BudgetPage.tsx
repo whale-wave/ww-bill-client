@@ -91,7 +91,12 @@ const Budget: React.FC<BudgetProps> = () => {
         },
       ],
     });
-  }, [budgetPageContentValue.budgetEntityType, t]);
+  }, [
+    budgetPageContentValue.budgetEntityType,
+    deleteBudgetCategoryByBudgetIdMutate,
+    postBudgetClearMutate,
+    t,
+  ]);
 
   const onAddSummaryBudget = useCallback(() => {
     setIsAddSummaryBudgetVisible(true);
@@ -107,7 +112,7 @@ const Budget: React.FC<BudgetProps> = () => {
 
   const onGoToCreateBudgetCategoryPage = useCallback(() => {
     navigate(`/budget/category/${budgetPageContentValue.budgetEntityType}`, { replace: true });
-  }, [budgetPageContentValue.budgetEntityType]);
+  }, [budgetPageContentValue.budgetEntityType, navigate]);
 
   return (
     <div className={classNames('page-new bg-[#f6f6f6] fixed top-0 left-0 h-screen w-full', style['budget-page'])} ref={dropDownWrapperRef}>

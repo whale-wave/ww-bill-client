@@ -1,6 +1,7 @@
 import type { ComponentType, FC } from 'react';
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { LoginGuard } from '@/features/auth';
+import { registerRoutePrefetchers } from '@/shared/lib';
 import { RootLayout } from '@/widgets/layout';
 
 /**
@@ -27,6 +28,19 @@ function lazyPage(loader: () => Promise<{ default: ComponentType }>) {
 function lazyGuardedPage(loader: () => Promise<{ default: ComponentType }>) {
   return () => loader().then(m => ({ Component: withGuard(m.default) }));
 }
+
+const tabRouteLoaders = {
+  'ledger-charts': () => import('@/pages/ledger-charts/LedgerChartsPage'),
+  'ledger-create': () => import('@/pages/ledger-record-create/LedgerRecordCreatePage'),
+  'ledger-records': () => import('@/pages/ledger-records/LedgerRecordsPage'),
+  'personal-bookkeeping': () => import('@/pages/record/bookkeeping/BookkeepingPage'),
+  'personal-chart': () => import('@/pages/chart/chart-home/ChartHomePage'),
+  'personal-detail': () => import('@/pages/record/detail/DetailPage'),
+  'personal-discovery': () => import('@/pages/discovery/DiscoveryPage'),
+  'personal-mine': () => import('@/pages/mine/MinePage'),
+};
+
+registerRoutePrefetchers(tabRouteLoaders);
 
 const router = createHashRouter([
   {
@@ -81,11 +95,11 @@ const router = createHashRouter([
       },
       {
         path: 'bookkeeping',
-        lazy: lazyPage(() => import('@/pages/record/bookkeeping/BookkeepingPage')),
+        lazy: lazyPage(tabRouteLoaders['personal-bookkeeping']),
       },
       {
         path: 'discovery',
-        lazy: lazyPage(() => import('@/pages/discovery/DiscoveryPage')),
+        lazy: lazyPage(tabRouteLoaders['personal-discovery']),
       },
       {
         path: 'community',
@@ -152,7 +166,7 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            lazy: lazyPage(() => import('@/pages/chart/chart-home/ChartHomePage')),
+            lazy: lazyPage(tabRouteLoaders['personal-chart']),
           },
           {
             path: 'category',
@@ -162,7 +176,7 @@ const router = createHashRouter([
       },
       {
         path: 'mine',
-        lazy: lazyGuardedPage(() => import('@/pages/mine/MinePage')),
+        lazy: lazyGuardedPage(tabRouteLoaders['personal-mine']),
       },
       {
         path: 'share',
@@ -182,7 +196,7 @@ const router = createHashRouter([
       },
       {
         path: 'detail',
-        lazy: lazyPage(() => import('@/pages/record/detail/DetailPage')),
+        lazy: lazyPage(tabRouteLoaders['personal-detail']),
       },
       {
         path: 'message',
@@ -338,12 +352,20 @@ const router = createHashRouter([
             lazy: lazyGuardedPage(() => import('@/pages/ledger-applications/LedgerApplicationsPage')),
           },
           {
+            path: 'preferences',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-preferences/LedgerPreferencesPage')),
+          },
+          {
+            path: 'management',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-center/LedgerCenterPage')),
+          },
+          {
             path: ':ledgerId/records/search',
             lazy: lazyGuardedPage(() => import('@/pages/ledger-record-search/LedgerRecordSearchPage')),
           },
           {
             path: ':ledgerId/records/new',
-            lazy: lazyGuardedPage(() => import('@/pages/ledger-record-create/LedgerRecordCreatePage')),
+            lazy: lazyGuardedPage(tabRouteLoaders['ledger-create']),
           },
           {
             path: ':ledgerId/records/:recordId/edit',
@@ -355,11 +377,15 @@ const router = createHashRouter([
           },
           {
             path: ':ledgerId/records',
-            lazy: lazyGuardedPage(() => import('@/pages/ledger-records/LedgerRecordsPage')),
+            lazy: lazyGuardedPage(tabRouteLoaders['ledger-records']),
           },
           {
             path: ':ledgerId/calendar',
             lazy: lazyGuardedPage(() => import('@/pages/ledger-calendar/LedgerCalendarPage')),
+          },
+          {
+            path: ':ledgerId/bill',
+            lazy: lazyGuardedPage(() => import('@/pages/bill/LedgerBillPage')),
           },
           {
             path: ':ledgerId/budget',
@@ -367,7 +393,7 @@ const router = createHashRouter([
           },
           {
             path: ':ledgerId/charts',
-            lazy: lazyGuardedPage(() => import('@/pages/ledger-charts/LedgerChartsPage')),
+            lazy: lazyGuardedPage(tabRouteLoaders['ledger-charts']),
           },
           {
             path: ':ledgerId/settings/categories',
