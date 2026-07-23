@@ -18,6 +18,8 @@
     "income": "Income",
     "expend": "Expense",
     "balance": "Balance",
+    "hideAmount": "Hide amounts",
+    "showAmount": "Show amounts",
     "edit": "Edit",
     "delete": "Delete",
     "confirmDelete": "Confirm Delete",

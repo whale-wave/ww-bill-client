@@ -24,8 +24,8 @@ status bar, traffic lights, or Dynamic Island.
 | Sort mode | `compare-management-sort-mode.png` | Passed: three remove badges, fixed save action, fallback bottom spacing plus `SafeArea` |
 | Empty join form | `compare-join-empty-final.png` | Passed: guided labels, official ADM inputs, 6-character code field, 1–30 character remark, disabled submit |
 | Quick-switch enabled | `compare-preferences-enabled.png` | Passed: themed `NavBar`, official `List`/`Switch`, correct enabled state |
-| Custom records switcher open | `compare-switcher-open.png` | Passed: personal first, ordered custom ledgers, shared count, current check, create/manage actions |
-| Capsule returns to personal | `compare-capsule-return-personal.png` plus browser URL assertion | Passed: circle replaced the URL with `/#/detail` and rendered the personal workspace |
+| Original records header | `.superpowers/sdd/ledger-title-switcher-closed-comparison.png` | Passed: existing themed header, statistics, search, calendar, function card, and bottom navigation remain in place; only the centered title gained a disclosure arrow |
+| Title switcher open | `.superpowers/sdd/ledger-title-switcher-open-comparison.png` | Passed: “默认账本” is first and selected, followed by ordered custom ledgers with member counts and create/manage actions |
 
 ## Findings Resolved
 
@@ -44,17 +44,28 @@ status bar, traffic lights, or Dynamic Island.
 - **P2 — join remark box and disabled button differed from the reference:** reduced
   the textarea to the reference height and corrected the disabled foreground
   and background colors.
+- **P1 — first implementation replaced the existing record-home header:** removed
+  the mini-program capsule, restored the original header geometry and direct
+  search/calendar controls, and attached switching only to the centered title.
+- **P1 — default navigation item was labeled “个人账本”:** changed the
+  client-owned navigation view model to the fixed label “默认账本”; the
+  service-side name and private default-ledger ID remain hidden.
 
 ## Layout and Interaction Checks
 
 - No required state has horizontal overflow at 390px.
-- Card controls, remove badges, capsule actions, switcher options, and fixed
+- Card controls, remove badges, title trigger, switcher options, and fixed
   footer actions remain keyboard reachable.
 - The switcher uses dialog/listbox/option semantics, traps Tab, handles Escape,
   restores focus, and keeps a visible keyboard focus indicator.
 - The desktop QA viewport exposes a zero CSS safe-area inset. Top and bottom
   `SafeArea` components remain in production markup; no fake status bar was
   added for screenshots.
+- The closed and open states were tested in the in-app browser at 390 × 844.
+  The open dialog exposed “默认账本 1266 笔记录 当前账本”, “家庭账本 2 人”,
+  and “生意账本” without “系统默认账本” or a private ledger ID.
+- No application error was emitted during the final interaction. Browser logs
+  contained only development tooling and Vite connection messages.
 
 ## Final Result
 

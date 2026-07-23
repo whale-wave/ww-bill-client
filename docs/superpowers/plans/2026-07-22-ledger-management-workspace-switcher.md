@@ -12,6 +12,56 @@
 
 **Path Rule:** 每个 Task 中的文件路径都相对于该 Task 标注的仓库根目录；跨仓库命令使用绝对路径，不能假设执行 Agent 的当前目录。
 
+## 2026-07-23 Corrective Iteration
+
+The first implementation replaced the existing yellow record-home header with
+a white `NavBar` and mini-program capsule. The approved correction is an
+in-place enhancement:
+
+- restore the yellow record-home header and direct search/calendar controls;
+- render `config.appName` for the default workspace and the custom ledger name
+  for a custom workspace;
+- make only that title open `LedgerSwitcherPanel`;
+- label the `SYSTEM_DEFAULT` navigation item “默认账本”, while continuing to
+  hide its real name and ID;
+- keep the default ledger excluded from management, archive, leave, and reorder
+  flows;
+- do not replace existing business-page headers.
+
+### Task 15: Restore the original header and attach switching to its title
+
+**Files:**
+- Create: `src/features/ledger-switcher/ui/LedgerTitleSwitcher.tsx`
+- Modify: `src/features/ledger-switcher/index.ts`
+- Modify: `src/features/ledger-switcher/model/ledger-switcher-view-model.ts`
+- Modify: `src/features/ledger-switcher/ui/ledger-switcher.scss`
+- Modify: `src/pages/record/detail/Top.tsx`
+- Modify: `src/pages/record/detail/top.module.scss`
+- Modify: `src/shared/i18n/locales/zh-CN/ledger.json`
+- Test: `test/features/ledger-switcher-header.test.ts`
+- Test: `test/pages/ledger/ledger-workspace-navigation.test.ts`
+
+**Interfaces:**
+- `LedgerTitleSwitcher({ className?, ledgerName? })` reads route scope, the
+  quick-switch preference, and ledger navigation data.
+- It renders `config.appName` on the implicit default route and `ledgerName` or
+  the matching custom navigation item on a custom route.
+- It owns only the open/closed state of `LedgerSwitcherPanel`; the panel keeps
+  URL/capability-aware navigation.
+
+- [x] Write failing tests proving the original app title, search button, and
+  calendar button remain visible and no capsule is rendered.
+- [x] Write a failing test proving the switcher first item is “默认账本” and
+  contains neither the service-side name nor the default ledger ID.
+- [x] Implement `LedgerTitleSwitcher` with a semantic button only when quick
+  switching is enabled.
+- [x] Restore `Top.tsx` and `top.module.scss` to their pre-switcher geometry,
+  replacing only the title node with `LedgerTitleSwitcher`.
+- [x] Run the focused Vitest suites and confirm they pass.
+- [x] Compare the reference and implementation at the same mobile viewport,
+  then update `design-qa.md`.
+- [x] Run client lint, typecheck, tests, and production build.
+
 ## Global Constraints
 
 - 不新增 `activeLedgerId`、Zustand store、localStorage 或数据库当前账本字段。

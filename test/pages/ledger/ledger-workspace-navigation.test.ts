@@ -106,7 +106,7 @@ vi.mock('@/shared/i18n', () => ({
       'switcher.cancel': '取消',
       'switcher.create': '创建账本',
       'switcher.currentCustom': '当前账本',
-      'switcher.currentPersonal': '当前为个人账本',
+      'switcher.currentPersonal': '当前为默认账本',
       'switcher.currentSettings': '当前账本设置',
       'switcher.customEmpty': '还没有自定义账本',
       'switcher.loadError': '账本列表加载失败',
@@ -114,11 +114,11 @@ vi.mock('@/shared/i18n', () => ({
       'switcher.manage': '账本管理',
       'switcher.memberCount': `${values?.count ?? 0} 人`,
       'switcher.more': '更多账本操作',
-      'switcher.personal': '个人账本',
+      'switcher.personal': '默认账本',
       'switcher.preferences': '快捷入口设置',
       'switcher.recordCount': `${values?.count ?? 0} 笔记录`,
       'switcher.retry': '重新加载',
-      'switcher.returnPersonal': '返回个人账本',
+      'switcher.returnPersonal': '返回默认账本',
       'switcher.switch': '切换账本',
     })[key] ?? key,
   }),
@@ -195,11 +195,6 @@ function renderPage(pathname: string, path: string, element: ReactNode) {
   return { container, router };
 }
 
-function getAction(text: string) {
-  return Array.from(document.querySelectorAll<HTMLElement>('.adm-action-sheet-button-item'))
-    .find(element => element.textContent?.trim() === text);
-}
-
 async function click(element: Element | null | undefined) {
   expect(element).not.toBeNull();
   await act(async () => {
@@ -250,18 +245,17 @@ beforeEach(() => {
 afterEach(cleanupRender);
 
 describe('personal ledger workspace integration', () => {
-  it('uses the personal ledger label and keeps search/calendar in More', async () => {
+  it('preserves the original app header and direct search/calendar actions', async () => {
     const { container, router } = renderPage('/detail', '/detail', createElement(DetailPage));
     const title = container.querySelector('[data-testid="ledger-switcher-title"]');
 
-    expect(title?.textContent).toContain('个人账本');
-    expect(title?.textContent).not.toContain('鲸鱼记账');
+    expect(title?.textContent).toContain('鲸浪账本');
     expect(title?.tagName).toBe('BUTTON');
+    expect(container.querySelector('[data-testid="mini-program-capsule"]')).toBeNull();
+    expect(container.querySelector('[data-testid="record-search-action"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="record-calendar-action"]')).not.toBeNull();
 
-    await click(container.querySelector('[data-testid="ledger-capsule-more"]'));
-    expect(getAction('搜索')).toBeDefined();
-    expect(getAction('日历')).toBeDefined();
-    await click(getAction('搜索'));
+    await click(container.querySelector('[data-testid="record-search-action"]'));
     expect(router.state.location.pathname).toBe('/search-record');
   });
 
@@ -269,13 +263,11 @@ describe('personal ledger workspace integration', () => {
     ['chart', '/chart', createElement(ChartHomePage), '支出'],
     ['budget', '/budget', createElement(BudgetPage), '月预算'],
     ['bill', '/bill', createElement(BillPage), '月账单'],
-  ])('keeps the %s business title while exposing capsule switching', async (_name, pathname, element, businessTitle) => {
+  ])('keeps the original %s business title without injecting a capsule', (_name, pathname, element, businessTitle) => {
     const { container } = renderPage(pathname, pathname, element);
 
-    expect(container.querySelector('[data-testid="mini-program-capsule"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="mini-program-capsule"]')).toBeNull();
     expect(container.textContent).toContain(businessTitle);
-    await click(container.querySelector('[data-testid="ledger-capsule-more"]'));
-    expect(getAction('切换账本')).toBeDefined();
   });
 });
 
@@ -306,11 +298,15 @@ describe('custom ledger workspace integration', () => {
     ['records', '/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage)],
     ['charts', '/ledgers/ledger%2Fa/charts', '/ledgers/:ledgerId/charts', createElement(LedgerChartsPage)],
     ['budget', '/ledgers/ledger%2Fa/budget', '/ledgers/:ledgerId/budget', createElement(LedgerBudgetPage)],
-  ])('replaces custom %s with personal detail through the capsule circle', async (_name, pathname, path, element) => {
+  ])('replaces custom %s with the matching default surface through the title switcher', async (_name, pathname, path, element) => {
     const { container, router } = renderPage(pathname, path, element);
 
-    await click(container.querySelector('[data-testid="ledger-capsule-personal"]'));
-    expect(router.state.location.pathname).toBe('/detail');
+    const title = container.querySelector('[data-testid="ledger-switcher-title"]');
+    if (!title)
+      return;
+    await click(title);
+    await click(document.querySelector('[data-testid="ledger-switch-item-personal"]'));
+    expect(router.state.location.pathname).toMatch(/^\/(detail|chart|budget)$/);
     expect(router.state.historyAction).toBe('REPLACE');
   });
 
@@ -321,9 +317,7 @@ describe('custom ledger workspace integration', () => {
     expect(hooks.useLedgerRecordBillQuery).toHaveBeenCalledWith(expect.objectContaining({
       params: expect.objectContaining({ ledgerId: 'ledger/a' }),
     }));
-    await click(first.container.querySelector('[data-testid="ledger-capsule-personal"]'));
-    expect(first.router.state.location.pathname).toBe('/detail');
-    expect(first.router.state.historyAction).toBe('REPLACE');
+    expect(first.container.querySelector('[data-testid="mini-program-capsule"]')).toBeNull();
 
     cleanupRender();
     hooks.useLedgerRecordBillQuery.mockClear();

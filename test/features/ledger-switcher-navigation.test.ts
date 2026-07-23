@@ -81,7 +81,7 @@ describe('ledger workspace navigation', () => {
     expect(getLedgerSurface('/something-unknown')).toBe('records');
   });
 
-  it('converts system default to an ID-free personal item and keeps it first', () => {
+  it('converts system default to an ID-free default-ledger item and keeps it first', () => {
     const items = toLedgerSwitcherItems([
       ledger({ id: 'custom-2', myMembership: { id: 'm-2', sortOrder: 2, version: 1 } }),
       ledger({
@@ -93,7 +93,7 @@ describe('ledger workspace navigation', () => {
       ledger({ id: 'custom-1', myMembership: { id: 'm-1', sortOrder: 1, version: 1 } }),
     ]);
 
-    expect(items[0]).toEqual({ label: '个人账本', recordCount: 8, type: 'personal' });
+    expect(items[0]).toEqual({ label: '默认账本', recordCount: 8, type: 'personal' });
     expect(items[0]).not.toHaveProperty('ledgerId');
     expect(items[0]).not.toHaveProperty('ledger');
     expect(items.slice(1).map(item => item.type === 'custom' && item.ledgerId))

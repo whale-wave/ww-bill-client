@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { HouseholdInvitation } from '@/entities/household';
 import { Button, Dialog, Toast } from 'antd-mobile';
-import { Copy, Share2 } from 'lucide-react';
+import { Copy, MessageCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -12,10 +12,10 @@ import {
 import {
   formatCountdown,
   getApiErrorMessage,
+  HouseholdPageHeader,
   HouseholdScopeBoundary,
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
 
 function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `household-invite-${Date.now()}`;
@@ -93,79 +93,88 @@ const HouseholdInvitationPage: FC = () => {
   };
 
   return (
-    <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
-        {t('invitation.title')}
-      </NavBar>
-      <main className="min-h-0 flex-grow overflow-auto px-3 py-3">
+    <div className="page-new household-shell overflow-hidden">
+      <HouseholdPageHeader
+        backLabel={t('common:nav.back')}
+        onBack={() => navigate(-1)}
+        title={t('common.title')}
+      />
+      <main className="min-h-0 flex-grow overflow-auto px-4 py-7">
         <HouseholdScopeBoundary allowPending householdId={householdId}>
           {() => (
-            <section className="card-rounded bg-white px-4 py-6 text-center">
-              <h1 className="text-lg font-medium text-font-black">{t('invitation.heading')}</h1>
-              <p className="mx-auto mt-2 max-w-[300px] text-sm leading-6 text-font-gray">{t('invitation.description')}</p>
-
-              {invitation && remaining > 0
-                ? (
-                    <div className="mt-7">
-                      <div className="rounded-xl bg-bg-gray px-3 py-4 text-3xl font-medium tracking-[0.18em] text-font-black">
-                        {invitation.code}
-                      </div>
-                      <p className="mt-2 text-xs text-font-gray">
-                        {t('invitation.expiresIn', { countdown: formatCountdown(remaining) })}
-                      </p>
-                      <div className="mt-5 grid grid-cols-2 gap-3">
-                        <Button onClick={() => void handleCopy()}>
-                          <span className="flex items-center justify-center gap-2">
-                            <Copy size={16} />
+            <div>
+              <p className="mb-7 text-center text-[15px] font-medium text-[#44454a]">
+                {t('invitation.heading')}
+              </p>
+              <section className="household-ticket">
+                {invitation && remaining > 0
+                  ? (
+                      <>
+                        <div className="household-ticket__eyebrow">{t('invitation.title')}</div>
+                        <div className="household-ticket__code">
+                          {invitation.code}
+                        </div>
+                        <p className="household-ticket__expiry">
+                          {t('invitation.expiresIn', { countdown: formatCountdown(remaining) })}
+                        </p>
+                        <div className="household-ticket__actions">
+                          <button className="household-ticket-action" onClick={() => void handleCopy()} type="button">
+                            <span className="household-ticket-action__icon">
+                              <Copy aria-hidden="true" size={23} />
+                            </span>
                             {t('invitation.copy')}
-                          </span>
-                        </Button>
-                        <Button onClick={() => { void Toast.show({ content: t('invitation.sharePlaceholder') }); }}>
-                          <span className="flex items-center justify-center gap-2">
-                            <Share2 size={16} />
+                          </button>
+                          <button
+                            className="household-ticket-action"
+                            onClick={() => { void Toast.show({ content: t('invitation.sharePlaceholder') }); }}
+                            type="button"
+                          >
+                            <span className="household-ticket-action__icon household-ticket-action__icon--share">
+                              <MessageCircle aria-hidden="true" size={24} />
+                            </span>
                             {t('invitation.share')}
-                          </span>
+                          </button>
+                        </div>
+                        <div className="mt-10 border-0 border-t border-dashed border-[#ececef] pt-6">
+                          <Button
+                            fill="none"
+                            loading={revokeState.isLoading}
+                            onClick={() => void handleRevoke()}
+                          >
+                            {t('invitation.revoke')}
+                          </Button>
+                        </div>
+                      </>
+                    )
+                  : (
+                      <>
+                        <div className="household-ticket__eyebrow">{t('invitation.title')}</div>
+                        {invitation && <p className="mt-5 text-sm text-rose-500">{t('invitation.expired')}</p>}
+                        <p className="mx-auto mt-5 max-w-[300px] text-sm leading-6 text-[#9b9ca1]">
+                          {t('invitation.description')}
+                        </p>
+                        <label className="household-consent mt-8 text-left">
+                          <input
+                            checked={consent}
+                            onChange={event => setConsent(event.target.checked)}
+                            type="checkbox"
+                          />
+                          <span>{t('invitation.consent')}</span>
+                        </label>
+                        <Button
+                          block
+                          className="household-primary-button mt-7"
+                          data-testid="household-generate-invite"
+                          disabled={createState.isLoading}
+                          loading={createState.isLoading}
+                          onClick={() => void handleGenerate()}
+                        >
+                          {invitation ? t('invitation.regenerate') : t('invitation.generate')}
                         </Button>
-                      </div>
-                      <Button
-                        block
-                        className="mt-3"
-                        color="danger"
-                        fill="none"
-                        loading={revokeState.isLoading}
-                        onClick={() => void handleRevoke()}
-                      >
-                        {t('invitation.revoke')}
-                      </Button>
-                    </div>
-                  )
-                : (
-                    <div className="mt-7">
-                      {invitation && <p className="mb-4 text-sm text-rose-500">{t('invitation.expired')}</p>}
-                      <label className="flex items-start gap-3 text-left text-sm leading-6 text-font-black">
-                        <input
-                          checked={consent}
-                          className="mt-1 h-4 w-4 shrink-0 accent-[var(--adm-color-primary)]"
-                          onChange={event => setConsent(event.target.checked)}
-                          type="checkbox"
-                        />
-                        <span>{t('invitation.consent')}</span>
-                      </label>
-                      <Button
-                        block
-                        className="mt-5"
-                        color="primary"
-                        data-testid="household-generate-invite"
-                        disabled={createState.isLoading}
-                        loading={createState.isLoading}
-                        onClick={() => void handleGenerate()}
-                        size="large"
-                      >
-                        {invitation ? t('invitation.regenerate') : t('invitation.generate')}
-                      </Button>
-                    </div>
-                  )}
-            </section>
+                      </>
+                    )}
+              </section>
+            </div>
           )}
         </HouseholdScopeBoundary>
       </main>

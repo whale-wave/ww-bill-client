@@ -1,3 +1,33 @@
+.ledger-title-switcher {
+  display: inline-flex;
+  min-width: 0;
+  max-width: min(54vw, 220px);
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  svg {
+    flex: 0 0 auto;
+    font-size: 10px;
+  }
+}
+
+.ledger-title-switcher--static {
+  cursor: default;
+}
+
 .ledger-switcher-header-shell {
   position: relative;
   flex: 0 0 auto;
@@ -61,43 +91,6 @@
   .adm-dropdown-nav {
     border: 0;
   }
-}
-
-.ledger-switcher-capsule {
-  display: inline-flex;
-  height: 32px;
-  align-items: center;
-  border: 1px solid color-mix(in srgb, var(--ww-theme-text-color) 18%, transparent);
-  border-radius: 17px;
-  background: color-mix(in srgb, var(--ww-theme-color) 34%, #fff);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
-}
-
-.ledger-switcher-capsule__button {
-  display: flex;
-  width: 35px;
-  height: 32px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: var(--ww-theme-text-color);
-  cursor: pointer;
-
-  &:active {
-    opacity: 0.55;
-  }
-
-  svg {
-    font-size: 20px;
-  }
-}
-
-.ledger-switcher-capsule__divider {
-  width: 1px;
-  height: 18px;
-  background: color-mix(in srgb, var(--ww-theme-text-color) 18%, transparent);
 }
 
 .ledger-switcher-panel.adm-popup-body-position-top {

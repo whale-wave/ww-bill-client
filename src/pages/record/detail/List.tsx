@@ -1,13 +1,12 @@
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import type { recordChildren } from '@/entities/record';
-import c from 'classnames';
 import { PackageOpen } from 'lucide-react';
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { RecordList } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
-import { Icon } from '@/shared/ui';
 import { useRecordList } from '../model/useRecordList';
 import styles from './list.module.scss';
 
@@ -32,9 +31,9 @@ const List: FC<timeDateProp> = memo(({ selectTime, change }) => {
   const { t } = useTranslation('record');
   const { record } = useRecordList(selectTime, change);
 
-  const recordFn = (chunk: recordChildren) => {
+  const handleRecord = (record: recordChildren) => {
     playSound.turnPage();
-    navigate(`/editing/${chunk.id}`, { state: chunk });
+    navigate(`/editing/${record.id}`, { state: record });
   };
 
   return (
@@ -43,65 +42,12 @@ const List: FC<timeDateProp> = memo(({ selectTime, change }) => {
         ? (
             <>
               {record.map((item: recordType) => (
-                <div className={styles.group} key={`${item[0]}-${item[1]}`}>
-                  <div className={styles.title}>
-                    <div className={styles.left}>
-                      {item[0]}
-                      {' '}
-                      {item[1]}
-                    </div>
-                    {item[5] > 0
-                      ? (
-                          <div className={styles.right}>
-                            {t('common:amount.income')}
-                            ：
-                            {item[5]}
-                          </div>
-                        )
-                      : (
-                          ''
-                        )}
-                    <div className={styles.right}>
-                      {t('common:amount.expend')}
-                      ：
-                      {item[4]}
-                    </div>
-                  </div>
-                  {item[3].map(chunk => (
-                    <div
-                      className={styles.record}
-                      key={chunk.id}
-                      onClick={() => recordFn(chunk)}
-                    >
-                      <div className={c(styles.left, 'flex-shrink-0')}>
-                        <div
-                          className={c(
-                            styles.icon,
-                            'flex justify-center items-center',
-                          )}
-                        >
-                          <Icon
-                            name={chunk.category.icon}
-                            className="text-xl"
-                          />
-                        </div>
-                      </div>
-                      <div className={c(styles.right, 'flex flex-grow-1 min-w-0')}>
-                        <div
-                          className={c(
-                            styles.remark,
-                            'overflow-hidden overflow-ellipsis whitespace-nowrap',
-                          )}
-                        >
-                          {chunk.remark}
-                        </div>
-                        <div className={c(styles.price, 'ml-[12px]')}>
-                          {chunk.type === 'add' ? chunk.amount : -chunk.amount}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <RecordList
+                  data={{ data: item[3], time: item[2] }}
+                  dateLabel={`${item[0]} ${item[1]}`}
+                  key={`${item[0]}-${item[1]}`}
+                  onRecordClick={handleRecord}
+                />
               ))}
               <div className="h-[30px] flex-shrink-0"></div>
             </>

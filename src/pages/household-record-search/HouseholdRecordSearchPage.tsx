@@ -4,8 +4,8 @@ import { Button } from 'antd-mobile';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { FamilyRecordPolicy, useHouseholdMembersQuery } from '@/entities/household';
 import { HouseholdRecordsPanel, HouseholdScopeBoundary } from '@/features/household';
+import { RecordSearchHeader } from '@/features/record-workspace';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
 
 function getFilters(searchParams: URLSearchParams): GetHouseholdRecordsApiParams {
   const type = searchParams.get('type');
@@ -65,17 +65,9 @@ const SearchContent: FC<{ householdId: string }> = ({ householdId }) => {
 
   return (
     <>
-      <form className="card-rounded mb-3 bg-white px-3 py-4" onSubmit={handleSubmit}>
-        <label className="block text-xs text-font-gray">
-          {t('records.keyword')}
-          <input
-            className="mt-1 h-11 w-full rounded-xl border-0 bg-bg-gray px-3 text-sm text-font-black outline-none"
-            defaultValue={searchParams.get('keyword') ?? ''}
-            name="keyword"
-            placeholder={t('records.keywordPlaceholder')}
-          />
-        </label>
-        <div className="mt-3 grid grid-cols-2 gap-3">
+      <form className="mb-2 bg-white px-3 py-4" onSubmit={handleSubmit}>
+        <input name="keyword" readOnly type="hidden" value={searchParams.get('keyword') ?? ''} />
+        <div className="grid grid-cols-2 gap-3">
           <label className="text-xs text-font-gray">
             {t('records.type')}
             <select className="mt-1 h-11 w-full rounded-xl border-0 bg-bg-gray px-3 text-sm text-font-black" defaultValue={searchParams.get('type') ?? ''} name="type">
@@ -143,10 +135,25 @@ const HouseholdRecordSearchPage: FC = () => {
   const { t } = useTranslation('household');
   const navigate = useNavigate();
   const { householdId = '' } = useParams<{ householdId: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const keyword = searchParams.get('keyword') ?? '';
   return (
-    <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>{t('records.searchTitle')}</NavBar>
-      <main className="min-h-0 flex-grow overflow-auto px-3 py-3">
+    <div className="page-new overflow-hidden bg-white">
+      <RecordSearchHeader
+        onBack={() => navigate(-1)}
+        onChange={(value) => {
+          const next = new URLSearchParams(searchParams);
+          if (value)
+            next.set('keyword', value);
+          else
+            next.delete('keyword');
+          setSearchParams(next, { replace: true });
+        }}
+        placeholder={t('records.keywordPlaceholder')}
+        title={t('records.searchTitle')}
+        value={keyword}
+      />
+      <main className="min-h-0 flex-grow overflow-auto">
         <HouseholdScopeBoundary householdId={householdId}>
           {() => <SearchContent householdId={householdId} />}
         </HouseholdScopeBoundary>

@@ -3,7 +3,7 @@ import { LedgerKind } from '@/entities/ledger';
 
 export interface PersonalLedgerSwitcherItem {
   type: 'personal';
-  label: '个人账本';
+  label: '默认账本';
   recordCount: number;
 }
 
@@ -27,7 +27,7 @@ export type LedgerSwitcherItem
 export function toLedgerSwitcherItems(list: LedgerListItem[]): LedgerSwitcherItem[] {
   const systemDefault = list.find(ledger => ledger.kind === LedgerKind.SYSTEM_DEFAULT);
   const personal: PersonalLedgerSwitcherItem = {
-    label: '个人账本',
+    label: '默认账本',
     recordCount: systemDefault?.recordCount ?? 0,
     type: 'personal',
   };

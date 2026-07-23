@@ -93,6 +93,7 @@
     "search": "搜索",
     "calendar": "日历",
     "settings": "设置",
+    "returnToPersonal": "返回个人账本",
     "detailsTab": "明细",
     "chartsTab": "图表",
     "recordCount": "{{count}} 笔记录",
@@ -149,6 +150,7 @@
   "recordDetail": {
     "title": "家庭记录详情",
     "type": "类型",
+    "amount": "金额",
     "expense": "支出",
     "income": "收入",
     "date": "日期",
@@ -225,10 +227,13 @@
   "settings": {
     "title": "家庭设置",
     "members": "家庭成员",
+    "memberCount": "{{count}} 人",
     "export": "导出家庭数据",
     "sharedStart": "共享开始月份",
     "nickname": "我在家庭账本中的昵称",
     "invitation": "专属邀请码",
+    "help": "使用帮助",
+    "helpHint": "家庭账本说明",
     "dissolve": "解散家庭账本",
     "nicknameTitle": "修改我的昵称",
     "nicknamePlaceholder": "1–30 个字符",
@@ -277,7 +282,12 @@
     "owner": "创建人",
     "partner": "家庭成员",
     "me": "我",
+    "myAvatar": "我的头像",
+    "partnerAvatar": "另一半头像",
     "nickname": "家庭昵称",
+    "partnerNickname": "另一半昵称",
+    "myId": "我的 ID",
+    "partnerId": "另一半 ID",
     "joinedAt": "加入时间",
     "empty": "暂无家庭成员"
   }
