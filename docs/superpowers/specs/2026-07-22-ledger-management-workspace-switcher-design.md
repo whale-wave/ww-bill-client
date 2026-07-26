@@ -146,7 +146,7 @@ type LedgerSurface =
 | `/ledgers/:ledgerId/recovery` | 恢复删除记录 | 保持 | recovery |
 | `/ledgers/:ledgerId/transfer` | 跨账本迁移记录 | 保持 | transfer operation |
 
-个人页 `/detail`、`/bookkeeping`、`/bill`、`/budget`、`/chart` 不变成显式账本路由，只接入工作台头部/导航；这样用户仍然无感使用底层个人默认账本。
+个人页 `/detail`、`/bookkeeping`、`/bill`、`/budget`、`/chart` 不变成显式账本路由。只有 `/detail` 的原居中产品标题增强为账本切换入口；其余页面继续使用各自历史导航结构，让用户无感使用底层默认账本。
 
 ### 5.1 我的账本管理页 `/ledgers`
 
@@ -545,7 +545,7 @@ Mutation 成功后：
 - 保存排序：直接写 management 响应，再失效 navigation；必须采用返回的新成员版本。
 - 归档/退出：移除该 ledger detail，失效 navigation、management、lists、members。
 - 快捷开关：写回 `userKeys.appConfig()`；409 时重新获取。
-- 创建、删除、恢复个人或自定义账本记录：额外失效 navigation，使“个人账本 N 笔记录”不会陈旧。
+- 创建、删除、恢复默认或自定义账本记录：额外失效 navigation，使“默认账本 N 笔记录”不会陈旧。
 - 跨账本迁移：同时失效源/目标 record roots 与 navigation；个人→自定义、自定义→个人和自定义→自定义都适用。
 
 Mutation 失败时不保留乐观破坏性结果；拖拽草稿可以恢复，但 409 必须丢弃并重新加载。

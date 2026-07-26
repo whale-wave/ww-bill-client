@@ -306,12 +306,15 @@ describe('personal ledger workspace integration', () => {
     });
   });
 
-  it('changes personal budget period through the restored navbar dropdown', async () => {
-    const { container } = renderPage('/budget', '/budget', createElement(BudgetPage));
+  it('changes personal budget period and returns through the restored navbar', async () => {
+    const { container, router } = renderPage('/budget', '/budget', createElement(BudgetPage));
 
     await click(container.querySelector('.adm-dropdown-item-title'));
     await click(document.querySelector('[data-budget-type="1"]'));
     expect(hooks.useGetBudgetInfoQuery).toHaveBeenLastCalledWith({ params: { type: 1 } });
+
+    await click(container.querySelector('.bwm-nav-bar-back'));
+    expect(router.state.location.pathname).toBe('/origin');
   });
 });
 
@@ -358,7 +361,18 @@ describe('custom ledger workspace integration', () => {
     expect(container.querySelector('.adm-nav-bar-back') !== null).toBe(!hasWorkspaceTabBar);
   });
 
-  it('registers a scoped bill page, gates its query, and returns to personal detail', async () => {
+  it('returns a directly opened custom budget to its ledger detail', async () => {
+    const { container, router } = renderPage(
+      '/ledgers/ledger%2Fa/budget',
+      '/ledgers/:ledgerId/budget',
+      createElement(LedgerBudgetPage),
+    );
+
+    await click(container.querySelector('.adm-nav-bar-back'));
+    expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa');
+  });
+
+  it('registers a scoped bill page, gates its query, and returns to its ledger detail', async () => {
     const { default: LedgerBillPage } = await import('@/pages/bill/LedgerBillPage');
     const first = renderPage('/ledgers/ledger%2Fa/bill', '/ledgers/:ledgerId/bill', createElement(LedgerBillPage));
 
