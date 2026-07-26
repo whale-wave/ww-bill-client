@@ -11,20 +11,10 @@ interface RecordItemGroupProps {
     time: number;
     data: RecordEntry[];
   };
-  dateLabel?: string;
-  getRecordSubtitle?: (record: RecordEntry) => React.ReactNode;
-  includeRecordInTotals?: (record: RecordEntry) => boolean;
-  onRecordClick?: (record: RecordEntry) => void;
 }
 
 const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
-  const {
-    data,
-    dateLabel,
-    getRecordSubtitle,
-    includeRecordInTotals,
-    onRecordClick,
-  } = props;
+  const { data } = props;
   const { t } = useTranslation('record');
   const navigate = useNavigate();
 
@@ -43,8 +33,6 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
     ];
 
     data.data.forEach((record) => {
-      if (includeRecordInTotals && !includeRecordInTotals(record))
-        return;
       if (record.type === 'add')
         info[0].amount = math.add(info[0].amount, record.amount).toNumber();
       else
@@ -52,20 +40,16 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
     });
 
     return info.filter(i => i.amount !== 0);
-  }, [data, includeRecordInTotals, t]);
+  }, [data, t]);
 
-  const handleRecordClick = useCallback((record: RecordEntry) => {
-    if (onRecordClick) {
-      onRecordClick(record);
-      return;
-    }
+  const handleRecordItemClick = useCallback((record: RecordEntry) => () => {
     navigate(`/editing/${record.id}`, { state: record });
-  }, [navigate, onRecordClick]);
+  }, [navigate]);
 
   return (
     <div className="flex flex-col pt-3 border-0 border-b-[1px] border-[#ebebeb] border-solid last:border-0">
       <div className="flex justify-between text-sm text-[#969696] px-4 ">
-        <div className="text-sm">{dateLabel ?? dayjs(data.time).format('YYYY年MM月DD日')}</div>
+        <div className="text-sm">{dayjs(data.time).format('YYYY年MM月DD日')}</div>
         <div className="flex space-x-3">
           {
             amountInfo.map(item => (
@@ -82,12 +66,11 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
       <div>
         {data.data.map((record, index) => (
           <RecordListItem
-            onClick={() => handleRecordClick(record)}
+            onClick={handleRecordItemClick(record)}
             index={index}
             lastIndex={data.data.length - 1}
             key={record.id}
             record={record}
-            secondaryText={getRecordSubtitle?.(record)}
           />
         ))}
       </div>

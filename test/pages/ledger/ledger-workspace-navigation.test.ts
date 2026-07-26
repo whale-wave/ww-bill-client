@@ -284,8 +284,8 @@ describe('personal ledger workspace integration', () => {
 
     await click(periodTabs[1]);
     await vi.waitFor(() => expect(
-      container.querySelector<HTMLElement>('[data-testid="bill-year-selector"]')?.style.opacity,
-    ).toBe('0'));
+      container.querySelector<HTMLElement>('[data-testid="bill-year-selector"]')?.getAttribute('aria-hidden'),
+    ).toBe('true'));
     await click(container.querySelector('.bwm-button-full'));
     expect(router.state.location.pathname).toBe('/origin');
   });

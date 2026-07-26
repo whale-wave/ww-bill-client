@@ -33,14 +33,17 @@ export const BillTabs: FC = memo(() => {
   return (
     <div className="mb-2 flex p-3">
       <button
-        className="flex w-[20%] items-center border-0 bg-transparent p-0"
+        className={isMonth
+          ? 'flex w-[20%] items-center border-0 bg-transparent p-0 opacity-100'
+          : 'flex w-[20%] items-center border-0 bg-transparent p-0 opacity-0'}
+        aria-hidden={!isMonth}
         data-testid="bill-year-selector"
+        disabled={!isMonth}
         onClick={handleSelectYear}
-        style={{ opacity: isMonth ? 1 : 0 }}
         type="button"
       >
         {showYear}
-        <Icon name="show-bottom" style={{ fontSize: 12, marginLeft: 4 }} />
+        <Icon className="ml-1 text-xs" name="show-bottom" />
       </button>
       <div className="flex flex-grow justify-center">
         <TabList />
