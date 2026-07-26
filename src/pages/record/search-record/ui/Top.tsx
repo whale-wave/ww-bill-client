@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react';
+import type { SearchBarRef } from 'antd-mobile';
+import { SearchBar } from 'antd-mobile';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { RecordSearchHeader } from '@/features/record-workspace';
 import { useTranslation } from '@/shared/i18n';
 
 interface TopProps {
@@ -11,6 +12,8 @@ const Top: React.FC<TopProps> = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const searchRecordKeyword = searchParams.get('q') ?? '';
+  const searchBarRef = useRef<SearchBarRef>(null);
+
   const onBack = useCallback(() => {
     navigate(-1);
   }, [navigate]);
@@ -19,13 +22,14 @@ const Top: React.FC<TopProps> = () => {
     setSearchParams({ q: v }, { replace: true });
   }, [setSearchParams]);
 
+  useEffect(() => {
+    searchBarRef.current?.focus();
+  }, []);
+
   return (
-    <RecordSearchHeader
-      onBack={onBack}
-      onChange={onChange}
-      placeholder={t('search.placeholder')}
-      value={searchRecordKeyword}
-    />
+    <div className="bg-primary py-2 pl-4 pr-1 fixed top-0 right-0 w-full">
+      <SearchBar ref={searchBarRef} style={{ '--background': '#fff' }} value={searchRecordKeyword} placeholder={t('search.placeholder')} showCancelButton={() => true} onCancel={onBack} onChange={onChange} />
+    </div>
   );
 };
 

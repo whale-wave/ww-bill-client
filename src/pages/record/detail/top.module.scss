@@ -17,7 +17,6 @@
   }
   .title {
     position: absolute;
-    z-index: 1;
     left: 50%;
     top: 5px;
     transform: translateX(-50%);
@@ -26,15 +25,6 @@
     color: #323334;
   }
 
-  .header-action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 0;
-    padding: 0;
-    background: transparent;
-    color: #323334;
-  }
   .left {
     left: 20px;
     &-bottom {

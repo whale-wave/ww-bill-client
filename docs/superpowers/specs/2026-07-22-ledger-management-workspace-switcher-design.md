@@ -237,22 +237,27 @@ Form
 
 #### 明细首页
 
-明细首页使用完整的 `LedgerSwitcherHeader`：
+账本切换组件不得接管业务页面导航。个人明细首页只把原有居中产品标题替换为 `LedgerTitleSwitcher`，其余年份、月份、收支、搜索、日历、功能卡和底部导航保持历史结构：
 
 ```text
-当前账本名 ▼                              [ ⋯ | ○ ]
+搜索                  当前账本名 ▼                  日历
 ```
 
-- 个人视图显示“个人账本”。
+- 个人视图显示产品名。
 - 自定义视图显示实际账本名称。
 - 快捷入口开启时，点击名称打开账本切换面板；关闭时名称为静态文本且不显示箭头。
-- 该开关统一控制所有直接打开切换面板的入口；关闭后仍保留圆圈返回个人页，以及创建、管理、快捷设置等普通导航。
-- 自定义视图圆圈按钮可用，点击回 `/detail`；个人视图圆圈显示当前态但不重复导航。
-- 个人明细原有“搜索/日历”不能被胶囊覆盖或删除，迁入 `⋯` ActionSheet 的首组动作，并保持原路由与日期参数。
+- 个人明细原有搜索和日历保持直接按钮，并保持原路由与日期参数。
+- 自定义记录页可在自己的业务头部复用 `LedgerTitleSwitcher`，并保留工作台 TabBar。
 
 #### 账单/预算/图表
 
-这些页面的中心标题已经承担“月/年、收入/支出、周期”等业务筛选，不用账本名称替换标题。它们只复用右侧 `MiniProgramCapsule`：
+这些页面的中心标题承担“月/年、收入/支出、周期”等业务筛选，不渲染账本切换组件：
+
+- 个人图表保留支出/收入和周/月/年筛选，并通过个人底部 TabBar 导航。
+- 个人预算保留共享 `NavBar` 返回按钮和月/年预算筛选。
+- 个人账单保留年份、月/年账单筛选和底部返回按钮。
+- 自定义图表使用业务标题和工作台 TabBar。
+- 自定义预算、账单使用各自页面外壳和明确返回账本详情的入口。
 
 - 圆圈保持回个人首页能力。
 - 快捷入口开启时，`⋯` 的 ActionSheet 提供“切换账本”，打开同一个 `LedgerSwitcherPanel`；关闭时不出现该动作。
@@ -315,9 +320,8 @@ features/ledger-switcher
 ├── model/ledger-navigation.ts
 ├── model/ledger-switcher-view-model.ts
 └── ui
-    ├── LedgerSwitcherHeader.tsx
+    ├── LedgerTitleSwitcher.tsx
     ├── LedgerSwitcherPanel.tsx
-    └── MiniProgramCapsule.tsx
 
 entities/ledger/ui
 └── LedgerCoverCard.tsx
@@ -511,7 +515,7 @@ flowchart TD
   C --> E["GET /ledgers + GET /user-app-config"]
   D --> E
   E --> F["组装个人项 + 自定义账本项"]
-  F --> G["LedgerSwitcherHeader / Panel"]
+  F --> G["LedgerTitleSwitcher / Panel"]
   G -->|选择个人| H["replace /detail"]
   G -->|选择自定义| I["replace 同 surface 的 /ledgers/:id/... 路由"]
   G -->|账本管理| J["push /ledgers"]

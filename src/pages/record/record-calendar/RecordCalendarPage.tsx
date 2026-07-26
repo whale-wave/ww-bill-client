@@ -1,76 +1,112 @@
-import { ErrorBlock, FloatingBubble } from 'antd-mobile';
-import { AddOutline } from 'antd-mobile-icons';
+import { CalendarPickerView, ErrorBlock, FloatingBubble, NavBar } from 'antd-mobile';
+import { AddOutline, DownFill } from 'antd-mobile-icons';
+import classNames from 'classnames';
 import dayjs from 'dayjs';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { RecordList } from '@/entities/record';
-import { RecordCalendarView } from '@/features/record-workspace';
 import { useTranslation } from '@/shared/i18n';
 import { useRecordCalendar } from '../model/useRecordCalendar';
+import styles from './index.module.scss';
 
-const RecordCalendar: React.FC = () => {
+interface RecordCalendarProps {
+}
+
+const RecordCalendar: React.FC<RecordCalendarProps> = () => {
   const { t } = useTranslation('record');
   const {
     selectMonthValue,
     selectDateValue,
     dateMap,
     list,
+    calendarRange,
+    isToday,
+    getDateText,
     onBack,
     onDatePicker,
     onChangeDate,
     onToToday,
     onFixedPinClick,
   } = useRecordCalendar();
-  const dayStats = useMemo(() => new Map(
-    [...dateMap.entries()].map(([timestamp, stat]) => [
-      dayjs(timestamp).format('YYYY-MM-DD'),
-      {
-        expense: stat.expend,
-        hasRecords: stat.list.length > 0,
-        income: stat.income,
-      },
-    ]),
-  ), [dateMap]);
 
   return (
-    <RecordCalendarView
-      backLabel={t('common:nav.back')}
-      dayStats={dayStats}
-      floatingAction={(
-        <FloatingBubble
-          axis="xy"
-          magnetic="x"
-          onClick={onFixedPinClick}
-          style={{
-            '--edge-distance': '12px',
-            '--initial-position-bottom': '20%',
-            '--initial-position-right': '12px',
-            '--size': '55px',
-          }}
-        >
-          <AddOutline className="text-2xl text-[#333]" />
-        </FloatingBubble>
-      )}
-      month={selectMonthValue.toDate()}
-      monthTitle={selectMonthValue.format('YYYY年MM月')}
-      onBack={onBack}
-      onDateChange={date => onChangeDate(date)}
-      onMonthClick={onDatePicker}
-      onToday={onToToday}
-      records={(
-        <>
-          <span className="hidden">{t('calendar.dailyBudget')}</span>
-          {list.data.length > 0
-            ? <RecordList data={list} />
-            : (
-                <div className="flex min-h-[220px] items-center justify-center">
-                  <ErrorBlock description={false} status="empty" title={t('common:empty')} />
+    <div className={classNames('page-new', styles['record-calendar-page'])}>
+      <NavBar
+        back={t('common:nav.back')}
+        right={<div onClick={onToToday}>{t('common:time.today')}</div>}
+        className="bg-primary flex-shrink-0 fixed top-0 left-0 w-full"
+        onBack={onBack}
+      >
+        <div className="flex items-center justify-center space-x-2" onClick={onDatePicker}>
+          <span>{selectMonthValue.format('YYYY年MM月')}</span>
+          <DownFill className="text-base" />
+        </div>
+      </NavBar>
+      <CalendarPickerView
+        {...calendarRange}
+        allowClear={false}
+        title={false}
+        selectionMode="single"
+        weekStartsOn="Monday"
+        value={selectDateValue.toDate()}
+        onChange={onChangeDate}
+        renderDate={(date) => {
+          const data = dateMap.get(dayjs(date).startOf('day').valueOf());
+          return (
+            <div
+              className={classNames('flex-grow flex flex-col', {
+                'border-[1px] border-solid border-gray-200 rounded-[2px]': isToday(date),
+              })}
+              data-date={dayjs(date).format('YYYY-MM-DD')}
+            >
+              <div className={classNames('mt-1 flex justify-center', {
+                'text-sm': isToday(date),
+              })}
+              >
+                {getDateText(date)}
+              </div>
+              <div className="flex-grow flex flex-col text-xs leading-[10px]">
+                <div className="flex justify-center h-[10px] text-[#00863f]">
+                  {!!data?.income && (
+                    <>
+                      +
+                      {data.income}
+                    </>
+                  )}
                 </div>
-              )}
-        </>
-      )}
-      selectedDate={selectDateValue.toDate()}
-      todayLabel={t('common:time.today')}
-    />
+                <div className="flex justify-center h-[10px] text-[#cf7179]">
+                  {!!data?.expend && (
+                    <>
+                      -
+                      {data.expend}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        }}
+      />
+      <div className="hidden">
+        {t('calendar.dailyBudget')}
+      </div>
+      <div className="h-1 bg-[#f6f7f8] flex-shrink-0" />
+      <div className="pb-8">
+        {list.data.length > 0 ? <RecordList data={list} /> : <div className="flex-grow flex justify-center items-center"><ErrorBlock status="empty" title={t('common:empty')} description={false} /></div>}
+      </div>
+      <FloatingBubble
+        style={{
+          '--initial-position-bottom': '20%',
+          '--initial-position-right': '12px',
+          '--edge-distance': '12px',
+          '--size': '55px',
+        }}
+        axis="xy"
+        magnetic="x"
+        onClick={onFixedPinClick}
+      >
+        <AddOutline className="text-2xl text-[#333]" />
+      </FloatingBubble>
+    </div>
   );
 };
 

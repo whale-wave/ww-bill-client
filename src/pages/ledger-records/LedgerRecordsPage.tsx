@@ -6,7 +6,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { LedgerCapability, useLedgerPreferencesQuery } from '@/entities/ledger';
 import { useLedgerRecordsQuery } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
-import { LedgerSwitcherHeader } from '@/features/ledger-switcher';
+import { LedgerTitleSwitcher } from '@/features/ledger-switcher';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
@@ -61,7 +61,9 @@ function RecordsContent({ ledgerId }: { ledgerId: string }) {
 function LedgerRecordsWorkspace({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string }) {
   return (
     <>
-      <LedgerSwitcherHeader ledgerName={ledger.name} />
+      <header className="flex min-h-[45px] flex-shrink-0 items-center justify-center bg-primary px-4 text-lg text-font-black">
+        <LedgerTitleSwitcher ledgerName={ledger.name} />
+      </header>
       <main className="min-h-0 flex-grow overflow-auto pb-3">
         <RecordsContent ledgerId={ledgerId} />
       </main>

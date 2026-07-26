@@ -11,7 +11,6 @@ import {
   LedgerStatus,
 } from '@/entities/ledger';
 import {
-  LedgerSwitcherHeader,
   LedgerTitleSwitcher,
 } from '@/features/ledger-switcher';
 
@@ -187,12 +186,5 @@ describe('ledger title switcher', () => {
 
     expect(router.state.location.pathname).toBe('/detail');
     expect(router.state.historyAction).toBe('REPLACE');
-  });
-
-  it('keeps the compatibility header free of the mini-program capsule', () => {
-    const { container } = renderSwitcher(createElement(LedgerSwitcherHeader));
-
-    expect(container.querySelector('[data-testid="mini-program-capsule"]')).toBeNull();
-    expect(container.querySelector('[data-testid="ledger-switcher-title"]')).not.toBeNull();
   });
 });

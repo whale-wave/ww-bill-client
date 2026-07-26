@@ -65,7 +65,7 @@ const RecordListContainer: React.FC<RecordListProps> = () => {
           ? <div className="flex-grow flex justify-center items-center"><SpinLoading /></div>
           : recordGroupByDate.length === 0
             ? emptyEl
-            : (<div className="flex-grow overflow-auto bg-white pb-4">{recordGroupByDate.map(group => (<RecordList key={group.time} data={group} />))}</div>)}
+            : (<div className="flex-grow overflow-auto pb-4 pt-[48px]">{recordGroupByDate.map(group => (<RecordList key={group.time} data={group} />))}</div>)}
     </>
   );
 };
