@@ -88,7 +88,7 @@ afterEach(() => {
 });
 
 describe('personal tab bar', () => {
-  it('renders five exact targets with a string activeKey and safe-area padding', async () => {
+  it('preserves the original five-target DOM, icons, and prominent create action', async () => {
     const { container, router } = renderTabBar(
       createElement(TabBar, { activeKey: 'detail' }),
     );
@@ -102,16 +102,10 @@ describe('personal tab bar', () => {
       ['discovery', '/discovery'],
       ['mine', '/mine'],
     ]);
-    expect(container.querySelector('[data-tab-key="detail"]')?.classList)
-      .toContain('adm-tab-bar-item-active');
-    expect(container.querySelectorAll('[role="tab"]')).toHaveLength(5);
-    expect(container.querySelector('[data-tab-key="detail"] [role="tab"]')?.getAttribute('aria-selected'))
-      .toBe('true');
-    expect((container.querySelector('[data-tab-key="detail"] [role="tab"]') as HTMLElement).tabIndex)
-      .toBe(0);
-    expect((container.querySelector('[data-tab-key="chart"] [role="tab"]') as HTMLElement).tabIndex)
-      .toBe(-1);
-    expect(container.querySelector('.adm-safe-area-position-bottom')).not.toBeNull();
+    expect(container.querySelector('.bwm-tab-bar')).not.toBeNull();
+    expect(container.querySelector('.ww-personal-tab-bar')).toBeNull();
+    expect(container.querySelector('[data-tab-key="bookkeeping"] .h-\\[55px\\]')).not.toBeNull();
+    expect(container.querySelectorAll('.bwm-tab-bar > .item')).toHaveLength(5);
 
     for (const [key, path] of [
       ['chart', '/chart'],
@@ -129,19 +123,6 @@ describe('personal tab bar', () => {
 
     await prefetch(container.querySelector('[data-tab-key="detail"]'));
     await vi.waitFor(() => expect(hooks.prefetched).toContain('personal-detail'));
-
-    hooks.prefetched.length = 0;
-    const detailTab = container.querySelector<HTMLElement>('[data-tab-key="detail"] [role="tab"]');
-    await act(async () => detailTab?.focus());
-    await vi.waitFor(() => expect(hooks.prefetched).toContain('personal-detail'));
-
-    detailTab?.dispatchEvent(new KeyboardEvent('keydown', {
-      bubbles: true,
-      key: 'ArrowRight',
-    }));
-    expect(document.activeElement).toBe(
-      container.querySelector('[data-tab-key="chart"] [role="tab"]'),
-    );
   });
 });
 

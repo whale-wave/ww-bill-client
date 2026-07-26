@@ -1,99 +1,23 @@
-.ww-tab-bar-spacer {
-  flex: 0 0 calc(60px + env(safe-area-inset-bottom));
-  min-height: calc(60px + env(safe-area-inset-bottom));
-}
-
-.ww-tab-bar {
-  position: fixed;
-  z-index: 100;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  border-top: 1px solid #f2f2f2;
-  background: #fff;
-  box-shadow: 0 -2px 8px rgb(0 0 0 / 4%);
-
-  .adm-tab-bar {
-    --adm-color-primary: var(--ww-theme-text-color);
-    --adm-color-text-secondary: #747374;
-  }
-
-  .adm-tab-bar-wrap {
-    min-height: 60px;
-    overflow: visible;
-  }
-
-  .adm-tab-bar-item {
-    min-width: 0;
-    padding: 4px;
-  }
-
-  .adm-tab-bar-item-icon,
-  .adm-tab-bar-icon-badge {
-    width: 100%;
-    height: auto;
-    overflow: visible;
-  }
-
-  .adm-tab-bar-item-active {
-    color: var(--ww-theme-text-color);
-  }
-}
-
-.ww-tab-bar__button {
-  position: relative;
+.bwm-tab-bar {
   display: flex;
   width: 100%;
-  min-height: 51px;
-  flex-direction: column;
+  height: 60px;
+  flex-shrink: 0;
   align-items: center;
-  justify-content: flex-end;
-  border: 0;
-  padding: 0 2px;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
+  justify-content: space-evenly;
+  background: #fefefe;
+  box-shadow: 0 -1px 1px #f6f6f6;
+  color: #747374;
 
-  &:focus-visible {
-    outline: 2px solid var(--ww-theme-text-color);
-    outline-offset: 1px;
+  .item {
+    .tab-icon {
+      display: block;
+      font-size: var(--ww-font-size-xl);
+    }
+
+    .name {
+      font-size: var(--ww-font-size-sm);
+      font-weight: bold;
+    }
   }
-}
-
-.ww-tab-bar__button-icon {
-  display: flex;
-  height: 24px;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--ww-font-size-xl);
-}
-
-.ww-tab-bar__button-label {
-  margin-top: 2px;
-  overflow: hidden;
-  font-size: var(--ww-font-size-sm);
-  font-weight: 600;
-  line-height: 15px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ww-tab-bar__create-icon {
-  position: absolute;
-  bottom: 19px;
-  width: 50px;
-  height: 50px;
-  border: 5px solid #fff;
-  border-radius: 50%;
-  background: var(--ww-theme-color);
-  box-shadow: 0 -2px 7px rgb(0 0 0 / 8%);
-  color: var(--ww-theme-text-color);
-
-  svg {
-    font-size: 24px;
-  }
-}
-
-.ww-tab-bar__item--disabled {
-  opacity: 0.45;
 }

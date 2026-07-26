@@ -11,7 +11,7 @@ import { LedgerCapability as Capability } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound, prefetchRoute } from '@/shared/lib';
-import './tab-bar/tab-bar.scss';
+import './ledger-workspace-tab-bar.scss';
 
 export type LedgerWorkspaceTabKey = 'records' | 'create' | 'charts';
 
