@@ -179,4 +179,15 @@ describe('ledger preference consumers', () => {
     }));
     expect(container.querySelector('[data-chart-display="line"]')).not.toBeNull();
   });
+
+  it('does not show a loader for an inactive chart query', () => {
+    hooks.useLedgerChartQuery
+      .mockReturnValueOnce({ data: [], isLoading: true })
+      .mockReturnValueOnce({ data: [{ amount: 1, value: 2026 }], isLoading: false });
+
+    const container = renderPage(createElement(LedgerChartsPage));
+
+    expect(container.querySelector('.adm-spin-loading')).toBeNull();
+    expect(container.querySelector('[data-testid="ledger-chart-total"]')?.textContent).toBe('1');
+  });
 });

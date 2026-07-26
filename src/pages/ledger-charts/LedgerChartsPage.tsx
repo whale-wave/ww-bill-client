@@ -26,9 +26,14 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
   const expense = useLedgerChartQuery({ params: { ledgerId, filters: { category: period, type: 'sub' } }, queryOptions: { enabled: metric !== LedgerChartMetric.INCOME } });
   const total = useMemo(() => getLedgerChartTotal(metric, sumChart(income.data), sumChart(expense.data)), [expense.data, income.data, metric]);
   const displayData = metric === LedgerChartMetric.INCOME ? income.data : expense.data;
+  const isLoading = metric === LedgerChartMetric.INCOME
+    ? income.isLoading
+    : metric === LedgerChartMetric.EXPENSE
+      ? expense.isLoading
+      : income.isLoading || expense.isLoading;
   return (
     <>
-      {(income.isLoading || expense.isLoading) && <SpinLoading />}
+      {isLoading && <SpinLoading />}
       <div className="flex flex-wrap gap-2 bg-white px-4 py-3">
         {Object.values(LedgerChartMetric).map(value => <Button color={metric === value ? 'primary' : 'default'} key={value} onClick={() => setMetricOverride(value)} size="small">{t(`charts.metric.${value}`)}</Button>)}
         {Object.values(LedgerChartPeriod).map(value => <Button key={value} onClick={() => setPeriodOverride(value)} size="small">{t(`charts.period.${value}`)}</Button>)}
