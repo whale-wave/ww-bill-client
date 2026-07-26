@@ -2,6 +2,7 @@ import type { FC, ReactNode } from 'react';
 import { ErrorBlock, SpinLoading } from 'antd-mobile';
 import {
   AddSquareOutline,
+  BillOutline,
   CheckShieldOutline,
   PayCircleOutline,
   PieOutline,
@@ -21,9 +22,10 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { NavBar } from '@/shared/ui';
 
-const LEDGER_MODULES = ['records', 'budget', 'charts', 'settings'] as const;
+const LEDGER_MODULES = ['records', 'bill', 'budget', 'charts', 'settings'] as const;
 
 const MODULE_CAPABILITIES = {
+  bill: LedgerCapability.RECORD_READ,
   budget: LedgerCapability.BUDGET_READ,
   charts: LedgerCapability.CHART_READ,
   records: LedgerCapability.RECORD_READ,
@@ -34,6 +36,8 @@ function getModuleIcon(moduleKey: typeof LEDGER_MODULES[number]): ReactNode {
   switch (moduleKey) {
     case 'records':
       return <UnorderedListOutline />;
+    case 'bill':
+      return <BillOutline />;
     case 'budget':
       return <PayCircleOutline />;
     case 'charts':
@@ -156,6 +160,7 @@ const LedgerDetailPage: FC = () => {
               {LEDGER_MODULES.map((moduleKey) => {
                 const isEnabled = ledger.capabilities.includes(MODULE_CAPABILITIES[moduleKey]);
                 const paths = {
+                  bill: ROUTES_PATH.LEDGER_BILL.getPath(ledger.id),
                   budget: ROUTES_PATH.LEDGER_BUDGET.getPath(ledger.id),
                   charts: ROUTES_PATH.LEDGER_CHARTS.getPath(ledger.id),
                   records: ROUTES_PATH.LEDGER_RECORDS.getPath(ledger.id),
@@ -165,6 +170,7 @@ const LedgerDetailPage: FC = () => {
                   <button
                     aria-disabled={!isEnabled}
                     className="ml-4 flex min-h-[59px] w-[calc(100%-1rem)] items-center border-0 border-t border-solid border-[#EBEBEB] bg-white pr-4 text-left"
+                    data-module-key={moduleKey}
                     key={moduleKey}
                     onClick={() => isEnabled && navigate(paths[moduleKey])}
                     type="button"

@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react';
 import { useLedgerChartQuery } from '@/entities/chart';
 import { LedgerCapability, LedgerChartDisplay, LedgerChartMetric, LedgerChartPeriod, useLedgerPreferencesQuery } from '@/entities/ledger';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
-import { LedgerSwitcherHeader } from '@/features/ledger-switcher';
 import { useTranslation } from '@/shared/i18n';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 import { getLedgerChartTotal } from './model';
@@ -57,7 +56,9 @@ function LedgerChartsWorkspace({ ledger, ledgerId }: { ledger: Ledger; ledgerId:
   const { t } = useTranslation('ledger');
   return (
     <>
-      <LedgerSwitcherHeader titleContent={<span>{t('charts.title')}</span>} />
+      <header className="flex min-h-[45px] flex-shrink-0 items-center justify-center bg-primary px-4 text-lg text-font-black">
+        {t('charts.title')}
+      </header>
       <main className="min-h-0 flex-grow overflow-auto">
         <ChartContent ledgerId={ledgerId} />
       </main>

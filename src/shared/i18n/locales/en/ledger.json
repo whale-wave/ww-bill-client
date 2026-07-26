@@ -113,6 +113,7 @@
     "comingSoon": "Coming Soon",
     "module": {
       "records": "Records",
+      "bill": "Bills",
       "budget": "Budgets",
       "charts": "Charts",
       "settings": "Ledger Settings"

@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';
 import { ChartHomeProvider } from '@/pages/chart/chart-home/model/ChartHomeProvider';
 import { ChartContent, Top } from '@/pages/chart/chart-home/ui';
+import { cn } from '@/shared/lib';
 import { TabBar } from '@/widgets/layout';
 
 const ChartHomeInner: FC = () => {
@@ -23,9 +24,9 @@ const ChartHomeInner: FC = () => {
   }, [setTabActive]);
 
   return (
-    <div className="page overflow-hidden">
-      <div className="flex min-h-0 flex-grow flex-col overflow-hidden">
-        <Top />
+    <>
+      <Top />
+      <div className={cn('fixed top-[calc(42.94px+42.4px)] left-0 right-0')}>
         <Tabs
           style={{ ...tabStyle, ...originalStyle }}
           activeKey={tabActive}
@@ -37,10 +38,10 @@ const ChartHomeInner: FC = () => {
             ))
           }
         </Tabs>
-        <ChartContent />
       </div>
+      <ChartContent />
       <TabBar active={1} />
-    </div>
+    </>
   );
 };
 

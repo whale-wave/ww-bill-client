@@ -753,6 +753,8 @@ describe('ledger detail page', () => {
       queryOptions: { enabled: true },
     });
     expect(container.textContent).toContain('detail.module.records');
+    expect(container.textContent).toContain('detail.module.bill');
+    expect(container.querySelector('[data-module-key="bill"]')?.getAttribute('aria-disabled')).toBe('true');
     expect(container.textContent).toContain('detail.comingSoon');
     expect(container.querySelector('[data-testid="ledger-members"]')).toBeNull();
   });

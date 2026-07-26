@@ -1,13 +1,14 @@
 import type { DropdownRef } from 'antd-mobile/es/components/dropdown';
 import type { FC } from 'react';
 import type { AmountType, TimeRangeCategory } from '@/entities/chart';
-import { CapsuleTabs, Dropdown, List } from 'antd-mobile';
+import { Dropdown } from 'antd-mobile';
 import { CheckOutline } from 'antd-mobile-icons';
 import { useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LedgerSwitcherHeader } from '@/features/ledger-switcher';
 import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';
 import style from '@/pages/chart/chart-home/ui/Top.module.scss';
+import { cn } from '@/shared/lib';
+import { Icon, TabList } from '@/shared/ui';
 
 export const Top: FC = () => {
   const { t } = useTranslation('chart');
@@ -31,16 +32,19 @@ export const Top: FC = () => {
   const amountTypeList = useMemo(() => [
     {
       name: t('amount.expend'),
+      icon: 'huankuanzhichu-copy',
       value: 'sub',
     },
     {
       name: t('amount.income'),
+      icon: 'jiekuanshouru-copy',
       value: 'add',
     },
-  ] as { name: string; value: AmountType }[], [t]);
+  ] as { name: string; icon: string; value: AmountType }[], [t]);
 
-  const currentAmountTypeItem = amountTypeList.find(item => item.value === currentAmountType)!;
+  const currentAmountTypeItem = useMemo(() => amountTypeList.find(item => item.value === currentAmountType)!, [amountTypeList, currentAmountType]);
 
+  const dropdownWrapperRef = useRef<HTMLDivElement>(null);
   const ref = useRef<DropdownRef>(null);
 
   const handleClickAmountType = useCallback((amountType: AmountType) => () => {
@@ -50,36 +54,38 @@ export const Top: FC = () => {
 
   return (
     <>
-      <LedgerSwitcherHeader
-        titleContent={(
-          <Dropdown className={style['dropdown-wrapper']} closeOnClickAway ref={ref}>
-            <Dropdown.Item key="amount-type" title={currentAmountTypeItem.name}>
-              <List>
-                {amountTypeList.map(item => (
-                  <List.Item
-                    arrow={currentAmountTypeItem.value === item.value
-                      ? <CheckOutline />
-                      : null}
-                    key={item.value}
-                    onClick={handleClickAmountType(item.value)}
-                  >
-                    {item.name}
-                  </List.Item>
-                ))}
-              </List>
-            </Dropdown.Item>
-          </Dropdown>
-        )}
-      />
-      <div className={style['period-tabs']}>
-        <CapsuleTabs
-          activeKey={currentTimeRangeCategory}
-          onChange={key => setCurrentTimeRangeCategory(key as TimeRangeCategory)}
+      <div className={cn(style['dropdown-wrapper'], 'bg-primary fixed top-0 left-0 right-0 z-10')} ref={dropdownWrapperRef}>
+        <Dropdown
+          ref={ref}
+          closeOnClickAway
+          className={cn('!bg-primary')}
+          getContainer={dropdownWrapperRef.current}
         >
-          {timeRangeCategoryList.map(item => (
-            <CapsuleTabs.Tab key={item.value} title={item.name} />
-          ))}
-        </CapsuleTabs>
+          <Dropdown.Item key="sorter" title={currentAmountTypeItem.name}>
+            {amountTypeList.map((item, index) => (
+              <div
+                key={item.icon}
+                className="flex items-center h-10 relative"
+                onClick={handleClickAmountType(item.value)}
+              >
+                {index !== 0 && <div className="absolute right-0 top-0 w-[88%] h-[1px] bg-[#E5E5E5]" />}
+                <div className="px-2">
+                  <Icon className="text-2xl" name={item.icon} />
+                </div>
+                <span className="text-sm">{item.name}</span>
+                {currentAmountTypeItem.value === item.value ? <CheckOutline className="text-xl absolute right-2" /> : null}
+              </div>
+            ))}
+          </Dropdown.Item>
+        </Dropdown>
+      </div>
+      <div className="px-2 pb-3 fixed top-[42.4px] w-full bg-primary">
+        <TabList
+          className="w-full"
+          selectValue={currentTimeRangeCategory}
+          tabs={timeRangeCategoryList}
+          onChange={setCurrentTimeRangeCategory}
+        />
       </div>
     </>
   );

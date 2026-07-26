@@ -2,7 +2,7 @@ import { LedgerCapability } from '@/entities/ledger';
 import { useLedgerRecordBillQuery } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useBillWorkspaceQueryParams } from '@/pages/bill/model';
-import { BillWorkspaceView } from '@/pages/bill/ui/BillWorkspaceView';
+import { LedgerBillWorkspaceView } from '@/pages/bill/ui/BillWorkspaceView';
 
 function LedgerBillContent({ ledgerId }: { ledgerId: string }) {
   const filters = useBillWorkspaceQueryParams();
@@ -10,7 +10,7 @@ function LedgerBillContent({ ledgerId }: { ledgerId: string }) {
     params: { filters, ledgerId },
   });
 
-  return <BillWorkspaceView query={query} />;
+  return <LedgerBillWorkspaceView ledgerId={ledgerId} query={query} />;
 }
 
 export default function LedgerBillPage() {

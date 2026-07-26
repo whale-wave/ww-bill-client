@@ -113,6 +113,7 @@
     "comingSoon": "即将开放",
     "module": {
       "records": "账单明细",
+      "bill": "账单",
       "budget": "预算管理",
       "charts": "统计图表",
       "settings": "账本设置"

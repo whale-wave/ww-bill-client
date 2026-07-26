@@ -1,11 +1,12 @@
 import type { Ledger } from '@/entities/ledger';
-import { Button, ErrorBlock, Input, ProgressBar, SpinLoading, Toast } from 'antd-mobile';
+import { Button, ErrorBlock, Input, NavBar, ProgressBar, SpinLoading, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BudgetEntityType, useCreateLedgerBudgetSummaryMutation, useLedgerBudgetInfoQuery } from '@/entities/budget';
 import { LedgerCapability } from '@/entities/ledger';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
-import { LedgerSwitcherHeader } from '@/features/ledger-switcher';
+import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 
 function BudgetContent({ ledgerId, canManage }: { ledgerId: string; canManage: boolean }) {
@@ -73,9 +74,16 @@ function BudgetContent({ ledgerId, canManage }: { ledgerId: string; canManage: b
 
 function LedgerBudgetWorkspace({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string }) {
   const { t } = useTranslation('ledger');
+  const navigate = useNavigate();
   return (
     <>
-      <LedgerSwitcherHeader titleContent={<span>{t('budget.title')}</span>} />
+      <NavBar
+        back={t('common:nav.back')}
+        className="flex-shrink-0 bg-primary"
+        onBack={() => navigate(ROUTES_PATH.LEDGER_DETAIL.getPath(ledgerId))}
+      >
+        {t('budget.title')}
+      </NavBar>
       <main className="min-h-0 flex-grow overflow-auto">
         <BudgetContent
           canManage={ledger.capabilities.includes(LedgerCapability.BUDGET_MANAGE)}

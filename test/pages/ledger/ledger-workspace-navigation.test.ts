@@ -260,14 +260,24 @@ describe('personal ledger workspace integration', () => {
   });
 
   it.each([
-    ['chart', '/chart', createElement(ChartHomePage), '支出'],
-    ['budget', '/budget', createElement(BudgetPage), '月预算'],
-    ['bill', '/bill', createElement(BillPage), '月账单'],
-  ])('keeps the original %s business title without injecting a capsule', (_name, pathname, element, businessTitle) => {
+    ['chart', '/chart', createElement(ChartHomePage), '支出', false, true],
+    ['budget', '/budget', createElement(BudgetPage), '月预算', true, false],
+    ['bill', '/bill', createElement(BillPage), '月账单', false, false],
+  ])('keeps the original %s navigation contract', (_name, pathname, element, businessTitle, hasTopBack, hasTabBar) => {
     const { container } = renderPage(pathname, pathname, element);
 
     expect(container.querySelector('[data-testid="mini-program-capsule"]')).toBeNull();
     expect(container.textContent).toContain(businessTitle);
+    expect(container.querySelector('.bwm-nav-bar-back') !== null).toBe(hasTopBack);
+    expect(container.querySelector('.bwm-tab-bar') !== null).toBe(hasTabBar);
+  });
+
+  it('keeps year selection, month/year bill switching, and the bottom return action', () => {
+    const { container } = renderPage('/bill', '/bill', createElement(BillPage));
+
+    expect(container.querySelector('[data-testid="bill-year-selector"]')?.textContent).toContain('2026年');
+    expect(container.textContent).toContain('月账单');
+    expect(container.querySelector('[data-testid="bill-back-action"]')).not.toBeNull();
   });
 });
 
@@ -294,20 +304,24 @@ describe('custom ledger workspace integration', () => {
     expect(second.container.querySelector('[data-testid="ledger-switcher-title"]')?.getAttribute('aria-disabled')).toBe('true');
   });
 
-  it.each([
-    ['records', '/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage)],
-    ['charts', '/ledgers/ledger%2Fa/charts', '/ledgers/:ledgerId/charts', createElement(LedgerChartsPage)],
-    ['budget', '/ledgers/ledger%2Fa/budget', '/ledgers/:ledgerId/budget', createElement(LedgerBudgetPage)],
-  ])('replaces custom %s with the matching default surface through the title switcher', async (_name, pathname, path, element) => {
-    const { container, router } = renderPage(pathname, path, element);
+  it('replaces custom records with personal detail through its title switcher', async () => {
+    const { container, router } = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
 
-    const title = container.querySelector('[data-testid="ledger-switcher-title"]');
-    if (!title)
-      return;
-    await click(title);
+    await click(container.querySelector('[data-testid="ledger-switcher-title"]'));
     await click(document.querySelector('[data-testid="ledger-switch-item-personal"]'));
-    expect(router.state.location.pathname).toMatch(/^\/(detail|chart|budget)$/);
+    expect(router.state.location.pathname).toBe('/detail');
     expect(router.state.historyAction).toBe('REPLACE');
+  });
+
+  it.each([
+    ['charts', '/ledgers/ledger%2Fa/charts', '/ledgers/:ledgerId/charts', createElement(LedgerChartsPage), true],
+    ['budget', '/ledgers/ledger%2Fa/budget', '/ledgers/:ledgerId/budget', createElement(LedgerBudgetPage), false],
+  ])('keeps custom %s business navigation explicit', (_name, pathname, path, element, hasWorkspaceTabBar) => {
+    const { container } = renderPage(pathname, path, element);
+
+    expect(container.querySelector('[data-testid="ledger-switcher-title"]')).toBeNull();
+    expect(container.querySelector('.ww-ledger-workspace-tab-bar') !== null).toBe(hasWorkspaceTabBar);
+    expect(container.querySelector('.adm-nav-bar-back') !== null).toBe(!hasWorkspaceTabBar);
   });
 
   it('registers a scoped bill page, gates its query, and returns to personal detail', async () => {
@@ -318,6 +332,8 @@ describe('custom ledger workspace integration', () => {
       params: expect.objectContaining({ ledgerId: 'ledger/a' }),
     }));
     expect(first.container.querySelector('[data-testid="mini-program-capsule"]')).toBeNull();
+    expect(first.container.querySelector('[data-testid="ledger-switcher-title"]')).toBeNull();
+    expect(first.container.querySelector('[data-testid="bill-back-action"]')).not.toBeNull();
 
     cleanupRender();
     hooks.useLedgerRecordBillQuery.mockClear();
