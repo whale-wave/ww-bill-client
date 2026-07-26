@@ -32,7 +32,7 @@ const List: FC<timeDateProp> = memo(({ selectTime, change }) => {
   const { t } = useTranslation('record');
   const { record } = useRecordList(selectTime, change);
 
-  const recordFn = (chunk: recordChildren) => {
+  const handleRecord = (chunk: recordChildren) => {
     playSound.turnPage();
     navigate(`/editing/${chunk.id}`, { state: chunk });
   };
@@ -71,7 +71,7 @@ const List: FC<timeDateProp> = memo(({ selectTime, change }) => {
                     <div
                       className={styles.record}
                       key={chunk.id}
-                      onClick={() => recordFn(chunk)}
+                      onClick={() => handleRecord(chunk)}
                     >
                       <div className={c(styles.left, 'flex-shrink-0')}>
                         <div

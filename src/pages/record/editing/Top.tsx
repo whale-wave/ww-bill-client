@@ -14,7 +14,7 @@ interface stateType {
 const Top: FC<stateType> = ({ state }) => {
   const navigate = useNavigate();
   const { t } = useTranslation('record');
-  const back = () => {
+  const handleBack = () => {
     playSound.turnPage();
     if (state?.status) {
       navigate('/detail');
@@ -26,7 +26,7 @@ const Top: FC<stateType> = ({ state }) => {
 
   return (
     <div>
-      <NavBar backArrow={false} onBack={() => back()} back={t('common:nav.back')}></NavBar>
+      <NavBar backArrow={false} onBack={handleBack} back={t('common:nav.back')}></NavBar>
       <div className={styles.top}>
         <div className={styles.main}>
           <div
@@ -35,7 +35,7 @@ const Top: FC<stateType> = ({ state }) => {
               'flex justify-center items-center',
             )}
           >
-            <Icon name={state.category.icon} style={{ fontSize: 36 }} />
+            <Icon className="text-[36px]" name={state.category.icon} />
           </div>
           <span>{state.category.name}</span>
         </div>

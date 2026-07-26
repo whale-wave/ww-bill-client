@@ -60,6 +60,7 @@ export const BudgetTop: React.FC<BudgetTopProps> = (props) => {
                 arrow={budgetPageContentValue?.budgetEntityType === item.key
                   ? <CheckOutline className="text-black333" />
                   : null}
+                data-budget-type={item.key}
                 key={item.title}
                 onClick={item.onClick}
               >

@@ -66,6 +66,7 @@ export const Top: FC = () => {
               <div
                 key={item.icon}
                 className="flex items-center h-10 relative"
+                data-chart-amount-type={item.value}
                 onClick={handleClickAmountType(item.value)}
               >
                 {index !== 0 && <div className="absolute right-0 top-0 w-[88%] h-[1px] bg-[#E5E5E5]" />}
@@ -81,7 +82,7 @@ export const Top: FC = () => {
       </div>
       <div className="px-2 pb-3 fixed top-[42.4px] w-full bg-primary">
         <TabList
-          className="w-full"
+          className="chart-period-tabs w-full"
           selectValue={currentTimeRangeCategory}
           tabs={timeRangeCategoryList}
           onChange={setCurrentTimeRangeCategory}

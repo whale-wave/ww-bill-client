@@ -185,6 +185,7 @@ function renderPage(pathname: string, path: string, element: ReactNode) {
     { element: createElement('div', null, 'personal-detail-target'), path: '/detail' },
     { element: createElement('div', null, 'personal-search-target'), path: '/search-record' },
     { element: createElement('div', null, 'personal-calendar-target'), path: '/record-calendar' },
+    { element: createElement('div', null, 'custom-detail-target'), path: '/ledgers/:ledgerId' },
     { element: createElement('div', null, 'custom-records-target'), path: '/ledgers/:ledgerId/records' },
   ], { initialEntries: ['/origin', pathname], initialIndex: 1 });
   act(() => root.render(createElement(RouterProvider, { router })));
@@ -272,12 +273,45 @@ describe('personal ledger workspace integration', () => {
     expect(container.querySelector('.bwm-tab-bar') !== null).toBe(hasTabBar);
   });
 
-  it('keeps year selection, month/year bill switching, and the bottom return action', () => {
-    const { container } = renderPage('/bill', '/bill', createElement(BillPage));
+  it('keeps year selection, month/year bill switching, and the bottom return action', async () => {
+    const { container, router } = renderPage('/bill', '/bill', createElement(BillPage));
+    const periodTabs = container.querySelectorAll('.bill-period-tabs > div');
 
     expect(container.querySelector('[data-testid="bill-year-selector"]')?.textContent).toContain('2026年');
     expect(container.textContent).toContain('月账单');
-    expect(container.querySelector('[data-testid="bill-back-action"]')).not.toBeNull();
+    expect(container.querySelector('.bwm-button-full')).not.toBeNull();
+    expect(periodTabs).toHaveLength(2);
+
+    await click(periodTabs[1]);
+    await vi.waitFor(() => expect(
+      container.querySelector<HTMLElement>('[data-testid="bill-year-selector"]')?.style.opacity,
+    ).toBe('0'));
+    await click(container.querySelector('.bwm-button-full'));
+    expect(router.state.location.pathname).toBe('/origin');
+  });
+
+  it('changes personal chart amount and range filters through the restored controls', async () => {
+    const { container, router } = renderPage('/chart', '/chart', createElement(ChartHomePage));
+    const ranges = container.querySelectorAll('.chart-period-tabs > div');
+
+    expect(ranges).toHaveLength(3);
+    await click(ranges[2]);
+    expect(router.state.location.search).toContain('range=year');
+
+    await click(container.querySelector('.adm-dropdown-item-title'));
+    await click(document.querySelector('[data-chart-amount-type="add"]'));
+    expect(router.state.location.search).toContain('amount=add');
+    expect(hooks.useGetChartQuery).toHaveBeenLastCalledWith({
+      params: { category: 'year', type: 'add' },
+    });
+  });
+
+  it('changes personal budget period through the restored navbar dropdown', async () => {
+    const { container } = renderPage('/budget', '/budget', createElement(BudgetPage));
+
+    await click(container.querySelector('.adm-dropdown-item-title'));
+    await click(document.querySelector('[data-budget-type="1"]'));
+    expect(hooks.useGetBudgetInfoQuery).toHaveBeenLastCalledWith({ params: { type: 1 } });
   });
 });
 
@@ -333,7 +367,9 @@ describe('custom ledger workspace integration', () => {
     }));
     expect(first.container.querySelector('[data-testid="mini-program-capsule"]')).toBeNull();
     expect(first.container.querySelector('[data-testid="ledger-switcher-title"]')).toBeNull();
-    expect(first.container.querySelector('[data-testid="bill-back-action"]')).not.toBeNull();
+    expect(first.container.querySelector('.bwm-button-full')).not.toBeNull();
+    await click(first.container.querySelector('.bwm-button-full'));
+    expect(first.router.state.location.pathname).toBe('/ledgers/ledger%2Fa');
 
     cleanupRender();
     hooks.useLedgerRecordBillQuery.mockClear();

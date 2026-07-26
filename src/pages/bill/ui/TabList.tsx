@@ -23,10 +23,11 @@ const BillTabList: React.FC<BillTabListProps> = memo(() => {
 
   const onChangeBillTabType = useCallback((billTabType: BillTabsType) => {
     setBillTabTab(billTabType);
-  }, []);
+  }, [setBillTabTab]);
 
   return (
     <TabList
+      className="bill-period-tabs"
       selectValue={billTabType}
       tabs={tabs}
       onChange={onChangeBillTabType}

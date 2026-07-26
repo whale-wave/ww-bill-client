@@ -311,6 +311,7 @@ function renderPage(pathname: string, element: ReactNode) {
       ? []
       : [{ path: '/ledgers/:ledgerId', element: createElement('div', null, 'detail-target') }]),
     { path: '/ledgers/:ledgerId/records', element: createElement('div', null, 'records-target') },
+    { path: '/ledgers/:ledgerId/bill', element: createElement('div', null, 'bill-target') },
     { path: '/ledgers/preferences', element: createElement('div', null, 'preferences-target') },
     { path: '/ledgers/join', element: createElement('div', null, 'join-target') },
   ];
@@ -757,6 +758,20 @@ describe('ledger detail page', () => {
     expect(container.querySelector('[data-module-key="bill"]')?.getAttribute('aria-disabled')).toBe('true');
     expect(container.textContent).toContain('detail.comingSoon');
     expect(container.querySelector('[data-testid="ledger-members"]')).toBeNull();
+  });
+
+  it('opens the scoped bill from the ledger module list when record read is allowed', async () => {
+    hooks.useLedgerQuery.mockReturnValue(successfulQuery({
+      ...ledger,
+      capabilities: [LedgerCapability.RECORD_READ],
+    }));
+    const { container, router } = renderPage(
+      '/ledgers/ledger%2Fa',
+      createElement(LedgerDetailPage),
+    );
+
+    await act(async () => container.querySelector<HTMLElement>('[data-module-key="bill"]')?.click());
+    expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/bill');
   });
 
   it('shows only collaboration entries granted by server capabilities', () => {

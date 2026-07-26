@@ -54,24 +54,24 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
 
   const [visible1, setVisible1] = useState(false);
 
-  const onPrecisionFn = () => {
+  const handleOpenMonthPicker = () => {
     setVisible1(true);
   };
 
-  const onChangeDateToggle = () => {
+  const handleCloseMonthPicker = () => {
     setVisible1(false);
   };
 
-  const ChangeTimeDate = async (time: string) => {
+  const handleChangeTimeDate = async (time: string) => {
     sessionStorage.setItem('timeDate', time);
     setSelectTime(dayjs(time));
   };
 
-  const onGoToSearchRecordPage = useCallback(() => {
+  const handleSearch = useCallback(() => {
     navigate('/search-record');
   }, [navigate]);
 
-  const onGoToRecordCalendarPage = useCallback(() => {
+  const handleCalendar = useCallback(() => {
     if (dayjs().isSame(selectTime, 'month')) {
       navigate(`/record-calendar?selectTime=${dayjs().valueOf()}`);
     }
@@ -90,7 +90,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
             className="h-[40%] w-[1px] bg-black333 absolute -right-2 bottom-1 opacity-50"
           >
           </div>
-          <div className={cn(styles['bottom-wrapper'], 'w-[300px]')} onClick={onPrecisionFn}>
+          <div className={cn(styles['bottom-wrapper'], 'w-[300px]')} onClick={handleOpenMonthPicker}>
             <span className={styles.month}>{selectTime?.format('MM')}</span>
             {t('common:time.month')}
             <Triangle
@@ -105,9 +105,8 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
             <Precision
               selectTime={selectTime}
               visible1={visible1}
-              change={() => onChangeDateToggle()}
-              changeTime={(time: string) =>
-                ChangeTimeDate(time)}
+              change={handleCloseMonthPicker}
+              changeTime={handleChangeTimeDate}
             />
           </div>
         </div>
@@ -177,10 +176,10 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
           )
         : null}
       <div className="absolute top-0 right-0 p-2 flex items-center gap-3">
-        <button className="border-0 bg-transparent p-0" data-testid="record-search-action" onClick={onGoToSearchRecordPage} type="button">
+        <button className="border-0 bg-transparent p-0" data-testid="record-search-action" onClick={handleSearch} type="button">
           <Search size={18} strokeWidth={2} />
         </button>
-        <button className="border-0 bg-transparent p-0" data-testid="record-calendar-action" onClick={onGoToRecordCalendarPage} type="button">
+        <button className="border-0 bg-transparent p-0" data-testid="record-calendar-action" onClick={handleCalendar} type="button">
           <CalendarDays size={18} strokeWidth={2} />
         </button>
       </div>
