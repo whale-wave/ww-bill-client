@@ -1,5 +1,3 @@
-import type { FamilyRecord } from '@/entities/household';
-import type { RecordEntry } from '@/entities/record';
 import { FamilyRecordPolicy } from '@/entities/household';
 
 function pad(value: number) {
@@ -69,65 +67,6 @@ export function toMoney(value: string | number | undefined) {
 
 export function getDisplayName(user: { name?: string; username?: string }) {
   return user.name?.trim() || user.username?.trim() || '—';
-}
-
-export interface FamilyRecordGroup {
-  data: RecordEntry[];
-  date: string;
-  time: number;
-}
-
-export function toFamilyRecordEntry(record: FamilyRecord): RecordEntry {
-  return {
-    amount: record.amount,
-    category: {
-      createdAt: '',
-      icon: record.category?.icon ?? '',
-      id: record.category?.id ?? 0,
-      name: record.category?.name ?? '',
-      updatedAt: '',
-    },
-    createdAt: record.time,
-    id: record.id,
-    remark: record.remark || record.category?.name || '—',
-    tags: record.tags,
-    time: record.time,
-    type: record.type,
-    updatedAt: record.time,
-    version: record.version,
-  };
-}
-
-export function groupFamilyRecords(records: FamilyRecord[]) {
-  const groups = new Map<string, FamilyRecordGroup>();
-  records.forEach((record) => {
-    const date = record.time.slice(0, 10);
-    const group = groups.get(date) ?? {
-      data: [],
-      date,
-      time: new Date(`${date}T00:00:00`).getTime(),
-    };
-    group.data.push(toFamilyRecordEntry(record));
-    groups.set(date, group);
-  });
-  return [...groups.values()].sort((left, right) => right.date.localeCompare(left.date));
-}
-
-export function formatFamilyRecordDate(date: string) {
-  const parsed = new Date(`${date}T00:00:00`);
-  if (Number.isNaN(parsed.getTime()))
-    return date;
-  const monthDay = new Intl.DateTimeFormat('zh-CN', { day: '2-digit', month: '2-digit' })
-    .format(parsed)
-    .replace('/', '月')
-    .concat('日');
-  const weekday = new Intl.DateTimeFormat('zh-CN', { weekday: 'long' }).format(parsed);
-  return `${monthDay} ${weekday}`;
-}
-
-export function getFamilyRecordSubtitle(record: FamilyRecord) {
-  const tags = record.tags.map(tag => `#${tag.name}`).join(' ');
-  return `${tags ? `${tags} ` : ''}@${getDisplayName(record.creator)}`;
 }
 
 export function getApiErrorStatus(error: unknown) {

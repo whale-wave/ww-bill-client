@@ -1,15 +1,14 @@
 import type { FC } from 'react';
 import type { FamilyRecord } from '@/entities/household';
 import { Button, Toast } from 'antd-mobile';
-import { SlidersHorizontal } from 'lucide-react';
+import { Share2, SlidersHorizontal } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useHouseholdRecordQuery } from '@/entities/household';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { HouseholdPageState, HouseholdScopeBoundary } from '@/features/household';
-import { RecordDetailHero, RecordDetailRows } from '@/features/record-workspace';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { FixedPin } from '@/shared/ui';
+import { NavBar } from '@/shared/ui';
 
 function formatDateTime(value: string) {
   const date = new Date(value);
@@ -20,6 +19,13 @@ function formatDateTime(value: string) {
     timeStyle: 'short',
   }).format(date);
 }
+
+const DetailRow: FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div className="grid min-h-[58px] grid-cols-[76px_1fr] items-center border-0 border-b border-solid border-bg-gray px-4 last:border-b-0">
+    <span className="text-sm text-font-gray">{label}</span>
+    <span className="break-words text-sm text-font-black">{value}</span>
+  </div>
+);
 
 const RecordDetail: FC<{
   householdId: string;
@@ -53,25 +59,36 @@ const RecordDetail: FC<{
 
   return (
     <>
-      <RecordDetailHero
-        backLabel={t('common:nav.back')}
-        categoryIcon={record.category?.icon}
-        categoryName={record.category?.name ?? t('recordDetail.uncategorized')}
-        onBack={() => navigate(-1)}
-      />
-      <RecordDetailRows
-        action={<FixedPin onClick={() => void handleShare()}>{t('recordDetail.share')}</FixedPin>}
-        rows={[
-          { label: t('recordDetail.type'), value: record.type === 'sub' ? t('recordDetail.expense') : t('recordDetail.income') },
-          { label: t('recordDetail.amount'), value: `${amountSign}${record.amount}` },
-          { label: t('recordDetail.date'), value: formatDateTime(record.time) },
-          { label: t('recordDetail.member'), value: record.creator.name || record.creator.username || `#${record.creator.id}` },
-          { label: t('recordDetail.remark'), value: record.remark || t('recordDetail.none') },
-          ...(tags ? [{ label: t('recordDetail.tags'), value: tags }] : []),
-          { label: t('records.policy'), value: record.counted ? t('recordDetail.counted') : t('recordDetail.uncounted') },
-        ]}
-      />
-      <div className="mx-3 mt-4">
+      <section className="bg-primary px-4 pb-5 pt-4 text-center text-font-black">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white text-2xl shadow-sm">
+          {record.category?.icon || '¥'}
+        </div>
+        <h1 className="mt-2 text-xl font-semibold">
+          {record.category?.name ?? t('recordDetail.uncategorized')}
+        </h1>
+        <p className="mt-2 text-3xl font-semibold tabular-nums">
+          {`${amountSign}${record.amount}`}
+        </p>
+        <p className="mt-1 text-xs opacity-70">
+          {record.counted ? t('recordDetail.counted') : t('recordDetail.uncounted')}
+        </p>
+      </section>
+
+      <section className="mx-3 mt-3 overflow-hidden rounded-xl bg-white">
+        <DetailRow label={t('recordDetail.type')} value={record.type === 'sub' ? t('recordDetail.expense') : t('recordDetail.income')} />
+        <DetailRow label={t('recordDetail.date')} value={formatDateTime(record.time)} />
+        <DetailRow label={t('recordDetail.member')} value={record.creator.name || record.creator.username || `#${record.creator.id}`} />
+        <DetailRow label={t('recordDetail.remark')} value={record.remark || t('recordDetail.none')} />
+        {tags && <DetailRow label={t('recordDetail.tags')} value={tags} />}
+      </section>
+
+      <div className="mx-3 mt-4 grid grid-cols-2 gap-3">
+        <Button block onClick={() => void handleShare()}>
+          <span className="inline-flex items-center gap-2">
+            <Share2 size={17} />
+            {t('recordDetail.share')}
+          </span>
+        </Button>
         {isOwner && (
           <Button
             block
@@ -92,6 +109,7 @@ const RecordDetail: FC<{
 
 const HouseholdRecordDetailPage: FC = () => {
   const { t } = useTranslation('household');
+  const navigate = useNavigate();
   const params = useParams<{ householdId: string; recordId: string }>();
   const householdId = params.householdId ?? '';
   const recordId = Number(params.recordId);
@@ -103,7 +121,10 @@ const HouseholdRecordDetailPage: FC = () => {
 
   return (
     <div className="page-new overflow-hidden bg-bg-gray">
-      <main className="min-h-0 flex-grow overflow-auto bg-white pb-6">
+      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
+        {t('recordDetail.title')}
+      </NavBar>
+      <main className="min-h-0 flex-grow overflow-auto pb-6">
         <HouseholdScopeBoundary householdId={householdId}>
           {() => (
             <HouseholdPageState

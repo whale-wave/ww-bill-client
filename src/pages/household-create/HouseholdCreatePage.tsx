@@ -3,9 +3,10 @@ import { Button, Toast } from 'antd-mobile';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateHouseholdMutation } from '@/entities/household';
-import { formatMonthStart, getApiErrorMessage, HouseholdPageHeader } from '@/features/household';
+import { formatMonthStart, getApiErrorMessage } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { NavBar } from '@/shared/ui';
 
 function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `household-${Date.now()}`;
@@ -53,43 +54,44 @@ const HouseholdCreatePage: FC = () => {
   };
 
   return (
-    <div className="page-new household-shell overflow-hidden">
-      <HouseholdPageHeader
-        backLabel={t('common:nav.back')}
-        onBack={() => navigate(-1)}
-        title={t('common.title')}
-      />
-      <main className="min-h-0 flex-grow overflow-auto px-4 py-12">
-        <form className="household-form-card" onSubmit={handleSubmit}>
-          <h2>{t('create.heading')}</h2>
-          <p>{t('create.description')}</p>
-          <label className="mt-9 block text-center">
-            <span className="mb-4 block text-sm text-[#9b9ca1]">{t('create.month')}</span>
+    <div className="page-new overflow-hidden bg-bg-gray">
+      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
+        {t('create.title')}
+      </NavBar>
+      <main className="min-h-0 flex-grow overflow-auto px-3 py-3">
+        <form className="card-rounded bg-white px-4 py-5" onSubmit={handleSubmit}>
+          <h1 className="text-lg font-medium text-font-black">{t('create.heading')}</h1>
+          <p className="mt-2 text-sm leading-6 text-font-gray">{t('create.description')}</p>
+          <label className="mt-6 block text-sm text-font-black">
+            <span className="mb-2 block">{t('create.month')}</span>
             <input
-              className="h-[72px] w-full border-0 rounded-lg bg-[#f6f6f8] px-4 text-center text-[28px] font-medium text-[#292a2e] outline-none"
+              className="h-12 w-full rounded-xl border border-solid border-[#E5E7EB] bg-bg-gray px-3 text-base text-font-black"
               onChange={event => setMonth(event.target.value)}
               required
               type="month"
               value={month}
             />
           </label>
-          <Button
-            block
-            className="household-primary-button mt-12"
-            disabled={mutation.isLoading}
-            loading={mutation.isLoading}
-            type="submit"
-          >
-            {t('create.submit')}
-          </Button>
-          <label className="household-consent">
+          <label className="mt-6 flex items-start gap-3 text-sm leading-6 text-font-black">
             <input
               checked={consent}
+              className="mt-1 h-4 w-4 shrink-0 accent-[var(--adm-color-primary)]"
               onChange={event => setConsent(event.target.checked)}
               type="checkbox"
             />
             <span>{t('create.consent')}</span>
           </label>
+          <Button
+            block
+            className="mt-8"
+            color="primary"
+            disabled={mutation.isLoading}
+            loading={mutation.isLoading}
+            size="large"
+            type="submit"
+          >
+            {t('create.submit')}
+          </Button>
         </form>
       </main>
     </div>

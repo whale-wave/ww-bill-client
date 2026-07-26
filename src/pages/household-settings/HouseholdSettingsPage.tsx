@@ -1,16 +1,7 @@
 import type { FC, FormEvent } from 'react';
 import type { Household } from '@/entities/household';
 import { Button, Toast } from 'antd-mobile';
-import {
-  CalendarClock,
-  ChevronRight,
-  CircleHelp,
-  Download,
-  LogOut,
-  MailPlus,
-  Shirt,
-  Users,
-} from 'lucide-react';
+import { RightOutline } from 'antd-mobile-icons';
 import { useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -25,12 +16,12 @@ import { useGetUserUserInfoQuery } from '@/entities/user';
 import {
   getApiErrorMessage,
   getApiErrorStatus,
-  HouseholdPageHeader,
   HouseholdPageState,
   HouseholdScopeBoundary,
 } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { NavBar } from '@/shared/ui';
 
 const SettingsContent: FC<{ household: Household }> = ({ household }) => {
   const { t } = useTranslation('household');
@@ -126,119 +117,58 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
       onRetry={() => void membersQuery.refetch()}
       retryLabel={t('common.retry')}
     >
-      <div>
-        <section className="household-settings-group mt-0">
-          <button
-            className="household-settings-row"
-            onClick={() => navigate(ROUTES_PATH.HOUSEHOLD_MEMBERS.getPath(household.id))}
-            type="button"
-          >
-            <Users aria-hidden="true" />
-            <span>{t('settings.members')}</span>
-            <span>{t('settings.memberCount', { count: membersQuery.data.length })}</span>
-            <ChevronRight aria-hidden="true" size={18} />
+      <div className="space-y-3">
+        <section className="overflow-hidden rounded-xl bg-white">
+          <button className="flex min-h-[58px] w-full items-center border-0 bg-white px-4 text-left" onClick={() => navigate(ROUTES_PATH.HOUSEHOLD_MEMBERS.getPath(household.id))} type="button">
+            <span className="flex-grow text-sm text-font-black">{t('settings.members')}</span>
+            <span className="mr-2 text-sm text-font-gray">{membersQuery.data.length}</span>
+            <RightOutline className="text-font-gray" />
           </button>
+        </section>
 
-          {household.myRole === HouseholdMemberRole.OWNER && (
-            <form className="household-settings-row" onSubmit={handleSharedStart}>
-              <CalendarClock aria-hidden="true" />
-              <span>{t('settings.sharedStart')}</span>
+        <section className="overflow-hidden rounded-xl bg-white">
+          <button className="flex min-h-[58px] w-full items-center border-0 bg-white px-4 text-left" onClick={() => navigate(ROUTES_PATH.HOUSEHOLD_EXPORT.getPath(household.id))} type="button">
+            <span className="flex-grow text-sm text-font-black">{t('settings.export')}</span>
+            <RightOutline className="text-font-gray" />
+          </button>
+        </section>
+
+        <form className="card-rounded bg-white px-4 py-4" data-testid="household-nickname-form" onSubmit={handleNickname}>
+          <h2 className="text-base font-medium text-font-black">{t('settings.nicknameTitle')}</h2>
+          <div className="mt-3 flex gap-2">
+            <input className="h-11 min-w-0 flex-grow rounded-xl border-0 bg-bg-gray px-3 text-sm outline-none" defaultValue={currentMember?.nickname ?? ''} maxLength={30} name="nickname" placeholder={t('settings.nicknamePlaceholder')} />
+            <Button color="primary" loading={nicknameState.isLoading} type="submit">{t('common.save')}</Button>
+          </div>
+        </form>
+
+        {household.myRole === HouseholdMemberRole.OWNER && (
+          <form className="card-rounded bg-white px-4 py-4" onSubmit={handleSharedStart}>
+            <h2 className="text-base font-medium text-font-black">{t('settings.sharedStartTitle')}</h2>
+            <p className="mt-1 text-xs leading-5 text-font-gray">{t('settings.sharedStartHint')}</p>
+            <div className="mt-3 flex gap-2">
               <input
-                aria-label={t('settings.sharedStart')}
-                className="household-inline-input"
+                className="h-11 min-w-0 flex-grow rounded-xl border-0 bg-bg-gray px-3 text-sm"
                 defaultValue={household.sharedStartMonth.slice(0, 7)}
                 min={household.sharedStartMonth.slice(0, 7)}
                 name="sharedStartMonth"
                 required
                 type="month"
               />
-              <Button
-                aria-label={t('common.save')}
-                fill="none"
-                loading={updateState.isLoading}
-                size="mini"
-                type="submit"
-              >
-                <ChevronRight aria-hidden="true" size={18} />
-              </Button>
-            </form>
-          )}
-
-          <form
-            className="household-settings-row"
-            data-testid="household-nickname-form"
-            onSubmit={handleNickname}
-          >
-            <Shirt aria-hidden="true" />
-            <span>{t('settings.nickname')}</span>
-            <input
-              aria-label={t('settings.nickname')}
-              className="household-inline-input"
-              defaultValue={currentMember?.nickname ?? ''}
-              maxLength={30}
-              name="nickname"
-              placeholder={t('settings.nicknamePlaceholder')}
-            />
-            <Button
-              aria-label={t('common.save')}
-              fill="none"
-              loading={nicknameState.isLoading}
-              size="mini"
-              type="submit"
-            >
-              <ChevronRight aria-hidden="true" size={18} />
-            </Button>
+              <Button color="primary" loading={updateState.isLoading} type="submit">{t('common.save')}</Button>
+            </div>
           </form>
+        )}
 
-          <button
-            className="household-settings-row"
-            onClick={() => navigate(ROUTES_PATH.HOUSEHOLD_INVITATION.getPath(household.id))}
-            type="button"
-          >
-            <MailPlus aria-hidden="true" />
-            <span>{t('settings.invitation')}</span>
-            <span />
-            <ChevronRight aria-hidden="true" size={18} />
-          </button>
-
-          <button
-            className="household-settings-row"
-            onClick={() => navigate(ROUTES_PATH.HOUSEHOLD_EXPORT.getPath(household.id))}
-            type="button"
-          >
-            <Download aria-hidden="true" />
-            <span>{t('settings.export')}</span>
-            <span />
-            <ChevronRight aria-hidden="true" size={18} />
-          </button>
-
-          <div className="household-settings-row">
-            <CircleHelp aria-hidden="true" />
-            <span>{t('settings.help')}</span>
-            <span>{t('settings.helpHint')}</span>
-            <ChevronRight aria-hidden="true" size={18} />
-          </div>
-        </section>
-
-        <details className="mt-3 bg-white">
-          <summary className="household-settings-row cursor-pointer list-none">
-            <LogOut aria-hidden="true" />
-            <span>{t('settings.dissolve')}</span>
-            <span />
-            <ChevronRight aria-hidden="true" size={18} />
-          </summary>
-          <form className="border-0 border-t border-solid border-[#ececef] px-5 py-5" onSubmit={handleDissolve}>
-            <p className="m-0 text-sm leading-6 text-font-gray">{t('settings.dissolveDescription')}</p>
-            <textarea className="mt-3 min-h-[82px] w-full rounded-lg border-0 bg-bg-gray p-3 text-sm outline-none" maxLength={500} name="reason" placeholder={t('settings.dissolveReasonPlaceholder')} />
-            <label className="mt-3 flex items-start gap-2 text-sm leading-5 text-font-black">
-              <input className="mt-1 accent-rose-500" name="confirmDissolve" type="checkbox" />
-              <span>{t('settings.confirmDissolve')}</span>
-            </label>
-            <Button block className="mt-4" color="danger" loading={dissolveState.isLoading} type="submit">
-              {t('settings.dissolveAction')}
-            </Button>
-          </form>
-        </details>
+        <form className="card-rounded border border-solid border-rose-100 bg-white px-4 py-4" onSubmit={handleDissolve}>
+          <h2 className="text-base font-medium text-rose-600">{t('settings.dissolveTitle')}</h2>
+          <p className="mt-2 text-sm leading-6 text-font-gray">{t('settings.dissolveDescription')}</p>
+          <textarea className="mt-3 min-h-[82px] w-full rounded-xl border-0 bg-bg-gray p-3 text-sm outline-none" maxLength={500} name="reason" placeholder={t('settings.dissolveReasonPlaceholder')} />
+          <label className="mt-3 flex items-start gap-2 text-sm leading-5 text-font-black">
+            <input className="mt-1 accent-rose-500" name="confirmDissolve" type="checkbox" />
+            <span>{t('settings.confirmDissolve')}</span>
+          </label>
+          <Button block className="mt-4" color="danger" loading={dissolveState.isLoading} type="submit">{t('settings.dissolveAction')}</Button>
+        </form>
       </div>
     </HouseholdPageState>
   );
@@ -249,14 +179,9 @@ const HouseholdSettingsPage: FC = () => {
   const navigate = useNavigate();
   const { householdId = '' } = useParams<{ householdId: string }>();
   return (
-    <div className="page-new household-shell overflow-hidden">
-      <HouseholdPageHeader
-        backLabel={t('common:nav.back')}
-        onBack={() => navigate(-1)}
-        title={t('settings.title')}
-        tone="primary"
-      />
-      <main className="min-h-0 flex-grow overflow-auto">
+    <div className="page-new overflow-hidden bg-bg-gray">
+      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>{t('settings.title')}</NavBar>
+      <main className="min-h-0 flex-grow overflow-auto px-3 py-3">
         <HouseholdScopeBoundary householdId={householdId}>{household => <SettingsContent household={household} />}</HouseholdScopeBoundary>
       </main>
     </div>

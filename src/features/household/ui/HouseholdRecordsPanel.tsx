@@ -1,15 +1,9 @@
 import type { FC } from 'react';
 import type { FamilyRecord, GetHouseholdRecordsApiParams } from '@/entities/household';
 import { Button, ErrorBlock } from 'antd-mobile';
-import { useMemo } from 'react';
 import { useInfiniteHouseholdRecordsQuery } from '@/entities/household';
-import { RecordList } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
-import {
-  formatFamilyRecordDate,
-  getFamilyRecordSubtitle,
-  groupFamilyRecords,
-} from '../model';
+import { FamilyRecordList } from './FamilyRecordList';
 import { HouseholdPageState } from './HouseholdPageState';
 import { HouseholdSummaryCard } from './HouseholdSummaryCard';
 
@@ -40,11 +34,6 @@ export const HouseholdRecordsPanel: FC<HouseholdRecordsPanelProps> = ({
     queryOptions: { enabled: Boolean(householdId) },
   });
   const total = query.data?.total ?? 0;
-  const groups = useMemo(() => groupFamilyRecords(query.records), [query.records]);
-  const recordsById = useMemo(
-    () => new Map(query.records.map(record => [record.id, record])),
-    [query.records],
-  );
 
   return (
     <HouseholdPageState
@@ -77,22 +66,16 @@ export const HouseholdRecordsPanel: FC<HouseholdRecordsPanelProps> = ({
               />
             )
           : (
-              <div className="bg-white">
-                {groups.map(group => (
-                  <RecordList
-                    data={group}
-                    dateLabel={formatFamilyRecordDate(group.date)}
-                    getRecordSubtitle={record => (
-                      recordsById.has(record.id)
-                        ? getFamilyRecordSubtitle(recordsById.get(record.id)!)
-                        : undefined
-                    )}
-                    includeRecordInTotals={record => recordsById.get(record.id)?.counted ?? false}
-                    key={group.date}
-                    onRecordClick={record => onSelect?.(recordsById.get(record.id)!)}
-                  />
-                ))}
-              </div>
+              <FamilyRecordList
+                countedLabel={t('records.counted')}
+                emptyLabel={t('records.empty')}
+                inheritedLabel={t('records.inherited')}
+                memberLabel={name => t('records.memberAttribution', { name })}
+                onSelect={onSelect}
+                privateLabel={t('records.private')}
+                records={query.records}
+                uncountedLabel={t('records.uncounted')}
+              />
             )}
         {query.hasNextPage && (
           <Button
