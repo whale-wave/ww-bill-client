@@ -64,3 +64,34 @@ This seam belongs to the record entity because both personal and household featu
 The personal `/detail` page is the compatibility baseline. Shared-component changes must keep its visible structure and behavior unchanged; new household requirements are implemented as optional inputs rather than as new defaults.
 
 The household home adapts its month input to the personal detail trigger shape (`MM` + localized month label + triangle) while keeping its own native month value and household query filters.
+
+## Task 2: Align household charts with the default chart page
+
+Reuse the default chart presentation for the household chart route without changing the default `/chart` page.
+
+Requirements:
+
+1. Move the existing default chart presentation into a reusable feature while keeping its amount dropdown, week/month/year selector, period tabs, summary, line chart, category ranking, and personal navigation behavior unchanged.
+2. Adapt the household chart query into the reusable presentation:
+   - map expense/income selection and week/month/year selection to the household API;
+   - map the household timeline and category ranking into the default chart model;
+   - render member ranking through the same ranking-list presentation;
+   - retain the household-scoped route and two-tab household bottom navigation.
+3. Remove the household-only NavBar, card grid, pie widget, date/metric/display form controls, and custom SVG chart from this route.
+4. Keep shared primitives in dependency-safe layers and add regression coverage for the common controls and household query mapping.
+5. Run focused tests, ESLint on changed code, `pnpm lint:type`, `pnpm lint`, and the full `pnpm test` suite.
+
+Acceptance criteria:
+
+- The loaded household chart page follows the same visual hierarchy and controls as `/chart`.
+- Switching amount type or time range updates the household chart query.
+- The default `/chart` route retains its existing presentation and behavior.
+
+### Shared chart-overview seam
+
+The default `/chart` page is the visual and interaction baseline for household charts:
+
+- `features/chart-overview` owns the existing amount dropdown, week/month/year control, period tabs, fixed line-chart content region, summary typography, and ranking-list presentation.
+- The personal `ChartHomeProvider` continues to provide the original personal chart query and derived tabs; its visible `/chart` output remains unchanged.
+- `HouseholdChartsPage` maps household income/expense timelines, category ranking, and member ranking into the same chart-overview context. It keeps household-scoped querying and the household bottom navigation, but does not add a separate NavBar, card grid, pie widget, or custom chart controls.
+- The shared `ProgressBar` is a design-system primitive used by both the existing asset ranking and the shared chart ranking.

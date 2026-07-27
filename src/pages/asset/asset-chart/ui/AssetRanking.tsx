@@ -9,9 +9,9 @@ import { AssetStatisticalRecordType, useGetAssetQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, math } from '@/shared/lib';
+import { ProgressBar } from '@/shared/ui';
 import { IconBlock } from '../../ui';
 import styles from './AssetRanking.module.scss';
-import { ProgressBar } from './ProgressBar';
 
 type AssetPercentItem = Asset & { percent: number; percentStr: string };
 

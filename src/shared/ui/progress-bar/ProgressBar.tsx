@@ -3,9 +3,9 @@ import { useEffect, useRef } from 'react';
 import { THEME_COLOR } from '@/assets/styles/reset';
 
 export const ProgressBar: FC<{
-  percent: number;
   color?: string;
-}> = ({ percent, color = THEME_COLOR }) => {
+  percent: number;
+}> = ({ color = THEME_COLOR, percent }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
@@ -13,15 +13,14 @@ export const ProgressBar: FC<{
     const wrapper = wrapperRef.current!;
     const bar = barRef.current!;
     let width = wrapper.clientWidth * percent;
-    const MIN_WIDTH = 4;
-    if (width < MIN_WIDTH) {
-      width = MIN_WIDTH;
-    }
+    const minWidth = 4;
+    if (width < minWidth)
+      width = minWidth;
     bar.style.width = `${width}px`;
   }, [percent]);
 
   return (
-    <div className="flex-grow h-[5px]" ref={wrapperRef}>
+    <div className="h-[5px] flex-grow" ref={wrapperRef}>
       <div className="h-full rounded-full" ref={barRef} style={{ background: color }} />
     </div>
   );

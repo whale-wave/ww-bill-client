@@ -1,10 +1,10 @@
 import type { FC, ReactNode } from 'react';
-import type { ChartHomeContextValue } from './chart-home-context';
 import type { AmountType, TabItem, TimeRangeCategory } from '@/entities/chart';
+import type { ChartOverviewContextValue } from '@/features/chart-overview';
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { isMonthData, isWeekData, isYearData, useGetChartQuery } from '@/entities/chart';
-import { ChartHomeContext } from './chart-home-context';
+import { ChartOverviewContext } from '@/features/chart-overview';
 import { deriveMonthTabs, deriveWeekTabs, deriveYearTabs } from './derive-tabs';
 
 function isAmountType(value: string | null): value is AmountType {
@@ -85,7 +85,7 @@ export const ChartHomeProvider: FC<{ children: ReactNode }> = ({ children }) => 
     );
   }, [setSearchParams]);
 
-  const value = useMemo<ChartHomeContextValue>(
+  const value = useMemo<ChartOverviewContextValue>(
     () => ({
       currentAmountType,
       currentTimeRangeCategory,
@@ -99,5 +99,5 @@ export const ChartHomeProvider: FC<{ children: ReactNode }> = ({ children }) => 
     [currentAmountType, currentTimeRangeCategory, tabActive, tabs, curTab, setTabActive, setCurrentTimeRangeCategory, setCurrentAmountType],
   );
 
-  return <ChartHomeContext.Provider value={value}>{children}</ChartHomeContext.Provider>;
+  return <ChartOverviewContext.Provider value={value}>{children}</ChartOverviewContext.Provider>;
 };

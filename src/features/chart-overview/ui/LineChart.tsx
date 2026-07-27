@@ -3,14 +3,14 @@ import type { FC } from 'react';
 import { format } from 'date-fns';
 import { useEffect, useMemo } from 'react';
 import { renderToString } from 'react-dom/server';
-import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';
-import { TooltipContent } from '@/pages/chart/chart-home/ui';
 import { cn } from '@/shared/lib';
 import { useChart } from '@/shared/lib/use-chart';
+import { useChartOverview } from '../model/chart-overview-context';
+import { TooltipContent } from './TooltipContent';
 
 export const LineChart: FC = () => {
   const { chartDomRef, myChart } = useChart();
-  const { currentAmountType, curTab } = useChartHome();
+  const { currentAmountType, curTab } = useChartOverview();
 
   const seriesData = useMemo(() => {
     if (!curTab)

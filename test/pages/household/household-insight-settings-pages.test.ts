@@ -48,6 +48,9 @@ vi.mock('@/entities/household', async importOriginal => ({
 vi.mock('@/entities/user', () => ({ useGetUserUserInfoQuery: hooks.useUserQuery }));
 
 vi.mock('@/shared/i18n', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
+vi.mock('@/shared/lib/use-chart', () => ({
+  useChart: () => ({ chartDomRef: { current: null }, myChart: undefined }),
+}));
 
 const members: HouseholdMember[] = [
   { id: 'member-1', joinedAt: '2026-07-01T00:00:00.000Z', nickname: 'Avan', role: HouseholdMemberRole.OWNER, user: { id: 1, name: 'Avan' }, version: 2 },
@@ -189,51 +192,36 @@ describe('household budget and charts', () => {
 
   it('switches charts to the canonical year query', async () => {
     const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
-    await act(async () => container.querySelector<HTMLButtonElement>('[data-period="year"]')?.click());
+    const ranges = container.querySelectorAll('.chart-period-tabs > div');
+
+    expect(container.querySelector('.adm-dropdown-item-title')).not.toBeNull();
+    expect(ranges).toHaveLength(3);
+    expect(container.querySelector('.bwm-nav-bar')).toBeNull();
+    expect(container.querySelectorAll('select')).toHaveLength(0);
+
+    await act(async () => (ranges[2] as HTMLElement).click());
     expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith({
       params: {
-        filters: expect.objectContaining({ display: 'pie', metric: 'expense', period: 'year' }),
+        filters: expect.objectContaining({ display: 'line', metric: 'expense', period: 'year' }),
         householdId: 'household/a',
       },
       queryOptions: { enabled: true },
     });
   });
 
-  it.each([
-    {
-      name: 'purely negative net values',
-      values: ['-10.00', '-20.00'],
-      zeroY: 10,
-    },
-    {
-      name: 'net values crossing zero',
-      values: ['-10.00', '10.00'],
-      zeroY: 55,
-    },
-  ])('keeps $name inside the line chart plot area', async ({ values, zeroY }) => {
-    hooks.useHouseholdChartsQuery.mockReturnValue(query({
-      ...chart,
-      timeline: values.map((net, index) => ({
-        expense: '0.00',
-        income: '0.00',
-        key: `2026-07-${index + 20}`,
-        label: `07-${index + 20}`,
-        net,
-      })),
-    }));
+  it('uses the default chart amount dropdown for the household income query', async () => {
     const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
-    const selects = container.querySelectorAll<HTMLSelectElement>('select');
-    await act(async () => {
-      selects[0].value = 'net';
-      selects[0].dispatchEvent(new Event('change', { bubbles: true }));
-      selects[1].value = 'line';
-      selects[1].dispatchEvent(new Event('change', { bubbles: true }));
-    });
 
-    const points = container.querySelector('polyline')?.getAttribute('points') ?? '';
-    const yValues = points.split(' ').map(point => Number(point.split(',')[1]));
-    expect(yValues.every(value => value >= 10 && value <= 100)).toBe(true);
-    expect(Number(container.querySelector('line')?.getAttribute('y1'))).toBe(zeroY);
+    await act(async () => container.querySelector<HTMLElement>('.adm-dropdown-item-title')?.click());
+    await act(async () => container.querySelector<HTMLElement>('[data-chart-amount-type="add"]')?.click());
+
+    expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith({
+      params: {
+        filters: expect.objectContaining({ display: 'line', metric: 'income', period: 'month' }),
+        householdId: 'household/a',
+      },
+      queryOptions: { enabled: true },
+    });
   });
 });
 

@@ -1,13 +1,12 @@
 import type { FC } from 'react';
-import type { GetChartApiResponseRankingData } from '@/entities/chart';
+import type { ChartOverviewRankingItem } from '../model/chart-overview-context';
 import { List } from 'antd-mobile';
 import { useMemo } from 'react';
-import { ProgressBar } from '@/pages/asset/asset-chart/ui';
 import { cn } from '@/shared/lib';
-import { Icon } from '@/shared/ui';
+import { Icon, ProgressBar } from '@/shared/ui';
 import styles from './RankingItem.module.scss';
 
-export const RankingItem: FC<{ item: GetChartApiResponseRankingData; onClick: () => void }> = ({ item, onClick }) => {
+export const RankingItem: FC<{ item: ChartOverviewRankingItem; onClick: () => void }> = ({ item, onClick }) => {
   const percent = useMemo(() => {
     return Number(item.percentage) / 100;
   }, [item.percentage]);

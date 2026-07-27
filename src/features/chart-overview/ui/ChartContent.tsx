@@ -1,13 +1,14 @@
 import type { FC } from 'react';
 import { ErrorBlock } from 'antd-mobile';
-import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';
-import { LineChart, RankingList } from '@/pages/chart/chart-home/ui';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
+import { useChartOverview } from '../model/chart-overview-context';
+import { LineChart } from './LineChart';
+import { RankingList } from './RankingList';
 
 export const ChartContent: FC = () => {
   const { t } = useTranslation('chart');
-  const { curTab, currentAmountType } = useChartHome();
+  const { curTab, currentAmountType } = useChartOverview();
 
   const empty = (
     <div className={cn('flex-grow flex items-center justify-center')}>

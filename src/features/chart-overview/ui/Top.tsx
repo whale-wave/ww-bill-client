@@ -5,14 +5,14 @@ import { Dropdown } from 'antd-mobile';
 import { CheckOutline } from 'antd-mobile-icons';
 import { useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useChartHome } from '@/pages/chart/chart-home/model/chart-home-context';
-import style from '@/pages/chart/chart-home/ui/Top.module.scss';
 import { cn } from '@/shared/lib';
 import { Icon, TabList } from '@/shared/ui';
+import { useChartOverview } from '../model/chart-overview-context';
+import style from './Top.module.scss';
 
 export const Top: FC = () => {
   const { t } = useTranslation('chart');
-  const { currentTimeRangeCategory, setCurrentTimeRangeCategory, currentAmountType, setCurrentAmountType } = useChartHome();
+  const { currentTimeRangeCategory, setCurrentTimeRangeCategory, currentAmountType, setCurrentAmountType } = useChartOverview();
 
   const timeRangeCategoryList = useMemo(() => [
     {
