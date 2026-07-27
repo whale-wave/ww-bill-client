@@ -436,13 +436,29 @@ describe('household records', () => {
 });
 
 describe('household calendar', () => {
+  it('uses the record calendar layout with household calendar totals', () => {
+    const { container } = renderPage(
+      '/households/household%2Fa/calendar?month=2026-07-01',
+      '/households/:householdId/calendar',
+      createElement(HouseholdCalendarPage),
+    );
+
+    expect(container.querySelector('[data-testid="household-calendar-page"]')?.className).toContain('record-calendar-page');
+    expect(container.querySelector('.adm-calendar-picker-view')).not.toBeNull();
+    expect(container.querySelector('[data-date="2026-07-21"]')?.textContent).toContain('-20');
+    expect(hooks.useHouseholdCalendarQuery).toHaveBeenCalledWith({
+      params: { householdId: 'household/a', month: '2026-07-01' },
+      queryOptions: { enabled: true },
+    });
+  });
+
   it('loads records for the selected API calendar date', async () => {
     const { container } = renderPage(
       '/households/household%2Fa/calendar?month=2026-07-01',
       '/households/:householdId/calendar',
       createElement(HouseholdCalendarPage),
     );
-    await act(async () => container.querySelector<HTMLButtonElement>('[data-date="2026-07-21"]')?.click());
+    await act(async () => container.querySelector<HTMLElement>('[data-date="2026-07-21"]')?.click());
 
     expect(hooks.useInfiniteHouseholdRecordsQuery).toHaveBeenLastCalledWith({
       params: {
