@@ -19,10 +19,15 @@ export interface RecordOverviewShortcut {
 
 interface RecordOverviewHeaderProps {
   actions?: ReactNode;
-  amountToggle?: ReactNode;
+  amountToggle?: {
+    content: ReactNode;
+    onClick: () => void;
+  };
   metrics: [RecordOverviewMetric, RecordOverviewMetric];
   period: {
     label: ReactNode;
+    onClick?: () => void;
+    testId?: string;
     value: ReactNode;
     valueWidth?: 'cell' | 'overlay';
   };
@@ -63,6 +68,8 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
               styles.periodValue,
               period.valueWidth === 'cell' && styles.periodValueCell,
             )}
+            data-testid={period.testId}
+            onClick={period.onClick}
           >
             {period.value}
           </div>
@@ -80,7 +87,11 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
         </div>
       ))}
 
-      {amountToggle && <div className={styles.toggle}>{amountToggle}</div>}
+      {amountToggle && (
+        <div className={styles.toggle} onClick={amountToggle.onClick}>
+          {amountToggle.content}
+        </div>
+      )}
       {actions && <div className={styles.actions}>{actions}</div>}
 
       <div className={styles.listWrapper}>

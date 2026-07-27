@@ -70,15 +70,10 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
         </>
       )}
       amountToggle={visibleAmountSwitch
-        ? (
-            <button
-              className="border-0 bg-transparent p-1 text-lg"
-              onClick={() => void onToggleVisibleAmount()}
-              type="button"
-            >
-              {!visibleAmount ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />}
-            </button>
-          )
+        ? {
+            content: !visibleAmount ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />,
+            onClick: () => void onToggleVisibleAmount(),
+          }
         : undefined}
       metrics={[
         {
@@ -94,12 +89,10 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
       ]}
       period={{
         label: selectTime.format('YYYY年'),
+        onClick: () => setIsMonthPickerVisible(true),
+        testId: 'record-period-control',
         value: (
-          <button
-            className="relative flex items-end border-0 bg-transparent p-0 text-font-black"
-            onClick={() => setIsMonthPickerVisible(true)}
-            type="button"
-          >
+          <div className="relative flex items-end text-font-black">
             <span className="text-[length:var(--ww-font-size-2xl)] leading-none">{selectTime.format('MM')}</span>
             <span className="ml-1 text-base">{t('common:time.month')}</span>
             <Triangle
@@ -117,7 +110,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
               selectTime={selectTime}
               visible1={isMonthPickerVisible}
             />
-          </button>
+          </div>
         ),
       }}
       renderTitle={className => <LedgerTitleSwitcher className={className} />}

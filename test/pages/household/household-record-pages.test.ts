@@ -166,27 +166,21 @@ describe('household records', () => {
     expect([...header?.querySelectorAll('button') ?? []]
       .map(button => button.getAttribute('aria-label'))
       .filter(Boolean)
-      .sort()).toEqual([
-      'common.nextMonth',
-      'common.previousMonth',
-      'home.settings',
-    ]);
-    expect(header?.querySelector('[data-testid="household-compact-month-picker"]')).not.toBeNull();
+      .sort()).toEqual(['home.settings']);
+    expect(header?.querySelector('[data-testid="household-detail-month-picker"]')?.textContent).toContain('07');
     expect(header?.querySelector('input[type="month"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-monthly-income"]')?.textContent).toContain('0.00');
     expect(header?.querySelector('[data-testid="household-monthly-expense"]')?.textContent).toContain('20.00');
     expect(container.textContent).not.toContain('common.net');
   });
 
-  it('keeps compact month controls shrinkable inside the narrow header column', () => {
+  it('adapts the household month control to the original detail trigger structure', () => {
     const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
 
-    const picker = container.querySelector('[data-testid="household-compact-month-picker"]');
+    const picker = container.querySelector('[data-testid="household-detail-month-picker"]');
     const monthInput = picker?.querySelector('input[type="month"]');
-    expect(picker?.classList).toContain('w-full');
-    expect(monthInput?.classList).toContain('min-w-0');
-    expect(monthInput?.classList).toContain('flex-1');
-    expect(monthInput?.className).not.toContain('w-[68px]');
+    expect(picker?.textContent).toContain('common.month');
+    expect(monthInput?.classList).toContain('opacity-0');
   });
 
   it('keeps household-scoped routes on every home shortcut', async () => {

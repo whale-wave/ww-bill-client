@@ -40,7 +40,7 @@ const List: FC<ListProps> = memo(({ selectTime, change }) => {
     dateLabel: `${group[0]} ${group[1]}`,
     key: `${group[0]}-${group[1]}`,
     records: group[3].map(item => ({
-      amount: item.type === 'add' ? item.amount : `-${item.amount}`,
+      amount: item.type === 'add' ? item.amount : -item.amount,
       iconName: item.category.icon,
       id: item.id,
       onClick: () => handleRecord(item),
@@ -59,7 +59,7 @@ const List: FC<ListProps> = memo(({ selectTime, change }) => {
       {groups.length > 0
         ? (
             <>
-              <RecordOverviewList groups={groups} recordElement="div" />
+              <RecordOverviewList groups={groups} />
               <div className="h-[30px] flex-shrink-0"></div>
             </>
           )

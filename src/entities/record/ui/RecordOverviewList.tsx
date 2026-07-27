@@ -1,7 +1,5 @@
 import type { FC, ReactNode } from 'react';
-import { cn } from '@/shared/lib';
 import { Icon } from '@/shared/ui';
-import styles from './RecordOverviewList.module.scss';
 
 export interface RecordOverviewListItem {
   amount: ReactNode;
@@ -29,7 +27,6 @@ export interface RecordOverviewListGroup {
 
 interface RecordOverviewListProps {
   groups: RecordOverviewListGroup[];
-  recordElement?: 'button' | 'div';
 }
 
 function getAmountClassName(tone: RecordOverviewListItem['amountTone']) {
@@ -40,16 +37,16 @@ function getAmountClassName(tone: RecordOverviewListItem['amountTone']) {
   return 'text-font-black';
 }
 
-export const RecordOverviewList: FC<RecordOverviewListProps> = ({ groups, recordElement = 'button' }) => (
+export const RecordOverviewList: FC<RecordOverviewListProps> = ({ groups }) => (
   <div data-testid="record-overview-list">
     {groups.map(group => (
-      <section className={styles.group} data-date-group={group.key} key={group.key}>
-        <header className={styles.title}>
+      <section className="last:border-b last:border-solid last:border-[#ebebeb]" data-date-group={group.key} key={group.key}>
+        <header className="flex h-8 items-center justify-between border-0 border-b border-solid border-[#ebebeb] px-4 pl-[14px] text-[#969696]">
           {group.dateTime
-            ? <time className={styles.titleLeft} dateTime={group.dateTime}>{group.dateLabel}</time>
-            : <span className={styles.titleLeft}>{group.dateLabel}</span>}
+            ? <time className="text-sm" dateTime={group.dateTime}>{group.dateLabel}</time>
+            : <span className="text-sm">{group.dateLabel}</span>}
           {group.summaries?.map(summary => (
-            <span className={styles.titleSummary} key={summary.key}>
+            <span className="text-sm" key={summary.key}>
               {summary.label}
               ：
               {summary.value}
@@ -60,50 +57,36 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({ groups, record
           const content = (
             <>
               <span
-                className={styles.recordIconCell}
+                className="flex h-[54px] w-[65px] shrink-0 items-center justify-center"
                 data-category-icon={record.iconName}
               >
-                <span className={styles.icon}>
+                <span className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-[#f4f4f4]">
                   <Icon className="text-xl" name={record.iconName || 'bill'} />
                 </span>
               </span>
-              <span className={cn(styles.recordContent, index === group.records.length - 1 && styles.lastRecordContent)}>
-                <span className={styles.recordText}>
-                  <span className={styles.primary}>{record.primary}</span>
+              <span className={`flex h-full min-w-0 flex-grow items-center justify-between pr-4 text-base font-normal text-[#333333] ${index === group.records.length - 1 ? '' : 'border-0 border-b border-solid border-[#ebebeb]'}`}>
+                <span className="min-w-0 flex-grow">
+                  <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{record.primary}</span>
                   {record.secondary && (
-                    <span className={styles.secondary}>{record.secondary}</span>
+                    <span className="mt-1 block overflow-hidden text-ellipsis whitespace-nowrap text-xs text-[#969696]">{record.secondary}</span>
                   )}
                 </span>
-                <span className={cn(styles.price, getAmountClassName(record.amountTone))}>
+                <span className={`ml-3 shrink-0 ${getAmountClassName(record.amountTone)}`}>
                   {record.amount}
                 </span>
               </span>
             </>
           );
-          const className = cn(styles.record, record.secondary && styles.recordWithSecondary);
-
-          return record.onClick && recordElement === 'button'
-            ? (
-                <button
-                  className={cn(className, styles.recordButton)}
-                  data-record-id={record.id}
-                  key={record.id}
-                  onClick={record.onClick}
-                  type="button"
-                >
-                  {content}
-                </button>
-              )
-            : (
-                <div
-                  className={className}
-                  data-record-id={record.id}
-                  key={record.id}
-                  onClick={record.onClick}
-                >
-                  {content}
-                </div>
-              );
+          return (
+            <div
+              className={`flex w-full items-center ${record.secondary ? 'min-h-[60px]' : 'h-[55px]'}`}
+              data-record-id={record.id}
+              key={record.id}
+              onClick={record.onClick}
+            >
+              {content}
+            </div>
+          );
         })}
       </section>
     ))}
