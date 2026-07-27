@@ -3,26 +3,28 @@ import { LeftOutline, RightOutline } from 'antd-mobile-icons';
 import { Triangle } from 'lucide-react';
 import { shiftMonth } from '../model';
 
-interface HouseholdMonthPickerProps {
-  isCompact?: boolean;
-  isDetailTrigger?: boolean;
+interface HouseholdMonthPickerBaseProps {
   month: string;
-  monthLabel?: string;
-  nextLabel: string;
   onChange: (month: string) => void;
-  previousLabel: string;
 }
 
-export const HouseholdMonthPicker: FC<HouseholdMonthPickerProps> = ({
-  isCompact = false,
-  isDetailTrigger = false,
-  month,
-  monthLabel,
-  nextLabel,
-  onChange,
-  previousLabel,
-}) => {
-  if (isDetailTrigger) {
+interface HouseholdMonthDetailPickerProps extends HouseholdMonthPickerBaseProps {
+  monthLabel: string;
+  variant: 'detail';
+}
+
+interface HouseholdMonthStepperProps extends HouseholdMonthPickerBaseProps {
+  isCompact?: boolean;
+  nextLabel: string;
+  previousLabel: string;
+  variant?: 'stepper';
+}
+
+type HouseholdMonthPickerProps = HouseholdMonthDetailPickerProps | HouseholdMonthStepperProps;
+
+export const HouseholdMonthPicker: FC<HouseholdMonthPickerProps> = (props) => {
+  if (props.variant === 'detail') {
+    const { month, monthLabel, onChange } = props;
     return (
       <label className="relative flex h-10 w-[88px] cursor-pointer items-end text-font-black" data-testid="household-detail-month-picker">
         <span className="text-[length:var(--ww-font-size-2xl)] leading-none">{month.slice(5, 7)}</span>
@@ -43,6 +45,14 @@ export const HouseholdMonthPicker: FC<HouseholdMonthPickerProps> = ({
       </label>
     );
   }
+
+  const {
+    isCompact = false,
+    month,
+    nextLabel,
+    onChange,
+    previousLabel,
+  } = props;
 
   return (
     <div className={`flex items-center justify-center ${isCompact ? 'w-full min-w-0 gap-0.5' : 'gap-3'}`} data-testid={isCompact ? 'household-compact-month-picker' : undefined}>

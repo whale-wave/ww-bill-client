@@ -73,12 +73,10 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
           label: t('common.yearLabel', { year: month.slice(0, 4) }),
           value: (
             <HouseholdMonthPicker
-              isDetailTrigger
               month={month}
               monthLabel={t('common.month')}
-              nextLabel={t('common.nextMonth')}
               onChange={setMonth}
-              previousLabel={t('common.previousMonth')}
+              variant="detail"
             />
           ),
           valueWidth: 'cell',
