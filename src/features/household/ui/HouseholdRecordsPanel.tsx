@@ -8,6 +8,7 @@ import { HouseholdPageState } from './HouseholdPageState';
 import { HouseholdSummaryCard } from './HouseholdSummaryCard';
 
 interface HouseholdRecordsPanelProps {
+  compactGrouped?: boolean;
   emptyDescription?: string;
   filters?: GetHouseholdRecordsApiParams;
   householdId: string;
@@ -19,6 +20,7 @@ const PAGE_SIZE = 50;
 
 export const HouseholdRecordsPanel: FC<HouseholdRecordsPanelProps> = ({
   emptyDescription,
+  compactGrouped = false,
   filters,
   householdId,
   onSelect,
@@ -54,9 +56,11 @@ export const HouseholdRecordsPanel: FC<HouseholdRecordsPanelProps> = ({
             summary={query.data?.summary}
           />
         )}
-        <p className="text-center text-xs text-font-gray">
-          {t('records.total', { count: total })}
-        </p>
+        {!compactGrouped && (
+          <p className="text-center text-xs text-font-gray">
+            {t('records.total', { count: total })}
+          </p>
+        )}
         {query.records.length === 0 && emptyDescription
           ? (
               <ErrorBlock
@@ -68,6 +72,9 @@ export const HouseholdRecordsPanel: FC<HouseholdRecordsPanelProps> = ({
           : (
               <FamilyRecordList
                 countedLabel={t('records.counted')}
+                compactGrouped={compactGrouped}
+                dailyExpenseLabel={t('records.dailyExpense')}
+                dailyIncomeLabel={t('records.dailyIncome')}
                 emptyLabel={t('records.empty')}
                 inheritedLabel={t('records.inherited')}
                 memberLabel={name => t('records.memberAttribution', { name })}

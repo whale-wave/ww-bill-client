@@ -121,6 +121,8 @@
     "reset": "Reset",
     "resultSummary": "{{count}} records · Income {{income}} · Expense {{expense}}",
     "total": "{{count}} records",
+    "dailyIncome": "Income:",
+    "dailyExpense": "Expense:",
     "loadMore": "Load more",
     "empty": "No matching household records",
     "counted": "Counted in household totals",

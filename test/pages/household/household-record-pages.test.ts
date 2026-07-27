@@ -148,6 +148,68 @@ afterEach(() => {
 });
 
 describe('household records', () => {
+  it('renders the household home title, settings action, and monthly totals in one header', () => {
+    const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
+
+    const header = container.querySelector('[data-testid="household-home-header"]');
+    expect(header?.querySelector('h1')?.textContent).toBe('home.title');
+    expect(header?.querySelector('[aria-label="home.settings"]')).not.toBeNull();
+    expect(header?.querySelector('[data-testid="household-home-back"]')).toBeNull();
+    expect(header?.querySelector('[data-testid="household-compact-month-picker"]')).not.toBeNull();
+    expect(header?.querySelector('input[type="month"]')).not.toBeNull();
+    expect(header?.querySelector('[data-testid="household-monthly-income"]')?.textContent).toContain('0.00');
+    expect(header?.querySelector('[data-testid="household-monthly-expense"]')?.textContent).toContain('20.00');
+  });
+
+  it('keeps household-scoped routes on every home shortcut', async () => {
+    const { container, router } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
+
+    expect(container.querySelector('[data-testid="household-shortcuts-card"]')).not.toBeNull();
+    const shortcuts = [
+      ['budget', '/households/household%2Fa/budgets'],
+      ['search', '/households/household%2Fa/records/search'],
+      ['calendar', '/households/household%2Fa/calendar'],
+      ['settings', '/households/household%2Fa/settings'],
+    ] as const;
+
+    for (const [shortcut, path] of shortcuts) {
+      await act(async () => container.querySelector<HTMLButtonElement>(`[data-testid="household-${shortcut}"]`)?.click());
+      expect(router.state.location.pathname).toBe(path);
+      await act(async () => router.navigate('/households/household%2Fa'));
+    }
+  });
+
+  it('groups home records by date with daily totals and shared category icons', () => {
+    const expenseRecord: FamilyRecord = {
+      ...record,
+      category: { icon: 'catering', id: 1, name: 'Dining' },
+      remark: 'Dinner',
+    };
+    const incomeRecord: FamilyRecord = {
+      ...record,
+      amount: '100.00',
+      category: { icon: 'investment', id: 2, name: 'Investment' },
+      id: 8,
+      remark: '奖金',
+      time: '2026-07-20T09:00:00.000Z',
+      type: 'add',
+    };
+    hooks.useInfiniteHouseholdRecordsQuery.mockReturnValue({
+      ...query({ ...recordsPage, data: [expenseRecord, incomeRecord] }),
+      fetchNextPage: hooks.fetchNextRecords,
+      hasNextPage: false,
+      isFetchingNextPage: false,
+    });
+    const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
+
+    const dateGroup = container.querySelector('[data-date-group="2026-07-21"]');
+    expect(dateGroup?.textContent).toContain('records.dailyExpense');
+    expect(dateGroup?.textContent).toContain('20.00');
+    expect(container.querySelector('[data-date-group="2026-07-20"]')?.textContent).toContain('records.dailyIncome');
+    expect(container.querySelector('[data-category-icon="catering"] use')?.getAttribute('xlink:href')).toBe('#icon-catering');
+    expect(container.textContent).not.toContain('catering');
+  });
+
   it('uses the decoded URL household id and opens the family record detail', async () => {
     const { container, router } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
 
@@ -221,7 +283,7 @@ describe('household records', () => {
     expect(router.state.location.pathname).toBe('/ledgers/default-ledger/records/7');
   });
 
-  it('requests subsequent record pages and shows the untruncated total', async () => {
+  it('requests subsequent record pages from the home list', async () => {
     hooks.useInfiniteHouseholdRecordsQuery.mockReturnValue({
       ...query({ ...recordsPage, total: 101 }),
       fetchNextPage: hooks.fetchNextRecords,
@@ -234,7 +296,7 @@ describe('household records', () => {
       createElement(HouseholdHomePage),
     );
 
-    expect(container.textContent).toContain('records.total');
+    expect(container.textContent).not.toContain('records.total');
     await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="household-records-load-more"]')?.click());
     expect(hooks.useInfiniteHouseholdRecordsQuery).toHaveBeenLastCalledWith({
       params: {

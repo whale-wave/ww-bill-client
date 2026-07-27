@@ -3,6 +3,7 @@ import type { FamilyRecord, Household } from '@/entities/household';
 import { CalendarDays, Search, Settings, Target } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useInfiniteHouseholdRecordsQuery } from '@/entities/household';
 import {
   buildMonthRecordRange,
   formatMonthStart,
@@ -10,6 +11,7 @@ import {
   HouseholdMonthPicker,
   HouseholdRecordsPanel,
   HouseholdScopeBoundary,
+  toMoney,
 } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
@@ -26,6 +28,10 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
   const navigate = useNavigate();
   const [month, setMonth] = useState(() => formatMonthStart(new Date()));
   const filters = buildMonthRecordRange(month);
+  const recordsQuery = useInfiniteHouseholdRecordsQuery({
+    params: { filters: { ...filters, limit: 50, offset: 0 }, householdId: household.id },
+    queryOptions: { enabled: Boolean(household.id) },
+  });
 
   const handleRecord = (record: FamilyRecord) => {
     navigate(ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(household.id, record.id));
@@ -33,7 +39,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
 
   return (
     <>
-      <header className="bg-primary px-3 pb-4 pt-5 text-font-black">
+      <header className="bg-primary px-3 pb-5 pt-5 text-font-black" data-testid="household-home-header">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold">{t('home.title')}</h1>
@@ -48,17 +54,30 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
             <Settings size={19} />
           </button>
         </div>
-        <div className="mt-4">
+        <div className="mt-4 grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-2">
           <HouseholdMonthPicker
+            compact
             month={month}
             nextLabel={t('common.nextMonth')}
             onChange={setMonth}
             previousLabel={t('common.previousMonth')}
           />
+          <div className="min-w-0 text-center">
+            <span className="block text-xs text-font-black/70">{t('common.income')}</span>
+            <strong className="mt-1 block truncate text-base font-medium text-emerald-700" data-testid="household-monthly-income">
+              {toMoney(recordsQuery.data?.summary.income)}
+            </strong>
+          </div>
+          <div className="min-w-0 text-center">
+            <span className="block text-xs text-font-black/70">{t('common.expense')}</span>
+            <strong className="mt-1 block truncate text-base font-medium text-rose-600" data-testid="household-monthly-expense">
+              {toMoney(recordsQuery.data?.summary.expense)}
+            </strong>
+          </div>
         </div>
       </header>
       <main className="min-h-0 flex-grow overflow-auto px-3 pb-[84px] pt-3">
-        <section className="card-rounded mb-3 grid grid-cols-4 bg-white py-3">
+        <section className="card-rounded mb-3 grid grid-cols-4 bg-white py-3" data-testid="household-shortcuts-card">
           {MENU_ITEMS.map(({ icon: Icon, key, route }) => (
             <button
               className="border-0 bg-white text-center text-xs text-font-gray"
@@ -76,6 +95,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
         </section>
         <HouseholdRecordsPanel
           emptyDescription={t('home.emptyDescription')}
+          compactGrouped
           filters={filters}
           householdId={household.id}
           onSelect={handleRecord}
