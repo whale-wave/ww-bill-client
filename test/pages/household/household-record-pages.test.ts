@@ -159,6 +159,7 @@ describe('household records', () => {
     expect(header?.querySelector('input[type="month"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-monthly-income"]')?.textContent).toContain('0.00');
     expect(header?.querySelector('[data-testid="household-monthly-expense"]')?.textContent).toContain('20.00');
+    expect(container.textContent).not.toContain('common.net');
   });
 
   it('keeps household-scoped routes on every home shortcut', async () => {

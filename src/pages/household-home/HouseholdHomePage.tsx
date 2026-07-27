@@ -99,6 +99,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
           filters={filters}
           householdId={household.id}
           onSelect={handleRecord}
+          showSummary={false}
         />
       </main>
       <HouseholdBottomNav
