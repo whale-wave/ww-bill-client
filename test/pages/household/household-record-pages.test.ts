@@ -48,6 +48,7 @@ vi.mock('@/entities/user', () => ({
 }));
 
 vi.mock('@/shared/i18n', () => ({
+  i18n: { t: (key: string) => key },
   useTranslation: () => ({
     i18n: { resolvedLanguage: locale.language },
     t: (key: string) => key,
@@ -327,7 +328,14 @@ describe('household records', () => {
       params: { householdId: 'household/a', recordId: 7 },
       queryOptions: { enabled: true },
     });
+    expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
+    expect(container.querySelector('[data-category-icon="餐"] use')?.getAttribute('xlink:href')).toBe('#icon-餐');
+    expect(container.querySelector('.bg-primary')).toBeNull();
+    expect(container.querySelector('.rounded-xl')).toBeNull();
+    expect(container.querySelector('[data-record-detail-footer]')).not.toBeNull();
     expect(container.textContent).toContain('晚餐');
+    expect(container.textContent).toContain('recordDetail.member');
+    expect(container.textContent).toContain('recordDetail.counted');
     await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="household-record-policy"]')?.click());
     expect(router.state.location.pathname).toBe('/households/household%2Fa/records/7/policy');
   });

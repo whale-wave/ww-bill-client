@@ -1,12 +1,11 @@
 import type { FC } from 'react';
 import type { RecordEntry } from '@/entities/record';
-import { ErrorBlock, SpinLoading } from 'antd-mobile';
-import { useLocation, useParams } from 'react-router-dom';
-import { useGetRecordByIdQuery } from '@/entities/record';
-import Footer from '@/pages/record/editing/footer';
-import List from '@/pages/record/editing/list';
-import Top from '@/pages/record/editing/Top';
+import { Dialog, ErrorBlock, SpinLoading, Toast } from 'antd-mobile';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { RecordDetailPresentation, useDeleteRecordMutation, useGetRecordByIdQuery } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
+import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
+import { playSound } from '@/shared/lib/play-sound';
 
 function isRecordCategory(value: unknown): value is RecordEntry['category'] {
   return typeof value === 'object'
@@ -49,11 +48,13 @@ function isRecordEntry(value: unknown): value is RecordEntry {
 
 const Editing: FC = () => {
   const navParams = useLocation();
+  const navigate = useNavigate();
   const params = useParams();
-  const { t } = useTranslation();
+  const { t } = useTranslation(['record', 'common']);
   const { data, isLoading } = useGetRecordByIdQuery({
     params: { id: params.id ?? '' },
   });
+  const [deleteRecordMutate] = useDeleteRecordMutation();
 
   const state = data ?? (isRecordEntry(navParams.state) ? navParams.state : undefined);
 
@@ -73,12 +74,61 @@ const Editing: FC = () => {
     );
   }
 
+  const handleBack = () => {
+    playSound.turnPage();
+    if (state.status) {
+      navigate('/detail');
+    }
+    else {
+      navigate(-1);
+    }
+  };
+
+  const handleShare = () => {
+    navigate('/share', {
+      state: { record: state },
+    });
+  };
+
+  const handleEdit = () => {
+    navigate('/bookkeeping', { state, replace: true });
+  };
+
+  const handleDelete = () => {
+    Dialog.confirm({
+      content: t('record:detail.deleteWarning'),
+      title: t('common:confirm.delete'),
+      onConfirm: async () => {
+        const res = await deleteRecordMutate({ id: `${state.id}`, version: state.version });
+        if (res.statusCode === 200 && res.message === '删除成功') {
+          Toast.show({ content: res.message });
+          navigate('/detail');
+        }
+      },
+    });
+  };
+
+  const date = new Date(state.time);
+  const timeDate = getTimeDateYear(date);
+  const weekByDay = getWeekByDay(getTimedate(date));
+
   return (
-    <div className="page">
-      <Top state={state} />
-      <List state={state} />
-      <Footer state={state} />
-    </div>
+    <RecordDetailPresentation
+      backLabel={t('common:nav.back')}
+      category={state.category}
+      footerActions={[
+        { label: t('record:detail.edit'), onClick: handleEdit },
+        { label: t('record:detail.delete'), onClick: handleDelete },
+      ]}
+      onBack={handleBack}
+      pinnedAction={{ label: t('record:edit.share'), onClick: handleShare }}
+      rows={[
+        { label: t('record:edit.type'), value: state.type === 'sub' ? t('record:type.expense') : t('record:type.income') },
+        { label: t('record:edit.amount'), value: state.amount },
+        { label: t('record:edit.date'), value: `${timeDate}  ${weekByDay}` },
+        { label: t('record:edit.remark'), value: state.remark },
+      ]}
+    />
   );
 };
 

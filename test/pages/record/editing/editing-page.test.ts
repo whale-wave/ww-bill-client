@@ -4,8 +4,9 @@ import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import EditingPage from '@/pages/record/editing/EditingPage';
 
-const { location, queryResult } = vi.hoisted(() => ({
+const { location, navigate, queryResult } = vi.hoisted(() => ({
   location: { state: undefined as unknown },
+  navigate: vi.fn(),
   queryResult: {
     data: undefined as RecordEntry | undefined,
     isError: false,
@@ -15,14 +16,33 @@ const { location, queryResult } = vi.hoisted(() => ({
 
 vi.mock('react-router-dom', () => ({
   useLocation: () => location,
+  useNavigate: () => navigate,
   useParams: () => ({ id: 'record-7' }),
 }));
 
 vi.mock('@/entities/record', () => ({
+  RecordDetailPresentation: ({ category, footerActions, onBack, pinnedAction, rows }: {
+    category: { name: string };
+    footerActions?: Array<{ label: string }>;
+    onBack: () => void;
+    pinnedAction?: { label: string; onClick: () => void };
+    rows: Array<{ label: string; value: string }>;
+  }) => createElement('div', { 'data-testid': 'record-detail' }, [
+    createElement('button', { 'data-testid': 'record-detail-back', 'key': 'back', 'onClick': onBack, 'type': 'button' }, 'Back'),
+    createElement('span', { key: 'content' }, [
+      category.name,
+      ...rows.map(row => `${row.label}:${row.value}`),
+      pinnedAction?.label,
+      ...footerActions?.map(action => action.label) ?? [],
+    ].filter(Boolean).join('|')),
+    pinnedAction && createElement('button', { 'data-testid': 'record-detail-share', 'key': 'share', 'onClick': pinnedAction.onClick, 'type': 'button' }, pinnedAction.label),
+  ]),
+  useDeleteRecordMutation: () => [() => Promise.resolve({})],
   useGetRecordByIdQuery: () => queryResult,
 }));
 
 vi.mock('@/shared/i18n', () => ({
+  i18n: { t: (key: string) => key },
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
@@ -31,24 +51,13 @@ vi.mock('antd-mobile', () => ({
   SpinLoading: () => createElement('div', { 'data-testid': 'loading' }),
 }));
 
-vi.mock('@/pages/record/editing/Top', () => ({
-  default: ({ state }: { state?: RecordEntry }) => createElement('div', { 'data-testid': 'top' }, state?.id),
-}));
-
-vi.mock('@/pages/record/editing/list', () => ({
-  default: ({ state }: { state?: RecordEntry }) => createElement('div', { 'data-testid': 'list' }, state?.id),
-}));
-
-vi.mock('@/pages/record/editing/footer', () => ({
-  default: ({ state }: { state?: RecordEntry }) => createElement('div', { 'data-testid': 'footer' }, state?.id),
-}));
-
 let cleanup: (() => void) | undefined;
 
 afterEach(() => {
   cleanup?.();
   cleanup = undefined;
   location.state = undefined;
+  navigate.mockReset();
 });
 
 function renderPage() {
@@ -61,9 +70,7 @@ function renderPage() {
 }
 
 function expectNoDetails(container: HTMLElement) {
-  expect(container.querySelector('[data-testid="top"]')).toBeNull();
-  expect(container.querySelector('[data-testid="list"]')).toBeNull();
-  expect(container.querySelector('[data-testid="footer"]')).toBeNull();
+  expect(container.querySelector('[data-testid="record-detail"]')).toBeNull();
 }
 
 describe('record editing page', () => {
@@ -89,7 +96,7 @@ describe('record editing page', () => {
     expectNoDetails(container);
   });
 
-  it('renders all record detail children after the record loads', () => {
+  it('adapts the loaded personal record to the default detail presentation with its share and edit/delete actions', () => {
     const record: RecordEntry = {
       amount: '88.00',
       category: {
@@ -113,9 +120,42 @@ describe('record editing page', () => {
 
     const { container } = renderPage();
 
-    expect(container.querySelector('[data-testid="top"]')?.textContent).toBe('7');
-    expect(container.querySelector('[data-testid="list"]')?.textContent).toBe('7');
-    expect(container.querySelector('[data-testid="footer"]')?.textContent).toBe('7');
+    const detail = container.querySelector('[data-testid="record-detail"]');
+    expect(detail?.textContent).toContain('餐饮');
+    expect(detail?.textContent).toContain('edit.type:record:type.expense');
+    expect(detail?.textContent).toContain('edit.share');
+    expect(detail?.textContent).toContain('record:detail.edit');
+    expect(detail?.textContent).toContain('record:detail.delete');
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-detail-share"]')?.click());
+    expect(navigate).toHaveBeenCalledWith('/share', { state: { record } });
+  });
+
+  it('keeps the persisted-record back destination in the personal adapter', () => {
+    queryResult.data = {
+      amount: '12.00',
+      category: {
+        createdAt: '2026-07-16T00:00:00.000Z',
+        icon: 'food',
+        id: 1,
+        name: '餐饮',
+        updatedAt: '2026-07-16T00:00:00.000Z',
+      },
+      createdAt: '2026-07-16T12:30:00.000Z',
+      id: 7,
+      remark: '午餐',
+      status: true,
+      time: '2026-07-16T12:30:00.000Z',
+      type: 'sub',
+      updatedAt: '2026-07-16T12:30:00.000Z',
+      version: 3,
+    };
+    queryResult.isLoading = false;
+
+    const { container } = renderPage();
+    act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-detail-back"]')?.click());
+
+    expect(navigate).toHaveBeenCalledWith('/detail');
   });
 
   it('renders a valid route-state record through loading and refresh errors', () => {
@@ -143,14 +183,14 @@ describe('record editing page', () => {
 
     const { container, rerender } = renderPage();
 
-    expect(container.querySelector('[data-testid="top"]')?.textContent).toBe('9');
+    expect(container.querySelector('[data-testid="record-detail"]')?.textContent).toContain('晚餐');
     expect(container.querySelector('[data-testid="loading"]')).toBeNull();
 
     queryResult.isError = true;
     queryResult.isLoading = false;
     rerender();
 
-    expect(container.querySelector('[data-testid="top"]')?.textContent).toBe('9');
+    expect(container.querySelector('[data-testid="record-detail"]')?.textContent).toContain('晚餐');
     expect(container.querySelector('[data-testid="error"]')).toBeNull();
   });
 
