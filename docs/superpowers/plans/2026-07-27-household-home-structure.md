@@ -55,7 +55,7 @@ Acceptance criteria:
 The personal detail home and household home use the same record-overview modules rather than maintaining parallel markup:
 
 - `RecordOverviewHeader` preserves the original personal `/detail` header geometry, full-width month hit target, amount-visibility control, and shortcut-card styling. Personal and household pages only provide title alignment, actions, period control, values, and shortcut data; household differences must not redefine the personal layout.
-- `RecordOverviewList` preserves the original personal `/detail` date headers, 55px rows, typography, neutral personal-ledger amounts (including its existing numeric formatting), and row interaction. Household records add secondary member/policy text and semantic amount colors through parameters.
+- `RecordOverviewList` preserves the original personal `/detail` date headers, 55px rows, typography, neutral amount color, and row interaction. Household records keep member/policy text as a compact secondary line without changing that shared row geometry or amount styling.
 - `Top.tsx`, `List.tsx`, and `FamilyRecordList.tsx` remain adapters for their domain-specific state, routing, visibility, member attribution, and sharing-policy semantics.
 - `HouseholdRecordsPanelContent` accepts the already-owned household records query on the home page; other household surfaces keep using `HouseholdRecordsPanel`, which owns its query internally.
 

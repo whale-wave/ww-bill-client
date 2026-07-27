@@ -140,7 +140,6 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
         key: group.time,
         records: group.records.map(record => ({
           amount: `${record.type === 'add' ? '+' : '-'}${toMoney(record.amount)}`,
-          amountTone: record.type === 'add' ? 'income' : 'expense',
           iconName: record.category?.icon ?? 'bill',
           id: record.id,
           onClick: onSelect ? () => onSelect(record) : undefined,

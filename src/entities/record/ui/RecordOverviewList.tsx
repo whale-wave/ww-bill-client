@@ -79,7 +79,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({ groups }) => (
           );
           return (
             <div
-              className={`flex w-full items-center ${record.secondary ? 'min-h-[60px]' : 'h-[55px]'}`}
+              className="flex h-[55px] w-full items-center"
               data-record-id={record.id}
               key={record.id}
               onClick={record.onClick}

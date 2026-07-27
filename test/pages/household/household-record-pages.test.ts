@@ -241,9 +241,15 @@ describe('household records', () => {
     const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
 
     const dateGroup = container.querySelector('[data-date-group="2026-07-21"]');
+    const recordRow = container.querySelector('[data-record-id="7"]');
+    const amount = recordRow?.lastElementChild?.lastElementChild;
     expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(dateGroup?.textContent).toContain('records.dailyExpense');
     expect(dateGroup?.textContent).toContain('20.00');
+    expect(recordRow?.classList).toContain('h-[55px]');
+    expect(recordRow?.classList).not.toContain('min-h-[60px]');
+    expect(amount?.classList).toContain('text-font-black');
+    expect(amount?.classList).not.toContain('text-rose-500');
     expect(container.querySelector('[data-date-group="2026-07-20"]')?.textContent).toContain('records.dailyIncome');
     expect(container.querySelector('[data-category-icon="catering"] use')?.getAttribute('xlink:href')).toBe('#icon-catering');
     expect(container.textContent).not.toContain('catering');
