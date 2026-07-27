@@ -7,6 +7,14 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/shared/lib';
 import { Icon } from '@/shared/ui';
 
+function formatCalendarDate(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match)
+    return format(value, 'yy/MM/dd');
+
+  return `${match[1].slice(-2)}/${match[2]}/${match[3]}`;
+}
+
 export const TooltipContent: FC<{ data: ChartOverviewPoint; currentAmountType: AmountType }> = ({ data, currentAmountType }) => {
   const { t } = useTranslation('chart');
   const list = useMemo(() => {
@@ -17,7 +25,7 @@ export const TooltipContent: FC<{ data: ChartOverviewPoint; currentAmountType: A
     return (
       <div className={cn('text-xs')}>
         <div className={cn('text-[#fff] bg-[#4e4c4d] py-1 px-3 flex items-center justify-center rounded-md')}>
-          {format(data.value, 'yy/MM/dd')}
+          {formatCalendarDate(data.value)}
         </div>
         <div className={cn('flex space-x-2 mt-2 mb-1')}>
           <div>{currentAmountType === 'sub' ? t('tooltip.monthlyTotal.expend') : t('tooltip.monthlyTotal.income')}</div>
