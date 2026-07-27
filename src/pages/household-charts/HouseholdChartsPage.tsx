@@ -15,10 +15,10 @@ import {
   HouseholdBottomNav,
   HouseholdPageState,
   HouseholdScopeBoundary,
-  toMoney,
 } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { math } from '@/shared/lib';
 
 function isAmountType(value: string | null): value is AmountType {
   return value === 'sub' || value === 'add';
@@ -46,7 +46,7 @@ function mapCategoryRanking(
   amountType: AmountType,
 ): ChartOverviewRankingItem[] {
   return data.categories.map(item => ({
-    amount: Number(item.amount),
+    amount: item.amount,
     category: {
       icon: item.icon || 'bill',
       id: item.key,
@@ -62,7 +62,7 @@ function mapMemberRanking(
   amountType: AmountType,
 ): ChartOverviewRankingItem[] {
   return data.members.map(item => ({
-    amount: Number(item.amount),
+    amount: item.amount,
     category: {
       icon: 'mine',
       id: item.user.id,
@@ -78,21 +78,30 @@ function toOverviewTab(
   amountType: AmountType,
 ): ChartOverviewTab {
   const metric = amountType === 'sub' ? 'expense' : 'income';
-  const amount = Number(data.summary[metric]);
+  const amount = data.summary[metric];
   const pointCount = Math.max(1, data.timeline.length);
 
   return {
     amount,
-    average: toMoney(amount / pointCount),
+    average: math.divide(amount, pointCount).toFixed(2),
     data: data.timeline.map(point => ({
-      amount: Number(point[metric]),
+      amount: point[metric],
       data: [],
+      tooltipMode: 'aggregate',
       value: point.key,
     })),
     key: `${data.period}-${data.anchorDate}`,
     name: getPeriodName(data),
     ranking: mapCategoryRanking(data, amountType),
   };
+}
+
+function hasOverviewData(data: HouseholdChartResult, amountType: AmountType) {
+  const metric = amountType === 'sub' ? 'expense' : 'income';
+  return data.timeline.length > 0
+    || data.categories.length > 0
+    || data.members.length > 0
+    || math.compare(data.summary[metric], 0) !== 0;
 }
 
 const ChartsContent: FC<{ household: Household }> = ({ household }) => {
@@ -121,7 +130,9 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
   });
 
   const currentTab = useMemo(
-    () => query.data ? toOverviewTab(query.data, currentAmountType) : undefined,
+    () => query.data && hasOverviewData(query.data, currentAmountType)
+      ? toOverviewTab(query.data, currentAmountType)
+      : undefined,
     [currentAmountType, query.data],
   );
   const memberRanking = useMemo(
@@ -154,7 +165,7 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     currentAmountType,
     currentTimeRangeCategory,
     curTab: currentTab,
-    onRankingItemClick: () => undefined,
+    rankingInteraction: 'none',
     rankingTitle: t('charts.categoryRanking'),
     setCurrentAmountType,
     setCurrentTimeRangeCategory,

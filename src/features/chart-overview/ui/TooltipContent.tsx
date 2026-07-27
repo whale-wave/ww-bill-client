@@ -1,16 +1,31 @@
 import type { FC } from 'react';
-import type { AmountType, GetChartApiResponseWeekDataWeekItemDayItem } from '@/entities/chart';
+import type { ChartOverviewPoint } from '../model/chart-overview-context';
+import type { AmountType } from '@/entities/chart';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/shared/lib';
 import { Icon } from '@/shared/ui';
 
-export const TooltipContent: FC<{ data: GetChartApiResponseWeekDataWeekItemDayItem; currentAmountType: AmountType }> = ({ data, currentAmountType }) => {
+export const TooltipContent: FC<{ data: ChartOverviewPoint; currentAmountType: AmountType }> = ({ data, currentAmountType }) => {
   const { t } = useTranslation('chart');
   const list = useMemo(() => {
     return data.data.slice(0, 3);
   }, [data]);
+
+  if (data.tooltipMode === 'aggregate') {
+    return (
+      <div className={cn('text-xs')}>
+        <div className={cn('text-[#fff] bg-[#4e4c4d] py-1 px-3 flex items-center justify-center rounded-md')}>
+          {format(data.value, 'yy/MM/dd')}
+        </div>
+        <div className={cn('flex space-x-2 mt-2 mb-1')}>
+          <div>{currentAmountType === 'sub' ? t('tooltip.monthlyTotal.expend') : t('tooltip.monthlyTotal.income')}</div>
+          <div>{data.amount}</div>
+        </div>
+      </div>
+    );
+  }
 
   if (list.length === 0)
     return <div className={cn('py-1 px-7')}>{t('tooltip.noExpenses')}</div>;

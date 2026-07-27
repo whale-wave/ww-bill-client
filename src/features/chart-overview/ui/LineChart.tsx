@@ -16,7 +16,7 @@ export const LineChart: FC = () => {
     if (!curTab)
       return [];
     return curTab.data.map(item => ({
-      value: item.amount,
+      value: Number(item.amount),
       source: item,
     }));
   }, [curTab]);
@@ -25,12 +25,6 @@ export const LineChart: FC = () => {
     if (!curTab)
       return [];
     return curTab.data.map(item => format(item.value, 'MM-dd'));
-  }, [curTab]);
-
-  const maxValue = useMemo(() => {
-    if (!curTab)
-      return 0;
-    return Math.max(...curTab.data.map(item => item.amount));
   }, [curTab]);
 
   useEffect(() => {
@@ -129,7 +123,7 @@ export const LineChart: FC = () => {
     };
 
     myChart?.setOption(option);
-  }, [seriesData, xAxisData, myChart, maxValue]);
+  }, [seriesData, xAxisData, myChart, currentAmountType]);
 
   return (
     <div className={cn('h-[150px]')} ref={chartDomRef} />

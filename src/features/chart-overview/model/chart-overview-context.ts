@@ -3,7 +3,7 @@ import type { RecordEntry } from '@/entities/record';
 import { createContext, useContext } from 'react';
 
 export interface ChartOverviewRankingItem {
-  amount: number;
+  amount: number | string;
   category: {
     icon: string;
     id: number | string;
@@ -14,13 +14,14 @@ export interface ChartOverviewRankingItem {
 }
 
 export interface ChartOverviewPoint {
-  amount: number;
+  amount: number | string;
   data: RecordEntry[];
+  tooltipMode?: 'aggregate';
   value: string;
 }
 
 export interface ChartOverviewTab {
-  amount: number;
+  amount: number | string;
   average: string;
   data: ChartOverviewPoint[];
   key: string;
@@ -39,6 +40,7 @@ export interface ChartOverviewContextValue {
   currentAmountType: AmountType;
   currentTimeRangeCategory: TimeRangeCategory;
   onRankingItemClick?: (item: ChartOverviewRankingItem) => void;
+  rankingInteraction?: 'navigate' | 'none';
   rankingTitle?: string;
   tabActive: string;
   tabs: ChartOverviewTab[];

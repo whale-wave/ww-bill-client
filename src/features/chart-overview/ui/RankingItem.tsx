@@ -6,7 +6,7 @@ import { cn } from '@/shared/lib';
 import { Icon, ProgressBar } from '@/shared/ui';
 import styles from './RankingItem.module.scss';
 
-export const RankingItem: FC<{ item: ChartOverviewRankingItem; onClick: () => void }> = ({ item, onClick }) => {
+export const RankingItem: FC<{ item: ChartOverviewRankingItem; onClick?: () => void }> = ({ item, onClick }) => {
   const percent = useMemo(() => {
     return Number(item.percentage) / 100;
   }, [item.percentage]);

@@ -16,6 +16,7 @@ export const RankingList: FC = () => {
     currentAmountType,
     currentTimeRangeCategory,
     onRankingItemClick,
+    rankingInteraction = 'navigate',
     rankingTitle,
   } = useChartOverview();
 
@@ -69,7 +70,7 @@ export const RankingList: FC = () => {
           <RankingItem
             key={item.category.id}
             item={item}
-            onClick={() => handleRankingItemClick(item)}
+            onClick={rankingInteraction === 'none' ? undefined : () => handleRankingItemClick(item)}
           />
         ))}
       </List>

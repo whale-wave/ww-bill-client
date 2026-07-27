@@ -15,6 +15,7 @@ import HouseholdMembersPage from '@/pages/household-members/HouseholdMembersPage
 import HouseholdSettingsPage from '@/pages/household-settings/HouseholdSettingsPage';
 
 const hooks = vi.hoisted(() => ({
+  chartSetOption: vi.fn(),
   deleteBudget: vi.fn(),
   dissolve: vi.fn(),
   updateHousehold: vi.fn(),
@@ -49,7 +50,7 @@ vi.mock('@/entities/user', () => ({ useGetUserUserInfoQuery: hooks.useUserQuery 
 
 vi.mock('@/shared/i18n', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 vi.mock('@/shared/lib/use-chart', () => ({
-  useChart: () => ({ chartDomRef: { current: null }, myChart: undefined }),
+  useChart: () => ({ chartDomRef: { current: null }, myChart: { setOption: hooks.chartSetOption } }),
 }));
 
 const members: HouseholdMember[] = [
@@ -222,6 +223,101 @@ describe('household budget and charts', () => {
       },
       queryOptions: { enabled: true },
     });
+  });
+
+  it('renders exact household totals, averages, category and member rankings', () => {
+    hooks.useHouseholdChartsQuery.mockReturnValue(query({
+      ...chart,
+      categories: [
+        { amount: '20.00', key: 'food', name: '餐饮', percent: 0.3333 },
+        { amount: '40.50', key: 'travel', name: '交通', percent: 0.6667 },
+      ],
+      members: [
+        { amount: '60.50', percent: 1, user: { id: 1, name: 'Avan' } },
+      ],
+      summary: {
+        expense: '10000000000000000.01',
+        income: '0.00',
+        net: '-10000000000000000.01',
+      },
+      timeline: [
+        { expense: '0.01', income: '0.00', key: '2026-07-19', label: '07-19', net: '-0.01' },
+        { expense: '9999999999999999.99', income: '0.00', key: '2026-07-20', label: '07-20', net: '-9999999999999999.99' },
+        { expense: '0.01', income: '0.00', key: '2026-07-21', label: '07-21', net: '-0.01' },
+      ],
+    }));
+
+    const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
+    const categoryRows = [...container.querySelectorAll('.adm-list-item')];
+    const foodRow = categoryRows.find(row => row.textContent?.includes('餐饮'));
+    const travelRow = categoryRows.find(row => row.textContent?.includes('交通'));
+    const memberRow = categoryRows.find(row => row.textContent?.includes('Avan'));
+
+    expect(container.textContent).toContain('totalExpend10000000000000000.01');
+    expect(container.textContent).toContain('averageLabel3333333333333333.34');
+    expect(foodRow?.textContent).toContain('餐饮33.33%20.00');
+    expect(travelRow?.textContent).toContain('交通66.67%40.50');
+    expect(memberRow?.textContent).toContain('Avan100%60.50');
+    expect(foodRow instanceof HTMLElement ? foodRow.onclick : undefined).toBeNull();
+  });
+
+  it('keeps household timeline amounts exact in the shared model and renders aggregate tooltips', async () => {
+    const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
+
+    const option = hooks.chartSetOption.mock.calls.at(-1)?.[0] as {
+      series: Array<{
+        data: Array<{
+          source: { amount: string; value: string };
+          value: number;
+        }>;
+      }>;
+      tooltip: {
+        formatter: (params: Array<{
+          data: {
+            source: { amount: string; value: string };
+            value: number;
+          };
+        }>) => string;
+      };
+    };
+    const point = option.series[0].data[0];
+    const tooltip = option.tooltip.formatter([{ data: point }]);
+
+    expect(point.source.amount).toBe('20.00');
+    expect(point.value).toBe(20);
+    expect(tooltip).toContain('26/07/21');
+    expect(tooltip).toContain('当月总支出:');
+    expect(tooltip).toContain('20.00');
+    expect(tooltip).not.toContain('没有费用');
+
+    await act(async () => container.querySelector<HTMLElement>('.adm-dropdown-item-title')?.click());
+    await act(async () => container.querySelector<HTMLElement>('[data-chart-amount-type="add"]')?.click());
+
+    const incomeOption = hooks.chartSetOption.mock.calls.at(-1)?.[0] as typeof option;
+    const incomePoint = incomeOption.series[0].data[0];
+    const incomeTooltip = incomeOption.tooltip.formatter([{ data: incomePoint }]);
+    expect(incomePoint.source.amount).toBe('0.00');
+    expect(incomeTooltip).toContain('当月总收入:');
+    expect(incomeTooltip).toContain('0.00');
+    expect(incomeTooltip).not.toContain('没有费用');
+  });
+
+  it('renders the shared empty state for a wholly empty household chart response', () => {
+    hooks.useHouseholdChartsQuery.mockReturnValue(query({
+      ...chart,
+      categories: [],
+      members: [],
+      summary: { expense: '0.00', income: '0.00', net: '0.00' },
+      timeline: [],
+    }));
+
+    const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
+
+    expect(container.textContent).toContain('emptyTitle');
+    expect(container.textContent).toContain('emptyDescription');
+    expect(container.textContent).not.toContain('totalExpend');
+    expect(container.textContent).not.toContain('charts.categoryRanking');
+    expect(container.textContent).not.toContain('charts.memberRanking');
   });
 });
 
