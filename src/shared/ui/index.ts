@@ -12,6 +12,7 @@ export { default as Mask } from './mask';
 export { default as Modal } from './modal';
 export { default as NavBar } from './nav-bar';
 export * from './progress-bar';
+export * from './record-search-header';
 export { default as Share } from './share';
 export { TabList } from './tab-list';
 export { default as WwButton } from './ww-button/ww-button';

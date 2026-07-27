@@ -35,6 +35,7 @@ const RecordsContent: FC<{ household: Household }> = ({ household }) => {
         <HouseholdRecordsPanel
           filters={buildMonthRecordRange(month)}
           householdId={household.id}
+          isCompactGrouped
           onSelect={handleRecord}
         />
       </div>

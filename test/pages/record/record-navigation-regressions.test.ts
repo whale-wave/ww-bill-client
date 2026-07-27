@@ -6,7 +6,7 @@ import SearchTop from '@/pages/record/search-record/ui/Top';
 
 let cleanup: (() => void) | undefined;
 
-function renderPage(pathname: string, element: React.ReactNode) {
+function renderPage(pathname: string, element: React.ReactNode, initialEntry = pathname) {
   const container = document.createElement('div');
   document.body.append(container);
   const root = createRoot(container);
@@ -15,7 +15,7 @@ function renderPage(pathname: string, element: React.ReactNode) {
     { element: createElement('div', null, 'detail-target'), path: '/detail' },
     { element: createElement('div', null, 'origin-target'), path: '/origin' },
   ], {
-    initialEntries: ['/origin', pathname],
+    initialEntries: ['/origin', initialEntry],
     initialIndex: 1,
   });
   act(() => root.render(createElement(RouterProvider, { router })));
@@ -34,10 +34,13 @@ afterEach(() => {
 
 describe('personal record auxiliary navigation', () => {
   it('focuses search automatically and cancel returns to the previous page', async () => {
-    const { container, router } = renderPage('/search-record', createElement(SearchTop));
+    const { container, router } = renderPage('/search-record', createElement(SearchTop), '/search-record?q=dinner');
     const input = container.querySelector('input');
 
     expect(document.activeElement).toBe(input);
+    expect(container.querySelector('div.bg-primary.fixed')?.classList).toContain('fixed');
+    expect(new URLSearchParams(router.state.location.search).get('q')).toBe('dinner');
+    expect(input?.value).toBe('dinner');
     await act(async () => container.querySelector<HTMLElement>('.adm-search-bar-cancel-button')?.click());
     expect(router.state.location.pathname).toBe('/origin');
   });

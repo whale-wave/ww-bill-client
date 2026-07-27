@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { FamilyRecord, Household, HouseholdRecordsPage } from '@/entities/household';
+import type { FamilyRecord, Household, HouseholdRecordsPage as HouseholdRecordsResult } from '@/entities/household';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -14,6 +14,7 @@ import HouseholdHomePage from '@/pages/household-home/HouseholdHomePage';
 import HouseholdRecordDetailPage from '@/pages/household-record-detail/HouseholdRecordDetailPage';
 import HouseholdRecordPolicyPage from '@/pages/household-record-policy/HouseholdRecordPolicyPage';
 import HouseholdRecordSearchPage from '@/pages/household-record-search/HouseholdRecordSearchPage';
+import HouseholdRecordsPage from '@/pages/household-records/HouseholdRecordsPage';
 
 const hooks = vi.hoisted(() => ({
   fetchNextRecords: vi.fn(),
@@ -83,7 +84,7 @@ const record: FamilyRecord = {
   version: 2,
 };
 
-const recordsPage: HouseholdRecordsPage = {
+const recordsPage: HouseholdRecordsResult = {
   data: [record],
   limit: 100,
   offset: 0,
@@ -94,7 +95,7 @@ const recordsPage: HouseholdRecordsPage = {
 let cleanup: (() => void) | undefined;
 
 function query<T>(data: T) {
-  return { data, isError: false, isLoading: false, records: (data as HouseholdRecordsPage)?.data ?? [], refetch: hooks.refetchRecords };
+  return { data, isError: false, isLoading: false, records: (data as HouseholdRecordsResult)?.data ?? [], refetch: hooks.refetchRecords };
 }
 
 function renderPage(pathname: string, routePath: string, element: ReactNode) {
@@ -308,6 +309,46 @@ describe('household records', () => {
     const amount = container.querySelector('[data-record-id="7"]')?.lastElementChild;
     expect(amount?.classList).not.toContain('shrink-0');
     expect(amount?.classList).not.toContain('pl-3');
+  });
+
+  it('uses the shared fixed search header and keeps advanced household filters in its optional panel', async () => {
+    hooks.useHouseholdMembersQuery.mockReturnValue(query([
+      { id: 'member-2', nickname: 'Partner', user: { id: 2, name: 'Partner' } },
+    ]));
+    const { container, router } = renderPage(
+      '/households/household%2Fa/records/search?keyword=%E9%A4%90&type=sub&memberUserId=2',
+      '/households/:householdId/records/search',
+      createElement(HouseholdRecordSearchPage),
+    );
+
+    const header = container.querySelector('div.bg-primary.fixed');
+    expect(header?.classList).toContain('bg-primary');
+    expect(header?.classList).toContain('fixed');
+    expect(header?.querySelector('input')?.getAttribute('value')).toBe('餐');
+    expect(container.querySelector('main > form')).toBeNull();
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="household-record-filter-action"]')?.click());
+    expect(document.body.querySelector('[data-testid="household-record-filters"]')).not.toBeNull();
+    expect(document.body.querySelector<HTMLSelectElement>('select[name="type"]')?.value).toBe('sub');
+    expect(document.body.querySelector<HTMLSelectElement>('select[name="memberUserId"]')?.value).toBe('2');
+    await act(async () => document.body.querySelector<HTMLFormElement>('[data-testid="household-record-filters"]')?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+    expect(Object.fromEntries(new URLSearchParams(router.state.location.search))).toEqual({ keyword: '餐', memberUserId: '2', type: 'sub' });
+  });
+
+  it('uses the shared grouped record presentation on the standalone records route', async () => {
+    const { container, router } = renderPage(
+      '/households/household%2Fa/records',
+      '/households/:householdId/records',
+      createElement(HouseholdRecordsPage),
+    );
+
+    const recordRow = container.querySelector('[data-record-id="7"]');
+    expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
+    expect(recordRow?.classList).toContain('h-[55px]');
+    expect(recordRow?.textContent).toContain('records.memberAttribution');
+    expect(container.querySelector('[data-category-icon="餐"] use')?.getAttribute('xlink:href')).toBe('#icon-餐');
+    await act(async () => recordRow?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(router.state.location.pathname).toBe('/households/household%2Fa/records/7');
   });
 
   it('uses the decoded URL household id and opens the family record detail', async () => {
