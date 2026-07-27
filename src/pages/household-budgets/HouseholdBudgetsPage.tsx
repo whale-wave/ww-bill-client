@@ -107,9 +107,10 @@ const BudgetContent: FC<{ household: Household }> = ({ household }) => {
     if (getApiErrorStatus(error) === 409) {
       await query.refetch();
       void Toast.show({ content: t('common.conflict'), icon: 'fail' });
-      return;
+      return true;
     }
     void Toast.show({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
+    return false;
   };
 
   const closeEditor = () => {
@@ -156,7 +157,9 @@ const BudgetContent: FC<{ household: Household }> = ({ household }) => {
       void Toast.show({ content: t('budget.saved'), icon: 'success' });
     }
     catch (error) {
-      await handleError(error);
+      const isConflict = await handleError(error);
+      if (isConflict)
+        closeEditor();
     }
   };
 

@@ -135,6 +135,49 @@ function renderPage(pathname: string, routePath: string, element: ReactNode) {
   return { container, router };
 }
 
+function getBudgetModal(container: HTMLElement) {
+  return container.querySelector<HTMLElement>('.adm-modal')
+    ?? document.body.querySelector<HTMLElement>('.adm-modal');
+}
+
+function setBudgetAmount(modal: HTMLElement | null | undefined, value: string) {
+  const amount = modal?.querySelector<HTMLInputElement>('input[name="householdBudgetAmount"]');
+  if (!amount)
+    return;
+  act(() => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(amount, value);
+    amount.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+}
+
+async function confirmBudgetModal(modal: HTMLElement | null | undefined) {
+  await act(async () => modal?.querySelectorAll<HTMLElement>('.adm-modal-button')[0]?.click());
+}
+
+function householdCategoryOverview(version = 7): HouseholdBudgetOverview {
+  return {
+    ...budget,
+    availableCategories: [{
+      categoryKey: 'food',
+      categoryName: 'Dining',
+      iconKey: 'food',
+    }],
+    categories: [{
+      budget: {
+        ...budget.summary.budget!,
+        categoryKey: 'food',
+        categoryName: 'Dining',
+        iconKey: 'food',
+        id: 'category-budget-1',
+        version,
+      },
+      remaining: '70.00',
+      remainingPercent: 0.7,
+      spent: '30.00',
+    }],
+  };
+}
+
 beforeEach(() => {
   Object.values(hooks).forEach(mock => mock.mockReset());
   hooks.useMyHouseholdQuery.mockReturnValue(query(household));
@@ -223,16 +266,11 @@ describe('household budget and charts', () => {
     expect(actionSheet).toHaveBeenCalledOnce();
     act(() => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
 
-    const modal = container.querySelector<HTMLElement>('.adm-modal') ?? document.body.querySelector<HTMLElement>('.adm-modal');
+    const modal = getBudgetModal(container);
     const amount = modal?.querySelector<HTMLInputElement>('input[name="householdBudgetAmount"]');
     expect(amount?.value).toBe('10000.00');
-    if (amount) {
-      act(() => {
-        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(amount, '12000');
-        amount.dispatchEvent(new Event('input', { bubbles: true }));
-      });
-    }
-    await act(async () => modal?.querySelectorAll<HTMLElement>('.adm-modal-button')[0]?.click());
+    setBudgetAmount(modal, '12000');
+    await confirmBudgetModal(modal);
 
     expect(hooks.upsertBudget).toHaveBeenCalledWith({
       data: {
@@ -240,6 +278,117 @@ describe('household budget and charts', () => {
         periodStart: expect.stringMatching(/^\d{4}-\d{2}-01$/),
         periodType: HouseholdBudgetPeriodType.MONTH,
         version: 2,
+      },
+      householdId: 'household/a',
+    });
+  });
+
+  it('creates a summary without an optimistic version', async () => {
+    hooks.upsertBudget.mockResolvedValue({ data: {} });
+    hooks.useHouseholdBudgetsQuery.mockReturnValue(query({
+      ...budget,
+      summary: {
+        ...budget.summary,
+        amount: '0.00',
+        budget: null,
+        remaining: '0.00',
+        remainingPercent: null,
+      },
+    }));
+    const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-create-summary]')?.click());
+    const modal = getBudgetModal(container);
+    setBudgetAmount(modal, '8000');
+    await confirmBudgetModal(modal);
+
+    expect(hooks.upsertBudget).toHaveBeenCalledWith({
+      data: {
+        amount: '8000',
+        periodStart: expect.stringMatching(/^\d{4}-\d{2}-01$/),
+        periodType: HouseholdBudgetPeriodType.MONTH,
+      },
+      householdId: 'household/a',
+    });
+  });
+
+  it('deletes the summary with its optimistic version', async () => {
+    hooks.deleteBudget.mockResolvedValue({ data: { deleted: true, id: 'budget-1' } });
+    const actionSheet = vi.spyOn(ActionSheet, 'show').mockReturnValue({ close: vi.fn() });
+    vi.spyOn(Dialog, 'confirm').mockResolvedValue(true);
+    const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-id="budget-1"]')?.click());
+    await act(async () => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'delete')?.onClick?.());
+    await act(async () => Promise.resolve());
+
+    expect(hooks.deleteBudget).toHaveBeenCalledWith({
+      budgetId: 'budget-1',
+      householdId: 'household/a',
+      version: 2,
+    });
+  });
+
+  it('closes a stale summary editor after conflict and retries with the refreshed version', async () => {
+    const conflict = { message: 'conflict', statusCode: 409 };
+    const refreshedBudget: HouseholdBudgetOverview = {
+      ...budget,
+      summary: {
+        ...budget.summary,
+        amount: '11000.00',
+        budget: {
+          ...budget.summary.budget!,
+          amount: '11000.00',
+          version: 3,
+        },
+      },
+    };
+    const refetch = vi.fn(async () => {
+      hooks.useHouseholdBudgetsQuery.mockReturnValue({
+        ...query(refreshedBudget),
+        refetch,
+      });
+      return { data: refreshedBudget };
+    });
+    hooks.useHouseholdBudgetsQuery.mockReturnValue({
+      ...query(budget),
+      refetch,
+    });
+    hooks.upsertBudget
+      .mockRejectedValueOnce(conflict)
+      .mockResolvedValueOnce({ data: refreshedBudget.summary.budget });
+    const actionSheet = vi.spyOn(ActionSheet, 'show').mockReturnValue({ close: vi.fn() });
+    vi.spyOn(Toast, 'show').mockReturnValue({ close: vi.fn() });
+    const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-id="budget-1"]')?.click());
+    act(() => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
+    setBudgetAmount(getBudgetModal(container), '12000');
+    await confirmBudgetModal(getBudgetModal(container));
+
+    expect(refetch).toHaveBeenCalledOnce();
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-id="budget-1"]')?.click());
+    act(() => actionSheet.mock.calls[1]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
+    expect(getBudgetModal(container)?.querySelector<HTMLInputElement>('input[name="householdBudgetAmount"]')?.value).toBe('11000.00');
+    setBudgetAmount(getBudgetModal(container), '12500');
+    await confirmBudgetModal(getBudgetModal(container));
+
+    expect(hooks.upsertBudget).toHaveBeenNthCalledWith(1, {
+      data: {
+        amount: '12000',
+        periodStart: expect.stringMatching(/^\d{4}-\d{2}-01$/),
+        periodType: HouseholdBudgetPeriodType.MONTH,
+        version: 2,
+      },
+      householdId: 'household/a',
+    });
+    expect(hooks.upsertBudget).toHaveBeenNthCalledWith(2, {
+      data: {
+        amount: '12500',
+        periodStart: expect.stringMatching(/^\d{4}-\d{2}-01$/),
+        periodType: HouseholdBudgetPeriodType.MONTH,
+        version: 3,
       },
       householdId: 'household/a',
     });
@@ -276,18 +425,12 @@ describe('household budget and charts', () => {
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
     act(() => container.querySelector<HTMLElement>('[data-budget-add-category]')?.click());
-    const modal = container.querySelector<HTMLElement>('.adm-modal') ?? document.body.querySelector<HTMLElement>('.adm-modal');
+    const modal = getBudgetModal(container);
     expect(modal?.textContent).toContain('Travel');
     expect(modal?.textContent).not.toContain('Dining');
     act(() => modal?.querySelector<HTMLElement>('.adm-selector-item')?.click());
-    const amount = modal?.querySelector<HTMLInputElement>('input[name="householdBudgetAmount"]');
-    if (amount) {
-      act(() => {
-        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(amount, '500');
-        amount.dispatchEvent(new Event('input', { bubbles: true }));
-      });
-    }
-    await act(async () => modal?.querySelectorAll<HTMLElement>('.adm-modal-button')[0]?.click());
+    setBudgetAmount(modal, '500');
+    await confirmBudgetModal(modal);
 
     expect(hooks.upsertBudget).toHaveBeenCalledWith({
       data: {
@@ -299,6 +442,84 @@ describe('household budget and charts', () => {
         periodType: HouseholdBudgetPeriodType.MONTH,
       },
       householdId: 'household/a',
+    });
+  });
+
+  it('edits a category and retries with refreshed snapshots and version after conflict', async () => {
+    const initialOverview = householdCategoryOverview(7);
+    const refreshedOverview = householdCategoryOverview(8);
+    const conflict = { message: 'conflict', statusCode: 409 };
+    const refetch = vi.fn(async () => {
+      hooks.useHouseholdBudgetsQuery.mockReturnValue({
+        ...query(refreshedOverview),
+        refetch,
+      });
+      return { data: refreshedOverview };
+    });
+    hooks.useHouseholdBudgetsQuery.mockReturnValue({
+      ...query(initialOverview),
+      refetch,
+    });
+    hooks.upsertBudget
+      .mockRejectedValueOnce(conflict)
+      .mockResolvedValueOnce({ data: refreshedOverview.categories[0]?.budget });
+    const actionSheet = vi.spyOn(ActionSheet, 'show').mockReturnValue({ close: vi.fn() });
+    vi.spyOn(Toast, 'show').mockReturnValue({ close: vi.fn() });
+    const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-budget-1"]')?.click());
+    act(() => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
+    setBudgetAmount(getBudgetModal(container), '600');
+    await confirmBudgetModal(getBudgetModal(container));
+
+    expect(refetch).toHaveBeenCalledOnce();
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-budget-1"]')?.click());
+    act(() => actionSheet.mock.calls[1]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
+    setBudgetAmount(getBudgetModal(container), '650');
+    await confirmBudgetModal(getBudgetModal(container));
+
+    expect(hooks.upsertBudget).toHaveBeenNthCalledWith(1, {
+      data: {
+        amount: '600',
+        categoryKey: 'food',
+        categoryNameSnapshot: 'Dining',
+        iconKeySnapshot: 'food',
+        periodStart: expect.stringMatching(/^\d{4}-\d{2}-01$/),
+        periodType: HouseholdBudgetPeriodType.MONTH,
+        version: 7,
+      },
+      householdId: 'household/a',
+    });
+    expect(hooks.upsertBudget).toHaveBeenNthCalledWith(2, {
+      data: {
+        amount: '650',
+        categoryKey: 'food',
+        categoryNameSnapshot: 'Dining',
+        iconKeySnapshot: 'food',
+        periodStart: expect.stringMatching(/^\d{4}-\d{2}-01$/),
+        periodType: HouseholdBudgetPeriodType.MONTH,
+        version: 8,
+      },
+      householdId: 'household/a',
+    });
+  });
+
+  it('deletes a category with its optimistic version', async () => {
+    hooks.deleteBudget.mockResolvedValue({ data: { deleted: true, id: 'category-budget-1' } });
+    hooks.useHouseholdBudgetsQuery.mockReturnValue(query(householdCategoryOverview(7)));
+    const actionSheet = vi.spyOn(ActionSheet, 'show').mockReturnValue({ close: vi.fn() });
+    vi.spyOn(Dialog, 'confirm').mockResolvedValue(true);
+    const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-budget-1"]')?.click());
+    await act(async () => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'delete')?.onClick?.());
+    await act(async () => Promise.resolve());
+
+    expect(hooks.deleteBudget).toHaveBeenCalledWith({
+      budgetId: 'category-budget-1',
+      householdId: 'household/a',
+      version: 7,
     });
   });
 
