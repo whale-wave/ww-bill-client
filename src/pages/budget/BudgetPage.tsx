@@ -1,15 +1,14 @@
 import type { BudgetInfo } from '@/entities/budget';
 import type { CategoryEntity } from '@/entities/category';
 import type { BudgetModelModelType } from '@/pages/budget/ui';
-import { ActionSheet, Button, Dialog, ErrorBlock, Skeleton } from 'antd-mobile';
-import { AddOutline } from 'antd-mobile-icons';
+import { ActionSheet, Dialog } from 'antd-mobile';
 import classNames from 'classnames';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   BudgetEntityLevel,
   BudgetEntityType,
-  BudgetItem,
+  BudgetPresentation,
   useDeleteBudgetCategoryByBudgetIdMutation,
   useGetBudgetInfoQuery,
   usePostBudgetClearMutation,
@@ -17,7 +16,6 @@ import {
 import { BudgetPageContext } from '@/pages/budget/model/budgetPageContext.ts';
 import { BudgetModel, BudgetModelModelTypeMap, BudgetTop } from '@/pages/budget/ui';
 import { useTranslation } from '@/shared/i18n';
-import { BottomAction } from '@/shared/ui';
 import style from './index.module.scss';
 
 interface BudgetProps {
@@ -114,6 +112,17 @@ const Budget: React.FC<BudgetProps> = () => {
     navigate(`/budget/category/${budgetPageContentValue.budgetEntityType}`, { replace: true });
   }, [budgetPageContentValue.budgetEntityType, navigate]);
 
+  const handleSummaryEdit = useCallback(() => {
+    if (data?.summaryBudget)
+      onBudgetClick(data.summaryBudget, BudgetEntityLevel.SUMMARY)();
+  }, [data?.summaryBudget, onBudgetClick]);
+
+  const handleCategoryEdit = useCallback((budgetId: string) => {
+    const item = data?.categoryBudgets?.find(budget => budget.id === budgetId);
+    if (item)
+      onBudgetClick(item, BudgetEntityLevel.CATEGORY)();
+  }, [data?.categoryBudgets, onBudgetClick]);
+
   return (
     <div className={classNames('page-new bg-[#f6f6f6] fixed top-0 left-0 h-screen w-full', style['budget-page'])} ref={dropDownWrapperRef}>
       <BudgetPageContext.Provider value={budgetPageContentValue}>
@@ -131,68 +140,16 @@ const Budget: React.FC<BudgetProps> = () => {
         )}
         <BudgetTop dropDownWrapperRef={dropDownWrapperRef} />
         <div className="flex flex-grow flex-col overflow-auto min-h-0">
-          {
-            isLoading
-              ? (
-                  <div className="flex-grow flex flex-col px-4">
-                    <Skeleton.Title animated />
-                    <Skeleton.Paragraph lineCount={5} animated />
-                  </div>
-                )
-              : !data?.summaryBudget
-                  ? (
-                      <div className="flex-grow flex flex-col justify-center items-center space-y-4">
-                        <div
-                          className="flex flex-col justify-center items-center space-y-4"
-                          style={{
-                            transform: 'translateY(-30%)',
-                          }}
-                        >
-                          <ErrorBlock status="empty" title={t('emptyBudget')} description={false} />
-                          <Button shape="rounded" color="primary" className="flex items-center w-[200px]" onClick={onAddSummaryBudget}>
-                            <AddOutline />
-                            <span>{t('addBudget')}</span>
-                          </Button>
-                        </div>
-                      </div>
-                    )
-                  : (
-                      <div className="flex flex-grow flex-col">
-                        <BudgetItem budgetEntityType={budgetEntityType} className="mb-3" data={data.summaryBudget} onClick={onBudgetClick(data.summaryBudget, BudgetEntityLevel.SUMMARY)} />
-                        {!data?.categoryBudgets?.length
-                          ? <div className="flex-grow bg-[#fff] flex justify-center items-center mb-[50px]"><ErrorBlock status="empty" title={t('emptyCategoryBudget')} description="" /></div>
-                          : (
-                              <div className="flex flex-grow flex-col overflow-auto min-h-0 pb-[50px]">
-                                <div className="bg-[#fff] p-3 text-base">{t('categoryBudget')}</div>
-                                {data.categoryBudgets.map((item, index) => (
-                                  <BudgetItem
-                                    index={index}
-                                    lastIndex={data.categoryBudgets!.length - 1}
-                                    budgetEntityType={budgetEntityType}
-                                    key={item.category!.id}
-                                    type={BudgetEntityLevel.CATEGORY}
-                                    data={item}
-                                    onClick={onBudgetClick(item, BudgetEntityLevel.CATEGORY)}
-                                  />
-                                ))}
-                              </div>
-                            )}
-                        <BottomAction
-                          className="h-[50px] shadow-md"
-                          actions={[{
-                            key: 'add',
-                            render: () => (
-                              <div className="flex items-center">
-                                <AddOutline />
-                                <span>{t('addCategoryBudget')}</span>
-                              </div>
-                            ),
-                            onClick: onGoToCreateBudgetCategoryPage,
-                          }]}
-                        />
-                      </div>
-                    )
-          }
+          <BudgetPresentation
+            budgetEntityType={budgetEntityType}
+            categories={data?.categoryBudgets ?? []}
+            isLoading={isLoading}
+            onAddCategory={onGoToCreateBudgetCategoryPage}
+            onCategoryEdit={handleCategoryEdit}
+            onSummaryCreate={onAddSummaryBudget}
+            onSummaryEdit={handleSummaryEdit}
+            summary={data?.summaryBudget}
+          />
         </div>
       </BudgetPageContext.Provider>
     </div>

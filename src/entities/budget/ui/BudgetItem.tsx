@@ -1,4 +1,3 @@
-import type { BudgetInfo } from '../api';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import React, { memo } from 'react';
@@ -7,11 +6,24 @@ import { Icon } from '@/shared/ui';
 import { BudgetEntityLevel, BudgetEntityType } from '../api';
 import BudgetItemContent from './BudgetItemContent';
 
+export interface BudgetPresentationItem {
+  id: string;
+  title?: string;
+  category?: {
+    icon?: string;
+    name: string;
+  };
+  budgetAmount: number | string;
+  amount: number | string;
+  remaining: number | string;
+  remainingPercentage?: number | string | null;
+}
+
 export interface BudgetItemProps {
   className?: string;
   budgetEntityType: BudgetEntityType;
   type?: BudgetEntityLevel;
-  data: BudgetInfo;
+  data: BudgetPresentationItem;
   style?: React.CSSProperties;
   index?: number;
   lastIndex?: number;
@@ -28,6 +40,7 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
         'pl-3': isSummaryBudget,
         'pl-5': !isSummaryBudget,
       })}
+      data-budget-id={data.id}
       style={style}
       onClick={onClick}
     >
@@ -39,17 +52,17 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
           { isSummaryBudget
             ? (
                 <div className="text-base">
-                  {budgetEntityType === BudgetEntityType.MONTH
+                  {data.title ?? (budgetEntityType === BudgetEntityType.MONTH
                     ? t('item.summary.month', { month: dayjs().format('MM') })
-                    : t('item.summary.year', { year: dayjs().format('YYYY') })}
+                    : t('item.summary.year', { year: dayjs().format('YYYY') }))}
                 </div>
               )
             : (
                 <div className="flex items-center justify-center space-x-2">
                   <div className="rounded-full text-base bg-[#f2f2f2] w-[22px] h-[22px] flex justify-center items-center">
-                    <Icon name={data.category!.icon} />
+                    <Icon name={data.category?.icon ?? 'bill'} />
                   </div>
-                  <div className="flex items-center" style={{ transform: 'translateY(0px)' }}>{data.category!.name}</div>
+                  <div className="flex items-center">{data.category?.name}</div>
                 </div>
               )}
         </div>

@@ -7,7 +7,7 @@ import { i18n } from '@/shared/i18n';
 import { useChart } from '@/shared/lib/use-chart';
 
 interface RingChartProps {
-  percentage?: string;
+  percentage?: number | string | null;
   isSummaryBudget?: boolean;
 }
 
@@ -15,7 +15,7 @@ export const RingChart: FC<RingChartProps> = memo(({ percentage, isSummaryBudget
   const { chartDomRef, myChart } = useChart();
 
   useLayoutEffect(() => {
-    if (!percentage)
+    if (percentage === undefined || percentage === null || percentage === '')
       return;
 
     const numberPercentage = Number(percentage);

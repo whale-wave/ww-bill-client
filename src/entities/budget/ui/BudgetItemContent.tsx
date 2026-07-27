@@ -1,11 +1,11 @@
-import type { BudgetInfo } from '../api';
+import type { BudgetPresentationItem } from './BudgetItem';
 import React, { memo } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { RingChart } from './RingChart';
 
 interface BudgetItemContentProps {
   isSummaryBudget: boolean;
-  data?: BudgetInfo;
+  data?: BudgetPresentationItem;
 }
 
 const BudgetItemContent: React.FC<BudgetItemContentProps> = memo((props) => {

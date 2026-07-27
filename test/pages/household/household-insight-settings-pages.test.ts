@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Household, HouseholdBudgetOverview, HouseholdChartResult, HouseholdMember } from '@/entities/household';
+import { ActionSheet, DatePicker, Dialog, Toast } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -48,7 +49,10 @@ vi.mock('@/entities/household', async importOriginal => ({
 
 vi.mock('@/entities/user', () => ({ useGetUserUserInfoQuery: hooks.useUserQuery }));
 
-vi.mock('@/shared/i18n', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
+vi.mock('@/shared/i18n', () => ({
+  i18n: { t: (key: string) => key },
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
 vi.mock('@/shared/lib/use-chart', () => ({
   useChart: () => ({ chartDomRef: { current: null }, myChart: { setOption: hooks.chartSetOption } }),
 }));
@@ -148,19 +152,87 @@ beforeEach(() => {
 afterEach(() => {
   cleanup?.();
   cleanup = undefined;
+  act(() => Toast.clear());
+  vi.restoreAllMocks();
   vi.unstubAllEnvs();
 });
 
 describe('household budget and charts', () => {
-  it('updates the total monthly budget with the API version', async () => {
-    hooks.upsertBudget.mockResolvedValue({ data: budget.summary.budget });
+  it('maps the household response into the default budget rows and ring percentage', () => {
+    hooks.useHouseholdBudgetsQuery.mockReturnValue(query({
+      ...budget,
+      categories: [{
+        budget: {
+          ...budget.summary.budget!,
+          categoryKey: 'food',
+          categoryName: 'Dining',
+          iconKey: 'food',
+          id: 'category-budget-1',
+        },
+        remaining: '70.00',
+        remainingPercent: 0.7,
+        spent: '30.00',
+      }],
+    }));
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
-    const amount = container.querySelector<HTMLInputElement>('input[name="totalAmount"]');
+
+    expect(container.querySelector('.adm-dropdown-item-title')).not.toBeNull();
+    expect(container.querySelector('[data-budget-id="budget-1"]')).not.toBeNull();
+    expect(container.querySelector('[data-budget-id="category-budget-1"]')?.textContent).toContain('Dining');
+    expect(container.querySelector('[data-budget-add-category]')?.closest('.fixed')).not.toBeNull();
+    expect(container.querySelector('[data-testid="household-total-budget-form"]')).toBeNull();
+    expect(container.querySelector('[data-period-type]')).toBeNull();
+    expect(container.querySelector('[style*="conic-gradient"]')).toBeNull();
+    expect(hooks.chartSetOption.mock.calls[0]?.[0]).toEqual(expect.objectContaining({
+      series: expect.arrayContaining([
+        expect.objectContaining({
+          data: expect.arrayContaining([
+            expect.objectContaining({ value: 90 }),
+          ]),
+        }),
+      ]),
+    }));
+  });
+
+  it('keeps yearly budget reads and writes pinned to January 1', async () => {
+    const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
+    await act(async () => container.querySelector<HTMLElement>('.adm-dropdown-item-title')?.click());
+    await act(async () => (
+      container.querySelector<HTMLElement>('[data-budget-type="1"]')
+      ?? document.body.querySelector<HTMLElement>('[data-budget-type="1"]')
+    )?.click());
+
+    expect(hooks.useHouseholdBudgetsQuery).toHaveBeenLastCalledWith({
+      params: {
+        filters: {
+          periodStart: expect.stringMatching(/^\d{4}-01-01$/),
+          periodType: HouseholdBudgetPeriodType.YEAR,
+        },
+        householdId: 'household/a',
+      },
+      queryOptions: { enabled: true },
+    });
+  });
+
+  it('edits the summary in the default action-sheet and modal rhythm with its version', async () => {
+    hooks.upsertBudget.mockResolvedValue({ data: budget.summary.budget });
+    const actionSheet = vi.spyOn(ActionSheet, 'show').mockReturnValue({ close: vi.fn() });
+    const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-id="budget-1"]')?.click());
+    expect(actionSheet).toHaveBeenCalledOnce();
+    act(() => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
+
+    const modal = container.querySelector<HTMLElement>('.adm-modal') ?? document.body.querySelector<HTMLElement>('.adm-modal');
+    const amount = modal?.querySelector<HTMLInputElement>('input[name="householdBudgetAmount"]');
+    expect(amount?.value).toBe('10000.00');
     if (amount) {
-      amount.value = '12000';
-      amount.dispatchEvent(new Event('input', { bubbles: true }));
+      act(() => {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(amount, '12000');
+        amount.dispatchEvent(new Event('input', { bubbles: true }));
+      });
     }
-    await act(async () => container.querySelector<HTMLFormElement>('[data-testid="household-total-budget-form"]')?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+    await act(async () => modal?.querySelectorAll<HTMLElement>('.adm-modal-button')[0]?.click());
 
     expect(hooks.upsertBudget).toHaveBeenCalledWith({
       data: {
@@ -173,19 +245,114 @@ describe('household budget and charts', () => {
     });
   });
 
-  it('keeps yearly budget reads and writes pinned to January 1', async () => {
-    hooks.upsertBudget.mockResolvedValue({ data: budget.summary.budget });
+  it('creates a category from only the API available-category choices', async () => {
+    hooks.upsertBudget.mockResolvedValue({ data: {} });
+    hooks.useHouseholdBudgetsQuery.mockReturnValue(query({
+      ...budget,
+      availableCategories: [
+        {
+          categoryKey: 'food',
+          categoryName: 'Dining',
+          iconKey: 'food',
+        },
+        {
+          categoryKey: 'travel',
+          categoryName: 'Travel',
+          iconKey: 'travel',
+        },
+      ],
+      categories: [{
+        budget: {
+          ...budget.summary.budget!,
+          categoryKey: 'food',
+          categoryName: 'Dining',
+          id: 'category-budget-1',
+        },
+        remaining: '70.00',
+        remainingPercent: 0.7,
+        spent: '30.00',
+      }],
+    }));
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
-    await act(async () => container.querySelector<HTMLButtonElement>('[data-period-type="YEAR"]')?.click());
-    const period = container.querySelector<HTMLInputElement>('input[aria-label="budget-period"]');
-    if (period) {
-      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(period, '2027-07');
-      period.dispatchEvent(new Event('input', { bubbles: true }));
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-add-category]')?.click());
+    const modal = container.querySelector<HTMLElement>('.adm-modal') ?? document.body.querySelector<HTMLElement>('.adm-modal');
+    expect(modal?.textContent).toContain('Travel');
+    expect(modal?.textContent).not.toContain('Dining');
+    act(() => modal?.querySelector<HTMLElement>('.adm-selector-item')?.click());
+    const amount = modal?.querySelector<HTMLInputElement>('input[name="householdBudgetAmount"]');
+    if (amount) {
+      act(() => {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(amount, '500');
+        amount.dispatchEvent(new Event('input', { bubbles: true }));
+      });
     }
+    await act(async () => modal?.querySelectorAll<HTMLElement>('.adm-modal-button')[0]?.click());
+
+    expect(hooks.upsertBudget).toHaveBeenCalledWith({
+      data: {
+        amount: '500',
+        categoryKey: 'travel',
+        categoryNameSnapshot: 'Travel',
+        iconKeySnapshot: 'travel',
+        periodStart: expect.stringMatching(/^\d{4}-\d{2}-01$/),
+        periodType: HouseholdBudgetPeriodType.MONTH,
+      },
+      householdId: 'household/a',
+    });
+  });
+
+  it('deletes a category with its version and refetches on conflict', async () => {
+    const refetch = vi.fn();
+    const conflict = { message: 'conflict', statusCode: 409 };
+    hooks.deleteBudget.mockRejectedValue(conflict);
+    hooks.useHouseholdBudgetsQuery.mockReturnValue({
+      ...query({
+        ...budget,
+        categories: [{
+          budget: {
+            ...budget.summary.budget!,
+            categoryKey: 'food',
+            categoryName: 'Dining',
+            id: 'category-budget-1',
+            version: 7,
+          },
+          remaining: '70.00',
+          remainingPercent: 0.7,
+          spent: '30.00',
+        }],
+      }),
+      refetch,
+    });
+    const actionSheet = vi.spyOn(ActionSheet, 'show').mockReturnValue({ close: vi.fn() });
+    vi.spyOn(Dialog, 'confirm').mockResolvedValue(true);
+    vi.spyOn(Toast, 'show').mockReturnValue({ close: vi.fn() });
+    const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-budget-1"]')?.click());
+    await act(async () => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'delete')?.onClick?.());
+    await act(async () => Promise.resolve());
+
+    expect(hooks.deleteBudget).toHaveBeenCalledWith({
+      budgetId: 'category-budget-1',
+      householdId: 'household/a',
+      version: 7,
+    });
+    expect(refetch).toHaveBeenCalledOnce();
+  });
+
+  it('keeps a selected historical month in household budget reads', async () => {
+    vi.spyOn(DatePicker, 'prompt').mockResolvedValue(new Date(2027, 2, 1));
+    const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
+
+    await act(async () => container.querySelector<HTMLElement>('[data-budget-period-start]')?.click());
 
     expect(hooks.useHouseholdBudgetsQuery).toHaveBeenLastCalledWith({
       params: {
-        filters: { periodStart: '2027-01-01', periodType: HouseholdBudgetPeriodType.YEAR },
+        filters: {
+          periodStart: '2027-03-01',
+          periodType: HouseholdBudgetPeriodType.MONTH,
+        },
         householdId: 'household/a',
       },
       queryOptions: { enabled: true },
