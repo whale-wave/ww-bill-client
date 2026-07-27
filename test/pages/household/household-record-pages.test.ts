@@ -98,7 +98,7 @@ function query<T>(data: T) {
   return { data, isError: false, isLoading: false, records: (data as HouseholdRecordsResult)?.data ?? [], refetch: hooks.refetchRecords };
 }
 
-function renderPage(pathname: string, routePath: string, element: ReactNode) {
+function renderPage(pathname: string, routePath: string, element: ReactNode, previousPath?: string) {
   const container = document.createElement('div');
   const root = createRoot(container);
   const router = createMemoryRouter([
@@ -112,7 +112,9 @@ function renderPage(pathname: string, routePath: string, element: ReactNode) {
     { path: '/ledgers/:ledgerId/records/:recordId', element: createElement('div', null, 'personal-record-target') },
     { path: '/households/:householdId/charts', element: createElement('div', null, 'charts-target') },
     { path: '/households/:householdId', element: createElement('div', null, 'home-target') },
-  ].filter((route, index, routes) => routes.findIndex(candidate => candidate.path === route.path) === index), { initialEntries: [pathname] });
+  ].filter((route, index, routes) => routes.findIndex(candidate => candidate.path === route.path) === index), {
+    initialEntries: previousPath ? [previousPath, pathname] : [pathname],
+  });
   act(() => root.render(createElement(RouterProvider, { router })));
   cleanup = () => act(() => root.unmount());
   return { container, router };
@@ -316,7 +318,7 @@ describe('household records', () => {
       { id: 'member-2', nickname: 'Partner', user: { id: 2, name: 'Partner' } },
     ]));
     const { container, router } = renderPage(
-      '/households/household%2Fa/records/search?keyword=%E9%A4%90&type=sub&memberUserId=2',
+      `/households/household%2Fa/records/search?keyword=%E9%A4%90&type=sub&memberUserId=2&startDate=2026-07-01&endDate=2026-07-31&categoryIds=1,2&tagIds=tag-a,tag-b&minAmount=10&maxAmount=90&policy=${FamilyRecordPolicy.SHARED_COUNTED}&countedOnly=true`,
       '/households/:householdId/records/search',
       createElement(HouseholdRecordSearchPage),
     );
@@ -331,8 +333,56 @@ describe('household records', () => {
     expect(document.body.querySelector('[data-testid="household-record-filters"]')).not.toBeNull();
     expect(document.body.querySelector<HTMLSelectElement>('select[name="type"]')?.value).toBe('sub');
     expect(document.body.querySelector<HTMLSelectElement>('select[name="memberUserId"]')?.value).toBe('2');
+    const filterForm = document.body.querySelector<HTMLElement>('[data-testid="household-record-filters"]');
+    const textControls = [...filterForm?.querySelectorAll<HTMLElement>('select, input:not([type="checkbox"])') ?? []];
+    expect(filterForm?.querySelector('.rounded-xl')).toBeNull();
+    expect(textControls.every(control => control.classList.contains('rounded-[5px]'))).toBe(true);
     await act(async () => document.body.querySelector<HTMLFormElement>('[data-testid="household-record-filters"]')?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
-    expect(Object.fromEntries(new URLSearchParams(router.state.location.search))).toEqual({ keyword: '餐', memberUserId: '2', type: 'sub' });
+    expect(Object.fromEntries(new URLSearchParams(router.state.location.search))).toEqual({
+      categoryIds: '1,2',
+      countedOnly: 'true',
+      endDate: '2026-07-31',
+      keyword: '餐',
+      maxAmount: '90',
+      memberUserId: '2',
+      minAmount: '10',
+      policy: FamilyRecordPolicy.SHARED_COUNTED,
+      startDate: '2026-07-01',
+      tagIds: 'tag-a,tag-b',
+      type: 'sub',
+    });
+  });
+
+  it('opens an encoded household detail route from a search result', async () => {
+    const { container, router } = renderPage(
+      '/households/household%2Fa/records/search?keyword=%E9%A4%90',
+      '/households/:householdId/records/search',
+      createElement(HouseholdRecordSearchPage),
+    );
+
+    await act(async () => container.querySelector<HTMLElement>('[data-record-id="7"]')?.click());
+
+    expect(router.state.location.pathname).toBe('/households/household%2Fa/records/7');
+  });
+
+  it.each([
+    ['loading', { data: undefined, isError: false, isLoading: true, refetch: vi.fn() }, 'household-loading'],
+    ['error', { data: undefined, isError: true, isLoading: false, refetch: vi.fn() }, 'household-error'],
+  ])('keeps a working search back control during scope %s', async (_state, scopeQuery, stateTestId) => {
+    hooks.useMyHouseholdQuery.mockReturnValue(scopeQuery);
+    const { container, router } = renderPage(
+      '/households/household%2Fa/records/search',
+      '/households/:householdId/records/search',
+      createElement(HouseholdRecordSearchPage),
+      '/households/previous',
+    );
+
+    const back = container.querySelector<HTMLElement>('.adm-search-bar-cancel-button');
+    expect(container.querySelector(`[data-testid="${stateTestId}"]`)).not.toBeNull();
+    expect(back).not.toBeNull();
+
+    await act(async () => back?.click());
+    expect(router.state.location.pathname).toBe('/households/previous');
   });
 
   it('uses the shared grouped record presentation on the standalone records route', async () => {
@@ -372,6 +422,7 @@ describe('household records', () => {
       params: { householdId: 'household/a', recordId: 7 },
       queryOptions: { enabled: true },
     });
+    expect(container.querySelectorAll('.bwm-nav-bar')).toHaveLength(1);
     expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
     expect(container.querySelector('[data-category-icon="餐"] use')?.getAttribute('xlink:href')).toBe('#icon-餐');
     expect(container.querySelector('.bg-primary')).toBeNull();
@@ -384,9 +435,59 @@ describe('household records', () => {
     expect(router.state.location.pathname).toBe('/households/household%2Fa/records/7/policy');
   });
 
+  it('uses the bill sprite for an uncategorised family record', () => {
+    hooks.useHouseholdRecordQuery.mockReturnValue(query({
+      ...record,
+      category: undefined,
+    }));
+    const { container } = renderPage(
+      '/households/household%2Fa/records/7',
+      '/households/:householdId/records/:recordId',
+      createElement(HouseholdRecordDetailPage),
+    );
+
+    expect(container.querySelector('[data-category-icon="bill"] use')?.getAttribute('xlink:href')).toBe('#icon-bill');
+  });
+
+  it.each([
+    [
+      'loading',
+      '/households/household%2Fa/records/7',
+      { data: undefined, isError: false, isLoading: true, refetch: hooks.refetchRecords },
+      'household-loading',
+    ],
+    [
+      'error',
+      '/households/household%2Fa/records/7',
+      { data: undefined, isError: true, isLoading: false, refetch: hooks.refetchRecords },
+      'household-error',
+    ],
+    [
+      'invalid',
+      '/households/household%2Fa/records/not-a-record',
+      { data: undefined, isError: false, isLoading: true, refetch: hooks.refetchRecords },
+      'household-error',
+    ],
+  ])('keeps a working detail back control during the %s state', async (_state, pathname, recordQuery, stateTestId) => {
+    hooks.useHouseholdRecordQuery.mockReturnValue(recordQuery);
+    const { container, router } = renderPage(
+      pathname,
+      '/households/:householdId/records/:recordId',
+      createElement(HouseholdRecordDetailPage),
+      '/households/previous',
+    );
+
+    const back = container.querySelector<HTMLElement>('.bwm-nav-bar-back');
+    expect(container.querySelector(`[data-testid="${stateTestId}"]`)).not.toBeNull();
+    expect(back).not.toBeNull();
+
+    await act(async () => back?.click());
+    expect(router.state.location.pathname).toBe('/households/previous');
+  });
+
   it('maps search URL filters directly into the records query', () => {
     renderPage(
-      '/households/household%2Fa/records/search?keyword=%E9%A4%90&type=sub&memberUserId=2&startDate=2026-07-01&endDate=2026-07-31',
+      `/households/household%2Fa/records/search?keyword=%E9%A4%90&type=sub&memberUserId=2&startDate=2026-07-01&endDate=2026-07-31&categoryIds=1,2&tagIds=tag-a,tag-b&minAmount=10&maxAmount=90&policy=${FamilyRecordPolicy.SHARED_COUNTED}&countedOnly=true`,
       '/households/:householdId/records/search',
       createElement(HouseholdRecordSearchPage),
     );
@@ -394,12 +495,18 @@ describe('household records', () => {
     expect(hooks.useInfiniteHouseholdRecordsQuery).toHaveBeenCalledWith({
       params: {
         filters: {
+          categoryIds: [1, 2],
+          countedOnly: true,
           endDate: '2026-07-31',
           keyword: '餐',
           limit: 50,
+          maxAmount: '90',
           memberUserId: 2,
+          minAmount: '10',
           offset: 0,
+          policy: FamilyRecordPolicy.SHARED_COUNTED,
           startDate: '2026-07-01',
+          tagIds: ['tag-a', 'tag-b'],
           type: 'sub',
         },
         householdId: 'household/a',

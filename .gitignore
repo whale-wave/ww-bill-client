@@ -23,6 +23,8 @@ yarn-lock.json
 
 /pnpm-global/
 
+.superpowers/sdd/
+
 .env
 
 .tokensave

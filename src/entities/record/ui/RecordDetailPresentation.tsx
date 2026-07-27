@@ -25,6 +25,7 @@ export interface RecordDetailPresentationProps {
   onBack: () => void;
   pinnedAction?: RecordDetailAction;
   rows: readonly RecordDetailRow[];
+  showNavigation?: boolean;
   supplementaryRows?: readonly RecordDetailRow[];
 }
 
@@ -35,13 +36,14 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
   onBack,
   pinnedAction,
   rows,
+  showNavigation = true,
   supplementaryRows = [],
 }) => {
   const detailRows = [...rows, ...supplementaryRows];
 
   return (
     <div className="page" data-record-detail-presentation>
-      <NavBar back={backLabel} backArrow={false} onBack={onBack} />
+      {showNavigation && <NavBar back={backLabel} backArrow={false} onBack={onBack} />}
       <div className={styles.top}>
         <div className={styles.main}>
           <div className={c(styles.icon, 'flex justify-center items-center')} data-category-icon={category.icon}>

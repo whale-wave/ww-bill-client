@@ -15,6 +15,7 @@ export interface BudgetPresentationProps {
   onCategoryEdit: (id: string) => void;
   onSummaryCreate: () => void;
   onSummaryEdit: () => void;
+  showCategoriesWithoutSummary?: boolean;
   summary?: BudgetPresentationItem;
 }
 
@@ -26,6 +27,7 @@ export const BudgetPresentation: React.FC<BudgetPresentationProps> = ({
   onCategoryEdit,
   onSummaryCreate,
   onSummaryEdit,
+  showCategoriesWithoutSummary = false,
   summary,
 }) => {
   const { t } = useTranslation('budget');
@@ -39,7 +41,7 @@ export const BudgetPresentation: React.FC<BudgetPresentationProps> = ({
     );
   }
 
-  if (!summary) {
+  if (!summary && !showCategoriesWithoutSummary) {
     return (
       <div className="flex flex-grow flex-col items-center justify-center space-y-4">
         <div className="flex -translate-y-[30%] flex-col items-center justify-center space-y-4">
@@ -61,12 +63,30 @@ export const BudgetPresentation: React.FC<BudgetPresentationProps> = ({
 
   return (
     <div className="flex flex-grow flex-col">
-      <BudgetItem
-        budgetEntityType={budgetEntityType}
-        className="mb-3"
-        data={summary}
-        onClick={onSummaryEdit}
-      />
+      {summary
+        ? (
+            <BudgetItem
+              budgetEntityType={budgetEntityType}
+              className="mb-3"
+              data={summary}
+              onClick={onSummaryEdit}
+            />
+          )
+        : (
+            <div className="mb-3 flex flex-shrink-0 flex-col items-center justify-center space-y-4 bg-white py-5">
+              <ErrorBlock status="empty" title={t('emptyBudget')} description={false} />
+              <Button
+                className="flex w-[200px] items-center"
+                color="primary"
+                data-budget-create-summary
+                onClick={onSummaryCreate}
+                shape="rounded"
+              >
+                <AddOutline />
+                <span>{t('addBudget')}</span>
+              </Button>
+            </div>
+          )}
       {categories.length === 0
         ? (
             <div className="mb-[50px] flex flex-grow items-center justify-center bg-[#fff]">

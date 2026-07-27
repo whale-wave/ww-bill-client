@@ -119,7 +119,7 @@ function query<T>(data: T) {
   return { data, isError: false, isLoading: false, refetch: vi.fn() };
 }
 
-function renderPage(pathname: string, routePath: string, element: ReactNode) {
+function renderPage(pathname: string, routePath: string, element: ReactNode, previousPath?: string) {
   const container = document.createElement('div');
   const root = createRoot(container);
   const router = createMemoryRouter([
@@ -129,7 +129,9 @@ function renderPage(pathname: string, routePath: string, element: ReactNode) {
     { path: '/households/:householdId/members', element: createElement('div', null, 'members-target') },
     { path: '/households/:householdId/export', element: createElement('div', null, 'export-target') },
     { path: '/households/:householdId/invitation', element: createElement('div', null, 'invite-target') },
-  ].filter((route, index, routes) => routes.findIndex(candidate => candidate.path === route.path) === index), { initialEntries: [pathname] });
+  ].filter((route, index, routes) => routes.findIndex(candidate => candidate.path === route.path) === index), {
+    initialEntries: previousPath ? [previousPath, pathname] : [pathname],
+  });
   act(() => root.render(createElement(RouterProvider, { router })));
   cleanup = () => act(() => root.unmount());
   return { container, router };
@@ -235,6 +237,44 @@ describe('household budget and charts', () => {
         }),
       ]),
     }));
+  });
+
+  it('keeps category budgets and actions available when the summary budget is missing', () => {
+    hooks.useHouseholdBudgetsQuery.mockReturnValue(query({
+      ...householdCategoryOverview(),
+      summary: {
+        ...budget.summary,
+        amount: '0.00',
+        budget: null,
+        remaining: '0.00',
+        remainingPercent: null,
+      },
+    }));
+    const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
+
+    expect(container.querySelector('[data-budget-create-summary]')).not.toBeNull();
+    expect(container.querySelector('[data-budget-id="category-budget-1"]')?.textContent).toContain('Dining');
+    expect(container.querySelector('[data-budget-add-category]')).not.toBeNull();
+  });
+
+  it.each([
+    ['loading', { data: undefined, isError: false, isLoading: true, refetch: vi.fn() }, 'household-loading'],
+    ['error', { data: undefined, isError: true, isLoading: false, refetch: vi.fn() }, 'household-error'],
+  ])('keeps a working budget back control during scope %s', async (_state, scopeQuery, stateTestId) => {
+    hooks.useMyHouseholdQuery.mockReturnValue(scopeQuery);
+    const { container, router } = renderPage(
+      '/households/household%2Fa/budgets',
+      '/households/:householdId/budgets',
+      createElement(HouseholdBudgetsPage),
+      '/household',
+    );
+
+    const back = container.querySelector<HTMLElement>('.bwm-nav-bar-back');
+    expect(container.querySelector(`[data-testid="${stateTestId}"]`)).not.toBeNull();
+    expect(back).not.toBeNull();
+
+    await act(async () => back?.click());
+    expect(router.state.location.pathname).toBe('/household');
   });
 
   it('keeps yearly budget reads and writes pinned to January 1', async () => {
@@ -440,6 +480,51 @@ describe('household budget and charts', () => {
         iconKeySnapshot: 'travel',
         periodStart: expect.stringMatching(/^\d{4}-\d{2}-01$/),
         periodType: HouseholdBudgetPeriodType.MONTH,
+      },
+      householdId: 'household/a',
+    });
+  });
+
+  it('keeps the original category snapshots and version when editing a category', async () => {
+    hooks.upsertBudget.mockResolvedValue({ data: {} });
+    hooks.useHouseholdBudgetsQuery.mockReturnValue(query({
+      ...householdCategoryOverview(7),
+      availableCategories: [
+        {
+          categoryKey: 'food',
+          categoryName: 'Dining',
+          iconKey: 'food',
+        },
+        {
+          categoryKey: 'travel',
+          categoryName: 'Travel',
+          iconKey: 'travel',
+        },
+      ],
+    }));
+    const actionSheet = vi.spyOn(ActionSheet, 'show').mockReturnValue({ close: vi.fn() });
+    const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-budget-1"]')?.click());
+    act(() => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
+
+    const modal = getBudgetModal(container);
+    const travelOption = [...modal?.querySelectorAll<HTMLElement>('.adm-selector-item') ?? []]
+      .find(option => option.textContent?.includes('Travel'));
+    expect(travelOption?.classList).toContain('adm-selector-item-disabled');
+    act(() => travelOption?.click());
+    setBudgetAmount(modal, '600');
+    await confirmBudgetModal(modal);
+
+    expect(hooks.upsertBudget).toHaveBeenCalledWith({
+      data: {
+        amount: '600',
+        categoryKey: 'food',
+        categoryNameSnapshot: 'Dining',
+        iconKeySnapshot: 'food',
+        periodStart: expect.stringMatching(/^\d{4}-\d{2}-01$/),
+        periodType: HouseholdBudgetPeriodType.MONTH,
+        version: 7,
       },
       householdId: 'household/a',
     });

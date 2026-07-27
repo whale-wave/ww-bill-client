@@ -192,6 +192,9 @@ describe('record editing page', () => {
 
     expect(container.querySelector('[data-testid="record-detail"]')?.textContent).toContain('晚餐');
     expect(container.querySelector('[data-testid="error"]')).toBeNull();
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-detail-back"]')?.click());
+    expect(navigate).toHaveBeenCalledWith(-1);
   });
 
   it('rejects malformed route state before rendering record detail children', () => {
@@ -208,5 +211,33 @@ describe('record editing page', () => {
 
     expect(container.querySelector('[data-testid="error"]')).not.toBeNull();
     expectNoDetails(container);
+  });
+
+  it('rejects route state without the version required by record actions', () => {
+    location.state = {
+      amount: '88.00',
+      category: {
+        createdAt: '2026-07-16T00:00:00.000Z',
+        icon: 'food',
+        id: 1,
+        name: '餐饮',
+        updatedAt: '2026-07-16T00:00:00.000Z',
+      },
+      createdAt: '2026-07-16T12:30:00.000Z',
+      id: 9,
+      remark: '晚餐',
+      time: '2026-07-16T12:30:00.000Z',
+      type: 'sub',
+      updatedAt: '2026-07-16T12:30:00.000Z',
+    };
+    queryResult.data = undefined;
+    queryResult.isError = true;
+    queryResult.isLoading = false;
+
+    const { container } = renderPage();
+
+    expect(container.querySelector('[data-testid="error"]')).not.toBeNull();
+    expectNoDetails(container);
+    expect(navigate).not.toHaveBeenCalled();
   });
 });

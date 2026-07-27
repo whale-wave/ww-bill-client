@@ -113,6 +113,36 @@ describe('budget presentation', () => {
     expect(handleSummaryCreate).toHaveBeenCalledOnce();
   });
 
+  it('can preserve category rows and actions beside the missing-summary action', () => {
+    const handleSummaryCreate = vi.fn();
+    const handleCategoryEdit = vi.fn();
+    const container = render(createElement(BudgetPresentation, {
+      budgetEntityType: BudgetEntityType.MONTH,
+      categories: [{
+        amount: '30.00',
+        budgetAmount: '100.00',
+        category: { icon: 'food', name: 'Dining' },
+        id: 'category-1',
+        remaining: '70.00',
+        remainingPercentage: 70,
+      }],
+      onAddCategory: vi.fn(),
+      onCategoryEdit: handleCategoryEdit,
+      onSummaryCreate: handleSummaryCreate,
+      onSummaryEdit: vi.fn(),
+      showCategoriesWithoutSummary: true,
+    }));
+
+    expect(container.querySelector('[data-budget-create-summary]')).not.toBeNull();
+    expect(container.querySelector('[data-budget-id="category-1"]')?.textContent).toContain('Dining');
+    expect(container.querySelector('[data-budget-add-category]')).not.toBeNull();
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-create-summary]')?.click());
+    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-1"]')?.click());
+    expect(handleSummaryCreate).toHaveBeenCalledOnce();
+    expect(handleCategoryEdit).toHaveBeenCalledWith('category-1');
+  });
+
   it('uses the default category empty state and fixed add action', () => {
     const container = render(createElement(BudgetPresentation, {
       budgetEntityType: BudgetEntityType.YEAR,

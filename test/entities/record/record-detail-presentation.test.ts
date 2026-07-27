@@ -12,14 +12,27 @@ afterEach(() => {
 });
 
 describe('record detail presentation', () => {
+  it('omits supplementary content and actions when only required props are provided', () => {
+    const container = render(createElement(RecordDetailPresentation, {
+      backLabel: 'Back',
+      category: { icon: 'bill', name: 'Uncategorised' },
+      onBack: () => undefined,
+      rows: [{ label: 'Amount', value: '20.00' }],
+    }));
+
+    expect(container.querySelector('.bwm-nav-bar-back')).not.toBeNull();
+    expect(container.textContent).toContain('Amount');
+    expect(container.textContent).not.toContain('Member');
+    expect(container.querySelector('.bwm-fixed-pin')).toBeNull();
+    expect(container.querySelector('[data-record-detail-footer]')).toBeNull();
+  });
+
   it('keeps the default header, rows, share pin, and fixed action geometry while accepting household additions', () => {
-    const container = document.createElement('div');
-    const root = createRoot(container);
     const onBack = () => undefined;
     const onShare = () => undefined;
     const onPolicy = () => undefined;
 
-    act(() => root.render(createElement(MemoryRouter, null, createElement(RecordDetailPresentation, {
+    const container = render(createElement(RecordDetailPresentation, {
       backLabel: 'Back',
       category: { icon: 'food', name: 'Food' },
       footerActions: [
@@ -39,8 +52,7 @@ describe('record detail presentation', () => {
         { label: 'Tags', value: '#meal' },
         { label: 'Counted', value: 'Counted in household totals' },
       ],
-    }))));
-    cleanup = () => act(() => root.unmount());
+    }));
 
     expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
     expect(container.querySelector('[data-category-icon="food"] use')?.getAttribute('xlink:href')).toBe('#icon-food');
@@ -52,3 +64,11 @@ describe('record detail presentation', () => {
     expect(container.querySelector('[data-testid="household-record-policy"]')?.textContent).toBe('Visibility');
   });
 });
+
+function render(element: ReturnType<typeof createElement>) {
+  const container = document.createElement('div');
+  const root = createRoot(container);
+  act(() => root.render(createElement(MemoryRouter, null, element)));
+  cleanup = () => act(() => root.unmount());
+  return container;
+}

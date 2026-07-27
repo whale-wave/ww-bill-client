@@ -43,6 +43,10 @@ function isRecordEntry(value: unknown): value is RecordEntry {
     && (value.type === 'sub' || value.type === 'add')
     && 'updatedAt' in value
     && typeof value.updatedAt === 'string'
+    && 'version' in value
+    && typeof value.version === 'number'
+    && Number.isInteger(value.version)
+    && value.version >= 0
     && (!('status' in value) || typeof value.status === 'boolean');
 }
 

@@ -9,6 +9,7 @@ import { HouseholdPageState, HouseholdScopeBoundary } from '@/features/household
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
+import { NavBar } from '@/shared/ui';
 
 function formatDateTime(value: string) {
   const date = new Date(value);
@@ -57,7 +58,7 @@ const RecordDetail: FC<{
     <RecordDetailPresentation
       backLabel={t('common:nav.back')}
       category={{
-        icon: record.category?.icon ?? 'default',
+        icon: record.category?.icon ?? 'bill',
         name: record.category?.name ?? t('recordDetail.uncategorized'),
       }}
       footerActions={[
@@ -77,6 +78,7 @@ const RecordDetail: FC<{
         { label: t('recordDetail.date'), value: `${timeDate}  ${weekByDay}` },
         { label: t('recordDetail.remark'), value: record.remark || t('recordDetail.none') },
       ]}
+      showNavigation={false}
       supplementaryRows={[
         { label: t('recordDetail.member'), value: record.creator.name || record.creator.username || `#${record.creator.id}` },
         ...(tags ? [{ label: t('recordDetail.tags'), value: tags }] : []),
@@ -89,6 +91,7 @@ const RecordDetail: FC<{
 
 const HouseholdRecordDetailPage: FC = () => {
   const { t } = useTranslation('household');
+  const navigate = useNavigate();
   const params = useParams<{ householdId: string; recordId: string }>();
   const householdId = params.householdId ?? '';
   const recordId = Number(params.recordId);
@@ -99,21 +102,26 @@ const HouseholdRecordDetailPage: FC = () => {
   });
 
   return (
-    <HouseholdScopeBoundary householdId={householdId}>
-      {() => (
-        <HouseholdPageState
-          errorDescription={validParams ? t('common.loadErrorDescription') : t('recordDetail.invalid')}
-          errorTitle={validParams ? t('common.loadError') : t('recordDetail.notFound')}
-          isError={!validParams || recordQuery.isError || (!recordQuery.isLoading && !recordQuery.data)}
-          isLoading={recordQuery.isLoading}
-          loadingLabel={t('common.loading')}
-          onRetry={validParams ? () => void recordQuery.refetch() : undefined}
-          retryLabel={t('common.retry')}
-        >
-          {recordQuery.data && <RecordDetail householdId={householdId} record={recordQuery.data} />}
-        </HouseholdPageState>
-      )}
-    </HouseholdScopeBoundary>
+    <div className="page">
+      <NavBar back={t('common:nav.back')} backArrow={false} onBack={() => navigate(-1)} />
+      <div className="min-h-0 flex-grow overflow-hidden">
+        <HouseholdScopeBoundary householdId={householdId}>
+          {() => (
+            <HouseholdPageState
+              errorDescription={validParams ? t('common.loadErrorDescription') : t('recordDetail.invalid')}
+              errorTitle={validParams ? t('common.loadError') : t('recordDetail.notFound')}
+              isError={!validParams || recordQuery.isError || (!recordQuery.isLoading && !recordQuery.data)}
+              isLoading={validParams && recordQuery.isLoading}
+              loadingLabel={t('common.loading')}
+              onRetry={validParams ? () => void recordQuery.refetch() : undefined}
+              retryLabel={t('common.retry')}
+            >
+              {recordQuery.data && <RecordDetail householdId={householdId} record={recordQuery.data} />}
+            </HouseholdPageState>
+          )}
+        </HouseholdScopeBoundary>
+      </div>
+    </div>
   );
 };
 

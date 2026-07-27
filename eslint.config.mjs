@@ -14,7 +14,7 @@ export default antfu({
     html: true,
     markdown: false,
   },
-  ignores: ['tsconfig.app.json', '**/*.md', '.superpowers/**'],
+  ignores: ['tsconfig.app.json', '**/*.md'],
 }, {
   files: ['test/setup.ts'],
   rules: {
