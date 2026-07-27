@@ -49,3 +49,14 @@ Acceptance criteria:
 - The title and monthly figures are no longer split across a large hero plus a separate summary card.
 - The records are scannable by day, no raw icon names overflow their circles, and the last content remains clear of the fixed bottom navigation.
 - Household-specific navigation and data behavior remain unchanged.
+
+## Shared record-overview seam
+
+The personal detail home and household home use the same record-overview modules rather than maintaining parallel markup:
+
+- `RecordOverviewHeader` owns the title/action row, period and amount summary, responsive header geometry, and shortcut card. Personal and household pages provide title alignment, actions, period control, values, and shortcut data.
+- `RecordOverviewList` owns date-group headers, daily summaries, record icon/amount alignment, compact secondary text, and row interaction. Personal records and household family records are adapted into its view model.
+- `Top.tsx`, `List.tsx`, and `FamilyRecordList.tsx` remain adapters for their domain-specific state, routing, visibility, member attribution, and sharing-policy semantics.
+- `HouseholdRecordsPanelContent` accepts the already-owned household records query on the home page; other household surfaces keep using `HouseholdRecordsPanel`, which owns its query internally.
+
+This seam belongs to the record entity because both personal and household feature code consume it. It must not import page routing, household types, ledger queries, or translation hooks.

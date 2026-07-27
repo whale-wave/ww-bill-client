@@ -1,10 +1,11 @@
 import type { Dayjs } from 'dayjs';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 import type { numType } from './DetailPage';
 import dayjs from 'dayjs';
 import { CalendarDays, Eye, EyeOff, Search, Triangle } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { RecordOverviewHeader } from '@/entities/record';
 import { LedgerTitleSwitcher } from '@/features/ledger-switcher';
 import Precision from '@/pages/record/detail/ui';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -12,7 +13,6 @@ import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import { Icon } from '@/shared/ui';
 import { useVisibleAmount } from '../model/useVisibleAmount';
-import styles from './top.module.scss';
 
 interface TopProps {
   numExpendIncome: numType | [];
@@ -20,7 +20,20 @@ interface TopProps {
   setSelectTime: (val: Dayjs) => void;
 }
 
+function renderAmount(parts: string[] | undefined, isVisible: boolean): ReactNode {
+  if (!isVisible)
+    return <span className="font-bold">*******</span>;
+
+  return (
+    <span className="truncate">
+      <span className="text-lg leading-[19px]">{parts?.[0] ?? '0'}</span>
+      <span className="text-xs">{parts?.[1] ? `.${parts[1]}` : '.00'}</span>
+    </span>
+  );
+}
+
 const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
+  const [isMonthPickerVisible, setIsMonthPickerVisible] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation('record');
   const {
@@ -30,39 +43,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
     onToggleVisibleAmount,
   } = useVisibleAmount();
 
-  const tabs = [
-    {
-      name: t('bill:title'),
-      iconName: 'bill',
-      click: () => navigate(ROUTES_PATH.BILL.getPath()),
-    },
-    {
-      name: t('budget:title'),
-      iconName: 'budget',
-      click: () => {
-        navigate(ROUTES_PATH.BUDGET.getPath());
-      },
-    },
-    {
-      name: t('common:commonFunctions.assetSteward'),
-      iconName: 'asset-steward',
-      click: () => {
-        navigate(ROUTES_PATH.ASSET.getPath());
-      },
-    },
-  ];
-
-  const [visible1, setVisible1] = useState(false);
-
-  const handleOpenMonthPicker = () => {
-    setVisible1(true);
-  };
-
-  const handleCloseMonthPicker = () => {
-    setVisible1(false);
-  };
-
-  const handleChangeTimeDate = async (time: string) => {
+  const handleChangeTimeDate = (time: string) => {
     sessionStorage.setItem('timeDate', time);
     setSelectTime(dayjs(time));
   };
@@ -72,140 +53,95 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
   }, [navigate]);
 
   const handleCalendar = useCallback(() => {
-    if (dayjs().isSame(selectTime, 'month')) {
-      navigate(`/record-calendar?selectTime=${dayjs().valueOf()}`);
-    }
-    else {
-      navigate(`/record-calendar?selectTime=${selectTime.valueOf()}`);
-    }
+    const calendarTime = dayjs().isSame(selectTime, 'month') ? dayjs() : selectTime;
+    navigate(`/record-calendar?selectTime=${calendarTime.valueOf()}`);
   }, [navigate, selectTime]);
 
   return (
-    <div className={cn(styles.top, 'record-detail-top')}>
-      <LedgerTitleSwitcher className={styles.title} />
-      <div className={cn([styles.left, styles['top-text-1-wrapper']])}>
-        <div className={styles['top-text-1']}>{selectTime?.format('YYYY年')}</div>
-        <div className={cn(styles['left-bottom'])}>
-          <div
-            className="h-[40%] w-[1px] bg-black333 absolute -right-2 bottom-1 opacity-50"
+    <RecordOverviewHeader
+      actions={(
+        <>
+          <button className="border-0 bg-transparent p-0" data-testid="record-search-action" onClick={handleSearch} type="button">
+            <Search size={18} strokeWidth={2} />
+          </button>
+          <button className="border-0 bg-transparent p-0" data-testid="record-calendar-action" onClick={handleCalendar} type="button">
+            <CalendarDays size={18} strokeWidth={2} />
+          </button>
+        </>
+      )}
+      amountToggle={visibleAmountSwitch
+        ? (
+            <button
+              className="border-0 bg-transparent p-1 text-lg"
+              onClick={() => void onToggleVisibleAmount()}
+              type="button"
+            >
+              {!visibleAmount ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />}
+            </button>
+          )
+        : undefined}
+      metrics={[
+        {
+          key: 'income',
+          label: t('common:amount.income'),
+          value: renderAmount(numExpendIncome[1], isVisibleAmount),
+        },
+        {
+          key: 'expense',
+          label: t('common:amount.expend'),
+          value: renderAmount(numExpendIncome[0], isVisibleAmount),
+        },
+      ]}
+      period={{
+        label: selectTime.format('YYYY年'),
+        value: (
+          <button
+            className="relative flex items-end border-0 bg-transparent p-0 text-font-black"
+            onClick={() => setIsMonthPickerVisible(true)}
+            type="button"
           >
-          </div>
-          <div className={cn(styles['bottom-wrapper'], 'w-[300px]')} onClick={handleOpenMonthPicker}>
-            <span className={styles.month}>{selectTime?.format('MM')}</span>
-            {t('common:time.month')}
+            <span className="text-3xl leading-none">{selectTime.format('MM')}</span>
+            <span className="ml-1 text-base">{t('common:time.month')}</span>
             <Triangle
               className={cn(
-                'ml-1 mb-[2px] inline-block transition-transform duration-200 ease-in-out',
-                visible1 ? 'rotate-0' : 'rotate-180',
+                'mb-[2px] ml-1 transition-transform duration-200 ease-in-out',
+                isMonthPickerVisible ? 'rotate-0' : 'rotate-180',
               )}
               fill="currentColor"
               size={10}
               stroke="none"
             />
             <Precision
-              selectTime={selectTime}
-              visible1={visible1}
-              change={handleCloseMonthPicker}
+              change={() => setIsMonthPickerVisible(false)}
               changeTime={handleChangeTimeDate}
+              selectTime={selectTime}
+              visible1={isMonthPickerVisible}
             />
-          </div>
-        </div>
-      </div>
-      <div className={cn([styles.middle, styles['top-text-1-wrapper']])}>
-        <div className={styles['top-text-1']}>{t('common:amount.income')}</div>
-        <div className={styles['middle-bottom']}>
-          <div className={styles['bottom-wrapper']}>
-            {isVisibleAmount
-              ? (
-                  <>
-                    <span className={styles.big}>
-                      {numExpendIncome[1] && numExpendIncome[1].length
-                        ? numExpendIncome[1][0]
-                        : '0'}
-                    </span>
-                    <span className={styles.bigNum}>
-                      {numExpendIncome[1]
-                        && numExpendIncome[1].length
-                        && numExpendIncome[1][1] !== ''
-                        ? `.${numExpendIncome[1][1]}`
-                        : '.00'}
-                    </span>
-                  </>
-                )
-              : (
-                  <span className={cn(styles.big, 'font-bold')}>*******</span>
-                )}
-          </div>
-        </div>
-      </div>
-      <div className={cn([styles.right, styles['top-text-1-wrapper']])}>
-        <div className={styles['top-text-1']}>{t('common:amount.expend')}</div>
-        <div className={styles['right-bottom']}>
-          <div className={styles['bottom-wrapper']}>
-            {isVisibleAmount
-              ? (
-                  <>
-                    <span className={styles.big}>
-                      {numExpendIncome[0] && numExpendIncome[0].length
-                        ? numExpendIncome[0][0]
-                        : '0'}
-                    </span>
-                    <span className={styles.bigNum}>
-                      {numExpendIncome[0]
-                        && numExpendIncome[0].length
-                        && numExpendIncome[0][1] !== ''
-                        ? `.${numExpendIncome[0][1]}`
-                        : '.00'}
-                    </span>
-                  </>
-                )
-              : (
-                  <span className={cn(styles.big, 'font-bold')}>*******</span>
-                )}
-          </div>
-        </div>
-      </div>
-      {visibleAmountSwitch
-        ? (
-            <div
-              className="right-4 bottom-[116px] absolute text-lg px-1"
-              onClick={onToggleVisibleAmount}
-            >
-              {!visibleAmount ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />}
-            </div>
-          )
-        : null}
-      <div className="absolute top-0 right-0 p-2 flex items-center gap-3">
-        <button className="border-0 bg-transparent p-0" data-testid="record-search-action" onClick={handleSearch} type="button">
-          <Search size={18} strokeWidth={2} />
-        </button>
-        <button className="border-0 bg-transparent p-0" data-testid="record-calendar-action" onClick={handleCalendar} type="button">
-          <CalendarDays size={18} strokeWidth={2} />
-        </button>
-      </div>
-      <div
-        className={cn(
-          styles['list-wrapper'],
-          'w-full absolute bottom-0 left-1/2 -translate-x-1/2',
-        )}
-      >
-        <div className={cn(styles.list, 'h-full flex')}>
-          {tabs.map(tab => (
-            <div
-              className={cn(
-                styles.tab,
-                'flex-shrink-0 flex-grow flex flex-col justify-center items-center',
-              )}
-              key={tab.name}
-              onClick={tab.click}
-            >
-              <Icon name={tab.iconName} />
-              <span>{tab.name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+          </button>
+        ),
+      }}
+      shortcuts={[
+        {
+          icon: <Icon name="bill" />,
+          key: 'bill',
+          label: t('bill:title'),
+          onClick: () => navigate(ROUTES_PATH.BILL.getPath()),
+        },
+        {
+          icon: <Icon name="budget" />,
+          key: 'budget',
+          label: t('budget:title'),
+          onClick: () => navigate(ROUTES_PATH.BUDGET.getPath()),
+        },
+        {
+          icon: <Icon name="asset-steward" />,
+          key: 'asset-steward',
+          label: t('common:commonFunctions.assetSteward'),
+          onClick: () => navigate(ROUTES_PATH.ASSET.getPath()),
+        },
+      ]}
+      title={<LedgerTitleSwitcher />}
+    />
   );
 };
 

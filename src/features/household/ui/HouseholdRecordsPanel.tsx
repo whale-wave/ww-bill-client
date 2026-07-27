@@ -17,26 +17,21 @@ interface HouseholdRecordsPanelProps {
   showSummary?: boolean;
 }
 
+interface HouseholdRecordsPanelContentProps extends Omit<HouseholdRecordsPanelProps, 'filters' | 'householdId'> {
+  query: ReturnType<typeof useInfiniteHouseholdRecordsQuery>;
+}
+
 const PAGE_SIZE = 50;
 
-export const HouseholdRecordsPanel: FC<HouseholdRecordsPanelProps> = ({
+export const HouseholdRecordsPanelContent: FC<HouseholdRecordsPanelContentProps> = ({
   dailyTotals,
   emptyDescription,
-  filters,
-  householdId,
   isCompactGrouped = false,
   onSelect,
+  query,
   showSummary = true,
 }) => {
   const { i18n, t } = useTranslation('household');
-  const pageSize = Math.min(filters?.limit ?? PAGE_SIZE, 100);
-  const query = useInfiniteHouseholdRecordsQuery({
-    params: {
-      filters: { ...filters, limit: pageSize, offset: 0 },
-      householdId,
-    },
-    queryOptions: { enabled: Boolean(householdId) },
-  });
   const total = query.data?.total ?? 0;
 
   return (
@@ -101,4 +96,21 @@ export const HouseholdRecordsPanel: FC<HouseholdRecordsPanelProps> = ({
       </div>
     </HouseholdPageState>
   );
+};
+
+export const HouseholdRecordsPanel: FC<HouseholdRecordsPanelProps> = ({
+  filters,
+  householdId,
+  ...contentProps
+}) => {
+  const pageSize = Math.min(filters?.limit ?? PAGE_SIZE, 100);
+  const query = useInfiniteHouseholdRecordsQuery({
+    params: {
+      filters: { ...filters, limit: pageSize, offset: 0 },
+      householdId,
+    },
+    queryOptions: { enabled: Boolean(householdId) },
+  });
+
+  return <HouseholdRecordsPanelContent {...contentProps} query={query} />;
 };

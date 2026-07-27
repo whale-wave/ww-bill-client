@@ -1,81 +1,60 @@
 import type { RecordEntry } from '../types';
 import dayjs from 'dayjs';
-import React, { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/shared/i18n';
 import { math } from '@/shared/lib';
-import RecordListItem from './RecordListItem';
+import { RecordOverviewList } from './RecordOverviewList';
 
 interface RecordItemGroupProps {
   data: {
-    time: number;
     data: RecordEntry[];
+    time: number;
   };
 }
 
-const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
-  const { data } = props;
+const RecordList = memo(({ data }: RecordItemGroupProps) => {
   const { t } = useTranslation('record');
   const navigate = useNavigate();
 
-  const amountInfo = useMemo(() => {
-    const info = [
-      {
-        type: 'add',
-        name: t('type.income'),
-        amount: 0,
-      },
-      {
-        type: 'sub',
-        name: t('type.expense'),
-        amount: 0,
-      },
-    ];
-
-    data.data.forEach((record) => {
-      if (record.type === 'add')
-        info[0].amount = math.add(info[0].amount, record.amount).toNumber();
-      else
-        info[1].amount = math.add(info[1].amount, record.amount).toNumber();
-    });
-
-    return info.filter(i => i.amount !== 0);
-  }, [data, t]);
-
-  const handleRecordItemClick = useCallback((record: RecordEntry) => () => {
+  const handleRecordItemClick = useCallback((record: RecordEntry) => {
     navigate(`/editing/${record.id}`, { state: record });
   }, [navigate]);
 
-  return (
-    <div className="flex flex-col pt-3 border-0 border-b-[1px] border-[#ebebeb] border-solid last:border-0">
-      <div className="flex justify-between text-sm text-[#969696] px-4 ">
-        <div className="text-sm">{dayjs(data.time).format('YYYY年MM月DD日')}</div>
-        <div className="flex space-x-3">
-          {
-            amountInfo.map(item => (
-              <div key={item.type}>
-                {item.name}
-                :
-                {' '}
-                {item.amount}
-              </div>
-            ))
-          }
-        </div>
-      </div>
-      <div>
-        {data.data.map((record, index) => (
-          <RecordListItem
-            onClick={handleRecordItemClick(record)}
-            index={index}
-            lastIndex={data.data.length - 1}
-            key={record.id}
-            record={record}
-          />
-        ))}
-      </div>
-    </div>
-  );
+  const groups = useMemo(() => {
+    let income = 0;
+    let expense = 0;
+    data.data.forEach((record) => {
+      if (record.type === 'add')
+        income = math.add(income, record.amount).toNumber();
+      else
+        expense = math.add(expense, record.amount).toNumber();
+    });
+
+    return [{
+      dateLabel: dayjs(data.time).format('YYYY年MM月DD日'),
+      dateTime: dayjs(data.time).format('YYYY-MM-DD'),
+      key: String(data.time),
+      records: data.data.map(record => ({
+        amount: `${record.type === 'sub' ? '-' : ''}${record.amount}`,
+        amountTone: record.type === 'add' ? 'income' as const : 'expense' as const,
+        iconName: record.category.icon,
+        id: record.id,
+        onClick: () => handleRecordItemClick(record),
+        primary: record.remark,
+      })),
+      summaries: [
+        ...(income
+          ? [{ key: 'income', label: t('type.income'), value: income }]
+          : []),
+        ...(expense
+          ? [{ key: 'expense', label: t('type.expense'), value: expense }]
+          : []),
+      ],
+    }];
+  }, [data, handleRecordItemClick, t]);
+
+  return <RecordOverviewList groups={groups} />;
 });
 
 export default RecordList;

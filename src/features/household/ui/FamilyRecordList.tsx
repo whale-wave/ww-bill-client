@@ -1,7 +1,8 @@
 import type { FC } from 'react';
 import type { FamilyRecord, HouseholdCalendarDay } from '@/entities/household';
+import type { RecordOverviewListGroup } from '@/entities/record';
 import { FamilyRecordPolicy } from '@/entities/household';
-import { Icon } from '@/shared/ui';
+import { RecordOverviewList } from '@/entities/record';
 import { getDisplayName, toMoney } from '../model';
 
 interface FamilyRecordListProps {
@@ -86,20 +87,12 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
   }
 
   const labels = { countedLabel, inheritedLabel, privateLabel, uncountedLabel };
-  const renderRecord = (record: FamilyRecord, index: number, isCompact: boolean) => {
+  const renderRecord = (record: FamilyRecord, index: number) => {
     const content = (
       <>
-        {isCompact
-          ? (
-              <span className="mr-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bg-gray text-font-black" data-category-icon={record.category?.icon ?? ''}>
-                <Icon className="text-lg" name={record.category?.icon ?? 'bill'} />
-              </span>
-            )
-          : (
-              <span className="mr-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bg-gray text-base">
-                {record.category?.icon || record.category?.name?.slice(0, 1) || '￥'}
-              </span>
-            )}
+        <span className="mr-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bg-gray text-base">
+          {record.category?.icon || record.category?.name?.slice(0, 1) || '￥'}
+        </span>
         <span className="min-w-0 flex-grow">
           <span className="one-line block text-sm font-medium text-font-black">
             {record.remark || record.category?.name || '—'}
@@ -107,21 +100,18 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
           <span className="mt-1 block text-xs text-font-gray">
             {memberLabel(getDisplayName(record.creator))}
             {record.tags.length > 0 ? ` · ${record.tags.map(tag => `#${tag.name}`).join(' ')}` : ''}
-            {isCompact ? ` · ${getPolicyLabel(record, labels)}` : ''}
           </span>
-          {!isCompact && (
-            <span className="mt-1 inline-block rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-font-gray">
-              {getPolicyLabel(record, labels)}
-            </span>
-          )}
+          <span className="mt-1 inline-block rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-font-gray">
+            {getPolicyLabel(record, labels)}
+          </span>
         </span>
-        <span className={`${record.type === 'add' ? 'text-emerald-600' : 'text-rose-500'}${isCompact ? ' shrink-0 pl-3' : ''}`}>
+        <span className={record.type === 'add' ? 'text-emerald-600' : 'text-rose-500'}>
           {record.type === 'add' ? '+' : '-'}
           {toMoney(record.amount)}
         </span>
       </>
     );
-    const className = `flex ${isCompact ? 'min-h-[60px]' : 'min-h-[76px]'} w-full items-center border-0 bg-white px-3 py-2 text-left ${index > 0 ? 'border-t border-solid border-[#EBEBEB]' : ''}`;
+    const className = `flex min-h-[76px] w-full items-center border-0 bg-white px-3 py-2 text-left ${index > 0 ? 'border-t border-solid border-[#EBEBEB]' : ''}`;
 
     return onSelect
       ? (
@@ -142,44 +132,40 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
 
   if (isCompactGrouped) {
     const dailyTotalMap = new Map(dailyTotals.map(total => [total.date, total]));
-    return (
-      <div className="overflow-hidden bg-white">
-        {getRecordDateGroups(records).map((group) => {
-          const dailyTotal = dailyTotalMap.get(group.time);
-          return (
-            <section data-date-group={group.time} key={group.time}>
-              <header className="flex items-center justify-between border-0 border-b border-solid border-[#EBEBEB] bg-bg-gray px-3 py-2 text-xs text-font-gray">
-                <time dateTime={group.time}>{formatDateHeading(group.time, locale)}</time>
-                {dailyTotal && (
-                  <span className="flex gap-3">
-                    {dailyTotal.visibleIncome !== '0' && dailyTotal.visibleIncome !== '0.00' && (
-                      <span>
-                        {dailyIncomeLabel}
-                        {' '}
-                        {toMoney(dailyTotal.visibleIncome)}
-                      </span>
-                    )}
-                    {dailyTotal.visibleExpense !== '0' && dailyTotal.visibleExpense !== '0.00' && (
-                      <span>
-                        {dailyExpenseLabel}
-                        {' '}
-                        {toMoney(dailyTotal.visibleExpense)}
-                      </span>
-                    )}
-                  </span>
-                )}
-              </header>
-              {group.records.map((record, index) => renderRecord(record, index, true))}
-            </section>
-          );
-        })}
-      </div>
-    );
+    const overviewGroups: RecordOverviewListGroup[] = getRecordDateGroups(records).map((group) => {
+      const dailyTotal = dailyTotalMap.get(group.time);
+      return {
+        dateLabel: formatDateHeading(group.time, locale),
+        dateTime: group.time,
+        key: group.time,
+        records: group.records.map(record => ({
+          amount: `${record.type === 'add' ? '+' : '-'}${toMoney(record.amount)}`,
+          amountTone: record.type === 'add' ? 'income' : 'expense',
+          iconName: record.category?.icon ?? 'bill',
+          id: record.id,
+          onClick: onSelect ? () => onSelect(record) : undefined,
+          primary: record.remark || record.category?.name || '—',
+          secondary: `${memberLabel(getDisplayName(record.creator))}${record.tags.length > 0 ? ` · ${record.tags.map(tag => `#${tag.name}`).join(' ')}` : ''} · ${getPolicyLabel(record, labels)}`,
+        })),
+        summaries: dailyTotal
+          ? [
+              ...(dailyTotal.visibleIncome !== '0' && dailyTotal.visibleIncome !== '0.00'
+                ? [{ key: 'income', label: dailyIncomeLabel, value: toMoney(dailyTotal.visibleIncome) }]
+                : []),
+              ...(dailyTotal.visibleExpense !== '0' && dailyTotal.visibleExpense !== '0.00'
+                ? [{ key: 'expense', label: dailyExpenseLabel, value: toMoney(dailyTotal.visibleExpense) }]
+                : []),
+            ]
+          : [],
+      };
+    });
+
+    return <RecordOverviewList groups={overviewGroups} />;
   }
 
   return (
     <div className="overflow-hidden rounded-xl bg-white">
-      {records.map((record, index) => renderRecord(record, index, false))}
+      {records.map((record, index) => renderRecord(record, index))}
     </div>
   );
 };

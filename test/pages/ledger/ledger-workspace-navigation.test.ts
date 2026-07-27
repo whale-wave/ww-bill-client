@@ -250,6 +250,7 @@ describe('personal ledger workspace integration', () => {
     const { container, router } = renderPage('/detail', '/detail', createElement(DetailPage));
     const title = container.querySelector('[data-testid="ledger-switcher-title"]');
 
+    expect(container.querySelector('[data-testid="record-overview-header"]')).not.toBeNull();
     expect(title?.textContent).toContain('鲸浪账本');
     expect(title?.tagName).toBe('BUTTON');
     expect(container.querySelector('[data-testid="mini-program-capsule"]')).toBeNull();

@@ -159,10 +159,14 @@ describe('household records', () => {
 
     const header = container.querySelector('[data-testid="household-home-header"]');
     const title = header?.querySelector('h1');
+    expect(header?.matches('[data-record-overview-header]')).toBe(true);
     expect(title?.textContent).toBe('home.title');
-    expect(header?.firstElementChild?.firstElementChild).toBe(title?.parentElement);
+    expect(header?.firstElementChild?.querySelector('h1')).toBe(title);
     expect(title?.parentElement?.classList).toContain('text-left');
-    expect([...header?.querySelectorAll('button') ?? []].map(button => button.getAttribute('aria-label')).sort()).toEqual([
+    expect([...header?.querySelectorAll('button') ?? []]
+      .map(button => button.getAttribute('aria-label'))
+      .filter(Boolean)
+      .sort()).toEqual([
       'common.nextMonth',
       'common.previousMonth',
       'home.settings',
@@ -243,6 +247,7 @@ describe('household records', () => {
     const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
 
     const dateGroup = container.querySelector('[data-date-group="2026-07-21"]');
+    expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(dateGroup?.textContent).toContain('records.dailyExpense');
     expect(dateGroup?.textContent).toContain('20.00');
     expect(container.querySelector('[data-date-group="2026-07-20"]')?.textContent).toContain('records.dailyIncome');
