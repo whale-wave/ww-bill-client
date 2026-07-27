@@ -80,7 +80,14 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
               previousLabel={t('common.previousMonth')}
             />
           ),
+          valueWidth: 'cell',
         }}
+        renderTitle={className => (
+          <div className={`${className} min-w-0 text-left`}>
+            <h1 className="text-2xl font-semibold">{t('home.title')}</h1>
+            <p className="mt-1 text-xs opacity-70">{t('entry.sharedSince', { month: household.sharedStartMonth.slice(0, 7) })}</p>
+          </div>
+        )}
         shortcuts={MENU_ITEMS.map(({ icon: ShortcutIcon, key, route }) => ({
           icon: <ShortcutIcon size={20} />,
           key,
@@ -90,12 +97,6 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
         }))}
         shortcutsTestId="household-shortcuts-card"
         testId="household-home-header"
-        title={(
-          <div className="min-w-0 text-left">
-            <h1 className="text-2xl font-semibold">{t('home.title')}</h1>
-            <p className="mt-1 text-xs opacity-70">{t('entry.sharedSince', { month: household.sharedStartMonth.slice(0, 7) })}</p>
-          </div>
-        )}
         titleAlignment="start"
       />
       <main className="min-h-0 flex-grow overflow-auto px-3 pb-[84px] pt-3">

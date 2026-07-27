@@ -24,11 +24,12 @@ interface RecordOverviewHeaderProps {
   period: {
     label: ReactNode;
     value: ReactNode;
+    valueWidth?: 'cell' | 'overlay';
   };
+  renderTitle: (className: string) => ReactNode;
   shortcuts: RecordOverviewShortcut[];
   shortcutsTestId?: string;
   testId?: string;
-  title: ReactNode;
   titleAlignment?: 'center' | 'start';
 }
 
@@ -37,52 +38,67 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
   amountToggle,
   metrics,
   period,
+  renderTitle,
   shortcuts,
   shortcutsTestId,
   testId = 'record-overview-header',
-  title,
   titleAlignment = 'center',
-}) => (
-  <header
-    className={cn(styles.header, 'record-detail-top')}
-    data-record-overview-header=""
-    data-testid={testId}
-  >
-    <div className={styles.titleRow}>
-      <div className={cn(styles.title, titleAlignment === 'center' ? styles.titleCenter : styles.titleStart)}>
-        {title}
-      </div>
-      {actions && <div className={styles.actions}>{actions}</div>}
-    </div>
+}) => {
+  const titleClassName = cn(styles.title, titleAlignment === 'start' && styles.titleStart);
 
-    <div className={styles.summary}>
-      <div className={styles.summaryCell}>
-        <span className={styles.summaryLabel}>{period.label}</span>
-        <div className={cn(styles.summaryValue, styles.periodValue)}>{period.value}</div>
+  return (
+    <div
+      className={cn(styles.top, 'record-detail-top')}
+      data-record-overview-header=""
+      data-testid={testId}
+    >
+      {renderTitle(titleClassName)}
+      <div className={cn(styles.left, styles.topTextWrapper)}>
+        <div className={styles.topText}>{period.label}</div>
+        <div className={styles.leftBottom}>
+          <div className={styles.periodDivider}></div>
+          <div
+            className={cn(
+              styles.bottomWrapper,
+              styles.periodValue,
+              period.valueWidth === 'cell' && styles.periodValueCell,
+            )}
+          >
+            {period.value}
+          </div>
+        </div>
       </div>
-      {metrics.map(metric => (
-        <div className={styles.summaryCell} key={metric.key}>
-          <span className={styles.summaryLabel}>{metric.label}</span>
-          <div className={styles.summaryValue} data-testid={metric.testId}>{metric.value}</div>
+      {metrics.map((metric, index) => (
+        <div
+          className={cn(index === 0 ? styles.middle : styles.right, styles.topTextWrapper)}
+          key={metric.key}
+        >
+          <div className={styles.topText}>{metric.label}</div>
+          <div className={index === 0 ? styles.middleBottom : styles.rightBottom}>
+            <div className={styles.bottomWrapper} data-testid={metric.testId}>{metric.value}</div>
+          </div>
         </div>
       ))}
+
+      {amountToggle && <div className={styles.toggle}>{amountToggle}</div>}
+      {actions && <div className={styles.actions}>{actions}</div>}
+
+      <div className={styles.listWrapper}>
+        <nav className={styles.shortcuts} data-testid={shortcutsTestId}>
+          {shortcuts.map(shortcut => (
+            <button
+              className={styles.shortcut}
+              data-testid={shortcut.testId}
+              key={shortcut.key}
+              onClick={shortcut.onClick}
+              type="button"
+            >
+              <span className={styles.shortcutIcon}>{shortcut.icon}</span>
+              <span className={styles.shortcutLabel}>{shortcut.label}</span>
+            </button>
+          ))}
+        </nav>
+      </div>
     </div>
-
-    {amountToggle && <div className={styles.toggle}>{amountToggle}</div>}
-
-    <nav className={styles.shortcuts} data-testid={shortcutsTestId}>
-      {shortcuts.map(shortcut => (
-        <button
-          className={styles.shortcut}
-          data-testid={shortcut.testId}
-          key={shortcut.key}
-          onClick={shortcut.onClick}
-          type="button"
-        >
-          <span className={styles.shortcutIcon}>{shortcut.icon}</span>
-          <span className={styles.shortcutLabel}>{shortcut.label}</span>
-        </button>
-      ))}
-    </nav>
-  </header>
-);
+  );
+};

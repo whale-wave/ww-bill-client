@@ -22,7 +22,7 @@ interface TopProps {
 
 function renderAmount(parts: string[] | undefined, isVisible: boolean): ReactNode {
   if (!isVisible)
-    return <span className="font-bold">*******</span>;
+    return <span className="text-lg font-bold leading-[19px]">*******</span>;
 
   return (
     <span className="truncate">
@@ -100,7 +100,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
             onClick={() => setIsMonthPickerVisible(true)}
             type="button"
           >
-            <span className="text-3xl leading-none">{selectTime.format('MM')}</span>
+            <span className="text-[length:var(--ww-font-size-2xl)] leading-none">{selectTime.format('MM')}</span>
             <span className="ml-1 text-base">{t('common:time.month')}</span>
             <Triangle
               className={cn(
@@ -120,6 +120,7 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
           </button>
         ),
       }}
+      renderTitle={className => <LedgerTitleSwitcher className={className} />}
       shortcuts={[
         {
           icon: <Icon name="bill" />,
@@ -140,7 +141,6 @@ const Top: FC<TopProps> = ({ numExpendIncome, selectTime, setSelectTime }) => {
           onClick: () => navigate(ROUTES_PATH.ASSET.getPath()),
         },
       ]}
-      title={<LedgerTitleSwitcher />}
     />
   );
 };

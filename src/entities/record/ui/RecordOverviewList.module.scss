@@ -1,0 +1,105 @@
+.group {
+  &:last-child {
+    border-bottom: 1px solid #ebebeb;
+  }
+}
+
+.title {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 0 14px;
+  color: #969696;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.titleLeft,
+.titleSummary {
+  font-size: var(--ww-font-size-sm);
+}
+
+.record {
+  width: 100%;
+  height: 55px;
+  display: flex;
+  align-items: center;
+}
+
+.recordWithSecondary {
+  min-height: 60px;
+  height: auto;
+}
+
+.recordButton {
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  background: #ffffff;
+  border: 0;
+
+  &:active {
+    background: #f8fafc;
+  }
+}
+
+.recordIconCell {
+  width: 65px;
+  height: 54px;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f4f4;
+  border-radius: 50%;
+}
+
+.recordContent {
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 16px;
+  color: #333333;
+  font-size: var(--ww-font-size-base);
+  font-weight: 400;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.lastRecordContent {
+  border-bottom: 0;
+}
+
+.recordText {
+  min-width: 0;
+  flex-grow: 1;
+}
+
+.primary,
+.secondary {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.secondary {
+  margin-top: 4px;
+  color: #969696;
+  font-size: var(--ww-font-size-xs);
+}
+
+.price {
+  flex-shrink: 0;
+  margin-left: 12px;
+}

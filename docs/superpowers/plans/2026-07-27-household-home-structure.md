@@ -54,9 +54,11 @@ Acceptance criteria:
 
 The personal detail home and household home use the same record-overview modules rather than maintaining parallel markup:
 
-- `RecordOverviewHeader` owns the title/action row, period and amount summary, responsive header geometry, and shortcut card. Personal and household pages provide title alignment, actions, period control, values, and shortcut data.
-- `RecordOverviewList` owns date-group headers, daily summaries, record icon/amount alignment, compact secondary text, and row interaction. Personal records and household family records are adapted into its view model.
+- `RecordOverviewHeader` preserves the original personal `/detail` header geometry and shortcut-card styling. Personal and household pages only provide title alignment, actions, period control, values, and shortcut data; household differences must not redefine the personal layout.
+- `RecordOverviewList` preserves the original personal `/detail` date headers, 55px rows, typography, neutral personal-ledger amounts, and row interaction. Household records add secondary member/policy text and semantic amount colors through parameters.
 - `Top.tsx`, `List.tsx`, and `FamilyRecordList.tsx` remain adapters for their domain-specific state, routing, visibility, member attribution, and sharing-policy semantics.
 - `HouseholdRecordsPanelContent` accepts the already-owned household records query on the home page; other household surfaces keep using `HouseholdRecordsPanel`, which owns its query internally.
 
 This seam belongs to the record entity because both personal and household feature code consume it. It must not import page routing, household types, ledger queries, or translation hooks.
+
+The personal `/detail` page is the compatibility baseline. Shared-component changes must keep its visible structure and behavior unchanged; new household requirements are implemented as optional inputs rather than as new defaults.

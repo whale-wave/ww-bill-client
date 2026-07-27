@@ -42,7 +42,7 @@ afterEach(() => {
 });
 
 describe('personal record detail overview', () => {
-  it('adapts personal record groups to the shared overview list', () => {
+  it('keeps the original detail-list row semantics when adapting record groups', () => {
     const record = {
       amount: '20.00',
       category: {
@@ -65,9 +65,14 @@ describe('personal record detail overview', () => {
     });
 
     const container = renderList();
+    const recordRow = container.querySelector('[data-record-id="7"]');
+    const amount = recordRow?.lastElementChild?.lastElementChild;
 
     expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(container.querySelector('[data-date-group="07月21日-星期一"]')?.textContent).toContain('晚餐');
+    expect(recordRow?.tagName).toBe('DIV');
+    expect(amount?.className).toContain('text-font-black');
+    expect(amount?.className).not.toContain('text-rose-500');
     expect(container.querySelector('[data-category-icon="catering"] use')?.getAttribute('xlink:href')).toBe('#icon-catering');
   });
 });

@@ -248,9 +248,11 @@ afterEach(cleanupRender);
 describe('personal ledger workspace integration', () => {
   it('preserves the original app header and direct search/calendar actions', async () => {
     const { container, router } = renderPage('/detail', '/detail', createElement(DetailPage));
+    const header = container.querySelector('[data-testid="record-overview-header"]');
     const title = container.querySelector('[data-testid="ledger-switcher-title"]');
 
-    expect(container.querySelector('[data-testid="record-overview-header"]')).not.toBeNull();
+    expect(header).not.toBeNull();
+    expect(title?.parentElement).toBe(header);
     expect(title?.textContent).toContain('鲸浪账本');
     expect(title?.tagName).toBe('BUTTON');
     expect(container.querySelector('[data-testid="mini-program-capsule"]')).toBeNull();
