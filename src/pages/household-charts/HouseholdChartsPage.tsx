@@ -87,6 +87,7 @@ function toOverviewTab(
     data: data.timeline.map(point => ({
       amount: point[metric],
       data: [],
+      displayLabel: point.label,
       tooltipMode: 'aggregate',
       value: point.key,
     })),
@@ -98,10 +99,11 @@ function toOverviewTab(
 
 function hasOverviewData(data: HouseholdChartResult, amountType: AmountType) {
   const metric = amountType === 'sub' ? 'expense' : 'income';
-  return data.timeline.length > 0
-    || data.categories.length > 0
-    || data.members.length > 0
-    || math.compare(data.summary[metric], 0) !== 0;
+  const isNonZero = (amount: string) => math.compare(amount, 0) !== 0;
+  return isNonZero(data.summary[metric])
+    || data.timeline.some(point => isNonZero(point[metric]))
+    || data.categories.some(item => isNonZero(item.amount))
+    || data.members.some(item => isNonZero(item.amount));
 }
 
 const ChartsContent: FC<{ household: Household }> = ({ household }) => {

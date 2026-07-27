@@ -148,6 +148,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup?.();
   cleanup = undefined;
+  vi.unstubAllEnvs();
 });
 
 describe('household budget and charts', () => {
@@ -261,31 +262,42 @@ describe('household budget and charts', () => {
     expect(foodRow instanceof HTMLElement ? foodRow.onclick : undefined).toBeNull();
   });
 
-  it('keeps household timeline amounts exact in the shared model and renders aggregate tooltips', async () => {
-    const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
+  it.each(['week', 'month'] as const)('keeps %s household day labels stable and renders aggregate tooltips', async (period) => {
+    vi.stubEnv('TZ', 'America/Los_Angeles');
+    hooks.useHouseholdChartsQuery.mockReturnValue(query({
+      ...chart,
+      endDate: period === 'week' ? '2026-07-26' : chart.endDate,
+      period,
+      startDate: period === 'week' ? '2026-07-20' : chart.startDate,
+    }));
+    const { container } = renderPage(`/households/household%2Fa/charts?range=${period}`, '/households/:householdId/charts', createElement(HouseholdChartsPage));
 
     const option = hooks.chartSetOption.mock.calls.at(-1)?.[0] as {
       series: Array<{
         data: Array<{
-          source: { amount: string; value: string };
+          source: { amount: string; displayLabel?: string; value: string };
           value: number;
         }>;
       }>;
       tooltip: {
         formatter: (params: Array<{
           data: {
-            source: { amount: string; value: string };
+            source: { amount: string; displayLabel?: string; value: string };
             value: number;
           };
         }>) => string;
       };
+      xAxis: { data: string[] };
     };
     const point = option.series[0].data[0];
     const tooltip = option.tooltip.formatter([{ data: point }]);
 
     expect(point.source.amount).toBe('20.00');
+    expect(point.source.displayLabel).toBe('07-21');
     expect(point.value).toBe(20);
-    expect(tooltip).toContain('26/07/21');
+    expect(option.xAxis.data).toEqual(['07-21']);
+    expect(tooltip).toContain('07-21');
+    expect(tooltip).not.toContain('07-20');
     expect(tooltip).toContain('当月总支出:');
     expect(tooltip).toContain('20.00');
     expect(tooltip).not.toContain('没有费用');
@@ -302,13 +314,61 @@ describe('household budget and charts', () => {
     expect(incomeTooltip).not.toContain('没有费用');
   });
 
+  it('uses the household API label for yearly axes and aggregate tooltips', () => {
+    vi.stubEnv('TZ', 'America/Los_Angeles');
+    hooks.useHouseholdChartsQuery.mockReturnValue(query({
+      ...chart,
+      endDate: '2026-12-31',
+      period: 'year',
+      startDate: '2026-01-01',
+      timeline: [
+        { expense: '20.00', income: '0.00', key: '2026-01', label: '1月', net: '-20.00' },
+      ],
+    }));
+
+    renderPage('/households/household%2Fa/charts?range=year', '/households/:householdId/charts', createElement(HouseholdChartsPage));
+    const option = hooks.chartSetOption.mock.calls.at(-1)?.[0] as {
+      series: Array<{
+        data: Array<{
+          source: { displayLabel?: string };
+          value: number;
+        }>;
+      }>;
+      tooltip: {
+        formatter: (params: Array<{
+          data: {
+            source: { displayLabel?: string };
+            value: number;
+          };
+        }>) => string;
+      };
+      xAxis: { data: string[] };
+    };
+    const point = option.series[0].data[0];
+    const tooltip = option.tooltip.formatter([{ data: point }]);
+
+    expect(point.source.displayLabel).toBe('1月');
+    expect(option.xAxis.data).toEqual(['1月']);
+    expect(tooltip).toContain('1月');
+    expect(tooltip).not.toContain('01-01');
+  });
+
   it('renders the shared empty state for a wholly empty household chart response', () => {
     hooks.useHouseholdChartsQuery.mockReturnValue(query({
       ...chart,
       categories: [],
       members: [],
       summary: { expense: '0.00', income: '0.00', net: '0.00' },
-      timeline: [],
+      timeline: Array.from({ length: 31 }, (_, index) => {
+        const day = String(index + 1).padStart(2, '0');
+        return {
+          expense: '0.00',
+          income: '0.00',
+          key: `2026-07-${day}`,
+          label: `07-${day}`,
+          net: '0.00',
+        };
+      }),
     }));
 
     const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));

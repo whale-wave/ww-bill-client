@@ -16,6 +16,7 @@ export interface ChartOverviewRankingItem {
 export interface ChartOverviewPoint {
   amount: number | string;
   data: RecordEntry[];
+  displayLabel?: string;
   tooltipMode?: 'aggregate';
   value: string;
 }

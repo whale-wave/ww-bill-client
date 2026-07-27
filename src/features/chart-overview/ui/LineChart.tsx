@@ -24,7 +24,7 @@ export const LineChart: FC = () => {
   const xAxisData = useMemo(() => {
     if (!curTab)
       return [];
-    return curTab.data.map(item => format(item.value, 'MM-dd'));
+    return curTab.data.map(item => item.displayLabel ?? format(item.value, 'MM-dd'));
   }, [curTab]);
 
   useEffect(() => {

@@ -25,7 +25,7 @@ export const TooltipContent: FC<{ data: ChartOverviewPoint; currentAmountType: A
     return (
       <div className={cn('text-xs')}>
         <div className={cn('text-[#fff] bg-[#4e4c4d] py-1 px-3 flex items-center justify-center rounded-md')}>
-          {formatCalendarDate(data.value)}
+          {data.displayLabel ?? formatCalendarDate(data.value)}
         </div>
         <div className={cn('flex space-x-2 mt-2 mb-1')}>
           <div>{currentAmountType === 'sub' ? t('tooltip.monthlyTotal.expend') : t('tooltip.monthlyTotal.income')}</div>
