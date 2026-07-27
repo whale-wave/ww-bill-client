@@ -30,6 +30,8 @@ const hooks = vi.hoisted(() => ({
   useUserQuery: vi.fn(),
 }));
 
+const locale = vi.hoisted(() => ({ language: 'en' }));
+
 vi.mock('@/entities/household', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/household')>()),
   useHouseholdCalendarQuery: hooks.useHouseholdCalendarQuery,
@@ -46,7 +48,10 @@ vi.mock('@/entities/user', () => ({
 }));
 
 vi.mock('@/shared/i18n', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    i18n: { resolvedLanguage: locale.language },
+    t: (key: string) => key,
+  }),
 }));
 
 const household: Household = {
@@ -110,6 +115,7 @@ function renderPage(pathname: string, routePath: string, element: ReactNode) {
 
 beforeEach(() => {
   Object.values(hooks).forEach(mock => mock.mockReset());
+  locale.language = 'en';
   hooks.useMyHouseholdQuery.mockReturnValue(query(household));
   hooks.useInfiniteHouseholdRecordsQuery.mockReturnValue({
     ...query(recordsPage),
@@ -152,14 +158,31 @@ describe('household records', () => {
     const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
 
     const header = container.querySelector('[data-testid="household-home-header"]');
-    expect(header?.querySelector('h1')?.textContent).toBe('home.title');
-    expect(header?.querySelector('[aria-label="home.settings"]')).not.toBeNull();
-    expect(header?.querySelector('[data-testid="household-home-back"]')).toBeNull();
+    const title = header?.querySelector('h1');
+    expect(title?.textContent).toBe('home.title');
+    expect(header?.firstElementChild?.firstElementChild).toBe(title?.parentElement);
+    expect(title?.parentElement?.classList).toContain('text-left');
+    expect([...header?.querySelectorAll('button') ?? []].map(button => button.getAttribute('aria-label')).sort()).toEqual([
+      'common.nextMonth',
+      'common.previousMonth',
+      'home.settings',
+    ]);
     expect(header?.querySelector('[data-testid="household-compact-month-picker"]')).not.toBeNull();
     expect(header?.querySelector('input[type="month"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-monthly-income"]')?.textContent).toContain('0.00');
     expect(header?.querySelector('[data-testid="household-monthly-expense"]')?.textContent).toContain('20.00');
     expect(container.textContent).not.toContain('common.net');
+  });
+
+  it('keeps compact month controls shrinkable inside the narrow header column', () => {
+    const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
+
+    const picker = container.querySelector('[data-testid="household-compact-month-picker"]');
+    const monthInput = picker?.querySelector('input[type="month"]');
+    expect(picker?.classList).toContain('w-full');
+    expect(monthInput?.classList).toContain('min-w-0');
+    expect(monthInput?.classList).toContain('flex-1');
+    expect(monthInput?.className).not.toContain('w-[68px]');
   });
 
   it('keeps household-scoped routes on every home shortcut', async () => {
@@ -201,6 +224,22 @@ describe('household records', () => {
       hasNextPage: false,
       isFetchingNextPage: false,
     });
+    hooks.useHouseholdCalendarQuery.mockReturnValue({
+      data: {
+        days: [
+          { countedExpense: '20.00', countedIncome: '0.00', date: '2026-07-21', recordCount: 1, visibleExpense: '20.00', visibleIncome: '0.00' },
+          { countedExpense: '0.00', countedIncome: '100.00', date: '2026-07-20', recordCount: 1, visibleExpense: '0.00', visibleIncome: '100.00' },
+        ],
+        month: '2026-07-01',
+      },
+      days: [
+        { countedExpense: '20.00', countedIncome: '0.00', date: '2026-07-21', recordCount: 1, visibleExpense: '20.00', visibleIncome: '0.00' },
+        { countedExpense: '0.00', countedIncome: '100.00', date: '2026-07-20', recordCount: 1, visibleExpense: '0.00', visibleIncome: '100.00' },
+      ],
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
     const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
 
     const dateGroup = container.querySelector('[data-date-group="2026-07-21"]');
@@ -209,6 +248,55 @@ describe('household records', () => {
     expect(container.querySelector('[data-date-group="2026-07-20"]')?.textContent).toContain('records.dailyIncome');
     expect(container.querySelector('[data-category-icon="catering"] use')?.getAttribute('xlink:href')).toBe('#icon-catering');
     expect(container.textContent).not.toContain('catering');
+  });
+
+  it('uses complete server daily totals when a date crosses the loaded page boundary', () => {
+    hooks.useInfiniteHouseholdRecordsQuery.mockReturnValue({
+      ...query({ ...recordsPage, data: [record], total: 51 }),
+      fetchNextPage: hooks.fetchNextRecords,
+      hasNextPage: true,
+      isFetchingNextPage: false,
+    });
+    hooks.useHouseholdCalendarQuery.mockReturnValue({
+      data: {
+        days: [{ countedExpense: '50.00', countedIncome: '0.00', date: '2026-07-21', recordCount: 2, visibleExpense: '50.00', visibleIncome: '0.00' }],
+        month: '2026-07-01',
+      },
+      days: [{ countedExpense: '50.00', countedIncome: '0.00', date: '2026-07-21', recordCount: 2, visibleExpense: '50.00', visibleIncome: '0.00' }],
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
+
+    const dateHeader = container.querySelector('[data-date-group="2026-07-21"] > header');
+    expect(dateHeader?.textContent).toContain('50.00');
+    expect(dateHeader?.textContent).not.toContain('20.00');
+    expect(container.querySelector('[data-testid="household-records-load-more"]')).not.toBeNull();
+  });
+
+  it.each([
+    ['en', 'Tue, Jul 21'],
+    ['zh-CN', '7月21日周二'],
+  ])('formats date headings for the %s locale', (language, expectedHeading) => {
+    locale.language = language;
+    const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
+
+    const heading = container.querySelector('time[datetime="2026-07-21"]');
+    expect(heading?.textContent).toBe(expectedHeading);
+    expect(heading?.textContent).not.toBe('2026-07-21');
+  });
+
+  it('preserves the default amount presentation outside the compact home list', () => {
+    const { container } = renderPage(
+      '/households/household%2Fa/records/search',
+      '/households/:householdId/records/search',
+      createElement(HouseholdRecordSearchPage),
+    );
+
+    const amount = container.querySelector('[data-record-id="7"]')?.lastElementChild;
+    expect(amount?.classList).not.toContain('shrink-0');
+    expect(amount?.classList).not.toContain('pl-3');
   });
 
   it('uses the decoded URL household id and opens the family record detail', async () => {

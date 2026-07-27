@@ -3,7 +3,7 @@ import type { FamilyRecord, Household } from '@/entities/household';
 import { CalendarDays, Search, Settings, Target } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useInfiniteHouseholdRecordsQuery } from '@/entities/household';
+import { useHouseholdCalendarQuery, useInfiniteHouseholdRecordsQuery } from '@/entities/household';
 import {
   buildMonthRecordRange,
   formatMonthStart,
@@ -32,6 +32,10 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
     params: { filters: { ...filters, limit: 50, offset: 0 }, householdId: household.id },
     queryOptions: { enabled: Boolean(household.id) },
   });
+  const calendarQuery = useHouseholdCalendarQuery({
+    params: { householdId: household.id, month },
+    queryOptions: { enabled: Boolean(household.id) },
+  });
 
   const handleRecord = (record: FamilyRecord) => {
     navigate(ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(household.id, record.id));
@@ -41,7 +45,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
     <>
       <header className="bg-primary px-3 pb-5 pt-5 text-font-black" data-testid="household-home-header">
         <div className="flex items-center justify-between">
-          <div>
+          <div className="min-w-0 flex-1 text-left">
             <h1 className="text-2xl font-semibold">{t('home.title')}</h1>
             <p className="mt-1 text-xs opacity-70">{t('entry.sharedSince', { month: household.sharedStartMonth.slice(0, 7) })}</p>
           </div>
@@ -56,7 +60,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
         </div>
         <div className="mt-4 grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-2">
           <HouseholdMonthPicker
-            compact
+            isCompact
             month={month}
             nextLabel={t('common.nextMonth')}
             onChange={setMonth}
@@ -94,10 +98,11 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
           ))}
         </section>
         <HouseholdRecordsPanel
+          dailyTotals={calendarQuery.days}
           emptyDescription={t('home.emptyDescription')}
-          compactGrouped
           filters={filters}
           householdId={household.id}
+          isCompactGrouped
           onSelect={handleRecord}
           showSummary={false}
         />

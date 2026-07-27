@@ -1,17 +1,18 @@
 import type { FC } from 'react';
-import type { FamilyRecord } from '@/entities/household';
+import type { FamilyRecord, HouseholdCalendarDay } from '@/entities/household';
 import { FamilyRecordPolicy } from '@/entities/household';
-import { math } from '@/shared/lib';
 import { Icon } from '@/shared/ui';
 import { getDisplayName, toMoney } from '../model';
 
 interface FamilyRecordListProps {
   countedLabel: string;
-  compactGrouped?: boolean;
   dailyExpenseLabel?: string;
   dailyIncomeLabel?: string;
+  dailyTotals?: HouseholdCalendarDay[];
   emptyLabel: string;
   inheritedLabel: string;
+  isCompactGrouped?: boolean;
+  locale: string;
   memberLabel: (name: string) => string;
   onSelect?: (record: FamilyRecord) => void;
   privateLabel: string;
@@ -31,8 +32,6 @@ function getPolicyLabel(
 }
 
 interface RecordDateGroup {
-  expense: string;
-  income: string;
   records: FamilyRecord[];
   time: string;
 }
@@ -49,30 +48,33 @@ function getRecordDateGroups(records: FamilyRecord[]) {
     const time = getLocalDate(record);
     const currentGroup = groups.find(group => group.time === time);
     if (!currentGroup) {
-      groups.push({ expense: '0', income: '0', records: [record], time });
+      groups.push({ records: [record], time });
       return groups;
     }
 
     currentGroup.records.push(record);
     return groups;
-  }, []).map((group) => {
-    const totals = group.records.reduce(
-      (summary, record) => record.type === 'add'
-        ? { ...summary, income: math.add(summary.income, record.amount).toString() }
-        : { ...summary, expense: math.add(summary.expense, record.amount).toString() },
-      { expense: '0', income: '0' },
-    );
-    return { ...group, ...totals };
-  });
+  }, []);
+}
+
+function formatDateHeading(date: string, locale: string) {
+  const [year, month, day] = date.split('-').map(Number);
+  return new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'short',
+    weekday: 'short',
+  }).format(new Date(year, month - 1, day));
 }
 
 export const FamilyRecordList: FC<FamilyRecordListProps> = ({
   countedLabel,
-  compactGrouped = false,
   dailyExpenseLabel,
   dailyIncomeLabel,
+  dailyTotals = [],
   emptyLabel,
   inheritedLabel,
+  isCompactGrouped = false,
+  locale,
   memberLabel,
   onSelect,
   privateLabel,
@@ -113,7 +115,7 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
             </span>
           )}
         </span>
-        <span className={`${record.type === 'add' ? 'text-emerald-600' : 'text-rose-500'} shrink-0 pl-3`}>
+        <span className={`${record.type === 'add' ? 'text-emerald-600' : 'text-rose-500'}${isCompact ? ' shrink-0 pl-3' : ''}`}>
           {record.type === 'add' ? '+' : '-'}
           {toMoney(record.amount)}
         </span>
@@ -138,33 +140,39 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
         );
   };
 
-  if (compactGrouped) {
+  if (isCompactGrouped) {
+    const dailyTotalMap = new Map(dailyTotals.map(total => [total.date, total]));
     return (
       <div className="overflow-hidden bg-white">
-        {getRecordDateGroups(records).map(group => (
-          <section data-date-group={group.time} key={group.time}>
-            <header className="flex items-center justify-between border-0 border-b border-solid border-[#EBEBEB] bg-bg-gray px-3 py-2 text-xs text-font-gray">
-              <span>{group.time}</span>
-              <span className="flex gap-3">
-                {group.income !== '0' && (
-                  <span>
-                    {dailyIncomeLabel}
-                    {' '}
-                    {toMoney(group.income)}
+        {getRecordDateGroups(records).map((group) => {
+          const dailyTotal = dailyTotalMap.get(group.time);
+          return (
+            <section data-date-group={group.time} key={group.time}>
+              <header className="flex items-center justify-between border-0 border-b border-solid border-[#EBEBEB] bg-bg-gray px-3 py-2 text-xs text-font-gray">
+                <time dateTime={group.time}>{formatDateHeading(group.time, locale)}</time>
+                {dailyTotal && (
+                  <span className="flex gap-3">
+                    {dailyTotal.visibleIncome !== '0' && dailyTotal.visibleIncome !== '0.00' && (
+                      <span>
+                        {dailyIncomeLabel}
+                        {' '}
+                        {toMoney(dailyTotal.visibleIncome)}
+                      </span>
+                    )}
+                    {dailyTotal.visibleExpense !== '0' && dailyTotal.visibleExpense !== '0.00' && (
+                      <span>
+                        {dailyExpenseLabel}
+                        {' '}
+                        {toMoney(dailyTotal.visibleExpense)}
+                      </span>
+                    )}
                   </span>
                 )}
-                {group.expense !== '0' && (
-                  <span>
-                    {dailyExpenseLabel}
-                    {' '}
-                    {toMoney(group.expense)}
-                  </span>
-                )}
-              </span>
-            </header>
-            {group.records.map((record, index) => renderRecord(record, index, true))}
-          </section>
-        ))}
+              </header>
+              {group.records.map((record, index) => renderRecord(record, index, true))}
+            </section>
+          );
+        })}
       </div>
     );
   }

@@ -26,5 +26,3 @@ yarn-lock.json
 .env
 
 .tokensave
-
-.worktrees/

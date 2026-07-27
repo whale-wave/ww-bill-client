@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { FamilyRecord, GetHouseholdRecordsApiParams } from '@/entities/household';
+import type { FamilyRecord, GetHouseholdRecordsApiParams, HouseholdCalendarDay } from '@/entities/household';
 import { Button, ErrorBlock } from 'antd-mobile';
 import { useInfiniteHouseholdRecordsQuery } from '@/entities/household';
 import { useTranslation } from '@/shared/i18n';
@@ -8,10 +8,11 @@ import { HouseholdPageState } from './HouseholdPageState';
 import { HouseholdSummaryCard } from './HouseholdSummaryCard';
 
 interface HouseholdRecordsPanelProps {
-  compactGrouped?: boolean;
+  dailyTotals?: HouseholdCalendarDay[];
   emptyDescription?: string;
   filters?: GetHouseholdRecordsApiParams;
   householdId: string;
+  isCompactGrouped?: boolean;
   onSelect?: (record: FamilyRecord) => void;
   showSummary?: boolean;
 }
@@ -19,14 +20,15 @@ interface HouseholdRecordsPanelProps {
 const PAGE_SIZE = 50;
 
 export const HouseholdRecordsPanel: FC<HouseholdRecordsPanelProps> = ({
+  dailyTotals,
   emptyDescription,
-  compactGrouped = false,
   filters,
   householdId,
+  isCompactGrouped = false,
   onSelect,
   showSummary = true,
 }) => {
-  const { t } = useTranslation('household');
+  const { i18n, t } = useTranslation('household');
   const pageSize = Math.min(filters?.limit ?? PAGE_SIZE, 100);
   const query = useInfiniteHouseholdRecordsQuery({
     params: {
@@ -56,7 +58,7 @@ export const HouseholdRecordsPanel: FC<HouseholdRecordsPanelProps> = ({
             summary={query.data?.summary}
           />
         )}
-        {!compactGrouped && (
+        {!isCompactGrouped && (
           <p className="text-center text-xs text-font-gray">
             {t('records.total', { count: total })}
           </p>
@@ -72,11 +74,13 @@ export const HouseholdRecordsPanel: FC<HouseholdRecordsPanelProps> = ({
           : (
               <FamilyRecordList
                 countedLabel={t('records.counted')}
-                compactGrouped={compactGrouped}
                 dailyExpenseLabel={t('records.dailyExpense')}
                 dailyIncomeLabel={t('records.dailyIncome')}
+                dailyTotals={dailyTotals}
                 emptyLabel={t('records.empty')}
                 inheritedLabel={t('records.inherited')}
+                isCompactGrouped={isCompactGrouped}
+                locale={i18n.resolvedLanguage ?? i18n.language}
                 memberLabel={name => t('records.memberAttribution', { name })}
                 onSelect={onSelect}
                 privateLabel={t('records.private')}
