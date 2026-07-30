@@ -1,7 +1,7 @@
 import { ErrorBlock, SpinLoading, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   FamilyRecordPolicy,
   HouseholdStatus,
@@ -9,7 +9,12 @@ import {
   useMyHouseholdQuery,
 } from '@/entities/household';
 import { LedgerCapability, LedgerKind } from '@/entities/ledger';
-import { RecordDetailPresentation, useDeleteLedgerRecordMutation, useLedgerRecordQuery } from '@/entities/record';
+import {
+  readLedgerRecordDetailState,
+  RecordDetailPresentation,
+  useDeleteLedgerRecordMutation,
+  useLedgerRecordQuery,
+} from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
@@ -51,16 +56,18 @@ function FamilyPolicyEntry({ recordId, recordTime }: { recordId: number; recordT
 
 function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { ledgerId: string; canDelete: boolean; canUpdate: boolean; showFamilyPolicy: boolean }) {
   const { t } = useTranslation('ledger');
+  const location = useLocation();
   const navigate = useNavigate();
   const { recordId = '' } = useParams<{ recordId: string }>();
   const query = useLedgerRecordQuery({ params: { ledgerId, recordId }, queryOptions: { enabled: Boolean(recordId) } });
   const [deleteRecord, deleteState] = useDeleteLedgerRecordMutation();
   const deletingRef = useRef(false);
-  if (query.isLoading)
+  const record = query.data
+    ?? readLedgerRecordDetailState(location.state, ledgerId, recordId);
+  if (query.isLoading && !record)
     return <SpinLoading />;
-  if (!query.data)
+  if (!record)
     return <ErrorBlock title={t('records.notFound')} />;
-  const record = query.data;
   const date = new Date(record.time);
   const timeDate = getTimeDateYear(date);
   const weekByDay = getWeekByDay(getTimedate(date));

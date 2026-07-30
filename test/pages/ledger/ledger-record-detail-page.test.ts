@@ -18,19 +18,23 @@ import {
   LedgerStatus,
 } from '@/entities/ledger';
 import LedgerRecordDetailPage from '@/pages/ledger-record-detail/LedgerRecordDetailPage';
+import LedgerRecordsPage from '@/pages/ledger-records/LedgerRecordsPage';
 
 const hooks = vi.hoisted(() => ({
   deleteRecord: vi.fn(),
   refetchRecord: vi.fn(),
   useDeleteLedgerRecordMutation: vi.fn(),
   useFamilyRecordPolicyQuery: vi.fn(),
+  useLedgerPreferencesQuery: vi.fn(),
   useLedgerQuery: vi.fn(),
   useLedgerRecordQuery: vi.fn(),
+  useLedgerRecordsQuery: vi.fn(),
   useMyHouseholdQuery: vi.fn(),
 }));
 
 vi.mock('@/entities/ledger', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/ledger')>()),
+  useLedgerPreferencesQuery: hooks.useLedgerPreferencesQuery,
   useLedgerQuery: hooks.useLedgerQuery,
 }));
 
@@ -38,6 +42,7 @@ vi.mock('@/entities/record', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/record')>()),
   useDeleteLedgerRecordMutation: hooks.useDeleteLedgerRecordMutation,
   useLedgerRecordQuery: hooks.useLedgerRecordQuery,
+  useLedgerRecordsQuery: hooks.useLedgerRecordsQuery,
 }));
 
 vi.mock('@/entities/household', async importOriginal => ({
@@ -49,6 +54,11 @@ vi.mock('@/entities/household', async importOriginal => ({
 vi.mock('@/shared/i18n', () => ({
   i18n: { t: (key: string) => key },
   useTranslation: () => ({ t: (key: string) => key }),
+}));
+
+vi.mock('@/features/ledger-switcher', () => ({
+  LedgerTitleSwitcher: ({ ledgerName }: { ledgerName: string }) =>
+    createElement('span', null, ledgerName),
 }));
 
 const ledger: Ledger = {
@@ -123,7 +133,18 @@ function renderPage(element: ReactNode = createElement(LedgerRecordDetailPage)) 
 beforeEach(() => {
   Object.values(hooks).forEach(mock => mock.mockReset());
   hooks.useLedgerQuery.mockReturnValue({ data: ledger, isError: false, isLoading: false, refetch: vi.fn() });
+  hooks.useLedgerPreferencesQuery.mockReturnValue({
+    data: { hideTotalAmount: false, showDailySummary: true },
+    isError: false,
+    isLoading: false,
+  });
   hooks.useLedgerRecordQuery.mockReturnValue({ data: record, isLoading: false, refetch: hooks.refetchRecord });
+  hooks.useLedgerRecordsQuery.mockReturnValue({
+    data: { data: [record], expend: 20, income: 0, total: 1 },
+    isError: false,
+    isLoading: false,
+    refetch: vi.fn(),
+  });
   hooks.useDeleteLedgerRecordMutation.mockReturnValue([hooks.deleteRecord, { isLoading: false }]);
   hooks.useMyHouseholdQuery.mockReturnValue({ data: household, isLoading: false });
   hooks.useFamilyRecordPolicyQuery.mockReturnValue({
@@ -145,6 +166,49 @@ afterEach(() => {
 });
 
 describe('ledger record detail family policy and concurrency', () => {
+  it('keeps a company-ledger record visible after clicking it when the detail query is unavailable', async () => {
+    hooks.useLedgerQuery.mockReturnValue({
+      data: {
+        ...ledger,
+        kind: LedgerKind.CUSTOM,
+        name: '公司账本',
+        templateKey: 'company',
+      },
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.useLedgerRecordQuery.mockReturnValue({
+      data: undefined,
+      isError: true,
+      isLoading: false,
+      refetch: hooks.refetchRecord,
+    });
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    const router = createMemoryRouter([
+      {
+        path: '/ledgers/:ledgerId/records',
+        element: createElement(LedgerRecordsPage),
+      },
+      {
+        path: '/ledgers/:ledgerId/records/:recordId',
+        element: createElement(LedgerRecordDetailPage),
+      },
+    ], { initialEntries: ['/ledgers/ledger%2Fa/records'] });
+    act(() => root.render(createElement(RouterProvider, { router })));
+    cleanup = () => act(() => root.unmount());
+
+    await act(async () => {
+      container.querySelector<HTMLElement>('[data-record-id="7"]')?.click();
+    });
+
+    expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/records/7');
+    expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
+    expect(container.textContent).toContain('晚餐');
+    expect(container.textContent).not.toContain('records.notFound');
+  });
+
   it('keeps a private default-ledger record reachable so sharing can be restored', async () => {
     const { container, router } = renderPage();
 

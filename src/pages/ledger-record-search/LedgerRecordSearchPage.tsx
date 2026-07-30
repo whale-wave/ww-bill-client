@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LedgerCapability } from '@/entities/ledger';
 import {
+  createLedgerRecordDetailState,
   RecordSearchPresentation,
   toRecordSearchGroups,
   useLedgerRecordsQuery,
@@ -64,7 +65,10 @@ function ScopedLedgerSearch({
     expenseLabel: t('home.expense'),
     incomeLabel: t('home.income'),
     onRecordClick: record =>
-      navigate(ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, record.id)),
+      navigate(
+        ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, record.id),
+        { state: createLedgerRecordDetailState(record, ledgerId) },
+      ),
     showCategoryAsSecondary: true,
   }), [ledgerId, navigate, query.data.data, t]);
 

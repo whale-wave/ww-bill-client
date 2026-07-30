@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LedgerCapability, useLedgerPreferencesQuery } from '@/entities/ledger';
 import {
+  createLedgerRecordDetailState,
   RecordMonthPicker,
   RecordOverviewPresentation,
   useLedgerRecordsQuery,
@@ -56,6 +57,7 @@ function groupRecords(
   records: readonly RecordEntry[],
   showDailySummary: boolean,
   t: (key: string) => string,
+  onRecordClick: (record: RecordEntry) => void,
 ): RecordOverviewListGroup[] {
   const groups = new Map<string, RecordEntry[]>();
 
@@ -86,6 +88,7 @@ function groupRecords(
         amount: `${record.type === 'sub' ? '-' : ''}${Number(record.amount).toFixed(2)}`,
         iconName: record.category.icon,
         id: record.id,
+        onClick: () => onRecordClick(record),
         primary: record.remark || record.category.name,
         secondary: record.category.name,
       })),
@@ -116,13 +119,11 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
       query.data.data,
       preferenceQuery.data?.showDailySummary !== false,
       t,
-    ).map(group => ({
-      ...group,
-      records: group.records.map(record => ({
-        ...record,
-        onClick: () => navigate(ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, record.id)),
-      })),
-    })),
+      record => navigate(
+        ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, record.id),
+        { state: createLedgerRecordDetailState(record, ledgerId) },
+      ),
+    ),
     [
       ledgerId,
       navigate,

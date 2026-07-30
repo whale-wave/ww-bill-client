@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { LedgerCapability, useLedgerPreferencesQuery } from '@/entities/ledger';
 import {
+  createLedgerRecordDetailState,
   RecordCalendarPresentation,
   toRecordSearchGroups,
   useLedgerRecordsQuery,
@@ -62,7 +63,10 @@ function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: strin
     expenseLabel: t('home.expense'),
     incomeLabel: t('home.income'),
     onRecordClick: record =>
-      navigate(ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, record.id)),
+      navigate(
+        ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, record.id),
+        { state: createLedgerRecordDetailState(record, ledgerId) },
+      ),
     showCategoryAsSecondary: true,
   }), [ledgerId, navigate, selectedRecords, t]);
 
