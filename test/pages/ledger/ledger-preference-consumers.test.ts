@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import dayjs from 'dayjs';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -48,10 +49,22 @@ vi.mock('@/entities/record', async importOriginal => ({
 }));
 
 vi.mock('@/shared/i18n', () => ({
+  i18n: {
+    t: (key: string, values?: Record<string, unknown>) => values
+      ? `${key}:${JSON.stringify(values)}`
+      : key,
+  },
   useTranslation: () => ({
     t: (key: string, values?: Record<string, unknown>) => values
       ? `${key}:${JSON.stringify(values)}`
       : key,
+  }),
+}));
+
+vi.mock('@/shared/lib/use-chart', () => ({
+  useChart: () => ({
+    chartDomRef: { current: null },
+    myChart: { setOption: vi.fn() },
   }),
 }));
 
@@ -89,13 +102,16 @@ const preference = {
 
 let cleanup: (() => void) | undefined;
 
-function renderPage(element: ReactNode) {
+function renderPage(
+  element: ReactNode,
+  initialEntry = '/ledgers/ledger%2Fa/page',
+) {
   const container = document.createElement('div');
   const root = createRoot(container);
   const router = createMemoryRouter([{
     path: '/ledgers/:ledgerId/page',
     element,
-  }], { initialEntries: ['/ledgers/ledger%2Fa/page'] });
+  }], { initialEntries: [initialEntry] });
   act(() => root.render(createElement(RouterProvider, { router })));
   cleanup = () => act(() => root.unmount());
   return container;
@@ -139,21 +155,53 @@ describe('ledger preference consumers', () => {
 
     const container = renderPage(createElement(LedgerRecordsPage));
 
-    expect(container.querySelector('[data-testid="ledger-record-summary"]')?.textContent).toContain('••••');
-    expect(container.querySelector('[data-testid="ledger-record-summary"]')?.textContent).not.toContain('10');
+    expect(container.querySelector('[data-testid="ledger-monthly-income"]')?.textContent).toContain('••••');
+    expect(container.querySelector('[data-testid="ledger-monthly-expense"]')?.textContent).toContain('••••');
+    expect(container.querySelector('[data-record-overview-metrics]')?.textContent).not.toContain('10');
   });
 
   it('shows the selected day summary only when enabled', () => {
+    const today = dayjs().format('YYYY-MM-DD');
     hooks.useLedgerPreferencesQuery.mockReturnValue({
       data: { ...preference, showDailySummary: true },
+      isError: false,
+      isLoading: false,
+    });
+    hooks.useLedgerRecordsQuery.mockReturnValue({
+      data: {
+        data: [{
+          amount: '10.00',
+          category: { icon: 'salary', id: 1, name: 'Salary' },
+          createdAt: `${today}T08:00:00.000Z`,
+          id: 1,
+          remark: 'Income',
+          time: `${today}T08:00:00.000Z`,
+          type: 'add',
+          updatedAt: `${today}T08:00:00.000Z`,
+          version: 1,
+        }, {
+          amount: '5.00',
+          category: { icon: 'catering', id: 2, name: 'Dining' },
+          createdAt: `${today}T09:00:00.000Z`,
+          id: 2,
+          remark: 'Expense',
+          time: `${today}T09:00:00.000Z`,
+          type: 'sub',
+          updatedAt: `${today}T09:00:00.000Z`,
+          version: 1,
+        }],
+        expend: 5,
+        income: 10,
+        total: 2,
+      },
       isError: false,
       isLoading: false,
     });
 
     const container = renderPage(createElement(LedgerCalendarPage));
 
-    expect(container.querySelector('[data-testid="ledger-daily-summary"]')?.textContent).toContain('10');
-    expect(container.querySelector('[data-testid="ledger-daily-summary"]')?.textContent).toContain('5');
+    expect(container.querySelector(`[data-date="${today}"]`)?.textContent).toContain('+10.00');
+    expect(container.querySelector(`[data-date="${today}"]`)?.textContent).toContain('-5.00');
   });
 
   it('uses chart period, metric, and display preferences as initial controls', () => {
@@ -180,10 +228,63 @@ describe('ledger preference consumers', () => {
     expect(container.querySelector('[data-chart-display="line"]')).not.toBeNull();
   });
 
+  it('lets URL state override preferences and falls net plus pie back to the line slot', () => {
+    hooks.useLedgerChartQuery.mockReturnValue({
+      data: [{
+        amount: 10,
+        average: '10',
+        data: [{ amount: 10, data: [], type: 'month', value: '2026-07-01' }],
+        ranking: [],
+        type: 'year',
+        value: 2026,
+      }],
+      isError: false,
+      isLoading: false,
+    });
+
+    const container = renderPage(
+      createElement(LedgerChartsPage),
+      '/ledgers/ledger%2Fa/page?metric=net&range=year&display=pie',
+    );
+
+    expect(hooks.useLedgerChartQuery).toHaveBeenCalledWith(expect.objectContaining({
+      params: {
+        filters: { category: LedgerChartPeriod.YEAR, type: 'add' },
+        ledgerId: 'ledger/a',
+      },
+      queryOptions: { enabled: true },
+    }));
+    expect(hooks.useLedgerChartQuery).toHaveBeenCalledWith(expect.objectContaining({
+      params: {
+        filters: { category: LedgerChartPeriod.YEAR, type: 'sub' },
+        ledgerId: 'ledger/a',
+      },
+      queryOptions: { enabled: true },
+    }));
+    expect(container.querySelector('[data-chart-display="line"]')).not.toBeNull();
+    expect(container.textContent).toContain('charts.netNoRanking');
+  });
+
   it('does not show a loader for an inactive chart query', () => {
+    hooks.useLedgerPreferencesQuery.mockReturnValue({
+      data: { ...preference, defaultChartDisplay: LedgerChartDisplay.LINE },
+      isError: false,
+      isLoading: false,
+    });
     hooks.useLedgerChartQuery
       .mockReturnValueOnce({ data: [], isLoading: true })
-      .mockReturnValueOnce({ data: [{ amount: 1, value: 2026 }], isLoading: false });
+      .mockReturnValueOnce({
+        data: [{
+          amount: 1,
+          average: '1',
+          data: [{ amount: 1, data: [], type: 'month', value: '2026-07-01' }],
+          ranking: [],
+          type: 'year',
+          value: 2026,
+        }],
+        isError: false,
+        isLoading: false,
+      });
 
     const container = renderPage(createElement(LedgerChartsPage));
 

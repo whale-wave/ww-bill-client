@@ -1,8 +1,28 @@
-# Household default-page presentations
+# Scoped-ledger default-page presentations
 
-Household record detail, record search, and budget routes reuse the personal
-ledger's presentation seams. Page adapters continue to own household queries,
-routes, mutations, URL filters, and scope validation.
+Household and scoped-ledger record detail, record search, and budget routes reuse
+the personal ledger's presentation seams. Page adapters continue to own their
+queries, routes, mutations, URL filters, capabilities, and scope validation.
+
+The customer-facing family/custom-ledger workspace uses the
+`/ledgers/:ledgerId/...` route family. Its detail, search, and budget adapters are
+`LedgerRecordDetailPage`, `LedgerRecordSearchPage`, and `LedgerBudgetPage`.
+The older `/households/:householdId/...` route family uses the same seams but is
+not the primary ledger workspace.
+
+## Records overview
+
+`entities/record/ui/RecordOverviewHeader` and `RecordOverviewList` own the
+shared overview geometry used by personal, household, and custom-ledger record
+pages. The header reserves separate title, period/metric, and shortcut rows so a
+two-line household title cannot overlap the current month or totals.
+
+`LedgerRecordsPage` uses the household-style current-month overview instead of
+its former search-bar list. It retains ledger-scoped routing and capability
+checks while reusing the same month selector, income/expense placement,
+budget/search/calendar/settings shortcuts, compact date groups, category icons,
+and amount privacy preference. Search remains available through the dedicated
+ledger search route.
 
 ## Record detail
 
@@ -10,22 +30,29 @@ routes, mutations, URL filters, and scope validation.
 rows, optional pin, and optional fixed actions. Its optional props default to the
 personal `/editing/:id` presentation.
 
-Household detail supplies member, tag, counted, and policy rows without adding
-family edit/delete controls. Its route owns a persistent `NavBar` outside both
-scope and record query states, and opts out of the presentation's default
-navigation through `showNavigation={false}`. This keeps loaded geometry aligned
-while retaining back navigation during loading, error, and invalid-route states.
+Household detail keeps the personal share pin and owner edit/delete footer,
+then extends the row list with member, tag, counted, and clickable policy
+fields. Scoped-ledger detail supplies capability-controlled edit/delete actions
+and an optional family-policy row. Their routes own a
+persistent `NavBar` outside both scope and record query states, and opt out of
+the presentation's default navigation through `showNavigation={false}`. This
+keeps loaded geometry aligned while retaining back navigation during loading,
+error, and invalid-route states. The category block starts below the navigation
+bar rather than using a negative offset into it.
 
 ## Record search
 
-`shared/ui/record-search-header` owns the fixed primary search header used by
-personal and household search. Household keyword and advanced fields remain URL
-search params. The household scope boundary wraps query-backed results and the
-filter popup, while the shared header remains available during scope failures.
+`shared/ui/record-search-header` owns both the fixed primary search header and
+the page shell used by personal, household, and scoped-ledger search. Household
+keyword and advanced fields remain URL search params. The route scope boundary
+wraps query-backed results and the filter popup, while the shared header remains
+available during scope failures.
 
-Household results use `HouseholdRecordsPanel` and the shared grouped record-list
-geometry. Selection is routed with `ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL`, which
-encodes the household ID before navigation.
+Personal and household search results use `RecordOverviewList`'s default
+geometry, which preserves the original personal record row dimensions. Household
+home and calendar surfaces explicitly select the compact variant. Selection is
+routed with the matching household or ledger detail route helper, which encodes
+the scope ID before navigation.
 
 ## Budget
 

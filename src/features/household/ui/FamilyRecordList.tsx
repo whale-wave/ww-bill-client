@@ -1,9 +1,13 @@
 import type { FC } from 'react';
 import type { FamilyRecord, HouseholdCalendarDay } from '@/entities/household';
-import type { RecordOverviewListGroup } from '@/entities/record';
 import { FamilyRecordPolicy } from '@/entities/household';
 import { RecordOverviewList } from '@/entities/record';
-import { getDisplayName, toMoney } from '../model';
+import { cn } from '@/shared/lib';
+import {
+  getDisplayName,
+  toHouseholdRecordOverviewGroups,
+  toMoney,
+} from '../model';
 
 interface FamilyRecordListProps {
   countedLabel: string;
@@ -13,6 +17,7 @@ interface FamilyRecordListProps {
   emptyLabel: string;
   inheritedLabel: string;
   isCompactGrouped?: boolean;
+  groupedVariant?: 'compact' | 'default';
   locale: string;
   memberLabel: (name: string) => string;
   onSelect?: (record: FamilyRecord) => void;
@@ -32,41 +37,6 @@ function getPolicyLabel(
   return record.counted ? labels.countedLabel : labels.uncountedLabel;
 }
 
-interface RecordDateGroup {
-  records: FamilyRecord[];
-  time: string;
-}
-
-function getLocalDate(record: FamilyRecord) {
-  const date = new Date(record.time);
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${date.getFullYear()}-${month}-${day}`;
-}
-
-function getRecordDateGroups(records: FamilyRecord[]) {
-  return records.reduce<RecordDateGroup[]>((groups, record) => {
-    const time = getLocalDate(record);
-    const currentGroup = groups.find(group => group.time === time);
-    if (!currentGroup) {
-      groups.push({ records: [record], time });
-      return groups;
-    }
-
-    currentGroup.records.push(record);
-    return groups;
-  }, []);
-}
-
-function formatDateHeading(date: string, locale: string) {
-  const [year, month, day] = date.split('-').map(Number);
-  return new Intl.DateTimeFormat(locale, {
-    day: 'numeric',
-    month: 'short',
-    weekday: 'short',
-  }).format(new Date(year, month - 1, day));
-}
-
 export const FamilyRecordList: FC<FamilyRecordListProps> = ({
   countedLabel,
   dailyExpenseLabel,
@@ -75,6 +45,7 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
   emptyLabel,
   inheritedLabel,
   isCompactGrouped = false,
+  groupedVariant = 'default',
   locale,
   memberLabel,
   onSelect,
@@ -111,12 +82,15 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
         </span>
       </>
     );
-    const className = `flex min-h-[76px] w-full items-center border-0 bg-white px-3 py-2 text-left ${index > 0 ? 'border-t border-solid border-[#EBEBEB]' : ''}`;
+    const className = cn(
+      'flex min-h-[76px] w-full items-center border-0 bg-white px-3 py-2 text-left',
+      index > 0 && 'border-t border-solid border-[#EBEBEB]',
+    );
 
     return onSelect
       ? (
           <button
-            className={`${className} active:bg-slate-50`}
+            className={cn(className, 'active:bg-slate-50')}
             data-record-id={record.id}
             key={record.id}
             onClick={() => onSelect(record)}
@@ -131,35 +105,20 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
   };
 
   if (isCompactGrouped) {
-    const dailyTotalMap = new Map(dailyTotals.map(total => [total.date, total]));
-    const overviewGroups: RecordOverviewListGroup[] = getRecordDateGroups(records).map((group) => {
-      const dailyTotal = dailyTotalMap.get(group.time);
-      return {
-        dateLabel: formatDateHeading(group.time, locale),
-        dateTime: group.time,
-        key: group.time,
-        records: group.records.map(record => ({
-          amount: `${record.type === 'add' ? '' : '-'}${toMoney(record.amount)}`,
-          iconName: record.category?.icon ?? 'bill',
-          id: record.id,
-          onClick: onSelect ? () => onSelect(record) : undefined,
-          primary: record.remark || record.category?.name || '—',
-          secondary: `${memberLabel(getDisplayName(record.creator))}${record.tags.length > 0 ? ` · ${record.tags.map(tag => `#${tag.name}`).join(' ')}` : ''} · ${getPolicyLabel(record, labels)}`,
-        })),
-        summaries: dailyTotal
-          ? [
-              ...(dailyTotal.visibleIncome !== '0' && dailyTotal.visibleIncome !== '0.00'
-                ? [{ key: 'income', label: dailyIncomeLabel, value: toMoney(dailyTotal.visibleIncome) }]
-                : []),
-              ...(dailyTotal.visibleExpense !== '0' && dailyTotal.visibleExpense !== '0.00'
-                ? [{ key: 'expense', label: dailyExpenseLabel, value: toMoney(dailyTotal.visibleExpense) }]
-                : []),
-            ]
-          : [],
-      };
+    const overviewGroups = toHouseholdRecordOverviewGroups(records, {
+      countedLabel,
+      dailyExpenseLabel,
+      dailyIncomeLabel,
+      dailyTotals,
+      inheritedLabel,
+      locale,
+      memberLabel,
+      onSelect,
+      privateLabel,
+      uncountedLabel,
     });
 
-    return <RecordOverviewList groups={overviewGroups} />;
+    return <RecordOverviewList groups={overviewGroups} variant={groupedVariant === 'compact' ? 'overview' : 'search'} />;
   }
 
   return (

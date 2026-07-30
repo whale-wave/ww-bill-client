@@ -4,17 +4,18 @@ import React, { memo, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/shared/i18n';
 import { math } from '@/shared/lib';
-import RecordListItem from './RecordListItem';
+import { RecordOverviewList } from './RecordOverviewList';
 
 interface RecordItemGroupProps {
   data: {
     time: number;
     data: RecordEntry[];
   };
+  onRecordClick?: (record: RecordEntry) => void;
 }
 
 const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
-  const { data } = props;
+  const { data, onRecordClick } = props;
   const { t } = useTranslation('record');
   const navigate = useNavigate();
 
@@ -43,38 +44,32 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
   }, [data, t]);
 
   const handleRecordItemClick = useCallback((record: RecordEntry) => () => {
+    if (onRecordClick) {
+      onRecordClick(record);
+      return;
+    }
     navigate(`/editing/${record.id}`, { state: record });
-  }, [navigate]);
+  }, [navigate, onRecordClick]);
 
   return (
-    <div className="flex flex-col pt-3 border-0 border-b-[1px] border-[#ebebeb] border-solid last:border-0">
-      <div className="flex justify-between text-sm text-[#969696] px-4 ">
-        <div className="text-sm">{dayjs(data.time).format('YYYY年MM月DD日')}</div>
-        <div className="flex space-x-3">
-          {
-            amountInfo.map(item => (
-              <div key={item.type}>
-                {item.name}
-                :
-                {' '}
-                {item.amount}
-              </div>
-            ))
-          }
-        </div>
-      </div>
-      <div>
-        {data.data.map((record, index) => (
-          <RecordListItem
-            onClick={handleRecordItemClick(record)}
-            index={index}
-            lastIndex={data.data.length - 1}
-            key={record.id}
-            record={record}
-          />
-        ))}
-      </div>
-    </div>
+    <RecordOverviewList
+      groups={[{
+        dateLabel: dayjs(data.time).format('YYYY年MM月DD日'),
+        key: String(data.time),
+        records: data.data.map(record => ({
+          amount: `${record.type === 'sub' ? '-' : ''}${record.amount}`,
+          iconName: record.category.icon,
+          id: record.id,
+          onClick: handleRecordItemClick(record),
+          primary: record.remark,
+        })),
+        summaries: amountInfo.map(item => ({
+          key: item.type,
+          label: item.name,
+          value: item.amount,
+        })),
+      }]}
+    />
   );
 });
 

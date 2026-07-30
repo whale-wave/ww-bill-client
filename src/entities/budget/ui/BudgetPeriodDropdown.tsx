@@ -6,12 +6,12 @@ import { useRef } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { NavBar } from '@/shared/ui';
 import { BudgetEntityType } from '../api';
-import style from './BudgetPeriodDropdown.module.scss';
 
 export interface BudgetPeriodDropdownProps {
   budgetEntityType: BudgetEntityType;
   dropDownWrapperRef: RefObject<HTMLDivElement>;
   onBudgetEntityTypeChange: (budgetEntityType: BudgetEntityType) => void;
+  onBack?: () => void;
   right?: ReactNode;
 }
 
@@ -19,6 +19,7 @@ export const BudgetPeriodDropdown: React.FC<BudgetPeriodDropdownProps> = ({
   budgetEntityType,
   dropDownWrapperRef,
   onBudgetEntityTypeChange,
+  onBack,
   right,
 }) => {
   const dropdownRef = useRef<DropdownRef>(null);
@@ -35,10 +36,10 @@ export const BudgetPeriodDropdown: React.FC<BudgetPeriodDropdownProps> = ({
   ];
 
   return (
-    <NavBar right={right}>
+    <NavBar back={t('common:nav.back')} onBack={onBack} right={right}>
       <Dropdown
         arrow={<DownFill className="text-black333 text-base" />}
-        className={`${style.dropdown} bg-transparent`}
+        className="bg-transparent [&_.adm-dropdown-item-highlight]:text-black333 [&_.adm-dropdown-item-title-arrow]:translate-y-0 [&_.adm-dropdown-item-title-arrow]:rotate-0 [&_.adm-dropdown-item-title-arrow]:[font-size:unset] [&_.adm-dropdown-item-title-text]:text-lg"
         getContainer={dropDownWrapperRef.current}
         ref={dropdownRef}
       >
@@ -48,7 +49,7 @@ export const BudgetPeriodDropdown: React.FC<BudgetPeriodDropdownProps> = ({
             ? t('dropdown.monthlyBudget')
             : t('dropdown.yearlyBudget')}
         >
-          <List className={style.list}>
+          <List className="[&_.adm-list-item-content-main]:text-start">
             {actions.map(item => (
               <List.Item
                 arrow={budgetEntityType === item.key

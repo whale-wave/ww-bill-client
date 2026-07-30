@@ -1,12 +1,12 @@
 import type { FC } from 'react';
-import { ChartOverviewBody } from '@/features/chart-overview';
+import { ChartOverviewPresentation } from '@/features/chart-overview';
 import { ChartHomeProvider } from '@/pages/chart/chart-home/model/ChartHomeProvider';
 import { TabBar } from '@/widgets/layout';
 
 const ChartHomeInner: FC = () => {
   return (
     <>
-      <ChartOverviewBody />
+      <ChartOverviewPresentation />
       <TabBar active={1} />
     </>
   );

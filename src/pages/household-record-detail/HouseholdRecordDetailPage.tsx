@@ -1,9 +1,10 @@
 import type { FC } from 'react';
 import type { FamilyRecord } from '@/entities/household';
-import { Toast } from 'antd-mobile';
+import type { RecordEntry } from '@/entities/record';
+import { Dialog, Toast } from 'antd-mobile';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useHouseholdRecordQuery } from '@/entities/household';
-import { RecordDetailPresentation } from '@/entities/record';
+import { RecordDetailPresentation, useDeleteRecordMutation } from '@/entities/record';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { HouseholdPageState, HouseholdScopeBoundary } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -34,6 +35,27 @@ const RecordDetail: FC<{
   const date = new Date(record.time);
   const timeDate = getTimeDateYear(date);
   const weekByDay = getWeekByDay(getTimedate(date));
+  const [deleteRecord, deleteState] = useDeleteRecordMutation();
+  const editableRecord: RecordEntry | undefined = record.category
+    ? {
+        amount: record.amount,
+        category: {
+          createdAt: record.time,
+          icon: record.category.icon,
+          id: record.category.id,
+          name: record.category.name,
+          updatedAt: record.time,
+        },
+        createdAt: record.time,
+        id: record.id,
+        remark: record.remark,
+        tags: record.tags,
+        time: record.time,
+        type: record.type,
+        updatedAt: record.time,
+        version: record.version,
+      }
+    : undefined;
 
   const handleShare = async () => {
     const text = t('recordDetail.shareText', {
@@ -54,6 +76,24 @@ const RecordDetail: FC<{
     }
   };
 
+  const handleDelete = async () => {
+    const confirmed = await Dialog.confirm({
+      content: t('record:detail.deleteWarning'),
+      title: t('common:confirm.delete'),
+    });
+    if (!confirmed)
+      return;
+
+    try {
+      const response = await deleteRecord({ id: String(record.id), version: record.version });
+      void Toast.show({ content: response.message, icon: 'success' });
+      navigate(ROUTES_PATH.HOUSEHOLD_HOME.getPath(householdId), { replace: true });
+    }
+    catch {
+      void Toast.show({ content: t('common:api.failed'), icon: 'fail' });
+    }
+  };
+
   return (
     <RecordDetailPresentation
       backLabel={t('common:nav.back')}
@@ -61,29 +101,49 @@ const RecordDetail: FC<{
         icon: record.category?.icon ?? 'bill',
         name: record.category?.name ?? t('recordDetail.uncategorized'),
       }}
-      footerActions={[
-        { label: t('recordDetail.share'), onClick: () => void handleShare() },
-        ...(isOwner
-          ? [{
-              label: t('recordDetail.policy'),
-              onClick: () => navigate(ROUTES_PATH.HOUSEHOLD_RECORD_POLICY.getPath(householdId, record.id)),
-              testId: 'household-record-policy',
-            }]
-          : []),
-      ]}
+      footerActions={isOwner
+        ? [
+            {
+              disabled: !editableRecord,
+              label: t('record:detail.edit'),
+              onClick: () => {
+                if (editableRecord) {
+                  navigate(ROUTES_PATH.BOOKKEEPING.getPath(), {
+                    replace: true,
+                    state: editableRecord,
+                  });
+                }
+              },
+            },
+            {
+              disabled: deleteState.isLoading,
+              label: t('record:detail.delete'),
+              onClick: () => void handleDelete(),
+            },
+          ]
+        : []}
       onBack={() => navigate(-1)}
+      pinnedAction={{ label: t('recordDetail.share'), onClick: () => void handleShare() }}
       rows={[
         { label: t('recordDetail.type'), value: record.type === 'sub' ? t('recordDetail.expense') : t('recordDetail.income') },
         { label: t('record:edit.amount'), value: record.amount },
         { label: t('recordDetail.date'), value: `${timeDate}  ${weekByDay}` },
         { label: t('recordDetail.remark'), value: record.remark || t('recordDetail.none') },
       ]}
-      showNavigation={false}
       supplementaryRows={[
         { label: t('recordDetail.member'), value: record.creator.name || record.creator.username || `#${record.creator.id}` },
         ...(tags ? [{ label: t('recordDetail.tags'), value: tags }] : []),
         { label: t('recordDetail.counted'), value: record.counted ? t('recordDetail.counted') : t('recordDetail.uncounted') },
-        { label: t('recordDetail.policy'), value: t(`policy.${record.effectivePolicy}`) },
+        {
+          label: t('recordDetail.policy'),
+          ...(isOwner
+            ? {
+                onClick: () => navigate(ROUTES_PATH.HOUSEHOLD_RECORD_POLICY.getPath(householdId, record.id)),
+                testId: 'household-record-policy',
+              }
+            : {}),
+          value: t(`policy.${record.effectivePolicy}`),
+        },
       ]}
     />
   );
@@ -103,7 +163,9 @@ const HouseholdRecordDetailPage: FC = () => {
 
   return (
     <div className="page">
-      <NavBar back={t('common:nav.back')} backArrow={false} onBack={() => navigate(-1)} />
+      {!recordQuery.data && (
+        <NavBar back={t('common:nav.back')} backArrow={false} onBack={() => navigate(-1)} />
+      )}
       <div className="min-h-0 flex-grow overflow-hidden">
         <HouseholdScopeBoundary householdId={householdId}>
           {() => (

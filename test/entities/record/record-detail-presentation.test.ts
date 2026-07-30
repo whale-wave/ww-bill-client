@@ -55,6 +55,12 @@ describe('record detail presentation', () => {
     }));
 
     expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
+    expect(container.querySelector('[data-record-detail-header]')?.classList).toContain('bg-primary');
+    expect(container.querySelector('[data-record-detail-header]')?.classList).toContain('h-[96px]');
+    const category = container.querySelector('[data-record-detail-category]');
+    expect(category?.classList).toContain('top-[8px]');
+    expect(category?.className).not.toContain('top-[-');
+    expect(container.querySelector('[data-record-detail-row]')?.classList).toContain('border-b');
     expect(container.querySelector('[data-category-icon="food"] use')?.getAttribute('xlink:href')).toBe('#icon-food');
     expect(container.textContent).toContain('Food');
     expect(container.textContent).toContain('Member');
@@ -62,6 +68,18 @@ describe('record detail presentation', () => {
     expect(container.querySelector('.bwm-fixed-pin')?.textContent).toBe('Share');
     expect(container.querySelector('[data-record-detail-footer]')).not.toBeNull();
     expect(container.querySelector('[data-testid="household-record-policy"]')?.textContent).toBe('Visibility');
+  });
+
+  it('disables footer actions when requested', () => {
+    const container = render(createElement(RecordDetailPresentation, {
+      backLabel: 'Back',
+      category: { icon: 'bill', name: 'Uncategorised' },
+      footerActions: [{ disabled: true, label: 'Delete', onClick: () => undefined, testId: 'delete-record' }],
+      onBack: () => undefined,
+      rows: [{ label: 'Amount', value: '20.00' }],
+    }));
+
+    expect(container.querySelector<HTMLButtonElement>('[data-testid="delete-record"]')?.disabled).toBe(true);
   });
 });
 

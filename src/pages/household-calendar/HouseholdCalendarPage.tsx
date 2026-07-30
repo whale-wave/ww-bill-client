@@ -1,33 +1,28 @@
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
-import type { FamilyRecord, Household } from '@/entities/household';
-import {
-  CalendarPickerView,
-  DatePicker,
-  FloatingBubble,
-  NavBar,
-} from 'antd-mobile';
-import { AddOutline, DownFill } from 'antd-mobile-icons';
-import classNames from 'classnames';
+import type { Household } from '@/entities/household';
+import { DatePicker } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { useHouseholdCalendarQuery } from '@/entities/household';
 import {
-  HouseholdPageState,
-  HouseholdRecordsPanel,
+  useHouseholdCalendarQuery,
+  useInfiniteHouseholdRecordsQuery,
+} from '@/entities/household';
+import { RecordCalendarPresentation } from '@/entities/record';
+import {
   HouseholdScopeBoundary,
+  toHouseholdRecordOverviewGroups,
 } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import styles from './index.module.scss';
 
 function getInitialMonth(month: string | null) {
   return month && /^\d{4}-\d{2}-01$/.test(month) ? dayjs(month) : dayjs();
 }
 
 const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) => {
-  const { t } = useTranslation('household');
+  const { i18n, t } = useTranslation('household');
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectMonthValue, setSelectMonthValue] = useState<Dayjs>(() => getInitialMonth(searchParams.get('month')));
@@ -41,21 +36,21 @@ const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) =
     params: { householdId: household.id, month },
     queryOptions: { enabled: true },
   });
-  const dateMap = useMemo(
-    () => new Map(calendarQuery.days.map(day => [day.date, day])),
-    [calendarQuery.days],
-  );
-  const calendarRange = useMemo(() => ({
-    max: selectMonthValue.endOf('month').toDate(),
-    min: selectMonthValue.startOf('month').toDate(),
-  }), [selectMonthValue]);
+  const recordsQuery = useInfiniteHouseholdRecordsQuery({
+    params: {
+      filters: {
+        endDate: selectedDate,
+        limit: 50,
+        offset: 0,
+        startDate: selectedDate,
+      },
+      householdId: household.id,
+    },
+    queryOptions: { enabled: true },
+  });
   const isToday = useCallback((date: Date | Dayjs) => {
     return dayjs().isSame(dayjs(date), 'day');
   }, []);
-  const getDateText = useCallback((date: Date) => {
-    return isToday(date) ? t('common:time.today') : dayjs(date).date();
-  }, [isToday, t]);
-
   const handleDatePicker = useCallback(() => {
     void DatePicker.prompt({
       defaultValue: selectMonthValue.toDate(),
@@ -91,97 +86,48 @@ const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) =
     navigate(`${ROUTES_PATH.BOOKKEEPING.getPath()}?selectTime=${selectDateValue.valueOf()}`);
   }, [navigate, selectDateValue]);
 
-  const handleSelectRecord = useCallback((record: FamilyRecord) => {
-    navigate(ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(household.id, record.id));
-  }, [household.id, navigate]);
+  const groups = useMemo(() => toHouseholdRecordOverviewGroups(
+    recordsQuery.records,
+    {
+      countedLabel: t('records.counted'),
+      inheritedLabel: t('records.inherited'),
+      locale: i18n.resolvedLanguage ?? i18n.language,
+      memberLabel: name => t('records.memberAttribution', { name }),
+      onSelect: record =>
+        navigate(ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(household.id, record.id)),
+      privateLabel: t('records.private'),
+      uncountedLabel: t('records.uncounted'),
+    },
+  ), [household.id, i18n.language, i18n.resolvedLanguage, navigate, recordsQuery.records, t]);
+  const days = useMemo(() => calendarQuery.days.map(day => ({
+    date: day.date,
+    expense: Number(day.visibleExpense) ? Number(day.visibleExpense) : undefined,
+    income: Number(day.visibleIncome) ? Number(day.visibleIncome) : undefined,
+  })), [calendarQuery.days]);
 
   return (
-    <HouseholdPageState
+    <RecordCalendarPresentation
+      backLabel={t('common:nav.back')}
+      days={days}
+      emptyLabel={t('calendar.emptyDay')}
       errorDescription={t('common.loadErrorDescription')}
-      errorTitle={t('common.loadError')}
-      isError={calendarQuery.isError}
-      isLoading={calendarQuery.isLoading}
-      loadingLabel={t('common.loading')}
-      onRetry={() => void calendarQuery.refetch()}
+      groups={groups}
+      month={selectMonthValue}
+      onBack={() => navigate(-1)}
+      onCreate={handleCreateRecord}
+      onDateChange={date => handleChangeDate(date.toDate())}
+      onMonthClick={handleDatePicker}
+      onRetry={() => void Promise.all([calendarQuery.refetch(), recordsQuery.refetch()])}
+      onToday={handleToToday}
       retryLabel={t('common.retry')}
-    >
-      <NavBar
-        back={t('common:nav.back')}
-        right={<div onClick={handleToToday}>{t('common:time.today')}</div>}
-        className="bg-primary flex-shrink-0 fixed top-0 left-0 w-full"
-        onBack={() => navigate(-1)}
-      >
-        <div className="flex items-center justify-center space-x-2" onClick={handleDatePicker}>
-          <span>{selectMonthValue.format('YYYY年MM月')}</span>
-          <DownFill className="text-base" />
-        </div>
-      </NavBar>
-      <CalendarPickerView
-        {...calendarRange}
-        allowClear={false}
-        title={false}
-        selectionMode="single"
-        weekStartsOn="Monday"
-        value={selectDateValue.toDate()}
-        onChange={handleChangeDate}
-        renderDate={(date) => {
-          const data = dateMap.get(dayjs(date).format('YYYY-MM-DD'));
-          return (
-            <div
-              className={classNames('flex-grow flex flex-col', {
-                'border-[1px] border-solid border-gray-200 rounded-[2px]': isToday(date),
-              })}
-              data-date={dayjs(date).format('YYYY-MM-DD')}
-            >
-              <div className={classNames('mt-1 flex justify-center', {
-                'text-sm': isToday(date),
-              })}
-              >
-                {getDateText(date)}
-              </div>
-              <div className="flex-grow flex flex-col text-xs leading-[10px]">
-                <div className="flex justify-center h-[10px] text-[#00863f]">
-                  {!!Number(data?.visibleIncome) && (
-                    <>
-                      +
-                      {Number(data?.visibleIncome)}
-                    </>
-                  )}
-                </div>
-                <div className="flex justify-center h-[10px] text-[#cf7179]">
-                  {!!Number(data?.visibleExpense) && (
-                    <>
-                      -
-                      {Number(data?.visibleExpense)}
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        }}
-      />
-      <div className="h-1 bg-[#f6f7f8] flex-shrink-0" />
-      <div className="pb-8">
-        <HouseholdRecordsPanel
-          dailyTotals={calendarQuery.days}
-          emptyDescription={t('calendar.emptyDay')}
-          filters={{ endDate: selectedDate, startDate: selectedDate }}
-          householdId={household.id}
-          isCompactGrouped
-          onSelect={handleSelectRecord}
-          showSummary={false}
-        />
-      </div>
-      <FloatingBubble
-        axis="xy"
-        className="[--edge-distance:12px] [--initial-position-bottom:20%] [--initial-position-right:12px] [--size:55px]"
-        magnetic="x"
-        onClick={handleCreateRecord}
-      >
-        <AddOutline className="text-2xl text-[#333]" />
-      </FloatingBubble>
-    </HouseholdPageState>
+      selectedDate={selectDateValue}
+      state={calendarQuery.isLoading || recordsQuery.isLoading
+        ? 'loading'
+        : calendarQuery.isError || recordsQuery.isError
+          ? 'error'
+          : 'ready'}
+      todayLabel={t('common:time.today')}
+    />
   );
 };
 
@@ -189,10 +135,7 @@ const HouseholdCalendarPage: FC = () => {
   const { householdId = '' } = useParams<{ householdId: string }>();
 
   return (
-    <div
-      className={classNames('page-new', styles['record-calendar-page'])}
-      data-testid="household-calendar-page"
-    >
+    <div data-testid="household-calendar-page">
       <HouseholdScopeBoundary householdId={householdId}>
         {household => <HouseholdCalendarContent household={household} />}
       </HouseholdScopeBoundary>

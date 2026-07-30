@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound, prefetchRoute } from '@/shared/lib';
-import { Icon } from '@/shared/ui';
-import './tab-bar.scss';
+import { BottomTabBarPresentation, Icon } from '@/shared/ui';
 
 export type PersonalTabKey
   = | 'detail'
@@ -77,42 +76,23 @@ export const TabBar: FC<TabBarProps> = ({ active, activeKey }) => {
   };
 
   return (
-    <div className="h-[60px] flex-shrink-0 z-[100]">
-      <div aria-label={t('tabBar.navigation')} className="bwm-tab-bar fixed bottom-0">
-        {personalTabs.map(tab => (
-          <div
-            className="item relative"
-            data-route={tab.route}
-            data-tab-key={tab.key}
-            key={tab.key}
-            onClick={() => handleTabClick(tab)}
-            onMouseEnter={() => prefetchRoute(`personal-${tab.key}`)}
-            onTouchStart={() => prefetchRoute(`personal-${tab.key}`)}
-          >
-            {tab.key === 'bookkeeping'
-              ? (
-                  <div className="flex justify-center items-center flex-col relative">
-                    <div className="border-[1px] border-[#f7f7f7] border-solid p-[5px] rounded-full border-r-0 border-b-0 border-l-0 absolute bottom-[50%] bg-[#fff]">
-                      <div className="bg-primary rounded-full w-[55px] h-[55px] flex justify-center items-center">
-                        <AddOutline className="text-2xl" />
-                      </div>
-                    </div>
-                    <AddOutline className="tab-icon opacity-0" />
-                    <span className="name">{t(tab.translationKey)}</span>
-                  </div>
-                )
-              : (
-                  <>
-                    <Icon
-                      className="tab-icon"
-                      name={tab.key === resolvedActiveKey ? tab.iconActive ?? tab.icon : tab.icon}
-                    />
-                    <span className="name">{t(tab.translationKey)}</span>
-                  </>
-                )}
-          </div>
-        ))}
-      </div>
-    </div>
+    <BottomTabBarPresentation
+      activeKey={resolvedActiveKey}
+      ariaLabel={t('tabBar.navigation')}
+      items={personalTabs.map(tab => ({
+        activeIcon: tab.key === 'bookkeeping'
+          ? <AddOutline className="text-2xl" />
+          : <Icon name={tab.iconActive ?? tab.icon} />,
+        icon: tab.key === 'bookkeeping'
+          ? <AddOutline className="text-2xl" />
+          : <Icon name={tab.icon} />,
+        key: tab.key,
+        label: t(tab.translationKey),
+        onPrefetch: () => prefetchRoute(`personal-${tab.key}`),
+        onSelect: () => handleTabClick(tab),
+        prominent: tab.key === 'bookkeeping',
+        route: tab.route,
+      }))}
+    />
   );
 };

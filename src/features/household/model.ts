@@ -1,3 +1,5 @@
+import type { FamilyRecord, HouseholdCalendarDay } from '@/entities/household';
+import type { RecordOverviewListGroup } from '@/entities/record';
 import { FamilyRecordPolicy } from '@/entities/household';
 
 function pad(value: number) {
@@ -67,6 +69,98 @@ export function toMoney(value: string | number | undefined) {
 
 export function getDisplayName(user: { name?: string; username?: string }) {
   return user.name?.trim() || user.username?.trim() || '—';
+}
+
+interface HouseholdRecordOverviewOptions {
+  countedLabel: string;
+  dailyExpenseLabel?: string;
+  dailyIncomeLabel?: string;
+  dailyTotals?: HouseholdCalendarDay[];
+  inheritedLabel: string;
+  locale: string;
+  memberLabel: (name: string) => string;
+  onSelect?: (record: FamilyRecord) => void;
+  privateLabel: string;
+  uncountedLabel: string;
+}
+
+function getPolicyLabel(
+  record: FamilyRecord,
+  options: HouseholdRecordOverviewOptions,
+) {
+  if (record.policy === FamilyRecordPolicy.INHERIT)
+    return options.inheritedLabel;
+  if (record.policy === FamilyRecordPolicy.PRIVATE)
+    return options.privateLabel;
+  return record.counted ? options.countedLabel : options.uncountedLabel;
+}
+
+function getRecordLocalDate(record: FamilyRecord) {
+  const date = new Date(record.time);
+  return formatCalendarDate(date);
+}
+
+function formatDateHeading(date: string, locale: string) {
+  const [year, month, day] = date.split('-').map(Number);
+  return new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'short',
+    weekday: 'short',
+  }).format(new Date(year, month - 1, day));
+}
+
+export function toHouseholdRecordOverviewGroups(
+  records: readonly FamilyRecord[],
+  options: HouseholdRecordOverviewOptions,
+): RecordOverviewListGroup[] {
+  const grouped = new Map<string, FamilyRecord[]>();
+  records.forEach((record) => {
+    const date = getRecordLocalDate(record);
+    const current = grouped.get(date);
+    if (current)
+      current.push(record);
+    else
+      grouped.set(date, [record]);
+  });
+  const dailyTotalMap = new Map(
+    (options.dailyTotals ?? []).map(total => [total.date, total]),
+  );
+
+  return Array.from(grouped, ([date, groupedRecords]) => {
+    const dailyTotal = dailyTotalMap.get(date);
+    return {
+      dateLabel: formatDateHeading(date, options.locale),
+      dateTime: date,
+      key: date,
+      records: groupedRecords.map(record => ({
+        amount: `${record.type === 'add' ? '' : '-'}${toMoney(record.amount)}`,
+        amountTone: record.type === 'add' ? 'income' : 'expense',
+        iconName: record.category?.icon ?? 'bill',
+        id: record.id,
+        onClick: options.onSelect ? () => options.onSelect?.(record) : undefined,
+        primary: record.remark || record.category?.name || '—',
+        secondary: `${options.memberLabel(getDisplayName(record.creator))}${record.tags.length > 0 ? ` · ${record.tags.map(tag => `#${tag.name}`).join(' ')}` : ''} · ${getPolicyLabel(record, options)}`,
+      })),
+      summaries: dailyTotal
+        ? [
+            ...(dailyTotal.visibleIncome !== '0' && dailyTotal.visibleIncome !== '0.00'
+              ? [{
+                  key: 'income',
+                  label: options.dailyIncomeLabel,
+                  value: toMoney(dailyTotal.visibleIncome),
+                }]
+              : []),
+            ...(dailyTotal.visibleExpense !== '0' && dailyTotal.visibleExpense !== '0.00'
+              ? [{
+                  key: 'expense',
+                  label: options.dailyExpenseLabel,
+                  value: toMoney(dailyTotal.visibleExpense),
+                }]
+              : []),
+          ]
+        : [],
+    };
+  });
 }
 
 export function getApiErrorStatus(error: unknown) {

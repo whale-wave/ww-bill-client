@@ -2,18 +2,15 @@ import type { FC } from 'react';
 import type { Household, HouseholdBudget } from '@/entities/household';
 import {
   ActionSheet,
-  DatePicker,
   Dialog,
-  Input,
-  Modal,
-  Selector,
   Toast,
 } from 'antd-mobile';
-import dayjs from 'dayjs';
 import { useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
+  BudgetEditorPresentation,
   BudgetEntityType,
+  BudgetPageShell,
   BudgetPeriodDropdown,
   BudgetPresentation,
 } from '@/entities/budget';
@@ -231,55 +228,27 @@ const BudgetContent: FC<BudgetContentProps> = ({
 
   return (
     <>
-      <Modal
-        actions={[
-          {
-            disabled: upsertState.isLoading
-              || (editor?.kind === 'category' && !editor.budget && categoryOptions.length === 0),
-            key: 'confirm',
-            onClick: handleSave,
-            primary: true,
-            text: upsertState.isLoading ? t('common.saving') : t('common.save'),
-          },
-          {
-            disabled: upsertState.isLoading,
-            key: 'cancel',
-            onClick: closeEditor,
-            text: t('common.cancel'),
-          },
-        ]}
-        afterClose={closeEditor}
-        closeOnMaskClick={!upsertState.isLoading}
-        content={(
-          <div className="space-y-3 py-3">
-            {editor?.kind === 'category' && (
-              categoryOptions.length > 0
-                ? (
-                    <Selector
-                      columns={1}
-                      disabled={Boolean(editor.budget)}
-                      onChange={values => setCategoryKey(String(values[0] ?? ''))}
-                      options={categoryOptions.map(category => ({
-                        label: category.categoryName,
-                        value: category.categoryKey,
-                      }))}
-                      value={categoryKey ? [categoryKey] : []}
-                    />
-                  )
-                : <p className="text-sm text-font-gray">{t('budget.noAvailableCategories')}</p>
-            )}
-            <div className="!bg-[#fcfcfc] p-2">
-              <Input
-                name="householdBudgetAmount"
-                onChange={setAmount}
-                placeholder={t('budget.amountPlaceholder')}
-                type="number"
-                value={amount}
-              />
-            </div>
-          </div>
-        )}
-        onClose={closeEditor}
+      <BudgetEditorPresentation
+        amount={amount}
+        amountPlaceholder={t('budget.amountPlaceholder')}
+        cancelLabel={t('common.cancel')}
+        categoryDisabled={Boolean(editor?.budget)}
+        categoryEmptyContent={t('budget.noAvailableCategories')}
+        categoryOptions={editor?.kind === 'category'
+          ? categoryOptions.map(category => ({
+              label: category.categoryName,
+              value: category.categoryKey,
+            }))
+          : undefined}
+        categoryValue={categoryKey}
+        inputName="householdBudgetAmount"
+        isSaving={upsertState.isLoading}
+        onAfterClose={closeEditor}
+        onAmountChange={setAmount}
+        onCancel={closeEditor}
+        onCategoryChange={setCategoryKey}
+        onSave={handleSave}
+        saveLabel={upsertState.isLoading ? t('common.saving') : t('common.save')}
         title={editor?.kind === 'category'
           ? t(editor.budget ? 'budget.editCategoryTitle' : 'budget.addCategory')
           : t(editor?.budget ? 'budget.editSummaryTitle' : 'budget.addSummary')}
@@ -309,7 +278,6 @@ const BudgetContent: FC<BudgetContentProps> = ({
             if (query.data?.summary.budget)
               showActions(query.data.summary.budget, 'summary');
           }}
-          showCategoriesWithoutSummary
           summary={summary}
         />
       </HouseholdPageState>
@@ -331,58 +299,33 @@ const HouseholdBudgetsPage: FC = () => {
       ? HouseholdBudgetPeriodType.MONTH
       : HouseholdBudgetPeriodType.YEAR;
     setPeriodType(nextPeriodType);
-    if (nextPeriodType === HouseholdBudgetPeriodType.YEAR)
-      setPeriodStart(`${periodStart.slice(0, 4)}-01-01`);
-  };
-
-  const handlePeriodStart = () => {
-    void DatePicker.prompt({
-      defaultValue: dayjs(periodStart).toDate(),
-      precision: periodType === HouseholdBudgetPeriodType.MONTH ? 'month' : 'year',
-    }).then((selected) => {
-      if (!selected)
-        return;
-      setPeriodStart(periodType === HouseholdBudgetPeriodType.MONTH
-        ? formatMonthStart(selected)
-        : `${selected.getFullYear()}-01-01`);
-    });
+    setPeriodStart(nextPeriodType === HouseholdBudgetPeriodType.MONTH
+      ? formatMonthStart(new Date())
+      : `${new Date().getFullYear()}-01-01`);
   };
 
   return (
-    <div
-      className="page-new fixed left-0 top-0 h-screen w-full bg-[#f6f6f6]"
-      ref={dropDownWrapperRef}
+    <BudgetPageShell
+      header={(
+        <BudgetPeriodDropdown
+          budgetEntityType={budgetEntityType}
+          dropDownWrapperRef={dropDownWrapperRef}
+          onBudgetEntityTypeChange={handleBudgetEntityTypeChange}
+        />
+      )}
+      wrapperRef={dropDownWrapperRef}
     >
-      <BudgetPeriodDropdown
-        budgetEntityType={budgetEntityType}
-        dropDownWrapperRef={dropDownWrapperRef}
-        onBudgetEntityTypeChange={handleBudgetEntityTypeChange}
-        right={(
-          <button
-            className="border-0 bg-transparent px-0 text-xs text-font-gray"
-            data-budget-period-start
-            onClick={handlePeriodStart}
-            type="button"
-          >
-            {periodType === HouseholdBudgetPeriodType.MONTH
-              ? periodStart.slice(0, 7)
-              : periodStart.slice(0, 4)}
-          </button>
+      <HouseholdScopeBoundary householdId={householdId}>
+        {household => (
+          <BudgetContent
+            budgetEntityType={budgetEntityType}
+            household={household}
+            periodStart={periodStart}
+            periodType={periodType}
+          />
         )}
-      />
-      <div className="flex min-h-0 flex-grow flex-col overflow-auto">
-        <HouseholdScopeBoundary householdId={householdId}>
-          {household => (
-            <BudgetContent
-              budgetEntityType={budgetEntityType}
-              household={household}
-              periodStart={periodStart}
-              periodType={periodType}
-            />
-          )}
-        </HouseholdScopeBoundary>
-      </div>
-    </div>
+      </HouseholdScopeBoundary>
+    </BudgetPageShell>
   );
 };
 

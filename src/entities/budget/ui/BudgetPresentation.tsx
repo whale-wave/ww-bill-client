@@ -15,7 +15,7 @@ export interface BudgetPresentationProps {
   onCategoryEdit: (id: string) => void;
   onSummaryCreate: () => void;
   onSummaryEdit: () => void;
-  showCategoriesWithoutSummary?: boolean;
+  readOnly?: boolean;
   summary?: BudgetPresentationItem;
 }
 
@@ -27,7 +27,7 @@ export const BudgetPresentation: React.FC<BudgetPresentationProps> = ({
   onCategoryEdit,
   onSummaryCreate,
   onSummaryEdit,
-  showCategoriesWithoutSummary = false,
+  readOnly = false,
   summary,
 }) => {
   const { t } = useTranslation('budget');
@@ -41,21 +41,29 @@ export const BudgetPresentation: React.FC<BudgetPresentationProps> = ({
     );
   }
 
-  if (!summary && !showCategoriesWithoutSummary) {
+  if (!summary) {
     return (
       <div className="flex flex-grow flex-col items-center justify-center space-y-4">
         <div className="flex -translate-y-[30%] flex-col items-center justify-center space-y-4">
           <ErrorBlock status="empty" title={t('emptyBudget')} description={false} />
-          <Button
-            className="flex w-[200px] items-center"
-            color="primary"
-            data-budget-create-summary
-            onClick={onSummaryCreate}
-            shape="rounded"
-          >
-            <AddOutline />
-            <span>{t('addBudget')}</span>
-          </Button>
+          {!readOnly && (
+            <Button
+              className="flex w-[200px] items-center justify-center !bg-primary"
+              color="primary"
+              data-budget-create-summary
+              fill="solid"
+              onClick={onSummaryCreate}
+              shape="rounded"
+            >
+              <span
+                className="inline-flex items-center justify-center gap-1"
+                data-budget-create-summary-content
+              >
+                <AddOutline />
+                <span>{t('addBudget')}</span>
+              </span>
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -63,30 +71,13 @@ export const BudgetPresentation: React.FC<BudgetPresentationProps> = ({
 
   return (
     <div className="flex flex-grow flex-col">
-      {summary
-        ? (
-            <BudgetItem
-              budgetEntityType={budgetEntityType}
-              className="mb-3"
-              data={summary}
-              onClick={onSummaryEdit}
-            />
-          )
-        : (
-            <div className="mb-3 flex flex-shrink-0 flex-col items-center justify-center space-y-4 bg-white py-5">
-              <ErrorBlock status="empty" title={t('emptyBudget')} description={false} />
-              <Button
-                className="flex w-[200px] items-center"
-                color="primary"
-                data-budget-create-summary
-                onClick={onSummaryCreate}
-                shape="rounded"
-              >
-                <AddOutline />
-                <span>{t('addBudget')}</span>
-              </Button>
-            </div>
-          )}
+      <BudgetItem
+        budgetEntityType={budgetEntityType}
+        className="mb-3"
+        data={summary}
+        editable={!readOnly}
+        onClick={readOnly ? undefined : onSummaryEdit}
+      />
       {categories.length === 0
         ? (
             <div className="mb-[50px] flex flex-grow items-center justify-center bg-[#fff]">
@@ -100,28 +91,31 @@ export const BudgetPresentation: React.FC<BudgetPresentationProps> = ({
                 <BudgetItem
                   budgetEntityType={budgetEntityType}
                   data={item}
+                  editable={!readOnly}
                   index={index}
                   key={item.id}
                   lastIndex={categories.length - 1}
-                  onClick={() => onCategoryEdit(item.id)}
+                  onClick={readOnly ? undefined : () => onCategoryEdit(item.id)}
                   type={BudgetEntityLevel.CATEGORY}
                 />
               ))}
             </div>
           )}
-      <BottomAction
-        actions={[{
-          key: 'add',
-          onClick: onAddCategory,
-          render: () => (
-            <div className="flex items-center" data-budget-add-category>
-              <AddOutline />
-              <span>{t('addCategoryBudget')}</span>
-            </div>
-          ),
-        }]}
-        className="h-[50px] shadow-md"
-      />
+      {!readOnly && (
+        <BottomAction
+          actions={[{
+            key: 'add',
+            onClick: onAddCategory,
+            render: () => (
+              <div className="flex items-center" data-budget-add-category>
+                <AddOutline />
+                <span>{t('addCategoryBudget')}</span>
+              </div>
+            ),
+          }]}
+          className="h-[50px] shadow-md"
+        />
+      )}
     </div>
   );
 };

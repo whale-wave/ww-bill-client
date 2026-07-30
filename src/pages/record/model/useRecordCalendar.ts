@@ -2,7 +2,7 @@ import type { Dayjs } from 'dayjs';
 import type { RecordEntry } from '@/entities/record';
 import { DatePicker } from 'antd-mobile';
 import dayjs from 'dayjs';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetRecordQuery } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
@@ -11,18 +11,36 @@ import { math } from '@/shared/lib';
 export function useRecordCalendar() {
   const { t } = useTranslation('record');
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const selectTime = searchParams.get('bookkeeping.selectTime');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const legacySelectTime = searchParams.get('bookkeeping.selectTime');
+  const selectTime = searchParams.get('selectTime') ?? legacySelectTime;
 
   const defaultSelectTime = selectTime ? dayjs(Number(selectTime)) : undefined;
-  const [selectMonthValue, setSelectMonthValue] = useState<Dayjs>(defaultSelectTime || dayjs());
-  const [selectDateValue, setSelectDateValue] = useState<Dayjs>(defaultSelectTime || dayjs());
+  const [selectMonthValue, setSelectMonthValue] = useState<Dayjs>(() => defaultSelectTime || dayjs());
+  const [selectDateValue, setSelectDateValue] = useState<Dayjs>(() => defaultSelectTime || dayjs());
 
   const params = useMemo(() => {
     return { startDate: selectMonthValue.format('YYYY-MM-DD') };
   }, [selectMonthValue]);
 
-  const { data: recordList } = useGetRecordQuery({ params });
+  const recordQuery = useGetRecordQuery({ params });
+  const recordList = recordQuery.data;
+
+  useEffect(() => {
+    if (!legacySelectTime || searchParams.has('selectTime'))
+      return;
+    const next = new URLSearchParams(searchParams);
+    next.set('selectTime', legacySelectTime);
+    next.delete('bookkeeping.selectTime');
+    setSearchParams(next, { replace: true });
+  }, [legacySelectTime, searchParams, setSearchParams]);
+
+  const syncSelectedDate = useCallback((date: Dayjs) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('selectTime', String(date.valueOf()));
+    next.delete('bookkeeping.selectTime');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const dateMap = useMemo(() => {
     const map = new Map<number, {
@@ -95,7 +113,7 @@ export function useRecordCalendar() {
 
   const onBack = useCallback(() => {
     navigate(-1);
-  }, []);
+  }, [navigate]);
 
   const onDatePicker = useCallback(() => {
     void DatePicker.prompt({
@@ -108,24 +126,30 @@ export function useRecordCalendar() {
         setSelectMonthValue(dayjs(val));
         if (dayjs().isSame(dayjs(val), 'month')) {
           setSelectDateValue(dayjs());
+          syncSelectedDate(dayjs());
         }
         else {
-          setSelectDateValue(dayjs(val).startOf('day'));
+          const nextDate = dayjs(val).startOf('day');
+          setSelectDateValue(nextDate);
+          syncSelectedDate(nextDate);
         }
       },
     });
-  }, [selectMonthValue, t]);
+  }, [selectMonthValue, syncSelectedDate, t]);
 
   const onChangeDate = useCallback((date: Date | null) => {
-    setSelectDateValue(dayjs(date));
-  }, []);
+    const nextDate = dayjs(date);
+    setSelectDateValue(nextDate);
+    syncSelectedDate(nextDate);
+  }, [syncSelectedDate]);
 
   const onToToday = useCallback(() => {
     if (isToday(selectDateValue))
       return;
     setSelectMonthValue(dayjs());
     setSelectDateValue(dayjs());
-  }, [selectDateValue, isToday]);
+    syncSelectedDate(dayjs());
+  }, [selectDateValue, isToday, syncSelectedDate]);
 
   const onFixedPinClick = useCallback(() => {
     const url = `/bookkeeping?selectTime=${selectDateValue.valueOf()}`;
@@ -145,5 +169,8 @@ export function useRecordCalendar() {
     onChangeDate,
     onToToday,
     onFixedPinClick,
+    isError: recordQuery.isError,
+    isLoading: recordQuery.isLoading,
+    refetch: recordQuery.refetch,
   };
 }

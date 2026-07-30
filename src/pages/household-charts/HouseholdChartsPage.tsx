@@ -9,7 +9,7 @@ import type {
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useHouseholdChartsQuery } from '@/entities/household';
-import { ChartOverviewBody, ChartOverviewContext } from '@/features/chart-overview';
+import { ChartOverviewContext, ChartOverviewPresentation } from '@/features/chart-overview';
 import {
   formatCalendarDate,
   HouseholdBottomNav,
@@ -196,7 +196,7 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
         retryLabel={t('common.retry')}
       >
         <ChartOverviewContext.Provider value={contextValue}>
-          <ChartOverviewBody />
+          <ChartOverviewPresentation />
         </ChartOverviewContext.Provider>
       </HouseholdPageState>
       <HouseholdBottomNav

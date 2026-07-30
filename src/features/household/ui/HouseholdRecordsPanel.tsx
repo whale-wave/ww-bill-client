@@ -13,6 +13,7 @@ interface HouseholdRecordsPanelProps {
   filters?: GetHouseholdRecordsApiParams;
   householdId: string;
   isCompactGrouped?: boolean;
+  groupedVariant?: 'compact' | 'default';
   onSelect?: (record: FamilyRecord) => void;
   showSummary?: boolean;
 }
@@ -26,6 +27,7 @@ const PAGE_SIZE = 50;
 export const HouseholdRecordsPanelContent: FC<HouseholdRecordsPanelContentProps> = ({
   dailyTotals,
   emptyDescription,
+  groupedVariant,
   isCompactGrouped = false,
   onSelect,
   query,
@@ -73,6 +75,7 @@ export const HouseholdRecordsPanelContent: FC<HouseholdRecordsPanelContentProps>
                 dailyIncomeLabel={t('records.dailyIncome')}
                 dailyTotals={dailyTotals}
                 emptyLabel={t('records.empty')}
+                groupedVariant={groupedVariant}
                 inheritedLabel={t('records.inherited')}
                 isCompactGrouped={isCompactGrouped}
                 locale={i18n.resolvedLanguage ?? i18n.language}

@@ -1,72 +1,196 @@
-import type { GetChartApiResponse } from '@/entities/chart';
+import type { AmountType, TimeRangeCategory } from '@/entities/chart';
 import type { Ledger } from '@/entities/ledger';
-import { Button, SpinLoading } from 'antd-mobile';
-import { useMemo, useState } from 'react';
+import type {
+  ChartOverviewContextValue,
+  ChartOverviewDisplay,
+  ChartOverviewMetric,
+  ChartOverviewTab,
+} from '@/features/chart-overview';
+import { ErrorBlock, SpinLoading } from 'antd-mobile';
+import { useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useLedgerChartQuery } from '@/entities/chart';
-import { LedgerCapability, LedgerChartDisplay, LedgerChartMetric, LedgerChartPeriod, useLedgerPreferencesQuery } from '@/entities/ledger';
+import {
+  LedgerCapability,
+  LedgerChartDisplay,
+  LedgerChartMetric,
+  LedgerChartPeriod,
+  useLedgerPreferencesQuery,
+} from '@/entities/ledger';
+import {
+  ChartOverviewContext,
+  ChartOverviewPresentation,
+  deriveChartTabs,
+} from '@/features/chart-overview';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useTranslation } from '@/shared/i18n';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
-import { getLedgerChartTotal } from './model';
+import { combineLedgerNetTabs } from './model';
 
-function sumChart(data: GetChartApiResponse) {
-  return data.reduce((total, item) => total + Number(item.amount), 0);
+function isMetric(value: string | null): value is LedgerChartMetric {
+  return Object.values(LedgerChartMetric).includes(value as LedgerChartMetric);
+}
+
+function isPeriod(value: string | null): value is LedgerChartPeriod {
+  return Object.values(LedgerChartPeriod).includes(value as LedgerChartPeriod);
+}
+
+function isDisplay(value: string | null): value is LedgerChartDisplay {
+  return Object.values(LedgerChartDisplay).includes(value as LedgerChartDisplay);
+}
+
+function toAmountType(metric: LedgerChartMetric): AmountType {
+  return metric === LedgerChartMetric.INCOME ? 'add' : 'sub';
+}
+
+function toChartMetric(metric: LedgerChartMetric): ChartOverviewMetric {
+  if (metric === LedgerChartMetric.NET)
+    return 'net';
+  return toAmountType(metric);
+}
+
+function toLedgerMetric(metric: ChartOverviewMetric): LedgerChartMetric {
+  if (metric === 'net')
+    return LedgerChartMetric.NET;
+  return metric === 'add' ? LedgerChartMetric.INCOME : LedgerChartMetric.EXPENSE;
 }
 
 function ChartContent({ ledgerId }: { ledgerId: string }) {
   const { t } = useTranslation('ledger');
+  const [searchParams, setSearchParams] = useSearchParams();
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
-  const [metricOverride, setMetricOverride] = useState<LedgerChartMetric>();
-  const [periodOverride, setPeriodOverride] = useState<LedgerChartPeriod>();
-  const [displayOverride, setDisplayOverride] = useState<LedgerChartDisplay>();
-  const metric = metricOverride ?? preferenceQuery.data?.defaultChartMetric ?? LedgerChartMetric.EXPENSE;
-  const period = periodOverride ?? preferenceQuery.data?.defaultChartPeriod ?? LedgerChartPeriod.MONTH;
-  const display = displayOverride ?? preferenceQuery.data?.defaultChartDisplay ?? LedgerChartDisplay.PIE;
-  const income = useLedgerChartQuery({ params: { ledgerId, filters: { category: period, type: 'add' } }, queryOptions: { enabled: metric !== LedgerChartMetric.EXPENSE } });
-  const expense = useLedgerChartQuery({ params: { ledgerId, filters: { category: period, type: 'sub' } }, queryOptions: { enabled: metric !== LedgerChartMetric.INCOME } });
-  const total = useMemo(() => getLedgerChartTotal(metric, sumChart(income.data), sumChart(expense.data)), [expense.data, income.data, metric]);
-  const displayData = metric === LedgerChartMetric.INCOME ? income.data : expense.data;
+  const metric = isMetric(searchParams.get('metric'))
+    ? searchParams.get('metric') as LedgerChartMetric
+    : preferenceQuery.data?.defaultChartMetric ?? LedgerChartMetric.EXPENSE;
+  const period = isPeriod(searchParams.get('range'))
+    ? searchParams.get('range') as LedgerChartPeriod
+    : preferenceQuery.data?.defaultChartPeriod ?? LedgerChartPeriod.MONTH;
+  const requestedDisplay = isDisplay(searchParams.get('display'))
+    ? searchParams.get('display') as LedgerChartDisplay
+    : preferenceQuery.data?.defaultChartDisplay ?? LedgerChartDisplay.LINE;
+  const display: ChartOverviewDisplay = metric === LedgerChartMetric.NET
+    ? 'line'
+    : requestedDisplay;
+  const income = useLedgerChartQuery({
+    params: { filters: { category: period, type: 'add' }, ledgerId },
+    queryOptions: {
+      enabled: metric === LedgerChartMetric.INCOME || metric === LedgerChartMetric.NET,
+    },
+  });
+  const expense = useLedgerChartQuery({
+    params: { filters: { category: period, type: 'sub' }, ledgerId },
+    queryOptions: {
+      enabled: metric === LedgerChartMetric.EXPENSE || metric === LedgerChartMetric.NET,
+    },
+  });
+  const incomeTabs = useMemo(() => deriveChartTabs(income.data), [income.data]);
+  const expenseTabs = useMemo(() => deriveChartTabs(expense.data), [expense.data]);
+  const tabs = useMemo<ChartOverviewTab[]>(() => {
+    if (metric === LedgerChartMetric.NET)
+      return combineLedgerNetTabs(incomeTabs, expenseTabs);
+    return metric === LedgerChartMetric.INCOME ? incomeTabs : expenseTabs;
+  }, [expenseTabs, incomeTabs, metric]);
+  const urlTab = searchParams.get('tab') ?? '';
+  const curTab = tabs.find(tab => tab.key === urlTab) ?? tabs.at(-1);
   const isLoading = metric === LedgerChartMetric.INCOME
     ? income.isLoading
     : metric === LedgerChartMetric.EXPENSE
       ? expense.isLoading
       : income.isLoading || expense.isLoading;
-  return (
-    <>
-      {isLoading && <SpinLoading />}
-      <div className="flex flex-wrap gap-2 bg-white px-4 py-3">
-        {Object.values(LedgerChartMetric).map(value => <Button color={metric === value ? 'primary' : 'default'} key={value} onClick={() => setMetricOverride(value)} size="small">{t(`charts.metric.${value}`)}</Button>)}
-        {Object.values(LedgerChartPeriod).map(value => <Button key={value} onClick={() => setPeriodOverride(value)} size="small">{t(`charts.period.${value}`)}</Button>)}
-        {Object.values(LedgerChartDisplay).map(value => <Button color={display === value ? 'primary' : 'default'} key={value} onClick={() => setDisplayOverride(value)} size="small">{t(`charts.display.${value}`)}</Button>)}
+  const isError = metric === LedgerChartMetric.INCOME
+    ? income.isError
+    : metric === LedgerChartMetric.EXPENSE
+      ? expense.isError
+      : income.isError || expense.isError;
+
+  const setSearchValue = useCallback((key: string, value: string, resetTab = false) => {
+    setSearchParams((previous) => {
+      previous.set(key, value);
+      if (resetTab)
+        previous.delete('tab');
+      return previous;
+    }, { replace: true });
+  }, [setSearchParams]);
+
+  const contextValue = useMemo<ChartOverviewContextValue>(() => ({
+    currentAmountType: toAmountType(metric),
+    currentMetric: toChartMetric(metric),
+    currentTimeRangeCategory: period as TimeRangeCategory,
+    curTab,
+    displayMode: display,
+    isAmountHidden: preferenceQuery.data?.hideTotalAmount === true,
+    metricOptions: [
+      {
+        icon: 'huankuanzhichu-copy',
+        label: t(`charts.metric.${LedgerChartMetric.EXPENSE}`),
+        value: 'sub',
+      },
+      {
+        icon: 'jiekuanshouru-copy',
+        label: t(`charts.metric.${LedgerChartMetric.INCOME}`),
+        value: 'add',
+      },
+      {
+        icon: 'chart',
+        label: t(`charts.metric.${LedgerChartMetric.NET}`),
+        value: 'net',
+      },
+    ],
+    onMetricChange: value => setSearchValue('metric', toLedgerMetric(value), true),
+    rankingEmptyContent: metric === LedgerChartMetric.NET
+      ? t('charts.netNoRanking')
+      : undefined,
+    rankingInteraction: 'none',
+    setCurrentAmountType: value =>
+      setSearchValue('metric', toLedgerMetric(value), true),
+    setCurrentTimeRangeCategory: value => setSearchValue('range', value, true),
+    setTabActive: value => setSearchValue('tab', value),
+    tabActive: curTab?.key ?? '',
+    tabs,
+    totalLabel: metric === LedgerChartMetric.NET
+      ? t('charts.total')
+      : undefined,
+    totalTestId: 'ledger-chart-total',
+  }), [
+    curTab,
+    display,
+    metric,
+    period,
+    preferenceQuery.data?.hideTotalAmount,
+    setSearchValue,
+    t,
+    tabs,
+  ]);
+
+  if (isLoading || preferenceQuery.isLoading) {
+    return (
+      <div className="flex flex-grow items-center justify-center">
+        <SpinLoading />
       </div>
-      <section className="bg-primary px-4 py-5">
-        <p>{t('charts.total')}</p>
-        <strong className="text-3xl" data-testid="ledger-chart-total">{preferenceQuery.data?.hideTotalAmount ? '••••' : total}</strong>
-      </section>
-      <section className="mt-3 bg-white px-4 py-3" data-chart-display={display}>
-        {metric === LedgerChartMetric.NET
-          ? <p>{t('charts.netNoRanking')}</p>
-          : displayData.map(item => (
-              <div className="mb-2 flex justify-between" key={item.value}>
-                <span>{String(item.value)}</span>
-                <span>{item.amount}</span>
-              </div>
-            ))}
-      </section>
-    </>
+    );
+  }
+  if (isError || preferenceQuery.isError) {
+    return (
+      <div className="flex flex-grow items-center justify-center">
+        <ErrorBlock
+          description={t('common.loadErrorDescription')}
+          title={t('common.loadError')}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <ChartOverviewContext.Provider value={contextValue}>
+      <ChartOverviewPresentation />
+    </ChartOverviewContext.Provider>
   );
 }
 
 function LedgerChartsWorkspace({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string }) {
-  const { t } = useTranslation('ledger');
   return (
     <>
-      <header className="flex min-h-[45px] flex-shrink-0 items-center justify-center bg-primary px-4 text-lg text-font-black">
-        {t('charts.title')}
-      </header>
-      <main className="min-h-0 flex-grow overflow-auto">
-        <ChartContent ledgerId={ledgerId} />
-      </main>
+      <ChartContent ledgerId={ledgerId} />
       <LedgerWorkspaceTabBar
         activeKey="charts"
         capabilities={ledger.capabilities}
@@ -78,7 +202,7 @@ function LedgerChartsWorkspace({ ledger, ledgerId }: { ledger: Ledger; ledgerId:
 
 export default function LedgerChartsPage() {
   return (
-    <div className="page-new overflow-hidden bg-bg-gray">
+    <div className="page-new overflow-hidden bg-white">
       <LedgerScopeBoundary capability={LedgerCapability.CHART_READ}>
         {scope => <LedgerChartsWorkspace {...scope} />}
       </LedgerScopeBoundary>

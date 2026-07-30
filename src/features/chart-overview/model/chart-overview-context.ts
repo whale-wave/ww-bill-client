@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { AmountType, TimeRangeCategory } from '@/entities/chart';
 import type { RecordEntry } from '@/entities/record';
 import { createContext, useContext } from 'react';
@@ -36,13 +37,30 @@ export interface ChartOverviewRankingSection {
   title: string;
 }
 
+export type ChartOverviewMetric = AmountType | 'net';
+export type ChartOverviewDisplay = 'line' | 'pie';
+
+export interface ChartOverviewMetricOption {
+  icon: string;
+  label: string;
+  value: ChartOverviewMetric;
+}
+
 export interface ChartOverviewContextValue {
   additionalRankingSections?: ChartOverviewRankingSection[];
   currentAmountType: AmountType;
+  currentMetric?: ChartOverviewMetric;
   currentTimeRangeCategory: TimeRangeCategory;
+  displayMode?: ChartOverviewDisplay;
+  isAmountHidden?: boolean;
+  metricOptions?: ChartOverviewMetricOption[];
+  onMetricChange?: (metric: ChartOverviewMetric) => void;
   onRankingItemClick?: (item: ChartOverviewRankingItem) => void;
   rankingInteraction?: 'navigate' | 'none';
+  rankingEmptyContent?: ReactNode;
   rankingTitle?: string;
+  totalLabel?: string;
+  totalTestId?: string;
   tabActive: string;
   tabs: ChartOverviewTab[];
   curTab?: ChartOverviewTab;

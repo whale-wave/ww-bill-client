@@ -1,18 +1,25 @@
 import type { DropdownRef } from 'antd-mobile/es/components/dropdown';
 import type { FC } from 'react';
-import type { AmountType, TimeRangeCategory } from '@/entities/chart';
+import type { ChartOverviewMetricOption } from '../model/chart-overview-context';
+import type { TimeRangeCategory } from '@/entities/chart';
 import { Dropdown } from 'antd-mobile';
 import { CheckOutline } from 'antd-mobile-icons';
 import { useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '@/shared/lib';
 import { Icon, TabList } from '@/shared/ui';
 import { useChartOverview } from '../model/chart-overview-context';
-import style from './Top.module.scss';
 
 export const Top: FC = () => {
   const { t } = useTranslation('chart');
-  const { currentTimeRangeCategory, setCurrentTimeRangeCategory, currentAmountType, setCurrentAmountType } = useChartOverview();
+  const {
+    currentAmountType,
+    currentMetric = currentAmountType,
+    currentTimeRangeCategory,
+    metricOptions,
+    onMetricChange,
+    setCurrentAmountType,
+    setCurrentTimeRangeCategory,
+  } = useChartOverview();
 
   const timeRangeCategoryList = useMemo(() => [
     {
@@ -29,42 +36,51 @@ export const Top: FC = () => {
     },
   ] as { name: string; value: TimeRangeCategory }[], [t]);
 
-  const amountTypeList = useMemo(() => [
+  const amountTypeList = useMemo<ChartOverviewMetricOption[]>(() => metricOptions ?? [
     {
-      name: t('amount.expend'),
+      label: t('amount.expend'),
       icon: 'huankuanzhichu-copy',
       value: 'sub',
     },
     {
-      name: t('amount.income'),
+      label: t('amount.income'),
       icon: 'jiekuanshouru-copy',
       value: 'add',
     },
-  ] as { name: string; icon: string; value: AmountType }[], [t]);
+  ], [metricOptions, t]);
 
-  const currentAmountTypeItem = useMemo(() => amountTypeList.find(item => item.value === currentAmountType)!, [amountTypeList, currentAmountType]);
+  const currentAmountTypeItem = useMemo(
+    () => amountTypeList.find(item => item.value === currentMetric) ?? amountTypeList[0],
+    [amountTypeList, currentMetric],
+  );
 
   const dropdownWrapperRef = useRef<HTMLDivElement>(null);
   const ref = useRef<DropdownRef>(null);
 
-  const handleClickAmountType = useCallback((amountType: AmountType) => () => {
-    setCurrentAmountType(amountType);
+  const handleClickAmountType = useCallback((metric: ChartOverviewMetricOption['value']) => () => {
+    if (onMetricChange)
+      onMetricChange(metric);
+    else if (metric !== 'net')
+      setCurrentAmountType(metric);
     ref.current?.close();
-  }, [setCurrentAmountType]);
+  }, [onMetricChange, setCurrentAmountType]);
 
   return (
     <>
-      <div className={cn(style['dropdown-wrapper'], 'bg-primary fixed top-0 left-0 right-0 z-10')} ref={dropdownWrapperRef}>
+      <div
+        className="fixed left-0 right-0 top-0 z-10 bg-primary [&_.adm-dropdown_.adm-dropdown-nav]:border-b-0 [&_.adm-dropdown-item-highlight]:text-[#333] [&_.adm-dropdown-item-title-arrow]:text-base [&_.adm-dropdown-item-title-arrow]:text-[#333] [&_.adm-dropdown-item-title-text]:text-base [&_.adm-popup.adm-dropdown-popup]:!top-[85.34px]"
+        ref={dropdownWrapperRef}
+      >
         <Dropdown
           ref={ref}
           closeOnClickAway
-          className={cn('!bg-primary')}
+          className="!bg-primary"
           getContainer={dropdownWrapperRef.current}
         >
-          <Dropdown.Item key="sorter" title={currentAmountTypeItem.name}>
+          <Dropdown.Item key="sorter" title={currentAmountTypeItem.label}>
             {amountTypeList.map((item, index) => (
               <div
-                key={item.icon}
+                key={item.value}
                 className="flex items-center h-10 relative"
                 data-chart-amount-type={item.value}
                 onClick={handleClickAmountType(item.value)}
@@ -73,7 +89,7 @@ export const Top: FC = () => {
                 <div className="px-2">
                   <Icon className="text-2xl" name={item.icon} />
                 </div>
-                <span className="text-sm">{item.name}</span>
+                <span className="text-sm">{item.label}</span>
                 {currentAmountTypeItem.value === item.value ? <CheckOutline className="text-xl absolute right-2" /> : null}
               </div>
             ))}

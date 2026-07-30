@@ -44,6 +44,15 @@
   "workspace": {
     "createDenied": "You do not have permission to add records to this ledger"
   },
+  "home": {
+    "budget": "Budget",
+    "search": "Search",
+    "calendar": "Calendar",
+    "settings": "Settings",
+    "income": "Income",
+    "expense": "Expense",
+    "month": "Month"
+  },
   "center": {
     "title": "My Ledgers",
     "systemSection": "Default Ledger",

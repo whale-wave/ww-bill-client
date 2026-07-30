@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { FamilyRecord, Household, HouseholdRecordsPage as HouseholdRecordsResult } from '@/entities/household';
+import { Dialog } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -14,9 +15,11 @@ import HouseholdHomePage from '@/pages/household-home/HouseholdHomePage';
 import HouseholdRecordDetailPage from '@/pages/household-record-detail/HouseholdRecordDetailPage';
 import HouseholdRecordPolicyPage from '@/pages/household-record-policy/HouseholdRecordPolicyPage';
 import HouseholdRecordSearchPage from '@/pages/household-record-search/HouseholdRecordSearchPage';
-import HouseholdRecordsPage from '@/pages/household-records/HouseholdRecordsPage';
+
+const HouseholdRecordsPage = HouseholdHomePage;
 
 const hooks = vi.hoisted(() => ({
+  deleteRecord: vi.fn(),
   fetchNextRecords: vi.fn(),
   refetchRecords: vi.fn(),
   refetchRecordPolicy: vi.fn(),
@@ -27,6 +30,7 @@ const hooks = vi.hoisted(() => ({
   useHouseholdRecordQuery: vi.fn(),
   useInfiniteHouseholdRecordsQuery: vi.fn(),
   useMyHouseholdQuery: vi.fn(),
+  useDeleteRecordMutation: vi.fn(),
   useSetFamilyRecordPolicyMutation: vi.fn(),
   useUserQuery: vi.fn(),
 }));
@@ -46,6 +50,11 @@ vi.mock('@/entities/household', async importOriginal => ({
 
 vi.mock('@/entities/user', () => ({
   useGetUserUserInfoQuery: hooks.useUserQuery,
+}));
+
+vi.mock('@/entities/record', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/entities/record')>()),
+  useDeleteRecordMutation: hooks.useDeleteRecordMutation,
 }));
 
 vi.mock('@/shared/i18n', () => ({
@@ -109,6 +118,7 @@ function renderPage(pathname: string, routePath: string, element: ReactNode, pre
     { path: '/households/:householdId/budgets', element: createElement('div', null, 'budgets-target') },
     { path: '/households/:householdId/calendar', element: createElement('div', null, 'calendar-target') },
     { path: '/households/:householdId/settings', element: createElement('div', null, 'settings-target') },
+    { path: '/bookkeeping', element: createElement('div', null, 'bookkeeping-target') },
     { path: '/ledgers/:ledgerId/records/:recordId', element: createElement('div', null, 'personal-record-target') },
     { path: '/households/:householdId/charts', element: createElement('div', null, 'charts-target') },
     { path: '/households/:householdId', element: createElement('div', null, 'home-target') },
@@ -152,6 +162,7 @@ beforeEach(() => {
     refetch: vi.fn(),
   });
   hooks.useSetFamilyRecordPolicyMutation.mockReturnValue([hooks.setPolicy, { isLoading: false }]);
+  hooks.useDeleteRecordMutation.mockReturnValue([hooks.deleteRecord, { isLoading: false }]);
   hooks.useUserQuery.mockReturnValue({ data: { id: 1 } });
 });
 
@@ -161,33 +172,34 @@ afterEach(() => {
 });
 
 describe('household records', () => {
-  it('renders the household home title, settings action, and monthly totals in one header', () => {
+  it('renders the household title, shared header actions, and monthly totals', () => {
     const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
 
     const header = container.querySelector('[data-testid="household-home-header"]');
     const title = header?.querySelector('h1');
     expect(header?.matches('[data-record-overview-header]')).toBe(true);
+    expect(header?.classList).toContain('h-[182px]');
     expect(title?.textContent).toBe('home.title');
-    expect(header?.firstElementChild?.querySelector('h1')).toBe(title);
-    expect(title?.parentElement?.classList).toContain('text-left');
+    expect(header?.firstElementChild).toBe(title);
+    expect(title?.classList).toContain('left-1/2');
+    expect(title?.classList).toContain('truncate');
+    expect(header?.querySelector('[data-record-overview-metrics]')).not.toBeNull();
     expect([...header?.querySelectorAll('button') ?? []]
       .map(button => button.getAttribute('aria-label'))
       .filter(Boolean)
-      .sort()).toEqual(['home.settings']);
-    expect(header?.querySelector('[data-testid="household-detail-month-picker"]')?.textContent).toContain('07');
-    expect(header?.querySelector('input[type="month"]')).not.toBeNull();
+      .sort()).toEqual(['home.calendar', 'home.search']);
+    expect(header?.querySelector('[data-testid="household-record-month-picker"]')?.textContent).toContain('07');
     expect(header?.querySelector('[data-testid="household-monthly-income"]')?.textContent).toContain('0.00');
     expect(header?.querySelector('[data-testid="household-monthly-expense"]')?.textContent).toContain('20.00');
     expect(container.textContent).not.toContain('common.net');
   });
 
-  it('adapts the household month control to the original detail trigger structure', () => {
+  it('uses the shared month picker trigger', () => {
     const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
 
-    const picker = container.querySelector('[data-testid="household-detail-month-picker"]');
-    const monthInput = picker?.querySelector('input[type="month"]');
-    expect(picker?.textContent).toContain('common.month');
-    expect(monthInput?.classList).toContain('opacity-0');
+    const picker = container.querySelector('[data-testid="household-record-month-picker"]');
+    expect(picker?.textContent).toContain('common:time.month');
+    expect(picker?.tagName).toBe('BUTTON');
   });
 
   it('keeps household-scoped routes on every home shortcut', async () => {
@@ -195,9 +207,8 @@ describe('household records', () => {
 
     expect(container.querySelector('[data-testid="household-shortcuts-card"]')).not.toBeNull();
     const shortcuts = [
+      ['records', '/households/household%2Fa/records'],
       ['budget', '/households/household%2Fa/budgets'],
-      ['search', '/households/household%2Fa/records/search'],
-      ['calendar', '/households/household%2Fa/calendar'],
       ['settings', '/households/household%2Fa/settings'],
     ] as const;
 
@@ -206,6 +217,12 @@ describe('household records', () => {
       expect(router.state.location.pathname).toBe(path);
       await act(async () => router.navigate('/households/household%2Fa'));
     }
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="household-search-action"]')?.click());
+    expect(router.state.location.pathname).toBe('/households/household%2Fa/records/search');
+    await act(async () => router.navigate('/households/household%2Fa'));
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="household-calendar-action"]')?.click());
+    expect(router.state.location.pathname).toBe('/households/household%2Fa/calendar');
   });
 
   it('groups home records by date with daily totals and shared category icons', () => {
@@ -256,8 +273,7 @@ describe('household records', () => {
     expect(dateGroup?.textContent).toContain('20.00');
     expect(recordRow?.classList).toContain('h-[55px]');
     expect(recordRow?.classList).not.toContain('min-h-[60px]');
-    expect(amount?.classList).toContain('text-font-black');
-    expect(amount?.classList).not.toContain('text-rose-500');
+    expect(amount?.classList).toContain('text-rose-500');
     expect(incomeAmount?.textContent).toBe('100.00');
     expect(container.querySelector('[data-date-group="2026-07-20"]')?.textContent).toContain('records.dailyIncome');
     expect(container.querySelector('[data-category-icon="catering"] use')?.getAttribute('xlink:href')).toBe('#icon-catering');
@@ -303,14 +319,15 @@ describe('household records', () => {
 
   it('preserves the default amount presentation outside the compact home list', () => {
     const { container } = renderPage(
-      '/households/household%2Fa/records/search',
+      '/households/household%2Fa/records/search?q=%E9%A4%90',
       '/households/:householdId/records/search',
       createElement(HouseholdRecordSearchPage),
     );
 
-    const amount = container.querySelector('[data-record-id="7"]')?.lastElementChild;
-    expect(amount?.classList).not.toContain('shrink-0');
-    expect(amount?.classList).not.toContain('pl-3');
+    const list = container.querySelector('[data-testid="record-overview-list"]');
+    const row = container.querySelector('[data-record-id="7"]');
+    expect(list?.getAttribute('data-record-list-variant')).toBe('search');
+    expect(row?.classList).toContain('h-[59px]');
   });
 
   it('uses the shared fixed search header and keeps advanced household filters in its optional panel', async () => {
@@ -324,8 +341,10 @@ describe('household records', () => {
     );
 
     const header = container.querySelector('div.bg-primary.fixed');
+    const shell = container.querySelector('[data-record-search-page-shell]');
     expect(header?.classList).toContain('bg-primary');
     expect(header?.classList).toContain('fixed');
+    expect(shell?.classList).not.toContain('bg-bg-gray');
     expect(header?.querySelector('input')?.getAttribute('value')).toBe('餐');
     expect(container.querySelector('main > form')).toBeNull();
 
@@ -342,7 +361,7 @@ describe('household records', () => {
       categoryIds: '1,2',
       countedOnly: 'true',
       endDate: '2026-07-31',
-      keyword: '餐',
+      q: '餐',
       maxAmount: '90',
       memberUserId: '2',
       minAmount: '10',
@@ -366,8 +385,8 @@ describe('household records', () => {
   });
 
   it.each([
-    ['loading', { data: undefined, isError: false, isLoading: true, refetch: vi.fn() }, 'household-loading'],
-    ['error', { data: undefined, isError: true, isLoading: false, refetch: vi.fn() }, 'household-error'],
+    ['loading', { data: undefined, isError: false, isLoading: true, refetch: vi.fn() }, 'loading'],
+    ['error', { data: undefined, isError: true, isLoading: false, refetch: vi.fn() }, 'error'],
   ])('keeps a working search back control during scope %s', async (_state, scopeQuery, stateTestId) => {
     hooks.useMyHouseholdQuery.mockReturnValue(scopeQuery);
     const { container, router } = renderPage(
@@ -378,7 +397,7 @@ describe('household records', () => {
     );
 
     const back = container.querySelector<HTMLElement>('.adm-search-bar-cancel-button');
-    expect(container.querySelector(`[data-testid="${stateTestId}"]`)).not.toBeNull();
+    expect(container.querySelector(`[data-record-search-state="${stateTestId}"]`)).not.toBeNull();
     expect(back).not.toBeNull();
 
     await act(async () => back?.click());
@@ -394,6 +413,7 @@ describe('household records', () => {
 
     const recordRow = container.querySelector('[data-record-id="7"]');
     expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="record-overview-list"]')?.getAttribute('data-record-list-variant')).toBe('overview');
     expect(recordRow?.classList).toContain('h-[55px]');
     expect(recordRow?.textContent).toContain('records.memberAttribution');
     expect(container.querySelector('[data-category-icon="餐"] use')?.getAttribute('xlink:href')).toBe('#icon-餐');
@@ -411,7 +431,7 @@ describe('household records', () => {
     expect(router.state.location.pathname).toBe('/households/household%2Fa/records/7');
   });
 
-  it('shows family record detail and lets its owner open visibility settings', async () => {
+  it('keeps the personal detail action placement while extending it with household fields', async () => {
     const { container, router } = renderPage(
       '/households/household%2Fa/records/7',
       '/households/:householdId/records/:recordId',
@@ -424,15 +444,35 @@ describe('household records', () => {
     });
     expect(container.querySelectorAll('.bwm-nav-bar')).toHaveLength(1);
     expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
+    expect(container.querySelector('[data-record-detail-header]')?.classList).toContain('bg-primary');
     expect(container.querySelector('[data-category-icon="餐"] use')?.getAttribute('xlink:href')).toBe('#icon-餐');
-    expect(container.querySelector('.bg-primary')).toBeNull();
     expect(container.querySelector('.rounded-xl')).toBeNull();
+    expect(container.querySelector('.bwm-fixed-pin')?.textContent).toBe('recordDetail.share');
     expect(container.querySelector('[data-record-detail-footer]')).not.toBeNull();
+    expect(container.querySelector('[data-record-detail-footer]')?.textContent).toContain('record:detail.edit');
+    expect(container.querySelector('[data-record-detail-footer]')?.textContent).toContain('record:detail.delete');
+    expect(container.querySelector('[data-record-detail-footer]')?.textContent).not.toContain('recordDetail.share');
+    expect(container.querySelector('[data-record-detail-footer]')?.textContent).not.toContain('recordDetail.policy');
     expect(container.textContent).toContain('晚餐');
     expect(container.textContent).toContain('recordDetail.member');
     expect(container.textContent).toContain('recordDetail.counted');
-    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="household-record-policy"]')?.click());
+    const policyAction = container.querySelector<HTMLButtonElement>('[data-testid="household-record-policy"]');
+    expect(policyAction?.closest('[data-record-detail-row]')).not.toBeNull();
+    await act(async () => policyAction?.click());
     expect(router.state.location.pathname).toBe('/households/household%2Fa/records/7/policy');
+  });
+
+  it('keeps the category header in the same navigation flow as the default detail page', () => {
+    const { container } = renderPage(
+      '/households/household%2Fa/records/7',
+      '/households/:householdId/records/:recordId',
+      createElement(HouseholdRecordDetailPage),
+    );
+    const presentation = container.querySelector<HTMLElement>('[data-record-detail-presentation]');
+
+    expect(container.querySelectorAll('.bwm-nav-bar')).toHaveLength(1);
+    expect(presentation?.querySelector('.bwm-nav-bar')).not.toBeNull();
+    expect(presentation?.querySelector('.bwm-nav-bar + [data-record-detail-header]')).not.toBeNull();
   });
 
   it('uses the bill sprite for an uncategorised family record', () => {
@@ -447,6 +487,44 @@ describe('household records', () => {
     );
 
     expect(container.querySelector('[data-category-icon="bill"] use')?.getAttribute('xlink:href')).toBe('#icon-bill');
+  });
+
+  it('opens the default bookkeeping edit flow from an owned household record', async () => {
+    const { container, router } = renderPage(
+      '/households/household%2Fa/records/7',
+      '/households/:householdId/records/:recordId',
+      createElement(HouseholdRecordDetailPage),
+    );
+    const editAction = [...container.querySelectorAll<HTMLButtonElement>('[data-record-detail-footer] button')]
+      .find(button => button.textContent === 'record:detail.edit');
+
+    await act(async () => editAction?.click());
+
+    expect(router.state.location.pathname).toBe('/bookkeeping');
+    expect(router.state.location.state).toEqual(expect.objectContaining({
+      amount: '20.00',
+      id: 7,
+      remark: '晚餐',
+      type: 'sub',
+      version: 2,
+    }));
+  });
+
+  it('deletes an owned household record through the default confirmed action', async () => {
+    hooks.deleteRecord.mockResolvedValue({ data: null, message: 'deleted', statusCode: 200 });
+    vi.spyOn(Dialog, 'confirm').mockResolvedValue(true);
+    const { container, router } = renderPage(
+      '/households/household%2Fa/records/7',
+      '/households/:householdId/records/:recordId',
+      createElement(HouseholdRecordDetailPage),
+    );
+    const deleteAction = [...container.querySelectorAll<HTMLButtonElement>('[data-record-detail-footer] button')]
+      .find(button => button.textContent === 'record:detail.delete');
+
+    await act(async () => deleteAction?.click());
+
+    expect(hooks.deleteRecord).toHaveBeenCalledWith({ id: '7', version: 2 });
+    expect(router.state.location.pathname).toBe('/households/household%2Fa');
   });
 
   it.each([
@@ -602,7 +680,7 @@ describe('household calendar', () => {
       createElement(HouseholdCalendarPage),
     );
 
-    expect(container.querySelector('[data-testid="household-calendar-page"]')?.className).toContain('record-calendar-page');
+    expect(container.querySelector('[data-testid="household-calendar-page"] [data-record-calendar-presentation]')).not.toBeNull();
     expect(container.querySelector('.adm-calendar-picker-view')).not.toBeNull();
     expect(container.querySelector('[data-date="2026-07-21"]')?.textContent).toContain('-20');
     expect(hooks.useHouseholdCalendarQuery).toHaveBeenCalledWith({

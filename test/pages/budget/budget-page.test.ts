@@ -107,6 +107,7 @@ describe('personal budget page presentation', () => {
     const actionSheet = vi.spyOn(ActionSheet, 'show').mockReturnValue({ close: vi.fn() });
     const { container, router } = renderPage('/budget?type=1', createElement(BudgetPage));
 
+    expect(container.querySelector('[data-budget-page-shell]')).not.toBeNull();
     expect(hooks.getBudgetInfo).toHaveBeenLastCalledWith({
       params: { type: BudgetEntityType.YEAR },
     });

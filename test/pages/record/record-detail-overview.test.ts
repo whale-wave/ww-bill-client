@@ -71,6 +71,8 @@ describe('personal record detail overview', () => {
     expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(container.querySelector('[data-date-group="07月21日-星期一"]')?.textContent).toContain('晚餐');
     expect(recordRow?.tagName).toBe('DIV');
+    expect(container.querySelector('[data-record-list-variant]')?.getAttribute('data-record-list-variant')).toBe('overview');
+    expect(recordRow?.classList).toContain('h-[55px]');
     expect(amount?.textContent).toBe('-20');
     expect(amount?.className).toContain('text-font-black');
     expect(amount?.className).not.toContain('text-rose-500');

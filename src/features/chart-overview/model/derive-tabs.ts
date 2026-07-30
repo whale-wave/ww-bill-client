@@ -1,4 +1,5 @@
 import type {
+  GetChartApiResponse,
   GetChartApiResponseMonthData,
   GetChartApiResponseWeekData,
   GetChartApiResponseYearData,
@@ -8,6 +9,11 @@ import type {
   YearTabItem,
 } from '@/entities/chart';
 import { getMonth, getWeek, getYear, isSameYear, subMonths, subWeeks, subYears } from 'date-fns';
+import {
+  isMonthData,
+  isWeekData,
+  isYearData,
+} from '@/entities/chart';
 import { i18n } from '@/shared/i18n';
 
 export function deriveWeekTabs(data: GetChartApiResponseWeekData[]): WeekTabItem[] {
@@ -19,23 +25,19 @@ export function deriveWeekTabs(data: GetChartApiResponseWeekData[]): WeekTabItem
       const isCurrentYear = isSameYear(now, new Date(String(`${weekDataItem.value}`)));
       let name = '';
 
-      if (nowWeek === weekItem.value) {
+      if (nowWeek === weekItem.value)
         name = i18n.t('chart:tab.thisWeek');
-      }
-      else if (prevWeek === weekItem.value) {
+      else if (prevWeek === weekItem.value)
         name = i18n.t('chart:tab.lastWeek');
-      }
-      else if (isCurrentYear) {
+      else if (isCurrentYear)
         name = i18n.t('chart:tab.weekNumber', { week: weekItem.value });
-      }
-      else {
+      else
         name = i18n.t('chart:tab.yearWeekNumber', { year: weekDataItem.value, week: weekItem.value });
-      }
 
       return {
         ...weekItem,
-        name,
         key: `${weekDataItem.value}-${weekItem.value}`,
+        name,
       };
     }));
     return acc;
@@ -52,15 +54,12 @@ export function deriveMonthTabs(data: GetChartApiResponseMonthData[]): MonthTabI
       let name = '';
 
       if (isCurrentYear) {
-        if (nowMonth === monthItem.value) {
+        if (nowMonth === monthItem.value)
           name = i18n.t('chart:tab.thisMonth');
-        }
-        else if (prevMonth === monthItem.value) {
+        else if (prevMonth === monthItem.value)
           name = i18n.t('chart:tab.lastMonth');
-        }
-        else {
+        else
           name = i18n.t('chart:tab.monthNumber', { month: monthItem.value });
-        }
       }
       else {
         name = i18n.t('chart:tab.yearMonthNumber', { year: monthDataItem.value, month: monthItem.value });
@@ -68,8 +67,8 @@ export function deriveMonthTabs(data: GetChartApiResponseMonthData[]): MonthTabI
 
       return {
         ...monthItem,
-        name,
         key: `${monthDataItem.value}-${monthItem.value}`,
+        name,
       };
     }));
     return acc;
@@ -83,22 +82,31 @@ export function deriveYearTabs(data: GetChartApiResponseYearData[]): YearTabItem
     const prevYear = getYear(subYears(now, 1));
     let name = '';
 
-    if (yearDataItem.value === nowYear) {
+    if (yearDataItem.value === nowYear)
       name = i18n.t('chart:tab.thisYear');
-    }
-    else if (yearDataItem.value === prevYear) {
+    else if (yearDataItem.value === prevYear)
       name = i18n.t('chart:tab.lastYear');
-    }
-    else {
+    else
       name = i18n.t('chart:tab.yearNumber', { year: yearDataItem.value });
-    }
 
     return {
       ...yearDataItem,
-      name,
       key: `${yearDataItem.value}`,
+      name,
     };
   });
+}
+
+export function deriveChartTabs(data: GetChartApiResponse): TabItem[] {
+  if (!data.length)
+    return [];
+  if (isWeekData(data))
+    return deriveWeekTabs(data);
+  if (isMonthData(data))
+    return deriveMonthTabs(data);
+  if (isYearData(data))
+    return deriveYearTabs(data);
+  return [];
 }
 
 export type { TabItem };

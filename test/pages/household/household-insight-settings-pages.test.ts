@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 import type { Household, HouseholdBudgetOverview, HouseholdChartResult, HouseholdMember } from '@/entities/household';
-import { ActionSheet, DatePicker, Dialog, Toast } from 'antd-mobile';
+import { ActionSheet, Dialog, Toast } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { BudgetEntityType } from '@/entities/budget';
 import {
   HouseholdBudgetPeriodType,
   HouseholdMemberRole,
@@ -221,7 +222,9 @@ describe('household budget and charts', () => {
     }));
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
+    expect(container.querySelector('[data-budget-page-shell]')).not.toBeNull();
     expect(container.querySelector('.adm-dropdown-item-title')).not.toBeNull();
+    expect(container.querySelector('.bwm-nav-bar-right [data-budget-period-start]')).toBeNull();
     expect(container.querySelector('[data-budget-id="budget-1"]')).not.toBeNull();
     expect(container.querySelector('[data-budget-id="category-budget-1"]')?.textContent).toContain('Dining');
     expect(container.querySelector('[data-budget-add-category]')?.closest('.fixed')).not.toBeNull();
@@ -239,7 +242,7 @@ describe('household budget and charts', () => {
     }));
   });
 
-  it('keeps category budgets and actions available when the summary budget is missing', () => {
+  it('uses the full-page summary empty state when the summary budget is missing', () => {
     hooks.useHouseholdBudgetsQuery.mockReturnValue(query({
       ...householdCategoryOverview(),
       summary: {
@@ -253,8 +256,32 @@ describe('household budget and charts', () => {
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
     expect(container.querySelector('[data-budget-create-summary]')).not.toBeNull();
-    expect(container.querySelector('[data-budget-id="category-budget-1"]')?.textContent).toContain('Dining');
-    expect(container.querySelector('[data-budget-add-category]')).not.toBeNull();
+    expect(container.querySelector('[data-budget-id="category-budget-1"]')).toBeNull();
+    expect(container.querySelector('[data-budget-add-category]')).toBeNull();
+    expect(container.querySelectorAll('.adm-error-block')).toHaveLength(1);
+  });
+
+  it('keeps the original solid create action before any budget is created', () => {
+    hooks.useHouseholdBudgetsQuery.mockReturnValue(query({
+      ...budget,
+      summary: {
+        ...budget.summary,
+        amount: '0.00',
+        budget: null,
+        remaining: '0.00',
+        remainingPercent: null,
+      },
+    }));
+    const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
+
+    expect(container.textContent).toContain('emptyBudget');
+    expect(container.textContent).not.toContain('emptyCategoryBudget');
+    expect(container.querySelector('[data-budget-add-category]')).toBeNull();
+    expect(container.querySelectorAll('.adm-error-block')).toHaveLength(1);
+    const createButton = container.querySelector('[data-budget-create-summary]');
+    expect(createButton?.classList.contains('adm-button-primary')).toBe(true);
+    expect(createButton?.classList.contains('adm-button-fill-outline')).toBe(false);
+    expect(createButton?.classList.contains('justify-center')).toBe(true);
   });
 
   it.each([
@@ -272,18 +299,26 @@ describe('household budget and charts', () => {
     const back = container.querySelector<HTMLElement>('.bwm-nav-bar-back');
     expect(container.querySelector(`[data-testid="${stateTestId}"]`)).not.toBeNull();
     expect(back).not.toBeNull();
+    expect(back?.textContent).toContain('common:nav.back');
 
     await act(async () => back?.click());
     expect(router.state.location.pathname).toBe('/household');
   });
 
-  it('keeps yearly budget reads and writes pinned to January 1', async () => {
+  it('uses the same two-option month/year dropdown as the personal budget page', async () => {
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
     await act(async () => container.querySelector<HTMLElement>('.adm-dropdown-item-title')?.click());
-    await act(async () => (
-      container.querySelector<HTMLElement>('[data-budget-type="1"]')
-      ?? document.body.querySelector<HTMLElement>('[data-budget-type="1"]')
-    )?.click());
+
+    const monthOption = container.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.MONTH}"]`)
+      ?? document.body.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.MONTH}"]`);
+    const yearOption = container.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.YEAR}"]`)
+      ?? document.body.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.YEAR}"]`);
+    expect(monthOption).not.toBeNull();
+    expect(yearOption).not.toBeNull();
+    expect(container.querySelectorAll('[data-budget-type]')).toHaveLength(2);
+    expect(container.querySelector('[data-budget-period-start]')).toBeNull();
+
+    await act(async () => yearOption?.click());
 
     expect(hooks.useHouseholdBudgetsQuery).toHaveBeenLastCalledWith({
       params: {
@@ -645,24 +680,6 @@ describe('household budget and charts', () => {
       version: 7,
     });
     expect(refetch).toHaveBeenCalledOnce();
-  });
-
-  it('keeps a selected historical month in household budget reads', async () => {
-    vi.spyOn(DatePicker, 'prompt').mockResolvedValue(new Date(2027, 2, 1));
-    const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
-
-    await act(async () => container.querySelector<HTMLElement>('[data-budget-period-start]')?.click());
-
-    expect(hooks.useHouseholdBudgetsQuery).toHaveBeenLastCalledWith({
-      params: {
-        filters: {
-          periodStart: '2027-03-01',
-          periodType: HouseholdBudgetPeriodType.MONTH,
-        },
-        householdId: 'household/a',
-      },
-      queryOptions: { enabled: true },
-    });
   });
 
   it('switches charts to the canonical year query', async () => {

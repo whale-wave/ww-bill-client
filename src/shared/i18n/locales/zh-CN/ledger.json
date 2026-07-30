@@ -44,6 +44,15 @@
   "workspace": {
     "createDenied": "当前账本没有记账权限"
   },
+  "home": {
+    "budget": "预算",
+    "search": "搜索",
+    "calendar": "日历",
+    "settings": "设置",
+    "income": "收入",
+    "expense": "支出",
+    "month": "月"
+  },
   "center": {
     "title": "我的账本",
     "systemSection": "默认账本",

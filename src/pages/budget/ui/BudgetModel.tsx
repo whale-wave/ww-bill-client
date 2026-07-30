@@ -1,8 +1,9 @@
 import type { CategoryEntity } from '@/entities/category';
-import { Dialog, Input, Modal } from 'antd-mobile';
+import { Dialog } from 'antd-mobile';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  BudgetEditorPresentation,
   BudgetEntityLevel,
   BudgetEntityType,
 } from '@/entities/budget';
@@ -85,28 +86,18 @@ export const BudgetModel: React.FC<BudgetModelProps> = ({
   };
 
   return (
-    <Modal
-      visible={visible}
+    <BudgetEditorPresentation
+      amount={amount}
+      amountPlaceholder={t('model.amountPlaceholder')}
+      cancelLabel={t('actions.cancel')}
+      inputName="budgetAmount"
+      onAfterClose={onClose}
+      onAmountChange={setAmount}
+      onCancel={handleCancel}
+      onSave={handleConfirm}
+      saveLabel={t('actions.save')}
       title={title}
-      content={(
-        <div className="py-3">
-          <div className="!bg-[#fcfcfc] p-2">
-            <Input
-              type="number"
-              placeholder={t('model.amountPlaceholder')}
-              value={amount}
-              onChange={setAmount}
-            />
-          </div>
-        </div>
-      )}
-      onClose={() => setVisible(false)}
-      afterClose={onClose}
-      actions={[
-        { key: 'confirm', text: t('actions.save'), primary: true, onClick: handleConfirm },
-        { key: 'cancel', text: t('actions.cancel'), onClick: handleCancel },
-      ]}
-      closeOnMaskClick
+      visible={visible}
     />
   );
 };

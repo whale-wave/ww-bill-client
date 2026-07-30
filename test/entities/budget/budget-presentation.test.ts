@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  BudgetEditorPresentation,
   BudgetEntityType,
   BudgetPeriodDropdown,
   BudgetPresentation,
@@ -108,39 +109,17 @@ describe('budget presentation', () => {
 
     expect(container.textContent).toContain('emptyBudget');
     expect(container.querySelector('[data-budget-add-category]')).toBeNull();
+    const createButton = container.querySelector('[data-budget-create-summary]');
+    expect(createButton?.classList.contains('adm-button-primary')).toBe(true);
+    expect(createButton?.classList.contains('adm-button-fill-outline')).toBe(false);
+    expect(createButton?.classList.contains('justify-center')).toBe(true);
+    expect(createButton?.classList).toContain('!bg-primary');
+    const createButtonContent = container.querySelector('[data-budget-create-summary-content]');
+    expect(createButtonContent?.classList).toContain('inline-flex');
+    expect(createButtonContent?.classList).toContain('items-center');
 
     act(() => container.querySelector<HTMLElement>('[data-budget-create-summary]')?.click());
     expect(handleSummaryCreate).toHaveBeenCalledOnce();
-  });
-
-  it('can preserve category rows and actions beside the missing-summary action', () => {
-    const handleSummaryCreate = vi.fn();
-    const handleCategoryEdit = vi.fn();
-    const container = render(createElement(BudgetPresentation, {
-      budgetEntityType: BudgetEntityType.MONTH,
-      categories: [{
-        amount: '30.00',
-        budgetAmount: '100.00',
-        category: { icon: 'food', name: 'Dining' },
-        id: 'category-1',
-        remaining: '70.00',
-        remainingPercentage: 70,
-      }],
-      onAddCategory: vi.fn(),
-      onCategoryEdit: handleCategoryEdit,
-      onSummaryCreate: handleSummaryCreate,
-      onSummaryEdit: vi.fn(),
-      showCategoriesWithoutSummary: true,
-    }));
-
-    expect(container.querySelector('[data-budget-create-summary]')).not.toBeNull();
-    expect(container.querySelector('[data-budget-id="category-1"]')?.textContent).toContain('Dining');
-    expect(container.querySelector('[data-budget-add-category]')).not.toBeNull();
-
-    act(() => container.querySelector<HTMLElement>('[data-budget-create-summary]')?.click());
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-1"]')?.click());
-    expect(handleSummaryCreate).toHaveBeenCalledOnce();
-    expect(handleCategoryEdit).toHaveBeenCalledWith('category-1');
   });
 
   it('uses the default category empty state and fixed add action', () => {
@@ -163,5 +142,30 @@ describe('budget presentation', () => {
     expect(container.textContent).toContain('emptyCategoryBudget');
     expect(container.querySelector('[data-budget-add-category]')).not.toBeNull();
     expect(container.querySelector('[data-budget-add-category]')?.closest('.fixed')).not.toBeNull();
+  });
+
+  it('uses one controlled editor presentation for summary and category budgets', () => {
+    const handleAmountChange = vi.fn();
+    const handleCategoryChange = vi.fn();
+    const handleSave = vi.fn();
+    const container = render(createElement(BudgetEditorPresentation, {
+      amount: '120',
+      amountPlaceholder: 'Amount',
+      cancelLabel: 'Cancel',
+      categoryOptions: [{ label: 'Dining', value: '1' }],
+      categoryValue: '1',
+      onAmountChange: handleAmountChange,
+      onCancel: vi.fn(),
+      onCategoryChange: handleCategoryChange,
+      onSave: handleSave,
+      saveLabel: 'Save',
+      title: 'Monthly category',
+      visible: true,
+    }));
+
+    expect(container.querySelector('[data-budget-editor]')).not.toBeNull();
+    expect(container.textContent).toContain('Monthly category');
+    expect(container.textContent).toContain('Dining');
+    expect(container.querySelector<HTMLInputElement>('input')?.value).toBe('120');
   });
 });

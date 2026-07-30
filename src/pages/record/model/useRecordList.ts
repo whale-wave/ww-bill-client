@@ -1,6 +1,6 @@
 import type { Dayjs } from 'dayjs';
 import type { recordChildren } from '@/entities/record';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { useGetRecordQuery } from '@/entities/record';
 import { math } from '@/shared/lib';
 import { getTimeValueFn, getWeekByDay } from '@/shared/lib/date-time';
@@ -14,40 +14,23 @@ type recordType = [
   number,
 ];
 
-type numType = [Array<string>, Array<string>];
+export type PersonalRecordAmounts = [Array<string>, Array<string>];
 
-export function useRecordList(selectTime: Dayjs | undefined, change: (arr: numType) => void) {
-  const [record, setRecord] = useState<recordType[]>([]);
-  const { data } = useGetRecordQuery({
+function toAmountParts(value: number) {
+  const [integer, decimal = ''] = String(value).split('.');
+  return [integer, decimal];
+}
+
+export function useRecordList(selectTime: Dayjs | undefined) {
+  const query = useGetRecordQuery({
     params: { startDate: selectTime?.format('YYYY-MM-DD') },
     options: {
       enabled: !!selectTime,
     },
   });
 
-  const transformData = () => {
-    if (!data)
-      return;
-    const { data: lists, expend, income } = data;
-
-    const leftNum: number = expend;
-    const leftNum2: number = income;
-    let array: Array<string> = [];
-    let array2: Array<string> = [];
-    if (String(expend).includes('.')) {
-      array = leftNum.toString().split('.');
-    }
-    else {
-      array = [`${leftNum}`, ''];
-    }
-    if (String(income).includes('.')) {
-      array2 = leftNum2.toString().split('.');
-    }
-    else {
-      array2 = [`${leftNum2}`, ''];
-    }
-    change([array, array2]);
-
+  const record = useMemo(() => {
+    const lists = query.data.data;
     const record: Array<recordType> = [];
     const recordHash: {
       [string: string]: [
@@ -115,12 +98,19 @@ export function useRecordList(selectTime: Dayjs | undefined, change: (arr: numTy
       item.push(reduceAmount, addAmount);
     });
 
-    setRecord(record);
+    return record;
+  }, [query.data.data]);
+
+  const amounts = useMemo<PersonalRecordAmounts>(() => [
+    toAmountParts(query.data.expend),
+    toAmountParts(query.data.income),
+  ], [query.data.expend, query.data.income]);
+
+  return {
+    amounts,
+    isError: query.isError,
+    isLoading: query.isLoading,
+    record,
+    refetch: query.refetch,
   };
-
-  useEffect(() => {
-    transformData();
-  }, [selectTime, data]);
-
-  return { record };
 }

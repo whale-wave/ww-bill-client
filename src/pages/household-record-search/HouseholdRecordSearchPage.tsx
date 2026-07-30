@@ -1,13 +1,20 @@
 import type { FC, FormEvent } from 'react';
 import type { FamilyRecord, GetHouseholdRecordsApiParams } from '@/entities/household';
 import { Button, Popup } from 'antd-mobile';
-import { useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { FamilyRecordPolicy, useHouseholdMembersQuery } from '@/entities/household';
-import { HouseholdRecordsPanel, HouseholdScopeBoundary } from '@/features/household';
+import { useCallback, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+  FamilyRecordPolicy,
+  HouseholdStatus,
+  useHouseholdMembersQuery,
+  useInfiniteHouseholdRecordsQuery,
+  useMyHouseholdQuery,
+} from '@/entities/household';
+import { RecordSearchPresentation } from '@/entities/record';
+import { toHouseholdRecordOverviewGroups } from '@/features/household';
+import { useRecordSearchController } from '@/features/record-search';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { RecordSearchHeader } from '@/shared/ui';
 
 function getFilters(searchParams: URLSearchParams): GetHouseholdRecordsApiParams {
   const type = searchParams.get('type');
@@ -22,7 +29,9 @@ function getFilters(searchParams: URLSearchParams): GetHouseholdRecordsApiParams
     ...(categoryIds.length ? { categoryIds } : {}),
     ...(searchParams.get('countedOnly') === 'true' ? { countedOnly: true } : {}),
     ...(searchParams.get('endDate') ? { endDate: searchParams.get('endDate')! } : {}),
-    ...(searchParams.get('keyword') ? { keyword: searchParams.get('keyword')! } : {}),
+    ...((searchParams.get('q') ?? searchParams.get('keyword'))
+      ? { keyword: (searchParams.get('q') ?? searchParams.get('keyword'))! }
+      : {}),
     ...(searchParams.get('maxAmount') ? { maxAmount: searchParams.get('maxAmount')! } : {}),
     ...(Number.isInteger(memberUserId) && memberUserId > 0 ? { memberUserId } : {}),
     ...(searchParams.get('minAmount') ? { minAmount: searchParams.get('minAmount')! } : {}),
@@ -36,6 +45,7 @@ function getFilters(searchParams: URLSearchParams): GetHouseholdRecordsApiParams
 }
 
 interface AdvancedFiltersProps {
+  enabled: boolean;
   householdId: string;
   isVisible: boolean;
   onClose: () => void;
@@ -45,6 +55,7 @@ interface AdvancedFiltersProps {
 }
 
 const AdvancedFilters: FC<AdvancedFiltersProps> = ({
+  enabled,
   householdId,
   isVisible,
   onClose,
@@ -53,7 +64,10 @@ const AdvancedFilters: FC<AdvancedFiltersProps> = ({
   searchParams,
 }) => {
   const { t } = useTranslation('household');
-  const membersQuery = useHouseholdMembersQuery({ params: { householdId } });
+  const membersQuery = useHouseholdMembersQuery({
+    params: { householdId },
+    queryOptions: { enabled },
+  });
 
   return (
     <Popup destroyOnClose position="bottom" showCloseButton visible={isVisible} onClose={onClose}>
@@ -122,28 +136,44 @@ const AdvancedFilters: FC<AdvancedFiltersProps> = ({
 };
 
 const SearchContent: FC<{ householdId: string }> = ({ householdId }) => {
-  const { t } = useTranslation('household');
+  const { i18n, t } = useTranslation('household');
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const search = useRecordSearchController();
+  const { searchParams, setSearchParams } = search;
   const [isFiltersVisible, setIsFiltersVisible] = useState(false);
+  const scopeQuery = useMyHouseholdQuery({
+    queryOptions: { enabled: Boolean(householdId) },
+  });
+  const isScopeReady = Boolean(
+    householdId
+    && scopeQuery.data?.id === householdId
+    && scopeQuery.data.status !== HouseholdStatus.DISSOLVED
+    && scopeQuery.data.status !== HouseholdStatus.PENDING_PARTNER,
+  );
   const filters = getFilters(searchParams);
-
-  const handleKeywordChange = (keyword: string) => {
-    const next = new URLSearchParams(searchParams);
-    if (keyword)
-      next.set('keyword', keyword);
-    else
-      next.delete('keyword');
-    setSearchParams(next, { replace: true });
+  const isSearchActive = Object.keys(filters).length > 0;
+  const queryFilters = {
+    ...filters,
+    ...(search.debouncedValue ? { keyword: search.debouncedValue } : {}),
   };
+  const query = useInfiniteHouseholdRecordsQuery({
+    params: {
+      filters: { ...queryFilters, limit: 50, offset: 0 },
+      householdId,
+    },
+    queryOptions: {
+      enabled: isScopeReady
+        && (Object.keys(queryFilters).length > 0),
+    },
+  });
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const next = new URLSearchParams();
-    const keyword = searchParams.get('keyword');
+    const keyword = search.value;
     if (keyword)
-      next.set('keyword', keyword);
+      next.set('q', keyword);
     for (const key of [
       'type',
       'memberUserId',
@@ -169,53 +199,66 @@ const SearchContent: FC<{ householdId: string }> = ({ householdId }) => {
     setIsFiltersVisible(false);
   };
 
-  const handleSelect = (record: FamilyRecord) => {
+  const handleSelect = useCallback((record: FamilyRecord) => {
     navigate(ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(householdId, record.id));
-  };
+  }, [householdId, navigate]);
+
+  const groups = useMemo(() => toHouseholdRecordOverviewGroups(query.records, {
+    countedLabel: t('records.counted'),
+    dailyExpenseLabel: t('records.dailyExpense'),
+    dailyIncomeLabel: t('records.dailyIncome'),
+    inheritedLabel: t('records.inherited'),
+    locale: i18n.resolvedLanguage ?? i18n.language,
+    memberLabel: name => t('records.memberAttribution', { name }),
+    onSelect: handleSelect,
+    privateLabel: t('records.private'),
+    uncountedLabel: t('records.uncounted'),
+  }), [handleSelect, i18n.language, i18n.resolvedLanguage, query.records, t]);
 
   return (
     <>
-      <RecordSearchHeader
-        action={<button className="shrink-0 border-0 bg-transparent px-2 text-sm text-font-black" data-testid="household-record-filter-action" onClick={() => setIsFiltersVisible(true)} type="button">{t('records.filter')}</button>}
-        value={searchParams.get('keyword') ?? ''}
-        placeholder={t('records.keywordPlaceholder')}
+      <RecordSearchPresentation
+        action={{
+          label: t('records.filter'),
+          onClick: () => setIsFiltersVisible(true),
+          testId: 'household-record-filter-action',
+        }}
+        errorDescription={t('common.loadErrorDescription')}
+        groups={groups}
         onBack={() => navigate(-1)}
-        onChange={handleKeywordChange}
+        onKeywordChange={search.setValue}
+        onRetry={() => void (isScopeReady ? query.refetch() : scopeQuery.refetch())}
+        placeholder={t('records.keywordPlaceholder')}
+        retryLabel={t('common.retry')}
+        state={scopeQuery.isLoading
+          ? 'loading'
+          : scopeQuery.isError || !isScopeReady
+            ? 'error'
+            : !isSearchActive
+                ? 'idle'
+                : search.isDebouncing || query.isLoading
+                  ? 'loading'
+                  : query.isError
+                    ? 'error'
+                    : 'ready'}
+        value={search.value}
       />
-      <main className="min-h-0 flex-grow overflow-auto bg-bg-gray pt-[48px]">
-        <HouseholdScopeBoundary householdId={householdId}>
-          {() => (
-            <>
-              <HouseholdRecordsPanel
-                filters={filters}
-                householdId={householdId}
-                isCompactGrouped
-                onSelect={handleSelect}
-                showSummary={false}
-              />
-              <AdvancedFilters
-                householdId={householdId}
-                isVisible={isFiltersVisible}
-                onClose={() => setIsFiltersVisible(false)}
-                onReset={handleReset}
-                onSubmit={handleSubmit}
-                searchParams={searchParams}
-              />
-            </>
-          )}
-        </HouseholdScopeBoundary>
-      </main>
+      <AdvancedFilters
+        enabled={isScopeReady && isFiltersVisible}
+        householdId={householdId}
+        isVisible={isFiltersVisible}
+        onClose={() => setIsFiltersVisible(false)}
+        onReset={handleReset}
+        onSubmit={handleSubmit}
+        searchParams={searchParams}
+      />
     </>
   );
 };
 
 const HouseholdRecordSearchPage: FC = () => {
   const { householdId = '' } = useParams<{ householdId: string }>();
-  return (
-    <div className="page-new overflow-hidden bg-bg-gray">
-      <SearchContent householdId={householdId} />
-    </div>
-  );
+  return <SearchContent householdId={householdId} />;
 };
 
 export default HouseholdRecordSearchPage;

@@ -3,9 +3,8 @@ import type { AmountType, TabItem, TimeRangeCategory } from '@/entities/chart';
 import type { ChartOverviewContextValue } from '@/features/chart-overview';
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { isMonthData, isWeekData, isYearData, useGetChartQuery } from '@/entities/chart';
-import { ChartOverviewContext } from '@/features/chart-overview';
-import { deriveMonthTabs, deriveWeekTabs, deriveYearTabs } from './derive-tabs';
+import { useGetChartQuery } from '@/entities/chart';
+import { ChartOverviewContext, deriveChartTabs } from '@/features/chart-overview';
 
 function isAmountType(value: string | null): value is AmountType {
   return value === 'sub' || value === 'add';
@@ -34,15 +33,7 @@ export const ChartHomeProvider: FC<{ children: ReactNode }> = ({ children }) => 
   });
 
   const tabs = useMemo<TabItem[]>(() => {
-    if (!data || !data.length)
-      return [];
-    if (isWeekData(data))
-      return deriveWeekTabs(data);
-    if (isMonthData(data))
-      return deriveMonthTabs(data);
-    if (isYearData(data))
-      return deriveYearTabs(data);
-    return [];
+    return deriveChartTabs(data);
   }, [data]);
 
   const curTab = useMemo<TabItem | undefined>(() => {

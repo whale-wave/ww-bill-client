@@ -87,18 +87,22 @@ function useLedgerBudgetMutation<TVariables extends { ledgerId: string }>(
   return [mutateAsync, rest] as const;
 }
 
+function acceptLedgerBudgetWarning(response: SuccessResponse<unknown>) {
+  return response.statusCode === 4017 ? response : assertSuccessApi(response);
+}
+
 export function useCreateLedgerBudgetSummaryMutation() {
   return useLedgerBudgetMutation((options: {
     ledgerId: string;
     data: Parameters<typeof postLedgerBudgetSummaryApi>[1];
-  }) => postLedgerBudgetSummaryApi(options.ledgerId, options.data).then(assertSuccessApi));
+  }) => postLedgerBudgetSummaryApi(options.ledgerId, options.data).then(acceptLedgerBudgetWarning));
 }
 
 export function useCreateLedgerBudgetCategoryMutation() {
   return useLedgerBudgetMutation((options: {
     ledgerId: string;
     data: Parameters<typeof postLedgerBudgetCategoryApi>[1];
-  }) => postLedgerBudgetCategoryApi(options.ledgerId, options.data).then(assertSuccessApi));
+  }) => postLedgerBudgetCategoryApi(options.ledgerId, options.data).then(acceptLedgerBudgetWarning));
 }
 
 export function useClearLedgerBudgetMutation() {
@@ -121,7 +125,7 @@ export function usePatchLedgerBudgetAmountMutation() {
     ledgerId: string;
     budgetId: string;
     data: Parameters<typeof patchLedgerBudgetAmountApi>[2];
-  }) => patchLedgerBudgetAmountApi(options.ledgerId, options.budgetId, options.data).then(assertSuccessApi));
+  }) => patchLedgerBudgetAmountApi(options.ledgerId, options.budgetId, options.data).then(acceptLedgerBudgetWarning));
 }
 
 export function usePostBudgetSummaryMutation() {

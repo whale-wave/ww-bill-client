@@ -47,6 +47,7 @@ vi.mock('@/entities/household', async importOriginal => ({
 }));
 
 vi.mock('@/shared/i18n', () => ({
+  i18n: { t: (key: string) => key },
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
@@ -151,6 +152,10 @@ describe('ledger record detail family policy and concurrency', () => {
       params: { householdId: 'household/a', recordId: 7 },
       queryOptions: { enabled: true },
     });
+    expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
+    expect(container.querySelector('[data-record-detail-header]')?.classList).toContain('bg-primary');
+    expect(container.querySelector('[data-record-detail-footer]')).not.toBeNull();
+    expect(container.querySelector('.rounded-xl')).toBeNull();
     expect(container.textContent).toContain('records.familyPolicyStates.PRIVATE');
 
     await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-record-family-policy"]')?.click());
@@ -166,5 +171,12 @@ describe('ledger record detail family policy and concurrency', () => {
       recordId: '7',
       version: 4,
     });
+  });
+
+  it('disables delete while the mutation is pending', () => {
+    hooks.useDeleteLedgerRecordMutation.mockReturnValue([hooks.deleteRecord, { isLoading: true }]);
+    const { container } = renderPage();
+
+    expect(container.querySelector<HTMLButtonElement>('[data-testid="ledger-record-delete"]')?.disabled).toBe(true);
   });
 });

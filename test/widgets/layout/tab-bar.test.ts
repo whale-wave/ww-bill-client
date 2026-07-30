@@ -88,7 +88,7 @@ afterEach(() => {
 });
 
 describe('personal tab bar', () => {
-  it('preserves the original five-target DOM, icons, and prominent create action', async () => {
+  it('renders five personal targets through the shared presentation', async () => {
     const { container, router } = renderTabBar(
       createElement(TabBar, { activeKey: 'detail' }),
     );
@@ -103,8 +103,8 @@ describe('personal tab bar', () => {
       ['mine', '/mine'],
     ]);
     expect(container.querySelector('.bwm-tab-bar')).not.toBeNull();
-    expect(container.querySelector('.ww-personal-tab-bar')).toBeNull();
-    expect(container.querySelector('[data-tab-key="bookkeeping"] .h-\\[55px\\]')).not.toBeNull();
+    expect(container.querySelector('.ww-tab-bar')).not.toBeNull();
+    expect(container.querySelector('[data-tab-key="bookkeeping"] .ww-tab-bar__create-icon')?.classList).toContain('h-[55px]');
     expect(container.querySelectorAll('.bwm-tab-bar > .item')).toHaveLength(5);
 
     for (const [key, path] of [
@@ -127,7 +127,7 @@ describe('personal tab bar', () => {
 });
 
 describe('custom ledger tab bar', () => {
-  it('renders three exact targets, string activeKey, safe area, and prefetch', async () => {
+  it('renders three exact targets, selected state, safe area, and prefetch', async () => {
     const { container, router } = renderTabBar(createElement(LedgerWorkspaceTabBar, {
       activeKey: 'records',
       capabilities: [LedgerCapability.RECORD_CREATE],
@@ -140,10 +140,10 @@ describe('custom ledger tab bar', () => {
       ['create', '/ledgers/ledger%20%2F%20a/records/new'],
       ['charts', '/ledgers/ledger%20%2F%20a/charts'],
     ]);
-    expect(container.querySelector('[data-tab-key="records"]')?.classList)
-      .toContain('adm-tab-bar-item-active');
+    expect(container.querySelector('[data-tab-key="records"]')?.getAttribute('aria-selected'))
+      .toBe('true');
     expect(container.querySelectorAll('[role="tab"]')).toHaveLength(3);
-    expect(container.querySelector('.adm-safe-area-position-bottom')).not.toBeNull();
+    expect(container.querySelector('.ww-tab-bar-spacer')).not.toBeNull();
 
     await prefetch(container.querySelector('[data-tab-key="records"]'));
     await vi.waitFor(() => expect(hooks.prefetched).toContain('ledger-records'));
@@ -165,7 +165,7 @@ describe('custom ledger tab bar', () => {
     expect(createItem?.getAttribute('aria-disabled')).toBe('true');
     await prefetch(createItem);
     await act(async () => {
-      createItem?.querySelector<HTMLElement>('[role="tab"]')?.focus();
+      (createItem as HTMLElement | null)?.focus();
     });
     expect(hooks.prefetched).not.toContain('ledger-create');
     await click(createItem);

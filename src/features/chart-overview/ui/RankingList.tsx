@@ -17,6 +17,7 @@ export const RankingList: FC = () => {
     currentTimeRangeCategory,
     onRankingItemClick,
     rankingInteraction = 'navigate',
+    rankingEmptyContent,
     rankingTitle,
   } = useChartOverview();
 
@@ -65,14 +66,20 @@ export const RankingList: FC = () => {
   return rankingSections.map(section => (
     <div className={cn('flex-shrink-0')} key={section.key}>
       <div className={cn('text-base px-3 pb-1 pt-2')}>{section.title}</div>
-      <List style={{ '--border-top': '0px', '--border-bottom': '0px' }}>
-        {section.items.map(item => (
-          <RankingItem
-            key={item.category.id}
-            item={item}
-            onClick={rankingInteraction === 'none' ? undefined : () => handleRankingItemClick(item)}
-          />
-        ))}
+      <List className="[--border-bottom:0px] [--border-top:0px]">
+        {section.items.length === 0 && rankingEmptyContent
+          ? (
+              <div className="flex min-h-[120px] items-center justify-center px-4 text-center text-sm text-font-gray">
+                {rankingEmptyContent}
+              </div>
+            )
+          : section.items.map(item => (
+              <RankingItem
+                key={item.category.id}
+                item={item}
+                onClick={rankingInteraction === 'none' ? undefined : () => handleRankingItemClick(item)}
+              />
+            ))}
       </List>
     </div>
   ));

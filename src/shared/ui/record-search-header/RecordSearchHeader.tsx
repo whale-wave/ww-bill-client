@@ -4,7 +4,11 @@ import { SearchBar } from 'antd-mobile';
 import { useEffect, useRef } from 'react';
 
 export interface RecordSearchHeaderProps {
-  action?: ReactNode;
+  action?: {
+    label: ReactNode;
+    onClick: () => void;
+    testId?: string;
+  };
   autoFocus?: boolean;
   onBack: () => void;
   onChange: (value: string) => void;
@@ -30,7 +34,7 @@ export const RecordSearchHeader: FC<RecordSearchHeaderProps> = ({
   const searchBar = (
     <SearchBar
       ref={searchBarRef}
-      style={{ '--background': '#fff' }}
+      className="[--background:#fff]"
       value={value}
       placeholder={placeholder}
       showCancelButton={() => true}
@@ -40,12 +44,19 @@ export const RecordSearchHeader: FC<RecordSearchHeaderProps> = ({
   );
 
   return (
-    <div className="bg-primary py-2 pl-4 pr-1 fixed top-0 right-0 w-full">
+    <div className="fixed right-0 top-0 z-10 w-full bg-primary py-2 pl-4 pr-1">
       {action
         ? (
             <div className="flex items-center gap-2">
               <div className="min-w-0 flex-grow">{searchBar}</div>
-              {action}
+              <button
+                className="shrink-0 border-0 bg-transparent px-2 text-sm text-font-black"
+                data-testid={action.testId}
+                onClick={action.onClick}
+                type="button"
+              >
+                {action.label}
+              </button>
             </div>
           )
         : searchBar}

@@ -2,12 +2,12 @@ import type { BudgetInfo } from '@/entities/budget';
 import type { CategoryEntity } from '@/entities/category';
 import type { BudgetModelModelType } from '@/pages/budget/ui';
 import { ActionSheet, Dialog } from 'antd-mobile';
-import classNames from 'classnames';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   BudgetEntityLevel,
   BudgetEntityType,
+  BudgetPageShell,
   BudgetPresentation,
   useDeleteBudgetCategoryByBudgetIdMutation,
   useGetBudgetInfoQuery,
@@ -16,7 +16,6 @@ import {
 import { BudgetPageContext } from '@/pages/budget/model/budgetPageContext.ts';
 import { BudgetModel, BudgetModelModelTypeMap, BudgetTop } from '@/pages/budget/ui';
 import { useTranslation } from '@/shared/i18n';
-import style from './index.module.scss';
 
 interface BudgetProps {
 }
@@ -124,8 +123,11 @@ const Budget: React.FC<BudgetProps> = () => {
   }, [data?.categoryBudgets, onBudgetClick]);
 
   return (
-    <div className={classNames('page-new bg-[#f6f6f6] fixed top-0 left-0 h-screen w-full', style['budget-page'])} ref={dropDownWrapperRef}>
-      <BudgetPageContext.Provider value={budgetPageContentValue}>
+    <BudgetPageContext.Provider value={budgetPageContentValue}>
+      <BudgetPageShell
+        header={<BudgetTop dropDownWrapperRef={dropDownWrapperRef} />}
+        wrapperRef={dropDownWrapperRef}
+      >
         { typeof curLevel === 'number' && (
           <BudgetModel
             modelType={modelType}
@@ -138,21 +140,18 @@ const Budget: React.FC<BudgetProps> = () => {
             category={curCategory}
           />
         )}
-        <BudgetTop dropDownWrapperRef={dropDownWrapperRef} />
-        <div className="flex flex-grow flex-col overflow-auto min-h-0">
-          <BudgetPresentation
-            budgetEntityType={budgetEntityType}
-            categories={data?.categoryBudgets ?? []}
-            isLoading={isLoading}
-            onAddCategory={onGoToCreateBudgetCategoryPage}
-            onCategoryEdit={handleCategoryEdit}
-            onSummaryCreate={onAddSummaryBudget}
-            onSummaryEdit={handleSummaryEdit}
-            summary={data?.summaryBudget}
-          />
-        </div>
-      </BudgetPageContext.Provider>
-    </div>
+        <BudgetPresentation
+          budgetEntityType={budgetEntityType}
+          categories={data?.categoryBudgets ?? []}
+          isLoading={isLoading}
+          onAddCategory={onGoToCreateBudgetCategoryPage}
+          onCategoryEdit={handleCategoryEdit}
+          onSummaryCreate={onAddSummaryBudget}
+          onSummaryEdit={handleSummaryEdit}
+          summary={data?.summaryBudget}
+        />
+      </BudgetPageShell>
+    </BudgetPageContext.Provider>
   );
 };
 

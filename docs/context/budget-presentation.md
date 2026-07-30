@@ -16,12 +16,6 @@ remain responsible for those concerns:
   household scope. Its amount/category editors use Ant Design Mobile
   ActionSheet and Modal interactions.
 
-`BudgetPresentation.showCategoriesWithoutSummary` is an optional household
-adapter capability. Its default is `false`, preserving the personal route's
-summary-first empty state. The household adapter enables it because summary and
-category budgets have independent lifecycles: deleting the summary must not hide
-existing category rows or their actions.
-
 Household category identity is the category key. The current API has no
 budget-ID-based move operation, so category selection is immutable while editing
 an existing category budget. Edit payloads use the category name/icon snapshots
@@ -30,3 +24,8 @@ and optimistic version captured when the editor opens.
 The personal API supplies `remainingPercentage` on a 0–100 scale. The household
 API supplies `remainingPercent` as a 0–1 ratio, so the household page adapter
 multiplies it by 100 before constructing the presentation view model.
+
+The empty summary action renders its icon and label in one inline flex content
+row. Its primary background is applied explicitly so the global Ant Design
+Mobile button background override cannot turn the create action into an
+outline-style control.

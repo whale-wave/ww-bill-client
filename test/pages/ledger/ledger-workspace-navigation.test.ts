@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react';
 import type { Ledger, LedgerListItem, LedgerTemplate } from '@/entities/ledger';
+import { ActionSheet, Dialog, Modal } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { BudgetEntityType } from '@/entities/budget';
 import {
   LedgerCapability,
   LedgerKind,
@@ -17,19 +19,26 @@ import LedgerBudgetPage from '@/pages/ledger-budget/LedgerBudgetPage';
 import LedgerChartsPage from '@/pages/ledger-charts/LedgerChartsPage';
 import LedgerCreatePage from '@/pages/ledger-create/LedgerCreatePage';
 import LedgerRecordCreatePage from '@/pages/ledger-record-create/LedgerRecordCreatePage';
+import LedgerRecordSearchPage from '@/pages/ledger-record-search/LedgerRecordSearchPage';
 import LedgerRecordsPage from '@/pages/ledger-records/LedgerRecordsPage';
 import DetailPage from '@/pages/record/detail/DetailPage';
 
 const hooks = vi.hoisted(() => ({
+  clearLedgerBudget: vi.fn(),
+  createLedgerBudgetSummary: vi.fn(),
   createLedger: vi.fn(),
+  useClearLedgerBudgetMutation: vi.fn(),
+  useCreateLedgerBudgetCategoryMutation: vi.fn(),
   useCreateLedgerMutation: vi.fn(),
   useCreateLedgerBudgetSummaryMutation: vi.fn(),
+  useDeleteLedgerBudgetCategoryMutation: vi.fn(),
   useDeleteBudgetCategoryByBudgetIdMutation: vi.fn(),
   useGetBudgetInfoQuery: vi.fn(),
   useGetChartQuery: vi.fn(),
   useGetRecordBillQuery: vi.fn(),
   useGetUserAppConfigQuery: vi.fn(),
   useLedgerBudgetInfoQuery: vi.fn(),
+  useLedgerCategoriesQuery: vi.fn(),
   useLedgerChartQuery: vi.fn(),
   useLedgerNavigationQuery: vi.fn(),
   useLedgerPreferencesQuery: vi.fn(),
@@ -38,6 +47,7 @@ const hooks = vi.hoisted(() => ({
   useLedgerRecordsQuery: vi.fn(),
   useLedgerTemplatesQuery: vi.fn(),
   usePostBudgetClearMutation: vi.fn(),
+  usePatchLedgerBudgetAmountMutation: vi.fn(),
 }));
 
 vi.mock('@/entities/ledger', async importOriginal => ({
@@ -68,14 +78,32 @@ vi.mock('@/entities/chart', async importOriginal => ({
 
 vi.mock('@/entities/budget', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/budget')>()),
+  useClearLedgerBudgetMutation: hooks.useClearLedgerBudgetMutation,
+  useCreateLedgerBudgetCategoryMutation: hooks.useCreateLedgerBudgetCategoryMutation,
   useCreateLedgerBudgetSummaryMutation: hooks.useCreateLedgerBudgetSummaryMutation,
+  useDeleteLedgerBudgetCategoryMutation: hooks.useDeleteLedgerBudgetCategoryMutation,
   useDeleteBudgetCategoryByBudgetIdMutation: hooks.useDeleteBudgetCategoryByBudgetIdMutation,
   useGetBudgetInfoQuery: hooks.useGetBudgetInfoQuery,
   useLedgerBudgetInfoQuery: hooks.useLedgerBudgetInfoQuery,
+  usePatchLedgerBudgetAmountMutation: hooks.usePatchLedgerBudgetAmountMutation,
   usePostBudgetClearMutation: hooks.usePostBudgetClearMutation,
 }));
 
+vi.mock('@/entities/category', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/entities/category')>()),
+  useLedgerCategoriesQuery: hooks.useLedgerCategoriesQuery,
+}));
+
 vi.mock('@/pages/record/detail/List', () => ({ default: () => createElement('div', { 'data-testid': 'personal-record-list' }) }));
+vi.mock('@/pages/record/model/useRecordList', () => ({
+  useRecordList: () => ({
+    amounts: [['2', '00'], ['5', '00']],
+    isError: false,
+    isLoading: false,
+    record: [],
+    refetch: vi.fn(),
+  }),
+}));
 vi.mock('@/pages/record/model/useVisibleAmount', () => ({
   useVisibleAmount: () => ({
     isVisibleAmount: true,
@@ -86,6 +114,9 @@ vi.mock('@/pages/record/model/useVisibleAmount', () => ({
 }));
 vi.mock('@/features/ledger-record-form', () => ({
   LedgerRecordForm: ({ onSaved }: { onSaved: () => void }) => createElement('button', { 'data-testid': 'mock-record-save', 'onClick': onSaved, 'type': 'button' }, 'save'),
+}));
+vi.mock('@/shared/lib/use-chart', () => ({
+  useChart: () => ({ chartDomRef: { current: null }, myChart: { setOption: vi.fn() } }),
 }));
 
 vi.mock('@/shared/i18n', () => ({
@@ -236,14 +267,22 @@ beforeEach(() => {
   hooks.useLedgerChartQuery.mockReturnValue({ data: [], isError: false, isLoading: false });
   hooks.useGetBudgetInfoQuery.mockReturnValue({ data: { categoryBudgets: [] }, isError: false, isLoading: false });
   hooks.useLedgerBudgetInfoQuery.mockReturnValue({ data: { categoryBudgets: [] }, isError: false, isLoading: false });
-  hooks.useCreateLedgerBudgetSummaryMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
+  hooks.useLedgerCategoriesQuery.mockReturnValue({ data: [], isError: false, isLoading: false });
+  hooks.useClearLedgerBudgetMutation.mockReturnValue([hooks.clearLedgerBudget, { isLoading: false }]);
+  hooks.useCreateLedgerBudgetCategoryMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
+  hooks.useCreateLedgerBudgetSummaryMutation.mockReturnValue([hooks.createLedgerBudgetSummary, { isLoading: false }]);
+  hooks.useDeleteLedgerBudgetCategoryMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
+  hooks.usePatchLedgerBudgetAmountMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
   hooks.useDeleteBudgetCategoryByBudgetIdMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
   hooks.usePostBudgetClearMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
   hooks.useLedgerTemplatesQuery.mockReturnValue({ data: templates, isError: false, isLoading: false, refetch: vi.fn() });
   hooks.useCreateLedgerMutation.mockReturnValue([hooks.createLedger, { isLoading: false }]);
 });
 
-afterEach(cleanupRender);
+afterEach(() => {
+  vi.useRealTimers();
+  cleanupRender();
+});
 
 describe('personal ledger workspace integration', () => {
   it('preserves the original app header and direct search/calendar actions', async () => {
@@ -255,7 +294,7 @@ describe('personal ledger workspace integration', () => {
     expect(header).not.toBeNull();
     expect(title?.parentElement).toBe(header);
     expect(periodControl?.tagName).toBe('DIV');
-    expect(periodControl?.querySelector('button')).toBeNull();
+    expect(periodControl?.querySelector('[data-testid="record-month-picker"]')?.tagName).toBe('BUTTON');
     expect(title?.textContent).toContain('鲸浪账本');
     expect(title?.tagName).toBe('BUTTON');
     expect(container.querySelector('[data-testid="mini-program-capsule"]')).toBeNull();
@@ -325,11 +364,108 @@ describe('personal ledger workspace integration', () => {
 });
 
 describe('custom ledger workspace integration', () => {
+  it('uses the personal search shell and canonicalizes the legacy keyword parameter', async () => {
+    hooks.useLedgerRecordsQuery.mockReturnValue({
+      data: {
+        data: [{
+          amount: '20.00',
+          category: {
+            createdAt: '2026-07-01T00:00:00.000Z',
+            icon: 'meal',
+            id: 1,
+            name: '餐饮',
+            updatedAt: '2026-07-01T00:00:00.000Z',
+          },
+          createdAt: '2026-07-21T12:00:00.000Z',
+          id: 7,
+          remark: '晚餐',
+          time: '2026-07-21T12:00:00.000Z',
+          type: 'sub',
+          updatedAt: '2026-07-21T12:00:00.000Z',
+          version: 1,
+        }],
+        expend: 20,
+        income: 0,
+        total: 1,
+      },
+      isError: false,
+      isLoading: false,
+    });
+    const { container, router } = renderPage(
+      '/ledgers/ledger%2Fa/records/search?keyword=%E6%99%9A%E9%A4%90',
+      '/ledgers/:ledgerId/records/search',
+      createElement(LedgerRecordSearchPage),
+    );
+
+    expect(container.querySelector('[data-record-search-page-shell]')).not.toBeNull();
+    expect(container.querySelector('[data-record-list-variant="search"]')).not.toBeNull();
+    expect(container.querySelector('[data-record-id="7"]')?.classList).toContain('h-[59px]');
+    expect(hooks.useLedgerRecordsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
+      params: { filters: { keyword: '晚餐' }, ledgerId: 'ledger/a' },
+    }));
+
+    const input = container.querySelector<HTMLInputElement>('.adm-search-bar-input-box input');
+    const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    await act(async () => {
+      setValue?.call(input, '午餐');
+      input?.dispatchEvent(new Event('input', { bubbles: true }));
+      await Promise.resolve();
+    });
+    expect(router.state.location.search).toContain('q=%E5%8D%88%E9%A4%90');
+    expect(router.state.location.search).not.toContain('keyword=');
+  });
+
   it('uses the current ledger name, obeys quick-switch preference, and preserves ledger-scoped tabs', () => {
+    hooks.useLedgerRecordsQuery.mockReturnValue({
+      data: {
+        data: [{
+          amount: '20.00',
+          category: {
+            createdAt: '2026-07-01T00:00:00.000Z',
+            icon: 'catering',
+            id: 1,
+            name: '餐饮',
+            updatedAt: '2026-07-01T00:00:00.000Z',
+          },
+          createdAt: '2026-07-21T12:00:00.000Z',
+          id: 7,
+          remark: '晚餐',
+          time: '2026-07-21T12:00:00.000Z',
+          type: 'sub',
+          updatedAt: '2026-07-21T12:00:00.000Z',
+          version: 1,
+        }],
+        expend: 20,
+        income: 0,
+        total: 1,
+      },
+      isError: false,
+      isLoading: false,
+    });
     const first = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
 
+    expect(first.container.querySelector('[data-record-overview-header]')).not.toBeNull();
+    expect(first.container.querySelector('[data-testid="ledger-record-shortcuts"]')).not.toBeNull();
+    expect(first.container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
+    expect(first.container.querySelector('[data-record-list-variant="overview"]')).not.toBeNull();
+    expect(first.container.querySelector('[data-date-group="2026-07-21"]')).not.toBeNull();
+    expect(first.container.querySelector('[data-category-icon="catering"] use')?.getAttribute('xlink:href')).toBe('#icon-catering');
+    expect(['bill', 'budget', 'settings']
+      .every(shortcut => first.container.querySelector(`[data-testid="ledger-${shortcut}"]`))).toBe(true);
+    expect(first.container.querySelector('[data-testid="ledger-search-action"]')).not.toBeNull();
+    expect(first.container.querySelector('[data-testid="ledger-calendar-action"]')).not.toBeNull();
+    expect(first.container.querySelector('.adm-search-bar')).toBeNull();
     expect(first.container.querySelector('[data-testid="ledger-switcher-title"]')?.textContent).toContain('家庭旅行账本');
     expect(first.container.querySelector('[data-testid="ledger-switcher-title"]')?.tagName).toBe('BUTTON');
+    expect(hooks.useLedgerRecordsQuery).toHaveBeenCalledWith(expect.objectContaining({
+      params: {
+        filters: {
+          endDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+          startDate: expect.stringMatching(/^\d{4}-\d{2}-01$/),
+        },
+        ledgerId: 'ledger/a',
+      },
+    }));
     expect(Array.from(first.container.querySelectorAll<HTMLElement>('[data-tab-key]')).map(item => item.dataset.route)).toEqual([
       '/ledgers/ledger%2Fa/records',
       '/ledgers/ledger%2Fa/records/new',
@@ -345,6 +481,42 @@ describe('custom ledger workspace integration', () => {
     const second = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
     expect(second.container.querySelector('[data-testid="ledger-switcher-title"]')?.tagName).toBe('SPAN');
     expect(second.container.querySelector('[data-testid="ledger-switcher-title"]')?.getAttribute('aria-disabled')).toBe('true');
+  });
+
+  it('does not mount the records adapter when record read permission is denied', () => {
+    hooks.useLedgerQuery.mockReturnValue({
+      data: { ...ledger, capabilities: [] },
+      error: undefined,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.useLedgerRecordsQuery.mockClear();
+
+    const { container } = renderPage(
+      '/ledgers/ledger%2Fa/records',
+      '/ledgers/:ledgerId/records',
+      createElement(LedgerRecordsPage),
+    );
+
+    expect(hooks.useLedgerRecordsQuery).not.toHaveBeenCalled();
+    expect(container.textContent).toContain('common.noPermission');
+  });
+
+  it('keeps the search shell while showing a record-query error', () => {
+    hooks.useLedgerRecordsQuery.mockReturnValue({
+      data: { data: [], expend: 0, income: 0, total: 0 },
+      isError: true,
+      isLoading: false,
+    });
+    const { container } = renderPage(
+      '/ledgers/ledger%2Fa/records/search?keyword=%E6%99%9A%E9%A4%90',
+      '/ledgers/:ledgerId/records/search',
+      createElement(LedgerRecordSearchPage),
+    );
+
+    expect(container.querySelector('[data-record-search-page-shell]')).not.toBeNull();
+    expect(container.querySelector('[data-record-search-state="error"]')).not.toBeNull();
   });
 
   it('replaces custom records with personal detail through its title switcher', async () => {
@@ -364,7 +536,7 @@ describe('custom ledger workspace integration', () => {
 
     expect(container.querySelector('[data-testid="ledger-switcher-title"]')).toBeNull();
     expect(container.querySelector('.ww-ledger-workspace-tab-bar') !== null).toBe(hasWorkspaceTabBar);
-    expect(container.querySelector('.adm-nav-bar-back') !== null).toBe(!hasWorkspaceTabBar);
+    expect(container.querySelector('.adm-nav-bar-back, .bwm-nav-bar-back') !== null).toBe(!hasWorkspaceTabBar);
   });
 
   it('returns a directly opened custom budget to its ledger detail', async () => {
@@ -374,8 +546,155 @@ describe('custom ledger workspace integration', () => {
       createElement(LedgerBudgetPage),
     );
 
-    await click(container.querySelector('.adm-nav-bar-back'));
+    await click(container.querySelector('.bwm-nav-bar-back'));
     expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa');
+  });
+
+  it('uses the personal budget shell and presentation for custom ledgers', () => {
+    hooks.useLedgerBudgetInfoQuery.mockReturnValue({
+      data: {
+        categoryBudgets: [],
+        summaryBudget: {
+          amount: 100,
+          budgetAmount: 1000,
+          id: 'ledger-summary',
+          remaining: 900,
+          remainingPercentage: '90',
+        },
+      },
+      isError: false,
+      isLoading: false,
+    });
+    const { container } = renderPage(
+      '/ledgers/ledger%2Fa/budget',
+      '/ledgers/:ledgerId/budget',
+      createElement(LedgerBudgetPage),
+    );
+
+    expect(container.querySelector('[data-budget-page-shell]')).not.toBeNull();
+    expect(container.querySelector('[data-budget-id="ledger-summary"]')).not.toBeNull();
+    expect(container.querySelector('.adm-dropdown-item-title')).not.toBeNull();
+  });
+
+  it.each([
+    ['loading', { data: undefined, isError: false, isLoading: true, refetch: vi.fn() }],
+    ['error', { data: undefined, error: new Error('scope failed'), isError: true, isLoading: false, refetch: vi.fn() }],
+  ])('keeps the budget shell and back navigation during scope %s', (_state, scopeQuery) => {
+    hooks.useLedgerQuery.mockReturnValue(scopeQuery);
+    hooks.useLedgerBudgetInfoQuery.mockClear();
+    const { container } = renderPage(
+      '/ledgers/ledger%2Fa/budget',
+      '/ledgers/:ledgerId/budget',
+      createElement(LedgerBudgetPage),
+    );
+
+    expect(container.querySelector('[data-budget-page-shell]')).not.toBeNull();
+    expect(container.querySelector('.bwm-nav-bar-back')).not.toBeNull();
+    expect(hooks.useLedgerBudgetInfoQuery).not.toHaveBeenCalled();
+  });
+
+  it('confirms summary-budget clearing before running the ledger mutation', async () => {
+    hooks.useLedgerBudgetInfoQuery.mockReturnValue({
+      data: {
+        categoryBudgets: [],
+        summaryBudget: {
+          amount: 100,
+          budgetAmount: 1000,
+          id: 'ledger-summary',
+          remaining: 900,
+          remainingPercentage: '90',
+        },
+      },
+      isError: false,
+      isLoading: false,
+    });
+    const actionSheet = vi.spyOn(ActionSheet, 'show').mockReturnValue({ close: vi.fn() });
+    const confirm = vi.spyOn(Modal, 'confirm').mockResolvedValue(false);
+    const { container } = renderPage(
+      '/ledgers/ledger%2Fa/budget',
+      '/ledgers/:ledgerId/budget',
+      createElement(LedgerBudgetPage),
+    );
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-id="ledger-summary"]')?.click());
+    const clearAction = actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'delete');
+    await act(async () => {
+      await clearAction?.onClick?.();
+    });
+    expect(confirm).toHaveBeenCalledWith({ content: 'clearSummaryBudgetWarning', title: 'warning.title' });
+    expect(hooks.clearLedgerBudget).not.toHaveBeenCalled();
+
+    confirm.mockResolvedValue(true);
+    await act(async () => {
+      await clearAction?.onClick?.();
+    });
+    expect(hooks.clearLedgerBudget).toHaveBeenCalledWith({
+      data: {
+        periodStart: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+        type: BudgetEntityType.MONTH,
+      },
+      ledgerId: 'ledger/a',
+    });
+  });
+
+  it('treats budget status 4017 as saved and shows the server warning', async () => {
+    vi.useFakeTimers();
+    hooks.useLedgerBudgetInfoQuery.mockReturnValue({
+      data: { categoryBudgets: [] },
+      isError: false,
+      isLoading: false,
+    });
+    hooks.createLedgerBudgetSummary.mockResolvedValue({
+      data: {},
+      message: 'saved with warning',
+      statusCode: 4017,
+    });
+    const warning = vi.spyOn(Dialog, 'alert').mockResolvedValue(undefined);
+    const { container } = renderPage(
+      '/ledgers/ledger%2Fa/budget',
+      '/ledgers/:ledgerId/budget',
+      createElement(LedgerBudgetPage),
+    );
+
+    act(() => container.querySelector<HTMLElement>('[data-budget-create-summary]')?.click());
+    const input = document.body.querySelector<HTMLInputElement>('input[name="ledgerBudgetAmount"]');
+    const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    await act(async () => {
+      setValue?.call(input, '500');
+      input?.dispatchEvent(new Event('input', { bubbles: true }));
+      await Promise.resolve();
+    });
+    const save = [...document.body.querySelectorAll<HTMLButtonElement>('.adm-modal-footer button')]
+      .find(button => button.textContent === 'actions.save');
+    await click(save);
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(hooks.createLedgerBudgetSummary).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ amount: '500' }),
+      ledgerId: 'ledger/a',
+    }));
+    expect(warning).toHaveBeenCalledWith({
+      confirmText: 'actions.save',
+      content: 'warning.categoryBudgetExceedsTotal',
+    });
+  });
+
+  it('keeps a failed custom budget request distinct from an empty budget', () => {
+    hooks.useLedgerBudgetInfoQuery.mockReturnValue({
+      data: { categoryBudgets: [] },
+      isError: true,
+      isLoading: false,
+    });
+    const { container } = renderPage(
+      '/ledgers/ledger%2Fa/budget',
+      '/ledgers/:ledgerId/budget',
+      createElement(LedgerBudgetPage),
+    );
+
+    expect(container.querySelector('[data-ledger-budget-error]')).not.toBeNull();
+    expect(container.querySelector('[data-budget-create-summary]')).toBeNull();
   });
 
   it('registers a scoped bill page, gates its query, and returns to its ledger detail', async () => {

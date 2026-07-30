@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
+import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import RecordCalendarPage from '@/pages/record/record-calendar/RecordCalendarPage';
 
@@ -46,7 +47,11 @@ describe('personal record calendar', () => {
     document.body.append(container);
     const root = createRoot(container);
 
-    act(() => root.render(createElement(RecordCalendarPage)));
+    act(() => root.render(createElement(
+      MemoryRouter,
+      null,
+      createElement(RecordCalendarPage),
+    )));
     cleanup = () => {
       act(() => root.unmount());
       container.remove();

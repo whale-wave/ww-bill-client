@@ -2,13 +2,12 @@ import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import type { recordChildren, RecordOverviewListGroup } from '@/entities/record';
 import { PackageOpen } from 'lucide-react';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RecordOverviewList } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { useRecordList } from '../model/useRecordList';
-import styles from './list.module.scss';
 
 type RecordGroup = [
   string,
@@ -22,14 +21,18 @@ type RecordGroup = [
 type AmountParts = [string[], string[]];
 
 interface ListProps {
-  change: (amounts: AmountParts) => void;
+  change?: (amounts: AmountParts) => void;
   selectTime?: Dayjs;
 }
 
 const List: FC<ListProps> = memo(({ selectTime, change }) => {
   const navigate = useNavigate();
   const { t } = useTranslation('record');
-  const { record } = useRecordList(selectTime, change);
+  const { amounts, record } = useRecordList(selectTime);
+
+  useEffect(() => {
+    change?.(amounts);
+  }, [amounts, change]);
 
   const handleRecord = useCallback((item: recordChildren) => {
     playSound.turnPage();
@@ -55,16 +58,16 @@ const List: FC<ListProps> = memo(({ selectTime, change }) => {
   })), [handleRecord, record, t]);
 
   return (
-    <div className={styles.wrapper}>
+    <div className="mt-[9px] flex min-h-0 flex-grow flex-col overflow-auto">
       {groups.length > 0
         ? (
             <>
-              <RecordOverviewList groups={groups} />
+              <RecordOverviewList groups={groups} variant="overview" />
               <div className="h-[30px] flex-shrink-0"></div>
             </>
           )
         : (
-            <div className={styles['not-data']}>
+            <div className="flex flex-grow flex-col items-center justify-center text-base text-[#e0e0e0]">
               <PackageOpen className="text-[#e0e0e0]" size={100} strokeWidth={1.5} />
               <span>{t('common:empty')}</span>
             </div>

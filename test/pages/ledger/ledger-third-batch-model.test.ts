@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { LedgerChartMetric } from '@/entities/ledger';
 import {
+  combineLedgerNetTabs,
   getLedgerChartQueryTypes,
   getLedgerChartTotal,
 } from '@/pages/ledger-charts/model';
@@ -19,6 +20,38 @@ describe('ledger charts compatibility model', () => {
   it('aggregates a net total without pretending a net category ranking exists', () => {
     expect(getLedgerChartTotal(LedgerChartMetric.NET, 1200, 800)).toBe(400);
     expect(getLedgerChartTotal(LedgerChartMetric.EXPENSE, 1200, 800)).toBe(800);
+  });
+
+  it('combines matching income and expense tabs into a ranking-free net series', () => {
+    const [tab] = combineLedgerNetTabs(
+      [{
+        amount: 120,
+        average: '60',
+        data: [
+          { amount: 50, data: [], value: '2026-07-01' },
+          { amount: 70, data: [], value: '2026-07-02' },
+        ],
+        key: '2026-07',
+        name: 'July',
+        ranking: [],
+      }],
+      [{
+        amount: 80,
+        average: '40',
+        data: [
+          { amount: 30, data: [], value: '2026-07-01' },
+          { amount: 50, data: [], value: '2026-07-02' },
+        ],
+        key: '2026-07',
+        name: 'July',
+        ranking: [],
+      }],
+    );
+
+    expect(tab.amount).toBe(40);
+    expect(tab.average).toBe('20.00');
+    expect(tab.data.map(point => point.amount)).toEqual([20, 20]);
+    expect(tab.ranking).toEqual([]);
   });
 });
 

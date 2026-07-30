@@ -24,13 +24,13 @@ export interface BudgetItemProps {
   budgetEntityType: BudgetEntityType;
   type?: BudgetEntityLevel;
   data: BudgetPresentationItem;
-  style?: React.CSSProperties;
   index?: number;
   lastIndex?: number;
-  onClick: () => void;
+  editable?: boolean;
+  onClick?: () => void;
 }
 
-const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = BudgetEntityLevel.SUMMARY, className, data, style, index, lastIndex, onClick }) => {
+const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = BudgetEntityLevel.SUMMARY, className, data, index, lastIndex, editable = true, onClick }) => {
   const { t } = useTranslation('budget');
   const isSummaryBudget = type === BudgetEntityLevel.SUMMARY;
 
@@ -41,7 +41,6 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
         'pl-5': !isSummaryBudget,
       })}
       data-budget-id={data.id}
-      style={style}
       onClick={onClick}
     >
       {
@@ -66,7 +65,7 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
                 </div>
               )}
         </div>
-        <div className="text-sm text-[#6C6C6C]">{t('item.edit')}</div>
+        {editable && <div className="text-sm text-[#6C6C6C]">{t('item.edit')}</div>}
       </div>
       <BudgetItemContent isSummaryBudget={isSummaryBudget} data={data} />
     </div>
