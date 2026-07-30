@@ -5,6 +5,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LedgerCapability, LedgerRecordType } from '@/entities/ledger';
 import LedgerRecordCreatePage from '@/pages/ledger-record-create/LedgerRecordCreatePage';
+import LedgerRecordDetailPage from '@/pages/ledger-record-detail/LedgerRecordDetailPage';
 import LedgerRecordEditPage from '@/pages/ledger-record-edit/LedgerRecordEditPage';
 
 const hooks = vi.hoisted(() => ({
@@ -58,15 +59,44 @@ vi.mock('@/features/ledger-scope', () => ({
       }),
 }));
 
-vi.mock('@/shared/i18n', () => ({
+vi.mock('@/shared/i18n', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/shared/i18n')>()),
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('@/shared/ui', () => ({
+vi.mock('@/shared/ui', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/shared/ui')>()),
   Icon: ({ name }: { name: string }) => createElement('span', { 'data-icon': name }),
 }));
 
 let cleanup: (() => void) | undefined;
+
+function loadedRecordQuery() {
+  return {
+    data: {
+      amount: '20.00',
+      category: {
+        createdAt: '',
+        icon: 'salary',
+        id: 2,
+        name: '工资',
+        updatedAt: '',
+      },
+      createdAt: '',
+      id: 7,
+      ledgerId: 'ledger/a',
+      remark: '七月工资',
+      tags: [{ id: 'tag-a', name: '固定收入' }],
+      time: '2026-07-22T12:00:00.000Z',
+      type: 'add' as const,
+      updatedAt: '',
+      version: 4,
+    },
+    isError: false,
+    isLoading: false,
+    refetch: vi.fn(),
+  };
+}
 
 function renderRouter(router: ReturnType<typeof createMemoryRouter>) {
   const container = document.createElement('div');
@@ -116,30 +146,7 @@ beforeEach(() => {
     isError: false,
     isLoading: false,
   });
-  hooks.useLedgerRecordQuery.mockReturnValue({
-    data: {
-      amount: '20.00',
-      category: {
-        createdAt: '',
-        icon: 'salary',
-        id: 2,
-        name: '工资',
-        updatedAt: '',
-      },
-      createdAt: '',
-      id: 7,
-      ledgerId: 'ledger/a',
-      remark: '七月工资',
-      tags: [{ id: 'tag-a', name: '固定收入' }],
-      time: '2026-07-22T12:00:00.000Z',
-      type: 'add',
-      updatedAt: '',
-      version: 4,
-    },
-    isError: false,
-    isLoading: false,
-    refetch: vi.fn(),
-  });
+  hooks.useLedgerRecordQuery.mockReturnValue(loadedRecordQuery());
 });
 
 afterEach(() => {
@@ -149,6 +156,54 @@ afterEach(() => {
 });
 
 describe('custom ledger record editor adapter', () => {
+  it('opens edit from a company-ledger detail when the second detail query is unavailable', async () => {
+    hooks.useLedgerRecordQuery
+      .mockReturnValueOnce(loadedRecordQuery())
+      .mockReturnValue({
+        data: undefined,
+        isError: true,
+        isLoading: false,
+        refetch: vi.fn(),
+      });
+    const router = createMemoryRouter([
+      {
+        path: '/ledgers/:ledgerId/records/:recordId',
+        element: createElement(LedgerRecordDetailPage),
+      },
+      {
+        path: '/ledgers/:ledgerId/records/:recordId/edit',
+        element: createElement(LedgerRecordEditPage),
+      },
+    ], {
+      initialEntries: ['/ledgers/ledger%2Fa/records/7'],
+    });
+    const container = renderRouter(router);
+
+    await act(async () => {
+      [...container.querySelectorAll('button')]
+        .find(button => button.textContent === 'records.edit')
+        ?.click();
+    });
+
+    expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/records/7/edit');
+    expect(container.querySelector('[data-record-editor-presentation]')).not.toBeNull();
+
+    await act(async () => {
+      [...container.querySelectorAll('button')]
+        .find(button => button.textContent === '完成')
+        ?.click();
+      await Promise.resolve();
+    });
+
+    expect(hooks.updateRecord).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ version: 4 }),
+      ledgerId: 'ledger/a',
+      recordId: '7',
+    }));
+    expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/records/7');
+    expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
+  });
+
   it.each([
     {
       blockedCapability: LedgerCapability.RECORD_CREATE,

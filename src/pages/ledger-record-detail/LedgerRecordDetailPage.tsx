@@ -10,6 +10,7 @@ import {
 } from '@/entities/household';
 import { LedgerCapability, LedgerKind } from '@/entities/ledger';
 import {
+  createLedgerRecordDetailState,
   readLedgerRecordDetailState,
   RecordDetailPresentation,
   useDeleteLedgerRecordMutation,
@@ -97,7 +98,10 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
         ...(canUpdate
           ? [{
               label: t('records.edit'),
-              onClick: () => navigate(ROUTES_PATH.LEDGER_RECORD_EDIT.getPath(ledgerId, record.id)),
+              onClick: () => navigate(
+                ROUTES_PATH.LEDGER_RECORD_EDIT.getPath(ledgerId, record.id),
+                { state: createLedgerRecordDetailState(record, ledgerId) },
+              ),
             }]
           : []),
         ...(canDelete
