@@ -1,6 +1,7 @@
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import type { Household } from '@/entities/household';
+import type { RecordEditorLocationState } from '@/features/record-editor';
 import { DatePicker } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
@@ -17,19 +18,25 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 
-function getInitialMonth(month: string | null) {
-  return month && /^\d{4}-\d{2}-01$/.test(month) ? dayjs(month) : dayjs();
+function getInitialDate(selectTime: string | null, legacyMonth: string | null) {
+  const parsedSelectTime = selectTime ? dayjs(Number(selectTime)) : undefined;
+  if (parsedSelectTime?.isValid())
+    return parsedSelectTime;
+  if (!legacyMonth || !/^\d{4}-\d{2}-01$/.test(legacyMonth))
+    return dayjs();
+  const legacyDate = dayjs(legacyMonth);
+  return legacyDate.isSame(dayjs(), 'month') ? dayjs() : legacyDate;
 }
 
 const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) => {
   const { i18n, t } = useTranslation('household');
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectMonthValue, setSelectMonthValue] = useState<Dayjs>(() => getInitialMonth(searchParams.get('month')));
-  const [selectDateValue, setSelectDateValue] = useState<Dayjs>(() => {
-    const initialMonth = getInitialMonth(searchParams.get('month'));
-    return initialMonth.isSame(dayjs(), 'month') ? dayjs() : initialMonth;
-  });
+  const [initialDate] = useState(
+    () => getInitialDate(searchParams.get('selectTime'), searchParams.get('month')),
+  );
+  const [selectMonthValue, setSelectMonthValue] = useState<Dayjs>(() => initialDate.startOf('month'));
+  const [selectDateValue, setSelectDateValue] = useState<Dayjs>(() => initialDate);
   const month = selectMonthValue.startOf('month').format('YYYY-MM-DD');
   const selectedDate = selectDateValue.format('YYYY-MM-DD');
   const calendarQuery = useHouseholdCalendarQuery({
@@ -51,6 +58,12 @@ const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) =
   const isToday = useCallback((date: Date | Dayjs) => {
     return dayjs().isSame(dayjs(date), 'day');
   }, []);
+  const syncSelectedDate = useCallback((date: Dayjs) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('selectTime', String(date.valueOf()));
+    next.delete('month');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
   const handleDatePicker = useCallback(() => {
     void DatePicker.prompt({
       defaultValue: selectMonthValue.toDate(),
@@ -61,17 +74,20 @@ const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) =
         const nextDate = dayjs().isSame(nextMonth, 'month') ? dayjs() : nextMonth.startOf('day');
         setSelectMonthValue(nextMonth);
         setSelectDateValue(nextDate);
-        setSearchParams({ month: nextMonth.startOf('month').format('YYYY-MM-DD') }, { replace: true });
+        syncSelectedDate(nextDate);
       },
       precision: 'month',
       title: t('record:calendar.selectMonth'),
     });
-  }, [selectMonthValue, setSearchParams, t]);
+  }, [selectMonthValue, syncSelectedDate, t]);
 
   const handleChangeDate = useCallback((date: Date | null) => {
-    if (date)
-      setSelectDateValue(dayjs(date));
-  }, []);
+    if (!date)
+      return;
+    const nextDate = dayjs(date);
+    setSelectDateValue(nextDate);
+    syncSelectedDate(nextDate);
+  }, [syncSelectedDate]);
 
   const handleToToday = useCallback(() => {
     if (isToday(selectDateValue))
@@ -79,12 +95,22 @@ const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) =
     const today = dayjs();
     setSelectMonthValue(today);
     setSelectDateValue(today);
-    setSearchParams({ month: today.startOf('month').format('YYYY-MM-DD') }, { replace: true });
-  }, [isToday, selectDateValue, setSearchParams]);
+    syncSelectedDate(today);
+  }, [isToday, selectDateValue, syncSelectedDate]);
 
   const handleCreateRecord = useCallback(() => {
-    navigate(`${ROUTES_PATH.BOOKKEEPING.getPath()}?selectTime=${selectDateValue.valueOf()}`);
-  }, [navigate, selectDateValue]);
+    const selectTime = selectDateValue.valueOf();
+    const state: RecordEditorLocationState = {
+      recordEditor: {
+        returnContext: {
+          householdId: household.id,
+          kind: 'household-calendar',
+          selectTime,
+        },
+      },
+    };
+    navigate(`${ROUTES_PATH.BOOKKEEPING.getPath()}?selectTime=${selectTime}`, { state });
+  }, [household.id, navigate, selectDateValue]);
 
   const groups = useMemo(() => toHouseholdRecordOverviewGroups(
     recordsQuery.records,

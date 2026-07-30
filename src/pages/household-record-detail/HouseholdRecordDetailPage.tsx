@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import type { FamilyRecord } from '@/entities/household';
 import type { RecordEntry } from '@/entities/record';
+import type { RecordEditorLocationState } from '@/features/record-editor';
 import { Dialog, Toast } from 'antd-mobile';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useHouseholdRecordQuery } from '@/entities/household';
@@ -108,9 +109,19 @@ const RecordDetail: FC<{
               label: t('record:detail.edit'),
               onClick: () => {
                 if (editableRecord) {
+                  const state: RecordEditorLocationState = {
+                    recordEditor: {
+                      initialRecord: editableRecord,
+                      returnContext: {
+                        householdId,
+                        kind: 'household-detail',
+                        recordId: record.id,
+                      },
+                    },
+                  };
                   navigate(ROUTES_PATH.BOOKKEEPING.getPath(), {
                     replace: true,
-                    state: editableRecord,
+                    state,
                   });
                 }
               },

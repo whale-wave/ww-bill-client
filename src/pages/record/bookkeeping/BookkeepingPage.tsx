@@ -1,86 +1,146 @@
-import type { FC } from 'react';
-import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
-import type { recordChildren } from '@/entities/record';
+import type { RecordDraft, RecordEditorReturnContext } from '@/features/record-editor';
+import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useCallback, useMemo } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetCategoryQuery } from '@/entities/category';
-import KeyBoard from '@/pages/record/bookkeeping/keyboard';
-import styles from './index.module.scss';
-import Main from './main';
-import NavBar from './navBar';
+import {
+  usePostRecordMutation,
+  usePutRecordMutation,
+} from '@/entities/record';
+import {
+  isLegacyRecordEditorState,
+  isRecordEditorLocationState,
+  RecordEditorPresentation,
+  useRecordEditorController,
+} from '@/features/record-editor';
+import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
+import { playSound } from '@/shared/lib/play-sound';
 
-export type stateType = [amount: string, time: string, id: number];
+function getValidSelectTime(value: string | null) {
+  if (!value)
+    return;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && dayjs(parsed).isValid() ? parsed : undefined;
+}
 
-const Bookkeeping: FC = () => {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number>(-1);
-  const [keyInputPadding, setKeyInputPadding] = useState<boolean>(false);
-  const [selectedCategoryName, setSelectedCategoryName] = useState('');
-  const [recordType, setRecordType] = useState<CategoryAmountType>('sub');
-  const navParams = useLocation();
-  const editState = navParams.state as recordChildren | undefined;
-  const [stateList, setStateList] = useState<stateType>(['', '', 1]);
-
+function BookkeepingPage() {
+  const { t } = useTranslation('record');
+  const location = useLocation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const selectTime = searchParams.get('selectTime');
-  const defaultSelectDate = selectTime ? dayjs(Number(selectTime)).toDate() : undefined;
+  const [postRecord, postState] = usePostRecordMutation();
+  const [putRecord, putState] = usePutRecordMutation();
+  const selectTime = getValidSelectTime(searchParams.get('selectTime'));
+  const editorState = isRecordEditorLocationState(location.state)
+    ? location.state.recordEditor
+    : undefined;
+  const initialRecord = editorState?.initialRecord
+    ?? (isLegacyRecordEditorState(location.state) ? location.state : undefined);
+  const returnContext = useMemo<RecordEditorReturnContext>(() => {
+    if (editorState)
+      return editorState.returnContext;
+    if (selectTime)
+      return { kind: 'personal-calendar', selectTime };
+    if (initialRecord)
+      return { kind: 'personal-detail', recordId: initialRecord.id };
+    return { kind: 'history' };
+  }, [editorState, initialRecord, selectTime]);
+  const seed = useMemo(() => ({
+    amount: initialRecord?.amount,
+    category: initialRecord?.category
+      ? { ...initialRecord.category, type: initialRecord.type }
+      : undefined,
+    recordType: initialRecord?.type ?? 'sub' as const,
+    remark: initialRecord?.remark,
+    time: initialRecord?.time
+      ?? (selectTime ? dayjs(selectTime).toISOString() : dayjs().toISOString()),
+  }), [initialRecord, selectTime]);
 
-  const handleSelectCategory = (item: CategoryEntity) => {
-    setSelectedCategoryName(item.name);
-    setSelectedCategoryId(item.id);
-  };
-
-  const handleKeyInputToggle = (bool: boolean) => {
-    setKeyInputPadding(bool);
-  };
-
-  const handleTypeChange = (type: CategoryAmountType) => {
-    setRecordType(type);
-  };
-
-  useEffect(() => {
-    if (editState) {
-      const chunkKey: stateType = [editState.amount, editState.time, editState.id];
-      setStateList(chunkKey);
-      handleTypeChange(editState.type as CategoryAmountType);
-      const category = {
-        createdAt: editState.createdAt,
-        icon: editState.category.icon,
-        id: editState.category.id,
-        name: editState.remark,
-        updatedAt: editState.updatedAt,
-      };
-      handleSelectCategory(category as unknown as CategoryEntity);
+  const navigateToReturnContext = useCallback((
+    context: RecordEditorReturnContext,
+    draft?: RecordDraft,
+  ) => {
+    switch (context.kind) {
+      case 'personal-calendar':
+        navigate(`${ROUTES_PATH.RECORD_CALENDAR.getPath()}?selectTime=${context.selectTime}`, { replace: true });
+        return;
+      case 'household-calendar':
+        navigate(`${ROUTES_PATH.HOUSEHOLD_CALENDAR.getPath(context.householdId)}?selectTime=${context.selectTime}`, { replace: true });
+        return;
+      case 'household-detail':
+        navigate(ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(context.householdId, context.recordId), { replace: true });
+        return;
+      case 'personal-detail':
+        navigate(`/editing/${context.recordId}`, {
+          replace: true,
+          state: initialRecord && draft
+            ? { ...initialRecord, ...draft, status: true }
+            : undefined,
+        });
+        return;
+      default:
+        navigate(-1);
     }
-  }, [editState]);
+  }, [initialRecord, navigate]);
 
-  const { data: mainList } = useGetCategoryQuery({
-    params: {
-      type: recordType,
+  const handleSubmit = useCallback(async (draft: RecordDraft) => {
+    try {
+      const response = initialRecord
+        ? await putRecord({
+            data: { ...draft, version: initialRecord.version },
+            id: String(initialRecord.id),
+          })
+        : await postRecord(draft);
+      if (response.statusCode !== 200)
+        throw response;
+      Toast.show({ content: response.message, icon: 'success' });
+      navigateToReturnContext(returnContext, draft);
+    }
+    catch {
+      Toast.show({ content: t('bookkeeping.saveFailed'), icon: 'fail' });
+    }
+  }, [
+    initialRecord,
+    navigateToReturnContext,
+    postRecord,
+    putRecord,
+    returnContext,
+    t,
+  ]);
+
+  const controller = useRecordEditorController({
+    onSubmit: handleSubmit,
+    onValidationError: (error) => {
+      if (error === 'category')
+        Toast.show({ content: t('bookkeeping.chooseCategory') });
     },
+    seed,
+  });
+  const categoryQuery = useGetCategoryQuery({
+    params: { type: controller.recordType },
   });
 
-  return (
-    <div className={styles.bookkeeping}>
-      <NavBar defaultSelectDate={defaultSelectDate} change={handleTypeChange} type={recordType} />
-      <Main
-        change={handleSelectCategory}
-        keyToggle={selectedCategoryId}
-        categoryList={mainList}
-        keyInputPadding={keyInputPadding}
-      />
-      <KeyBoard
-        defaultSelectDate={defaultSelectDate}
-        categoryList={mainList}
-        change={handleKeyInputToggle}
-        keyToggle={selectedCategoryId}
-        name={selectedCategoryName}
-        type={recordType}
-        stateList={stateList}
-        state={editState}
-      />
-    </div>
-  );
-};
+  const handleCancel = useCallback(() => {
+    playSound.turnPage();
+    navigateToReturnContext(returnContext);
+  }, [navigateToReturnContext, returnContext]);
 
-export default Bookkeeping;
+  return (
+    <RecordEditorPresentation
+      categories={categoryQuery.data}
+      categoryState={categoryQuery.isLoading
+        ? 'loading'
+        : categoryQuery.isError ? 'error' : 'ready'}
+      controller={{
+        ...controller,
+        isSubmitting: controller.isSubmitting || postState.isLoading || putState.isLoading,
+      }}
+      onCancel={handleCancel}
+      onRetryCategories={() => void categoryQuery.refetch()}
+    />
+  );
+}
+
+export default BookkeepingPage;

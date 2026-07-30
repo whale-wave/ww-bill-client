@@ -1,28 +1,162 @@
-import { NavBar, SpinLoading } from 'antd-mobile';
+import type { Ledger } from '@/entities/ledger';
+import type { RecordEntry } from '@/entities/record';
+import type { RecordDraft } from '@/features/record-editor';
+import {
+  Button,
+  ErrorBlock,
+  SpinLoading,
+  Toast,
+} from 'antd-mobile';
+import { useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useLedgerCategoriesQuery } from '@/entities/category';
 import { LedgerCapability } from '@/entities/ledger';
-import { useLedgerRecordQuery } from '@/entities/record';
-import { LedgerRecordForm } from '@/features/ledger-record-form';
+import { useLedgerTagsQuery } from '@/entities/ledger-data';
+import {
+  useLedgerRecordQuery,
+  useUpdateLedgerRecordMutation,
+} from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
+import {
+  RecordEditorPresentation,
+  useRecordEditorController,
+} from '@/features/record-editor';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 
-function EditContent({ ledgerId }: { ledgerId: string }) {
+interface LedgerRecordEditEditorProps {
+  initialRecord: RecordEntry;
+  ledgerId: string;
+  recordId: string;
+  supportsTags: boolean;
+  tags: Array<{ id: string; name: string }>;
+}
+
+function LedgerRecordEditEditor({
+  initialRecord,
+  ledgerId,
+  recordId,
+  supportsTags,
+  tags,
+}: LedgerRecordEditEditorProps) {
+  const { t } = useTranslation('ledger');
   const navigate = useNavigate();
+  const [updateRecord, updateState] = useUpdateLedgerRecordMutation();
+  const seed = useMemo(() => ({
+    amount: initialRecord.amount,
+    category: { ...initialRecord.category, type: initialRecord.type },
+    recordType: initialRecord.type,
+    remark: initialRecord.remark,
+    tagIds: supportsTags ? initialRecord.tags?.map(tag => tag.id) ?? [] : undefined,
+    time: initialRecord.time,
+  }), [initialRecord, supportsTags]);
+  const handleSubmit = useCallback(async (draft: RecordDraft) => {
+    try {
+      const response = await updateRecord({
+        data: { ...draft, version: initialRecord.version },
+        ledgerId,
+        recordId,
+      });
+      Toast.show({ content: response.message || t('records.saved'), icon: 'success' });
+      navigate(ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId), { replace: true });
+    }
+    catch (error) {
+      const isConflict = typeof error === 'object'
+        && error !== null
+        && 'statusCode' in error
+        && error.statusCode === 409;
+      Toast.show({
+        content: t(isConflict ? 'records.conflict' : 'records.saveFailed'),
+        icon: 'fail',
+      });
+    }
+  }, [initialRecord.version, ledgerId, navigate, recordId, t, updateRecord]);
+  const controller = useRecordEditorController({
+    onSubmit: handleSubmit,
+    onValidationError: (error) => {
+      if (error === 'category')
+        Toast.show({ content: t('record:bookkeeping.chooseCategory') });
+    },
+    seed,
+    supportsTags,
+  });
+  const categoryQuery = useLedgerCategoriesQuery({
+    params: { ledgerId, type: controller.recordType },
+  });
+
+  return (
+    <RecordEditorPresentation
+      categories={categoryQuery.data}
+      categoryState={categoryQuery.isLoading
+        ? 'loading'
+        : categoryQuery.isError ? 'error' : 'ready'}
+      controller={{
+        ...controller,
+        isSubmitting: controller.isSubmitting || updateState.isLoading,
+      }}
+      onCancel={() => navigate(-1)}
+      onRetryCategories={() => void categoryQuery.refetch()}
+      tags={tags}
+    />
+  );
+}
+
+function LedgerRecordEditContent({
+  ledger,
+  ledgerId,
+}: {
+  ledger: Ledger;
+  ledgerId: string;
+}) {
+  const { t } = useTranslation('ledger');
   const { recordId = '' } = useParams<{ recordId: string }>();
-  const query = useLedgerRecordQuery({ params: { ledgerId, recordId }, queryOptions: { enabled: Boolean(recordId) } });
-  if (!query.data)
-    return <SpinLoading />;
-  return <LedgerRecordForm initialRecord={query.data} ledgerId={ledgerId} onSaved={() => navigate(ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId), { replace: true })} />;
+  const recordQuery = useLedgerRecordQuery({
+    params: { ledgerId, recordId },
+    queryOptions: { enabled: Boolean(recordId) },
+  });
+  const canReadTags = ledger.capabilities.includes(LedgerCapability.TAG_READ);
+  const tagsQuery = useLedgerTagsQuery({
+    params: { ledgerId },
+    queryOptions: { enabled: canReadTags },
+  });
+
+  if (recordQuery.isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center bg-white">
+        <SpinLoading />
+      </div>
+    );
+  }
+  if (recordQuery.isError || !recordQuery.data) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center bg-white px-4">
+        <ErrorBlock
+          description={t('common.loadErrorDescription')}
+          title={t('common.loadError')}
+        />
+        <Button className="mt-3" onClick={() => void recordQuery.refetch()} size="small">
+          {t('common.retry')}
+        </Button>
+      </div>
+    );
+  }
+
+  const supportsTags = canReadTags && !tagsQuery.isError;
+  return (
+    <LedgerRecordEditEditor
+      initialRecord={recordQuery.data}
+      ledgerId={ledgerId}
+      recordId={recordId}
+      supportsTags={supportsTags}
+      tags={supportsTags ? tagsQuery.data : []}
+    />
+  );
 }
 
 export default function LedgerRecordEditPage() {
-  const { t } = useTranslation('ledger');
-  const navigate = useNavigate();
   return (
-    <div className="page-new bg-bg-gray">
-      <NavBar onBack={() => navigate(-1)}>{t('records.edit')}</NavBar>
-      <LedgerScopeBoundary capability={LedgerCapability.RECORD_UPDATE}>{({ ledgerId }) => <EditContent ledgerId={ledgerId} />}</LedgerScopeBoundary>
-    </div>
+    <LedgerScopeBoundary capability={LedgerCapability.RECORD_UPDATE}>
+      {scope => <LedgerRecordEditContent {...scope} />}
+    </LedgerScopeBoundary>
   );
 }

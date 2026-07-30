@@ -501,13 +501,22 @@ describe('household records', () => {
     await act(async () => editAction?.click());
 
     expect(router.state.location.pathname).toBe('/bookkeeping');
-    expect(router.state.location.state).toEqual(expect.objectContaining({
-      amount: '20.00',
-      id: 7,
-      remark: '晚餐',
-      type: 'sub',
-      version: 2,
-    }));
+    expect(router.state.location.state).toEqual({
+      recordEditor: {
+        initialRecord: expect.objectContaining({
+          amount: '20.00',
+          id: 7,
+          remark: '晚餐',
+          type: 'sub',
+          version: 2,
+        }),
+        returnContext: {
+          householdId: 'household/a',
+          kind: 'household-detail',
+          recordId: 7,
+        },
+      },
+    });
   });
 
   it('deletes an owned household record through the default confirmed action', async () => {
@@ -703,6 +712,29 @@ describe('household calendar', () => {
         householdId: 'household/a',
       },
       queryOptions: { enabled: true },
+    });
+  });
+
+  it('opens the personal editor with a safe household return context', async () => {
+    const selectTime = new Date('2026-07-21T12:00:00.000Z').valueOf();
+    const { container, router } = renderPage(
+      `/households/household%2Fa/calendar?selectTime=${selectTime}`,
+      '/households/:householdId/calendar',
+      createElement(HouseholdCalendarPage),
+    );
+
+    await act(async () => container.querySelector<HTMLElement>('.adm-floating-bubble-button')?.click());
+
+    expect(router.state.location.pathname).toBe('/bookkeeping');
+    expect(router.state.location.search).toBe(`?selectTime=${selectTime}`);
+    expect(router.state.location.state).toEqual({
+      recordEditor: {
+        returnContext: {
+          householdId: 'household/a',
+          kind: 'household-calendar',
+          selectTime,
+        },
+      },
     });
   });
 });

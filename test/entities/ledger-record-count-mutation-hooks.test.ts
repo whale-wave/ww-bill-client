@@ -1,7 +1,9 @@
 import type { QueryClient as QueryClientType } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { budgetKeys } from '@/entities/budget';
 import { chartKeys } from '@/entities/chart';
+import { householdKeys } from '@/entities/household';
 import {
   useExecuteLedgerTransferMutation,
   useRestoreLedgerRecordMutation,
@@ -12,6 +14,7 @@ import {
   useCreateLedgerRecordMutation,
   useDeleteLedgerRecordMutation,
   useDeleteRecordMutation,
+  usePostRecordMutation,
   useUpdateLedgerRecordMutation,
 } from '@/entities/record/hooks';
 import { recordKeys } from '@/entities/record/keys';
@@ -35,6 +38,7 @@ vi.mock('@tanstack/react-query', async (importOriginal) => {
 
 interface MutationCallbacks<TVariables> {
   onError?: (error: unknown, variables: TVariables) => Promise<unknown> | unknown;
+  onSuccess?: (response: unknown, variables: TVariables) => Promise<unknown> | unknown;
 }
 
 function latestMutation<TVariables>() {
@@ -71,6 +75,41 @@ describe('record-count mutation hook cache reconciliation', () => {
       .toBe(true);
     expect(queryClient.getQueryState(chartKeys.ledgerRoot('ledger-a'))?.isInvalidated)
       .toBe(true);
+  });
+
+  it('invalidates custom budget data after a scoped record is created', async () => {
+    const queryClient = reactQueryMocks.queryClient;
+    seedQuery(queryClient, budgetKeys.ledgerRoot('ledger-a'));
+
+    useCreateLedgerRecordMutation();
+    await latestMutation<{ ledgerId: string }>().onSuccess?.(
+      { statusCode: 200 },
+      { ledgerId: 'ledger-a' },
+    );
+
+    expect(queryClient.getQueryState(budgetKeys.ledgerRoot('ledger-a'))?.isInvalidated)
+      .toBe(true);
+  });
+
+  it('invalidates personal budget and household aggregates after a personal record is created', async () => {
+    const queryClient = reactQueryMocks.queryClient;
+    seedQuery(queryClient, budgetKeys.infoRoot());
+    seedQuery(queryClient, householdKeys.recordRoot());
+    seedQuery(queryClient, householdKeys.calendarRoot());
+    seedQuery(queryClient, householdKeys.chartRoot());
+    seedQuery(queryClient, householdKeys.budgetRoot());
+
+    usePostRecordMutation();
+    await latestMutation<Record<string, never>>().onSuccess?.(
+      { statusCode: 200 },
+      {},
+    );
+
+    expect(queryClient.getQueryState(budgetKeys.infoRoot())?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(householdKeys.recordRoot())?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(householdKeys.calendarRoot())?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(householdKeys.chartRoot())?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(householdKeys.budgetRoot())?.isInvalidated).toBe(true);
   });
 
   it('does not add count invalidation to a custom update conflict', async () => {

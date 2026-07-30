@@ -27,9 +27,11 @@ const hooks = vi.hoisted(() => ({
   clearLedgerBudget: vi.fn(),
   createLedgerBudgetSummary: vi.fn(),
   createLedger: vi.fn(),
+  createLedgerRecord: vi.fn(),
   useClearLedgerBudgetMutation: vi.fn(),
   useCreateLedgerBudgetCategoryMutation: vi.fn(),
   useCreateLedgerMutation: vi.fn(),
+  useCreateLedgerRecordMutation: vi.fn(),
   useCreateLedgerBudgetSummaryMutation: vi.fn(),
   useDeleteLedgerBudgetCategoryMutation: vi.fn(),
   useDeleteBudgetCategoryByBudgetIdMutation: vi.fn(),
@@ -45,6 +47,7 @@ const hooks = vi.hoisted(() => ({
   useLedgerQuery: vi.fn(),
   useLedgerRecordBillQuery: vi.fn(),
   useLedgerRecordsQuery: vi.fn(),
+  useLedgerTagsQuery: vi.fn(),
   useLedgerTemplatesQuery: vi.fn(),
   usePostBudgetClearMutation: vi.fn(),
   usePatchLedgerBudgetAmountMutation: vi.fn(),
@@ -68,6 +71,7 @@ vi.mock('@/entities/record', async importOriginal => ({
   useGetRecordBillQuery: hooks.useGetRecordBillQuery,
   useLedgerRecordBillQuery: hooks.useLedgerRecordBillQuery,
   useLedgerRecordsQuery: hooks.useLedgerRecordsQuery,
+  useCreateLedgerRecordMutation: hooks.useCreateLedgerRecordMutation,
 }));
 
 vi.mock('@/entities/chart', async importOriginal => ({
@@ -94,6 +98,11 @@ vi.mock('@/entities/category', async importOriginal => ({
   useLedgerCategoriesQuery: hooks.useLedgerCategoriesQuery,
 }));
 
+vi.mock('@/entities/ledger-data', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/entities/ledger-data')>()),
+  useLedgerTagsQuery: hooks.useLedgerTagsQuery,
+}));
+
 vi.mock('@/pages/record/detail/List', () => ({ default: () => createElement('div', { 'data-testid': 'personal-record-list' }) }));
 vi.mock('@/pages/record/model/useRecordList', () => ({
   useRecordList: () => ({
@@ -111,9 +120,6 @@ vi.mock('@/pages/record/model/useVisibleAmount', () => ({
     visibleAmount: true,
     visibleAmountSwitch: false,
   }),
-}));
-vi.mock('@/features/ledger-record-form', () => ({
-  LedgerRecordForm: ({ onSaved }: { onSaved: () => void }) => createElement('button', { 'data-testid': 'mock-record-save', 'onClick': onSaved, 'type': 'button' }, 'save'),
 }));
 vi.mock('@/shared/lib/use-chart', () => ({
   useChart: () => ({ chartDomRef: { current: null }, myChart: { setOption: vi.fn() } }),
@@ -267,7 +273,9 @@ beforeEach(() => {
   hooks.useLedgerChartQuery.mockReturnValue({ data: [], isError: false, isLoading: false });
   hooks.useGetBudgetInfoQuery.mockReturnValue({ data: { categoryBudgets: [] }, isError: false, isLoading: false });
   hooks.useLedgerBudgetInfoQuery.mockReturnValue({ data: { categoryBudgets: [] }, isError: false, isLoading: false });
-  hooks.useLedgerCategoriesQuery.mockReturnValue({ data: [], isError: false, isLoading: false });
+  hooks.useLedgerCategoriesQuery.mockReturnValue({ data: [], isError: false, isLoading: false, refetch: vi.fn() });
+  hooks.useLedgerTagsQuery.mockReturnValue({ data: [], isError: false, isLoading: false });
+  hooks.useCreateLedgerRecordMutation.mockReturnValue([hooks.createLedgerRecord, { isLoading: false }]);
   hooks.useClearLedgerBudgetMutation.mockReturnValue([hooks.clearLedgerBudget, { isLoading: false }]);
   hooks.useCreateLedgerBudgetCategoryMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
   hooks.useCreateLedgerBudgetSummaryMutation.mockReturnValue([hooks.createLedgerBudgetSummary, { isLoading: false }]);
@@ -739,7 +747,7 @@ describe('workspace landing and return contracts', () => {
   it('returns ledger record creation to the same encoded ledger workspace', async () => {
     const { container, router } = renderPage('/ledgers/ledger%2Fa/records/new', '/ledgers/:ledgerId/records/new', createElement(LedgerRecordCreatePage));
 
-    await click(container.querySelector('.adm-nav-bar-back'));
+    await click(container.querySelector('[data-record-editor-cancel]'));
     expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/records');
     expect(router.state.historyAction).toBe('REPLACE');
   });

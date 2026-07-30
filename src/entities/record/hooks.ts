@@ -11,7 +11,9 @@ import type { SuccessResponse } from '@/shared/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Toast } from 'antd-mobile';
 import { useEffect, useMemo, useRef } from 'react';
+import { budgetKeys } from '@/entities/budget';
 import { chartKeys } from '@/entities/chart';
+import { householdKeys } from '@/entities/household';
 import { assertSuccessApi, isSuccessApi } from '@/shared/api';
 import { i18n } from '@/shared/i18n';
 import {
@@ -60,6 +62,7 @@ async function invalidateLedgerRecordSuccessCaches(
   const invalidations = [
     queryClient.invalidateQueries({ queryKey: recordKeys.ledgerRoot(ledgerId) }),
     queryClient.invalidateQueries({ queryKey: chartKeys.ledgerRoot(ledgerId) }),
+    queryClient.invalidateQueries({ queryKey: budgetKeys.ledgerRoot(ledgerId) }),
   ];
   if (invalidatesRecordCount)
     invalidations.push(invalidateRecordCountNavigationCache(queryClient));
@@ -266,15 +269,9 @@ export function useGetRecordBillQuery(options?: {
 export function usePostRecordMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
-    mutationFn: postRecordApi,
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: recordKeys.lists() }),
-        queryClient.invalidateQueries({ queryKey: recordKeys.bills() }),
-        queryClient.invalidateQueries({ queryKey: chartKeys.all }),
-        invalidateRecordCountNavigationCache(queryClient),
-      ]);
-    },
+    mutationFn: (data: Parameters<typeof postRecordApi>[0]) =>
+      postRecordApi(data).then(assertSuccessApi),
+    onSuccess: async () => invalidatePersonalRecordCaches(queryClient),
   });
 
   return [
@@ -291,15 +288,9 @@ export function usePutRecordMutation() {
     mutationFn: (params: {
       id: string;
       data: Parameters<typeof putRecordApi>[1];
-    }) => putRecordApi(params.id, params.data),
-    onSuccess: async (_response, variables) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: recordKeys.lists() }),
-        queryClient.invalidateQueries({ queryKey: recordKeys.detail({ id: variables.id }) }),
-        queryClient.invalidateQueries({ queryKey: recordKeys.bills() }),
-        queryClient.invalidateQueries({ queryKey: chartKeys.all }),
-      ]);
-    },
+    }) => putRecordApi(params.id, params.data).then(assertSuccessApi),
+    onSuccess: async (_response, variables) =>
+      invalidatePersonalRecordCaches(queryClient, variables.id),
   });
 
   return [
@@ -313,7 +304,8 @@ export function usePutRecordMutation() {
 export function useDeleteRecordMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
-    mutationFn: (params: { id: string; version: number }) => deleteRecordApi(params.id, params.version),
+    mutationFn: (params: { id: string; version: number }) =>
+      deleteRecordApi(params.id, params.version).then(assertSuccessApi),
     onSuccess: async (_response, variables) => {
       await invalidatePersonalDeleteRecordCaches(queryClient, variables.id);
     },
@@ -335,11 +327,30 @@ async function invalidatePersonalDeleteRecordCaches(
   queryClient: QueryClient,
   recordId: string,
 ) {
-  await Promise.all([
+  await invalidatePersonalRecordCaches(queryClient, recordId);
+}
+
+async function invalidatePersonalRecordCaches(
+  queryClient: QueryClient,
+  recordId?: string,
+) {
+  const invalidations = [
     queryClient.invalidateQueries({ queryKey: recordKeys.lists() }),
-    queryClient.invalidateQueries({ queryKey: recordKeys.detail({ id: recordId }) }),
     queryClient.invalidateQueries({ queryKey: recordKeys.bills() }),
     queryClient.invalidateQueries({ queryKey: chartKeys.all }),
+    queryClient.invalidateQueries({ queryKey: budgetKeys.infoRoot() }),
+    queryClient.invalidateQueries({ queryKey: householdKeys.recordRoot() }),
+    queryClient.invalidateQueries({ queryKey: householdKeys.calendarRoot() }),
+    queryClient.invalidateQueries({ queryKey: householdKeys.chartRoot() }),
+    queryClient.invalidateQueries({ queryKey: householdKeys.budgetRoot() }),
     invalidateRecordCountNavigationCache(queryClient),
+  ];
+  if (recordId) {
+    invalidations.push(
+      queryClient.invalidateQueries({ queryKey: recordKeys.detail({ id: recordId }) }),
+    );
+  }
+  await Promise.all([
+    ...invalidations,
   ]);
 }
