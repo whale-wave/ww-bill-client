@@ -553,7 +553,7 @@ describe('custom ledger workspace integration', () => {
     expect(container.querySelector('.adm-nav-bar-back, .bwm-nav-bar-back') !== null).toBe(!hasWorkspaceTabBar);
   });
 
-  it('returns a custom budget to its record-list home', async () => {
+  it('returns a custom budget to the previous route', async () => {
     const { container, router } = renderPage(
       '/ledgers/ledger%2Fa/budget',
       '/ledgers/:ledgerId/budget',
@@ -561,7 +561,7 @@ describe('custom ledger workspace integration', () => {
     );
 
     await click(container.querySelector('.bwm-nav-bar-back'));
-    expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/records');
+    expect(router.state.location.pathname).toBe('/origin');
   });
 
   it('uses the personal budget shell and presentation for custom ledgers', () => {
@@ -711,7 +711,7 @@ describe('custom ledger workspace integration', () => {
     expect(container.querySelector('[data-budget-create-summary]')).toBeNull();
   });
 
-  it('registers a scoped bill page, gates its query, and returns to its ledger detail', async () => {
+  it('registers a scoped bill page, gates its query, and returns to the previous route', async () => {
     const { default: LedgerBillPage } = await import('@/pages/bill/LedgerBillPage');
     const first = renderPage('/ledgers/ledger%2Fa/bill', '/ledgers/:ledgerId/bill', createElement(LedgerBillPage));
 
@@ -722,7 +722,12 @@ describe('custom ledger workspace integration', () => {
     expect(first.container.querySelector('[data-testid="ledger-switcher-title"]')).toBeNull();
     expect(first.container.querySelector('.bwm-button-full')).not.toBeNull();
     await click(first.container.querySelector('.bwm-button-full'));
-    expect(first.router.state.location.pathname).toBe('/ledgers/ledger%2Fa');
+    expect(first.router.state.location.pathname).toBe('/origin');
+
+    cleanupRender();
+    const headerReturn = renderPage('/ledgers/ledger%2Fa/bill', '/ledgers/:ledgerId/bill', createElement(LedgerBillPage));
+    await click(headerReturn.container.querySelector('.adm-nav-bar-back'));
+    expect(headerReturn.router.state.location.pathname).toBe('/origin');
 
     cleanupRender();
     hooks.useLedgerRecordBillQuery.mockClear();

@@ -10,7 +10,7 @@ function LedgerBillContent({ ledgerId }: { ledgerId: string }) {
     params: { filters, ledgerId },
   });
 
-  return <LedgerBillWorkspaceView ledgerId={ledgerId} query={query} />;
+  return <LedgerBillWorkspaceView query={query} />;
 }
 
 export default function LedgerBillPage() {

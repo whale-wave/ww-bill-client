@@ -8,7 +8,6 @@ import { BillTabs } from '@/pages/bill/BillTabs';
 import { useBillPageStore } from '@/pages/bill/model';
 import { BillTabsType } from '@/pages/bill/types';
 import Content from '@/pages/bill/ui/Content';
-import { ROUTES_PATH } from '@/shared/config/routes';
 import { Button as WwButton } from '@/shared/ui';
 
 interface BillQueryState {
@@ -83,10 +82,8 @@ export function PersonalBillWorkspaceView({ query }: { query: BillQueryState }) 
 }
 
 export function LedgerBillWorkspaceView({
-  ledgerId,
   query,
 }: {
-  ledgerId: string;
   query: BillQueryState;
 }) {
   const { t } = useTranslation('bill');
@@ -94,7 +91,7 @@ export function LedgerBillWorkspaceView({
 
   return (
     <div className="page overflow-hidden bg-bg-gray">
-      <NavBar onBack={() => navigate(ROUTES_PATH.LEDGER_DETAIL.getPath(ledgerId))}>
+      <NavBar onBack={() => navigate(-1)}>
         {t('title')}
       </NavBar>
       <div className="flex min-h-0 flex-grow flex-col overflow-hidden">
@@ -102,11 +99,8 @@ export function LedgerBillWorkspaceView({
         <BillWorkspaceContent query={query} />
       </div>
       <div className="flex-shrink-0">
-        <WwButton
-          size="full"
-          onClick={() => navigate(ROUTES_PATH.LEDGER_DETAIL.getPath(ledgerId))}
-        >
-          返回账本详情
+        <WwButton size="full" onClick={() => navigate(-1)}>
+          {t('back')}
         </WwButton>
       </div>
     </div>

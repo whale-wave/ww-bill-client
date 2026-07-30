@@ -2,7 +2,7 @@ import type { BudgetInfo } from '@/entities/budget';
 import { ActionSheet, Dialog, ErrorBlock, Modal, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   BudgetEditorPresentation,
   BudgetEntityLevel,
@@ -20,7 +20,6 @@ import {
 import { useLedgerCategoriesQuery } from '@/entities/category';
 import { LedgerCapability } from '@/entities/ledger';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
-import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 
 interface BudgetEditor {
@@ -229,7 +228,6 @@ function BudgetContent({
 
 export default function LedgerBudgetPage() {
   const navigate = useNavigate();
-  const { ledgerId = '' } = useParams<{ ledgerId: string }>();
   const dropDownWrapperRef = useRef<HTMLDivElement>(null);
   const [budgetEntityType, setBudgetEntityType] = useState(BudgetEntityType.MONTH);
   const periodStart = useMemo(() => dayjs()
@@ -242,7 +240,7 @@ export default function LedgerBudgetPage() {
         <BudgetPeriodDropdown
           budgetEntityType={budgetEntityType}
           dropDownWrapperRef={dropDownWrapperRef}
-          onBack={() => navigate(ROUTES_PATH.LEDGER_RECORDS.getPath(ledgerId))}
+          onBack={() => navigate(-1)}
           onBudgetEntityTypeChange={setBudgetEntityType}
         />
       )}
