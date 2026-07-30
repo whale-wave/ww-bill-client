@@ -21,6 +21,34 @@ export interface GetRecordApiParams {
   startDate?: string | number;
   endDate?: string;
   keyword?: string;
+  keywordTarget?: RecordKeywordTarget;
+  type?: 'add' | 'sub';
+  dateMode?: RecordDateMode;
+}
+
+export type RecordKeywordTarget = 'all' | 'category' | 'tag' | 'remark' | 'amount';
+export type RecordDateMode = 'range';
+
+export interface RecordFilterCategory {
+  icon: string;
+  id: number;
+  name: string;
+  type: 'add' | 'sub';
+}
+
+export interface RecordFilterTag {
+  id: string;
+  name: string;
+  status: 'ACTIVE' | 'ARCHIVED';
+}
+
+export interface RecordFilterOptionsData {
+  capabilities: {
+    category: boolean;
+    tag: boolean;
+  };
+  categories: RecordFilterCategory[];
+  tags: RecordFilterTag[];
 }
 
 // 获取记录
@@ -41,6 +69,13 @@ export function getLedgerRecordsApi(
     `/ledgers/${encodeURIComponent(ledgerId)}/records`,
     { params },
   );
+}
+
+export function getRecordFilterOptionsApi(ledgerId?: string) {
+  const path = ledgerId
+    ? `/ledgers/${encodeURIComponent(ledgerId)}/records/filter-options`
+    : '/record/filter-options';
+  return request.get<unknown, SuccessResponse<RecordFilterOptionsData>>(path);
 }
 
 export function getLedgerRecordByIdApi(ledgerId: string, recordId: string) {

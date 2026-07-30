@@ -17,6 +17,7 @@ import {
   useLedgerRecordQuery,
 } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
+import { useCurrentWorkspaceBack } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
@@ -130,10 +131,10 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
 
 export default function LedgerRecordDetailPage() {
   const { t } = useTranslation('ledger');
-  const navigate = useNavigate();
+  const onBack = useCurrentWorkspaceBack();
   return (
     <div className="page">
-      <NavBar back={t('common:nav.back')} backArrow={false} onBack={() => navigate(-1)} />
+      <NavBar back={t('common:nav.back')} backArrow={false} onBack={onBack} />
       <div className="min-h-0 flex-grow overflow-hidden">
         <LedgerScopeBoundary capability={LedgerCapability.RECORD_READ}>{({ ledger, ledgerId }) => <DetailContent canDelete={ledger.capabilities.includes(LedgerCapability.RECORD_DELETE)} canUpdate={ledger.capabilities.includes(LedgerCapability.RECORD_UPDATE)} ledgerId={ledgerId} showFamilyPolicy={ledger.kind === LedgerKind.SYSTEM_DEFAULT} />}</LedgerScopeBoundary>
       </div>

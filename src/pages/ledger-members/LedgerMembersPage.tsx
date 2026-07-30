@@ -6,14 +6,17 @@ import {
   useLedgerMembersQuery,
   useLedgerQuery,
 } from '@/entities/ledger';
+import { useGetUserUserInfoQuery } from '@/entities/user';
 import {
   CollaborationQueryState,
-  CollaborationStatusBadge,
-  LedgerUserRow,
-} from '@/pages/ledger-collaboration/ui';
+} from '@/features/ledger-collaboration';
+import {
+  useWorkspaceBack,
+  WorkspaceNavHeader,
+} from '@/features/workspace-navigation';
+import { MemberCardsPresentation } from '@/features/workspace-settings';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
 
 const LedgerMembersPage: FC = () => {
   const { t } = useTranslation('ledger');
@@ -23,19 +26,54 @@ const LedgerMembersPage: FC = () => {
     params: { ledgerId },
     queryOptions: { enabled: Boolean(ledgerId) },
   });
+  const userQuery = useGetUserUserInfoQuery({
+    options: { enabled: Boolean(ledgerId) },
+  });
+  const onBack = useWorkspaceBack({
+    capabilities: ledgerQuery.data?.capabilities,
+    ledgerId,
+    type: 'custom',
+  });
   const canRead = ledgerQuery.data?.capabilities.includes(LedgerCapability.MEMBER_READ);
   const membersQuery = useLedgerMembersQuery({
     params: { ledgerId, status: LedgerMemberStatus.ACTIVE },
     queryOptions: { enabled: Boolean(ledgerId && canRead) },
   });
-  const loading = ledgerQuery.isLoading || (canRead && membersQuery.isLoading);
-  const error = ledgerQuery.isError || (canRead && membersQuery.isError);
+  const loading = ledgerQuery.isLoading
+    || userQuery.isLoading
+    || (canRead && membersQuery.isLoading);
+  const error = ledgerQuery.isError
+    || userQuery.isError
+    || (canRead && membersQuery.isError);
+  const currentMember = membersQuery.data.find(
+    member => member.user.id === userQuery.data?.id,
+  );
+  const otherMembers = currentMember
+    ? membersQuery.data.filter(member => member.id !== currentMember.id)
+    : [];
+  const toCard = (member: typeof membersQuery.data[number]) => ({
+    avatar: member.user.avatar,
+    badge: t(`role.${member.role}`),
+    description: member.nickname || t('members.noNickname'),
+    id: member.id,
+    name: member.user.name || member.user.username || t('common.unknownUser'),
+    onClick: () => navigate(
+      ROUTES_PATH.LEDGER_MEMBER_DETAIL.getPath(ledgerId, member.id),
+    ),
+    userId: member.user.id,
+  });
 
   return (
     <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
-        {t('members.title', { count: membersQuery.data.length })}
-      </NavBar>
+      <WorkspaceNavHeader
+        onBack={onBack}
+        scope={{
+          capabilities: ledgerQuery.data?.capabilities,
+          ledgerId,
+          type: 'custom',
+        }}
+        title={t('members.title', { count: membersQuery.data.length })}
+      />
       <main className="min-h-0 flex-grow overflow-auto pb-6">
         {!ledgerId && (
           <CollaborationQueryState
@@ -52,6 +90,7 @@ const LedgerMembersPage: FC = () => {
             description={t('members.loadErrorDescription')}
             onRetry={() => {
               ledgerQuery.refetch();
+              userQuery.refetch();
               if (canRead)
                 membersQuery.refetch();
             }}
@@ -67,34 +106,22 @@ const LedgerMembersPage: FC = () => {
             type="permission"
           />
         )}
-        {canRead && !loading && !error && !membersQuery.data.length && (
+        {canRead && !loading && !error && !currentMember && (
           <CollaborationQueryState
             description={t('members.emptyDescription')}
             title={t('members.empty')}
             type="empty"
           />
         )}
-        {canRead && !loading && !error && membersQuery.data.length > 0 && (
-          <section className="mt-3 bg-white">
-            {membersQuery.data.map(member => (
-              <LedgerUserRow
-                fallback={t('common.unknownUser')}
-                key={member.id}
-                onClick={() => navigate(
-                  ROUTES_PATH.LEDGER_MEMBER_DETAIL.getPath(ledgerId, member.id),
-                )}
-                secondary={`${member.nickname || t('members.noNickname')} · ${t(`role.${member.role}`)}`}
-                testId={`member-${member.id}`}
-                trailing={(
-                  <CollaborationStatusBadge
-                    label={t(`memberStatus.${member.status}`)}
-                    status={member.status}
-                  />
-                )}
-                user={member.user}
-              />
-            ))}
-          </section>
+        {canRead && !loading && !error && currentMember && (
+          <MemberCardsPresentation
+            current={{
+              ...toCard(currentMember),
+              isCurrent: true,
+            }}
+            others={otherMembers.map(toCard)}
+            othersLabel={t('members.title', { count: otherMembers.length })}
+          />
         )}
       </main>
     </div>

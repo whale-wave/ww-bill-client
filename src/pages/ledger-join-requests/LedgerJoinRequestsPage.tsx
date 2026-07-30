@@ -11,7 +11,7 @@ import {
   CollaborationQueryState,
   CollaborationStatusBadge,
   LedgerUserRow,
-} from '@/pages/ledger-collaboration/ui';
+} from '@/features/ledger-collaboration';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { NavBar } from '@/shared/ui';

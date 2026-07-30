@@ -48,8 +48,10 @@ const hooks = vi.hoisted(() => ({
   useLedgerQuery: vi.fn(),
   useLedgerRecordBillQuery: vi.fn(),
   useLedgerRecordsQuery: vi.fn(),
+  useRecordFilterOptionsQuery: vi.fn(),
   useLedgerTagsQuery: vi.fn(),
   useLedgerTemplatesQuery: vi.fn(),
+  useMyHouseholdQuery: vi.fn(),
   usePostBudgetClearMutation: vi.fn(),
   usePatchLedgerBudgetAmountMutation: vi.fn(),
 }));
@@ -67,11 +69,17 @@ vi.mock('@/entities/user-app-config', () => ({
   useGetUserAppConfigQuery: hooks.useGetUserAppConfigQuery,
 }));
 
+vi.mock('@/entities/household', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/entities/household')>()),
+  useMyHouseholdQuery: hooks.useMyHouseholdQuery,
+}));
+
 vi.mock('@/entities/record', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/record')>()),
   useGetRecordBillQuery: hooks.useGetRecordBillQuery,
   useLedgerRecordBillQuery: hooks.useLedgerRecordBillQuery,
   useLedgerRecordsQuery: hooks.useLedgerRecordsQuery,
+  useRecordFilterOptionsQuery: hooks.useRecordFilterOptionsQuery,
   useCreateLedgerRecordMutation: hooks.useCreateLedgerRecordMutation,
 }));
 
@@ -271,8 +279,23 @@ beforeEach(() => {
     refetch: vi.fn(),
   });
   hooks.useLedgerQuery.mockReturnValue({ data: ledger, error: undefined, isError: false, isLoading: false, refetch: vi.fn() });
+  hooks.useMyHouseholdQuery.mockReturnValue({
+    data: undefined,
+    isError: false,
+    isLoading: false,
+    refetch: vi.fn(),
+  });
   hooks.useLedgerPreferencesQuery.mockReturnValue({ data: undefined, isError: false, isLoading: false });
   hooks.useLedgerRecordsQuery.mockReturnValue({ data: { data: [], expend: 2, income: 5, total: 0 }, isError: false, isLoading: false });
+  hooks.useRecordFilterOptionsQuery.mockReturnValue({
+    data: {
+      capabilities: { category: true, tag: true },
+      categories: [],
+      tags: [],
+    },
+    isError: false,
+    isLoading: false,
+  });
   hooks.useGetRecordBillQuery.mockReturnValue({ data: billData, isError: false, isLoading: false });
   hooks.useLedgerRecordBillQuery.mockReturnValue({ data: billData, isError: false, isLoading: false });
   hooks.useGetChartQuery.mockReturnValue({ data: [], isError: false, isLoading: false });
@@ -303,15 +326,15 @@ describe('personal ledger workspace integration', () => {
     const { container, router } = renderPage('/detail', '/detail', createElement(DetailPage));
     const header = container.querySelector('[data-testid="record-overview-header"]');
     const periodControl = container.querySelector('[data-testid="record-period-control"]');
-    const title = container.querySelector('[data-testid="ledger-switcher-title"]');
+    const title = container.querySelector('.record-overview-title');
 
     expect(header).not.toBeNull();
     expect(title?.parentElement).toBe(header);
     expect(periodControl?.tagName).toBe('DIV');
     expect(periodControl?.querySelector('[data-testid="record-month-picker"]')?.tagName).toBe('BUTTON');
     expect(title?.textContent).toContain('鲸浪账本');
-    expect(title?.tagName).toBe('BUTTON');
-    expect(container.querySelector('[data-testid="mini-program-capsule"]')).toBeNull();
+    expect(title?.tagName).toBe('H1');
+    expect(container.querySelector('[data-workspace-capsule]')).not.toBeNull();
     expect(container.querySelector('[data-testid="record-search-action"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="record-calendar-action"]')).not.toBeNull();
 
@@ -415,10 +438,10 @@ describe('custom ledger workspace integration', () => {
     expect(container.querySelector('[data-record-list-variant="search"]')).not.toBeNull();
     expect(container.querySelector('[data-record-id="7"]')?.classList).toContain('h-[59px]');
     expect(hooks.useLedgerRecordsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
-      params: { filters: { keyword: '晚餐' }, ledgerId: 'ledger/a' },
+      params: { filters: { keyword: '晚餐', keywordTarget: 'all' }, ledgerId: 'ledger/a' },
     }));
 
-    const input = container.querySelector<HTMLInputElement>('.adm-search-bar-input-box input');
+    const input = container.querySelector<HTMLInputElement>('[data-record-search-input] input');
     const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
     await act(async () => {
       setValue?.call(input, '午餐');
@@ -429,7 +452,7 @@ describe('custom ledger workspace integration', () => {
     expect(router.state.location.search).not.toContain('keyword=');
   });
 
-  it('uses the current ledger name, obeys quick-switch preference, and preserves ledger-scoped tabs', () => {
+  it('uses the current ledger name, shared capsule, and preserves ledger-scoped tabs', () => {
     hooks.useLedgerRecordsQuery.mockReturnValue({
       data: {
         data: [{
@@ -469,8 +492,9 @@ describe('custom ledger workspace integration', () => {
     expect(first.container.querySelector('[data-testid="ledger-search-action"]')).not.toBeNull();
     expect(first.container.querySelector('[data-testid="ledger-calendar-action"]')).not.toBeNull();
     expect(first.container.querySelector('.adm-search-bar')).toBeNull();
-    expect(first.container.querySelector('[data-testid="ledger-switcher-title"]')?.textContent).toContain('家庭旅行账本');
-    expect(first.container.querySelector('[data-testid="ledger-switcher-title"]')?.tagName).toBe('BUTTON');
+    expect(first.container.querySelector('.record-overview-title')?.textContent).toContain('家庭旅行账本');
+    expect(first.container.querySelector('.record-overview-title')?.tagName).toBe('H1');
+    expect(first.container.querySelector('[data-workspace-capsule]')).not.toBeNull();
     expect(hooks.useLedgerRecordsQuery).toHaveBeenCalledWith(expect.objectContaining({
       params: {
         filters: {
@@ -493,8 +517,8 @@ describe('custom ledger workspace integration', () => {
       isLoading: false,
     });
     const second = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
-    expect(second.container.querySelector('[data-testid="ledger-switcher-title"]')?.tagName).toBe('SPAN');
-    expect(second.container.querySelector('[data-testid="ledger-switcher-title"]')?.getAttribute('aria-disabled')).toBe('true');
+    expect(second.container.querySelector('.record-overview-title')?.tagName).toBe('H1');
+    expect(second.container.querySelector('[data-workspace-capsule]')).not.toBeNull();
   });
 
   it('does not mount the records adapter when record read permission is denied', () => {
@@ -536,8 +560,8 @@ describe('custom ledger workspace integration', () => {
   it('replaces custom records with personal detail through its title switcher', async () => {
     const { container, router } = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
 
-    await click(container.querySelector('[data-testid="ledger-switcher-title"]'));
-    await click(document.querySelector('[data-testid="ledger-switch-item-personal"]'));
+    await click(container.querySelector('[data-workspace-capsule] button[aria-label="切换账本"]'));
+    await click(document.querySelector('[data-workspace-option="personal"]'));
     expect(router.state.location.pathname).toBe('/detail');
     expect(router.state.historyAction).toBe('REPLACE');
   });

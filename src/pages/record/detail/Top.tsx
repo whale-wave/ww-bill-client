@@ -3,11 +3,12 @@ import type { ReactNode } from 'react';
 import type { numType } from './DetailPage';
 import type { RecordOverviewHeaderProps } from '@/entities/record';
 import dayjs from 'dayjs';
-import { CalendarDays, Eye, EyeOff, Search } from 'lucide-react';
+import { CalendarDays, Eye, EyeOff, Search, Settings } from 'lucide-react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RecordMonthPicker } from '@/entities/record';
-import { LedgerTitleSwitcher } from '@/features/ledger-switcher';
+import { WorkspaceCapsule } from '@/features/workspace-navigation';
+import config from '@/shared/config';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { Icon } from '@/shared/ui';
@@ -60,16 +61,7 @@ export function useRecordOverviewHeader({
   }, [navigate, selectTime]);
 
   return {
-    actions: (
-      <>
-        <button className="border-0 bg-transparent p-0" data-testid="record-search-action" onClick={handleSearch} type="button">
-          <Search size={18} strokeWidth={2} />
-        </button>
-        <button className="border-0 bg-transparent p-0" data-testid="record-calendar-action" onClick={handleCalendar} type="button">
-          <CalendarDays size={18} strokeWidth={2} />
-        </button>
-      </>
-    ),
+    actions: <WorkspaceCapsule scope={{ type: 'personal' }} />,
     amountToggle: visibleAmountSwitch
       ? {
           content: !visibleAmount ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />,
@@ -100,7 +92,7 @@ export function useRecordOverviewHeader({
         />
       ),
     },
-    renderTitle: className => <LedgerTitleSwitcher className={className} />,
+    renderTitle: className => <h1 className={className}>{config.appName}</h1>,
     shortcuts: [
       {
         icon: <Icon name="bill" />,
@@ -115,11 +107,26 @@ export function useRecordOverviewHeader({
         onClick: () => navigate(ROUTES_PATH.BUDGET.getPath()),
       },
       {
-        icon: <Icon name="asset-steward" />,
-        key: 'asset-steward',
-        label: t('common:commonFunctions.assetSteward'),
-        onClick: () => navigate(ROUTES_PATH.ASSET.getPath()),
+        icon: <Search size={20} />,
+        key: 'search',
+        label: t('search.title'),
+        onClick: handleSearch,
+        testId: 'record-search-action',
+      },
+      {
+        icon: <CalendarDays size={20} />,
+        key: 'calendar',
+        label: t('calendar.title'),
+        onClick: handleCalendar,
+        testId: 'record-calendar-action',
+      },
+      {
+        icon: <Settings size={20} />,
+        key: 'settings',
+        label: t('settings:title'),
+        onClick: () => navigate(ROUTES_PATH.SETTINGS.getPath()),
       },
     ],
+    titleAlignment: 'start',
   };
 }

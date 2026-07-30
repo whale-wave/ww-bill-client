@@ -5,6 +5,7 @@ import type {
   GetRecordApiResponseData,
   GetRecordBillApiParams,
   GetRecordBillApiResponseData,
+  RecordFilterOptionsData,
 } from './api';
 import type { RecordEntry } from './types';
 import type { SuccessResponse } from '@/shared/api';
@@ -23,6 +24,7 @@ import {
   getRecordApi,
   getRecordBillApi,
   getRecordByIdApi,
+  getRecordFilterOptionsApi,
   postLedgerRecordApi,
   postRecordApi,
   putLedgerRecordApi,
@@ -44,6 +46,12 @@ const emptyBill: GetRecordBillApiResponseData = {
     expand: 0,
     balance: 0,
   },
+};
+
+const emptyRecordFilterOptions: RecordFilterOptionsData = {
+  capabilities: { category: false, tag: false },
+  categories: [],
+  tags: [],
 };
 
 const ledgerNavigationKey = ['ledger', 'navigation'] as const;
@@ -106,6 +114,25 @@ export function useLedgerRecordsQuery(options: {
   return {
     response,
     data: isSuccessApi(response) ? response.data : emptyRecordInfo,
+    ...rest,
+  };
+}
+
+export function useRecordFilterOptionsQuery(options: {
+  params?: { ledgerId?: string };
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<RecordFilterOptionsData>>, 'queryFn' | 'queryKey'>;
+} = {}) {
+  const ledgerId = options.params?.ledgerId;
+  const { data: response, ...rest } = useQuery<SuccessResponse<RecordFilterOptionsData>>({
+    queryFn: async () => assertSuccessApi(await getRecordFilterOptionsApi(ledgerId)),
+    queryKey: ledgerId
+      ? recordKeys.ledgerFilterOptions(ledgerId)
+      : recordKeys.filterOptions(),
+    ...options.queryOptions,
+  });
+  return {
+    response,
+    data: response?.data ?? emptyRecordFilterOptions,
     ...rest,
   };
 }

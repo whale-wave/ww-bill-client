@@ -1,8 +1,8 @@
 import type { BudgetInfo } from '@/entities/budget';
-import { ActionSheet, Dialog, ErrorBlock, Modal, Toast } from 'antd-mobile';
+import type { Ledger } from '@/entities/ledger';
+import { ActionSheet, Dialog, ErrorBlock, Modal, SpinLoading, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   BudgetEditorPresentation,
   BudgetEntityLevel,
@@ -20,6 +20,7 @@ import {
 import { useLedgerCategoriesQuery } from '@/entities/category';
 import { LedgerCapability } from '@/entities/ledger';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
+import { useCurrentWorkspaceBack, useWorkspaceBack } from '@/features/workspace-navigation';
 import { useTranslation } from '@/shared/i18n';
 
 interface BudgetEditor {
@@ -226,8 +227,18 @@ function BudgetContent({
   );
 }
 
-export default function LedgerBudgetPage() {
-  const navigate = useNavigate();
+function ScopedLedgerBudgetPage({
+  ledger,
+  ledgerId,
+}: {
+  ledger: Ledger;
+  ledgerId: string;
+}) {
+  const onBack = useWorkspaceBack({
+    capabilities: ledger.capabilities,
+    ledgerId,
+    type: 'custom',
+  });
   const dropDownWrapperRef = useRef<HTMLDivElement>(null);
   const [budgetEntityType, setBudgetEntityType] = useState(BudgetEntityType.MONTH);
   const periodStart = useMemo(() => dayjs()
@@ -240,22 +251,53 @@ export default function LedgerBudgetPage() {
         <BudgetPeriodDropdown
           budgetEntityType={budgetEntityType}
           dropDownWrapperRef={dropDownWrapperRef}
-          onBack={() => navigate(-1)}
+          onBack={onBack}
           onBudgetEntityTypeChange={setBudgetEntityType}
         />
       )}
       wrapperRef={dropDownWrapperRef}
     >
-      <LedgerScopeBoundary capability={LedgerCapability.BUDGET_READ}>
-        {({ ledger, ledgerId: scopedLedgerId }) => (
-          <BudgetContent
-            budgetEntityType={budgetEntityType}
-            canManage={ledger.capabilities.includes(LedgerCapability.BUDGET_MANAGE)}
-            ledgerId={scopedLedgerId}
-            periodStart={periodStart}
-          />
-        )}
-      </LedgerScopeBoundary>
+      <BudgetContent
+        budgetEntityType={budgetEntityType}
+        canManage={ledger.capabilities.includes(LedgerCapability.BUDGET_MANAGE)}
+        ledgerId={ledgerId}
+        periodStart={periodStart}
+      />
     </BudgetPageShell>
+  );
+}
+
+export default function LedgerBudgetPage() {
+  const onBack = useCurrentWorkspaceBack();
+  const dropDownWrapperRef = useRef<HTMLDivElement>(null);
+  const [budgetEntityType, setBudgetEntityType] = useState(BudgetEntityType.MONTH);
+
+  return (
+    <LedgerScopeBoundary
+      capability={LedgerCapability.BUDGET_READ}
+      renderState={state => (
+        <BudgetPageShell
+          header={(
+            <BudgetPeriodDropdown
+              budgetEntityType={budgetEntityType}
+              dropDownWrapperRef={dropDownWrapperRef}
+              onBack={onBack}
+              onBudgetEntityTypeChange={setBudgetEntityType}
+            />
+          )}
+          wrapperRef={dropDownWrapperRef}
+        >
+          <div className="flex flex-grow items-center justify-center" data-ledger-budget-scope-state={state}>
+            {state === 'loading'
+              ? <SpinLoading />
+              : <ErrorBlock status="default" />}
+          </div>
+        </BudgetPageShell>
+      )}
+    >
+      {({ ledger, ledgerId }) => (
+        <ScopedLedgerBudgetPage ledger={ledger} ledgerId={ledgerId} />
+      )}
+    </LedgerScopeBoundary>
   );
 }

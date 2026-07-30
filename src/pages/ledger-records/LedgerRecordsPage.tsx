@@ -16,7 +16,7 @@ import {
   formatMonthStart,
 } from '@/features/household';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
-import { LedgerTitleSwitcher } from '@/features/ledger-switcher';
+import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
@@ -24,7 +24,7 @@ import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 interface LedgerShortcut {
   capability: LedgerCapability;
   icon: typeof Target;
-  key: 'bill' | 'budget' | 'settings';
+  key: 'bill' | 'budget' | 'calendar' | 'search' | 'settings';
   route: (ledgerId: string) => string;
 }
 
@@ -40,6 +40,18 @@ const LEDGER_SHORTCUTS: readonly LedgerShortcut[] = [
     icon: Target,
     key: 'budget',
     route: ROUTES_PATH.LEDGER_BUDGET.getPath,
+  },
+  {
+    capability: LedgerCapability.RECORD_READ,
+    icon: Search,
+    key: 'search',
+    route: ROUTES_PATH.LEDGER_RECORD_SEARCH.getPath,
+  },
+  {
+    capability: LedgerCapability.RECORD_READ,
+    icon: CalendarDays,
+    key: 'calendar',
+    route: ROUTES_PATH.LEDGER_CALENDAR.getPath,
   },
   {
     capability: LedgerCapability.LEDGER_READ,
@@ -140,26 +152,13 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
       groups={groups}
       header={{
         actions: (
-          <>
-            <button
-              aria-label={t('home.search')}
-              className="border-0 bg-transparent p-0"
-              data-testid="ledger-search-action"
-              onClick={() => navigate(ROUTES_PATH.LEDGER_RECORD_SEARCH.getPath(ledgerId))}
-              type="button"
-            >
-              <Search size={18} strokeWidth={2} />
-            </button>
-            <button
-              aria-label={t('home.calendar')}
-              className="border-0 bg-transparent p-0"
-              data-testid="ledger-calendar-action"
-              onClick={() => navigate(ROUTES_PATH.LEDGER_CALENDAR.getPath(ledgerId))}
-              type="button"
-            >
-              <CalendarDays size={18} strokeWidth={2} />
-            </button>
-          </>
+          <WorkspaceCapsule
+            scope={{
+              capabilities: ledger.capabilities,
+              ledgerId,
+              type: 'custom',
+            }}
+          />
         ),
         metrics: [
           {
@@ -195,9 +194,7 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
           ),
           valueWidth: 'cell',
         },
-        renderTitle: className => (
-          <LedgerTitleSwitcher className={className} ledgerName={ledger.name} />
-        ),
+        renderTitle: className => <h1 className={className}>{ledger.name}</h1>,
         shortcuts: LEDGER_SHORTCUTS.map(({ capability, icon: ShortcutIcon, key, route }) => ({
           disabled: !ledger.capabilities.includes(capability),
           icon: <ShortcutIcon size={20} />,
@@ -205,10 +202,15 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
           label: t(`home.${key}`),
           ...(key === 'bill' ? { label: t('bill:title') } : {}),
           onClick: () => navigate(route(ledgerId)),
-          testId: `ledger-${key}`,
+          testId: key === 'search'
+            ? 'ledger-search-action'
+            : key === 'calendar'
+              ? 'ledger-calendar-action'
+              : `ledger-${key}`,
         })),
         shortcutsTestId: 'ledger-record-shortcuts',
         testId: 'ledger-records-header',
+        titleAlignment: 'start',
       }}
       onRetry={() => void query.refetch()}
       retryLabel={t('common.retry')}

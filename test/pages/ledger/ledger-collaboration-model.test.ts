@@ -7,7 +7,7 @@ import {
   normalizeInvitationCode,
   validateJoinRequest,
   validateMemberPatch,
-} from '@/pages/ledger-collaboration/model';
+} from '@/features/ledger-collaboration';
 
 describe('ledger collaboration page model', () => {
   it('normalizes codes and validates the six-character invitation alphabet', () => {

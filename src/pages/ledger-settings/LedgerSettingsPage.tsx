@@ -1,6 +1,7 @@
-import { Button, Dialog, ErrorBlock, Input, List, NavBar, Switch, Toast } from 'antd-mobile';
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import type { SettingsOverviewSection } from '@/features/workspace-settings';
+import { Button, Dialog, ErrorBlock, Popup, Toast } from 'antd-mobile';
+import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   LedgerCapability,
   LedgerChartDisplay,
@@ -20,6 +21,12 @@ import {
   usePatchLedgerPreferencesMutation,
 } from '@/entities/ledger';
 import { useGetUserUserInfoQuery } from '@/entities/user';
+import { LedgerScopeBoundary } from '@/features/ledger-scope';
+import {
+  useWorkspaceBack,
+  WorkspaceNavHeader,
+} from '@/features/workspace-navigation';
+import { SettingsOverviewPresentation } from '@/features/workspace-settings';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 
@@ -30,21 +37,28 @@ function isConflict(error: unknown) {
   return typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
 }
 
-export default function LedgerSettingsPage() {
+function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
   const { t } = useTranslation('ledger');
   const navigate = useNavigate();
-  const { ledgerId = '' } = useParams<{ ledgerId: string }>();
   const ledgerQuery = useLedgerQuery({ params: { ledgerId }, queryOptions: { enabled: Boolean(ledgerId) } });
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId }, queryOptions: { enabled: Boolean(ledgerId) } });
   const userQuery = useGetUserUserInfoQuery({ options: { enabled: Boolean(ledgerId) } });
+  const onBack = useWorkspaceBack({
+    capabilities: ledgerQuery.data?.capabilities,
+    ledgerId,
+    type: 'custom',
+  });
+  const canReadMembers = Boolean(
+    ledgerQuery.data?.capabilities.includes(LedgerCapability.MEMBER_READ),
+  );
   const canLeave = Boolean(
     ledgerQuery.data?.status === LedgerStatus.ACTIVE
     && ledgerQuery.data.myRole !== LedgerRole.OWNER
-    && ledgerQuery.data.capabilities.includes(LedgerCapability.MEMBER_READ),
+    && canReadMembers,
   );
   const membersQuery = useLedgerMembersQuery({
     params: { ledgerId, status: LedgerMemberStatus.ACTIVE },
-    queryOptions: { enabled: canLeave },
+    queryOptions: { enabled: canReadMembers },
   });
   const currentMember = membersQuery.data.find(member => member.user.id === userQuery.data?.id);
   const [patchLedger, patchState] = usePatchLedgerMutation();
@@ -61,27 +75,32 @@ export default function LedgerSettingsPage() {
   const [defaultChartPeriod, setDefaultChartPeriod] = useState(LedgerChartPeriod.MONTH);
   const [defaultChartMetric, setDefaultChartMetric] = useState(LedgerChartMetric.EXPENSE);
   const [defaultChartDisplay, setDefaultChartDisplay] = useState(LedgerChartDisplay.PIE);
+  const [editor, setEditor] = useState<'basic' | 'preferences' | null>(null);
   const submittingRef = useRef(false);
 
-  useEffect(() => {
-    if (!ledgerQuery.data)
+  const openBasicEditor = () => {
+    const ledger = ledgerQuery.data;
+    if (!ledger)
       return;
-    setName(ledgerQuery.data.name);
-    setMonthStartDay(ledgerQuery.data.monthStartDay);
-    setIconKey(ledgerQuery.data.iconKey);
-    setThemeKey(ledgerQuery.data.themeKey);
-  }, [ledgerQuery.data]);
+    setName(ledger.name);
+    setMonthStartDay(ledger.monthStartDay);
+    setIconKey(ledger.iconKey);
+    setThemeKey(ledger.themeKey);
+    setEditor('basic');
+  };
 
-  useEffect(() => {
-    if (!preferenceQuery.data)
+  const openPreferenceEditor = () => {
+    const preference = preferenceQuery.data;
+    if (!preference)
       return;
-    setHideTotalAmount(preferenceQuery.data.hideTotalAmount);
-    setShowDailySummary(preferenceQuery.data.showDailySummary);
-    setDefaultRecordType(preferenceQuery.data.defaultRecordType);
-    setDefaultChartPeriod(preferenceQuery.data.defaultChartPeriod);
-    setDefaultChartMetric(preferenceQuery.data.defaultChartMetric);
-    setDefaultChartDisplay(preferenceQuery.data.defaultChartDisplay);
-  }, [preferenceQuery.data]);
+    setHideTotalAmount(preference.hideTotalAmount);
+    setShowDailySummary(preference.showDailySummary);
+    setDefaultRecordType(preference.defaultRecordType);
+    setDefaultChartPeriod(preference.defaultChartPeriod);
+    setDefaultChartMetric(preference.defaultChartMetric);
+    setDefaultChartDisplay(preference.defaultChartDisplay);
+    setEditor('preferences');
+  };
 
   const handleBasicSave = async () => {
     const ledger = ledgerQuery.data;
@@ -100,10 +119,19 @@ export default function LedgerSettingsPage() {
         },
       });
       Toast.show({ icon: 'success', content: t('settings.saved') });
+      setEditor(null);
     }
     catch (error) {
-      if (isConflict(error))
+      if (isConflict(error)) {
+        const draft = { iconKey, monthStartDay, name, themeKey };
         await ledgerQuery.refetch();
+        setName(draft.name);
+        setMonthStartDay(draft.monthStartDay);
+        setIconKey(draft.iconKey);
+        setThemeKey(draft.themeKey);
+        Toast.show({ icon: 'fail', content: t('common.conflict') });
+        return;
+      }
       Toast.show({ icon: 'fail', content: t('settings.saveFailed') });
     }
     finally {
@@ -130,10 +158,28 @@ export default function LedgerSettingsPage() {
         },
       });
       Toast.show({ icon: 'success', content: t('settings.saved') });
+      setEditor(null);
     }
     catch (error) {
-      if (isConflict(error))
+      if (isConflict(error)) {
+        const draft = {
+          defaultChartDisplay,
+          defaultChartMetric,
+          defaultChartPeriod,
+          defaultRecordType,
+          hideTotalAmount,
+          showDailySummary,
+        };
         await preferenceQuery.refetch();
+        setDefaultChartDisplay(draft.defaultChartDisplay);
+        setDefaultChartMetric(draft.defaultChartMetric);
+        setDefaultChartPeriod(draft.defaultChartPeriod);
+        setDefaultRecordType(draft.defaultRecordType);
+        setHideTotalAmount(draft.hideTotalAmount);
+        setShowDailySummary(draft.showDailySummary);
+        Toast.show({ icon: 'fail', content: t('common.conflict') });
+        return;
+      }
       Toast.show({ icon: 'fail', content: t('settings.saveFailed') });
     }
     finally {
@@ -195,121 +241,307 @@ export default function LedgerSettingsPage() {
   };
 
   const ledger = ledgerQuery.data;
-  const preferencesWritable = ledger?.status === LedgerStatus.ACTIVE;
+  const ledgerWritable = ledger?.status === LedgerStatus.ACTIVE;
+  const preferencesWritable = ledgerWritable;
   if (!ledgerId || ledgerQuery.isError)
     return <ErrorBlock title={t('common.invalidLedger')} />;
 
+  const showDeveloping = () => Toast.show('开发中');
+  const canUpdateLedger = Boolean(
+    ledgerWritable
+    && ledger?.capabilities.includes(LedgerCapability.LEDGER_UPDATE),
+  );
+  const sections: SettingsOverviewSection[] = ledger
+    ? [
+        {
+          id: 'members',
+          rows: canReadMembers
+            ? [{
+                avatars: membersQuery.data.map(member => ({
+                  alt: member.nickname || member.user.name || '',
+                  id: member.id,
+                  src: member.user.avatar,
+                })),
+                icon: 'member',
+                id: 'members',
+                kind: 'avatarStack',
+                label: t('settings.members'),
+                onClick: () => navigate(
+                  ROUTES_PATH.LEDGER_MEMBERS.getPath(ledgerId),
+                ),
+                overflowCount: Math.max(0, membersQuery.data.length - 3),
+              }]
+            : [],
+        },
+        {
+          id: 'basic',
+          rows: [
+            canUpdateLedger
+              ? {
+                  icon: 'account',
+                  id: 'basic',
+                  kind: 'link',
+                  label: t('settings.name'),
+                  onClick: openBasicEditor,
+                  value: `${ledger.name} · ${t('settings.monthStartDay')} ${ledger.monthStartDay}`,
+                }
+              : {
+                  icon: 'account',
+                  id: 'basic',
+                  kind: 'value',
+                  label: ledger.name,
+                  value: `${t('settings.monthStartDay')} ${ledger.monthStartDay}`,
+                },
+            canUpdateLedger
+              ? {
+                  icon: 'appearance',
+                  id: 'appearance',
+                  kind: 'link',
+                  label: `${t('settings.icon')} · ${t('settings.theme')}`,
+                  onClick: openBasicEditor,
+                  value: `${ledger.iconKey} · ${ledger.themeKey}`,
+                }
+              : {
+                  icon: 'appearance',
+                  id: 'appearance',
+                  kind: 'value',
+                  label: `${t('settings.icon')} · ${t('settings.theme')}`,
+                  value: `${ledger.iconKey} · ${ledger.themeKey}`,
+                },
+          ],
+        },
+        {
+          id: 'preferences',
+          rows: [{
+            disabled: !preferencesWritable,
+            icon: 'record',
+            id: 'preferences',
+            kind: 'link',
+            label: t('settings.preferences'),
+            onClick: openPreferenceEditor,
+            value: t(`settings.${preferenceQuery.data?.defaultRecordType ?? LedgerRecordType.EXPENSE}`),
+          }],
+        },
+        {
+          id: 'management',
+          rows: [
+            ...(ledger.capabilities.includes(LedgerCapability.CATEGORY_MANAGE)
+              ? [{
+                  disabled: !ledgerWritable,
+                  icon: 'category' as const,
+                  id: 'categories',
+                  kind: 'link' as const,
+                  label: t('settings.categories'),
+                  onClick: () => navigate(
+                    ROUTES_PATH.LEDGER_CATEGORIES.getPath(ledgerId),
+                  ),
+                }]
+              : []),
+            ...(ledger.capabilities.includes(LedgerCapability.TAG_MANAGE)
+              ? [{
+                  disabled: !ledgerWritable,
+                  icon: 'tag' as const,
+                  id: 'tags',
+                  kind: 'link' as const,
+                  label: t('settings.tags'),
+                  onClick: () => navigate(
+                    ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId),
+                  ),
+                }]
+              : []),
+            ...(ledger.capabilities.includes(LedgerCapability.DATA_RECOVERY)
+              ? [{
+                  disabled: !ledgerWritable,
+                  icon: 'archive' as const,
+                  id: 'recovery',
+                  kind: 'link' as const,
+                  label: t('settings.recovery'),
+                  onClick: () => navigate(
+                    ROUTES_PATH.LEDGER_RECOVERY.getPath(ledgerId),
+                  ),
+                }]
+              : []),
+            ...(ledger.capabilities.includes(LedgerCapability.DATA_TRANSFER)
+              ? [{
+                  disabled: !ledgerWritable,
+                  icon: 'record' as const,
+                  id: 'transfer',
+                  kind: 'link' as const,
+                  label: t('settings.transfer'),
+                  onClick: () => navigate(
+                    ROUTES_PATH.LEDGER_TRANSFER.getPath(ledgerId),
+                  ),
+                }]
+              : []),
+            ...(ledger.capabilities.includes(LedgerCapability.DATA_EXPORT)
+              ? [{
+                  icon: 'export' as const,
+                  id: 'export',
+                  kind: 'link' as const,
+                  label: t('settings.export'),
+                  onClick: () => navigate(
+                    ROUTES_PATH.LEDGER_EXPORT.getPath(ledgerId),
+                  ),
+                }]
+              : []),
+          ],
+          title: t('settings.management'),
+        },
+        {
+          id: 'placeholders',
+          rows: [
+            {
+              icon: 'help',
+              id: 'help',
+              kind: 'placeholder',
+              label: '使用帮助',
+              onClick: showDeveloping,
+            },
+            {
+              icon: 'desktop',
+              id: 'desktop',
+              kind: 'placeholder',
+              label: '添加桌面入口',
+              onClick: showDeveloping,
+            },
+          ],
+        },
+        {
+          id: 'danger',
+          rows: [
+            ...(canLeave && currentMember
+              ? [{
+                  danger: true,
+                  disabled: leaveState.isLoading,
+                  icon: 'archive' as const,
+                  id: 'leave',
+                  kind: 'action' as const,
+                  label: t('settings.leave'),
+                  onClick: () => void handleLeave(),
+                }]
+              : []),
+            ...(ledgerWritable
+              && ledger.kind !== LedgerKind.SYSTEM_DEFAULT
+              && ledger.capabilities.includes(LedgerCapability.LEDGER_ARCHIVE)
+              ? [{
+                  danger: true,
+                  disabled: archiveState.isLoading,
+                  icon: 'archive' as const,
+                  id: 'archive',
+                  kind: 'action' as const,
+                  label: t('settings.archive'),
+                  onClick: () => void handleArchive(),
+                }]
+              : []),
+          ],
+        },
+      ]
+    : [];
+
   return (
     <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar onBack={() => navigate(-1)}>{t('settings.title')}</NavBar>
-      <main className="min-h-0 flex-grow overflow-auto pb-6">
-        {ledger && (
-          <>
-            {ledger.capabilities.includes(LedgerCapability.LEDGER_UPDATE) && (
-              <section className="mt-3 bg-white px-4 py-3">
-                <h2 className="mb-3 text-base font-medium">{t('settings.basic')}</h2>
-                <label className="mb-3 block text-sm text-font-gray">
-                  {t('settings.name')}
-                  <Input className="mt-1" disabled={!preferencesWritable} maxLength={30} onChange={setName} value={name} />
-                </label>
-                <label className="mb-3 block text-sm text-font-gray">
-                  {t('settings.monthStartDay')}
-                  <input className="mt-1 w-full border border-solid border-[#EBEBEB] p-2" disabled={!preferencesWritable} max="28" min="1" onChange={event => setMonthStartDay(Number(event.target.value))} type="number" value={monthStartDay} />
-                </label>
-                <label className="mb-3 block text-sm text-font-gray">
-                  {t('settings.icon')}
-                  <select className="mt-1 w-full border border-solid border-[#EBEBEB] p-2 text-font-black" data-testid="ledger-icon" disabled={!preferencesWritable} onChange={event => setIconKey(event.target.value)} value={iconKey}>
-                    {!LEDGER_ICON_KEYS.includes(iconKey as typeof LEDGER_ICON_KEYS[number]) && <option value={iconKey}>{iconKey}</option>}
-                    {LEDGER_ICON_KEYS.map(value => <option key={value} value={value}>{t(`settings.iconOptions.${value}`)}</option>)}
-                  </select>
-                </label>
-                <label className="mb-3 block text-sm text-font-gray">
-                  {t('settings.theme')}
-                  <select className="mt-1 w-full border border-solid border-[#EBEBEB] p-2 text-font-black" data-testid="ledger-theme" disabled={!preferencesWritable} onChange={event => setThemeKey(event.target.value)} value={themeKey}>
-                    {!LEDGER_THEME_KEYS.includes(themeKey as typeof LEDGER_THEME_KEYS[number]) && <option value={themeKey}>{themeKey}</option>}
-                    {LEDGER_THEME_KEYS.map(value => <option key={value} value={value}>{t(`settings.themeOptions.${value}`)}</option>)}
-                  </select>
-                </label>
-                <Button block data-testid="ledger-basic-save" disabled={!preferencesWritable} loading={patchState.isLoading} onClick={handleBasicSave}>{t('common.save')}</Button>
-              </section>
-            )}
-
-            <section className="mt-3 bg-white px-4 py-3">
-              <h2 className="mb-3 text-base font-medium">{t('settings.preferences')}</h2>
-              <div className="flex min-h-[55px] items-center justify-between border-0 border-b border-solid border-[#EBEBEB]">
-                <span>{t('settings.hideTotal')}</span>
-                <label className="relative">
-                  <input
-                    checked={hideTotalAmount}
-                    className="sr-only"
-                    data-testid="ledger-hide-total"
-                    disabled={!preferencesWritable}
-                    onChange={event => setHideTotalAmount(event.target.checked)}
-                    type="checkbox"
-                  />
-                  <Switch checked={hideTotalAmount} disabled={!preferencesWritable} onChange={setHideTotalAmount} />
-                </label>
-              </div>
-              <div className="flex min-h-[55px] items-center justify-between">
-                <span>{t('settings.dailySummary')}</span>
-                <Switch checked={showDailySummary} disabled={!preferencesWritable} onChange={setShowDailySummary} />
-              </div>
-              <label className="mb-3 block text-sm text-font-gray">
-                {t('settings.defaultRecordType')}
-                <select className="mt-1 w-full border border-solid border-[#EBEBEB] p-2 text-font-black" data-testid="ledger-default-record-type" disabled={!preferencesWritable} onChange={event => setDefaultRecordType(event.target.value as LedgerRecordType)} value={defaultRecordType}>
-                  <option value={LedgerRecordType.EXPENSE}>{t('settings.expense')}</option>
-                  <option value={LedgerRecordType.INCOME}>{t('settings.income')}</option>
-                </select>
-              </label>
-              <label className="mb-3 block text-sm text-font-gray">
-                {t('settings.defaultChartPeriod')}
-                <select className="mt-1 w-full border border-solid border-[#EBEBEB] p-2 text-font-black" data-testid="ledger-default-chart-period" disabled={!preferencesWritable} onChange={event => setDefaultChartPeriod(event.target.value as LedgerChartPeriod)} value={defaultChartPeriod}>
-                  <option value={LedgerChartPeriod.WEEK}>{t('charts.period.week')}</option>
-                  <option value={LedgerChartPeriod.MONTH}>{t('charts.period.month')}</option>
-                  <option value={LedgerChartPeriod.YEAR}>{t('charts.period.year')}</option>
-                </select>
-              </label>
-              <label className="mb-3 block text-sm text-font-gray">
-                {t('settings.defaultChartMetric')}
-                <select className="mt-1 w-full border border-solid border-[#EBEBEB] p-2 text-font-black" data-testid="ledger-default-chart-metric" disabled={!preferencesWritable} onChange={event => setDefaultChartMetric(event.target.value as LedgerChartMetric)} value={defaultChartMetric}>
-                  <option value={LedgerChartMetric.EXPENSE}>{t('settings.expense')}</option>
-                  <option value={LedgerChartMetric.INCOME}>{t('settings.income')}</option>
-                  <option value={LedgerChartMetric.NET}>{t('settings.net')}</option>
-                </select>
-              </label>
-              <label className="mb-3 block text-sm text-font-gray">
-                {t('settings.defaultChartDisplay')}
-                <select className="mt-1 w-full border border-solid border-[#EBEBEB] p-2 text-font-black" data-testid="ledger-default-chart-display" disabled={!preferencesWritable} onChange={event => setDefaultChartDisplay(event.target.value as LedgerChartDisplay)} value={defaultChartDisplay}>
-                  <option value={LedgerChartDisplay.PIE}>{t('charts.display.pie')}</option>
-                  <option value={LedgerChartDisplay.LINE}>{t('charts.display.line')}</option>
-                </select>
-              </label>
-              <Button block data-testid="ledger-preferences-save" disabled={!preferencesWritable} loading={preferenceState.isLoading} onClick={handlePreferenceSave}>{t('common.save')}</Button>
-            </section>
-
-            <List className="mt-3" header={t('settings.management')}>
-              {preferencesWritable && ledger.capabilities.includes(LedgerCapability.CATEGORY_MANAGE) && <List.Item clickable data-testid="ledger-settings-categories" onClick={() => navigate(ROUTES_PATH.LEDGER_CATEGORIES.getPath(ledgerId))}>{t('settings.categories')}</List.Item>}
-              {preferencesWritable && ledger.capabilities.includes(LedgerCapability.TAG_MANAGE) && <List.Item clickable data-testid="ledger-settings-tags" onClick={() => navigate(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId))}>{t('settings.tags')}</List.Item>}
-              {ledger.capabilities.includes(LedgerCapability.MEMBER_READ) && <List.Item clickable onClick={() => navigate(ROUTES_PATH.LEDGER_MEMBERS.getPath(ledgerId))}>{t('settings.members')}</List.Item>}
-              {preferencesWritable && ledger.capabilities.includes(LedgerCapability.DATA_RECOVERY) && <List.Item clickable onClick={() => navigate(ROUTES_PATH.LEDGER_RECOVERY.getPath(ledgerId))}>{t('settings.recovery')}</List.Item>}
-              {preferencesWritable && ledger.capabilities.includes(LedgerCapability.DATA_TRANSFER) && <List.Item clickable onClick={() => navigate(ROUTES_PATH.LEDGER_TRANSFER.getPath(ledgerId))}>{t('settings.transfer')}</List.Item>}
-              {ledger.capabilities.includes(LedgerCapability.DATA_EXPORT) && <List.Item clickable onClick={() => navigate(ROUTES_PATH.LEDGER_EXPORT.getPath(ledgerId))}>{t('settings.export')}</List.Item>}
-            </List>
-
-            {canLeave && currentMember && (
-              <div className="px-4 pt-4">
-                <Button block color="danger" data-testid="ledger-leave" loading={leaveState.isLoading} onClick={handleLeave}>{t('settings.leave')}</Button>
-              </div>
-            )}
-
-            {preferencesWritable && ledger.kind !== LedgerKind.SYSTEM_DEFAULT && ledger.capabilities.includes(LedgerCapability.LEDGER_ARCHIVE) && (
-              <div className="px-4 py-4">
-                <Button block color="danger" data-testid="ledger-archive" loading={archiveState.isLoading} onClick={handleArchive}>{t('settings.archive')}</Button>
-              </div>
-            )}
-          </>
-        )}
+      <WorkspaceNavHeader
+        onBack={onBack}
+        scope={{
+          capabilities: ledger?.capabilities,
+          ledgerId,
+          type: 'custom',
+        }}
+        title={t('settings.title')}
+      />
+      <main className="min-h-0 flex-grow overflow-auto">
+        <SettingsOverviewPresentation sections={sections} />
       </main>
+      <Popup
+        bodyClassName="rounded-t-[12px]"
+        destroyOnClose
+        onMaskClick={() => setEditor(null)}
+        position="bottom"
+        showCloseButton
+        visible={editor !== null}
+        onClose={() => setEditor(null)}
+      >
+        {editor === 'basic' && (
+          <section className="max-h-[82vh] overflow-auto px-4 pb-[calc(24px+env(safe-area-inset-bottom))] pt-12">
+            <h2 className="text-lg font-medium">{t('settings.basic')}</h2>
+            <label className="mt-4 block text-sm text-font-gray">
+              {t('settings.name')}
+              <input className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] px-3 text-font-black" maxLength={30} onChange={event => setName(event.target.value)} value={name} />
+            </label>
+            <label className="mt-4 block text-sm text-font-gray">
+              {t('settings.monthStartDay')}
+              <input className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] px-3 text-font-black" max="28" min="1" onChange={event => setMonthStartDay(Number(event.target.value))} type="number" value={monthStartDay} />
+            </label>
+            <label className="mt-4 block text-sm text-font-gray">
+              {t('settings.icon')}
+              <select className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] bg-white px-3 text-font-black" data-testid="ledger-icon" onChange={event => setIconKey(event.target.value)} value={iconKey}>
+                {!LEDGER_ICON_KEYS.includes(iconKey as typeof LEDGER_ICON_KEYS[number]) && <option value={iconKey}>{iconKey}</option>}
+                {LEDGER_ICON_KEYS.map(value => <option key={value} value={value}>{t(`settings.iconOptions.${value}`)}</option>)}
+              </select>
+            </label>
+            <label className="mt-4 block text-sm text-font-gray">
+              {t('settings.theme')}
+              <select className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] bg-white px-3 text-font-black" data-testid="ledger-theme" onChange={event => setThemeKey(event.target.value)} value={themeKey}>
+                {!LEDGER_THEME_KEYS.includes(themeKey as typeof LEDGER_THEME_KEYS[number]) && <option value={themeKey}>{themeKey}</option>}
+                {LEDGER_THEME_KEYS.map(value => <option key={value} value={value}>{t(`settings.themeOptions.${value}`)}</option>)}
+              </select>
+            </label>
+            <Button block className="mt-5" color="primary" data-testid="ledger-basic-save" loading={patchState.isLoading} onClick={handleBasicSave}>{t('common.save')}</Button>
+          </section>
+        )}
+        {editor === 'preferences' && (
+          <section className="max-h-[82vh] overflow-auto px-4 pb-[calc(24px+env(safe-area-inset-bottom))] pt-12">
+            <h2 className="text-lg font-medium">{t('settings.preferences')}</h2>
+            <label className="mt-4 flex min-h-12 items-center justify-between text-sm text-font-black">
+              {t('settings.hideTotal')}
+              <input checked={hideTotalAmount} data-testid="ledger-hide-total" onChange={event => setHideTotalAmount(event.target.checked)} type="checkbox" />
+            </label>
+            <label className="flex min-h-12 items-center justify-between text-sm text-font-black">
+              {t('settings.dailySummary')}
+              <input checked={showDailySummary} onChange={event => setShowDailySummary(event.target.checked)} type="checkbox" />
+            </label>
+            <label className="mt-3 block text-sm text-font-gray">
+              {t('settings.defaultRecordType')}
+              <select className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] bg-white px-3 text-font-black" data-testid="ledger-default-record-type" onChange={event => setDefaultRecordType(event.target.value as LedgerRecordType)} value={defaultRecordType}>
+                <option value={LedgerRecordType.EXPENSE}>{t('settings.expense')}</option>
+                <option value={LedgerRecordType.INCOME}>{t('settings.income')}</option>
+              </select>
+            </label>
+            <label className="mt-4 block text-sm text-font-gray">
+              {t('settings.defaultChartPeriod')}
+              <select className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] bg-white px-3 text-font-black" data-testid="ledger-default-chart-period" onChange={event => setDefaultChartPeriod(event.target.value as LedgerChartPeriod)} value={defaultChartPeriod}>
+                <option value={LedgerChartPeriod.WEEK}>{t('charts.period.week')}</option>
+                <option value={LedgerChartPeriod.MONTH}>{t('charts.period.month')}</option>
+                <option value={LedgerChartPeriod.YEAR}>{t('charts.period.year')}</option>
+              </select>
+            </label>
+            <label className="mt-4 block text-sm text-font-gray">
+              {t('settings.defaultChartMetric')}
+              <select className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] bg-white px-3 text-font-black" data-testid="ledger-default-chart-metric" onChange={event => setDefaultChartMetric(event.target.value as LedgerChartMetric)} value={defaultChartMetric}>
+                <option value={LedgerChartMetric.EXPENSE}>{t('settings.expense')}</option>
+                <option value={LedgerChartMetric.INCOME}>{t('settings.income')}</option>
+                <option value={LedgerChartMetric.NET}>{t('settings.net')}</option>
+              </select>
+            </label>
+            <label className="mt-4 block text-sm text-font-gray">
+              {t('settings.defaultChartDisplay')}
+              <select className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] bg-white px-3 text-font-black" data-testid="ledger-default-chart-display" onChange={event => setDefaultChartDisplay(event.target.value as LedgerChartDisplay)} value={defaultChartDisplay}>
+                <option value={LedgerChartDisplay.PIE}>{t('charts.display.pie')}</option>
+                <option value={LedgerChartDisplay.LINE}>{t('charts.display.line')}</option>
+              </select>
+            </label>
+            <Button block className="mt-5" color="primary" data-testid="ledger-preferences-save" loading={preferenceState.isLoading} onClick={handlePreferenceSave}>{t('common.save')}</Button>
+          </section>
+        )}
+      </Popup>
     </div>
+  );
+}
+
+export default function LedgerSettingsPage() {
+  return (
+    <LedgerScopeBoundary capability={LedgerCapability.LEDGER_READ}>
+      {({ ledgerId }) => <LedgerSettingsContent ledgerId={ledgerId} />}
+    </LedgerScopeBoundary>
   );
 }

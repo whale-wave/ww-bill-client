@@ -11,11 +11,11 @@ import {
   useRevokeInvitationMutation,
 } from '@/entities/ledger';
 import {
+  CollaborationQueryState,
   createIdempotencyKey,
   formatCountdown,
   getErrorMessage,
-} from '@/pages/ledger-collaboration/model';
-import { CollaborationQueryState } from '@/pages/ledger-collaboration/ui';
+} from '@/features/ledger-collaboration';
 import { useTranslation } from '@/shared/i18n';
 import { NavBar } from '@/shared/ui';
 

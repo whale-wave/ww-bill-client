@@ -31,7 +31,9 @@ const headerProps = {
   shortcuts: [
     { icon: 'A', key: 'bill', label: 'Bill', onClick: vi.fn() },
     { icon: 'B', key: 'budget', label: 'Budget', onClick: vi.fn() },
-    { icon: 'C', key: 'asset', label: 'Asset', onClick: vi.fn() },
+    { icon: 'C', key: 'search', label: 'Search', onClick: vi.fn() },
+    { icon: 'D', key: 'calendar', label: 'Calendar', onClick: vi.fn() },
+    { icon: 'E', key: 'settings', label: 'Settings', onClick: vi.fn() },
   ],
 };
 
@@ -45,7 +47,7 @@ describe('record overview presentation', () => {
     expect(header?.className).toContain('75%');
     expect(header?.className).toContain('89%');
     expect(metrics?.classList).toContain('top-[50px]');
-    expect(container.querySelectorAll('nav button')).toHaveLength(3);
+    expect(container.querySelectorAll('nav button')).toHaveLength(5);
   });
 
   it('owns loading, empty, error and list states without page-specific layout', () => {

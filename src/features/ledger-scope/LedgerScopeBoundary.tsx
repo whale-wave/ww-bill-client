@@ -14,6 +14,7 @@ export interface LedgerScope {
 interface LedgerScopeBoundaryProps {
   capability?: LedgerCapability;
   children: (scope: LedgerScope) => ReactNode;
+  renderState?: (state: 'error' | 'invalid' | 'loading' | 'noPermission') => ReactNode;
 }
 
 function isDeterministicallyLostLedger(error: unknown) {
@@ -26,6 +27,7 @@ function isDeterministicallyLostLedger(error: unknown) {
 export function LedgerScopeBoundary({
   capability,
   children,
+  renderState,
 }: LedgerScopeBoundaryProps) {
   const { t } = useTranslation('ledger');
   const { ledgerId = '' } = useParams<{ ledgerId: string }>();
@@ -35,6 +37,8 @@ export function LedgerScopeBoundary({
   });
 
   if (!ledgerId) {
+    if (renderState)
+      return renderState('invalid');
     return (
       <ErrorBlock
         description={t('common.invalidLedgerDescription')}
@@ -45,6 +49,8 @@ export function LedgerScopeBoundary({
   }
 
   if (ledgerQuery.isLoading) {
+    if (renderState)
+      return renderState('loading');
     return (
       <div className="flex min-h-[280px] items-center justify-center">
         <SpinLoading />
@@ -56,6 +62,8 @@ export function LedgerScopeBoundary({
     return <Navigate replace to={ROUTES_PATH.DETAIL.getPath()} />;
 
   if (ledgerQuery.isError || !ledgerQuery.data) {
+    if (renderState)
+      return renderState('error');
     return (
       <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 px-4">
         <ErrorBlock
@@ -71,6 +79,8 @@ export function LedgerScopeBoundary({
   }
 
   if (capability && !ledgerQuery.data.capabilities.includes(capability)) {
+    if (renderState)
+      return renderState('noPermission');
     return (
       <ErrorBlock
         description={t('common.noPermissionDescription')}

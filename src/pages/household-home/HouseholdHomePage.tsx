@@ -17,12 +17,15 @@ import {
   toHouseholdRecordOverviewGroups,
   toMoney,
 } from '@/features/household';
+import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 
 const MENU_ITEMS = [
   { icon: List, key: 'records', route: ROUTES_PATH.HOUSEHOLD_RECORDS },
   { icon: Target, key: 'budget', route: ROUTES_PATH.HOUSEHOLD_BUDGETS },
+  { icon: Search, key: 'search', route: ROUTES_PATH.HOUSEHOLD_RECORD_SEARCH },
+  { icon: CalendarDays, key: 'calendar', route: ROUTES_PATH.HOUSEHOLD_CALENDAR },
   { icon: Settings, key: 'settings', route: ROUTES_PATH.HOUSEHOLD_SETTINGS },
 ] as const;
 
@@ -68,28 +71,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
         errorTitle={t('common.loadError')}
         groups={groups}
         header={{
-          actions: (
-            <>
-              <button
-                aria-label={t('home.search')}
-                className="border-0 bg-transparent p-0"
-                data-testid="household-search-action"
-                onClick={() => navigate(ROUTES_PATH.HOUSEHOLD_RECORD_SEARCH.getPath(household.id))}
-                type="button"
-              >
-                <Search size={18} strokeWidth={2} />
-              </button>
-              <button
-                aria-label={t('home.calendar')}
-                className="border-0 bg-transparent p-0"
-                data-testid="household-calendar-action"
-                onClick={() => navigate(ROUTES_PATH.HOUSEHOLD_CALENDAR.getPath(household.id))}
-                type="button"
-              >
-                <CalendarDays size={18} strokeWidth={2} />
-              </button>
-            </>
-          ),
+          actions: <WorkspaceCapsule scope={{ householdId: household.id, type: 'household' }} />,
           metrics: [
             {
               key: 'income',
@@ -124,10 +106,15 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
             key,
             label: key === 'records' ? t('records.title') : t(`home.${key}`),
             onClick: () => navigate(route.getPath(household.id)),
-            testId: `household-${key}`,
+            testId: key === 'search'
+              ? 'household-search-action'
+              : key === 'calendar'
+                ? 'household-calendar-action'
+                : `household-${key}`,
           })),
           shortcutsTestId: 'household-shortcuts-card',
           testId: 'household-home-header',
+          titleAlignment: 'start',
         }}
         onRetry={() => void recordsQuery.refetch()}
         isLoadingMore={recordsQuery.isFetchingNextPage}

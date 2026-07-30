@@ -183,13 +183,10 @@ describe('ledger settings', () => {
     hooks.patchPreferences.mockResolvedValue({ data: preference });
     const { container } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
 
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="basic"]')?.click());
     await act(async () => {
-      const icon = container.querySelector<HTMLSelectElement>('[data-testid="ledger-icon"]');
-      const theme = container.querySelector<HTMLSelectElement>('[data-testid="ledger-theme"]');
-      const recordType = container.querySelector<HTMLSelectElement>('[data-testid="ledger-default-record-type"]');
-      const chartPeriod = container.querySelector<HTMLSelectElement>('[data-testid="ledger-default-chart-period"]');
-      const chartMetric = container.querySelector<HTMLSelectElement>('[data-testid="ledger-default-chart-metric"]');
-      const chartDisplay = container.querySelector<HTMLSelectElement>('[data-testid="ledger-default-chart-display"]');
+      const icon = document.body.querySelector<HTMLSelectElement>('[data-testid="ledger-icon"]');
+      const theme = document.body.querySelector<HTMLSelectElement>('[data-testid="ledger-theme"]');
       if (icon) {
         icon.value = 'wallet';
         icon.dispatchEvent(new Event('change', { bubbles: true }));
@@ -198,6 +195,14 @@ describe('ledger settings', () => {
         theme.value = 'amber';
         theme.dispatchEvent(new Event('change', { bubbles: true }));
       }
+    });
+    await act(async () => document.body.querySelector<HTMLButtonElement>('[data-testid="ledger-basic-save"]')?.click());
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="preferences"]')?.click());
+    await act(async () => {
+      const recordType = document.body.querySelector<HTMLSelectElement>('[data-testid="ledger-default-record-type"]');
+      const chartPeriod = document.body.querySelector<HTMLSelectElement>('[data-testid="ledger-default-chart-period"]');
+      const chartMetric = document.body.querySelector<HTMLSelectElement>('[data-testid="ledger-default-chart-metric"]');
+      const chartDisplay = document.body.querySelector<HTMLSelectElement>('[data-testid="ledger-default-chart-display"]');
       if (recordType) {
         recordType.value = LedgerRecordType.INCOME;
         recordType.dispatchEvent(new Event('change', { bubbles: true }));
@@ -215,9 +220,8 @@ describe('ledger settings', () => {
         chartDisplay.dispatchEvent(new Event('change', { bubbles: true }));
       }
     });
-    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-basic-save"]')?.click());
-    await act(async () => container.querySelector<HTMLInputElement>('[data-testid="ledger-hide-total"]')?.click());
-    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-preferences-save"]')?.click());
+    await act(async () => document.body.querySelector<HTMLInputElement>('[data-testid="ledger-hide-total"]')?.click());
+    await act(async () => document.body.querySelector<HTMLButtonElement>('[data-testid="ledger-preferences-save"]')?.click());
 
     expect(hooks.patchLedger).toHaveBeenCalledWith({
       data: { iconKey: 'wallet', monthStartDay: 1, name: '生意账本', themeKey: 'amber', version: 3 },
@@ -238,14 +242,14 @@ describe('ledger settings', () => {
 
   it('drives management entries from capabilities and never archives SYSTEM_DEFAULT', async () => {
     const { container, router } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
-    expect(container.querySelector('[data-testid="ledger-archive"]')).not.toBeNull();
-    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-settings-categories"]')?.click());
+    expect(container.querySelector('[data-settings-row="archive"]')).not.toBeNull();
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="categories"]')?.click());
     expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/settings/categories');
 
     cleanup?.();
     hooks.useLedgerQuery.mockReturnValue(query({ ...ledger, kind: LedgerKind.SYSTEM_DEFAULT }));
     const rendered = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
-    expect(rendered.container.querySelector('[data-testid="ledger-archive"]')).toBeNull();
+    expect(rendered.container.querySelector('[data-settings-row="archive"]')).toBeNull();
   });
 
   it('hides category and tag management entries from read-only members', () => {
@@ -257,15 +261,15 @@ describe('ledger settings', () => {
 
     const { container } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
 
-    expect(container.querySelector('[data-testid="ledger-settings-categories"]')).toBeNull();
-    expect(container.querySelector('[data-testid="ledger-settings-tags"]')).toBeNull();
+    expect(container.querySelector('[data-settings-row="categories"]')).toBeNull();
+    expect(container.querySelector('[data-settings-row="tags"]')).toBeNull();
   });
 
   it('returns an owner to personal detail after archiving the current ledger', async () => {
     hooks.archiveLedger.mockResolvedValue({ data: {} });
     const { container, router } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
 
-    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-archive"]')?.click());
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="archive"]')?.click());
 
     expect(hooks.archiveLedger).toHaveBeenCalledWith({
       data: { confirmed: true, version: 3 },
@@ -289,10 +293,22 @@ describe('ledger settings', () => {
 
     const { container } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
 
-    expect(container.querySelector<HTMLInputElement>('[data-testid="ledger-hide-total"]')?.disabled).toBe(true);
-    expect(container.querySelector<HTMLButtonElement>('[data-testid="ledger-preferences-save"]')?.disabled).toBe(true);
-    expect(container.querySelector('[data-testid="ledger-settings-categories"]')).toBeNull();
-    expect(container.querySelector('[data-testid="ledger-settings-tags"]')).toBeNull();
+    expect(container.querySelector<HTMLButtonElement>('[data-settings-row="preferences"]')?.disabled).toBe(true);
+    expect(container.querySelector('[data-settings-row="categories"]')).toBeNull();
+    expect(container.querySelector('[data-settings-row="tags"]')).toBeNull();
+  });
+
+  it('keeps active member preferences writable without ledger update capability', () => {
+    hooks.useLedgerQuery.mockReturnValue(query({
+      ...ledger,
+      capabilities: [LedgerCapability.LEDGER_READ, LedgerCapability.MEMBER_READ],
+      myRole: LedgerRole.BOOKKEEPER,
+    }));
+
+    const { container } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
+
+    expect(container.querySelector<HTMLButtonElement>('[data-settings-row="preferences"]')?.disabled).toBe(false);
+    expect(container.querySelector('[data-settings-row="basic"]')?.tagName).toBe('DIV');
   });
 
   it('lets a non-owner leave with the current membership version', async () => {
@@ -304,7 +320,7 @@ describe('ledger settings', () => {
     hooks.leaveLedger.mockResolvedValue({ data: {} });
     const { container, router } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
 
-    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-leave"]')?.click());
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="leave"]')?.click());
 
     expect(hooks.leaveLedger).toHaveBeenCalledWith({ ledgerId: 'ledger/a', version: 5 });
     expect(router.state.location.pathname).toBe('/detail');

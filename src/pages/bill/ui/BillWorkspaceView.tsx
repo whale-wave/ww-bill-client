@@ -3,6 +3,7 @@ import { Button as AdmButton, ErrorBlock, NavBar, SpinLoading } from 'antd-mobil
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useCurrentWorkspaceBack } from '@/features/workspace-navigation';
 import { BillRecordCard } from '@/pages/bill/BillRecordCard';
 import { BillTabs } from '@/pages/bill/BillTabs';
 import { useBillPageStore } from '@/pages/bill/model';
@@ -87,11 +88,11 @@ export function LedgerBillWorkspaceView({
   query: BillQueryState;
 }) {
   const { t } = useTranslation('bill');
-  const navigate = useNavigate();
+  const onBack = useCurrentWorkspaceBack();
 
   return (
     <div className="page overflow-hidden bg-bg-gray">
-      <NavBar onBack={() => navigate(-1)}>
+      <NavBar onBack={onBack}>
         {t('title')}
       </NavBar>
       <div className="flex min-h-0 flex-grow flex-col overflow-hidden">
@@ -99,7 +100,7 @@ export function LedgerBillWorkspaceView({
         <BillWorkspaceContent query={query} />
       </div>
       <div className="flex-shrink-0">
-        <WwButton size="full" onClick={() => navigate(-1)}>
+        <WwButton size="full" onClick={onBack}>
           {t('back')}
         </WwButton>
       </div>

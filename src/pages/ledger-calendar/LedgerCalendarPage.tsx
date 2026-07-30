@@ -11,6 +11,7 @@ import {
   useLedgerRecordsQuery,
 } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
+import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 
@@ -22,6 +23,11 @@ function getInitialDate(value: string | null) {
 function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string }) {
   const { t } = useTranslation('ledger');
   const navigate = useNavigate();
+  const onBack = useWorkspaceBack({
+    capabilities: ledger.capabilities,
+    ledgerId,
+    type: 'custom',
+  });
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedDate, setSelectedDate] = useState(() =>
     getInitialDate(searchParams.get('selectTime')));
@@ -85,7 +91,7 @@ function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: strin
       errorDescription={t('common.loadErrorDescription')}
       groups={groups}
       month={month}
-      onBack={() => navigate(-1)}
+      onBack={onBack}
       onCreate={() => navigate(`${ROUTES_PATH.LEDGER_RECORD_CREATE.getPath(ledgerId)}?selectTime=${selectedDate.valueOf()}`)}
       onDateChange={(date) => {
         setSelectedDate(date);

@@ -12,11 +12,11 @@ import { LedgerVisualIcon } from '@/entities/ledger';
 import { getLedgerUserDisplayName } from './model';
 
 interface QueryStateProps {
-  type: 'loading' | 'error' | 'empty' | 'permission' | 'invalid';
-  title: string;
   description?: string;
-  retryLabel?: string;
   onRetry?: () => void;
+  retryLabel?: string;
+  title: string;
+  type: 'loading' | 'error' | 'empty' | 'permission' | 'invalid';
 }
 
 export const CollaborationQueryState: FC<QueryStateProps> = ({
@@ -62,8 +62,8 @@ export function LedgerSummaryBlock({ ledger }: { ledger: LedgerSummary }) {
 }
 
 interface UserAvatarProps {
-  user: LedgerUserSummary;
   size?: number;
+  user: LedgerUserSummary;
 }
 
 export const LedgerUserAvatar: FC<UserAvatarProps> = ({ size = 42, user }) => (
@@ -88,12 +88,12 @@ export const LedgerUserAvatar: FC<UserAvatarProps> = ({ size = 42, user }) => (
 );
 
 interface UserRowProps {
-  user: LedgerUserSummary;
   fallback: string;
-  secondary?: ReactNode;
-  trailing?: ReactNode;
-  testId?: string;
   onClick?: () => void;
+  secondary?: ReactNode;
+  testId?: string;
+  trailing?: ReactNode;
+  user: LedgerUserSummary;
 }
 
 export const LedgerUserRow: FC<UserRowProps> = ({
@@ -147,11 +147,11 @@ export function CollaborationStatusBadge({
   const positive = status === 'APPROVED';
   return (
     <span
-      className={`rounded px-2 py-1 text-xs ${active
-        ? 'bg-primary text-font-black'
+      className={active
+        ? 'rounded bg-primary px-2 py-1 text-xs text-font-black'
         : positive
-          ? 'bg-green-50 text-green-700'
-          : 'bg-bg-gray text-font-gray'}`}
+          ? 'rounded bg-green-50 px-2 py-1 text-xs text-green-700'
+          : 'rounded bg-bg-gray px-2 py-1 text-xs text-font-gray'}
     >
       {label}
     </span>

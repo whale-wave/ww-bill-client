@@ -1,8 +1,5 @@
 import type { PatchLedgerMemberApiData } from '@/entities/ledger';
-import {
-  LedgerCapability,
-  LedgerRole,
-} from '@/entities/ledger';
+import { LedgerCapability, LedgerRole } from '@/entities/ledger';
 
 export function getErrorMessage(error: unknown, fallback: string) {
   return error instanceof Error && error.message ? error.message : fallback;
@@ -27,12 +24,10 @@ export function validateJoinRequest(codeValue: string, remarkValue: string) {
 }
 
 export function getAssignableRoles(currentRole?: LedgerRole) {
-  if (currentRole === LedgerRole.OWNER) {
+  if (currentRole === LedgerRole.OWNER)
     return [LedgerRole.ADMIN, LedgerRole.BOOKKEEPER, LedgerRole.VIEWER] as const;
-  }
-  if (currentRole === LedgerRole.ADMIN) {
+  if (currentRole === LedgerRole.ADMIN)
     return [LedgerRole.BOOKKEEPER, LedgerRole.VIEWER] as const;
-  }
   return [] as const;
 }
 
@@ -98,7 +93,10 @@ export function createIdempotencyKey(prefix: string) {
 }
 
 export function formatCountdown(expiresAt: string, now = Date.now()) {
-  const seconds = Math.max(0, Math.floor((new Date(expiresAt).getTime() - now) / 1000));
+  const seconds = Math.max(
+    0,
+    Math.floor((new Date(expiresAt).getTime() - now) / 1000),
+  );
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = seconds % 60;

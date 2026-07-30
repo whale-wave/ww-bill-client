@@ -1,224 +1,213 @@
-import type { FC, ReactNode } from 'react';
+import type { FC } from 'react';
 import type { SupportedLang } from '@/shared/i18n';
-import { ActionSheet, List, Switch, Toast } from 'antd-mobile';
+import { ActionSheet, Dialog, Toast } from 'antd-mobile';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
+import {
+  useWorkspaceBack,
+  WorkspaceNavHeader,
+} from '@/features/workspace-navigation';
+import {
+  SettingsOverviewPresentation,
+} from '@/features/workspace-settings';
 import { ROUTES_PATH } from '@/shared/config/routes';
-import { changeLanguage, i18n, SUPPORTED_LANGS, useTranslation } from '@/shared/i18n';
+import {
+  changeLanguage,
+  i18n,
+  SUPPORTED_LANGS,
+  useTranslation,
+} from '@/shared/i18n';
 import { clearLocalStorage, getLocalStorageSize } from '@/shared/lib';
 import { audioWeb, playSound } from '@/shared/lib/play-sound';
 import { useSeniorMode } from '@/shared/lib/senior-mode';
-import { Gap, NavBar } from '@/shared/ui';
-import styles from './index.module.scss';
-
-export interface CustomListItem {
-  title: string;
-  path?: string;
-  onClick?: () => void;
-  description?: string;
-  extra?: ReactNode;
-}
 
 const Settings: FC = () => {
   const { t } = useTranslation('settings');
+  const navigate = useNavigate();
+  const onBack = useWorkspaceBack({ type: 'personal' });
   const { data: userAppConfig } = useGetUserAppConfigQuery();
   const canPlay = userAppConfig?.isOpenSoundEffect ?? false;
   const visibleAmountSwitch = userAppConfig?.isDisplayAmountSwitch ?? false;
   const { isSeniorMode, toggleSeniorMode } = useSeniorMode();
-
-  const [patchUserAppConfigMutate] = usePatchUserAppConfigMutation();
+  const [patchUserAppConfig] = usePatchUserAppConfigMutation();
   const [localStorageSize, setLocalStorageSize] = useState(() => getLocalStorageSize());
-
-  const navigate = useNavigate();
-
-  const handleBack = () => {
-    playSound.turnPage();
-    navigate(-1);
-  };
+  const [currentLang, setCurrentLang] = useState<SupportedLang>(
+    () => i18n.language as SupportedLang,
+  );
 
   const goTo = (path: string) => {
-    if (!path)
-      return;
     playSound.turnPage();
     navigate(path);
   };
 
-  const onToggleVisibleAmountSwitch = async (val: boolean) => {
-    playSound.click();
-    await patchUserAppConfigMutate({
-      isDisplayAmountSwitch: val,
-    });
-  };
-
-  const handleSoundSwitch = async (val: boolean) => {
-    if (val) {
-      if (audioWeb.hasCache()) {
+  const handleSoundSwitch = async (checked: boolean) => {
+    if (checked) {
+      if (audioWeb.hasCache())
         audioWeb.loadCache();
-      }
-      else {
+      else
         void audioWeb.download();
-      }
       audioWeb.open();
     }
     else {
       audioWeb.close();
     }
-
-    await patchUserAppConfigMutate({
-      isOpenSoundEffect: val,
-    });
-
+    await patchUserAppConfig({ isOpenSoundEffect: checked });
     setLocalStorageSize(getLocalStorageSize());
     playSound.click();
   };
 
-  const [currentLang, setCurrentLang] = useState<SupportedLang>(() => i18n.language as SupportedLang);
-
   const handleSwitchLang = useCallback(() => {
-    const langEntries = Object.entries(SUPPORTED_LANGS) as [SupportedLang, string][];
+    const entries = Object.entries(SUPPORTED_LANGS) as [SupportedLang, string][];
     const sheet = ActionSheet.show({
-      actions: langEntries.map(([key, label]) => ({
-        text: label,
-        key,
+      actions: entries.map(([key, label]) => ({
         bold: key === currentLang,
+        key,
         onClick: () => {
           void changeLanguage(key);
           setCurrentLang(key);
           sheet.close();
           Toast.show(t('language.changed'));
         },
+        text: label,
       })),
       cancelText: t('common:nav.cancel'),
     });
   }, [currentLang, t]);
 
-  const clearCache = () => {
+  const handleClearCache = async () => {
+    const confirmed = await Dialog.confirm({
+      cancelText: t('common:nav.cancel'),
+      confirmText: t('storage.clear'),
+      content: t('storage.clear'),
+      title: t('storage.clear'),
+    });
+    if (!confirmed)
+      return;
     clearLocalStorage();
     setLocalStorageSize(getLocalStorageSize());
     Toast.show(t('storage.cleared'));
   };
 
-  const baseListGroup = [
-    {
-      title: t('account.title'),
-      path: '/user-info',
-      onClick() {
-        goTo(this.path);
-      },
-    },
-  ];
-  const functionListGroup = [
-    {
-      title: t('category.title'),
-      path: ROUTES_PATH.CATEGORY_SETTINGS.getPath(),
-      onClick() {
-        goTo(this.path!);
-      },
-    },
-  ] as CustomListItem[];
-  const personalizedSettingsListGroup = [
-    {
-      title: t('language.switch'),
-      extra: (
-        <span className="text-base text-[#969696]">
-          {SUPPORTED_LANGS[currentLang]}
-        </span>
-      ),
-      onClick: handleSwitchLang,
-    },
-    {
-      title: t('sound.effect'),
-      extra: <Switch checked={canPlay} onChange={handleSoundSwitch} />,
-    },
-    {
-      title: t('seniorMode.switch'),
-      description: t('seniorMode.desc'),
-      extra: <Switch checked={isSeniorMode} onChange={toggleSeniorMode} />,
-    },
-  ];
-  const dataSecurityListGroup = [
-    {
-      title: t('export'),
-      path: '/export-data',
-      onClick() { goTo(this.path!); },
-    },
-    {
-      title: t('amount.visible'),
-      extra: (
-        <Switch
-          checked={visibleAmountSwitch}
-          onChange={onToggleVisibleAmountSwitch}
-        />
-      ),
-      description: t('amount.visibleDesc'),
-    },
-  ] as CustomListItem[];
-  const systemSettingListGroup = [
-    {
-      title: t('storage.clear'),
-      onClick: clearCache,
-      extra: (<span>{localStorageSize}</span>),
-    },
-    {
-      title: t('invite'),
-    },
-  ];
+  const showDeveloping = () => Toast.show('开发中');
 
   return (
-    <div className="page">
-      <NavBar back={t('common:nav.back')} onBack={handleBack}>
-        {t('title')}
-      </NavBar>
-      <div className={styles.wrapper}>
-        <List>
-          <Gap />
-          {baseListGroup.map(item => (
-            <List.Item
-              key={item.title}
-              onClick={item.onClick.bind(item)}
-            >
-              {item.title}
-            </List.Item>
-          ))}
-        </List>
-        <List header={t('function.title')}>
-          {functionListGroup.map(item => (
-            <List.Item
-              key={item.title}
-              onClick={item.onClick?.bind(item)}
-            >
-              {item.title}
-            </List.Item>
-          ))}
-        </List>
-        <List header={t('personal')}>
-          {personalizedSettingsListGroup.map(item => <List.Item key={item.title} extra={item.extra} onClick={item.onClick}>{item.title}</List.Item>)}
-        </List>
-        <List header={t('dataSecurity')}>
-          {dataSecurityListGroup.map(item => (
-            <List.Item
-              key={item.title}
-              extra={item.extra}
-              description={item.description}
-              onClick={item.onClick?.bind(item)}
-            >
-              {item.title}
-            </List.Item>
-          ))}
-        </List>
-        <List header={t('system')}>
-          {systemSettingListGroup.map(item => (
-            <List.Item
-              key={item.title}
-              onClick={item.onClick}
-              extra={item.extra}
-            >
-              {item.title}
-            </List.Item>
-          ))}
-        </List>
-      </div>
+    <div className="page-new overflow-hidden bg-bg-gray">
+      <WorkspaceNavHeader
+        onBack={onBack}
+        scope={{ type: 'personal' }}
+        title={t('title')}
+      />
+      <main className="min-h-0 flex-grow overflow-auto">
+        <SettingsOverviewPresentation
+          sections={[
+            {
+              id: 'account',
+              rows: [
+                {
+                  icon: 'account',
+                  id: 'account',
+                  kind: 'link',
+                  label: t('account.title'),
+                  onClick: () => goTo('/user-info'),
+                },
+                {
+                  icon: 'category',
+                  id: 'category',
+                  kind: 'link',
+                  label: t('category.title'),
+                  onClick: () => goTo(ROUTES_PATH.CATEGORY_SETTINGS.getPath()),
+                },
+              ],
+              title: t('function.title'),
+            },
+            {
+              id: 'preferences',
+              rows: [
+                {
+                  icon: 'language',
+                  id: 'language',
+                  kind: 'link',
+                  label: t('language.switch'),
+                  onClick: handleSwitchLang,
+                  value: SUPPORTED_LANGS[currentLang],
+                },
+                {
+                  checked: canPlay,
+                  icon: 'record',
+                  id: 'sound',
+                  kind: 'switch',
+                  label: t('sound.effect'),
+                  onChange: checked => void handleSoundSwitch(checked),
+                },
+                {
+                  checked: isSeniorMode,
+                  description: t('seniorMode.desc'),
+                  icon: 'appearance',
+                  id: 'senior-mode',
+                  kind: 'switch',
+                  label: t('seniorMode.switch'),
+                  onChange: toggleSeniorMode,
+                },
+                {
+                  checked: visibleAmountSwitch,
+                  description: t('amount.visibleDesc'),
+                  icon: 'record',
+                  id: 'amount',
+                  kind: 'switch',
+                  label: t('amount.visible'),
+                  onChange: checked => void patchUserAppConfig({
+                    isDisplayAmountSwitch: checked,
+                  }),
+                },
+              ],
+              title: t('personal'),
+            },
+            {
+              id: 'data',
+              rows: [
+                {
+                  icon: 'export',
+                  id: 'export',
+                  kind: 'link',
+                  label: t('export'),
+                  onClick: () => goTo('/export-data'),
+                },
+                {
+                  danger: true,
+                  icon: 'storage',
+                  id: 'storage',
+                  kind: 'action',
+                  label: t('storage.clear'),
+                  onClick: () => void handleClearCache(),
+                  value: localStorageSize,
+                },
+              ],
+              title: t('dataSecurity'),
+            },
+            {
+              id: 'placeholders',
+              rows: [
+                {
+                  icon: 'help',
+                  id: 'help',
+                  kind: 'placeholder',
+                  label: '使用帮助',
+                  onClick: showDeveloping,
+                },
+                {
+                  icon: 'desktop',
+                  id: 'desktop',
+                  kind: 'placeholder',
+                  label: '添加桌面入口',
+                  onClick: showDeveloping,
+                },
+              ],
+              title: t('system'),
+            },
+          ]}
+        />
+      </main>
     </div>
   );
 };

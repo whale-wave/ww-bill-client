@@ -30,6 +30,10 @@ export const householdKeys = {
     ...householdKeys.recordsRoot(householdId),
     params,
   ] as const,
+  recordFilterOptions: (householdId: string) => [
+    ...householdKeys.recordsRoot(householdId),
+    'filter-options',
+  ] as const,
   recordPages: (householdId: string, params?: GetHouseholdRecordsApiParams) => [
     ...householdKeys.recordsRoot(householdId),
     'pages',

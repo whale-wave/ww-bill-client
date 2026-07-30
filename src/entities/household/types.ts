@@ -130,6 +130,11 @@ export interface HouseholdRecordSummary {
 
 export interface HouseholdRecordsPage {
   data: FamilyRecord[];
+  daySummaries?: Array<{
+    date: string;
+    expense: string;
+    income: string;
+  }>;
   total: number;
   limit: number;
   offset: number;

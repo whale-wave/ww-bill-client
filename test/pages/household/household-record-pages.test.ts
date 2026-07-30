@@ -28,6 +28,7 @@ const hooks = vi.hoisted(() => ({
   useFamilyRecordPolicyQuery: vi.fn(),
   useHouseholdMembersQuery: vi.fn(),
   useHouseholdRecordQuery: vi.fn(),
+  useHouseholdRecordFilterOptionsQuery: vi.fn(),
   useInfiniteHouseholdRecordsQuery: vi.fn(),
   useMyHouseholdQuery: vi.fn(),
   useDeleteRecordMutation: vi.fn(),
@@ -43,6 +44,7 @@ vi.mock('@/entities/household', async importOriginal => ({
   useFamilyRecordPolicyQuery: hooks.useFamilyRecordPolicyQuery,
   useHouseholdMembersQuery: hooks.useHouseholdMembersQuery,
   useHouseholdRecordQuery: hooks.useHouseholdRecordQuery,
+  useHouseholdRecordFilterOptionsQuery: hooks.useHouseholdRecordFilterOptionsQuery,
   useInfiniteHouseholdRecordsQuery: hooks.useInfiniteHouseholdRecordsQuery,
   useMyHouseholdQuery: hooks.useMyHouseholdQuery,
   useSetFamilyRecordPolicyMutation: hooks.useSetFamilyRecordPolicyMutation,
@@ -154,6 +156,15 @@ beforeEach(() => {
   });
   hooks.useHouseholdMembersQuery.mockReturnValue(query([]));
   hooks.useHouseholdRecordQuery.mockReturnValue(query(record));
+  hooks.useHouseholdRecordFilterOptionsQuery.mockReturnValue(query({
+    capabilities: { category: true, member: true, tag: true },
+    categories: [{ id: 1, name: '餐饮' }, { id: 2, name: '交通' }],
+    members: [{ nickname: 'Partner', user: { id: 2, name: 'Partner' } }],
+    tags: [
+      { id: 'tag-a', name: '聚餐', status: 'ACTIVE' },
+      { id: 'tag-b', name: '历史', status: 'ARCHIVED' },
+    ],
+  }));
   hooks.useHouseholdCalendarQuery.mockReturnValue({
     data: { days: [{ countedExpense: '20.00', countedIncome: '0.00', date: '2026-07-21', recordCount: 1, visibleExpense: '20.00', visibleIncome: '0.00' }], month: '2026-07-01' },
     days: [{ countedExpense: '20.00', countedIncome: '0.00', date: '2026-07-21', recordCount: 1, visibleExpense: '20.00', visibleIncome: '0.00' }],
@@ -181,13 +192,12 @@ describe('household records', () => {
     expect(header?.classList).toContain('h-[182px]');
     expect(title?.textContent).toBe('home.title');
     expect(header?.firstElementChild).toBe(title);
-    expect(title?.classList).toContain('left-1/2');
+    expect(title?.classList).toContain('left-5');
     expect(title?.classList).toContain('truncate');
     expect(header?.querySelector('[data-record-overview-metrics]')).not.toBeNull();
-    expect([...header?.querySelectorAll('button') ?? []]
-      .map(button => button.getAttribute('aria-label'))
-      .filter(Boolean)
-      .sort()).toEqual(['home.calendar', 'home.search']);
+    expect(header?.querySelector('[data-workspace-capsule]')).not.toBeNull();
+    expect(header?.querySelector('[data-testid="household-search-action"]')).not.toBeNull();
+    expect(header?.querySelector('[data-testid="household-calendar-action"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-record-month-picker"]')?.textContent).toContain('07');
     expect(header?.querySelector('[data-testid="household-monthly-income"]')?.textContent).toContain('0.00');
     expect(header?.querySelector('[data-testid="household-monthly-expense"]')?.textContent).toContain('20.00');
@@ -340,23 +350,24 @@ describe('household records', () => {
       createElement(HouseholdRecordSearchPage),
     );
 
-    const header = container.querySelector('div.bg-primary.fixed');
+    const header = container.querySelector('[data-record-search-header]');
     const shell = container.querySelector('[data-record-search-page-shell]');
     expect(header?.classList).toContain('bg-primary');
-    expect(header?.classList).toContain('fixed');
     expect(shell?.classList).not.toContain('bg-bg-gray');
-    expect(header?.querySelector('input')?.getAttribute('value')).toBe('餐');
-    expect(container.querySelector('main > form')).toBeNull();
+    expect(header?.querySelector<HTMLInputElement>('input')?.value).toBe('餐');
+    expect(container.querySelector('[data-record-filter-panel]')).toBeNull();
 
-    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="household-record-filter-action"]')?.click());
-    expect(document.body.querySelector('[data-testid="household-record-filters"]')).not.toBeNull();
-    expect(document.body.querySelector<HTMLSelectElement>('select[name="type"]')?.value).toBe('sub');
-    expect(document.body.querySelector<HTMLSelectElement>('select[name="memberUserId"]')?.value).toBe('2');
-    const filterForm = document.body.querySelector<HTMLElement>('[data-testid="household-record-filters"]');
-    const textControls = [...filterForm?.querySelectorAll<HTMLElement>('select, input:not([type="checkbox"])') ?? []];
-    expect(filterForm?.querySelector('.rounded-xl')).toBeNull();
-    expect(textControls.every(control => control.classList.contains('rounded-[5px]'))).toBe(true);
-    await act(async () => document.body.querySelector<HTMLFormElement>('[data-testid="household-record-filters"]')?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="record-filter-action"]')?.click());
+    const filterPanel = container.querySelector<HTMLElement>('[data-record-filter-panel]');
+    expect(filterPanel).not.toBeNull();
+    expect(filterPanel?.textContent).toContain('更多筛选');
+    await act(async () => [...filterPanel?.querySelectorAll<HTMLButtonElement>('button') ?? []]
+      .find(button => button.textContent?.includes('更多筛选'))
+      ?.click());
+    expect(container.querySelector('[data-record-filter-more]')).not.toBeNull();
+    await act(async () => [...filterPanel?.querySelectorAll<HTMLButtonElement>('button') ?? []]
+      .find(button => button.textContent === '确定')
+      ?.click());
     expect(Object.fromEntries(new URLSearchParams(router.state.location.search))).toEqual({
       categoryIds: '1,2',
       countedOnly: 'true',
@@ -365,7 +376,6 @@ describe('household records', () => {
       maxAmount: '90',
       memberUserId: '2',
       minAmount: '10',
-      policy: FamilyRecordPolicy.SHARED_COUNTED,
       startDate: '2026-07-01',
       tagIds: 'tag-a,tag-b',
       type: 'sub',
@@ -396,7 +406,7 @@ describe('household records', () => {
       '/households/previous',
     );
 
-    const back = container.querySelector<HTMLElement>('.adm-search-bar-cancel-button');
+    const back = container.querySelector<HTMLElement>('[data-record-search-header] button[aria-label="返回"]');
     expect(container.querySelector(`[data-record-search-state="${stateTestId}"]`)).not.toBeNull();
     expect(back).not.toBeNull();
 
@@ -584,14 +594,15 @@ describe('household records', () => {
         filters: {
           categoryIds: [1, 2],
           countedOnly: true,
+          dateMode: 'range',
           endDate: '2026-07-31',
           keyword: '餐',
+          keywordTarget: 'all',
           limit: 50,
           maxAmount: '90',
           memberUserId: 2,
           minAmount: '10',
           offset: 0,
-          policy: FamilyRecordPolicy.SHARED_COUNTED,
           startDate: '2026-07-01',
           tagIds: ['tag-a', 'tag-b'],
           type: 'sub',

@@ -3,30 +3,38 @@ import { useNavigate } from 'react-router-dom';
 import { LedgerCapability } from '@/entities/ledger';
 import {
   createLedgerRecordDetailState,
-  RecordSearchPresentation,
   toRecordSearchGroups,
   useLedgerRecordsQuery,
+  useRecordFilterOptionsQuery,
 } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
-import { useRecordSearchController } from '@/features/record-search';
+import {
+  isCommonRecordSearchActive,
+  isRecordFilterActive,
+  RecordSearchPresentation,
+  toCommonRecordSearchFilters,
+  toRecordApiParams,
+  useRecordSearchController,
+  validateRecordSearchState,
+} from '@/features/record-search';
+import {
+  useWorkspaceBack,
+  WorkspaceCapsule,
+} from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 
 export default function LedgerRecordSearchPage() {
   const { t } = useTranslation('ledger');
-  const navigate = useNavigate();
   const search = useRecordSearchController();
   return (
     <LedgerScopeBoundary capability={LedgerCapability.RECORD_READ}>
-      {({ ledgerId }) => (
+      {({ ledger, ledgerId }) => (
         <ScopedLedgerSearch
-          debouncedKeyword={search.debouncedValue}
-          isDebouncing={search.isDebouncing}
-          keyword={search.value}
+          capabilities={ledger.capabilities}
           ledgerId={ledgerId}
-          onBack={() => navigate(-1)}
-          onChange={search.setValue}
           placeholder={t('records.search')}
+          search={search}
         />
       )}
     </LedgerScopeBoundary>
@@ -34,32 +42,38 @@ export default function LedgerRecordSearchPage() {
 }
 
 interface ScopedLedgerSearchProps {
-  debouncedKeyword: string;
-  isDebouncing: boolean;
-  keyword: string;
+  capabilities: readonly LedgerCapability[];
   ledgerId: string;
-  onBack: () => void;
-  onChange: (value: string) => void;
   placeholder: string;
+  search: ReturnType<typeof useRecordSearchController>;
 }
 
 function ScopedLedgerSearch({
-  debouncedKeyword,
-  isDebouncing,
-  keyword,
+  capabilities,
   ledgerId,
-  onBack,
-  onChange,
   placeholder,
+  search,
 }: ScopedLedgerSearchProps) {
   const { t } = useTranslation('ledger');
   const navigate = useNavigate();
+  const onBack = useWorkspaceBack({ capabilities, ledgerId, type: 'custom' });
+  const optionsQuery = useRecordFilterOptionsQuery({
+    params: { ledgerId },
+    queryOptions: { enabled: Boolean(ledgerId) },
+  });
+  const filters = toCommonRecordSearchFilters(search.filters);
+  const state = { ...search.state, filters };
+  const debouncedState = { ...search.debouncedState, filters };
+  const isActive = isCommonRecordSearchActive(state);
+  const validation = validateRecordSearchState(debouncedState);
   const query = useLedgerRecordsQuery({
     params: {
-      filters: debouncedKeyword ? { keyword: debouncedKeyword } : undefined,
+      filters: toRecordApiParams(debouncedState),
       ledgerId,
     },
-    queryOptions: { enabled: Boolean(debouncedKeyword) },
+    queryOptions: {
+      enabled: isActive && Object.keys(validation).length === 0,
+    },
   });
   const groups = useMemo(() => toRecordSearchGroups(query.data.data, {
     expenseLabel: t('home.expense'),
@@ -74,21 +88,49 @@ function ScopedLedgerSearch({
 
   return (
     <RecordSearchPresentation
+      capsule={<WorkspaceCapsule scope={{ capabilities, ledgerId, type: 'custom' }} />}
       errorDescription={t('common.loadErrorDescription')}
+      filterCapabilities={{
+        category: optionsQuery.data.capabilities.category,
+        tag: optionsQuery.data.capabilities.tag,
+      }}
+      filterOptions={{
+        categories: optionsQuery.data.categories.map(item => ({
+          id: item.id,
+          label: item.name,
+        })),
+        tags: optionsQuery.data.tags.map(item => ({
+          id: item.id,
+          label: item.status === 'ARCHIVED' ? `${item.name}（已归档）` : item.name,
+        })),
+      }}
+      filters={filters}
       groups={groups}
+      isFilterActive={isRecordFilterActive(filters)}
       onBack={onBack}
-      onKeywordChange={onChange}
+      onFiltersConfirm={search.commitFilters}
+      onKeywordChange={search.setValue}
       onRetry={() => void query.refetch()}
       placeholder={placeholder}
       retryLabel={t('common.retry')}
-      state={!keyword
+      state={!isActive
         ? 'idle'
-        : isDebouncing || query.isLoading
-          ? 'loading'
-          : query.isError
-            ? 'error'
-            : 'ready'}
-      value={keyword}
+        : Object.keys(validation).length > 0
+          ? 'idle'
+          : search.isDebouncing || query.isLoading
+            ? 'loading'
+            : query.isError
+              ? 'error'
+              : 'ready'}
+      summary={query.data.total > 0
+        ? `${query.data.total}笔 · ${t('home.income')} ${query.data.income} · ${t('home.expense')} ${query.data.expend}`
+        : undefined}
+      title={t('records.search')}
+      validateFilters={filters => validateRecordSearchState({
+        filters,
+        keyword: search.value,
+      })}
+      value={search.value}
     />
   );
 }

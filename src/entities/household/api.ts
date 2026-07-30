@@ -107,6 +107,8 @@ export interface GetHouseholdRecordsApiParams {
   startDate?: string;
   endDate?: string;
   keyword?: string;
+  keywordTarget?: 'all' | 'category' | 'tag' | 'remark' | 'amount';
+  dateMode?: 'range';
   type?: 'add' | 'sub';
   memberUserId?: number;
   categoryIds?: number[];
@@ -119,6 +121,26 @@ export interface GetHouseholdRecordsApiParams {
   offset?: number;
 }
 
+export interface HouseholdRecordFilterOptions {
+  capabilities: {
+    category: boolean;
+    member: boolean;
+    tag: boolean;
+  };
+  categories: Array<{
+    icon: string;
+    id: number;
+    name: string;
+    type: 'add' | 'sub';
+  }>;
+  members: HouseholdMember[];
+  tags: Array<{
+    id: string;
+    name: string;
+    status: 'ACTIVE' | 'ARCHIVED';
+  }>;
+}
+
 export function getHouseholdRecordsApi(
   householdId: string,
   params?: GetHouseholdRecordsApiParams,
@@ -126,6 +148,12 @@ export function getHouseholdRecordsApi(
   return request.get<unknown, SuccessResponse<HouseholdRecordsPage>>(
     `/households/${encodeURIComponent(householdId)}/records`,
     { params },
+  );
+}
+
+export function getHouseholdRecordFilterOptionsApi(householdId: string) {
+  return request.get<unknown, SuccessResponse<HouseholdRecordFilterOptions>>(
+    `/households/${encodeURIComponent(householdId)}/records/filter-options`,
   );
 }
 

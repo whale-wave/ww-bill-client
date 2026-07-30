@@ -8,6 +8,7 @@ import type {
   GetHouseholdCalendarApiParams,
   GetHouseholdChartsApiParams,
   GetHouseholdRecordsApiParams,
+  HouseholdRecordFilterOptions,
   PatchHouseholdApiData,
   PatchMyHouseholdNicknameApiData,
   PostAcceptHouseholdInvitationApiData,
@@ -51,6 +52,7 @@ import {
   getHouseholdInvitationPreviewApi,
   getHouseholdMembersApi,
   getHouseholdRecordApi,
+  getHouseholdRecordFilterOptionsApi,
   getHouseholdRecordsApi,
   getMyHouseholdApi,
   patchHouseholdApi,
@@ -290,6 +292,38 @@ export function useHouseholdRecordsQuery(options: {
     ...options.queryOptions,
   });
   return { response, data: response?.data, records: response?.data.data ?? [], ...rest };
+}
+
+export function useHouseholdRecordFilterOptionsQuery(options: {
+  params: { householdId: string };
+  queryOptions?: Omit<
+    UseQueryOptions<
+      SuccessResponse<HouseholdRecordFilterOptions>,
+      unknown,
+      SuccessResponse<HouseholdRecordFilterOptions>,
+      ReturnType<typeof householdKeys.recordFilterOptions>
+    >,
+    'queryFn' | 'queryKey'
+  >;
+}) {
+  const { householdId } = options.params;
+  const { data: response, ...rest } = useQuery({
+    queryFn: async () => assertSuccessApi(
+      await getHouseholdRecordFilterOptionsApi(householdId),
+    ),
+    queryKey: householdKeys.recordFilterOptions(householdId),
+    ...options.queryOptions,
+  });
+  return {
+    response,
+    data: response?.data ?? {
+      capabilities: { category: false, member: false, tag: false },
+      categories: [],
+      members: [],
+      tags: [],
+    },
+    ...rest,
+  };
 }
 
 type HouseholdRecordsResponse = SuccessResponse<HouseholdRecordsPage>;

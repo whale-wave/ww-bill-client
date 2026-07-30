@@ -1,4 +1,5 @@
 import type { FC, ReactNode } from 'react';
+import { Toast } from 'antd-mobile';
 import { cn } from '@/shared/lib';
 
 export interface RecordOverviewMetric {
@@ -10,6 +11,7 @@ export interface RecordOverviewMetric {
 
 export interface RecordOverviewShortcut {
   disabled?: boolean;
+  disabledMessage?: string;
   icon: ReactNode;
   key: string;
   label: ReactNode;
@@ -52,7 +54,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
   const titleClassName = cn(
     'record-overview-title absolute top-[5px] min-w-0 truncate text-xl font-bold text-[#323334]',
     titleAlignment === 'start'
-      ? 'left-5 right-16 text-left'
+      ? 'left-5 right-28 text-left'
       : 'left-1/2 -translate-x-1/2',
   );
 
@@ -104,7 +106,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
           {amountToggle.content}
         </div>
       )}
-      {actions && <div className="absolute right-0 top-0 flex items-center gap-3 p-2">{actions}</div>}
+      {actions && <div className="absolute right-3 top-1 flex items-center gap-3">{actions}</div>}
 
       <div className="absolute bottom-0 left-[10px] right-[10px] h-[68px]">
         <nav
@@ -119,9 +121,14 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
                 shortcut.disabled && 'opacity-45',
               )}
               data-testid={shortcut.testId}
-              disabled={shortcut.disabled}
               key={shortcut.key}
-              onClick={shortcut.onClick}
+              onClick={() => {
+                if (shortcut.disabled) {
+                  Toast.show(shortcut.disabledMessage ?? '暂无权限');
+                  return;
+                }
+                shortcut.onClick();
+              }}
               type="button"
             >
               <span className="text-2xl">{shortcut.icon}</span>

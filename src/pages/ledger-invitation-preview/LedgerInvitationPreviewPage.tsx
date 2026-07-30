@@ -8,15 +8,13 @@ import {
   useSubmitJoinRequestMutation,
 } from '@/entities/ledger';
 import {
+  CollaborationQueryState,
   createIdempotencyKey,
   getErrorMessage,
+  InvitationPreviewCard,
   normalizeInvitationCode,
   validateJoinRequest,
-} from '@/pages/ledger-collaboration/model';
-import {
-  CollaborationQueryState,
-  InvitationPreviewCard,
-} from '@/pages/ledger-collaboration/ui';
+} from '@/features/ledger-collaboration';
 import { useTranslation } from '@/shared/i18n';
 import { NavBar } from '@/shared/ui';
 

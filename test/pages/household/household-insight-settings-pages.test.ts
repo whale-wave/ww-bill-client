@@ -882,22 +882,24 @@ describe('household settings and members', () => {
 
   it('updates the current member nickname with its own version', async () => {
     hooks.updateNickname.mockResolvedValue({ data: {} });
-    const { container } = renderPage('/households/household%2Fa/settings', '/households/:householdId/settings', createElement(HouseholdSettingsPage));
-    const nickname = container.querySelector<HTMLInputElement>('input[name="nickname"]');
+    const { container } = renderPage('/households/household%2Fa/members', '/households/:householdId/members', createElement(HouseholdMembersPage));
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-member-id="member-1"]')?.click());
+    const nickname = document.body.querySelector<HTMLInputElement>('input[name="nickname"]');
     if (nickname) {
       nickname.value = '阿勇';
       nickname.dispatchEvent(new Event('input', { bubbles: true }));
     }
-    await act(async () => container.querySelector<HTMLFormElement>('[data-testid="household-nickname-form"]')?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+    await act(async () => nickname?.form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
     expect(hooks.updateNickname).toHaveBeenCalledWith({
       data: { nickname: '阿勇', version: 2 },
       householdId: 'household/a',
     });
   });
 
-  it('limits an owner to moving the sharing boundary later', () => {
+  it('limits an owner to moving the sharing boundary later', async () => {
     const { container } = renderPage('/households/household%2Fa/settings', '/households/:householdId/settings', createElement(HouseholdSettingsPage));
-    const input = container.querySelector<HTMLInputElement>('input[name="sharedStartMonth"]');
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="shared-start"]')?.click());
+    const input = document.body.querySelector<HTMLInputElement>('input[name="sharedStartMonth"]');
     expect(input?.min).toBe('2026-07');
   });
 
@@ -910,7 +912,8 @@ describe('household settings and members', () => {
     const { container } = renderPage('/households/household%2Fa/settings', '/households/:householdId/settings', createElement(HouseholdSettingsPage));
 
     expect(container.querySelector('input[name="sharedStartMonth"]')).toBeNull();
-    expect(container.textContent).not.toContain('settings.sharedStartTitle');
+    expect(container.textContent).toContain('settings.sharedStartTitle');
+    expect(container.querySelector('[data-settings-row="shared-start"]')?.tagName).toBe('DIV');
   });
 
   it('loads member rows using only the URL household id', () => {

@@ -17,7 +17,7 @@ import {
   getErrorMessage,
   normalizeInvitationCode,
   validateJoinRequest,
-} from '@/pages/ledger-collaboration/model';
+} from '@/features/ledger-collaboration';
 import { useTranslation } from '@/shared/i18n';
 import './ledger-join.scss';
 

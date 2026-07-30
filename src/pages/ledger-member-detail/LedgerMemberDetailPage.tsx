@@ -17,17 +17,18 @@ import { useGetUserUserInfoQuery } from '@/entities/user';
 import {
   canEditMemberNickname,
   canEditMemberRole,
+  CollaborationQueryState,
   getAssignableRoles,
   getErrorMessage,
   validateMemberPatch,
-} from '@/pages/ledger-collaboration/model';
+} from '@/features/ledger-collaboration';
 import {
-  CollaborationQueryState,
-  LedgerUserRow,
-} from '@/pages/ledger-collaboration/ui';
+  useWorkspaceBack,
+  WorkspaceNavHeader,
+} from '@/features/workspace-navigation';
+import { MemberEditorPresentation } from '@/features/workspace-settings';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
 
 function isConflict(error: unknown) {
   return typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
@@ -43,6 +44,11 @@ const LedgerMemberDetailPage: FC = () => {
   const ledgerQuery = useLedgerQuery({
     params: { ledgerId },
     queryOptions: { enabled: Boolean(ledgerId) },
+  });
+  const onBack = useWorkspaceBack({
+    capabilities: ledgerQuery.data?.capabilities,
+    ledgerId,
+    type: 'custom',
   });
   const canRead = ledgerQuery.data?.capabilities.includes(LedgerCapability.MEMBER_READ);
   const membersQuery = useLedgerMembersQuery({
@@ -210,9 +216,15 @@ const LedgerMemberDetailPage: FC = () => {
 
   return (
     <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
-        {t('memberDetail.title')}
-      </NavBar>
+      <WorkspaceNavHeader
+        onBack={onBack}
+        scope={{
+          capabilities: ledgerQuery.data?.capabilities,
+          ledgerId,
+          type: 'custom',
+        }}
+        title={t('memberDetail.title')}
+      />
       <main className="min-h-0 flex-grow overflow-auto pb-6">
         {(!ledgerId || !memberId) && (
           <CollaborationQueryState
@@ -252,20 +264,16 @@ const LedgerMemberDetailPage: FC = () => {
         )}
         {member && !loading && !error && (
           <form onSubmit={handleSubmit}>
-            <section className="mt-3 bg-white">
-              <LedgerUserRow
-                fallback={t('common.unknownUser')}
-                secondary={`ID: ${member.user.id}`}
-                user={member.user}
-              />
-              <div className="px-4 py-4">
-                <p className="text-xs text-font-gray">{t('memberDetail.joinedAt')}</p>
-                <p className="mt-1 text-sm text-font-black">
-                  {new Date(member.joinedAt).toLocaleString()}
-                </p>
-              </div>
-            </section>
-            <section className="mt-3 bg-white px-4 py-4">
+            <MemberEditorPresentation
+              member={{
+                avatar: member.user.avatar,
+                badge: t(`role.${member.role}`),
+                description: `${t('memberDetail.joinedAt')} ${new Date(member.joinedAt).toLocaleString()}`,
+                id: member.id,
+                name: member.user.name || member.user.username || t('common.unknownUser'),
+                userId: member.user.id,
+              }}
+            >
               <label className="block text-sm text-font-black" htmlFor="member-nickname">
                 {t('memberDetail.nickname')}
               </label>
@@ -336,7 +344,7 @@ const LedgerMemberDetailPage: FC = () => {
                   {t('memberDetail.transferOwnership')}
                 </Button>
               )}
-            </section>
+            </MemberEditorPresentation>
           </form>
         )}
       </main>

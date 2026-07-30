@@ -1,8 +1,7 @@
 import type { FC, FormEvent } from 'react';
 import type { Household } from '@/entities/household';
-import { Button, Toast } from 'antd-mobile';
-import { RightOutline } from 'antd-mobile-icons';
-import { useRef } from 'react';
+import { Button, Popup, Toast } from 'antd-mobile';
+import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   HouseholdMemberRole,
@@ -10,70 +9,65 @@ import {
   useHouseholdMembersQuery,
   useMyHouseholdQuery,
   useUpdateHouseholdMutation,
-  useUpdateMyHouseholdNicknameMutation,
 } from '@/entities/household';
-import { useGetUserUserInfoQuery } from '@/entities/user';
 import {
   getApiErrorMessage,
   getApiErrorStatus,
   HouseholdPageState,
   HouseholdScopeBoundary,
 } from '@/features/household';
+import {
+  useWorkspaceBack,
+  WorkspaceNavHeader,
+} from '@/features/workspace-navigation';
+import { SettingsOverviewPresentation } from '@/features/workspace-settings';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
+
+type Editor = 'dissolve' | 'sharedStart' | null;
 
 const SettingsContent: FC<{ household: Household }> = ({ household }) => {
   const { t } = useTranslation('household');
   const navigate = useNavigate();
   const householdQuery = useMyHouseholdQuery();
-  const userQuery = useGetUserUserInfoQuery();
-  const membersQuery = useHouseholdMembersQuery({ params: { householdId: household.id } });
-  const currentMember = membersQuery.data.find(member => member.user.id === userQuery.data?.id);
+  const membersQuery = useHouseholdMembersQuery({
+    params: { householdId: household.id },
+  });
   const [updateHousehold, updateState] = useUpdateHouseholdMutation();
-  const [updateNickname, nicknameState] = useUpdateMyHouseholdNicknameMutation();
   const [dissolve, dissolveState] = useDissolveHouseholdMutation();
+  const [editor, setEditor] = useState<Editor>(null);
   const submittingRef = useRef(false);
 
   const handleError = async (error: unknown) => {
     if (getApiErrorStatus(error) === 409) {
-      await Promise.all([
-        householdQuery.refetch(),
-        membersQuery.refetch(),
-      ]);
-      void Toast.show({ content: t('common.conflict'), icon: 'fail' });
+      await Promise.all([householdQuery.refetch(), membersQuery.refetch()]);
+      Toast.show({ content: t('common.conflict'), icon: 'fail' });
       return;
     }
-    void Toast.show({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
-  };
-
-  const handleNickname = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!currentMember || submittingRef.current)
-      return;
-    const nickname = String(new FormData(event.currentTarget).get('nickname') ?? '').trim();
-    submittingRef.current = true;
-    try {
-      await updateNickname({ data: { nickname, version: currentMember.version }, householdId: household.id });
-      void Toast.show({ content: t('settings.updated'), icon: 'success' });
-    }
-    catch (error) {
-      await handleError(error);
-    }
-    finally {
-      submittingRef.current = false;
-    }
+    Toast.show({
+      content: getApiErrorMessage(error, t('common.failed')),
+      icon: 'fail',
+    });
   };
 
   const handleSharedStart = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (submittingRef.current)
       return;
-    const month = String(new FormData(event.currentTarget).get('sharedStartMonth') ?? '');
+    const month = String(
+      new FormData(event.currentTarget).get('sharedStartMonth') ?? '',
+    );
     submittingRef.current = true;
     try {
-      await updateHousehold({ data: { sharedStartMonth: `${month}-01`, version: household.version }, householdId: household.id });
-      void Toast.show({ content: t('settings.updated'), icon: 'success' });
+      await updateHousehold({
+        data: {
+          sharedStartMonth: `${month}-01`,
+          version: household.version,
+        },
+        householdId: household.id,
+      });
+      Toast.show({ content: t('settings.updated'), icon: 'success' });
+      setEditor(null);
     }
     catch (error) {
       await handleError(error);
@@ -89,14 +83,21 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
       return;
     const data = new FormData(event.currentTarget);
     if (data.get('confirmDissolve') !== 'on') {
-      void Toast.show({ content: t('settings.confirmDissolve') });
+      Toast.show({ content: t('settings.confirmDissolve') });
       return;
     }
     submittingRef.current = true;
     try {
       const reason = String(data.get('reason') ?? '').trim();
-      await dissolve({ data: { confirmed: true, ...(reason ? { reason } : {}), version: household.version }, householdId: household.id });
-      void Toast.show({ content: t('settings.dissolved'), icon: 'success' });
+      await dissolve({
+        data: {
+          confirmed: true,
+          ...(reason ? { reason } : {}),
+          version: household.version,
+        },
+        householdId: household.id,
+      });
+      Toast.show({ content: t('settings.dissolved'), icon: 'success' });
       navigate(ROUTES_PATH.HOUSEHOLD.getPath(), { replace: true });
     }
     catch (error) {
@@ -107,82 +108,162 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
     }
   };
 
+  const showDeveloping = () => Toast.show('开发中');
+  const isOwner = household.myRole === HouseholdMemberRole.OWNER;
+
   return (
     <HouseholdPageState
       errorDescription={t('common.loadErrorDescription')}
       errorTitle={t('common.loadError')}
       isError={membersQuery.isError}
-      isLoading={membersQuery.isLoading || userQuery.isLoading}
+      isLoading={membersQuery.isLoading}
       loadingLabel={t('common.loading')}
       onRetry={() => void membersQuery.refetch()}
       retryLabel={t('common.retry')}
     >
-      <div className="space-y-3">
-        <section className="overflow-hidden rounded-xl bg-white">
-          <button className="flex min-h-[58px] w-full items-center border-0 bg-white px-4 text-left" onClick={() => navigate(ROUTES_PATH.HOUSEHOLD_MEMBERS.getPath(household.id))} type="button">
-            <span className="flex-grow text-sm text-font-black">{t('settings.members')}</span>
-            <span className="mr-2 text-sm text-font-gray">{membersQuery.data.length}</span>
-            <RightOutline className="text-font-gray" />
-          </button>
-        </section>
-
-        <section className="overflow-hidden rounded-xl bg-white">
-          <button className="flex min-h-[58px] w-full items-center border-0 bg-white px-4 text-left" onClick={() => navigate(ROUTES_PATH.HOUSEHOLD_EXPORT.getPath(household.id))} type="button">
-            <span className="flex-grow text-sm text-font-black">{t('settings.export')}</span>
-            <RightOutline className="text-font-gray" />
-          </button>
-        </section>
-
-        <form className="card-rounded bg-white px-4 py-4" data-testid="household-nickname-form" onSubmit={handleNickname}>
-          <h2 className="text-base font-medium text-font-black">{t('settings.nicknameTitle')}</h2>
-          <div className="mt-3 flex gap-2">
-            <input className="h-11 min-w-0 flex-grow rounded-xl border-0 bg-bg-gray px-3 text-sm outline-none" defaultValue={currentMember?.nickname ?? ''} maxLength={30} name="nickname" placeholder={t('settings.nicknamePlaceholder')} />
-            <Button color="primary" loading={nicknameState.isLoading} type="submit">{t('common.save')}</Button>
-          </div>
-        </form>
-
-        {household.myRole === HouseholdMemberRole.OWNER && (
-          <form className="card-rounded bg-white px-4 py-4" onSubmit={handleSharedStart}>
-            <h2 className="text-base font-medium text-font-black">{t('settings.sharedStartTitle')}</h2>
-            <p className="mt-1 text-xs leading-5 text-font-gray">{t('settings.sharedStartHint')}</p>
-            <div className="mt-3 flex gap-2">
-              <input
-                className="h-11 min-w-0 flex-grow rounded-xl border-0 bg-bg-gray px-3 text-sm"
-                defaultValue={household.sharedStartMonth.slice(0, 7)}
-                min={household.sharedStartMonth.slice(0, 7)}
-                name="sharedStartMonth"
-                required
-                type="month"
-              />
-              <Button color="primary" loading={updateState.isLoading} type="submit">{t('common.save')}</Button>
-            </div>
+      <SettingsOverviewPresentation
+        sections={[
+          {
+            id: 'members',
+            rows: [
+              {
+                avatars: membersQuery.data.map(member => ({
+                  alt: member.nickname,
+                  id: member.id,
+                  src: member.user.avatar,
+                })),
+                icon: 'member',
+                id: 'members',
+                kind: 'avatarStack',
+                label: t('settings.members'),
+                onClick: () => navigate(
+                  ROUTES_PATH.HOUSEHOLD_MEMBERS.getPath(household.id),
+                ),
+              },
+              isOwner
+                ? {
+                    description: t('settings.sharedStartHint'),
+                    icon: 'calendar',
+                    id: 'shared-start',
+                    kind: 'link',
+                    label: t('settings.sharedStartTitle'),
+                    onClick: () => setEditor('sharedStart'),
+                    value: household.sharedStartMonth.slice(0, 7),
+                  }
+                : {
+                    description: t('settings.sharedStartHint'),
+                    icon: 'calendar',
+                    id: 'shared-start',
+                    kind: 'value',
+                    label: t('settings.sharedStartTitle'),
+                    value: household.sharedStartMonth.slice(0, 7),
+                  },
+            ],
+          },
+          {
+            id: 'data',
+            rows: [{
+              icon: 'export',
+              id: 'export',
+              kind: 'link',
+              label: t('settings.export'),
+              onClick: () => navigate(
+                ROUTES_PATH.HOUSEHOLD_EXPORT.getPath(household.id),
+              ),
+            }],
+          },
+          {
+            id: 'placeholders',
+            rows: [
+              {
+                icon: 'help',
+                id: 'help',
+                kind: 'placeholder',
+                label: '使用帮助',
+                onClick: showDeveloping,
+              },
+              {
+                icon: 'desktop',
+                id: 'desktop',
+                kind: 'placeholder',
+                label: '添加桌面入口',
+                onClick: showDeveloping,
+              },
+            ],
+          },
+          {
+            id: 'danger',
+            rows: [{
+              danger: true,
+              icon: 'archive',
+              id: 'dissolve',
+              kind: 'action',
+              label: t('settings.dissolveTitle'),
+              onClick: () => setEditor('dissolve'),
+            }],
+          },
+        ]}
+      />
+      <Popup
+        bodyClassName="rounded-t-[12px]"
+        destroyOnClose
+        onMaskClick={() => setEditor(null)}
+        position="bottom"
+        showCloseButton
+        visible={editor !== null}
+        onClose={() => setEditor(null)}
+      >
+        {editor === 'sharedStart' && (
+          <form className="px-4 pb-[calc(24px+env(safe-area-inset-bottom))] pt-12" onSubmit={handleSharedStart}>
+            <h2 className="text-lg font-medium text-font-black">{t('settings.sharedStartTitle')}</h2>
+            <p className="mt-2 text-sm leading-6 text-font-gray">{t('settings.sharedStartHint')}</p>
+            <input
+              className="mt-4 h-12 w-full rounded border border-solid border-[#EBEBEB] px-3 text-base"
+              defaultValue={household.sharedStartMonth.slice(0, 7)}
+              min={household.sharedStartMonth.slice(0, 7)}
+              name="sharedStartMonth"
+              required
+              type="month"
+            />
+            <Button block className="mt-5" color="primary" loading={updateState.isLoading} type="submit">
+              {t('common.save')}
+            </Button>
           </form>
         )}
-
-        <form className="card-rounded border border-solid border-rose-100 bg-white px-4 py-4" onSubmit={handleDissolve}>
-          <h2 className="text-base font-medium text-rose-600">{t('settings.dissolveTitle')}</h2>
-          <p className="mt-2 text-sm leading-6 text-font-gray">{t('settings.dissolveDescription')}</p>
-          <textarea className="mt-3 min-h-[82px] w-full rounded-xl border-0 bg-bg-gray p-3 text-sm outline-none" maxLength={500} name="reason" placeholder={t('settings.dissolveReasonPlaceholder')} />
-          <label className="mt-3 flex items-start gap-2 text-sm leading-5 text-font-black">
-            <input className="mt-1 accent-rose-500" name="confirmDissolve" type="checkbox" />
-            <span>{t('settings.confirmDissolve')}</span>
-          </label>
-          <Button block className="mt-4" color="danger" loading={dissolveState.isLoading} type="submit">{t('settings.dissolveAction')}</Button>
-        </form>
-      </div>
+        {editor === 'dissolve' && (
+          <form className="px-4 pb-[calc(24px+env(safe-area-inset-bottom))] pt-12" onSubmit={handleDissolve}>
+            <h2 className="text-lg font-medium text-red-500">{t('settings.dissolveTitle')}</h2>
+            <p className="mt-2 text-sm leading-6 text-font-gray">{t('settings.dissolveDescription')}</p>
+            <textarea className="mt-4 min-h-[88px] w-full rounded border border-solid border-[#EBEBEB] p-3 text-sm outline-none" maxLength={500} name="reason" placeholder={t('settings.dissolveReasonPlaceholder')} />
+            <label className="mt-3 flex items-start gap-2 text-sm text-font-black">
+              <input className="mt-1 accent-red-500" name="confirmDissolve" type="checkbox" />
+              <span>{t('settings.confirmDissolve')}</span>
+            </label>
+            <Button block className="mt-5" color="danger" loading={dissolveState.isLoading} type="submit">
+              {t('settings.dissolveAction')}
+            </Button>
+          </form>
+        )}
+      </Popup>
     </HouseholdPageState>
   );
 };
 
 const HouseholdSettingsPage: FC = () => {
   const { t } = useTranslation('household');
-  const navigate = useNavigate();
   const { householdId = '' } = useParams<{ householdId: string }>();
+  const onBack = useWorkspaceBack({ householdId, type: 'household' });
   return (
     <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>{t('settings.title')}</NavBar>
-      <main className="min-h-0 flex-grow overflow-auto px-3 py-3">
-        <HouseholdScopeBoundary householdId={householdId}>{household => <SettingsContent household={household} />}</HouseholdScopeBoundary>
+      <WorkspaceNavHeader
+        onBack={onBack}
+        scope={{ householdId, type: 'household' }}
+        title={t('settings.title')}
+      />
+      <main className="min-h-0 flex-grow overflow-auto">
+        <HouseholdScopeBoundary householdId={householdId}>
+          {household => <SettingsContent household={household} />}
+        </HouseholdScopeBoundary>
       </main>
     </div>
   );
