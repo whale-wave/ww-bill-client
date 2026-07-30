@@ -553,7 +553,7 @@ describe('custom ledger workspace integration', () => {
     expect(container.querySelector('.adm-nav-bar-back, .bwm-nav-bar-back') !== null).toBe(!hasWorkspaceTabBar);
   });
 
-  it('returns a directly opened custom budget to its ledger detail', async () => {
+  it('returns a custom budget to its record-list home', async () => {
     const { container, router } = renderPage(
       '/ledgers/ledger%2Fa/budget',
       '/ledgers/:ledgerId/budget',
@@ -561,7 +561,7 @@ describe('custom ledger workspace integration', () => {
     );
 
     await click(container.querySelector('.bwm-nav-bar-back'));
-    expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa');
+    expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/records');
   });
 
   it('uses the personal budget shell and presentation for custom ledgers', () => {

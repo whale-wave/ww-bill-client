@@ -242,7 +242,7 @@ export default function LedgerBudgetPage() {
         <BudgetPeriodDropdown
           budgetEntityType={budgetEntityType}
           dropDownWrapperRef={dropDownWrapperRef}
-          onBack={() => navigate(ROUTES_PATH.LEDGER_DETAIL.getPath(ledgerId))}
+          onBack={() => navigate(ROUTES_PATH.LEDGER_RECORDS.getPath(ledgerId))}
           onBudgetEntityTypeChange={setBudgetEntityType}
         />
       )}
