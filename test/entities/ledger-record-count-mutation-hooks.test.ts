@@ -14,10 +14,13 @@ import {
   useCreateLedgerRecordMutation,
   useDeleteLedgerRecordMutation,
   useDeleteRecordMutation,
-  usePostRecordMutation,
   useUpdateLedgerRecordMutation,
 } from '@/entities/record/hooks';
 import { recordKeys } from '@/entities/record/keys';
+import {
+  invalidateLedgerRecordEditorCaches,
+  invalidatePersonalRecordEditorCaches,
+} from '@/features/record-editor';
 
 const reactQueryMocks = vi.hoisted(() => ({
   mutationOptions: [] as unknown[],
@@ -81,11 +84,7 @@ describe('record-count mutation hook cache reconciliation', () => {
     const queryClient = reactQueryMocks.queryClient;
     seedQuery(queryClient, budgetKeys.ledgerRoot('ledger-a'));
 
-    useCreateLedgerRecordMutation();
-    await latestMutation<{ ledgerId: string }>().onSuccess?.(
-      { statusCode: 200 },
-      { ledgerId: 'ledger-a' },
-    );
+    await invalidateLedgerRecordEditorCaches(queryClient, 'ledger-a');
 
     expect(queryClient.getQueryState(budgetKeys.ledgerRoot('ledger-a'))?.isInvalidated)
       .toBe(true);
@@ -99,11 +98,7 @@ describe('record-count mutation hook cache reconciliation', () => {
     seedQuery(queryClient, householdKeys.chartRoot());
     seedQuery(queryClient, householdKeys.budgetRoot());
 
-    usePostRecordMutation();
-    await latestMutation<Record<string, never>>().onSuccess?.(
-      { statusCode: 200 },
-      {},
-    );
+    await invalidatePersonalRecordEditorCaches(queryClient);
 
     expect(queryClient.getQueryState(budgetKeys.infoRoot())?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(householdKeys.recordRoot())?.isInvalidated).toBe(true);
@@ -123,6 +118,19 @@ describe('record-count mutation hook cache reconciliation', () => {
     );
 
     expect(queryClient.getQueryState(ledgerKeys.navigation())?.isInvalidated).toBe(false);
+  });
+
+  it('invalidates navigation counts after a successful custom update', async () => {
+    const queryClient = reactQueryMocks.queryClient;
+    seedQuery(queryClient, ledgerKeys.navigation());
+
+    useUpdateLedgerRecordMutation();
+    await latestMutation<{ ledgerId: string }>().onSuccess?.(
+      { statusCode: 200 },
+      { ledgerId: 'ledger-a' },
+    );
+
+    expect(queryClient.getQueryState(ledgerKeys.navigation())?.isInvalidated).toBe(true);
   });
 
   it('reuses personal delete success invalidations on 409', async () => {

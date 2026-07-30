@@ -1,4 +1,5 @@
 import type { RecordDraft, RecordEditorReturnContext } from '@/features/record-editor';
+import { useQueryClient } from '@tanstack/react-query';
 import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useCallback, useMemo } from 'react';
@@ -9,6 +10,7 @@ import {
   usePutRecordMutation,
 } from '@/entities/record';
 import {
+  invalidatePersonalRecordEditorCaches,
   isLegacyRecordEditorState,
   isRecordEditorLocationState,
   RecordEditorPresentation,
@@ -30,6 +32,7 @@ function BookkeepingPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const [postRecord, postState] = usePostRecordMutation();
   const [putRecord, putState] = usePutRecordMutation();
   const selectTime = getValidSelectTime(searchParams.get('selectTime'));
@@ -95,17 +98,26 @@ function BookkeepingPage() {
         : await postRecord(draft);
       if (response.statusCode !== 200)
         throw response;
+      await invalidatePersonalRecordEditorCaches(queryClient);
       Toast.show({ content: response.message, icon: 'success' });
       navigateToReturnContext(returnContext, draft);
     }
-    catch {
-      Toast.show({ content: t('bookkeeping.saveFailed'), icon: 'fail' });
+    catch (error) {
+      const isConflict = typeof error === 'object'
+        && error !== null
+        && 'statusCode' in error
+        && error.statusCode === 409;
+      Toast.show({
+        content: t(isConflict ? 'bookkeeping.conflict' : 'bookkeeping.saveFailed'),
+        icon: 'fail',
+      });
     }
   }, [
     initialRecord,
     navigateToReturnContext,
     postRecord,
     putRecord,
+    queryClient,
     returnContext,
     t,
   ]);

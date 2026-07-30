@@ -1,6 +1,7 @@
 import type { Ledger } from '@/entities/ledger';
 import type { RecordEntry } from '@/entities/record';
 import type { RecordDraft } from '@/features/record-editor';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Button,
   ErrorBlock,
@@ -18,6 +19,7 @@ import {
 } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import {
+  invalidateLedgerRecordEditorCaches,
   RecordEditorPresentation,
   useRecordEditorController,
 } from '@/features/record-editor';
@@ -41,6 +43,7 @@ function LedgerRecordEditEditor({
 }: LedgerRecordEditEditorProps) {
   const { t } = useTranslation('ledger');
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [updateRecord, updateState] = useUpdateLedgerRecordMutation();
   const seed = useMemo(() => ({
     amount: initialRecord.amount,
@@ -57,6 +60,7 @@ function LedgerRecordEditEditor({
         ledgerId,
         recordId,
       });
+      await invalidateLedgerRecordEditorCaches(queryClient, ledgerId);
       Toast.show({ content: response.message || t('records.saved'), icon: 'success' });
       navigate(ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId), { replace: true });
     }
@@ -70,7 +74,7 @@ function LedgerRecordEditEditor({
         icon: 'fail',
       });
     }
-  }, [initialRecord.version, ledgerId, navigate, recordId, t, updateRecord]);
+  }, [initialRecord.version, ledgerId, navigate, queryClient, recordId, t, updateRecord]);
   const controller = useRecordEditorController({
     onSubmit: handleSubmit,
     onValidationError: (error) => {
@@ -83,6 +87,9 @@ function LedgerRecordEditEditor({
   const categoryQuery = useLedgerCategoriesQuery({
     params: { ledgerId, type: controller.recordType },
   });
+  const navigateToDetail = useCallback(() => {
+    navigate(ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId), { replace: true });
+  }, [ledgerId, navigate, recordId]);
 
   return (
     <RecordEditorPresentation
@@ -94,7 +101,7 @@ function LedgerRecordEditEditor({
         ...controller,
         isSubmitting: controller.isSubmitting || updateState.isLoading,
       }}
-      onCancel={() => navigate(-1)}
+      onCancel={navigateToDetail}
       onRetryCategories={() => void categoryQuery.refetch()}
       tags={tags}
     />

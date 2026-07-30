@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Ledger, LedgerListItem, LedgerTemplate } from '@/entities/ledger';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ActionSheet, Dialog, Modal } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -225,7 +226,12 @@ function renderPage(pathname: string, path: string, element: ReactNode) {
     { element: createElement('div', null, 'custom-detail-target'), path: '/ledgers/:ledgerId' },
     { element: createElement('div', null, 'custom-records-target'), path: '/ledgers/:ledgerId/records' },
   ], { initialEntries: ['/origin', pathname], initialIndex: 1 });
-  act(() => root.render(createElement(RouterProvider, { router })));
+  const queryClient = new QueryClient();
+  act(() => root.render(createElement(
+    QueryClientProvider,
+    { client: queryClient },
+    createElement(RouterProvider, { router }),
+  )));
   cleanup = () => {
     act(() => root.unmount());
     container.remove();

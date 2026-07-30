@@ -699,7 +699,7 @@ describe('household calendar', () => {
   });
 
   it('loads records for the selected API calendar date', async () => {
-    const { container } = renderPage(
+    const { container, router } = renderPage(
       '/households/household%2Fa/calendar?month=2026-07-01',
       '/households/:householdId/calendar',
       createElement(HouseholdCalendarPage),
@@ -713,6 +713,8 @@ describe('household calendar', () => {
       },
       queryOptions: { enabled: true },
     });
+    expect(router.state.location.search).toMatch(/^\?selectTime=\d+$/);
+    expect(router.state.location.search).not.toContain('month=');
   });
 
   it('opens the personal editor with a safe household return context', async () => {

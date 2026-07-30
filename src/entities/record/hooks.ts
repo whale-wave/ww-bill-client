@@ -11,9 +11,7 @@ import type { SuccessResponse } from '@/shared/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Toast } from 'antd-mobile';
 import { useEffect, useMemo, useRef } from 'react';
-import { budgetKeys } from '@/entities/budget';
 import { chartKeys } from '@/entities/chart';
-import { householdKeys } from '@/entities/household';
 import { assertSuccessApi, isSuccessApi } from '@/shared/api';
 import { i18n } from '@/shared/i18n';
 import {
@@ -62,7 +60,6 @@ async function invalidateLedgerRecordSuccessCaches(
   const invalidations = [
     queryClient.invalidateQueries({ queryKey: recordKeys.ledgerRoot(ledgerId) }),
     queryClient.invalidateQueries({ queryKey: chartKeys.ledgerRoot(ledgerId) }),
-    queryClient.invalidateQueries({ queryKey: budgetKeys.ledgerRoot(ledgerId) }),
   ];
   if (invalidatesRecordCount)
     invalidations.push(invalidateRecordCountNavigationCache(queryClient));
@@ -141,7 +138,10 @@ export function useLedgerRecordBillQuery(options: {
 
 function useLedgerRecordMutation<TVariables extends { ledgerId: string }>(
   mutationFn: (variables: TVariables) => Promise<SuccessResponse<unknown>>,
-  invalidatesRecordCount = false,
+  options: {
+    invalidatesRecordCountOnConflict?: boolean;
+    invalidatesRecordCountOnSuccess?: boolean;
+  } = {},
 ) {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
@@ -150,16 +150,16 @@ function useLedgerRecordMutation<TVariables extends { ledgerId: string }>(
       await invalidateLedgerRecordSuccessCaches(
         queryClient,
         variables.ledgerId,
-        invalidatesRecordCount,
+        options.invalidatesRecordCountOnSuccess ?? false,
       );
     },
     onError: async (error, variables) => {
       if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409) {
-        if (invalidatesRecordCount) {
+        if (options.invalidatesRecordCountOnConflict) {
           await invalidateLedgerRecordSuccessCaches(
             queryClient,
             variables.ledgerId,
-            invalidatesRecordCount,
+            true,
           );
           return;
         }
@@ -174,7 +174,10 @@ export function useCreateLedgerRecordMutation() {
   return useLedgerRecordMutation((options: {
     ledgerId: string;
     data: Parameters<typeof postLedgerRecordApi>[1];
-  }) => postLedgerRecordApi(options.ledgerId, options.data).then(assertSuccessApi), true);
+  }) => postLedgerRecordApi(options.ledgerId, options.data).then(assertSuccessApi), {
+    invalidatesRecordCountOnConflict: true,
+    invalidatesRecordCountOnSuccess: true,
+  });
 }
 
 export function useUpdateLedgerRecordMutation() {
@@ -182,12 +185,17 @@ export function useUpdateLedgerRecordMutation() {
     ledgerId: string;
     recordId: string;
     data: Parameters<typeof putLedgerRecordApi>[2];
-  }) => putLedgerRecordApi(options.ledgerId, options.recordId, options.data).then(assertSuccessApi));
+  }) => putLedgerRecordApi(options.ledgerId, options.recordId, options.data).then(assertSuccessApi), {
+    invalidatesRecordCountOnSuccess: true,
+  });
 }
 
 export function useDeleteLedgerRecordMutation() {
   return useLedgerRecordMutation((options: { ledgerId: string; recordId: string; version: number }) =>
-    deleteLedgerRecordApi(options.ledgerId, options.recordId, options.version).then(assertSuccessApi), true);
+    deleteLedgerRecordApi(options.ledgerId, options.recordId, options.version).then(assertSuccessApi), {
+    invalidatesRecordCountOnConflict: true,
+    invalidatesRecordCountOnSuccess: true,
+  });
 }
 
 export function useGetRecordByIdQuery(options?: {
@@ -338,11 +346,6 @@ async function invalidatePersonalRecordCaches(
     queryClient.invalidateQueries({ queryKey: recordKeys.lists() }),
     queryClient.invalidateQueries({ queryKey: recordKeys.bills() }),
     queryClient.invalidateQueries({ queryKey: chartKeys.all }),
-    queryClient.invalidateQueries({ queryKey: budgetKeys.infoRoot() }),
-    queryClient.invalidateQueries({ queryKey: householdKeys.recordRoot() }),
-    queryClient.invalidateQueries({ queryKey: householdKeys.calendarRoot() }),
-    queryClient.invalidateQueries({ queryKey: householdKeys.chartRoot() }),
-    queryClient.invalidateQueries({ queryKey: householdKeys.budgetRoot() }),
     invalidateRecordCountNavigationCache(queryClient),
   ];
   if (recordId) {

@@ -38,13 +38,69 @@ export interface RecordEditorLocationState {
   };
 }
 
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.length > 0;
+}
+
+function isPositiveInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value > 0;
+}
+
+function isValidSelectTime(value: unknown): value is number {
+  return typeof value === 'number'
+    && Number.isFinite(value)
+    && !Number.isNaN(new Date(value).valueOf());
+}
+
+function isRecordEditorReturnContext(value: unknown): value is RecordEditorReturnContext {
+  if (typeof value !== 'object' || value === null || !('kind' in value))
+    return false;
+
+  switch (value.kind) {
+    case 'history':
+      return true;
+    case 'personal-calendar':
+      return 'selectTime' in value && isValidSelectTime(value.selectTime);
+    case 'personal-detail':
+      return 'recordId' in value && isPositiveInteger(value.recordId);
+    case 'custom-calendar':
+      return 'ledgerId' in value
+        && isNonEmptyString(value.ledgerId)
+        && 'selectTime' in value
+        && isValidSelectTime(value.selectTime);
+    case 'custom-records':
+      return 'ledgerId' in value && isNonEmptyString(value.ledgerId);
+    case 'custom-detail':
+      return 'ledgerId' in value
+        && isNonEmptyString(value.ledgerId)
+        && 'recordId' in value
+        && isPositiveInteger(value.recordId);
+    case 'household-calendar':
+      return 'householdId' in value
+        && isNonEmptyString(value.householdId)
+        && 'selectTime' in value
+        && isValidSelectTime(value.selectTime);
+    case 'household-detail':
+      return 'householdId' in value
+        && isNonEmptyString(value.householdId)
+        && 'recordId' in value
+        && isPositiveInteger(value.recordId);
+    default:
+      return false;
+  }
+}
+
 export function isRecordEditorLocationState(value: unknown): value is RecordEditorLocationState {
   if (typeof value !== 'object' || value === null || !('recordEditor' in value))
     return false;
   const editor = value.recordEditor;
   return typeof editor === 'object'
     && editor !== null
-    && 'returnContext' in editor;
+    && 'returnContext' in editor
+    && isRecordEditorReturnContext(editor.returnContext)
+    && (!('initialRecord' in editor)
+      || editor.initialRecord === undefined
+      || isLegacyRecordEditorState(editor.initialRecord));
 }
 
 export function isLegacyRecordEditorState(value: unknown): value is RecordEntry {

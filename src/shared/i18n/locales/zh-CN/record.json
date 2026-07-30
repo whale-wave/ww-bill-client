@@ -10,6 +10,8 @@
     "category": "分类",
     "chooseCategory": "选择分类",
     "saveSuccess": "保存成功",
+    "saveFailed": "保存失败，请重试",
+    "conflict": "记录已在其他位置更新，请刷新后重试",
     "selectTime": "时间选择",
     "complete": "完成"
   },

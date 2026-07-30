@@ -10,6 +10,8 @@
     "category": "Category",
     "chooseCategory": "Please select a category",
     "saveSuccess": "Saved successfully",
+    "saveFailed": "Unable to save the record",
+    "conflict": "This record changed elsewhere. Refresh and try again.",
     "complete": "Done",
     "selectTime": "Select Time"
   },

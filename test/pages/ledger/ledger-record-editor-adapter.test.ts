@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -13,6 +14,10 @@ const hooks = vi.hoisted(() => ({
   useLedgerPreferencesQuery: vi.fn(),
   useLedgerRecordQuery: vi.fn(),
   useLedgerTagsQuery: vi.fn(),
+}));
+const scope = vi.hoisted(() => ({
+  blockedCapabilities: [] as LedgerCapability[],
+  capabilities: [] as LedgerCapability[],
 }));
 
 vi.mock('@/entities/category', async importOriginal => ({
@@ -37,21 +42,20 @@ vi.mock('@/entities/record', async importOriginal => ({
 }));
 
 vi.mock('@/features/ledger-scope', () => ({
-  LedgerScopeBoundary: ({ children }: {
+  LedgerScopeBoundary: ({ capability, children }: {
+    capability: LedgerCapability;
     children: (scope: {
       ledger: { capabilities: LedgerCapability[] };
       ledgerId: string;
     }) => unknown;
-  }) => children({
-    ledger: {
-      capabilities: [
-        LedgerCapability.RECORD_CREATE,
-        LedgerCapability.RECORD_UPDATE,
-        LedgerCapability.TAG_READ,
-      ],
-    },
-    ledgerId: 'ledger/a',
-  }),
+  }) => scope.blockedCapabilities.includes(capability)
+    ? null
+    : children({
+        ledger: {
+          capabilities: scope.capabilities,
+        },
+        ledgerId: 'ledger/a',
+      }),
 }));
 
 vi.mock('@/shared/i18n', () => ({
@@ -64,8 +68,28 @@ vi.mock('@/shared/ui', () => ({
 
 let cleanup: (() => void) | undefined;
 
+function renderRouter(router: ReturnType<typeof createMemoryRouter>) {
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+  const root = createRoot(container);
+  const queryClient = new QueryClient();
+  act(() => root.render(createElement(
+    QueryClientProvider,
+    { client: queryClient },
+    createElement(RouterProvider, { router }),
+  )));
+  cleanup = () => act(() => root.unmount());
+  return container;
+}
+
 beforeEach(() => {
   Object.values(hooks).forEach(mock => mock.mockReset());
+  scope.blockedCapabilities = [];
+  scope.capabilities = [
+    LedgerCapability.RECORD_CREATE,
+    LedgerCapability.RECORD_UPDATE,
+    LedgerCapability.TAG_READ,
+  ];
   hooks.createRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
   hooks.updateRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
   hooks.useLedgerPreferencesQuery.mockReturnValue({
@@ -125,6 +149,38 @@ afterEach(() => {
 });
 
 describe('custom ledger record editor adapter', () => {
+  it.each([
+    {
+      blockedCapability: LedgerCapability.RECORD_CREATE,
+      initialEntry: '/ledgers/ledger%2Fa/records/new',
+      page: createElement(LedgerRecordCreatePage),
+      path: '/ledgers/:ledgerId/records/new',
+    },
+    {
+      blockedCapability: LedgerCapability.RECORD_UPDATE,
+      initialEntry: '/ledgers/ledger%2Fa/records/7/edit',
+      page: createElement(LedgerRecordEditPage),
+      path: '/ledgers/:ledgerId/records/:recordId/edit',
+    },
+  ])('does not mount scoped queries when $blockedCapability is denied', ({
+    blockedCapability,
+    initialEntry,
+    page,
+    path,
+  }) => {
+    scope.blockedCapabilities = [blockedCapability];
+    const router = createMemoryRouter([
+      { element: page, path },
+    ], { initialEntries: [initialEntry] });
+
+    renderRouter(router);
+
+    expect(hooks.useLedgerPreferencesQuery).not.toHaveBeenCalled();
+    expect(hooks.useLedgerCategoriesQuery).not.toHaveBeenCalled();
+    expect(hooks.useLedgerTagsQuery).not.toHaveBeenCalled();
+    expect(hooks.useLedgerRecordQuery).not.toHaveBeenCalled();
+  });
+
   it('uses preference, scoped data, tags and calendar return without changing the presentation', async () => {
     const selectTime = new Date('2026-07-22T12:00:00.000Z').valueOf();
     const router = createMemoryRouter([
@@ -139,11 +195,7 @@ describe('custom ledger record editor adapter', () => {
     ], {
       initialEntries: [`/ledgers/ledger%2Fa/records/new?selectTime=${selectTime}`],
     });
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    const root = createRoot(container);
-    act(() => root.render(createElement(RouterProvider, { router })));
-    cleanup = () => act(() => root.unmount());
+    const container = renderRouter(router);
 
     expect(container.querySelector('[data-record-editor-presentation]')).not.toBeNull();
     expect(hooks.useLedgerCategoriesQuery).toHaveBeenLastCalledWith(expect.objectContaining({
@@ -174,6 +226,28 @@ describe('custom ledger record editor adapter', () => {
     expect(router.state.location.search).toBe(`?selectTime=${selectTime}`);
   });
 
+  it('does not expose or request tags without TAG_READ capability', () => {
+    scope.capabilities = [
+      LedgerCapability.RECORD_CREATE,
+      LedgerCapability.RECORD_UPDATE,
+    ];
+    const router = createMemoryRouter([
+      {
+        path: '/ledgers/:ledgerId/records/new',
+        element: createElement(LedgerRecordCreatePage),
+      },
+    ], {
+      initialEntries: ['/ledgers/ledger%2Fa/records/new'],
+    });
+    const container = renderRouter(router);
+
+    expect(hooks.useLedgerTagsQuery).toHaveBeenCalledWith(expect.objectContaining({
+      queryOptions: { enabled: false },
+    }));
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="2"]')?.click());
+    expect(container.querySelector('[data-record-editor-tag-trigger]')).toBeNull();
+  });
+
   it('uses the same editor for updates and keeps the loaded optimistic version', async () => {
     const router = createMemoryRouter([
       {
@@ -187,11 +261,7 @@ describe('custom ledger record editor adapter', () => {
     ], {
       initialEntries: ['/ledgers/ledger%2Fa/records/7/edit'],
     });
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    const root = createRoot(container);
-    act(() => root.render(createElement(RouterProvider, { router })));
-    cleanup = () => act(() => root.unmount());
+    const container = renderRouter(router);
 
     expect(container.querySelector('[data-record-editor-presentation]')).not.toBeNull();
     await act(async () => {
@@ -210,5 +280,52 @@ describe('custom ledger record editor adapter', () => {
       recordId: '7',
     });
     expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/records/7');
+  });
+
+  it('returns directly to the scoped record detail when an edit is cancelled', () => {
+    const router = createMemoryRouter([
+      {
+        path: '/ledgers/:ledgerId/records/:recordId/edit',
+        element: createElement(LedgerRecordEditPage),
+      },
+      {
+        path: '/ledgers/:ledgerId/records/:recordId',
+        element: createElement('div', null, 'detail'),
+      },
+    ], {
+      initialEntries: ['/ledgers/ledger%2Fa/records/7/edit'],
+    });
+    const container = renderRouter(router);
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-cancel]')?.click());
+
+    expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/records/7');
+  });
+
+  it.each([
+    { statusCode: 409 },
+    { statusCode: 500 },
+  ])('keeps the editor open when an update fails with $statusCode', async (error) => {
+    hooks.updateRecord.mockRejectedValue(error);
+    const router = createMemoryRouter([
+      {
+        path: '/ledgers/:ledgerId/records/:recordId/edit',
+        element: createElement(LedgerRecordEditPage),
+      },
+      {
+        path: '/ledgers/:ledgerId/records/:recordId',
+        element: createElement('div', null, 'detail'),
+      },
+    ], {
+      initialEntries: ['/ledgers/ledger%2Fa/records/7/edit'],
+    });
+    const container = renderRouter(router);
+
+    await act(async () => {
+      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      await Promise.resolve();
+    });
+
+    expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/records/7/edit');
   });
 });

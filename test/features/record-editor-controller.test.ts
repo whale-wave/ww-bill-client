@@ -48,9 +48,13 @@ function Editor({ amount, remark }: { amount?: string; remark?: string }) {
 
 function renderEditor(props: { amount?: string; remark?: string } = {}) {
   const container = document.createElement('div');
+  document.body.appendChild(container);
   const root = createRoot(container);
   act(() => root.render(createElement(Editor, props)));
-  cleanup = () => act(() => root.unmount());
+  cleanup = () => {
+    act(() => root.unmount());
+    container.remove();
+  };
   return container;
 }
 
@@ -106,12 +110,53 @@ describe('record editor controller', () => {
     expect(submit).toHaveBeenCalledWith(expect.objectContaining({ amount: '6' }));
   });
 
+  it('resets the selected category when the record type changes', () => {
+    const container = renderEditor();
+
+    clickButton(container, 'record:bookkeeping.income');
+
+    expect(container.querySelector('[data-record-editor-keypad]')).toBeNull();
+    expect(container.querySelector('[data-record-editor-category="1"]')?.getAttribute('aria-pressed'))
+      .toBe('false');
+  });
+
+  it('hides numeric keys while the note input is focused', () => {
+    const container = renderEditor();
+    const input = container.querySelector<HTMLInputElement>('input[type="text"]');
+
+    act(() => input?.focus());
+
+    expect([...container.querySelectorAll('button')].some(button => button.textContent === '1'))
+      .toBe(false);
+  });
+
+  it('limits decimals to two places and supports deleting the last digit', async () => {
+    const container = renderEditor();
+    clickButton(container, '1');
+    clickButton(container, '.');
+    clickButton(container, '2');
+    clickButton(container, '3');
+    clickButton(container, '4');
+    clickButton(container, 'x');
+    await complete(container);
+
+    expect(submit).toHaveBeenCalledWith(expect.objectContaining({ amount: '1.2' }));
+  });
+
   it('rejects zero, negative and unfinished expressions', async () => {
     const zero = renderEditor();
     clickButton(zero, '1');
     clickButton(zero, '-');
     clickButton(zero, '1');
     await complete(zero);
+    expect(submit).not.toHaveBeenCalled();
+    cleanup?.();
+
+    const negative = renderEditor();
+    clickButton(negative, '1');
+    clickButton(negative, '-');
+    clickButton(negative, '2');
+    await complete(negative);
     expect(submit).not.toHaveBeenCalled();
     cleanup?.();
 
@@ -144,5 +189,18 @@ describe('record editor controller', () => {
     });
 
     expect(submit).toHaveBeenCalledTimes(1);
+  });
+
+  it('removes the context-menu guard when the editor unmounts', () => {
+    renderEditor();
+    const mountedEvent = new MouseEvent('contextmenu', { cancelable: true });
+    document.dispatchEvent(mountedEvent);
+    expect(mountedEvent.defaultPrevented).toBe(true);
+
+    cleanup?.();
+    cleanup = undefined;
+    const unmountedEvent = new MouseEvent('contextmenu', { cancelable: true });
+    document.dispatchEvent(unmountedEvent);
+    expect(unmountedEvent.defaultPrevented).toBe(false);
   });
 });

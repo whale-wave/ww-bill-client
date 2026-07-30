@@ -64,6 +64,10 @@ describe('record editor presentation', () => {
 
     expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-category="1"]')?.getAttribute('aria-pressed')).toBe('true');
+    expect(container.querySelector('main')?.classList).toContain('pb-[224px]');
+    expect(container.querySelector('main')?.classList).not.toContain('pb-[38px]');
+    expect(container.querySelector('[data-record-editor-category="1"] span')?.classList)
+      .toContain('bg-primary');
   });
 
   it('keeps tags as an optional fixed entry instead of a separate form layout', () => {
@@ -77,5 +81,14 @@ describe('record editor presentation', () => {
     expect(container.querySelector('[data-record-editor-tag-trigger]')).not.toBeNull();
     expect(container.querySelector('form')).toBeNull();
     expect(container.querySelector('input[type="date"]')).toBeNull();
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-tag-trigger]')?.click());
+    const tag = [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === '聚餐');
+    act(() => tag?.click());
+
+    expect(tag?.getAttribute('aria-pressed')).toBe('true');
+    expect(tag?.classList).toContain('bg-primary');
+    expect(tag?.classList).not.toContain('bg-white');
   });
 });

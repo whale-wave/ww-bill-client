@@ -86,10 +86,9 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       </header>
 
       <main
-        className={cn(
-          'flex-grow overflow-auto pb-[38px]',
-          showNumericKeypad && 'pb-[224px]',
-        )}
+        className={showNumericKeypad
+          ? 'flex-grow overflow-auto pb-[224px]'
+          : 'flex-grow overflow-auto pb-[38px]'}
       >
         {categoryState === 'loading' && (
           <div className="flex min-h-[240px] items-center justify-center">
@@ -119,8 +118,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               >
                 <span
                   className={cn(
-                    'mb-[5px] flex size-[55px] items-center justify-center overflow-hidden rounded-full bg-[#cccc]',
-                    controller.selectedCategory?.id === category.id && 'bg-primary',
+                    'mb-[5px] flex size-[55px] items-center justify-center overflow-hidden rounded-full',
+                    controller.selectedCategory?.id === category.id
+                      ? 'bg-primary'
+                      : 'bg-[#cccc]',
                   )}
                 >
                   <Icon className="text-[30px]" name={category.icon} />
@@ -181,8 +182,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 {KEYPAD_LAYOUT.map((item, index) => (
                   <button
                     className={cn(
-                      'flex h-[46.5px] w-1/3 items-center justify-center border-0 border-r border-t border-solid border-[#ccc] bg-[#f3f3f3] text-xl font-normal text-[#333233]',
-                      controller.activeKeyIndex === index && 'bg-[#c5c5c5]',
+                      'flex h-[46.5px] w-1/3 items-center justify-center border-0 border-r border-t border-solid border-[#ccc] text-xl font-normal text-[#333233]',
+                      controller.activeKeyIndex === index
+                        ? 'bg-[#c5c5c5]'
+                        : 'bg-[#f3f3f3]',
                     )}
                     key={String(item.keys)}
                     onClick={() => controller.handleKeyClick(item.keys)}
@@ -214,8 +217,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 {['+', '-'].map((operator, index) => (
                   <button
                     className={cn(
-                      'flex h-[46.5px] items-center justify-center border-0 border-t border-solid border-[#ccc] bg-transparent text-base',
-                      controller.activeSideIndex === index + 1 && 'bg-[#c5c5c5]',
+                      'flex h-[46.5px] items-center justify-center border-0 border-t border-solid border-[#ccc] text-base',
+                      controller.activeSideIndex === index + 1
+                        ? 'bg-[#c5c5c5]'
+                        : 'bg-transparent',
                     )}
                     key={operator}
                     onClick={() => controller.handleOperatorClick(operator)}
@@ -270,8 +275,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             <button
               aria-pressed={controller.selectedTagIds.includes(tag.id)}
               className={cn(
-                'min-h-[36px] rounded-[4px] border border-solid border-[#EBEBEB] bg-white px-3 text-sm',
-                controller.selectedTagIds.includes(tag.id) && 'border-primary bg-primary',
+                'min-h-[36px] rounded-[4px] border border-solid px-3 text-sm',
+                controller.selectedTagIds.includes(tag.id)
+                  ? 'border-primary bg-primary'
+                  : 'border-[#EBEBEB] bg-white',
               )}
               key={tag.id}
               onClick={() => controller.handleToggleTag(tag.id)}

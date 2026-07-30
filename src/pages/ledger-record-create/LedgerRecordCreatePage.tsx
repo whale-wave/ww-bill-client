@@ -1,5 +1,6 @@
 import type { Ledger } from '@/entities/ledger';
 import type { RecordDraft } from '@/features/record-editor';
+import { useQueryClient } from '@tanstack/react-query';
 import { SpinLoading, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useCallback, useMemo } from 'react';
@@ -14,6 +15,7 @@ import { useLedgerTagsQuery } from '@/entities/ledger-data';
 import { useCreateLedgerRecordMutation } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import {
+  invalidateLedgerRecordEditorCaches,
   RecordEditorPresentation,
   useRecordEditorController,
 } from '@/features/record-editor';
@@ -43,6 +45,7 @@ function LedgerRecordCreateEditor({
   const { t } = useTranslation('ledger');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const selectTime = getValidSelectTime(searchParams.get('selectTime'));
   const [createRecord, createState] = useCreateLedgerRecordMutation();
   const seed = useMemo(() => ({
@@ -59,13 +62,14 @@ function LedgerRecordCreateEditor({
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
     try {
       const response = await createRecord({ data: draft, ledgerId });
+      await invalidateLedgerRecordEditorCaches(queryClient, ledgerId);
       Toast.show({ content: response.message || t('records.saved'), icon: 'success' });
       navigateAfterCreate();
     }
     catch {
       Toast.show({ content: t('records.saveFailed'), icon: 'fail' });
     }
-  }, [createRecord, ledgerId, navigateAfterCreate, t]);
+  }, [createRecord, ledgerId, navigateAfterCreate, queryClient, t]);
   const controller = useRecordEditorController({
     onSubmit: handleSubmit,
     onValidationError: (error) => {
