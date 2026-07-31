@@ -17,10 +17,7 @@ import {
   useRecordSearchController,
   validateRecordSearchState,
 } from '@/features/record-search';
-import {
-  useWorkspaceBack,
-  WorkspaceCapsule,
-} from '@/features/workspace-navigation';
+import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 
@@ -88,7 +85,6 @@ function ScopedLedgerSearch({
 
   return (
     <RecordSearchPresentation
-      capsule={<WorkspaceCapsule scope={{ capabilities, ledgerId, type: 'custom' }} />}
       errorDescription={t('common.loadErrorDescription')}
       filterCapabilities={{
         category: optionsQuery.data.capabilities.category,

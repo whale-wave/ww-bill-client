@@ -16,7 +16,6 @@ import {
   formatMonthStart,
 } from '@/features/household';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
-import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
@@ -151,15 +150,6 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
       errorTitle={t('common.loadError')}
       groups={groups}
       header={{
-        actions: (
-          <WorkspaceCapsule
-            scope={{
-              capabilities: ledger.capabilities,
-              ledgerId,
-              type: 'custom',
-            }}
-          />
-        ),
         metrics: [
           {
             key: 'income',

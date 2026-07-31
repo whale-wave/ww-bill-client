@@ -23,6 +23,7 @@ export interface RecordDetailPresentationProps {
     name: string;
   };
   footerActions?: readonly RecordDetailAction[];
+  navigationRight?: ReactNode;
   onBack: () => void;
   pinnedAction?: RecordDetailAction;
   rows: readonly RecordDetailRow[];
@@ -35,6 +36,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
   backLabel,
   category,
   footerActions = [],
+  navigationRight,
   onBack,
   pinnedAction,
   rows,
@@ -46,7 +48,14 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
 
   return (
     <div className="page" data-record-detail-presentation>
-      {showNavigation && <NavBar back={backLabel} backArrow={false} onBack={onBack} />}
+      {showNavigation && (
+        <NavBar
+          back={backLabel}
+          backArrow={false}
+          onBack={onBack}
+          right={navigationRight}
+        />
+      )}
       <div className="relative h-[96px] w-full shrink-0 bg-primary" data-record-detail-header>
         <div
           className="absolute left-1/2 top-[8px] z-10 -translate-x-1/2 text-center"

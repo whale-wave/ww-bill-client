@@ -14,10 +14,7 @@ import {
   useRecordSearchController,
   validateRecordSearchState,
 } from '@/features/record-search';
-import {
-  useWorkspaceBack,
-  WorkspaceCapsule,
-} from '@/features/workspace-navigation';
+import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 
@@ -49,7 +46,6 @@ function SearchRecord() {
 
   return (
     <RecordSearchPresentation
-      capsule={<WorkspaceCapsule scope={{ type: 'personal' }} />}
       errorDescription={t('common:api.error')}
       filterCapabilities={{
         category: optionsQuery.data.capabilities.category,

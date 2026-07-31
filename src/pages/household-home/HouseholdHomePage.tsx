@@ -17,7 +17,6 @@ import {
   toHouseholdRecordOverviewGroups,
   toMoney,
 } from '@/features/household';
-import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 
@@ -71,7 +70,6 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
         errorTitle={t('common.loadError')}
         groups={groups}
         header={{
-          actions: <WorkspaceCapsule scope={{ householdId: household.id, type: 'household' }} />,
           metrics: [
             {
               key: 'income',

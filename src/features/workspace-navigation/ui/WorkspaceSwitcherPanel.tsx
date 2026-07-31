@@ -55,7 +55,7 @@ export function WorkspaceSwitcherPanel({
   const householdQuery = useMyHouseholdQuery({
     queryOptions: { enabled: visible },
   });
-  const options = useMemo<WorkspaceOption[]>(() => {
+  const { householdLedgerOptions, myLedgerOptions } = useMemo(() => {
     const personal: WorkspaceOption = {
       description: t('switcher.currentPersonal'),
       icon: Home,
@@ -98,7 +98,10 @@ export function WorkspaceSwitcherPanel({
           },
         }]
       : [];
-    return [personal, ...custom, ...household];
+    return {
+      householdLedgerOptions: household,
+      myLedgerOptions: [personal, ...custom],
+    };
   }, [householdQuery.data, ledgerQuery.data, t]);
   const isLoading = ledgerQuery.isLoading || householdQuery.isLoading;
   const hasSourceError = ledgerQuery.isError || householdQuery.isError;
@@ -112,6 +115,34 @@ export function WorkspaceSwitcherPanel({
   const handleRetry = () => {
     void Promise.all([ledgerQuery.refetch(), householdQuery.refetch()]);
   };
+
+  const renderOptions = (options: WorkspaceOption[]) => options.map((option) => {
+    const OptionIcon = option.icon;
+    const isSelected = isSameScope(option.scope, currentScope);
+    return (
+      <button
+        aria-current={isSelected ? 'page' : undefined}
+        className="flex min-h-[64px] w-full items-center border-0 border-b border-solid border-[#EBEBEB] bg-white px-4 text-left last:border-b-0"
+        data-workspace-option={option.key}
+        key={option.key}
+        onClick={() => handleSelect(option)}
+        type="button"
+      >
+        <span className={cn(
+          'flex size-10 shrink-0 items-center justify-center rounded-full bg-bg-gray text-font-gray',
+          isSelected && 'bg-primary text-font-black',
+        )}
+        >
+          <OptionIcon size={20} />
+        </span>
+        <span className="ml-3 min-w-0 flex-grow">
+          <strong className="block truncate text-base font-medium text-font-black">{option.label}</strong>
+          {option.description && <span className="mt-0.5 block truncate text-xs text-font-gray">{option.description}</span>}
+        </span>
+        {isSelected && <Check aria-label={t('switcher.selected')} className="text-font-black" size={20} />}
+      </button>
+    );
+  });
 
   return (
     <Popup
@@ -136,33 +167,24 @@ export function WorkspaceSwitcherPanel({
               <span>{t('switcher.loading')}</span>
             </div>
           )}
-          {!isLoading && options.map((option) => {
-            const OptionIcon = option.icon;
-            const isSelected = isSameScope(option.scope, currentScope);
-            return (
-              <button
-                aria-current={isSelected ? 'page' : undefined}
-                className="flex min-h-[64px] w-full items-center border-0 border-b border-solid border-[#EBEBEB] bg-white px-4 text-left"
-                data-workspace-option={option.key}
-                key={option.key}
-                onClick={() => handleSelect(option)}
-                type="button"
-              >
-                <span className={cn(
-                  'flex size-10 shrink-0 items-center justify-center rounded-full bg-bg-gray text-font-gray',
-                  isSelected && 'bg-primary text-font-black',
-                )}
-                >
-                  <OptionIcon size={20} />
-                </span>
-                <span className="ml-3 min-w-0 flex-grow">
-                  <strong className="block truncate text-base font-medium text-font-black">{option.label}</strong>
-                  {option.description && <span className="mt-0.5 block truncate text-xs text-font-gray">{option.description}</span>}
-                </span>
-                {isSelected && <Check aria-label={t('switcher.selected')} className="text-font-black" size={20} />}
-              </button>
-            );
-          })}
+          {!isLoading && (
+            <>
+              <section data-workspace-section="my-ledgers">
+                <h3 className="bg-bg-gray px-4 py-2 text-xs font-normal text-font-gray">
+                  {t('switcher.myLedgers')}
+                </h3>
+                {renderOptions(myLedgerOptions)}
+              </section>
+              {householdLedgerOptions.length > 0 && (
+                <section className="border-0 border-t-[10px] border-solid border-bg-gray" data-workspace-section="household-ledger">
+                  <h3 className="bg-bg-gray px-4 py-2 text-xs font-normal text-font-gray">
+                    {t('switcher.householdLedger')}
+                  </h3>
+                  {renderOptions(householdLedgerOptions)}
+                </section>
+              )}
+            </>
+          )}
           {!isLoading && hasSourceError && (
             <button
               className="flex min-h-12 w-full items-center justify-center border-0 bg-bg-gray px-4 text-sm text-font-gray"

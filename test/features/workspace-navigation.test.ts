@@ -1,11 +1,81 @@
-import { describe, expect, it } from 'vitest';
-import { LedgerCapability } from '@/entities/ledger';
+import type { ReactNode } from 'react';
+import { act, createElement } from 'react';
+import { createRoot } from 'react-dom/client';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  LedgerCapability,
+  LedgerKind,
+  LedgerStatus,
+} from '@/entities/ledger';
 import {
   getWorkspaceHomePath,
   getWorkspaceScope,
   isWorkspaceHomePath,
   shouldUseWorkspaceHistoryBack,
+  WorkspaceCapsule,
+  WorkspaceNavHeader,
 } from '@/features/workspace-navigation';
+
+const hooks = vi.hoisted(() => ({
+  useLedgerNavigationQuery: vi.fn(),
+  useMyHouseholdQuery: vi.fn(),
+}));
+
+vi.mock('@/entities/ledger', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/entities/ledger')>()),
+  useLedgerNavigationQuery: hooks.useLedgerNavigationQuery,
+}));
+
+vi.mock('@/entities/household', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/entities/household')>()),
+  useMyHouseholdQuery: hooks.useMyHouseholdQuery,
+}));
+
+let cleanup: (() => void) | undefined;
+
+function renderRoute(element: ReactNode, pathname = '/households/household%2Fa/records/7') {
+  const container = document.createElement('div');
+  const root = createRoot(container);
+  const router = createMemoryRouter([
+    { element, path: '*' },
+    { element: createElement('div', null, 'default-ledger'), path: '/detail' },
+  ], { initialEntries: [pathname] });
+  act(() => root.render(createElement(RouterProvider, { router })));
+  cleanup = () => act(() => root.unmount());
+  return { container, router };
+}
+
+beforeEach(() => {
+  hooks.useLedgerNavigationQuery.mockReturnValue({
+    data: [{
+      activeMemberCount: 3,
+      capabilities: [LedgerCapability.LEDGER_READ, LedgerCapability.RECORD_READ],
+      id: 'ledger/a',
+      kind: LedgerKind.CUSTOM,
+      name: '公司账本',
+      status: LedgerStatus.ACTIVE,
+    }],
+    isError: false,
+    isLoading: false,
+    refetch: vi.fn(),
+  });
+  hooks.useMyHouseholdQuery.mockReturnValue({
+    data: {
+      id: 'household/a',
+      status: 'ACTIVE',
+    },
+    isError: false,
+    isLoading: false,
+    refetch: vi.fn(),
+  });
+});
+
+afterEach(() => {
+  cleanup?.();
+  cleanup = undefined;
+  document.body.innerHTML = '';
+});
 
 describe('workspace navigation', () => {
   it.each([
@@ -40,5 +110,50 @@ describe('workspace navigation', () => {
     expect(shouldUseWorkspaceHistoryBack({ historyIndex: 2, locationKey: 'route-key' })).toBe(true);
     expect(shouldUseWorkspaceHistoryBack({ historyIndex: 0, locationKey: 'default' })).toBe(false);
     expect(shouldUseWorkspaceHistoryBack({ locationKey: 'route-key' })).toBe(true);
+  });
+
+  it('uses the solid-dot action to return to the default ledger', async () => {
+    const { container, router } = renderRoute(createElement(WorkspaceCapsule, {
+      scope: { householdId: 'household/a', type: 'household' },
+    }));
+
+    const returnButton = container.querySelector<HTMLButtonElement>(
+      '[data-workspace-capsule] button[aria-label="返回默认账本"]',
+    );
+    expect(returnButton).not.toBeNull();
+    expect(returnButton?.disabled).toBe(false);
+    expect(returnButton?.querySelector('[data-workspace-home-icon]')?.tagName).toBe('SPAN');
+
+    await act(async () => returnButton?.click());
+    expect(router.state.location.pathname).toBe('/detail');
+    expect(router.state.historyAction).toBe('REPLACE');
+  });
+
+  it('keeps the capsule opt-in instead of adding it to every navigation header', () => {
+    const { container } = renderRoute(createElement(WorkspaceNavHeader, {
+      onBack: vi.fn(),
+      title: '设置',
+    }));
+
+    expect(container.querySelector('[data-workspace-capsule]')).toBeNull();
+    expect(container.querySelector('button[aria-label="返回"]')).not.toBeNull();
+  });
+
+  it('separates personal and custom ledgers from the household ledger', async () => {
+    const { container } = renderRoute(createElement(WorkspaceCapsule, {
+      scope: { householdId: 'household/a', type: 'household' },
+    }));
+
+    await act(async () => container.querySelector<HTMLButtonElement>(
+      '[data-workspace-capsule] button[aria-label="切换账本"]',
+    )?.click());
+
+    const myLedgers = document.body.querySelector('[data-workspace-section="my-ledgers"]');
+    const householdLedger = document.body.querySelector('[data-workspace-section="household-ledger"]');
+    expect(myLedgers?.textContent).toContain('默认账本');
+    expect(myLedgers?.textContent).toContain('公司账本');
+    expect(myLedgers?.textContent).not.toContain('家庭账本');
+    expect(householdLedger?.textContent).toContain('家庭账本');
+    expect(householdLedger?.textContent).not.toContain('公司账本');
   });
 });

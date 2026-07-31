@@ -16,10 +16,7 @@ import {
   useRecordSearchController,
   validateRecordSearchState,
 } from '@/features/record-search';
-import {
-  useWorkspaceBack,
-  WorkspaceCapsule,
-} from '@/features/workspace-navigation';
+import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 
@@ -95,9 +92,6 @@ const SearchContent: FC<{ householdId: string }> = ({ householdId }) => {
 
   return (
     <RecordSearchPresentation
-      capsule={(
-        <WorkspaceCapsule scope={{ householdId, type: 'household' }} />
-      )}
       errorDescription={t('common.loadErrorDescription')}
       filterCapabilities={{
         category: filterOptionsQuery.data.capabilities.category,

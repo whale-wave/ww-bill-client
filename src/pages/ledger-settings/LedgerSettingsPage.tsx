@@ -442,11 +442,6 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
     <div className="page-new overflow-hidden bg-bg-gray">
       <WorkspaceNavHeader
         onBack={onBack}
-        scope={{
-          capabilities: ledger?.capabilities,
-          ledgerId,
-          type: 'custom',
-        }}
         title={t('settings.title')}
       />
       <main className="min-h-0 flex-grow overflow-auto">

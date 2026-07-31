@@ -5,7 +5,6 @@ import { cn } from '@/shared/lib';
 
 export interface RecordSearchHeaderProps {
   autoFocus?: boolean;
-  capsule?: ReactNode;
   filterActive?: boolean;
   filterExpanded?: boolean;
   filterLabel: ReactNode;
@@ -19,7 +18,6 @@ export interface RecordSearchHeaderProps {
 
 export const RecordSearchHeader: FC<RecordSearchHeaderProps> = ({
   autoFocus = true,
-  capsule,
   filterActive = false,
   filterExpanded = false,
   filterLabel,
@@ -50,7 +48,6 @@ export const RecordSearchHeader: FC<RecordSearchHeaderProps> = ({
           <span>返回</span>
         </button>
         <h1 className="max-w-full truncate text-lg font-medium text-font-black">{title}</h1>
-        {capsule && <div className="absolute right-0 top-1/2 -translate-y-1/2">{capsule}</div>}
       </div>
       <div className="flex h-12 items-center rounded-lg bg-white px-3" data-record-search-input>
         <Search className="shrink-0 text-font-gray" size={20} />

@@ -334,7 +334,7 @@ describe('personal ledger workspace integration', () => {
     expect(periodControl?.querySelector('[data-testid="record-month-picker"]')?.tagName).toBe('BUTTON');
     expect(title?.textContent).toContain('鲸浪账本');
     expect(title?.tagName).toBe('H1');
-    expect(container.querySelector('[data-workspace-capsule]')).not.toBeNull();
+    expect(container.querySelector('[data-workspace-capsule]')).toBeNull();
     expect(container.querySelector('[data-testid="record-search-action"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="record-calendar-action"]')).not.toBeNull();
 
@@ -452,7 +452,7 @@ describe('custom ledger workspace integration', () => {
     expect(router.state.location.search).not.toContain('keyword=');
   });
 
-  it('uses the current ledger name, shared capsule, and preserves ledger-scoped tabs', () => {
+  it('uses the current ledger name without a redundant capsule and preserves ledger-scoped tabs', () => {
     hooks.useLedgerRecordsQuery.mockReturnValue({
       data: {
         data: [{
@@ -494,7 +494,7 @@ describe('custom ledger workspace integration', () => {
     expect(first.container.querySelector('.adm-search-bar')).toBeNull();
     expect(first.container.querySelector('.record-overview-title')?.textContent).toContain('家庭旅行账本');
     expect(first.container.querySelector('.record-overview-title')?.tagName).toBe('H1');
-    expect(first.container.querySelector('[data-workspace-capsule]')).not.toBeNull();
+    expect(first.container.querySelector('[data-workspace-capsule]')).toBeNull();
     expect(hooks.useLedgerRecordsQuery).toHaveBeenCalledWith(expect.objectContaining({
       params: {
         filters: {
@@ -518,7 +518,7 @@ describe('custom ledger workspace integration', () => {
     });
     const second = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
     expect(second.container.querySelector('.record-overview-title')?.tagName).toBe('H1');
-    expect(second.container.querySelector('[data-workspace-capsule]')).not.toBeNull();
+    expect(second.container.querySelector('[data-workspace-capsule]')).toBeNull();
   });
 
   it('does not mount the records adapter when record read permission is denied', () => {
@@ -557,13 +557,10 @@ describe('custom ledger workspace integration', () => {
     expect(container.querySelector('[data-record-search-state="error"]')).not.toBeNull();
   });
 
-  it('replaces custom records with personal detail through its title switcher', async () => {
-    const { container, router } = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
+  it('does not add a workspace capsule to the custom records home', () => {
+    const { container } = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
 
-    await click(container.querySelector('[data-workspace-capsule] button[aria-label="切换账本"]'));
-    await click(document.querySelector('[data-workspace-option="personal"]'));
-    expect(router.state.location.pathname).toBe('/detail');
-    expect(router.state.historyAction).toBe('REPLACE');
+    expect(container.querySelector('[data-workspace-capsule]')).toBeNull();
   });
 
   it.each([

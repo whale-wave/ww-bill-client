@@ -7,7 +7,6 @@ import { CalendarDays, Eye, EyeOff, Search, Settings } from 'lucide-react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RecordMonthPicker } from '@/entities/record';
-import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import config from '@/shared/config';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
@@ -61,7 +60,6 @@ export function useRecordOverviewHeader({
   }, [navigate, selectTime]);
 
   return {
-    actions: <WorkspaceCapsule scope={{ type: 'personal' }} />,
     amountToggle: visibleAmountSwitch
       ? {
           content: !visibleAmount ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />,

@@ -95,7 +95,6 @@ const Settings: FC = () => {
     <div className="page-new overflow-hidden bg-bg-gray">
       <WorkspaceNavHeader
         onBack={onBack}
-        scope={{ type: 'personal' }}
         title={t('title')}
       />
       <main className="min-h-0 flex-grow overflow-auto">

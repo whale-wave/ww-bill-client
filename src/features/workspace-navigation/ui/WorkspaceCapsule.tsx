@@ -1,13 +1,10 @@
 import type { WorkspaceScope } from '../model/workspace-scope';
-import { Circle, Ellipsis } from 'lucide-react';
+import { Ellipsis } from 'lucide-react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ROUTES_PATH } from '@/shared/config/routes';
 import { cn } from '@/shared/lib';
-import {
-  getWorkspaceHomePath,
-  getWorkspaceScope,
-  isWorkspaceHomePath,
-} from '../model/workspace-scope';
+import { getWorkspaceScope } from '../model/workspace-scope';
 import { WorkspaceSwitcherPanel } from './WorkspaceSwitcherPanel';
 
 interface WorkspaceCapsuleProps {
@@ -21,10 +18,8 @@ export function WorkspaceCapsule({ className, scope }: WorkspaceCapsuleProps) {
   const [isSwitcherVisible, setIsSwitcherVisible] = useState(false);
   const currentScope = scope ?? getWorkspaceScope(location.pathname);
 
-  const handleHome = () => {
-    if (isWorkspaceHomePath(location.pathname, currentScope))
-      return;
-    navigate(getWorkspaceHomePath(currentScope), { replace: true });
+  const handleReturnPersonal = () => {
+    navigate(ROUTES_PATH.DETAIL.getPath(), { replace: true });
   };
 
   return (
@@ -48,13 +43,16 @@ export function WorkspaceCapsule({ className, scope }: WorkspaceCapsuleProps) {
         </button>
         <span aria-hidden="true" className="h-4 w-px bg-black/15" />
         <button
-          aria-label="返回账本首页"
-          className="flex h-full min-w-0 flex-1 items-center justify-center border-0 bg-transparent disabled:opacity-45"
-          disabled={isWorkspaceHomePath(location.pathname, currentScope)}
-          onClick={handleHome}
+          aria-label="返回默认账本"
+          className="flex h-full min-w-0 flex-1 items-center justify-center border-0 bg-transparent"
+          onClick={handleReturnPersonal}
           type="button"
         >
-          <Circle size={18} strokeWidth={2.4} />
+          <span
+            aria-hidden="true"
+            className="h-[9px] w-[9px] rounded-full bg-current"
+            data-workspace-home-icon
+          />
         </button>
       </div>
       {isSwitcherVisible && (

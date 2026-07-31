@@ -120,6 +120,7 @@ function renderPage(pathname: string, routePath: string, element: ReactNode, pre
     { path: '/households/:householdId/budgets', element: createElement('div', null, 'budgets-target') },
     { path: '/households/:householdId/calendar', element: createElement('div', null, 'calendar-target') },
     { path: '/households/:householdId/settings', element: createElement('div', null, 'settings-target') },
+    { path: '/detail', element: createElement('div', null, 'default-ledger-target') },
     { path: '/bookkeeping', element: createElement('div', null, 'bookkeeping-target') },
     { path: '/ledgers/:ledgerId/records/:recordId', element: createElement('div', null, 'personal-record-target') },
     { path: '/households/:householdId/charts', element: createElement('div', null, 'charts-target') },
@@ -195,7 +196,7 @@ describe('household records', () => {
     expect(title?.classList).toContain('left-5');
     expect(title?.classList).toContain('truncate');
     expect(header?.querySelector('[data-record-overview-metrics]')).not.toBeNull();
-    expect(header?.querySelector('[data-workspace-capsule]')).not.toBeNull();
+    expect(header?.querySelector('[data-workspace-capsule]')).toBeNull();
     expect(header?.querySelector('[data-testid="household-search-action"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-calendar-action"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-record-month-picker"]')?.textContent).toContain('07');
@@ -483,6 +484,22 @@ describe('household records', () => {
     expect(container.querySelectorAll('.bwm-nav-bar')).toHaveLength(1);
     expect(presentation?.querySelector('.bwm-nav-bar')).not.toBeNull();
     expect(presentation?.querySelector('.bwm-nav-bar + [data-record-detail-header]')).not.toBeNull();
+  });
+
+  it('shows the capsule only on household record detail and returns to the default ledger', async () => {
+    const { container, router } = renderPage(
+      '/households/household%2Fa/records/7',
+      '/households/:householdId/records/:recordId',
+      createElement(HouseholdRecordDetailPage),
+    );
+    const capsule = container.querySelector('[data-workspace-capsule]');
+    const returnButton = capsule?.querySelector<HTMLButtonElement>('button[aria-label="返回默认账本"]');
+
+    expect(capsule).not.toBeNull();
+    expect(returnButton?.querySelector('[data-workspace-home-icon]')?.tagName).toBe('SPAN');
+    await act(async () => returnButton?.click());
+    expect(router.state.location.pathname).toBe('/detail');
+    expect(router.state.historyAction).toBe('REPLACE');
   });
 
   it('uses the bill sprite for an uncategorised family record', () => {

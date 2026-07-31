@@ -138,7 +138,6 @@ const HouseholdMembersPage: FC = () => {
     <div className="page-new overflow-hidden bg-bg-gray">
       <WorkspaceNavHeader
         onBack={onBack}
-        scope={{ householdId, type: 'household' }}
         title={t('members.title')}
       />
       <main className="min-h-0 flex-grow overflow-auto">

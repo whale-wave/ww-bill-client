@@ -34,7 +34,6 @@ export interface RecordSearchFilterCapabilities {
 
 interface RecordSearchPresentationProps {
   autoFocus?: boolean;
-  capsule?: ReactNode;
   errorDescription?: ReactNode;
   filterCapabilities?: RecordSearchFilterCapabilities;
   filterOptions?: RecordSearchFilterOptions;
@@ -119,7 +118,6 @@ const FilterRow: FC<FilterRowProps> = ({ children, label }) => (
 
 export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
   autoFocus,
-  capsule,
   errorDescription,
   filterCapabilities = {},
   filterOptions = {},
@@ -169,7 +167,6 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
     <div className="page-new relative overflow-hidden bg-white" data-record-search-page-shell>
       <RecordSearchHeader
         autoFocus={autoFocus}
-        capsule={capsule}
         filterActive={isFilterActive}
         filterExpanded={isFilterVisible}
         filterLabel="筛选"
