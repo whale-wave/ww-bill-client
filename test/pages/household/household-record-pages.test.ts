@@ -196,7 +196,7 @@ describe('household records', () => {
     expect(title?.classList).toContain('left-5');
     expect(title?.classList).toContain('truncate');
     expect(header?.querySelector('[data-record-overview-metrics]')).not.toBeNull();
-    expect(header?.querySelector('[data-workspace-capsule]')).toBeNull();
+    expect(header?.querySelector('[data-workspace-capsule]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-search-action"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-calendar-action"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-record-month-picker"]')?.textContent).toContain('07');
@@ -486,17 +486,27 @@ describe('household records', () => {
     expect(presentation?.querySelector('.bwm-nav-bar + [data-record-detail-header]')).not.toBeNull();
   });
 
-  it('shows the capsule only on household record detail and returns to the default ledger', async () => {
-    const { container, router } = renderPage(
+  it('does not show the workspace capsule on household record detail', () => {
+    const { container } = renderPage(
       '/households/household%2Fa/records/7',
       '/households/:householdId/records/:recordId',
       createElement(HouseholdRecordDetailPage),
     );
-    const capsule = container.querySelector('[data-workspace-capsule]');
-    const returnButton = capsule?.querySelector<HTMLButtonElement>('button[aria-label="返回默认账本"]');
 
-    expect(capsule).not.toBeNull();
-    expect(returnButton?.querySelector('[data-workspace-home-icon]')?.tagName).toBe('SPAN');
+    expect(container.querySelector('[data-workspace-capsule]')).toBeNull();
+  });
+
+  it('returns from the household records home to the default ledger through the capsule', async () => {
+    const { container, router } = renderPage(
+      '/households/household%2Fa',
+      '/households/:householdId',
+      createElement(HouseholdHomePage),
+    );
+    const returnButton = container.querySelector<HTMLButtonElement>(
+      '[data-workspace-capsule] button[aria-label="返回默认账本"]',
+    );
+
+    expect(returnButton).not.toBeNull();
     await act(async () => returnButton?.click());
     expect(router.state.location.pathname).toBe('/detail');
     expect(router.state.historyAction).toBe('REPLACE');

@@ -8,7 +8,6 @@ import { useHouseholdRecordQuery } from '@/entities/household';
 import { RecordDetailPresentation, useDeleteRecordMutation } from '@/entities/record';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { HouseholdPageState, HouseholdScopeBoundary } from '@/features/household';
-import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
@@ -134,9 +133,6 @@ const RecordDetail: FC<{
             },
           ]
         : []}
-      navigationRight={(
-        <WorkspaceCapsule scope={{ householdId, type: 'household' }} />
-      )}
       onBack={() => navigate(-1)}
       pinnedAction={{ label: t('recordDetail.share'), onClick: () => void handleShare() }}
       rows={[

@@ -494,7 +494,7 @@ describe('custom ledger workspace integration', () => {
     expect(first.container.querySelector('.adm-search-bar')).toBeNull();
     expect(first.container.querySelector('.record-overview-title')?.textContent).toContain('家庭旅行账本');
     expect(first.container.querySelector('.record-overview-title')?.tagName).toBe('H1');
-    expect(first.container.querySelector('[data-workspace-capsule]')).toBeNull();
+    expect(first.container.querySelector('[data-workspace-capsule]')).not.toBeNull();
     expect(hooks.useLedgerRecordsQuery).toHaveBeenCalledWith(expect.objectContaining({
       params: {
         filters: {
@@ -518,7 +518,7 @@ describe('custom ledger workspace integration', () => {
     });
     const second = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
     expect(second.container.querySelector('.record-overview-title')?.tagName).toBe('H1');
-    expect(second.container.querySelector('[data-workspace-capsule]')).toBeNull();
+    expect(second.container.querySelector('[data-workspace-capsule]')).not.toBeNull();
   });
 
   it('does not mount the records adapter when record read permission is denied', () => {
@@ -557,10 +557,16 @@ describe('custom ledger workspace integration', () => {
     expect(container.querySelector('[data-record-search-state="error"]')).not.toBeNull();
   });
 
-  it('does not add a workspace capsule to the custom records home', () => {
-    const { container } = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
+  it('returns from the custom records home to the default ledger through the capsule', async () => {
+    const { container, router } = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
+    const returnButton = container.querySelector<HTMLButtonElement>(
+      '[data-workspace-capsule] button[aria-label="返回默认账本"]',
+    );
 
-    expect(container.querySelector('[data-workspace-capsule]')).toBeNull();
+    expect(returnButton).not.toBeNull();
+    await click(returnButton);
+    expect(router.state.location.pathname).toBe('/detail');
+    expect(router.state.historyAction).toBe('REPLACE');
   });
 
   it.each([
