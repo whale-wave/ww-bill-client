@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import type { AssignableLedgerRole } from '@/entities/ledger';
-import { Button, Toast } from 'antd-mobile';
+import { Button, Popup, Toast } from 'antd-mobile';
+import { CheckOutline, RightOutline } from 'antd-mobile-icons';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -13,14 +14,19 @@ import {
 } from '@/entities/ledger';
 import {
   CollaborationQueryState,
-  CollaborationStatusBadge,
   getAssignableRoles,
   getErrorMessage,
-  LedgerUserRow,
+  getLedgerUserDisplayName,
+  LedgerUserAvatar,
 } from '@/features/ledger-collaboration';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { NavBar } from '@/shared/ui';
+import styles from './index.module.scss';
+import {
+  getJoinRequestPermissionGroups,
+  getJoinRequestRoleDescriptionKey,
+} from './model';
 
 const LedgerJoinRequestDetailPage: FC = () => {
   const { t } = useTranslation('ledger');
@@ -43,19 +49,18 @@ const LedgerJoinRequestDetailPage: FC = () => {
   const request = requestsQuery.data.find(item => item.id === requestId);
   const assignableRoles = getAssignableRoles(ledgerQuery.data?.myRole);
   const [assignedRole, setAssignedRole] = useState<AssignableLedgerRole>();
-  const [decisionRemark, setDecisionRemark] = useState('');
+  const [rolePickerOpen, setRolePickerOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [decide, mutation] = useDecideJoinRequestMutation();
   const submittingRef = useRef(false);
-  const effectiveAssignedRole = assignedRole
-    && assignableRoles.includes(assignedRole as never)
-    ? assignedRole
-    : assignableRoles[0];
+  const applicantName = request
+    ? getLedgerUserDisplayName(request.applicant, t('common.unknownUser'))
+    : t('requestDetail.title');
 
   const handleDecision = async (decision: LedgerJoinDecision) => {
     if (!request || submittingRef.current)
       return;
-    if (decision === LedgerJoinDecision.APPROVED && !effectiveAssignedRole) {
+    if (decision === LedgerJoinDecision.APPROVED && !assignedRole) {
       setErrorMessage(t('requestDetail.roleRequired'));
       return;
     }
@@ -65,10 +70,9 @@ const LedgerJoinRequestDetailPage: FC = () => {
       await decide({
         data: {
           ...(decision === LedgerJoinDecision.APPROVED
-            ? { assignedRole: effectiveAssignedRole }
+            ? { assignedRole }
             : {}),
           decision,
-          ...(decisionRemark.trim() ? { decisionRemark: decisionRemark.trim() } : {}),
           version: request.version,
         },
         ledgerId,
@@ -89,13 +93,14 @@ const LedgerJoinRequestDetailPage: FC = () => {
 
   const loading = ledgerQuery.isLoading || (canReview && requestsQuery.isLoading);
   const error = ledgerQuery.isError || (canReview && requestsQuery.isError);
+  const isPending = request?.status === LedgerJoinRequestStatus.PENDING;
 
   return (
     <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
-        {t('requestDetail.title')}
+      <NavBar back={t('common:nav.back')} className={styles.navBar} onBack={() => navigate(-1)}>
+        {applicantName}
       </NavBar>
-      <main className="min-h-0 flex-grow overflow-auto pb-6">
+      <main className={styles.content}>
         {(!ledgerId || !requestId) && (
           <CollaborationQueryState
             description={t('requestDetail.invalidDescription')}
@@ -134,100 +139,130 @@ const LedgerJoinRequestDetailPage: FC = () => {
         )}
         {request && !loading && !error && (
           <>
-            <section className="mt-3 bg-white">
-              <LedgerUserRow
-                fallback={t('common.unknownUser')}
-                secondary={request.applicant.username}
-                trailing={(
-                  <CollaborationStatusBadge
-                    label={t(`joinRequestStatus.${request.status}`)}
-                    status={request.status}
-                  />
-                )}
-                user={request.applicant}
-              />
-              <div className="px-4 py-4">
-                <p className="text-xs text-font-gray">{t('requestDetail.remark')}</p>
-                <p className="mt-2 text-base leading-6 text-font-black">
-                  {request.applicantRemark}
-                </p>
-                <p className="mt-4 text-xs text-font-gray">
-                  {t('requestDetail.createdAt', {
-                    date: new Date(request.createdAt).toLocaleString(),
-                  })}
-                </p>
+            <section className={styles.infoSection}>
+              <div className={styles.infoRow}>
+                <span className={styles.infoLabel}>{t('requestDetail.avatar')}</span>
+                <LedgerUserAvatar size={48} user={request.applicant} />
               </div>
+              <div className={styles.infoRow}>
+                <span className={styles.infoLabel}>{t('requestDetail.remark')}</span>
+                <span className={styles.infoValue}>{request.applicantRemark}</span>
+              </div>
+              {isPending && (
+                <button
+                  className={styles.infoRowButton}
+                  data-testid="join-request-role-row"
+                  disabled={assignableRoles.length === 0}
+                  onClick={() => setRolePickerOpen(true)}
+                  type="button"
+                >
+                  <span className={styles.infoLabel}>{t('requestDetail.assignedRole')}</span>
+                  <span className={styles.roleValue}>
+                    {assignedRole ? t(`role.${assignedRole}`) : t('requestDetail.chooseRole')}
+                    <RightOutline aria-hidden="true" className={styles.arrow} />
+                  </span>
+                </button>
+              )}
             </section>
-            {request.status === LedgerJoinRequestStatus.PENDING
-              ? (
-                  <section className="mt-3 bg-white px-4 py-5">
-                    <label className="block text-sm text-font-black" htmlFor="join-assigned-role">
-                      {t('requestDetail.assignedRole')}
-                    </label>
-                    <select
-                      className="mt-3 h-[48px] w-full rounded border border-solid border-[#EBEBEB] bg-white px-3 text-base"
-                      id="join-assigned-role"
-                      onChange={event => setAssignedRole(event.target.value as AssignableLedgerRole)}
-                      value={effectiveAssignedRole}
-                    >
-                      {assignableRoles.map(role => (
-                        <option key={role} value={role}>{t(`role.${role}`)}</option>
-                      ))}
-                    </select>
-                    <label className="mt-5 block text-sm text-font-black" htmlFor="join-decision-remark">
-                      {t('requestDetail.decisionRemark')}
-                    </label>
-                    <textarea
-                      className="mt-3 min-h-[92px] w-full resize-none box-border rounded border border-solid border-[#EBEBEB] p-3 text-base leading-6 outline-none"
-                      id="join-decision-remark"
-                      maxLength={500}
-                      onChange={event => setDecisionRemark(event.target.value)}
-                      placeholder={t('requestDetail.decisionRemarkPlaceholder')}
-                      value={decisionRemark}
-                    />
-                    {errorMessage && <p className="mt-3 text-sm text-red-500" role="alert">{errorMessage}</p>}
-                    <Button
-                      block
-                      className="mt-6"
-                      color="primary"
-                      disabled={mutation.isLoading || !effectiveAssignedRole}
-                      loading={mutation.isLoading}
-                      onClick={() => handleDecision(LedgerJoinDecision.APPROVED)}
-                    >
-                      {t('requestDetail.approve')}
-                    </Button>
-                    <div className="mt-3 grid grid-cols-2 gap-3">
-                      <Button
-                        disabled={mutation.isLoading}
-                        onClick={() => handleDecision(LedgerJoinDecision.REJECTED)}
-                      >
-                        {t('requestDetail.reject')}
-                      </Button>
-                      <Button
-                        disabled={mutation.isLoading}
-                        onClick={() => handleDecision(LedgerJoinDecision.IGNORED)}
-                      >
-                        {t('requestDetail.ignore')}
-                      </Button>
+
+            {isPending && assignedRole && (
+              <section className={styles.permissionSection}>
+                <h2 className={styles.sectionTitle}>{t('requestDetail.permissionsTitle')}</h2>
+                <div className={styles.permissionList}>
+                  {getJoinRequestPermissionGroups(assignedRole).map(group => (
+                    <div className={styles.permissionRow} key={group.key}>
+                      <span className={styles.permissionTitle}>{t(group.titleKey)}</span>
+                      <span className={styles.permissionDescription}>{t(group.descriptionKey)}</span>
                     </div>
-                  </section>
-                )
-              : (
-                  <section className="mt-3 bg-white px-4 py-5 text-sm leading-6 text-font-gray">
-                    <p>{t('requestDetail.alreadyProcessed')}</p>
-                    {request.assignedRole && (
-                      <p className="mt-2">
-                        {t('requestDetail.resultRole', {
-                          role: t(`role.${request.assignedRole}`),
-                        })}
-                      </p>
-                    )}
-                    {request.decisionRemark && <p className="mt-2">{request.decisionRemark}</p>}
-                  </section>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {!isPending && (
+              <section className={styles.processedSection}>
+                <p>{t('requestDetail.alreadyProcessed')}</p>
+                {request.assignedRole && (
+                  <p>
+                    {t('requestDetail.resultRole', {
+                      role: t(`role.${request.assignedRole}`),
+                    })}
+                  </p>
                 )}
+                {request.decisionRemark && <p>{request.decisionRemark}</p>}
+              </section>
+            )}
           </>
         )}
       </main>
+
+      {request && isPending && !loading && !error && (
+        <footer className={styles.actionBar}>
+          {errorMessage && <p className={styles.error} role="alert">{errorMessage}</p>}
+          <div className={styles.actions}>
+            <Button
+              block
+              className={styles.secondaryAction}
+              data-testid="join-request-ignore"
+              disabled={mutation.isLoading}
+              onClick={() => void handleDecision(LedgerJoinDecision.IGNORED)}
+            >
+              {t('requestDetail.ignore')}
+            </Button>
+            <Button
+              block
+              color="primary"
+              data-testid="join-request-approve"
+              disabled={mutation.isLoading || !assignedRole}
+              loading={mutation.isLoading}
+              onClick={() => void handleDecision(LedgerJoinDecision.APPROVED)}
+            >
+              {t('requestDetail.approve')}
+            </Button>
+          </div>
+        </footer>
+      )}
+
+      <Popup
+        bodyClassName={styles.rolePopup}
+        destroyOnClose
+        onClose={() => setRolePickerOpen(false)}
+        onMaskClick={() => setRolePickerOpen(false)}
+        position="bottom"
+        showCloseButton
+        visible={rolePickerOpen}
+      >
+        <section className={styles.rolePicker} data-testid="join-request-role-popup">
+          <h2 className={styles.rolePickerTitle}>{t('requestDetail.rolePickerTitle')}</h2>
+          <div className={styles.roleOptions} role="listbox">
+            {assignableRoles.map(role => (
+              <button
+                aria-selected={assignedRole === role}
+                className={styles.roleOption}
+                data-testid={`join-request-role-${role}`}
+                key={role}
+                onClick={() => {
+                  setAssignedRole(role);
+                  setErrorMessage('');
+                  setRolePickerOpen(false);
+                }}
+                role="option"
+                type="button"
+              >
+                <span className={styles.roleOptionCopy}>
+                  <span className={styles.roleOptionTitle}>{t(`role.${role}`)}</span>
+                  <span className={styles.roleOptionDescription}>
+                    {t(getJoinRequestRoleDescriptionKey(role))}
+                  </span>
+                </span>
+                {assignedRole === role && (
+                  <CheckOutline aria-label={t('requestDetail.selected')} className={styles.roleCheck} />
+                )}
+              </button>
+            ))}
+          </div>
+        </section>
+      </Popup>
     </div>
   );
 };

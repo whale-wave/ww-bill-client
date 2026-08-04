@@ -151,7 +151,7 @@ beforeEach(() => {
 });
 
 describe('ledger reviewer and member editing pages', () => {
-  it('approves the URL-scoped request with an assignable role and optimistic version', async () => {
+  it('requires an explicit assignable role and previews its permissions before approval', async () => {
     hooks.useLedgerQuery.mockReturnValue({
       data: {
         ...ledger,
@@ -183,18 +183,91 @@ describe('ledger reviewer and member editing pages', () => {
       '/ledgers/:ledgerId/join-requests/:requestId',
       createElement(LedgerJoinRequestDetailPage),
     );
+    expect(container.textContent).toContain('小勇');
+    expect(container.textContent).toContain('requestDetail.avatar');
+    expect(container.textContent).toContain('requestDetail.remark');
+    expect(container.textContent).toContain('我是小勇');
+    expect(container.textContent).toContain('requestDetail.chooseRole');
+    expect(container.querySelector<HTMLButtonElement>('[data-testid="join-request-approve"]')?.disabled)
+      .toBe(true);
+    expect(hooks.decideJoinRequest).not.toHaveBeenCalled();
+
     await act(async () => {
-      [...container.querySelectorAll('button')]
-        .find(button => button.textContent === 'requestDetail.approve')
-        ?.click();
+      container.querySelector<HTMLButtonElement>('[data-testid="join-request-role-row"]')?.click();
+    });
+    expect(document.body.querySelector('[data-testid="join-request-role-popup"]')).not.toBeNull();
+    expect(document.body.querySelector('[data-testid="join-request-role-ADMIN"]')).not.toBeNull();
+    expect(document.body.querySelector('[data-testid="join-request-role-BOOKKEEPER"]')).not.toBeNull();
+    expect(document.body.querySelector('[data-testid="join-request-role-VIEWER"]')).not.toBeNull();
+
+    await act(async () => {
+      document.body.querySelector<HTMLButtonElement>('[data-testid="join-request-role-BOOKKEEPER"]')?.click();
+    });
+    expect(container.textContent).toContain('requestDetail.permissionsTitle');
+    expect(container.textContent).toContain('requestDetail.permissions.browse.description');
+    expect(container.textContent).toContain('requestDetail.permissions.records.description');
+    expect(container.textContent).not.toContain('requestDetail.permissions.budget.description');
+    expect(container.querySelector<HTMLButtonElement>('[data-testid="join-request-approve"]')?.disabled)
+      .toBe(false);
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="join-request-approve"]')?.click();
       await Promise.resolve();
     });
 
     expect(hooks.decideJoinRequest).toHaveBeenCalledWith({
       data: {
-        assignedRole: LedgerRole.ADMIN,
+        assignedRole: LedgerRole.BOOKKEEPER,
         decision: 'APPROVED',
         version: 4,
+      },
+      ledgerId: 'ledger/a',
+      requestId: 'request/a',
+    });
+  });
+
+  it('ignores a pending request without assigning a role', async () => {
+    hooks.useLedgerQuery.mockReturnValue({
+      data: {
+        ...ledger,
+        capabilities: [LedgerCapability.MEMBER_REVIEW],
+      },
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.useLedgerJoinRequestsQuery.mockReturnValue({
+      data: [{
+        applicant: { id: 2, name: '小勇' },
+        applicantRemark: '我是小勇',
+        createdAt: '2026-07-21T00:00:00.000Z',
+        expiresAt: '2026-07-22T00:00:00.000Z',
+        id: 'request/a',
+        ledger: { iconKey: 'custom', id: 'ledger/a', name: '共享账本', themeKey: 'cyan' },
+        status: 'PENDING',
+        updatedAt: '2026-07-21T00:00:00.000Z',
+        version: 5,
+      }],
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.decideJoinRequest.mockResolvedValue({ data: {} });
+    const container = render(
+      '/ledgers/ledger%2Fa/join-requests/request%2Fa',
+      '/ledgers/:ledgerId/join-requests/:requestId',
+      createElement(LedgerJoinRequestDetailPage),
+    );
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="join-request-ignore"]')?.click();
+      await Promise.resolve();
+    });
+
+    expect(hooks.decideJoinRequest).toHaveBeenCalledWith({
+      data: {
+        decision: 'IGNORED',
+        version: 5,
       },
       ledgerId: 'ledger/a',
       requestId: 'request/a',
