@@ -58,4 +58,23 @@ the scope ID before navigation.
 
 Budget presentation ownership and amount-percentage normalization are documented
 in [budget-presentation.md](budget-presentation.md). The household period
-dropdown is route chrome and remains outside scope states.
+dropdown is route chrome and remains outside scope states. Personal, household,
+and scoped-ledger budget routes use `BudgetPageShell` for the same root geometry,
+scrolling behavior, dropdown popup position, and third-party component
+overrides. Scoped-ledger budget mutations and read-only behavior remain
+capability-aware. Personal and scoped-ledger adapters preserve the personal
+summary-first empty state, and the household adapter uses that same full-page
+empty presentation before a summary budget exists. The household route uses the
+same two-item month/year period dropdown as the personal budget route and derives
+the active current-month or current-year API period without adding a separate
+date selector.
+
+The shared detail, overview-header, search, and budget presentation paths use
+Tailwind utilities. Their previous CSS Modules were removed; third-party
+selectors are expressed as scoped Tailwind arbitrary variants on the owning
+component.
+
+The React component inspector and React Query Devtools are disabled by default
+because their floating launchers obscure mobile navigation and can be mistaken
+for application icons. Local development can opt in with
+`VITE_ENABLE_INSPECTOR=true` and `VITE_ENABLE_QUERY_DEVTOOLS=true`.

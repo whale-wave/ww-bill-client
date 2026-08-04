@@ -157,4 +157,3 @@ Acceptance criteria:
   rhythm as `/budget`.
 - Household-specific data and mutations work without any visible or behavioral
   regression on the personal budget route.
-
