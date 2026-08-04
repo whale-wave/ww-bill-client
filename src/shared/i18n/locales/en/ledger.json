@@ -249,9 +249,37 @@
     "invalidDescription": "This link is missing a ledger or request identifier.",
     "notFound": "Request not found",
     "notFoundDescription": "The request may have expired or belong to another ledger.",
+    "avatar": "Avatar",
     "remark": "Request Message",
     "createdAt": "Requested at {{date}}",
-    "assignedRole": "Role After Joining",
+    "assignedRole": "Set This Member's Role",
+    "chooseRole": "Choose",
+    "rolePickerTitle": "Choose This Member's Role",
+    "selected": "Selected",
+    "roleDescriptions": {
+      "ADMIN": "Can record and manage entries, categories, tags, budgets, members, and exports",
+      "BOOKKEEPER": "Can view, add, edit, and delete entries",
+      "VIEWER": "Can only view entries and cannot make changes"
+    },
+    "permissionsTitle": "Permissions After Joining",
+    "permissions": {
+      "browse": {
+        "title": "Viewing",
+        "description": "View entries"
+      },
+      "records": {
+        "title": "Bookkeeping",
+        "description": "Add, edit, and delete entries"
+      },
+      "budget": {
+        "title": "Budgets",
+        "description": "View and set budgets"
+      },
+      "ledgerManagement": {
+        "title": "Ledger Management",
+        "description": "Edit ledger details, categories, tags, members, and export data"
+      }
+    },
     "decisionRemark": "Review Note (Optional)",
     "decisionRemarkPlaceholder": "Up to 500 characters",
     "roleRequired": "Choose a role for the new member",

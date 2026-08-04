@@ -251,9 +251,37 @@
     "invalidDescription": "当前链接缺少账本或申请标识。",
     "notFound": "未找到申请",
     "notFoundDescription": "申请可能已过期或不属于当前账本。",
+    "avatar": "头像",
     "remark": "申请附言",
     "createdAt": "申请于 {{date}}",
-    "assignedRole": "加入后的角色",
+    "assignedRole": "设置该成员的角色",
+    "chooseRole": "请选择",
+    "rolePickerTitle": "点击选择该成员的角色",
+    "selected": "已选择",
+    "roleDescriptions": {
+      "ADMIN": "拥有记账、管理记账、修改类别和标签、管理预算、管理账本成员、导出数据等权限",
+      "BOOKKEEPER": "可以查看、添加、修改和删除记账",
+      "VIEWER": "仅可以查看记账，无任何修改权限"
+    },
+    "permissionsTitle": "加入后的权限",
+    "permissions": {
+      "browse": {
+        "title": "浏览权限",
+        "description": "查看记账"
+      },
+      "records": {
+        "title": "记账权限",
+        "description": "添加新记账、修改记账、删除记账"
+      },
+      "budget": {
+        "title": "预算权限",
+        "description": "查看预算、设置预算"
+      },
+      "ledgerManagement": {
+        "title": "账本管理权限",
+        "description": "修改账本基本信息、记账类别管理、标签管理、成员管理、导出数据"
+      }
+    },
     "decisionRemark": "处理备注（可选）",
     "decisionRemarkPlaceholder": "最多 500 字",
     "roleRequired": "请选择加入后的角色",
