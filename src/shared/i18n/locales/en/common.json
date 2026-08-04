@@ -105,6 +105,7 @@
       "markRead": "Mark read",
       "delete": "Delete",
       "open": "Open",
+      "handle": "Handle >>",
       "unread": "Unread",
       "statusFilter": "Notification status",
       "typeFilter": "Notification type",

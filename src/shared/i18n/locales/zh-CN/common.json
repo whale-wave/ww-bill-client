@@ -169,6 +169,7 @@
       "markRead": "标为已读",
       "delete": "删除",
       "open": "查看",
+      "handle": "去处理 >>",
       "unread": "未读",
       "statusFilter": "通知状态",
       "typeFilter": "通知类型",
