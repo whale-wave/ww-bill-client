@@ -1,67 +1,81 @@
-# `/detail` Ledger Switcher Restoration Visual QA
-
-Date: 2026-08-05
-
-Browser: Codex in-app browser for unauthenticated routing check; authenticated Chrome tab for the rendered `/detail` state
-
-Viewport: 372 × 666 CSS px, device scale factor 1
+# Message and Join Request Design QA
 
 ## Evidence
 
-- Closed-state source visual truth: `/var/folders/hf/1k96vc9n0rb2lmlc91nb64mc0000gn/T/codex-clipboard-e129a5c9-10d8-4c61-80ad-e04fdffb5471.png`
-- Popup-structure source visual truth: `/var/folders/hf/1k96vc9n0rb2lmlc91nb64mc0000gn/T/codex-clipboard-ded12c68-2aac-45df-930f-0631066ee177.png`
-- Closed implementation screenshot: `/tmp/ww-bill-detail-switcher-closed.png`
-- Open implementation screenshot: `/tmp/ww-bill-detail-switcher-open.png`
-- Combined comparison input: `/tmp/ww-bill-detail-switcher-comparison.png`
+- Source visual truth:
+  - `/Users/avan/.codex/attachments/813644f1-e1d2-4f7a-8baf-f045e9524466/image-1.png`
+  - `/Users/avan/.codex/attachments/813644f1-e1d2-4f7a-8baf-f045e9524466/image-2.png`
+  - `/Users/avan/.codex/attachments/813644f1-e1d2-4f7a-8baf-f045e9524466/image-3.png`
+  - `/Users/avan/.codex/attachments/813644f1-e1d2-4f7a-8baf-f045e9524466/image-4.png`
+  - `/Users/avan/.codex/attachments/813644f1-e1d2-4f7a-8baf-f045e9524466/image-5.png`
+  - `/Users/avan/.codex/attachments/813644f1-e1d2-4f7a-8baf-f045e9524466/image-6.png`
+- Browser-rendered implementation screenshots:
+  - `/tmp/ww-bill-design-qa.gJWYu4/message-implementation-final.png`
+  - `/tmp/ww-bill-design-qa.gJWYu4/detail-initial-implementation-final.png`
+  - `/tmp/ww-bill-design-qa.gJWYu4/detail-popup-implementation-centered.png`
+  - `/tmp/ww-bill-design-qa.gJWYu4/detail-viewer-implementation-final.png`
+  - `/tmp/ww-bill-design-qa.gJWYu4/detail-bookkeeper-implementation-final.png`
+  - `/tmp/ww-bill-design-qa.gJWYu4/detail-admin-implementation-final.png`
+- Same-canvas full-view comparisons:
+  - `/tmp/ww-bill-design-qa.gJWYu4/compare-message-final.png`
+  - `/tmp/ww-bill-design-qa.gJWYu4/compare-detail-initial-final.png`
+  - `/tmp/ww-bill-design-qa.gJWYu4/compare-detail-popup-centered-final.png`
+  - `/tmp/ww-bill-design-qa.gJWYu4/compare-detail-viewer-final.png`
+  - `/tmp/ww-bill-design-qa.gJWYu4/compare-detail-bookkeeper-final.png`
+  - `/tmp/ww-bill-design-qa.gJWYu4/compare-detail-admin-final.png`
 
-The closed source and implementation are both 372 × 666 pixels and were compared at 1:1 density. The popup reference is 628 × 1398 pixels and includes a device frame; it was normalized to 372 × 666 only for structural comparison with the 372 × 666 implementation. Its yellow palette and device chrome are reference-product details, not Whale Wave targets.
+## Normalization
 
-## State and Interactions
-
-- Quick switching was enabled in the authenticated runtime.
-- The centered “鲸浪账本” title rendered as a button with a disclosure arrow.
-- Keyboard activation opened the top popup and changed the trigger to its expanded state.
-- The popup rendered “默认账本” first with 74 records and current-item semantics, followed by “公司账本”.
-- “创建账本” and “账本管理” rendered side by side at the popup footer.
-- Search and calendar remained direct top-right actions.
-- The shortcut card contained only “账单”“预算”“资产管家”.
-- The quick-switch-disabled static-title state remains covered by `test/features/ledger-switcher-header.test.ts` without changing the user preference during browser QA.
-- Browser console check returned zero warnings and zero errors.
-
-## Full-view Comparison
-
-The combined comparison shows the original Whale Wave blue theme and spacing retained while applying the requested layout correction: the title is centered, search/calendar are at the upper right, and the shortcut card returns to three items. The open state follows the reference hierarchy—ledger rows, current selection, and two footer actions—while intentionally retaining Whale Wave colors and existing icons.
-
-The authenticated Chrome screenshot contains third-party extension overlays on the far-right edge. They are not app-owned DOM, do not appear in tests or production code, and were excluded from app-level findings.
-
-## Required Fidelity Surfaces
-
-- Fonts and typography: existing system Chinese font stack, sizes, weights, amount styling, and truncation behavior are unchanged; the title inherits the shared header typography.
-- Spacing and layout rhythm: the existing 182px header, statistics geometry, 68px shortcut card, and bottom navigation remain unchanged. Popup rows and two-column footer follow the existing switcher component.
-- Colors and visual tokens: Whale Wave's `--ww-theme-color` blue remains authoritative. The reference app's yellow palette was not copied.
-- Image quality and asset fidelity: no new raster imagery, CSS drawings, inline SVGs, or placeholder assets were introduced. Existing project and icon-library assets remain in use.
-- Copy and content: “鲸浪账本”, “默认账本”, ledger name, record count, “创建账本”, and “账本管理” are correct. Search, calendar, bill, budget, and asset labels remain project-localized.
-
-## Focused-region Comparison
-
-A separate crop was not needed: at the 372px source width, the entire header and popup occupy the full screen width and remain legible in the full-view comparison. The DOM snapshot separately confirmed the popup's dialog/listbox/option semantics and expanded trigger state.
+- Reference pixels: `628 × 1398` for every source image.
+- Reference phone-screen crop: `604 × 1306` from `(12, 75)`, normalized to `375 × 812` for comparison.
+- Implementation viewport and screenshot: `375 × 812` CSS pixels, `deviceScaleFactor: 1`, rendered in the Codex in-app browser at `http://localhost:3233/`.
+- Each comparison image is `750 × 812`: normalized reference on the left and implementation on the right.
+- The reference device status bar, rounded phone frame, and home/device chrome are not app-owned surfaces and were excluded from mismatch severity. The intentional yellow-to-Whale-Wave-blue brand substitution was required by the user.
+- State coverage: message item; role unselected; role picker; viewer; bookkeeper; administrator.
 
 ## Findings
 
-- No actionable P0, P1, or P2 mismatch remains.
-- P3 observation: keyboard activation shows the existing high-contrast focus outline on the selected ledger row. This is an intentional accessibility state and is not visible after ordinary pointer activation.
+No actionable P0, P1, or P2 mismatch remains.
+
+- Fonts and typography: the implementation preserves the reference hierarchy of centered navigation title, compact row labels, secondary descriptions, and reduced metadata. Recent timestamps now read as past time (`4分钟前`) rather than future time.
+- Spacing and layout rhythm: message metadata is stacked like the source; approval information rows, permission captions, vertical permission descriptions, popup height, and action-button spacing follow the normalized source proportions.
+- Colors and tokens: reference yellow is intentionally mapped to `--ww-theme-color`; white surfaces, grey section backgrounds, separators, subdued secondary text, disabled states, and overlay opacity remain equivalent in role.
+- Image quality and asset fidelity: the message item uses the supplied high-resolution Whale Wave app icon; applicant rows use the real API avatar when present and the existing theme-colored user fallback otherwise. No CSS art, emoji, placeholder raster, or handcrafted SVG replaces a source asset.
+- Copy and content: all visible Chinese role names, explanations, permission groups, approval actions, and message action match the source meaning and approved product vocabulary.
+- Icons: existing project and Ant Design Mobile icons provide the back, user, chevron, close, and selected states with consistent stroke weight.
+- Accessibility and behavior: role choices are semantic options, the selected role is announced, approval is disabled until selection, controls retain focus treatment, and the popup supports mask/close behavior.
+
+Focused-region comparison was necessary for the message metadata block, role-picker heading/options, permission-description wrapping, and bottom action spacing; those regions are visible in the six same-canvas comparisons above.
 
 ## Comparison History
 
-- Pass 1: no P0/P1/P2 differences were found after normalizing the viewport and separating the blue-theme source from the popup-structure reference. No visual fix iteration was required.
+### Iteration 1 — blocked
 
-## Implementation Checklist
+- P1: approval actions were fixed to the viewport bottom, while the source places them after the permission content with a consistent gap.
+- P1: permission descriptions were right-aligned beside titles instead of stacked below them.
+- P2: message time was right-aligned beside the title and the extra “全部已读” action changed the source header hierarchy.
+- P2: the popup heading was left-aligned instead of centered.
+- P2: recent notification time was rendered as future time.
 
-- [x] Centered preference-gated ledger title on `/detail`.
-- [x] Direct search and calendar actions at the upper right.
-- [x] Three-item shortcut card restored.
-- [x] Existing ledger popup structure and interaction retained.
-- [x] Shared header, household pages, and custom-ledger pages unchanged.
-- [x] Console checked with no warnings or errors.
+### Fixes
+
+- Moved the action group into document flow with the source-matched `56px` section gap.
+- Changed permission rows to vertical title/description groups.
+- Stacked message title/time, removed the extra main-header action, and retained notification management on the legacy notification-center route.
+- Centered the popup heading.
+- Corrected `showDate` direction and added a regression test.
+- Replaced the transparent mascot crop with the supplied square Whale Wave application icon.
+
+### Iteration 2 — passed
+
+- Post-fix evidence: all six `*-final.png` comparisons listed above.
+- No remaining P0/P1/P2 mismatch was found across typography, spacing, colors, imagery, copy, icons, or core interaction states.
+- Browser console errors/warnings checked: none.
+- Primary browser interactions tested: role popup open, close-by-selection, and viewer/bookkeeper/admin state transitions. Approval/ignore payload behavior and safe notification navigation are covered by focused automated tests to avoid mutating backend data during visual QA.
+
+## Follow-up Polish
+
+- P3: real applicant photos will naturally differ from the fixture fallback avatar used for browser capture; production rendering already consumes `request.applicant.avatar`.
+- P3: device status-bar height and rounded phone frame differ because those belong to the reference emulator, not the web application.
 
 final result: passed
