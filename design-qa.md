@@ -1,72 +1,67 @@
-# Ledger Management Visual QA
+# `/detail` Ledger Switcher Restoration Visual QA
 
-Date: 2026-07-23  
-Viewport: 390 × 844  
-Browser: Codex in-app browser  
-Artifact root: `.superpowers/sdd/artifacts/ledger-management-qa`
+Date: 2026-08-05
 
-## Method
+Browser: Codex in-app browser for unauthenticated routing check; authenticated Chrome tab for the rendered `/detail` state
 
-Each required state was rendered from the real client against the disposable
-Nest/PostgreSQL runtime. Reference screenshots were normalized to 390 × 844
-and placed beside the implementation screenshots before judging differences.
-The implementation intentionally uses the Whale Wave theme tokens and official
-icon components instead of copying the competitor's yellow/blue brand palette.
-Per the design specification, browser screenshots do not draw a device frame,
-status bar, traffic lights, or Dynamic Island.
+Viewport: 372 × 666 CSS px, device scale factor 1
 
-## Required States
+## Evidence
 
-| State | Evidence | Result |
-|---|---|---|
-| Two custom ledgers | `compare-management-two-ledgers.png` | Passed: two 107 × 146 cards, 20px page gutter, fixed create footer |
-| Three ledgers with one shared | `compare-management-three-ledgers.png` | Passed: three-column layout, shared member badge, non-truncated titles |
-| Sort mode | `compare-management-sort-mode.png` | Passed: three remove badges, fixed save action, fallback bottom spacing plus `SafeArea` |
-| Empty join form | `compare-join-empty-final.png` | Passed: guided labels, official ADM inputs, 6-character code field, 1–30 character remark, disabled submit |
-| Quick-switch enabled | `compare-preferences-enabled.png` | Passed: themed `NavBar`, official `List`/`Switch`, correct enabled state |
-| Original records header | `.superpowers/sdd/ledger-title-switcher-closed-comparison.png` | Passed: existing themed header, statistics, search, calendar, function card, and bottom navigation remain in place; only the centered title gained a disclosure arrow |
-| Title switcher open | `.superpowers/sdd/ledger-title-switcher-open-comparison.png` | Passed: “默认账本” is first and selected, followed by ordered custom ledgers with member counts and create/manage actions |
+- Closed-state source visual truth: `/var/folders/hf/1k96vc9n0rb2lmlc91nb64mc0000gn/T/codex-clipboard-e129a5c9-10d8-4c61-80ad-e04fdffb5471.png`
+- Popup-structure source visual truth: `/var/folders/hf/1k96vc9n0rb2lmlc91nb64mc0000gn/T/codex-clipboard-ded12c68-2aac-45df-930f-0631066ee177.png`
+- Closed implementation screenshot: `/tmp/ww-bill-detail-switcher-closed.png`
+- Open implementation screenshot: `/tmp/ww-bill-detail-switcher-open.png`
+- Combined comparison input: `/tmp/ww-bill-detail-switcher-comparison.png`
 
-## Findings Resolved
+The closed source and implementation are both 372 × 666 pixels and were compared at 1:1 density. The popup reference is 628 × 1398 pixels and includes a device frame; it was normalized to 372 × 666 only for structural comparison with the 372 × 666 implementation. Its yellow palette and device chrome are reference-product details, not Whale Wave targets.
 
-- **P1 — management route shadowed by `:ledgerId`:** added the static
-  `/ledgers/management` route before the dynamic route and regression tests.
-- **P1 — join form used a compact settings-card layout:** rebuilt it with
-  reference-aligned guide copy, field blocks, vertical rhythm, and button
-  placement while retaining official Ant Design Mobile controls.
-- **P2 — long ledger titles could truncate too early:** tightened card padding
-  and fixed the title at the specified 17px size.
-- **P2 — create footer icon was not centered with its label:** grouped the icon
-  and copy in one centered inline-flex wrapper.
-- **P2 — sort save button touched the viewport when the browser exposed no
-  bottom inset:** added an 8px fallback while retaining
-  `SafeArea position="bottom"` for devices with a real inset.
-- **P2 — join remark box and disabled button differed from the reference:** reduced
-  the textarea to the reference height and corrected the disabled foreground
-  and background colors.
-- **P1 — first implementation replaced the existing record-home header:** removed
-  the mini-program capsule, restored the original header geometry and direct
-  search/calendar controls, and attached switching only to the centered title.
-- **P1 — default navigation item was labeled “个人账本”:** changed the
-  client-owned navigation view model to the fixed label “默认账本”; the
-  service-side name and private default-ledger ID remain hidden.
+## State and Interactions
 
-## Layout and Interaction Checks
+- Quick switching was enabled in the authenticated runtime.
+- The centered “鲸浪账本” title rendered as a button with a disclosure arrow.
+- Keyboard activation opened the top popup and changed the trigger to its expanded state.
+- The popup rendered “默认账本” first with 74 records and current-item semantics, followed by “公司账本”.
+- “创建账本” and “账本管理” rendered side by side at the popup footer.
+- Search and calendar remained direct top-right actions.
+- The shortcut card contained only “账单”“预算”“资产管家”.
+- The quick-switch-disabled static-title state remains covered by `test/features/ledger-switcher-header.test.ts` without changing the user preference during browser QA.
+- Browser console check returned zero warnings and zero errors.
 
-- No required state has horizontal overflow at 390px.
-- Card controls, remove badges, title trigger, switcher options, and fixed
-  footer actions remain keyboard reachable.
-- The switcher uses dialog/listbox/option semantics, traps Tab, handles Escape,
-  restores focus, and keeps a visible keyboard focus indicator.
-- The desktop QA viewport exposes a zero CSS safe-area inset. Top and bottom
-  `SafeArea` components remain in production markup; no fake status bar was
-  added for screenshots.
-- The closed and open states were tested in the in-app browser at 390 × 844.
-  The open dialog exposed “默认账本 1266 笔记录 当前账本”, “家庭账本 2 人”,
-  and “生意账本” without “系统默认账本” or a private ledger ID.
-- No application error was emitted during the final interaction. Browser logs
-  contained only development tooling and Vite connection messages.
+## Full-view Comparison
 
-## Final Result
+The combined comparison shows the original Whale Wave blue theme and spacing retained while applying the requested layout correction: the title is centered, search/calendar are at the upper right, and the shortcut card returns to three items. The open state follows the reference hierarchy—ledger rows, current selection, and two footer actions—while intentionally retaining Whale Wave colors and existing icons.
+
+The authenticated Chrome screenshot contains third-party extension overlays on the far-right edge. They are not app-owned DOM, do not appear in tests or production code, and were excluded from app-level findings.
+
+## Required Fidelity Surfaces
+
+- Fonts and typography: existing system Chinese font stack, sizes, weights, amount styling, and truncation behavior are unchanged; the title inherits the shared header typography.
+- Spacing and layout rhythm: the existing 182px header, statistics geometry, 68px shortcut card, and bottom navigation remain unchanged. Popup rows and two-column footer follow the existing switcher component.
+- Colors and visual tokens: Whale Wave's `--ww-theme-color` blue remains authoritative. The reference app's yellow palette was not copied.
+- Image quality and asset fidelity: no new raster imagery, CSS drawings, inline SVGs, or placeholder assets were introduced. Existing project and icon-library assets remain in use.
+- Copy and content: “鲸浪账本”, “默认账本”, ledger name, record count, “创建账本”, and “账本管理” are correct. Search, calendar, bill, budget, and asset labels remain project-localized.
+
+## Focused-region Comparison
+
+A separate crop was not needed: at the 372px source width, the entire header and popup occupy the full screen width and remain legible in the full-view comparison. The DOM snapshot separately confirmed the popup's dialog/listbox/option semantics and expanded trigger state.
+
+## Findings
+
+- No actionable P0, P1, or P2 mismatch remains.
+- P3 observation: keyboard activation shows the existing high-contrast focus outline on the selected ledger row. This is an intentional accessibility state and is not visible after ordinary pointer activation.
+
+## Comparison History
+
+- Pass 1: no P0/P1/P2 differences were found after normalizing the viewport and separating the blue-theme source from the popup-structure reference. No visual fix iteration was required.
+
+## Implementation Checklist
+
+- [x] Centered preference-gated ledger title on `/detail`.
+- [x] Direct search and calendar actions at the upper right.
+- [x] Three-item shortcut card restored.
+- [x] Existing ledger popup structure and interaction retained.
+- [x] Shared header, household pages, and custom-ledger pages unchanged.
+- [x] Console checked with no warnings or errors.
 
 final result: passed

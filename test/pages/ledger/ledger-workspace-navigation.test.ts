@@ -322,23 +322,34 @@ afterEach(() => {
 });
 
 describe('personal ledger workspace integration', () => {
-  it('preserves the original app header and direct search/calendar actions', async () => {
+  it('restores the switchable centered title, direct header actions, and original shortcuts', async () => {
     const { container, router } = renderPage('/detail', '/detail', createElement(DetailPage));
     const header = container.querySelector('[data-testid="record-overview-header"]');
     const periodControl = container.querySelector('[data-testid="record-period-control"]');
-    const title = container.querySelector('.record-overview-title');
+    const title = container.querySelector('[data-testid="ledger-switcher-title"]');
+    const searchAction = container.querySelector('[data-testid="record-search-action"]');
+    const calendarAction = container.querySelector('[data-testid="record-calendar-action"]');
+    const shortcutButtons = header?.querySelectorAll('nav button') ?? [];
 
     expect(header).not.toBeNull();
     expect(title?.parentElement).toBe(header);
     expect(periodControl?.tagName).toBe('DIV');
     expect(periodControl?.querySelector('[data-testid="record-month-picker"]')?.tagName).toBe('BUTTON');
     expect(title?.textContent).toContain('鲸浪账本');
-    expect(title?.tagName).toBe('H1');
+    expect(title?.tagName).toBe('BUTTON');
+    expect(title?.className).toContain('left-1/2');
+    expect(title?.className).not.toContain('text-left');
     expect(container.querySelector('[data-workspace-capsule]')).toBeNull();
-    expect(container.querySelector('[data-testid="record-search-action"]')).not.toBeNull();
-    expect(container.querySelector('[data-testid="record-calendar-action"]')).not.toBeNull();
+    expect(searchAction?.parentElement).toBe(calendarAction?.parentElement);
+    expect(searchAction?.parentElement?.parentElement).toBe(header);
+    expect(shortcutButtons).toHaveLength(3);
+    expect(Array.from(shortcutButtons).map(button => button.textContent)).toEqual([
+      'bill:title',
+      'budget:title',
+      'common:commonFunctions.assetSteward',
+    ]);
 
-    await click(container.querySelector('[data-testid="record-search-action"]'));
+    await click(searchAction);
     expect(router.state.location.pathname).toBe('/search-record');
   });
 
