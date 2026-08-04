@@ -5,6 +5,7 @@ import { App } from '@/app/App';
 import { initResetStyle } from '@/assets/styles/reset';
 import { useAuthStore } from '@/features/auth';
 import { setAuthDeps } from '@/shared/api';
+import { isDevToolEnabled } from '@/shared/config/dev-tools';
 import '@/shared/i18n';
 import '@/assets/styles/index.scss';
 
@@ -18,10 +19,14 @@ setAuthDeps({
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
+const isInspectorEnabled = isDevToolEnabled({
+  enabledFlag: import.meta.env.VITE_ENABLE_INSPECTOR,
+  isDev: import.meta.env.DEV,
+});
 
 root.render(
   <React.StrictMode>
-    {import.meta.env.DEV && <Inspector keys={['Alt', 'Shift', 'X']} />}
+    {isInspectorEnabled && <Inspector keys={['Alt', 'Shift', 'X']} />}
     <App />
   </React.StrictMode>,
 );
