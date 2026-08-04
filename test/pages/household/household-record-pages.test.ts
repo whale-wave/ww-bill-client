@@ -181,10 +181,13 @@ beforeEach(() => {
 afterEach(() => {
   cleanup?.();
   cleanup = undefined;
+  vi.useRealTimers();
 });
 
 describe('household records', () => {
   it('renders the household title, shared header actions, and monthly totals', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-07-21T12:00:00.000Z'));
     const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
 
     const header = container.querySelector('[data-testid="household-home-header"]');
