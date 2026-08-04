@@ -192,36 +192,36 @@ const LedgerJoinRequestDetailPage: FC = () => {
                 {request.decisionRemark && <p>{request.decisionRemark}</p>}
               </section>
             )}
+
+            {isPending && (
+              <footer className={styles.actionBar}>
+                {errorMessage && <p className={styles.error} role="alert">{errorMessage}</p>}
+                <div className={styles.actions}>
+                  <Button
+                    block
+                    className={styles.secondaryAction}
+                    data-testid="join-request-ignore"
+                    disabled={mutation.isLoading}
+                    onClick={() => void handleDecision(LedgerJoinDecision.IGNORED)}
+                  >
+                    {t('requestDetail.ignore')}
+                  </Button>
+                  <Button
+                    block
+                    color="primary"
+                    data-testid="join-request-approve"
+                    disabled={mutation.isLoading || !assignedRole}
+                    loading={mutation.isLoading}
+                    onClick={() => void handleDecision(LedgerJoinDecision.APPROVED)}
+                  >
+                    {t('requestDetail.approve')}
+                  </Button>
+                </div>
+              </footer>
+            )}
           </>
         )}
       </main>
-
-      {request && isPending && !loading && !error && (
-        <footer className={styles.actionBar}>
-          {errorMessage && <p className={styles.error} role="alert">{errorMessage}</p>}
-          <div className={styles.actions}>
-            <Button
-              block
-              className={styles.secondaryAction}
-              data-testid="join-request-ignore"
-              disabled={mutation.isLoading}
-              onClick={() => void handleDecision(LedgerJoinDecision.IGNORED)}
-            >
-              {t('requestDetail.ignore')}
-            </Button>
-            <Button
-              block
-              color="primary"
-              data-testid="join-request-approve"
-              disabled={mutation.isLoading || !assignedRole}
-              loading={mutation.isLoading}
-              onClick={() => void handleDecision(LedgerJoinDecision.APPROVED)}
-            >
-              {t('requestDetail.approve')}
-            </Button>
-          </div>
-        </footer>
-      )}
 
       <Popup
         bodyClassName={styles.rolePopup}

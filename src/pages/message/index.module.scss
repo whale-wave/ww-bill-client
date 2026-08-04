@@ -4,21 +4,6 @@
   background: #fff;
 }
 
-.readAll {
-  min-width: 44px;
-  min-height: 36px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #777;
-  font: inherit;
-  font-size: var(--ww-font-size-sm);
-
-  &:disabled {
-    color: #b7babd;
-  }
-}
-
 .content {
   min-height: 0;
   flex-grow: 1;
@@ -41,7 +26,7 @@
 .itemStatic {
   box-sizing: border-box;
   width: 100%;
-  min-height: 82px;
+  min-height: 108px;
   display: flex;
   align-items: flex-start;
   padding: 16px 0 15px;
@@ -100,9 +85,9 @@
 
 .itemHeader {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
 }
 
 .title {
@@ -117,7 +102,6 @@
 }
 
 .time {
-  flex-shrink: 0;
   color: #a1a1a1;
   font-size: 12px;
   line-height: 20px;
@@ -125,7 +109,7 @@
 
 .description {
   display: block;
-  margin-top: 4px;
+  margin-top: 5px;
   color: #777;
   font-size: 14px;
   line-height: 21px;

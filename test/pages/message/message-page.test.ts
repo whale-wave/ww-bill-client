@@ -11,10 +11,8 @@ import MessagePage from '@/pages/message/MessagePage';
 
 const hooks = vi.hoisted(() => ({
   fetchNextPage: vi.fn(),
-  markAllRead: vi.fn(),
   markRead: vi.fn(),
   refetch: vi.fn(),
-  useMarkAllNotificationsReadMutation: vi.fn(),
   useMarkNotificationReadMutation: vi.fn(),
   useNotificationsQuery: vi.fn(),
 }));
@@ -25,7 +23,6 @@ vi.mock('@/entities/notification', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/entities/notification')>();
   return {
     ...actual,
-    useMarkAllNotificationsReadMutation: hooks.useMarkAllNotificationsReadMutation,
     useMarkNotificationReadMutation: hooks.useMarkNotificationReadMutation,
     useNotificationsQuery: hooks.useNotificationsQuery,
   };
@@ -116,10 +113,6 @@ beforeEach(() => {
     isLoading: false,
     mutateAsync: hooks.markRead,
   });
-  hooks.useMarkAllNotificationsReadMutation.mockReturnValue({
-    isLoading: false,
-    mutateAsync: hooks.markAllRead,
-  });
 });
 
 afterEach(() => {
@@ -175,12 +168,8 @@ describe('message page', () => {
       .toBe('/ledgers/ledger%2Fa/join-requests/request%2Fa');
   });
 
-  it('loads the next page and prevents duplicate mark-all submissions', async () => {
+  it('loads the next page without adding management controls to the reference header', async () => {
     hooks.fetchNextPage.mockResolvedValue({});
-    let resolveMarkAll: (() => void) | undefined;
-    hooks.markAllRead.mockReturnValue(new Promise<void>((resolve) => {
-      resolveMarkAll = resolve;
-    }));
     const { container } = renderPage();
 
     await act(async () => {
@@ -188,15 +177,6 @@ describe('message page', () => {
       await Promise.resolve();
     });
     expect(hooks.fetchNextPage).toHaveBeenCalledOnce();
-
-    const markAllButton = container.querySelector<HTMLButtonElement>('[data-testid="message-read-all"]');
-    await act(async () => {
-      markAllButton?.click();
-      markAllButton?.click();
-      await Promise.resolve();
-    });
-    expect(hooks.markAllRead).toHaveBeenCalledOnce();
-
-    await act(async () => resolveMarkAll?.());
+    expect(container.querySelector('[data-testid="message-read-all"]')).toBeNull();
   });
 });

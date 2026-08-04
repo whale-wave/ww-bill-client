@@ -1,11 +1,10 @@
 import type { FC, ReactNode } from 'react';
 import type { UserNotification } from '@/entities/notification';
-import { Button, ErrorBlock, SpinLoading, Toast } from 'antd-mobile';
+import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import appLogo from '@/assets/bill-logo-coin-bubbles-transparent.png';
+import appLogo from '@/assets/bill-logo-v2-transparent.png';
 import {
-  useMarkAllNotificationsReadMutation,
   useMarkNotificationReadMutation,
   useNotificationsQuery,
   UserNotificationStatus,
@@ -63,7 +62,6 @@ const Message: FC = () => {
   const pendingActionsRef = useRef(new Set<string>());
   const notificationQuery = useNotificationsQuery({ params: { limit: PAGE_SIZE } });
   const markReadMutation = useMarkNotificationReadMutation();
-  const markAllReadMutation = useMarkAllNotificationsReadMutation();
 
   const handleOpen = async (notification: UserNotification) => {
     const target = getNotificationTarget(notification.payload);
@@ -85,42 +83,12 @@ const Message: FC = () => {
     pendingActionsRef.current.delete(`open:${notification.id}`);
   };
 
-  const handleMarkAllRead = async () => {
-    if (pendingActionsRef.current.has('read-all'))
-      return;
-    pendingActionsRef.current.add('read-all');
-    try {
-      await markAllReadMutation.mutateAsync();
-    }
-    catch (error) {
-      Toast.show({
-        content: error instanceof Error && error.message
-          ? error.message
-          : t('message.notificationCenter.actionFailed'),
-      });
-    }
-    finally {
-      pendingActionsRef.current.delete('read-all');
-    }
-  };
-
   return (
     <div className="page">
       <NavBar
         back={t('nav.back')}
         className={styles.navBar}
         onBack={() => navigate(-1)}
-        right={(
-          <button
-            className={styles.readAll}
-            data-testid="message-read-all"
-            disabled={markAllReadMutation.isLoading}
-            onClick={() => void handleMarkAllRead()}
-            type="button"
-          >
-            {t('message.notificationCenter.markAllRead')}
-          </button>
-        )}
       >
         {t('message.title')}
       </NavBar>

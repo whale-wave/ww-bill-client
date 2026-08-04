@@ -7,10 +7,10 @@ import 'dayjs/locale/zh-cn';
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
 
-dayjs.updateLocale('en', {
+const relativeTimeLocale = {
   relativeTime: {
     future: (s: string) => i18n.t('common:time.relative.future', { s }),
-    past: (s: string) => i18n.t('common:time.relative.past', { s }),
+    past: (s: string) => s,
     s: () => i18n.t('common:time.relative.justNow'),
     m: () => i18n.t('common:time.relative.oneMinAgo'),
     mm: (d: number) => i18n.t('common:time.relative.minutesAgo', { count: d }),
@@ -23,7 +23,10 @@ dayjs.updateLocale('en', {
     y: () => i18n.t('common:time.relative.oneYearAgo'),
     yy: (d: number) => i18n.t('common:time.relative.yearsAgo', { count: d }),
   },
-});
+};
+
+dayjs.updateLocale('en', relativeTimeLocale);
+dayjs.updateLocale('zh-cn', relativeTimeLocale);
 
 dayjs.locale('zh-cn');
 
@@ -32,7 +35,7 @@ export function showDate(timestamp: string) {
   const before = dayjs(timestamp).valueOf();
   const oneDay = 60 * 60 * 24 * 1000;
   return now - before < oneDay
-    ? dayjs().from(timestamp, now - before < 60 * 1000)
+    ? dayjs(timestamp).from(now, now - before < 60 * 1000)
     : dayjs(timestamp).format('YYYY-MM-DD HH:mm');
 }
 
