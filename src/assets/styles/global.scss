@@ -3,15 +3,17 @@
 }
 
 .page {
-  @apply h-full overflow-hidden flex flex-col;
+  @apply h-full overflow-hidden flex flex-col text-ww-ink;
+  background: var(--ww-page-gradient);
 }
 
 .page-new {
-  @apply h-full flex flex-col;
+  @apply h-full flex flex-col text-ww-ink;
+  background: var(--ww-page-gradient);
 }
 
 .card-rounded {
-  @apply rounded-[5px];
+  @apply rounded-[20px];
 }
 
 .one-line {
@@ -45,9 +47,24 @@
 }
 
 :root {
-  --ww-theme-text-color: #333;
-  --ww-background-color: #f5f5f5;
-  --ww-border-color: #d7d7d7;
+  --ww-theme-color: #6fc2dc;
+  --ww-theme-color-light: #c8eaf6;
+  --ww-theme-color-mid: #4aaac4;
+  --ww-theme-color-deep: #2b8baa;
+  --ww-pink-color: #f0a0b8;
+  --ww-pink-color-light: #ffd8e6;
+  --ww-theme-text-color: #263340;
+  --ww-text-color-mid: #5c7080;
+  --ww-text-color-soft: #9baebb;
+  --ww-text-color-ghost: #c4d4dc;
+  --ww-background-color: #f4fbff;
+  --ww-border-color: rgba(110, 194, 220, 0.2);
+  --ww-card-color: rgba(255, 255, 255, 0.84);
+  --ww-page-gradient: linear-gradient(154.699deg, #e2f6ff 6.9018%, #f4fbff 50%, #fff2f7 93.098%);
+  --ww-card-shadow: 0 4px 20px rgba(60, 140, 180, 0.13);
+  --ww-card-shadow-xs: 0 2px 10px rgba(60, 140, 180, 0.09);
+  --ww-card-shadow-lg: 0 6px 24px rgba(60, 140, 180, 0.15);
+  --ww-card-shadow-floating: 0 8px 32px rgba(60, 140, 180, 0.18);
 
   /* Font scale: semantic size variables for Tailwind integration */
   --ww-font-size-xs: 11px;
@@ -60,7 +77,7 @@
   /* Backward-compatible alias for antd-mobile components */
   --ww-font-size: var(--ww-font-size-base);
 
-  --ww-font-family-sans: theme('fontFamily.sans');
+  --ww-font-family-sans: 'Noto Sans SC', 'PingFang SC', system-ui, sans-serif;
   --adm-font-family: var(--ww-font-family-sans);
   --bwm-font-family: var(--ww-font-family-sans);
 
@@ -96,6 +113,11 @@ html.senior {
   }
   .record-detail-top .left-bottom {
     height: 55px !important;
+  }
+
+  [data-record-overview-summary] {
+    height: auto !important;
+    min-height: 229px;
   }
 }
 

@@ -40,7 +40,7 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
   <>
     <RecordOverviewHeader {...header} />
     <main
-      className="mt-[9px] flex min-h-0 flex-grow flex-col overflow-auto pb-[30px]"
+      className="flex min-h-0 flex-grow flex-col overflow-auto px-[18px] pb-5"
       data-record-overview-content
     >
       {state === 'loading' && (

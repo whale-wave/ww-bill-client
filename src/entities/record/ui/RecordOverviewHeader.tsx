@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import { Toast } from 'antd-mobile';
 import { cn } from '@/shared/lib';
+import { ActionMenuCard, GradientPanel, MetricGrid } from '@/shared/ui';
 
 export interface RecordOverviewMetric {
   key: string;
@@ -52,90 +53,85 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
   titleAlignment = 'center',
 }) => {
   const titleClassName = cn(
-    'record-overview-title absolute top-[5px] min-w-0 truncate text-xl font-bold text-[#323334]',
+    'record-overview-title min-w-0 truncate text-[17px] font-bold leading-[25.5px] text-ww-ink',
     titleAlignment === 'start'
-      ? 'left-5 right-28 text-left'
-      : 'left-1/2 -translate-x-1/2',
+      ? 'text-left'
+      : 'text-center',
   );
 
   return (
     <div
-      className="record-detail-top relative h-[182px] w-full shrink-0 bg-[linear-gradient(180deg,var(--ww-theme-color)_0%,var(--ww-theme-color)_75%,#fefefe_89%,#fefefe_100%)]"
+      className="record-detail-top w-full shrink-0 pt-[max(8px,env(safe-area-inset-top))]"
       data-record-overview-header=""
       data-testid={testId}
     >
-      {renderTitle(titleClassName)}
-      <div
-        className="absolute left-5 top-[50px] flex flex-col"
-        data-record-overview-metrics
-      >
-        <div className="text-sm font-normal text-[#333333]">{period.label}</div>
-        <div className="relative h-10 w-[70px] text-base font-normal text-[#333333]">
-          <div className="absolute -right-2 bottom-1 h-[40%] w-px bg-[#333333] opacity-50"></div>
-          <div
-            className={cn(
-              'absolute bottom-0',
-              period.valueWidth === 'cell' ? 'w-[88px]' : 'w-[300px]',
-            )}
-            data-testid={period.testId}
-            onClick={period.onClick}
-          >
-            {period.value}
-          </div>
-        </div>
+      <div className="flex h-[52px] items-start justify-between gap-3 px-[22px] pb-4 pt-0.5">
+        {renderTitle(titleClassName)}
+        {actions && <div className="flex shrink-0 items-center gap-[10px] [&>button]:flex [&>button]:h-9 [&>button]:w-9 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:border [&>button]:border-solid [&>button]:border-border-primary [&>button]:bg-white/[0.85] [&>button]:text-primary-deep [&>button]:shadow-ww-xs">{actions}</div>}
       </div>
-      {metrics.map((metric, index) => (
-        <div
-          className={cn(
-            'absolute top-[50px] flex min-w-0 flex-col',
-            index === 0 ? 'left-[121px]' : 'left-[230px]',
-          )}
-          key={metric.key}
+      <div className="px-[18px] pb-4">
+        <GradientPanel
+          className="relative h-[229.25px] overflow-hidden px-[22px] pb-5 pt-[22px]"
+          data-record-overview-summary=""
+          elevation="high"
+          surface="aurora"
         >
-          <div className="max-w-24 truncate text-sm font-normal text-[#333333]">{metric.label}</div>
-          <div className="relative h-[37px] w-24 text-base font-normal text-[#333333]">
-            <div className="absolute bottom-0 max-w-full truncate" data-testid={metric.testId}>
-              {metric.value}
+          <div className="relative flex h-[39px] items-center justify-between gap-3">
+            <div data-record-overview-metrics>
+              <div className="sr-only">{period.label}</div>
+              <div
+                className={cn('min-w-0 text-ww-ink', period.valueWidth === 'cell' ? 'max-w-[190px]' : '')}
+                data-testid={period.testId}
+                onClick={period.onClick}
+              >
+                {period.value}
+              </div>
             </div>
+            {amountToggle && (
+              <button
+                aria-label="toggle amount visibility"
+                className="mt-[58px] flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/75 text-primary-deep shadow-ww-xs"
+                onClick={amountToggle.onClick}
+                type="button"
+              >
+                {amountToggle.content}
+              </button>
+            )}
           </div>
-        </div>
-      ))}
-
-      {amountToggle && (
-        <div className="absolute bottom-[116px] right-4 px-1 text-lg" onClick={amountToggle.onClick}>
-          {amountToggle.content}
-        </div>
-      )}
-      {actions && <div className="absolute right-3 top-1 flex items-center gap-3">{actions}</div>}
-
-      <div className="absolute bottom-0 left-[10px] right-[10px] h-[68px]">
-        <nav
-          className="flex h-[68px] w-full rounded-lg bg-[#fefefe] shadow-[1px_1px_4px_rgba(0,0,0,0.16)]"
-          data-testid={shortcutsTestId}
-        >
-          {shortcuts.map(shortcut => (
-            <button
-              aria-disabled={shortcut.disabled}
-              className={cn(
-                'flex shrink-0 grow basis-0 flex-col items-center justify-center border-0 bg-transparent text-sm text-[#333333]',
-                shortcut.disabled && 'opacity-45',
-              )}
-              data-testid={shortcut.testId}
-              key={shortcut.key}
-              onClick={() => {
+          <MetricGrid
+            align="start"
+            className="relative mt-[14px] w-[261px] [&>div]:px-0 [&>div+div]:pl-4"
+            columns={2}
+            items={metrics.map((metric, index) => ({
+              key: metric.key,
+              label: metric.label,
+              tone: index === 0 ? 'income' : 'expense',
+              value: <span data-testid={metric.testId}>{metric.value}</span>,
+            }))}
+          />
+          <ActionMenuCard
+            aria-label="record shortcuts"
+            className="relative mt-5 overflow-hidden [&>button]:h-[70px] [&>button]:min-w-[calc((100%_-_20px)/3)] [&>button]:w-[calc((100%_-_20px)/3)]"
+            columns={3}
+            items={shortcuts.map((shortcut, index) => ({
+              ariaDisabled: shortcut.disabled,
+              icon: shortcut.icon,
+              key: shortcut.key,
+              label: shortcut.label,
+              onClick: () => {
                 if (shortcut.disabled) {
                   Toast.show(shortcut.disabledMessage ?? '暂无权限');
                   return;
                 }
                 shortcut.onClick();
-              }}
-              type="button"
-            >
-              <span className="text-2xl">{shortcut.icon}</span>
-              <span className="mt-1">{shortcut.label}</span>
-            </button>
-          ))}
-        </nav>
+              },
+              testId: shortcut.testId,
+              tone: index === 1 ? 'pink' : index === 2 ? 'purple' : 'blue',
+            }))}
+            variant="gradient-tiles"
+          />
+          {shortcutsTestId && <span className="hidden" data-testid={shortcutsTestId} />}
+        </GradientPanel>
       </div>
     </div>
   );

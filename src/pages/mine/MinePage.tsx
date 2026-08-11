@@ -1,16 +1,13 @@
 import type { FC } from 'react';
 import { Toast } from 'antd-mobile';
-import classNames from 'classnames';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGetUserUserInfoQuery, usePostCheckInMutation } from '@/entities/user';
+import { useGetUserUserInfoQuery, usePostCheckInMutation, UserSummaryCard } from '@/entities/user';
 import { BottomList } from '@/pages/mine/ui';
-import UserInfo from '@/pages/mine/UserInfo';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
-import { Icon } from '@/shared/ui';
+import { ActionMenuCard, Icon } from '@/shared/ui';
 import { TabBar } from '@/widgets/layout';
-import styles from './index.module.scss';
 
 const Mine: FC = () => {
   const { t } = useTranslation('user');
@@ -94,35 +91,31 @@ const Mine: FC = () => {
         navigate(this.path);
       },
     },
-  ], [t]);
+  ], [navigate, t]);
 
   return (
-    <div className={classNames('page', styles.wrapper)}>
-      <main className="overflow-auto flex flex-col grow">
-        <UserInfo
+    <div className="page">
+      <main className="grow overflow-auto px-[18px] pb-5 pt-[max(0px,env(safe-area-inset-top))]">
+        <UserSummaryCard
           name={userInfo?.name}
           avatar={userInfo?.avatar}
           checkIn={checkIn}
           numberInfo={numberInfo}
           onCheckIn={onCheckIn}
+          onProfileClick={() => navigate('/user-info')}
         />
 
-        <div className={styles.box}>
-          <div className={classNames(styles.menu, 'flex mb-3')}>
-            {tabs.map(tab => (
-              <div
-                key={tab.name}
-                className={classNames(
-                  styles.tab,
-                  'w-1/4 flex flex-col justify-center items-center',
-                )}
-                onClick={tab.onClick.bind(tab)}
-              >
-                <Icon name={tab.icon} className={styles.icon} />
-                <span className={styles.name}>{tab.name}</span>
-              </div>
-            ))}
-          </div>
+        <div className="mt-[14px] space-y-[14px]">
+          <ActionMenuCard
+            columns={5}
+            items={tabs.map((tab, index) => ({
+              icon: <Icon name={tab.icon} />,
+              key: tab.name,
+              label: tab.name,
+              onClick: tab.onClick.bind(tab),
+              tone: index === 1 ? 'pink' : index === 2 ? 'amber' : index === 3 ? 'green' : index === 4 ? 'purple' : 'blue',
+            }))}
+          />
           <BottomList />
         </div>
       </main>

@@ -684,9 +684,9 @@ describe('household budget and charts', () => {
 
   it('switches charts to the canonical year query', async () => {
     const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
-    const ranges = container.querySelectorAll('.chart-period-tabs > div');
+    const ranges = container.querySelectorAll('.chart-period-tabs > button');
 
-    expect(container.querySelector('.adm-dropdown-item-title')).not.toBeNull();
+    expect(container.querySelector('[data-chart-amount-type="sub"]')).not.toBeNull();
     expect(ranges).toHaveLength(3);
     expect(container.querySelector('.bwm-nav-bar')).toBeNull();
     expect(container.querySelectorAll('select')).toHaveLength(0);
@@ -701,10 +701,9 @@ describe('household budget and charts', () => {
     });
   });
 
-  it('uses the default chart amount dropdown for the household income query', async () => {
+  it('uses the shared amount selector for the household income query', async () => {
     const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
 
-    await act(async () => container.querySelector<HTMLElement>('.adm-dropdown-item-title')?.click());
     await act(async () => container.querySelector<HTMLElement>('[data-chart-amount-type="add"]')?.click());
 
     expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith({
@@ -739,7 +738,7 @@ describe('household budget and charts', () => {
     }));
 
     const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
-    const categoryRows = [...container.querySelectorAll('.adm-list-item')];
+    const categoryRows = [...container.querySelectorAll('[data-chart-ranking-item]')];
     const foodRow = categoryRows.find(row => row.textContent?.includes('餐饮'));
     const travelRow = categoryRows.find(row => row.textContent?.includes('交通'));
     const memberRow = categoryRows.find(row => row.textContent?.includes('Avan'));
@@ -792,7 +791,6 @@ describe('household budget and charts', () => {
     expect(tooltip).toContain('20.00');
     expect(tooltip).not.toContain('没有费用');
 
-    await act(async () => container.querySelector<HTMLElement>('.adm-dropdown-item-title')?.click());
     await act(async () => container.querySelector<HTMLElement>('[data-chart-amount-type="add"]')?.click());
 
     const incomeOption = hooks.chartSetOption.mock.calls.at(-1)?.[0] as typeof option;

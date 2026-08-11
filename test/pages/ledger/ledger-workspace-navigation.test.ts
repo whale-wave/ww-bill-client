@@ -329,19 +329,19 @@ describe('personal ledger workspace integration', () => {
     const title = container.querySelector('[data-testid="ledger-switcher-title"]');
     const searchAction = container.querySelector('[data-testid="record-search-action"]');
     const calendarAction = container.querySelector('[data-testid="record-calendar-action"]');
-    const shortcutButtons = header?.querySelectorAll('nav button') ?? [];
+    const shortcutButtons = header?.querySelectorAll('[aria-label="record shortcuts"] button') ?? [];
 
     expect(header).not.toBeNull();
-    expect(title?.parentElement).toBe(header);
+    expect(title?.parentElement?.classList).toContain('justify-between');
     expect(periodControl?.tagName).toBe('DIV');
     expect(periodControl?.querySelector('[data-testid="record-month-picker"]')?.tagName).toBe('BUTTON');
     expect(title?.textContent).toContain('鲸浪账本');
     expect(title?.tagName).toBe('BUTTON');
-    expect(title?.className).toContain('left-1/2');
+    expect(title?.className).toContain('text-center');
     expect(title?.className).not.toContain('text-left');
     expect(container.querySelector('[data-workspace-capsule]')).toBeNull();
     expect(searchAction?.parentElement).toBe(calendarAction?.parentElement);
-    expect(searchAction?.parentElement?.parentElement).toBe(header);
+    expect(searchAction?.parentElement?.parentElement?.parentElement).toBe(header);
     expect(shortcutButtons).toHaveLength(3);
     expect(Array.from(shortcutButtons).map(button => button.textContent)).toEqual([
       'bill:title',
@@ -385,14 +385,13 @@ describe('personal ledger workspace integration', () => {
 
   it('changes personal chart amount and range filters through the restored controls', async () => {
     const { container, router } = renderPage('/chart', '/chart', createElement(ChartHomePage));
-    const ranges = container.querySelectorAll('.chart-period-tabs > div');
+    const ranges = container.querySelectorAll('.chart-period-tabs > button');
 
     expect(ranges).toHaveLength(3);
     await click(ranges[2]);
     expect(router.state.location.search).toContain('range=year');
 
-    await click(container.querySelector('.adm-dropdown-item-title'));
-    await click(document.querySelector('[data-chart-amount-type="add"]'));
+    await click(container.querySelector('[data-chart-amount-type="add"]'));
     expect(router.state.location.search).toContain('amount=add');
     expect(hooks.useGetChartQuery).toHaveBeenLastCalledWith({
       params: { category: 'year', type: 'add' },

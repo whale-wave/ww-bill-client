@@ -2,14 +2,9 @@ import type { FC } from 'react';
 import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { CategoryEntity } from '@/entities/category';
-import {
-  Button,
-  DatePicker,
-  ErrorBlock,
-  Popup,
-  SpinLoading,
-} from 'antd-mobile';
-import { useCallback } from 'react';
+import { Button, DatePicker, ErrorBlock, Popup, SpinLoading } from 'antd-mobile';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import { Icon } from '@/shared/ui';
@@ -35,6 +30,9 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   tags = [],
 }) => {
   const { t } = useTranslation(['record', 'ledger', 'common']);
+  const [stage, setStage] = useState<'amount' | 'category'>(
+    controller.selectedCategory ? 'amount' : 'category',
+  );
   const renderDateLabel = useCallback((type: string, value: number) => {
     const labelKeys: Record<string, string> = {
       day: 'common:time.day',
@@ -46,206 +44,236 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
     };
     return labelKeys[type] ? `${value}${t(labelKeys[type]!)}` : value;
   }, [t]);
-  const hasSelectedCategory = Boolean(controller.selectedCategory);
-  const showNumericKeypad = hasSelectedCategory && !controller.isNoteFocused;
+  const showNumericKeypad = stage === 'amount' && !controller.isNoteFocused;
+  const showOperatorControls = Number.parseFloat(controller.calculator.totals) > 0;
+
+  const handleBack = () => {
+    if (stage === 'amount') {
+      controller.setIsNoteFocused(false);
+      setStage('category');
+      return;
+    }
+    onCancel();
+  };
 
   return (
     <div
-      className="flex h-full select-none flex-col [-webkit-touch-callout:none]"
+      className="page select-none pt-[max(8px,env(safe-area-inset-top))] [-webkit-touch-callout:none]"
       data-record-editor-presentation
+      data-record-editor-stage={stage}
     >
-      <header className="flex bg-primary">
+      <header className="flex h-[61px] shrink-0 items-start justify-between gap-3 px-5 pt-[7px]">
         <button
-          className="ml-[21px] border-0 bg-transparent py-[11px] text-base font-normal text-black"
+          aria-label={t('common:nav.cancel')}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-border-primary bg-white/90 text-ww-mid shadow-ww-xs"
           data-record-editor-cancel
-          onClick={onCancel}
+          onClick={handleBack}
           type="button"
         >
-          {t('common:nav.cancel')}
+          <ChevronLeft size={20} />
         </button>
-        <div className="flex flex-grow justify-center pr-[33px]">
-          {([
-            { label: t('record:bookkeeping.expend'), type: 'sub' },
-            { label: t('record:bookkeeping.income'), type: 'add' },
-          ] as const).map((item, index) => (
-            <button
-              className={cn(
-                'relative border-0 bg-transparent px-[5px] py-[11px] text-lg font-normal text-black',
-                index === 0 && 'mr-[34px]',
-                controller.recordType === item.type
-                && 'after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-[#333233] after:content-[""]',
-              )}
-              key={item.type}
-              onClick={() => controller.handleRecordTypeChange(item.type)}
-              type="button"
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
+        {stage === 'category'
+          ? (
+              <div className="flex rounded-[14px] border border-border-primary bg-white/[0.85] p-1 shadow-ww-xs">
+                {([
+                  { label: t('record:bookkeeping.expend'), type: 'sub' },
+                  { label: t('record:bookkeeping.income'), type: 'add' },
+                ] as const).map(item => (
+                  <button
+                    className={cn(
+                      'rounded-[10px] px-[22px] py-[7px] text-[13px] font-bold leading-[19.5px] transition',
+                      controller.recordType === item.type
+                        ? item.type === 'sub'
+                          ? 'bg-[linear-gradient(154.093deg,#f0a0b8_0%,#d06080_100%)] text-white shadow-ww-xs'
+                          : 'bg-[linear-gradient(154.093deg,#6fc2dc_0%,#4aaac4_100%)] text-white shadow-ww-xs'
+                        : 'text-ww-soft',
+                    )}
+                    key={item.type}
+                    onClick={() => {
+                      controller.handleRecordTypeChange(item.type);
+                      setStage('category');
+                    }}
+                    type="button"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )
+          : (
+              <div className="flex h-7 items-center rounded-full bg-primary-light px-[14px] py-1 text-[13px] font-bold leading-[19.5px] text-primary-deep">
+                {controller.selectedCategory?.name}
+              </div>
+            )}
+        <span className="h-10 w-10" />
       </header>
 
-      <main
-        className={showNumericKeypad
-          ? 'flex-grow overflow-auto pb-[224px]'
-          : 'flex-grow overflow-auto pb-[38px]'}
-      >
-        {categoryState === 'loading' && (
-          <div className="flex min-h-[240px] items-center justify-center">
-            <SpinLoading />
-          </div>
-        )}
-        {categoryState === 'error' && (
-          <div className="flex min-h-[240px] flex-col items-center justify-center">
-            <ErrorBlock description={t('common:loadErrorDescription')} />
-            {onRetryCategories && (
-              <Button className="mt-3" onClick={onRetryCategories} size="small">
-                {t('common:retry')}
-              </Button>
-            )}
-          </div>
-        )}
-        {categoryState === 'ready' && (
-          <div className="flex flex-wrap pb-[10px] pt-5">
-            {categories.map(category => (
-              <button
-                aria-pressed={controller.selectedCategory?.id === category.id}
-                className="mb-5 flex w-[24%] flex-col items-center border-0 bg-transparent p-0 [&:not(:nth-child(4n))]:mr-[calc(4%/3)]"
-                data-record-editor-category={category.id}
-                key={category.id}
-                onClick={() => controller.handleSelectCategory(category)}
-                type="button"
-              >
-                <span
-                  className={cn(
-                    'mb-[5px] flex size-[55px] items-center justify-center overflow-hidden rounded-full',
-                    controller.selectedCategory?.id === category.id
-                      ? 'bg-primary'
-                      : 'bg-[#cccc]',
-                  )}
-                >
-                  <Icon className="text-[30px]" name={category.icon} />
-                </span>
-                <span className="text-sm font-normal text-black">{category.name}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </main>
-
-      {hasSelectedCategory && (
-        <section
-          className="fixed inset-x-0 bottom-0 flex flex-col overflow-hidden"
-          data-record-editor-keypad
-        >
-          <div className="flex flex-wrap items-center border-t border-solid border-[#ccc] bg-white">
-            <div className="mb-[-2px] flex h-[39px] flex-grow items-center border-b border-solid border-[#ccc] py-[5px]">
-              <span className="ml-[26px] mr-[13px] min-w-[30px] text-sm font-normal text-[#333233]">
-                {t('record:bookkeeping.note')}
-                :
-              </span>
-              <input
-                className="min-w-[80px] flex-1 select-text border-0 bg-transparent pr-2 outline-none [-webkit-user-select:text]"
-                onBlur={() => controller.setIsNoteFocused(false)}
-                onChange={event => controller.setRemark(event.target.value)}
-                onFocus={() => controller.setIsNoteFocused(true)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    event.stopPropagation();
-                    void controller.handleSubmit();
-                  }
-                }}
-                placeholder={t('record:bookkeeping.notePlaceholder')}
-                type="text"
-                value={controller.remark}
-              />
-              {tags.length > 0 && (
-                <button
-                  className="mr-2 shrink-0 border-0 bg-transparent px-1 text-sm text-font-gray"
-                  data-record-editor-tag-trigger
-                  onClick={() => controller.setIsTagPickerVisible(true)}
-                  type="button"
-                >
-                  #
-                  {controller.selectedTagIds.length || ''}
-                </button>
+      {stage === 'category'
+        ? (
+            <main className="min-h-0 flex-grow overflow-auto px-[14px] pb-5 pt-[10px]" data-record-editor-categories>
+              {categoryState === 'loading' && (
+                <div className="flex min-h-[240px] items-center justify-center"><SpinLoading /></div>
               )}
-            </div>
-            <span className="min-w-[60px] overflow-auto px-[10px] text-center text-2xl font-normal text-black [&::-webkit-scrollbar]:hidden">
-              {controller.calculator.totals}
-            </span>
-          </div>
+              {categoryState === 'error' && (
+                <div className="flex min-h-[240px] flex-col items-center justify-center">
+                  <ErrorBlock description={t('common:loadErrorDescription')} />
+                  {onRetryCategories && (
+                    <Button className="mt-3" onClick={onRetryCategories} size="small">
+                      {t('common:retry')}
+                    </Button>
+                  )}
+                </div>
+              )}
+              {categoryState === 'ready' && (
+                <div className="grid grid-cols-4 gap-[9px]">
+                  {categories.map((category, index) => (
+                    <button
+                      aria-pressed={controller.selectedCategory?.id === category.id}
+                      className="flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-border-primary bg-white/80 px-1 pb-[10px] pt-[13px] shadow-ww-xs transition active:scale-95"
+                      data-record-editor-category={category.id}
+                      key={category.id}
+                      onClick={() => {
+                        controller.handleSelectCategory(category);
+                        setStage('amount');
+                      }}
+                      type="button"
+                    >
+                      <span className={cn(
+                        'flex h-11 w-11 items-center justify-center rounded-full text-primary-deep',
+                        index % 4 === 1
+                          ? 'bg-[#fff0f5] text-[#cf7894]'
+                          : index % 4 === 2
+                            ? 'bg-[#f1ecff] text-[#8d78c7]'
+                            : index % 4 === 3
+                              ? 'bg-[#e7f7f0] text-[#4d9d82]'
+                              : 'bg-[#e4f5fa]',
+                      )}
+                      >
+                        <Icon className="text-2xl" name={category.icon} />
+                      </span>
+                      <span className="w-full truncate text-[11px] font-semibold leading-[16.5px] text-ww-mid">{category.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </main>
+          )
+        : (
+            <main className="flex min-h-0 flex-grow flex-col" data-record-editor-amount>
+              <label className="mx-4 flex h-[50px] shrink-0 items-center rounded-[14px] border border-border-primary bg-white/[0.84] px-4 shadow-ww-xs">
+                <input
+                  className="min-w-0 flex-1 select-text border-0 bg-transparent py-3 text-[14px] leading-[normal] text-ww-ink outline-none placeholder:text-[rgba(38,51,64,0.5)] [-webkit-user-select:text]"
+                  onBlur={() => controller.setIsNoteFocused(false)}
+                  onChange={event => controller.setRemark(event.target.value)}
+                  onFocus={() => controller.setIsNoteFocused(true)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.stopPropagation();
+                      void controller.handleSubmit();
+                    }
+                  }}
+                  placeholder={t('record:bookkeeping.notePlaceholder')}
+                  type="text"
+                  value={controller.remark}
+                />
+                {tags.length > 0 && (
+                  <button
+                    className="shrink-0 border-0 bg-transparent px-1 text-[13px] font-semibold text-primary-deep"
+                    data-record-editor-tag-trigger
+                    onClick={() => controller.setIsTagPickerVisible(true)}
+                    type="button"
+                  >
+                    #
+                    {' '}
+                    {controller.selectedTagIds.length || ''}
+                  </button>
+                )}
+              </label>
 
-          {showNumericKeypad && (
-            <div className="flex">
-              <div className="flex flex-[3] flex-wrap bg-[#f3f3f3]">
-                {KEYPAD_LAYOUT.map((item, index) => (
+              <div className="relative flex min-h-[220px] flex-grow flex-col items-center justify-center text-center">
+                <div className="pb-2 text-[11px] font-semibold leading-[16.5px] tracking-[0.5px] text-ww-soft">
+                  {controller.recordType === 'sub' ? t('record:bookkeeping.expend') : t('record:bookkeeping.income')}
+                  {t('record:bookkeeping.amount')}
+                </div>
+                <div className="h-[81px] max-w-full overflow-x-auto whitespace-nowrap font-number text-[54px] font-black leading-[81px] tracking-[-1.5px] text-ww-ink [&::-webkit-scrollbar]:hidden">
+                  <span className="mr-1 text-[26px] font-bold leading-[39px] tracking-normal text-ww-soft">¥</span>
+                  {controller.calculator.totals}
+                </div>
+                <span className="mt-[10px] h-[2.5px] w-10 rounded-sm bg-primary opacity-70" />
+                {showOperatorControls && (
+                  <div className="absolute bottom-3 flex gap-2" data-record-editor-operators>
+                    {['+', '-'].map((operator, index) => (
+                      <button
+                        className={cn(
+                          'flex h-8 w-11 items-center justify-center rounded-[10px] border border-border-primary bg-white/80 font-number text-lg font-bold text-primary-deep shadow-ww-xs',
+                          controller.activeSideIndex === index + 1 && 'bg-primary-light',
+                        )}
+                        key={operator}
+                        onClick={() => controller.handleOperatorClick(operator)}
+                        onTouchMove={controller.handleKeyTouchMove}
+                        onTouchStart={() => controller.handleKeyTouchStart(index + 1)}
+                        type="button"
+                      >
+                        {operator}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <section
+                className="shrink-0 border-t border-solid border-border-primary bg-white/70 px-4 pb-[calc(38px+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl"
+                data-record-editor-keypad
+              >
+                <div className="grid grid-cols-[1fr_1fr] gap-[10px]">
                   <button
-                    className={cn(
-                      'flex h-[46.5px] w-1/3 items-center justify-center border-0 border-r border-t border-solid border-[#ccc] text-xl font-normal text-[#333233]',
-                      controller.activeKeyIndex === index
-                        ? 'bg-[#c5c5c5]'
-                        : 'bg-[#f3f3f3]',
-                    )}
-                    key={String(item.keys)}
-                    onClick={() => controller.handleKeyClick(item.keys)}
-                    onTouchMove={controller.handleKeyTouchMove}
-                    onTouchStart={() => controller.handleKeyTouchStart(index)}
+                    className="flex h-[50px] items-center justify-center rounded-[16px] border border-border-primary bg-white/80 px-2 text-[14px] font-bold leading-[21px] text-ww-mid active:bg-primary-light"
+                    onClick={() => controller.setIsDatePickerVisible(true)}
                     type="button"
                   >
-                    {item.keys}
+                    <Icon className="mr-1 text-[16px]" name="today" />
+                    {controller.isToday ? t('common:time.today') : controller.formattedDate}
                   </button>
-                ))}
-              </div>
-              <div className="flex flex-1 flex-col bg-[#f3f3f3]">
-                <button
-                  className="flex h-[46.5px] items-center justify-center border-0 border-t border-solid border-[#ccc] bg-transparent text-base"
-                  onClick={() => controller.setIsDatePickerVisible(true)}
-                  onTouchMove={controller.handleKeyTouchMove}
-                  onTouchStart={() => controller.handleKeyTouchStart(5)}
-                  type="button"
-                >
-                  {controller.isToday
-                    ? (
-                        <>
-                          <Icon className="text-[21px]" name="today" />
-                          <span className="ml-1">{t('common:time.today')}</span>
-                        </>
-                      )
-                    : <span>{controller.formattedDate}</span>}
-                </button>
-                {['+', '-'].map((operator, index) => (
                   <button
-                    className={cn(
-                      'flex h-[46.5px] items-center justify-center border-0 border-t border-solid border-[#ccc] text-base',
-                      controller.activeSideIndex === index + 1
-                        ? 'bg-[#c5c5c5]'
-                        : 'bg-transparent',
-                    )}
-                    key={operator}
-                    onClick={() => controller.handleOperatorClick(operator)}
-                    onTouchMove={controller.handleKeyTouchMove}
-                    onTouchStart={() => controller.handleKeyTouchStart(index + 1)}
+                    className="h-[50px] rounded-[16px] bg-[linear-gradient(163.094deg,#6fc2dc_0%,#4aaac4_100%)] px-4 text-[15px] font-extrabold leading-[22.5px] text-white shadow-[0_5px_9px_rgba(74,170,200,0.4)] disabled:opacity-50"
+                    disabled={controller.isSubmitting}
+                    onClick={() => void controller.handleSubmit()}
                     type="button"
                   >
-                    {operator}
+                    {controller.calculator.completeText}
                   </button>
-                ))}
-                <button
-                  className="flex h-[46.5px] items-center justify-center border-0 border-t border-solid border-[#ccc] bg-primary text-base active:shadow-[inset_0_0_10px_8px_#c5c5c5]"
-                  disabled={controller.isSubmitting}
-                  onClick={() => void controller.handleSubmit()}
-                  onTouchMove={controller.handleKeyTouchMove}
-                  onTouchStart={() => controller.handleKeyTouchStart(3)}
-                  type="button"
-                >
-                  {controller.calculator.completeText}
-                </button>
-              </div>
-            </div>
+                </div>
+                {showNumericKeypad && (
+                  <div className="mt-[10px] grid grid-cols-3 gap-2">
+                    {KEYPAD_LAYOUT.map((item, index) => (
+                      <button
+                        aria-label={item.keys === 'x' ? '删除' : undefined}
+                        className={cn(
+                          'flex h-[54px] items-center justify-center rounded-[16px] border border-border-primary bg-white/90 font-number text-[21px] font-bold leading-[31.5px] text-ww-ink shadow-ww-xs',
+                          item.keys === 'x' && 'border-[#ffd0de] bg-[#fff0f5] text-[#d85f82]',
+                          controller.activeKeyIndex === index && 'bg-primary-light',
+                        )}
+                        key={String(item.keys)}
+                        onClick={() => controller.handleKeyClick(item.keys)}
+                        onTouchMove={controller.handleKeyTouchMove}
+                        onTouchStart={() => controller.handleKeyTouchStart(index)}
+                        type="button"
+                      >
+                        {item.keys === 'x'
+                          ? (
+                              <>
+                                <span className="sr-only">x</span>
+                                <ChevronRight size={19} strokeWidth={2.5} />
+                              </>
+                            )
+                          : item.keys}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </main>
           )}
-        </section>
-      )}
 
       <DatePicker
         onClose={() => controller.setIsDatePickerVisible(false)}
@@ -260,25 +288,23 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       />
 
       <Popup
-        bodyClassName="max-h-[55vh] overflow-auto rounded-t-[5px] bg-white px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4"
+        bodyClassName="max-h-[55vh] overflow-auto rounded-t-[28px] bg-white/95 px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4 backdrop-blur-xl"
         destroyOnClose
         onMaskClick={() => controller.setIsTagPickerVisible(false)}
         onClose={() => controller.setIsTagPickerVisible(false)}
         position="bottom"
         visible={controller.isTagPickerVisible}
       >
-        <div className="mb-3 text-center text-base text-font-black">
-          {t('ledger:records.tags')}
-        </div>
+        <div className="mb-3 text-center text-base text-font-black">{t('ledger:records.tags')}</div>
         <div className="flex flex-wrap gap-2">
           {tags.map(tag => (
             <button
               aria-pressed={controller.selectedTagIds.includes(tag.id)}
               className={cn(
-                'min-h-[36px] rounded-[4px] border border-solid px-3 text-sm',
+                'min-h-[36px] rounded-full border border-solid px-3 text-sm',
                 controller.selectedTagIds.includes(tag.id)
-                  ? 'border-primary bg-primary'
-                  : 'border-[#EBEBEB] bg-white',
+                  ? 'border-primary bg-primary text-white'
+                  : 'border-border-primary bg-white text-ww-mid',
               )}
               key={tag.id}
               onClick={() => controller.handleToggleTag(tag.id)}

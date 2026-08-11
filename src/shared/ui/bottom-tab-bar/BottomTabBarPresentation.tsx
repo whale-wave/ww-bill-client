@@ -45,10 +45,10 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
   ariaLabel,
   items,
 }) => (
-  <div className="ww-tab-bar-spacer h-[calc(60px+env(safe-area-inset-bottom))] flex-none basis-[calc(60px+env(safe-area-inset-bottom))]">
+  <div className="ww-tab-bar-spacer h-[calc(90px+env(safe-area-inset-bottom))] flex-none basis-[calc(90px+env(safe-area-inset-bottom))]">
     <nav
       aria-label={ariaLabel}
-      className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar fixed inset-x-0 bottom-0 z-[100] flex h-[60px] items-center justify-evenly border-0 border-t border-solid border-[#f2f2f2] bg-[#fefefe] pb-[env(safe-area-inset-bottom)] text-[#747374] shadow-[0_-2px_8px_rgb(0_0_0/4%)]"
+      className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar fixed bottom-[calc(12px+env(safe-area-inset-bottom))] left-[14px] right-[14px] z-[100] flex h-[66px] items-center justify-evenly rounded-[33px] border border-border-primary bg-white/[0.84] text-ww-ghost shadow-ww-floating backdrop-blur-xl"
       role="tablist"
     >
       {items.map((item) => {
@@ -58,8 +58,8 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
             aria-disabled={item.disabled}
             aria-selected={isActive}
             className={cn(
-              'item ww-tab-bar__button relative flex h-[60px] min-w-0 flex-1 flex-col items-center justify-end border-0 bg-transparent px-1 pb-1 text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ww-theme-text-color)]',
-              isActive && 'text-[var(--ww-theme-text-color)]',
+              'item ww-tab-bar__button relative flex h-[66px] min-w-0 flex-1 flex-col items-center justify-center gap-[3px] border-0 bg-transparent px-1 pt-1 text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
+              isActive && 'text-primary-deep',
               item.disabled && 'opacity-45',
             )}
             data-prefetch-key={item.key}
@@ -80,14 +80,19 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
           >
             <span
               className={cn(
-                'ww-tab-bar__button-icon tab-icon flex h-6 items-center justify-center text-[length:var(--ww-font-size-xl)]',
+                'ww-tab-bar__button-icon tab-icon flex h-[19px] w-[19px] items-center justify-center text-[19px] transition-transform',
                 item.prominent
-                && 'ww-tab-bar__create-icon absolute bottom-[19px] h-[55px] w-[55px] rounded-full border-[5px] border-solid border-white bg-primary text-[var(--ww-theme-text-color)] shadow-[0_-2px_7px_rgb(0_0_0/8%)]',
+                && 'ww-tab-bar__create-icon absolute bottom-[21px] h-[52px] w-[52px] rounded-full bg-[linear-gradient(158deg,#6fc2dc_0%,#4aaac4_100%)] text-[22px] text-white shadow-[0_6px_14px_rgba(74,170,200,0.38)]',
+                isActive && !item.prominent && 'scale-110',
               )}
             >
               {isActive ? item.activeIcon ?? item.icon : item.icon}
             </span>
-            <span className="name ww-tab-bar__button-label mt-0.5 max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--ww-font-size-sm)] font-semibold leading-[15px]">
+            <span className={cn(
+              'name ww-tab-bar__button-label max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[10px] font-semibold leading-[15px]',
+              item.prominent && 'invisible',
+            )}
+            >
               {item.label}
             </span>
           </button>

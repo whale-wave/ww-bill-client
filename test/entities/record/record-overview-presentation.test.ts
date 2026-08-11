@@ -38,16 +38,15 @@ const headerProps = {
 };
 
 describe('record overview presentation', () => {
-  it('freezes the default ledger header geometry as the shared baseline', () => {
+  it('uses the shared gradient summary and action layout', () => {
     const container = render(createElement(RecordOverviewHeader, headerProps));
     const header = container.querySelector('[data-record-overview-header]');
     const metrics = container.querySelector('[data-record-overview-metrics]');
 
-    expect(header?.classList).toContain('h-[182px]');
-    expect(header?.className).toContain('75%');
-    expect(header?.className).toContain('89%');
-    expect(metrics?.classList).toContain('top-[50px]');
-    expect(container.querySelectorAll('nav button')).toHaveLength(5);
+    expect(header?.classList).toContain('pt-[max(8px,env(safe-area-inset-top))]');
+    expect(header?.querySelector('[data-record-overview-summary]')?.classList).toContain('h-[229.25px]');
+    expect(metrics).not.toBeNull();
+    expect(container.querySelectorAll('[aria-label="record shortcuts"] button')).toHaveLength(5);
   });
 
   it('owns loading, empty, error and list states without page-specific layout', () => {

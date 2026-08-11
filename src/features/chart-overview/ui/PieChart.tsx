@@ -14,12 +14,12 @@ export const PieChart: FC = () => {
 
   useEffect(() => {
     const option: EChartsOption = {
-      color: ['#aeeeff', '#89d6e8', '#68bfd4', '#46a8bf', '#2791aa'],
-      legend: { bottom: 0, type: 'scroll' },
+      color: ['#6fc2dc', '#f0a0b8', '#a996dc', '#79c6a8', '#efbc70'],
+      legend: { bottom: 0, type: 'scroll', textStyle: { color: '#5c7080' } },
       series: [{
         data,
         emphasis: { scaleSize: 4 },
-        label: { formatter: '{b} {d}%' },
+        label: { color: '#5c7080', formatter: '{b} {d}%' },
         radius: ['38%', '68%'],
         type: 'pie',
       }],
@@ -28,5 +28,5 @@ export const PieChart: FC = () => {
     myChart?.setOption(option);
   }, [data, myChart]);
 
-  return <div className="h-[150px]" ref={chartDomRef} />;
+  return <div className="mt-2 h-[112px]" ref={chartDomRef} />;
 };

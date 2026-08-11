@@ -193,10 +193,10 @@ describe('household records', () => {
     const header = container.querySelector('[data-testid="household-home-header"]');
     const title = header?.querySelector('h1');
     expect(header?.matches('[data-record-overview-header]')).toBe(true);
-    expect(header?.classList).toContain('h-[182px]');
+    expect(header?.classList).toContain('pt-[max(8px,env(safe-area-inset-top))]');
     expect(title?.textContent).toBe('home.title');
-    expect(header?.firstElementChild).toBe(title);
-    expect(title?.classList).toContain('left-5');
+    expect(title?.parentElement?.classList).toContain('justify-between');
+    expect(title?.classList).toContain('text-left');
     expect(title?.classList).toContain('truncate');
     expect(header?.querySelector('[data-record-overview-metrics]')).not.toBeNull();
     expect(header?.querySelector('[data-workspace-capsule]')).not.toBeNull();
@@ -285,7 +285,7 @@ describe('household records', () => {
     expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(dateGroup?.textContent).toContain('records.dailyExpense');
     expect(dateGroup?.textContent).toContain('20.00');
-    expect(recordRow?.classList).toContain('h-[55px]');
+    expect(recordRow?.classList).toContain('h-[66px]');
     expect(recordRow?.classList).not.toContain('min-h-[60px]');
     expect(amount?.classList).toContain('text-rose-500');
     expect(incomeAmount?.textContent).toBe('100.00');
@@ -428,7 +428,7 @@ describe('household records', () => {
     const recordRow = container.querySelector('[data-record-id="7"]');
     expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="record-overview-list"]')?.getAttribute('data-record-list-variant')).toBe('overview');
-    expect(recordRow?.classList).toContain('h-[55px]');
+    expect(recordRow?.classList).toContain('h-[66px]');
     expect(recordRow?.textContent).toContain('records.memberAttribution');
     expect(container.querySelector('[data-category-icon="餐"] use')?.getAttribute('xlink:href')).toBe('#icon-餐');
     await act(async () => recordRow?.dispatchEvent(new MouseEvent('click', { bubbles: true })));

@@ -2,6 +2,9 @@
 @use 'reset' as appReset;
 @use 'reset-component' as componentReset;
 
+@import '@fontsource-variable/noto-sans-sc/wght.css';
+@import '@fontsource-variable/nunito/wght.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

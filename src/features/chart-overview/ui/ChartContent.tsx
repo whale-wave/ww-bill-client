@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { ErrorBlock } from 'antd-mobile';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
+import { GradientPanel, MetricGrid } from '@/shared/ui';
 import { useChartOverview } from '../model/chart-overview-context';
 import { LineChart } from './LineChart';
 import { PieChart } from './PieChart';
@@ -26,26 +27,40 @@ export const ChartContent: FC = () => {
 
   return (
     <div
-      className={cn('fixed left-0 right-0 top-[calc(42.94px+42.4px+37.55px)] h-[calc(100%-42.94px-42.4px-37.55px-60px)] overflow-y-auto')}
+      className={cn('min-h-0 flex-grow overflow-y-auto px-[18px] pb-5')}
       data-chart-display={displayMode}
     >
       {!curTab
         ? empty
         : (
-            <div className={cn('flex flex-col z-10 pb-10')}>
-              <div className={cn('flex flex-col py-2 px-1 border-0 border-b-[1px] border-b-gray-100 border-solid flex-shrink-0')}>
-                <div className={cn('flex flex-col px-1')}>
-                  <div className={cn('text-sm flex space-x-2')}>
-                    <div>{totalLabel ?? (currentAmountType === 'sub' ? t('totalExpend') : t('totalIncome'))}</div>
-                    <div data-testid={totalTestId}>{isAmountHidden ? '••••' : curTab.amount}</div>
-                  </div>
-                  <div className={cn('text-sm flex space-x-2')}>
-                    <div>{t('averageLabel')}</div>
-                    <div>{isAmountHidden ? '••••' : curTab.average}</div>
-                  </div>
-                </div>
+            <div className={cn('flex flex-col gap-[14px] pb-4')}>
+              <GradientPanel
+                className="h-[212.5px] flex-shrink-0 overflow-hidden px-5 pb-4 pt-5"
+                elevation="high"
+                surface="chart"
+              >
+                <MetricGrid
+                  align="start"
+                  className="h-[62.5px] [&>div]:px-0 [&>div+div]:pl-7"
+                  columns={2}
+                  density="chart"
+                  items={[
+                    {
+                      key: 'total',
+                      label: totalLabel ?? (currentAmountType === 'sub' ? t('totalExpend') : t('totalIncome')),
+                      tone: 'default',
+                      value: <span data-testid={totalTestId}>{isAmountHidden ? '••••' : String(curTab.amount).replace(/^¥/, '')}</span>,
+                    },
+                    {
+                      key: 'average',
+                      label: t('averageLabel'),
+                      tone: 'muted',
+                      value: isAmountHidden ? '••••' : String(curTab.average).replace(/^¥/, ''),
+                    },
+                  ]}
+                />
                 {displayMode === 'pie' ? <PieChart /> : <LineChart />}
-              </div>
+              </GradientPanel>
               <RankingList />
             </div>
           )}

@@ -31,7 +31,7 @@ afterEach(() => {
   cleanup = undefined;
 });
 
-function TestEditor({ withTags = false }: { withTags?: boolean }) {
+function TestEditor({ onCancel = vi.fn(), withTags = false }: { onCancel?: () => void; withTags?: boolean }) {
   const controller = useRecordEditorController({
     onSubmit: vi.fn(),
     seed: {
@@ -45,13 +45,13 @@ function TestEditor({ withTags = false }: { withTags?: boolean }) {
     categories: [category],
     categoryState: 'ready',
     controller,
-    onCancel: vi.fn(),
+    onCancel,
     tags: withTags ? [{ id: 'tag-a', name: '聚餐' }] : [],
   });
 }
 
 describe('record editor presentation', () => {
-  it('uses the default bookkeeping layout and only opens the keypad after selecting a category', () => {
+  it('moves from category selection to the amount keypad', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
     act(() => root.render(createElement(TestEditor)));
@@ -63,11 +63,9 @@ describe('record editor presentation', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
 
     expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
-    expect(container.querySelector('[data-record-editor-category="1"]')?.getAttribute('aria-pressed')).toBe('true');
-    expect(container.querySelector('main')?.classList).toContain('pb-[224px]');
-    expect(container.querySelector('main')?.classList).not.toContain('pb-[38px]');
-    expect(container.querySelector('[data-record-editor-category="1"] span')?.classList)
-      .toContain('bg-primary');
+    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
+    expect(container.querySelector('[data-record-editor-amount]')).not.toBeNull();
+    expect(container.querySelector('[data-record-editor-categories]')).toBeNull();
   });
 
   it('keeps tags as an optional fixed entry instead of a separate form layout', () => {
@@ -90,5 +88,21 @@ describe('record editor presentation', () => {
     expect(tag?.getAttribute('aria-pressed')).toBe('true');
     expect(tag?.classList).toContain('bg-primary');
     expect(tag?.classList).not.toContain('bg-white');
+  });
+
+  it('returns to categories before leaving the two-stage editor', () => {
+    const onCancel = vi.fn();
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor, { onCancel })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-cancel]')?.click());
+    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('category');
+    expect(onCancel).not.toHaveBeenCalled();
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-cancel]')?.click());
+    expect(onCancel).toHaveBeenCalledOnce();
   });
 });

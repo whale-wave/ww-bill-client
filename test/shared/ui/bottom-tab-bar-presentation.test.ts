@@ -11,7 +11,7 @@ afterEach(() => {
 });
 
 describe('bottom tab bar presentation', () => {
-  it.each([2, 3, 5])('keeps the same 60px presentation for %s adapter items', (count) => {
+  it.each([2, 3, 5])('keeps the Figma floating presentation for %s adapter items', (count) => {
     const container = document.createElement('div');
     const root = createRoot(container);
     act(() => root.render(createElement(BottomTabBarPresentation, {
@@ -28,7 +28,9 @@ describe('bottom tab bar presentation', () => {
     cleanup = () => act(() => root.unmount());
 
     const tabList = container.querySelector('[role="tablist"]');
-    expect(tabList?.classList).toContain('h-[60px]');
+    expect(tabList?.classList).toContain('h-[66px]');
+    expect(tabList?.classList).toContain('rounded-[33px]');
+    expect(tabList?.classList).toContain('shadow-ww-floating');
     expect(tabList?.querySelectorAll('[role="tab"]')).toHaveLength(count);
   });
 });

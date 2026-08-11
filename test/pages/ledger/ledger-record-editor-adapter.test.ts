@@ -353,6 +353,7 @@ describe('custom ledger record editor adapter', () => {
     const container = renderRouter(router);
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-cancel]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-cancel]')?.click());
 
     expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/records/7');
   });

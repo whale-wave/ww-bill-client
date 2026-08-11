@@ -1,9 +1,7 @@
 import type { FC } from 'react';
-import { List } from 'antd-mobile';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/shared/i18n';
-import { cn } from '@/shared/lib';
 import { useChartOverview } from '../model/chart-overview-context';
 import { RankingItem } from './RankingItem';
 
@@ -64,9 +62,9 @@ export const RankingList: FC = () => {
   ];
 
   return rankingSections.map(section => (
-    <div className={cn('flex-shrink-0')} key={section.key}>
-      <div className={cn('text-base px-3 pb-1 pt-2')}>{section.title}</div>
-      <List className="[--border-bottom:0px] [--border-top:0px]">
+    <section className="flex-shrink-0" key={section.key}>
+      <h2 className="pb-[10px] text-[14px] font-bold leading-[21px] text-ww-ink">{section.title}</h2>
+      <div className="overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] px-4 py-1.5 shadow-ww backdrop-blur-xl">
         {section.items.length === 0 && rankingEmptyContent
           ? (
               <div className="flex min-h-[120px] items-center justify-center px-4 text-center text-sm text-font-gray">
@@ -80,7 +78,7 @@ export const RankingList: FC = () => {
                 onClick={rankingInteraction === 'none' ? undefined : () => handleRankingItemClick(item)}
               />
             ))}
-      </List>
-    </div>
+      </div>
+    </section>
   ));
 };

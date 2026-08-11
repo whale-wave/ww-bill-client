@@ -44,6 +44,7 @@ const List: FC<ListProps> = memo(({ selectTime, change }) => {
     key: `${group[0]}-${group[1]}`,
     records: group[3].map(item => ({
       amount: item.type === 'add' ? item.amount : -item.amount,
+      amountTone: item.type === 'add' ? 'income' : 'expense',
       iconName: item.category.icon,
       id: item.id,
       onClick: () => handleRecord(item),

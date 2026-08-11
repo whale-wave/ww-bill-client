@@ -1,9 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AssetManagerCard } from '@/entities/asset';
+import { CurrentMonthBillCard } from '@/entities/bill';
 import { CurMonthBudgetCard } from '@/entities/budget';
 import { useGetUserUserInfoQuery } from '@/entities/user';
-import { AssetManagerCard, CommonFunctionCard } from '@/pages/discovery/ui';
+import { CommonFunctionCard } from '@/pages/discovery/ui';
 import { useTranslation } from '@/shared/i18n';
-import { CurrentMonthBillCard, NavBar } from '@/shared/ui';
+import { playSound } from '@/shared/lib/play-sound';
 import { TabBar } from '@/widgets/layout';
 
 interface DiscoveryProps {
@@ -11,17 +14,21 @@ interface DiscoveryProps {
 
 const Discovery: React.FC<DiscoveryProps> = () => {
   const { t } = useTranslation('common');
+  const navigate = useNavigate();
   const { data: userInfo } = useGetUserUserInfoQuery();
+  const handleBillClick = () => {
+    playSound.turnPage();
+    navigate('/bill');
+  };
 
   return (
-    <div className="page-new bg-bg-gray fixed top-0 left-0 w-full">
-      <NavBar backArrow={false}>{t('commonFunctions.discovery')}</NavBar>
-      <div className="flex-grow pb-[80px] relative overflow-auto">
-        <div className="overflow-hidden h-[40px] absolute w-full">
-          <div className="absolute w-[140%] h-[40px] bg-primary left-[-20%] top-0 rounded-b-[50%] -z-[1]"></div>
-        </div>
-        <div className="px-4 space-y-[12px] ">
-          <CurrentMonthBillCard billRecord={userInfo?.billRecord} />
+    <div className="page-new fixed left-0 top-0 w-full">
+      <header className="h-[60px] shrink-0 px-[22px] pb-4 pt-[max(8px,env(safe-area-inset-top))]">
+        <h1 className="text-[20px] font-extrabold leading-[30px] text-ww-ink">{t('commonFunctions.discovery')}</h1>
+      </header>
+      <div className="relative flex-grow overflow-auto pb-5">
+        <div className="space-y-[14px] px-[18px]">
+          <CurrentMonthBillCard billRecord={userInfo?.billRecord} onClick={handleBillClick} />
           <CurMonthBudgetCard />
           <AssetManagerCard />
           <CommonFunctionCard />

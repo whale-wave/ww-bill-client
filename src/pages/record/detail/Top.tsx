@@ -21,12 +21,12 @@ interface RecordOverviewHeaderAdapterOptions {
 
 function renderAmount(parts: string[] | undefined, isVisible: boolean): ReactNode {
   if (!isVisible)
-    return <span className="text-lg font-bold leading-[19px]">*******</span>;
+    return <span className="text-[16px] font-extrabold leading-6">＊＊＊＊＊</span>;
 
   return (
     <span className="truncate">
-      <span className="text-lg leading-[19px]">{parts?.[0] ?? '0'}</span>
-      <span className="text-xs">{parts?.[1] ? `.${parts[1]}` : '.00'}</span>
+      <span>{parts?.[0] ?? '0'}</span>
+      <span>{parts?.[1] ? `.${parts[1]}` : '.00'}</span>
     </span>
   );
 }

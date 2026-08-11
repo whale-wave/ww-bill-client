@@ -30,10 +30,10 @@ export const LineChart: FC = () => {
   useEffect(() => {
     const option: EChartsOption = {
       grid: {
-        top: '12%',
-        left: '5%',
-        right: '5%',
-        bottom: '17%',
+        top: 8,
+        left: 5,
+        right: 5,
+        bottom: 4,
       },
       tooltip: {
         triggerOn: 'mousemove',
@@ -70,23 +70,22 @@ export const LineChart: FC = () => {
         boundaryGap: false,
         type: 'category',
         data: xAxisData,
-        axisLine: {
-          lineStyle: {
-            opacity: 0.1,
-          },
-        },
+        axisLine: { show: false },
         axisTick: {
           lineStyle: {
             opacity: 0,
           },
         },
+        axisLabel: { show: false },
         // axisLabel: {
         //   customValues: ['1月', '3月', '6月', '9月', '12月'],
         // },
       },
       yAxis: {
         type: 'value',
-        show: false,
+        axisLabel: { show: false },
+        splitLine: { lineStyle: { color: 'rgba(110,194,220,0.13)', type: 'dashed' } },
+        show: true,
       },
       series: [
         {
@@ -97,26 +96,27 @@ export const LineChart: FC = () => {
           itemStyle: {
             color: (params) => {
               const data = params.data as { value: number };
-              return data.value === 0 ? '#fff' : '#aeeeff';
+              return data.value === 0 ? '#fff' : '#4aaac4';
             },
-            borderColor: '#33333390',
+            borderColor: '#4aaac4',
+            borderWidth: 2,
           },
           lineStyle: {
-            color: '#33333390',
-            width: 1,
+            color: '#4aaac4',
+            width: 2,
           },
-          markLine: {
-            silent: true,
-            data: [{ type: 'max' }],
-            label: {
-              show: true,
-              position: 'insideEndTop',
+          areaStyle: {
+            color: {
+              type: 'linear',
+              x: 0,
+              y: 0,
+              x2: 0,
+              y2: 1,
+              colorStops: [
+                { offset: 0, color: 'rgba(111,194,220,0.35)' },
+                { offset: 1, color: 'rgba(111,194,220,0.02)' },
+              ],
             },
-            lineStyle: {
-              color: '#33333360',
-              type: 'solid',
-            },
-            symbol: ['none', 'none'],
           },
         },
       ],
@@ -126,6 +126,6 @@ export const LineChart: FC = () => {
   }, [seriesData, xAxisData, myChart, currentAmountType]);
 
   return (
-    <div className={cn('h-[150px]')} ref={chartDomRef} />
+    <div className={cn('mt-[18px] h-[94px] w-[315px] max-w-full')} ref={chartDomRef} />
   );
 };

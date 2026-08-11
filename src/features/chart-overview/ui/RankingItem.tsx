@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 import type { ChartOverviewRankingItem } from '../model/chart-overview-context';
-import { List } from 'antd-mobile';
 import { useMemo } from 'react';
 import { cn } from '@/shared/lib';
 import { Icon, ProgressBar } from '@/shared/ui';
@@ -13,28 +12,28 @@ export const RankingItem: FC<{ item: ChartOverviewRankingItem; onClick?: () => v
   }, [item.percentage]);
 
   return (
-    <List.Item
-      className="!pl-3 text-sm"
-      arrow={false}
-      prefix={<div className={cn('flex items-center justify-center w-full h-full')}><div className={cn('flex items-center justify-center w-[34px] h-[34px] rounded-full bg-gray-100')}><Icon name={item.category.icon} className={cn('text-lg')} /></div></div>}
+    <button
+      className="flex h-[56px] w-full items-center gap-[11px] border-0 border-t border-solid border-border-primary bg-transparent py-[10px] text-left first:border-0"
+      data-chart-ranking-item={item.category.id}
       onClick={onClick}
+      type="button"
     >
-      <div>
-        <div className={cn('flex justify-between')}>
-          <div className={cn('flex')}>
-            {/* <div className={cn('mr-1')}>up</div> */}
-            <div className={cn('mr-2')}>{item.category.name}</div>
-            <div>
+      <span className={cn('flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(111,194,220,0.16)] text-primary-deep')}><Icon name={item.category.icon} className={cn('text-[16px]')} /></span>
+      <div className="min-w-0 flex-1">
+        <div className={cn('flex items-center justify-between')}>
+          <div className="truncate text-[13px] font-semibold leading-[19.5px] text-ww-ink">{item.category.name}</div>
+          <div className="ml-2 flex shrink-0 items-center gap-2">
+            <div className="font-number text-[10.5px] font-normal leading-[15.75px] text-ww-soft">
               {item.percentage}
               %
             </div>
+            <div className="font-number text-[13px] font-bold leading-[19.5px] text-ww-mid">{isAmountHidden ? '••••' : item.amount}</div>
           </div>
-          <div>{isAmountHidden ? '••••' : item.amount}</div>
         </div>
-        <div className={cn('mb-2')}>
+        <div className={cn('mt-[5px] h-1 overflow-hidden rounded-full bg-black/5')}>
           <ProgressBar percent={percent} />
         </div>
       </div>
-    </List.Item>
+    </button>
   );
 };

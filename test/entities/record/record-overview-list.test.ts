@@ -45,12 +45,13 @@ describe('record overview list', () => {
     expect(iconCell?.classList).toContain('py-3');
   });
 
-  it('keeps the compact geometry available for overview pages', () => {
+  it('uses a roomier card row for overview pages', () => {
     const container = render('overview');
     const list = container.querySelector('[data-testid="record-overview-list"]');
     const row = container.querySelector('[data-record-id="7"]');
 
     expect(list?.getAttribute('data-record-list-variant')).toBe('overview');
-    expect(row?.classList).toContain('h-[55px]');
+    expect(row?.classList).toContain('h-[66px]');
+    expect(row?.parentElement?.classList).toContain('rounded-[20px]');
   });
 });
