@@ -22,6 +22,7 @@ export interface RecordDetailPresentationProps {
     icon: string;
     name: string;
   };
+  categoryIcon?: ReactNode;
   footerActions?: readonly RecordDetailAction[];
   onBack: () => void;
   pinnedAction?: RecordDetailAction;
@@ -34,6 +35,7 @@ export interface RecordDetailPresentationProps {
 export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
   backLabel,
   category,
+  categoryIcon,
   footerActions = [],
   onBack,
   pinnedAction,
@@ -53,7 +55,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
           data-record-detail-category
         >
           <div className="mx-auto flex h-[60px] w-[60px] items-center justify-center rounded-full bg-white" data-category-icon={category.icon}>
-            <Icon className="text-[36px]" name={category.icon} />
+            {categoryIcon ?? <Icon className="text-[36px]" name={category.icon} />}
           </div>
           <span className="mt-[9px] block text-base text-[#333233]">{category.name}</span>
         </div>

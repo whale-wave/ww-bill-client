@@ -2,6 +2,7 @@ import { ErrorBlock, SpinLoading, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { CategoryIcon } from '@/entities/category';
 import {
   FamilyRecordPolicy,
   HouseholdStatus,
@@ -95,6 +96,7 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
     <RecordDetailPresentation
       backLabel={t('common:nav.back')}
       category={record.category}
+      categoryIcon={<CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} size={36} />}
       footerActions={[
         ...(canUpdate
           ? [{

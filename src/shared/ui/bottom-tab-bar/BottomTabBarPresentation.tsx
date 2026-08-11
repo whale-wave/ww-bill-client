@@ -48,7 +48,7 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
   <div className="ww-tab-bar-spacer h-[calc(90px+env(safe-area-inset-bottom))] flex-none basis-[calc(90px+env(safe-area-inset-bottom))]">
     <nav
       aria-label={ariaLabel}
-      className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar fixed bottom-[calc(12px+env(safe-area-inset-bottom))] left-[14px] right-[14px] z-[100] flex h-[66px] items-center justify-evenly rounded-[33px] border border-border-primary bg-white/[0.84] text-ww-ghost shadow-ww-floating backdrop-blur-xl"
+      className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar fixed bottom-[calc(12px+env(safe-area-inset-bottom))] left-[14px] right-[14px] z-[100] flex h-[66px] items-center justify-evenly rounded-[33px] border border-border-primary bg-white/[0.84] px-[5px] text-ww-ghost shadow-ww-floating backdrop-blur-xl"
       role="tablist"
     >
       {items.map((item) => {
@@ -58,7 +58,7 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
             aria-disabled={item.disabled}
             aria-selected={isActive}
             className={cn(
-              'item ww-tab-bar__button relative flex h-[66px] min-w-0 flex-1 flex-col items-center justify-center gap-[3px] border-0 bg-transparent px-1 pt-1 text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
+              'item ww-tab-bar__button relative flex h-12 min-w-0 flex-1 flex-col items-center justify-center gap-[3px] rounded-[10px] border-0 bg-transparent px-1 text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
               isActive && 'text-primary-deep',
               item.disabled && 'opacity-45',
             )}
@@ -82,14 +82,14 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
               className={cn(
                 'ww-tab-bar__button-icon tab-icon flex h-[19px] w-[19px] items-center justify-center text-[19px] transition-transform',
                 item.prominent
-                && 'ww-tab-bar__create-icon absolute bottom-[21px] h-[52px] w-[52px] rounded-full bg-[linear-gradient(158deg,#6fc2dc_0%,#4aaac4_100%)] text-[22px] text-white shadow-[0_6px_14px_rgba(74,170,200,0.38)]',
-                isActive && !item.prominent && 'scale-110',
+                && 'ww-tab-bar__create-icon absolute bottom-[13px] h-[52px] w-[52px] rounded-[26px] bg-[linear-gradient(145deg,#6fc2dc_6.1733%,#4aaac4_93.827%)] text-[22px] text-white shadow-[0_6px_10px_rgba(74,170,200,0.45)]',
               )}
             >
               {isActive ? item.activeIcon ?? item.icon : item.icon}
             </span>
             <span className={cn(
-              'name ww-tab-bar__button-label max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[10px] font-semibold leading-[15px]',
+              'name ww-tab-bar__button-label max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[9.5px] font-medium leading-[14.25px] tracking-[0.3px]',
+              isActive && 'font-bold',
               item.prominent && 'invisible',
             )}
             >

@@ -31,6 +31,8 @@ describe('bottom tab bar presentation', () => {
     expect(tabList?.classList).toContain('h-[66px]');
     expect(tabList?.classList).toContain('rounded-[33px]');
     expect(tabList?.classList).toContain('shadow-ww-floating');
+    expect(tabList?.classList).toContain('left-[14px]');
+    expect(tabList?.classList).toContain('right-[14px]');
     expect(tabList?.querySelectorAll('[role="tab"]')).toHaveLength(count);
   });
 });

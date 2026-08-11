@@ -46,6 +46,7 @@ export function toRecordSearchGroups(
       records: groupedRecords.map(record => ({
         amount: `${record.type === 'sub' ? '-' : ''}${record.amount}`,
         amountTone: record.type === 'add' ? 'income' : 'expense',
+        categoryName: record.category.name,
         iconName: record.category.icon,
         id: record.id,
         onClick: options.onRecordClick

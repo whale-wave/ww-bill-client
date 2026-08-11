@@ -20,6 +20,7 @@ export interface RecordOverviewPresentationProps {
   onLoadMore?: () => void;
   onRetry?: () => void;
   retryLabel?: ReactNode;
+  renderCategoryIcon?: (item: { categoryName?: string; iconName: string }) => ReactNode;
   state: RecordOverviewState;
 }
 
@@ -35,6 +36,7 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
   onLoadMore,
   onRetry,
   retryLabel,
+  renderCategoryIcon,
   state,
 }) => (
   <>
@@ -75,7 +77,7 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
       )}
       {state === 'ready' && groups.length > 0 && (
         <>
-          <RecordOverviewList groups={groups} variant="overview" />
+          <RecordOverviewList groups={groups} renderCategoryIcon={renderCategoryIcon} variant="overview" />
           {onLoadMore && (
             <Button
               className="mx-3 mt-3"

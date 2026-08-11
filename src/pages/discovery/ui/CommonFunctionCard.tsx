@@ -1,10 +1,10 @@
 import type { FC } from 'react';
 import { Toast } from 'antd-mobile';
-import { CalendarOutline, ReceivePaymentOutline, TextOutline } from 'antd-mobile-icons';
+import { CalendarDays } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { ActionMenuCard, Icon } from '@/shared/ui';
+import { ActionMenuCard, DesignIcon } from '@/shared/ui';
 
 const CommonFunctionCard: FC = () => {
   const { t } = useTranslation('common');
@@ -16,10 +16,10 @@ const CommonFunctionCard: FC = () => {
       <ActionMenuCard
         columns={4}
         items={[
-          { icon: <Icon name="asset-steward" />, key: 'asset', label: t('commonFunctions.assetSteward'), onClick: () => navigate(ROUTES_PATH.ASSET.getPath()), tone: 'purple' },
-          { icon: <TextOutline />, key: 'invoice', label: t('commonFunctions.invoiceAssistant'), onClick: () => navigate('/invoice'), tone: 'blue' },
-          { icon: <ReceivePaymentOutline />, key: 'exchange', label: t('commonFunctions.exchangeRateConverter'), onClick: () => Toast.show({ content: t('commonFunctions.comingSoon') }), tone: 'pink' },
-          { icon: <CalendarOutline />, key: 'fixed', label: t('commonFunctions.fixedExpenses'), onClick: () => navigate(ROUTES_PATH.FIXED_EXPENSES.getPath()), tone: 'green' },
+          { icon: <DesignIcon name="action-asset" size={22} />, key: 'asset', label: t('commonFunctions.assetSteward'), onClick: () => navigate(ROUTES_PATH.ASSET.getPath()), tone: 'purple' },
+          { icon: <DesignIcon name="action-invoice" size={22} />, key: 'invoice', label: t('commonFunctions.invoiceAssistant'), onClick: () => navigate('/invoice'), tone: 'blue' },
+          { icon: <DesignIcon name="action-exchange" size={22} />, key: 'exchange', label: t('commonFunctions.exchangeRateConverter'), onClick: () => Toast.show({ content: t('commonFunctions.comingSoon') }), tone: 'pink' },
+          { icon: <CalendarDays size={22} strokeWidth={1.8} />, key: 'fixed', label: t('commonFunctions.fixedExpenses'), onClick: () => navigate(ROUTES_PATH.FIXED_EXPENSES.getPath()), tone: 'green' },
         ]}
         variant="gradient-tiles"
       />

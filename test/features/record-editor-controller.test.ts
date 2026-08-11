@@ -12,7 +12,8 @@ vi.mock('@/shared/i18n', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('@/shared/ui', () => ({
+vi.mock('@/shared/ui', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/shared/ui')>()),
   Icon: () => null,
 }));
 

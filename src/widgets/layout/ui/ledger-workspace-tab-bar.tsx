@@ -1,29 +1,31 @@
 import type { LedgerCapability } from '@/entities/ledger';
+import type { DesignIconName } from '@/shared/ui';
 import { Toast } from 'antd-mobile';
-import { AddOutline, BillOutline, HistogramOutline } from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
 import { LedgerCapability as Capability } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound, prefetchRoute } from '@/shared/lib';
-import { BottomTabBarPresentation } from '@/shared/ui';
+import { BottomTabBarPresentation, DesignIcon } from '@/shared/ui';
 
 export type LedgerWorkspaceTabKey = 'records' | 'create' | 'charts';
 
 const workspaceTabs = [
   {
-    icon: BillOutline,
+    icon: 'tab-detail' as DesignIconName,
+    iconActive: 'tab-detail-active' as DesignIconName,
     key: 'records',
     translationKey: 'tabBar.detail',
   },
   {
-    icon: AddOutline,
+    icon: 'tab-add' as DesignIconName,
     key: 'create',
     prominent: true,
     translationKey: 'tabBar.bookkeeping',
   },
   {
-    icon: HistogramOutline,
+    icon: 'tab-chart' as DesignIconName,
+    iconActive: 'tab-chart-active' as DesignIconName,
     key: 'charts',
     translationKey: 'tabBar.chart',
   },
@@ -64,11 +66,11 @@ export function LedgerWorkspaceTabBar({
       activeKey={activeKey}
       ariaLabel={tCommon('tabBar.navigation')}
       items={workspaceTabs.map((tab) => {
-        const Icon = tab.icon;
         const disabled = tab.key === 'create' && !canCreate;
         return {
+          activeIcon: <DesignIcon name={'iconActive' in tab ? tab.iconActive : tab.icon} size={tab.key === 'create' ? 22 : 19} />,
           disabled,
-          icon: <Icon aria-hidden="true" />,
+          icon: <DesignIcon name={tab.icon} size={tab.key === 'create' ? 22 : 19} />,
           key: tab.key,
           label: tCommon(tab.translationKey),
           onPrefetch: () => prefetchRoute(`ledger-${tab.key}`),

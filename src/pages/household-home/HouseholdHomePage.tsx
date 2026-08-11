@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { CalendarDays, List, Search, Settings, Target } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { CategoryIcon } from '@/entities/category';
 import { useHouseholdCalendarQuery, useInfiniteHouseholdRecordsQuery } from '@/entities/household';
 import {
   RecordMonthPicker,
@@ -20,6 +21,7 @@ import {
 import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { DesignIcon } from '@/shared/ui';
 
 const MENU_ITEMS = [
   { icon: List, key: 'records', route: ROUTES_PATH.HOUSEHOLD_RECORDS },
@@ -77,13 +79,13 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
               key: 'income',
               label: t('common.income'),
               testId: 'household-monthly-income',
-              value: <span className="truncate text-base font-medium text-emerald-700">{toMoney(recordsQuery.data?.summary.income)}</span>,
+              value: toMoney(recordsQuery.data?.summary.income),
             },
             {
               key: 'expense',
               label: t('common.expense'),
               testId: 'household-monthly-expense',
-              value: <span className="truncate text-base font-medium text-rose-600">{toMoney(recordsQuery.data?.summary.expense)}</span>,
+              value: toMoney(recordsQuery.data?.summary.expense),
             },
           ],
           period: {
@@ -114,6 +116,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
           })),
           shortcutsTestId: 'household-shortcuts-card',
           testId: 'household-home-header',
+          titleIcon: <DesignIcon name="ledger" size={15} />,
           titleAlignment: 'start',
         }}
         onRetry={() => void recordsQuery.refetch()}
@@ -124,6 +127,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
           ? () => void recordsQuery.fetchNextPage()
           : undefined}
         retryLabel={t('common.retry')}
+        renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
         state={recordsQuery.isLoading
           ? 'loading'
           : recordsQuery.isError

@@ -1,10 +1,10 @@
 import type { FC } from 'react';
-import { AddOutline } from 'antd-mobile-icons';
+import type { DesignIconName } from '@/shared/ui';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound, prefetchRoute } from '@/shared/lib';
-import { BottomTabBarPresentation, Icon } from '@/shared/ui';
+import { BottomTabBarPresentation, DesignIcon } from '@/shared/ui';
 
 export type PersonalTabKey
   = | 'detail'
@@ -14,8 +14,8 @@ export type PersonalTabKey
     | 'mine';
 
 interface PersonalTab {
-  icon: string;
-  iconActive?: string;
+  icon: DesignIconName;
+  iconActive?: DesignIconName;
   key: PersonalTabKey;
   route: string;
   translationKey: string;
@@ -23,35 +23,35 @@ interface PersonalTab {
 
 const personalTabs: readonly PersonalTab[] = [
   {
-    icon: 'detail',
-    iconActive: 'detail-fill',
+    icon: 'tab-detail',
+    iconActive: 'tab-detail-active',
     key: 'detail',
     route: ROUTES_PATH.DETAIL.getPath(),
     translationKey: 'tabBar.detail',
   },
   {
-    icon: 'chart',
-    iconActive: 'chart-fill',
+    icon: 'tab-chart',
+    iconActive: 'tab-chart-active',
     key: 'chart',
     route: ROUTES_PATH.CHART.getPath(),
     translationKey: 'tabBar.chart',
   },
   {
-    icon: 'add',
+    icon: 'tab-add',
     key: 'bookkeeping',
     route: ROUTES_PATH.BOOKKEEPING.getPath(),
     translationKey: 'tabBar.bookkeeping',
   },
   {
-    icon: 'community',
-    iconActive: 'community-fill',
+    icon: 'tab-discovery',
+    iconActive: 'tab-discovery-active',
     key: 'discovery',
     route: ROUTES_PATH.DISCOVERY.getPath(),
     translationKey: 'tabBar.discovery',
   },
   {
-    icon: 'mine',
-    iconActive: 'mine-fill',
+    icon: 'tab-mine',
+    iconActive: 'tab-mine-active',
     key: 'mine',
     route: ROUTES_PATH.MINE.getPath(),
     translationKey: 'tabBar.mine',
@@ -80,12 +80,8 @@ export const TabBar: FC<TabBarProps> = ({ active, activeKey }) => {
       activeKey={resolvedActiveKey}
       ariaLabel={t('tabBar.navigation')}
       items={personalTabs.map(tab => ({
-        activeIcon: tab.key === 'bookkeeping'
-          ? <AddOutline className="text-2xl" />
-          : <Icon name={tab.iconActive ?? tab.icon} />,
-        icon: tab.key === 'bookkeeping'
-          ? <AddOutline className="text-2xl" />
-          : <Icon name={tab.icon} />,
+        activeIcon: <DesignIcon name={tab.iconActive ?? tab.icon} size={tab.key === 'bookkeeping' ? 22 : 19} />,
+        icon: <DesignIcon name={tab.icon} size={tab.key === 'bookkeeping' ? 22 : 19} />,
         key: tab.key,
         label: t(tab.translationKey),
         onPrefetch: () => prefetchRoute(`personal-${tab.key}`),

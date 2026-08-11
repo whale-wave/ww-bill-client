@@ -3,11 +3,11 @@ import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { CategoryEntity } from '@/entities/category';
 import { Button, DatePicker, ErrorBlock, Popup, SpinLoading } from 'antd-mobile';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCallback, useState } from 'react';
+import { CategoryIcon } from '@/entities/category';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
-import { Icon } from '@/shared/ui';
+import { DesignIcon } from '@/shared/ui';
 import { KEYPAD_LAYOUT } from '../model/constants';
 
 export type RecordEditorCategoryState = 'error' | 'loading' | 'ready';
@@ -62,7 +62,15 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       data-record-editor-presentation
       data-record-editor-stage={stage}
     >
-      <header className="flex h-[61px] shrink-0 items-start justify-between gap-3 px-5 pt-[7px]">
+      <header
+        className={cn(
+          'flex shrink-0 items-start justify-between gap-3',
+          stage === 'category'
+            ? 'h-[58px] px-5 pb-[14px] pt-1'
+            : 'h-14 px-[22px] pb-4',
+        )}
+        data-record-editor-header
+      >
         <button
           aria-label={t('common:nav.cancel')}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-border-primary bg-white/90 text-ww-mid shadow-ww-xs"
@@ -70,7 +78,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           onClick={handleBack}
           type="button"
         >
-          <ChevronLeft size={20} />
+          <DesignIcon name="editor-back" size={18} />
         </button>
         {stage === 'category'
           ? (
@@ -110,7 +118,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
 
       {stage === 'category'
         ? (
-            <main className="min-h-0 flex-grow overflow-auto px-[14px] pb-5 pt-[10px]" data-record-editor-categories>
+            <main className="min-h-0 flex-grow overflow-auto px-[14px] pb-5" data-record-editor-categories>
               {categoryState === 'loading' && (
                 <div className="flex min-h-[240px] items-center justify-center"><SpinLoading /></div>
               )}
@@ -149,7 +157,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                               : 'bg-[#e4f5fa]',
                       )}
                       >
-                        <Icon className="text-2xl" name={category.icon} />
+                        <CategoryIcon categoryName={category.name} iconKey={category.icon} size={24} />
                       </span>
                       <span className="w-full truncate text-[11px] font-semibold leading-[16.5px] text-ww-mid">{category.name}</span>
                     </button>
@@ -160,7 +168,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           )
         : (
             <main className="flex min-h-0 flex-grow flex-col" data-record-editor-amount>
-              <label className="mx-4 flex h-[50px] shrink-0 items-center rounded-[14px] border border-border-primary bg-white/[0.84] px-4 shadow-ww-xs">
+              <label className="mx-[22px] flex h-[50px] shrink-0 items-center rounded-[14px] border border-border-primary bg-white/[0.84] px-4 shadow-ww-xs" data-record-editor-note>
                 <input
                   className="min-w-0 flex-1 select-text border-0 bg-transparent py-3 text-[14px] leading-[normal] text-ww-ink outline-none placeholder:text-[rgba(38,51,64,0.5)] [-webkit-user-select:text]"
                   onBlur={() => controller.setIsNoteFocused(false)}
@@ -195,7 +203,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   {controller.recordType === 'sub' ? t('record:bookkeeping.expend') : t('record:bookkeeping.income')}
                   {t('record:bookkeeping.amount')}
                 </div>
-                <div className="h-[81px] max-w-full overflow-x-auto whitespace-nowrap font-number text-[54px] font-black leading-[81px] tracking-[-1.5px] text-ww-ink [&::-webkit-scrollbar]:hidden">
+                <div className="h-[81px] max-w-full overflow-x-auto whitespace-nowrap font-number text-[54px] font-black leading-[81px] tracking-[-1.5px] text-ww-ink [&::-webkit-scrollbar]:hidden" data-record-editor-total>
                   <span className="mr-1 text-[26px] font-bold leading-[39px] tracking-normal text-ww-soft">¥</span>
                   {controller.calculator.totals}
                 </div>
@@ -231,7 +239,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     onClick={() => controller.setIsDatePickerVisible(true)}
                     type="button"
                   >
-                    <Icon className="mr-1 text-[16px]" name="today" />
+                    <DesignIcon className="mr-1" name="editor-date" size={16} />
                     {controller.isToday ? t('common:time.today') : controller.formattedDate}
                   </button>
                   <button
@@ -263,7 +271,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                           ? (
                               <>
                                 <span className="sr-only">x</span>
-                                <ChevronRight size={19} strokeWidth={2.5} />
+                                <DesignIcon name="editor-delete" size={18} />
                               </>
                             )
                           : item.keys}

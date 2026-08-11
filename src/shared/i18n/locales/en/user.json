@@ -33,9 +33,11 @@
     "success": "Email changed successfully"
   },
   "checkIn": {
+    "dayUnit": "",
     "keep": "Streak",
     "allDays": "Total Days",
     "recordCount": "Total Records",
+    "recordUnit": "",
     "alreadyCheckedIn": "Checked In",
     "button": "Check In"
   },

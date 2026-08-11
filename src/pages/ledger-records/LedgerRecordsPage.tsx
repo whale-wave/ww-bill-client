@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { CalendarDays, ReceiptText, Search, Settings, Target } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CategoryIcon } from '@/entities/category';
 import { LedgerCapability, useLedgerPreferencesQuery } from '@/entities/ledger';
 import {
   createLedgerRecordDetailState,
@@ -19,6 +20,7 @@ import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { DesignIcon } from '@/shared/ui';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 
 interface LedgerShortcut {
@@ -98,6 +100,8 @@ function groupRecords(
       key: dateKey,
       records: groupedRecords.map(record => ({
         amount: `${record.type === 'sub' ? '-' : ''}${Number(record.amount).toFixed(2)}`,
+        amountTone: record.type === 'add' ? 'income' : 'expense',
+        categoryName: record.category.name,
         iconName: record.category.icon,
         id: record.id,
         onClick: () => onRecordClick(record),
@@ -157,21 +161,13 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
             key: 'income',
             label: t('home.income'),
             testId: 'ledger-monthly-income',
-            value: (
-              <span className="truncate text-base font-medium text-emerald-700">
-                {formatAmount(query.data.income, isAmountHidden)}
-              </span>
-            ),
+            value: formatAmount(query.data.income, isAmountHidden),
           },
           {
             key: 'expense',
             label: t('home.expense'),
             testId: 'ledger-monthly-expense',
-            value: (
-              <span className="truncate text-base font-medium text-rose-600">
-                {formatAmount(query.data.expend, isAmountHidden)}
-              </span>
-            ),
+            value: formatAmount(query.data.expend, isAmountHidden),
           },
         ],
         period: {
@@ -202,10 +198,12 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
         })),
         shortcutsTestId: 'ledger-record-shortcuts',
         testId: 'ledger-records-header',
+        titleIcon: <DesignIcon name="ledger" size={15} />,
         titleAlignment: 'start',
       }}
       onRetry={() => void query.refetch()}
       retryLabel={t('common.retry')}
+      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
       state={query.isLoading ? 'loading' : query.isError ? 'error' : 'ready'}
     />
   );

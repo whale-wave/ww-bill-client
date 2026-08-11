@@ -72,9 +72,9 @@ describe('personal record detail overview', () => {
     expect(container.querySelector('[data-date-group="07月21日-星期一"]')?.textContent).toContain('晚餐');
     expect(recordRow?.tagName).toBe('DIV');
     expect(container.querySelector('[data-record-list-variant]')?.getAttribute('data-record-list-variant')).toBe('overview');
-    expect(recordRow?.classList).toContain('h-[66px]');
+    expect(recordRow?.classList).toContain('h-16');
     expect(amount?.textContent).toBe('-20');
-    expect(amount?.className).toContain('text-rose-500');
-    expect(container.querySelector('[data-category-icon="catering"] use')?.getAttribute('xlink:href')).toBe('#icon-catering');
+    expect(amount?.className).toContain('text-[#c04870]');
+    expect(container.querySelector('[data-category-icon="catering"] svg')?.classList).toContain('lucide-utensils');
   });
 });

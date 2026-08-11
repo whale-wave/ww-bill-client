@@ -1,6 +1,5 @@
 import type { FC } from 'react';
-import { PieOutline, UnorderedListOutline } from 'antd-mobile-icons';
-import { BottomTabBarPresentation } from '@/shared/ui';
+import { BottomTabBarPresentation, DesignIcon } from '@/shared/ui';
 
 interface HouseholdBottomNavProps {
   active: 'details' | 'charts';
@@ -22,13 +21,15 @@ export const HouseholdBottomNav: FC<HouseholdBottomNavProps> = ({
     ariaLabel={`${detailsLabel} / ${chartsLabel}`}
     items={[
       {
-        icon: <UnorderedListOutline />,
+        activeIcon: <DesignIcon name="tab-detail-active" size={19} />,
+        icon: <DesignIcon name="tab-detail" size={19} />,
         key: 'details',
         label: detailsLabel,
         onSelect: onDetails,
       },
       {
-        icon: <PieOutline />,
+        activeIcon: <DesignIcon name="tab-chart-active" size={19} />,
+        icon: <DesignIcon name="tab-chart" size={19} />,
         key: 'charts',
         label: chartsLabel,
         onSelect: onCharts,

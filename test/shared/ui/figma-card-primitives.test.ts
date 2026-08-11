@@ -44,6 +44,37 @@ describe('figma card primitives', () => {
     expect(container.textContent).toContain('Expense8.00');
   });
 
+  it('renders the exact detail metric geometry and tones', () => {
+    const container = render(createElement(MetricGrid, {
+      columns: 2,
+      items: [
+        { key: 'income', label: 'Income', tone: 'income', value: '12.00' },
+        { key: 'expense', label: 'Expense', tone: 'expense', value: '8.00' },
+      ],
+      variant: 'detail-summary',
+    }));
+    const values = container.querySelectorAll('dd');
+    expect(values[0]?.className).toContain('#2a9460');
+    expect(values[1]?.className).toContain('#c04870');
+    expect(container.querySelector('[data-metric-divider]')?.classList).toContain('after:h-9');
+  });
+
+  it('renders the exact chart summary geometry and currency baseline', () => {
+    const container = render(createElement(MetricGrid, {
+      columns: 2,
+      items: [
+        { key: 'total', label: 'Total', suffix: '¥', value: '120.00' },
+        { key: 'average', label: 'Average', suffix: '¥', value: '12.00' },
+      ],
+      variant: 'chart-summary',
+    }));
+    const metrics = container.querySelectorAll('[data-chart-metric]');
+    expect(container.querySelector('dl')?.classList).toContain('h-[62.5px]');
+    expect(metrics[0]?.classList).toContain('w-[95.422px]');
+    expect(metrics[1]?.classList).toContain('w-[79.625px]');
+    expect(container.querySelector('[data-chart-currency]')?.classList).toContain('text-[13px]');
+  });
+
   it('dispatches action menu callbacks', () => {
     const onClick = vi.fn();
     const container = render(createElement(ActionMenuCard, {
@@ -53,6 +84,18 @@ describe('figma card primitives', () => {
     expect(container.firstElementChild?.classList).toContain('overflow-x-auto');
     act(() => container.querySelector('button')?.click());
     expect(onClick).toHaveBeenCalledOnce();
+  });
+
+  it('renders the exact detail shortcut tile', () => {
+    const container = render(createElement(ActionMenuCard, {
+      items: [{ icon: 'A', key: 'bill', label: 'Bill' }],
+      variant: 'detail-shortcuts',
+    }));
+    const tile = container.querySelector('button');
+    expect(tile?.classList).toContain('h-[70px]');
+    expect(tile?.classList).toContain('rounded-[14px]');
+    expect(tile?.classList).toContain('gap-[7px]');
+    expect(tile?.className).toContain('#e8f6ff');
   });
 
   it('supports interactive and informational setting rows', () => {

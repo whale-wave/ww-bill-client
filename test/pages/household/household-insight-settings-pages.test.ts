@@ -743,8 +743,8 @@ describe('household budget and charts', () => {
     const travelRow = categoryRows.find(row => row.textContent?.includes('交通'));
     const memberRow = categoryRows.find(row => row.textContent?.includes('Avan'));
 
-    expect(container.textContent).toContain('totalExpend10000000000000000.01');
-    expect(container.textContent).toContain('averageLabel3333333333333333.34');
+    expect(container.textContent).toContain('totalExpend¥10000000000000000.01');
+    expect(container.textContent).toContain('averageLabel¥3333333333333333.34');
     expect(foodRow?.textContent).toContain('餐饮33.33%20.00');
     expect(travelRow?.textContent).toContain('交通66.67%40.50');
     expect(memberRow?.textContent).toContain('Avan100%60.50');

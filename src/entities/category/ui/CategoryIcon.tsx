@@ -1,0 +1,160 @@
+import type { LucideProps } from 'lucide-react';
+import type { ComponentType } from 'react';
+import {
+  Apple,
+  Baby,
+  BookOpen,
+  Briefcase,
+  BriefcaseBusiness,
+  Bus,
+  Car,
+  CircleDollarSign,
+  Coffee,
+  ContactRound,
+  Cookie,
+  Dumbbell,
+  Gamepad2,
+  Gift,
+  GraduationCap,
+  HandCoins,
+  HeartHandshake,
+  HeartPulse,
+  House,
+  Laptop,
+  Package,
+  PawPrint,
+  Plane,
+  ReceiptText,
+  Shirt,
+  ShoppingBag,
+  Smartphone,
+  Sofa,
+  Sparkles,
+  Stethoscope,
+  TrendingUp,
+  Users,
+  Utensils,
+  Vegan,
+  WalletCards,
+  Wine,
+  Wrench,
+} from 'lucide-react';
+import { createElement } from 'react';
+
+export interface CategoryIconProps extends Omit<LucideProps, 'ref'> {
+  categoryName?: string;
+  iconKey?: string;
+}
+
+type CategoryGlyph = ComponentType<LucideProps>;
+
+const glyphByIconKey: Record<string, CategoryGlyph> = {
+  'alcohol': Wine,
+  'beauty': Sparkles,
+  'book': BookOpen,
+  'cars': Car,
+  'cash-gift': HandCoins,
+  'cash-gift-income': HandCoins,
+  'catering': Utensils,
+  'children': Baby,
+  'communication': Smartphone,
+  'daily': Package,
+  'digital': Laptop,
+  'donation': HeartHandshake,
+  'elder': HeartPulse,
+  'entertainment': Gamepad2,
+  'express': Package,
+  'financial': TrendingUp,
+  'food': Utensils,
+  'fress': Shirt,
+  'fruits': Apple,
+  'furniture': Sofa,
+  'gift': Gift,
+  'housing': House,
+  'investment': TrendingUp,
+  'meal': Utensils,
+  'medical': Stethoscope,
+  'motion': Dumbbell,
+  'office': BriefcaseBusiness,
+  'other-money': CircleDollarSign,
+  'part-time': Briefcase,
+  'pet': PawPrint,
+  'red-envelope': Gift,
+  'repair': Wrench,
+  'salary': WalletCards,
+  'shopping': ShoppingBag,
+  'snacks': Cookie,
+  'social-contact': ContactRound,
+  'socializing': Users,
+  'study': GraduationCap,
+  'traffic': Bus,
+  'travel': Plane,
+  'vegetables': Vegan,
+};
+
+const glyphByName: Array<[RegExp, CategoryGlyph]> = [
+  [/咖啡|茶|饮品/, Coffee],
+  [/[餐吃饭]|食品|meal|food|dining/i, Utensils],
+  [/交通|公交|地铁|出行|transport|traffic|bus|metro/i, Bus],
+  [/汽车|停车|加油/, Car],
+  [/工资|薪酬|salary|payroll/i, WalletCards],
+  [/理财|投资|收益|finance|investment/i, TrendingUp],
+  [/购物|采购|shopping/i, ShoppingBag],
+  [/住房|房租|住宿/, House],
+  [/蔬菜/, Vegan],
+  [/水果/, Apple],
+  [/零食/, Cookie],
+  [/医疗|看病/, Stethoscope],
+  [/学习|培训/, GraduationCap],
+  [/书/, BookOpen],
+  [/旅行|差旅|travel|trip/i, Plane],
+  [/宠物|pet/i, PawPrint],
+  [/礼物|红包/, Gift],
+  [/办公|工作/, BriefcaseBusiness],
+  [/快递|物流/, Package],
+  [/维修/, Wrench],
+  [/通讯|话费/, Smartphone],
+  [/运动|健身/, Dumbbell],
+  [/娱乐|游戏/, Gamepad2],
+  [/烟酒/, Wine],
+  [/数码|设备/, Laptop],
+  [/服饰|衣/, Shirt],
+  [/美容/, Sparkles],
+  [/孩子|儿童/, Baby],
+  [/长辈|老人/, HeartPulse],
+  [/社交|亲友/, Users],
+  [/礼金|捐赠/, HandCoins],
+  [/兼职|副业/, Briefcase],
+  [/收入|其他|income|other/i, CircleDollarSign],
+  [/coffee|tea|drink/i, Coffee],
+];
+
+function resolveGlyph(iconKey?: string, categoryName?: string): CategoryGlyph {
+  const normalizedKey = iconKey?.trim().toLowerCase();
+  if (normalizedKey && glyphByIconKey[normalizedKey])
+    return glyphByIconKey[normalizedKey];
+
+  const normalizedName = categoryName?.trim();
+  if (normalizedName) {
+    const match = glyphByName.find(([pattern]) => pattern.test(normalizedName));
+    if (match)
+      return match[1];
+  }
+
+  return ReceiptText;
+}
+
+export function CategoryIcon({
+  categoryName,
+  iconKey,
+  size = 18,
+  strokeWidth = 1.8,
+  ...props
+}: CategoryIconProps) {
+  return createElement(resolveGlyph(iconKey, categoryName), {
+    'aria-hidden': true,
+    size,
+    strokeWidth,
+    ...props,
+  });
+}

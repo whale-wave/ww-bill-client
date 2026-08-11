@@ -33,9 +33,11 @@
     "success": "邮箱修改成功"
   },
   "checkIn": {
+    "dayUnit": "天",
     "keep": "连续打卡",
     "allDays": "记账总天数",
     "recordCount": "记账总笔数",
+    "recordUnit": "笔",
     "alreadyCheckedIn": "已打卡",
     "button": "打卡"
   },

@@ -2,7 +2,7 @@ import type { HTMLAttributes, PropsWithChildren } from 'react';
 
 export type GradientPanelTone = 'blue' | 'pink' | 'purple' | 'white';
 export type GradientPanelSurface = 'aurora' | 'blush' | 'chart' | 'glass' | 'ice' | 'lavender' | 'vip';
-export type GradientPanelElevation = 'floating' | 'high' | 'low' | 'standard';
+export type GradientPanelElevation = 'floating' | 'high' | 'low' | 'none' | 'standard';
 
 export interface GradientPanelProps extends HTMLAttributes<HTMLElement> {
   as?: 'article' | 'div' | 'section';
@@ -32,6 +32,7 @@ const elevationClassNames: Record<GradientPanelElevation, string> = {
   floating: 'shadow-ww-floating',
   high: 'shadow-ww-lg',
   low: 'shadow-ww-xs',
+  none: '',
   standard: 'shadow-ww',
 };
 

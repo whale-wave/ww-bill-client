@@ -2,9 +2,9 @@ import type { Dayjs } from 'dayjs';
 import type { FC, ReactNode } from 'react';
 import { Popup } from 'antd-mobile';
 import dayjs from 'dayjs';
-import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/shared/lib';
+import { DesignIcon } from '@/shared/ui';
 
 interface RecordMonthPickerProps {
   month: Dayjs;
@@ -32,27 +32,19 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
   return (
     <>
       <button
-        className="relative flex items-center border-0 bg-transparent p-0 text-font-black"
+        className="relative flex items-center gap-[6px] border-0 bg-transparent p-0 text-font-black"
         data-testid={testId}
         onClick={openPicker}
         type="button"
       >
-        <span className="font-number text-[26px] font-black leading-[39px] tracking-[-0.5px]">
-          {month.format('YYYY')}
-          <span className="font-sans text-[20px] font-bold leading-[30px]">年</span>
+        <span className="font-number text-[26px] font-black leading-[39px]">
+          {month.format('YYYY年')}
         </span>
-        <span className="ml-1 font-number text-[20px] font-bold leading-[30px]">
+        <span className="font-number text-[20px] font-bold leading-[30px] text-primary-deep">
           {month.format('MM')}
-          <span className="font-sans">{monthLabel}</span>
+          {monthLabel}
         </span>
-        <ChevronDown
-          className={cn(
-            'ml-1 transition-transform duration-200 ease-in-out',
-            isVisible && 'rotate-180',
-          )}
-          size={14}
-          strokeWidth={2.5}
-        />
+        <DesignIcon name="period-chevron" size={14} />
       </button>
       <Popup
         bodyClassName="rounded-t-[24px] bg-[rgba(248,252,255,0.98)] pb-[calc(48px+env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(40,100,150,0.16)]"

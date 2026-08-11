@@ -49,9 +49,17 @@ describe('record overview list', () => {
     const container = render('overview');
     const list = container.querySelector('[data-testid="record-overview-list"]');
     const row = container.querySelector('[data-record-id="7"]');
+    const card = row?.parentElement;
+    const content = row?.querySelector('[data-record-content]');
+    const amount = row?.querySelector('[data-record-amount]');
 
     expect(list?.getAttribute('data-record-list-variant')).toBe('overview');
-    expect(row?.classList).toContain('h-[66px]');
-    expect(row?.parentElement?.classList).toContain('rounded-[20px]');
+    expect(row?.classList).toContain('h-16');
+    expect(card?.classList).toContain('rounded-[20px]');
+    expect(card?.parentElement?.classList).toContain('pt-2');
+    expect(content?.classList).toContain('gap-[13px]');
+    expect(content?.classList).toContain('px-[18px]');
+    expect(amount?.classList).toContain('text-[15px]');
+    expect(amount?.classList).toContain('leading-[22.5px]');
   });
 });

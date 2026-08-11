@@ -38,6 +38,7 @@ export interface RecordOverviewHeaderProps {
   shortcuts: RecordOverviewShortcut[];
   shortcutsTestId?: string;
   testId?: string;
+  titleIcon?: ReactNode;
   titleAlignment?: 'center' | 'start';
 }
 
@@ -50,6 +51,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
   shortcuts,
   shortcutsTestId,
   testId = 'record-overview-header',
+  titleIcon,
   titleAlignment = 'center',
 }) => {
   const titleClassName = cn(
@@ -65,8 +67,15 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
       data-record-overview-header=""
       data-testid={testId}
     >
-      <div className="flex h-[52px] items-start justify-between gap-3 px-[22px] pb-4 pt-0.5">
-        {renderTitle(titleClassName)}
+      <div className="flex h-[52px] items-start justify-between gap-3 px-[22px] pb-4">
+        <div className="flex h-8 min-w-0 items-center gap-2" data-record-overview-title-row>
+          {titleIcon && (
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[16px] bg-[linear-gradient(145deg,#6fc2dc_6.1733%,#4aaac4_93.827%)]">
+              {titleIcon}
+            </span>
+          )}
+          {renderTitle(titleClassName)}
+        </div>
         {actions && <div className="flex shrink-0 items-center gap-[10px] [&>button]:flex [&>button]:h-9 [&>button]:w-9 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:border [&>button]:border-solid [&>button]:border-border-primary [&>button]:bg-white/[0.85] [&>button]:text-primary-deep [&>button]:shadow-ww-xs">{actions}</div>}
       </div>
       <div className="px-[18px] pb-4">
@@ -76,7 +85,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
           elevation="high"
           surface="aurora"
         >
-          <div className="relative flex h-[39px] items-center justify-between gap-3">
+          <div className="relative flex h-[39px] items-center gap-[6px]">
             <div data-record-overview-metrics>
               <div className="sr-only">{period.label}</div>
               <div
@@ -87,10 +96,24 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
                 {period.value}
               </div>
             </div>
+          </div>
+          <div className="relative flex h-[57px] w-full items-center">
+            <MetricGrid
+              align="start"
+              className="w-[261px] shrink-0"
+              columns={2}
+              items={metrics.map((metric, index) => ({
+                key: metric.key,
+                label: metric.label,
+                tone: index === 0 ? 'income' : 'expense',
+                value: <span data-testid={metric.testId}>{metric.value}</span>,
+              }))}
+              variant="detail-summary"
+            />
             {amountToggle && (
               <button
                 aria-label="toggle amount visibility"
-                className="mt-[58px] flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/75 text-primary-deep shadow-ww-xs"
+                className="mt-[14px] flex h-8 w-8 shrink-0 items-center justify-center rounded-[16px] border border-[rgba(100,160,200,0.2)] bg-white/[0.55] text-primary-deep"
                 onClick={amountToggle.onClick}
                 type="button"
               >
@@ -98,20 +121,9 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
               </button>
             )}
           </div>
-          <MetricGrid
-            align="start"
-            className="relative mt-[14px] w-[261px] [&>div]:px-0 [&>div+div]:pl-4"
-            columns={2}
-            items={metrics.map((metric, index) => ({
-              key: metric.key,
-              label: metric.label,
-              tone: index === 0 ? 'income' : 'expense',
-              value: <span data-testid={metric.testId}>{metric.value}</span>,
-            }))}
-          />
           <ActionMenuCard
             aria-label="record shortcuts"
-            className="relative mt-5 overflow-hidden [&>button]:h-[70px] [&>button]:min-w-[calc((100%_-_20px)/3)] [&>button]:w-[calc((100%_-_20px)/3)]"
+            className="relative h-[90px] overflow-hidden pt-5"
             columns={3}
             items={shortcuts.map((shortcut, index) => ({
               ariaDisabled: shortcut.disabled,
@@ -128,7 +140,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
               testId: shortcut.testId,
               tone: index === 1 ? 'pink' : index === 2 ? 'purple' : 'blue',
             }))}
-            variant="gradient-tiles"
+            variant="detail-shortcuts"
           />
           {shortcutsTestId && <span className="hidden" data-testid={shortcutsTestId} />}
         </GradientPanel>

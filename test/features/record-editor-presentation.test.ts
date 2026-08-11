@@ -12,7 +12,7 @@ vi.mock('@/shared/i18n', () => ({
 }));
 
 vi.mock('@/shared/ui', () => ({
-  Icon: ({ name }: { name: string }) => createElement('span', { 'data-icon': name }),
+  DesignIcon: ({ name }: { name: string }) => createElement('span', { 'data-design-icon': name }),
 }));
 
 const category: CategoryEntity = {
@@ -59,6 +59,9 @@ describe('record editor presentation', () => {
 
     expect(container.querySelector('[data-record-editor-presentation]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-keypad]')).toBeNull();
+    expect(container.querySelector('[data-record-editor-header]')?.classList).toContain('px-5');
+    expect(container.querySelector('[data-record-editor-categories]')?.classList).toContain('px-[14px]');
+    expect(container.querySelector('[data-record-editor-category="1"]')?.classList).toContain('h-[92.5px]');
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
 
@@ -66,6 +69,9 @@ describe('record editor presentation', () => {
     expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
     expect(container.querySelector('[data-record-editor-amount]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-categories]')).toBeNull();
+    expect(container.querySelector('[data-record-editor-header]')?.classList).toContain('px-[22px]');
+    expect(container.querySelector('[data-record-editor-note]')?.classList).toContain('mx-[22px]');
+    expect(container.querySelector('[data-record-editor-total]')?.classList).toContain('text-[54px]');
   });
 
   it('keeps tags as an optional fixed entry instead of a separate form layout', () => {

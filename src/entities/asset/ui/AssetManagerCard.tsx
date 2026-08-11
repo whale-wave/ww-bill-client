@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, Icon, MetricGrid } from '@/shared/ui';
+import { DesignIcon, GradientPanel, MetricGrid } from '@/shared/ui';
 import { useAssetSummaryInfo } from '../lib/use-asset-summary';
 
 export interface AssetSummaryCardPresentationProps {
@@ -23,10 +23,10 @@ export const AssetSummaryCardPresentation: FC<AssetSummaryCardPresentationProps>
 }) => {
   const { t } = useTranslation('asset');
   return (
-    <GradientPanel as="article" className="cursor-pointer overflow-hidden px-5 py-[18px]" elevation="high" onClick={onClick} surface="lavender">
+    <GradientPanel as="article" className="cursor-pointer overflow-hidden px-5 py-[18px] shadow-[0_6px_11px_rgba(96,80,184,0.12)]" elevation="none" onClick={onClick} surface="lavender">
       <div className="flex items-center gap-[10px]">
         <span className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-white/70 text-[#705cc0]">
-          <Icon className="text-[18px]" name="asset-steward" />
+          <DesignIcon name="discovery-asset" size={18} />
         </span>
         <div className="text-[14px] font-bold leading-[21px] text-ww-ink">{title}</div>
       </div>
@@ -34,9 +34,9 @@ export const AssetSummaryCardPresentation: FC<AssetSummaryCardPresentationProps>
         className="mt-[14px]"
         density="compact"
         items={[
-          { key: 'netAsset', label: t('asset:manager.netAsset'), tone: 'primary', value: netAsset },
-          { key: 'asset', label: t('asset:manager.asset'), tone: 'income', value: asset },
-          { key: 'liability', label: t('asset:manager.liability'), tone: 'expense', value: liability },
+          { key: 'netAsset', label: t('asset:manager.netAsset'), tone: 'primary', value: `¥${netAsset}` },
+          { key: 'asset', label: t('asset:manager.asset'), tone: 'income', value: `¥${asset}` },
+          { key: 'liability', label: t('asset:manager.liability'), tone: 'expense', value: `¥${liability}` },
         ]}
       />
     </GradientPanel>

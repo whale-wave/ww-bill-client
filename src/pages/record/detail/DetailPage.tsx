@@ -4,6 +4,7 @@ import type { recordChildren, RecordOverviewListGroup } from '@/entities/record'
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CategoryIcon } from '@/entities/category';
 import { RecordOverviewPresentation } from '@/entities/record';
 import { useRecordOverviewHeader } from '@/pages/record/detail/Top';
 import { useTranslation } from '@/shared/i18n';
@@ -38,6 +39,7 @@ const Detail: FC = () => {
     records: group[3].map(item => ({
       amount: item.type === 'add' ? item.amount : -Number(item.amount),
       amountTone: item.type === 'add' ? 'income' : 'expense',
+      categoryName: item.category.name,
       iconName: item.category.icon,
       id: item.id,
       onClick: () => handleRecord(item),
@@ -60,6 +62,7 @@ const Detail: FC = () => {
         header={header}
         onRetry={() => void query.refetch()}
         retryLabel={t('common:button.retry')}
+        renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
         state={query.isLoading ? 'loading' : query.isError ? 'error' : 'ready'}
       />
       <TabBar active={0} />

@@ -5,6 +5,7 @@ import { Icon } from '@/shared/ui';
 export interface RecordOverviewListItem {
   amount: ReactNode;
   amountTone?: 'expense' | 'income' | 'neutral';
+  categoryName?: string;
   iconName: string;
   id: number | string;
   onClick?: () => void;
@@ -28,14 +29,15 @@ export interface RecordOverviewListGroup {
 
 interface RecordOverviewListProps {
   groups: RecordOverviewListGroup[];
+  renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName'>) => ReactNode;
   variant?: 'compact' | 'default' | 'overview' | 'search';
 }
 
 function getAmountClassName(tone: RecordOverviewListItem['amountTone']) {
   if (tone === 'income')
-    return 'text-emerald-600';
+    return 'text-[#2a9460]';
   if (tone === 'expense')
-    return 'text-rose-500';
+    return 'text-[#c04870]';
   return 'text-font-black';
 }
 
@@ -58,6 +60,7 @@ function renderDateLabel(label: ReactNode) {
 
 export const RecordOverviewList: FC<RecordOverviewListProps> = ({
   groups,
+  renderCategoryIcon,
   variant = 'search',
 }) => {
   const isOverview = variant === 'compact' || variant === 'overview';
@@ -68,7 +71,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
       {groups.map(group => (
         <section
           className={isOverview
-            ? 'mb-3'
+            ? 'pb-3'
             : 'flex flex-col border-0 border-b border-solid border-[#ebebeb] pt-3 last:border-0'}
           data-date-group={group.key}
           key={group.key}
@@ -82,7 +85,13 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
               : <span>{renderDateLabel(group.dateLabel)}</span>}
             <span className="flex shrink-0 space-x-3 text-[11px] font-semibold leading-[16.5px] text-ww-mid">
               {group.summaries?.map(summary => (
-                <span key={summary.key}>
+                <span
+                  className={cn(
+                    summary.key === 'income' && 'text-[#2a9460]',
+                    summary.key === 'expense' && 'text-[#c04870]',
+                  )}
+                  key={summary.key}
+                >
                   {summary.label}
                   {' '}
                   {summary.value}
@@ -90,68 +99,120 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
               ))}
             </span>
           </header>
-          <div className={isOverview ? 'overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] py-0.5 shadow-ww backdrop-blur-xl' : ''}>
-            {group.records.map((record, index) => {
-              const content = (
-                <>
-                  <span
-                    className={isOverview
-                      ? 'flex h-full w-[52px] shrink-0 items-center justify-start'
-                      : 'mx-4 flex shrink-0 items-center justify-center py-3'}
-                    data-category-icon={record.iconName}
-                  >
-                    <span className={cn(
-                      'flex h-10 w-10 items-center justify-center rounded-full',
-                      index % 4 === 1
-                        ? 'bg-[#ffe8ee] text-[#d06080]'
-                        : index % 4 === 2
-                          ? 'bg-[#e0f6ee] text-[#3e9e7b]'
-                          : index % 4 === 3
-                            ? 'bg-[#ede8ff] text-[#705cc0]'
-                            : 'bg-[#e4f5fa] text-primary-deep',
-                    )}
+          <div className={isOverview ? 'pt-2' : ''}>
+            <div className={isOverview
+              ? cn(
+                  'overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] py-0.5 shadow-ww backdrop-blur-xl',
+                  group.records.length === 1 && 'h-[70px]',
+                )
+              : ''}
+            >
+              {group.records.map((record, index) => {
+                if (isOverview) {
+                  return (
+                    <div
+                      className="relative flex h-16 w-full items-center"
+                      data-record-id={record.id}
+                      key={record.id}
+                      onClick={record.onClick}
                     >
-                      <Icon className="text-[18px]" name={record.iconName || 'bill'} />
-                    </span>
-                  </span>
-                  <span
-                    className={cn(
-                      'flex min-w-0 flex-grow items-center justify-between text-[14px] font-semibold leading-[21px] text-ww-ink',
-                      isOverview ? 'h-full pr-1' : 'h-[59px] py-3 pr-3',
-                      index !== group.records.length - 1
-                      && 'border-0 border-b border-solid border-[#eaf2f5]',
-                    )}
-                  >
-                    <span className="min-w-0 flex-grow">
-                      <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{record.primary}</span>
-                      {record.secondary && (
-                        <span className="mt-1 block overflow-hidden text-ellipsis whitespace-nowrap text-xs text-[#969696]">{record.secondary}</span>
+                      <div className="flex h-full w-full min-w-0 items-center gap-[13px] px-[18px] py-3" data-record-content>
+                        <span
+                          className={cn(
+                            'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                            index % 4 === 1
+                              ? 'bg-[#ffe8ee] text-[#d06080]'
+                              : index % 4 === 2
+                                ? 'bg-[#e0f6ee] text-[#3e9e7b]'
+                                : index % 4 === 3
+                                  ? 'bg-[#ede8ff] text-[#705cc0]'
+                                  : 'bg-[#e4f5fa] text-primary-deep',
+                          )}
+                          data-category-icon={record.iconName}
+                        >
+                          {renderCategoryIcon?.(record) ?? <Icon className="text-[18px]" name={record.iconName || 'bill'} />}
+                        </span>
+                        <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[14px] font-semibold leading-[21px] text-ww-ink">
+                          {record.primary}
+                        </span>
+                        <span
+                          className={cn(
+                            'max-w-[42%] shrink-0 truncate font-number text-[15px] font-bold leading-[22.5px]',
+                            getAmountClassName(record.amountTone),
+                          )}
+                          data-record-amount
+                        >
+                          {record.amount}
+                        </span>
+                      </div>
+                      {index !== group.records.length - 1 && (
+                        <span aria-hidden="true" className="absolute bottom-0 left-[71px] right-0 h-px bg-[rgba(110,194,220,0.2)]" />
                       )}
+                    </div>
+                  );
+                }
+
+                const content = (
+                  <>
+                    <span
+                      className={isOverview
+                        ? 'flex h-full w-[52px] shrink-0 items-center justify-start'
+                        : 'mx-4 flex shrink-0 items-center justify-center py-3'}
+                      data-category-icon={record.iconName}
+                    >
+                      <span className={cn(
+                        'flex h-10 w-10 items-center justify-center rounded-full',
+                        index % 4 === 1
+                          ? 'bg-[#ffe8ee] text-[#d06080]'
+                          : index % 4 === 2
+                            ? 'bg-[#e0f6ee] text-[#3e9e7b]'
+                            : index % 4 === 3
+                              ? 'bg-[#ede8ff] text-[#705cc0]'
+                              : 'bg-[#e4f5fa] text-primary-deep',
+                      )}
+                      >
+                        {renderCategoryIcon?.(record) ?? <Icon className="text-[18px]" name={record.iconName || 'bill'} />}
+                      </span>
                     </span>
                     <span
                       className={cn(
-                        isOverview ? 'ml-3 max-w-[42%] shrink-0 truncate font-number text-[16px] font-bold leading-6' : 'ml-4',
-                        getAmountClassName(record.amountTone),
+                        'flex min-w-0 flex-grow items-center justify-between text-[14px] font-semibold leading-[21px] text-ww-ink',
+                        isOverview ? 'h-full pr-1' : 'h-[59px] py-3 pr-3',
+                        index !== group.records.length - 1
+                        && 'border-0 border-b border-solid border-[#eaf2f5]',
                       )}
                     >
-                      {record.amount}
+                      <span className="min-w-0 flex-grow">
+                        <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{record.primary}</span>
+                        {record.secondary && (
+                          <span className="mt-1 block overflow-hidden text-ellipsis whitespace-nowrap text-xs text-[#969696]">{record.secondary}</span>
+                        )}
+                      </span>
+                      <span
+                        className={cn(
+                          isOverview ? 'ml-3 max-w-[42%] shrink-0 truncate font-number text-[16px] font-bold leading-6' : 'ml-4',
+                          getAmountClassName(record.amountTone),
+                        )}
+                      >
+                        {record.amount}
+                      </span>
                     </span>
-                  </span>
-                </>
-              );
-              return (
-                <div
-                  className={isOverview
-                    ? cn('flex w-full items-center', group.records.length === 1 ? 'h-[66px]' : 'h-16')
-                    : 'flex h-[59px] w-full items-center text-base'}
-                  data-record-id={record.id}
-                  key={record.id}
-                  onClick={record.onClick}
-                >
-                  {content}
-                </div>
-              );
-            })}
+                  </>
+                );
+                return (
+                  <div
+                    className={isOverview
+                      ? cn('flex w-full items-center', group.records.length === 1 ? 'h-[66px]' : 'h-16')
+                      : 'flex h-[59px] w-full items-center text-base'}
+                    data-record-id={record.id}
+                    key={record.id}
+                    onClick={record.onClick}
+                  >
+                    {content}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </section>
       ))}

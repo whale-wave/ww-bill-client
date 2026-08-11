@@ -332,7 +332,7 @@ describe('personal ledger workspace integration', () => {
     const shortcutButtons = header?.querySelectorAll('[aria-label="record shortcuts"] button') ?? [];
 
     expect(header).not.toBeNull();
-    expect(title?.parentElement?.classList).toContain('justify-between');
+    expect(title?.parentElement?.classList).toContain('gap-2');
     expect(periodControl?.tagName).toBe('DIV');
     expect(periodControl?.querySelector('[data-testid="record-month-picker"]')?.tagName).toBe('BUTTON');
     expect(title?.textContent).toContain('鲸浪账本');
@@ -496,7 +496,7 @@ describe('custom ledger workspace integration', () => {
     expect(first.container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(first.container.querySelector('[data-record-list-variant="overview"]')).not.toBeNull();
     expect(first.container.querySelector('[data-date-group="2026-07-21"]')).not.toBeNull();
-    expect(first.container.querySelector('[data-category-icon="catering"] use')?.getAttribute('xlink:href')).toBe('#icon-catering');
+    expect(first.container.querySelector('[data-category-icon="catering"] svg')?.classList).toContain('lucide-utensils');
     expect(['bill', 'budget', 'settings']
       .every(shortcut => first.container.querySelector(`[data-testid="ledger-${shortcut}"]`))).toBe(true);
     expect(first.container.querySelector('[data-testid="ledger-search-action"]')).not.toBeNull();

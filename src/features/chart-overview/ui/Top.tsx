@@ -1,9 +1,9 @@
 import type { FC } from 'react';
 import type { ChartOverviewMetricOption } from '../model/chart-overview-context';
 import type { TimeRangeCategory } from '@/entities/chart';
-import { ChevronRight } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DesignIcon } from '@/shared/ui';
 import { useChartOverview } from '../model/chart-overview-context';
 
 export const Top: FC = () => {
@@ -51,7 +51,7 @@ export const Top: FC = () => {
           type="button"
         >
           {selectedMetric?.label}
-          <ChevronRight size={12} />
+          <DesignIcon name="chart-selector-chevron" size={12} />
         </button>
         <div className={`absolute right-[22px] top-[42px] z-20 min-w-[104px] overflow-hidden rounded-[12px] border border-border-primary bg-white/95 p-1 shadow-ww backdrop-blur-xl ${isMetricMenuVisible ? '' : 'hidden'}`}>
           {amountTypeList.map(item => (

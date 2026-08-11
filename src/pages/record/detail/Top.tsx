@@ -3,14 +3,13 @@ import type { ReactNode } from 'react';
 import type { numType } from './DetailPage';
 import type { RecordOverviewHeaderProps } from '@/entities/record';
 import dayjs from 'dayjs';
-import { CalendarDays, Eye, EyeOff, Search } from 'lucide-react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RecordMonthPicker } from '@/entities/record';
 import { LedgerTitleSwitcher } from '@/features/ledger-switcher';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { Icon } from '@/shared/ui';
+import { DesignIcon } from '@/shared/ui';
 import { useVisibleAmount } from '../model/useVisibleAmount';
 
 interface RecordOverviewHeaderAdapterOptions {
@@ -69,7 +68,7 @@ export function useRecordOverviewHeader({
           onClick={handleSearch}
           type="button"
         >
-          <Search size={18} strokeWidth={2} />
+          <DesignIcon name="search" size={16} />
         </button>
         <button
           aria-label={t('calendar.title')}
@@ -78,13 +77,13 @@ export function useRecordOverviewHeader({
           onClick={handleCalendar}
           type="button"
         >
-          <CalendarDays size={18} strokeWidth={2} />
+          <DesignIcon name="calendar" size={16} />
         </button>
       </>
     ),
     amountToggle: visibleAmountSwitch
       ? {
-          content: !visibleAmount ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />,
+          content: <DesignIcon name={visibleAmount ? 'amount-visible' : 'amount-hidden'} size={16} />,
           onClick: () => void onToggleVisibleAmount(),
         }
       : undefined,
@@ -113,21 +112,22 @@ export function useRecordOverviewHeader({
       ),
     },
     renderTitle: className => <LedgerTitleSwitcher className={className} />,
+    titleIcon: <DesignIcon name="ledger" size={15} />,
     shortcuts: [
       {
-        icon: <Icon name="bill" />,
+        icon: <DesignIcon name="shortcut-bill" size={20} />,
         key: 'bill',
         label: t('bill:title'),
         onClick: () => navigate(ROUTES_PATH.BILL.getPath()),
       },
       {
-        icon: <Icon name="budget" />,
+        icon: <DesignIcon name="shortcut-budget" size={20} />,
         key: 'budget',
         label: t('budget:title'),
         onClick: () => navigate(ROUTES_PATH.BUDGET.getPath()),
       },
       {
-        icon: <Icon name="asset-steward" />,
+        icon: <DesignIcon name="shortcut-asset" size={20} />,
         key: 'asset-steward',
         label: t('common:commonFunctions.assetSteward'),
         onClick: () => navigate(ROUTES_PATH.ASSET.getPath()),

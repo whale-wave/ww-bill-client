@@ -1,8 +1,9 @@
 import type { FC } from 'react';
 import type { ChartOverviewRankingItem } from '../model/chart-overview-context';
 import { useMemo } from 'react';
+import { CategoryIcon } from '@/entities/category';
 import { cn } from '@/shared/lib';
-import { Icon, ProgressBar } from '@/shared/ui';
+import { ProgressBar } from '@/shared/ui';
 import { useChartOverview } from '../model/chart-overview-context';
 
 export const RankingItem: FC<{ item: ChartOverviewRankingItem; onClick?: () => void }> = ({ item, onClick }) => {
@@ -18,7 +19,7 @@ export const RankingItem: FC<{ item: ChartOverviewRankingItem; onClick?: () => v
       onClick={onClick}
       type="button"
     >
-      <span className={cn('flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(111,194,220,0.16)] text-primary-deep')}><Icon name={item.category.icon} className={cn('text-[16px]')} /></span>
+      <span className={cn('flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(111,194,220,0.16)] text-primary-deep')}><CategoryIcon categoryName={item.category.name} iconKey={item.category.icon} size={16} /></span>
       <div className="min-w-0 flex-1">
         <div className={cn('flex items-center justify-between')}>
           <div className="truncate text-[13px] font-semibold leading-[19.5px] text-ww-ink">{item.category.name}</div>

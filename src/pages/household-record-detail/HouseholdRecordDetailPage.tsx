@@ -4,6 +4,7 @@ import type { RecordEntry } from '@/entities/record';
 import type { RecordEditorLocationState } from '@/features/record-editor';
 import { Dialog, Toast } from 'antd-mobile';
 import { useNavigate, useParams } from 'react-router-dom';
+import { CategoryIcon } from '@/entities/category';
 import { useHouseholdRecordQuery } from '@/entities/household';
 import { RecordDetailPresentation, useDeleteRecordMutation } from '@/entities/record';
 import { useGetUserUserInfoQuery } from '@/entities/user';
@@ -102,6 +103,7 @@ const RecordDetail: FC<{
         icon: record.category?.icon ?? 'bill',
         name: record.category?.name ?? t('recordDetail.uncategorized'),
       }}
+      categoryIcon={<CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} size={36} />}
       footerActions={isOwner
         ? [
             {

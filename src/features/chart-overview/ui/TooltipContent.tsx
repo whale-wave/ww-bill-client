@@ -4,8 +4,8 @@ import type { AmountType } from '@/entities/chart';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CategoryIcon } from '@/entities/category';
 import { cn } from '@/shared/lib';
-import { Icon } from '@/shared/ui';
 
 function formatCalendarDate(value: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
@@ -45,7 +45,7 @@ export const TooltipContent: FC<{ data: ChartOverviewPoint; currentAmountType: A
         {list.map(item => (
           <div key={item.id} className={cn('flex items-center h-[24px] space-x-3')}>
             <div className={cn('w-[18px] h-[18px] text-[#333] bg-gray-200 rounded-full flex items-center justify-center')}>
-              <Icon name={item.category.icon} />
+              <CategoryIcon categoryName={item.category.name} iconKey={item.category.icon} size={14} />
             </div>
             <div>{format(item.time, 'yy/MM/dd')}</div>
             <div className={cn('flex-grow w-[60px] truncate')}>{item.remark}</div>

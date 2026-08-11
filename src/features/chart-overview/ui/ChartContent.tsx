@@ -40,24 +40,24 @@ export const ChartContent: FC = () => {
                 surface="chart"
               >
                 <MetricGrid
-                  align="start"
-                  className="h-[62.5px] [&>div]:px-0 [&>div+div]:pl-7"
                   columns={2}
-                  density="chart"
                   items={[
                     {
                       key: 'total',
                       label: totalLabel ?? (currentAmountType === 'sub' ? t('totalExpend') : t('totalIncome')),
+                      suffix: '¥',
                       tone: 'default',
                       value: <span data-testid={totalTestId}>{isAmountHidden ? '••••' : String(curTab.amount).replace(/^¥/, '')}</span>,
                     },
                     {
                       key: 'average',
                       label: t('averageLabel'),
+                      suffix: '¥',
                       tone: 'muted',
                       value: isAmountHidden ? '••••' : String(curTab.average).replace(/^¥/, ''),
                     },
                   ]}
+                  variant="chart-summary"
                 />
                 {displayMode === 'pie' ? <PieChart /> : <LineChart />}
               </GradientPanel>

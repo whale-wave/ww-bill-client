@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import type { DesignIconName } from '@/shared/ui';
 import { Toast } from 'antd-mobile';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +7,7 @@ import { useGetUserUserInfoQuery, usePostCheckInMutation, UserSummaryCard } from
 import { BottomList } from '@/pages/mine/ui';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
-import { ActionMenuCard, Icon } from '@/shared/ui';
+import { ActionMenuCard, DesignIcon } from '@/shared/ui';
 import { TabBar } from '@/widgets/layout';
 
 const Mine: FC = () => {
@@ -47,7 +48,7 @@ const Mine: FC = () => {
 
   const tabs = useMemo(() => [
     {
-      icon: 'msg',
+      icon: 'mine-message' as DesignIconName,
       name: t('tabs.message'),
       path: '/message',
       onClick() {
@@ -56,7 +57,7 @@ const Mine: FC = () => {
       },
     },
     {
-      icon: 'badge',
+      icon: 'mine-badge' as DesignIconName,
       name: t('tabs.myBadges'),
       onClick() {
         Toast.show({
@@ -65,7 +66,7 @@ const Mine: FC = () => {
       },
     },
     {
-      icon: 'integral',
+      icon: 'mine-points' as DesignIconName,
       name: t('tabs.myPoints'),
       onClick() {
         Toast.show({
@@ -74,7 +75,7 @@ const Mine: FC = () => {
       },
     },
     {
-      icon: 'invite',
+      icon: 'mine-invite' as DesignIconName,
       name: t('tabs.inviteFriends'),
       onClick() {
         Toast.show({
@@ -83,7 +84,7 @@ const Mine: FC = () => {
       },
     },
     {
-      icon: 'setting',
+      icon: 'mine-settings' as DesignIconName,
       name: t('tabs.settings'),
       path: '/settings',
       onClick() {
@@ -109,12 +110,13 @@ const Mine: FC = () => {
           <ActionMenuCard
             columns={5}
             items={tabs.map((tab, index) => ({
-              icon: <Icon name={tab.icon} />,
+              icon: <DesignIcon name={tab.icon} size={16} />,
               key: tab.name,
               label: tab.name,
               onClick: tab.onClick.bind(tab),
               tone: index === 1 ? 'pink' : index === 2 ? 'amber' : index === 3 ? 'green' : index === 4 ? 'purple' : 'blue',
             }))}
+            variant="mine-actions"
           />
           <BottomList />
         </div>

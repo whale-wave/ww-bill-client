@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { RightOutline } from 'antd-mobile-icons';
+import { DesignIcon } from '@/shared/ui/design-icon';
 
 export interface SettingsListItem {
   key: string;
@@ -39,7 +39,7 @@ export function SettingsListCard({ items, className = '', density = 'standard' }
           )}
           <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium leading-[20.25px] text-ww-mid">{item.label}</span>
           {item.extra && <span className="shrink-0 text-xs text-ww-soft">{item.extra}</span>}
-          {item.showArrow !== false && <RightOutline className="shrink-0 text-ww-ghost" />}
+          {item.showArrow !== false && <DesignIcon className="shrink-0" name="list-chevron" size={16} />}
         </button>
       ))}
     </section>

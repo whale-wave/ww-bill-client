@@ -4,6 +4,7 @@ import type { recordChildren, RecordOverviewListGroup } from '@/entities/record'
 import { PackageOpen } from 'lucide-react';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CategoryIcon } from '@/entities/category';
 import { RecordOverviewList } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
@@ -45,6 +46,7 @@ const List: FC<ListProps> = memo(({ selectTime, change }) => {
     records: group[3].map(item => ({
       amount: item.type === 'add' ? item.amount : -item.amount,
       amountTone: item.type === 'add' ? 'income' : 'expense',
+      categoryName: item.category.name,
       iconName: item.category.icon,
       id: item.id,
       onClick: () => handleRecord(item),
@@ -63,7 +65,11 @@ const List: FC<ListProps> = memo(({ selectTime, change }) => {
       {groups.length > 0
         ? (
             <>
-              <RecordOverviewList groups={groups} variant="overview" />
+              <RecordOverviewList
+                groups={groups}
+                renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
+                variant="overview"
+              />
               <div className="h-[30px] flex-shrink-0"></div>
             </>
           )

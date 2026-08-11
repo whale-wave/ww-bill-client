@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import type { RecordEntry } from '@/entities/record';
 import { Dialog, ErrorBlock, SpinLoading, Toast } from 'antd-mobile';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { CategoryIcon } from '@/entities/category';
 import { RecordDetailPresentation, useDeleteRecordMutation, useGetRecordByIdQuery } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
@@ -120,6 +121,7 @@ const Editing: FC = () => {
     <RecordDetailPresentation
       backLabel={t('common:nav.back')}
       category={state.category}
+      categoryIcon={<CategoryIcon categoryName={state.category.name} iconKey={state.category.icon} size={36} />}
       footerActions={[
         { label: t('record:detail.edit'), onClick: handleEdit },
         { label: t('record:detail.delete'), onClick: handleDelete },

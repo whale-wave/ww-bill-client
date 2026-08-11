@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import type { FamilyRecord, HouseholdCalendarDay } from '@/entities/household';
+import { CategoryIcon } from '@/entities/category';
 import { FamilyRecordPolicy } from '@/entities/household';
 import { RecordOverviewList } from '@/entities/record';
 import { cn } from '@/shared/lib';
@@ -118,7 +119,13 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
       uncountedLabel,
     });
 
-    return <RecordOverviewList groups={overviewGroups} variant={groupedVariant === 'compact' ? 'overview' : 'search'} />;
+    return (
+      <RecordOverviewList
+        groups={overviewGroups}
+        renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
+        variant={groupedVariant === 'compact' ? 'overview' : 'search'}
+      />
+    );
   }
 
   return (
