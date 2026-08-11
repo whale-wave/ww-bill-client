@@ -26,7 +26,7 @@ const Discovery: React.FC<DiscoveryProps> = () => {
       <header className="h-[60px] shrink-0 px-[22px] pb-4 pt-[max(8px,env(safe-area-inset-top))]">
         <h1 className="text-[20px] font-extrabold leading-[30px] text-ww-ink">{t('commonFunctions.discovery')}</h1>
       </header>
-      <div className="relative flex-grow overflow-auto pb-5">
+      <div className="ww-tab-bar-scroll-padding relative flex-grow overflow-auto">
         <div className="space-y-[14px] px-[18px]">
           <CurrentMonthBillCard billRecord={userInfo?.billRecord} onClick={handleBillClick} />
           <CurMonthBudgetCard />

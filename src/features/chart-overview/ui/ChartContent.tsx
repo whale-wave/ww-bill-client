@@ -27,7 +27,7 @@ export const ChartContent: FC = () => {
 
   return (
     <div
-      className={cn('min-h-0 flex-grow overflow-y-auto px-[18px] pb-5')}
+      className={cn('ww-tab-bar-scroll-padding min-h-0 flex-grow overflow-y-auto px-[18px]')}
       data-chart-display={displayMode}
     >
       {!curTab

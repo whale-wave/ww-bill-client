@@ -63,16 +63,24 @@ describe('figma card primitives', () => {
     const container = render(createElement(MetricGrid, {
       columns: 2,
       items: [
-        { key: 'total', label: 'Total', suffix: '¥', value: '120.00' },
-        { key: 'average', label: 'Average', suffix: '¥', value: '12.00' },
+        { key: 'total', label: 'Total', suffix: '¥', value: '1234567890.12' },
+        { key: 'average', label: 'Average', suffix: '¥', value: '1234567.89' },
       ],
       variant: 'chart-summary',
     }));
     const metrics = container.querySelectorAll('[data-chart-metric]');
-    expect(container.querySelector('dl')?.classList).toContain('h-[62.5px]');
-    expect(metrics[0]?.classList).toContain('w-[95.422px]');
-    expect(metrics[1]?.classList).toContain('w-[79.625px]');
+    const grid = container.querySelector('dl');
+    expect(grid?.classList).toContain('h-[62.5px]');
+    expect(grid?.classList).toContain('grid-cols-2');
+    expect(metrics[0]?.classList).toContain('text-left');
+    expect(metrics[1]?.classList).toContain('border-l');
+    expect(metrics[0]?.classList).toContain('px-5');
+    expect(metrics[1]?.classList).toContain('px-5');
     expect(container.querySelector('[data-chart-currency]')?.classList).toContain('text-[13px]');
+    const values = container.querySelectorAll('[data-chart-metric-value]');
+    expect(values[0]?.textContent).toBe('1234567890.12');
+    expect(values[1]?.textContent).toBe('1234567.89');
+    expect(values[0]?.firstElementChild?.classList).not.toContain('truncate');
   });
 
   it('dispatches action menu callbacks', () => {

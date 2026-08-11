@@ -225,7 +225,8 @@ describe('ledger preference consumers', () => {
       },
       queryOptions: { enabled: true },
     }));
-    expect(container.querySelector('[data-chart-display="line"]')).not.toBeNull();
+    expect(container.querySelector('[data-chart-display="line"]')?.classList)
+      .toContain('ww-tab-bar-scroll-padding');
   });
 
   it('lets URL state override preferences and falls net plus pie back to the line slot', () => {

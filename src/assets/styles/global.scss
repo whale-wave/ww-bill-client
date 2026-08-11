@@ -121,6 +121,12 @@ html.senior {
   }
 }
 
+// Floating navigation stays outside document flow. The extra 24px lets the
+// final row scroll fully above the 66px bar and its 12px bottom offset.
+.ww-tab-bar-scroll-padding {
+  padding-bottom: calc(102px + env(safe-area-inset-bottom));
+}
+
 :root:root {
   --adm-color-primary: var(--ww-theme-color);
   --adm-color-text: var(--ww-theme-text-color);

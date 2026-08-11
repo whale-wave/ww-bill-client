@@ -96,7 +96,7 @@ const Mine: FC = () => {
 
   return (
     <div className="page">
-      <main className="grow overflow-auto px-[18px] pb-5 pt-[max(0px,env(safe-area-inset-top))]">
+      <main className="ww-tab-bar-scroll-padding grow overflow-auto px-[18px] pt-[max(0px,env(safe-area-inset-top))]">
         <UserSummaryCard
           name={userInfo?.name}
           avatar={userInfo?.avatar}

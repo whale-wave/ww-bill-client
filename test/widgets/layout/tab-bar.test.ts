@@ -143,7 +143,8 @@ describe('custom ledger tab bar', () => {
     expect(container.querySelector('[data-tab-key="records"]')?.getAttribute('aria-selected'))
       .toBe('true');
     expect(container.querySelectorAll('[role="tab"]')).toHaveLength(3);
-    expect(container.querySelector('.ww-tab-bar-spacer')).not.toBeNull();
+    expect(container.querySelector('.ww-tab-bar-spacer')).toBeNull();
+    expect(container.querySelector('[role="tablist"]')?.classList).toContain('fixed');
 
     await prefetch(container.querySelector('[data-tab-key="records"]'));
     await vi.waitFor(() => expect(hooks.prefetched).toContain('ledger-records'));

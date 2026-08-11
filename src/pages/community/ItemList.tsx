@@ -28,7 +28,7 @@ const ItemList: FC<ItemListProps> = ({ data }) => {
 
   return (
     <div
-      className={classNames(styles.wrapper, 'flex-grow relative overflow-auto')}
+      className="ww-tab-bar-scroll-padding relative flex-grow overflow-auto"
     >
       <ImagePreview
         visible={imgVisible}
