@@ -1,9 +1,16 @@
 import type { ReactNode } from 'react';
+import type { RouteObject } from 'react-router-dom';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import BottomList from '@/pages/mine/ui/BottomList/BottomList';
+
+const runtimeConfig = vi.hoisted(() => ({ isDev: true }));
+
+vi.mock('@/shared/config', () => ({
+  default: runtimeConfig,
+}));
 
 vi.mock('@/shared/i18n', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -27,6 +34,23 @@ vi.mock('antd-mobile', () => {
 
 let cleanup: (() => void) | undefined;
 
+function renderBottomList(routes: RouteObject[] = []) {
+  const container = document.createElement('div');
+  const root = createRoot(container);
+  const router = createMemoryRouter([
+    { path: '/mine', element: createElement(BottomList) },
+    ...routes,
+  ], { initialEntries: ['/mine'] });
+  act(() => root.render(createElement(RouterProvider, { router })));
+  cleanup = () => act(() => root.unmount());
+
+  return { container, router };
+}
+
+beforeEach(() => {
+  runtimeConfig.isDev = true;
+});
+
 afterEach(() => {
   cleanup?.();
   cleanup = undefined;
@@ -34,14 +58,9 @@ afterEach(() => {
 
 describe('mine ledger entries', () => {
   it('opens the ledger center from the mine list', async () => {
-    const container = document.createElement('div');
-    const root = createRoot(container);
-    const router = createMemoryRouter([
-      { path: '/mine', element: createElement(BottomList) },
+    const { container, router } = renderBottomList([
       { path: '/ledgers', element: createElement('div', null, 'ledger-center-target') },
-    ], { initialEntries: ['/mine'] });
-    act(() => root.render(createElement(RouterProvider, { router })));
-    cleanup = () => act(() => root.unmount());
+    ]);
 
     const entry = [...container.querySelectorAll('button')]
       .find(button => button.textContent === 'ledger:center.title');
@@ -52,14 +71,9 @@ describe('mine ledger entries', () => {
   });
 
   it('opens the household status router from the mine list', async () => {
-    const container = document.createElement('div');
-    const root = createRoot(container);
-    const router = createMemoryRouter([
-      { path: '/mine', element: createElement(BottomList) },
+    const { container, router } = renderBottomList([
       { path: '/household', element: createElement('div', null, 'household-target') },
-    ], { initialEntries: ['/mine'] });
-    act(() => root.render(createElement(RouterProvider, { router })));
-    cleanup = () => act(() => root.unmount());
+    ]);
 
     const entry = [...container.querySelectorAll('button')]
       .find(button => button.textContent === 'household:common.title');
@@ -67,5 +81,17 @@ describe('mine ledger entries', () => {
     await act(async () => entry?.click());
 
     expect(router.state.location.pathname).toBe('/household');
+  });
+
+  it('hides ledger configuration entries outside development mode', () => {
+    runtimeConfig.isDev = false;
+    const { container } = renderBottomList();
+
+    const entries = [...container.querySelectorAll('button')]
+      .map(button => button.textContent);
+
+    expect(entries).not.toContain('ledger:center.title');
+    expect(entries).not.toContain('household:common.title');
+    expect(entries).toContain('bottomList.settings');
   });
 });
