@@ -37,6 +37,11 @@ export function LedgerTitleSwitcher({
     : currentCustom?.label ?? ledgerName ?? t('switcher.currentCustom');
   const quickSwitchEnabled = appConfigQuery.data?.isLedgerQuickSwitchEnabled === true;
   const classes = ['ledger-title-switcher', className].filter(Boolean).join(' ');
+  const openPanel = () => {
+    if (!config.isDev)
+      return;
+    setPanelVisible(current => !current);
+  };
 
   return (
     <>
@@ -47,11 +52,11 @@ export function LedgerTitleSwitcher({
               aria-haspopup="dialog"
               className={classes}
               data-testid="ledger-switcher-title"
-              onClick={() => setPanelVisible(current => !current)}
+              onClick={openPanel}
               type="button"
             >
               <span>{title}</span>
-              <DownFill aria-hidden="true" />
+              {config.isDev && <DownFill aria-hidden="true" />}
             </button>
           )
         : (
