@@ -1,6 +1,8 @@
 import type { FC, ReactNode } from 'react';
+import { ChevronLeft, ChevronRight, Pencil, Share2, Trash2 } from 'lucide-react';
 import { Fragment } from 'react';
-import { FixedPin, Icon, NavBar } from '@/shared/ui';
+import { formatAmount } from '@/shared/lib';
+import { GradientPanel, Icon } from '@/shared/ui';
 
 export interface RecordDetailRow {
   label: string;
@@ -14,9 +16,12 @@ export interface RecordDetailAction {
   label: string;
   onClick: () => void;
   testId?: string;
+  tone?: 'danger' | 'primary';
 }
 
 export interface RecordDetailPresentationProps {
+  amount?: string;
+  amountType?: 'add' | 'sub';
   backLabel: string;
   category: {
     icon: string;
@@ -32,7 +37,46 @@ export interface RecordDetailPresentationProps {
   supplementaryRows?: readonly RecordDetailRow[];
 }
 
+function displayAmount(amount?: string) {
+  if (amount === undefined || Number.isNaN(Number(amount)))
+    return amount ?? '--';
+  return formatAmount(Number(amount));
+}
+
+function DetailRows({ rows }: { rows: readonly RecordDetailRow[] }) {
+  return rows.map(item => (
+    <Fragment key={item.label}>
+      {item.onClick
+        ? (
+            <button
+              className="flex min-h-[62px] w-full items-center gap-4 border-0 border-b border-solid border-border-primary bg-transparent py-3.5 text-left last:border-b-0"
+              data-record-detail-row
+              data-testid={item.testId}
+              onClick={item.onClick}
+              type="button"
+            >
+              <span className="w-[72px] shrink-0 text-[12px] font-semibold text-ww-soft">{item.label}</span>
+              <span className="min-w-0 flex-1 break-words text-[13px] font-bold leading-5 text-ww-ink">{item.value}</span>
+              <ChevronRight className="shrink-0 text-ww-ghost" size={15} />
+            </button>
+          )
+        : (
+            <div
+              className="flex min-h-[62px] w-full items-center gap-4 border-0 border-b border-solid border-border-primary py-3.5 last:border-b-0"
+              data-record-detail-row
+              data-testid={item.testId}
+            >
+              <span className="w-[72px] shrink-0 text-[12px] font-semibold text-ww-soft">{item.label}</span>
+              <span className="min-w-0 flex-1 break-words text-[13px] font-bold leading-5 text-ww-ink">{item.value}</span>
+            </div>
+          )}
+    </Fragment>
+  ));
+}
+
 export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
+  amount,
+  amountType,
   backLabel,
   category,
   categoryIcon,
@@ -44,76 +88,109 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
   supplementaryContent,
   supplementaryRows = [],
 }) => {
-  const detailRows = [...rows, ...supplementaryRows];
+  const amountTone = amountType === 'add' ? 'text-[#16886f]' : 'text-ww-ink';
+  const amountSign = amountType === 'add' ? '+' : amountType === 'sub' ? '-' : '';
 
   return (
-    <div className="page" data-record-detail-presentation>
-      {showNavigation && <NavBar back={backLabel} backArrow={false} onBack={onBack} />}
-      <div className="relative h-[96px] w-full shrink-0 bg-primary" data-record-detail-header>
-        <div
-          className="absolute left-1/2 top-[8px] z-10 -translate-x-1/2 text-center"
-          data-record-detail-category
-        >
-          <div className="mx-auto flex h-[60px] w-[60px] items-center justify-center rounded-full bg-white" data-category-icon={category.icon}>
-            {categoryIcon ?? <Icon className="text-[36px]" name={category.icon} />}
-          </div>
-          <span className="mt-[9px] block text-base text-[#333233]">{category.name}</span>
-        </div>
-      </div>
-      <div className="flex flex-col">
-        {detailRows.map(item => (
-          item.onClick
-            ? (
+    <div className="page-new relative overflow-hidden" data-record-detail-presentation>
+      <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-20 h-52 w-52 rounded-full bg-primary-light/35 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -left-20 top-[54%] h-52 w-52 rounded-full bg-ww-pink-light/25 blur-3xl" />
+
+      {showNavigation && (
+        <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,env(safe-area-inset-top))]" data-record-detail-navigation>
+          <button
+            aria-label={backLabel}
+            className="absolute left-[18px] flex h-9 w-9 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
+            onClick={onBack}
+            type="button"
+          >
+            <ChevronLeft size={19} />
+          </button>
+          <h1 className="max-w-[220px] truncate text-[17px] font-extrabold text-ww-ink">{category.name}</h1>
+        </header>
+      )}
+
+      <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-[calc(96px+env(safe-area-inset-bottom))] pt-1">
+        <div className="mx-auto w-full max-w-[520px] space-y-4">
+          <GradientPanel
+            className="relative overflow-hidden px-5 py-5"
+            data-record-detail-header
+            elevation="high"
+            surface={amountType === 'add' ? 'aurora' : 'chart'}
+          >
+            <div aria-hidden="true" className="absolute -right-7 -top-9 h-32 w-32 rounded-full border-[22px] border-solid border-white/25" />
+            <div className="relative flex items-center gap-3" data-record-detail-category>
+              <div
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] border border-white/80 bg-white/75 text-primary-deep shadow-ww-xs"
+                data-category-icon={category.icon}
+              >
+                {categoryIcon ?? <Icon className="text-[26px]" name={category.icon} />}
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="truncate text-[18px] font-black leading-7 text-ww-ink">{category.name}</h2>
+              </div>
+              {pinnedAction && (
                 <button
-                  className="flex w-full items-center border-0 border-b border-solid border-[#ebebeb] bg-white px-[15px] py-[20px] text-left text-base font-normal text-[#aeaeae]"
-                  data-record-detail-row
-                  data-testid={item.testId}
-                  key={item.label}
-                  onClick={item.onClick}
+                  aria-label={pinnedAction.label}
+                  className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-white/80 bg-white/65 px-3 text-[11px] font-bold text-primary-deep shadow-ww-xs backdrop-blur-sm disabled:opacity-50"
+                  data-record-detail-pin
+                  data-testid={pinnedAction.testId}
+                  disabled={pinnedAction.disabled}
+                  onClick={pinnedAction.onClick}
                   type="button"
                 >
-                  <span className="flex-shrink-0">{item.label}</span>
-                  <span className="ml-[12px] text-base font-normal text-[#605f60]">
-                    {item.value}
-                  </span>
+                  <Share2 size={14} strokeWidth={1.9} />
+                  {pinnedAction.label}
                 </button>
-              )
-            : (
-                <div
-                  className="flex w-full items-center border-0 border-b border-solid border-[#ebebeb] px-[15px] py-[20px] text-base font-normal text-[#aeaeae]"
-                  data-record-detail-row
-                  data-testid={item.testId}
-                  key={item.label}
-                >
-                  <span className="flex-shrink-0">{item.label}</span>
-                  <span className="ml-[12px] text-base font-normal text-[#605f60]">
-                    {item.value}
+              )}
+            </div>
+
+            {amount !== undefined && (
+              <div className="relative mt-6 border-0 border-t border-solid border-white/60 pt-4">
+                <p className={`font-number text-[34px] font-black leading-10 tracking-[-0.8px] ${amountTone}`} data-record-detail-amount>
+                  <span className="mr-1 text-[17px] font-extrabold">
+                    {amountSign}
+                    ¥
                   </span>
-                </div>
-              )
-        ))}
-        {supplementaryContent}
-        {pinnedAction && (
-          <FixedPin onClick={pinnedAction.onClick}>{pinnedAction.label}</FixedPin>
-        )}
-      </div>
+                  {displayAmount(amount)}
+                </p>
+              </div>
+            )}
+          </GradientPanel>
+
+          <GradientPanel className="px-4 py-1" data-record-detail-information elevation="standard" surface="glass">
+            <DetailRows rows={rows} />
+          </GradientPanel>
+
+          {(supplementaryRows.length > 0 || supplementaryContent) && (
+            <GradientPanel className="overflow-hidden px-4 py-1" data-record-detail-supplementary elevation="low" surface="glass">
+              <DetailRows rows={supplementaryRows} />
+              {supplementaryContent}
+            </GradientPanel>
+          )}
+        </div>
+      </main>
+
       {footerActions.length > 0 && (
-        <div className="fixed bottom-0 left-0 w-full" data-record-detail-footer>
-          <div className="flex h-[50px] items-center border-0 border-t border-solid border-[#c8c8c8] bg-white">
-            {footerActions.map((action, index) => (
-              <Fragment key={action.label}>
+        <div className="fixed bottom-0 left-0 z-30 w-full px-[18px] pb-[max(14px,env(safe-area-inset-bottom))]" data-record-detail-footer>
+          <div className="mx-auto flex h-[58px] w-full max-w-[520px] items-center gap-2 rounded-[22px] border border-border-primary bg-white/[0.9] p-1.5 shadow-ww-floating backdrop-blur-xl">
+            {footerActions.map((action, index) => {
+              const isDanger = action.tone === 'danger' || (footerActions.length > 1 && index === footerActions.length - 1);
+              const ActionIcon = isDanger ? Trash2 : Pencil;
+              return (
                 <button
-                  className="flex w-[33px] flex-1 items-center justify-center border-0 bg-transparent text-base font-normal text-[#333233]"
+                  className={`flex h-full min-w-0 flex-1 items-center justify-center gap-2 rounded-[17px] border-0 text-[13px] font-extrabold transition active:scale-[0.98] disabled:opacity-45 ${isDanger ? 'bg-ww-pink-light/55 text-[#b24f71]' : 'bg-primary text-white shadow-ww-xs'}`}
                   data-testid={action.testId}
                   disabled={action.disabled}
-                  type="button"
+                  key={action.label}
                   onClick={action.onClick}
+                  type="button"
                 >
-                  {action.label}
+                  <ActionIcon size={16} strokeWidth={1.9} />
+                  <span className="truncate">{action.label}</span>
                 </button>
-                {index < footerActions.length - 1 && <span className="h-5 w-px bg-[#c8c8c8]" />}
-              </Fragment>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

@@ -2,7 +2,6 @@ import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import type { Household } from '@/entities/household';
 import type { RecordEditorLocationState } from '@/features/record-editor';
-import { DatePicker } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -64,22 +63,15 @@ const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) =
     next.delete('month');
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
-  const handleDatePicker = useCallback(() => {
-    void DatePicker.prompt({
-      defaultValue: selectMonthValue.toDate(),
-      onConfirm: (value) => {
-        const nextMonth = dayjs(value);
-        if (selectMonthValue.isSame(nextMonth, 'month'))
-          return;
-        const nextDate = dayjs().isSame(nextMonth, 'month') ? dayjs() : nextMonth.startOf('day');
-        setSelectMonthValue(nextMonth);
-        setSelectDateValue(nextDate);
-        syncSelectedDate(nextDate);
-      },
-      precision: 'month',
-      title: t('record:calendar.selectMonth'),
-    });
-  }, [selectMonthValue, syncSelectedDate, t]);
+  const handleMonthChange = useCallback((month: Dayjs) => {
+    const nextMonth = month.startOf('month');
+    if (selectMonthValue.isSame(nextMonth, 'month'))
+      return;
+    const nextDate = dayjs().isSame(nextMonth, 'month') ? dayjs() : nextMonth;
+    setSelectMonthValue(nextMonth);
+    setSelectDateValue(nextDate);
+    syncSelectedDate(nextDate);
+  }, [selectMonthValue, syncSelectedDate]);
 
   const handleChangeDate = useCallback((date: Date | null) => {
     if (!date)
@@ -135,6 +127,7 @@ const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) =
     <RecordCalendarPresentation
       backLabel={t('common:nav.back')}
       days={days}
+      emptyDescription={t('record:calendar.emptyDescription')}
       emptyLabel={t('calendar.emptyDay')}
       errorDescription={t('common.loadErrorDescription')}
       groups={groups}
@@ -142,10 +135,11 @@ const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) =
       onBack={() => navigate(-1)}
       onCreate={handleCreateRecord}
       onDateChange={date => handleChangeDate(date.toDate())}
-      onMonthClick={handleDatePicker}
+      onMonthChange={handleMonthChange}
       onRetry={() => void Promise.all([calendarQuery.refetch(), recordsQuery.refetch()])}
       onToday={handleToToday}
       retryLabel={t('common.retry')}
+      selectedDayLabel={t('record:calendar.selectedDay')}
       selectedDate={selectDateValue}
       state={calendarQuery.isLoading || recordsQuery.isLoading
         ? 'loading'

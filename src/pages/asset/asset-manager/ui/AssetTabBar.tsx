@@ -1,10 +1,9 @@
 import type { FC } from 'react';
-import { TabBar } from 'antd-mobile';
-import { HistogramOutline, ReceiptOutline } from 'antd-mobile-icons';
-import { useCallback } from 'react';
+import { ChartNoAxesCombined, WalletCards } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { BottomTabBarPresentation } from '@/shared/ui';
 
 export const AssetTabBar: FC<{ activeKey: string }> = ({ activeKey }) => {
   const { t } = useTranslation('asset');
@@ -13,31 +12,29 @@ export const AssetTabBar: FC<{ activeKey: string }> = ({ activeKey }) => {
   const tabs = [
     {
       key: 'home',
-      title: t('tab.assets'),
-      icon: <ReceiptOutline />,
-      onClick: () => {
+      label: t('tab.assets'),
+      icon: <WalletCards size={19} strokeWidth={1.9} />,
+      onSelect: () => {
         navigate(ROUTES_PATH.ASSET.getPath(), { replace: true });
       },
+      route: ROUTES_PATH.ASSET.getPath(),
     },
     {
       key: 'chart',
-      title: t('tab.chart'),
-      icon: <HistogramOutline />,
-      onClick: () => {
+      label: t('tab.chart'),
+      icon: <ChartNoAxesCombined size={19} strokeWidth={1.9} />,
+      onSelect: () => {
         navigate(ROUTES_PATH.ASSET_CHART.getPath(), { replace: true });
       },
+      route: ROUTES_PATH.ASSET_CHART.getPath(),
     },
-  ];
-
-  const onChange = useCallback((key: string) => {
-    tabs.find(tab => tab.key === key)?.onClick?.();
-  }, []);
+  ] as const;
 
   return (
-    <TabBar className="fixed bottom-0 w-full bg-white shadow-[0_0px_10px_rgba(0,0,0,0.1)]" activeKey={activeKey} onChange={onChange}>
-      {tabs.map(tab => (
-        <TabBar.Item key={tab.key} title={tab.title} icon={tab.icon} />
-      ))}
-    </TabBar>
+    <BottomTabBarPresentation
+      activeKey={activeKey}
+      ariaLabel={t('manager.navigation')}
+      items={tabs}
+    />
   );
 };

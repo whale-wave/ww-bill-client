@@ -1,6 +1,4 @@
 import { resolve } from 'node:path';
-import { inspectorServer } from '@react-dev-inspector/vite-plugin';
-import babel from '@rolldown/plugin-babel';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
@@ -9,7 +7,7 @@ import config from './config';
 const srcPath = resolve(__dirname, 'src');
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command }) => {
+export default defineConfig(() => {
   // const env = loadEnv(mode, process.cwd(), '');
 
   return {
@@ -41,15 +39,7 @@ export default defineConfig(({ command }) => {
       },
     },
     plugins: [
-      ...(command === 'serve' ? [inspectorServer()] : []),
       react(),
-      ...(command === 'serve'
-        ? [
-            babel({
-              plugins: ['@react-dev-inspector/babel-plugin'],
-            }),
-          ]
-        : []),
       createHtmlPlugin({
         inject: {
           data: {

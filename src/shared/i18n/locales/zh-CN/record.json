@@ -13,7 +13,10 @@
     "saveFailed": "保存失败，请重试",
     "conflict": "记录已在其他位置更新，请刷新后重试",
     "selectTime": "时间选择",
-    "complete": "完成"
+    "backspace": "退格",
+    "complete": "完成",
+    "emptyCategoryTitle": "还没有可用分类",
+    "emptyCategoryDescription": "请先在设置中创建收支分类，再回来记账"
   },
   "detail": {
     "title": "明细",
@@ -25,7 +28,10 @@
     "edit": "编辑",
     "delete": "删除",
     "confirmDelete": "确认删除",
-    "deleteWarning": "删除后数据不可恢复!"
+    "deleteWarning": "删除后数据不可恢复!",
+    "emptyTitle": "这个月还没有明细",
+    "emptyDescription": "记下第一笔收支，月度明细会自动整理在这里",
+    "emptyAction": "去记一笔"
   },
   "editing": {
     "title": "编辑记录"
@@ -34,12 +40,51 @@
     "title": "日历",
     "selectMonth": "选择月份",
     "noRecord": "暂无记录",
+    "emptyDescription": "这一天还没有收支，记下一笔后会显示在这里",
+    "selectedDay": "当日明细",
     "dailyBudget": "日均预算"
+  },
+  "periodPicker": {
+    "selectMonth": "选择年月",
+    "selectYear": "选择年份",
+    "year": "年份",
+    "month": "月份"
   },
   "search": {
     "title": "搜索",
     "placeholder": "搜索类别/标签/备注",
-    "noResult": "暂无搜索结果"
+    "noResult": "暂无搜索结果",
+    "filter": "筛选",
+    "filterPanelTitle": "筛选记录",
+    "idleTitle": "找到你想要的记录",
+    "idleDescription": "输入关键词，或通过筛选缩小范围",
+    "emptyTitle": "没有找到匹配记录",
+    "emptyDescription": "换个关键词或调整筛选条件试试",
+    "matchType": "范围",
+    "flow": "收支",
+    "time": "时间",
+    "unlimited": "不限",
+    "category": "分类",
+    "tag": "标签",
+    "remark": "备注",
+    "amount": "金额",
+    "income": "收入",
+    "expense": "支出",
+    "custom": "自定义",
+    "more": "更多筛选",
+    "member": "成员",
+    "minimum": "最低",
+    "maximum": "最高",
+    "minAmount": "最小金额",
+    "maxAmount": "最大金额",
+    "counting": "统计",
+    "all": "全部",
+    "counted": "计入",
+    "uncounted": "不计入",
+    "startDate": "开始日期",
+    "endDate": "结束日期",
+    "reset": "重置",
+    "confirm": "确定"
   },
   "type": {
     "expense": "支出",

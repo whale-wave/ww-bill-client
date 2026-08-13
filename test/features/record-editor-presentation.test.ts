@@ -13,6 +13,7 @@ vi.mock('@/shared/i18n', () => ({
 
 vi.mock('@/shared/ui', () => ({
   DesignIcon: ({ name }: { name: string }) => createElement('span', { 'data-design-icon': name }),
+  IllustratedEmptyState: ({ testId, title }: { testId: string; title: string }) => createElement('div', { 'data-testid': testId }, title),
 }));
 
 const category: CategoryEntity = {
@@ -51,6 +52,29 @@ function TestEditor({ onCancel = vi.fn(), withTags = false }: { onCancel?: () =>
 }
 
 describe('record editor presentation', () => {
+  it('uses the shared empty state when no bookkeeping categories exist', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    function EmptyEditor() {
+      return createElement(RecordEditorPresentation, {
+        categories: [],
+        categoryState: 'ready',
+        controller: useRecordEditorController({
+          onSubmit: vi.fn(),
+          seed: { recordType: 'sub', time: '2026-07-21T12:00:00.000Z' },
+        }),
+        onCancel: vi.fn(),
+      });
+    }
+
+    act(() => root.render(createElement(EmptyEditor)));
+    cleanup = () => act(() => root.unmount());
+
+    expect(container.querySelector('[data-testid="record-editor-empty-state"]')).not.toBeNull();
+    expect(container.textContent).toContain('record:bookkeeping.emptyCategoryTitle');
+  });
+
   it('moves from category selection to the amount keypad', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
@@ -72,6 +96,9 @@ describe('record editor presentation', () => {
     expect(container.querySelector('[data-record-editor-header]')?.classList).toContain('px-[22px]');
     expect(container.querySelector('[data-record-editor-note]')?.classList).toContain('mx-[22px]');
     expect(container.querySelector('[data-record-editor-total]')?.classList).toContain('text-[54px]');
+    const backspace = container.querySelector<HTMLButtonElement>('[aria-label="record:bookkeeping.backspace"]');
+    expect(backspace?.textContent).toContain('record:bookkeeping.backspace');
+    expect(backspace?.querySelector('svg')).not.toBeNull();
   });
 
   it('keeps tags as an optional fixed entry instead of a separate form layout', () => {

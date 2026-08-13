@@ -1,35 +1,21 @@
-import type { ChangeEvent, CSSProperties, FC } from 'react';
+import type { FC } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import classNames from 'classnames';
+import { LockKeyhole, Mail } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sign } from '@/entities/auth';
 import { userKeys } from '@/entities/user';
-import { useAuthStore } from '@/features/auth';
+import { AuthPageShell, AuthPrimaryButton, useAuthStore } from '@/features/auth';
 import { EmailCaptchaInput } from '@/features/email-captcha';
 import { useTranslation } from '@/shared/i18n';
-import { Button, Input, NavBar } from '@/shared/ui';
-import styles from './index.module.scss';
-
-const inputStyle = {
-  '--prefix-width': '73px',
-} as CSSProperties;
+import { FormField } from '@/shared/ui';
 
 const Sign: FC = () => {
   const { t } = useTranslation('auth');
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
-    emailCode: '',
-  });
+  const [form, setForm] = useState({ email: '', password: '', emailCode: '' });
   const queryClient = useQueryClient();
   const { setToken } = useAuthStore(({ setToken }) => ({ setToken }));
-
   const navigate = useNavigate();
-
-  const setFormValue = (key: string, value: string) => {
-    setForm({ ...form, [key]: value });
-  };
 
   const handleSign = async () => {
     const { statusCode, data } = await sign(form);
@@ -45,56 +31,52 @@ const Sign: FC = () => {
   };
 
   return (
-    <div className={classNames(styles.wrapper, 'page')}>
-      <NavBar back={t('common:nav.back')} backArrow={false} onBack={() => navigate(-1)}>
-        {t('sign.title')}
-      </NavBar>
-      <main
-        className={classNames(
-          'flex-grow flex justify-center items-center px-[28px]',
-        )}
-      >
-        <div
-          className={classNames(
-            styles.box,
-            'flex flex-col justify-center items-center',
-          )}
-        >
-          <Input
-            style={inputStyle}
-            label={t('sign.email')}
-            value={form.email}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setFormValue('email', e.target.value)}
-            className="mt-3"
-            placeholder={t('validation.emailRequired')}
-          />
-          <Input
-            style={inputStyle}
-            label={t('sign.password')}
-            value={form.password}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setFormValue('password', e.target.value)}
-            className="mt-3"
-            placeholder={t('validation.passwordRequired')}
-          />
-          <EmailCaptchaInput
-            email={form.email}
-            style={inputStyle}
-            value={form.emailCode}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setFormValue('emailCode', e.target.value)}
-          />
-          <Button
-            block
-            style={{ margin: '40px 0 14px 0' }}
-            onClick={handleSign}
-          >
-            {t('sign.submit')}
-          </Button>
-        </div>
-      </main>
-    </div>
+    <AuthPageShell
+      footer={(
+        <span>
+          {t('sign.hasAccount')}
+          {' '}
+          <button className="border-0 bg-transparent p-0 font-bold text-primary-deep" onClick={() => navigate('/login')} type="button">
+            {t('sign.gotoLogin')}
+          </button>
+        </span>
+      )}
+      kicker={t('brandKicker')}
+      onBack={() => navigate(-1)}
+      subtitle={t('sign.subtitle')}
+      title={t('sign.title')}
+    >
+      <div className="space-y-4">
+        <FormField
+          autoComplete="email"
+          inputMode="email"
+          label={t('sign.email')}
+          onChange={email => setForm(current => ({ ...current, email }))}
+          placeholder={t('validation.emailRequired')}
+          prefix={<Mail size={18} strokeWidth={1.8} />}
+          type="email"
+          value={form.email}
+        />
+        <FormField
+          autoComplete="new-password"
+          label={t('sign.password')}
+          onChange={password => setForm(current => ({ ...current, password }))}
+          placeholder={t('validation.passwordRequired')}
+          prefix={<LockKeyhole size={18} strokeWidth={1.8} />}
+          type="password"
+          value={form.password}
+        />
+        <EmailCaptchaInput
+          email={form.email}
+          onChange={emailCode => setForm(current => ({ ...current, emailCode }))}
+          value={form.emailCode}
+        />
+      </div>
+      <p className="mt-3 text-[11px] leading-4 text-ww-soft">{t('sign.passwordRule')}</p>
+      <AuthPrimaryButton onClick={() => void handleSign()} testId="sign-submit">
+        {t('sign.submit')}
+      </AuthPrimaryButton>
+    </AuthPageShell>
   );
 };
 

@@ -39,7 +39,7 @@ afterEach(() => {
 });
 
 describe('budget presentation', () => {
-  it('keeps the month/year dropdown controlled by the page adapter', async () => {
+  it('keeps the month/year selector controlled by the page adapter', () => {
     const handlePeriodChange = vi.fn();
     const container = render(createElement(BudgetPeriodDropdown, {
       budgetEntityType: BudgetEntityType.MONTH,
@@ -48,8 +48,7 @@ describe('budget presentation', () => {
     }));
 
     expect(container.textContent).toContain('dropdown.monthlyBudget');
-    await act(async () => container.querySelector<HTMLElement>('.adm-dropdown-item-title')?.click());
-    await act(async () => document.body.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.YEAR}"]`)?.click());
+    act(() => container.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.YEAR}"]`)?.click());
 
     expect(handlePeriodChange).toHaveBeenCalledWith(BudgetEntityType.YEAR);
   });
@@ -86,6 +85,7 @@ describe('budget presentation', () => {
     expect(container.textContent).toContain('Dining');
     expect(container.textContent).toContain('900.00');
     expect(container.textContent).toContain('70.00');
+    expect(container.querySelector('[data-budget-id="category-1"] .lucide-utensils')).not.toBeNull();
 
     act(() => container.querySelector<HTMLElement>('[data-budget-id="summary-1"]')?.click());
     act(() => container.querySelector<HTMLElement>('[data-budget-id="category-1"]')?.click());
@@ -109,16 +109,11 @@ describe('budget presentation', () => {
 
     expect(container.textContent).toContain('emptyBudget');
     expect(container.querySelector('[data-budget-add-category]')).toBeNull();
-    const createButton = container.querySelector('[data-budget-create-summary]');
-    expect(createButton?.classList.contains('adm-button-primary')).toBe(true);
-    expect(createButton?.classList.contains('adm-button-fill-outline')).toBe(false);
-    expect(createButton?.classList.contains('justify-center')).toBe(true);
-    expect(createButton?.classList).toContain('!bg-primary');
-    const createButtonContent = container.querySelector('[data-budget-create-summary-content]');
-    expect(createButtonContent?.classList).toContain('inline-flex');
-    expect(createButtonContent?.classList).toContain('items-center');
+    const createButton = container.querySelector('[data-testid="budget-empty-state"] button');
+    expect(createButton).not.toBeNull();
+    expect(createButton?.classList).toContain('bg-primary');
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-create-summary]')?.click());
+    act(() => createButton?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
     expect(handleSummaryCreate).toHaveBeenCalledOnce();
   });
 
@@ -141,7 +136,7 @@ describe('budget presentation', () => {
 
     expect(container.textContent).toContain('emptyCategoryBudget');
     expect(container.querySelector('[data-budget-add-category]')).not.toBeNull();
-    expect(container.querySelector('[data-budget-add-category]')?.closest('.fixed')).not.toBeNull();
+    expect(container.querySelector('[data-budget-add-category]')?.closest('.shrink-0')).not.toBeNull();
   });
 
   it('uses one controlled editor presentation for summary and category budgets', () => {

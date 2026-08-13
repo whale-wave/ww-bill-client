@@ -3,7 +3,7 @@ import type { UserNotification } from '@/entities/notification';
 import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import appLogo from '@/assets/bill-logo-v2-transparent.png';
+import appAvatar from '@/assets/brand/whale-logo-surface.png';
 import {
   useMarkNotificationReadMutation,
   useNotificationsQuery,
@@ -31,7 +31,7 @@ function NotificationContent({
   return (
     <>
       <span className={styles.avatarWrap}>
-        <img alt="" className={styles.avatar} src={appLogo} />
+        <img alt="" className={styles.avatar} src={appAvatar} />
         {isUnread && (
           <span
             aria-label={t('message.notificationCenter.unread')}

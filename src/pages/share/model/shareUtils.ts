@@ -51,7 +51,9 @@ export function normalizeShareData(source: ShareSource | undefined): ShareData |
   if (!amount || !type || !categoryName)
     return null;
 
-  return { amount, type, categoryName, remark, dateText: dateText || i18n.t('common:export.noDate') };
+  const categoryIcon = readString(source, ['categoryIcon', 'icon']) || readString(category, ['icon']);
+
+  return { amount, type, categoryIcon: categoryIcon || undefined, categoryName, remark, dateText: dateText || i18n.t('common:export.noDate') };
 }
 
 export function getSourceFromSearchParams(searchParams: URLSearchParams): ShareSource {
@@ -59,6 +61,7 @@ export function getSourceFromSearchParams(searchParams: URLSearchParams): ShareS
     amount: searchParams.get('amount') || '',
     type: searchParams.get('type') || '',
     categoryName: searchParams.get('categoryName') || searchParams.get('category') || '',
+    categoryIcon: searchParams.get('categoryIcon') || '',
     remark: searchParams.get('remark') || '',
     dateText: searchParams.get('dateText') || '',
     time: searchParams.get('time') || searchParams.get('date') || '',
@@ -74,6 +77,8 @@ export function buildShareUrl(data: ShareData): string {
   });
   if (data.remark)
     params.set('remark', data.remark);
+  if (data.categoryIcon)
+    params.set('categoryIcon', data.categoryIcon);
   return `${window.location.origin}${window.location.pathname}#/share?${params.toString()}`;
 }
 

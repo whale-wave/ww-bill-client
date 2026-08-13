@@ -1,73 +1,76 @@
 import type { FC } from 'react';
-import { Button, Dialog, Toast } from 'antd-mobile';
+import { Dialog, Toast } from 'antd-mobile';
+import { Mail } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getToolsForgetPasswordEmailApi } from '@/entities/auth';
+import { AuthPageShell, AuthPrimaryButton } from '@/features/auth';
 import { buildVerifyCodePath } from '@/pages/auth/forget-password/model/params';
-import { WwInput } from '@/pages/auth/forget-password/ui';
 import { useTranslation } from '@/shared/i18n';
 import { isEmail } from '@/shared/lib';
 import { playSound } from '@/shared/lib/play-sound';
-import { NavBar } from '@/shared/ui';
+import { FormField } from '@/shared/ui';
 
 const ForgetPassword: FC = () => {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
 
-  const onGoTo = useCallback((to: string) => {
-    playSound.turnPage();
-    navigate(to);
-  }, [navigate]);
-
-  const onGoToBack = useCallback(() => {
+  const handleBack = useCallback(() => {
     playSound.turnPage();
     navigate(-1);
   }, [navigate]);
 
-  const onSend = useCallback(() => {
+  const handleSend = useCallback(() => {
     if (!isEmail(email)) {
       Toast.show({ position: 'top', content: t('forgetPassword.emailFormatError') });
       return;
     }
     void Dialog.confirm({
+      cancelText: t('common:nav.cancel'),
+      confirmText: t('common:nav.confirm'),
       content: (
         <div className="flex flex-col items-center font-bold">
           <div>{t('forgetPassword.confirmEmail')}</div>
-          <div>{email}</div>
+          <div className="mt-2 font-number text-primary-deep">{email}</div>
         </div>
       ),
       onConfirm: async () => {
-        const getForgetPasswordEmailCaptchaRes
-          = await getToolsForgetPasswordEmailApi(email, true);
-
-        if (getForgetPasswordEmailCaptchaRes.statusCode === 200) {
+        const response = await getToolsForgetPasswordEmailApi(email, true);
+        if (response.statusCode === 200) {
           setTimeout(() => {
-            onGoTo(buildVerifyCodePath(email));
+            playSound.turnPage();
+            navigate(buildVerifyCodePath(email));
           }, 200);
         }
       },
+      title: t('forgetPassword.confirmEmailTitle'),
     });
-  }, [email, onGoTo, t]);
+  }, [email, navigate, t]);
 
   return (
-    <div className="page flex flex-col">
-      <NavBar back={t('common:nav.back')} onBack={onGoToBack}>
-        {t('forgetPassword.title')}
-      </NavBar>
-      <div className="flex-grow flex flex-col items-center space-y-6 pt-10">
-        <WwInput placeholder={t('forgetPassword.email')} value={email} onChange={setEmail} />
-        <Button
-          block
-          className="!w-[80%] !rounded-[12px] !mt-10 !text-black333"
-          color="primary"
-          size="large"
-          onClick={onSend}
-        >
-          {t('common:nav.next')}
-        </Button>
-      </div>
-    </div>
+    <AuthPageShell
+      kicker={t('forgetPassword.stepEmail')}
+      onBack={handleBack}
+      subtitle={t('forgetPassword.emailSubtitle')}
+      title={t('forgetPassword.title')}
+    >
+      <FormField
+        autoComplete="email"
+        inputMode="email"
+        label={t('login.emailLabel')}
+        onChange={setEmail}
+        onEnterPress={handleSend}
+        placeholder={t('forgetPassword.email')}
+        prefix={<Mail size={18} strokeWidth={1.8} />}
+        type="email"
+        value={email}
+      />
+      <p className="mt-3 text-[11px] leading-4 text-ww-soft">{t('forgetPassword.emailHint')}</p>
+      <AuthPrimaryButton onClick={handleSend} testId="password-recovery-next">
+        {t('common:nav.next')}
+      </AuthPrimaryButton>
+    </AuthPageShell>
   );
 };
 

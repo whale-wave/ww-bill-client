@@ -1,19 +1,14 @@
 import type { FC } from 'react';
-import type {
-  NavigateOptions,
-} from 'react-router-dom';
-import { Button, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
+import { LockKeyhole } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { postAuthPasswordForgetResetApi } from '@/entities/auth';
+import { AuthPageShell, AuthPrimaryButton } from '@/features/auth';
 import { readPasswordRecoveryParams } from '@/pages/auth/forget-password/model/params';
-import { WwInput } from '@/pages/auth/forget-password/ui';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
-import { NavBar } from '@/shared/ui';
+import { FormField } from '@/shared/ui';
 
 const ForgetPasswordReset: FC = () => {
   const { t } = useTranslation('auth');
@@ -23,91 +18,75 @@ const ForgetPasswordReset: FC = () => {
   const [urlSearchParams] = useSearchParams();
   const { captcha, email } = readPasswordRecoveryParams(urlSearchParams);
 
-  const onGoTo = useCallback(
-    (to: string, options?: NavigateOptions) => {
-      playSound.turnPage();
-      navigate(to, options);
-    },
-    [navigate],
-  );
-
-  const onGoToBack = useCallback(() => {
+  const handleBack = useCallback(() => {
     playSound.turnPage();
     navigate(-1);
   }, [navigate]);
 
-  const onSend = useCallback(async () => {
+  const handleSubmit = useCallback(async () => {
     if (!password || !confirmPassword) {
       Toast.show({ content: t('forgetPassword.pleaseEnterPassword'), position: 'top' });
       return;
     }
-
     if (password !== confirmPassword) {
       Toast.show({ content: t('forgetPassword.passwordMismatch'), position: 'top' });
       return;
     }
 
-    const postAuthPasswordForgetResetRes = await postAuthPasswordForgetResetApi(
-      {
-        email,
-        captcha,
-        password,
-        confirmPassword,
-      },
-      true,
-    );
+    const response = await postAuthPasswordForgetResetApi({
+      email,
+      captcha,
+      password,
+      confirmPassword,
+    }, true);
 
-    if (postAuthPasswordForgetResetRes.statusCode === 4005) {
-      setTimeout(() => {
-        onGoTo('/forget-password', {
-          replace: true,
-        });
-      }, 400);
+    if (response.statusCode === 4005) {
+      setTimeout(navigate, 400, '/forget-password', { replace: true });
     }
-    else if (postAuthPasswordForgetResetRes.statusCode === 200) {
-      setTimeout(() => {
-        navigate('/mine', {
-          replace: true,
-        });
-      }, 400);
+    else if (response.statusCode === 200) {
+      Toast.show({ content: t('forgetPassword.resetSuccess') });
+      setTimeout(navigate, 400, '/login', { replace: true });
     }
-  }, [password, confirmPassword, email, captcha, navigate, onGoTo, t]);
+  }, [captcha, confirmPassword, email, navigate, password, t]);
 
   useEffect(() => {
-    if (!email || !captcha) {
+    if (!email || !captcha)
       navigate('/forget-password', { replace: true });
-    }
   }, [captcha, email, navigate]);
 
   return (
-    <div className="page flex flex-col">
-      <NavBar back={t('common:nav.back')} onBack={onGoToBack}>
-        {t('forgetPassword.title')}
-      </NavBar>
-      <div className="flex-grow flex flex-col items-center space-y-6 pt-10">
-        <WwInput
-          value={password}
+    <AuthPageShell
+      kicker={t('forgetPassword.stepReset')}
+      onBack={handleBack}
+      subtitle={t('forgetPassword.resetSubtitle')}
+      title={t('forgetPassword.resetPassword')}
+    >
+      <div className="space-y-4">
+        <FormField
+          autoComplete="new-password"
+          label={t('forgetPassword.newPassword')}
           onChange={setPassword}
+          placeholder={t('forgetPassword.newPasswordPlaceholder')}
+          prefix={<LockKeyhole size={18} strokeWidth={1.8} />}
           type="password"
-          placeholder={t('forgetPassword.newPassword')}
+          value={password}
         />
-        <WwInput
-          value={confirmPassword}
+        <FormField
+          autoComplete="new-password"
+          label={t('forgetPassword.confirmPassword')}
           onChange={setConfirmPassword}
+          onEnterPress={() => void handleSubmit()}
+          placeholder={t('forgetPassword.confirmPasswordPlaceholder')}
+          prefix={<LockKeyhole size={18} strokeWidth={1.8} />}
           type="password"
-          placeholder={t('forgetPassword.confirmPassword')}
+          value={confirmPassword}
         />
-        <Button
-          block
-          className="!w-[80%] !rounded-[12px] !mt-10 !text-black333"
-          color="primary"
-          size="large"
-          onClick={onSend}
-        >
-          {t('common:nav.next')}
-        </Button>
       </div>
-    </div>
+      <p className="mt-3 text-[11px] leading-4 text-ww-soft">{t('sign.passwordRule')}</p>
+      <AuthPrimaryButton onClick={() => void handleSubmit()} testId="password-recovery-next">
+        {t('forgetPassword.resetPassword')}
+      </AuthPrimaryButton>
+    </AuthPageShell>
   );
 };
 

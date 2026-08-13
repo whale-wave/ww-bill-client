@@ -1,9 +1,9 @@
 import type { FC } from 'react';
-import { ErrorBlock } from 'antd-mobile';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import { GradientPanel, MetricGrid } from '@/shared/ui';
 import { useChartOverview } from '../model/chart-overview-context';
+import { ChartEmptyState } from './ChartEmptyState';
 import { LineChart } from './LineChart';
 import { PieChart } from './PieChart';
 import { RankingList } from './RankingList';
@@ -19,19 +19,13 @@ export const ChartContent: FC = () => {
     totalTestId,
   } = useChartOverview();
 
-  const empty = (
-    <div className={cn('flex-grow flex items-center justify-center')}>
-      <ErrorBlock status="empty" title={t('emptyTitle')} description={t('emptyDescription')} />
-    </div>
-  );
-
   return (
     <div
-      className={cn('ww-tab-bar-scroll-padding min-h-0 flex-grow overflow-y-auto px-[18px]')}
+      className={cn('ww-tab-bar-scroll-padding min-h-0 flex flex-grow flex-col overflow-y-auto px-[18px]')}
       data-chart-display={displayMode}
     >
       {!curTab
-        ? empty
+        ? <ChartEmptyState />
         : (
             <div className={cn('flex flex-col gap-[14px] pb-4')}>
               <GradientPanel

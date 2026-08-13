@@ -3,13 +3,15 @@ import { AddAssetAccountButton, AssetHeader, AssetInfoCard, AssetList, AssetTabB
 
 const AssetManager: FC = () => {
   return (
-    <div className="page pt-[52px] !overflow-auto">
+    <div className="page-new overflow-hidden">
       <AssetHeader />
-      <div className="flex-grow px-4 pb-8">
-        <AssetInfoCard />
-        <AssetList />
-        <AddAssetAccountButton />
-      </div>
+      <main className="ww-tab-bar-scroll-padding min-h-0 flex-grow overflow-y-auto px-[18px]">
+        <div className="space-y-[14px] pb-4">
+          <AssetInfoCard />
+          <AssetList />
+          <AddAssetAccountButton />
+        </div>
+      </main>
       <AssetTabBar activeKey="home" />
     </div>
   );

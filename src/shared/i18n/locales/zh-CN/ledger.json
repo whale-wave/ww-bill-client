@@ -34,6 +34,8 @@
     "retry": "重新加载",
     "returnPersonal": "返回默认账本",
     "selected": "当前账本",
+    "subtitle": "选择本次要查看和记账的空间",
+    "systemBadge": "系统",
     "switch": "切换账本"
   },
   "preferences": {

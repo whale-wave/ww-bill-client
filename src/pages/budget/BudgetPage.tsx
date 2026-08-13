@@ -5,6 +5,10 @@ import { ActionSheet, Dialog } from 'antd-mobile';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
+  BUDGET_ACTION_SHEET_CLASS_NAME,
+  BUDGET_CENTER_POPUP_CLASS_NAME,
+  BUDGET_DIALOG_BODY_CLASS_NAME,
+  BUDGET_OVERLAY_MASK_CLASS_NAME,
   BudgetEntityLevel,
   BudgetEntityType,
   BudgetPageShell,
@@ -45,6 +49,8 @@ const Budget: React.FC<BudgetProps> = () => {
     const text = budgetPageContentValue.budgetEntityType === BudgetEntityType.MONTH ? t('common:time.month') : t('common:time.year');
 
     const actionSheet = ActionSheet.show({
+      popupClassName: BUDGET_ACTION_SHEET_CLASS_NAME,
+      styles: { mask: { backdropFilter: 'blur(2px)', background: 'rgba(38, 54, 74, 0.35)' } },
       cancelText: t('common:nav.cancel'),
       actions: [
         {
@@ -71,8 +77,11 @@ const Budget: React.FC<BudgetProps> = () => {
 
             if (isSummaryBudget) {
               const confirm = await Dialog.confirm({
+                bodyClassName: BUDGET_DIALOG_BODY_CLASS_NAME,
+                className: BUDGET_CENTER_POPUP_CLASS_NAME,
                 title: t('warning.title'),
                 content: t('clearSummaryBudgetWarning'),
+                maskClassName: BUDGET_OVERLAY_MASK_CLASS_NAME,
               });
               if (!confirm)
                 return;

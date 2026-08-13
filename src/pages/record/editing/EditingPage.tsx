@@ -1,12 +1,13 @@
 import type { FC } from 'react';
 import type { RecordEntry } from '@/entities/record';
-import { Dialog, ErrorBlock, SpinLoading, Toast } from 'antd-mobile';
+import { ErrorBlock, SpinLoading, Toast } from 'antd-mobile';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { RecordDetailPresentation, useDeleteRecordMutation, useGetRecordByIdQuery } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
 import { playSound } from '@/shared/lib/play-sound';
+import { confirmDangerousAction } from '@/shared/ui';
 
 function isRecordCategory(value: unknown): value is RecordEntry['category'] {
   return typeof value === 'object'
@@ -99,18 +100,20 @@ const Editing: FC = () => {
     navigate('/bookkeeping', { state, replace: true });
   };
 
-  const handleDelete = () => {
-    Dialog.confirm({
-      content: t('record:detail.deleteWarning'),
+  const handleDelete = async () => {
+    const confirmed = await confirmDangerousAction({
+      cancelText: t('common:nav.cancel'),
+      confirmText: t('record:detail.delete'),
+      description: t('record:detail.deleteWarning'),
       title: t('common:confirm.delete'),
-      onConfirm: async () => {
-        const res = await deleteRecordMutate({ id: `${state.id}`, version: state.version });
-        if (res.statusCode === 200 && res.message === '删除成功') {
-          Toast.show({ content: res.message });
-          navigate('/detail');
-        }
-      },
     });
+    if (!confirmed)
+      return;
+    const res = await deleteRecordMutate({ id: `${state.id}`, version: state.version });
+    if (res.statusCode === 200 && res.message === '删除成功') {
+      Toast.show({ content: res.message });
+      navigate('/detail');
+    }
   };
 
   const date = new Date(state.time);
@@ -119,18 +122,19 @@ const Editing: FC = () => {
 
   return (
     <RecordDetailPresentation
+      amount={state.amount}
+      amountType={state.type}
       backLabel={t('common:nav.back')}
       category={state.category}
       categoryIcon={<CategoryIcon categoryName={state.category.name} iconKey={state.category.icon} size={36} />}
       footerActions={[
         { label: t('record:detail.edit'), onClick: handleEdit },
-        { label: t('record:detail.delete'), onClick: handleDelete },
+        { label: t('record:detail.delete'), onClick: () => void handleDelete(), tone: 'danger' },
       ]}
       onBack={handleBack}
       pinnedAction={{ label: t('record:edit.share'), onClick: handleShare }}
       rows={[
         { label: t('record:edit.type'), value: state.type === 'sub' ? t('record:type.expense') : t('record:type.income') },
-        { label: t('record:edit.amount'), value: state.amount },
         { label: t('record:edit.date'), value: `${timeDate}  ${weekByDay}` },
         { label: t('record:edit.remark'), value: state.remark },
       ]}

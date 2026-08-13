@@ -1,10 +1,11 @@
 import type { FC, ReactNode } from 'react';
-import { ChevronDown, ChevronLeft, Search } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Search, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { cn } from '@/shared/lib';
 
 export interface RecordSearchHeaderProps {
   autoFocus?: boolean;
+  backLabel?: string;
   filterActive?: boolean;
   filterExpanded?: boolean;
   filterLabel: ReactNode;
@@ -18,6 +19,7 @@ export interface RecordSearchHeaderProps {
 
 export const RecordSearchHeader: FC<RecordSearchHeaderProps> = ({
   autoFocus = true,
+  backLabel = '返回',
   filterActive = false,
   filterExpanded = false,
   filterLabel,
@@ -36,31 +38,40 @@ export const RecordSearchHeader: FC<RecordSearchHeaderProps> = ({
   }, [autoFocus]);
 
   return (
-    <header className="relative z-20 shrink-0 bg-primary px-3 pb-3" data-record-search-header>
-      <div className="relative flex h-[52px] items-center justify-center px-24">
+    <header className="relative z-20 shrink-0 px-[18px] pb-3 pt-[max(8px,env(safe-area-inset-top))]" data-record-search-header>
+      <div className="relative flex h-11 items-center justify-center px-14">
         <button
-          aria-label="返回"
-          className="absolute left-[-4px] top-1/2 flex h-10 -translate-y-1/2 items-center border-0 bg-transparent px-0 text-base text-font-black"
+          aria-label={backLabel}
+          className="absolute left-0 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-solid border-white/70 bg-white/75 p-0 text-primary-dark shadow-ww-xs backdrop-blur-md transition active:scale-95"
           onClick={onBack}
           type="button"
         >
-          <ChevronLeft size={24} />
-          <span>返回</span>
+          <ArrowLeft size={20} strokeWidth={2.2} />
         </button>
-        <h1 className="max-w-full truncate text-lg font-medium text-font-black">{title}</h1>
+        <h1 className="max-w-full truncate text-[19px] font-extrabold tracking-[-0.02em] text-ww-ink">{title}</h1>
       </div>
-      <div className="flex h-12 items-center rounded-lg bg-white px-3" data-record-search-input>
-        <Search className="shrink-0 text-font-gray" size={20} />
+      <div className="mt-2 flex h-[52px] items-center rounded-[18px] border border-solid border-white/80 bg-white/85 px-3 shadow-ww backdrop-blur-md" data-record-search-input>
+        <Search className="shrink-0 text-primary-dark" size={20} strokeWidth={2.1} />
+        <input
+          aria-label={placeholder}
+          className="h-full min-w-0 flex-grow border-0 bg-transparent px-3 text-[15px] font-medium text-ww-ink outline-none placeholder:font-normal placeholder:text-ww-soft"
+          onChange={event => onChange(event.target.value)}
+          placeholder={placeholder}
+          ref={inputRef}
+          type="search"
+          value={value}
+        />
         <button
           aria-expanded={filterExpanded}
           className={cn(
-            'ml-2 flex h-8 shrink-0 items-center border-0 bg-transparent px-0 text-sm text-font-black',
-            filterActive && 'font-medium text-[#18839b]',
+            'flex h-9 shrink-0 items-center rounded-xl border border-solid border-primary/15 bg-primary-light/45 px-3 text-[13px] font-bold text-primary-dark transition active:scale-95',
+            filterActive && 'border-primary/40 bg-primary text-white shadow-ww-xs',
           )}
           data-testid="record-filter-action"
           onClick={onFilterClick}
           type="button"
         >
+          <SlidersHorizontal className="mr-1.5" size={15} />
           <span>{filterLabel}</span>
           <ChevronDown
             className={cn(
@@ -70,16 +81,6 @@ export const RecordSearchHeader: FC<RecordSearchHeaderProps> = ({
             size={15}
           />
         </button>
-        <span aria-hidden="true" className="mx-3 h-5 w-px bg-[#D7D7D7]" />
-        <input
-          aria-label={placeholder}
-          className="h-full min-w-0 flex-grow border-0 bg-transparent text-base text-font-black outline-none placeholder:text-font-gray"
-          onChange={event => onChange(event.target.value)}
-          placeholder={placeholder}
-          ref={inputRef}
-          type="search"
-          value={value}
-        />
       </div>
     </header>
   );

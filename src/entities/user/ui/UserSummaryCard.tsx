@@ -72,11 +72,11 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
           ]}
         />
       </GradientPanel>
-      <GradientPanel className="flex min-h-12 items-center gap-[10px] px-[18px] py-[13px]" elevation="low" surface="vip">
+      {/* <GradientPanel className="flex min-h-12 items-center gap-[10px] px-[18px] py-[13px]" elevation="low" surface="vip">
         <DesignIcon name="vip-crown" size={18} />
         <span className="flex-1 text-[13px] font-semibold leading-[19.5px] text-ww-mid">{t('vipNotSupported')}</span>
         <DesignIcon name="list-chevron" size={16} />
-      </GradientPanel>
+      </GradientPanel> */}
     </div>
   );
 };

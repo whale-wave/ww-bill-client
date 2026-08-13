@@ -1,6 +1,5 @@
 import type { Dayjs } from 'dayjs';
 import type { RecordEntry } from '@/entities/record';
-import { DatePicker } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -115,27 +114,15 @@ export function useRecordCalendar() {
     navigate(-1);
   }, [navigate]);
 
-  const onDatePicker = useCallback(() => {
-    void DatePicker.prompt({
-      title: t('record:calendar.selectMonth'),
-      precision: 'month',
-      defaultValue: selectMonthValue.toDate(),
-      onConfirm: (val) => {
-        if (selectMonthValue.isSame(dayjs(val), 'month'))
-          return;
-        setSelectMonthValue(dayjs(val));
-        if (dayjs().isSame(dayjs(val), 'month')) {
-          setSelectDateValue(dayjs());
-          syncSelectedDate(dayjs());
-        }
-        else {
-          const nextDate = dayjs(val).startOf('day');
-          setSelectDateValue(nextDate);
-          syncSelectedDate(nextDate);
-        }
-      },
-    });
-  }, [selectMonthValue, syncSelectedDate, t]);
+  const onMonthChange = useCallback((month: Dayjs) => {
+    if (selectMonthValue.isSame(month, 'month'))
+      return;
+    const nextMonth = month.startOf('month');
+    const nextDate = dayjs().isSame(nextMonth, 'month') ? dayjs() : nextMonth;
+    setSelectMonthValue(nextMonth);
+    setSelectDateValue(nextDate);
+    syncSelectedDate(nextDate);
+  }, [selectMonthValue, syncSelectedDate]);
 
   const onChangeDate = useCallback((date: Date | null) => {
     const nextDate = dayjs(date);
@@ -165,7 +152,7 @@ export function useRecordCalendar() {
     isToday,
     getDateText,
     onBack,
-    onDatePicker,
+    onMonthChange,
     onChangeDate,
     onToToday,
     onFixedPinClick,

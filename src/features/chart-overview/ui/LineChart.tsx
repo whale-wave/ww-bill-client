@@ -36,29 +36,38 @@ export const LineChart: FC = () => {
         bottom: 4,
       },
       tooltip: {
-        triggerOn: 'mousemove',
+        triggerOn: 'mousemove|click',
         appendToBody: true,
         trigger: 'axis',
-        backgroundColor: '#333',
+        backgroundColor: 'transparent',
         borderWidth: 0,
+        padding: 0,
+        extraCssText: [
+          'background: transparent !important',
+          'border: 0 !important',
+          'border-radius: 18px !important',
+          'box-shadow: none !important',
+          'padding: 0 !important',
+        ].join(';'),
         textStyle: {
-          color: '#fff',
+          color: '#263340',
         },
         enterable: true,
         position: (point: any, _params: any, dom: any) => {
           const [x, y] = point;
           const { width, height } = dom.getBoundingClientRect();
           const halfWidth = width / 2;
+          const viewportPadding = 12;
           const newX = x - halfWidth;
           const newY = y - height - 20;
 
-          if (x + halfWidth > window.innerWidth) {
-            return [window.innerWidth - width, newY];
+          if (x + halfWidth > window.innerWidth - viewportPadding) {
+            return [window.innerWidth - width - viewportPadding, Math.max(viewportPadding, newY)];
           }
-          if (newX < 0) {
-            return [0, newY];
+          if (newX < viewportPadding) {
+            return [viewportPadding, Math.max(viewportPadding, newY)];
           }
-          return [newX, newY];
+          return [newX, Math.max(viewportPadding, newY)];
         },
         formatter: (_params: any) => {
           const { data } = _params[0];

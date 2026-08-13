@@ -1,7 +1,9 @@
 import { Button, ErrorBlock, List, Popup, SafeArea, SpinLoading } from 'antd-mobile';
-import { CheckOutline, PayCircleOutline } from 'antd-mobile-icons';
+import { CheckOutline } from 'antd-mobile-icons';
+import { Plus, Settings2, WalletCards } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import appLogo from '@/assets/brand/whale-logo-surface.png';
 import { useLedgerNavigationQuery } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
@@ -118,6 +120,13 @@ export function LedgerSwitcherPanel({ onClose, visible }: LedgerSwitcherPanelPro
         <h2 className="ledger-switcher-visually-hidden" id={titleId}>
           {t('switcher.switch')}
         </h2>
+        <div className="ledger-switcher-panel__heading">
+          <div>
+            <h2>{t('switcher.switch')}</h2>
+            <p>{t('switcher.subtitle')}</p>
+          </div>
+          <span>{items.length}</span>
+        </div>
         <div className="ledger-switcher-panel__content">
           {ledgerQuery.isLoading && (
             <div className="ledger-switcher-panel__state" data-testid="ledger-switcher-loading">
@@ -174,11 +183,16 @@ export function LedgerSwitcherPanel({ onClose, visible }: LedgerSwitcherPanelPro
                             : null}
                           prefix={(
                             <span className="ledger-switcher-panel__icon" data-theme={item.type === 'custom' ? item.themeKey : 'personal'}>
-                              <PayCircleOutline aria-hidden="true" />
+                              {item.type === 'personal'
+                                ? <img alt="" src={appLogo} />
+                                : <WalletCards aria-hidden="true" size={22} strokeWidth={1.8} />}
                             </span>
                           )}
                         >
-                          {item.type === 'personal' ? t('switcher.personal') : item.label}
+                          <span className="ledger-switcher-panel__option-title">
+                            {item.type === 'personal' ? t('switcher.personal') : item.label}
+                            {item.type === 'personal' && <small>{t('switcher.systemBadge')}</small>}
+                          </span>
                         </List.Item>
                       </button>
                     );
@@ -201,21 +215,25 @@ export function LedgerSwitcherPanel({ onClose, visible }: LedgerSwitcherPanelPro
         <div className="ledger-switcher-panel__footer">
           <Button
             block
+            className="ledger-switcher-panel__create"
             onClick={() => {
               onClose();
               navigate(ROUTES_PATH.LEDGER_TEMPLATES.getPath());
             }}
           >
-            {t('switcher.create')}
+            <Plus aria-hidden="true" size={17} />
+            <span>{t('switcher.create')}</span>
           </Button>
           <Button
             block
+            className="ledger-switcher-panel__manage"
             onClick={() => {
               onClose();
               navigate(ROUTES_PATH.LEDGERS.getPath());
             }}
           >
-            {t('switcher.manage')}
+            <Settings2 aria-hidden="true" size={17} />
+            <span>{t('switcher.manage')}</span>
           </Button>
         </div>
         <SafeArea position="bottom" />

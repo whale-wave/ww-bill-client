@@ -3,6 +3,9 @@ import { Dialog } from 'antd-mobile';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  BUDGET_CENTER_POPUP_CLASS_NAME,
+  BUDGET_DIALOG_BODY_CLASS_NAME,
+  BUDGET_OVERLAY_MASK_CLASS_NAME,
   BudgetEditorPresentation,
   BudgetEntityLevel,
   BudgetEntityType,
@@ -53,7 +56,12 @@ export const BudgetModel: React.FC<BudgetModelProps> = ({
   const handleConfirm = async () => {
     const error = validateAmount(amount);
     if (error) {
-      return Dialog.alert({ content: ERROR_MAP[error] });
+      return Dialog.alert({
+        bodyClassName: BUDGET_DIALOG_BODY_CLASS_NAME,
+        className: BUDGET_CENTER_POPUP_CLASS_NAME,
+        content: ERROR_MAP[error],
+        maskClassName: BUDGET_OVERLAY_MASK_CLASS_NAME,
+      });
     }
 
     const normalizedAmount = normalizeAmount(amount);
@@ -74,7 +82,13 @@ export const BudgetModel: React.FC<BudgetModelProps> = ({
 
     if (warning) {
       setTimeout(() => {
-        Dialog.alert({ content: warning, confirmText: t('actions.save') });
+        Dialog.alert({
+          bodyClassName: BUDGET_DIALOG_BODY_CLASS_NAME,
+          className: BUDGET_CENTER_POPUP_CLASS_NAME,
+          confirmText: t('actions.save'),
+          content: warning,
+          maskClassName: BUDGET_OVERLAY_MASK_CLASS_NAME,
+        });
       }, 250);
     }
   };

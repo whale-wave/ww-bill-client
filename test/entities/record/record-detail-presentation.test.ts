@@ -20,20 +20,22 @@ describe('record detail presentation', () => {
       rows: [{ label: 'Amount', value: '20.00' }],
     }));
 
-    expect(container.querySelector('.bwm-nav-bar-back')).not.toBeNull();
+    expect(container.querySelector('[data-record-detail-navigation]')).not.toBeNull();
     expect(container.textContent).toContain('Amount');
     expect(container.textContent).not.toContain('Member');
-    expect(container.querySelector('.bwm-fixed-pin')).toBeNull();
+    expect(container.querySelector('[data-record-detail-pin]')).toBeNull();
     expect(container.querySelector('[data-record-detail-footer]')).toBeNull();
   });
 
-  it('keeps the default header, rows, share pin, and fixed action geometry while accepting household additions', () => {
+  it('keeps the new summary, information cards, share action, and floating footer while accepting household additions', () => {
     const onBack = () => undefined;
     const onShare = () => undefined;
     const onPolicy = () => undefined;
 
     const container = render(createElement(RecordDetailPresentation, {
       backLabel: 'Back',
+      amount: '20.00',
+      amountType: 'sub',
       category: { icon: 'food', name: 'Food' },
       footerActions: [
         { label: 'Share', onClick: onShare },
@@ -55,17 +57,16 @@ describe('record detail presentation', () => {
     }));
 
     expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
-    expect(container.querySelector('[data-record-detail-header]')?.classList).toContain('bg-primary');
-    expect(container.querySelector('[data-record-detail-header]')?.classList).toContain('h-[96px]');
+    expect(container.querySelector('[data-record-detail-header]')?.classList).toContain('rounded-[20px]');
+    expect(container.querySelector('[data-record-detail-amount]')?.textContent).toContain('20.00');
     const category = container.querySelector('[data-record-detail-category]');
-    expect(category?.classList).toContain('top-[8px]');
-    expect(category?.className).not.toContain('top-[-');
+    expect(category?.classList).toContain('items-center');
     expect(container.querySelector('[data-record-detail-row]')?.classList).toContain('border-b');
     expect(container.querySelector('[data-category-icon="food"] use')?.getAttribute('xlink:href')).toBe('#icon-food');
     expect(container.textContent).toContain('Food');
     expect(container.textContent).toContain('Member');
     expect(container.textContent).toContain('Counted in household totals');
-    expect(container.querySelector('.bwm-fixed-pin')?.textContent).toBe('Share');
+    expect(container.querySelector('[data-record-detail-pin]')?.textContent).toContain('Share');
     expect(container.querySelector('[data-record-detail-footer]')).not.toBeNull();
     expect(container.querySelector('[data-testid="household-record-policy"]')?.textContent).toBe('Visibility');
   });

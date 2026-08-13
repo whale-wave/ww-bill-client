@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Household } from '@/entities/household';
 import type { Ledger } from '@/entities/ledger';
 import type { RecordEntry } from '@/entities/record';
+import { Dialog } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -217,7 +218,7 @@ describe('ledger record detail family policy and concurrency', () => {
       queryOptions: { enabled: true },
     });
     expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
-    expect(container.querySelector('[data-record-detail-header]')?.classList).toContain('bg-primary');
+    expect(container.querySelector('[data-record-detail-amount]')?.textContent).toContain('20.00');
     expect(container.querySelector('[data-record-detail-footer]')).not.toBeNull();
     expect(container.querySelector('.rounded-xl')).toBeNull();
     expect(container.textContent).toContain('records.familyPolicyStates.PRIVATE');
@@ -228,6 +229,7 @@ describe('ledger record detail family policy and concurrency', () => {
 
   it('deletes with the version loaded on the detail page', async () => {
     const { container } = renderPage();
+    vi.spyOn(Dialog, 'confirm').mockResolvedValue(true);
 
     await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-record-delete"]')?.click());
     expect(hooks.deleteRecord).toHaveBeenCalledWith({

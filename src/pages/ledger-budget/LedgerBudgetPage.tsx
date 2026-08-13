@@ -4,6 +4,10 @@ import { ActionSheet, Dialog, ErrorBlock, Modal, SpinLoading, Toast } from 'antd
 import dayjs from 'dayjs';
 import { useMemo, useRef, useState } from 'react';
 import {
+  BUDGET_ACTION_SHEET_CLASS_NAME,
+  BUDGET_CENTER_POPUP_CLASS_NAME,
+  BUDGET_DIALOG_BODY_CLASS_NAME,
+  BUDGET_OVERLAY_MASK_CLASS_NAME,
   BudgetEditorPresentation,
   BudgetEntityLevel,
   BudgetEntityType,
@@ -120,6 +124,8 @@ function BudgetContent({
   const showActions = (item: BudgetInfo, level: BudgetEntityLevel) => {
     const isSummary = level === BudgetEntityLevel.SUMMARY;
     const actionSheet = ActionSheet.show({
+      popupClassName: BUDGET_ACTION_SHEET_CLASS_NAME,
+      styles: { mask: { backdropFilter: 'blur(2px)', background: 'rgba(38, 54, 74, 0.35)' } },
       actions: [
         {
           key: 'edit',
@@ -140,7 +146,10 @@ function BudgetContent({
             try {
               if (isSummary) {
                 const confirm = await Modal.confirm({
+                  bodyClassName: BUDGET_DIALOG_BODY_CLASS_NAME,
+                  className: BUDGET_CENTER_POPUP_CLASS_NAME,
                   content: t('clearSummaryBudgetWarning'),
+                  maskClassName: BUDGET_OVERLAY_MASK_CLASS_NAME,
                   title: t('warning.title'),
                 });
                 if (!confirm)

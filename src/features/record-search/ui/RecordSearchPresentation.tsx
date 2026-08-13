@@ -5,11 +5,12 @@ import type {
 } from '../model/record-search-state';
 import type { RecordOverviewListGroup } from '@/entities/record';
 import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Search, SlidersHorizontal } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { RecordOverviewList } from '@/entities/record';
+import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
-import { RecordSearchHeader } from '@/shared/ui';
+import { IllustratedEmptyState, RecordSearchHeader } from '@/shared/ui';
 
 export type RecordSearchPageState = 'error' | 'idle' | 'loading' | 'ready';
 
@@ -92,10 +93,10 @@ const FilterChip: FC<ChipProps> = ({ active, children, onClick }) => (
   <button
     aria-pressed={active}
     className={cn(
-      'min-w-[72px] rounded-full border-0 px-4 py-2 text-sm',
+      'min-h-9 min-w-[68px] rounded-xl border border-solid px-3.5 py-2 text-[13px] font-semibold transition active:scale-[0.97]',
       active
-        ? 'bg-primary font-medium text-font-black'
-        : 'bg-bg-gray text-font-gray',
+        ? 'border-primary/50 bg-primary text-white shadow-ww-xs'
+        : 'border-primary/10 bg-primary-light/35 text-ww-mid',
     )}
     onClick={onClick}
     type="button"
@@ -110,8 +111,8 @@ interface FilterRowProps {
 }
 
 const FilterRow: FC<FilterRowProps> = ({ children, label }) => (
-  <div className="flex items-start gap-3 py-2">
-    <span className="w-12 shrink-0 pt-2 text-sm text-font-black">{label}</span>
+  <div className="flex items-start gap-3 py-2.5">
+    <span className="w-12 shrink-0 pt-2 text-[13px] font-bold text-ww-ink">{label}</span>
     <div className="flex min-w-0 flex-grow flex-wrap gap-2">{children}</div>
   </div>
 );
@@ -139,6 +140,7 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
   validateFilters,
   value,
 }) => {
+  const { t } = useTranslation('record');
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isMoreVisible, setIsMoreVisible] = useState(false);
   const [draft, setDraft] = useState(filters);
@@ -164,12 +166,13 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
   };
 
   return (
-    <div className="page-new relative overflow-hidden bg-white" data-record-search-page-shell>
+    <div className="page-new relative overflow-hidden" data-record-search-page-shell>
       <RecordSearchHeader
         autoFocus={autoFocus}
         filterActive={isFilterActive}
         filterExpanded={isFilterVisible}
-        filterLabel="筛选"
+        backLabel={t('common:nav.back')}
+        filterLabel={t('search.filter')}
         onBack={onBack}
         onChange={onKeywordChange}
         onFilterClick={isFilterVisible ? handleCloseFilters : handleOpenFilters}
@@ -178,11 +181,11 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
         value={value}
       />
       {summary && (
-        <div className="shrink-0 border-0 border-b border-solid border-[#EBEBEB] bg-[#f8fcfd] px-4 py-3 text-sm text-font-black" data-record-search-summary>
+        <div className="mx-[18px] mb-2 shrink-0 rounded-2xl border border-solid border-white/70 bg-white/65 px-4 py-3 text-[13px] font-semibold text-ww-mid shadow-ww-xs backdrop-blur-md" data-record-search-summary>
           {summary}
         </div>
       )}
-      <main className="flex min-h-0 flex-grow flex-col overflow-auto pb-4">
+      <main className="flex min-h-0 flex-grow flex-col overflow-auto px-[18px] pb-[max(18px,env(safe-area-inset-bottom))]">
         {state === 'loading' && (
           <div className="flex flex-grow items-center justify-center" data-record-search-state="loading">
             <SpinLoading />
@@ -190,12 +193,21 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
         )}
         {state === 'idle' && (
           <div className="flex flex-grow items-center justify-center" data-record-search-state="idle">
-            <ErrorBlock description="输入关键词或选择筛选条件" status="empty" />
+            <IllustratedEmptyState
+              accentIcon={<SlidersHorizontal className="text-primary-dark" size={18} />}
+              description={t('search.idleDescription')}
+              icon={<Search className="text-primary-dark" size={36} strokeWidth={1.8} />}
+              title={t('search.idleTitle')}
+            />
           </div>
         )}
         {state === 'ready' && groups.length === 0 && (
           <div className="flex flex-grow items-center justify-center" data-record-search-state="empty">
-            <ErrorBlock description="没有找到符合条件的记录" status="empty" />
+            <IllustratedEmptyState
+              description={t('search.emptyDescription')}
+              icon={<Search className="text-primary-dark" size={36} strokeWidth={1.8} />}
+              title={t('search.emptyTitle')}
+            />
           </div>
         )}
         {state === 'error' && (
@@ -206,7 +218,9 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
         )}
         {state === 'ready' && groups.length > 0 && (
           <>
-            <RecordOverviewList groups={groups} variant="search" />
+            <div className="overflow-hidden rounded-[22px] border border-solid border-white/75 bg-white/68 shadow-ww backdrop-blur-md">
+              <RecordOverviewList groups={groups} variant="search" />
+            </div>
             {onLoadMore && (
               <Button className="mx-3 mt-3" loading={isLoadingMore} onClick={onLoadMore}>
                 {loadMoreLabel}
@@ -217,24 +231,28 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
       </main>
       {isFilterVisible && (
         <div
-          className="absolute inset-x-0 bottom-0 top-[112px] z-30 bg-black/20"
+          className="absolute inset-x-0 bottom-0 top-[116px] z-30 bg-ww-ink/20 backdrop-blur-[2px]"
           data-record-filter-mask
           onClick={handleCloseFilters}
           role="presentation"
         >
           <section
-            aria-label="记录筛选"
-            className="max-h-[calc(100vh-112px)] overflow-auto bg-white px-4 pb-4"
+            aria-label={t('search.filterPanelTitle')}
+            className="max-h-[calc(100dvh-116px)] overflow-auto rounded-b-[28px] border-x-0 border-b border-t-0 border-solid border-white/70 bg-white/95 px-[18px] pb-[max(18px,env(safe-area-inset-bottom))] pt-3 shadow-ww-lg"
             data-record-filter-panel
             onClick={event => event.stopPropagation()}
           >
-            <FilterRow label="类型">
+            <div className="mb-1 flex items-center gap-2 text-[15px] font-extrabold text-ww-ink">
+              <SlidersHorizontal className="text-primary-dark" size={18} />
+              {t('search.filterPanelTitle')}
+            </div>
+            <FilterRow label={t('search.matchType')}>
               {([
-                ['all', '不限'],
-                ['category', '类别'],
-                ['tag', '标签'],
-                ['remark', '备注'],
-                ['amount', '金额'],
+                ['all', t('search.unlimited')],
+                ['category', t('search.category')],
+                ['tag', t('search.tag')],
+                ['remark', t('search.remark')],
+                ['amount', t('search.amount')],
               ] as const)
                 .filter(([key]) => key !== 'tag' || filterCapabilities.tag !== false)
                 .map(([key, label]) => (
@@ -247,11 +265,11 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
                   </FilterChip>
                 ))}
             </FilterRow>
-            <FilterRow label="收支">
+            <FilterRow label={t('search.flow')}>
               {([
-                ['all', '不限'],
-                ['add', '收入'],
-                ['sub', '支出'],
+                ['all', t('search.unlimited')],
+                ['add', t('search.income')],
+                ['sub', t('search.expense')],
               ] as const).map(([key, label]) => (
                 <FilterChip
                   active={draft.type === key}
@@ -262,12 +280,12 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
                 </FilterChip>
               ))}
             </FilterRow>
-            <FilterRow label="时间">
+            <FilterRow label={t('search.time')}>
               <FilterChip
                 active={!draft.startDate && !draft.endDate}
                 onClick={() => setDraft(current => ({ ...current, endDate: '', startDate: '' }))}
               >
-                不限
+                {t('search.unlimited')}
               </FilterChip>
               <FilterChip
                 active={Boolean(draft.startDate || draft.endDate)}
@@ -276,21 +294,21 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
                   startDate: current.startDate || getShanghaiDateKey(),
                 }))}
               >
-                自定义
+                {t('search.custom')}
               </FilterChip>
             </FilterRow>
             {(draft.startDate || draft.endDate) && (
               <div className="ml-[60px] grid grid-cols-2 gap-2 pb-2">
                 <input
-                  aria-label="开始日期"
-                  className="h-10 min-w-0 rounded border border-solid border-[#EBEBEB] px-2 text-sm"
+                  aria-label={t('search.startDate')}
+                  className="h-11 min-w-0 rounded-xl border border-solid border-primary/15 bg-primary-light/20 px-2 text-[13px] text-ww-ink outline-none focus:border-primary"
                   onChange={event => setDraft(current => ({ ...current, startDate: event.target.value }))}
                   type="date"
                   value={draft.startDate}
                 />
                 <input
-                  aria-label="结束日期"
-                  className="h-10 min-w-0 rounded border border-solid border-[#EBEBEB] px-2 text-sm"
+                  aria-label={t('search.endDate')}
+                  className="h-11 min-w-0 rounded-xl border border-solid border-primary/15 bg-primary-light/20 px-2 text-[13px] text-ww-ink outline-none focus:border-primary"
                   onChange={event => setDraft(current => ({ ...current, endDate: event.target.value }))}
                   type="date"
                   value={draft.endDate}
@@ -301,18 +319,18 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
               <>
                 <button
                   aria-expanded={isMoreVisible}
-                  className="flex w-full items-center justify-center border-0 border-t border-solid border-[#EBEBEB] bg-white py-3 text-sm text-font-gray"
+                  className="mt-2 flex w-full items-center justify-center rounded-xl border-0 bg-primary-light/35 py-3 text-[13px] font-bold text-primary-dark"
                   onClick={() => setIsMoreVisible(current => !current)}
                   type="button"
                 >
-                  更多筛选
+                  {t('search.more')}
                   <ChevronDown className={cn('ml-1 transition-transform', isMoreVisible && 'rotate-180')} size={15} />
                 </button>
                 {isMoreVisible && (
                   <div data-record-filter-more>
                     {filterCapabilities.member && (
-                      <FilterRow label="成员">
-                        <FilterChip active={!draft.memberUserId} onClick={() => setDraft(current => ({ ...current, memberUserId: '' }))}>不限</FilterChip>
+                      <FilterRow label={t('search.member')}>
+                        <FilterChip active={!draft.memberUserId} onClick={() => setDraft(current => ({ ...current, memberUserId: '' }))}>{t('search.unlimited')}</FilterChip>
                         {filterOptions.members?.map(option => (
                           <FilterChip
                             active={draft.memberUserId === String(option.id)}
@@ -325,7 +343,7 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
                       </FilterRow>
                     )}
                     {filterCapabilities.category && Boolean(filterOptions.categories?.length) && (
-                      <FilterRow label="分类">
+                      <FilterRow label={t('search.category')}>
                         {filterOptions.categories?.map(option => (
                           <FilterChip
                             active={draft.categoryIds.includes(Number(option.id))}
@@ -343,7 +361,7 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
                       </FilterRow>
                     )}
                     {filterCapabilities.tag && Boolean(filterOptions.tags?.length) && (
-                      <FilterRow label="标签">
+                      <FilterRow label={t('search.tag')}>
                         {filterOptions.tags?.map(option => (
                           <FilterChip
                             active={draft.tagIds.includes(String(option.id))}
@@ -360,29 +378,29 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
                         ))}
                       </FilterRow>
                     )}
-                    <FilterRow label="金额">
+                    <FilterRow label={t('search.amount')}>
                       <input
-                        aria-label="最小金额"
-                        className="h-10 min-w-0 flex-1 rounded border border-solid border-[#EBEBEB] px-3 text-sm"
+                        aria-label={t('search.minAmount')}
+                        className="h-11 min-w-0 flex-1 rounded-xl border border-solid border-primary/15 bg-primary-light/20 px-3 text-[13px] outline-none focus:border-primary"
                         inputMode="decimal"
                         onChange={event => setDraft(current => ({ ...current, minAmount: event.target.value }))}
-                        placeholder="最低"
+                        placeholder={t('search.minimum')}
                         value={draft.minAmount}
                       />
                       <input
-                        aria-label="最大金额"
-                        className="h-10 min-w-0 flex-1 rounded border border-solid border-[#EBEBEB] px-3 text-sm"
+                        aria-label={t('search.maxAmount')}
+                        className="h-11 min-w-0 flex-1 rounded-xl border border-solid border-primary/15 bg-primary-light/20 px-3 text-[13px] outline-none focus:border-primary"
                         inputMode="decimal"
                         onChange={event => setDraft(current => ({ ...current, maxAmount: event.target.value }))}
-                        placeholder="最高"
+                        placeholder={t('search.maximum')}
                         value={draft.maxAmount}
                       />
                     </FilterRow>
-                    <FilterRow label="统计">
+                    <FilterRow label={t('search.counting')}>
                       {([
-                        ['all', '全部'],
-                        ['counted', '计入'],
-                        ['uncounted', '不计入'],
+                        ['all', t('search.all')],
+                        ['counted', t('search.counted')],
+                        ['uncounted', t('search.uncounted')],
                       ] as const).map(([key, label]) => (
                         <FilterChip
                           active={draft.familyCounting === key}
@@ -400,9 +418,9 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
             {Object.values(validation).map(message => (
               <p className="mt-2 text-sm text-red-500" key={message} role="alert">{message}</p>
             ))}
-            <div className="mt-3 grid grid-cols-2 gap-3 border-0 border-t border-solid border-[#EBEBEB] pt-4">
-              <Button block onClick={() => setDraft(defaultFilters)}>重置</Button>
-              <Button block color="primary" disabled={hasValidation} onClick={handleConfirm}>确定</Button>
+            <div className="mt-4 grid grid-cols-2 gap-3 border-0 border-t border-solid border-primary/10 pt-4">
+              <Button block className="!h-12 !rounded-2xl !border-0 !bg-bg-gray !font-bold !text-ww-mid" onClick={() => setDraft(defaultFilters)}>{t('search.reset')}</Button>
+              <Button block className="!h-12 !rounded-2xl !border-0 !bg-primary !font-bold !text-white !shadow-ww-xs" disabled={hasValidation} onClick={handleConfirm}>{t('search.confirm')}</Button>
             </div>
           </section>
         </div>

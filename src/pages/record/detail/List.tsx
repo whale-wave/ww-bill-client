@@ -1,13 +1,14 @@
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import type { recordChildren, RecordOverviewListGroup } from '@/entities/record';
-import { PackageOpen } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { RecordOverviewList } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
+import { DesignIcon, IllustratedEmptyState } from '@/shared/ui';
 import { useRecordList } from '../model/useRecordList';
 
 type RecordGroup = [
@@ -74,10 +75,16 @@ const List: FC<ListProps> = memo(({ selectTime, change }) => {
             </>
           )
         : (
-            <div className="flex flex-grow flex-col items-center justify-center text-base text-[#e0e0e0]">
-              <PackageOpen className="text-[#e0e0e0]" size={100} strokeWidth={1.5} />
-              <span>{t('common:empty')}</span>
-            </div>
+            <IllustratedEmptyState
+              accentIcon={<Plus size={19} strokeWidth={2.2} />}
+              actionLabel={t('detail.emptyAction')}
+              className="min-h-[330px] flex-grow"
+              description={t('detail.emptyDescription')}
+              icon={<DesignIcon name="tab-detail-active" size={46} />}
+              onAction={() => navigate('/bookkeeping')}
+              testId="record-list-empty-state"
+              title={t('detail.emptyTitle')}
+            />
           )}
     </div>
   );

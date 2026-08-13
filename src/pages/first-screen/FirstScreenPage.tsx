@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import classNames from 'classnames';
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import newLogo from '@/assets/brand/whale-logo-transparent.png';
 import config from '@/shared/config';
-import newLogo from '../../assets/images/bill-pingmian.png';
 import styles from './index.module.css';
 
 const FirstScreen: FC = () => {

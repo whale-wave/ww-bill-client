@@ -22,7 +22,7 @@ import { useCurrentWorkspaceBack } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
-import { NavBar } from '@/shared/ui';
+import { confirmDangerousAction, NavBar } from '@/shared/ui';
 
 function FamilyPolicyEntry({ recordId, recordTime }: { recordId: number; recordTime: string }) {
   const { t } = useTranslation('ledger');
@@ -46,13 +46,14 @@ function FamilyPolicyEntry({ recordId, recordTime }: { recordId: number; recordT
   const policy = policyQuery.data?.effectivePolicy ?? FamilyRecordPolicy.SHARED_COUNTED;
   return (
     <button
-      className="flex w-full items-center justify-between border-0 border-b border-solid border-[#ebebeb] bg-white px-[15px] py-[20px] text-left text-base font-normal text-[#aeaeae]"
+      className="flex min-h-[62px] w-full items-center gap-4 border-0 border-t border-solid border-border-primary bg-transparent py-3.5 text-left"
       data-testid="ledger-record-family-policy"
       onClick={() => navigate(ROUTES_PATH.HOUSEHOLD_RECORD_POLICY.getPath(householdId, recordId))}
       type="button"
     >
-      <span>{t('records.familyPolicy')}</span>
-      <span className="ml-3 text-base font-normal text-[#605f60]">{t(`records.familyPolicyStates.${policy}`)}</span>
+      <span className="w-[72px] shrink-0 text-[12px] font-semibold text-ww-soft">{t('records.familyPolicy')}</span>
+      <span className="min-w-0 flex-1 text-[13px] font-bold leading-5 text-ww-ink">{t(`records.familyPolicyStates.${policy}`)}</span>
+      <span aria-hidden="true" className="text-ww-ghost">›</span>
     </button>
   );
 }
@@ -77,6 +78,14 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
   const handleDelete = async () => {
     if (deletingRef.current)
       return;
+    const confirmed = await confirmDangerousAction({
+      cancelText: t('common:nav.cancel'),
+      confirmText: t('records.delete'),
+      description: t('record:detail.deleteWarning'),
+      title: t('common:confirm.delete'),
+    });
+    if (!confirmed)
+      return;
     deletingRef.current = true;
     try {
       await deleteRecord({ ledgerId, recordId, version: record.version });
@@ -94,6 +103,8 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
 
   return (
     <RecordDetailPresentation
+      amount={record.amount}
+      amountType={record.type}
       backLabel={t('common:nav.back')}
       category={record.category}
       categoryIcon={<CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} size={36} />}
@@ -113,13 +124,13 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
               label: deleteState.isLoading ? t('common.loading') : t('records.delete'),
               onClick: () => void handleDelete(),
               testId: 'ledger-record-delete',
+              tone: 'danger' as const,
             }]
           : []),
       ]}
       onBack={() => navigate(-1)}
       rows={[
         { label: t('record:edit.type'), value: t(`records.type.${record.type}`) },
-        { label: t('records.amount'), value: record.amount },
         { label: t('records.date'), value: `${timeDate}  ${weekByDay}` },
         { label: t('records.remark'), value: record.remark },
       ]}

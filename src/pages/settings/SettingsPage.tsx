@@ -63,11 +63,11 @@ const Settings: FC = () => {
       actions: entries.map(([key, label]) => ({
         bold: key === currentLang,
         key,
-        onClick: () => {
-          void changeLanguage(key);
+        onClick: async () => {
+          await changeLanguage(key);
           setCurrentLang(key);
           sheet.close();
-          Toast.show(t('language.changed'));
+          Toast.show(i18n.t('settings:language.changed'));
         },
         text: label,
       })),

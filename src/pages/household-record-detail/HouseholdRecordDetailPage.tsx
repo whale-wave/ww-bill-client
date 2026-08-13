@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { FamilyRecord } from '@/entities/household';
 import type { RecordEntry } from '@/entities/record';
 import type { RecordEditorLocationState } from '@/features/record-editor';
-import { Dialog, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { useHouseholdRecordQuery } from '@/entities/household';
@@ -12,7 +12,7 @@ import { HouseholdPageState, HouseholdScopeBoundary } from '@/features/household
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
-import { NavBar } from '@/shared/ui';
+import { confirmDangerousAction, NavBar } from '@/shared/ui';
 
 function formatDateTime(value: string) {
   const date = new Date(value);
@@ -79,8 +79,10 @@ const RecordDetail: FC<{
   };
 
   const handleDelete = async () => {
-    const confirmed = await Dialog.confirm({
-      content: t('record:detail.deleteWarning'),
+    const confirmed = await confirmDangerousAction({
+      cancelText: t('common:nav.cancel'),
+      confirmText: t('record:detail.delete'),
+      description: t('record:detail.deleteWarning'),
       title: t('common:confirm.delete'),
     });
     if (!confirmed)
@@ -98,6 +100,8 @@ const RecordDetail: FC<{
 
   return (
     <RecordDetailPresentation
+      amount={record.amount}
+      amountType={record.type}
       backLabel={t('common:nav.back')}
       category={{
         icon: record.category?.icon ?? 'bill',
@@ -132,6 +136,7 @@ const RecordDetail: FC<{
               disabled: deleteState.isLoading,
               label: t('record:detail.delete'),
               onClick: () => void handleDelete(),
+              tone: 'danger',
             },
           ]
         : []}
@@ -139,7 +144,6 @@ const RecordDetail: FC<{
       pinnedAction={{ label: t('recordDetail.share'), onClick: () => void handleShare() }}
       rows={[
         { label: t('recordDetail.type'), value: record.type === 'sub' ? t('recordDetail.expense') : t('recordDetail.income') },
-        { label: t('record:edit.amount'), value: record.amount },
         { label: t('recordDetail.date'), value: `${timeDate}  ${weekByDay}` },
         { label: t('recordDetail.remark'), value: record.remark || t('recordDetail.none') },
       ]}

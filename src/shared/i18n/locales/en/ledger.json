@@ -34,6 +34,8 @@
     "retry": "Try Again",
     "returnPersonal": "Return to Default Ledger",
     "selected": "Current ledger",
+    "subtitle": "Choose where to view and record this session",
+    "systemBadge": "System",
     "switch": "Switch Ledger"
   },
   "preferences": {

@@ -1,12 +1,13 @@
-import { ErrorBlock, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import html2canvas from 'html2canvas';
+import { ChevronLeft, ReceiptText } from 'lucide-react';
 import { useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
 import { downloadCanvas } from '@/shared/lib';
-import { NavBar } from '@/shared/ui';
+import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
 import {
   buildShareUrl,
   getSourceFromSearchParams,
@@ -45,7 +46,11 @@ function Share() {
       return;
     }
     try {
-      const canvas = await html2canvas(canvasRef.current);
+      const canvas = await html2canvas(canvasRef.current, {
+        backgroundColor: null,
+        scale: Math.max(2, window.devicePixelRatio || 1),
+        useCORS: true,
+      });
       downloadCanvas(canvas);
       Toast.show({ content: t('share.saved'), icon: 'success' });
     }
@@ -89,24 +94,38 @@ function Share() {
 
   if (!shareData) {
     return (
-      <div className="page">
-        <NavBar back={t('common:nav.back')} backArrow={false} onBack={() => navigate(-1)}>
-          {t('share.title')}
-        </NavBar>
-        <div className="flex-grow flex justify-center items-center px-[24px]">
-          <ErrorBlock status="empty" title={t('share.empty')} description={t('share.emptyHint')} />
-        </div>
+      <div className="page-new relative overflow-hidden">
+        <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,env(safe-area-inset-top))]">
+          <button aria-label={t('common:nav.back')} className="absolute left-[18px] flex h-9 w-9 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs" onClick={() => navigate(-1)} type="button">
+            <ChevronLeft size={19} />
+          </button>
+          <h1 className="text-[17px] font-extrabold text-ww-ink">{t('share.title')}</h1>
+        </header>
+        <main className="flex min-h-0 flex-grow items-center px-[18px] pb-10">
+          <GradientPanel className="w-full" elevation="low" surface="glass">
+            <IllustratedEmptyState description={t('share.emptyHint')} icon={<ReceiptText className="text-primary-deep" size={38} />} title={t('share.empty')} />
+          </GradientPanel>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="page">
-      <NavBar back={t('common:nav.back')} backArrow={false} onBack={() => navigate(-1)}>
-        {t('share.title')}
-      </NavBar>
-      <ShareCanvas canvasRef={canvasRef} data={shareData} />
-      <ShareBtn onSave={saveCanvas} onShare={handleShare} />
+    <div className="page-new relative overflow-hidden">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-20 h-52 w-52 rounded-full bg-primary-light/35 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -left-20 bottom-24 h-52 w-52 rounded-full bg-ww-pink-light/30 blur-3xl" />
+      <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,env(safe-area-inset-top))]">
+        <button aria-label={t('common:nav.back')} className="absolute left-[18px] flex h-9 w-9 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs" onClick={() => navigate(-1)} type="button">
+          <ChevronLeft size={19} />
+        </button>
+        <h1 className="text-[17px] font-extrabold text-ww-ink">{t('share.title')}</h1>
+      </header>
+      <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px]">
+        <ShareCanvas canvasRef={canvasRef} data={shareData} />
+      </main>
+      <div className="relative z-10 shrink-0">
+        <ShareBtn onSave={saveCanvas} onShare={handleShare} />
+      </div>
     </div>
   );
 }

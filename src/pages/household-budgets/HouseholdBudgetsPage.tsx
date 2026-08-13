@@ -8,6 +8,10 @@ import {
 import { useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
+  BUDGET_ACTION_SHEET_CLASS_NAME,
+  BUDGET_CENTER_POPUP_CLASS_NAME,
+  BUDGET_DIALOG_BODY_CLASS_NAME,
+  BUDGET_OVERLAY_MASK_CLASS_NAME,
   BudgetEditorPresentation,
   BudgetEntityType,
   BudgetPageShell,
@@ -174,10 +178,13 @@ const BudgetContent: FC<BudgetContentProps> = ({
 
   const handleDelete = async (budget: HouseholdBudget, kind: BudgetEditor['kind']) => {
     const confirm = await Dialog.confirm({
+      bodyClassName: BUDGET_DIALOG_BODY_CLASS_NAME,
+      className: BUDGET_CENTER_POPUP_CLASS_NAME,
       content: kind === 'summary'
         ? t('budget.confirmDeleteSummary')
         : t('budget.confirmDelete'),
       title: t('budget.deleteTitle'),
+      maskClassName: BUDGET_OVERLAY_MASK_CLASS_NAME,
     });
     if (!confirm)
       return;
@@ -197,6 +204,8 @@ const BudgetContent: FC<BudgetContentProps> = ({
 
   const showActions = (budget: HouseholdBudget, kind: BudgetEditor['kind']) => {
     const actionSheet = ActionSheet.show({
+      popupClassName: BUDGET_ACTION_SHEET_CLASS_NAME,
+      styles: { mask: { backdropFilter: 'blur(2px)', background: 'rgba(38, 54, 74, 0.35)' } },
       actions: [
         {
           disabled: upsertState.isLoading || removeState.isLoading,

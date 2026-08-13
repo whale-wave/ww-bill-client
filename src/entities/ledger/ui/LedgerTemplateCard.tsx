@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { LedgerTemplate } from '../types';
-import { RightOutline } from 'antd-mobile-icons';
+import { ArrowRight } from 'lucide-react';
 import { LedgerVisualIcon } from './LedgerVisualIcon';
 
 interface LedgerTemplateCardProps {
@@ -20,20 +20,21 @@ export const LedgerTemplateCard: FC<LedgerTemplateCardProps> = ({
 }) => {
   return (
     <button
-      className="card-rounded flex w-full items-center border border-solid border-[#EBEBEB] bg-white p-3 text-left active:bg-slate-50"
+      className="group relative flex min-h-[118px] w-full items-center overflow-hidden rounded-[22px] border border-solid border-border-primary bg-white/80 p-4 text-left shadow-ww-xs backdrop-blur-xl transition active:scale-[0.985]"
       data-template-key={template.key}
       onClick={onClick}
       type="button"
     >
-      <span className="mr-3 flex h-[42px] w-[42px] flex-shrink-0 items-center justify-center rounded-full bg-primary text-xl text-font-black">
+      <span aria-hidden="true" className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary-light/35" />
+      <span className="relative mr-3 flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-[17px] bg-[linear-gradient(145deg,#c8eaf6,#e9e1ff)] text-[22px] text-primary-deep shadow-ww-xs">
         <LedgerVisualIcon templateKey={template.key} />
       </span>
-      <span className="min-w-0 flex-grow">
-        <span className="block text-base font-medium text-font-black">{name}</span>
-        <span className="mt-1 block text-xs leading-5 text-font-gray">{description}</span>
-        <span className="mt-1 block text-xs text-font-gray">{themeLabel}</span>
+      <span className="relative min-w-0 flex-grow">
+        <span className="block text-[15px] font-extrabold leading-6 text-ww-ink">{name}</span>
+        <span className="mt-0.5 line-clamp-2 block text-[12px] leading-[18px] text-ww-mid">{description}</span>
+        <span className="mt-2 inline-flex rounded-full bg-primary-light/50 px-2 py-1 text-[10px] font-bold text-primary-deep">{themeLabel}</span>
       </span>
-      <RightOutline className="ml-2 flex-shrink-0 text-font-gray" />
+      <ArrowRight className="relative ml-2 flex-shrink-0 text-ww-soft" size={16} />
     </button>
   );
 };

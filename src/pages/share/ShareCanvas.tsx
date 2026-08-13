@@ -1,14 +1,16 @@
 import type { FC, RefObject } from 'react';
+import { CategoryIcon } from '@/entities/category';
 import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
 import styles from './ShareCanvas.module.scss';
 
 export interface ShareData {
   amount: string;
-  type: 'sub' | 'add';
+  categoryIcon?: string;
   categoryName: string;
-  remark?: string;
   dateText: string;
+  remark?: string;
+  type: 'sub' | 'add';
 }
 
 interface ShareCanvasProps {
@@ -16,55 +18,56 @@ interface ShareCanvasProps {
   data: ShareData;
 }
 
-function getAmountParts(amount: string) {
-  const normalizedAmount = Number(amount);
-  const formattedAmount = Number.isFinite(normalizedAmount)
-    ? Math.abs(normalizedAmount).toFixed(2)
-    : amount;
-  const [integer = '0', decimal = '00'] = formattedAmount.split('.');
-
-  return {
-    integer,
-    decimal: decimal.padEnd(2, '0').slice(0, 2),
-  };
+function formatAmount(amount: string) {
+  const value = Number(amount);
+  return Number.isFinite(value) ? Math.abs(value).toFixed(2) : amount;
 }
 
 const ShareCanvas: FC<ShareCanvasProps> = ({ canvasRef, data }) => {
   const { t } = useTranslation('community');
-  const amountParts = getAmountParts(data.amount);
-  const typeText = data.type === 'add' ? t('common:amount.income') : t('common:amount.expend');
+  const isIncome = data.type === 'add';
+  const typeText = isIncome ? t('common:amount.income') : t('common:amount.expend');
 
   return (
-    <div
-      className="flex-grow flex justify-center items-center"
-      style={{ background: '#f5f5f5' }}
-    >
-      <div className={styles.canvas} ref={canvasRef}>
-        <main>
-          <div className={styles.qccode}>
-            <div className={styles.brandMark}>{config.appName.slice(0, 1)}</div>
-            <span>{config.appName}</span>
+    <div className={styles.stage}>
+      <article className={`${styles.canvas} ${isIncome ? styles.income : styles.expense}`} ref={canvasRef}>
+        <div className={styles.glowTop} />
+        <div className={styles.glowBottom} />
+
+        <header className={styles.brand}>
+          <span className={styles.brandMark}>W</span>
+          <span>
+            <strong>{config.appName}</strong>
+            <small>{t('share.posterKicker')}</small>
+          </span>
+        </header>
+
+        <main className={styles.receipt}>
+          <div className={styles.categoryIcon}>
+            <CategoryIcon categoryName={data.categoryName} iconKey={data.categoryIcon} size={28} strokeWidth={1.7} />
           </div>
-          <div>{data.dateText}</div>
-          <div className={styles.type}>{data.categoryName}</div>
-          <div className={styles.desc}>{data.remark || t('share.noRemark')}</div>
-          <div className={styles.money}>
-            {typeText}
-            <div>
-              <span>{amountParts.integer}</span>
-              .
-              {amountParts.decimal}
-            </div>
+          <span className={styles.typePill}>{typeText}</span>
+          <h1>{data.categoryName}</h1>
+          <p className={styles.date}>{data.dateText}</p>
+
+          <div className={styles.amount}>
+            <span>{isIncome ? '+' : '-'}</span>
+            <small>¥</small>
+            {formatAmount(data.amount)}
+          </div>
+
+          <div className={styles.dashedLine} />
+          <div className={styles.note}>
+            <span>{t('share.noteLabel')}</span>
+            <p>{data.remark || t('share.noRemark')}</p>
           </div>
         </main>
-        <footer>
-          <div className={styles.poster}>
-            <div className={styles.posterTitle}>{config.appName}</div>
-            <div className={styles.posterText}>{t('share.recordBill')}</div>
-            <div className={styles.linkHint}>{t('share.linkHint')}</div>
-          </div>
+
+        <footer className={styles.footer}>
+          <span>{t('share.recordBill')}</span>
+          <strong>{t('share.posterSignature')}</strong>
         </footer>
-      </div>
+      </article>
     </div>
   );
 };

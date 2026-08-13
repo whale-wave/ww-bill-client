@@ -1,10 +1,7 @@
-import type { DropdownRef } from 'antd-mobile/es/components/dropdown';
 import type { ReactNode, RefObject } from 'react';
-import { Dropdown, List } from 'antd-mobile';
-import { CheckOutline, DownFill } from 'antd-mobile-icons';
-import { useRef } from 'react';
+import { ArrowLeft, CalendarRange } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
 import { BudgetEntityType } from '../api';
 
 export interface BudgetPeriodDropdownProps {
@@ -17,12 +14,12 @@ export interface BudgetPeriodDropdownProps {
 
 export const BudgetPeriodDropdown: React.FC<BudgetPeriodDropdownProps> = ({
   budgetEntityType,
-  dropDownWrapperRef,
+  dropDownWrapperRef: _dropDownWrapperRef,
   onBudgetEntityTypeChange,
   onBack,
   right,
 }) => {
-  const dropdownRef = useRef<DropdownRef>(null);
+  const navigate = useNavigate();
   const { t } = useTranslation('budget');
   const actions = [
     {
@@ -36,38 +33,35 @@ export const BudgetPeriodDropdown: React.FC<BudgetPeriodDropdownProps> = ({
   ];
 
   return (
-    <NavBar back={t('common:nav.back')} onBack={onBack} right={right}>
-      <Dropdown
-        arrow={<DownFill className="text-black333 text-base" />}
-        className="bg-transparent [&_.adm-dropdown-item-highlight]:text-black333 [&_.adm-dropdown-item-title-arrow]:translate-y-0 [&_.adm-dropdown-item-title-arrow]:rotate-0 [&_.adm-dropdown-item-title-arrow]:[font-size:unset] [&_.adm-dropdown-item-title-text]:text-lg"
-        getContainer={dropDownWrapperRef.current}
-        ref={dropdownRef}
-      >
-        <Dropdown.Item
-          key="budget-period"
-          title={budgetEntityType === BudgetEntityType.MONTH
-            ? t('dropdown.monthlyBudget')
-            : t('dropdown.yearlyBudget')}
+    <header className="relative z-10 shrink-0 px-[18px] pb-3 pt-[max(10px,env(safe-area-inset-top))]">
+      <div className="relative flex h-10 items-center justify-center">
+        <button
+          aria-label={t('common:nav.back')}
+          className="absolute left-0 flex h-9 w-9 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
+          onClick={() => onBack ? onBack() : navigate(-1)}
+          type="button"
         >
-          <List className="[&_.adm-list-item-content-main]:text-start">
-            {actions.map(item => (
-              <List.Item
-                arrow={budgetEntityType === item.key
-                  ? <CheckOutline className="text-black333" />
-                  : null}
-                data-budget-type={item.key}
-                key={item.title}
-                onClick={() => {
-                  onBudgetEntityTypeChange(item.key);
-                  dropdownRef.current?.close();
-                }}
-              >
-                {item.title}
-              </List.Item>
-            ))}
-          </List>
-        </Dropdown.Item>
-      </Dropdown>
-    </NavBar>
+          <ArrowLeft size={17} strokeWidth={2} />
+        </button>
+        <div className="flex items-center gap-2 text-[20px] font-extrabold text-ww-ink">
+          <CalendarRange className="text-primary-deep" size={20} strokeWidth={1.9} />
+          <span>{t('title')}</span>
+        </div>
+        {right && <div className="absolute right-0">{right}</div>}
+      </div>
+      <div className="mx-auto mt-3 grid max-w-[360px] grid-cols-2 rounded-[16px] border border-solid border-border-primary bg-white/60 p-1 shadow-ww-xs backdrop-blur-xl">
+        {actions.map(item => (
+          <button
+            className={`h-10 rounded-[13px] border-0 text-[13px] font-bold transition-all ${budgetEntityType === item.key ? 'bg-white text-primary-deep shadow-ww-xs' : 'bg-transparent text-ww-mid'}`}
+            data-budget-type={item.key}
+            key={item.title}
+            onClick={() => onBudgetEntityTypeChange(item.key)}
+            type="button"
+          >
+            {item.title}
+          </button>
+        ))}
+      </div>
+    </header>
   );
 };

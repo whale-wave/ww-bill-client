@@ -10,7 +10,12 @@
   "average": "Average",
   "currentPeriod": "Current Period",
   "recordList": "Record List",
+  "recordListHint": "Review every transaction in this category",
+  "recordCount": "Records",
+  "recordCountValue": "{{count}} entries",
+  "categoryOverview": "Category overview",
   "noRecords": "No records",
+  "noRecordsHint": "There are no records in this category for this period.",
   "missingParams": "Missing category parameters",
   "missingParamsHint": "Please enter from chart ranking.",
   "loadFail": "Failed to load category stats",
@@ -77,6 +82,7 @@
   "averageLabel": "Average:",
   "totalExpend": "Total Expense:",
   "totalIncome": "Total Income:",
-  "emptyTitle": "Start recording~",
-  "emptyDescription": "Tap \"Book\" to start recording."
+  "emptyTitle": "No insights yet",
+  "emptyDescription": "Add your first transaction to see trends and category rankings here.",
+  "emptyAction": "Add a transaction"
 }

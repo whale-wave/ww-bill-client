@@ -1,20 +1,19 @@
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
-import { Button } from 'antd-mobile';
+import dayjs from 'dayjs';
+import { Mail } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   getToolsForgetPasswordEmailApi,
   getToolsForgetPasswordEmailVerifyCodeApi,
 } from '@/entities/auth';
-import {
-  buildResetPath,
-  readPasswordRecoveryParams,
-} from '@/pages/auth/forget-password/model/params';
-import { WwInput, WwInputVerifyCode } from '@/pages/auth/forget-password/ui';
+import { AuthPageShell, AuthPrimaryButton } from '@/features/auth';
+import { buildResetPath, readPasswordRecoveryParams } from '@/pages/auth/forget-password/model/params';
+import { WwInputVerifyCode } from '@/pages/auth/forget-password/ui';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
-import { NavBar } from '@/shared/ui';
+import { FormField } from '@/shared/ui';
 
 const ForgetPasswordVerifyCode: FC = () => {
   const { t } = useTranslation('auth');
@@ -22,82 +21,61 @@ const ForgetPasswordVerifyCode: FC = () => {
   const [captcha, setCaptcha] = useState('');
   const [urlSearchParams] = useSearchParams();
   const { email } = readPasswordRecoveryParams(urlSearchParams);
-  const [startTime, setStartTime] = useState<Dayjs>();
+  const [startTime, setStartTime] = useState<Dayjs | undefined>(() => dayjs());
+  const isDisabled = useMemo(() => captcha.trim().length < 6, [captcha]);
 
-  const isDisabled = useMemo(() => {
-    if (!captcha || captcha.trim().length < 6)
-      return true;
-    return false;
-  }, [captcha]);
-
-  const onGoToBack = useCallback(() => {
+  const handleBack = useCallback(() => {
     playSound.turnPage();
     navigate(-1);
   }, [navigate]);
 
-  const onSendVerify = useCallback(async () => {
-    const getForgetPasswordEmailCaptchaRes
-      = await getToolsForgetPasswordEmailApi(email, true);
-
-    return getForgetPasswordEmailCaptchaRes.statusCode === 200;
+  const handleResend = useCallback(async () => {
+    const response = await getToolsForgetPasswordEmailApi(email, true);
+    return response.statusCode === 200;
   }, [email]);
 
-  const onSend = useCallback(async () => {
-    const getToolsForgetPasswordEmailVerifyCodeRes
-      = await getToolsForgetPasswordEmailVerifyCodeApi(
-        {
-          email,
-          captcha,
-        },
-        true,
-      );
-
-    if (getToolsForgetPasswordEmailVerifyCodeRes.statusCode === 200) {
+  const handleSubmit = useCallback(async () => {
+    const response = await getToolsForgetPasswordEmailVerifyCodeApi({ email, captcha }, true);
+    if (response.statusCode === 200) {
       setTimeout(() => {
-        navigate(
-          buildResetPath({ captcha, email }),
-          {
-            replace: true,
-          },
-        );
+        navigate(buildResetPath({ captcha, email }), { replace: true });
       }, 400);
     }
   }, [captcha, email, navigate]);
 
   useEffect(() => {
-    if (!email) {
+    if (!email)
       navigate('/forget-password', { replace: true });
-    }
   }, [email, navigate]);
 
   return (
-    <div className="page flex flex-col">
-      <NavBar back={t('common:nav.back')} onBack={onGoToBack}>
-        {t('forgetPassword.title')}
-      </NavBar>
-      <div className="flex-grow flex flex-col items-center space-y-6 pt-10">
-        <WwInput value={email} disabled clearable={false} />
-        <WwInputVerifyCode
-          placeholder={t('captcha.placeholder')}
-          value={captcha}
-          onChange={setCaptcha}
-          startTime={startTime}
-          setStartTime={setStartTime}
-          onSend={onSendVerify}
-          autoCountdown={true}
+    <AuthPageShell
+      kicker={t('forgetPassword.stepVerify')}
+      onBack={handleBack}
+      subtitle={t('forgetPassword.verifySubtitle')}
+      title={t('forgetPassword.verifyCode')}
+    >
+      <div className="space-y-4">
+        <FormField
+          disabled
+          label={t('login.emailLabel')}
+          prefix={<Mail size={18} strokeWidth={1.8} />}
+          value={email}
         />
-        <Button
-          block
-          className="!w-[80%] !rounded-[12px] !mt-10 !text-black333"
-          color="primary"
-          size="large"
-          onClick={onSend}
-          disabled={isDisabled}
-        >
-          {t('common:nav.next')}
-        </Button>
+        <WwInputVerifyCode
+          label={t('sign.captcha')}
+          onChange={setCaptcha}
+          onSend={handleResend}
+          placeholder={t('captcha.placeholder')}
+          setStartTime={setStartTime}
+          startTime={startTime}
+          value={captcha}
+        />
       </div>
-    </div>
+      <AuthPrimaryButton disabled={isDisabled} onClick={() => void handleSubmit()} testId="password-recovery-next">
+        {t('common:nav.next')}
+      </AuthPrimaryButton>
+    </AuthPageShell>
   );
 };
 

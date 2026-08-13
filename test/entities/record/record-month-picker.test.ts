@@ -43,4 +43,31 @@ describe('record month picker', () => {
     expect(onChange).toHaveBeenCalledOnce();
     expect(onChange.mock.calls[0]?.[0].format('YYYY-MM')).toBe('2026-08');
   });
+
+  it('selects a year directly from the compact year sheet', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-10T12:00:00.000Z'));
+    const onChange = vi.fn();
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    const root = createRoot(container);
+    act(() => root.render(createElement(RecordMonthPicker, {
+      month: dayjs('2025-07-01'),
+      onChange,
+      precision: 'year',
+      testId: 'year-picker',
+      variant: 'compact',
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-testid="year-picker"]')?.click());
+    const year = [...document.body.querySelectorAll<HTMLButtonElement>('[data-testid="record-year-options"] button')]
+      .find(button => button.textContent === '2026年');
+
+    expect(document.body.querySelector('[data-testid="record-month-options"]')).toBeNull();
+    act(() => year?.click());
+
+    expect(onChange).toHaveBeenCalledOnce();
+    expect(onChange.mock.calls[0]?.[0].format('YYYY')).toBe('2026');
+  });
 });

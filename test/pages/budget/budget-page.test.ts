@@ -76,7 +76,7 @@ afterEach(() => {
 });
 
 describe('personal budget page presentation', () => {
-  it('keeps the URL-seeded context dropdown and category navigation defaults', async () => {
+  it('keeps the URL-seeded period selector and category navigation defaults', async () => {
     hooks.getBudgetInfo.mockReturnValue({
       data: {
         categoryBudgets: [{
@@ -111,17 +111,16 @@ describe('personal budget page presentation', () => {
     expect(hooks.getBudgetInfo).toHaveBeenLastCalledWith({
       params: { type: BudgetEntityType.YEAR },
     });
-    expect(container.querySelector('.adm-dropdown-item-title')?.textContent).toContain('dropdown.yearlyBudget');
+    expect(container.querySelector(`[data-budget-type="${BudgetEntityType.YEAR}"]`)?.textContent).toContain('dropdown.yearlyBudget');
     expect(container.querySelector('[data-budget-id="summary-1"]')).not.toBeNull();
     expect(container.querySelector('[data-budget-id="category-1"]')?.textContent).toContain('Dining');
-    expect(container.querySelector('[data-budget-add-category]')?.closest('.fixed')).not.toBeNull();
+    expect(container.querySelector('[data-budget-add-category]')?.closest('.shrink-0')).not.toBeNull();
 
     act(() => container.querySelector<HTMLElement>('[data-budget-id="summary-1"]')?.click());
     expect(actionSheet.mock.calls[0]?.[0].actions.some(action => action.key === 'edit')).toBe(true);
     act(() => container.querySelector<HTMLElement>('[data-budget-id="category-1"]')?.click());
     expect(actionSheet.mock.calls[1]?.[0].actions.some(action => action.key === 'edit')).toBe(true);
 
-    await act(async () => container.querySelector<HTMLElement>('.adm-dropdown-item-title')?.click());
     await act(async () => container.querySelector<HTMLElement>('[data-budget-type="0"]')?.click());
     expect(hooks.getBudgetInfo).toHaveBeenLastCalledWith({
       params: { type: BudgetEntityType.MONTH },
@@ -137,7 +136,7 @@ describe('personal budget page presentation', () => {
 
     expect(container.textContent).toContain('emptyBudget');
     expect(container.querySelector('[data-budget-add-category]')).toBeNull();
-    act(() => container.querySelector<HTMLElement>('[data-budget-create-summary]')?.click());
+    act(() => container.querySelector<HTMLElement>('[data-testid="budget-empty-state"] button')?.click());
     expect(container.querySelector('.adm-modal')).not.toBeNull();
   });
 });

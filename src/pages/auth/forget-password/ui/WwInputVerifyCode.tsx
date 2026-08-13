@@ -1,104 +1,104 @@
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
-import { Input } from 'antd-mobile';
-import classNames from 'classnames';
 import dayjs from 'dayjs';
+import { KeyRound } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from '@/shared/i18n';
+import { FormField } from '@/shared/ui';
 
 const COUNTDOWN_TIME_SECOND = 60;
 
-const WwInputVerifyCode: FC<{
+interface WwInputVerifyCodeProps {
   className?: string;
-  placeholder?: string;
-  value: string;
+  label?: string;
   onChange?: (value: string) => void;
-  isSend?: boolean;
-  startTime?: Dayjs;
-  setStartTime: (time?: Dayjs) => void;
   onSend?: () => Promise<boolean>;
-  autoCountdown?: boolean;
-}> = (_props) => {
-  const { t } = useTranslation('auth');
-  const props = _props;
-  const { startTime, setStartTime, autoCountdown = false, className } = props;
-  const [now, setNow] = useState<Dayjs>();
+  placeholder?: string;
+  setStartTime: (time?: Dayjs) => void;
+  startTime?: Dayjs;
+  value: string;
+}
 
-  const onChange = useCallback((v: string) => {
-    props.onChange?.(v);
-  }, []);
+const WwInputVerifyCode: FC<WwInputVerifyCodeProps> = ({
+  className,
+  label,
+  onChange,
+  onSend,
+  placeholder,
+  setStartTime,
+  startTime,
+  value,
+}) => {
+  const { t } = useTranslation('auth');
+  const [now, setNow] = useState<Dayjs | undefined>(() => startTime ? dayjs() : undefined);
+  const [isSending, setIsSending] = useState(false);
 
   const startCountdown = useCallback(() => {
-    setStartTime(dayjs());
-    setNow(dayjs());
-  }, []);
+    const nextStartTime = dayjs();
+    setStartTime(nextStartTime);
+    setNow(nextStartTime);
+  }, [setStartTime]);
 
-  const onSend = useCallback(async () => {
-    const success = await props.onSend?.();
-    if (success) {
-      startCountdown();
+  const handleSend = useCallback(async () => {
+    if (isSending)
+      return;
+    setIsSending(true);
+    try {
+      if (await onSend?.())
+        startCountdown();
     }
-  }, [props.onSend]);
+    finally {
+      setIsSending(false);
+    }
+  }, [isSending, onSend, startCountdown]);
 
   useEffect(() => {
-    if (!startTime || !now)
+    if (!startTime)
       return;
-
-    const timer = setInterval(() => {
-      if (now.diff(startTime, 'second') < COUNTDOWN_TIME_SECOND) {
-        setNow(dayjs());
-      }
-      else {
+    const timer = window.setInterval(() => {
+      const nextNow = dayjs();
+      if (nextNow.diff(startTime, 'second') >= COUNTDOWN_TIME_SECOND) {
+        window.clearInterval(timer);
         setNow(undefined);
-        clearInterval(timer);
+        setStartTime(undefined);
+        return;
       }
-    }, 500);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [startTime, now]);
+      setNow(nextNow);
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [setStartTime, startTime]);
 
   const remainingTime = useMemo(() => {
     if (!startTime || !now)
       return 0;
-    return COUNTDOWN_TIME_SECOND - now.diff(startTime, 'second');
+    return Math.max(0, COUNTDOWN_TIME_SECOND - now.diff(startTime, 'second'));
   }, [startTime, now]);
 
-  useEffect(() => {
-    if (autoCountdown) {
-      startCountdown();
-    }
-  }, [autoCountdown]);
-
   return (
-    <div
-      className={classNames(
-        'bg-[#f6f7f8] w-[80%] min-h-[48px] flex items-center rounded-[12px] px-4',
-        className,
+    <FormField
+      className={className}
+      inputMode="numeric"
+      label={label ?? t('sign.captcha')}
+      maxLength={6}
+      onChange={onChange}
+      placeholder={placeholder ?? t('captcha.placeholder')}
+      prefix={<KeyRound size={18} strokeWidth={1.8} />}
+      suffix={(
+        <button
+          className="min-h-8 rounded-full border-0 bg-primary-light/55 px-3 text-[11px] font-bold text-primary-deep disabled:text-ww-soft"
+          disabled={remainingTime > 0 || isSending}
+          onClick={() => void handleSend()}
+          type="button"
+        >
+          {remainingTime > 0
+            ? t('retry.afterSeconds', { seconds: remainingTime })
+            : isSending
+              ? t('captchaSending')
+              : t('sign.resendCaptcha')}
+        </button>
       )}
-    >
-      <Input
-        className="placeholder:text-[red]"
-        placeholder={props.placeholder}
-        clearable
-        onlyShowClearWhenFocus={false}
-        value={props.value}
-        onChange={onChange}
-        maxLength={6}
-      />
-      {!remainingTime
-        ? (
-            <div className="flex-shrink-0" onClick={onSend}>
-              {t('sign.resendCaptcha')}
-            </div>
-          )
-        : (
-            <div className="flex-shrink-0 text-[#ccc]">
-              {t('retry.afterSeconds', { seconds: remainingTime })}
-            </div>
-          )}
-    </div>
+      value={value}
+    />
   );
 };
 

@@ -87,4 +87,22 @@ describe('record overview presentation', () => {
     expect(content.querySelector('[data-record-overview-content]')?.classList)
       .toContain('ww-tab-bar-scroll-padding');
   });
+
+  it('uses the shared illustrated empty state and forwards its primary action', () => {
+    const onEmptyAction = vi.fn();
+    const container = render(createElement(RecordOverviewPresentation, {
+      emptyActionLabel: 'Add a transaction',
+      emptyDescription: 'Your monthly records will appear here',
+      emptyTitle: 'No records this month',
+      groups: [],
+      header: headerProps,
+      onEmptyAction,
+      state: 'ready',
+    }));
+
+    expect(container.querySelector('[data-testid="record-overview-empty-state"]')).not.toBeNull();
+    expect(container.textContent).toContain('No records this month');
+    act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-overview-empty-state"] button')?.click());
+    expect(onEmptyAction).toHaveBeenCalledOnce();
+  });
 });

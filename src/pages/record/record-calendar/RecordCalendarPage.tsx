@@ -18,7 +18,7 @@ function RecordCalendar() {
     dateMap,
     list,
     onBack,
-    onDatePicker,
+    onMonthChange,
     onChangeDate,
     onToToday,
     onFixedPinClick,
@@ -45,6 +45,7 @@ function RecordCalendar() {
     <RecordCalendarPresentation
       backLabel={t('common:nav.back')}
       days={days}
+      emptyDescription={t('calendar.emptyDescription')}
       emptyLabel={t('common:empty')}
       errorDescription={t('common:api.error')}
       groups={groups}
@@ -52,10 +53,11 @@ function RecordCalendar() {
       onBack={onBack}
       onCreate={onFixedPinClick}
       onDateChange={date => onChangeDate(date.toDate())}
-      onMonthClick={onDatePicker}
+      onMonthChange={onMonthChange}
       onRetry={() => void refetch()}
       onToday={onToToday}
       retryLabel={t('common:button.retry')}
+      selectedDayLabel={t('calendar.selectedDay')}
       selectedDate={selectDateValue}
       state={isLoading ? 'loading' : isError ? 'error' : 'ready'}
       todayLabel={t('common:time.today')}

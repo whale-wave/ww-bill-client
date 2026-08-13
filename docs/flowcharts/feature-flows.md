@@ -25,7 +25,7 @@ ww-bill-client/
 | 功能 | 主要页面 | 主要 API |
 | --- | --- | --- |
 | 启动与导航 | `src/pages/first-screen`, `src/app/router.tsx`, `src/pages/record/detail` | `/record`, `/user-app-config` |
-| 登录注册与找回密码 | `src/pages/auth/login`, `src/pages/auth/sign`, `src/pages/auth/forget-password` | `/tools/captcha`, `/tools/email`, `/auth/*` |
+| 登录注册与找回密码 | `src/pages/auth/login`, `src/pages/auth/sign`, `src/pages/auth/forget-password` | `/tools/email`, `/auth/*` |
 | 记账与流水 | `src/pages/record/bookkeeping`, `src/pages/record/detail`, `src/pages/record/editing`, `src/pages/record/record-calendar`, `src/pages/record/search-record` | `/record`, `/category` |
 | 账单与导出分享 | `src/pages/bill`, `src/pages/export-data`, `src/pages/share` | `/record/bill`, `/record` |
 | 预算 | `src/pages/budget`, `src/pages/create-budget-category` | `/budget/*`, `/category` |
@@ -69,9 +69,8 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  Entry["进入 /login"] --> Captcha["请求 /tools/captcha 获取图片验证码"]
-  Captcha --> Mode{"登录方式"}
-  Mode --> PasswordLogin["账号密码 + 图片验证码"]
+  Entry["进入 /login"] --> Mode{"登录方式"}
+  Mode --> PasswordLogin["账号密码登录"]
   Mode --> EmailLogin["邮箱验证码登录"]
   EmailLogin --> SendLoginEmail["请求 /auth/login/email/captcha"]
   PasswordLogin --> SubmitLogin["提交 /auth/login"]

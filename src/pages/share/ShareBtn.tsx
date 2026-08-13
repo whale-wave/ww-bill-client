@@ -1,6 +1,6 @@
 import type { FC } from 'react';
+import { Download, Share2 } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
-import styles from './ShareBtn.module.scss';
 
 interface ShareBtnProps {
   onSave: () => void;
@@ -10,25 +10,25 @@ interface ShareBtnProps {
 const ShareBtn: FC<ShareBtnProps> = ({ onSave, onShare }) => {
   const { t } = useTranslation('community');
   return (
-    <div className={styles.wrapper}>
+    <div className="mx-auto flex w-full max-w-[420px] gap-2.5 px-[18px] pb-[max(18px,env(safe-area-inset-bottom))]">
       <button
-        className={styles.btn}
-        type="button"
         aria-label={t('share.saveImage')}
+        className="flex h-[52px] flex-1 items-center justify-center gap-2 rounded-[18px] border border-solid border-border-primary bg-white/85 text-[13px] font-extrabold text-primary-deep shadow-ww backdrop-blur-xl"
         onClick={onSave}
+        type="button"
       >
-        <i className={styles.icon} aria-hidden="true" />
-        <span>{t('share.saveImage')}</span>
+        <Download size={17} strokeWidth={1.9} />
+        {t('share.saveImage')}
       </button>
       {onShare && (
         <button
-          className={styles.btn}
-          type="button"
           aria-label={t('share.shareBill')}
+          className="flex h-[52px] flex-1 items-center justify-center gap-2 rounded-[18px] border-0 bg-primary text-[13px] font-extrabold text-white shadow-ww"
           onClick={onShare}
+          type="button"
         >
-          <i className={`${styles.icon} ${styles.shareIcon}`} aria-hidden="true" />
-          <span>{t('common:action.share')}</span>
+          <Share2 size={17} strokeWidth={1.9} />
+          {t('common:action.share')}
         </button>
       )}
     </div>

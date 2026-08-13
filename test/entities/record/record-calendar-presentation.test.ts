@@ -38,8 +38,35 @@ describe('record calendar presentation', () => {
 
     const page = container.querySelector('[data-record-calendar-presentation]');
     expect(page?.className).toContain('[&_.adm-calendar-picker-view-title]:hidden');
+    expect(page?.className).toContain('[&_.adm-calendar-picker-view-cell]:min-h-0');
+    expect(container.querySelector('[data-record-calendar-scroll]')?.className).toContain('overflow-y-auto');
     expect(container.querySelector('[data-date="2026-07-30"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(container.querySelector('[data-record-calendar-create]')).not.toBeNull();
+    expect(container.querySelector('[data-record-calendar-today]')).not.toBeNull();
+  });
+
+  it('hides the today action when today is already selected', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    const today = dayjs();
+    act(() => root.render(createElement(RecordCalendarPresentation, {
+      backLabel: 'Back',
+      days: [],
+      emptyLabel: 'Empty',
+      groups: [],
+      month: today.startOf('month'),
+      onBack: vi.fn(),
+      onDateChange: vi.fn(),
+      onMonthClick: vi.fn(),
+      onToday: vi.fn(),
+      selectedDate: today,
+      state: 'ready',
+      todayLabel: 'Today',
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    expect(container.querySelector('[data-record-calendar-today]')).toBeNull();
+    expect(container.querySelector('[data-record-calendar-today-placeholder]')).not.toBeNull();
   });
 });

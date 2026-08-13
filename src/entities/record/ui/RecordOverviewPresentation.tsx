@@ -2,14 +2,17 @@ import type { FC, ReactNode } from 'react';
 import type { RecordOverviewHeaderProps } from './RecordOverviewHeader';
 import type { RecordOverviewListGroup } from './RecordOverviewList';
 import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
-import { PackageOpen } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { DesignIcon, IllustratedEmptyState } from '@/shared/ui';
 import { RecordOverviewHeader } from './RecordOverviewHeader';
 import { RecordOverviewList } from './RecordOverviewList';
 
 export type RecordOverviewState = 'error' | 'loading' | 'ready';
 
 export interface RecordOverviewPresentationProps {
+  emptyActionLabel?: ReactNode;
   emptyDescription?: ReactNode;
+  emptyTitle?: ReactNode;
   errorDescription?: ReactNode;
   errorTitle?: ReactNode;
   groups: RecordOverviewListGroup[];
@@ -18,6 +21,7 @@ export interface RecordOverviewPresentationProps {
   loadMoreLabel?: ReactNode;
   loadMoreTestId?: string;
   onLoadMore?: () => void;
+  onEmptyAction?: () => void;
   onRetry?: () => void;
   retryLabel?: ReactNode;
   renderCategoryIcon?: (item: { categoryName?: string; iconName: string }) => ReactNode;
@@ -25,7 +29,9 @@ export interface RecordOverviewPresentationProps {
 }
 
 export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = ({
+  emptyActionLabel,
   emptyDescription,
+  emptyTitle,
   errorDescription,
   errorTitle,
   groups,
@@ -34,6 +40,7 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
   loadMoreLabel,
   loadMoreTestId,
   onLoadMore,
+  onEmptyAction,
   onRetry,
   retryLabel,
   renderCategoryIcon,
@@ -68,11 +75,21 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
       )}
       {state === 'ready' && groups.length === 0 && (
         <div
-          className="flex min-h-[240px] flex-grow flex-col items-center justify-center text-base text-[#e0e0e0]"
+          className="flex min-h-[320px] flex-grow items-center justify-center py-3"
           data-record-overview-state="empty"
         >
-          <PackageOpen className="text-[#e0e0e0]" size={100} strokeWidth={1.5} />
-          <span>{emptyDescription}</span>
+          <div className="w-full rounded-[24px] border border-solid border-border-primary bg-white/65 shadow-ww-xs backdrop-blur-xl">
+            <IllustratedEmptyState
+              accentIcon={onEmptyAction ? <Plus size={19} strokeWidth={2.2} /> : undefined}
+              actionLabel={emptyActionLabel}
+              className="min-h-[330px]"
+              description={emptyDescription}
+              icon={<DesignIcon name="tab-detail-active" size={46} />}
+              onAction={onEmptyAction}
+              testId="record-overview-empty-state"
+              title={emptyTitle ?? emptyDescription}
+            />
+          </div>
         </div>
       )}
       {state === 'ready' && groups.length > 0 && (

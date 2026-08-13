@@ -6,6 +6,8 @@
   "used": "Used",
   "percent": "Percentage",
   "createCategory": "Create Category Budget",
+  "selectCategoryTitle": "Choose a budget category",
+  "selectCategoryDescription": "Choose a category and set its {{period}} limit",
   "exceedWarning": "Category budgets exceed total",
   "actions": {
     "clear": "Clear",
@@ -74,5 +76,8 @@
   "editCategoryBudget": "Edit {{category}} Budget",
   "editSummaryBudget": "Edit {{period}} Total Budget",
   "emptyBudget": "No budget set",
-  "emptyCategoryBudget": "No category budget set"
+  "emptyBudgetDescription": "Set a target to give every expense a clearer direction",
+  "emptyCategoryBudget": "No category budget set",
+  "emptyCategoryBudgetDescription": "Set limits for frequent categories to keep spending on track",
+  "categoryBudgetDescription": "Split your budget by purpose and stay in control"
 }

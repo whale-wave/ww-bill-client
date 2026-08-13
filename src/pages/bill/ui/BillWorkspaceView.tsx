@@ -1,6 +1,6 @@
 import type { GetRecordBillApiResponseData } from '@/entities/record';
 import { Button as AdmButton, ErrorBlock, NavBar, SpinLoading } from 'antd-mobile';
-import { useMemo } from 'react';
+import { useLayoutEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useCurrentWorkspaceBack } from '@/features/workspace-navigation';
@@ -21,6 +21,7 @@ interface BillQueryState {
 function BillWorkspaceContent({ query }: { query: BillQueryState }) {
   const { t } = useTranslation('bill');
   const isMonth = useBillPageStore(({ billTabType }) => billTabType === BillTabsType.MONTH);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const list = useMemo(() => {
     const source = query.data?.list;
     if (!source)
@@ -36,15 +37,24 @@ function BillWorkspaceContent({ query }: { query: BillQueryState }) {
       }));
   }, [isMonth, query.data?.list, t]);
 
+  useLayoutEffect(() => {
+    if (scrollContainerRef.current)
+      scrollContainerRef.current.scrollTop = 0;
+  }, [isMonth]);
+
   return (
-    <div className="min-h-0 flex-grow overflow-auto px-3">
+    <div
+      className="min-h-0 flex-grow overflow-auto px-[18px] pb-4"
+      data-testid="bill-scroll-container"
+      ref={scrollContainerRef}
+    >
       {query.isLoading && (
-        <div className="flex min-h-[240px] items-center justify-center">
+        <div className="flex min-h-[320px] items-center justify-center">
           <SpinLoading />
         </div>
       )}
       {!query.isLoading && query.isError && (
-        <div className="flex min-h-[280px] flex-col items-center justify-center gap-3">
+        <div className="flex min-h-[320px] flex-col items-center justify-center gap-3">
           <ErrorBlock />
           {query.refetch && (
             <AdmButton onClick={() => void query.refetch?.()} size="small">
@@ -68,13 +78,20 @@ export function PersonalBillWorkspaceView({ query }: { query: BillQueryState }) 
   const navigate = useNavigate();
 
   return (
-    <div className="page">
+    <div className="page-new overflow-hidden">
+      <header className="flex h-[60px] shrink-0 items-center justify-center px-[22px] pb-4 pt-[max(8px,env(safe-area-inset-top))]">
+        <h1 className="text-[20px] font-extrabold leading-[30px] text-ww-ink">{t('title')}</h1>
+      </header>
       <div className="flex flex-grow flex-col overflow-hidden">
         <BillTabs />
         <BillWorkspaceContent query={query} />
       </div>
-      <div className="flex-shrink-0">
-        <WwButton size="full" onClick={() => navigate(-1)}>
+      <div className="shrink-0 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
+        <WwButton
+          className="!h-12 !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww"
+          size="full"
+          onClick={() => navigate(-1)}
+        >
           {t('back')}
         </WwButton>
       </div>
@@ -91,7 +108,7 @@ export function LedgerBillWorkspaceView({
   const onBack = useCurrentWorkspaceBack();
 
   return (
-    <div className="page overflow-hidden bg-bg-gray">
+    <div className="page-new overflow-hidden">
       <NavBar onBack={onBack}>
         {t('title')}
       </NavBar>
@@ -99,8 +116,12 @@ export function LedgerBillWorkspaceView({
         <BillTabs />
         <BillWorkspaceContent query={query} />
       </div>
-      <div className="flex-shrink-0">
-        <WwButton size="full" onClick={onBack}>
+      <div className="shrink-0 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
+        <WwButton
+          className="!h-12 !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww"
+          size="full"
+          onClick={onBack}
+        >
           {t('back')}
         </WwButton>
       </div>

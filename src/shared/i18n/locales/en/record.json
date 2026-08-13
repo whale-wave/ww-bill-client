@@ -13,7 +13,10 @@
     "saveFailed": "Unable to save the record",
     "conflict": "This record changed elsewhere. Refresh and try again.",
     "complete": "Done",
-    "selectTime": "Select Time"
+    "selectTime": "Select Time",
+    "backspace": "Backspace",
+    "emptyCategoryTitle": "No categories available",
+    "emptyCategoryDescription": "Create an income or expense category in Settings before adding a record"
   },
   "detail": {
     "title": "Records",
@@ -25,7 +28,10 @@
     "edit": "Edit",
     "delete": "Delete",
     "confirmDelete": "Confirm Delete",
-    "deleteWarning": "This cannot be undone!"
+    "deleteWarning": "This cannot be undone!",
+    "emptyTitle": "No records this month",
+    "emptyDescription": "Add your first transaction and monthly records will appear here",
+    "emptyAction": "Add a transaction"
   },
   "editing": {
     "title": "Edit Record"
@@ -34,12 +40,51 @@
     "title": "Calendar",
     "selectMonth": "Select month",
     "noRecord": "No records",
+    "emptyDescription": "No transactions for this day yet. New entries will appear here.",
+    "selectedDay": "Day details",
     "dailyBudget": "Daily Budget"
+  },
+  "periodPicker": {
+    "selectMonth": "Select year and month",
+    "selectYear": "Select year",
+    "year": "Year",
+    "month": "Month"
   },
   "search": {
     "title": "Search",
     "placeholder": "Search category/tag/note",
-    "noResult": "No results"
+    "noResult": "No results",
+    "filter": "Filter",
+    "filterPanelTitle": "Filter records",
+    "idleTitle": "Find the record you need",
+    "idleDescription": "Enter a keyword or narrow the results with filters",
+    "emptyTitle": "No matching records",
+    "emptyDescription": "Try another keyword or adjust the filters",
+    "matchType": "Match",
+    "flow": "Type",
+    "time": "Date",
+    "unlimited": "Any",
+    "category": "Category",
+    "tag": "Tag",
+    "remark": "Note",
+    "amount": "Amount",
+    "income": "Income",
+    "expense": "Expense",
+    "custom": "Custom",
+    "more": "More filters",
+    "member": "Member",
+    "minimum": "Minimum",
+    "maximum": "Maximum",
+    "minAmount": "Minimum amount",
+    "maxAmount": "Maximum amount",
+    "counting": "Counting",
+    "all": "All",
+    "counted": "Counted",
+    "uncounted": "Not counted",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "reset": "Reset",
+    "confirm": "Apply"
   },
   "type": {
     "expense": "Expense",

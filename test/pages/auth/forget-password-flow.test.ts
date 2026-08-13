@@ -45,6 +45,16 @@ vi.mock('antd-mobile', () => ({
   Toast: { show: vi.fn() },
 }));
 
+vi.mock('@/features/auth', () => ({
+  AuthPageShell: ({ children }: { children: ReactNode }) => createElement('main', null, children),
+  AuthPrimaryButton: ({ children, disabled, onClick, testId }: {
+    children: ReactNode;
+    disabled?: boolean;
+    onClick: () => unknown;
+    testId?: string;
+  }) => createElement('button', { 'data-testid': testId, disabled, onClick }, children),
+}));
+
 vi.mock('@/pages/auth/forget-password/ui', () => ({
   WwInput: ({
     disabled,
@@ -93,7 +103,25 @@ vi.mock('@/shared/lib/play-sound', () => ({
 }));
 
 vi.mock('@/shared/ui', () => ({
-  NavBar: ({ children }: { children: ReactNode }) => createElement('nav', null, children),
+  FormField: ({
+    disabled,
+    onChange,
+    placeholder,
+    type,
+    value,
+  }: {
+    disabled?: boolean;
+    onChange?: (value: string) => void;
+    placeholder?: string;
+    type?: 'email' | 'password' | 'text';
+    value: string;
+  }) => createElement('input', {
+    disabled,
+    onChange: (event: ChangeEvent<HTMLInputElement>) => onChange?.(event.target.value),
+    placeholder,
+    type,
+    value,
+  }),
 }));
 
 let cleanup: (() => void) | undefined;
@@ -139,8 +167,7 @@ function getInput(container: HTMLElement, placeholder: string) {
 }
 
 function getNextButton(container: HTMLElement) {
-  const button = [...container.querySelectorAll('button')]
-    .find(element => element.textContent === 'common:nav.next');
+  const button = container.querySelector<HTMLButtonElement>('[data-testid="password-recovery-next"]');
   if (!button)
     throw new Error('Missing next button');
   return button;
@@ -208,8 +235,8 @@ describe('password recovery pages', () => {
     postPasswordReset.mockResolvedValue({ statusCode: 200 });
     const { container } = renderAt(`/forget-password/reset?${search.toString()}`);
 
-    enterText(getInput(container, 'forgetPassword.newPassword'), 'new-password');
-    enterText(getInput(container, 'forgetPassword.confirmPassword'), 'new-password');
+    enterText(getInput(container, 'forgetPassword.newPasswordPlaceholder'), 'new-password');
+    enterText(getInput(container, 'forgetPassword.confirmPasswordPlaceholder'), 'new-password');
     await act(async () => getNextButton(container).click());
 
     expect(postPasswordReset).toHaveBeenCalledWith({

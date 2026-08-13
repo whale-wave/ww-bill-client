@@ -1,5 +1,4 @@
 import type { Ledger } from '@/entities/ledger';
-import { DatePicker } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -87,6 +86,7 @@ function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: strin
       backLabel={t('common:nav.back')}
       canCreate={ledger.capabilities.includes(LedgerCapability.RECORD_CREATE)}
       days={days}
+      emptyDescription={t('record:calendar.emptyDescription')}
       emptyLabel={t('records.empty')}
       errorDescription={t('common.loadErrorDescription')}
       groups={groups}
@@ -97,21 +97,14 @@ function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: strin
         setSelectedDate(date);
         syncDate(date);
       }}
-      onMonthClick={() => {
-        void DatePicker.prompt({
-          defaultValue: month.toDate(),
-          onConfirm: (value) => {
-            const nextMonth = dayjs(value).startOf('month');
-            const nextDate = nextMonth.isSame(dayjs(), 'month')
-              ? dayjs()
-              : nextMonth;
-            setMonth(nextMonth);
-            setSelectedDate(nextDate);
-            syncDate(nextDate);
-          },
-          precision: 'month',
-          title: t('record:calendar.selectMonth'),
-        });
+      onMonthChange={(value) => {
+        const nextMonth = value.startOf('month');
+        const nextDate = nextMonth.isSame(dayjs(), 'month')
+          ? dayjs()
+          : nextMonth;
+        setMonth(nextMonth);
+        setSelectedDate(nextDate);
+        syncDate(nextDate);
       }}
       onRetry={() => void query.refetch()}
       onToday={() => {
@@ -121,6 +114,7 @@ function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: strin
         syncDate(today);
       }}
       retryLabel={t('common.retry')}
+      selectedDayLabel={t('record:calendar.selectedDay')}
       selectedDate={selectedDate}
       state={query.isLoading ? 'loading' : query.isError ? 'error' : 'ready'}
       todayLabel={t('common:time.today')}

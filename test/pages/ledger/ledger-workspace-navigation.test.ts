@@ -142,6 +142,7 @@ vi.mock('@/shared/i18n', () => ({
     t: (key: string, values?: { count?: number }) => ({
       'amount.expend': '支出',
       'calendar.title': '日历',
+      'common:dateTime.yearSuffix': '年',
       'common:nav.back': '返回',
       'dropdown.monthlyBudget': '月预算',
       'dropdown.yearlyBudget': '年预算',
@@ -368,17 +369,21 @@ describe('personal ledger workspace integration', () => {
 
   it('keeps year selection, month/year bill switching, and the bottom return action', async () => {
     const { container, router } = renderPage('/bill', '/bill', createElement(BillPage));
-    const periodTabs = container.querySelectorAll('.bill-period-tabs > div');
+    const periodTabs = container.querySelectorAll('.bill-period-tabs > button');
+    const scrollContainer = container.querySelector<HTMLElement>('[data-testid="bill-scroll-container"]');
 
     expect(container.querySelector('[data-testid="bill-year-selector"]')?.textContent).toContain('2026年');
     expect(container.textContent).toContain('月账单');
     expect(container.querySelector('.bwm-button-full')).not.toBeNull();
     expect(periodTabs).toHaveLength(2);
 
+    if (scrollContainer)
+      scrollContainer.scrollTop = 180;
     await click(periodTabs[1]);
     await vi.waitFor(() => expect(
       container.querySelector<HTMLElement>('[data-testid="bill-year-selector"]')?.getAttribute('aria-hidden'),
     ).toBe('true'));
+    expect(scrollContainer?.scrollTop).toBe(0);
     await click(container.querySelector('.bwm-button-full'));
     expect(router.state.location.pathname).toBe('/origin');
   });

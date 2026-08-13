@@ -456,12 +456,12 @@ describe('household records', () => {
       params: { householdId: 'household/a', recordId: 7 },
       queryOptions: { enabled: true },
     });
-    expect(container.querySelectorAll('.bwm-nav-bar')).toHaveLength(1);
+    expect(container.querySelector('[data-record-detail-navigation]')).not.toBeNull();
     expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
-    expect(container.querySelector('[data-record-detail-header]')?.classList).toContain('bg-primary');
+    expect(container.querySelector('[data-record-detail-amount]')?.textContent).toContain('20.00');
     expect(container.querySelector('[data-category-icon="餐"] svg')?.classList).toContain('lucide-utensils');
     expect(container.querySelector('.rounded-xl')).toBeNull();
-    expect(container.querySelector('.bwm-fixed-pin')?.textContent).toBe('recordDetail.share');
+    expect(container.querySelector('[data-record-detail-pin]')?.textContent).toContain('recordDetail.share');
     expect(container.querySelector('[data-record-detail-footer]')).not.toBeNull();
     expect(container.querySelector('[data-record-detail-footer]')?.textContent).toContain('record:detail.edit');
     expect(container.querySelector('[data-record-detail-footer]')?.textContent).toContain('record:detail.delete');
@@ -484,9 +484,8 @@ describe('household records', () => {
     );
     const presentation = container.querySelector<HTMLElement>('[data-record-detail-presentation]');
 
-    expect(container.querySelectorAll('.bwm-nav-bar')).toHaveLength(1);
-    expect(presentation?.querySelector('.bwm-nav-bar')).not.toBeNull();
-    expect(presentation?.querySelector('.bwm-nav-bar + [data-record-detail-header]')).not.toBeNull();
+    expect(presentation?.querySelector('[data-record-detail-navigation]')).not.toBeNull();
+    expect(presentation?.querySelector('[data-record-detail-header]')).not.toBeNull();
   });
 
   it('does not show the workspace capsule on household record detail', () => {

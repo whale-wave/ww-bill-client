@@ -3,11 +3,12 @@ import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { CategoryEntity } from '@/entities/category';
 import { Button, DatePicker, ErrorBlock, Popup, SpinLoading } from 'antd-mobile';
+import { Delete as BackspaceIcon, Tags } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { CategoryIcon } from '@/entities/category';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
-import { DesignIcon } from '@/shared/ui';
+import { DesignIcon, IllustratedEmptyState } from '@/shared/ui';
 import { KEYPAD_LAYOUT } from '../model/constants';
 
 export type RecordEditorCategoryState = 'error' | 'loading' | 'ready';
@@ -132,7 +133,18 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   )}
                 </div>
               )}
-              {categoryState === 'ready' && (
+              {categoryState === 'ready' && categories.length === 0 && (
+                <div className="rounded-[24px] border border-solid border-border-primary bg-white/65 shadow-ww-xs backdrop-blur-xl">
+                  <IllustratedEmptyState
+                    className="min-h-[360px]"
+                    description={t('record:bookkeeping.emptyCategoryDescription')}
+                    icon={<Tags className="text-primary-deep" size={42} strokeWidth={1.5} />}
+                    testId="record-editor-empty-state"
+                    title={t('record:bookkeeping.emptyCategoryTitle')}
+                  />
+                </div>
+              )}
+              {categoryState === 'ready' && categories.length > 0 && (
                 <div className="grid grid-cols-4 gap-[9px]">
                   {categories.map((category, index) => (
                     <button
@@ -255,10 +267,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   <div className="mt-[10px] grid grid-cols-3 gap-2">
                     {KEYPAD_LAYOUT.map((item, index) => (
                       <button
-                        aria-label={item.keys === 'x' ? '删除' : undefined}
+                        aria-label={item.keys === 'x' ? t('record:bookkeeping.backspace') : undefined}
                         className={cn(
                           'flex h-[54px] items-center justify-center rounded-[16px] border border-border-primary bg-white/90 font-number text-[21px] font-bold leading-[31.5px] text-ww-ink shadow-ww-xs',
-                          item.keys === 'x' && 'border-[#ffd0de] bg-[#fff0f5] text-[#d85f82]',
+                          item.keys === 'x' && 'gap-1.5 border-primary-light bg-primary-light/55 font-sans text-[12px] text-primary-deep',
                           controller.activeKeyIndex === index && 'bg-primary-light',
                         )}
                         key={String(item.keys)}
@@ -270,8 +282,8 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                         {item.keys === 'x'
                           ? (
                               <>
-                                <span className="sr-only">x</span>
-                                <DesignIcon name="editor-delete" size={18} />
+                                <BackspaceIcon aria-hidden="true" size={20} strokeWidth={1.8} />
+                                <span>{t('record:bookkeeping.backspace')}</span>
                               </>
                             )
                           : item.keys}

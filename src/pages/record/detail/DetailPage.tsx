@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { RecordOverviewPresentation } from '@/entities/record';
 import { useRecordOverviewHeader } from '@/pages/record/detail/Top';
+import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { TabBar } from '@/widgets/layout';
@@ -56,10 +57,13 @@ const Detail: FC = () => {
   return (
     <div className="page">
       <RecordOverviewPresentation
-        emptyDescription={t('common:empty')}
+        emptyActionLabel={t('detail.emptyAction')}
+        emptyDescription={t('detail.emptyDescription')}
+        emptyTitle={t('detail.emptyTitle')}
         errorDescription={t('common:api.error')}
         groups={groups}
         header={header}
+        onEmptyAction={() => navigate(ROUTES_PATH.BOOKKEEPING.getPath())}
         onRetry={() => void query.refetch()}
         retryLabel={t('common:button.retry')}
         renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}

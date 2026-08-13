@@ -139,7 +139,7 @@ describe('record editor controller', () => {
     clickButton(container, '2');
     clickButton(container, '3');
     clickButton(container, '4');
-    clickButton(container, 'x');
+    clickButton(container, 'record:bookkeeping.backspace');
     await complete(container);
 
     expect(submit).toHaveBeenCalledWith(expect.objectContaining({ amount: '1.2' }));

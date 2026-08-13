@@ -6,12 +6,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import LoginPage from '@/pages/auth/login/LoginPage';
 
 const {
-  getCaptcha,
   login,
   setToken,
   setQueryData,
 } = vi.hoisted(() => ({
-  getCaptcha: vi.fn(),
   login: vi.fn(),
   setToken: vi.fn(),
   setQueryData: vi.fn(),
@@ -22,15 +20,14 @@ vi.mock('@/entities/auth', () => ({
   loginEmailCaptchaApi: vi.fn(),
 }));
 
-vi.mock('@/entities/tools', () => ({
-  getToolsCaptchaApi: getCaptcha,
-}));
-
 vi.mock('@/entities/user', () => ({
   userKeys: { info: () => ['user', 'info'] },
 }));
 
 vi.mock('@/features/auth', () => ({
+  AuthPageShell: ({ children, footer }: { children: ReactNode; footer?: ReactNode }) => createElement('main', null, children, footer),
+  AuthPrimaryButton: ({ children, onClick }: { children: ReactNode; onClick: () => unknown }) => createElement('button', { onClick }, children),
+  AuthSegmentedControl: () => null,
   useAuthStore: (selector: (state: { setToken: typeof setToken }) => unknown) => selector({ setToken }),
 }));
 
@@ -51,11 +48,8 @@ vi.mock('@/shared/lib/play-sound', () => ({
 }));
 
 vi.mock('@/shared/ui', () => ({
-  Button: ({ children, onClick }: { children: ReactNode; onClick?: () => unknown }) => createElement('button', {
-    onClick: () => onClick?.(),
-  }, children),
-  Input: ({ onChange, value }: { onChange?: (event: ChangeEvent<HTMLInputElement>) => void; value: string }) => createElement('input', {
-    onChange: (event: ChangeEvent<HTMLInputElement>) => onChange?.(event),
+  FormField: ({ onChange, value }: { onChange?: (value: string) => void; value: string }) => createElement('input', {
+    onChange: (event: ChangeEvent<HTMLInputElement>) => onChange?.(event.target.value),
     value,
   }),
 }));
@@ -92,11 +86,9 @@ async function submitLogin(container: HTMLElement) {
 
 beforeEach(() => {
   vi.useFakeTimers();
-  getCaptcha.mockReset();
   login.mockReset();
   setToken.mockReset();
   setQueryData.mockReset();
-  getCaptcha.mockResolvedValue('');
   login.mockResolvedValue({
     statusCode: 200,
     data: { token: 'new-token', userInfo: { id: 'user-id' } },
@@ -110,6 +102,19 @@ afterEach(() => {
 });
 
 describe('login redirect', () => {
+  it('submits username and password without rendering a captcha field', async () => {
+    const { container } = renderAt('/login');
+
+    expect(container.querySelectorAll('input')).toHaveLength(2);
+
+    await submitLogin(container);
+
+    expect(login).toHaveBeenCalledWith({
+      username: '',
+      password: '',
+    });
+  });
+
   it('replaces the login page with the original internal location after login', async () => {
     const { container, router } = renderAt({
       pathname: '/login',
