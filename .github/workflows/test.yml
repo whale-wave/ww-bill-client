@@ -42,11 +42,17 @@ jobs:
         run: echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
       - name: deploy aliyun
         uses: appleboy/ssh-action@master
+        env:
+          WW_BILL_SERVICE_ENV_OSS_UPYUN_SERVICE_NAME: ${{ secrets.WW_BILL_SERVICE_ENV_OSS_UPYUN_SERVICE_NAME }}
+          WW_BILL_SERVICE_ENV_OSS_UPYUN_OPERATOR: ${{ secrets.WW_BILL_SERVICE_ENV_OSS_UPYUN_OPERATOR }}
+          WW_BILL_SERVICE_ENV_OSS_UPYUN_PASSWORD: ${{ secrets.WW_BILL_SERVICE_ENV_OSS_UPYUN_PASSWORD }}
+          WW_BILL_SERVICE_ENV_OSS_UPYUN_DOMAIN: ${{ secrets.WW_BILL_SERVICE_ENV_OSS_UPYUN_DOMAIN }}
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.RSA_KEY }}
           port: ${{ secrets.PORT }}
+          envs: WW_BILL_SERVICE_ENV_OSS_UPYUN_SERVICE_NAME,WW_BILL_SERVICE_ENV_OSS_UPYUN_OPERATOR,WW_BILL_SERVICE_ENV_OSS_UPYUN_PASSWORD,WW_BILL_SERVICE_ENV_OSS_UPYUN_DOMAIN
           script: |
             cd ${{ secrets.WORK_DIR }}
             export WW_BILL_CLIENT_VERSION=${{ steps.get_version.outputs.version }}
@@ -55,10 +61,6 @@ jobs:
 
             export WW_BILL_SERVICE_ENV_SECRET=${{ secrets.WW_BILL_SERVICE_ENV_SECRET }}
             export WW_BILL_SERVICE_ENV_EMAIL_PASSWORD=${{ secrets.WW_BILL_SERVICE_ENV_EMAIL_PASSWORD }}
-            export WW_BILL_SERVICE_ENV_OSS_QI_NIU_BUCKET=${{ secrets.WW_BILL_SERVICE_ENV_OSS_QI_NIU_BUCKET }}
-            export WW_BILL_SERVICE_ENV_OSS_QI_NIU_ACCESS_KEY=${{ secrets.WW_BILL_SERVICE_ENV_OSS_QI_NIU_ACCESS_KEY }}
-            export WW_BILL_SERVICE_ENV_OSS_QI_NIU_SECRET_KEY=${{ secrets.WW_BILL_SERVICE_ENV_OSS_QI_NIU_SECRET_KEY }}
-            export WW_BILL_SERVICE_ENV_OSS_QI_NIU_DOMAIN=${{ secrets.WW_BILL_SERVICE_ENV_OSS_QI_NIU_DOMAIN }}
             export WW_BILL_SERVICE_ENV_OSS_ALI_REGION=${{ secrets.WW_BILL_SERVICE_ENV_OSS_ALI_REGION }}
             export WW_BILL_SERVICE_ENV_OSS_ALI_BUCKET=${{ secrets.WW_BILL_SERVICE_ENV_OSS_ALI_BUCKET }}
             export WW_BILL_SERVICE_ENV_OSS_ALI_ACCESS_KEY_ID=${{ secrets.WW_BILL_SERVICE_ENV_OSS_ALI_ACCESS_KEY_ID }}
