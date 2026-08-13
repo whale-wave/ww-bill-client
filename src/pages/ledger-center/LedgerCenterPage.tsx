@@ -2,13 +2,10 @@ import type { LedgerListItem } from '@/entities/ledger';
 import {
   Button,
   Dialog,
-  ErrorBlock,
-  NavBar,
-  SafeArea,
   SpinLoading,
   Toast,
 } from 'antd-mobile';
-import { SetOutline } from 'antd-mobile-icons';
+import { BookOpen, CircleAlert, Settings2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useBeforeUnload, useBlocker, useNavigate } from 'react-router-dom';
 import {
@@ -21,6 +18,8 @@ import {
   useReorderLedgersMutation,
 } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
+import { IllustratedEmptyState, PageHeader } from '@/shared/ui';
 import { LedgerManagementFooter } from './ui/LedgerManagementFooter';
 import { LedgerManagementGrid } from './ui/LedgerManagementGrid';
 import { SortableLedgerGrid } from './ui/SortableLedgerGrid';
@@ -42,6 +41,7 @@ function hasSameOrder(
 }
 
 function LedgerCenterPage() {
+  const { t } = useTranslation('ledger');
   const navigate = useNavigate();
   const managementQuery = useLedgerManagementQuery();
   const [reorderLedgers, reorderState] = useReorderLedgersMutation();
@@ -71,7 +71,7 @@ function LedgerCenterPage() {
     resetDraft();
     await managementQuery.refetch();
     Toast.show({
-      content: '账本列表已更新，请重新排序',
+      content: t('center.listUpdated'),
       icon: 'fail',
     });
   };
@@ -86,10 +86,10 @@ function LedgerCenterPage() {
 
     blockerDialogOpenRef.current = true;
     void Dialog.confirm({
-      cancelText: '继续排序',
-      confirmText: '放弃',
-      content: '当前排序尚未保存，离开后更改会丢失。',
-      title: '放弃排序？',
+      cancelText: t('center.continueSorting'),
+      confirmText: t('center.discard'),
+      content: t('center.discardSortDescription'),
+      title: t('center.discardSortTitle'),
     }).then((confirmed) => {
       if (!isMountedRef.current)
         return;
@@ -101,7 +101,7 @@ function LedgerCenterPage() {
       else
         blocker.reset();
     });
-  }, [blocker]);
+  }, [blocker, t]);
 
   const handleBeforeUnload = useCallback((event: BeforeUnloadEvent) => {
     if (!dirty)
@@ -131,34 +131,34 @@ function LedgerCenterPage() {
         })),
       });
       setSorting(false);
-      Toast.show({ content: '账本排序已保存', icon: 'success' });
+      Toast.show({ content: t('center.sortSaved'), icon: 'success' });
     }
     catch (error) {
       if (isConflict(error)) {
         await refreshAfterConflict();
         return;
       }
-      Toast.show({ content: '保存排序失败，请稍后重试', icon: 'fail' });
+      Toast.show({ content: t('center.sortSaveFailed'), icon: 'fail' });
     }
   };
 
   const handleRemove = async (ledger: LedgerListItem) => {
     if (ledger.status === LedgerStatus.SUSPENDED) {
-      Toast.show({ content: '账本已被平台暂停，暂不能归档或退出' });
+      Toast.show({ content: t('center.suspended') });
       return;
     }
     if (isMutating)
       return;
 
     const isOwner = ledger.myRole === LedgerRole.OWNER;
-    const actionLabel = isOwner ? '归档' : '退出';
+    const actionLabel = t(isOwner ? 'center.archive' : 'center.leave');
     const confirmed = await Dialog.confirm({
-      cancelText: '取消',
+      cancelText: t('common:nav.cancel'),
       confirmText: actionLabel,
       content: isOwner
-        ? '归档后该账本及其记录将不再出现在你的账本列表中。'
-        : '退出后将无法继续查看或记录此账本。',
-      title: `${actionLabel}“${ledger.name}”？`,
+        ? t('center.archiveDescription')
+        : t('center.leaveDescription'),
+      title: t('center.removeTitle', { action: actionLabel, name: ledger.name }),
     });
     if (!confirmed)
       return;
@@ -177,14 +177,20 @@ function LedgerCenterPage() {
         });
       }
       setDraft(current => current.filter(item => item.id !== ledger.id));
-      Toast.show({ content: `已${actionLabel}${ledger.name}`, icon: 'success' });
+      Toast.show({
+        content: t(isOwner ? 'center.archiveSuccess' : 'center.leaveSuccess', { name: ledger.name }),
+        icon: 'success',
+      });
     }
     catch (error) {
       if (isConflict(error)) {
         await refreshAfterConflict();
         return;
       }
-      Toast.show({ content: `${actionLabel}账本失败，请稍后重试`, icon: 'fail' });
+      Toast.show({
+        content: t(isOwner ? 'center.archiveFailed' : 'center.leaveFailed'),
+        icon: 'fail',
+      });
     }
   };
 
@@ -193,7 +199,7 @@ function LedgerCenterPage() {
       return (
         <div className="ledger-center-state" data-testid="ledger-center-loading">
           <SpinLoading />
-          <span>正在加载账本</span>
+          <span>{t('center.loading')}</span>
         </div>
       );
     }
@@ -201,17 +207,17 @@ function LedgerCenterPage() {
     if (managementQuery.isError) {
       return (
         <div className="ledger-center-state">
-          <ErrorBlock
-            description="请检查网络后重试。"
-            status="default"
-            title="账本加载失败"
+          <IllustratedEmptyState
+            description={t('center.loadErrorDescription')}
+            icon={<CircleAlert className="text-primary-deep" size={38} />}
+            title={t('center.loadError')}
           />
           <Button
             color="primary"
             data-testid="ledger-center-retry"
             onClick={() => void managementQuery.refetch()}
           >
-            重新加载
+            {t('center.retry')}
           </Button>
         </div>
       );
@@ -220,10 +226,10 @@ function LedgerCenterPage() {
     if (!customLedgers.length) {
       return (
         <div className="ledger-center-empty">
-          <ErrorBlock
-            description="创建新账本，或通过邀请码加入他人账本。"
-            status="empty"
-            title="还没有自定义账本"
+          <IllustratedEmptyState
+            description={t('center.customEmptyDescription')}
+            icon={<BookOpen className="text-primary-deep" size={38} />}
+            title={t('center.customEmpty')}
           />
           <div className="ledger-center-empty__actions">
             <Button
@@ -231,13 +237,13 @@ function LedgerCenterPage() {
               data-testid="ledger-empty-create"
               onClick={() => navigate(ROUTES_PATH.LEDGER_TEMPLATES.getPath())}
             >
-              创建账本
+              {t('center.create')}
             </Button>
             <Button
               data-testid="ledger-empty-join"
               onClick={() => navigate(ROUTES_PATH.LEDGER_JOIN.getPath())}
             >
-              加入账本
+              {t('center.join')}
             </Button>
           </div>
         </div>
@@ -249,7 +255,7 @@ function LedgerCenterPage() {
     )
       ? (
           <p className="ledger-center-suspended-note" role="status">
-            账本已被平台暂停，暂不能归档或退出
+            {t('center.suspended')}
           </p>
         )
       : null;
@@ -277,27 +283,24 @@ function LedgerCenterPage() {
   };
 
   return (
-    <div className="page-new ledger-center-page">
-      <SafeArea position="top" />
-      <NavBar
-        back="返回"
-        className="ledger-center-navbar"
+    <div className="page-new ledger-center-page relative">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-24 h-52 w-52 rounded-full bg-primary-light/35 blur-3xl" />
+      <PageHeader
+        backLabel={t('common:nav.back')}
         onBack={handleBack}
         right={(
-          <Button
-            aria-label="账本快捷设置"
-            className="ledger-center-navbar__settings"
-            fill="none"
+          <button
+            aria-label={t('center.quickSettings')}
+            className="ledger-center-navbar__settings flex h-9 w-9 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
             onClick={() => navigate(ROUTES_PATH.LEDGER_PREFERENCES.getPath())}
-            size="small"
             type="button"
           >
-            <SetOutline aria-hidden="true" />
-          </Button>
+            <Settings2 aria-hidden="true" size={18} />
+          </button>
         )}
-      >
-        账本管理
-      </NavBar>
+        subtitle={t('center.subtitle')}
+        title={t('center.title')}
+      />
       <main className="ledger-center-content">
         {renderContent()}
       </main>

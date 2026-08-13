@@ -29,13 +29,15 @@ import {
 import { MemberEditorPresentation } from '@/features/workspace-settings';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { formatLocalizedDateTime } from '@/shared/lib';
 
 function isConflict(error: unknown) {
   return typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
 }
 
 const LedgerMemberDetailPage: FC = () => {
-  const { t } = useTranslation('ledger');
+  const { i18n, t } = useTranslation('ledger');
+  const locale = i18n?.resolvedLanguage ?? i18n?.language ?? 'zh-CN';
   const navigate = useNavigate();
   const { ledgerId = '', memberId = '' } = useParams<{
     ledgerId: string;
@@ -217,6 +219,7 @@ const LedgerMemberDetailPage: FC = () => {
   return (
     <div className="page-new overflow-hidden bg-bg-gray">
       <WorkspaceNavHeader
+        backLabel={t('common:nav.back')}
         onBack={onBack}
         title={t('memberDetail.title')}
       />
@@ -263,7 +266,9 @@ const LedgerMemberDetailPage: FC = () => {
               member={{
                 avatar: member.user.avatar,
                 badge: t(`role.${member.role}`),
-                description: `${t('memberDetail.joinedAt')} ${new Date(member.joinedAt).toLocaleString()}`,
+                description: t('memberDetail.joinedAtValue', {
+                  date: formatLocalizedDateTime(member.joinedAt, locale),
+                }),
                 id: member.id,
                 name: member.user.name || member.user.username || t('common.unknownUser'),
                 userId: member.user.id,

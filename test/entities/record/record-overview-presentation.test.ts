@@ -84,8 +84,8 @@ describe('record overview presentation', () => {
       state: 'ready',
     }));
     expect(content.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
-    expect(content.querySelector('[data-record-overview-content]')?.classList)
-      .toContain('ww-tab-bar-scroll-padding');
+    expect(content.querySelector('[data-record-overview-tab-bar-spacer]')?.classList)
+      .toContain('h-[calc(126px+env(safe-area-inset-bottom))]');
   });
 
   it('uses the shared illustrated empty state and forwards its primary action', () => {

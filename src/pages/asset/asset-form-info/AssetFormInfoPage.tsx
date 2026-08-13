@@ -1,168 +1,259 @@
+import type { LucideIcon } from 'lucide-react';
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
-import { Button, Form, Input, Toast } from 'antd-mobile';
-import { clone, pick } from 'lodash-es';
+import { Button, Form, Input, Skeleton, Toast } from 'antd-mobile';
+import { clone } from 'lodash-es';
+import { BadgeDollarSign, Building2, CreditCard, FileWarning, Landmark, MessageSquareText, WalletCards } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { CARD_TYPE, useGetAssetByIdQuery, useGetAssetGroupById, usePatchAssetAdjustMutation, usePostAssetMutation } from '@/entities/asset';
-import { isSuccessApi } from '@/shared/api';
+import {
+  CARD_TYPE,
+  useGetAssetByIdQuery,
+  useGetAssetGroupById,
+  usePatchAssetAdjustMutation,
+  usePostAssetMutation,
+} from '@/entities/asset';
+import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
 import { normalizeAmount } from '@/shared/lib';
-import { NavBar } from '@/shared/ui';
+import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { AssetPageFrame } from '../ui';
+
+type AssetFormValues = Pick<Asset, 'amount' | 'cardId' | 'comment' | 'name'>;
+
+interface AssetFormField {
+  disabled?: boolean;
+  icon: LucideIcon;
+  inputMode?: 'decimal' | 'numeric';
+  label: string;
+  maxLength?: number;
+  name: keyof AssetFormValues;
+  normalize?: (value: string, previousValue: string) => string;
+  placeholder?: string;
+  required?: boolean;
+  rules?: Array<{ message: string; required: boolean }>;
+}
 
 function parseAmountString(value: string) {
   return String(Number(value));
 }
 
 const AssetFormInfo: FC = () => {
-  const { t } = useTranslation(['asset', 'common']);
+  const { t } = useTranslation('asset');
+  const navigate = useNavigate();
   const { id: assetId } = useParams<{ id: string }>();
   const [query] = useSearchParams();
-  const groupId = query.get('groupId')!;
+  const groupId = query.get('groupId') ?? '';
+  const isEdit = Boolean(assetId);
+  const [form] = Form.useForm<AssetFormValues>();
 
-  const [form] = Form.useForm();
-  const navigate = useNavigate();
+  const groupQuery = useGetAssetGroupById({
+    params: groupId,
+    options: { enabled: Boolean(groupId) && !isEdit },
+  });
+  const assetQuery = useGetAssetByIdQuery({
+    params: assetId ?? '',
+    options: { enabled: isEdit },
+  });
+  const assetGroup = assetQuery.data?.assetGroup ?? groupQuery.data;
+  const isCardType = Boolean(assetGroup && CARD_TYPE.includes(assetGroup.assetType as (typeof CARD_TYPE)[number]));
+  const isLoading = isEdit ? assetQuery.isLoading : groupQuery.isLoading;
+  const isError = isEdit ? assetQuery.isError : groupQuery.isError || !groupId;
 
-  const [postAssetMutate] = usePostAssetMutation();
-  const [patchAssetAdjustMutate] = usePatchAssetAdjustMutation();
-  const { data: assetGroup } = useGetAssetGroupById({ params: groupId });
-  const { data: asset } = useGetAssetByIdQuery({ params: assetId!, options: { enabled: !!assetId } });
+  const [postAssetMutate, postState] = usePostAssetMutation();
+  const [patchAssetAdjustMutate, patchState] = usePatchAssetAdjustMutation();
+  const isSaving = postState.isLoading || patchState.isLoading;
 
   useEffect(() => {
-    if (assetGroup && assetGroup?.fixedName && !asset) {
+    if (assetQuery.data) {
+      form.setFieldsValue({
+        amount: assetQuery.data.amount,
+        cardId: assetQuery.data.cardId,
+        comment: assetQuery.data.comment,
+        name: assetQuery.data.name,
+      });
+      return;
+    }
+    if (assetGroup?.fixedName)
       form.setFieldValue('name', assetGroup.name);
-    }
-  }, [assetGroup]);
+  }, [assetGroup, assetQuery.data, form]);
 
-  const isCardType = useMemo(() => {
-    if (!assetGroup)
-      return false;
-    return CARD_TYPE.includes(assetGroup.assetType as any);
-  }, [assetGroup]);
+  const fields = useMemo<AssetFormField[]>(() => [
+    {
+      disabled: assetGroup?.fixedName,
+      icon: isCardType ? Building2 : WalletCards,
+      label: isCardType ? t('form.bank') : t('form.name'),
+      name: 'name' as const,
+      required: true,
+      rules: [{ required: true, message: t('form.nameRequired') }],
+    },
+    {
+      icon: BadgeDollarSign,
+      inputMode: 'decimal' as const,
+      label: assetGroup?.type === 'sub' ? t('form.debt') : t('form.balance'),
+      name: 'amount' as const,
+      normalize: normalizeAmount,
+      required: true,
+      rules: [{ required: true, message: t('form.amountRequired') }],
+    },
+    ...(isCardType
+      ? [{
+          icon: CreditCard,
+          inputMode: 'numeric' as const,
+          label: t('form.cardNumber'),
+          maxLength: 4,
+          name: 'cardId' as const,
+          placeholder: t('form.cardNumberPlaceholder'),
+        }]
+      : []),
+    {
+      icon: MessageSquareText,
+      label: t('form.remark'),
+      name: 'comment' as const,
+      placeholder: t('form.remarkPlaceholder'),
+    },
+  ], [assetGroup?.fixedName, assetGroup?.type, isCardType, t]);
 
-  useEffect(() => {
-    if (asset) {
-      const assetData = pick(asset, ['name', 'amount', 'comment']);
-      form.setFieldsValue(assetData);
-    }
-  }, [asset]);
+  const handleSave = useCallback(async (values: AssetFormValues) => {
+    if (!assetGroup || isSaving)
+      return;
+    const formData = clone(values);
+    if (formData.amount)
+      formData.amount = parseAmountString(formData.amount);
 
-  const formDataKeyParse = {
-    amount: parseAmountString,
-  } as const;
-
-  const formConfig = useMemo(() => {
-    const config = [
-      {
-        label: isCardType ? t('form.bank') : t('form.name'),
-        name: 'name',
-        disabled: assetGroup?.fixedName,
-        rules: [{ required: true, message: t('form.nameRequired') }],
-      },
-      {
-        label: t('form.cardNumber'),
-        name: 'cardId',
-        placeholder: t('form.optional'),
-      },
-      {
-        label: t('form.remark'),
-        placeholder: t('form.optional'),
-        name: 'comment',
-      },
-      {
-        label: assetGroup?.type === 'sub' ? t('form.debt') : t('form.balance'),
-        name: 'amount',
-        rules: [{ required: true, message: t('form.amountRequired') }],
-        normalize: normalizeAmount,
-      },
-    ];
-
-    if (!isCardType) {
-      config.splice(1, 1);
-    }
-
-    return config;
-  }, [assetGroup, isCardType]);
-
-  const handleSave = useCallback(async (_formData: Pick<Asset, 'name' | 'amount' | 'comment'>) => {
-    const formData = clone(_formData);
-    const keys = Object.keys(formDataKeyParse) as Array<keyof typeof formDataKeyParse>;
-    keys.forEach((key) => {
-      if (formData[key]) {
-        formData[key] = formDataKeyParse[key](formData[key]);
+    try {
+      if (assetId) {
+        await patchAssetAdjustMutate({ id: assetId, data: formData });
       }
-    });
-
-    if (assetId) {
-      const res = await patchAssetAdjustMutate({ id: assetId, data: formData });
-      if (isSuccessApi(res)) {
-        Toast.show({
-          icon: 'success',
-          content: t('form.saveSuccess'),
-          duration: 1000,
-        });
-
-        setTimeout(() => {
-          navigate(-1);
-        }, 250);
+      else {
+        await postAssetMutate({ ...formData, groupId: assetGroup.id });
+      }
+      Toast.show({ icon: 'success', content: t('form.saveSuccess') });
+      if (assetId) {
+        navigate(-1);
+      }
+      else {
+        navigate(ROUTES_PATH.ASSET.getPath(), { replace: true });
       }
     }
-    else {
-      if (!groupId) {
-        Toast.show({
-          icon: 'fail',
-          content: t('form.selectGroup'),
-          duration: 1000,
-        });
-        return;
-      }
-      await postAssetMutate({ ...formData, groupId });
-
-      let backLevel = -2;
-      if (assetGroup?.level === 1) {
-        backLevel = -3;
-      }
-
-      setTimeout(() => {
-        navigate(backLevel);
-      }, 250);
+    catch {
+      Toast.show({ icon: 'fail', content: t('form.saveFailed') });
     }
-  }, [assetGroup]);
+  }, [assetGroup, assetId, isSaving, navigate, patchAssetAdjustMutate, postAssetMutate, t]);
 
   const handleFinishFailed = useCallback((errors: { errorFields: { errors: string[] }[] }) => {
-    Toast.show({
-      icon: 'fail',
-      content: errors.errorFields[0].errors[0],
-      duration: 1000,
-    });
-  }, []);
+    Toast.show({ icon: 'fail', content: errors.errorFields[0]?.errors[0] ?? t('form.validationFailed') });
+  }, [t]);
+
+  const title = isEdit ? t('detail.edit') : t('form.addAccountTitle');
 
   return (
-    <div className="page">
-      <NavBar back={t('common:nav.back')}>
-        {assetId ? t('form.edit') : `${t('form.add')}${assetGroup?.name || ''}`}
-      </NavBar>
-      <Form
-        className="mt-2"
-        onFinish={handleSave}
-        onFinishFailed={handleFinishFailed}
-        footer={(<Button type="submit" block color="primary">{t('form.save')}</Button>)}
-        hasFeedback={false}
-        form={form}
-      >
-        {
-          formConfig.map(item => (
-            <Form.Item layout="horizontal" label={item.label} key={item.label} name={item.name} normalize={item.normalize} rules={item.rules} required={false}>
-              <Input
-                style={{ '--text-align': 'right' }}
-                placeholder={item.placeholder}
-                disabled={item.disabled}
-              />
-            </Form.Item>
-          ))
-        }
-      </Form>
-    </div>
+    <AssetPageFrame
+      backLabel={t('common:nav.back')}
+      onBack={() => navigate(-1)}
+      subtitle={t('form.subtitle')}
+      title={title}
+    >
+      {isLoading && (
+        <GradientPanel className="p-5" elevation="low" surface="glass">
+          <Skeleton.Title animated />
+          <Skeleton.Paragraph animated lineCount={5} />
+        </GradientPanel>
+      )}
+
+      {!isLoading && (isError || !assetGroup) && (
+        <GradientPanel elevation="low" surface="glass">
+          <IllustratedEmptyState
+            actionLabel={t('retry')}
+            description={t('form.loadErrorDescription')}
+            icon={<FileWarning className="text-primary-deep" size={40} strokeWidth={1.6} />}
+            onAction={() => void (isEdit ? assetQuery.refetch() : groupQuery.refetch())}
+            title={t('form.loadError')}
+          />
+        </GradientPanel>
+      )}
+
+      {!isLoading && !isError && assetGroup && (
+        <>
+          <GradientPanel className="mb-4 flex items-center gap-3 px-4 py-3.5" elevation="low" surface="ice">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-white/75 text-primary-deep shadow-ww-xs">
+              <Landmark size={21} strokeWidth={1.8} />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-[13px] font-black text-ww-ink">{assetGroup.name}</p>
+              <p className="mt-0.5 text-[10px] font-semibold leading-4 text-ww-mid">{assetGroup.description || t('form.description')}</p>
+            </div>
+          </GradientPanel>
+
+          <Form
+            className="!bg-transparent"
+            disabled={isSaving}
+            form={form}
+            hasFeedback={false}
+            layout="vertical"
+            onFinish={handleSave}
+            onFinishFailed={handleFinishFailed}
+            requiredMarkStyle="none"
+            footer={(
+              <Button
+                block
+                className="!h-[50px] !rounded-[17px] !border-0 !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !text-[14px] !font-extrabold !text-white !shadow-ww"
+                loading={isSaving}
+                type="submit"
+              >
+                {t('form.save')}
+              </Button>
+            )}
+          >
+            <GradientPanel className="overflow-hidden px-4 py-2" elevation="low" surface="glass">
+              <h2 className="border-0 border-b border-solid border-border-primary py-3 text-[12px] font-extrabold text-ww-ink">
+                {t('form.basicSection')}
+              </h2>
+              {fields.map((field) => {
+                const FieldIcon = field.icon;
+                return (
+                  <Form.Item
+                    className="!mb-0 !border-0 !py-3 [&_.adm-form-item-child-inner]:!border-0 [&_.adm-form-item-label]:!mb-2 [&_.adm-form-item-label]:!text-[12px] [&_.adm-form-item-label]:!font-bold [&_.adm-form-item-label]:!text-ww-mid"
+                    key={field.name}
+                    label={(
+                      <span className="inline-flex items-center gap-1.5">
+                        {field.label}
+                        {field.required && (
+                          <span className="rounded-full bg-ww-pink-light/70 px-1.5 py-0.5 text-[8px] font-black text-[#ad496b]">
+                            {t('form.required')}
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  >
+                    <div className="flex h-12 items-center gap-3 rounded-[15px] border border-solid border-border-primary bg-white/80 px-3 shadow-ww-xs focus-within:border-primary-mid focus-within:ring-2 focus-within:ring-primary-light/60">
+                      <FieldIcon className="shrink-0 text-primary-deep" size={18} strokeWidth={1.8} />
+                      <Form.Item
+                        className="!m-0 min-w-0 flex-1 [&_.adm-form-item-child-inner]:!border-0"
+                        name={field.name}
+                        normalize={field.normalize}
+                        noStyle
+                        rules={field.rules}
+                      >
+                        <Input
+                          aria-label={field.label}
+                          className="min-w-0 flex-1 text-[13px]"
+                          clearable={!field.disabled}
+                          disabled={field.disabled}
+                          inputMode={field.inputMode}
+                          maxLength={field.maxLength}
+                          placeholder={field.placeholder ?? t('form.fieldPlaceholder', { field: field.label })}
+                        />
+                      </Form.Item>
+                    </div>
+                  </Form.Item>
+                );
+              })}
+            </GradientPanel>
+          </Form>
+        </>
+      )}
+    </AssetPageFrame>
   );
 };
 

@@ -12,6 +12,7 @@ import enBudget from './locales/en/budget.json';
 import enChart from './locales/en/chart.json';
 import enCommon from './locales/en/common.json';
 import enCommunity from './locales/en/community.json';
+import enFeedback from './locales/en/feedback.json';
 import enFixedExpense from './locales/en/fixed-expense.json';
 import enHousehold from './locales/en/household.json';
 import enInvoice from './locales/en/invoice.json';
@@ -28,6 +29,7 @@ import zhBudget from './locales/zh-CN/budget.json';
 import zhChart from './locales/zh-CN/chart.json';
 import zhCommon from './locales/zh-CN/common.json';
 import zhCommunity from './locales/zh-CN/community.json';
+import zhFeedback from './locales/zh-CN/feedback.json';
 import zhFixedExpense from './locales/zh-CN/fixed-expense.json';
 import zhHousehold from './locales/zh-CN/household.json';
 import zhInvoice from './locales/zh-CN/invoice.json';
@@ -50,6 +52,7 @@ const resources = {
     'common': zhCommon,
     'community': zhCommunity,
     'fixed-expense': zhFixedExpense,
+    'feedback': zhFeedback,
     'household': zhHousehold,
     'invoice': zhInvoice,
     'ledger': zhLedger,
@@ -66,6 +69,7 @@ const resources = {
     'common': enCommon,
     'community': enCommunity,
     'fixed-expense': enFixedExpense,
+    'feedback': enFeedback,
     'household': enHousehold,
     'invoice': enInvoice,
     'ledger': enLedger,

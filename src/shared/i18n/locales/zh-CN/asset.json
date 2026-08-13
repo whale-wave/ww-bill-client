@@ -9,8 +9,9 @@
   "deleteAsset": "删除资产",
   "adjustAsset": "调整资产",
   "setting": "设置",
-  "confirmDeleteTitle": "确认删除该资产?",
-  "confirmDeleteContent": "删除后, 所有的资产变动记录也将一同被删除",
+  "retry": "重试",
+  "confirmDeleteTitle": "确认删除该资产？",
+  "confirmDeleteContent": "删除后，该资产及全部变动记录都无法恢复。",
   "confirmDelete": "确认删除",
   "deleting": "删除中...",
   "form": {
@@ -21,6 +22,18 @@
     "account": "账户",
     "save": "保存",
     "saveSuccess": "保存成功",
+    "saveFailed": "保存失败，请稍后重试",
+    "validationFailed": "请检查填写内容",
+    "subtitle": "完善账户名称与当前金额",
+    "addAccountTitle": "添加资产账户",
+    "description": "确认账户类型后填写基本信息",
+    "basicSection": "账户信息",
+    "required": "必填",
+    "fieldPlaceholder": "请输入{{field}}",
+    "cardNumberPlaceholder": "请输入卡号后四位",
+    "remarkPlaceholder": "补充用途或账户说明（选填）",
+    "loadError": "账户信息加载失败",
+    "loadErrorDescription": "请返回重新选择账户类型，或稍后重试。",
     "note": "备注",
     "noteHint": "先填这些基本信息即可创建",
     "bank": "所在银行",
@@ -33,7 +46,7 @@
     "amountRequired": "请输入金额",
     "selectGroup": "请选择分组",
     "add": "添加",
-    "edit": "设置"
+    "edit": "编辑资产"
   },
   "types": {
     "cash": "现金",
@@ -76,21 +89,47 @@
     "emptyDescription": "添加现金、银行卡或负债账户，开始掌握你的净资产",
     "emptyAction": "添加第一个账户",
     "accountCount": "{{count}} 个账户",
+    "accountCount_one": "{{count}} 个账户",
+    "accountCount_other": "{{count}} 个账户",
     "loadError": "资产账户加载失败",
     "loadErrorDescription": "请检查网络后重试",
-    "confirmDeleteTitle": "确认删除该资产?",
-    "confirmDeleteContent": "删除后, 所有的资产变动记录也将一同被删除",
+    "confirmDeleteTitle": "确认删除该资产？",
+    "confirmDeleteContent": "删除后，该资产及全部变动记录都无法恢复。",
     "confirmDelete": "确认删除",
-    "deleting": "删除中..."
+    "deleting": "删除中…",
+    "deleteSuccess": "资产已删除",
+    "deleteFailed": "删除失败，请稍后重试"
   },
   "detail": {
     "recordList": "收支明细",
-    "title": "资产详情"
+    "recordListDescription": "账户金额的每一次变化都会记录在这里",
+    "title": "资产详情",
+    "subtitle": "账户余额与变动记录",
+    "edit": "编辑资产",
+    "deleteSuccess": "资产已删除",
+    "deleteFailed": "删除失败，请稍后重试",
+    "loadError": "资产详情加载失败",
+    "loadErrorDescription": "请检查网络后重试。",
+    "notFound": "没有找到该资产",
+    "notFoundDescription": "资产可能已被删除或链接已经失效。",
+    "selectMonth": "选择月份",
+    "emptyRecords": "本月暂无变动记录",
+    "emptyRecordsDescription": "调整余额或产生账户变动后，记录会显示在这里。",
+    "recordsLoadError": "变动记录加载失败",
+    "recordsLoadErrorDescription": "暂时无法读取本月记录，请稍后重试。",
+    "noRemark": "暂无备注",
+    "recordAmountChange": "变动：{{change}}\n调整前：¥{{before}}\n调整后：¥{{after}}"
   },
   "adjust": {
     "current": "调整当前",
     "amountPlaceholder": "请输入调整后的金额",
-    "submit": "调整"
+    "submit": "确认调整",
+    "action": "调整余额",
+    "title": "调整账户金额",
+    "currentValue": "当前{{type}}为 ¥{{amount}}",
+    "newAmount": "调整后的金额",
+    "success": "账户金额已更新",
+    "failed": "调整失败，请稍后重试"
   },
   "back": "返回",
   "tab": {
@@ -103,7 +142,15 @@
   "group": {
     "cash": "现金",
     "virtualAccount": "虚拟账户",
-    "debtClaim": "债权"
+    "debtClaim": "债权",
+    "subtitle": "选择要添加的账户类型",
+    "chooseSubtype": "继续选择具体账户类型",
+    "description": "不同账户类型会使用对应的图标和余额含义，后续仍可修改账户信息。",
+    "defaultDescription": "创建并管理这个类型的资产账户",
+    "loadError": "账户类型加载失败",
+    "loadErrorDescription": "请检查网络后重试。",
+    "empty": "暂无可用账户类型",
+    "emptyDescription": "当前没有可以添加的账户类型。"
   },
   "summary": {
     "netWorth": "净资产",

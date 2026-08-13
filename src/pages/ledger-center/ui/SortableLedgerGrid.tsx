@@ -25,6 +25,7 @@ import {
   LedgerRole,
   LedgerStatus,
 } from '@/entities/ledger';
+import { useTranslation } from '@/shared/i18n';
 import { RemoveLedgerBadge } from './RemoveLedgerBadge';
 
 interface SortableLedgerGridProps {
@@ -86,6 +87,7 @@ export function SortableLedgerGrid({
   onOrderChange,
   onRemove,
 }: SortableLedgerGridProps) {
+  const { t } = useTranslation('ledger');
   const [activeId, setActiveId] = useState<string>();
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -120,15 +122,24 @@ export function SortableLedgerGrid({
     <DndContext
       accessibility={{
         announcements: {
-          onDragCancel: ({ active }) => `${ledgerById.get(String(active.id))?.name ?? '账本'}排序已取消`,
+          onDragCancel: ({ active }) => t('center.dragCancelled', {
+            name: ledgerById.get(String(active.id))?.name ?? t('center.ledgerFallback'),
+          }),
           onDragEnd: ({ active, over }) => over
-            ? `${ledgerById.get(String(active.id))?.name ?? '账本'}已移动到第 ${ids.indexOf(String(over.id)) + 1} 位`
-            : '账本未移动',
-          onDragOver: ({ over }) => over ? `当前位于第 ${ids.indexOf(String(over.id)) + 1} 位` : undefined,
-          onDragStart: ({ active }) => `已拾取${ledgerById.get(String(active.id))?.name ?? '账本'}`,
+            ? t('center.dragMoved', {
+                name: ledgerById.get(String(active.id))?.name ?? t('center.ledgerFallback'),
+                position: ids.indexOf(String(over.id)) + 1,
+              })
+            : t('center.dragUnchanged'),
+          onDragOver: ({ over }) => over
+            ? t('center.dragOver', { position: ids.indexOf(String(over.id)) + 1 })
+            : undefined,
+          onDragStart: ({ active }) => t('center.dragStarted', {
+            name: ledgerById.get(String(active.id))?.name ?? t('center.ledgerFallback'),
+          }),
         },
         screenReaderInstructions: {
-          draggable: '按空格键拾取账本，使用方向键调整位置，再按空格键放下。',
+          draggable: t('center.dragInstructions'),
         },
       }}
       collisionDetection={closestCenter}
@@ -139,14 +150,14 @@ export function SortableLedgerGrid({
     >
       <SortableContext items={ids} strategy={rectSortingStrategy}>
         <div
-          aria-label="账本排序"
+          aria-label={t('center.sortGrid')}
           className="ledger-management-grid"
-          data-columns="3"
+          data-columns="2"
           data-sort-mode="true"
           data-testid="ledger-management-grid"
           role="list"
         >
-          <Grid columns={3} gap={[14, 16]}>
+          <Grid columns={2} gap={[14, 16]}>
             {ledgers.map(ledger => (
               <SortableLedgerItem
                 key={ledger.id}

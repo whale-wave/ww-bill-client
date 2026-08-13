@@ -21,7 +21,7 @@ import {
 } from '@/features/ledger-collaboration';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
+import { PageHeader } from '@/shared/ui';
 import styles from './index.module.scss';
 import {
   getJoinRequestPermissionGroups,
@@ -97,9 +97,7 @@ const LedgerJoinRequestDetailPage: FC = () => {
 
   return (
     <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} className={styles.navBar} onBack={() => navigate(-1)}>
-        {applicantName}
-      </NavBar>
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={applicantName} />
       <main className={styles.content}>
         {(!ledgerId || !requestId) && (
           <CollaborationQueryState

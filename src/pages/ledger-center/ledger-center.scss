@@ -1,52 +1,16 @@
 .ledger-center-page {
   min-height: 0;
   overflow: hidden;
-  background: #fff;
+  background: #f6fbfd;
   color: var(--ww-theme-text-color);
-}
-
-.ledger-center-navbar {
-  --height: 49px;
-  --border-bottom: 1px solid #ebebeb;
-
-  flex: 0 0 auto;
-  background: #fff;
-
-  .adm-nav-bar-title {
-    font-size: var(--ww-font-size-lg);
-    font-weight: 500;
-  }
 }
 
 .ledger-center-navbar__settings {
-  --text-color: var(--ww-theme-text-color);
-
-  display: flex;
-  width: 44px;
-  min-width: 44px;
-  height: 44px;
-  min-height: 44px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: var(--ww-theme-text-color);
   cursor: pointer;
 
   &:focus-visible {
     outline: 3px solid var(--ww-theme-color);
     outline-offset: 2px;
-  }
-
-  .adm-button-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  svg {
-    font-size: 25px;
   }
 }
 
@@ -55,7 +19,9 @@
   flex: 1 1 auto;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 20px 20px 28px;
+  position: relative;
+  z-index: 1;
+  padding: 8px 18px 32px;
 }
 
 .ledger-management-grid {
@@ -66,22 +32,21 @@
   position: relative;
   display: flex;
   width: 100%;
-  height: 146px;
+  height: 156px;
   min-width: 0;
   flex-direction: column;
   align-items: flex-start;
   border: 0;
-  border-radius: 8px;
-  padding: 14px 10px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 20px;
+  padding: 16px 13px 14px;
   overflow: hidden;
   background: linear-gradient(
     158deg,
     color-mix(in srgb, var(--ww-theme-color) 78%, #000) 0%,
     color-mix(in srgb, var(--ww-theme-color) 58%, #000) 100%
   );
-  box-shadow:
-    4px 4px 0 color-mix(in srgb, var(--ww-theme-color) 34%, #fff),
-    0 5px 13px rgb(0 0 0 / 8%);
+  box-shadow: 0 10px 24px rgb(50 110 135 / 14%);
   color: #fff;
   cursor: pointer;
   touch-action: manipulation;
@@ -129,7 +94,7 @@
   z-index: 1;
   flex: 0 0 auto;
   color: #fff;
-  font-size: 46px;
+  font-size: 40px;
 }
 
 .ledger-cover-card__meta {
@@ -168,8 +133,8 @@
   width: 100%;
   margin-top: 5px;
   overflow: hidden;
-  font-size: 17px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 800;
   line-height: 23px;
   text-align: left;
   text-overflow: ellipsis;
@@ -221,9 +186,10 @@
 
 .ledger-center-suspended-note {
   margin: 0 0 16px;
-  border-radius: 6px;
-  padding: 9px 10px;
-  background: #fff7e6;
+  border: 1px solid #f6dfae;
+  border-radius: 15px;
+  padding: 10px 12px;
+  background: rgba(255, 247, 230, 0.82);
   color: #8a5a00;
   font-size: var(--ww-font-size-sm);
   line-height: 18px;
@@ -232,7 +198,7 @@
 .ledger-center-state,
 .ledger-center-empty {
   display: flex;
-  min-height: 360px;
+  min-height: 380px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -253,15 +219,20 @@
 .ledger-management-footer {
   z-index: 10;
   flex: 0 0 auto;
-  border-top: 1px solid #ebebeb;
-  padding: 8px 20px 8px;
-  background: #fff;
+  border: 0;
+  padding: 8px 18px 12px;
+  background: linear-gradient(180deg, transparent, #f6fbfd 24%);
 }
 
 .ledger-management-footer__create {
-  background: transparent;
-  color: var(--ww-theme-text-color);
-  font-size: var(--ww-font-size-lg);
+  min-height: 52px;
+  border: 1px solid var(--ww-theme-color);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #198caa;
+  box-shadow: 0 8px 20px rgb(74 170 200 / 12%);
+  font-size: 14px;
+  font-weight: 800;
 }
 
 .ledger-management-footer__create-copy {

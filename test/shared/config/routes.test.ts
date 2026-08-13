@@ -6,6 +6,7 @@ describe('ledger route builders', () => {
     expect(ROUTES_PATH.DETAIL.getPath()).toBe('/detail');
     expect(ROUTES_PATH.BOOKKEEPING.getPath()).toBe('/bookkeeping');
     expect(ROUTES_PATH.DISCOVERY.getPath()).toBe('/discovery');
+    expect(ROUTES_PATH.FEEDBACK.getPath()).toBe('/feedback');
     expect(ROUTES_PATH.LEDGERS.getPath()).toBe('/ledgers');
     expect(ROUTES_PATH.LEDGER_TEMPLATES.getPath()).toBe('/ledgers/templates');
     expect(ROUTES_PATH.LEDGER_CREATE.getPath()).toBe('/ledgers/create');

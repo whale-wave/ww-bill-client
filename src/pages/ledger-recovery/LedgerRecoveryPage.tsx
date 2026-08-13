@@ -1,10 +1,11 @@
-import { Button, ErrorBlock, NavBar, SpinLoading, Toast } from 'antd-mobile';
+import { Button, ErrorBlock, SpinLoading, Toast } from 'antd-mobile';
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LedgerCapability } from '@/entities/ledger';
 import { useLedgerRecoveryRecordsQuery, useRestoreLedgerRecordMutation } from '@/entities/ledger-data';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useTranslation } from '@/shared/i18n';
+import { PageHeader } from '@/shared/ui';
 
 function RecoveryContent({ ledgerId }: { ledgerId: string }) {
   const { t } = useTranslation('ledger');
@@ -52,7 +53,7 @@ export default function LedgerRecoveryPage() {
   const navigate = useNavigate();
   return (
     <div className="page-new bg-bg-gray">
-      <NavBar onBack={() => navigate(-1)}>{t('recovery.title')}</NavBar>
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('recovery.title')} />
       <LedgerScopeBoundary capability={LedgerCapability.DATA_RECOVERY}>{({ ledgerId }) => <RecoveryContent ledgerId={ledgerId} />}</LedgerScopeBoundary>
     </div>
   );

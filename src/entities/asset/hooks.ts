@@ -11,7 +11,7 @@ import type {
 import type { SuccessResponse } from '@/shared/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { isSuccessApi } from '@/shared/api';
+import { assertSuccessApi, isSuccessApi } from '@/shared/api';
 import {
   deleteAssetByIdApi,
   getAssetApi,
@@ -32,7 +32,7 @@ export function useGetAssetQuery(options?: {
   };
 }) {
   const { data: response, ...rest } = useQuery<SuccessResponse<Asset[]>>({
-    queryFn: () => getAssetApi(),
+    queryFn: async () => assertSuccessApi(await getAssetApi()),
     queryKey: assetKeys.list(),
     ...options?.queryOptions,
     ...options?.options,
@@ -59,7 +59,7 @@ export function useGetAssetByIdQuery(options: {
   };
 }) {
   const { data: response, ...rest } = useQuery<SuccessResponse<Asset>>({
-    queryFn: () => getAssetByIdApi(options.params),
+    queryFn: async () => assertSuccessApi(await getAssetByIdApi(options.params)),
     queryKey: assetKeys.detail(options.params),
     ...options.queryOptions,
     ...options?.options,
@@ -85,7 +85,7 @@ export function useGetAssetGroupQuery(options?: {
   };
 }) {
   const { data: response, ...rest } = useQuery<SuccessResponse<AssetGroup[]>>({
-    queryFn: () => getAssetGroupApi(),
+    queryFn: async () => assertSuccessApi(await getAssetGroupApi()),
     queryKey: assetKeys.groups(),
     ...options?.queryOptions,
     ...options?.options,
@@ -112,7 +112,7 @@ export function useGetAssetGroupById(options: {
   };
 }) {
   const { data: response, ...rest } = useQuery<SuccessResponse<AssetGroup>>({
-    queryFn: () => getAssetGroupByIdApi(options.params),
+    queryFn: async () => assertSuccessApi(await getAssetGroupByIdApi(options.params)),
     queryKey: assetKeys.group(options.params),
     ...options.queryOptions,
     ...options?.options,
@@ -139,7 +139,7 @@ export function useGetAssetRecordQuery(options: {
   };
 }) {
   const { data: response, ...rest } = useQuery<SuccessResponse<AssetRecord[]>>({
-    queryFn: () => getAssetRecordApi(options.params),
+    queryFn: async () => assertSuccessApi(await getAssetRecordApi(options.params)),
     queryKey: assetKeys.record(options.params),
     ...options.queryOptions,
     ...options?.options,
@@ -166,7 +166,7 @@ export function useGetAssetStatisticalRecordQuery(options: {
   };
 }) {
   const { data: response, ...rest } = useQuery<SuccessResponse<AssetStatisticalRecord[]>>({
-    queryFn: () => getAssetStatisticalRecordApi(options.params),
+    queryFn: async () => assertSuccessApi(await getAssetStatisticalRecordApi(options.params)),
     queryKey: assetKeys.statisticalRecord(options.params),
     ...options.queryOptions,
     ...options?.options,
@@ -188,7 +188,7 @@ export function useGetAssetStatisticalRecordQuery(options: {
 export function usePostAssetMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
-    mutationFn: postAssetApi,
+    mutationFn: (data: Parameters<typeof postAssetApi>[0]) => postAssetApi(data).then(assertSuccessApi),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: assetKeys.lists() }),
@@ -213,7 +213,7 @@ export function usePatchAssetAdjustMutation() {
     mutationFn: (params: {
       id: string;
       data: PatchAssetAdjustApiData;
-    }) => patchAssetAdjustApi(params.id, params.data),
+    }) => patchAssetAdjustApi(params.id, params.data).then(assertSuccessApi),
     onSuccess: async (_response, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: assetKeys.lists() }),
@@ -235,7 +235,7 @@ export function usePatchAssetAdjustMutation() {
 export function useDeleteAssetByIdMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
-    mutationFn: (params: string) => deleteAssetByIdApi(params),
+    mutationFn: (params: string) => deleteAssetByIdApi(params).then(assertSuccessApi),
     onSuccess: async (_response, id) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: assetKeys.lists() }),

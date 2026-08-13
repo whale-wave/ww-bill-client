@@ -1,11 +1,11 @@
-import type { BottomActionActionItem } from '@/shared/ui';
-import { Dialog, Toast } from 'antd-mobile';
-import React, { useCallback, useMemo } from 'react';
+import { Toast } from 'antd-mobile';
+import { Pencil, Trash2 } from 'lucide-react';
+import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDeleteFixedExpenseMutation } from '@/entities/fixed-expense';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { BottomAction } from '@/shared/ui';
+import { confirmAppAction } from '@/shared/ui';
 
 interface EditAndDeleteButtonProps {
   fixedExpenseId?: string;
@@ -16,7 +16,7 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
   const { t } = useTranslation('fixed-expense');
   const navigate = useNavigate();
 
-  const [deleteMutate] = useDeleteFixedExpenseMutation();
+  const [deleteMutate, deleteState] = useDeleteFixedExpenseMutation();
 
   const ensureId = useCallback((id?: string): id is string => {
     if (id)
@@ -25,38 +25,46 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
     return false;
   }, [t]);
 
-  const actions = useMemo(() => {
-    return [
-      {
-        key: 'edit',
-        label: t('detail.edit'),
-        onClick: () => {
-          if (!ensureId(fixedExpenseId))
-            return;
-          navigate(ROUTES_PATH.FIXED_EXPENSES_EDIT.getPath(fixedExpenseId));
-        },
-      },
-      {
-        key: 'delete',
-        render: () => <span className="text-rose-500">{t('detail.delete')}</span>,
-        onClick: () => {
-          if (!ensureId(fixedExpenseId))
-            return;
-          void Dialog.confirm({
-            content: t('detail.confirmDelete'),
-            onConfirm: async () => {
-              await deleteMutate(fixedExpenseId);
-              void Toast.show({ icon: 'success', content: t('detail.deleteSuccess') });
-              navigate(-1);
-            },
-          });
-        },
-      },
-    ] as BottomActionActionItem[];
-  }, [fixedExpenseId, ensureId, deleteMutate, navigate, t]);
+  const handleEdit = () => {
+    if (!ensureId(fixedExpenseId))
+      return;
+    navigate(ROUTES_PATH.FIXED_EXPENSES_EDIT.getPath(fixedExpenseId));
+  };
+
+  const handleDelete = async () => {
+    if (!ensureId(fixedExpenseId) || deleteState.isLoading)
+      return;
+    const confirmed = await confirmAppAction({
+      cancelText: t('common:nav.cancel'),
+      confirmText: t('detail.delete'),
+      description: t('deleteDescription'),
+      icon: <Trash2 size={22} strokeWidth={1.8} />,
+      title: t('deleteTitle'),
+      tone: 'danger',
+    });
+    if (!confirmed)
+      return;
+    try {
+      await deleteMutate(fixedExpenseId);
+      Toast.show({ icon: 'success', content: t('detail.deleteSuccess') });
+      navigate(-1);
+    }
+    catch {
+      Toast.show({ icon: 'fail', content: t('deleteFailed') });
+    }
+  };
 
   return (
-    <BottomAction className="h-[50px]" placeholderClassName="h-[50px]" actions={actions} />
+    <footer className="relative z-20 grid shrink-0 grid-cols-2 gap-3 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
+      <button className="flex h-[48px] items-center justify-center gap-2 rounded-[16px] border border-solid border-border-primary bg-white/85 text-[13px] font-extrabold text-primary-deep shadow-ww-xs" disabled={!fixedExpenseId} onClick={handleEdit} type="button">
+        <Pencil size={17} strokeWidth={1.9} />
+        {t('detail.edit')}
+      </button>
+      <button className="flex h-[48px] items-center justify-center gap-2 rounded-[16px] border border-solid border-[#f2c5d5] bg-[#fff1f6]/90 text-[13px] font-extrabold text-[#ad496b] shadow-ww-xs disabled:opacity-45" disabled={!fixedExpenseId || deleteState.isLoading} onClick={() => void handleDelete()} type="button">
+        <Trash2 size={17} strokeWidth={1.9} />
+        {t('detail.delete')}
+      </button>
+    </footer>
   );
 };
 

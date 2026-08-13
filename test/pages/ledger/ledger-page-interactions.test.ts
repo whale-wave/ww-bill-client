@@ -87,7 +87,7 @@ vi.mock('@/pages/ledger-center/ui/SortableLedgerGrid', async () => {
         {
           'aria-label': '账本排序',
           'className': 'ledger-management-grid',
-          'data-columns': '3',
+          'data-columns': '2',
           'data-sort-mode': 'true',
           'data-testid': 'ledger-management-grid',
           'role': 'list',
@@ -157,9 +157,48 @@ vi.mock('@/pages/ledger-center/ui/SortableLedgerGrid', async () => {
 
 vi.mock('@/shared/i18n', () => ({
   useTranslation: () => ({
-    t: (key: string, options?: { name?: string }) => options?.name
-      ? `${key}:${options.name}`
-      : key,
+    t: (key: string, options?: { action?: string; name?: string }) => {
+      const translations: Record<string, string> = {
+        'center.archive': '归档',
+        'center.continueSorting': '继续排序',
+        'center.create': '创建账本',
+        'center.customEmpty': '还没有自建或加入的账本',
+        'center.customEmptyDescription': '创建新账本，或通过邀请码加入他人账本。',
+        'center.discard': '放弃',
+        'center.discardSortDescription': '当前排序尚未保存，离开后更改会丢失。',
+        'center.discardSortTitle': '放弃排序？',
+        'center.join': '加入他人账本',
+        'center.listUpdated': '账本列表已更新，请重新排序',
+        'center.loadError': '账本加载失败',
+        'center.loadErrorDescription': '请检查网络后重试。',
+        'center.loading': '正在加载账本',
+        'center.quickSettings': '账本快捷设置',
+        'center.retry': '重新加载',
+        'center.saveOrder': '保存排序',
+        'center.sortHint': '拖动账本可修改排序',
+        'center.subtitle': '整理、排序与创建你的账本',
+        'center.suspended': '账本已被平台暂停，暂不能归档或退出',
+        'center.title': '我的账本',
+        'center.leave': '退出',
+        'common:nav.back': '返回',
+        'common:nav.cancel': '取消',
+        'common.listSeparator': '，',
+        'center.sortable': '可排序',
+        'center.suspendedShort': '已暂停',
+        'template.business.name': '生意账本',
+      };
+      if (key === 'center.removeTitle')
+        return `${options?.action}“${options?.name}”？`;
+      if (key === 'center.archiveSuccess')
+        return `已归档${options?.name}`;
+      if (key === 'center.leaveSuccess')
+        return `已退出${options?.name}`;
+      if (key === 'center.sharedMemberCount')
+        return `${(options as { count?: number })?.count ?? 0} 人共享`;
+      if (key === 'center.memberCount')
+        return `共 ${(options as { count?: number })?.count ?? 0} 人`;
+      return translations[key] ?? key;
+    },
   }),
 }));
 
@@ -382,11 +421,11 @@ describe('ledger center page', () => {
     expect(container.querySelector('[data-ledger-id="default/system"]')).toBeNull();
     const grid = container.querySelector('[data-testid="ledger-management-grid"]');
     expect(grid?.getAttribute('role')).toBe('list');
-    expect(grid?.getAttribute('data-columns')).toBe('3');
+    expect(grid?.getAttribute('data-columns')).toBe('2');
     expect(grid?.querySelectorAll('[role="listitem"]')).toHaveLength(3);
     expect(container.textContent).toContain('共 2 人');
     expect(container.querySelector('[data-ledger-id="ledger/a"]')?.getAttribute('aria-label'))
-      .toContain('2人共享');
+      .toContain('2 人共享');
     expect(container.querySelector('.ledger-cover-card__currency')).not.toBeNull();
     expect(container.querySelectorAll('.ledger-cover-card__motif svg').length).toBeGreaterThan(0);
   });
@@ -403,7 +442,7 @@ describe('ledger center page', () => {
     router.navigate('/ledgers');
     await act(async () => Promise.resolve());
     const settings = container.querySelector<HTMLButtonElement>('[aria-label="账本快捷设置"]');
-    expect(settings?.classList.contains('adm-button')).toBe(true);
+    expect(settings?.classList.contains('rounded-full')).toBe(true);
     await act(async () => settings?.click());
     expect(router.state.location.pathname).toBe('/ledgers/preferences');
   });
@@ -616,7 +655,7 @@ describe('ledger center page', () => {
     await act(async () => sortable?.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, code: 'ArrowRight', key: 'ArrowRight' })));
     await act(async () => sortable?.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, code: 'Space', key: ' ' })));
 
-    const back = container.querySelector<HTMLButtonElement>('.adm-nav-bar-back');
+    const back = container.querySelector<HTMLButtonElement>('[data-page-header] button[aria-label="返回"]');
     await act(async () => back?.click());
     expect(dialogConfirm).toHaveBeenCalledWith(expect.objectContaining({ title: '放弃排序？' }));
     expect(router.state.location.pathname).toBe('/ledgers');
@@ -714,7 +753,7 @@ describe('ledger center page', () => {
     cleanup = undefined;
     hooks.useLedgerManagementQuery.mockReturnValue(successfulQuery([]));
     const empty = renderPage('/ledgers', createElement(LedgerCenterPage));
-    expect(empty.container.textContent).toContain('还没有自定义账本');
+    expect(empty.container.textContent).toContain('还没有自建或加入的账本');
     expect(empty.container.querySelector('[data-testid="ledger-create"]')).toBeNull();
 
     const create = empty.container.querySelector<HTMLButtonElement>('[data-testid="ledger-empty-create"]');

@@ -10,6 +10,7 @@ export function downloadCanvas(canvas: HTMLCanvasElement, fileName = config.appN
 export * from './amount';
 export * from './class-name';
 export * from './component';
+export * from './locale-date';
 export * from './math';
 export * from './play-sound';
 export * from './regular';

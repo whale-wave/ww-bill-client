@@ -68,4 +68,22 @@ describe('mine ledger entries', () => {
 
     expect(router.state.location.pathname).toBe('/household');
   });
+
+  it('opens feedback and remembers the source page', async () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    const router = createMemoryRouter([
+      { path: '/mine', element: createElement(BottomList) },
+      { path: '/feedback', element: createElement('div', null, 'feedback-target') },
+    ], { initialEntries: ['/mine'] });
+    act(() => root.render(createElement(RouterProvider, { router })));
+    cleanup = () => act(() => root.unmount());
+
+    const entry = [...container.querySelectorAll('button')]
+      .find(button => button.textContent === 'bottomList.feedback');
+    await act(async () => entry?.click());
+
+    expect(router.state.location.pathname).toBe('/feedback');
+    expect(router.state.location.state).toEqual({ from: '/mine' });
+  });
 });

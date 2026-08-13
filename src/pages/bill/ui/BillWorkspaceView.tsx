@@ -1,5 +1,5 @@
 import type { GetRecordBillApiResponseData } from '@/entities/record';
-import { Button as AdmButton, ErrorBlock, NavBar, SpinLoading } from 'antd-mobile';
+import { Button as AdmButton, ErrorBlock, SpinLoading } from 'antd-mobile';
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { BillTabs } from '@/pages/bill/BillTabs';
 import { useBillPageStore } from '@/pages/bill/model';
 import { BillTabsType } from '@/pages/bill/types';
 import Content from '@/pages/bill/ui/Content';
-import { Button as WwButton } from '@/shared/ui';
+import { PageHeader, Button as WwButton } from '@/shared/ui';
 
 interface BillQueryState {
   data?: GetRecordBillApiResponseData;
@@ -109,9 +109,7 @@ export function LedgerBillWorkspaceView({
 
   return (
     <div className="page-new overflow-hidden">
-      <NavBar onBack={onBack}>
-        {t('title')}
-      </NavBar>
+      <PageHeader backLabel={t('common:nav.back')} onBack={onBack} title={t('title')} />
       <div className="flex min-h-0 flex-grow flex-col overflow-hidden">
         <BillTabs />
         <BillWorkspaceContent query={query} />

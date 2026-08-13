@@ -150,10 +150,15 @@ describe('workspace navigation', () => {
 
     const myLedgers = document.body.querySelector('[data-workspace-section="my-ledgers"]');
     const householdLedger = document.body.querySelector('[data-workspace-section="household-ledger"]');
+    const panel = document.body.querySelector('.ledger-switcher-panel');
+    const companyOption = document.body.querySelector('[data-workspace-option="custom-ledger/a"]');
     expect(myLedgers?.textContent).toContain('默认账本');
     expect(myLedgers?.textContent).toContain('公司账本');
     expect(myLedgers?.textContent).not.toContain('家庭账本');
     expect(householdLedger?.textContent).toContain('家庭账本');
     expect(householdLedger?.textContent).not.toContain('公司账本');
+    expect(panel).not.toBeNull();
+    expect(companyOption?.classList).toContain('ledger-switcher-panel__option');
+    expect(document.body.querySelectorAll('.ledger-switcher-panel__footer-action')).toHaveLength(2);
   });
 });

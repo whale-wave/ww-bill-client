@@ -15,4 +15,29 @@ describe('ledger locales', () => {
     expect(i18n.t('template.business.name', { ns: 'ledger' })).toBe('Business Ledger');
     expect(i18n.t('template.micro-business.name', { ns: 'ledger' })).toBe('Micro-business Ledger');
   });
+
+  it('localizes the template chooser heading and theme labels', async () => {
+    await changeLanguage('zh-CN');
+    expect(i18n.t('templates.heading', { ns: 'ledger' })).toBe('找到适合你的账本');
+    expect(i18n.t('settings.themeOptions.green', { ns: 'ledger' })).toBe('绿色');
+
+    await changeLanguage('en');
+    expect(i18n.t('templates.heading', { ns: 'ledger' })).toBe('Find the right ledger');
+    expect(i18n.t('settings.themeOptions.green', { ns: 'ledger' })).toBe('Green');
+  });
+
+  it('localizes empty ledger states and record summaries', async () => {
+    await changeLanguage('zh-CN');
+    expect(i18n.t('home.emptyDescription', { ns: 'ledger' })).toContain('还没有记录');
+    expect(i18n.t('records.empty', { ns: 'ledger' })).toBe('当天暂无记录');
+
+    await changeLanguage('en');
+    expect(i18n.t('home.emptyDescription', { ns: 'ledger' })).toContain('No records yet');
+    expect(i18n.t('records.searchSummary', {
+      count: 2,
+      expense: 8,
+      income: 10,
+      ns: 'ledger',
+    })).toBe('2 records · Income 10 · Expense 8');
+  });
 });

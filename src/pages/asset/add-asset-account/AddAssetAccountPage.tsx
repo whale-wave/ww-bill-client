@@ -1,10 +1,12 @@
 import type { FC } from 'react';
-import { List } from 'antd-mobile';
+import { Button, Skeleton } from 'antd-mobile';
+import { ChevronRight, Layers3, WalletCards } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetAssetGroupQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
-import { Icon, NavBar } from '@/shared/ui';
+import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { AssetPageFrame, IconBlock } from '../ui';
 import { getAssetGroupNavigationPath, getAssetGroupParentId } from './model/asset-group-navigation';
 
 const AddAssetAccount: FC = () => {
@@ -12,37 +14,97 @@ const AddAssetAccount: FC = () => {
   const navigate = useNavigate();
   const [query] = useSearchParams();
   const parentId = getAssetGroupParentId(query);
+  const groupsQuery = useGetAssetGroupQuery();
 
-  const { data } = useGetAssetGroupQuery();
+  const groups = useMemo(() => {
+    if (parentId)
+      return groupsQuery.data.filter(group => group.parentId === parentId);
+    return groupsQuery.data.filter(group => group.level === 0);
+  }, [groupsQuery.data, parentId]);
 
-  const assetGroup = useMemo(() => {
-    if (!data)
-      return [];
-    if (parentId) {
-      return data.filter(i => i.parentId === parentId);
-    }
-    return data.filter(i => i.level === 0);
-  }, [data, parentId]);
+  const parent = useMemo(
+    () => groupsQuery.data.find(group => group.id === parentId),
+    [groupsQuery.data, parentId],
+  );
 
-  const handleAddAsset = useCallback((item: (typeof assetGroup)[number]) => () => {
-    navigate(getAssetGroupNavigationPath(item, data ?? []));
-  }, [data, navigate]);
+  const handleAddAsset = useCallback((item: (typeof groups)[number]) => () => {
+    navigate(getAssetGroupNavigationPath(item, groupsQuery.data));
+  }, [groupsQuery.data, navigate]);
 
   return (
-    <div className="page !overflow-auto">
-      <NavBar back={t('common:nav.back')}>
-        {t('addAccount')}
-      </NavBar>
-      <List className="mt-2">
-        {assetGroup.map(item => (
-          // eslint-disable-next-line ts/ban-ts-comment
-          // @ts-expect-error
-          <List.Item style={{ '--adm-font-size-main': '11px' }} key={item.id} prefix={<Icon className="text-2xl" name={item.icon} />} description={item.description} onClick={handleAddAsset(item)}>
-            {item.name}
-          </List.Item>
-        ))}
-      </List>
-    </div>
+    <AssetPageFrame
+      backLabel={t('common:nav.back')}
+      onBack={() => navigate(-1)}
+      subtitle={parent ? t('group.chooseSubtype') : t('group.subtitle')}
+      title={parent?.name ?? t('addAccount')}
+    >
+      {groupsQuery.isLoading && (
+        <GradientPanel className="p-5" elevation="low" surface="glass">
+          <Skeleton.Title animated />
+          <Skeleton.Paragraph animated lineCount={5} />
+        </GradientPanel>
+      )}
+
+      {!groupsQuery.isLoading && groupsQuery.isError && (
+        <GradientPanel elevation="low" surface="glass">
+          <IllustratedEmptyState
+            actionLabel={t('retry')}
+            description={t('group.loadErrorDescription')}
+            icon={<Layers3 className="text-primary-deep" size={40} strokeWidth={1.6} />}
+            onAction={() => void groupsQuery.refetch()}
+            title={t('group.loadError')}
+          />
+        </GradientPanel>
+      )}
+
+      {!groupsQuery.isLoading && !groupsQuery.isError && groups.length === 0 && (
+        <GradientPanel elevation="low" surface="glass">
+          <IllustratedEmptyState
+            description={t('group.emptyDescription')}
+            icon={<WalletCards className="text-primary-deep" size={40} strokeWidth={1.6} />}
+            title={t('group.empty')}
+          />
+        </GradientPanel>
+      )}
+
+      {!groupsQuery.isLoading && !groupsQuery.isError && groups.length > 0 && (
+        <div className="space-y-3">
+          <GradientPanel className="flex items-center gap-3 px-4 py-3.5" elevation="low" surface="ice">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-white/75 text-primary-deep shadow-ww-xs">
+              <Layers3 size={21} strokeWidth={1.8} />
+            </span>
+            <p className="text-[11px] font-semibold leading-5 text-ww-mid">{t('group.description')}</p>
+          </GradientPanel>
+
+          <GradientPanel className="overflow-hidden" elevation="low" surface="glass">
+            {groups.map((group, index) => (
+              <button
+                className={`flex min-h-[76px] w-full items-center gap-3 border-0 bg-transparent px-4 text-left active:bg-primary-light/20 ${index ? 'border-t border-solid border-border-primary' : ''}`}
+                key={group.id}
+                onClick={handleAddAsset(group)}
+                type="button"
+              >
+                <IconBlock name={group.icon} />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[14px] font-black text-ww-ink">{group.name}</span>
+                  <span className="mt-0.5 block line-clamp-2 text-[10px] font-semibold leading-4 text-ww-soft">
+                    {group.description || t('group.defaultDescription')}
+                  </span>
+                </span>
+                <ChevronRight className="shrink-0 text-ww-ghost" size={17} strokeWidth={2} />
+              </button>
+            ))}
+          </GradientPanel>
+          <Button
+            block
+            className="!mt-4 !h-[48px] !rounded-[16px] !border !border-solid !border-border-primary !bg-white/75 !text-[12px] !font-extrabold !text-ww-mid !shadow-ww-xs"
+            onClick={() => navigate(-1)}
+          >
+            {t('common:nav.cancel')}
+          </Button>
+        </div>
+      )}
+    </AssetPageFrame>
   );
 };
 

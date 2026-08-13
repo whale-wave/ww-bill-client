@@ -7,6 +7,13 @@
     "nickname": "Nickname",
     "changeNickname": "Change Nickname",
     "changeEmail": "Change Email",
+    "emailActionsTitle": "Email Settings",
+    "changeEmailDescription": "Your new email will receive verification codes and account notices.",
+    "changeAvatar": "Change avatar",
+    "securityHint": "Keep your account secure with a fresh password",
+    "logoutTitle": "Log out of this account?",
+    "logoutHint": "You will need to sign in again to continue bookkeeping.",
+    "updateSuccess": "Profile updated",
     "namePlaceholder": "Enter 2-12 character nickname",
     "updateFailed": "Update failed"
   },
@@ -21,7 +28,9 @@
     "save": "Save Changes",
     "saveSuccess": "Saved successfully",
     "done": "Done",
-    "passwordMismatch": "Passwords do not match"
+    "passwordMismatch": "Passwords do not match",
+    "securityTitle": "Protect your financial data",
+    "securityHint": "Use a strong password with at least 8 characters"
   },
   "email": {
     "title": "Change Email",
@@ -58,6 +67,10 @@
   },
   "emailChange": {
     "title": "Change Email",
+    "currentStepTitle": "Verify your current email",
+    "currentStepHint": "Confirm your identity before binding a new email",
+    "newStepTitle": "Bind a new email",
+    "newStepHint": "Use it to sign in and recover your account",
     "newEmail": {
       "placeholder": "Enter new email",
       "captchaPlaceholder": "Enter verification code"

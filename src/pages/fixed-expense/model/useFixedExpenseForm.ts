@@ -64,14 +64,18 @@ export function useFixedExpenseForm(id?: string) {
     queryOptions: { enabled: isEdit },
   });
 
-  const [postMutate] = usePostFixedExpenseMutation();
-  const [patchMutate] = usePatchFixedExpenseMutation();
+  const [postMutate, postState] = usePostFixedExpenseMutation();
+  const [patchMutate, patchState] = usePatchFixedExpenseMutation();
 
   const [formAction] = Form.useForm();
   const [cycleValue, setCycleValue] = useState<FixedExpenseCycle>(FixedExpenseCycle.MONTHLY);
   const [reminderEnabled, setReminderEnabled] = useState(false);
 
-  const isDisabled = useMemo(() => (isEdit ? isLoading : false), [isEdit, isLoading]);
+  const isSaving = postState.isLoading || patchState.isLoading;
+  const isDisabled = useMemo(
+    () => (isEdit ? isLoading : false) || isSaving,
+    [isEdit, isLoading, isSaving],
+  );
 
   useEffect(() => {
     if (!detail)
@@ -146,16 +150,21 @@ export function useFixedExpenseForm(id?: string) {
       comment: values.comment,
     };
 
-    if (id) {
-      await patchMutate({ id, params: payload });
-      void Toast.show({ icon: 'success', content: t('form.saveSuccess') });
-    }
-    else {
-      await postMutate(payload);
-      void Toast.show({ icon: 'success', content: t('form.createSuccess') });
-    }
+    try {
+      if (id) {
+        await patchMutate({ id, params: payload });
+        Toast.show({ icon: 'success', content: t('form.saveSuccess') });
+      }
+      else {
+        await postMutate(payload);
+        Toast.show({ icon: 'success', content: t('form.createSuccess') });
+      }
 
-    navigate(-1);
+      navigate(-1);
+    }
+    catch {
+      Toast.show({ icon: 'fail', content: t('form.saveFailed') });
+    }
   }, [id, isDisabled, patchMutate, postMutate, navigate, t]);
 
   return {
@@ -164,6 +173,7 @@ export function useFixedExpenseForm(id?: string) {
     reminderEnabled,
     isEdit,
     isDisabled,
+    isSaving,
     defaultValues,
     onValuesChange,
     onFinishFailed,

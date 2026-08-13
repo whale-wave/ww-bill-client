@@ -14,7 +14,7 @@ import {
 } from '@/features/ledger-collaboration';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
+import { PageHeader } from '@/shared/ui';
 
 const LedgerJoinRequestsPage: FC = () => {
   const { t } = useTranslation('ledger');
@@ -70,9 +70,7 @@ const LedgerJoinRequestsPage: FC = () => {
 
   return (
     <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
-        {t('requests.title')}
-      </NavBar>
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('requests.title')} />
       <main className="min-h-0 flex-grow overflow-auto pb-6">
         {!ledgerId && (
           <CollaborationQueryState

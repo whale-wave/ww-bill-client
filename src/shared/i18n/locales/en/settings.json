@@ -1,5 +1,9 @@
 {
   "title": "Settings",
+  "overview": {
+    "title": "Make Whale Wave yours",
+    "description": "Manage your account, display, sound, and data preferences here."
+  },
   "personal": "Personalization",
   "account": {
     "title": "Account Settings"
@@ -9,6 +13,7 @@
   },
   "language": {
     "title": "Language",
+    "description": "Choose the language used throughout the app",
     "switch": "Language",
     "zh-CN": "中文",
     "en": "English",
@@ -33,10 +38,15 @@
   "about": "About WhaleWave",
   "invite": "Invite Friends",
   "system": "System",
+  "help": "Help",
+  "desktopEntry": "Add to Home Screen",
+  "developing": "Coming soon",
   "storage": {
     "title": "Cache Management",
     "size": "Cache Size",
     "clear": "Clear Cache",
+    "clearTitle": "Clear local cache?",
+    "clearDescription": "This removes temporary files and local cache, but keeps your ledger data.",
     "cleared": "Cache cleared"
   },
   "notify": {

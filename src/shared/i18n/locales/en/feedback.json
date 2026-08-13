@@ -1,0 +1,27 @@
+{
+  "title": "Feedback",
+  "subtitle": "Every suggestion is read with care",
+  "heroTitle": "Help make WhaleWave better",
+  "heroDescription": "Tell us about a problem, a rough edge, or a feature you would love to use.",
+  "categoryLabel": "What is this about?",
+  "categories": {
+    "suggestion": "Suggestion",
+    "bug": "Problem",
+    "experience": "Experience",
+    "other": "Other"
+  },
+  "contentLabel": "Tell us more",
+  "contentPlaceholder": "Describe your idea or what happened. Steps to reproduce are especially helpful for problems…",
+  "contentHint": "At least 5 characters",
+  "contactLabel": "How can we reach you? (optional)",
+  "contactPlaceholder": "Email, WeChat, or another contact",
+  "privacyHint": "Your contact is only used to clarify this feedback and is never shown publicly.",
+  "submit": "Send feedback",
+  "submitting": "Sending…",
+  "submitFailed": "Unable to send. Please try again later.",
+  "validation": "Enter at least 5 characters",
+  "successTitle": "Feedback received",
+  "successDescription": "Thank you for taking the time to tell us. Your feedback is now available to the team for review.",
+  "continue": "Send another",
+  "backMine": "Back to profile"
+}

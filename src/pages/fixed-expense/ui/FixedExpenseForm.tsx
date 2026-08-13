@@ -14,14 +14,16 @@ import React, { useMemo, useState } from 'react';
 import { FixedExpenseCycle } from '@/entities/fixed-expense';
 import { useTranslation } from '@/shared/i18n';
 import { cn, normalizeAmount } from '@/shared/lib';
+import { GradientPanel } from '@/shared/ui';
 import {
-  currencyOptions,
-  cycleOptions,
-  priorityOptions,
-  statusOptions,
-  typeOptions,
+  getCurrencyOptions,
+  getCycleOptions,
+  getPriorityOptions,
+  getStatusOptions,
+  getTypeOptions,
 } from '../constants';
 import { useFixedExpenseForm } from '../model/useFixedExpenseForm';
+import './fixed-expense-form.scss';
 
 interface FixedExpenseFormProps {
   id?: string;
@@ -51,37 +53,37 @@ const Section: React.FC<SectionProps> = ({
   const expanded = !collapsible || open;
 
   return (
-    <div className={cn('mx-3 mb-3 overflow-hidden rounded-xl bg-white shadow-sm', className)}>
+    <GradientPanel className={cn('mb-4 overflow-hidden', className)} elevation="low" surface="glass">
       <div
         className={cn(
-          'flex items-center justify-between px-3 py-2.5',
-          collapsible ? 'cursor-pointer active:bg-slate-50' : '',
-          expanded ? 'border-b border-slate-100' : '',
+          'flex items-center justify-between px-4 py-3.5',
+          collapsible ? 'cursor-pointer active:bg-primary-light/20' : '',
+          expanded ? 'border-b border-border-primary' : '',
         )}
         onClick={collapsible ? () => setOpen(v => !v) : undefined}
       >
         <div className="flex flex-col">
           <div className="flex items-center space-x-1.5">
             {required && (
-              <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+              <span className="h-1.5 w-1.5 rounded-full bg-ww-pink" />
             )}
-            <span className="text-sm font-medium text-slate-800">{title}</span>
+            <span className="text-[13px] font-extrabold text-ww-ink">{title}</span>
             {required && (
-              <span className="rounded bg-rose-50 px-1 text-xs text-rose-500">{t('form.required')}</span>
+              <span className="rounded-full bg-[#fff1f6] px-2 py-0.5 text-[9px] font-bold text-[#ad496b]">{t('form.required')}</span>
             )}
           </div>
           {description && (
-            <span className="mt-0.5 text-xs text-font-gray">{description}</span>
+            <span className="mt-1 text-[10px] font-semibold leading-4 text-ww-soft">{description}</span>
           )}
         </div>
         {collapsible && (
-          <span className="text-font-gray">
+          <span className="text-primary-deep">
             {open ? <DownOutline /> : <RightOutline />}
           </span>
         )}
       </div>
       {expanded && <div>{children}</div>}
-    </div>
+    </GradientPanel>
   );
 };
 
@@ -104,7 +106,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = (props) => {
   return (
     <>
       <div
-        className="flex w-full items-center justify-between"
+        className="flex min-h-10 w-full items-center justify-between rounded-[13px] bg-white/70 px-3"
         onClick={() => setVisible(true)}
       >
         <span className={cn(display ? 'text-slate-800' : 'text-font-gray')}>
@@ -123,6 +125,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = (props) => {
         )}
       </div>
       <DatePicker
+        className="ww-app-date-picker"
         visible={visible}
         value={value}
         min={min}
@@ -171,13 +174,18 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
     formAction,
     cycleValue,
     reminderEnabled,
-    isEdit,
     isDisabled,
+    isSaving,
     defaultValues,
     onValuesChange,
     onFinishFailed,
     onFinish,
   } = useFixedExpenseForm(id);
+  const currencyOptions = getCurrencyOptions();
+  const cycleOptions = getCycleOptions();
+  const priorityOptions = getPriorityOptions();
+  const statusOptions = getStatusOptions();
+  const typeOptions = getTypeOptions();
 
   return (
     <Form
@@ -189,14 +197,19 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
       onFinishFailed={onFinishFailed}
       onValuesChange={onValuesChange}
       disabled={isDisabled}
-      className="ww-fixed-expense-form"
+      className="ww-fixed-expense-form !bg-transparent"
       footer={(
-        <Button block type="submit" color="primary" size="large">
-          {isEdit ? t('form.save') : t('form.save')}
+        <Button
+          block
+          className="!h-[50px] !rounded-[17px] !border-0 !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !text-[14px] !font-extrabold !text-white !shadow-ww"
+          loading={isSaving}
+          type="submit"
+        >
+          {t('form.save')}
         </Button>
       )}
     >
-      <Section title={t('form.basicInfo')} required description={t('form.basicInfo')}>
+      <Section title={t('form.basicInfo')} required description={t('form.basicInfoDescription')}>
         <Form.Item
           name="name"
           label={<RequiredLabel text={t('form.name')} />}
@@ -349,7 +362,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
         )}
       </Section>
 
-      <Section title={t('form.reminder')}>
+      <Section title={t('form.statisticsAndNote')}>
         <Form.Item
           name="includeInStatistics"
           label={t('form.includeInStats')}

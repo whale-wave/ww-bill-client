@@ -7,6 +7,13 @@
     "nickname": "昵称",
     "changeNickname": "修改昵称",
     "changeEmail": "更换邮箱",
+    "emailActionsTitle": "邮箱设置",
+    "changeEmailDescription": "修改后将使用新邮箱接收验证码与账户通知",
+    "changeAvatar": "更换头像",
+    "securityHint": "定期更新密码，保护账号安全",
+    "logoutTitle": "退出当前账号？",
+    "logoutHint": "退出后需要重新登录才能继续记账。",
+    "updateSuccess": "个人信息已更新",
     "namePlaceholder": "请输入2-12位昵称",
     "updateFailed": "更新失败"
   },
@@ -21,7 +28,9 @@
     "save": "保存修改",
     "saveSuccess": "保存成功",
     "done": "完成",
-    "passwordMismatch": "新密码不一致"
+    "passwordMismatch": "新密码不一致",
+    "securityTitle": "保护你的账本数据",
+    "securityHint": "建议使用至少 8 位且不易猜测的密码"
   },
   "email": {
     "title": "更换邮箱",
@@ -58,6 +67,10 @@
   },
   "emailChange": {
     "title": "修改邮箱",
+    "currentStepTitle": "验证当前邮箱",
+    "currentStepHint": "确认是你本人操作后，才能绑定新邮箱",
+    "newStepTitle": "绑定新的邮箱",
+    "newStepHint": "新邮箱将用于登录和找回密码",
     "newEmail": {
       "placeholder": "请输入新邮箱",
       "captchaPlaceholder": "请输入验证码"

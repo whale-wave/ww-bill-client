@@ -1,92 +1,116 @@
-import type { FC } from 'react';
-import { Tabs } from 'antd-mobile';
-import classNames from 'classnames';
-import { useCallback, useState } from 'react';
+import type { FC, KeyboardEvent } from 'react';
+import { useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AssetStatisticalRecordType } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar, TabList } from '@/shared/ui';
+import { PageHeader } from '@/shared/ui';
 import { AssetTabBar } from '../asset-manager/ui';
 import styles from './AssetChart.module.scss';
-import { AssetTrendChart, CurAssetStatus, CurNetAssetStatus } from './ui';
-import { AssetRanking } from './ui/AssetRanking';
+import { AssetRanking, AssetTrendChart, CurAssetStatus, CurNetAssetStatus } from './ui';
+
+const CHART_TYPES = [
+  AssetStatisticalRecordType.ASSET,
+  AssetStatisticalRecordType.LIABILITY,
+  AssetStatisticalRecordType.NET_ASSET,
+] as const;
+
+function isChartType(value: string | null): value is AssetStatisticalRecordType {
+  return value !== null && (CHART_TYPES as readonly string[]).includes(value);
+}
 
 const AssetChart: FC = () => {
   const { t } = useTranslation('asset');
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const type = searchParams.get('chart.asset') as AssetStatisticalRecordType || AssetStatisticalRecordType.ASSET;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedType = searchParams.get('type') ?? searchParams.get('chart.asset');
+  const selectTab = isChartType(requestedType) ? requestedType : AssetStatisticalRecordType.ASSET;
 
   const tabs = [
-    {
-      name: t('tab.asset'),
-      value: AssetStatisticalRecordType.ASSET,
-      children: (
-        <>
-          <AssetTrendChart type={AssetStatisticalRecordType.ASSET} />
-          <CurAssetStatus type={AssetStatisticalRecordType.ASSET} />
-          <AssetRanking type={AssetStatisticalRecordType.ASSET} />
-        </>
-      ),
-    },
-    {
-      name: t('tab.liability'),
-      value: AssetStatisticalRecordType.LIABILITY,
-      children: (
-        <>
-          <AssetTrendChart type={AssetStatisticalRecordType.LIABILITY} />
-          <CurAssetStatus type={AssetStatisticalRecordType.LIABILITY} />
-          <AssetRanking type={AssetStatisticalRecordType.LIABILITY} />
-        </>
-      ),
-    },
-    {
-      name: t('tab.netAsset'),
-      value: AssetStatisticalRecordType.NET_ASSET,
-      children: (
-        <>
-          <AssetTrendChart type={AssetStatisticalRecordType.NET_ASSET} />
-          <CurNetAssetStatus />
-        </>
-      ),
-    },
+    { name: t('tab.asset'), value: AssetStatisticalRecordType.ASSET },
+    { name: t('tab.liability'), value: AssetStatisticalRecordType.LIABILITY },
+    { name: t('tab.netAsset'), value: AssetStatisticalRecordType.NET_ASSET },
   ];
-
-  const [selectTab, setSelectTab] = useState<AssetStatisticalRecordType>(type);
-
-  const onChangeActiveKey = useCallback((key: string) => {
-    setSelectTab(key as AssetStatisticalRecordType);
-    // setSearchParams({ type: key });
-  }, []);
 
   const onBack = useCallback(() => {
     navigate(-1);
   }, [navigate]);
 
+  const onChangeTab = useCallback((type: AssetStatisticalRecordType) => {
+    setSearchParams({ type }, { replace: true });
+  }, [setSearchParams]);
+
+  const onTabKeyDown = useCallback((event: KeyboardEvent<HTMLButtonElement>) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key))
+      return;
+
+    event.preventDefault();
+    const currentIndex = CHART_TYPES.indexOf(selectTab);
+    const nextIndex = event.key === 'Home'
+      ? 0
+      : event.key === 'End'
+        ? CHART_TYPES.length - 1
+        : event.key === 'ArrowRight'
+          ? (currentIndex + 1) % CHART_TYPES.length
+          : (currentIndex - 1 + CHART_TYPES.length) % CHART_TYPES.length;
+    const nextType = CHART_TYPES[nextIndex];
+    onChangeTab(nextType);
+
+    const tabList = event.currentTarget.closest<HTMLElement>('[role="tablist"]');
+    const tabButtons = tabList?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+    tabButtons?.[nextIndex]?.focus();
+  }, [onChangeTab, selectTab]);
+
   return (
-    <div className={classNames(styles['asset-chart'], 'page-new')}>
-      <NavBar className="bg-white z-10" backArrow={false} back={null} right={<div className="text-base" onClick={onBack}>{t('common:nav.back')}</div>}>
-        {t('assetChartTitle')}
-      </NavBar>
-      <div className="px-2 fixed top-[45px] w-full bg-white z-10">
-        <TabList
-          className="w-full"
-          selectValue={selectTab}
-          tabs={tabs}
-          onChange={onChangeActiveKey}
-        />
+    <div className={`${styles['asset-chart']} page-new overflow-hidden`}>
+      <PageHeader
+        backLabel={t('common:nav.back')}
+        onBack={onBack}
+        subtitle={t('manager.subtitle')}
+        title={t('assetChartTitle')}
+      />
+
+      <div className="relative z-10 shrink-0 px-[18px] pb-3 pt-1">
+        <div
+          aria-label={t('assetChartTitle')}
+          className="grid grid-cols-3 gap-1 rounded-[17px] border border-border-primary bg-white/60 p-1 shadow-ww-xs backdrop-blur-xl"
+          role="tablist"
+        >
+          {tabs.map((tab) => {
+            const isSelected = selectTab === tab.value;
+            return (
+              <button
+                aria-selected={isSelected}
+                className={isSelected
+                  ? 'h-10 rounded-[13px] border border-solid border-white/80 bg-white text-[13px] font-extrabold text-primary-deep shadow-ww-xs transition-all'
+                  : 'h-10 rounded-[13px] border border-solid border-transparent bg-transparent text-[13px] font-semibold text-ww-mid transition-all active:bg-white/55'}
+                key={tab.value}
+                onClick={() => onChangeTab(tab.value)}
+                onKeyDown={onTabKeyDown}
+                role="tab"
+                tabIndex={isSelected ? 0 : -1}
+                type="button"
+              >
+                {tab.name}
+              </button>
+            );
+          })}
+        </div>
       </div>
-      <Tabs onChange={onChangeActiveKey} activeKey={selectTab}>
-        {
-          tabs.map(tab => (
-            <Tabs.Tab key={tab.value} title={tab.name}>
-              <div className="flex-1 px-2 py-3 space-y-3 overflow-y-auto mt-[40px] mb-[50px]">
-                {tab.children}
-              </div>
-            </Tabs.Tab>
-          ))
-        }
-      </Tabs>
+
+      <main className={`${styles['scroll-area']} ww-tab-bar-scroll-padding relative z-[1] min-h-0 flex-1 overflow-y-auto px-[18px]`}>
+        <div className={`${styles['tab-content']} space-y-[14px] pb-4`} key={selectTab}>
+          <AssetTrendChart type={selectTab} />
+          {selectTab === AssetStatisticalRecordType.NET_ASSET
+            ? <CurNetAssetStatus />
+            : (
+                <>
+                  <CurAssetStatus type={selectTab} />
+                  <AssetRanking type={selectTab} />
+                </>
+              )}
+        </div>
+      </main>
+
       <AssetTabBar activeKey="chart" />
     </div>
   );

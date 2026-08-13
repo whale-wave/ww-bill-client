@@ -3,6 +3,7 @@ import type { LedgerListItem } from '../types';
 import { Tag } from 'antd-mobile';
 import { PayCircleOutline } from 'antd-mobile-icons';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from '@/shared/i18n';
 import { LedgerStatus } from '../types';
 
 const LONG_PRESS_DELAY = 420;
@@ -38,6 +39,7 @@ export function LedgerCoverCard({
   sorting = false,
   style,
 }: LedgerCoverCardProps) {
+  const { t } = useTranslation('ledger');
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const longPressOriginRef = useRef<{ x: number; y: number }>();
   const didLongPressRef = useRef(false);
@@ -117,10 +119,12 @@ export function LedgerCoverCard({
 
   const accessibleDetails = [
     ledger.name,
-    ledger.activeMemberCount > 1 ? `${ledger.activeMemberCount}人共享` : undefined,
-    ledger.status === LedgerStatus.SUSPENDED ? '已暂停' : undefined,
-    sorting ? '可排序' : undefined,
-  ].filter(Boolean).join('，');
+    ledger.activeMemberCount > 1
+      ? t('center.sharedMemberCount', { count: ledger.activeMemberCount })
+      : undefined,
+    ledger.status === LedgerStatus.SUSPENDED ? t('center.suspendedShort') : undefined,
+    sorting ? t('center.sortable') : undefined,
+  ].filter(Boolean).join(t('common.listSeparator'));
 
   return (
     <button
@@ -152,11 +156,7 @@ export function LedgerCoverCard({
             fill="solid"
             style={WHITE_TAG_STYLE}
           >
-            共
-            {' '}
-            {ledger.activeMemberCount}
-            {' '}
-            人
+            {t('center.memberCount', { count: ledger.activeMemberCount })}
           </Tag>
         )}
         {ledger.status === LedgerStatus.SUSPENDED && (
@@ -165,7 +165,7 @@ export function LedgerCoverCard({
             fill="solid"
             style={WHITE_TAG_STYLE}
           >
-            已暂停
+            {t('center.suspendedShort')}
           </Tag>
         )}
       </span>

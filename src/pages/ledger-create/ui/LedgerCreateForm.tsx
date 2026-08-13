@@ -3,9 +3,10 @@ import type {
   LedgerCreateFormErrorCode,
   LedgerCreateFormValues,
 } from '../model/ledger-create-form';
-import { Button, Input, Stepper } from 'antd-mobile';
+import { Minus, PencilLine, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '@/shared/i18n';
+import { GradientPanel } from '@/shared/ui';
 import { validateLedgerCreateForm } from '../model/ledger-create-form';
 
 interface LedgerCreateFormProps {
@@ -55,63 +56,75 @@ export const LedgerCreateForm: FC<LedgerCreateFormProps> = ({
       setErrors(current => ({ ...current, monthStartDay: undefined }));
   };
 
+  const adjustMonthStartDay = (difference: number) => {
+    handleMonthStartDayChange(Math.min(28, Math.max(1, monthStartDay + difference)));
+  };
+
   return (
-    <form className="space-y-3" onSubmit={handleSubmit}>
-      <div className="card-rounded bg-white px-4">
-        <div className="border-0 border-b border-solid border-[#EBEBEB] py-3">
-          <label className="mb-2 block text-sm text-font-black" htmlFor="ledger-name">
-            {t('create.name')}
-          </label>
-          <Input
-            aria-invalid={Boolean(errors.name)}
-            clearable
-            id="ledger-name"
-            maxLength={30}
-            onChange={handleNameChange}
-            placeholder={t('create.namePlaceholder')}
-            value={name}
-          />
+    <form className="space-y-4" data-ledger-create-form onSubmit={handleSubmit}>
+      <GradientPanel className="px-5 py-5" elevation="standard" surface="glass">
+        <div>
+          <div className="mb-2.5 flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[11px] bg-primary-light/55 text-primary-deep"><PencilLine size={16} /></span>
+            <label className="text-[12px] font-extrabold text-ww-ink" htmlFor="ledger-name">
+              {t('create.name')}
+            </label>
+          </div>
+          <div className={`flex h-[52px] items-center rounded-[17px] border border-solid bg-white/80 px-4 shadow-ww-xs transition ${errors.name ? 'border-[#e89ab4]' : 'border-border-primary focus-within:border-primary'}`}>
+            <input
+              aria-invalid={Boolean(errors.name)}
+              className="min-w-0 flex-1 border-0 bg-transparent text-[14px] font-bold text-ww-ink outline-none placeholder:text-ww-ghost"
+              id="ledger-name"
+              maxLength={30}
+              onChange={event => handleNameChange(event.target.value)}
+              placeholder={t('create.namePlaceholder')}
+              value={name}
+            />
+            <span className="ml-2 text-[9px] font-semibold tabular-nums text-ww-ghost">
+              {name.length}
+              /30
+            </span>
+          </div>
           {errors.name && (
-            <div className="mt-1 text-xs text-red-500" role="alert">
+            <div className="mt-2 text-[10px] font-semibold text-[#b24f71]" role="alert">
               {t(getErrorTranslationKey(errors.name))}
             </div>
           )}
         </div>
-        <div className="py-3">
-          <div className="mb-1 flex items-center justify-between gap-3">
-            <div>
-              <div className="text-sm text-font-black">{t('create.monthStartDay')}</div>
-              <div className="mt-1 text-xs leading-5 text-font-gray">
+
+        <div className="my-5 h-px bg-border-primary" />
+
+        <div>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <div className="text-[12px] font-extrabold text-ww-ink">{t('create.monthStartDay')}</div>
+              <div className="mt-1 text-[10px] leading-4 text-ww-soft">
                 {t('create.monthStartDayDescription')}
               </div>
             </div>
-            <Stepper
-              max={28}
-              min={1}
-              onChange={handleMonthStartDayChange}
-              value={monthStartDay}
-            />
+            <div aria-label={t('create.monthStartDay')} className="flex shrink-0 items-center gap-1 rounded-[16px] border border-solid border-border-primary bg-white/80 p-1 shadow-ww-xs" role="group">
+              <button aria-label={t('create.decreaseDay')} className="flex h-9 w-9 items-center justify-center rounded-[12px] border-0 bg-primary-light/45 text-primary-deep disabled:opacity-35" disabled={monthStartDay <= 1} onClick={() => adjustMonthStartDay(-1)} type="button"><Minus size={16} strokeWidth={2.2} /></button>
+              <output className="min-w-[38px] text-center text-[17px] font-black tabular-nums text-ww-ink">{monthStartDay}</output>
+              <button aria-label={t('create.increaseDay')} className="flex h-9 w-9 items-center justify-center rounded-[12px] border-0 bg-primary text-white shadow-ww-xs disabled:opacity-35" disabled={monthStartDay >= 28} onClick={() => adjustMonthStartDay(1)} type="button"><Plus size={16} strokeWidth={2.2} /></button>
+            </div>
           </div>
-          <div className="text-right text-xs text-font-gray">
+          <div className="mt-3 inline-flex rounded-full bg-primary-light/35 px-3 py-1.5 text-[10px] font-bold text-primary-deep">
             {t('create.monthStartDayValue', { day: monthStartDay })}
           </div>
           {errors.monthStartDay && (
-            <div className="mt-1 text-xs text-red-500" role="alert">
+            <div className="mt-2 text-[10px] font-semibold text-[#b24f71]" role="alert">
               {t(getErrorTranslationKey(errors.monthStartDay))}
             </div>
           )}
         </div>
-      </div>
-      <Button
-        block
-        color="primary"
+      </GradientPanel>
+      <button
+        className="h-[54px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww transition active:scale-[0.99] disabled:opacity-45"
         disabled={isSubmitting}
-        loading={isSubmitting}
-        size="large"
         type="submit"
       >
         {isSubmitting ? t('create.submitting') : t('create.submit')}
-      </Button>
+      </button>
     </form>
   );
 };

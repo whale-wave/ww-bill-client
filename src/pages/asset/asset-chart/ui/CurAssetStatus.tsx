@@ -1,139 +1,127 @@
-import type { PieSeriesOption } from 'echarts/charts';
-import type {
-  LegendComponentOption,
-  TooltipComponentOption,
-} from 'echarts/components';
 import type { FC } from 'react';
-import { useMount, useUnmount } from 'ahooks';
-import { PieChart } from 'echarts/charts';
-import {
-  LegendComponent,
-  TitleComponent,
-  TooltipComponent,
-} from 'echarts/components';
-import * as echarts from 'echarts/core';
-import { LabelLayout } from 'echarts/features';
-import { CanvasRenderer } from 'echarts/renderers';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { AssetStatisticalRecordType, useAssetSummaryInfo } from '@/entities/asset';
+import { SpinLoading } from 'antd-mobile';
+import { PieChart as PieChartIcon, TriangleAlert } from 'lucide-react';
+import { useMemo } from 'react';
+import { AssetStatisticalRecordType, useAssetSummaryInfo, useGetAssetQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
+import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { ChartRetryButton } from './ChartRetryButton';
 
-echarts.use([
-  TooltipComponent,
-  LegendComponent,
-  TitleComponent,
-  PieChart,
-  CanvasRenderer,
-  LabelLayout,
-]);
-
-type EChartsOption = echarts.ComposeOption<
-  TooltipComponentOption | LegendComponentOption | PieSeriesOption
->;
+const CHART_COLORS = [
+  '#4aaac4',
+  '#8174c8',
+  '#f0a0b8',
+  '#58b888',
+  '#e4a451',
+  '#5f8fc9',
+  '#b278b4',
+  '#73b7ad',
+];
 
 export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
   const { t } = useTranslation('asset');
-  const chartDomRef = useRef<HTMLDivElement>(null);
-  const [myChart, setMyChart] = useState<echarts.ECharts>();
+  const { isError, isFetching, isLoading, refetch } = useGetAssetQuery();
   const { addAssetGroupPercent, subAssetGroupPercent, info } = useAssetSummaryInfo();
+  const isAsset = type === AssetStatisticalRecordType.ASSET;
+  const title = isAsset ? t('chart.currentAssetStatus') : t('chart.currentLiabilityStatus');
+  const totalLabel = isAsset ? t('chart.totalAsset') : t('chart.totalLiability');
+  const totalAmount = isAsset ? info.addAsset : info.subAsset;
+  const groupPercent = isAsset ? addAssetGroupPercent : subAssetGroupPercent;
 
-  const groupPercent = useMemo(() => {
-    if (type === AssetStatisticalRecordType.ASSET)
-      return addAssetGroupPercent;
-    return subAssetGroupPercent;
-  }, [type, addAssetGroupPercent, subAssetGroupPercent]);
+  const chartData = useMemo(() => {
+    const validData = groupPercent
+      .map(item => ({ name: item.group.name, value: Number(item.percent) }))
+      .filter(item => Number.isFinite(item.value) && item.value > 0);
+    const total = validData.reduce((sum, item) => sum + item.value, 0);
+    if (total <= 0)
+      return [];
 
-  const data = groupPercent.map(item => ({
-    name: item.group.name,
-    value: item.percent,
-  }));
+    return validData.map((item, index) => ({
+      ...item,
+      color: CHART_COLORS[index % CHART_COLORS.length],
+      percent: (item.value / total) * 100,
+    }));
+  }, [groupPercent]);
 
-  const total = useMemo(() => {
-    return data.reduce((acc, cur) => acc + cur.value, 0);
-  }, [data]);
-
-  const percentMap = useMemo(() => {
-    return data.reduce((acc, cur) => {
-      acc[cur.name] = `${((cur.value / total) * 100).toFixed(1)}%`;
-      return acc;
-    }, {} as Record<string, string>);
-  }, [data, total]);
-
-  useMount(() => {
-    const myChart = echarts.init(chartDomRef.current!);
-    setMyChart(myChart);
-  });
-
-  useUnmount(() => {
-    myChart?.dispose();
-  });
-
-  useEffect(() => {
-    const maxLength = Math.max(...data.map(item => item.name.length));
-    const MIN_WIDTH = 40;
-    const width = maxLength * 14;
-    const option: EChartsOption = {
-      title: {
-        textAlign: 'center',
-        text: type === AssetStatisticalRecordType.ASSET ? t('chart.totalAsset') : t('chart.totalLiability'),
-        subtext: type === AssetStatisticalRecordType.ASSET ? formatAmount(info.addAsset) : formatAmount(info.subAsset),
-        top: '36%',
-        left: '24%',
-        textStyle: {
-          fontSize: 11,
-          color: '#999',
-        },
-        subtextStyle: {
-          fontSize: 15,
-          color: '#333',
-        },
-      },
-      legend: {
-        right: '2%',
-        top: 'center',
-        orient: 'vertical',
-        selectedMode: false,
-        formatter: (name: string) => {
-          return `{name|${name}} {value|${percentMap[name]}}`;
-        },
-        itemWidth: 10,
-        itemHeight: 10,
-        textStyle: {
-          rich: {
-            name: {
-              width: width < MIN_WIDTH ? MIN_WIDTH : width,
-            },
-            value: {
-              width: 30,
-              align: 'right',
-            },
-          },
-        },
-      },
-      series: [
-        {
-          type: 'pie',
-          radius: ['60%', '90%'],
-          right: '50%',
-          label: {
-            show: false,
-          },
-          emphasis: {
-            disabled: true,
-          },
-          data,
-        },
-      ],
-    };
-
-    myChart?.setOption(option);
-  }, [myChart, data, percentMap, total, info.totalAsset, t]);
+  const donutGradient = useMemo(() => {
+    let cursor = 0;
+    const stops = chartData.map((item) => {
+      const start = cursor;
+      cursor += item.percent;
+      return `${item.color} ${start}% ${cursor}%`;
+    });
+    return `conic-gradient(${stops.join(', ')})`;
+  }, [chartData]);
 
   return (
-    <div className="flex flex-col justify-center">
-      <div className="text-base py-3">{type === AssetStatisticalRecordType.ASSET ? t('chart.currentAssetStatus') : t('chart.currentLiabilityStatus')}</div>
-      <div className="w-full h-[160px]" ref={chartDomRef}></div>
-    </div>
+    <GradientPanel as="article" className="overflow-hidden px-[18px] py-[18px]" elevation="standard" surface="glass">
+      <header className="flex items-center gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[linear-gradient(145deg,#e2f6ff,#f4efff)] text-primary-deep shadow-ww-xs">
+          <PieChartIcon size={20} strokeWidth={2} />
+        </span>
+        <div className="min-w-0">
+          <h2 className="truncate text-[14px] font-extrabold text-ww-ink">{title}</h2>
+          <p className="mt-0.5 text-[10px] font-semibold text-ww-soft">{totalLabel}</p>
+        </div>
+      </header>
+
+      {isLoading && (
+        <div className="flex min-h-[190px] items-center justify-center">
+          <SpinLoading color="primary" />
+        </div>
+      )}
+
+      {!isLoading && isError && (
+        <div className="flex min-h-[200px] flex-col items-center justify-center text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#fff0f4] text-[#c04870]">
+            <TriangleAlert size={21} />
+          </span>
+          <p className="mt-3 text-[13px] font-extrabold text-ww-ink">{t('manager.loadError')}</p>
+          <p className="mt-1 text-[11px] text-ww-soft">{t('manager.loadErrorDescription')}</p>
+          <ChartRetryButton isLoading={isFetching} onRetry={() => void refetch()} />
+        </div>
+      )}
+
+      {!isLoading && !isError && chartData.length === 0 && (
+        <IllustratedEmptyState
+          className="min-h-[230px] px-2 py-5"
+          icon={<PieChartIcon className="text-primary-deep" size={38} />}
+          title={t('common:empty')}
+        />
+      )}
+
+      {!isLoading && !isError && chartData.length > 0 && (
+        <div className="mt-5 flex items-center gap-4">
+          <div
+            aria-label={`${totalLabel} ${formatAmount(totalAmount)}`}
+            className="relative h-[126px] w-[126px] shrink-0 rounded-full shadow-[0_8px_22px_rgba(60,140,180,0.12)]"
+            role="img"
+            style={{ background: donutGradient }}
+          >
+            <div className="absolute inset-[17px] flex flex-col items-center justify-center rounded-full border border-white/80 bg-white/90 px-2 text-center shadow-inner backdrop-blur-xl">
+              <span className="text-[9px] font-semibold text-ww-soft">{totalLabel}</span>
+              <span className="mt-1 max-w-full truncate font-number text-[14px] font-black text-ww-ink">
+                ¥
+                {formatAmount(totalAmount)}
+              </span>
+            </div>
+          </div>
+
+          <div className="max-h-[152px] min-w-0 flex-1 space-y-2.5 overflow-y-auto pr-1">
+            {chartData.map(item => (
+              <div className="flex items-center gap-2" key={item.name}>
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
+                <span className="min-w-0 flex-1 truncate text-[11px] font-semibold text-ww-mid">{item.name}</span>
+                <span className="shrink-0 font-number text-[10px] font-extrabold text-ww-ink">
+                  {item.percent.toFixed(1)}
+                  %
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </GradientPanel>
   );
 };

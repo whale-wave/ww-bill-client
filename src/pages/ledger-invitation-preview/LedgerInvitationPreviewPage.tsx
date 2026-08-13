@@ -16,10 +16,12 @@ import {
   validateJoinRequest,
 } from '@/features/ledger-collaboration';
 import { useTranslation } from '@/shared/i18n';
+import { formatLocalizedDateTime } from '@/shared/lib';
 import { NavBar } from '@/shared/ui';
 
 const LedgerInvitationPreviewPage: FC = () => {
-  const { t } = useTranslation('ledger');
+  const { i18n, t } = useTranslation('ledger');
+  const locale = i18n?.resolvedLanguage ?? i18n?.language ?? 'zh-CN';
   const navigate = useNavigate();
   const params = useParams<{ code: string }>();
   const code = normalizeInvitationCode(params.code ?? '');
@@ -102,7 +104,7 @@ const LedgerInvitationPreviewPage: FC = () => {
             <form className="mt-3 bg-white px-4 py-5" onSubmit={handleSubmit}>
               <p className="text-sm text-font-gray">
                 {t('preview.expiresAt', {
-                  date: new Date(previewQuery.data.expiresAt).toLocaleString(),
+                  date: formatLocalizedDateTime(previewQuery.data.expiresAt, locale),
                 })}
               </p>
               <label className="mt-5 block text-base text-font-black" htmlFor="preview-remark">

@@ -32,8 +32,8 @@ const UpcomingList: React.FC<UpcomingListProps> = memo((props) => {
   return (
     <div className={cn(className)}>
       <div className="mb-2 flex items-center justify-between px-1">
-        <span className="text-sm font-medium text-slate-800">{t('list.upcoming')}</span>
-        <span className="text-xs text-font-gray">
+        <span className="text-[13px] font-extrabold text-ww-ink">{t('list.upcoming')}</span>
+        <span className="text-[10px] font-semibold text-ww-soft">
           {t('list.total')}
           {' '}
           {items.length}
@@ -41,34 +41,35 @@ const UpcomingList: React.FC<UpcomingListProps> = memo((props) => {
           {t('list.items')}
         </span>
       </div>
-      <div className="-mx-3 flex space-x-2 overflow-x-auto px-3 pb-1">
+      <div className="-mx-[18px] flex gap-3 overflow-x-auto px-[18px] pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((item) => {
           const tone = getNextBillingTone(item.nextBillingDate);
           const TypeIcon = typeIconMap[item.type];
           return (
-            <div
+            <button
               key={item.id}
-              className="flex w-[150px] flex-shrink-0 flex-col justify-between rounded-xl bg-white p-3 shadow-sm active:opacity-80"
+              className="flex w-[158px] flex-shrink-0 flex-col justify-between rounded-[18px] border border-solid border-border-primary bg-white/80 p-3 text-left shadow-ww-xs active:scale-[0.99]"
               onClick={() => onClickItem?.(item)}
+              type="button"
             >
               <div className="flex items-center space-x-1">
-                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600">
-                  <TypeIcon size={13} strokeWidth={1.8} />
+                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[11px] bg-primary-light/55 text-primary-deep">
+                  <TypeIcon size={16} strokeWidth={1.8} />
                 </span>
-                <span className="truncate text-sm text-slate-800">{item.name}</span>
+                <span className="truncate text-[12px] font-extrabold text-ww-ink">{item.name}</span>
               </div>
-              <div className="mt-2 text-base font-semibold text-slate-900">
+              <div className="mt-3 text-[14px] font-extrabold text-ww-ink">
                 {formatAmountWithCurrency(item.amount, item.currency)}
               </div>
               <div
                 className={cn(
-                  'mt-2 self-start rounded px-1.5 py-0.5 text-xs',
+                  'mt-2 self-start rounded-full px-2 py-1 text-[9px] font-bold',
                   toneBgClass[tone],
                 )}
               >
                 {formatNextBillingDate(item.nextBillingDate)}
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

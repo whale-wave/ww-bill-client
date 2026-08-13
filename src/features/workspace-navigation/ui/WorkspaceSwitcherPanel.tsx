@@ -1,6 +1,7 @@
 import type { WorkspaceScope } from '../model/workspace-scope';
-import { Button, Popup, SafeArea, SpinLoading } from 'antd-mobile';
-import { Check, Home, Landmark, Users } from 'lucide-react';
+import { Popup, SafeArea, SpinLoading } from 'antd-mobile';
+import { CheckOutline } from 'antd-mobile-icons';
+import { Home, Landmark, Plus, Settings2, Users } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HouseholdStatus, useMyHouseholdQuery } from '@/entities/household';
@@ -14,6 +15,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import { getWorkspaceHomePath } from '../model/workspace-scope';
+import '@/features/ledger-switcher/ui/ledger-switcher.scss';
 
 interface WorkspaceSwitcherPanelProps {
   currentScope: WorkspaceScope;
@@ -28,6 +30,7 @@ interface WorkspaceOption {
   label: string;
   path: string;
   scope: WorkspaceScope;
+  themeKey?: string;
 }
 
 function isSameScope(left: WorkspaceScope, right: WorkspaceScope) {
@@ -63,6 +66,7 @@ export function WorkspaceSwitcherPanel({
       label: t('switcher.personal'),
       path: ROUTES_PATH.DETAIL.getPath(),
       scope: { type: 'personal' },
+      themeKey: 'personal',
     };
     const custom = ledgerQuery.data
       .filter(ledger =>
@@ -84,18 +88,20 @@ export function WorkspaceSwitcherPanel({
           ledgerId: ledger.id,
           type: 'custom',
         },
+        themeKey: ledger.themeKey,
       }));
     const household = householdQuery.data?.status === HouseholdStatus.ACTIVE
       ? [{
-          description: '家庭共享',
+          description: t('switcher.householdDescription'),
           icon: Users,
           key: `household-${householdQuery.data.id}`,
-          label: '家庭账本',
+          label: t('switcher.householdLedger'),
           path: ROUTES_PATH.HOUSEHOLD_HOME.getPath(householdQuery.data.id),
           scope: {
             householdId: householdQuery.data.id,
             type: 'household' as const,
           },
+          themeKey: 'green',
         }]
       : [];
     return {
@@ -122,47 +128,59 @@ export function WorkspaceSwitcherPanel({
     return (
       <button
         aria-current={isSelected ? 'page' : undefined}
-        className="flex min-h-[64px] w-full items-center border-0 border-b border-solid border-[#EBEBEB] bg-white px-4 text-left last:border-b-0"
+        className="ledger-switcher-panel__option"
         data-workspace-option={option.key}
+        data-selected={isSelected ? 'true' : 'false'}
         key={option.key}
         onClick={() => handleSelect(option)}
         type="button"
       >
-        <span className={cn(
-          'flex size-10 shrink-0 items-center justify-center rounded-full bg-bg-gray text-font-gray',
-          isSelected && 'bg-primary text-font-black',
-        )}
-        >
-          <OptionIcon size={20} />
+        <span className="ledger-switcher-panel__option-content">
+          <span
+            className={cn('ledger-switcher-panel__icon', isSelected && 'ledger-switcher-panel__icon--selected')}
+            data-theme={option.themeKey}
+          >
+            <OptionIcon aria-hidden="true" size={21} strokeWidth={1.8} />
+          </span>
+          <span className="ledger-switcher-panel__option-copy">
+            <strong className="ledger-switcher-panel__option-title">
+              {option.label}
+              {option.scope.type === 'personal' && <small>{t('switcher.systemBadge')}</small>}
+            </strong>
+            {option.description && <span className="ledger-switcher-panel__option-description">{option.description}</span>}
+          </span>
+          {isSelected && (
+            <CheckOutline
+              aria-label={t('switcher.selected')}
+              className="ledger-switcher-panel__check"
+            />
+          )}
         </span>
-        <span className="ml-3 min-w-0 flex-grow">
-          <strong className="block truncate text-base font-medium text-font-black">{option.label}</strong>
-          {option.description && <span className="mt-0.5 block truncate text-xs text-font-gray">{option.description}</span>}
-        </span>
-        {isSelected && <Check aria-label={t('switcher.selected')} className="text-font-black" size={20} />}
       </button>
     );
   });
 
   return (
     <Popup
-      bodyClassName="!bottom-auto !top-0 max-h-[82vh] overflow-hidden rounded-b-lg bg-white"
+      bodyClassName="ledger-switcher-panel"
       closeOnMaskClick
       destroyOnClose
+      maskClassName="ledger-switcher-panel__mask"
       onClose={onClose}
       position="top"
       visible={visible}
     >
-      <section aria-label={t('switcher.switch')} className="flex max-h-[82vh] flex-col pt-3">
-        <div className="flex items-center justify-between px-4 pb-3">
-          <h2 className="text-lg font-semibold text-font-black">{t('switcher.switch')}</h2>
-          <button className="border-0 bg-transparent px-2 py-1 text-sm text-font-gray" onClick={onClose} type="button">
-            {t('switcher.cancel')}
-          </button>
+      <section aria-label={t('switcher.switch')} className="ledger-switcher-panel__dialog">
+        <div className="ledger-switcher-panel__heading">
+          <div>
+            <h2>{t('switcher.switch')}</h2>
+            <p>{t('switcher.subtitle')}</p>
+          </div>
+          <span>{myLedgerOptions.length + householdLedgerOptions.length}</span>
         </div>
-        <div className="min-h-[120px] overflow-auto border-0 border-t border-solid border-[#EBEBEB]">
+        <div className="ledger-switcher-panel__content">
           {isLoading && (
-            <div className="flex min-h-[160px] items-center justify-center gap-2 text-sm text-font-gray">
+            <div className="ledger-switcher-panel__state">
               <SpinLoading color="primary" />
               <span>{t('switcher.loading')}</span>
             </div>
@@ -170,14 +188,14 @@ export function WorkspaceSwitcherPanel({
           {!isLoading && (
             <>
               <section data-workspace-section="my-ledgers">
-                <h3 className="bg-bg-gray px-4 py-2 text-xs font-normal text-font-gray">
+                <h3 className="ledger-switcher-panel__section-heading">
                   {t('switcher.myLedgers')}
                 </h3>
                 {renderOptions(myLedgerOptions)}
               </section>
               {householdLedgerOptions.length > 0 && (
-                <section className="border-0 border-t-[10px] border-solid border-bg-gray" data-workspace-section="household-ledger">
-                  <h3 className="bg-bg-gray px-4 py-2 text-xs font-normal text-font-gray">
+                <section className="ledger-switcher-panel__section" data-workspace-section="household-ledger">
+                  <h3 className="ledger-switcher-panel__section-heading">
                     {t('switcher.householdLedger')}
                   </h3>
                   {renderOptions(householdLedgerOptions)}
@@ -187,31 +205,41 @@ export function WorkspaceSwitcherPanel({
           )}
           {!isLoading && hasSourceError && (
             <button
-              className="flex min-h-12 w-full items-center justify-center border-0 bg-bg-gray px-4 text-sm text-font-gray"
+              className="ledger-switcher-panel__retry"
               onClick={handleRetry}
               type="button"
             >
               {t('switcher.loadError')}
-              ，
+              {t('common.listSeparator')}
               {t('switcher.retry')}
             </button>
           )}
         </div>
-        <div className="grid grid-cols-2 gap-3 px-4 py-3">
-          <Button onClick={() => {
-            onClose();
-            navigate(ROUTES_PATH.LEDGER_TEMPLATES.getPath());
-          }}
+        <div className="ledger-switcher-panel__footer">
+          <button
+            className="ledger-switcher-panel__footer-action ledger-switcher-panel__create"
+            data-ledger-switcher-create
+            onClick={() => {
+              onClose();
+              navigate(ROUTES_PATH.LEDGER_TEMPLATES.getPath());
+            }}
+            type="button"
           >
-            {t('switcher.create')}
-          </Button>
-          <Button onClick={() => {
-            onClose();
-            navigate(ROUTES_PATH.LEDGERS.getPath());
-          }}
+            <Plus aria-hidden="true" className="ledger-switcher-panel__footer-icon" size={17} />
+            <span>{t('switcher.create')}</span>
+          </button>
+          <button
+            className="ledger-switcher-panel__footer-action ledger-switcher-panel__manage"
+            data-ledger-switcher-manage
+            onClick={() => {
+              onClose();
+              navigate(ROUTES_PATH.LEDGERS.getPath());
+            }}
+            type="button"
           >
-            {t('switcher.manage')}
-          </Button>
+            <Settings2 aria-hidden="true" className="ledger-switcher-panel__footer-icon" size={17} />
+            <span>{t('switcher.manage')}</span>
+          </button>
         </div>
         <SafeArea position="bottom" />
       </section>

@@ -25,10 +25,10 @@ import { DesignIcon } from '@/shared/ui';
 
 const MENU_ITEMS = [
   { icon: List, key: 'records', route: ROUTES_PATH.HOUSEHOLD_RECORDS },
+  { icon: Settings, key: 'settings', route: ROUTES_PATH.HOUSEHOLD_SETTINGS },
   { icon: Target, key: 'budget', route: ROUTES_PATH.HOUSEHOLD_BUDGETS },
   { icon: Search, key: 'search', route: ROUTES_PATH.HOUSEHOLD_RECORD_SEARCH },
   { icon: CalendarDays, key: 'calendar', route: ROUTES_PATH.HOUSEHOLD_CALENDAR },
-  { icon: Settings, key: 'settings', route: ROUTES_PATH.HOUSEHOLD_SETTINGS },
 ] as const;
 
 const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {

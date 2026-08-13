@@ -1,12 +1,13 @@
 import type { StatusTabOption } from './constants';
 import type { FixedExpenseEntity } from '@/entities/fixed-expense';
-import { Dialog, ErrorBlock, Skeleton, SwipeAction, Toast } from 'antd-mobile';
+import { Skeleton, SwipeAction, Toast } from 'antd-mobile';
+import { CalendarClock, Plus, Trash2 } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FixedExpenseStatus, useDeleteFixedExpenseMutation, useGetFixedExpenseQuery } from '@/entities/fixed-expense';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
+import { confirmAppAction, GradientPanel, IllustratedEmptyState, PageHeader } from '@/shared/ui';
 import {
   AddFixedExpenseButton,
   FilterTabs,
@@ -20,8 +21,9 @@ const FixedExpenses: React.FC = () => {
   const navigate = useNavigate();
   const [statusTab, setStatusTab] = useState<StatusTabOption['key']>('all');
 
-  const { list, summary, isLoading } = useGetFixedExpenseQuery();
-  const [deleteMutate] = useDeleteFixedExpenseMutation();
+  const query = useGetFixedExpenseQuery();
+  const { list, summary } = query;
+  const [deleteMutate, deleteState] = useDeleteFixedExpenseMutation();
 
   const counts = useMemo(() => {
     const acc: Partial<Record<StatusTabOption['key'], number>> = {
@@ -58,82 +60,111 @@ const FixedExpenses: React.FC = () => {
     navigate(ROUTES_PATH.FIXED_EXPENSES_EDIT.getPath(item.id));
   }, [navigate]);
 
-  const onDeleteItem = useCallback((item: FixedExpenseEntity) => {
-    void Dialog.confirm({
-      content: `${t('list.confirmDelete')}"${item.name}"?`,
-      onConfirm: async () => {
-        await deleteMutate(item.id);
-        void Toast.show({ icon: 'success', content: t('common:confirm.deleteSuccess') });
-      },
+  const onDeleteItem = useCallback(async (item: FixedExpenseEntity) => {
+    if (deleteState.isLoading)
+      return;
+    const confirmed = await confirmAppAction({
+      cancelText: t('common:nav.cancel'),
+      confirmText: t('common:action.delete'),
+      description: t('deleteDescription'),
+      icon: <Trash2 size={22} strokeWidth={1.8} />,
+      title: t('deleteTitle'),
+      tone: 'danger',
     });
-  }, [deleteMutate, t]);
+    if (!confirmed)
+      return;
+    try {
+      await deleteMutate(item.id);
+      Toast.show({ icon: 'success', content: t('common:confirm.deleteSuccess') });
+    }
+    catch {
+      Toast.show({ icon: 'fail', content: t('deleteFailed') });
+    }
+  }, [deleteMutate, deleteState.isLoading, t]);
 
   return (
-    <div className="page-new overflow-hidden">
-      <NavBar onBack={onBack} back={t('common:nav.back')}>{t('list.title')}</NavBar>
+    <div className="page-new relative overflow-hidden">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-16 h-56 w-56 rounded-full bg-primary-light/40 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -left-24 bottom-24 h-48 w-48 rounded-full bg-ww-pink/15 blur-3xl" />
+      <PageHeader backLabel={t('common:nav.back')} onBack={onBack} subtitle={t('subtitle')} title={t('list.title')} />
 
-      <div className="flex-grow h-0 overflow-auto bg-bg-gray">
-        <div className="px-3 pt-3">
+      <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-5 pt-2">
+        <div className="mx-auto w-full max-w-[520px]">
           <SummaryCard
             summary={summary}
             totalCount={list.length}
             activeCount={activeCount}
           />
-        </div>
 
-        {summary.nextBillingItems.length > 0 && (
-          <div className="px-3 pt-4">
-            <UpcomingList items={summary.nextBillingItems} onClickItem={onClickItem} />
+          {summary.nextBillingItems.length > 0 && (
+            <div className="pt-4">
+              <UpcomingList items={summary.nextBillingItems} onClickItem={onClickItem} />
+            </div>
+          )}
+
+          <div className="sticky top-0 z-10 -mx-1 mt-3 bg-bg-gray/90 px-1 py-2 backdrop-blur-xl">
+            <FilterTabs value={statusTab} counts={counts} onChange={setStatusTab} />
           </div>
-        )}
 
-        <div className="sticky top-0 z-10 mt-2 bg-bg-gray px-2 pb-1 pt-2">
-          <FilterTabs value={statusTab} counts={counts} onChange={setStatusTab} />
-        </div>
-
-        <div className="space-y-2 px-3 pb-4">
-          {isLoading && list.length === 0
-            ? (
-                <div className="rounded-lg bg-white p-3">
-                  <Skeleton.Title animated />
-                  <Skeleton.Paragraph animated lineCount={4} />
-                </div>
-              )
-            : filteredList.length === 0
+          <div className="space-y-3 pb-4">
+            {query.isLoading && list.length === 0
               ? (
-                  <div className="mt-10">
-                    <ErrorBlock
-                      status="empty"
-                      title={t('list.empty')}
-                      description={t('list.emptyDescription')}
-                    />
-                  </div>
+                  <GradientPanel className="p-4" elevation="low" surface="glass">
+                    <Skeleton.Title animated />
+                    <Skeleton.Paragraph animated lineCount={4} />
+                  </GradientPanel>
                 )
-              : (
-                  filteredList.map(item => (
-                    <SwipeAction
-                      key={item.id}
-                      rightActions={[
-                        {
-                          key: 'edit',
-                          text: t('common:action.edit'),
-                          color: 'primary',
-                          onClick: () => onEditItem(item),
-                        },
-                        {
-                          key: 'delete',
-                          text: t('common:action.delete'),
-                          color: 'danger',
-                          onClick: () => onDeleteItem(item),
-                        },
-                      ]}
-                    >
-                      <FixedExpenseItem item={item} onClick={onClickItem} />
-                    </SwipeAction>
-                  ))
-                )}
+              : query.isError
+                ? (
+                    <GradientPanel elevation="low" surface="glass">
+                      <IllustratedEmptyState
+                        actionLabel={t('retry')}
+                        description={t('loadErrorDescription')}
+                        icon={<CalendarClock className="text-primary-deep" size={40} strokeWidth={1.6} />}
+                        onAction={() => void query.refetch()}
+                        title={t('loadError')}
+                      />
+                    </GradientPanel>
+                  )
+                : filteredList.length === 0
+                  ? (
+                      <GradientPanel elevation="low" surface="glass">
+                        <IllustratedEmptyState
+                          accentIcon={<Plus size={19} />}
+                          actionLabel={t('list.addFixedExpense')}
+                          description={t('list.emptyDescription')}
+                          icon={<CalendarClock className="text-primary-deep" size={42} strokeWidth={1.6} />}
+                          onAction={() => navigate(ROUTES_PATH.FIXED_EXPENSES_CREATE.getPath())}
+                          title={t('list.empty')}
+                        />
+                      </GradientPanel>
+                    )
+                  : (
+                      filteredList.map(item => (
+                        <SwipeAction
+                          key={item.id}
+                          rightActions={[
+                            {
+                              key: 'edit',
+                              text: t('common:action.edit'),
+                              color: 'primary',
+                              onClick: () => onEditItem(item),
+                            },
+                            {
+                              key: 'delete',
+                              text: t('common:action.delete'),
+                              color: 'danger',
+                              onClick: () => void onDeleteItem(item),
+                            },
+                          ]}
+                        >
+                          <FixedExpenseItem item={item} onClick={onClickItem} />
+                        </SwipeAction>
+                      ))
+                    )}
+          </div>
         </div>
-      </div>
+      </main>
 
       <AddFixedExpenseButton />
     </div>

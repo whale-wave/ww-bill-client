@@ -1,6 +1,6 @@
 import type { LedgerTransferPreview } from '@/entities/ledger-data';
 import type { RecordEntry } from '@/entities/record';
-import { Button, Checkbox, NavBar, Toast } from 'antd-mobile';
+import { Button, Checkbox, Toast } from 'antd-mobile';
 import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLedgerCategoriesQuery } from '@/entities/category';
@@ -13,6 +13,7 @@ import {
 import { useLedgerRecordsQuery } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useTranslation } from '@/shared/i18n';
+import { PageHeader } from '@/shared/ui';
 import { buildLedgerTransferRequest, groupLedgerTransferConflicts } from './model';
 
 function createIdempotencyKey() {
@@ -323,7 +324,7 @@ export default function LedgerTransferPage() {
   const navigate = useNavigate();
   return (
     <div className="page-new bg-bg-gray">
-      <NavBar onBack={() => navigate(-1)}>{t('transfer.title')}</NavBar>
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('transfer.title')} />
       <LedgerScopeBoundary capability={LedgerCapability.DATA_TRANSFER}>
         {({ ledgerId }) => <TransferContent ledgerId={ledgerId} />}
       </LedgerScopeBoundary>

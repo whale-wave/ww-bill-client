@@ -1,89 +1,58 @@
-import type { ChangeEvent, FC } from 'react';
+import type { FC } from 'react';
 import { Toast } from 'antd-mobile';
-import classNames from 'classnames';
+import { LockKeyhole, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { changePassword } from '@/entities/user';
 import { useTranslation } from '@/shared/i18n';
-import { Button, Input, NavBar } from '@/shared/ui';
-import styles from './index.module.scss';
+import { FormField, GradientPanel, PageHeader } from '@/shared/ui';
 
 const Password: FC = () => {
   const { t } = useTranslation('user');
+  const navigate = useNavigate();
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [rePassword, setRePassword] = useState('');
-
-  const navigate = useNavigate();
-
-  const handleOldPassword = (e: ChangeEvent<HTMLInputElement>) => {
-    setOldPassword(e.target.value);
-  };
-
-  const handleRePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setRePassword(e.target.value);
-  };
-
-  const handleNewPassword = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewPassword(e.target.value);
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const disabled = !oldPassword || !newPassword || !rePassword || isSubmitting;
 
   const handleChangePassword = async () => {
     if (newPassword !== rePassword) {
-      return Toast.show(t('password.passwordMismatch'));
+      Toast.show({ content: t('password.passwordMismatch'), icon: 'fail' });
+      return;
     }
-    const { statusCode } = await changePassword({
-      password: oldPassword,
-      newPassword,
-    });
-    if (statusCode === 200)
-      setTimeout(navigate, 1000, -1);
+    setIsSubmitting(true);
+    try {
+      const { statusCode } = await changePassword({ newPassword, password: oldPassword });
+      if (statusCode === 200) {
+        Toast.show({ content: t('password.saveSuccess'), icon: 'success' });
+        setTimeout(navigate, 600, -1);
+      }
+    }
+    finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className={classNames(styles.wrapper, 'page')}>
-      <NavBar back={t('common:nav.back')} backArrow={false} onBack={() => navigate(-1)}>
-        {t('password.title')}
-      </NavBar>
-      <main
-        className={classNames('flex-grow flex justify-center items-center')}
-      >
-        <div
-          className={classNames(
-            styles.box,
-            'flex flex-col justify-center items-center',
-          )}
-        >
-          <Input
-            label={t('password.oldPassword')}
-            value={oldPassword}
-            onChange={handleOldPassword}
-            type="password"
-            placeholder={t('password.oldPasswordPlaceholder')}
-          />
-          <Input
-            label={t('password.newPassword')}
-            type="password"
-            value={newPassword}
-            onChange={handleNewPassword}
-            className="mt-3"
-            placeholder={t('password.newPasswordPlaceholder')}
-          />
-          <Input
-            label={t('password.confirmPassword')}
-            className="mt-3"
-            value={rePassword}
-            type="password"
-            onChange={handleRePasswordChange}
-            placeholder={t('password.confirmPasswordPlaceholder')}
-          />
-          <Button
-            block
-            style={{ margin: '50px 0 14px 0' }}
-            onClick={handleChangePassword}
-          >
-            {t('password.done')}
-          </Button>
+    <div className="page-new relative overflow-hidden">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-24 h-52 w-52 rounded-full bg-primary-light/35 blur-3xl" />
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('password.title')} />
+      <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">
+        <div className="mx-auto w-full max-w-[420px]">
+          <div className="mb-5 flex items-center gap-3 px-1">
+            <span className="flex h-11 w-11 items-center justify-center rounded-[16px] bg-primary-light/60 text-primary-deep"><ShieldCheck size={22} /></span>
+            <div>
+              <h2 className="text-[14px] font-extrabold text-ww-ink">{t('password.securityTitle')}</h2>
+              <p className="mt-0.5 text-[11px] text-ww-mid">{t('password.securityHint')}</p>
+            </div>
+          </div>
+          <GradientPanel className="space-y-4 px-5 py-5" elevation="high" surface="glass">
+            <FormField autoComplete="current-password" label={t('password.oldPassword')} onChange={setOldPassword} placeholder={t('password.oldPasswordPlaceholder')} prefix={<LockKeyhole size={18} />} type="password" value={oldPassword} />
+            <FormField autoComplete="new-password" label={t('password.newPassword')} onChange={setNewPassword} placeholder={t('password.newPasswordPlaceholder')} prefix={<LockKeyhole size={18} />} type="password" value={newPassword} />
+            <FormField autoComplete="new-password" label={t('password.confirmPassword')} onChange={setRePassword} placeholder={t('password.confirmPasswordPlaceholder')} prefix={<LockKeyhole size={18} />} type="password" value={rePassword} />
+            <button className="mt-2 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45" disabled={disabled} onClick={() => void handleChangePassword()} type="button">{isSubmitting ? t('common:nav.loading') : t('password.save')}</button>
+          </GradientPanel>
         </div>
       </main>
     </div>

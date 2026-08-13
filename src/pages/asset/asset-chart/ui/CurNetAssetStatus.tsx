@@ -1,109 +1,139 @@
 import type { FC } from 'react';
-import { THEME_COLOR } from '@/assets/styles/reset';
-import { useAssetSummaryInfo } from '@/entities/asset';
+import { SpinLoading } from 'antd-mobile';
+import { CreditCard, Scale, TriangleAlert, WalletCards } from 'lucide-react';
+import { useMemo } from 'react';
+import { useAssetSummaryInfo, useGetAssetQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, math } from '@/shared/lib';
+import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { ChartRetryButton } from './ChartRetryButton';
 
 export const CurNetAssetStatus: FC = () => {
   const { t } = useTranslation('asset');
+  const { data, isError, isFetching, isLoading, refetch } = useGetAssetQuery();
   const { info } = useAssetSummaryInfo();
-  const total = math.add(info.addAsset, info.subAsset);
-  let addPercent = total.isZero() ? 0.45 : math.divide(info.addAsset, total).toNumber();
-  let subPercent = total.isZero() ? 0.55 : math.divide(info.subAsset, total).toNumber();
-  if (addPercent > 0.85) {
-    addPercent = 0.85;
-    subPercent = 0.15;
-  }
-  else if (subPercent > 0.85) {
-    subPercent = 0.85;
-    addPercent = 0.15;
-  }
-  const subBgColor = '#3e414a';
+
+  const metrics = useMemo(() => {
+    const total = Number(math.add(info.addAsset, info.subAsset).toString());
+    const rawAssetShare = total === 0
+      ? 0.5
+      : Number(math.divide(info.addAsset, total).toString());
+    const assetShare = Math.max(0, Math.min(1, rawAssetShare));
+    const liabilityShare = 1 - assetShare;
+    const ratio = Number(info.addAsset) === 0
+      ? 0
+      : Number(math.multiply(math.divide(info.subAsset, info.addAsset), 100).toString());
+
+    return {
+      assetShare,
+      liabilityShare,
+      ratio,
+    };
+  }, [info.addAsset, info.subAsset]);
 
   return (
-    <div className="flex flex-col">
-      <div className="text-base py-3">{t('chart.currentNetAssetStatus')}</div>
-      <div className="flex justify-between text-sm px-2 pb-2">
-        <div>{formatAmount(info.addAsset)}</div>
-        <div>{formatAmount(info.subAsset)}</div>
-      </div>
-      <div className="progress-bar h-[40px] flex font-bold">
-        <div
-          className="progress flex items-center pl-4 assets relative rounded-l-lg"
-          style={{
-            flex: addPercent,
-            background: THEME_COLOR,
-          }}
-        >
-          {t('chart.asset')}
-          {
-            addPercent > subPercent && (
-              <>
-                <div
-                  className="absolute right-[-1px] top-0 w-[38px] h-[40.5px] bg-white"
-                  style={{
-                    clipPath: `polygon(30px 0, 100% 0, 30px 100%, 0 100%)`,
-                  }}
-                >
-                </div>
-                <div
-                  className="absolute right-[-1px] top-[-0.5px] w-[30px] h-[40.5px]"
-                  style={{
-                    clipPath: `polygon(30px 0, 100% 0, 30px 100%, 0 100%)`,
-                    background: subBgColor,
-                  }}
-                >
-                </div>
-              </>
-            )
-          }
+    <GradientPanel as="article" className="overflow-hidden px-[18px] py-[18px]" elevation="high" surface="lavender">
+      <header className="flex items-center gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] border border-white/70 bg-white/60 text-primary-deep shadow-ww-xs">
+          <Scale size={20} strokeWidth={2} />
+        </span>
+        <div className="min-w-0">
+          <h2 className="truncate text-[14px] font-extrabold text-ww-ink">{t('chart.currentNetAssetStatus')}</h2>
+          <p className="mt-0.5 text-[10px] font-semibold text-ww-soft">{t('manager.overview')}</p>
         </div>
-        <div
-          className="progress flex items-center justify-end pr-4 liabilities relative rounded-r-lg text-[#fff]"
-          style={{
-            flex: subPercent,
-            background: subBgColor,
-          }}
-        >
-          {t('chart.liability')}
-          {
-            subPercent > addPercent && (
-              <>
-                <div
-                  className="absolute left-[-1px] top-0 w-[38px] h-[41px] bg-[white]"
-                  style={{
-                    clipPath: `polygon(0 0, 100% 0, 8px 100%, 0 100%)`,
-                  }}
-                >
-                </div>
-                <div
-                  className="absolute left-[-1px] top-0 w-[30px] h-[41px]"
-                  style={{
-                    clipPath: `polygon(0 0, 0 100%, 0 100%, 100% 0)`,
-                    background: THEME_COLOR,
-                  }}
-                >
-                </div>
-              </>
-            )
-          }
+      </header>
+
+      {isLoading && (
+        <div className="flex min-h-[210px] items-center justify-center">
+          <SpinLoading color="primary" />
         </div>
-      </div>
-      <div className="flex justify-between text-sm px-2 py-3 mt-3">
-        <div>{t('chart.netAsset')}</div>
-        <div>{formatAmount(info.totalAsset)}</div>
-      </div>
-      <div className="flex justify-between text-sm px-2 py-3">
-        <div>{t('chart.assetLiabilityRatio')}</div>
-        <div>
-          {Number(info.addAsset) === 0
-            ? '0'
-            : formatAmount(
-                math.multiply(math.divide(info.subAsset, info.addAsset), 100).toNumber(),
-              )}
-          %
+      )}
+
+      {!isLoading && isError && (
+        <div className="flex min-h-[210px] flex-col items-center justify-center text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#fff0f4] text-[#c04870]">
+            <TriangleAlert size={21} />
+          </span>
+          <p className="mt-3 text-[13px] font-extrabold text-ww-ink">{t('manager.loadError')}</p>
+          <p className="mt-1 text-[11px] text-ww-soft">{t('manager.loadErrorDescription')}</p>
+          <ChartRetryButton isLoading={isFetching} onRetry={() => void refetch()} />
         </div>
-      </div>
-    </div>
+      )}
+
+      {!isLoading && !isError && data.length === 0 && (
+        <IllustratedEmptyState
+          className="min-h-[240px] px-2 py-5"
+          icon={<Scale className="text-primary-deep" size={38} />}
+          title={t('common:empty')}
+        />
+      )}
+
+      {!isLoading && !isError && data.length > 0 && (
+        <div className="mt-5">
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="rounded-[16px] border border-white/75 bg-white/55 px-3.5 py-3.5 shadow-ww-xs backdrop-blur-xl">
+              <div className="flex items-center gap-1.5 text-[10px] font-bold text-ww-mid">
+                <WalletCards className="text-primary-deep" size={13} />
+                <span>{t('chart.asset')}</span>
+              </div>
+              <p className="mt-2 truncate font-number text-[16px] font-black text-ww-ink">
+                ¥
+                {formatAmount(info.addAsset)}
+              </p>
+            </div>
+            <div className="rounded-[16px] border border-white/75 bg-white/55 px-3.5 py-3.5 shadow-ww-xs backdrop-blur-xl">
+              <div className="flex items-center gap-1.5 text-[10px] font-bold text-ww-mid">
+                <CreditCard className="text-[#c04870]" size={13} />
+                <span>{t('chart.liability')}</span>
+              </div>
+              <p className="mt-2 truncate font-number text-[16px] font-black text-[#c04870]">
+                ¥
+                {formatAmount(info.subAsset)}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <div className="mb-2 flex items-center justify-between font-number text-[9px] font-bold text-ww-soft">
+              <span>
+                {(metrics.assetShare * 100).toFixed(1)}
+                %
+              </span>
+              <span>
+                {(metrics.liabilityShare * 100).toFixed(1)}
+                %
+              </span>
+            </div>
+            <div className="flex h-3 overflow-hidden rounded-full border border-white/60 bg-white/45 p-[2px]">
+              <span
+                className="h-full rounded-l-full bg-[linear-gradient(90deg,#6fc2dc,#4aaac4)] transition-[width] duration-500"
+                style={{ width: `${metrics.assetShare * 100}%` }}
+              />
+              <span
+                className="h-full rounded-r-full bg-[linear-gradient(90deg,#f0a0b8,#c95d83)] transition-[width] duration-500"
+                style={{ width: `${metrics.liabilityShare * 100}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 overflow-hidden rounded-[16px] border border-white/70 bg-white/52 px-3.5 backdrop-blur-xl">
+            <div className="flex min-h-[48px] items-center justify-between gap-3 border-0 border-b border-solid border-border-primary">
+              <span className="text-[11px] font-semibold text-ww-mid">{t('chart.netAsset')}</span>
+              <span className="font-number text-[14px] font-black text-ww-ink">
+                ¥
+                {formatAmount(info.totalAsset)}
+              </span>
+            </div>
+            <div className="flex min-h-[48px] items-center justify-between gap-3">
+              <span className="text-[11px] font-semibold text-ww-mid">{t('chart.assetLiabilityRatio')}</span>
+              <span className="font-number text-[14px] font-black text-primary-deep">
+                {formatAmount(metrics.ratio)}
+                %
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+    </GradientPanel>
   );
 };

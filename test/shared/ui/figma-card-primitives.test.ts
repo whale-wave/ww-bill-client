@@ -106,6 +106,26 @@ describe('figma card primitives', () => {
     expect(tile?.className).toContain('#e8f6ff');
   });
 
+  it('fits four complete detail shortcuts before horizontal scrolling', () => {
+    const container = render(createElement(ActionMenuCard, {
+      items: Array.from({ length: 5 }, (_, index) => ({
+        icon: String(index + 1),
+        key: String(index + 1),
+        label: `Action ${index + 1}`,
+      })),
+      variant: 'detail-shortcuts',
+    }));
+    const scroller = container.firstElementChild;
+    const tiles = container.querySelectorAll('button');
+
+    expect(scroller?.classList).toContain('snap-mandatory');
+    expect(tiles).toHaveLength(5);
+    expect(Array.from(tiles).every(tile => (
+      tile.classList.contains('w-[calc((100%_-_30px)/4)]')
+      && tile.classList.contains('snap-start')
+    ))).toBe(true);
+  });
+
   it('supports interactive and informational setting rows', () => {
     const onClick = vi.fn();
     const container = render(createElement(SettingsListCard, {

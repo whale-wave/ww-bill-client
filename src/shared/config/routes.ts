@@ -62,6 +62,9 @@ export const ROUTES_PATH = {
   FIXED_EXPENSES_EDIT: {
     getPath: (id: string) => `/fixed-expenses/${id}/edit`,
   },
+  FEEDBACK: {
+    getPath: () => '/feedback',
+  },
   INVOICE: {
     getPath: () => '/invoice',
   },

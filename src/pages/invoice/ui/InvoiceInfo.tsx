@@ -1,9 +1,10 @@
 import type { InvoiceEntity } from '@/entities/invoice';
 import { Toast } from 'antd-mobile';
-import classNames from 'classnames';
 import copy from 'copy-to-clipboard';
+import { Copy } from 'lucide-react';
 import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from '@/shared/i18n';
+import { GradientPanel } from '@/shared/ui';
 
 interface InvoiceInfoProps {
   invoice: InvoiceEntity;
@@ -60,9 +61,6 @@ const InvoiceInfo: React.FC<InvoiceInfoProps> = memo((props) => {
     return getOptionListByInvoice(invoice, t);
   }, [invoice, t]);
 
-  const leftColumnWidth = 'w-[94px]';
-  const columnHeight = 'h-[36px]';
-
   const onCopyField = useCallback(
     (value?: string) => () => {
       if (!value)
@@ -74,50 +72,28 @@ const InvoiceInfo: React.FC<InvoiceInfoProps> = memo((props) => {
         content: t('common:confirm.copySuccess'),
       });
     },
-    [],
+    [t],
   );
 
   return (
-    <div className="rounded-radius-small overflow-hidden border-solid border-[1px] border-[var(--ww-border-color)] text-sm">
-      {list.map((i, index) => (
-        <React.Fragment key={i.label}>
-          {index === 0 && (
-            <div className="flex">
-              <span
-                className={classNames(leftColumnWidth, 'pt-3 bg-[#f9f9f9]')}
-              >
-              </span>
-              <span className="flex-grow bg-white"></span>
-            </div>
-          )}
-          <div
-            className={classNames('flex', columnHeight)}
-            onClick={onCopyField(i.value)}
-          >
-            <span
-              className={classNames(
-                leftColumnWidth,
-                'flex-shrink-0 bg-[#f9f9f9] flex items-center pl-5 text-font-gray',
-              )}
-            >
-              {i.label}
-            </span>
-            <span className="flex-grow flex items-center px-3 bg-white">
-              {i.value}
-            </span>
-          </div>
-          {index === list.length - 1 && (
-            <div className="flex">
-              <span
-                className={classNames(leftColumnWidth, 'pt-3 bg-[#f9f9f9]')}
-              >
-              </span>
-              <span className="flex-grow bg-white"></span>
-            </div>
-          )}
-        </React.Fragment>
+    <GradientPanel className="overflow-hidden px-4 py-1" elevation="low" surface="glass">
+      {list.map(item => (
+        <button
+          aria-label={t('copyField', { field: item.label })}
+          className="flex min-h-[62px] w-full items-center gap-3 border-0 border-b border-solid border-border-primary bg-transparent py-3 text-left last:border-b-0 disabled:cursor-default"
+          disabled={!item.value}
+          key={item.key}
+          onClick={onCopyField(item.value)}
+          type="button"
+        >
+          <span className="w-[82px] shrink-0 text-[11px] font-bold leading-4 text-ww-soft">{item.label}</span>
+          <span className={`min-w-0 flex-1 break-all text-[13px] font-bold leading-5 ${item.value ? 'text-ww-ink' : 'text-ww-ghost'}`}>
+            {item.value || t('notProvided')}
+          </span>
+          {item.value && <Copy className="shrink-0 text-primary-deep" size={16} strokeWidth={1.8} />}
+        </button>
       ))}
-    </div>
+    </GradientPanel>
   );
 });
 

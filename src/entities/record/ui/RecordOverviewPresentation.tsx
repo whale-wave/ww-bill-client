@@ -49,7 +49,7 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
   <>
     <RecordOverviewHeader {...header} />
     <main
-      className="ww-tab-bar-scroll-padding flex min-h-0 flex-grow flex-col overflow-auto px-[18px]"
+      className="flex min-h-0 flex-grow flex-col overflow-auto px-[18px]"
       data-record-overview-content
     >
       {state === 'loading' && (
@@ -105,6 +105,11 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
               {loadMoreLabel}
             </Button>
           )}
+          <div
+            aria-hidden="true"
+            className="h-[calc(126px+env(safe-area-inset-bottom))] shrink-0"
+            data-record-overview-tab-bar-spacer
+          />
         </>
       )}
     </main>

@@ -1,0 +1,81 @@
+.ww-fixed-expense-form {
+  --border-inner: 0;
+  --border-top: 0;
+  --border-bottom: 0;
+
+  > .adm-list-body,
+  .adm-list-body {
+    border: 0;
+    background: transparent;
+  }
+
+  .adm-list-item {
+    padding-inline: 16px;
+    background: transparent;
+  }
+
+  .adm-list-item-content {
+    min-height: 58px;
+    border-color: var(--ww-border-color);
+  }
+
+  .adm-form-item-label {
+    color: var(--ww-text-color-mid);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .adm-form-item-description {
+    color: var(--ww-text-color-soft);
+    font-size: 10px;
+    line-height: 16px;
+  }
+
+  .adm-input,
+  .adm-text-area {
+    border-radius: 13px;
+    background: rgb(255 255 255 / 72%);
+  }
+
+  .adm-input-element,
+  .adm-text-area-element {
+    color: var(--ww-theme-text-color);
+    font-size: 13px;
+  }
+
+  .adm-selector {
+    gap: 7px;
+  }
+
+  .adm-selector-item {
+    min-height: 34px;
+    border: 1px solid var(--ww-border-color);
+    border-radius: 12px;
+    color: var(--ww-text-color-mid);
+    background: rgb(255 255 255 / 72%);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .adm-selector-item-active {
+    border-color: color-mix(in srgb, var(--ww-theme-color) 50%, #fff);
+    color: var(--ww-theme-color-deep);
+    background: color-mix(in srgb, var(--ww-theme-color-light) 58%, #fff);
+  }
+
+  .adm-stepper {
+    --button-background-color: rgb(226 242 248 / 78%);
+    --button-text-color: var(--ww-theme-color-deep);
+    --input-background-color: rgb(255 255 255 / 76%);
+    --input-font-color: var(--ww-theme-text-color);
+    --border-radius: 10px;
+  }
+
+  .adm-switch-checkbox {
+    --checked-color: var(--ww-theme-color);
+  }
+
+  .adm-form-footer {
+    padding: 4px 0 0;
+  }
+}

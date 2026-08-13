@@ -75,7 +75,7 @@ export function deleteAssetByIdApi(id: string) {
   return request.delete<unknown, SuccessResponse<Asset>>(`/asset/${id}`);
 }
 
-export interface PatchAssetAdjustApiData extends Partial<Pick<Asset, 'name' | 'comment' | 'amount'>> {}
+export interface PatchAssetAdjustApiData extends Partial<Pick<Asset, 'name' | 'comment' | 'amount' | 'cardId'>> {}
 export function patchAssetAdjustApi(id: string, data: PatchAssetAdjustApiData) {
   return request.patch<unknown, SuccessResponse<Asset>>(`/asset/adjust/${id}`, data);
 }

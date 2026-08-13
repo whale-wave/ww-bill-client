@@ -112,24 +112,30 @@ const SettingsRow: FC<{ isLast: boolean; row: SettingsOverviewRow }> = ({
   const onClick = clickable ? row.onClick : undefined;
   const content = (
     <>
-      <span className="mr-3 flex h-8 w-8 shrink-0 items-center justify-center text-font-black">
-        <Icon size={21} strokeWidth={1.7} />
+      <span className={cn(
+        'mr-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px]',
+        row.kind === 'action' && row.danger
+          ? 'bg-ww-pink-light/60 text-[#b24f71]'
+          : 'bg-primary-light/55 text-primary-deep',
+      )}
+      >
+        <Icon size={18} strokeWidth={1.8} />
       </span>
       <span className={cn(
-        'flex min-h-[58px] min-w-0 flex-grow items-center border-0',
-        !isLast && 'border-b border-solid border-[#EBEBEB]',
+        'flex min-h-[64px] min-w-0 flex-grow items-center border-0',
+        !isLast && 'border-b border-solid border-border-primary',
       )}
       >
         <span className="min-w-0 flex-grow py-2">
           <span className={cn(
-            'block text-base',
+            'block text-[13px] font-bold leading-5',
             row.kind === 'action' && row.danger ? 'text-red-500' : 'text-font-black',
           )}
           >
             {row.label}
           </span>
           {row.description && (
-            <span className="mt-0.5 block text-xs leading-4 text-font-gray">
+            <span className="mt-0.5 block text-[10px] leading-4 text-ww-soft">
               {row.description}
             </span>
           )}
@@ -146,7 +152,7 @@ const SettingsRow: FC<{ isLast: boolean; row: SettingsOverviewRow }> = ({
     ? (
         <button
           className={cn(
-            'flex min-h-[58px] w-full items-center border-0 bg-white px-4 text-left',
+            'flex min-h-[64px] w-full items-center border-0 bg-transparent px-4 text-left',
             row.disabled ? 'opacity-45' : '',
           )}
           data-settings-row={row.id}
@@ -160,7 +166,7 @@ const SettingsRow: FC<{ isLast: boolean; row: SettingsOverviewRow }> = ({
     : (
         <div
           className={cn(
-            'flex min-h-[58px] w-full items-center bg-white px-4 text-left',
+            'flex min-h-[64px] w-full items-center bg-transparent px-4 text-left',
             row.disabled ? 'opacity-45' : '',
           )}
           data-settings-row={row.id}
@@ -173,21 +179,23 @@ const SettingsRow: FC<{ isLast: boolean; row: SettingsOverviewRow }> = ({
 export const SettingsOverviewPresentation: FC<{
   sections: SettingsOverviewSection[];
 }> = ({ sections }) => (
-  <div className="space-y-3 pb-6" data-settings-overview>
+  <div className="space-y-5 pb-7" data-settings-overview>
     {sections.filter(section => section.rows.length > 0).map(section => (
-      <section className="overflow-hidden bg-white" data-settings-section={section.id} key={section.id}>
+      <section className="overflow-hidden" data-settings-section={section.id} key={section.id}>
         {section.title && (
-          <h2 className="bg-bg-gray px-4 pb-2 pt-3 text-xs font-normal text-font-gray">
+          <h2 className="px-1 pb-2 text-[11px] font-extrabold tracking-[0.4px] text-ww-mid">
             {section.title}
           </h2>
         )}
-        {section.rows.map((row, index) => (
-          <SettingsRow
-            isLast={index === section.rows.length - 1}
-            key={row.id}
-            row={row}
-          />
-        ))}
+        <div className="overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] shadow-ww backdrop-blur-xl">
+          {section.rows.map((row, index) => (
+            <SettingsRow
+              isLast={index === section.rows.length - 1}
+              key={row.id}
+              row={row}
+            />
+          ))}
+        </div>
       </section>
     ))}
   </div>

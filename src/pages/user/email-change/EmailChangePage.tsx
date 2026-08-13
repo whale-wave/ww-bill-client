@@ -1,11 +1,12 @@
 import type { Dayjs } from 'dayjs';
 import { Toast } from 'antd-mobile';
+import { Mail, RefreshCw } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { getUserEmailChangeEmailCaptchaNewEmailApi, usePostUserEmailChangeEmailMutation } from '@/entities/user-email';
-import { WwInput, WwInputVerifyCode } from '@/pages/auth/forget-password/ui';
+import { WwInputVerifyCode } from '@/pages/auth/forget-password/ui';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar, WwButton } from '@/shared/ui';
+import { FormField, GradientPanel, PageHeader } from '@/shared/ui';
 
 interface EmailChangeProps {}
 
@@ -93,29 +94,39 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
   }
 
   return (
-    <div className="page">
-      <NavBar back={t('common:nav.back')} onBack={onBack}>
-        {t('user:emailChange.title')}
-      </NavBar>
-      <div className="flex flex-grow flex-col items-center">
-        <WwInput className="mt-16" value={email} readonly disabled />
-        <WwInput
-          className="mt-4"
-          value={newEmail}
-          onChange={setNewEmail}
-          placeholder={t('user:emailChange.newEmail.placeholder')}
-        />
-        <WwInputVerifyCode
-          className="mt-4"
-          placeholder={t('user:emailChange.newEmail.captchaPlaceholder')}
-          value={newCaptcha}
-          onChange={setNewCaptcha}
-          startTime={startTime}
-          setStartTime={setStartTime}
-          onSend={onSendNewCaptcha}
-        />
-        <WwButton onClick={onSendChangeEmail}>{t('user:emailChange.submit')}</WwButton>
-      </div>
+    <div className="page-new relative overflow-hidden">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-24 h-52 w-52 rounded-full bg-primary-light/35 blur-3xl" />
+      <PageHeader backLabel={t('common:nav.back')} onBack={onBack} title={t('user:emailChange.title')} />
+      <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-8">
+        <div className="mx-auto w-full max-w-[420px]">
+          <div className="mb-5 flex items-center gap-3 px-1">
+            <span className="flex h-11 w-11 items-center justify-center rounded-[16px] bg-primary-light/60 text-primary-deep"><RefreshCw size={20} /></span>
+            <div>
+              <h2 className="text-[14px] font-extrabold text-ww-ink">{t('user:emailChange.newStepTitle')}</h2>
+              <p className="mt-0.5 text-[11px] text-ww-mid">{t('user:emailChange.newStepHint')}</p>
+            </div>
+          </div>
+          <GradientPanel className="space-y-4 px-5 py-5" elevation="high" surface="glass">
+            <FormField disabled label={t('user:info.email')} prefix={<Mail size={18} />} value={email} />
+            <FormField
+              label={t('user:email.newEmail')}
+              value={newEmail}
+              onChange={setNewEmail}
+              placeholder={t('user:emailChange.newEmail.placeholder')}
+              prefix={<Mail size={18} />}
+            />
+            <WwInputVerifyCode
+              placeholder={t('user:emailChange.newEmail.captchaPlaceholder')}
+              value={newCaptcha}
+              onChange={setNewCaptcha}
+              startTime={startTime}
+              setStartTime={setStartTime}
+              onSend={onSendNewCaptcha}
+            />
+            <button className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45" disabled={!newEmail.trim() || !newCaptcha.trim()} onClick={() => void onSendChangeEmail()} type="button">{t('user:emailChange.submit')}</button>
+          </GradientPanel>
+        </div>
+      </main>
     </div>
   );
 };

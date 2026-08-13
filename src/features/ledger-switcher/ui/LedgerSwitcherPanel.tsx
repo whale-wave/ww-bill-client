@@ -213,28 +213,30 @@ export function LedgerSwitcherPanel({ onClose, visible }: LedgerSwitcherPanelPro
         </div>
 
         <div className="ledger-switcher-panel__footer">
-          <Button
-            block
-            className="ledger-switcher-panel__create"
+          <button
+            className="ledger-switcher-panel__footer-action ledger-switcher-panel__create"
+            data-ledger-switcher-create
             onClick={() => {
               onClose();
               navigate(ROUTES_PATH.LEDGER_TEMPLATES.getPath());
             }}
+            type="button"
           >
-            <Plus aria-hidden="true" size={17} />
+            <Plus aria-hidden="true" className="ledger-switcher-panel__footer-icon" size={17} />
             <span>{t('switcher.create')}</span>
-          </Button>
-          <Button
-            block
-            className="ledger-switcher-panel__manage"
+          </button>
+          <button
+            className="ledger-switcher-panel__footer-action ledger-switcher-panel__manage"
+            data-ledger-switcher-manage
             onClick={() => {
               onClose();
               navigate(ROUTES_PATH.LEDGERS.getPath());
             }}
+            type="button"
           >
-            <Settings2 aria-hidden="true" size={17} />
+            <Settings2 aria-hidden="true" className="ledger-switcher-panel__footer-icon" size={17} />
             <span>{t('switcher.manage')}</span>
-          </Button>
+          </button>
         </div>
         <SafeArea position="bottom" />
       </section>

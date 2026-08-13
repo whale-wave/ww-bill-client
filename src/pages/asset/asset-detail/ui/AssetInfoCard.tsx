@@ -1,56 +1,62 @@
 import type { FC } from 'react';
-import { Button } from 'antd-mobile';
+import type { Asset } from '@/entities/asset';
+import { SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
-import { useGetAssetByIdQuery } from '@/entities/asset';
-import { Icon } from '@/shared/ui';
+import { useTranslation } from '@/shared/i18n';
+import { formatAmount } from '@/shared/lib';
+import { GradientPanel } from '@/shared/ui';
+import { IconBlock } from '../../ui';
 import { AssetAdjustPopup } from './AssetAdjustPopup';
 
-export const AssetInfoCard: FC = () => {
+export const AssetInfoCard: FC<{ asset: Asset }> = ({ asset }) => {
   const { t } = useTranslation('asset');
-  const { id } = useParams<{ id: string }>();
-  const { data } = useGetAssetByIdQuery({ params: id! });
   const [adjustPopupVisible, setAdjustPopupVisible] = useState(false);
-  const text = data?.assetGroup.type === 'sub' ? t('form.debt') : t('form.balance');
+  const amountLabel = asset.assetGroup.type === 'sub' ? t('form.debt') : t('form.balance');
 
   return (
     <>
-      <div className="p-3 pt-0 z-[1]">
-        <div className="flex flex-col relative bg-white py-3 px-4 rounded-lg space-y-2 shadow-md">
-          <div className="min-h-[40px]">
-            <div className="text-base text-[#333] font-bold">
-              {data?.name}
-              {data?.cardId ? `(${data?.cardId})` : ''}
+      <GradientPanel className="relative overflow-hidden px-5 py-5" elevation="high" surface="ice">
+        <div aria-hidden="true" className="absolute -right-7 -top-10 h-32 w-32 rounded-full border-[20px] border-solid border-white/25" />
+        <div className="relative flex items-start gap-3.5">
+          <IconBlock name={asset.assetGroup.icon} />
+          <div className="min-w-0 flex-1 pt-0.5">
+            <div className="flex min-w-0 items-center gap-2">
+              <h2 className="truncate text-[16px] font-black leading-6 text-ww-ink">{asset.name}</h2>
+              {asset.cardId && (
+                <span className="shrink-0 rounded-full bg-white/60 px-2 py-1 font-number text-[9px] font-bold text-ww-mid">
+                  ••••
+                  {asset.cardId}
+                </span>
+              )}
             </div>
-            <div className="text-xs text-gray-500">{data?.comment}</div>
-          </div>
-          <div className="flex flex-col min-h-[48px]">
-            <div className="text-3xl font-bold">{data?.amount}</div>
-            <div className="text-xs text-gray-500">{text}</div>
-          </div>
-          <div className="absolute right-4 top-3 !mt-0">
-            <Icon name={data?.assetGroup.icon || ''} className="text-2xl" />
-          </div>
-          <div className="absolute bottom-3 right-4">
-            <Button
-              shape="rounded"
-              size="mini"
-              color="primary"
-              onClick={() => setAdjustPopupVisible(true)}
-            >
-              {t('adjust.submit')}
-              {text}
-            </Button>
+            <p className="mt-0.5 truncate text-[11px] font-semibold text-ww-mid">
+              {asset.comment || asset.assetGroup.name}
+            </p>
           </div>
         </div>
-      </div>
-      {data && (
+        <div className="relative mt-5 flex items-end justify-between gap-4 border-0 border-t border-solid border-[rgba(100,160,200,0.18)] pt-4">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold tracking-[0.4px] text-ww-mid">{amountLabel}</p>
+            <p className="mt-1 flex min-w-0 items-baseline font-number text-ww-ink">
+              <span className="mr-1 text-[13px] font-extrabold text-ww-mid">¥</span>
+              <span className="truncate text-[30px] font-black leading-9">{formatAmount(Number(asset.amount))}</span>
+            </p>
+          </div>
+          <button
+            className="mb-1 flex h-10 shrink-0 items-center gap-1.5 rounded-[14px] border border-solid border-white/85 bg-white/72 px-3 text-[11px] font-black text-primary-deep shadow-ww-xs"
+            onClick={() => setAdjustPopupVisible(true)}
+            type="button"
+          >
+            <SlidersHorizontal size={15} strokeWidth={2} />
+            {t('adjust.action')}
+          </button>
+        </div>
+      </GradientPanel>
+      {adjustPopupVisible && (
         <AssetAdjustPopup
-          visible={adjustPopupVisible}
-          asset={data}
+          asset={asset}
           onClose={() => setAdjustPopupVisible(false)}
-          onMaskClick={() => setAdjustPopupVisible(false)}
+          visible
         />
       )}
     </>

@@ -97,7 +97,9 @@ function ScopedLedgerSearch({
         })),
         tags: optionsQuery.data.tags.map(item => ({
           id: item.id,
-          label: item.status === 'ARCHIVED' ? `${item.name}（已归档）` : item.name,
+          label: item.status === 'ARCHIVED'
+            ? t('records.archivedTag', { name: item.name })
+            : item.name,
         })),
       }}
       filters={filters}
@@ -119,7 +121,11 @@ function ScopedLedgerSearch({
               ? 'error'
               : 'ready'}
       summary={query.data.total > 0
-        ? `${query.data.total}笔 · ${t('home.income')} ${query.data.income} · ${t('home.expense')} ${query.data.expend}`
+        ? t('records.searchSummary', {
+            count: query.data.total,
+            expense: query.data.expend,
+            income: query.data.income,
+          })
         : undefined}
       title={t('records.search')}
       validateFilters={filters => validateRecordSearchState({

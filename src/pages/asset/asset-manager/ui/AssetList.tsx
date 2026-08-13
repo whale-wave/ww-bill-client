@@ -1,14 +1,14 @@
 import type { FC } from 'react';
 import type { Asset, AssetGroup } from '@/entities/asset';
-import { Button, Dialog, ErrorBlock, SpinLoading, SwipeAction, Toast } from 'antd-mobile';
-import { ChevronRight } from 'lucide-react';
+import { SpinLoading, SwipeAction, Toast } from 'antd-mobile';
+import { ChevronRight, FileWarning, Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDeleteAssetByIdMutation, useGetAssetGroupQuery, useGetAssetQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { formatAmount, math } from '@/shared/lib';
-import { DesignIcon, IllustratedEmptyState } from '@/shared/ui';
+import { confirmAppAction, DesignIcon, IllustratedEmptyState } from '@/shared/ui';
 import { IconBlock } from '../../ui';
 
 interface AssetListGroup {
@@ -28,7 +28,7 @@ export const AssetList: FC = () => {
     isLoading: isListLoading,
     refetch: refetchList,
   } = useGetAssetQuery();
-  const [deleteAssetByIdMutate] = useDeleteAssetByIdMutation();
+  const [deleteAssetByIdMutate, deleteState] = useDeleteAssetByIdMutation();
   const {
     data: groups,
     isError: isGroupError,
@@ -68,24 +68,29 @@ export const AssetList: FC = () => {
   }, [navigate]);
 
   const handleDelete = useCallback((item: Asset) => async () => {
-    Dialog.confirm({
-      title: t('manager.confirmDeleteTitle'),
-      content: t('manager.confirmDeleteContent'),
+    if (deleteState.isLoading)
+      return;
+    const confirmed = await confirmAppAction({
+      cancelText: t('common:nav.cancel'),
       confirmText: t('manager.confirmDelete'),
-      onConfirm: async () => {
-        try {
-          Toast.show({
-            icon: 'loading',
-            content: t('manager.deleting'),
-          });
-          await deleteAssetByIdMutate(item.id);
-        }
-        finally {
-          Toast.clear();
-        }
-      },
+      description: t('manager.confirmDeleteContent'),
+      icon: <Trash2 size={22} strokeWidth={1.8} />,
+      title: t('manager.confirmDeleteTitle'),
+      tone: 'danger',
     });
-  }, [deleteAssetByIdMutate, t]);
+    if (!confirmed)
+      return;
+    try {
+      Toast.show({ duration: 0, icon: 'loading', content: t('manager.deleting') });
+      await deleteAssetByIdMutate(item.id);
+      Toast.clear();
+      Toast.show({ icon: 'success', content: t('manager.deleteSuccess') });
+    }
+    catch {
+      Toast.clear();
+      Toast.show({ icon: 'fail', content: t('manager.deleteFailed') });
+    }
+  }, [deleteAssetByIdMutate, deleteState.isLoading, t]);
 
   const parseAmount = useCallback((amount: string | number, type: 'add' | 'sub') => {
     return `${type === 'add' ? '' : '-'}¥${formatAmount(Number(amount))}`;
@@ -101,16 +106,15 @@ export const AssetList: FC = () => {
 
   if (isListError || isGroupError) {
     return (
-      <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 rounded-[20px] border border-border-primary bg-white/75 px-5 shadow-ww-xs">
-        <ErrorBlock description={t('manager.loadErrorDescription')} title={t('manager.loadError')} />
-        <Button
-          color="primary"
-          fill="outline"
-          onClick={() => void Promise.all([refetchList(), refetchGroups()])}
-          size="small"
-        >
-          {t('common:button.retry')}
-        </Button>
+      <div className="overflow-hidden rounded-[20px] border border-border-primary bg-white/75 shadow-ww-xs backdrop-blur-xl">
+        <IllustratedEmptyState
+          actionLabel={t('retry')}
+          className="min-h-[280px]"
+          description={t('manager.loadErrorDescription')}
+          icon={<FileWarning className="text-primary-deep" size={40} strokeWidth={1.6} />}
+          onAction={() => void Promise.all([refetchList(), refetchGroups()])}
+          title={t('manager.loadError')}
+        />
       </div>
     );
   }

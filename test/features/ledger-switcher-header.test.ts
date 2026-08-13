@@ -150,8 +150,14 @@ describe('ledger title switcher', () => {
     await click(title);
 
     const defaultLedger = document.querySelector('[data-testid="ledger-switch-item-personal"]');
+    const createAction = document.querySelector<HTMLButtonElement>('[data-ledger-switcher-create]');
+    const manageAction = document.querySelector<HTMLButtonElement>('[data-ledger-switcher-manage]');
     expect(defaultLedger?.textContent).toContain('默认账本');
     expect(defaultLedger?.textContent).not.toContain('系统默认账本');
+    expect(createAction?.classList).toContain('ledger-switcher-panel__footer-action');
+    expect(manageAction?.classList).toContain('ledger-switcher-panel__footer-action');
+    expect(createAction?.querySelector('svg')).not.toBeNull();
+    expect(manageAction?.querySelector('svg')).not.toBeNull();
     expect(document.body.innerHTML).not.toContain('private-default-ledger-id');
   });
 

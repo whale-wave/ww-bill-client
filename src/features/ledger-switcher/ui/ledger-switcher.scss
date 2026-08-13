@@ -249,6 +249,60 @@
   }
 }
 
+.ledger-switcher-panel__option-content {
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+}
+
+.ledger-switcher-panel__option-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.ledger-switcher-panel__option-description {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--ww-text-color-mid);
+  font-size: var(--ww-font-size-sm);
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ledger-switcher-panel__section + .ledger-switcher-panel__section,
+[data-workspace-section='my-ledgers'] + .ledger-switcher-panel__section {
+  margin-top: 16px;
+}
+
+.ledger-switcher-panel__section-heading {
+  margin: 0;
+  padding: 4px 6px 8px;
+  color: var(--ww-text-color-mid);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 17px;
+}
+
+.ledger-switcher-panel__retry {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  border: 1px solid var(--ww-border-color);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 72%);
+  color: var(--ww-text-color-mid);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .ledger-switcher-panel__icon {
   display: flex;
   width: 46px;
@@ -289,21 +343,34 @@
   background: rgb(255 255 255 / 78%);
   backdrop-filter: blur(18px);
 
-  .adm-button {
+  .ledger-switcher-panel__footer-action {
+    display: inline-flex;
+    width: 100%;
     min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
     border: 1px solid var(--ww-border-color);
     border-radius: 15px;
+    padding: 0 12px;
     background: rgb(255 255 255 / 78%);
     color: var(--ww-theme-text-color);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+  }
 
-    .adm-button-content {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      font-size: 13px;
-      font-weight: 700;
-    }
+  .ledger-switcher-panel__footer-icon {
+    display: block;
+    flex: 0 0 auto;
+  }
+
+  .ledger-switcher-panel__footer-action > span {
+    display: block;
+    line-height: 18px;
   }
 
   .ledger-switcher-panel__create {

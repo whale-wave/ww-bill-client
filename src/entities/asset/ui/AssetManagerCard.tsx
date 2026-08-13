@@ -1,8 +1,9 @@
-import type { FC } from 'react';
+import type { FC, KeyboardEvent } from 'react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { cn } from '@/shared/lib';
 import { DesignIcon, GradientPanel, MetricGrid } from '@/shared/ui';
 import { useAssetSummaryInfo } from '../lib/use-asset-summary';
 
@@ -22,8 +23,24 @@ export const AssetSummaryCardPresentation: FC<AssetSummaryCardPresentationProps>
   title,
 }) => {
   const { t } = useTranslation('asset');
+  const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (!onClick || (event.key !== 'Enter' && event.key !== ' '))
+      return;
+    event.preventDefault();
+    onClick();
+  };
   return (
-    <GradientPanel as="article" className="cursor-pointer overflow-hidden px-5 py-[18px] shadow-[0_6px_11px_rgba(96,80,184,0.12)]" elevation="none" onClick={onClick} surface="lavender">
+    <GradientPanel
+      aria-label={onClick ? title : undefined}
+      as="article"
+      className={cn('overflow-hidden px-5 py-[18px] shadow-[0_6px_11px_rgba(96,80,184,0.12)]', onClick && 'cursor-pointer transition active:scale-[0.99]')}
+      elevation="none"
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role={onClick ? 'button' : undefined}
+      surface="lavender"
+      tabIndex={onClick ? 0 : undefined}
+    >
       <div className="flex items-center gap-[10px]">
         <span className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-white/70 text-[#705cc0]">
           <DesignIcon name="discovery-asset" size={18} />

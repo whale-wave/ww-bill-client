@@ -26,23 +26,23 @@ const FilterTabs: React.FC<FilterTabsProps> = memo((props) => {
     <div
       className={cn(
         className,
-        'flex items-center space-x-2 overflow-x-auto whitespace-nowrap px-1 py-1',
+        'flex items-center gap-1 overflow-x-auto rounded-[15px] border border-border-primary bg-white/75 p-1 shadow-ww-xs [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
       )}
     >
       {tabs.map((tab) => {
         const active = tab.key === value;
         const count = counts?.[tab.key];
         return (
-          <div
+          <button
             key={tab.key}
             className={cn(
-              'flex-shrink-0 cursor-pointer rounded-full px-3 py-1 text-sm transition-colors',
+              'h-9 flex-shrink-0 cursor-pointer rounded-[11px] border-0 px-3 text-[11px] font-bold transition-colors',
               active
-                ? 'font-medium text-white shadow-sm'
-                : 'border border-slate-200 bg-white text-slate-500',
+                ? 'bg-primary text-white shadow-ww-xs'
+                : 'bg-transparent text-ww-soft',
             )}
-            style={active ? { backgroundColor: '#4fa9dc' } : undefined}
             onClick={() => onChange(tab.key)}
+            type="button"
           >
             <span>{t(tab.labelKey)}</span>
             {typeof count === 'number' && (
@@ -52,7 +52,7 @@ const FilterTabs: React.FC<FilterTabsProps> = memo((props) => {
                 {count}
               </span>
             )}
-          </div>
+          </button>
         );
       })}
     </div>

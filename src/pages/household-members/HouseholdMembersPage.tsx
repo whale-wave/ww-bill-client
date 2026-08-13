@@ -1,6 +1,6 @@
 import type { FC, FormEvent } from 'react';
 import type { Household } from '@/entities/household';
-import { Button, ErrorBlock, Popup, Toast } from 'antd-mobile';
+import { Button, ErrorBlock, Toast } from 'antd-mobile';
 import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
@@ -16,12 +16,10 @@ import {
   HouseholdPageState,
   HouseholdScopeBoundary,
 } from '@/features/household';
-import {
-  useWorkspaceBack,
-  WorkspaceNavHeader,
-} from '@/features/workspace-navigation';
+import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { MemberCardsPresentation } from '@/features/workspace-settings';
 import { useTranslation } from '@/shared/i18n';
+import { AppBottomSheet, PageHeader } from '@/shared/ui';
 
 const MembersContent: FC<{ household: Household }> = ({ household }) => {
   const { t } = useTranslation('household');
@@ -100,8 +98,7 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
                 others={others.map(member => toCard(member))}
                 othersLabel={t('members.partner')}
               />
-              <Popup
-                bodyClassName="rounded-t-[12px]"
+              <AppBottomSheet
                 destroyOnClose
                 onMaskClick={() => setIsEditing(false)}
                 position="bottom"
@@ -109,21 +106,21 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
                 visible={isEditing}
                 onClose={() => setIsEditing(false)}
               >
-                <form className="px-4 pb-[calc(24px+env(safe-area-inset-bottom))] pt-12" onSubmit={handleNickname}>
-                  <h2 className="text-lg font-medium text-font-black">{t('settings.nicknameTitle')}</h2>
-                  <p className="mt-2 text-sm text-font-gray">{t('settings.nicknamePlaceholder')}</p>
+                <form className="px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-14" onSubmit={handleNickname}>
+                  <h2>{t('settings.nicknameTitle')}</h2>
+                  <p className="mt-2 text-[12px] font-semibold text-ww-mid">{t('settings.nicknamePlaceholder')}</p>
                   <input
-                    className="mt-4 h-12 w-full rounded border border-solid border-[#EBEBEB] px-3 text-base outline-none"
+                    className="mt-5 h-[52px] w-full border border-solid px-4 text-[15px] font-bold"
                     defaultValue={current.nickname}
                     maxLength={30}
                     name="nickname"
                     placeholder={t('settings.nicknamePlaceholder')}
                   />
-                  <Button block className="mt-5" color="primary" loading={updateState.isLoading} type="submit">
+                  <Button block className="mt-5 bg-[linear-gradient(135deg,#50bfd8,#14afc5)] text-white shadow-[0_8px_18px_rgba(20,175,197,0.25)]" loading={updateState.isLoading} type="submit">
                     {t('common.save')}
                   </Button>
                 </form>
-              </Popup>
+              </AppBottomSheet>
             </>
           )}
     </HouseholdPageState>
@@ -135,12 +132,16 @@ const HouseholdMembersPage: FC = () => {
   const { householdId = '' } = useParams<{ householdId: string }>();
   const onBack = useWorkspaceBack({ householdId, type: 'household' });
   return (
-    <div className="page-new overflow-hidden bg-bg-gray">
-      <WorkspaceNavHeader
+    <div className="page-new relative overflow-hidden">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-20 h-56 w-56 rounded-full bg-primary-light/45 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -left-24 bottom-10 h-48 w-48 rounded-full bg-ww-pink/15 blur-3xl" />
+      <PageHeader
+        backLabel={t('common:nav.back')}
         onBack={onBack}
+        subtitle={t('members.subtitle')}
         title={t('members.title')}
       />
-      <main className="min-h-0 flex-grow overflow-auto">
+      <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-8 pt-2">
         <HouseholdScopeBoundary householdId={householdId}>
           {household => <MembersContent household={household} />}
         </HouseholdScopeBoundary>

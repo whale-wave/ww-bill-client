@@ -66,6 +66,7 @@ const LedgerMembersPage: FC = () => {
   return (
     <div className="page-new overflow-hidden bg-bg-gray">
       <WorkspaceNavHeader
+        backLabel={t('common:nav.back')}
         onBack={onBack}
         title={t('members.title', { count: membersQuery.data.length })}
       />

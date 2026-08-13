@@ -9,8 +9,9 @@
   "deleteAsset": "Delete Asset",
   "adjustAsset": "Adjust Asset",
   "setting": "Settings",
+  "retry": "Retry",
   "confirmDeleteTitle": "Confirm delete this asset?",
-  "confirmDeleteContent": "All asset change records will be deleted together",
+  "confirmDeleteContent": "This asset and all of its change history will be permanently deleted.",
   "confirmDelete": "Confirm Delete",
   "deleting": "Deleting...",
   "form": {
@@ -21,6 +22,18 @@
     "account": "Account",
     "save": "Save",
     "saveSuccess": "Save successful",
+    "saveFailed": "Unable to save. Try again later.",
+    "validationFailed": "Check the information you entered",
+    "subtitle": "Set the account name and current amount",
+    "addAccountTitle": "Add Asset Account",
+    "description": "Confirm the account type, then fill in its basic information",
+    "basicSection": "Account information",
+    "required": "Required",
+    "fieldPlaceholder": "Enter {{field}}",
+    "cardNumberPlaceholder": "Enter the last four digits",
+    "remarkPlaceholder": "Add a purpose or account note (optional)",
+    "loadError": "Unable to load account information",
+    "loadErrorDescription": "Go back and select the account type again, or try again later.",
     "note": "Note",
     "noteHint": "Fill in basic info to create",
     "bank": "Bank",
@@ -33,7 +46,7 @@
     "amountRequired": "Please enter amount",
     "selectGroup": "Please select a group",
     "add": "Add",
-    "edit": "Settings"
+    "edit": "Edit Asset"
   },
   "types": {
     "cash": "Cash",
@@ -75,22 +88,48 @@
     "emptyTitle": "No asset accounts yet",
     "emptyDescription": "Add cash, bank, or liability accounts to start tracking your net worth",
     "emptyAction": "Add your first account",
+    "accountCount_one": "{{count}} account",
+    "accountCount_other": "{{count}} accounts",
     "accountCount": "{{count}} accounts",
     "loadError": "Failed to load asset accounts",
     "loadErrorDescription": "Check your connection and try again",
     "confirmDeleteTitle": "Confirm delete this asset?",
-    "confirmDeleteContent": "All asset change records will be deleted together",
+    "confirmDeleteContent": "This asset and all of its change history will be permanently deleted.",
     "confirmDelete": "Confirm Delete",
-    "deleting": "Deleting..."
+    "deleting": "Deleting…",
+    "deleteSuccess": "Asset deleted",
+    "deleteFailed": "Unable to delete. Try again later."
   },
   "detail": {
     "recordList": "Transaction Records",
-    "title": "Asset Detail"
+    "recordListDescription": "Every account amount change is recorded here",
+    "title": "Asset Detail",
+    "subtitle": "Account balance and change history",
+    "edit": "Edit Asset",
+    "deleteSuccess": "Asset deleted",
+    "deleteFailed": "Unable to delete. Try again later.",
+    "loadError": "Unable to load asset details",
+    "loadErrorDescription": "Check your connection and try again.",
+    "notFound": "Asset not found",
+    "notFoundDescription": "This asset may have been deleted or the link is no longer valid.",
+    "selectMonth": "Select month",
+    "emptyRecords": "No changes this month",
+    "emptyRecordsDescription": "Balance adjustments and account changes will appear here.",
+    "recordsLoadError": "Unable to load change history",
+    "recordsLoadErrorDescription": "This month's records are temporarily unavailable.",
+    "noRemark": "No note",
+    "recordAmountChange": "Change: {{change}}\nBefore: ¥{{before}}\nAfter: ¥{{after}}"
   },
   "adjust": {
     "current": "Adjust Current",
     "amountPlaceholder": "Enter adjusted amount",
-    "submit": "Adjust"
+    "submit": "Confirm Adjustment",
+    "action": "Adjust Balance",
+    "title": "Adjust Account Amount",
+    "currentValue": "Current {{type}}: ¥{{amount}}",
+    "newAmount": "New amount",
+    "success": "Account amount updated",
+    "failed": "Unable to adjust. Try again later."
   },
   "back": "Back",
   "tab": {
@@ -103,7 +142,15 @@
   "group": {
     "cash": "Cash",
     "virtualAccount": "Virtual Account",
-    "debtClaim": "Debt Claim"
+    "debtClaim": "Debt Claim",
+    "subtitle": "Choose the type of account to add",
+    "chooseSubtype": "Choose a specific account type",
+    "description": "Each account type uses a matching icon and balance meaning. You can still edit account details later.",
+    "defaultDescription": "Create and manage this type of asset account",
+    "loadError": "Unable to load account types",
+    "loadErrorDescription": "Check your connection and try again.",
+    "empty": "No account types available",
+    "emptyDescription": "There are currently no account types you can add."
   },
   "summary": {
     "netWorth": "Net Worth",

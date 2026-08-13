@@ -1,0 +1,27 @@
+{
+  "title": "意见反馈",
+  "subtitle": "每一条建议都会被认真阅读",
+  "heroTitle": "一起把鲸浪变得更好",
+  "heroDescription": "遇到问题、觉得哪里不顺手，或有期待的新功能，都可以告诉我们。",
+  "categoryLabel": "这次想反馈什么？",
+  "categories": {
+    "suggestion": "功能建议",
+    "bug": "问题反馈",
+    "experience": "体验优化",
+    "other": "其他"
+  },
+  "contentLabel": "详细描述",
+  "contentPlaceholder": "请描述你的想法或遇到的问题。如果是问题，写上操作步骤会更容易定位…",
+  "contentHint": "至少 5 个字符",
+  "contactLabel": "如何联系你（选填）",
+  "contactPlaceholder": "邮箱、微信或其他联系方式",
+  "privacyHint": "联系方式只用于确认反馈细节，不会公开展示。",
+  "submit": "发送反馈",
+  "submitting": "正在发送…",
+  "submitFailed": "发送失败，请稍后重试",
+  "validation": "请至少输入 5 个字符",
+  "successTitle": "反馈已经收到",
+  "successDescription": "谢谢你愿意花时间告诉我们这些。你的反馈已经进入后台，我们会认真查看。",
+  "continue": "再写一条",
+  "backMine": "返回我的"
+}

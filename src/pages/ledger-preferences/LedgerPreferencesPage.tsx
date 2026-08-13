@@ -1,5 +1,6 @@
 import type { FC } from 'react';
-import { List, NavBar, SafeArea, Switch, Toast } from 'antd-mobile';
+import { SafeArea, Switch, Toast } from 'antd-mobile';
+import { BookOpenCheck } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -7,6 +8,7 @@ import {
   usePatchLedgerQuickSwitchMutation,
 } from '@/entities/user-app-config';
 import { useTranslation } from '@/shared/i18n';
+import { GradientPanel, PageHeader } from '@/shared/ui';
 
 interface QuickSwitchPreferenceState {
   enabled: boolean;
@@ -72,31 +74,26 @@ const LedgerPreferencesPage: FC = () => {
   const isLoading = configQuery.isLoading || isSaving || mutation.isLoading;
 
   return (
-    <div className="page-new bg-bg-gray">
-      <NavBar
-        back={t('common:nav.back')}
-        className="bg-primary"
-        onBack={() => navigate(-1)}
-      >
-        {t('preferences.title')}
-      </NavBar>
-      <main className="min-h-0 flex-grow overflow-auto pt-3">
-        <List>
-          <List.Item
-            description={t('preferences.description')}
-            extra={(
-              <Switch
-                checked={preference?.enabled ?? false}
-                className="[--checked-color:var(--ww-theme-color)]"
-                disabled={!preference || isLoading}
-                loading={isLoading}
-                onChange={handleChange}
-              />
-            )}
-          >
-            {t('preferences.quickSwitch')}
-          </List.Item>
-        </List>
+    <div className="page-new relative overflow-hidden">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-24 h-52 w-52 rounded-full bg-primary-light/35 blur-3xl" />
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('preferences.title')} />
+      <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-6 pt-2">
+        <div className="mx-auto w-full max-w-[520px]">
+          <GradientPanel className="flex min-h-[78px] items-center gap-3 px-4 py-3.5" elevation="standard" surface="glass">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] bg-primary-light/55 text-primary-deep"><BookOpenCheck size={21} /></span>
+            <span className="min-w-0 flex-1">
+              <strong className="block text-[13px] font-extrabold text-ww-ink">{t('preferences.quickSwitch')}</strong>
+              <small className="mt-1 block text-[10px] leading-4 text-ww-soft">{t('preferences.description')}</small>
+            </span>
+            <Switch
+              checked={preference?.enabled ?? false}
+              className="[--checked-color:var(--ww-theme-color)]"
+              disabled={!preference || isLoading}
+              loading={isLoading}
+              onChange={handleChange}
+            />
+          </GradientPanel>
+        </div>
       </main>
       <SafeArea position="bottom" />
     </div>

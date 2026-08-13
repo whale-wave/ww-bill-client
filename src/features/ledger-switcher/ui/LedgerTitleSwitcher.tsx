@@ -34,7 +34,9 @@ export function LedgerTitleSwitcher({
     : undefined;
   const title = scope.type === 'personal'
     ? config.appName
-    : currentCustom?.label ?? ledgerName ?? t('switcher.currentCustom');
+    : currentCustom?.type === 'custom'
+      ? currentCustom.label
+      : ledgerName ?? t('switcher.currentCustom');
   const quickSwitchEnabled = appConfigQuery.data?.isLedgerQuickSwitchEnabled === true;
   const classes = ['ledger-title-switcher', className].filter(Boolean).join(' ');
 

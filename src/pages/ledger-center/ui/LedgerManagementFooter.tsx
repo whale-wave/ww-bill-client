@@ -1,5 +1,6 @@
 import { Button, SafeArea } from 'antd-mobile';
 import { AddOutline } from 'antd-mobile-icons';
+import { useTranslation } from '@/shared/i18n';
 
 interface LedgerManagementFooterProps {
   isSaving?: boolean;
@@ -14,6 +15,8 @@ export function LedgerManagementFooter({
   onSave,
   sorting,
 }: LedgerManagementFooterProps) {
+  const { t } = useTranslation('ledger');
+
   return (
     <footer className={`ledger-management-footer${sorting ? ' ledger-management-footer--sorting' : ''}`}>
       {sorting
@@ -27,8 +30,8 @@ export function LedgerManagementFooter({
               size="large"
             >
               <span className="ledger-management-footer__save-copy">
-                <strong>保存排序</strong>
-                <small>拖动账本可修改排序</small>
+                <strong>{t('center.saveOrder')}</strong>
+                <small>{t('center.sortHint')}</small>
               </span>
             </Button>
           )
@@ -43,7 +46,7 @@ export function LedgerManagementFooter({
             >
               <span className="ledger-management-footer__create-copy">
                 <AddOutline aria-hidden="true" />
-                创建账本
+                {t('center.create')}
               </span>
             </Button>
           )}

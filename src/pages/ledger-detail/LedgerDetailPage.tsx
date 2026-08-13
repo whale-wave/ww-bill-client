@@ -20,7 +20,7 @@ import {
 } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
+import { PageHeader } from '@/shared/ui';
 
 const LEDGER_MODULES = ['records', 'bill', 'budget', 'charts', 'settings'] as const;
 
@@ -87,10 +87,9 @@ const LedgerDetailPage: FC = () => {
     : [];
 
   return (
-    <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={handleBack}>
-        {ledger?.name ?? t('detail.title')}
-      </NavBar>
+    <div className="page-new relative overflow-hidden">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-24 h-52 w-52 rounded-full bg-primary-light/35 blur-3xl" />
+      <PageHeader backLabel={t('common:nav.back')} onBack={handleBack} title={ledger?.name ?? t('detail.title')} />
       <main className="min-h-0 flex-grow overflow-auto pb-4">
         {!ledgerId && (
           <div className="flex min-h-[360px] items-center justify-center px-4">

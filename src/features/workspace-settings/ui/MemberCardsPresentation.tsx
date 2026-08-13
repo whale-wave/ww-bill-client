@@ -5,7 +5,7 @@ import { ChevronRight } from 'lucide-react';
 function MemberCard({ item }: { item: MemberCardItem }) {
   return (
     <button
-      className="flex min-h-[82px] w-full items-center border-0 border-b border-solid border-[#EBEBEB] bg-white px-4 py-3 text-left last:border-b-0"
+      className="group flex min-h-[92px] w-full items-center border-0 border-b border-solid border-border-primary bg-transparent px-4 py-3.5 text-left transition active:bg-primary-light/25 last:border-b-0"
       data-member-id={item.id}
       onClick={item.onClick}
       type="button"
@@ -14,41 +14,41 @@ function MemberCard({ item }: { item: MemberCardItem }) {
         ? (
             <img
               alt=""
-              className="h-12 w-12 shrink-0 rounded-full object-cover"
+              className="h-12 w-12 shrink-0 rounded-[17px] border-2 border-solid border-white object-cover shadow-ww-xs"
               src={item.avatar}
             />
           )
         : (
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-bg-gray text-lg text-font-gray">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] bg-[linear-gradient(145deg,#c8eaf6,#e8f6ff)] text-lg font-black text-primary-deep shadow-ww-xs">
               {String(item.name).slice(0, 1)}
             </span>
           )}
       <span className="ml-3 min-w-0 flex-grow">
         <span className="flex items-center gap-2">
-          <strong className="truncate text-base font-medium text-font-black">{item.name}</strong>
+          <strong className="truncate text-[15px] font-black text-ww-ink">{item.name}</strong>
           {item.badge && (
-            <span className="rounded-full bg-[#e8f6f9] px-2 py-0.5 text-[11px] text-[#18839b]">
+            <span className="rounded-full bg-primary-light/65 px-2 py-0.5 text-[10px] font-bold text-primary-deep">
               {item.badge}
             </span>
           )}
           {item.isCurrent && (
-            <span className="rounded-full bg-bg-gray px-2 py-0.5 text-[11px] text-font-gray">
+            <span className="rounded-full bg-ww-purple-light/65 px-2 py-0.5 text-[10px] font-bold text-[#6755aa]">
               我
             </span>
           )}
         </span>
-        <span className="mt-1 block truncate text-sm text-font-gray">
+        <span className="mt-1 block truncate text-[11px] font-semibold text-ww-soft">
           ID:
           {' '}
           {item.userId}
         </span>
         {item.description && (
-          <span className="mt-0.5 block truncate text-xs text-font-gray">
+          <span className="mt-1 block truncate text-[12px] font-bold text-ww-mid">
             {item.description}
           </span>
         )}
       </span>
-      {item.onClick && <ChevronRight className="ml-2 shrink-0 text-[#C3C6C9]" size={18} />}
+      {item.onClick && <ChevronRight className="ml-2 shrink-0 text-[#9eb1bd] transition group-active:translate-x-0.5" size={18} />}
     </button>
   );
 }
@@ -58,13 +58,13 @@ export const MemberCardsPresentation: FC<{
   others: MemberCardItem[];
   othersLabel: string;
 }> = ({ current, others, othersLabel }) => (
-  <div className="space-y-3 pb-6" data-member-cards>
-    <section className="overflow-hidden bg-white">
+  <div className="space-y-5 pb-6" data-member-cards>
+    <section className="overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] shadow-ww backdrop-blur-xl">
       <MemberCard item={current} />
     </section>
     {others.length > 0 && (
-      <section className="overflow-hidden bg-white">
-        <h2 className="bg-bg-gray px-4 pb-2 pt-3 text-xs font-normal text-font-gray">
+      <section className="overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] shadow-ww backdrop-blur-xl">
+        <h2 className="px-4 pb-2 pt-3 text-[11px] font-extrabold tracking-[0.4px] text-ww-mid">
           {othersLabel}
         </h2>
         {others.map(item => <MemberCard item={item} key={item.id} />)}

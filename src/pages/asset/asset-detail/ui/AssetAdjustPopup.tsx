@@ -1,15 +1,15 @@
 import type { PopupProps } from 'antd-mobile';
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
-import { Button, Input, Popup } from 'antd-mobile';
+import { Button, Input, Toast } from 'antd-mobile';
+import { CircleDollarSign } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { usePatchAssetAdjustMutation } from '@/entities/asset';
-import { isSuccessApi } from '@/shared/api';
-import { normalizeAmount } from '@/shared/lib';
+import { useTranslation } from '@/shared/i18n';
+import { formatAmount, normalizeAmount } from '@/shared/lib';
+import { AppBottomSheet } from '@/shared/ui';
 
 export interface AssetAdjustPopupProps extends PopupProps {
-  onMaskClick?: () => void;
   onClose: () => void;
   asset: Asset;
 }
@@ -17,9 +17,9 @@ export interface AssetAdjustPopupProps extends PopupProps {
 export const AssetAdjustPopup: FC<AssetAdjustPopupProps> = (props) => {
   const { visible, onClose, asset } = props;
   const { t } = useTranslation('asset');
-  const [amount, setAmount] = useState<string>('');
-  const prevAmountRef = useRef<string>('');
-  const [patchAssetAdjustMutate] = usePatchAssetAdjustMutation();
+  const [amount, setAmount] = useState<string>(asset.amount);
+  const prevAmountRef = useRef<string>(asset.amount);
+  const [patchAssetAdjustMutate, mutation] = usePatchAssetAdjustMutation();
 
   useEffect(() => {
     prevAmountRef.current = amount;
@@ -32,39 +32,69 @@ export const AssetAdjustPopup: FC<AssetAdjustPopupProps> = (props) => {
   }, []);
 
   const handleAdjust = useCallback(async () => {
-    const res = await patchAssetAdjustMutate({
-      id: asset.id,
-      data: {
-        amount,
-      },
-    });
-    if (isSuccessApi(res)) {
+    if (!amount || mutation.isLoading)
+      return;
+    try {
+      await patchAssetAdjustMutate({
+        id: asset.id,
+        data: { amount },
+      });
       setAmount('');
       onClose();
+      Toast.show({ icon: 'success', content: t('adjust.success') });
     }
-  }, [asset, amount]);
+    catch {
+      Toast.show({ icon: 'fail', content: t('adjust.failed') });
+    }
+  }, [amount, asset.id, mutation.isLoading, onClose, patchAssetAdjustMutate, t]);
 
   return (
-    <Popup
+    <AppBottomSheet
+      destroyOnClose
       visible={visible}
       onMaskClick={onClose}
       showCloseButton
       onClose={onClose}
+      position="bottom"
     >
-      <div className="flex justify-center items-center py-3 text-base">
-        {t('adjust.current')}
-        {asset.assetGroup.type === 'sub' ? t('form.debt') : t('form.balance')}
-      </div>
-      <div className="px-6 mt-5">
-        <div className="bg-[#F5F5F5] py-2 px-4 rounded-lg">
-          <Input placeholder={t('adjust.amountPlaceholder')} clearable value={amount} onChange={handleAmountChange} />
+      <div className="px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-14">
+        <div className="flex items-start gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-primary-light/70 text-primary-deep">
+            <CircleDollarSign size={21} strokeWidth={1.8} />
+          </span>
+          <div>
+            <h2>{t('adjust.title')}</h2>
+            <p className="mt-1 text-[11px] font-semibold leading-4 text-ww-mid">
+              {t('adjust.currentValue', {
+                amount: formatAmount(Number(asset.amount)),
+                type: asset.assetGroup.type === 'sub' ? t('form.debt') : t('form.balance'),
+              })}
+            </p>
+          </div>
         </div>
-      </div>
-      <div className="px-20 mt-8 pb-10">
-        <Button className="mt-5" shape="rounded" size="large" block color="primary" disabled={!amount} onClick={handleAdjust}>
+        <label className="mt-5 block text-[11px] font-extrabold text-ww-mid" htmlFor="asset-adjust-amount">
+          {t('adjust.newAmount')}
+        </label>
+        <div className="mt-2 flex h-[54px] items-center gap-2 rounded-[15px] border border-solid border-border-primary bg-white/80 px-4 shadow-ww-xs focus-within:border-primary-mid focus-within:ring-2 focus-within:ring-primary-light/60">
+          <span className="font-number text-[16px] font-black text-primary-deep">¥</span>
+          <Input
+            id="asset-adjust-amount"
+            inputMode="decimal"
+            placeholder={t('adjust.amountPlaceholder')}
+            value={amount}
+            onChange={handleAmountChange}
+          />
+        </div>
+        <Button
+          block
+          className="mt-5 bg-[linear-gradient(135deg,#50bfd8,#14afc5)] text-white shadow-[0_8px_18px_rgba(20,175,197,0.25)]"
+          disabled={!amount}
+          loading={mutation.isLoading}
+          onClick={() => void handleAdjust()}
+        >
           {t('adjust.submit')}
         </Button>
       </div>
-    </Popup>
+    </AppBottomSheet>
   );
 };

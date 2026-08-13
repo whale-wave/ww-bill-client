@@ -1,5 +1,5 @@
 import type { InvoiceEntity } from '@/entities/invoice';
-import classNames from 'classnames';
+import { Building2, ChevronRight } from 'lucide-react';
 import React, { memo, useCallback } from 'react';
 import { useTranslation } from '@/shared/i18n';
 
@@ -18,23 +18,25 @@ const InvoiceItem: React.FC<InvoiceItemProps> = memo((props) => {
   }, [invoice, _onClick]);
 
   return (
-    <div className={classNames(className, 'flex h-[74px] bg-white rounded-radius-small')} onClick={onClick}>
-      <div className="bg-primary w-1"></div>
-      <div className="flex-grow flex flex-col justify-center space-y-3 pl-3">
-        <div>
-          <div>
-            {invoice.companyName}
-          </div>
-        </div>
-        <div className="space-x-2 text-font-gray text-sm">
-          <span>
-            {t('form.taxNumber')}
-            :
-          </span>
-          <span>{invoice.taxNumber}</span>
-        </div>
-      </div>
-    </div>
+    <button
+      className={`${className ?? ''} flex min-h-[82px] w-full items-center gap-3 rounded-[20px] border border-solid border-border-primary bg-white/80 px-4 py-3 text-left shadow-ww-xs backdrop-blur-xl transition active:scale-[0.99]`}
+      data-invoice-item={invoice.id}
+      onClick={onClick}
+      type="button"
+    >
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[linear-gradient(145deg,#c8eaf6,#e8f6ff)] text-primary-deep shadow-ww-xs">
+        <Building2 size={23} strokeWidth={1.7} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <strong className="block truncate text-[14px] font-extrabold leading-5 text-ww-ink">{invoice.companyName}</strong>
+        <span className="mt-1 block truncate text-[11px] font-semibold leading-4 text-ww-soft">
+          {t('form.taxNumber')}
+          {' · '}
+          {invoice.taxNumber}
+        </span>
+      </span>
+      <ChevronRight className="shrink-0 text-ww-ghost" size={18} />
+    </button>
   );
 });
 

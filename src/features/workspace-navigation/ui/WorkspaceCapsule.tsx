@@ -3,6 +3,7 @@ import { Ellipsis } from 'lucide-react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import { getWorkspaceScope } from '../model/workspace-scope';
 import { WorkspaceSwitcherPanel } from './WorkspaceSwitcherPanel';
@@ -13,6 +14,7 @@ interface WorkspaceCapsuleProps {
 }
 
 export function WorkspaceCapsule({ className, scope }: WorkspaceCapsuleProps) {
+  const { t } = useTranslation('ledger');
   const location = useLocation();
   const navigate = useNavigate();
   const [isSwitcherVisible, setIsSwitcherVisible] = useState(false);
@@ -25,7 +27,7 @@ export function WorkspaceCapsule({ className, scope }: WorkspaceCapsuleProps) {
   return (
     <>
       <div
-        aria-label="账本快捷操作"
+        aria-label={t('workspace.quickActions')}
         className={cn(
           'flex h-8 w-[84px] items-center rounded-full border border-solid border-white/60 bg-white/55 text-font-black',
           className,
@@ -34,7 +36,7 @@ export function WorkspaceCapsule({ className, scope }: WorkspaceCapsuleProps) {
         role="group"
       >
         <button
-          aria-label="切换账本"
+          aria-label={t('switcher.switch')}
           className="flex h-full min-w-0 flex-1 items-center justify-center border-0 bg-transparent"
           onClick={() => setIsSwitcherVisible(true)}
           type="button"
@@ -43,7 +45,7 @@ export function WorkspaceCapsule({ className, scope }: WorkspaceCapsuleProps) {
         </button>
         <span aria-hidden="true" className="h-4 w-px bg-black/15" />
         <button
-          aria-label="返回默认账本"
+          aria-label={t('switcher.returnPersonal')}
           className="flex h-full min-w-0 flex-1 items-center justify-center border-0 bg-transparent"
           onClick={handleReturnPersonal}
           type="button"

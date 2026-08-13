@@ -1,160 +1,241 @@
 import type { Dayjs } from 'dayjs';
 import type { LineSeriesOption } from 'echarts/charts';
-import type { GridComponentOption, MarkLineComponentOption } from 'echarts/components';
+import type { GridComponentOption, MarkLineComponentOption, TooltipComponentOption } from 'echarts/components';
 import type { FC } from 'react';
-import { DatePicker } from 'antd-mobile';
+import { DatePicker, SpinLoading } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { LineChart } from 'echarts/charts';
 import { GridComponent, MarkLineComponent, TooltipComponent } from 'echarts/components';
 import * as echarts from 'echarts/core';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
+import { CalendarDays, ChartNoAxesCombined, ChevronDown, TriangleAlert } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AssetStatisticalRecordType, useAssetStatisticalRecord, useGetAssetStatisticalRecordQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
+import { formatLocalizedYear } from '@/shared/lib';
 import { useChart } from '@/shared/lib/use-chart';
-import { Icon } from '@/shared/ui';
+import { GradientPanel } from '@/shared/ui';
+import { ChartRetryButton } from './ChartRetryButton';
 
 echarts.use([GridComponent, LineChart, CanvasRenderer, UniversalTransition, TooltipComponent, MarkLineComponent]);
 
 type EChartsOption = echarts.ComposeOption<
-  GridComponentOption | LineSeriesOption | MarkLineComponentOption
+  GridComponentOption | LineSeriesOption | MarkLineComponentOption | TooltipComponentOption
 >;
 
-export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
-  const { t } = useTranslation('asset');
-  let chartTitle = t('chart.assetTrend');
-  switch (type) {
-    case AssetStatisticalRecordType.LIABILITY:
-      chartTitle = t('chart.liabilityTrend');
-      break;
-    case AssetStatisticalRecordType.NET_ASSET:
-      chartTitle = t('chart.netAssetTrend');
-      break;
-    default:
-      break;
-  }
+const trendColors: Record<AssetStatisticalRecordType, { area: string; line: string }> = {
+  [AssetStatisticalRecordType.ASSET]: { area: 'rgba(111, 194, 220, 0.24)', line: '#4aaac4' },
+  [AssetStatisticalRecordType.LIABILITY]: { area: 'rgba(214, 107, 143, 0.2)', line: '#d66b8f' },
+  [AssetStatisticalRecordType.NET_ASSET]: { area: 'rgba(129, 116, 200, 0.2)', line: '#8174c8' },
+};
 
+export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
+  const { i18n, t } = useTranslation('asset');
+  const locale = i18n.resolvedLanguage ?? i18n.language;
+  const chartTitle = type === AssetStatisticalRecordType.LIABILITY
+    ? t('chart.liabilityTrend')
+    : type === AssetStatisticalRecordType.NET_ASSET
+      ? t('chart.netAssetTrend')
+      : t('chart.assetTrend');
   const [selectYear, setSelectYear] = useState<Dayjs>(() => dayjs());
-  const range = useMemo(() => {
-    return {
-      startTime: selectYear.startOf('year').valueOf(),
-      endTime: selectYear.endOf('year').valueOf(),
-    };
-  }, [selectYear]);
-  const { data } = useGetAssetStatisticalRecordQuery({ params: { ...range, type } });
+  const range = useMemo(() => ({
+    startTime: selectYear.startOf('year').valueOf(),
+    endTime: selectYear.endOf('year').valueOf(),
+  }), [selectYear]);
+  const { data, isError, isFetching, isLoading, refetch } = useGetAssetStatisticalRecordQuery({ params: { ...range, type } });
   const { groupByMonth } = useAssetStatisticalRecord(data);
-  const xAxisData = groupByMonth.map(i => `${i.month}${t('chart.monthSuffix')}`);
-  const seriesData = groupByMonth.map(i => Number(i.amount));
-  const maxValue = Math.max(...seriesData);
+  const monthFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { month: 'short' }),
+    [locale],
+  );
+  const xAxisData = useMemo(
+    () => groupByMonth.map(item => monthFormatter.format(new Date(2024, item.month - 1, 1))),
+    [groupByMonth, monthFormatter],
+  );
+  const seriesData = useMemo(
+    () => groupByMonth.map(item => Number(item.amount)),
+    [groupByMonth],
+  );
+  const hasRecords = data.length > 0;
+  const isChartReady = !isLoading && !isError && hasRecords;
+  const yearLabel = useMemo(
+    () => formatLocalizedYear(selectYear.toDate(), locale),
+    [locale, selectYear],
+  );
   const { chartDomRef, myChart } = useChart();
 
   const handleSelectYear = useCallback(async () => {
     const result = await DatePicker.prompt({
+      className: 'ww-app-date-picker',
       defaultValue: selectYear.toDate(),
       precision: 'year',
+      title: chartTitle,
     });
     if (result)
       setSelectYear(dayjs(result));
-  }, [selectYear]);
+  }, [chartTitle, selectYear]);
 
   useEffect(() => {
+    if (!myChart)
+      return;
+
+    const { area, line } = trendColors[type];
     const option: EChartsOption = {
+      animationDuration: 420,
       grid: {
-        top: '3%',
-        left: '3%',
-        right: '5%',
-        bottom: '17%',
+        bottom: 26,
+        containLabel: false,
+        left: 8,
+        right: 8,
+        top: 16,
       },
       tooltip: {
-        triggerOn: 'mousemove',
-        trigger: 'axis',
-        backgroundColor: '#333', // 浅黑色背景
+        axisPointer: {
+          lineStyle: {
+            color: 'rgba(74, 170, 196, 0.32)',
+            type: 'dashed',
+          },
+        },
+        backgroundColor: 'rgba(38, 51, 64, 0.92)',
         borderWidth: 0,
+        confine: true,
         textStyle: {
-          color: '#fff', // 白色文字
+          color: '#fff',
+          fontSize: 11,
         },
-        formatter: (params: any) => {
-          const data = params[0].data;
-          return `${data}`;
-        },
+        trigger: 'axis',
       },
       xAxis: {
-        boundaryGap: false,
-        type: 'category',
-        data: xAxisData,
+        axisLabel: {
+          color: '#9baebb',
+          fontSize: 10,
+          interval: (index: number) => [0, 2, 5, 8, 11].includes(index),
+          margin: 12,
+        },
         axisLine: {
           lineStyle: {
-            opacity: 0.1,
+            color: 'rgba(110, 194, 220, 0.18)',
           },
         },
-        axisTick: {
-          lineStyle: {
-            opacity: 0,
-          },
-        },
-        axisLabel: {
-          customValues: [
-            `1${t('chart.monthSuffix')}`,
-            `3${t('chart.monthSuffix')}`,
-            `6${t('chart.monthSuffix')}`,
-            `9${t('chart.monthSuffix')}`,
-            `12${t('chart.monthSuffix')}`,
-          ],
-        },
+        axisTick: { show: false },
+        boundaryGap: false,
+        data: xAxisData,
+        type: 'category',
       },
       yAxis: {
-        type: 'value',
-        show: false,
-      },
-      series: [
-        {
-          data: seriesData,
-          type: 'line',
-          symbol: 'circle',
-          symbolSize: 6,
-          itemStyle: {
-            color: (params) => {
-              return params.data === 0 ? '#fff' : '#aeeeff';
-            },
-            borderColor: '#33333390',
-          },
+        axisLabel: { show: false },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: {
           lineStyle: {
-            color: '#33333390',
-            width: 1,
-          },
-          markLine: {
-            silent: true,
-            data: [{ type: 'max' }],
-            label: {
-              show: false,
-            },
-            lineStyle: {
-              color: '#33333360',
-              type: 'solid',
-            },
-            symbol: ['none', 'none'],
+            color: 'rgba(110, 194, 220, 0.1)',
+            type: 'dashed',
           },
         },
-      ],
+        type: 'value',
+      },
+      series: [{
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { color: area, offset: 0 },
+            { color: 'rgba(255, 255, 255, 0)', offset: 1 },
+          ]),
+        },
+        data: seriesData,
+        emphasis: {
+          itemStyle: {
+            borderColor: '#fff',
+            borderWidth: 3,
+            color: line,
+          },
+          scale: 1.25,
+        },
+        itemStyle: {
+          borderColor: '#fff',
+          borderWidth: 2,
+          color: line,
+        },
+        lineStyle: {
+          color: line,
+          shadowBlur: 7,
+          shadowColor: area,
+          width: 2.5,
+        },
+        name: chartTitle,
+        showSymbol: true,
+        smooth: 0.36,
+        symbol: 'circle',
+        symbolSize: 6,
+        type: 'line',
+      }],
     };
 
-    myChart?.setOption(option);
-  }, [seriesData, xAxisData, myChart, maxValue, t]);
+    myChart.setOption(option, true);
+  }, [chartTitle, myChart, seriesData, type, xAxisData]);
+
+  useEffect(() => {
+    if (!myChart || !isChartReady)
+      return;
+    const frame = requestAnimationFrame(() => myChart.resize());
+    return () => cancelAnimationFrame(frame);
+  }, [isChartReady, myChart]);
 
   return (
-    <div className="flex flex-col border-[1px] border-solid border-gray-200 rounded-lg shadow-md p-3">
-      <div className="flex justify-between items-center h-[30px]">
-        <div className="text-base">{chartTitle}</div>
-        <div className="bg-gray-100 flex justify-center items-center rounded-md py-1 px-2 space-x-1" onClick={handleSelectYear}>
-          <div className="text-xs">
-            {selectYear.format('YYYY')}
-            {t('chart.yearSuffix')}
+    <GradientPanel as="article" className="overflow-hidden px-[18px] pb-4 pt-[18px]" elevation="standard" surface="chart">
+      <header className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] border border-white/75 bg-white/65 text-primary-deep shadow-ww-xs">
+            <ChartNoAxesCombined size={20} strokeWidth={2} />
+          </span>
+          <div className="min-w-0">
+            <h2 className="truncate text-[14px] font-extrabold text-ww-ink">{chartTitle}</h2>
+            <p className="mt-0.5 text-[10px] font-semibold text-ww-soft">{t('manager.overview')}</p>
           </div>
-          <Icon className="text-xs" name="show-bottom" />
         </div>
+        <button
+          aria-label={`${chartTitle} ${yearLabel}`}
+          className="flex h-9 shrink-0 items-center gap-1.5 rounded-[12px] border border-solid border-white/80 bg-white/70 px-2.5 font-number text-[11px] font-extrabold text-ww-mid shadow-ww-xs backdrop-blur-xl active:bg-white"
+          onClick={handleSelectYear}
+          type="button"
+        >
+          <CalendarDays className="text-primary-deep" size={14} />
+          <span>{yearLabel}</span>
+          <ChevronDown className="text-ww-soft" size={13} />
+        </button>
+      </header>
+
+      <div className="relative mt-3 h-[176px]">
+        <div
+          aria-hidden={!isChartReady}
+          className={isChartReady ? 'absolute inset-0 opacity-100 transition-opacity' : 'absolute inset-0 opacity-0'}
+          ref={chartDomRef}
+        />
+        {!isChartReady && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center rounded-[16px] border border-white/60 bg-white/35 text-center">
+            {isLoading
+              ? <SpinLoading color="primary" />
+              : isError
+                ? (
+                    <>
+                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/75 text-[#c04870] shadow-ww-xs">
+                        <TriangleAlert size={20} />
+                      </span>
+                      <p className="mt-3 text-[12px] font-bold text-ww-mid">{t('manager.loadError')}</p>
+                      <ChartRetryButton isLoading={isFetching} onRetry={() => void refetch()} />
+                    </>
+                  )
+                : (
+                    <>
+                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/75 text-primary-deep shadow-ww-xs">
+                        <ChartNoAxesCombined size={20} />
+                      </span>
+                      <p className="mt-3 text-[12px] font-bold text-ww-mid">{t('common:empty')}</p>
+                    </>
+                  )}
+          </div>
+        )}
       </div>
-      <div className="h-[120px]" ref={chartDomRef} />
-    </div>
+    </GradientPanel>
   );
 };

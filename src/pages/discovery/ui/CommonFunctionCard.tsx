@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { Toast } from 'antd-mobile';
 import { CalendarDays } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -14,11 +13,10 @@ const CommonFunctionCard: FC = () => {
     <section>
       <h2 className="pb-[10px] text-[14px] font-bold leading-[21px] text-ww-ink">{t('commonFunctions.title')}</h2>
       <ActionMenuCard
-        columns={4}
+        columns={3}
         items={[
           { icon: <DesignIcon name="action-asset" size={22} />, key: 'asset', label: t('commonFunctions.assetSteward'), onClick: () => navigate(ROUTES_PATH.ASSET.getPath()), tone: 'purple' },
           { icon: <DesignIcon name="action-invoice" size={22} />, key: 'invoice', label: t('commonFunctions.invoiceAssistant'), onClick: () => navigate('/invoice'), tone: 'blue' },
-          { icon: <DesignIcon name="action-exchange" size={22} />, key: 'exchange', label: t('commonFunctions.exchangeRateConverter'), onClick: () => Toast.show({ content: t('commonFunctions.comingSoon') }), tone: 'pink' },
           { icon: <CalendarDays size={22} strokeWidth={1.8} />, key: 'fixed', label: t('commonFunctions.fixedExpenses'), onClick: () => navigate(ROUTES_PATH.FIXED_EXPENSES.getPath()), tone: 'green' },
         ]}
         variant="gradient-tiles"

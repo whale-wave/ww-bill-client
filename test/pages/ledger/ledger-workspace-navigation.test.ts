@@ -167,6 +167,7 @@ vi.mock('@/shared/i18n', () => ({
       'switcher.retry': '重新加载',
       'switcher.returnPersonal': '返回默认账本',
       'switcher.switch': '切换账本',
+      'template.business.name': '生意账本',
     })[key] ?? key,
   }),
 }));
@@ -498,6 +499,11 @@ describe('custom ledger workspace integration', () => {
 
     expect(first.container.querySelector('[data-record-overview-header]')).not.toBeNull();
     expect(first.container.querySelector('[data-testid="ledger-record-shortcuts"]')).not.toBeNull();
+    const customShortcuts = first.container.querySelectorAll('[aria-label="record shortcuts"] button');
+    expect(customShortcuts).toHaveLength(5);
+    expect(Array.from(customShortcuts).every(shortcut => (
+      shortcut.classList.contains('w-[calc((100%_-_30px)/4)]')
+    ))).toBe(true);
     expect(first.container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(first.container.querySelector('[data-record-list-variant="overview"]')).not.toBeNull();
     expect(first.container.querySelector('[data-date-group="2026-07-21"]')).not.toBeNull();
@@ -768,7 +774,7 @@ describe('custom ledger workspace integration', () => {
 
     cleanupRender();
     const headerReturn = renderPage('/ledgers/ledger%2Fa/bill', '/ledgers/:ledgerId/bill', createElement(LedgerBillPage));
-    await click(headerReturn.container.querySelector('.adm-nav-bar-back'));
+    await click(headerReturn.container.querySelector('[data-page-header] button'));
     expect(headerReturn.router.state.location.pathname).toBe('/origin');
 
     cleanupRender();

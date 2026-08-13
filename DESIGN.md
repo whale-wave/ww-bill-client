@@ -61,7 +61,7 @@ Figma Design 文件 `Whale Wave Bill New UI` 是新版界面的唯一视觉基�
 
 - 根容器保持 `height: 100%` 和纵向 flex。需要内部滚动时，把滚动放在中间内容区。
 - 顶部优先参与正常文档流，只有确需固定时才让内容区显式避让。
-- 主 TabBar 不参与文档流，内容可从半透明底栏后方滚动；对应滚动容器使用 `.ww-tab-bar-scroll-padding`，预留 `102px + safe-area-inset-bottom`（66px 底栏、12px 底部偏移和 24px 末尾留白）。
+- 主 TabBar 不参与文档流，内容可从半透明底栏后方滚动；对应滚动容器使用 `.ww-tab-bar-scroll-padding`，预留 `126px + safe-area-inset-bottom`（66px 底栏、12px 底部偏移和 48px 末尾留白）。
 - 375px 基准下，页面模块左右留白通常为 `18px`，标题栏为 `22px`，记账网格为 `14px`。
 - 模块之间的垂直间距以 `8px`、`10px`、`12px`、`14px`、`16px` 为主。
 - 信息列表优先使用白底行项目和细分割线，而不是把每一行做成厚重卡片。

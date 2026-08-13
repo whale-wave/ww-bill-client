@@ -205,6 +205,8 @@ describe('ledger record detail family policy and concurrency', () => {
     });
 
     expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/records/7');
+    expect(container.querySelector('[data-page-header]')).not.toBeNull();
+    expect(container.querySelector('.bwm-nav-bar, .adm-nav-bar')).toBeNull();
     expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
     expect(container.textContent).toContain('晚餐');
     expect(container.textContent).not.toContain('records.notFound');

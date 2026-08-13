@@ -30,8 +30,12 @@ export function formatNextBillingDate(date?: string) {
     return i18n.t('fixed-expense:list.tomorrowDue');
   if (diff > 1 && diff <= 7)
     return i18n.t('fixed-expense:list.daysLaterDue', { days: diff });
-  if (diff > 7)
-    return i18n.t('fixed-expense:list.dateDue', { date: target.format('M月D日') });
+  if (diff > 7) {
+    const locale = i18n.resolvedLanguage ?? i18n.language;
+    const date = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' })
+      .format(target.toDate());
+    return i18n.t('fixed-expense:list.dateDue', { date });
+  }
   if (diff === -1)
     return i18n.t('fixed-expense:list.yesterdayOverdue');
   return i18n.t('fixed-expense:list.overdueDays', { days: Math.abs(diff) });

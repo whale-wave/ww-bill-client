@@ -2,6 +2,7 @@ import type { FixedExpenseSummary } from '@/entities/fixed-expense';
 import React, { memo } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
+import { GradientPanel } from '@/shared/ui';
 import { formatThousands } from '../utils';
 
 interface SummaryCardProps {
@@ -16,43 +17,43 @@ const SummaryCard: React.FC<SummaryCardProps> = memo((props) => {
   const { className, summary, totalCount, activeCount } = props;
 
   return (
-    <div
+    <GradientPanel
       className={cn(
         className,
-        'relative overflow-hidden rounded-2xl p-4 shadow-md',
+        'relative overflow-hidden px-5 py-5',
       )}
-      style={{ background: 'linear-gradient(135deg, #5ab8e8 0%, #4fa9dc 52%, #3a87c4 100%)' }}
+      elevation="high"
+      surface="ice"
     >
-      <div className="absolute -right-10 -top-14 h-36 w-36 rounded-full bg-white/15" />
-      <div className="absolute -bottom-14 -left-6 h-28 w-28 rounded-full bg-white/10" />
+      <div className="absolute -right-8 -top-12 h-32 w-32 rounded-full border-[20px] border-solid border-white/25" />
 
-      <div className="relative text-white">
-        <div className="text-sm text-white/80">{t('summary.monthlyExpected')}</div>
+      <div className="relative text-ww-ink">
+        <div className="text-[11px] font-bold text-ww-mid">{t('summary.monthlyExpected')}</div>
         <div className="mt-1 flex items-baseline space-x-1">
-          <span className="text-base font-medium text-white/90">¥</span>
-          <span className="text-2xl font-bold leading-none text-white drop-shadow-sm">
+          <span className="text-[15px] font-extrabold text-primary-deep">¥</span>
+          <span className="text-[28px] font-black leading-none tracking-[-0.5px] text-ww-ink">
             {formatThousands(summary.monthlyTotal)}
           </span>
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-white/20 p-3 text-sm backdrop-blur">
+        <div className="mt-5 grid grid-cols-3 gap-2 rounded-[16px] border border-white/80 bg-white/55 p-3 backdrop-blur-xl">
           <div className="flex flex-col">
-            <span className="text-white/75">{t('summary.yearlyTotal')}</span>
-            <span className="mt-1 font-semibold text-white">
+            <span className="text-[9px] font-bold text-ww-soft">{t('summary.yearlyTotal')}</span>
+            <span className="mt-1 text-[11px] font-extrabold text-ww-ink">
               ¥
               {formatThousands(summary.yearlyTotal)}
             </span>
           </div>
-          <div className="flex flex-col border-l border-white/30 pl-2">
-            <span className="text-white/75">{t('summary.active')}</span>
-            <span className="mt-1 font-semibold text-white">
+          <div className="flex flex-col border-0 border-l border-solid border-border-primary pl-2">
+            <span className="text-[9px] font-bold text-ww-soft">{t('summary.active')}</span>
+            <span className="mt-1 text-[11px] font-extrabold text-ww-ink">
               ¥
               {formatThousands(summary.activeMonthlyTotal)}
             </span>
           </div>
-          <div className="flex flex-col border-l border-white/30 pl-2">
-            <span className="text-white/75">{t('summary.itemCount')}</span>
-            <span className="mt-1 font-semibold text-white">
+          <div className="flex flex-col border-0 border-l border-solid border-border-primary pl-2">
+            <span className="text-[9px] font-bold text-ww-soft">{t('summary.itemCount')}</span>
+            <span className="mt-1 text-[11px] font-extrabold text-ww-ink">
               {activeCount}
               {' '}
               /
@@ -62,7 +63,7 @@ const SummaryCard: React.FC<SummaryCardProps> = memo((props) => {
           </div>
         </div>
       </div>
-    </div>
+    </GradientPanel>
   );
 });
 

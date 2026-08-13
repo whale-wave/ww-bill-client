@@ -20,6 +20,7 @@ import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { formatLocalizedMonthDay, formatLocalizedYear } from '@/shared/lib';
 import { DesignIcon } from '@/shared/ui';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 
@@ -70,6 +71,7 @@ function formatAmount(value: number, isHidden: boolean) {
 function groupRecords(
   records: readonly RecordEntry[],
   showDailySummary: boolean,
+  locale: string,
   t: (key: string) => string,
   onRecordClick: (record: RecordEntry) => void,
 ): RecordOverviewListGroup[] {
@@ -95,7 +97,7 @@ function groupRecords(
     );
 
     return {
-      dateLabel: dayjs(dateKey).format('M月D日ddd'),
+      dateLabel: formatLocalizedMonthDay(`${dateKey}T00:00:00`, locale),
       dateTime: dateKey,
       key: dateKey,
       records: groupedRecords.map(record => ({
@@ -123,8 +125,9 @@ function groupRecords(
 }
 
 function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string }) {
-  const { t } = useTranslation('ledger');
+  const { i18n, t } = useTranslation('ledger');
   const navigate = useNavigate();
+  const locale = i18n?.resolvedLanguage ?? i18n?.language ?? 'zh-CN';
   const [month, setMonth] = useState(() => formatMonthStart(new Date()));
   const filters = useMemo(() => buildMonthRecordRange(month), [month]);
   const query = useLedgerRecordsQuery({ params: { filters, ledgerId } });
@@ -134,6 +137,7 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
     () => groupRecords(
       query.data.data,
       preferenceQuery.data?.showDailySummary !== false,
+      locale,
       t,
       record => navigate(
         ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, record.id),
@@ -142,6 +146,7 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
     ),
     [
       ledgerId,
+      locale,
       navigate,
       preferenceQuery.data?.showDailySummary,
       query.data.data,
@@ -150,7 +155,7 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
   );
   return (
     <RecordOverviewPresentation
-      emptyDescription={t('home.empty')}
+      emptyDescription={t('home.emptyDescription')}
       errorDescription={t('common.loadErrorDescription')}
       errorTitle={t('common.loadError')}
       groups={groups}
@@ -171,7 +176,7 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
           },
         ],
         period: {
-          label: `${month.slice(0, 4)}年`,
+          label: formatLocalizedYear(`${month}T00:00:00`, locale),
           value: (
             <RecordMonthPicker
               month={dayjs(month)}

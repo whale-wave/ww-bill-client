@@ -53,13 +53,17 @@ export function ActionMenuCard({
 }: ActionMenuCardProps) {
   const isGradientTiles = variant === 'gradient-tiles';
   const isDetailShortcuts = variant === 'detail-shortcuts';
+  const hasScrollableDetailShortcuts = isDetailShortcuts && items.length > 3;
   const isMineActions = variant === 'mine-actions';
   return (
     <div
       aria-label={ariaLabel}
       className={cn(
         isDetailShortcuts
-          ? 'flex gap-[10px] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+          ? cn(
+              'flex gap-[10px] overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+              hasScrollableDetailShortcuts && 'snap-x snap-mandatory',
+            )
           : isGradientTiles
             ? 'flex snap-x gap-[10px] overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
             : `grid ${columnClassNames[columns]} ${isMineActions ? 'gap-1' : 'gap-2'}`,
@@ -86,7 +90,10 @@ export function ActionMenuCard({
               && `h-[75px] w-[calc((100%_-_20px)/3)] min-w-[calc((100%_-_20px)/3)] snap-start gap-2 rounded-[16px] px-2 pb-3 pt-4 ${tileToneClassNames[tone]}`,
               isDetailShortcuts
               && cn(
-                'h-[70px] min-w-[91px] flex-[1_0_91px] gap-[7px] rounded-[14px] border border-white/90 px-[6px] py-3',
+                'h-[70px] gap-[7px] rounded-[14px] border border-white/90 px-[6px] py-3',
+                hasScrollableDetailShortcuts
+                  ? 'w-[calc((100%_-_30px)/4)] min-w-[calc((100%_-_30px)/4)] flex-none snap-start'
+                  : 'min-w-0 flex-1',
                 tone === 'pink'
                   ? 'bg-[linear-gradient(142.431deg,#fff_0%,#ffe8f2_100%)] text-[#c05070] shadow-[0_3px_6px_rgba(200,80,112,0.14)]'
                   : tone === 'purple'

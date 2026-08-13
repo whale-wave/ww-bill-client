@@ -1,4 +1,5 @@
 import { MinusOutline } from 'antd-mobile-icons';
+import { useTranslation } from '@/shared/i18n';
 
 interface RemoveLedgerBadgeProps {
   action: 'archive' | 'leave';
@@ -13,7 +14,8 @@ export function RemoveLedgerBadge({
   ledgerName,
   onClick,
 }: RemoveLedgerBadgeProps) {
-  const actionLabel = action === 'archive' ? '归档' : '退出';
+  const { t } = useTranslation('ledger');
+  const actionLabel = t(action === 'archive' ? 'center.archive' : 'center.leave');
 
   return (
     <button
@@ -28,7 +30,7 @@ export function RemoveLedgerBadge({
       }}
       onKeyDown={event => event.stopPropagation()}
       onPointerDown={event => event.stopPropagation()}
-      title={disabled ? '账本已被平台暂停，暂不能归档或退出' : `${actionLabel} ${ledgerName}`}
+      title={disabled ? t('center.suspended') : `${actionLabel} ${ledgerName}`}
       type="button"
     >
       <MinusOutline aria-hidden="true" />

@@ -6,7 +6,8 @@ import { useGetAssetQuery } from '../hooks';
 type Result = { group: AssetGroup; percent: number; percentStr: string }[];
 
 export function useAssetSummaryInfo() {
-  const { data: list } = useGetAssetQuery();
+  const query = useGetAssetQuery();
+  const { data: list } = query;
 
   const addAssetList = useMemo(() => {
     if (!list)
@@ -67,7 +68,7 @@ export function useAssetSummaryInfo() {
     const result: Result = groupId.map((id) => {
       const assetList = addAssetList.filter(asset => asset.assetGroup.id === id);
       const total = assetList.reduce((sum, asset) => Number(math.add(sum, asset.amount).toString()), 0);
-      const percent = Number(math.divide(total, addAsset));
+      const percent = addAsset === 0 ? 0 : Number(math.divide(total, addAsset));
 
       return {
         group: assetList[0].assetGroup,
@@ -83,7 +84,7 @@ export function useAssetSummaryInfo() {
     const result: Result = groupId.map((id) => {
       const assetList = subAssetList.filter(asset => asset.assetGroup.id === id);
       const total = assetList.reduce((sum, asset) => Number(math.add(sum, asset.amount).toString()), 0);
-      const percent = Number(math.divide(total, subAsset));
+      const percent = subAsset === 0 ? 0 : Number(math.divide(total, subAsset));
 
       return {
         group: assetList[0].assetGroup,
@@ -97,6 +98,9 @@ export function useAssetSummaryInfo() {
   return {
     ...result,
     addAssetGroupPercent,
+    isError: query.isError,
+    isLoading: query.isLoading,
+    refetch: query.refetch,
     subAssetGroupPercent,
   };
 }

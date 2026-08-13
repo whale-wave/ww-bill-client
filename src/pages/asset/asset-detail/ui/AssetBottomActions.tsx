@@ -1,85 +1,62 @@
 import type { FC } from 'react';
-import type { BottomActionActionItem } from '@/shared/ui';
-import { Dialog, Toast } from 'antd-mobile';
-import { DeleteOutline, SetOutline } from 'antd-mobile-icons';
-import { useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Toast } from 'antd-mobile';
+import { Pencil, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useDeleteAssetByIdMutation } from '@/entities/asset';
-import { isSuccessApi } from '@/shared/api';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { BottomAction } from '@/shared/ui';
+import { confirmAppAction } from '@/shared/ui';
 
-export const AssetBottomActions: FC = () => {
+export const AssetBottomActions: FC<{ assetId?: string }> = ({ assetId }) => {
   const { t } = useTranslation('asset');
   const navigate = useNavigate();
-  const { id: _id } = useParams<{ id: string }>();
-  const id = _id!;
+  const id = assetId;
 
-  const [deleteAssetByIdMutate] = useDeleteAssetByIdMutation();
+  const [deleteAssetByIdMutate, deleteState] = useDeleteAssetByIdMutation();
 
-  const actions = useMemo(() => {
-    return [
-      // {
-      //   key: 'transfer',
-      //   render: () => { return '转账'; },
-      //   onClick: () => { },
-      // },
-      {
-        key: 'setting',
-        render: () => {
-          return (
-            <div className="flex items-center space-x-1">
-              <SetOutline className="text-lg" />
-              <div>{t('setting')}</div>
-            </div>
-          );
-        },
-        onClick: () => {
-          navigate(ROUTES_PATH.ASSET_ADD_FORM.getPath(id));
-        },
-      },
-      {
-        key: 'delete',
-        render: () => {
-          return (
-            <div className="flex items-center space-x-1">
-              <DeleteOutline className="text-lg" />
-              <div>{t('deleteAsset')}</div>
-            </div>
-          );
-        },
-        onClick: () => {
-          Dialog.confirm({
-            title: t('confirmDeleteTitle'),
-            content: t('confirmDeleteContent'),
-            confirmText: t('confirmDelete'),
-            onConfirm: async () => {
-              try {
-                Toast.show({
-                  icon: 'loading',
-                  content: t('deleting'),
-                  duration: 0,
-                });
-                const res = await deleteAssetByIdMutate(id);
-                if (isSuccessApi(res)) {
-                  setTimeout(() => {
-                    navigate(-1);
-                  }, 250);
-                }
-              }
-              finally {
-                Toast.clear();
-              }
-            },
-          });
-        },
-      },
-    ] as BottomActionActionItem[];
-  }, []);
+  const handleDelete = async () => {
+    if (!id || deleteState.isLoading)
+      return;
+    const confirmed = await confirmAppAction({
+      cancelText: t('common:nav.cancel'),
+      confirmText: t('confirmDelete'),
+      description: t('confirmDeleteContent'),
+      icon: <Trash2 size={22} strokeWidth={1.8} />,
+      title: t('confirmDeleteTitle'),
+      tone: 'danger',
+    });
+    if (!confirmed)
+      return;
+    try {
+      await deleteAssetByIdMutate(id);
+      Toast.show({ icon: 'success', content: t('detail.deleteSuccess') });
+      navigate(-1);
+    }
+    catch {
+      Toast.show({ icon: 'fail', content: t('detail.deleteFailed') });
+    }
+  };
+
   return (
-    <div>
-      <BottomAction className="h-[50px]" placeholderClassName="h-[50px]" actions={actions}></BottomAction>
-    </div>
+    <footer className="relative z-20 grid shrink-0 grid-cols-2 gap-3 border-0 border-t border-solid border-white/70 bg-white/72 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
+      <button
+        className="flex h-[48px] items-center justify-center gap-2 rounded-[16px] border border-solid border-border-primary bg-white/85 text-[13px] font-extrabold text-primary-deep shadow-ww-xs disabled:opacity-45"
+        disabled={!id}
+        onClick={() => id && navigate(ROUTES_PATH.ASSET_ADD_FORM.getPath(id))}
+        type="button"
+      >
+        <Pencil size={17} strokeWidth={1.9} />
+        {t('detail.edit')}
+      </button>
+      <button
+        className="flex h-[48px] items-center justify-center gap-2 rounded-[16px] border border-solid border-[#f2c5d5] bg-[#fff1f6]/90 text-[13px] font-extrabold text-[#ad496b] shadow-ww-xs disabled:opacity-45"
+        disabled={!id || deleteState.isLoading}
+        onClick={() => void handleDelete()}
+        type="button"
+      >
+        <Trash2 size={17} strokeWidth={1.9} />
+        {t('deleteAsset')}
+      </button>
+    </footer>
   );
 };

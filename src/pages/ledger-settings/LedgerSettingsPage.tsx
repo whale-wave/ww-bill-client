@@ -1,5 +1,18 @@
+import type { ReactNode } from 'react';
 import type { SettingsOverviewSection } from '@/features/workspace-settings';
-import { Button, Dialog, ErrorBlock, Popup, Toast } from 'antd-mobile';
+import { Button, ErrorBlock, Toast } from 'antd-mobile';
+import {
+  Archive,
+  BriefcaseBusiness,
+  Building2,
+  LogOut,
+  Palette,
+  ReceiptText,
+  Settings2,
+  Store,
+  UsersRound,
+  WalletCards,
+} from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -22,19 +35,125 @@ import {
 } from '@/entities/ledger';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
-import {
-  useWorkspaceBack,
-  WorkspaceNavHeader,
-} from '@/features/workspace-navigation';
+import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { SettingsOverviewPresentation } from '@/features/workspace-settings';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import {
+  AppBottomSheet,
+  confirmAppAction,
+  GradientPanel,
+  PageHeader,
+} from '@/shared/ui';
 
 const LEDGER_ICON_KEYS = ['wallet', 'briefcase', 'receipt', 'building', 'users', 'store'] as const;
 const LEDGER_THEME_KEYS = ['blue', 'green', 'amber', 'orange', 'indigo', 'pink'] as const;
 
+const ledgerIconMap = {
+  briefcase: BriefcaseBusiness,
+  building: Building2,
+  receipt: ReceiptText,
+  store: Store,
+  users: UsersRound,
+  wallet: WalletCards,
+} as const;
+
+const ledgerThemeClassNames: Record<typeof LEDGER_THEME_KEYS[number], string> = {
+  amber: 'bg-[#f5b84b]',
+  blue: 'bg-[#55b8d2]',
+  green: 'bg-[#55b989]',
+  indigo: 'bg-[#7f78cf]',
+  orange: 'bg-[#ef9061]',
+  pink: 'bg-[#df789c]',
+};
+
 function isConflict(error: unknown) {
   return typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
+}
+
+function SheetHeading({ description, icon, title }: { description: string; icon: ReactNode; title: string }) {
+  return (
+    <div className="mb-5 flex items-center gap-3.5 pr-10">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] border border-white/80 bg-primary-light/65 text-primary-deep shadow-ww-xs">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <h2 className="truncate text-[17px] font-extrabold text-ww-ink">{title}</h2>
+        <p className="mt-0.5 text-[11px] leading-4 text-ww-mid">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+function PreferenceSwitch({
+  checked,
+  label,
+  onChange,
+  testId,
+}: {
+  checked: boolean;
+  label: string;
+  onChange: (checked: boolean) => void;
+  testId?: string;
+}) {
+  return (
+    <label className="flex min-h-[58px] items-center justify-between rounded-[17px] border border-solid border-border-primary bg-white/75 px-4 shadow-ww-xs">
+      <span className="text-[13px] font-bold text-ww-ink">{label}</span>
+      <input
+        checked={checked}
+        className="peer sr-only"
+        data-testid={testId}
+        onChange={event => onChange(event.target.checked)}
+        type="checkbox"
+      />
+      <span className="relative h-7 w-12 rounded-full bg-[#dce5ea] transition peer-checked:bg-primary">
+        <span className="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow-ww-xs transition-transform peer-checked:translate-x-5" />
+      </span>
+    </label>
+  );
+}
+
+function ChoiceGroup({
+  label,
+  onChange,
+  options,
+  testId,
+  value,
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  options: Array<{ label: string; value: string }>;
+  testId: string;
+  value: string;
+}) {
+  return (
+    <fieldset className="rounded-[18px] border border-solid border-border-primary bg-white/75 p-2 shadow-ww-xs">
+      <legend className="px-2 text-[11px] font-bold text-ww-mid">{label}</legend>
+      <select
+        aria-hidden="true"
+        className="sr-only"
+        data-testid={testId}
+        onChange={event => onChange(event.target.value)}
+        tabIndex={-1}
+        value={value}
+      >
+        {options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
+      </select>
+      <div className={`grid gap-1.5 ${options.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+        {options.map(option => (
+          <button
+            aria-pressed={option.value === value}
+            className={`min-h-10 rounded-[13px] px-2 text-[12px] font-bold transition ${option.value === value ? 'bg-primary text-white shadow-ww-xs' : 'bg-bg-gray/65 text-ww-mid'}`}
+            key={option.value}
+            onClick={() => onChange(option.value)}
+            type="button"
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    </fieldset>
+  );
 }
 
 function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
@@ -190,11 +309,13 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
   const handleLeave = async () => {
     if (!currentMember || !canLeave || submittingRef.current)
       return;
-    const confirmed = await Dialog.confirm({
+    const confirmed = await confirmAppAction({
       cancelText: t('common.cancel'),
       confirmText: t('settings.leaveConfirmAction'),
-      content: t('settings.leaveConfirmDescription'),
+      description: t('settings.leaveConfirmDescription'),
+      icon: <LogOut size={22} strokeWidth={1.8} />,
       title: t('settings.leaveConfirmTitle'),
+      tone: 'danger',
     });
     if (!confirmed)
       return;
@@ -217,11 +338,13 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
     const ledger = ledgerQuery.data;
     if (!ledger || ledger.status !== LedgerStatus.ACTIVE || ledger.kind === LedgerKind.SYSTEM_DEFAULT || submittingRef.current)
       return;
-    const confirmed = await Dialog.confirm({
+    const confirmed = await confirmAppAction({
       cancelText: t('common.cancel'),
       confirmText: t('settings.archiveConfirmAction'),
-      content: t('settings.archiveConfirmDescription'),
+      description: t('settings.archiveConfirmDescription'),
+      icon: <Archive size={22} strokeWidth={1.8} />,
       title: t('settings.archiveConfirmTitle'),
+      tone: 'danger',
     });
     if (!confirmed)
       return;
@@ -246,7 +369,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
   if (!ledgerId || ledgerQuery.isError)
     return <ErrorBlock title={t('common.invalidLedger')} />;
 
-  const showDeveloping = () => Toast.show('开发中');
+  const showDeveloping = () => Toast.show(t('settings.developing'));
   const canUpdateLedger = Boolean(
     ledgerWritable
     && ledger?.capabilities.includes(LedgerCapability.LEDGER_UPDATE),
@@ -272,6 +395,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                 overflowCount: Math.max(0, membersQuery.data.length - 3),
               }]
             : [],
+          title: t('settings.members'),
         },
         {
           id: 'basic',
@@ -299,16 +423,17 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                   kind: 'link',
                   label: `${t('settings.icon')} · ${t('settings.theme')}`,
                   onClick: openBasicEditor,
-                  value: `${ledger.iconKey} · ${ledger.themeKey}`,
+                  value: `${t(`settings.iconOptions.${ledger.iconKey}`, { defaultValue: ledger.iconKey })} · ${t(`settings.themeOptions.${ledger.themeKey}`, { defaultValue: ledger.themeKey })}`,
                 }
               : {
                   icon: 'appearance',
                   id: 'appearance',
                   kind: 'value',
                   label: `${t('settings.icon')} · ${t('settings.theme')}`,
-                  value: `${ledger.iconKey} · ${ledger.themeKey}`,
+                  value: `${t(`settings.iconOptions.${ledger.iconKey}`, { defaultValue: ledger.iconKey })} · ${t(`settings.themeOptions.${ledger.themeKey}`, { defaultValue: ledger.themeKey })}`,
                 },
           ],
+          title: t('settings.basic'),
         },
         {
           id: 'preferences',
@@ -321,6 +446,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
             onClick: openPreferenceEditor,
             value: t(`settings.${preferenceQuery.data?.defaultRecordType ?? LedgerRecordType.EXPENSE}`),
           }],
+          title: t('settings.preferences'),
         },
         {
           id: 'management',
@@ -394,14 +520,14 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
               icon: 'help',
               id: 'help',
               kind: 'placeholder',
-              label: '使用帮助',
+              label: t('settings.help'),
               onClick: showDeveloping,
             },
             {
               icon: 'desktop',
               id: 'desktop',
               kind: 'placeholder',
-              label: '添加桌面入口',
+              label: t('settings.desktop'),
               onClick: showDeveloping,
             },
           ],
@@ -437,18 +563,41 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
         },
       ]
     : [];
+  const LedgerPreviewIcon = ledgerIconMap[iconKey as keyof typeof ledgerIconMap] ?? WalletCards;
+  const themePreviewClass = ledgerThemeClassNames[themeKey as typeof LEDGER_THEME_KEYS[number]] ?? 'bg-primary';
+  const CurrentLedgerIcon = ledgerIconMap[ledger?.iconKey as keyof typeof ledgerIconMap] ?? WalletCards;
+  const currentThemeClass = ledgerThemeClassNames[ledger?.themeKey as typeof LEDGER_THEME_KEYS[number]] ?? 'bg-primary';
 
   return (
-    <div className="page-new overflow-hidden bg-bg-gray">
-      <WorkspaceNavHeader
+    <div className="page-new relative overflow-hidden" data-ledger-settings-page>
+      <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-24 h-52 w-52 rounded-full bg-primary-light/35 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -left-20 top-[52%] h-48 w-48 rounded-full bg-ww-pink-light/25 blur-3xl" />
+      <PageHeader
+        backLabel={t('common:nav.back')}
         onBack={onBack}
+        subtitle={t('settings.subtitle')}
         title={t('settings.title')}
       />
-      <main className="min-h-0 flex-grow overflow-auto">
-        <SettingsOverviewPresentation sections={sections} />
+      <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(24px,env(safe-area-inset-bottom))]" data-ledger-settings-content>
+        <div className="mx-auto w-full max-w-[520px]">
+          {ledger && (
+            <GradientPanel className="mb-5 flex items-center gap-3.5 px-4 py-4" data-ledger-settings-overview elevation="low" surface="ice">
+              <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] border border-white/80 text-white shadow-ww-xs ${currentThemeClass}`}>
+                <CurrentLedgerIcon size={22} strokeWidth={1.8} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2 className="truncate text-[14px] font-extrabold text-ww-ink">{ledger.name}</h2>
+                <p className="mt-0.5 text-[11px] leading-4 text-ww-mid">{t('settings.overviewDescription')}</p>
+              </div>
+              <span className="shrink-0 rounded-full border border-white/80 bg-white/60 px-2.5 py-1 text-[10px] font-bold text-primary-deep">
+                {t('settings.monthStartDayValue', { day: ledger.monthStartDay })}
+              </span>
+            </GradientPanel>
+          )}
+          <SettingsOverviewPresentation sections={sections} />
+        </div>
       </main>
-      <Popup
-        bodyClassName="rounded-t-[12px]"
+      <AppBottomSheet
         destroyOnClose
         onMaskClick={() => setEditor(null)}
         position="bottom"
@@ -457,78 +606,73 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
         onClose={() => setEditor(null)}
       >
         {editor === 'basic' && (
-          <section className="max-h-[82vh] overflow-auto px-4 pb-[calc(24px+env(safe-area-inset-bottom))] pt-12">
-            <h2 className="text-lg font-medium">{t('settings.basic')}</h2>
-            <label className="mt-4 block text-sm text-font-gray">
-              {t('settings.name')}
-              <input className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] px-3 text-font-black" maxLength={30} onChange={event => setName(event.target.value)} value={name} />
+          <section className="max-h-[82vh] overflow-auto px-[18px] pb-[calc(24px+env(safe-area-inset-bottom))] pt-12">
+            <SheetHeading description={t('settings.basicHint')} icon={<Palette size={21} />} title={t('settings.basic')} />
+            <label className="block">
+              <span className="text-[11px] font-bold text-ww-mid">{t('settings.name')}</span>
+              <input className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/80 px-4 text-[14px] font-semibold text-ww-ink outline-none shadow-ww-xs transition focus:border-primary" maxLength={30} onChange={event => setName(event.target.value)} value={name} />
             </label>
-            <label className="mt-4 block text-sm text-font-gray">
-              {t('settings.monthStartDay')}
-              <input className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] px-3 text-font-black" max="28" min="1" onChange={event => setMonthStartDay(Number(event.target.value))} type="number" value={monthStartDay} />
+            <label className="mt-4 block">
+              <span className="text-[11px] font-bold text-ww-mid">{t('settings.monthStartDay')}</span>
+              <input className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/80 px-4 text-[14px] font-semibold text-ww-ink outline-none shadow-ww-xs transition focus:border-primary" max="28" min="1" onChange={event => setMonthStartDay(Number(event.target.value))} type="number" value={monthStartDay} />
             </label>
-            <label className="mt-4 block text-sm text-font-gray">
-              {t('settings.icon')}
-              <select className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] bg-white px-3 text-font-black" data-testid="ledger-icon" onChange={event => setIconKey(event.target.value)} value={iconKey}>
+            <fieldset className="mt-5">
+              <legend className="text-[11px] font-bold text-ww-mid">{t('settings.icon')}</legend>
+              <select aria-hidden="true" className="sr-only" data-testid="ledger-icon" onChange={event => setIconKey(event.target.value)} tabIndex={-1} value={iconKey}>
                 {!LEDGER_ICON_KEYS.includes(iconKey as typeof LEDGER_ICON_KEYS[number]) && <option value={iconKey}>{iconKey}</option>}
                 {LEDGER_ICON_KEYS.map(value => <option key={value} value={value}>{t(`settings.iconOptions.${value}`)}</option>)}
               </select>
-            </label>
-            <label className="mt-4 block text-sm text-font-gray">
-              {t('settings.theme')}
-              <select className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] bg-white px-3 text-font-black" data-testid="ledger-theme" onChange={event => setThemeKey(event.target.value)} value={themeKey}>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {LEDGER_ICON_KEYS.map((value) => {
+                  const Icon = ledgerIconMap[value];
+                  const selected = iconKey === value;
+                  return (
+                    <button aria-pressed={selected} className={`flex min-h-[62px] flex-col items-center justify-center gap-1 rounded-[16px] border border-solid text-[10px] font-bold transition ${selected ? 'border-primary bg-primary-light/55 text-primary-deep shadow-ww-xs' : 'border-border-primary bg-white/65 text-ww-mid'}`} key={value} onClick={() => setIconKey(value)} type="button">
+                      <Icon size={19} strokeWidth={1.8} />
+                      {t(`settings.iconOptions.${value}`)}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+            <fieldset className="mt-5">
+              <legend className="text-[11px] font-bold text-ww-mid">{t('settings.theme')}</legend>
+              <select aria-hidden="true" className="sr-only" data-testid="ledger-theme" onChange={event => setThemeKey(event.target.value)} tabIndex={-1} value={themeKey}>
                 {!LEDGER_THEME_KEYS.includes(themeKey as typeof LEDGER_THEME_KEYS[number]) && <option value={themeKey}>{themeKey}</option>}
                 {LEDGER_THEME_KEYS.map(value => <option key={value} value={value}>{t(`settings.themeOptions.${value}`)}</option>)}
               </select>
-            </label>
-            <Button block className="mt-5" color="primary" data-testid="ledger-basic-save" loading={patchState.isLoading} onClick={handleBasicSave}>{t('common.save')}</Button>
+              <div className="mt-2 grid grid-cols-6 gap-2">
+                {LEDGER_THEME_KEYS.map(value => (
+                  <button aria-label={t(`settings.themeOptions.${value}`)} aria-pressed={themeKey === value} className={`flex aspect-square items-center justify-center rounded-[15px] border-2 border-solid transition ${themeKey === value ? 'border-primary bg-white shadow-ww-xs' : 'border-transparent bg-white/55'}`} key={value} onClick={() => setThemeKey(value)} type="button">
+                    <span className={`h-6 w-6 rounded-full ${ledgerThemeClassNames[value]}`} />
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+            <div className="mt-4 flex items-center gap-3 rounded-[17px] border border-solid border-border-primary bg-white/75 px-4 py-3 shadow-ww-xs">
+              <span className={`flex h-11 w-11 items-center justify-center rounded-[15px] text-white shadow-ww-xs ${themePreviewClass}`}><LedgerPreviewIcon size={21} /></span>
+              <span className="min-w-0 flex-1 truncate text-[13px] font-extrabold text-ww-ink">{name || ledger?.name}</span>
+            </div>
+            <Button block className="mt-5 !h-12 !rounded-[17px] !text-[14px] !font-extrabold" color="primary" data-testid="ledger-basic-save" loading={patchState.isLoading} onClick={handleBasicSave}>{t('common.save')}</Button>
           </section>
         )}
         {editor === 'preferences' && (
-          <section className="max-h-[82vh] overflow-auto px-4 pb-[calc(24px+env(safe-area-inset-bottom))] pt-12">
-            <h2 className="text-lg font-medium">{t('settings.preferences')}</h2>
-            <label className="mt-4 flex min-h-12 items-center justify-between text-sm text-font-black">
-              {t('settings.hideTotal')}
-              <input checked={hideTotalAmount} data-testid="ledger-hide-total" onChange={event => setHideTotalAmount(event.target.checked)} type="checkbox" />
-            </label>
-            <label className="flex min-h-12 items-center justify-between text-sm text-font-black">
-              {t('settings.dailySummary')}
-              <input checked={showDailySummary} onChange={event => setShowDailySummary(event.target.checked)} type="checkbox" />
-            </label>
-            <label className="mt-3 block text-sm text-font-gray">
-              {t('settings.defaultRecordType')}
-              <select className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] bg-white px-3 text-font-black" data-testid="ledger-default-record-type" onChange={event => setDefaultRecordType(event.target.value as LedgerRecordType)} value={defaultRecordType}>
-                <option value={LedgerRecordType.EXPENSE}>{t('settings.expense')}</option>
-                <option value={LedgerRecordType.INCOME}>{t('settings.income')}</option>
-              </select>
-            </label>
-            <label className="mt-4 block text-sm text-font-gray">
-              {t('settings.defaultChartPeriod')}
-              <select className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] bg-white px-3 text-font-black" data-testid="ledger-default-chart-period" onChange={event => setDefaultChartPeriod(event.target.value as LedgerChartPeriod)} value={defaultChartPeriod}>
-                <option value={LedgerChartPeriod.WEEK}>{t('charts.period.week')}</option>
-                <option value={LedgerChartPeriod.MONTH}>{t('charts.period.month')}</option>
-                <option value={LedgerChartPeriod.YEAR}>{t('charts.period.year')}</option>
-              </select>
-            </label>
-            <label className="mt-4 block text-sm text-font-gray">
-              {t('settings.defaultChartMetric')}
-              <select className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] bg-white px-3 text-font-black" data-testid="ledger-default-chart-metric" onChange={event => setDefaultChartMetric(event.target.value as LedgerChartMetric)} value={defaultChartMetric}>
-                <option value={LedgerChartMetric.EXPENSE}>{t('settings.expense')}</option>
-                <option value={LedgerChartMetric.INCOME}>{t('settings.income')}</option>
-                <option value={LedgerChartMetric.NET}>{t('settings.net')}</option>
-              </select>
-            </label>
-            <label className="mt-4 block text-sm text-font-gray">
-              {t('settings.defaultChartDisplay')}
-              <select className="mt-1 h-12 w-full rounded border border-solid border-[#EBEBEB] bg-white px-3 text-font-black" data-testid="ledger-default-chart-display" onChange={event => setDefaultChartDisplay(event.target.value as LedgerChartDisplay)} value={defaultChartDisplay}>
-                <option value={LedgerChartDisplay.PIE}>{t('charts.display.pie')}</option>
-                <option value={LedgerChartDisplay.LINE}>{t('charts.display.line')}</option>
-              </select>
-            </label>
-            <Button block className="mt-5" color="primary" data-testid="ledger-preferences-save" loading={preferenceState.isLoading} onClick={handlePreferenceSave}>{t('common.save')}</Button>
+          <section className="max-h-[82vh] overflow-auto px-[18px] pb-[calc(24px+env(safe-area-inset-bottom))] pt-12">
+            <SheetHeading description={t('settings.preferencesHint')} icon={<Settings2 size={21} />} title={t('settings.preferences')} />
+            <div className="space-y-2">
+              <PreferenceSwitch checked={hideTotalAmount} label={t('settings.hideTotal')} onChange={setHideTotalAmount} testId="ledger-hide-total" />
+              <PreferenceSwitch checked={showDailySummary} label={t('settings.dailySummary')} onChange={setShowDailySummary} />
+            </div>
+            <div className="mt-4 space-y-3">
+              <ChoiceGroup label={t('settings.defaultRecordType')} onChange={value => setDefaultRecordType(value as LedgerRecordType)} options={[{ label: t('settings.expense'), value: LedgerRecordType.EXPENSE }, { label: t('settings.income'), value: LedgerRecordType.INCOME }]} testId="ledger-default-record-type" value={defaultRecordType} />
+              <ChoiceGroup label={t('settings.defaultChartPeriod')} onChange={value => setDefaultChartPeriod(value as LedgerChartPeriod)} options={[{ label: t('charts.period.week'), value: LedgerChartPeriod.WEEK }, { label: t('charts.period.month'), value: LedgerChartPeriod.MONTH }, { label: t('charts.period.year'), value: LedgerChartPeriod.YEAR }]} testId="ledger-default-chart-period" value={defaultChartPeriod} />
+              <ChoiceGroup label={t('settings.defaultChartMetric')} onChange={value => setDefaultChartMetric(value as LedgerChartMetric)} options={[{ label: t('settings.expense'), value: LedgerChartMetric.EXPENSE }, { label: t('settings.income'), value: LedgerChartMetric.INCOME }, { label: t('settings.net'), value: LedgerChartMetric.NET }]} testId="ledger-default-chart-metric" value={defaultChartMetric} />
+              <ChoiceGroup label={t('settings.defaultChartDisplay')} onChange={value => setDefaultChartDisplay(value as LedgerChartDisplay)} options={[{ label: t('charts.display.pie'), value: LedgerChartDisplay.PIE }, { label: t('charts.display.line'), value: LedgerChartDisplay.LINE }]} testId="ledger-default-chart-display" value={defaultChartDisplay} />
+            </div>
+            <Button block className="mt-5 !h-12 !rounded-[17px] !text-[14px] !font-extrabold" color="primary" data-testid="ledger-preferences-save" loading={preferenceState.isLoading} onClick={handlePreferenceSave}>{t('common.save')}</Button>
           </section>
         )}
-      </Popup>
+      </AppBottomSheet>
     </div>
   );
 }

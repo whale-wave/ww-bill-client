@@ -1,10 +1,61 @@
 .asset-chart {
-  :global {
-    .adm-tabs-header {
-      display: none;
-    }
-    .adm-tabs-content {
-      padding: 0;
-    }
+  position: relative;
+  isolation: isolate;
+
+  &::before,
+  &::after {
+    position: absolute;
+    z-index: 0;
+    border-radius: 999px;
+    content: '';
+    pointer-events: none;
+    filter: blur(2px);
+  }
+
+  &::before {
+    top: 62px;
+    right: -64px;
+    width: 176px;
+    height: 176px;
+    background: radial-gradient(circle, rgba(111, 194, 220, 0.22), rgba(111, 194, 220, 0));
+  }
+
+  &::after {
+    bottom: 112px;
+    left: -92px;
+    width: 210px;
+    height: 210px;
+    background: radial-gradient(circle, rgba(240, 160, 184, 0.15), rgba(240, 160, 184, 0));
+  }
+}
+
+.scroll-area {
+  overscroll-behavior-y: contain;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tab-content {
+  animation: tab-enter 220ms ease-out both;
+}
+
+@keyframes tab-enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-content {
+    animation: none;
   }
 }

@@ -11,10 +11,12 @@ import {
 } from '@/features/ledger-collaboration';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { formatLocalizedDateTime } from '@/shared/lib';
 import { NavBar } from '@/shared/ui';
 
 const LedgerApplicationsPage: FC = () => {
-  const { t } = useTranslation('ledger');
+  const { i18n, t } = useTranslation('ledger');
+  const locale = i18n?.resolvedLanguage ?? i18n?.language ?? 'zh-CN';
   const navigate = useNavigate();
   const query = useMyJoinRequestsQuery();
 
@@ -58,7 +60,7 @@ const LedgerApplicationsPage: FC = () => {
                   <div className="min-w-0 pr-3">
                     <p className="one-line text-sm text-font-black">{request.applicantRemark}</p>
                     <p className="mt-1 text-xs text-font-gray">
-                      {new Date(request.createdAt).toLocaleString()}
+                      {formatLocalizedDateTime(request.createdAt, locale)}
                     </p>
                   </div>
                   <CollaborationStatusBadge

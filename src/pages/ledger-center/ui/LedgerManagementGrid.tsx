@@ -1,6 +1,7 @@
 import type { LedgerListItem } from '@/entities/ledger';
 import { Grid } from 'antd-mobile';
 import { LedgerCoverCard } from '@/entities/ledger';
+import { useTranslation } from '@/shared/i18n';
 
 interface LedgerManagementGridProps {
   ledgers: readonly LedgerListItem[];
@@ -13,15 +14,17 @@ export function LedgerManagementGrid({
   onEnterSortMode,
   onOpen,
 }: LedgerManagementGridProps) {
+  const { t } = useTranslation('ledger');
+
   return (
     <div
-      aria-label="自定义账本"
+      aria-label={t('center.customGrid')}
       className="ledger-management-grid"
-      data-columns="3"
+      data-columns="2"
       data-testid="ledger-management-grid"
       role="list"
     >
-      <Grid columns={3} gap={[14, 16]}>
+      <Grid columns={2} gap={[14, 16]}>
         {ledgers.map(ledger => (
           <Grid.Item key={ledger.id}>
             <div role="listitem">

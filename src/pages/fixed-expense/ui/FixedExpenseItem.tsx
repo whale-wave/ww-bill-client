@@ -71,29 +71,30 @@ const FixedExpenseItem: React.FC<FixedExpenseItemProps> = memo((props) => {
   };
 
   return (
-    <div
+    <button
       className={cn(
         className,
-        'flex overflow-hidden rounded-xl border border-slate-100 bg-white shadow-[0_6px_18px_rgba(15,23,42,0.04)] active:opacity-80',
+        'flex w-full overflow-hidden rounded-[20px] border border-solid border-border-primary bg-white/80 p-0 text-left shadow-ww-xs backdrop-blur-xl transition active:scale-[0.99]',
       )}
       onClick={onClick}
+      type="button"
     >
       <div className={cn('w-[3px] flex-shrink-0', priorityBarColorMap[item.priority])} />
-      <div className="flex flex-grow flex-col px-3 py-3">
+      <div className="flex min-w-0 flex-grow flex-col px-4 py-3.5">
         <div className="flex items-start justify-between">
           <div className="flex flex-grow items-center space-x-2 overflow-hidden pr-2">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600">
-              <TypeIcon size={15} strokeWidth={1.8} />
+            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[13px] bg-primary-light/55 text-primary-deep">
+              <TypeIcon size={18} strokeWidth={1.8} />
             </span>
-            <span className="truncate text-base font-medium text-slate-800">
+            <span className="truncate text-[14px] font-extrabold text-ww-ink">
               {item.name}
             </span>
           </div>
-          <div className="flex flex-shrink-0 items-baseline space-x-0.5 text-slate-900">
-            <span className="text-base font-semibold">
+          <div className="flex flex-shrink-0 items-baseline space-x-0.5 text-ww-ink">
+            <span className="text-[14px] font-extrabold">
               {formatAmountWithCurrency(item.amount, item.currency)}
             </span>
-            <span className="text-xs text-font-gray">
+            <span className="text-[10px] font-semibold text-ww-soft">
               /
               {t(cycleKeyMap[item.cycle])}
             </span>
@@ -104,7 +105,7 @@ const FixedExpenseItem: React.FC<FixedExpenseItemProps> = memo((props) => {
           <div className="flex items-center space-x-1.5">
             <span
               className={cn(
-                'inline-flex items-center space-x-1 rounded px-1.5 py-0.5 text-xs',
+                'inline-flex items-center space-x-1 rounded-full px-2 py-1 text-[9px] font-bold',
                 statusColor.bg,
                 statusColor.text,
               )}
@@ -112,23 +113,23 @@ const FixedExpenseItem: React.FC<FixedExpenseItemProps> = memo((props) => {
               <span className={cn('h-1.5 w-1.5 rounded-full', statusColor.dot)} />
               <span>{t(statusKeyMap[item.status])}</span>
             </span>
-            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">
+            <span className="rounded-full bg-primary-light/35 px-2 py-1 text-[9px] font-bold text-primary-deep">
               {t(typeKeyMap[item.type])}
             </span>
             {item.autoRenew && (
-              <span className="rounded bg-cyan-50 px-1.5 py-0.5 text-xs text-cyan-700">
+              <span className="rounded-full bg-[#fff1f6] px-2 py-1 text-[9px] font-bold text-[#ad496b]">
                 {t('form.autoRenew')}
               </span>
             )}
           </div>
           {nextBillingText && (
-            <span className={cn('text-xs', toneTextClass[tone])}>
+            <span className={cn('text-[10px] font-bold', toneTextClass[tone])}>
               {nextBillingText}
             </span>
           )}
         </div>
       </div>
-    </div>
+    </button>
   );
 });
 
