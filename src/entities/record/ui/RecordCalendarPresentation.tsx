@@ -106,14 +106,13 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
         onBack={onBack}
         right={<button className="border-0 bg-transparent" onClick={onToday} type="button">{todayLabel}</button>}
       >
-        <button
+        <div
           className="flex items-center justify-center space-x-2 border-0 bg-transparent"
           onClick={onMonthClick}
-          type="button"
         >
           <span>{month.format('YYYY年MM月')}</span>
           <DownFill className="text-base" />
-        </button>
+        </div>
       </NavBar>
 
       {state === 'loading'
