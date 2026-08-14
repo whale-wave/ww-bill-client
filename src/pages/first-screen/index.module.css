@@ -1,14 +1,191 @@
 .bg {
   z-index: 222;
-  background: var(--ww-theme-color);
+  isolation: isolate;
+  background: linear-gradient(154.699deg, #e2f6ff 6.9018%, #f4fbff 50%, #fff2f7 93.098%);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateY(-10%);
+  animation: enter 640ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.logoFrame {
+  position: relative;
+  display: grid;
+  width: 142px;
+  height: 142px;
+  place-items: center;
+}
+
+.logoHalo,
+.logoSurface,
+.logoWrap {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.logoHalo {
+  inset: 0;
+  background: rgba(111, 194, 220, 0.2);
+  filter: blur(2px);
+  animation: breathe 1.8s ease-in-out infinite;
+}
+
+.logoSurface {
+  inset: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow:
+    0 12px 30px rgba(60, 140, 180, 0.16),
+    inset 0 1px rgba(255, 255, 255, 0.75);
+}
+
+.logoWrap {
+  z-index: 1;
+  display: grid;
+  width: 106px;
+  height: 106px;
+  place-items: center;
+  overflow: hidden;
 }
 
 .logo {
-  margin-bottom: 6px;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.logo-text {
-  font-size: 28px;
+.brandCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.logoText {
+  color: var(--ww-theme-text-color);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+}
+
+.tagline {
+  margin-top: 8px;
+  color: var(--ww-text-color-mid);
+  font-size: 13px;
   font-weight: 600;
-  color: #323334;
+  letter-spacing: 0.16em;
+  line-height: 20px;
+}
+
+.orbitOuter,
+.orbitInner {
+  position: absolute;
+  z-index: 0;
+  border: 1px solid rgba(111, 194, 220, 0.19);
+  border-radius: 50%;
+}
+
+.orbitOuter {
+  width: min(132vw, 560px);
+  height: min(132vw, 560px);
+  transform: translateY(-13%);
+}
+
+.orbitInner {
+  width: min(91vw, 388px);
+  height: min(91vw, 388px);
+  transform: translateY(-13%);
+}
+
+.bubbleLeft,
+.bubbleRight {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(1px);
+}
+
+.bubbleLeft {
+  bottom: 17%;
+  left: -42px;
+  width: 124px;
+  height: 124px;
+  background: rgba(200, 234, 246, 0.68);
+}
+
+.bubbleRight {
+  top: 18%;
+  right: -30px;
+  width: 94px;
+  height: 94px;
+  background: rgba(255, 216, 230, 0.64);
+}
+
+.loading {
+  position: absolute;
+  bottom: max(42px, calc(26px + env(safe-area-inset-bottom)));
+  left: 50%;
+  width: 76px;
+  transform: translateX(-50%);
+}
+
+.loadingTrack {
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(74, 170, 196, 0.18);
+}
+
+.loadingFill {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ww-theme-color-deep);
+  animation: loading 1.2s cubic-bezier(0.45, 0, 0.55, 1) both;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-10% + 12px)) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(-10%) scale(1);
+  }
+}
+
+@keyframes breathe {
+  50% {
+    transform: scale(1.06);
+    opacity: 0.72;
+  }
+}
+
+@keyframes loading {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content,
+  .logoHalo,
+  .loadingFill {
+    animation: none;
+  }
 }

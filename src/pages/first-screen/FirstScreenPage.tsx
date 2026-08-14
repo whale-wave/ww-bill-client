@@ -1,46 +1,54 @@
 import type { FC } from 'react';
 import classNames from 'classnames';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import newLogo from '@/assets/brand/whale-logo-transparent.png';
 import config from '@/shared/config';
 import styles from './index.module.css';
 
 const FirstScreen: FC = () => {
-  const el = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  const close = () => {
-    setTimeout(() => {
-      // el.current!.remove();
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
       navigate('/detail');
     }, 1200);
-  };
 
-  useEffect(() => {
-    close();
-  }, []);
+    return () => window.clearTimeout(timer);
+  }, [navigate]);
 
   return (
     <div
       className={classNames([
         styles.bg,
-        'fixed w-full h-full flex flex-col justify-center items-center',
+        'fixed inset-0 flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden',
       ])}
-      ref={el}
     >
-      <div
-        className="flex flex-col justify-center items-center"
-        style={{
-          transform: 'translateY(-33.333333%)',
-        }}
-      >
-        <img
-          className="w-[200px] h-[200px]"
-          src={newLogo}
-          alt={config.appName}
-        />
-        <span className={classNames(styles['logo-text'], 'font-display')}>{config.appName}</span>
+      <span aria-hidden="true" className={styles.orbitOuter} />
+      <span aria-hidden="true" className={styles.orbitInner} />
+      <span aria-hidden="true" className={styles.bubbleLeft} />
+      <span aria-hidden="true" className={styles.bubbleRight} />
+      <main className={styles.content}>
+        <div className={styles.logoFrame}>
+          <span aria-hidden="true" className={styles.logoHalo} />
+          <span aria-hidden="true" className={styles.logoSurface} />
+          <span className={styles.logoWrap}>
+            <img
+              className={styles.logo}
+              src={newLogo}
+              alt={config.appName}
+            />
+          </span>
+        </div>
+        <div className={styles.brandCopy}>
+          <span className={classNames(styles.logoText, 'font-display')}>{config.appName}</span>
+          <span className={styles.tagline}>记清当下，理清生活</span>
+        </div>
+      </main>
+      <div aria-label="正在加载" className={styles.loading} role="status">
+        <span className={styles.loadingTrack}>
+          <span className={styles.loadingFill} />
+        </span>
       </div>
     </div>
   );
