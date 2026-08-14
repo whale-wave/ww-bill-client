@@ -52,7 +52,7 @@ describe('create budget category page', () => {
     expect(container.querySelector('.bwm-nav-bar')).toBeNull();
     expect(container.textContent).toContain('budget:selectCategoryTitle');
     expect(container.querySelector('[data-budget-category="1"]')?.classList).toContain('h-[92.5px]');
-    expect(container.querySelector('[data-budget-category="1"] .lucide-utensils')).not.toBeNull();
+    expect(container.querySelector('[data-budget-category="1"] .lucide-cooking-pot')).not.toBeNull();
 
     act(() => container.querySelector<HTMLButtonElement>('[data-budget-category="1"]')?.click());
     expect(container.querySelector('[data-budget-model-visible="true"]')?.textContent).toBe('餐饮');

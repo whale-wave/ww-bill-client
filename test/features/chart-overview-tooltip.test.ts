@@ -62,7 +62,7 @@ describe('chart overview aggregate tooltip', () => {
 
     expect(tooltip).toContain('data-chart-tooltip="transactions"');
     expect(tooltip).toContain('Lunch');
-    expect(tooltip).toContain('lucide-utensils');
+    expect(tooltip).toContain('lucide-cooking-pot');
     expect(tooltip).toContain('¥');
   });
 });
