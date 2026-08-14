@@ -470,6 +470,42 @@ describe('ledger category and tag management', () => {
     });
   });
 
+  it('keeps row actions mounted while a reorder request is pending', () => {
+    const firstCategory = {
+      createdAt: '',
+      icon: 'meal',
+      iconType: 'BUILTIN',
+      id: 1,
+      isCustom: true,
+      ledgerId: ledger.id,
+      name: '餐饮',
+      sortOrder: 0,
+      status: 'ACTIVE',
+      type: 'sub',
+      updatedAt: '',
+      version: 2,
+    } as const;
+    hooks.useLedgerCategoriesQuery.mockReturnValue(query([
+      firstCategory,
+      { ...firstCategory, icon: 'traffic', id: 2, name: '交通', sortOrder: 1 },
+    ]));
+    hooks.useReorderLedgerCategoriesMutation.mockReturnValue([
+      vi.fn(),
+      { isLoading: true },
+    ]);
+
+    const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
+
+    const archiveButtons = container.querySelectorAll<HTMLButtonElement>(
+      '[aria-label="categories.archive"]',
+    );
+    expect(archiveButtons).toHaveLength(2);
+    expect([...archiveButtons].every(button => button.disabled)).toBe(true);
+    expect([...archiveButtons].every(button => !button.classList.contains('opacity-35')))
+      .toBe(true);
+    expect(container.querySelectorAll('[aria-label="categories.edit"]')).toHaveLength(2);
+  });
+
   it('uses the crop only for preview and uploads the original image for server validation', async () => {
     hooks.useCategoryIconCatalogQuery.mockReturnValue(query([{
       group: 'other',

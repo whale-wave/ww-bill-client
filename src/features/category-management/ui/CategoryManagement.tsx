@@ -89,6 +89,7 @@ function SortableCategoryRow({
   onEdit,
   position,
   total,
+  writePending,
 }: {
   canManage: boolean;
   category: CategoryEntity;
@@ -97,10 +98,11 @@ function SortableCategoryRow({
   onEdit: () => void;
   position: number;
   total: number;
+  writePending: boolean;
 }) {
   const { t } = useTranslation('ledger');
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
-    disabled: !canManage,
+    disabled: !canManage || writePending,
     id: category.id,
   });
   const style: CSSProperties = {
@@ -119,8 +121,8 @@ function SortableCategoryRow({
       {canManage && (
         <button
           aria-label={disableArchive ? t('categories.lastActive') : t('categories.archive')}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-0 bg-[#fff1f2] text-[#ef5261] disabled:cursor-not-allowed disabled:opacity-35"
-          disabled={disableArchive}
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-0 bg-[#fff1f2] text-[#ef5261] disabled:cursor-not-allowed ${disableArchive ? 'opacity-35' : ''}`}
+          disabled={disableArchive || writePending}
           onClick={onArchive}
           type="button"
         >
@@ -148,7 +150,8 @@ function SortableCategoryRow({
       {canManage && category.isCustom && (
         <button
           aria-label={t('categories.edit')}
-          className="flex h-9 w-9 items-center justify-center rounded-xl border-0 bg-transparent text-[#6f8798]"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border-0 bg-transparent text-[#6f8798] disabled:cursor-not-allowed"
+          disabled={writePending}
           onClick={onEdit}
           type="button"
         >
@@ -165,6 +168,7 @@ function SortableCategoryRow({
             total,
           })}
           className="flex h-10 w-8 touch-none items-center justify-center rounded-xl border-0 bg-transparent text-[#9eb0bd]"
+          disabled={writePending}
           type="button"
         >
           <GripVertical size={20} />
@@ -599,7 +603,7 @@ export function CategoryManagement({
                       <div aria-label={t('categories.current')} role="list">
                         {active.map((category, index) => (
                           <SortableCategoryRow
-                            canManage={canManage && !patchState.isLoading && !reorderState.isLoading}
+                            canManage={canManage}
                             category={category}
                             disableArchive={active.length <= 1}
                             key={category.id}
@@ -607,6 +611,7 @@ export function CategoryManagement({
                             onEdit={() => setEditor({ category, mode: 'edit' })}
                             position={index + 1}
                             total={active.length}
+                            writePending={patchState.isLoading || reorderState.isLoading}
                           />
                         ))}
                       </div>
