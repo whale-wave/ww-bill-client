@@ -93,7 +93,9 @@ function ScopedLedgerSearch({
       filterOptions={{
         categories: optionsQuery.data.categories.map(item => ({
           id: item.id,
-          label: item.name,
+          label: item.status === 'ARCHIVED'
+            ? t('records.archivedCategory', { name: item.name })
+            : item.name,
         })),
         tags: optionsQuery.data.tags.map(item => ({
           id: item.id,

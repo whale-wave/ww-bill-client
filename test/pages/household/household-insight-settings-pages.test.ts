@@ -511,8 +511,6 @@ describe('household budget and charts', () => {
       data: {
         amount: '500',
         categoryKey: 'travel',
-        categoryNameSnapshot: 'Travel',
-        iconKeySnapshot: 'travel',
         periodStart: expect.stringMatching(/^\d{4}-\d{2}-01$/),
         periodType: HouseholdBudgetPeriodType.MONTH,
       },
@@ -520,7 +518,7 @@ describe('household budget and charts', () => {
     });
   });
 
-  it('keeps the original category snapshots and version when editing a category', async () => {
+  it('keeps the category key and version when editing a category', async () => {
     hooks.upsertBudget.mockResolvedValue({ data: {} });
     hooks.useHouseholdBudgetsQuery.mockReturnValue(query({
       ...householdCategoryOverview(7),
@@ -555,8 +553,6 @@ describe('household budget and charts', () => {
       data: {
         amount: '600',
         categoryKey: 'food',
-        categoryNameSnapshot: 'Dining',
-        iconKeySnapshot: 'food',
         periodStart: expect.stringMatching(/^\d{4}-\d{2}-01$/),
         periodType: HouseholdBudgetPeriodType.MONTH,
         version: 7,
@@ -565,7 +561,7 @@ describe('household budget and charts', () => {
     });
   });
 
-  it('edits a category and retries with refreshed snapshots and version after conflict', async () => {
+  it('edits a category and retries with the refreshed version after conflict', async () => {
     const initialOverview = householdCategoryOverview(7);
     const refreshedOverview = householdCategoryOverview(8);
     const conflict = { message: 'conflict', statusCode: 409 };
@@ -603,8 +599,6 @@ describe('household budget and charts', () => {
       data: {
         amount: '600',
         categoryKey: 'food',
-        categoryNameSnapshot: 'Dining',
-        iconKeySnapshot: 'food',
         periodStart: expect.stringMatching(/^\d{4}-\d{2}-01$/),
         periodType: HouseholdBudgetPeriodType.MONTH,
         version: 7,
@@ -615,8 +609,6 @@ describe('household budget and charts', () => {
       data: {
         amount: '650',
         categoryKey: 'food',
-        categoryNameSnapshot: 'Dining',
-        iconKeySnapshot: 'food',
         periodStart: expect.stringMatching(/^\d{4}-\d{2}-01$/),
         periodType: HouseholdBudgetPeriodType.MONTH,
         version: 8,

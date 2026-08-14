@@ -78,7 +78,9 @@ const BudgetContent: FC<BudgetContentProps> = ({
       categories.set(editingCategoryKey, {
         categoryKey: editingCategoryKey,
         categoryName: editor.budget.categoryName,
+        icon: editor.budget.icon,
         iconKey: editor.budget.iconKey,
+        iconType: editor.budget.iconType,
       });
     }
     return [...categories.values()];
@@ -102,7 +104,7 @@ const BudgetContent: FC<BudgetContentProps> = ({
     amount: category.spent,
     budgetAmount: category.budget.amount,
     category: {
-      icon: category.budget.iconKey,
+      icon: category.budget.icon ?? category.budget.iconKey,
       name: category.budget.categoryName ?? '',
     },
     id: category.budget.id,
@@ -138,7 +140,9 @@ const BudgetContent: FC<BudgetContentProps> = ({
       ? {
           categoryKey: editor.budget.categoryKey,
           categoryName: editor.budget.categoryName ?? '',
+          icon: editor.budget.icon,
           iconKey: editor.budget.iconKey,
+          iconType: editor.budget.iconType,
         }
       : categoryOptions.find(category => category.categoryKey === categoryKey);
     if (!(Number(normalizedAmount) > 0)
@@ -156,10 +160,6 @@ const BudgetContent: FC<BudgetContentProps> = ({
           ...(editor?.kind === 'category' && selectedCategory
             ? {
                 categoryKey: selectedCategory.categoryKey,
-                categoryNameSnapshot: selectedCategory.categoryName,
-                ...(selectedCategory.iconKey
-                  ? { iconKeySnapshot: selectedCategory.iconKey }
-                  : {}),
               }
             : {}),
           ...(editor?.budget ? { version: editor.budget.version } : {}),

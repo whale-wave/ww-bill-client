@@ -31,6 +31,7 @@ const hooks = vi.hoisted(() => ({
   updateTag: vi.fn(),
   useArchiveLedgerMutation: vi.fn(),
   useArchiveLedgerTagMutation: vi.fn(),
+  useCategoryIconCatalogQuery: vi.fn(),
   useCreateLedgerCategoryMutation: vi.fn(),
   useCreateLedgerTagMutation: vi.fn(),
   useDeleteLedgerCategoryMutation: vi.fn(),
@@ -42,6 +43,9 @@ const hooks = vi.hoisted(() => ({
   useLeaveLedgerMutation: vi.fn(),
   usePatchLedgerMutation: vi.fn(),
   usePatchLedgerPreferencesMutation: vi.fn(),
+  usePatchLedgerCategoryMutation: vi.fn(),
+  useReorderLedgerCategoriesMutation: vi.fn(),
+  useUploadLedgerCategoryIconMutation: vi.fn(),
   useUpdateLedgerCategoryMutation: vi.fn(),
   useUpdateLedgerTagMutation: vi.fn(),
 }));
@@ -71,9 +75,13 @@ vi.mock('antd-mobile', async importOriginal => ({
 vi.mock('@/entities/category', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/category')>()),
   useCreateLedgerCategoryMutation: hooks.useCreateLedgerCategoryMutation,
+  useCategoryIconCatalogQuery: hooks.useCategoryIconCatalogQuery,
   useDeleteLedgerCategoryMutation: hooks.useDeleteLedgerCategoryMutation,
   useLedgerCategoriesQuery: hooks.useLedgerCategoriesQuery,
+  usePatchLedgerCategoryMutation: hooks.usePatchLedgerCategoryMutation,
+  useReorderLedgerCategoriesMutation: hooks.useReorderLedgerCategoriesMutation,
   useUpdateLedgerCategoryMutation: hooks.useUpdateLedgerCategoryMutation,
+  useUploadLedgerCategoryIconMutation: hooks.useUploadLedgerCategoryIconMutation,
 }));
 
 vi.mock('@/entities/ledger-data', async importOriginal => ({
@@ -160,7 +168,24 @@ beforeEach(() => {
     user: { id: 1, name: '我' },
     version: 5,
   }]));
-  hooks.useLedgerCategoriesQuery.mockReturnValue(query([{ createdAt: '', icon: 'meal', id: 1, name: '餐饮', type: 'sub', updatedAt: '' }]));
+  hooks.useLedgerCategoriesQuery.mockReturnValue(query([{
+    createdAt: '',
+    icon: 'meal',
+    iconType: 'BUILTIN',
+    id: 1,
+    isCustom: true,
+    ledgerId: ledger.id,
+    name: '餐饮',
+    sortOrder: 0,
+    status: 'ACTIVE',
+    type: 'sub',
+    updatedAt: '',
+    version: 1,
+  }]));
+  hooks.useCategoryIconCatalogQuery.mockReturnValue(query([]));
+  hooks.usePatchLedgerCategoryMutation.mockReturnValue([hooks.updateCategory, { isLoading: false }]);
+  hooks.useReorderLedgerCategoriesMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
+  hooks.useUploadLedgerCategoryIconMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
   hooks.useUpdateLedgerCategoryMutation.mockReturnValue([hooks.updateCategory, { isLoading: false }]);
   hooks.useCreateLedgerCategoryMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
   hooks.useDeleteLedgerCategoryMutation.mockReturnValue([hooks.deleteCategory, { isLoading: false }]);
@@ -252,16 +277,20 @@ describe('ledger settings', () => {
     expect(rendered.container.querySelector('[data-settings-row="archive"]')).toBeNull();
   });
 
-  it('hides category and tag management entries from read-only members', () => {
+  it('shows read-only category settings while hiding tag management', () => {
     hooks.useLedgerQuery.mockReturnValue(query({
       ...ledger,
-      capabilities: [LedgerCapability.CATEGORY_READ, LedgerCapability.TAG_READ],
+      capabilities: [
+        LedgerCapability.LEDGER_READ,
+        LedgerCapability.CATEGORY_READ,
+        LedgerCapability.TAG_READ,
+      ],
       myRole: LedgerRole.VIEWER,
     }));
 
     const { container } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
 
-    expect(container.querySelector('[data-settings-row="categories"]')).toBeNull();
+    expect(container.querySelector('[data-settings-row="categories"]')).not.toBeNull();
     expect(container.querySelector('[data-settings-row="tags"]')).toBeNull();
   });
 
@@ -294,7 +323,7 @@ describe('ledger settings', () => {
     const { container } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
 
     expect(container.querySelector<HTMLButtonElement>('[data-settings-row="preferences"]')?.disabled).toBe(true);
-    expect(container.querySelector('[data-settings-row="categories"]')).toBeNull();
+    expect(container.querySelector<HTMLButtonElement>('[data-settings-row="categories"]')?.disabled).toBe(false);
     expect(container.querySelector('[data-settings-row="tags"]')).toBeNull();
   });
 
@@ -330,10 +359,25 @@ describe('ledger settings', () => {
 
 describe('ledger category and tag management', () => {
   it('renames one ledger category inside the URL-scoped ledger', async () => {
-    hooks.updateCategory.mockResolvedValue({ statusCode: 200 });
+    hooks.updateCategory.mockResolvedValue({ version: 2 });
     const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
-    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-category-save-1"]')?.click());
-    expect(hooks.updateCategory).toHaveBeenCalledWith({ categoryId: 1, data: { name: '餐饮' }, ledgerId: 'ledger/a' });
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.edit"]')?.click());
+    const input = document.body.querySelector<HTMLInputElement>('[aria-label="categories.name"] input');
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+      setter?.call(input, '餐饮新');
+      input?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => {
+      const done = [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'categories.done');
+      done?.click();
+    });
+    expect(hooks.updateCategory).toHaveBeenCalledWith({
+      categoryId: 1,
+      data: { name: '餐饮新', version: 1 },
+      ledgerId: 'ledger/a',
+    });
   });
 
   it('updates and archives a tag with its optimistic version', async () => {

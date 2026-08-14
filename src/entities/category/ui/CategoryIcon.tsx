@@ -1,5 +1,6 @@
 import type { LucideProps } from 'lucide-react';
 import type { ComponentType } from 'react';
+import type { CategoryIconType } from '../api';
 import {
   Apple,
   Baby,
@@ -39,11 +40,12 @@ import {
   Wine,
   Wrench,
 } from 'lucide-react';
-import { createElement } from 'react';
+import { createElement, useState } from 'react';
 
-export interface CategoryIconProps extends Omit<LucideProps, 'ref'> {
+export interface CategoryIconProps extends Omit<LucideProps, 'onError' | 'ref'> {
   categoryName?: string;
   iconKey?: string;
+  iconType?: CategoryIconType;
 }
 
 type CategoryGlyph = ComponentType<LucideProps>;
@@ -91,6 +93,11 @@ const glyphByIconKey: Record<string, CategoryGlyph> = {
   'travel': Plane,
   'vegetables': Vegan,
 };
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function hasCategoryGlyph(iconKey: string) {
+  return Boolean(glyphByIconKey[iconKey]);
+}
 
 const glyphByName: Array<[RegExp, CategoryGlyph]> = [
   [/咖啡|茶|饮品/, Coffee],
@@ -147,14 +154,40 @@ function resolveGlyph(iconKey?: string, categoryName?: string): CategoryGlyph {
 export function CategoryIcon({
   categoryName,
   iconKey,
+  iconType,
   size = 18,
   strokeWidth = 1.8,
+  className,
+  style,
   ...props
 }: CategoryIconProps) {
-  return createElement(resolveGlyph(iconKey, categoryName), {
+  const [failedImage, setFailedImage] = useState<string>();
+  const isImage = iconType === 'IMAGE'
+    || (!iconType && /^https:\/\//i.test(iconKey ?? ''));
+  const imageFailed = Boolean(iconKey && failedImage === iconKey);
+
+  if (isImage && !imageFailed) {
+    return (
+      <img
+        aria-hidden="true"
+        className={className}
+        crossOrigin="anonymous"
+        height={size}
+        onError={() => setFailedImage(iconKey)}
+        src={iconKey}
+        style={{ borderRadius: '24%', objectFit: 'cover', ...style }}
+        width={size}
+      />
+    );
+  }
+
+  const glyph = isImage ? ReceiptText : resolveGlyph(iconKey, categoryName);
+  return createElement(glyph, {
     'aria-hidden': true,
+    className,
     size,
     strokeWidth,
+    style,
     ...props,
   });
 }

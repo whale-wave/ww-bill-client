@@ -43,6 +43,7 @@ request.interceptors.response.use(
       Toast.show({ content: i18n.t('common:api.requestTimeout'), icon: 'fail', duration: 1000 });
       console.error('请求超时');
       return Promise.reject(createRequestError({
+        code: undefined,
         data: null,
         message: [i18n.t('common:api.requestTimeout')],
         statusCode: 408,
@@ -53,6 +54,7 @@ request.interceptors.response.use(
       Toast.clear();
       Toast.show({ content: i18n.t('common:api.networkError'), icon: 'fail', duration: 1000 });
       return Promise.reject(createRequestError({
+        code: undefined,
         data: null,
         message: [i18n.t('common:api.networkError')],
         statusCode: 0,
@@ -83,12 +85,13 @@ function createRequestError(response: ReturnType<typeof normalizeErrorResponse>)
 }
 
 function normalizeErrorResponse(response: {
-  data?: Partial<SuccessResponse<unknown>>;
+  data?: Partial<SuccessResponse<unknown>> & { code?: unknown };
   status: number;
   statusText?: string;
 }) {
   const message = response.data?.message ?? response.statusText ?? i18n.t('common:api.requestFailed')!;
   return {
+    code: typeof response.data?.code === 'string' ? response.data.code : undefined,
     data: response.data?.data ?? null,
     message: Array.isArray(message) ? message : [message],
     statusCode: response.data?.statusCode ?? response.status,

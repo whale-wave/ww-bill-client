@@ -157,7 +157,9 @@ export interface HouseholdBudget {
   periodStart: string;
   categoryKey?: string;
   categoryName?: string;
+  icon?: string;
   iconKey?: string;
+  iconType?: 'BUILTIN' | 'IMAGE';
   amount: string;
   version: number;
   createdAt: string;
@@ -189,13 +191,19 @@ export interface HouseholdBudgetOverview {
   spendingByCategory: Array<{
     categoryKey: string;
     categoryName: string;
+    icon?: string;
     iconKey?: string;
+    iconType?: 'BUILTIN' | 'IMAGE';
     spent: string;
   }>;
   availableCategories: Array<{
     categoryKey: string;
     categoryName: string;
+    icon?: string;
     iconKey?: string;
+    iconType?: 'BUILTIN' | 'IMAGE';
+    sortOrder?: number;
+    status?: 'ACTIVE' | 'ARCHIVED';
   }>;
 }
 

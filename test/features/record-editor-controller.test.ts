@@ -20,10 +20,16 @@ vi.mock('@/shared/ui', async importOriginal => ({
 const category: CategoryEntity = {
   createdAt: '',
   icon: 'food',
+  iconType: 'BUILTIN',
   id: 1,
+  isCustom: false,
+  ledgerId: '00000000-0000-4000-8000-000000000001',
   name: '餐饮',
+  sortOrder: 0,
+  status: 'ACTIVE',
   type: 'sub',
   updatedAt: '',
+  version: 1,
 };
 const submit = vi.fn<(draft: RecordDraft) => Promise<void>>();
 let cleanup: (() => void) | undefined;

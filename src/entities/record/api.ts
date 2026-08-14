@@ -31,8 +31,11 @@ export type RecordDateMode = 'range';
 
 export interface RecordFilterCategory {
   icon: string;
+  iconType: 'BUILTIN' | 'IMAGE';
   id: number;
   name: string;
+  sortOrder: number;
+  status: 'ACTIVE' | 'ARCHIVED';
   type: 'add' | 'sub';
 }
 

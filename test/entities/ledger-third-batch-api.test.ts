@@ -7,8 +7,12 @@ import {
 } from '@/entities/budget/api';
 import {
   deleteLedgerCategoryApi,
+  getCategoryIconCatalogApi,
   getLedgerCategoriesApi,
+  patchLedgerCategoryApi,
   putLedgerCategoryApi,
+  reorderLedgerCategoriesApi,
+  uploadLedgerCategoryIconApi,
 } from '@/entities/category/api';
 import { getLedgerChartApi } from '@/entities/chart/api';
 import {
@@ -97,6 +101,39 @@ describe('ledger third-batch canonical APIs', () => {
     expect(request.patch).toHaveBeenCalledWith('/ledgers/ledger%2Fa%20b/budgets/budget%2Fa/amount', { amount: '1200', periodStart: '2026-07-01', type: 0 });
     expect(request.delete).toHaveBeenCalledWith('/ledgers/ledger%2Fa%20b/budgets/category/budget%2Fa', { data: { periodStart: '2026-07-01', type: 0 } });
     expect(request.get).toHaveBeenCalledWith('/ledgers/ledger%2Fa%20b/charts', { params: { category: 'month', type: 'sub' } });
+  });
+
+  it('uses versioned category catalog, patch, order, and image routes', () => {
+    getCategoryIconCatalogApi();
+    getLedgerCategoriesApi('ledger/a b', { status: 'ALL', type: 'sub' });
+    patchLedgerCategoryApi('ledger/a b', 8, { status: 'ARCHIVED', version: 3 });
+    reorderLedgerCategoriesApi('ledger/a b', {
+      items: [{ categoryId: 8, version: 3 }],
+      type: 'sub',
+    });
+    uploadLedgerCategoryIconApi(
+      'ledger/a b',
+      8,
+      new File(['image'], 'icon.webp', { type: 'image/webp' }),
+      4,
+    );
+
+    expect(request.get).toHaveBeenCalledWith('/category/icon-catalog');
+    expect(request.get).toHaveBeenCalledWith('/ledgers/ledger%2Fa%20b/categories', {
+      params: { status: 'ALL', type: 'sub' },
+    });
+    expect(request.patch).toHaveBeenCalledWith('/ledgers/ledger%2Fa%20b/categories/8', {
+      status: 'ARCHIVED',
+      version: 3,
+    });
+    expect(request.patch).toHaveBeenCalledWith('/ledgers/ledger%2Fa%20b/categories/order', {
+      items: [{ categoryId: 8, version: 3 }],
+      type: 'sub',
+    });
+    const upload = request.post.mock.calls.find(call => String(call[0]).endsWith('/categories/8/icon'));
+    expect(upload?.[0]).toBe('/ledgers/ledger%2Fa%20b/categories/8/icon');
+    expect(upload?.[1]).toBeInstanceOf(FormData);
+    expect((upload?.[1] as FormData).get('version')).toBe('4');
   });
 
   it('uses canonical tag, recovery, physical transfer and export routes', () => {

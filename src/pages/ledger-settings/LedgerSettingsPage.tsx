@@ -451,9 +451,8 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
         {
           id: 'management',
           rows: [
-            ...(ledger.capabilities.includes(LedgerCapability.CATEGORY_MANAGE)
+            ...(ledger.capabilities.includes(LedgerCapability.CATEGORY_READ)
               ? [{
-                  disabled: !ledgerWritable,
                   icon: 'category' as const,
                   id: 'categories',
                   kind: 'link' as const,

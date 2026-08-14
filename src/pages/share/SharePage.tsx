@@ -28,6 +28,17 @@ function getSourceFromState(state: unknown): Record<string, unknown> | undefined
   return s;
 }
 
+async function waitForPosterImages(element: HTMLElement) {
+  const images = Array.from(element.querySelectorAll('img'));
+  await Promise.all(images.map(image => image.complete
+    ? Promise.resolve()
+    : new Promise<void>((resolve) => {
+        image.addEventListener('load', () => resolve(), { once: true });
+        image.addEventListener('error', () => resolve(), { once: true });
+      })));
+  await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+}
+
 function Share() {
   const { t } = useTranslation('community');
   const navigate = useNavigate();
@@ -46,6 +57,7 @@ function Share() {
       return;
     }
     try {
+      await waitForPosterImages(canvasRef.current);
       const canvas = await html2canvas(canvasRef.current, {
         backgroundColor: null,
         scale: Math.max(2, window.devicePixelRatio || 1),
