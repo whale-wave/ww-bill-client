@@ -21,6 +21,7 @@ import LedgerTagsPage from '@/pages/ledger-tags/LedgerTagsPage';
 const hooks = vi.hoisted(() => ({
   archiveLedger: vi.fn(),
   archiveTag: vi.fn(),
+  createCategory: vi.fn(),
   deleteCategory: vi.fn(),
   leaveLedger: vi.fn(),
   patchLedger: vi.fn(),
@@ -28,6 +29,7 @@ const hooks = vi.hoisted(() => ({
   refetchLedger: vi.fn(),
   refetchPreferences: vi.fn(),
   updateCategory: vi.fn(),
+  uploadCategory: vi.fn(),
   updateTag: vi.fn(),
   useArchiveLedgerMutation: vi.fn(),
   useArchiveLedgerTagMutation: vi.fn(),
@@ -93,7 +95,10 @@ vi.mock('@/entities/ledger-data', async importOriginal => ({
 }));
 
 vi.mock('@/shared/i18n', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    i18n: { resolvedLanguage: 'zh-CN' },
+    t: (key: string) => key,
+  }),
 }));
 
 const capabilities = Object.values(LedgerCapability);
@@ -185,9 +190,9 @@ beforeEach(() => {
   hooks.useCategoryIconCatalogQuery.mockReturnValue(query([]));
   hooks.usePatchLedgerCategoryMutation.mockReturnValue([hooks.updateCategory, { isLoading: false }]);
   hooks.useReorderLedgerCategoriesMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
-  hooks.useUploadLedgerCategoryIconMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
+  hooks.useUploadLedgerCategoryIconMutation.mockReturnValue([hooks.uploadCategory, { isLoading: false }]);
   hooks.useUpdateLedgerCategoryMutation.mockReturnValue([hooks.updateCategory, { isLoading: false }]);
-  hooks.useCreateLedgerCategoryMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
+  hooks.useCreateLedgerCategoryMutation.mockReturnValue([hooks.createCategory, { isLoading: false }]);
   hooks.useDeleteLedgerCategoryMutation.mockReturnValue([hooks.deleteCategory, { isLoading: false }]);
   hooks.useLedgerTagsQuery.mockReturnValue(query([{ createdAt: '', createdByUserId: 1, id: 'tag/a', ledgerId: ledger.id, name: '聚餐', status: 'ACTIVE', updatedAt: '', version: 4 }]));
   hooks.useUpdateLedgerTagMutation.mockReturnValue([hooks.updateTag, { isLoading: false }]);
@@ -200,6 +205,8 @@ beforeEach(() => {
 afterEach(() => {
   cleanup?.();
   cleanup = undefined;
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe('ledger settings', () => {
@@ -378,6 +385,141 @@ describe('ledger category and tag management', () => {
       data: { name: '餐饮新', version: 1 },
       ledgerId: 'ledger/a',
     });
+  });
+
+  it('renames an image category without replacing its existing icon', async () => {
+    hooks.useLedgerCategoriesQuery.mockReturnValue(query([{
+      createdAt: '',
+      icon: 'https://assets.example.test/category.webp',
+      iconType: 'IMAGE',
+      id: 1,
+      isCustom: true,
+      ledgerId: ledger.id,
+      name: '旅行',
+      sortOrder: 0,
+      status: 'ACTIVE',
+      type: 'sub',
+      updatedAt: '',
+      version: 4,
+    }]));
+    hooks.updateCategory.mockResolvedValue({ version: 5 });
+    const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.edit"]')?.click());
+    const input = document.body.querySelector<HTMLInputElement>('[aria-label="categories.name"] input');
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+      setter?.call(input, '远行');
+      input?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => {
+      [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'categories.done')
+        ?.click();
+    });
+
+    expect(hooks.updateCategory).toHaveBeenCalledWith({
+      categoryId: 1,
+      data: { name: '远行', version: 4 },
+      ledgerId: 'ledger/a',
+    });
+    expect(hooks.uploadCategory).not.toHaveBeenCalled();
+  });
+
+  it('hides and restores categories with the server-issued version', async () => {
+    const activeCategory = {
+      createdAt: '',
+      icon: 'meal',
+      iconType: 'BUILTIN',
+      id: 1,
+      isCustom: true,
+      ledgerId: ledger.id,
+      name: '餐饮',
+      sortOrder: 0,
+      status: 'ACTIVE',
+      type: 'sub',
+      updatedAt: '',
+      version: 2,
+    } as const;
+    const secondCategory = {
+      ...activeCategory,
+      icon: 'traffic',
+      id: 2,
+      name: '交通',
+      sortOrder: 1,
+      version: 3,
+    } as const;
+    hooks.useLedgerCategoriesQuery.mockReturnValue(query([activeCategory, secondCategory]));
+    hooks.updateCategory
+      .mockResolvedValueOnce({ ...activeCategory, status: 'ARCHIVED', version: 3 })
+      .mockResolvedValueOnce({ ...activeCategory, status: 'ACTIVE', sortOrder: -1, version: 4 });
+    const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.archive"]')?.click());
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.restoreName"]')?.click());
+
+    expect(hooks.updateCategory).toHaveBeenNthCalledWith(1, {
+      categoryId: 1,
+      data: { status: 'ARCHIVED', version: 2 },
+      ledgerId: 'ledger/a',
+    });
+    expect(hooks.updateCategory).toHaveBeenNthCalledWith(2, {
+      categoryId: 1,
+      data: { status: 'ACTIVE', version: 3 },
+      ledgerId: 'ledger/a',
+    });
+  });
+
+  it('uses the crop only for preview and uploads the original image for server validation', async () => {
+    hooks.useCategoryIconCatalogQuery.mockReturnValue(query([{
+      group: 'other',
+      key: 'receipt',
+      name: { en: 'Receipt', zh: '账单' },
+    }]));
+    hooks.createCategory.mockResolvedValue({ version: 1 });
+    const bitmap = { close: vi.fn(), height: 200, width: 400 };
+    vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue(bitmap));
+    const context = { drawImage: vi.fn() };
+    const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext')
+      .mockReturnValue(context as unknown as CanvasRenderingContext2D);
+    const toBlob = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob')
+      .mockImplementation(callback => callback(new Blob(['preview'], { type: 'image/webp' })));
+    const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:preview');
+    const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
+
+    await act(async () => {
+      [...container.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'categories.add')
+        ?.click();
+    });
+    const nameInput = document.body.querySelector<HTMLInputElement>('[aria-label="categories.name"] input');
+    const fileInput = document.body.querySelector<HTMLInputElement>('input[type="file"]');
+    const original = new File(['original-image'], 'original.png', { type: 'image/png' });
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+      setter?.call(nameInput, '旅行');
+      nameInput?.dispatchEvent(new Event('input', { bubbles: true }));
+      Object.defineProperty(fileInput, 'files', { configurable: true, value: [original] });
+      fileInput?.dispatchEvent(new Event('change', { bubbles: true }));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    await act(async () => {
+      [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'categories.done')
+        ?.click();
+    });
+
+    expect(context.drawImage).toHaveBeenCalled();
+    expect(hooks.createCategory).toHaveBeenCalledWith(expect.objectContaining({
+      data: { file: original, name: '旅行', type: 'sub' },
+      ledgerId: 'ledger/a',
+    }));
+    expect(getContext).toHaveBeenCalled();
+    expect(toBlob).toHaveBeenCalled();
+    expect(createObjectURL).toHaveBeenCalled();
+    expect(revokeObjectURL).toHaveBeenCalled();
   });
 
   it('updates and archives a tag with its optimistic version', async () => {

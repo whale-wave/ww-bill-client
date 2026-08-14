@@ -476,6 +476,7 @@
     "lastActive": "每种收支至少保留一个当前分类",
     "restoreName": "恢复分类 {{name}}",
     "drag": "拖动分类 {{name}} 调整顺序",
+    "dragPosition": "拖动分类 {{name}} 调整顺序，当前第 {{position}} 位，共 {{total}} 项",
     "edit": "编辑分类",
     "add": "添加分类",
     "addTitle": "添加{{type}}分类",

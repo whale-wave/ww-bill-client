@@ -82,6 +82,7 @@ const glyphByIconKey: Record<string, CategoryGlyph> = {
   'part-time': Briefcase,
   'pet': PawPrint,
   'red-envelope': Gift,
+  'receipt': ReceiptText,
   'repair': Wrench,
   'salary': WalletCards,
   'shopping': ShoppingBag,

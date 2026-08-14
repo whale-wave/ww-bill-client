@@ -165,8 +165,15 @@ export function putLedgerCategoryApi(
 }
 
 /** @deprecated DELETE now archives and exists only for old clients. */
-export function deleteLedgerCategoryApi(ledgerId: string, categoryId: number) {
-  return request.delete<unknown, SuccessResponse<undefined>>(
-    `/ledgers/${encodeURIComponent(ledgerId)}/categories/${encodeURIComponent(categoryId)}`,
-  );
+export function deleteLedgerCategoryApi(
+  ledgerId: string,
+  categoryId: number,
+  version?: number,
+) {
+  const path = `/ledgers/${encodeURIComponent(ledgerId)}/categories/${encodeURIComponent(categoryId)}`;
+  return version == null
+    ? request.delete<unknown, SuccessResponse<undefined>>(path)
+    : request.delete<unknown, SuccessResponse<undefined>>(path, {
+        params: { version },
+      });
 }

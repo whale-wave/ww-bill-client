@@ -8,15 +8,15 @@ function shouldInvalidate(query: Query, change: CategoryCacheChange) {
     return true;
 
   if (change === 'order') {
-    return domain === 'record'
-      && query.queryKey.includes('filter-options');
+    return (domain === 'record' && query.queryKey.includes('filter-options'))
+      || (domain === 'household' && section === 'budget');
   }
 
   if (change === 'status') {
     return domain === 'budget'
       || domain === 'ledger-data'
       || (domain === 'record' && query.queryKey.includes('filter-options'))
-      || (domain === 'household' && section === 'record');
+      || (domain === 'household' && (section === 'record' || section === 'budget'));
   }
 
   return domain === 'record'

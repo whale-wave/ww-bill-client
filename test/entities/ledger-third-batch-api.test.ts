@@ -117,6 +117,7 @@ describe('ledger third-batch canonical APIs', () => {
       new File(['image'], 'icon.webp', { type: 'image/webp' }),
       4,
     );
+    deleteLedgerCategoryApi('ledger/a b', 8, 5);
 
     expect(request.get).toHaveBeenCalledWith('/category/icon-catalog');
     expect(request.get).toHaveBeenCalledWith('/ledgers/ledger%2Fa%20b/categories', {
@@ -134,6 +135,10 @@ describe('ledger third-batch canonical APIs', () => {
     expect(upload?.[0]).toBe('/ledgers/ledger%2Fa%20b/categories/8/icon');
     expect(upload?.[1]).toBeInstanceOf(FormData);
     expect((upload?.[1] as FormData).get('version')).toBe('4');
+    expect(request.delete).toHaveBeenCalledWith(
+      '/ledgers/ledger%2Fa%20b/categories/8',
+      { params: { version: 5 } },
+    );
   });
 
   it('uses canonical tag, recovery, physical transfer and export routes', () => {

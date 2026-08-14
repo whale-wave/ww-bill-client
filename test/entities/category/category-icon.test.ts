@@ -1,7 +1,7 @@
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it } from 'vitest';
-import { CategoryIcon } from '@/entities/category';
+import { CategoryIcon, hasCategoryGlyph } from '@/entities/category';
 
 let cleanup: (() => void) | undefined;
 
@@ -24,6 +24,10 @@ function render(iconKey: string, categoryName?: string, iconType?: 'BUILTIN' | '
 }
 
 describe('category icon', () => {
+  it('keeps the server fallback icon available to the catalog intersection', () => {
+    expect(hasCategoryGlyph('receipt')).toBe(true);
+  });
+
   it.each([
     ['catering', 'lucide-utensils'],
     ['shopping', 'lucide-shopping-bag'],

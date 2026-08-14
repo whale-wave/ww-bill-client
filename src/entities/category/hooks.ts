@@ -185,8 +185,9 @@ export function useUploadLedgerCategoryIconMutation() {
 export function useDeleteLedgerCategoryMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
-    mutationFn: (options: { ledgerId: string; categoryId: number }) =>
-      deleteLedgerCategoryApi(options.ledgerId, options.categoryId).then(assertSuccessApi),
+    mutationFn: (options: { ledgerId: string; categoryId: number; version?: number }) =>
+      deleteLedgerCategoryApi(options.ledgerId, options.categoryId, options.version)
+        .then(assertSuccessApi),
     onSuccess: async () => invalidateCategoryConsumers(queryClient, 'status'),
   });
   return [mutateAsync, rest] as const;

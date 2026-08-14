@@ -24,18 +24,30 @@ describe('category consumer cache invalidation', () => {
     expect(queryClient.getQueryState(householdBudget)?.isInvalidated).toBe(false);
   });
 
-  it('limits sorting invalidation to category lists and filter options', async () => {
+  it('refreshes sorted household budget candidates without touching record lists', async () => {
     const queryClient = new QueryClient();
     const category = ['category', 'ledger', 'ledger-1'];
     const filterOptions = ['record', 'ledger', 'ledger-1', 'filter-options'];
     const recordList = ['record', 'ledger', 'ledger-1', 'list'];
-    for (const key of [category, filterOptions, recordList])
+    const householdBudget = ['household', 'budget', 'household-1'];
+    for (const key of [category, filterOptions, recordList, householdBudget])
       seed(queryClient, key);
 
     await invalidateCategoryConsumers(queryClient, 'order');
 
     expect(queryClient.getQueryState(category)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(filterOptions)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(householdBudget)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(recordList)?.isInvalidated).toBe(false);
+  });
+
+  it('refreshes household budget candidates when category availability changes', async () => {
+    const queryClient = new QueryClient();
+    const householdBudget = ['household', 'budget', 'household-1'];
+    seed(queryClient, householdBudget);
+
+    await invalidateCategoryConsumers(queryClient, 'status');
+
+    expect(queryClient.getQueryState(householdBudget)?.isInvalidated).toBe(true);
   });
 });

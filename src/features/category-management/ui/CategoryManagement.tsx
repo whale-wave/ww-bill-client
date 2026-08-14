@@ -87,12 +87,16 @@ function SortableCategoryRow({
   disableArchive,
   onArchive,
   onEdit,
+  position,
+  total,
 }: {
   canManage: boolean;
   category: CategoryEntity;
   disableArchive: boolean;
   onArchive: () => void;
   onEdit: () => void;
+  position: number;
+  total: number;
 }) {
   const { t } = useTranslation('ledger');
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
@@ -155,7 +159,11 @@ function SortableCategoryRow({
         <button
           {...attributes}
           {...listeners}
-          aria-label={t('categories.drag', { name: category.name })}
+          aria-label={t('categories.dragPosition', {
+            name: category.name,
+            position,
+            total,
+          })}
           className="flex h-10 w-8 touch-none items-center justify-center rounded-xl border-0 bg-transparent text-[#9eb0bd]"
           type="button"
         >
@@ -219,10 +227,12 @@ function CategoryEditorSheet({
     [iconCatalog],
   );
   const [name, setName] = useState(editor.category?.name ?? '');
-  const [iconKey, setIconKey] = useState(
+  const [iconKey, setIconKey] = useState<string | undefined>(
     editor.category?.iconType === 'BUILTIN'
       ? editor.category.icon
-      : availableIcons[0]?.key ?? 'receipt',
+      : editor.mode === 'create'
+        ? availableIcons[0]?.key
+        : undefined,
   );
   const [image, setImage] = useState<File>();
   const [preview, setPreview] = useState<string>();
@@ -231,7 +241,7 @@ function CategoryEditorSheet({
   const normalizedName = name.replace(/^[ \t\r\n\u3000]+|[ \t\r\n\u3000]+$/g, '');
   const valid = Array.from(normalizedName).length >= 1
     && Array.from(normalizedName).length <= 12
-    && Boolean(image || iconKey);
+    && Boolean(image || iconKey || editor.category?.iconType === 'IMAGE');
   const isSaving = createState.isLoading || patchState.isLoading || uploadState.isLoading;
 
   useEffect(() => () => {
@@ -249,7 +259,7 @@ function CategoryEditorSheet({
           setUploadProgress(0);
         await createCategory({
           data: {
-            ...(image ? { file: image } : { iconKey }),
+            ...(image ? { file: image } : { iconKey: iconKey! }),
             name: normalizedName,
             type,
           },
@@ -259,11 +269,13 @@ function CategoryEditorSheet({
       }
       else if (editor.category) {
         let version = editor.category.version;
-        if (normalizedName !== editor.category.name || (!image && iconKey !== editor.category.icon)) {
+        const builtinChanged = Boolean(iconKey)
+          && (editor.category.iconType !== 'BUILTIN' || iconKey !== editor.category.icon);
+        if (normalizedName !== editor.category.name || builtinChanged) {
           const updated = await patchCategory({
             categoryId: editor.category.id,
             data: {
-              ...(!image && iconKey !== editor.category.icon ? { iconKey } : {}),
+              ...(builtinChanged ? { iconKey: iconKey! } : {}),
               ...(normalizedName !== editor.category.name ? { name: normalizedName } : {}),
               version,
             },
@@ -328,7 +340,14 @@ function CategoryEditorSheet({
               <span className="flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-[22px] bg-[#dff1fb] text-primary-deep shadow-[0_12px_30px_rgba(55,130,170,0.16)]">
                 {preview
                   ? <img alt="" className="h-full w-full object-cover" src={preview} />
-                  : <CategoryIcon categoryName={normalizedName} iconKey={iconKey} size={31} />}
+                  : (
+                      <CategoryIcon
+                        categoryName={normalizedName}
+                        iconKey={iconKey ?? editor.category?.icon ?? 'receipt'}
+                        iconType={iconKey ? 'BUILTIN' : editor.category?.iconType}
+                        size={31}
+                      />
+                    )}
               </span>
             </div>
             <label className="block rounded-[18px] border border-solid border-[#e2ebf2] bg-white px-4 py-1 shadow-[0_8px_24px_rgba(48,94,122,0.06)]">
@@ -402,12 +421,20 @@ function CategoryEditorSheet({
                   if (!source)
                     return;
                   try {
+                    if (source.size > 5 * 1024 * 1024)
+                      throw new Error('CATEGORY_ICON_TOO_LARGE');
                     const cropped = await centerCropImage(source);
-                    setImage(cropped);
+                    setImage(source);
+                    setIconKey(undefined);
                     setPreview(URL.createObjectURL(cropped));
                   }
-                  catch {
-                    Toast.show({ content: t('categories.imageFailed'), icon: 'fail' });
+                  catch (error) {
+                    Toast.show({
+                      content: error instanceof Error && error.message === 'CATEGORY_ICON_TOO_LARGE'
+                        ? t('categories.errors.iconTooLarge')
+                        : t('categories.imageFailed'),
+                      icon: 'fail',
+                    });
                   }
                 }}
                 type="file"
@@ -570,7 +597,7 @@ export function CategoryManagement({
                   >
                     <SortableContext items={active.map(item => item.id)} strategy={verticalListSortingStrategy}>
                       <div aria-label={t('categories.current')} role="list">
-                        {active.map(category => (
+                        {active.map((category, index) => (
                           <SortableCategoryRow
                             canManage={canManage && !patchState.isLoading && !reorderState.isLoading}
                             category={category}
@@ -578,6 +605,8 @@ export function CategoryManagement({
                             key={category.id}
                             onArchive={() => void changeStatus(category, 'ARCHIVED')}
                             onEdit={() => setEditor({ category, mode: 'edit' })}
+                            position={index + 1}
+                            total={active.length}
                           />
                         ))}
                       </div>

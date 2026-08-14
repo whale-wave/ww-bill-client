@@ -476,6 +476,7 @@
     "lastActive": "Keep at least one current category for each type",
     "restoreName": "Restore {{name}}",
     "drag": "Drag {{name}} to reorder",
+    "dragPosition": "Drag {{name}} to reorder; position {{position}} of {{total}}",
     "edit": "Edit category",
     "add": "Add category",
     "addTitle": "Add {{type}} category",
