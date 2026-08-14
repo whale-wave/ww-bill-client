@@ -354,10 +354,14 @@ function CategoryEditorSheet({
                     )}
               </span>
             </div>
-            <label className="block rounded-[18px] border border-solid border-[#e2ebf2] bg-white px-4 py-1 shadow-[0_8px_24px_rgba(48,94,122,0.06)]">
+            <label
+              className="ww-category-name-field flex min-h-[54px] items-center rounded-[18px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition-[border-color,box-shadow] focus-within:border-primary-mid focus-within:ring-2 focus-within:ring-[var(--ww-theme-color-light)]"
+              data-testid="category-name-field"
+            >
               <span className="sr-only">{t('categories.name')}</span>
               <Input
                 aria-label={t('categories.name')}
+                className="min-w-0 flex-1 text-[15px] text-ww-ink [--color:var(--ww-theme-text-color)] [--font-size:15px] [--placeholder-color:var(--ww-text-color-soft)]"
                 maxLength={24}
                 onChange={setName}
                 placeholder={t('categories.namePlaceholder')}

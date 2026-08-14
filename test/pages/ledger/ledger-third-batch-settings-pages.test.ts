@@ -365,6 +365,31 @@ describe('ledger settings', () => {
 });
 
 describe('ledger category and tag management', () => {
+  it('uses one stable Whale Wave focus treatment for the category name field', async () => {
+    const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
+
+    await act(async () => {
+      [...container.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'categories.add')
+        ?.click();
+    });
+
+    const field = document.body.querySelector<HTMLElement>('[data-testid="category-name-field"]');
+    const input = field?.querySelector<HTMLInputElement>('input');
+
+    expect(field).not.toBeNull();
+    expect([
+      'min-h-[54px]',
+      'focus-within:border-primary-mid',
+      'focus-within:ring-2',
+      'focus-within:ring-[var(--ww-theme-color-light)]',
+      'ww-category-name-field',
+    ].every(className => field?.classList.contains(className))).toBe(true);
+    expect(input).not.toBeNull();
+    act(() => input?.focus());
+    expect(document.activeElement).toBe(input);
+  });
+
   it('renames one ledger category inside the URL-scoped ledger', async () => {
     hooks.updateCategory.mockResolvedValue({ version: 2 });
     const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
