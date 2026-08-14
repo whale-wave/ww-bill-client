@@ -531,20 +531,13 @@ describe('ledger category and tag management', () => {
     expect(container.querySelectorAll('[aria-label="categories.edit"]')).toHaveLength(2);
   });
 
-  it('uses the crop only for preview and uploads the original image for server validation', async () => {
+  it('previews and uploads the original image for server-side normalization', async () => {
     hooks.useCategoryIconCatalogQuery.mockReturnValue(query([{
       group: 'other',
       key: 'receipt',
       name: { en: 'Receipt', zh: '账单' },
     }]));
     hooks.createCategory.mockResolvedValue({ version: 1 });
-    const bitmap = { close: vi.fn(), height: 200, width: 400 };
-    vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue(bitmap));
-    const context = { drawImage: vi.fn() };
-    const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext')
-      .mockReturnValue(context as unknown as CanvasRenderingContext2D);
-    const toBlob = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob')
-      .mockImplementation(callback => callback(new Blob(['preview'], { type: 'image/webp' })));
     const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:preview');
     const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
     const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
@@ -563,24 +556,56 @@ describe('ledger category and tag management', () => {
       nameInput?.dispatchEvent(new Event('input', { bubbles: true }));
       Object.defineProperty(fileInput, 'files', { configurable: true, value: [original] });
       fileInput?.dispatchEvent(new Event('change', { bubbles: true }));
-      await Promise.resolve();
-      await Promise.resolve();
     });
+    expect(document.body.querySelector<HTMLImageElement>('img[src="blob:preview"]')).not.toBeNull();
     await act(async () => {
       [...document.body.querySelectorAll<HTMLButtonElement>('button')]
         .find(button => button.textContent === 'categories.done')
         ?.click();
     });
 
-    expect(context.drawImage).toHaveBeenCalled();
     expect(hooks.createCategory).toHaveBeenCalledWith(expect.objectContaining({
       data: { file: original, name: '旅行', type: 'sub' },
       ledgerId: 'ledger/a',
     }));
-    expect(getContext).toHaveBeenCalled();
-    expect(toBlob).toHaveBeenCalled();
     expect(createObjectURL).toHaveBeenCalled();
     expect(revokeObjectURL).toHaveBeenCalled();
+  });
+
+  it('keeps the original image submittable when a local preview URL cannot be created', async () => {
+    hooks.createCategory.mockResolvedValue({ version: 1 });
+    vi.spyOn(URL, 'createObjectURL').mockImplementation(() => {
+      throw new Error('preview unavailable');
+    });
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
+
+    await act(async () => {
+      [...container.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'categories.add')
+        ?.click();
+    });
+    const nameInput = document.body.querySelector<HTMLInputElement>('[aria-label="categories.name"] input');
+    const fileInput = document.body.querySelector<HTMLInputElement>('input[type="file"]');
+    const original = new File(['original-image'], 'original.png', { type: 'image/png' });
+
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+      setter?.call(nameInput, '旅行');
+      nameInput?.dispatchEvent(new Event('input', { bubbles: true }));
+      Object.defineProperty(fileInput, 'files', { configurable: true, value: [original] });
+      fileInput?.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    const done = [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.done');
+    expect(done?.disabled).toBe(false);
+    await act(async () => done?.click());
+
+    expect(hooks.createCategory).toHaveBeenCalledWith(expect.objectContaining({
+      data: { file: original, name: '旅行', type: 'sub' },
+      ledgerId: 'ledger/a',
+    }));
   });
 
   it('updates and archives a tag with its optimistic version', async () => {

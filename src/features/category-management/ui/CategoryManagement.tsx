@@ -178,35 +178,6 @@ function SortableCategoryRow({
   );
 }
 
-async function centerCropImage(file: File): Promise<File> {
-  const bitmap = await createImageBitmap(file);
-  const side = Math.min(bitmap.width, bitmap.height);
-  const canvas = document.createElement('canvas');
-  canvas.height = 256;
-  canvas.width = 256;
-  const context = canvas.getContext('2d');
-  if (!context)
-    throw new Error('图片裁切失败');
-  context.drawImage(
-    bitmap,
-    (bitmap.width - side) / 2,
-    (bitmap.height - side) / 2,
-    side,
-    side,
-    0,
-    0,
-    256,
-    256,
-  );
-  bitmap.close();
-  const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(
-    value => value ? resolve(value) : reject(new Error('图片裁切失败')),
-    'image/webp',
-    0.9,
-  ));
-  return new File([blob], 'category.webp', { type: blob.type });
-}
-
 function CategoryEditorSheet({
   editor,
   iconCatalog,
@@ -424,25 +395,25 @@ function CategoryEditorSheet({
               <input
                 accept="image/jpeg,image/png,image/webp"
                 className="sr-only"
-                onChange={async (event) => {
+                onChange={(event) => {
                   const source = event.target.files?.[0];
                   if (!source)
                     return;
-                  try {
-                    if (source.size > 5 * 1024 * 1024)
-                      throw new Error('CATEGORY_ICON_TOO_LARGE');
-                    const cropped = await centerCropImage(source);
-                    setImage(source);
-                    setIconKey(undefined);
-                    setPreview(URL.createObjectURL(cropped));
-                  }
-                  catch (error) {
+                  if (source.size > 5 * 1024 * 1024) {
                     Toast.show({
-                      content: error instanceof Error && error.message === 'CATEGORY_ICON_TOO_LARGE'
-                        ? t('categories.errors.iconTooLarge')
-                        : t('categories.imageFailed'),
+                      content: t('categories.errors.iconTooLarge'),
                       icon: 'fail',
                     });
+                    return;
+                  }
+
+                  setImage(source);
+                  setIconKey(undefined);
+                  try {
+                    setPreview(URL.createObjectURL(source));
+                  }
+                  catch {
+                    setPreview(undefined);
                   }
                 }}
                 type="file"
