@@ -68,10 +68,12 @@ vi.mock('@/entities/user', () => ({
 }));
 
 const dialogConfirm = vi.hoisted(() => vi.fn());
+const toastShow = vi.hoisted(() => vi.fn());
 
 vi.mock('antd-mobile', async importOriginal => ({
   ...(await importOriginal<typeof import('antd-mobile')>()),
   Dialog: { confirm: dialogConfirm },
+  Toast: { show: toastShow },
 }));
 
 vi.mock('@/entities/category', async importOriginal => ({
@@ -200,6 +202,7 @@ beforeEach(() => {
   hooks.useArchiveLedgerTagMutation.mockReturnValue([hooks.archiveTag, { isLoading: false }]);
   dialogConfirm.mockReset();
   dialogConfirm.mockResolvedValue(true);
+  toastShow.mockReset();
 });
 
 afterEach(() => {
@@ -606,6 +609,51 @@ describe('ledger category and tag management', () => {
       data: { file: original, name: '旅行', type: 'sub' },
       ledgerId: 'ledger/a',
     }));
+  });
+
+  it('reports server processing after upload and resets progress immediately on storage failure', async () => {
+    let rejectUpload: ((reason?: unknown) => void) | undefined;
+    hooks.createCategory.mockImplementation(({ onProgress }) => {
+      onProgress?.(1);
+      return new Promise((_resolve, reject) => {
+        rejectUpload = reject;
+      });
+    });
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:preview');
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
+
+    await act(async () => {
+      [...container.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'categories.add')
+        ?.click();
+    });
+    const nameInput = document.body.querySelector<HTMLInputElement>('[aria-label="categories.name"] input');
+    const fileInput = document.body.querySelector<HTMLInputElement>('input[type="file"]');
+    const original = new File(['original-image'], 'original.png', { type: 'image/png' });
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+      setter?.call(nameInput, '旅行');
+      nameInput?.dispatchEvent(new Event('input', { bubbles: true }));
+      Object.defineProperty(fileInput, 'files', { configurable: true, value: [original] });
+      fileInput?.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    act(() => {
+      [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'categories.done')
+        ?.click();
+    });
+    expect(document.body.textContent).toContain('categories.uploadProcessing');
+    await act(async () => rejectUpload?.(Object.assign(new Error('storage unavailable'), {
+      code: 'CATEGORY_ICON_STORAGE_UNAVAILABLE',
+    })));
+
+    expect(toastShow).toHaveBeenCalledWith(expect.objectContaining({
+      content: 'categories.errors.iconStorageUnavailable',
+      icon: 'fail',
+    }));
+    expect(document.body.querySelector('[role="progressbar"]')).toBeNull();
   });
 
   it('updates and archives a tag with its optimistic version', async () => {

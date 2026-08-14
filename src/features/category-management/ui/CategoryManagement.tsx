@@ -58,6 +58,7 @@ const CATEGORY_ERROR_KEYS: Record<string, string> = {
   CATEGORY_ARCHIVED: 'archived',
   CATEGORY_ICON_ANIMATED: 'iconAnimated',
   CATEGORY_ICON_INVALID: 'iconInvalid',
+  CATEGORY_ICON_STORAGE_UNAVAILABLE: 'iconStorageUnavailable',
   CATEGORY_ICON_TOO_LARGE: 'iconTooLarge',
   CATEGORY_LAST_ACTIVE: 'lastActive',
   CATEGORY_NAME_ARCHIVED: 'nameArchived',
@@ -273,11 +274,12 @@ function CategoryEditorSheet({
       onClose();
     }
     catch (error) {
-      await onRefresh();
+      setUploadProgress(0);
       Toast.show({
         content: getCategoryErrorMessage(error, t, t('categories.saveFailed')),
         icon: 'fail',
       });
+      void Promise.resolve(onRefresh()).catch(() => undefined);
     }
     finally {
       submittingRef.current = false;
@@ -343,13 +345,15 @@ function CategoryEditorSheet({
               {Array.from(normalizedName).length}
               /12
             </div>
-            {image && (createState.isLoading || uploadState.isLoading) && (
+            {image && (isSaving || uploadProgress > 0) && (
               <div className="mt-3" role="progressbar" aria-label={t('categories.uploadProgress')} aria-valuemax={100} aria-valuemin={0} aria-valuenow={Math.round(uploadProgress * 100)}>
                 <div className="h-1.5 overflow-hidden rounded-full bg-[#e2edf4]">
                   <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${Math.round(uploadProgress * 100)}%` }} />
                 </div>
                 <p className="mt-1 text-right text-[10px] font-bold text-primary-deep">
-                  {t('categories.uploadProgressValue', { value: Math.round(uploadProgress * 100) })}
+                  {uploadProgress >= 1
+                    ? t('categories.uploadProcessing')
+                    : t('categories.uploadProgressValue', { value: Math.round(uploadProgress * 100) })}
                 </p>
               </div>
             )}
@@ -409,6 +413,7 @@ function CategoryEditorSheet({
 
                   setImage(source);
                   setIconKey(undefined);
+                  setUploadProgress(0);
                   try {
                     setPreview(URL.createObjectURL(source));
                   }
