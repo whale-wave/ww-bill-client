@@ -38,6 +38,7 @@ export interface HouseholdUserSummary {
   name?: string;
   username?: string;
   avatar?: string;
+  nickname?: string;
 }
 
 export interface HouseholdMember {

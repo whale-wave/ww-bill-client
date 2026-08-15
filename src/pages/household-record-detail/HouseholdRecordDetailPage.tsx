@@ -8,7 +8,7 @@ import { CategoryIcon } from '@/entities/category';
 import { useHouseholdRecordQuery } from '@/entities/household';
 import { RecordDetailPresentation, useDeleteRecordMutation } from '@/entities/record';
 import { useGetUserUserInfoQuery } from '@/entities/user';
-import { HouseholdPageState, HouseholdScopeBoundary } from '@/features/household';
+import { getDisplayName, HouseholdPageState, HouseholdScopeBoundary } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
@@ -148,7 +148,7 @@ const RecordDetail: FC<{
         { label: t('recordDetail.remark'), value: record.remark || t('recordDetail.none') },
       ]}
       supplementaryRows={[
-        { label: t('recordDetail.member'), value: record.creator.name || record.creator.username || `#${record.creator.id}` },
+        { label: t('recordDetail.member'), value: getDisplayName(record.creator) },
         ...(tags ? [{ label: t('recordDetail.tags'), value: tags }] : []),
         { label: t('recordDetail.counted'), value: record.counted ? t('recordDetail.counted') : t('recordDetail.uncounted') },
         {

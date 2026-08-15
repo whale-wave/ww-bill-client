@@ -4,6 +4,7 @@ import {
   buildMonthRecordRange,
   formatCountdown,
   formatMonthStart,
+  getDisplayName,
   getFamilyRecordPolicyBehavior,
   shiftMonth,
 } from '@/features/household/model';
@@ -33,5 +34,17 @@ describe('family record policy model', () => {
     [FamilyRecordPolicy.PRIVATE, false, false],
   ])('maps %s to visibility and statistics behavior', (policy, visible, counted) => {
     expect(getFamilyRecordPolicyBehavior(policy)).toEqual({ counted, visible });
+  });
+});
+
+describe('household display name model', () => {
+  it('prefers the household nickname over account names', () => {
+    expect(getDisplayName({ name: 'Avan', nickname: '小明', username: 'avanboy' })).toBe('小明');
+  });
+
+  it('falls back to name, username and finally the placeholder', () => {
+    expect(getDisplayName({ name: 'Avan', username: 'avanboy' })).toBe('Avan');
+    expect(getDisplayName({ username: 'avanboy' })).toBe('avanboy');
+    expect(getDisplayName({})).toBe('—');
   });
 });

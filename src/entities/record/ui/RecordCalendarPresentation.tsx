@@ -1,6 +1,6 @@
 import type { Dayjs } from 'dayjs';
 import type { FC, ReactNode } from 'react';
-import type { RecordOverviewListGroup } from './RecordOverviewList';
+import type { RecordOverviewListGroup, RecordOverviewListItem } from './RecordOverviewList';
 import {
   Button,
   CalendarPickerView,
@@ -38,6 +38,7 @@ interface RecordCalendarPresentationProps {
   onMonthClick?: () => void;
   onRetry?: () => void;
   onToday: () => void;
+  renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName'>) => ReactNode;
   retryLabel?: ReactNode;
   selectedDayLabel?: ReactNode;
   selectedDate: Dayjs;
@@ -99,6 +100,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
   onMonthClick,
   onRetry,
   onToday,
+  renderCategoryIcon,
   retryLabel,
   selectedDayLabel,
   selectedDate,
@@ -246,7 +248,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
                 </div>
                 <div className="mx-[18px] min-h-[220px] flex-grow shrink-0 overflow-hidden rounded-[22px] border border-solid border-white/75 bg-white/58 pb-3 shadow-ww-xs backdrop-blur-md">
                   {groups.length > 0
-                    ? <RecordOverviewList groups={groups} variant="search" />
+                    ? <RecordOverviewList groups={groups} renderCategoryIcon={renderCategoryIcon} variant="search" />
                     : (
                         <IllustratedEmptyState
                           className="min-h-[210px] py-5 [&>div]:mb-3 [&>div]:scale-75"

@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CategoryIcon } from '@/entities/category';
 import {
   RecordCalendarPresentation,
   toRecordSearchGroups,
@@ -57,6 +58,7 @@ function RecordCalendar() {
       onRetry={() => void refetch()}
       onToday={onToToday}
       retryLabel={t('common:button.retry')}
+      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
       selectedDayLabel={t('calendar.selectedDay')}
       selectedDate={selectDateValue}
       state={isLoading ? 'loading' : isError ? 'error' : 'ready'}

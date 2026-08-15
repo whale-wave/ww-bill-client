@@ -67,8 +67,8 @@ export function toMoney(value: string | number | undefined) {
   return Number.isFinite(parsed) ? parsed.toFixed(2) : '0.00';
 }
 
-export function getDisplayName(user: { name?: string; username?: string }) {
-  return user.name?.trim() || user.username?.trim() || '—';
+export function getDisplayName(user: { name?: string; username?: string; nickname?: string }) {
+  return user.nickname?.trim() || user.name?.trim() || user.username?.trim() || '—';
 }
 
 interface HouseholdRecordOverviewOptions {

@@ -2,6 +2,7 @@ import type { Ledger } from '@/entities/ledger';
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CategoryIcon } from '@/entities/category';
 import { LedgerCapability, useLedgerPreferencesQuery } from '@/entities/ledger';
 import {
   createLedgerRecordDetailState,
@@ -114,6 +115,7 @@ function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: strin
         syncDate(today);
       }}
       retryLabel={t('common.retry')}
+      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
       selectedDayLabel={t('record:calendar.selectedDay')}
       selectedDate={selectedDate}
       state={query.isLoading ? 'loading' : query.isError ? 'error' : 'ready'}

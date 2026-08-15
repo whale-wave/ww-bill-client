@@ -5,6 +5,7 @@ import type { RecordEditorLocationState } from '@/features/record-editor';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { CategoryIcon } from '@/entities/category';
 import {
   useHouseholdCalendarQuery,
   useInfiniteHouseholdRecordsQuery,
@@ -139,6 +140,7 @@ const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) =
       onRetry={() => void Promise.all([calendarQuery.refetch(), recordsQuery.refetch()])}
       onToday={handleToToday}
       retryLabel={t('common.retry')}
+      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
       selectedDayLabel={t('record:calendar.selectedDay')}
       selectedDate={selectDateValue}
       state={calendarQuery.isLoading || recordsQuery.isLoading
