@@ -65,7 +65,7 @@ import {
   putFamilyRecordPolicyApi,
   putHouseholdBudgetApi,
 } from './api';
-import { removeHouseholdInvitation } from './invitation-storage';
+import { removeHouseholdInvitation, writeHouseholdInvitation } from './invitation-storage';
 import { householdKeys } from './keys';
 
 export async function getMyHouseholdQueryFn() {
@@ -538,6 +538,7 @@ export function useCreateHouseholdMutation() {
         householdKeys.invitation(response.data.household.id),
         response.data.invitation,
       );
+      writeHouseholdInvitation(response.data.household.id, response.data.invitation);
     },
   });
   return [mutateAsync, rest] as const;
@@ -574,6 +575,7 @@ export function useCreateHouseholdInvitationMutation() {
         householdKeys.invitation(variables.householdId),
         response.data,
       );
+      writeHouseholdInvitation(variables.householdId, response.data);
     },
   });
   return [mutateAsync, rest] as const;
@@ -588,6 +590,7 @@ export function useRevokeHouseholdInvitationMutation() {
         exact: true,
         queryKey: householdKeys.invitation(variables.householdId),
       });
+      removeHouseholdInvitation(variables.householdId);
     },
   });
   return [mutateAsync, rest] as const;

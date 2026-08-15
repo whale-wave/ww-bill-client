@@ -30,6 +30,12 @@ const hooks = vi.hoisted(() => ({
 
 const toastShow = vi.hoisted(() => vi.fn());
 
+const copyToClipboard = vi.hoisted(() => vi.fn());
+
+vi.mock('copy-to-clipboard', () => ({
+  default: copyToClipboard,
+}));
+
 vi.mock('@/entities/household', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/household')>()),
   useAcceptHouseholdInvitationMutation: hooks.useAcceptHouseholdInvitationMutation,
@@ -53,7 +59,11 @@ vi.mock('antd-mobile', async importOriginal => ({
 
 vi.mock('@/shared/i18n', () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string, params?: Record<string, unknown>) => {
+      if (!params?.code)
+        return key;
+      return `${key} ${String(params.code)}`;
+    },
   }),
 }));
 
@@ -270,6 +280,113 @@ describe('household create shared start month', () => {
 });
 
 describe('household invitation', () => {
+  function seedStoredInvitation() {
+    localStorage.setItem('wh:invitation:household/a', JSON.stringify({
+      version: 1,
+      householdId: household.id,
+      id: invitation.id,
+      code: invitation.code,
+      expiresAt: '2099-01-01T00:00:00.000Z',
+    }));
+  }
+
+  function renderInvitationPage() {
+    hooks.useMyHouseholdQuery.mockReturnValue(successfulQuery({
+      ...household,
+      status: HouseholdStatus.PENDING_PARTNER,
+    }));
+    return renderPage(
+      '/households/household%2Fa/invitation',
+      '/households/:householdId/invitation',
+      createElement(HouseholdInvitationPage),
+    );
+  }
+
+  it('restores the persisted code after a remount without regenerating', async () => {
+    seedStoredInvitation();
+    const { container } = renderInvitationPage();
+
+    expect(container.textContent).toContain('ABC123');
+    expect(container.querySelector('[data-testid="household-generate-invite"]')).toBeNull();
+  });
+
+  it('copies the code through the clipboard API', async () => {
+    seedStoredInvitation();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+    const { container } = renderInvitationPage();
+    const copyButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('invitation.copy'));
+
+    await act(async () => copyButton?.click());
+
+    expect(writeText).toHaveBeenCalledWith('ABC123');
+    expect(toastShow).toHaveBeenCalledWith(expect.objectContaining({ content: 'invitation.copied' }));
+  });
+
+  it('falls back to copy-to-clipboard and reports a failure when both paths fail', async () => {
+    seedStoredInvitation();
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn().mockRejectedValue(new Error('denied')) },
+    });
+    copyToClipboard.mockReturnValue(false);
+    const { container } = renderInvitationPage();
+    const copyButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('invitation.copy'));
+
+    await act(async () => copyButton?.click());
+
+    expect(copyToClipboard).toHaveBeenCalledWith('ABC123');
+    expect(toastShow).toHaveBeenCalledWith(expect.objectContaining({ content: 'invitation.copyFailed' }));
+  });
+
+  it('shares through the Web Share API when available', async () => {
+    seedStoredInvitation();
+    const share = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'share', { configurable: true, value: share });
+    const { container } = renderInvitationPage();
+    const shareButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('invitation.share'));
+
+    await act(async () => shareButton?.click());
+
+    expect(share).toHaveBeenCalledWith(expect.objectContaining({
+      text: expect.stringContaining('ABC123'),
+    }));
+  });
+
+  it('copies the invitation text when Web Share is unavailable', async () => {
+    seedStoredInvitation();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+    const { container } = renderInvitationPage();
+    const shareButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('invitation.share'));
+
+    await act(async () => shareButton?.click());
+
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('ABC123'));
+    expect(toastShow).toHaveBeenCalledWith(expect.objectContaining({ content: 'invitation.shareCopied' }));
+  });
+
+  it('stays silent when the user cancels the system share sheet', async () => {
+    seedStoredInvitation();
+    const abortError = new DOMException('cancel', 'AbortError');
+    Object.defineProperty(navigator, 'share', {
+      configurable: true,
+      value: vi.fn().mockRejectedValue(abortError),
+    });
+    const { container } = renderInvitationPage();
+    const shareButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('invitation.share'));
+
+    await act(async () => shareButton?.click());
+
+    expect(toastShow).not.toHaveBeenCalled();
+  });
+
   it('accepts only after explicit mutual consent and routes to canonical home', async () => {
     hooks.acceptInvitation.mockResolvedValue({ data: household });
     const { container, router } = renderPage(

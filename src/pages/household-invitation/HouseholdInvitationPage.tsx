@@ -1,10 +1,13 @@
 import type { FC } from 'react';
 import type { HouseholdInvitation } from '@/entities/household';
 import { Button, Dialog, Toast } from 'antd-mobile';
+import copy from 'copy-to-clipboard';
 import { Copy, Share2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
+  readHouseholdInvitation,
+  removeHouseholdInvitation,
   useCachedHouseholdInvitation,
   useCreateHouseholdInvitationMutation,
   useRevokeHouseholdInvitationMutation,
@@ -21,12 +24,24 @@ function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `household-invite-${Date.now()}`;
 }
 
+function isShareCancelError(error: unknown) {
+  if (typeof error !== 'object' || error === null)
+    return false;
+  const candidate = error as { name?: string; message?: string };
+  return candidate.name === 'AbortError'
+    || candidate.name === 'NotAllowedError'
+    || (typeof candidate.message === 'string'
+      && (candidate.message.includes('AbortError') || candidate.message.includes('cancel')));
+}
+
 const HouseholdInvitationPage: FC = () => {
   const { t } = useTranslation('household');
   const navigate = useNavigate();
   const { householdId = '' } = useParams<{ householdId: string }>();
   const cachedInvitation = useCachedHouseholdInvitation(householdId);
-  const [invitation, setInvitation] = useState<HouseholdInvitation | undefined>(cachedInvitation);
+  const [invitation, setInvitation] = useState<HouseholdInvitation | undefined>(
+    () => readHouseholdInvitation(householdId) ?? cachedInvitation,
+  );
   const [consent, setConsent] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const [createInvitation, createState] = useCreateHouseholdInvitationMutation();
@@ -39,6 +54,11 @@ const HouseholdInvitationPage: FC = () => {
   }, []);
 
   const remaining = invitation ? new Date(invitation.expiresAt).getTime() - now : 0;
+
+  useEffect(() => {
+    if (invitation && remaining <= 0)
+      removeHouseholdInvitation(householdId);
+  }, [householdId, invitation, remaining]);
 
   const handleGenerate = async () => {
     if (!consent) {
@@ -69,11 +89,48 @@ const HouseholdInvitationPage: FC = () => {
     }
   };
 
+  const copyText = async (text: string, successKey: string) => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        void Toast.show({ content: t(successKey), icon: 'success' });
+        return;
+      }
+      if (copy(text))
+        void Toast.show({ content: t(successKey), icon: 'success' });
+      else
+        void Toast.show({ content: t('invitation.copyFailed'), icon: 'fail' });
+    }
+    catch {
+      if (copy(text))
+        void Toast.show({ content: t(successKey), icon: 'success' });
+      else
+        void Toast.show({ content: t('invitation.copyFailed'), icon: 'fail' });
+    }
+  };
+
   const handleCopy = async () => {
     if (!invitation)
       return;
-    await navigator.clipboard?.writeText(invitation.code);
-    void Toast.show({ content: t('invitation.copied'), icon: 'success' });
+    await copyText(invitation.code, 'invitation.copied');
+  };
+
+  const handleShare = async () => {
+    if (!invitation)
+      return;
+    const text = t('invitation.shareText', { code: invitation.code });
+    try {
+      if (navigator.share) {
+        await navigator.share({ text, title: t('invitation.title') });
+        return;
+      }
+      await copyText(text, 'invitation.shareCopied');
+    }
+    catch (error) {
+      if (isShareCancelError(error))
+        return;
+      await copyText(text, 'invitation.shareCopied');
+    }
   };
 
   const handleRevoke = async () => {
@@ -120,7 +177,7 @@ const HouseholdInvitationPage: FC = () => {
                             {t('invitation.copy')}
                           </span>
                         </Button>
-                        <Button onClick={() => { void Toast.show({ content: t('invitation.sharePlaceholder') }); }}>
+                        <Button onClick={() => void handleShare()}>
                           <span className="flex items-center justify-center gap-2">
                             <Share2 size={16} />
                             {t('invitation.share')}

@@ -68,7 +68,6 @@
     "copy": "复制",
     "copied": "邀请码已复制",
     "share": "分享",
-    "sharePlaceholder": "分享功能将在客户端能力接入后开放，邀请码已可复制",
     "expiresIn": "有效期剩余 {{countdown}}",
     "expired": "邀请码已过期，请重新生成",
     "generated": "邀请码已生成",
@@ -85,7 +84,10 @@
     "accepted": "已加入家庭账本",
     "acceptFailed": "加入失败",
     "previewChanged": "共享范围已变更，请重新查看并确认",
-    "consentRequired": "请先确认双方共享同意"
+    "consentRequired": "请先确认双方共享同意",
+    "copyFailed": "复制失败，请长按邀请码复制",
+    "shareCopied": "邀请内容已复制",
+    "shareText": "邀请你加入我的家庭账本\n邀请码：{{code}}"
   },
   "home": {
     "title": "家庭账本",

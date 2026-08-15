@@ -68,7 +68,6 @@
     "copy": "Copy",
     "copied": "Invite code copied",
     "share": "Share",
-    "sharePlaceholder": "Native sharing will be available when the client capability is connected. You can copy the code now.",
     "expiresIn": "Expires in {{countdown}}",
     "expired": "This code expired. Generate a new one.",
     "generated": "Invite code generated",
@@ -85,7 +84,10 @@
     "accepted": "Joined household ledger",
     "acceptFailed": "Could not join",
     "previewChanged": "The sharing range changed. Review it and consent again.",
-    "consentRequired": "Confirm mutual sharing consent first"
+    "consentRequired": "Confirm mutual sharing consent first",
+    "copyFailed": "Copy failed. Long-press the code to copy it.",
+    "shareCopied": "Invitation text copied",
+    "shareText": "Join my household ledger\nInvite code: {{code}}"
   },
   "home": {
     "title": "Household ledger",
