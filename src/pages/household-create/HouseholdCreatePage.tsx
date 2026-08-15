@@ -3,6 +3,7 @@ import { Button, Toast } from 'antd-mobile';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateHouseholdMutation } from '@/entities/household';
+import { useGetRecordBillQuery } from '@/entities/record';
 import { formatMonthStart, getApiErrorMessage } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
@@ -12,14 +13,23 @@ function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `household-${Date.now()}`;
 }
 
+function currentMonth() {
+  return formatMonthStart(new Date()).slice(0, 7);
+}
+
 const HouseholdCreatePage: FC = () => {
   const { t } = useTranslation('household');
   const navigate = useNavigate();
-  const [month, setMonth] = useState(() => formatMonthStart(new Date()).slice(0, 7));
+  const [selectedMonth, setSelectedMonth] = useState<string>();
   const [consent, setConsent] = useState(false);
   const [createHousehold, mutation] = useCreateHouseholdMutation();
   const submittingRef = useRef(false);
   const idempotencyKeyRef = useRef(createIdempotencyKey());
+  const billQuery = useGetRecordBillQuery({
+    params: { type: 'all' },
+  });
+  const earliestMonth = billQuery.data.earliestMonth ?? null;
+  const month = selectedMonth ?? earliestMonth ?? currentMonth();
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -66,7 +76,8 @@ const HouseholdCreatePage: FC = () => {
             <span className="mb-2 block">{t('create.month')}</span>
             <input
               className="h-12 w-full rounded-xl border border-solid border-[#E5E7EB] bg-bg-gray px-3 text-base text-font-black"
-              onChange={event => setMonth(event.target.value)}
+              min={earliestMonth ?? undefined}
+              onChange={event => setSelectedMonth(event.target.value)}
               required
               type="month"
               value={month}

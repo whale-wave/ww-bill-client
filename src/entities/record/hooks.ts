@@ -47,6 +47,7 @@ const emptyBill: GetRecordBillApiResponseData = {
     expand: 0,
     balance: 0,
   },
+  earliestMonth: null,
 };
 
 const emptyRecordFilterOptions: RecordFilterOptionsData = {

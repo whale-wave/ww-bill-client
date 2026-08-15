@@ -22,6 +22,7 @@ const hooks = vi.hoisted(() => ({
   useCachedHouseholdInvitation: vi.fn(),
   useCreateHouseholdInvitationMutation: vi.fn(),
   useCreateHouseholdMutation: vi.fn(),
+  useGetRecordBillQuery: vi.fn(),
   useHouseholdInvitationPreviewQuery: vi.fn(),
   useMyHouseholdQuery: vi.fn(),
   useRevokeHouseholdInvitationMutation: vi.fn(),
@@ -38,6 +39,11 @@ vi.mock('@/entities/household', async importOriginal => ({
   useHouseholdInvitationPreviewQuery: hooks.useHouseholdInvitationPreviewQuery,
   useMyHouseholdQuery: hooks.useMyHouseholdQuery,
   useRevokeHouseholdInvitationMutation: hooks.useRevokeHouseholdInvitationMutation,
+}));
+
+vi.mock('@/entities/record', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/entities/record')>()),
+  useGetRecordBillQuery: hooks.useGetRecordBillQuery,
 }));
 
 vi.mock('antd-mobile', async importOriginal => ({
@@ -103,13 +109,20 @@ function renderPage(pathname: string, routePath: string, element: ReactNode) {
   });
   act(() => root.render(createElement(RouterProvider, { router })));
   cleanup = () => act(() => root.unmount());
-  return { container, router };
+  return { container, root, router };
 }
 
 beforeEach(() => {
   Object.values(hooks).forEach(mock => mock.mockReset());
   toastShow.mockReset();
   hooks.useMyHouseholdQuery.mockReturnValue(successfulQuery(null));
+  hooks.useGetRecordBillQuery.mockReturnValue({
+    data: {
+      all: { income: 0, expand: 0, balance: 0 },
+      list: {},
+      earliestMonth: null,
+    },
+  });
   hooks.useCreateHouseholdMutation.mockReturnValue([hooks.createHousehold, { isLoading: false }]);
   hooks.useCreateHouseholdInvitationMutation.mockReturnValue([hooks.createInvitation, { isLoading: false }]);
   hooks.useRevokeHouseholdInvitationMutation.mockReturnValue([hooks.revokeInvitation, { isLoading: false }]);
@@ -201,6 +214,58 @@ describe('household creation and join', () => {
       form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
     expect(router.state.location.pathname).toBe('/household-invitations/AB%2FC123');
+  });
+});
+
+describe('household create shared start month', () => {
+  function billQueryData(earliestMonth: string | null) {
+    return {
+      all: { income: 0, expand: 0, balance: 0 },
+      list: {},
+      earliestMonth,
+    };
+  }
+
+  it('defaults the month to the first record month and blocks earlier months', async () => {
+    hooks.useGetRecordBillQuery.mockReturnValue({ data: billQueryData('2024-07') });
+    const { container } = renderPage('/household/create', '/household/create', createElement(HouseholdCreatePage));
+    await act(async () => Promise.resolve());
+
+    const input = container.querySelector<HTMLInputElement>('input[type="month"]');
+    expect(input?.value).toBe('2024-07');
+    expect(input?.min).toBe('2024-07');
+  });
+
+  it('falls back to the current month without a lower bound when there are no records', async () => {
+    hooks.useGetRecordBillQuery.mockReturnValue({ data: billQueryData(null) });
+    const { container } = renderPage('/household/create', '/household/create', createElement(HouseholdCreatePage));
+    await act(async () => Promise.resolve());
+
+    const input = container.querySelector<HTMLInputElement>('input[type="month"]');
+    expect(input?.value).toMatch(/^\d{4}-\d{2}$/);
+    expect(input?.min).toBe('');
+  });
+
+  it('does not overwrite a manually picked month when the earliest month arrives later', async () => {
+    let billData = billQueryData(null);
+    hooks.useGetRecordBillQuery.mockImplementation(() => ({ data: billData }));
+    const { container, root, router } = renderPage('/household/create', '/household/create', createElement(HouseholdCreatePage));
+    await act(async () => Promise.resolve());
+
+    const input = container.querySelector<HTMLInputElement>('input[type="month"]');
+    act(() => {
+      if (input) {
+        const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+        setValue?.call(input, '2025-01');
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    billData = billQueryData('2024-07');
+    act(() => root.render(createElement(RouterProvider, { router })));
+    await act(async () => Promise.resolve());
+
+    expect(container.querySelector<HTMLInputElement>('input[type="month"]')?.value).toBe('2025-01');
   });
 });
 

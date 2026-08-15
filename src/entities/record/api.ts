@@ -165,6 +165,7 @@ export interface GetRecordBillApiResponseData {
     [monthOrYear: string]: Bill;
   };
   all: Bill;
+  earliestMonth?: string | null;
 }
 
 // 获取账单
