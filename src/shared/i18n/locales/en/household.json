@@ -22,8 +22,7 @@
     "yearLabel": "{{year}}",
     "income": "Income",
     "expense": "Expense",
-    "net": "Net",
-    "backToHousehold": "Back to household"
+    "net": "Net"
   },
   "entry": {
     "title": "Household ledger",
@@ -329,5 +328,10 @@
     "nickname": "Household nickname",
     "joinedAt": "Joined",
     "empty": "No household members"
+  },
+  "invalid": {
+    "title": "This household ledger is unavailable",
+    "description": "It may have been dissolved, or you are no longer a member.",
+    "action": "Back to household"
   }
 }

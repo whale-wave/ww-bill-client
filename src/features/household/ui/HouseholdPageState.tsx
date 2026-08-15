@@ -1,5 +1,7 @@
 import type { FC, ReactNode } from 'react';
-import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
+import { CircleAlert } from 'lucide-react';
+import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
 
 interface HouseholdPageStateProps {
   children: ReactNode;
@@ -24,20 +26,27 @@ export const HouseholdPageState: FC<HouseholdPageStateProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 text-sm text-font-gray" data-testid="household-loading">
-        <SpinLoading />
-        <span>{loadingLabel}</span>
+      <div className="flex min-h-[320px] flex-col items-center justify-center gap-4" data-testid="household-loading">
+        <span className="flex h-16 w-16 items-center justify-center rounded-[20px] border border-white/70 bg-white/85 text-primary-deep shadow-ww-lg backdrop-blur-xl">
+          <SpinLoading color="primary" />
+        </span>
+        <span className="text-[13px] font-semibold text-ww-mid">{loadingLabel}</span>
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="flex min-h-[360px] flex-col items-center justify-center gap-4 px-4" data-testid="household-error">
-        <ErrorBlock description={errorDescription} status="default" title={errorTitle} />
-        {onRetry && (
-          <Button color="primary" onClick={onRetry}>{retryLabel}</Button>
-        )}
+      <div className="mx-auto w-full max-w-[520px] px-[18px] py-6" data-testid="household-error">
+        <GradientPanel className="overflow-hidden" elevation="low" surface="glass">
+          <IllustratedEmptyState
+            actionLabel={onRetry ? retryLabel : undefined}
+            description={errorDescription}
+            icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+            onAction={onRetry}
+            title={errorTitle}
+          />
+        </GradientPanel>
       </div>
     );
   }

@@ -22,8 +22,7 @@
     "yearLabel": "{{year}}年",
     "income": "收入",
     "expense": "支出",
-    "net": "结余",
-    "backToHousehold": "返回家庭账本"
+    "net": "结余"
   },
   "entry": {
     "title": "家庭账本",
@@ -329,5 +328,10 @@
     "nickname": "家庭昵称",
     "joinedAt": "加入时间",
     "empty": "暂无家庭成员"
+  },
+  "invalid": {
+    "title": "这个家庭账本已不可用",
+    "description": "它可能已经解散，或者你已经不再是家庭成员。",
+    "action": "返回家庭账本"
   }
 }

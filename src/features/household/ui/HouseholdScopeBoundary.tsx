@@ -1,10 +1,12 @@
 import type { FC, ReactNode } from 'react';
 import type { Household } from '@/entities/household';
-import { Button, ErrorBlock } from 'antd-mobile';
+import { ErrorBlock } from 'antd-mobile';
+import { CircleAlert, CircleCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { HouseholdStatus, useMyHouseholdQuery } from '@/entities/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
 import { HouseholdPageState } from './HouseholdPageState';
 
 interface HouseholdScopeBoundaryProps {
@@ -28,20 +30,10 @@ export const HouseholdScopeBoundary: FC<HouseholdScopeBoundaryProps> = ({
     navigate(ROUTES_PATH.HOUSEHOLD.getPath(), { replace: true });
   };
 
-  const backToHouseholdAction = (
-    <Button
-      className="mt-4"
-      fill="outline"
-      onClick={handleBackToEntry}
-    >
-      {t('common.backToHousehold')}
-    </Button>
-  );
-
   if (!householdId) {
     return (
       <div className="flex min-h-[360px] items-center justify-center px-4">
-        <ErrorBlock status="default" title={t('common.invalidContext')} />
+        <ErrorBlock status="default" title={t('invalid.title')} />
       </div>
     );
   }
@@ -58,20 +50,30 @@ export const HouseholdScopeBoundary: FC<HouseholdScopeBoundaryProps> = ({
     >
       {!query.data || query.data.id !== householdId
         ? (
-            <div className="flex min-h-[360px] flex-col items-center justify-center px-4">
-              <ErrorBlock
-                description={t('common.notCurrentHousehold')}
-                status="default"
-                title={t('common.invalidContext')}
-              />
-              {backToHouseholdAction}
+            <div className="mx-auto w-full max-w-[520px] px-[18px] py-6">
+              <GradientPanel className="overflow-hidden" elevation="low" surface="glass">
+                <IllustratedEmptyState
+                  actionLabel={t('invalid.action')}
+                  description={t('invalid.description')}
+                  icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+                  onAction={handleBackToEntry}
+                  title={t('invalid.title')}
+                />
+              </GradientPanel>
             </div>
           )
         : query.data.status === HouseholdStatus.DISSOLVED
           ? (
-              <div className="flex min-h-[360px] flex-col items-center justify-center px-4">
-                <ErrorBlock status="empty" title={t('common.dissolved')} />
-                {backToHouseholdAction}
+              <div className="mx-auto w-full max-w-[520px] px-[18px] py-6">
+                <GradientPanel className="overflow-hidden" elevation="low" surface="glass">
+                  <IllustratedEmptyState
+                    actionLabel={t('invalid.action')}
+                    description={t('invalid.description')}
+                    icon={<CircleCheck className="text-primary-deep" size={38} strokeWidth={1.8} />}
+                    onAction={handleBackToEntry}
+                    title={t('common.dissolved')}
+                  />
+                </GradientPanel>
               </div>
             )
           : query.data.status === HouseholdStatus.PENDING_PARTNER && !allowPending
