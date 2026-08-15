@@ -155,7 +155,7 @@
     "SHARED_UNCOUNTED": "Visible, not counted",
     "SHARED_UNCOUNTEDDescription": "Your partner can view it, but it does not affect budgets or charts",
     "PRIVATE": "Only visible to me",
-    "PRIVATEDescription": "Hide it from the household ledger and keep it in your personal ledger",
+    "PRIVATEDescription": "Only you can see this record in the household ledger; it never counts into household statistics.",
     "save": "Save policy",
     "saved": "Sharing policy updated",
     "notOwned": "Only the record creator can change its sharing policy"

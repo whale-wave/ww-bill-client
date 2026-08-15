@@ -155,7 +155,7 @@
     "SHARED_UNCOUNTED": "家庭可见但不统计",
     "SHARED_UNCOUNTEDDescription": "另一半可见，但不纳入家庭预算和图表统计",
     "PRIVATE": "仅自己可见",
-    "PRIVATEDescription": "从家庭账本隐藏，仅保留在个人账本",
+    "PRIVATEDescription": "只有你自己能在家庭账本中看到这条记录，不会计入家庭统计。",
     "save": "保存策略",
     "saved": "家庭共享策略已更新",
     "notOwned": "只有记录创建人可以调整家庭策略"
