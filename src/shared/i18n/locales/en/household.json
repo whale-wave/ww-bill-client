@@ -97,7 +97,15 @@
     "chartsTab": "Charts",
     "recordCount": "{{count}} records",
     "empty": "No household-visible records this month",
-    "emptyDescription": "Each personal record's household policy controls whether it is visible and counted"
+    "emptyDescription": "Each personal record's household policy controls whether it is visible and counted",
+    "more": "More",
+    "moreTitle": "More actions",
+    "forward": "Forward",
+    "forwardHint": "Forward will be available soon",
+    "about": "About this household",
+    "aboutHint": "The household ledger lets two members manage the records they agree to share.",
+    "exit": "Exit household ledger",
+    "exitHint": "Leave the household ledger page?"
   },
   "records": {
     "title": "Household records",

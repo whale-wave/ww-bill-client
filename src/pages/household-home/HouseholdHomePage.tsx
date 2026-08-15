@@ -1,7 +1,8 @@
 import type { FC } from 'react';
 import type { FamilyRecord, Household } from '@/entities/household';
+import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
-import { CalendarDays, List, Search, Settings, Target } from 'lucide-react';
+import { CalendarDays, Ellipsis, List, Search, Settings, Target } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
@@ -18,18 +19,28 @@ import {
   toHouseholdRecordOverviewGroups,
   toMoney,
 } from '@/features/household';
-import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { DesignIcon } from '@/shared/ui';
+import {
+  confirmAppAction,
+  DesignIcon,
+  showAppActionSheet,
+  showAppInfoDialog,
+} from '@/shared/ui';
 
-const MENU_ITEMS = [
-  { icon: List, key: 'records', route: ROUTES_PATH.HOUSEHOLD_RECORDS },
-  { icon: Settings, key: 'settings', route: ROUTES_PATH.HOUSEHOLD_SETTINGS },
-  { icon: Target, key: 'budget', route: ROUTES_PATH.HOUSEHOLD_BUDGETS },
-  { icon: Search, key: 'search', route: ROUTES_PATH.HOUSEHOLD_RECORD_SEARCH },
-  { icon: CalendarDays, key: 'calendar', route: ROUTES_PATH.HOUSEHOLD_CALENDAR },
-] as const;
+type ShortcutKey = 'records' | 'settings' | 'budget' | 'search' | 'calendar';
+
+const SHORTCUTS: ReadonlyArray<{
+  icon: typeof Target;
+  key: ShortcutKey;
+  route: (householdId: string) => string;
+}> = [
+  { icon: List, key: 'records', route: ROUTES_PATH.HOUSEHOLD_BILL.getPath },
+  { icon: Settings, key: 'settings', route: ROUTES_PATH.HOUSEHOLD_SETTINGS.getPath },
+  { icon: Target, key: 'budget', route: ROUTES_PATH.HOUSEHOLD_BUDGETS.getPath },
+  { icon: Search, key: 'search', route: ROUTES_PATH.HOUSEHOLD_RECORD_SEARCH.getPath },
+  { icon: CalendarDays, key: 'calendar', route: ROUTES_PATH.HOUSEHOLD_CALENDAR.getPath },
+];
 
 const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
   const [month, setMonth] = useState(() => formatMonthStart(new Date()));
@@ -48,6 +59,57 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
   const handleRecord = useCallback((record: FamilyRecord) => {
     navigate(ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(household.id, record.id));
   }, [household.id, navigate]);
+
+  const handleExit = useCallback(() => {
+    navigate(ROUTES_PATH.DETAIL.getPath(), { replace: true });
+  }, [navigate]);
+
+  const handleShowMore = useCallback(() => {
+    showAppActionSheet({
+      actions: [
+        {
+          key: 'forward',
+          onClick: () => Toast.show(t('home.forwardHint')),
+          text: t('home.forward'),
+        },
+        {
+          key: 'about',
+          onClick: () => {
+            void showAppInfoDialog({
+              confirmText: t('common:nav.close'),
+              description: t('home.aboutHint'),
+              title: t('home.about'),
+            });
+          },
+          text: t('home.about'),
+        },
+        {
+          key: 'desktop',
+          onClick: () => Toast.show(t('settings.comingSoon')),
+          text: t('settings.desktop'),
+        },
+        {
+          danger: true,
+          key: 'exit',
+          onClick: () => {
+            void confirmAppAction({
+              cancelText: t('common:nav.cancel'),
+              confirmText: t('home.exit'),
+              description: t('home.exitHint'),
+              title: t('home.exit'),
+              tone: 'danger',
+            }).then((confirmed) => {
+              if (confirmed)
+                handleExit();
+            });
+          },
+          text: t('home.exit'),
+        },
+      ],
+      cancelText: t('common:nav.cancel'),
+      title: t('home.moreTitle'),
+    });
+  }, [handleExit, t]);
 
   const groups = useMemo(() => toHouseholdRecordOverviewGroups(
     recordsQuery.records,
@@ -73,7 +135,29 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
         errorTitle={t('common.loadError')}
         groups={groups}
         header={{
-          actions: <WorkspaceCapsule scope={{ householdId: household.id, type: 'household' }} />,
+          actions: (
+            <>
+              <button
+                aria-label={t('home.more')}
+                data-testid="household-more-action"
+                onClick={handleShowMore}
+                type="button"
+              >
+                <Ellipsis size={20} strokeWidth={2.4} />
+              </button>
+              <button
+                aria-label={t('home.exit')}
+                data-testid="household-exit-action"
+                onClick={handleExit}
+                type="button"
+              >
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 rounded-full bg-current"
+                />
+              </button>
+            </>
+          ),
           metrics: [
             {
               key: 'income',
@@ -103,11 +187,11 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
           renderTitle: className => (
             <h1 className={className}>{t('home.title')}</h1>
           ),
-          shortcuts: MENU_ITEMS.map(({ icon: ShortcutIcon, key, route }) => ({
+          shortcuts: SHORTCUTS.map(({ icon: ShortcutIcon, key, route }) => ({
             icon: <ShortcutIcon size={20} />,
             key,
-            label: key === 'records' ? t('records.title') : t(`home.${key}`),
-            onClick: () => navigate(route.getPath(household.id)),
+            label: t(`home.${key}`),
+            onClick: () => navigate(route(household.id)),
             testId: key === 'search'
               ? 'household-search-action'
               : key === 'calendar'

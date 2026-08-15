@@ -18,6 +18,7 @@ import { i18n } from '@/shared/i18n';
 import {
   deleteLedgerRecordApi,
   deleteRecordApi,
+  getHouseholdRecordBillApi,
   getLedgerRecordBillApi,
   getLedgerRecordByIdApi,
   getLedgerRecordsApi,
@@ -158,6 +159,20 @@ export function useLedgerRecordBillQuery(options: {
   const { data: response, ...rest } = useQuery<SuccessResponse<GetRecordBillApiResponseData>>({
     queryFn: async () => assertSuccessApi(await getLedgerRecordBillApi(ledgerId, filters)),
     queryKey: recordKeys.ledgerBill(ledgerId, filters),
+    ...options.queryOptions,
+  });
+  return { response, data: response?.data ?? emptyBill, ...rest };
+}
+
+export function useHouseholdRecordBillQuery(options: {
+  params: { householdId: string; filters: GetRecordBillApiParams };
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<GetRecordBillApiResponseData>>, 'queryFn' | 'queryKey'>;
+}) {
+  const { householdId, filters } = options.params;
+  const { data: response, ...rest } = useQuery<SuccessResponse<GetRecordBillApiResponseData>>({
+    queryFn: async () =>
+      assertSuccessApi(await getHouseholdRecordBillApi(householdId, filters)),
+    queryKey: recordKeys.householdBill(householdId, filters),
     ...options.queryOptions,
   });
   return { response, data: response?.data ?? emptyBill, ...rest };

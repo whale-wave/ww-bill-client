@@ -97,7 +97,15 @@
     "chartsTab": "图表",
     "recordCount": "{{count}} 笔记录",
     "empty": "本月暂无家庭可见记录",
-    "emptyDescription": "个人账单记录会按每条记录的家庭策略决定是否展示和统计"
+    "emptyDescription": "个人账单记录会按每条记录的家庭策略决定是否展示和统计",
+    "more": "更多",
+    "moreTitle": "更多操作",
+    "forward": "转发",
+    "forwardHint": "转发功能即将开放",
+    "about": "关于家庭账单",
+    "aboutHint": "家庭账本用于双人共同管理共享范围内的账单。",
+    "exit": "退出家庭账单",
+    "exitHint": "确定要退出当前家庭账单页面？"
   },
   "records": {
     "title": "家庭记录",

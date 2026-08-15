@@ -186,3 +186,13 @@ export function getLedgerRecordBillApi(
     { params },
   );
 }
+
+export function getHouseholdRecordBillApi(
+  householdId: string,
+  params: GetRecordBillApiParams,
+) {
+  return request.get<unknown, SuccessResponse<GetRecordBillApiResponseData>>(
+    `/households/${encodeURIComponent(householdId)}/records/bill`,
+    { params },
+  );
+}

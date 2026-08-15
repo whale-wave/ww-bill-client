@@ -307,6 +307,10 @@ const router = createHashRouter([
             lazy: lazyGuardedPage(() => import('@/pages/household-calendar/HouseholdCalendarPage')),
           },
           {
+            path: ':householdId/records/bill',
+            lazy: lazyGuardedPage(() => import('@/pages/bill/HouseholdBillPage')),
+          },
+          {
             path: ':householdId/budgets',
             lazy: lazyGuardedPage(() => import('@/pages/household-budgets/HouseholdBudgetsPage')),
           },

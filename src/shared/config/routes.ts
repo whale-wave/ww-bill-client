@@ -106,6 +106,9 @@ export const ROUTES_PATH = {
   HOUSEHOLD_BUDGETS: {
     getPath: (householdId: string) => `/households/${encodeRouteSegment(householdId)}/budgets`,
   },
+  HOUSEHOLD_BILL: {
+    getPath: (householdId: string) => `/households/${encodeRouteSegment(householdId)}/records/bill`,
+  },
   HOUSEHOLD_CHARTS: {
     getPath: (householdId: string) => `/households/${encodeRouteSegment(householdId)}/charts`,
   },

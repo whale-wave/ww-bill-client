@@ -25,6 +25,15 @@ export const recordKeys = {
     ...recordKeys.ledgerBills(ledgerId),
     params,
   ] as const,
+  householdRoot: (householdId: string) => [...recordKeys.all, 'household', householdId] as const,
+  householdBills: (householdId: string) => [
+    ...recordKeys.householdRoot(householdId),
+    'bill',
+  ] as const,
+  householdBill: (householdId: string, params: GetRecordBillApiParams) => [
+    ...recordKeys.householdBills(householdId),
+    params,
+  ] as const,
   details: () => [...recordKeys.all, 'detail'] as const,
   detail: (params: { id: string }) => [...recordKeys.details(), params.id] as const,
   bills: () => [...recordKeys.all, 'bill'] as const,

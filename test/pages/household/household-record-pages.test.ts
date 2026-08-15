@@ -199,7 +199,8 @@ describe('household records', () => {
     expect(title?.classList).toContain('text-left');
     expect(title?.classList).toContain('truncate');
     expect(header?.querySelector('[data-record-overview-metrics]')).not.toBeNull();
-    expect(header?.querySelector('[data-workspace-capsule]')).not.toBeNull();
+    expect(header?.querySelector('[data-testid="household-more-action"]')).not.toBeNull();
+    expect(header?.querySelector('[data-testid="household-exit-action"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-search-action"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-calendar-action"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-record-month-picker"]')?.textContent).toContain('07');
@@ -221,7 +222,7 @@ describe('household records', () => {
 
     expect(container.querySelector('[data-testid="household-shortcuts-card"]')).not.toBeNull();
     const shortcuts = [
-      ['records', '/households/household%2Fa/records'],
+      ['records', '/households/household%2Fa/records/bill'],
       ['budget', '/households/household%2Fa/budgets'],
       ['settings', '/households/household%2Fa/settings'],
     ] as const;
@@ -498,14 +499,14 @@ describe('household records', () => {
     expect(container.querySelector('[data-workspace-capsule]')).toBeNull();
   });
 
-  it('returns from the household records home to the default ledger through the capsule', async () => {
+  it('returns from the household records home to the default ledger through the exit action', async () => {
     const { container, router } = renderPage(
       '/households/household%2Fa',
       '/households/:householdId',
       createElement(HouseholdHomePage),
     );
     const returnButton = container.querySelector<HTMLButtonElement>(
-      '[data-workspace-capsule] button[aria-label="返回默认账本"]',
+      '[data-testid="household-exit-action"]',
     );
 
     expect(returnButton).not.toBeNull();
