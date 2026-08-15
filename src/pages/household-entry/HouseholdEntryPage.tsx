@@ -4,7 +4,7 @@ import { TeamOutline } from 'antd-mobile-icons';
 import { Home } from 'lucide-react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { HouseholdStatus, useMyHouseholdQuery } from '@/entities/household';
-import { HouseholdPageState } from '@/features/household';
+import { HouseholdPageState, usePendingHouseholdActivation } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { NavBar } from '@/shared/ui';
@@ -15,6 +15,7 @@ const HouseholdEntryPage: FC = () => {
   const location = useLocation();
   const query = useMyHouseholdQuery();
   const household = query.data;
+  usePendingHouseholdActivation();
 
   const handleBack = () => {
     const state = location.state as { dissolved?: boolean } | null;

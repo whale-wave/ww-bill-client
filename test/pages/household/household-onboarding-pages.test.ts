@@ -387,6 +387,26 @@ describe('household invitation', () => {
     expect(toastShow).not.toHaveBeenCalled();
   });
 
+  it('enters the household home automatically once the partner joins', async () => {
+    seedStoredInvitation();
+    let mineData: Household = { ...household, status: HouseholdStatus.PENDING_PARTNER };
+    hooks.useMyHouseholdQuery.mockImplementation(() => successfulQuery(mineData));
+    const { root, router } = renderPage(
+      '/households/household%2Fa/invitation',
+      '/households/:householdId/invitation',
+      createElement(HouseholdInvitationPage),
+    );
+    await act(async () => Promise.resolve());
+
+    mineData = { ...household, status: HouseholdStatus.ACTIVE };
+    act(() => root.render(createElement(RouterProvider, { router })));
+    await act(async () => Promise.resolve());
+
+    expect(router.state.location.pathname).toBe('/households/household%2Fa');
+    expect(localStorage.getItem('wh:invitation:household/a')).toBeNull();
+    expect(toastShow).toHaveBeenCalledWith(expect.objectContaining({ content: 'invitation.partnerJoined' }));
+  });
+
   it('accepts only after explicit mutual consent and routes to canonical home', async () => {
     hooks.acceptInvitation.mockResolvedValue({ data: household });
     const { container, router } = renderPage(

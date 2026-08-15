@@ -87,7 +87,8 @@
     "consentRequired": "请先确认双方共享同意",
     "copyFailed": "复制失败，请长按邀请码复制",
     "shareCopied": "邀请内容已复制",
-    "shareText": "邀请你加入我的家庭账本\n邀请码：{{code}}"
+    "shareText": "邀请你加入我的家庭账本\n邀请码：{{code}}",
+    "partnerJoined": "家庭成员已加入，正在进入家庭账本…"
   },
   "home": {
     "title": "家庭账本",

@@ -16,6 +16,7 @@ import {
   formatCountdown,
   getApiErrorMessage,
   HouseholdScopeBoundary,
+  usePendingHouseholdActivation,
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
 import { NavBar } from '@/shared/ui';
@@ -47,6 +48,7 @@ const HouseholdInvitationPage: FC = () => {
   const [createInvitation, createState] = useCreateHouseholdInvitationMutation();
   const [revokeInvitation, revokeState] = useRevokeHouseholdInvitationMutation();
   const submittingRef = useRef(false);
+  usePendingHouseholdActivation();
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);

@@ -87,7 +87,8 @@
     "consentRequired": "Confirm mutual sharing consent first",
     "copyFailed": "Copy failed. Long-press the code to copy it.",
     "shareCopied": "Invitation text copied",
-    "shareText": "Join my household ledger\nInvite code: {{code}}"
+    "shareText": "Join my household ledger\nInvite code: {{code}}",
+    "partnerJoined": "Your partner has joined. Entering the household ledger…"
   },
   "home": {
     "title": "Household ledger",
