@@ -502,7 +502,8 @@ describe('custom ledger workspace integration', () => {
     const customShortcuts = first.container.querySelectorAll('[aria-label="record shortcuts"] button');
     expect(customShortcuts).toHaveLength(5);
     expect(Array.from(customShortcuts).every(shortcut => (
-      shortcut.classList.contains('w-[calc((100%_-_30px)/4)]')
+      shortcut.classList.contains('min-w-0')
+      && shortcut.classList.contains('flex-1')
     ))).toBe(true);
     expect(first.container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(first.container.querySelector('[data-record-list-variant="overview"]')).not.toBeNull();

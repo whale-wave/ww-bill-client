@@ -240,6 +240,23 @@ describe('household records', () => {
     expect(router.state.location.pathname).toBe('/households/household%2Fa/calendar');
   });
 
+  it('renders home shortcuts in the design order', () => {
+    const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
+
+    const shortcutKeys = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('[aria-label="record shortcuts"] button'),
+      button => button.dataset.testid,
+    );
+
+    expect(shortcutKeys).toEqual([
+      'household-records',
+      'household-budget',
+      'household-search-action',
+      'household-calendar-action',
+      'household-settings',
+    ]);
+  });
+
   it('groups home records by date with daily totals and shared category icons', () => {
     const expenseRecord: FamilyRecord = {
       ...record,

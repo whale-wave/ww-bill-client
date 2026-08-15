@@ -53,7 +53,7 @@ export function ActionMenuCard({
 }: ActionMenuCardProps) {
   const isGradientTiles = variant === 'gradient-tiles';
   const isDetailShortcuts = variant === 'detail-shortcuts';
-  const hasScrollableDetailShortcuts = isDetailShortcuts && items.length > 3;
+  const hasScrollableDetailShortcuts = isDetailShortcuts && items.length > 5;
   const isMineActions = variant === 'mine-actions';
   return (
     <div

@@ -106,7 +106,7 @@ describe('figma card primitives', () => {
     expect(tile?.className).toContain('#e8f6ff');
   });
 
-  it('fits four complete detail shortcuts before horizontal scrolling', () => {
+  it('spreads up to five detail shortcuts evenly without scrolling', () => {
     const container = render(createElement(ActionMenuCard, {
       items: Array.from({ length: 5 }, (_, index) => ({
         icon: String(index + 1),
@@ -118,8 +118,29 @@ describe('figma card primitives', () => {
     const scroller = container.firstElementChild;
     const tiles = container.querySelectorAll('button');
 
-    expect(scroller?.classList).toContain('snap-mandatory');
+    expect(scroller?.classList).not.toContain('snap-mandatory');
     expect(tiles).toHaveLength(5);
+    expect(Array.from(tiles).every(tile => (
+      tile.classList.contains('min-w-0')
+      && tile.classList.contains('flex-1')
+    ))).toBe(true);
+  });
+
+  it('keeps horizontal scrolling beyond five detail shortcuts', () => {
+    const container = render(createElement(ActionMenuCard, {
+      items: Array.from({ length: 6 }, (_, index) => ({
+        icon: String(index + 1),
+        key: String(index + 1),
+        label: `Action ${index + 1}`,
+      })),
+      variant: 'detail-shortcuts',
+    }));
+    const scroller = container.firstElementChild;
+    const tiles = container.querySelectorAll('button');
+
+    expect(scroller?.classList).toContain('overflow-x-auto');
+    expect(scroller?.classList).toContain('snap-mandatory');
+    expect(tiles).toHaveLength(6);
     expect(Array.from(tiles).every(tile => (
       tile.classList.contains('w-[calc((100%_-_30px)/4)]')
       && tile.classList.contains('snap-start')

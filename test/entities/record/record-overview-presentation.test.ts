@@ -58,6 +58,22 @@ describe('record overview presentation', () => {
     expect(container.querySelectorAll('[aria-label="record shortcuts"] button')).toHaveLength(5);
   });
 
+  it('keeps horizontal shortcut scrolling after class merge beyond five items', () => {
+    const container = render(createElement(RecordOverviewHeader, {
+      ...headerProps,
+      shortcuts: [
+        ...headerProps.shortcuts,
+        { icon: 'F', key: 'members', label: 'Members', onClick: vi.fn() },
+      ],
+    }));
+    const shortcutCard = container.querySelector('[aria-label="record shortcuts"]');
+
+    expect(shortcutCard?.classList).toContain('overflow-x-auto');
+    expect(shortcutCard?.classList).toContain('overflow-y-hidden');
+    expect(shortcutCard?.classList).not.toContain('overflow-hidden');
+    expect(container.querySelectorAll('[aria-label="record shortcuts"] button')).toHaveLength(6);
+  });
+
   it('owns loading, empty, error and list states without page-specific layout', () => {
     const loading = render(createElement(RecordOverviewPresentation, {
       groups: [],

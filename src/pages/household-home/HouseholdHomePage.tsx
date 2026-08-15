@@ -36,10 +36,10 @@ const SHORTCUTS: ReadonlyArray<{
   route: (householdId: string) => string;
 }> = [
   { icon: List, key: 'records', route: ROUTES_PATH.HOUSEHOLD_BILL.getPath },
-  { icon: Settings, key: 'settings', route: ROUTES_PATH.HOUSEHOLD_SETTINGS.getPath },
   { icon: Target, key: 'budget', route: ROUTES_PATH.HOUSEHOLD_BUDGETS.getPath },
   { icon: Search, key: 'search', route: ROUTES_PATH.HOUSEHOLD_RECORD_SEARCH.getPath },
   { icon: CalendarDays, key: 'calendar', route: ROUTES_PATH.HOUSEHOLD_CALENDAR.getPath },
+  { icon: Settings, key: 'settings', route: ROUTES_PATH.HOUSEHOLD_SETTINGS.getPath },
 ];
 
 const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
