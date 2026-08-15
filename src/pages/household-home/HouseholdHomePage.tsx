@@ -22,7 +22,6 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import {
-  confirmAppAction,
   DesignIcon,
   showAppActionSheet,
   showAppInfoDialog,
@@ -88,28 +87,11 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
           onClick: () => Toast.show(t('settings.comingSoon')),
           text: t('settings.desktop'),
         },
-        {
-          danger: true,
-          key: 'exit',
-          onClick: () => {
-            void confirmAppAction({
-              cancelText: t('common:nav.cancel'),
-              confirmText: t('home.exit'),
-              description: t('home.exitHint'),
-              title: t('home.exit'),
-              tone: 'danger',
-            }).then((confirmed) => {
-              if (confirmed)
-                handleExit();
-            });
-          },
-          text: t('home.exit'),
-        },
       ],
       cancelText: t('common:nav.cancel'),
       title: t('home.moreTitle'),
     });
-  }, [handleExit, t]);
+  }, [t]);
 
   const groups = useMemo(() => toHouseholdRecordOverviewGroups(
     recordsQuery.records,

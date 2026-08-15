@@ -99,7 +99,10 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
         householdId: household.id,
       });
       Toast.show({ content: t('settings.dissolved'), icon: 'success' });
-      navigate(ROUTES_PATH.HOUSEHOLD.getPath(), { replace: true });
+      navigate(ROUTES_PATH.HOUSEHOLD.getPath(), {
+        replace: true,
+        state: { dissolved: true },
+      });
     }
     catch (error) {
       await handleError(error);

@@ -22,7 +22,8 @@
     "yearLabel": "{{year}}年",
     "income": "收入",
     "expense": "支出",
-    "net": "结余"
+    "net": "结余",
+    "backToHousehold": "返回家庭账本"
   },
   "entry": {
     "title": "家庭账本",
@@ -104,8 +105,7 @@
     "forwardHint": "转发功能即将开放",
     "about": "关于家庭账单",
     "aboutHint": "家庭账本用于双人共同管理共享范围内的账单。",
-    "exit": "退出家庭账单",
-    "exitHint": "确定要退出当前家庭账单页面？"
+    "exit": "退出家庭账单"
   },
   "records": {
     "title": "家庭记录",
@@ -178,7 +178,15 @@
   },
   "calendar": {
     "title": "家庭日历",
-    "weekdays": ["一", "二", "三", "四", "五", "六", "日"],
+    "weekdays": [
+      "一",
+      "二",
+      "三",
+      "四",
+      "五",
+      "六",
+      "日"
+    ],
     "weekdayMon": "一",
     "weekdayTue": "二",
     "weekdayWed": "三",

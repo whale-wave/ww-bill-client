@@ -257,6 +257,17 @@ describe('household records', () => {
     ]);
   });
 
+  it('keeps a single exit entry and no duplicate exit in the more menu', async () => {
+    const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
+
+    expect(container.querySelector('[data-testid="household-exit-action"]')).not.toBeNull();
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="household-more-action"]')?.click());
+    const sheet = document.body.querySelector('.adm-action-sheet');
+    expect(sheet?.textContent).toContain('home.about');
+    expect(sheet?.textContent).not.toContain('home.exit');
+  });
+
   it('groups home records by date with daily totals and shared category icons', () => {
     const expenseRecord: FamilyRecord = {
       ...record,

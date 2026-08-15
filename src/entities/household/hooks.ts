@@ -65,6 +65,7 @@ import {
   putFamilyRecordPolicyApi,
   putHouseholdBudgetApi,
 } from './api';
+import { removeHouseholdInvitation } from './invitation-storage';
 import { householdKeys } from './keys';
 
 export async function getMyHouseholdQueryFn() {
@@ -637,8 +638,15 @@ export function useDissolveHouseholdMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: dissolveHouseholdMutationFn,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: householdKeys.all });
+    onSuccess: async (_response, variables) => {
+      queryClient.setQueryData(householdKeys.mine(), previous => (
+        previous ? { ...previous, data: null } : previous
+      ));
+      queryClient.removeQueries({
+        queryKey: householdKeys.all,
+        predicate: query => query.queryKey[1] !== 'mine',
+      });
+      removeHouseholdInvitation(variables.householdId);
     },
   });
   return [mutateAsync, rest] as const;

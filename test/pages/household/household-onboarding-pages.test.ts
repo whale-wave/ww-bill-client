@@ -138,6 +138,24 @@ describe('household entry', () => {
     await act(async () => Promise.resolve());
     expect(router.state.location.pathname).toBe('/households/household%2Fa');
   });
+
+  it('returns to the bills page after dissolution instead of a dead household address', async () => {
+    hooks.useMyHouseholdQuery.mockReturnValue(successfulQuery(null));
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    const router = createMemoryRouter([
+      { path: '/household', element: createElement(HouseholdEntryPage) },
+      { path: '/detail', element: createElement('div', null, 'detail-target') },
+    ], {
+      initialEntries: [{ pathname: '/household', state: { dissolved: true } }],
+    });
+    act(() => root.render(createElement(RouterProvider, { router })));
+
+    await act(async () => container.querySelector<HTMLElement>('.bwm-nav-bar-back')?.click());
+    expect(router.state.location.pathname).toBe('/detail');
+
+    act(() => root.unmount());
+  });
 });
 
 describe('household creation and join', () => {

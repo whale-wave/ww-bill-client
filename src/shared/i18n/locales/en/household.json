@@ -22,7 +22,8 @@
     "yearLabel": "{{year}}",
     "income": "Income",
     "expense": "Expense",
-    "net": "Net"
+    "net": "Net",
+    "backToHousehold": "Back to household"
   },
   "entry": {
     "title": "Household ledger",
@@ -104,8 +105,7 @@
     "forwardHint": "Forward will be available soon",
     "about": "About this household",
     "aboutHint": "The household ledger lets two members manage the records they agree to share.",
-    "exit": "Exit household ledger",
-    "exitHint": "Leave the household ledger page?"
+    "exit": "Exit household ledger"
   },
   "records": {
     "title": "Household records",
@@ -178,7 +178,15 @@
   },
   "calendar": {
     "title": "Household calendar",
-    "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "weekdays": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    ],
     "weekdayMon": "Mon",
     "weekdayTue": "Tue",
     "weekdayWed": "Wed",

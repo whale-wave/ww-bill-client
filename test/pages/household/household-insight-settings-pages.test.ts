@@ -870,6 +870,26 @@ describe('household settings and members', () => {
     expect(router.state.location.pathname).toBe('/households/household%2Fa/export');
   });
 
+  it('dissolves the household and lands on the entry page with a terminated state', async () => {
+    hooks.dissolve.mockResolvedValue({ data: { id: 'household/a', status: 'DISSOLVED' } });
+    const { container, router } = renderPage(
+      '/households/household%2Fa/settings',
+      '/households/:householdId/settings',
+      createElement(HouseholdSettingsPage),
+      '/households/household%2Fa',
+    );
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="dissolve"]')?.click());
+    const confirm = document.body.querySelector<HTMLInputElement>('input[name="confirmDissolve"]');
+    confirm?.click();
+    const form = confirm?.closest('form');
+    await act(async () => form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+
+    expect(hooks.dissolve).toHaveBeenCalled();
+    expect(router.state.location.pathname).toBe('/household');
+    expect((router.state.location.state as { dissolved?: boolean } | null)?.dissolved).toBe(true);
+  });
+
   it('updates the current member nickname with its own version', async () => {
     hooks.updateNickname.mockResolvedValue({ data: {} });
     const { container } = renderPage('/households/household%2Fa/members', '/households/:householdId/members', createElement(HouseholdMembersPage));

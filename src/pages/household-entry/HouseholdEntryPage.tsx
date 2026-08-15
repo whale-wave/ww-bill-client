@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { Button, ErrorBlock } from 'antd-mobile';
 import { TeamOutline } from 'antd-mobile-icons';
 import { Home } from 'lucide-react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { HouseholdStatus, useMyHouseholdQuery } from '@/entities/household';
 import { HouseholdPageState } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -12,8 +12,18 @@ import { NavBar } from '@/shared/ui';
 const HouseholdEntryPage: FC = () => {
   const { t } = useTranslation('household');
   const navigate = useNavigate();
+  const location = useLocation();
   const query = useMyHouseholdQuery();
   const household = query.data;
+
+  const handleBack = () => {
+    const state = location.state as { dissolved?: boolean } | null;
+    if (state?.dissolved) {
+      navigate(ROUTES_PATH.DETAIL.getPath(), { replace: true });
+      return;
+    }
+    navigate(-1);
+  };
 
   if (household?.status === HouseholdStatus.ACTIVE) {
     return <Navigate replace to={ROUTES_PATH.HOUSEHOLD_HOME.getPath(household.id)} />;
@@ -21,7 +31,7 @@ const HouseholdEntryPage: FC = () => {
 
   return (
     <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
+      <NavBar back={t('common:nav.back')} onBack={handleBack}>
         {t('entry.title')}
       </NavBar>
       <main className="min-h-0 flex-grow overflow-auto px-3 py-3">
