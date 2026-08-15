@@ -174,7 +174,7 @@ describe('household entry', () => {
     });
     act(() => root.render(createElement(RouterProvider, { router })));
 
-    await act(async () => container.querySelector<HTMLElement>('.bwm-nav-bar-back')?.click());
+    await act(async () => container.querySelector<HTMLElement>('button[aria-label="common:nav.back"]')?.click());
     expect(router.state.location.pathname).toBe('/detail');
 
     act(() => root.unmount());

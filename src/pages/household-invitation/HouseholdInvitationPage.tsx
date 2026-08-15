@@ -19,7 +19,7 @@ import {
   usePendingHouseholdActivation,
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
+import { GradientPanel, PageHeader } from '@/shared/ui';
 
 function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `household-invite-${Date.now()}`;
@@ -152,81 +152,86 @@ const HouseholdInvitationPage: FC = () => {
   };
 
   return (
-    <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
-        {t('invitation.title')}
-      </NavBar>
-      <main className="min-h-0 flex-grow overflow-auto px-3 py-3">
-        <HouseholdScopeBoundary allowPending householdId={householdId}>
-          {() => (
-            <section className="card-rounded bg-white px-4 py-6 text-center">
-              <h1 className="text-lg font-medium text-font-black">{t('invitation.heading')}</h1>
-              <p className="mx-auto mt-2 max-w-[300px] text-sm leading-6 text-font-gray">{t('invitation.description')}</p>
+    <div className="page-new relative overflow-hidden">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-20 h-56 w-56 rounded-full bg-primary-light/35 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -left-24 bottom-16 h-52 w-52 rounded-full bg-ww-pink-light/25 blur-3xl" />
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('invitation.title')} />
+      <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">
+        <div className="mx-auto w-full max-w-[520px]">
+          <HouseholdScopeBoundary allowPending householdId={householdId}>
+            {() => (
+              <GradientPanel className="mt-2 px-5 py-6 text-center" elevation="low" surface="ice">
+                <h1 className="text-[16px] font-extrabold text-ww-ink">{t('invitation.heading')}</h1>
+                <p className="mx-auto mt-2 max-w-[300px] text-[12px] font-semibold leading-5 text-ww-mid">{t('invitation.description')}</p>
 
-              {invitation && remaining > 0
-                ? (
-                    <div className="mt-7">
-                      <div className="rounded-xl bg-bg-gray px-3 py-4 text-3xl font-medium tracking-[0.18em] text-font-black">
-                        {invitation.code}
-                      </div>
-                      <p className="mt-2 text-xs text-font-gray">
-                        {t('invitation.expiresIn', { countdown: formatCountdown(remaining) })}
-                      </p>
-                      <div className="mt-5 grid grid-cols-2 gap-3">
-                        <Button onClick={() => void handleCopy()}>
-                          <span className="flex items-center justify-center gap-2">
-                            <Copy size={16} />
-                            {t('invitation.copy')}
+                {invitation && remaining > 0
+                  ? (
+                      <div className="mt-6">
+                        <div className="rounded-[18px] border border-white/80 bg-white/85 px-3 py-5 shadow-ww-xs backdrop-blur-xl">
+                          <span className="block font-number text-[34px] font-black tracking-[0.18em] text-ww-ink">
+                            {invitation.code}
                           </span>
-                        </Button>
-                        <Button onClick={() => void handleShare()}>
-                          <span className="flex items-center justify-center gap-2">
-                            <Share2 size={16} />
-                            {t('invitation.share')}
-                          </span>
+                          <p className="mt-2 text-[12px] font-bold text-ww-mid">
+                            {t('invitation.expiresIn', { countdown: formatCountdown(remaining) })}
+                          </p>
+                        </div>
+                        <div className="mt-5 grid grid-cols-2 gap-3">
+                          <Button color="primary" onClick={() => void handleCopy()}>
+                            <span className="flex items-center justify-center gap-2">
+                              <Copy size={16} />
+                              {t('invitation.copy')}
+                            </span>
+                          </Button>
+                          <Button onClick={() => void handleShare()}>
+                            <span className="flex items-center justify-center gap-2">
+                              <Share2 size={16} />
+                              {t('invitation.share')}
+                            </span>
+                          </Button>
+                        </div>
+                        <p className="mt-4 text-[12px] font-semibold text-ww-mid">{t('invitation.waiting')}</p>
+                        <Button
+                          block
+                          className="mt-3"
+                          color="danger"
+                          fill="none"
+                          loading={revokeState.isLoading}
+                          onClick={() => void handleRevoke()}
+                        >
+                          {t('invitation.revoke')}
                         </Button>
                       </div>
-                      <Button
-                        block
-                        className="mt-3"
-                        color="danger"
-                        fill="none"
-                        loading={revokeState.isLoading}
-                        onClick={() => void handleRevoke()}
-                      >
-                        {t('invitation.revoke')}
-                      </Button>
-                    </div>
-                  )
-                : (
-                    <div className="mt-7">
-                      {invitation && <p className="mb-4 text-sm text-rose-500">{t('invitation.expired')}</p>}
-                      <label className="flex items-start gap-3 text-left text-sm leading-6 text-font-black">
-                        <input
-                          checked={consent}
-                          className="mt-1 h-4 w-4 shrink-0 accent-[var(--adm-color-primary)]"
-                          onChange={event => setConsent(event.target.checked)}
-                          type="checkbox"
-                        />
-                        <span>{t('invitation.consent')}</span>
-                      </label>
-                      <Button
-                        block
-                        className="mt-5"
-                        color="primary"
-                        data-testid="household-generate-invite"
-                        disabled={createState.isLoading}
-                        loading={createState.isLoading}
-                        onClick={() => void handleGenerate()}
-                        size="large"
-                      >
-                        {invitation ? t('invitation.regenerate') : t('invitation.generate')}
-                      </Button>
-                    </div>
-                  )}
-            </section>
-          )}
-        </HouseholdScopeBoundary>
+                    )
+                  : (
+                      <div className="mt-6">
+                        {invitation && <p className="mb-4 text-[13px] font-bold text-[#c04870]">{t('invitation.expired')}</p>}
+                        <label className="flex items-start gap-3 rounded-[15px] bg-primary-light/25 px-3.5 py-3 text-left text-[12px] font-bold leading-5 text-ww-ink">
+                          <input
+                            checked={consent}
+                            className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--adm-color-primary)]"
+                            onChange={event => setConsent(event.target.checked)}
+                            type="checkbox"
+                          />
+                          <span>{t('invitation.consent')}</span>
+                        </label>
+                        <Button
+                          block
+                          className="mt-5"
+                          color="primary"
+                          data-testid="household-generate-invite"
+                          disabled={createState.isLoading}
+                          loading={createState.isLoading}
+                          onClick={() => void handleGenerate()}
+                          size="large"
+                        >
+                          {invitation ? t('invitation.regenerate') : t('invitation.generate')}
+                        </Button>
+                      </div>
+                    )}
+              </GradientPanel>
+            )}
+          </HouseholdScopeBoundary>
+        </div>
       </main>
     </div>
   );

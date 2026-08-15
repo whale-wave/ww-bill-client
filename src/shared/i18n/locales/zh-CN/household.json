@@ -46,7 +46,8 @@
     "submit": "创建并生成邀请码",
     "success": "家庭账本已创建",
     "failed": "家庭账本创建失败",
-    "consentRequired": "请先确认共享同意"
+    "consentRequired": "请先确认共享同意",
+    "earliestMonthHelper": "你的第一条记录是 {{month}}，最早可以从这个月份开始共享。"
   },
   "join": {
     "title": "加入家庭账本",
@@ -87,7 +88,8 @@
     "copyFailed": "复制失败，请长按邀请码复制",
     "shareCopied": "邀请内容已复制",
     "shareText": "邀请你加入我的家庭账本\n邀请码：{{code}}",
-    "partnerJoined": "家庭成员已加入，正在进入家庭账本…"
+    "partnerJoined": "家庭成员已加入，正在进入家庭账本…",
+    "waiting": "正在等待家庭成员加入…"
   },
   "home": {
     "title": "家庭账本",
@@ -333,5 +335,11 @@
     "title": "这个家庭账本已不可用",
     "description": "它可能已经解散，或者你已经不再是家庭成员。",
     "action": "返回家庭账本"
+  },
+  "dissolvedState": {
+    "title": "家庭账本已结束",
+    "description": "双方已解除共享，个人记录保持不变。",
+    "createAgain": "重新创建家庭账本",
+    "backToBills": "返回账单"
   }
 }

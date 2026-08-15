@@ -46,7 +46,8 @@
     "submit": "Create and generate code",
     "success": "Household ledger created",
     "failed": "Could not create household ledger",
-    "consentRequired": "Confirm sharing consent first"
+    "consentRequired": "Confirm sharing consent first",
+    "earliestMonthHelper": "Your first record is from {{month}}, the earliest month sharing can start from."
   },
   "join": {
     "title": "Join a household ledger",
@@ -87,7 +88,8 @@
     "copyFailed": "Copy failed. Long-press the code to copy it.",
     "shareCopied": "Invitation text copied",
     "shareText": "Join my household ledger\nInvite code: {{code}}",
-    "partnerJoined": "Your partner has joined. Entering the household ledger…"
+    "partnerJoined": "Your partner has joined. Entering the household ledger…",
+    "waiting": "Waiting for your family member to join…"
   },
   "home": {
     "title": "Household ledger",
@@ -333,5 +335,11 @@
     "title": "This household ledger is unavailable",
     "description": "It may have been dissolved, or you are no longer a member.",
     "action": "Back to household"
+  },
+  "dissolvedState": {
+    "title": "This household ledger has ended",
+    "description": "Sharing was dissolved; personal records remain unchanged.",
+    "createAgain": "Create a household ledger again",
+    "backToBills": "Back to bills"
   }
 }
