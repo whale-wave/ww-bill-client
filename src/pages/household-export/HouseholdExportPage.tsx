@@ -102,11 +102,15 @@ const ExportContent: FC<{ household: Household }> = ({ household }) => {
           </div>
           <label className="block min-w-0 text-[12px] font-bold text-ww-mid">
             {t('export.startDate')}
-            <input className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 text-[14px] font-semibold text-ww-ink shadow-ww-xs outline-none" name="startDate" type="date" />
+            <span className="mt-2 flex h-12 min-w-0 items-center rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww">
+              <input className="min-w-0 flex-1 border-0 bg-transparent p-0 text-[14px] font-semibold text-ww-ink outline-none" name="startDate" type="date" />
+            </span>
           </label>
           <label className="mt-3 block min-w-0 text-[12px] font-bold text-ww-mid">
             {t('export.endDate')}
-            <input className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 text-[14px] font-semibold text-ww-ink shadow-ww-xs outline-none" name="endDate" type="date" />
+            <span className="mt-2 flex h-12 min-w-0 items-center rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww">
+              <input className="min-w-0 flex-1 border-0 bg-transparent p-0 text-[14px] font-semibold text-ww-ink outline-none" name="endDate" type="date" />
+            </span>
           </label>
           <div className="mt-3 grid grid-cols-2 gap-3">
             <label className="min-w-0 text-[12px] font-bold text-ww-mid">
