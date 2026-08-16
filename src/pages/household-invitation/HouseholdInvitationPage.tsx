@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { HouseholdInvitation } from '@/entities/household';
-import { Button, Dialog, Toast } from 'antd-mobile';
+import { Dialog, Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import { Copy, Share2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -176,30 +176,32 @@ const HouseholdInvitationPage: FC = () => {
                           </p>
                         </div>
                         <div className="mt-5 grid grid-cols-2 gap-3">
-                          <Button color="primary" onClick={() => void handleCopy()}>
-                            <span className="flex items-center justify-center gap-2">
-                              <Copy size={16} />
-                              {t('invitation.copy')}
-                            </span>
-                          </Button>
-                          <Button onClick={() => void handleShare()}>
-                            <span className="flex items-center justify-center gap-2">
-                              <Share2 size={16} />
-                              {t('invitation.share')}
-                            </span>
-                          </Button>
+                          <button
+                            className="flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border-0 bg-primary text-[13px] font-extrabold text-white shadow-ww-xs"
+                            onClick={() => void handleCopy()}
+                            type="button"
+                          >
+                            <Copy size={16} />
+                            {t('invitation.copy')}
+                          </button>
+                          <button
+                            className="flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border border-solid border-border-primary bg-white/85 text-[13px] font-extrabold text-primary-deep shadow-ww-xs"
+                            onClick={() => void handleShare()}
+                            type="button"
+                          >
+                            <Share2 size={16} />
+                            {t('invitation.share')}
+                          </button>
                         </div>
                         <p className="mt-4 text-[12px] font-semibold text-ww-mid">{t('invitation.waiting')}</p>
-                        <Button
-                          block
-                          className="mt-3"
-                          color="danger"
-                          fill="none"
-                          loading={revokeState.isLoading}
+                        <button
+                          className="mt-3 h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-[#b24f71] disabled:opacity-45"
+                          disabled={revokeState.isLoading}
                           onClick={() => void handleRevoke()}
+                          type="button"
                         >
-                          {t('invitation.revoke')}
-                        </Button>
+                          {revokeState.isLoading ? t('invitation.revoking') : t('invitation.revoke')}
+                        </button>
                       </div>
                     )
                   : (
@@ -214,18 +216,19 @@ const HouseholdInvitationPage: FC = () => {
                           />
                           <span>{t('invitation.consent')}</span>
                         </label>
-                        <Button
-                          block
-                          className="mt-5"
-                          color="primary"
+                        <button
+                          className="mt-5 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
                           data-testid="household-generate-invite"
                           disabled={createState.isLoading}
-                          loading={createState.isLoading}
                           onClick={() => void handleGenerate()}
-                          size="large"
+                          type="button"
                         >
-                          {invitation ? t('invitation.regenerate') : t('invitation.generate')}
-                        </Button>
+                          {createState.isLoading
+                            ? t('invitation.submitting')
+                            : invitation
+                              ? t('invitation.regenerate')
+                              : t('invitation.generate')}
+                        </button>
                       </div>
                     )}
               </GradientPanel>

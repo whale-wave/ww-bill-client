@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { Button } from 'antd-mobile';
 import { Home, PartyPopper, Users } from 'lucide-react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { HouseholdStatus, useMyHouseholdQuery } from '@/entities/household';
@@ -54,24 +53,21 @@ const HouseholdEntryPage: FC = () => {
                   title={t('entry.none')}
                 />
                 <div className="mx-6 mb-6">
-                  <Button
-                    block
+                  <button
+                    className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww"
                     data-testid="household-create"
-                    color="primary"
                     onClick={() => navigate(ROUTES_PATH.HOUSEHOLD_CREATE.getPath())}
-                    size="large"
+                    type="button"
                   >
                     {t('entry.create')}
-                  </Button>
-                  <Button
-                    block
-                    className="mt-3"
-                    fill="outline"
+                  </button>
+                  <button
+                    className="mt-3 h-[52px] w-full rounded-[18px] border border-solid border-border-primary bg-white/85 text-[14px] font-extrabold text-primary-deep shadow-ww"
                     onClick={() => navigate(ROUTES_PATH.HOUSEHOLD_JOIN.getPath())}
-                    size="large"
+                    type="button"
                   >
                     {t('entry.join')}
-                  </Button>
+                  </button>
                 </div>
               </GradientPanel>
             )}
@@ -98,13 +94,13 @@ const HouseholdEntryPage: FC = () => {
                   title={t('dissolvedState.title')}
                 />
                 <div className="mx-6 mb-6">
-                  <Button
-                    block
-                    fill="none"
+                  <button
+                    className="h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-primary-deep"
                     onClick={() => navigate(ROUTES_PATH.DETAIL.getPath(), { replace: true })}
+                    type="button"
                   >
                     {t('dissolvedState.backToBills')}
-                  </Button>
+                  </button>
                 </div>
               </GradientPanel>
             )}

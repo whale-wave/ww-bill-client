@@ -1,5 +1,5 @@
 import type { FC, FormEvent } from 'react';
-import { Button, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import { CalendarDays, Sparkles } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -112,17 +112,13 @@ const HouseholdCreatePage: FC = () => {
               />
               <span>{t('create.consent')}</span>
             </label>
-            <Button
-              block
-              className="mt-6"
-              color="primary"
+            <button
+              className="mt-6 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
               disabled={mutation.isLoading}
-              loading={mutation.isLoading}
-              size="large"
               type="submit"
             >
-              {t('create.submit')}
-            </Button>
+              {mutation.isLoading ? t('create.submitting') : t('create.submit')}
+            </button>
           </GradientPanel>
         </form>
       </main>

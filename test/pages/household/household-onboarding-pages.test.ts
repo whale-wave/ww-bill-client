@@ -225,6 +225,36 @@ describe('household creation and join', () => {
     });
     expect(router.state.location.pathname).toBe('/household-invitations/AB%2FC123');
   });
+
+  it('disables join submission only for blank invite codes', () => {
+    const { container } = renderPage('/household/join', '/household/join', createElement(HouseholdJoinPage));
+    const submit = container.querySelector<HTMLButtonElement>('[data-testid="household-join-preview"]');
+    const input = container.querySelector<HTMLInputElement>('input[name="code"]');
+    const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    expect(submit?.disabled).toBe(true);
+
+    act(() => {
+      setValue?.call(input, 'AB');
+      input?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    expect(submit?.disabled).toBe(false);
+
+    act(() => {
+      setValue?.call(input, 'ABC123');
+      input?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    expect(submit?.disabled).toBe(false);
+  });
+
+  it('disables the submit button while creation is in flight', async () => {
+    hooks.useCreateHouseholdMutation.mockReturnValue([hooks.createHousehold, { isLoading: true }]);
+    const { container } = renderPage('/household/create', '/household/create', createElement(HouseholdCreatePage));
+    await act(async () => Promise.resolve());
+
+    const submit = container.querySelector<HTMLButtonElement>('button[type="submit"]');
+    expect(submit?.disabled).toBe(true);
+    expect(submit?.textContent).toContain('create.submitting');
+  });
 });
 
 describe('household create shared start month', () => {
@@ -463,5 +493,37 @@ describe('household invitation', () => {
       data: expect.objectContaining({ sharingConsentConfirmed: true }),
       householdId: 'household/a',
     });
+  });
+
+  it('disables the accept button while joining is in flight', async () => {
+    hooks.useAcceptHouseholdInvitationMutation.mockReturnValue([hooks.acceptInvitation, { isLoading: true }]);
+    const { container } = renderPage(
+      '/household-invitations/ABC123',
+      '/household-invitations/:code',
+      createElement(HouseholdInvitationPreviewPage),
+    );
+
+    const acceptButton = container.querySelector<HTMLButtonElement>('[data-testid="household-accept"]');
+    expect(acceptButton?.disabled).toBe(true);
+    expect(acceptButton?.textContent).toContain('invitation.accepting');
+  });
+
+  it('disables the generate button while the invitation is being created', async () => {
+    hooks.useCreateHouseholdInvitationMutation.mockReturnValue([hooks.createInvitation, { isLoading: true }]);
+    const { container } = renderInvitationPage();
+
+    const generateButton = container.querySelector<HTMLButtonElement>('[data-testid="household-generate-invite"]');
+    expect(generateButton?.disabled).toBe(true);
+    expect(generateButton?.textContent).toContain('invitation.submitting');
+  });
+
+  it('disables the revoke button while revocation is in flight', async () => {
+    seedStoredInvitation();
+    hooks.useRevokeHouseholdInvitationMutation.mockReturnValue([hooks.revokeInvitation, { isLoading: true }]);
+    const { container } = renderInvitationPage();
+
+    const revokeButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('invitation.revoking'));
+    expect(revokeButton?.disabled).toBe(true);
   });
 });

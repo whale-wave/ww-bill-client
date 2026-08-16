@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { Avatar, Button, ErrorBlock, Toast } from 'antd-mobile';
+import { Avatar, ErrorBlock, Toast } from 'antd-mobile';
 import { CalendarDays, UserRound } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -134,18 +134,15 @@ const HouseholdInvitationPreviewPage: FC = () => {
                           />
                           <span>{t('invitation.acceptConsent')}</span>
                         </label>
-                        <Button
-                          block
-                          className="mt-6"
-                          color="primary"
+                        <button
+                          className="mt-6 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
                           data-testid="household-accept"
                           disabled={mutation.isLoading}
-                          loading={mutation.isLoading}
                           onClick={() => void handleAccept()}
-                          size="large"
+                          type="button"
                         >
-                          {t('invitation.accept')}
-                        </Button>
+                          {mutation.isLoading ? t('invitation.accepting') : t('invitation.accept')}
+                        </button>
                       </GradientPanel>
                     </>
                   )}

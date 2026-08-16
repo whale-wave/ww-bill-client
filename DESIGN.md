@@ -100,7 +100,14 @@ Version 10 使用柔和的大圆角卡片和两级浅阴影，但不使用厚重
 
 ### 表单
 
-表单、弹窗、Toast、List、Tabs、Dropdown、SearchBar 优先使用 Ant Design Mobile。输入行保持清晰标签、足够触控区域和稳定分割线。主按钮优先使用 Ant Design Mobile `Button` 并继承项目主色。
+表单、弹窗、Toast、List、Tabs、Dropdown、SearchBar 优先使用 Ant Design Mobile。输入行保持清晰标签、足够触控区域和稳定分割线。表单及页面级操作统一使用原生 `button` 的按钮规范，不再使用 Ant Design Mobile `Button` 作为主操作：
+
+- **主按钮**：`h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45`；提交中同时切换 `disabled` 与 loading 文案。
+- **次按钮**：`h-[52px] w-full rounded-[18px] border border-solid border-border-primary bg-white/85 text-[14px] font-extrabold text-primary-deep shadow-ww`。
+- **幽灵按钮**：`h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-primary-deep`，danger 文案使用 `text-[#b24f71]`，需要时补充 `disabled:opacity-45`。
+- **小按钮**：`h-12 w-full rounded-[16px] text-[13px] font-extrabold`；主变体 `border-0 bg-primary text-white shadow-ww-xs`，次变体 `border border-solid border-border-primary bg-white/85 text-primary-deep shadow-ww-xs`。
+
+非提交按钮必须显式 `type="button"`，避免原生 `button` 的默认 submit 语义。`IllustratedEmptyState` 等封装组件的组件级 CTA 保留组件自身 pill 样式，不在上述规范约束范围内。
 
 ### 图标
 
