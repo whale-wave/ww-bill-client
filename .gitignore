@@ -28,3 +28,10 @@ yarn-lock.json
 .env
 
 .tokensave
+
+# Native signing secrets
+*.jks
+*.keystore
+*.p12
+keystore.properties
+key.properties
