@@ -202,12 +202,11 @@ export function LedgerSwitcherPanel({ onClose, visible }: LedgerSwitcherPanelPro
                 })}
               </div>
               {!hasCustomLedger && (
-                <div className="ledger-switcher-panel__empty">
-                  <ErrorBlock
-                    description={false}
-                    status="empty"
-                    title={t('switcher.customEmpty')}
-                  />
+                <div className="mt-2 flex items-center gap-3 rounded-[15px] border border-solid border-border-primary bg-white/55 px-3.5 py-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-primary-light/55 text-primary-deep">
+                    <WalletCards aria-hidden="true" size={18} strokeWidth={1.8} />
+                  </span>
+                  <p className="min-w-0 text-[12px] font-semibold leading-5 text-ww-mid">{t('switcher.customEmpty')}</p>
                 </div>
               )}
             </>

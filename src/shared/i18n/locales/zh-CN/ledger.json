@@ -522,7 +522,7 @@
       "other": "其他"
     }
   },
-  "tags": { "title": "标签管理", "name": "标签名称", "create": "新增", "archive": "归档", "saveFailed": "标签保存失败" },
+  "tags": { "title": "标签管理", "name": "标签名称", "create": "新增", "creating": "新增中…", "archive": "归档", "empty": "还没有标签", "emptyDescription": "创建标签后，可为账本记录补充分类标记。", "saveFailed": "标签保存失败" },
   "recovery": { "title": "最近删除", "restore": "恢复", "failed": "恢复失败，数据可能已更新" },
   "transfer": {
     "title": "跨账本迁移",
@@ -543,9 +543,11 @@
     "tagMappingLabel": "{{name}} 转入",
     "chooseTag": "请选择目标标签",
     "preview": "预检迁移",
+    "previewing": "预检中…",
     "previewSummary": "可迁移 {{ready}} 条，冲突 {{conflicts}} 条",
     "previewFailed": "预检失败",
     "execute": "确认迁移",
+    "executing": "迁移中…",
     "done": "迁移完成",
     "failed": "迁移失败"
   },

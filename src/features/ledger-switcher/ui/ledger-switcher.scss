@@ -299,14 +299,6 @@
   font-size: 21px;
 }
 
-.ledger-switcher-panel__empty {
-  padding: 16px 0 22px;
-
-  .adm-error-block {
-    --image-height: 48px;
-  }
-}
-
 .ledger-switcher-panel__footer {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -15,12 +15,12 @@ export const PieChart: FC = () => {
   useEffect(() => {
     const option: EChartsOption = {
       color: ['#6fc2dc', '#f0a0b8', '#a996dc', '#79c6a8', '#efbc70'],
-      legend: { bottom: 0, type: 'scroll', textStyle: { color: '#5c7080' } },
       series: [{
         data,
         emphasis: { scaleSize: 4 },
-        label: { color: '#5c7080', formatter: '{b} {d}%' },
-        radius: ['38%', '68%'],
+        label: { show: false },
+        labelLine: { show: false },
+        radius: ['36%', '66%'],
         type: 'pie',
       }],
       tooltip: { trigger: 'item' },
