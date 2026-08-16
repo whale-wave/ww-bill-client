@@ -1,4 +1,4 @@
-import { Button, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import { Download, FileSpreadsheet } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -35,10 +35,9 @@ function ExportContent({ ledgerId }: { ledgerId: string }) {
               <option value="xlsx">XLSX</option>
             </select>
           </label>
-          <Button
-            block
-            className="mt-4 !h-12 !rounded-[16px] !border-0 !bg-primary !font-extrabold !text-white"
-            loading={createState.isLoading}
+          <button
+            className="mt-4 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
+            disabled={createState.isLoading}
             onClick={async () => {
               if (submittingRef.current)
                 return;
@@ -54,16 +53,17 @@ function ExportContent({ ledgerId }: { ledgerId: string }) {
                 submittingRef.current = false;
               }
             }}
+            type="button"
           >
-            {t('export.create')}
-          </Button>
+            {createState.isLoading ? t('export.creating') : t('export.create')}
+          </button>
           {task.data && (
             <div className="mt-4 rounded-[15px] border border-solid border-white/80 bg-white/65 px-3 py-3">
               <p className="text-[12px] font-bold text-ww-mid">{t(`export.status.${task.data.status}`)}</p>
               {task.data.status === 'COMPLETED' && (
-                <Button
-                  className="mt-3 !rounded-[13px] !border-primary-light !text-primary-deep"
-                  loading={downloadState.isLoading}
+                <button
+                  className="mt-3 flex h-12 items-center justify-center gap-2 rounded-[16px] border border-solid border-border-primary bg-white/85 px-4 text-[13px] font-extrabold text-primary-deep shadow-ww-xs disabled:opacity-45"
+                  disabled={downloadState.isLoading}
                   onClick={async () => {
                     const blob = await download({ ledgerId, taskId: task.data!.id });
                     const url = URL.createObjectURL(blob);
@@ -73,10 +73,11 @@ function ExportContent({ ledgerId }: { ledgerId: string }) {
                     anchor.click();
                     URL.revokeObjectURL(url);
                   }}
+                  type="button"
                 >
-                  <Download className="mr-1" size={15} />
-                  {t('export.download')}
-                </Button>
+                  <Download size={15} />
+                  {downloadState.isLoading ? t('export.downloading') : t('export.download')}
+                </button>
               )}
             </div>
           )}

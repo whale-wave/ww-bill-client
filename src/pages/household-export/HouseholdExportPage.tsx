@@ -1,6 +1,7 @@
 import type { FC, FormEvent } from 'react';
 import type { Household, HouseholdExportFilters } from '@/entities/household';
-import { Button, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
+import { FileSpreadsheet } from 'lucide-react';
 import { useRef } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
@@ -14,7 +15,7 @@ import {
   HouseholdScopeBoundary,
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
+import { GradientPanel, PageHeader } from '@/shared/ui';
 
 const ExportContent: FC<{ household: Household }> = ({ household }) => {
   const { t } = useTranslation('household');
@@ -87,46 +88,59 @@ const ExportContent: FC<{ household: Household }> = ({ household }) => {
   };
 
   return (
-    <div className="space-y-3">
-      <form className="card-rounded bg-white px-4 py-4" data-testid="household-export-form" onSubmit={handleCreate}>
-        <h2 className="text-base font-medium text-font-black">{t('export.filters')}</h2>
-        <p className="mt-1 text-xs leading-5 text-font-gray">{t('export.scopeHint')}</p>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <label className="text-xs text-font-gray">
+    <div>
+      <form className="mt-2" data-testid="household-export-form" onSubmit={handleCreate}>
+        <GradientPanel className="px-5 py-5" elevation="low" surface="ice">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] border border-white/80 bg-white/85 text-primary-deep shadow-ww-xs">
+              <FileSpreadsheet size={21} />
+            </span>
+            <div className="min-w-0">
+              <h2 className="text-[15px] font-extrabold leading-6 text-ww-ink">{t('export.filters')}</h2>
+              <p className="mt-0.5 text-[12px] font-semibold leading-5 text-ww-mid">{t('export.scopeHint')}</p>
+            </div>
+          </div>
+          <label className="block min-w-0 text-[12px] font-bold text-ww-mid">
             {t('export.startDate')}
-            <input className="mt-1 h-11 w-full rounded-xl border-0 bg-bg-gray px-3 text-sm text-font-black" name="startDate" type="date" />
+            <input className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 text-[14px] font-semibold text-ww-ink shadow-ww-xs outline-none" name="startDate" type="date" />
           </label>
-          <label className="text-xs text-font-gray">
+          <label className="mt-3 block min-w-0 text-[12px] font-bold text-ww-mid">
             {t('export.endDate')}
-            <input className="mt-1 h-11 w-full rounded-xl border-0 bg-bg-gray px-3 text-sm text-font-black" name="endDate" type="date" />
+            <input className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 text-[14px] font-semibold text-ww-ink shadow-ww-xs outline-none" name="endDate" type="date" />
           </label>
-          <label className="text-xs text-font-gray">
-            {t('export.type')}
-            <select className="mt-1 h-11 w-full rounded-xl border-0 bg-bg-gray px-3 text-sm text-font-black" defaultValue="" name="type">
-              <option value="">{t('export.all')}</option>
-              <option value="sub">{t('export.expense')}</option>
-              <option value="add">{t('export.income')}</option>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <label className="min-w-0 text-[12px] font-bold text-ww-mid">
+              {t('export.type')}
+              <select className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 text-[14px] font-semibold text-ww-ink shadow-ww-xs outline-none" defaultValue="" name="type">
+                <option value="">{t('export.all')}</option>
+                <option value="sub">{t('export.expense')}</option>
+                <option value="add">{t('export.income')}</option>
+              </select>
+            </label>
+            <label className="min-w-0 text-[12px] font-bold text-ww-mid">
+              {t('export.counted')}
+              <select className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 text-[14px] font-semibold text-ww-ink shadow-ww-xs outline-none" defaultValue="" name="counted">
+                <option value="">{t('export.all')}</option>
+                <option value="true">{t('export.countedOnly')}</option>
+                <option value="false">{t('export.uncountedOnly')}</option>
+              </select>
+            </label>
+          </div>
+          <label className="mt-3 block min-w-0 text-[12px] font-bold text-ww-mid">
+            {t('export.format')}
+            <select className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 text-[14px] font-semibold text-ww-ink shadow-ww-xs outline-none" defaultValue="xlsx" name="format">
+              <option value="xlsx">XLSX</option>
+              <option value="csv">CSV</option>
             </select>
           </label>
-          <label className="text-xs text-font-gray">
-            {t('export.counted')}
-            <select className="mt-1 h-11 w-full rounded-xl border-0 bg-bg-gray px-3 text-sm text-font-black" defaultValue="" name="counted">
-              <option value="">{t('export.all')}</option>
-              <option value="true">{t('export.countedOnly')}</option>
-              <option value="false">{t('export.uncountedOnly')}</option>
-            </select>
-          </label>
-        </div>
-        <label className="mt-3 block text-xs text-font-gray">
-          {t('export.format')}
-          <select className="mt-1 h-11 w-full rounded-xl border-0 bg-bg-gray px-3 text-sm text-font-black" defaultValue="xlsx" name="format">
-            <option value="xlsx">XLSX</option>
-            <option value="csv">CSV</option>
-          </select>
-        </label>
-        <Button block className="mt-4" color="primary" loading={createState.isLoading} type="submit">
-          {t('export.create')}
-        </Button>
+          <button
+            className="mt-6 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
+            disabled={createState.isLoading}
+            type="submit"
+          >
+            {createState.isLoading ? t('export.creating') : t('export.create')}
+          </button>
+        </GradientPanel>
       </form>
 
       {taskId && (
@@ -140,35 +154,36 @@ const ExportContent: FC<{ household: Household }> = ({ household }) => {
           retryLabel={t('common.retry')}
         >
           {taskQuery.data && (
-            <section className="card-rounded bg-white px-4 py-4">
+            <GradientPanel className="mt-4 px-5 py-5" elevation="low" surface="glass">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-base font-medium text-font-black">{t('export.task')}</h2>
-                <span className="text-xs text-font-gray">{t(`export.status.${taskQuery.data.status}`)}</span>
+                <h2 className="text-[15px] font-extrabold text-ww-ink">{t('export.task')}</h2>
+                <span className="shrink-0 rounded-full bg-primary-light/35 px-3 py-1 text-[11px] font-bold text-primary-deep">
+                  {t(`export.status.${taskQuery.data.status}`)}
+                </span>
               </div>
               {taskQuery.data.status === 'COMPLETED' && (
-                <p className="mt-2 text-sm text-font-gray">
+                <p className="mt-2 text-[13px] font-semibold text-ww-mid">
                   {t('export.recordCount', { count: taskQuery.data.recordCount ?? 0 })}
                 </p>
               )}
               {taskQuery.data.status === 'FAILED' && (
-                <p className="mt-2 text-sm text-rose-600">{t('export.failed')}</p>
+                <p className="mt-2 text-[13px] font-semibold text-[#b24f71]">{t('export.failed')}</p>
               )}
               {taskQuery.data.status === 'PENDING' && (
-                <p className="mt-2 text-sm text-font-gray">{t('export.processing')}</p>
+                <p className="mt-2 text-[13px] font-semibold text-ww-mid">{t('export.processing')}</p>
               )}
               {taskQuery.data.status === 'COMPLETED' && (
-                <Button
-                  block
-                  className="mt-4"
-                  color="primary"
+                <button
+                  className="mt-5 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
                   data-testid="household-export-download"
-                  loading={downloadState.isLoading}
+                  disabled={downloadState.isLoading}
                   onClick={handleDownload}
+                  type="button"
                 >
-                  {t('export.download')}
-                </Button>
+                  {downloadState.isLoading ? t('export.downloading') : t('export.download')}
+                </button>
               )}
-            </section>
+            </GradientPanel>
           )}
         </HouseholdPageState>
       )}
@@ -181,12 +196,16 @@ const HouseholdExportPage: FC = () => {
   const navigate = useNavigate();
   const { householdId = '' } = useParams<{ householdId: string }>();
   return (
-    <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>{t('export.title')}</NavBar>
-      <main className="min-h-0 flex-grow overflow-auto px-3 py-3">
-        <HouseholdScopeBoundary householdId={householdId}>
-          {household => <ExportContent household={household} />}
-        </HouseholdScopeBoundary>
+    <div className="page-new relative overflow-hidden">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-20 h-56 w-56 rounded-full bg-primary-light/35 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -left-24 bottom-16 h-52 w-52 rounded-full bg-ww-pink-light/25 blur-3xl" />
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('export.title')} />
+      <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">
+        <div className="mx-auto w-full max-w-[520px]">
+          <HouseholdScopeBoundary householdId={householdId}>
+            {household => <ExportContent household={household} />}
+          </HouseholdScopeBoundary>
+        </div>
       </main>
     </div>
   );

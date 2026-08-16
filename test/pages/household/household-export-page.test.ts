@@ -134,4 +134,47 @@ describe('householdExportPage', () => {
     }));
     expect(container.querySelector('[data-testid="household-export-download"]')).not.toBeNull();
   });
+
+  it('disables the submit button while export creation is in flight', async () => {
+    hooks.useCreateHouseholdExportMutation.mockReturnValue([hooks.createExport, { isLoading: true }]);
+    const { container } = renderPage(
+      '/households/household%2Fa/export',
+      createElement(HouseholdExportPage),
+    );
+    await act(async () => Promise.resolve());
+
+    const submit = container.querySelector<HTMLButtonElement>('button[type="submit"]');
+    expect(submit?.disabled).toBe(true);
+    expect(submit?.textContent).toContain('export.creating');
+  });
+
+  it('disables the download button while the download is in flight', async () => {
+    hooks.useHouseholdExportTaskQuery.mockReturnValue({
+      data: {
+        createdAt: '2026-07-21T00:00:00.000Z',
+        expiresAt: '2026-07-22T00:00:00.000Z',
+        fileName: 'household-export.xlsx',
+        format: 'xlsx',
+        id: 'task-1',
+        recordCount: 2,
+        size: 128,
+        status: 'COMPLETED',
+        updatedAt: '2026-07-21T00:00:01.000Z',
+        version: 2,
+      },
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.useDownloadHouseholdExportMutation.mockReturnValue([hooks.downloadExport, { isLoading: true }]);
+    const { container } = renderPage(
+      '/households/household%2Fa/export?taskId=task-1',
+      createElement(HouseholdExportPage),
+    );
+    await act(async () => Promise.resolve());
+
+    const downloadButton = container.querySelector<HTMLButtonElement>('[data-testid="household-export-download"]');
+    expect(downloadButton?.disabled).toBe(true);
+    expect(downloadButton?.textContent).toContain('export.downloading');
+  });
 });

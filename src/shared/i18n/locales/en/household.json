@@ -311,6 +311,7 @@
     "countedOnly": "Counted only",
     "uncountedOnly": "Uncounted only",
     "create": "Create export",
+    "creating": "Creating…",
     "created": "Export task created",
     "task": "Export task",
     "processing": "Your file is being generated…",
@@ -318,6 +319,7 @@
     "taskLoadError": "Unable to load this export task. Check household access and retry.",
     "recordCount": "{{count}} records exported",
     "download": "Download file",
+    "downloading": "Downloading…",
     "downloadFailed": "Download failed. Please retry.",
     "status": {
       "PENDING": "Processing",

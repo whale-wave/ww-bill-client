@@ -552,7 +552,9 @@
     "title": "导出账本",
     "format": "文件格式",
     "create": "创建导出任务",
+    "creating": "正在创建…",
     "download": "下载文件",
+    "downloading": "正在下载…",
     "failed": "创建导出失败",
     "status": { "PENDING": "正在生成", "COMPLETED": "可以下载", "FAILED": "生成失败" }
   },

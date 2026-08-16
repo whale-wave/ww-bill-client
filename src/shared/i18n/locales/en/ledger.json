@@ -552,7 +552,9 @@
     "title": "Export Ledger",
     "format": "File Format",
     "create": "Create Export",
+    "creating": "Creating…",
     "download": "Download File",
+    "downloading": "Downloading…",
     "failed": "Unable to create export",
     "status": { "PENDING": "Preparing", "COMPLETED": "Ready to download", "FAILED": "Export failed" }
   },

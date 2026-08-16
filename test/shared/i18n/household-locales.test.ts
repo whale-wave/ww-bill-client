@@ -17,4 +17,14 @@ describe('household locales', () => {
     expect(i18n.t('settings.dissolve', { ns: 'household' })).toBe('Dissolve household ledger');
     expect(i18n.t('export.title', { ns: 'household' })).toBe('Export household data');
   });
+
+  it('defines export progress copy in both languages', async () => {
+    await changeLanguage('zh-CN');
+    expect(i18n.t('export.creating', { ns: 'household' })).toBe('正在创建…');
+    expect(i18n.t('export.downloading', { ns: 'household' })).toBe('正在下载…');
+
+    await changeLanguage('en');
+    expect(i18n.t('export.creating', { ns: 'household' })).toBe('Creating…');
+    expect(i18n.t('export.downloading', { ns: 'household' })).toBe('Downloading…');
+  });
 });

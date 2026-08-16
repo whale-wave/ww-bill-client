@@ -311,6 +311,7 @@
     "countedOnly": "仅计入统计",
     "uncountedOnly": "仅不计入统计",
     "create": "创建导出任务",
+    "creating": "正在创建…",
     "created": "导出任务已创建",
     "task": "导出任务",
     "processing": "文件正在生成，请稍候…",
@@ -318,6 +319,7 @@
     "taskLoadError": "无法读取导出任务，请确认家庭权限后重试。",
     "recordCount": "已导出 {{count}} 条记录",
     "download": "下载文件",
+    "downloading": "正在下载…",
     "downloadFailed": "下载失败，请重试",
     "status": {
       "PENDING": "生成中",

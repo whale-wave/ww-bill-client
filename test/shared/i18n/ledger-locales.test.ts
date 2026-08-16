@@ -40,4 +40,14 @@ describe('ledger locales', () => {
       ns: 'ledger',
     })).toBe('2 records · Income 10 · Expense 8');
   });
+
+  it('defines export progress copy in both languages', async () => {
+    await changeLanguage('zh-CN');
+    expect(i18n.t('export.creating', { ns: 'ledger' })).toBe('正在创建…');
+    expect(i18n.t('export.downloading', { ns: 'ledger' })).toBe('正在下载…');
+
+    await changeLanguage('en');
+    expect(i18n.t('export.creating', { ns: 'ledger' })).toBe('Creating…');
+    expect(i18n.t('export.downloading', { ns: 'ledger' })).toBe('Downloading…');
+  });
 });
