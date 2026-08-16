@@ -1,7 +1,5 @@
 import type { LedgerListItem } from '@/entities/ledger';
 import {
-  Button,
-  Dialog,
   SpinLoading,
   Toast,
 } from 'antd-mobile';
@@ -19,7 +17,7 @@ import {
 } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { IllustratedEmptyState, PageHeader } from '@/shared/ui';
+import { confirmAppAction, IllustratedEmptyState, PageHeader } from '@/shared/ui';
 import { LedgerManagementFooter } from './ui/LedgerManagementFooter';
 import { LedgerManagementGrid } from './ui/LedgerManagementGrid';
 import { SortableLedgerGrid } from './ui/SortableLedgerGrid';
@@ -85,10 +83,10 @@ function LedgerCenterPage() {
       return;
 
     blockerDialogOpenRef.current = true;
-    void Dialog.confirm({
+    void confirmAppAction({
       cancelText: t('center.continueSorting'),
       confirmText: t('center.discard'),
-      content: t('center.discardSortDescription'),
+      description: t('center.discardSortDescription'),
       title: t('center.discardSortTitle'),
     }).then((confirmed) => {
       if (!isMountedRef.current)
@@ -152,13 +150,15 @@ function LedgerCenterPage() {
 
     const isOwner = ledger.myRole === LedgerRole.OWNER;
     const actionLabel = t(isOwner ? 'center.archive' : 'center.leave');
-    const confirmed = await Dialog.confirm({
+    const confirmed = await confirmAppAction({
       cancelText: t('common:nav.cancel'),
       confirmText: actionLabel,
-      content: isOwner
+      description: isOwner
         ? t('center.archiveDescription')
         : t('center.leaveDescription'),
+      icon: <CircleAlert size={22} strokeWidth={1.8} />,
       title: t('center.removeTitle', { action: actionLabel, name: ledger.name }),
+      tone: 'danger',
     });
     if (!confirmed)
       return;
@@ -212,13 +212,14 @@ function LedgerCenterPage() {
             icon={<CircleAlert className="text-primary-deep" size={38} />}
             title={t('center.loadError')}
           />
-          <Button
-            color="primary"
+          <button
+            className="h-12 rounded-[16px] border border-solid border-border-primary bg-white/85 px-6 text-[13px] font-extrabold text-primary-deep shadow-ww-xs"
             data-testid="ledger-center-retry"
             onClick={() => void managementQuery.refetch()}
+            type="button"
           >
             {t('center.retry')}
-          </Button>
+          </button>
         </div>
       );
     }
@@ -232,19 +233,22 @@ function LedgerCenterPage() {
             title={t('center.customEmpty')}
           />
           <div className="ledger-center-empty__actions">
-            <Button
-              color="primary"
+            <button
+              className="h-12 rounded-[16px] border-0 bg-primary px-6 text-[13px] font-extrabold text-white shadow-ww-xs"
               data-testid="ledger-empty-create"
               onClick={() => navigate(ROUTES_PATH.LEDGER_TEMPLATES.getPath())}
+              type="button"
             >
               {t('center.create')}
-            </Button>
-            <Button
+            </button>
+            <button
+              className="h-12 rounded-[16px] border border-solid border-border-primary bg-white/85 px-6 text-[13px] font-extrabold text-primary-deep shadow-ww-xs"
               data-testid="ledger-empty-join"
               onClick={() => navigate(ROUTES_PATH.LEDGER_JOIN.getPath())}
+              type="button"
             >
               {t('center.join')}
-            </Button>
+            </button>
           </div>
         </div>
       );

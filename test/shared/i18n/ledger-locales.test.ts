@@ -45,9 +45,11 @@ describe('ledger locales', () => {
     await changeLanguage('zh-CN');
     expect(i18n.t('export.creating', { ns: 'ledger' })).toBe('正在创建…');
     expect(i18n.t('export.downloading', { ns: 'ledger' })).toBe('正在下载…');
+    expect(i18n.t('center.savingOrder', { ns: 'ledger' })).toBe('正在保存…');
 
     await changeLanguage('en');
     expect(i18n.t('export.creating', { ns: 'ledger' })).toBe('Creating…');
     expect(i18n.t('export.downloading', { ns: 'ledger' })).toBe('Downloading…');
+    expect(i18n.t('center.savingOrder', { ns: 'ledger' })).toBe('Saving…');
   });
 });

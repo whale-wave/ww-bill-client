@@ -1,4 +1,4 @@
-import { Button, ErrorBlock, List, Popup, SafeArea, SpinLoading } from 'antd-mobile';
+import { ErrorBlock, Popup, SafeArea, SpinLoading } from 'antd-mobile';
 import { CheckOutline } from 'antd-mobile-icons';
 import { Plus, Settings2, WalletCards } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef } from 'react';
@@ -101,10 +101,10 @@ export function LedgerSwitcherPanel({ onClose, visible }: LedgerSwitcherPanelPro
 
   return (
     <Popup
-      bodyClassName="ledger-switcher-panel"
+      bodyClassName="ww-app-top-sheet ledger-switcher-panel"
       closeOnMaskClick
       destroyOnClose
-      maskClassName="ledger-switcher-panel__mask"
+      maskClassName="ww-app-overlay-mask ledger-switcher-panel__mask"
       onClose={onClose}
       position="top"
       visible={visible}
@@ -142,62 +142,64 @@ export function LedgerSwitcherPanel({ onClose, visible }: LedgerSwitcherPanelPro
                 status="default"
                 title={t('switcher.loadError')}
               />
-              <Button color="primary" onClick={() => void ledgerQuery.refetch()} size="small">
+              <button
+                className="ledger-switcher-panel__retry"
+                onClick={() => void ledgerQuery.refetch()}
+                type="button"
+              >
                 {t('switcher.retry')}
-              </Button>
+              </button>
             </div>
           )}
 
           {!ledgerQuery.isLoading && !ledgerQuery.isError && (
             <>
               <div aria-labelledby={titleId} role="listbox">
-                <List className="ledger-switcher-panel__list">
-                  {items.map((item) => {
-                    const selected = item.type === 'personal'
-                      ? scope.type === 'personal'
-                      : scope.type === 'custom' && scope.ledgerId === item.ledgerId;
-                    const description = item.type === 'personal'
-                      ? t('switcher.recordCount', { count: item.recordCount })
-                      : item.activeMemberCount > 1
-                        ? t('switcher.memberCount', { count: item.activeMemberCount })
-                        : undefined;
+                {items.map((item) => {
+                  const selected = item.type === 'personal'
+                    ? scope.type === 'personal'
+                    : scope.type === 'custom' && scope.ledgerId === item.ledgerId;
+                  const description = item.type === 'personal'
+                    ? t('switcher.recordCount', { count: item.recordCount })
+                    : item.activeMemberCount > 1
+                      ? t('switcher.memberCount', { count: item.activeMemberCount })
+                      : undefined;
 
-                    return (
-                      <button
-                        aria-selected={selected}
-                        className="ledger-switcher-panel__option"
-                        data-ledger-switcher-option
-                        data-ledger-switcher-id={item.type === 'custom' ? item.ledgerId : undefined}
-                        data-selected={selected ? 'true' : 'false'}
-                        data-testid={item.type === 'personal' ? 'ledger-switch-item-personal' : undefined}
-                        key={item.type === 'personal' ? 'personal' : item.ledgerId}
-                        onClick={() => handleSelect(item)}
-                        role="option"
-                        type="button"
-                      >
-                        <List.Item
-                          arrow={false}
-                          description={description}
-                          extra={selected
-                            ? <CheckOutline aria-label={t('switcher.selected')} className="ledger-switcher-panel__check" />
-                            : null}
-                          prefix={(
-                            <span className="ledger-switcher-panel__icon" data-theme={item.type === 'custom' ? item.themeKey : 'personal'}>
-                              {item.type === 'personal'
-                                ? <img alt="" src={appLogo} />
-                                : <WalletCards aria-hidden="true" size={22} strokeWidth={1.8} />}
-                            </span>
-                          )}
-                        >
+                  return (
+                    <button
+                      aria-selected={selected}
+                      className="ledger-switcher-panel__option"
+                      data-ledger-switcher-option
+                      data-ledger-switcher-id={item.type === 'custom' ? item.ledgerId : undefined}
+                      data-selected={selected ? 'true' : 'false'}
+                      data-testid={item.type === 'personal' ? 'ledger-switch-item-personal' : undefined}
+                      key={item.type === 'personal' ? 'personal' : item.ledgerId}
+                      onClick={() => handleSelect(item)}
+                      role="option"
+                      type="button"
+                    >
+                      <span className="ledger-switcher-panel__option-content">
+                        <span className="ledger-switcher-panel__icon" data-theme={item.type === 'custom' ? item.themeKey : 'personal'}>
+                          {item.type === 'personal'
+                            ? <img alt="" src={appLogo} />
+                            : <WalletCards aria-hidden="true" size={22} strokeWidth={1.8} />}
+                        </span>
+                        <span className="ledger-switcher-panel__option-copy">
                           <span className="ledger-switcher-panel__option-title">
                             {item.type === 'personal' ? t('switcher.personal') : item.label}
                             {item.type === 'personal' && <small>{t('switcher.systemBadge')}</small>}
                           </span>
-                        </List.Item>
-                      </button>
-                    );
-                  })}
-                </List>
+                          {description && (
+                            <span className="ledger-switcher-panel__option-description">{description}</span>
+                          )}
+                        </span>
+                        {selected
+                          ? <CheckOutline aria-label={t('switcher.selected')} className="ledger-switcher-panel__check" />
+                          : null}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
               {!hasCustomLedger && (
                 <div className="ledger-switcher-panel__empty">

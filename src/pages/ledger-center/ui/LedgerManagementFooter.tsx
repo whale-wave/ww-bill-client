@@ -1,4 +1,4 @@
-import { Button, SafeArea } from 'antd-mobile';
+import { SafeArea } from 'antd-mobile';
 import { AddOutline } from 'antd-mobile-icons';
 import { useTranslation } from '@/shared/i18n';
 
@@ -21,34 +21,31 @@ export function LedgerManagementFooter({
     <footer className={`ledger-management-footer${sorting ? ' ledger-management-footer--sorting' : ''}`}>
       {sorting
         ? (
-            <Button
-              block
-              color="primary"
+            <button
+              className="ledger-management-footer__save-button"
               data-testid="ledger-order-save"
-              loading={isSaving}
+              disabled={isSaving}
               onClick={onSave}
-              size="large"
+              type="button"
             >
               <span className="ledger-management-footer__save-copy">
-                <strong>{t('center.saveOrder')}</strong>
+                <strong>{isSaving ? t('center.savingOrder') : t('center.saveOrder')}</strong>
                 <small>{t('center.sortHint')}</small>
               </span>
-            </Button>
+            </button>
           )
         : (
-            <Button
-              block
+            <button
               className="ledger-management-footer__create"
               data-testid="ledger-create"
-              fill="none"
               onClick={onCreate}
-              size="large"
+              type="button"
             >
               <span className="ledger-management-footer__create-copy">
                 <AddOutline aria-hidden="true" />
                 {t('center.create')}
               </span>
-            </Button>
+            </button>
           )}
       <SafeArea position="bottom" />
     </footer>

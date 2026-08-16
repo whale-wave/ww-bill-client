@@ -95,10 +95,6 @@
 
 .ledger-switcher-panel.adm-popup-body-position-top {
   top: calc(52px + env(safe-area-inset-top));
-  overflow: hidden;
-  border-radius: 0 0 24px 24px;
-  background: linear-gradient(160deg, #f4fbff 0%, #fff 48%, #fff5f8 100%);
-  box-shadow: 0 18px 40px rgb(43 139 170 / 16%);
 }
 
 .ledger-switcher-panel__mask {
@@ -172,28 +168,8 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: #969696;
+  color: var(--ww-text-color-soft);
   font-size: var(--ww-font-size-sm);
-}
-
-.ledger-switcher-panel__list {
-  --border-inner: 0;
-  --border-top: 0;
-  --border-bottom: 0;
-
-  border: 0;
-  background: transparent;
-
-  .adm-list-item-content-main {
-    min-width: 0;
-    padding-block: 14px;
-  }
-
-  .adm-list-item-description {
-    margin-top: 2px;
-    color: var(--ww-text-color-mid);
-    font-size: var(--ww-font-size-sm);
-  }
 }
 
 .ledger-switcher-panel__option {
@@ -221,10 +197,6 @@
   &:focus-visible {
     outline: 2px solid var(--ww-theme-text-color);
     outline-offset: -2px;
-  }
-
-  .adm-list-item {
-    background: transparent;
   }
 }
 
@@ -301,6 +273,7 @@
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
+  cursor: pointer;
 }
 
 .ledger-switcher-panel__icon {

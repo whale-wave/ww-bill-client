@@ -210,10 +210,6 @@
 .ledger-center-empty__actions {
   display: flex;
   gap: 12px;
-
-  .adm-button-primary {
-    background: var(--ww-theme-color);
-  }
 }
 
 .ledger-management-footer {
@@ -225,14 +221,20 @@
 }
 
 .ledger-management-footer__create {
+  display: flex;
+  width: 100%;
   min-height: 52px;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--ww-theme-color);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.86);
   color: #198caa;
   box-shadow: 0 8px 20px rgb(74 170 200 / 12%);
+  font-family: inherit;
   font-size: 14px;
   font-weight: 800;
+  cursor: pointer;
 }
 
 .ledger-management-footer__create-copy {
@@ -245,13 +247,21 @@
 .ledger-management-footer--sorting {
   border-top: 0;
   padding-inline: 28px;
+}
 
-  .adm-button {
-    min-height: 52px;
-    border: 0;
-    border-radius: 28px;
-    background: var(--ww-theme-color);
-    color: var(--ww-theme-text-color);
+.ledger-management-footer__save-button {
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  border-radius: 28px;
+  background: var(--ww-theme-color);
+  color: var(--ww-theme-text-color);
+  font-family: inherit;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 

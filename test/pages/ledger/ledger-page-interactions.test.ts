@@ -175,6 +175,7 @@ vi.mock('@/shared/i18n', () => ({
         'center.quickSettings': '账本快捷设置',
         'center.retry': '重新加载',
         'center.saveOrder': '保存排序',
+        'center.savingOrder': '正在保存',
         'center.sortHint': '拖动账本可修改排序',
         'center.subtitle': '整理、排序与创建你的账本',
         'center.suspended': '账本已被平台暂停，暂不能归档或退出',
@@ -371,6 +372,15 @@ function successfulQuery<T>(data: T) {
     isLoading: false,
     refetch: vi.fn(),
   };
+}
+
+function readConfirmDialogTitle() {
+  const options = dialogConfirm.mock.calls[0]?.[0] as {
+    header?: { props?: { children?: Array<{ props?: { children?: unknown } }> } };
+  };
+  const children = options?.header?.props?.children;
+  const strong = Array.isArray(children) ? children[1] : undefined;
+  return strong?.props?.children;
 }
 
 beforeEach(() => {
@@ -657,11 +667,28 @@ describe('ledger center page', () => {
 
     const back = container.querySelector<HTMLButtonElement>('[data-page-header] button[aria-label="返回"]');
     await act(async () => back?.click());
-    expect(dialogConfirm).toHaveBeenCalledWith(expect.objectContaining({ title: '放弃排序？' }));
+    expect(dialogConfirm).toHaveBeenCalledWith(expect.objectContaining({
+      bodyClassName: 'ww-app-dialog ww-app-dialog--primary',
+      cancelText: '继续排序',
+      confirmText: '放弃',
+      maskClassName: 'ww-app-overlay-mask',
+    }));
+    expect(readConfirmDialogTitle()).toBe('放弃排序？');
     expect(router.state.location.pathname).toBe('/ledgers');
 
     await act(async () => back?.click());
     expect(router.state.location.pathname).toBe('/origin');
+  });
+
+  it('disables the save button and shows saving copy while reorder is in flight', async () => {
+    hooks.useReorderLedgersMutation.mockReturnValue([hooks.reorderLedgers, { isLoading: true }]);
+    const { container } = renderPage('/ledgers', createElement(LedgerCenterPage));
+    const card = container.querySelector<HTMLButtonElement>('[data-ledger-id="ledger/a"]');
+    await act(async () => card?.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: ' ' })));
+
+    const save = container.querySelector<HTMLButtonElement>('[data-testid="ledger-order-save"]');
+    expect(save?.disabled).toBe(true);
+    expect(save?.textContent).toContain('正在保存');
   });
 
   it('archives owners with ledger version and leaves as a member with membership version', async () => {

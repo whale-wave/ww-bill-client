@@ -82,6 +82,7 @@
     "customGrid": "Custom ledgers",
     "sortGrid": "Reorder ledgers",
     "saveOrder": "Save Order",
+    "savingOrder": "Saving…",
     "sortHint": "Drag ledgers to change their order",
     "listUpdated": "The ledger list changed. Please reorder it again.",
     "discardSortTitle": "Discard changes?",
