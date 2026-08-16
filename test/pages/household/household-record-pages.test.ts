@@ -677,6 +677,7 @@ describe('household records', () => {
       '/households/household%2Fa/records/7/policy',
       '/households/:householdId/records/:recordId/policy',
       createElement(HouseholdRecordPolicyPage),
+      '/households/household%2Fa/records/7',
     );
     const privateOption = container.querySelector<HTMLInputElement>(`input[value="${FamilyRecordPolicy.PRIVATE}"]`);
     await act(async () => privateOption?.click());
@@ -691,7 +692,7 @@ describe('household records', () => {
       params: { householdId: 'household/a', recordId: 7 },
       queryOptions: { enabled: true },
     });
-    expect(router.state.location.pathname).toBe('/ledgers/default-ledger/records/7');
+    expect(router.state.location.pathname).toBe('/households/household%2Fa/records/7');
   });
 
   it('requests subsequent record pages from the home list', async () => {

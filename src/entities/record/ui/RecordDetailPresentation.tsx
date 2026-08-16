@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import { ChevronLeft, ChevronRight, Pencil, Share2, Trash2 } from 'lucide-react';
-import { Fragment } from 'react';
+import { Fragment, useEffect, useRef } from 'react';
 import { formatAmount } from '@/shared/lib';
 import { GradientPanel, Icon } from '@/shared/ui';
 
@@ -90,6 +90,11 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
 }) => {
   const amountTone = amountType === 'add' ? 'text-[#16886f]' : 'text-ww-ink';
   const amountSign = amountType === 'add' ? '+' : amountType === 'sub' ? '-' : '';
+  const mainRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    mainRef.current?.scrollTo?.({ top: 0 });
+  }, []);
 
   return (
     <div className="page-new relative overflow-hidden" data-record-detail-presentation>
@@ -110,7 +115,10 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
         </header>
       )}
 
-      <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-[calc(96px+env(safe-area-inset-bottom))] pt-1">
+      <main
+        className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-[calc(96px+env(safe-area-inset-bottom))] pt-1"
+        ref={mainRef}
+      >
         <div className="mx-auto w-full max-w-[520px] space-y-4">
           <GradientPanel
             className="relative overflow-hidden px-5 py-5"

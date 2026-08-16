@@ -15,7 +15,6 @@ import {
   HouseholdPageState,
   HouseholdScopeBoundary,
 } from '@/features/household';
-import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { GradientPanel, PageHeader } from '@/shared/ui';
 
@@ -44,7 +43,7 @@ const PolicyContent: FC<{ household: Household; recordId: number }> = ({ househo
       return;
     submittingRef.current = true;
     try {
-      const response = await save({
+      await save({
         data: {
           policy,
           ...(policyQuery.data?.version !== undefined
@@ -55,14 +54,7 @@ const PolicyContent: FC<{ household: Household; recordId: number }> = ({ househo
         recordId,
       });
       void Toast.show({ content: t('policy.saved'), icon: 'success' });
-      if (policy === FamilyRecordPolicy.PRIVATE) {
-        navigate(response.data.ledgerId
-          ? ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(response.data.ledgerId, recordId)
-          : ROUTES_PATH.LEDGERS.getPath(), { replace: true });
-      }
-      else {
-        navigate(-1);
-      }
+      navigate(-1);
     }
     catch (error) {
       if (getApiErrorStatus(error) === 409) {

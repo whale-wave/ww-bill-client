@@ -3,10 +3,9 @@ import type { FamilyRecord } from '@/entities/household';
 import type { RecordEntry } from '@/entities/record';
 import type { RecordEditorLocationState } from '@/features/record-editor';
 import { Toast } from 'antd-mobile';
-import { LockKeyhole } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
-import { FamilyRecordPolicy, useHouseholdRecordQuery } from '@/entities/household';
+import { useHouseholdRecordQuery } from '@/entities/household';
 import { RecordDetailPresentation, useDeleteRecordMutation } from '@/entities/record';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { getDisplayName, HouseholdPageState, HouseholdScopeBoundary } from '@/features/household';
@@ -163,14 +162,6 @@ const RecordDetail: FC<{
           value: t(`policy.${record.effectivePolicy}`),
         },
       ]}
-      supplementaryContent={record.effectivePolicy === FamilyRecordPolicy.PRIVATE
-        ? (
-            <span className="mx-5 mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary-light/45 px-3 py-1.5 text-[11px] font-bold text-primary-deep">
-              <LockKeyhole size={12} strokeWidth={2} />
-              {t('policy.PRIVATE')}
-            </span>
-          )
-        : undefined}
     />
   );
 };
