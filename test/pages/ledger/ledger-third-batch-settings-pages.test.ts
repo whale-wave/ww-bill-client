@@ -318,6 +318,25 @@ describe('ledger settings', () => {
     expect(router.state.historyAction).toBe('REPLACE');
   });
 
+  it('stays on the settings page when archiving fails', async () => {
+    hooks.archiveLedger.mockRejectedValue(new Error('archive failed'));
+    const { container, router } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="archive"]')?.click());
+
+    expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/settings');
+  });
+
+  it('redirects an archived ledger settings URL to personal detail', async () => {
+    hooks.useLedgerQuery.mockReturnValue(query({ ...ledger, status: LedgerStatus.ARCHIVED }));
+    const { container, router } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
+
+    await act(async () => Promise.resolve());
+
+    expect(router.state.location.pathname).toBe('/detail');
+    expect(container.textContent).toContain('personal-detail-target');
+  });
+
   it('disables member preference writes while the ledger is suspended', () => {
     hooks.useLedgerQuery.mockReturnValue(query({
       ...ledger,

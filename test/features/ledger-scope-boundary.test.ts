@@ -100,6 +100,34 @@ describe('ledgerScopeBoundary', () => {
     expect(container.textContent).toContain('personal-detail');
   });
 
+  it('replaces an archived ledger URL with personal detail instead of rendering stale content', () => {
+    useLedgerQuery.mockReturnValue({
+      data: { ...ledger, status: LedgerStatus.ARCHIVED },
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    const container = document.createElement('div');
+    root = createRoot(container);
+    const router = createMemoryRouter([
+      {
+        path: '/ledgers/:ledgerId/records',
+        element: createElement(LedgerScopeBoundary, {
+          capability: LedgerCapability.RECORD_READ,
+          children: () => createElement('span', null, 'secret'),
+        }),
+      },
+      { path: '/detail', element: createElement('span', null, 'personal-detail') },
+    ], { initialEntries: ['/origin', '/ledgers/ledger-a/records'], initialIndex: 1 });
+
+    act(() => root?.render(createElement(RouterProvider, { router })));
+
+    expect(router.state.location.pathname).toBe('/detail');
+    expect(router.state.historyAction).toBe('REPLACE');
+    expect(container.textContent).toContain('personal-detail');
+    expect(container.textContent).not.toContain('secret');
+  });
+
   it('keeps a valid ledger in place when only the requested capability is missing', () => {
     useLedgerQuery.mockReturnValue({
       data: { ...ledger, capabilities: [] },

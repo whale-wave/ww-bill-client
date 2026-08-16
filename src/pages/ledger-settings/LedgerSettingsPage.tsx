@@ -14,7 +14,7 @@ import {
   WalletCards,
 } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import {
   LedgerCapability,
   LedgerChartDisplay,
@@ -127,8 +127,8 @@ function ChoiceGroup({
   value: string;
 }) {
   return (
-    <fieldset className="rounded-[18px] border border-solid border-border-primary bg-white/75 p-2 shadow-ww-xs">
-      <legend className="px-2 text-[11px] font-bold text-ww-mid">{label}</legend>
+    <div>
+      <span className="mb-2 block text-[11px] font-bold text-ww-mid">{label}</span>
       <select
         aria-hidden="true"
         className="sr-only"
@@ -139,11 +139,11 @@ function ChoiceGroup({
       >
         {options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
       </select>
-      <div className={`grid gap-1.5 ${options.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+      <div className={`grid gap-1.5 rounded-[16px] border border-solid border-border-primary bg-white/75 p-1.5 shadow-ww-xs ${options.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
         {options.map(option => (
           <button
             aria-pressed={option.value === value}
-            className={`min-h-10 rounded-[13px] px-2 text-[12px] font-bold transition ${option.value === value ? 'bg-primary text-white shadow-ww-xs' : 'bg-bg-gray/65 text-ww-mid'}`}
+            className={`min-h-10 rounded-[13px] px-2 text-[12px] font-bold transition ${option.value === value ? 'bg-primary text-white shadow-ww-xs' : 'bg-white/40 text-ww-mid'}`}
             key={option.value}
             onClick={() => onChange(option.value)}
             type="button"
@@ -152,7 +152,7 @@ function ChoiceGroup({
           </button>
         ))}
       </div>
-    </fieldset>
+    </div>
   );
 }
 
@@ -368,6 +368,8 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
   const preferencesWritable = ledgerWritable;
   if (!ledgerId || ledgerQuery.isError)
     return <ErrorBlock title={t('common.invalidLedger')} />;
+  if (ledgerQuery.data?.status === LedgerStatus.ARCHIVED)
+    return <Navigate replace to={ROUTES_PATH.DETAIL.getPath()} />;
 
   const showDeveloping = () => Toast.show(t('settings.developing'));
   const canUpdateLedger = Boolean(
@@ -615,8 +617,8 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
               <span className="text-[11px] font-bold text-ww-mid">{t('settings.monthStartDay')}</span>
               <input className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/80 px-4 text-[14px] font-semibold text-ww-ink outline-none shadow-ww-xs transition focus:border-primary" max="28" min="1" onChange={event => setMonthStartDay(Number(event.target.value))} type="number" value={monthStartDay} />
             </label>
-            <fieldset className="mt-5">
-              <legend className="text-[11px] font-bold text-ww-mid">{t('settings.icon')}</legend>
+            <div className="mt-5">
+              <span className="block text-[11px] font-bold text-ww-mid">{t('settings.icon')}</span>
               <select aria-hidden="true" className="sr-only" data-testid="ledger-icon" onChange={event => setIconKey(event.target.value)} tabIndex={-1} value={iconKey}>
                 {!LEDGER_ICON_KEYS.includes(iconKey as typeof LEDGER_ICON_KEYS[number]) && <option value={iconKey}>{iconKey}</option>}
                 {LEDGER_ICON_KEYS.map(value => <option key={value} value={value}>{t(`settings.iconOptions.${value}`)}</option>)}
@@ -633,9 +635,9 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                   );
                 })}
               </div>
-            </fieldset>
-            <fieldset className="mt-5">
-              <legend className="text-[11px] font-bold text-ww-mid">{t('settings.theme')}</legend>
+            </div>
+            <div className="mt-5">
+              <span className="block text-[11px] font-bold text-ww-mid">{t('settings.theme')}</span>
               <select aria-hidden="true" className="sr-only" data-testid="ledger-theme" onChange={event => setThemeKey(event.target.value)} tabIndex={-1} value={themeKey}>
                 {!LEDGER_THEME_KEYS.includes(themeKey as typeof LEDGER_THEME_KEYS[number]) && <option value={themeKey}>{themeKey}</option>}
                 {LEDGER_THEME_KEYS.map(value => <option key={value} value={value}>{t(`settings.themeOptions.${value}`)}</option>)}
@@ -647,7 +649,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                   </button>
                 ))}
               </div>
-            </fieldset>
+            </div>
             <div className="mt-4 flex items-center gap-3 rounded-[17px] border border-solid border-border-primary bg-white/75 px-4 py-3 shadow-ww-xs">
               <span className={`flex h-11 w-11 items-center justify-center rounded-[15px] text-white shadow-ww-xs ${themePreviewClass}`}><LedgerPreviewIcon size={21} /></span>
               <span className="min-w-0 flex-1 truncate text-[13px] font-extrabold text-ww-ink">{name || ledger?.name}</span>
