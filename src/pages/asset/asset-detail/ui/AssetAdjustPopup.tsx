@@ -1,7 +1,7 @@
 import type { PopupProps } from 'antd-mobile';
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
-import { Button, Input, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import { CircleDollarSign } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePatchAssetAdjustMutation } from '@/entities/asset';
@@ -77,23 +77,23 @@ export const AssetAdjustPopup: FC<AssetAdjustPopupProps> = (props) => {
         </label>
         <div className="mt-2 flex h-[54px] items-center gap-2 rounded-[15px] border border-solid border-border-primary bg-white/80 px-4 shadow-ww-xs focus-within:border-primary-mid focus-within:ring-2 focus-within:ring-primary-light/60">
           <span className="font-number text-[16px] font-black text-primary-deep">¥</span>
-          <Input
+          <input
+            className="ww-sheet-plain-input min-w-0 flex-1 border-0 bg-transparent p-0 font-number text-[17px] font-black text-ww-ink outline-none placeholder:font-number placeholder:text-[14px] placeholder:font-semibold placeholder:text-ww-soft"
             id="asset-adjust-amount"
             inputMode="decimal"
+            onChange={event => handleAmountChange(event.target.value)}
             placeholder={t('adjust.amountPlaceholder')}
             value={amount}
-            onChange={handleAmountChange}
           />
         </div>
-        <Button
-          block
-          className="mt-5 bg-[linear-gradient(135deg,#50bfd8,#14afc5)] text-white shadow-[0_8px_18px_rgba(20,175,197,0.25)]"
-          disabled={!amount}
-          loading={mutation.isLoading}
+        <button
+          className="mt-5 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
+          disabled={!amount || mutation.isLoading}
           onClick={() => void handleAdjust()}
+          type="button"
         >
-          {t('adjust.submit')}
-        </Button>
+          {mutation.isLoading ? t('adjust.submitting') : t('adjust.submit')}
+        </button>
       </div>
     </AppBottomSheet>
   );

@@ -205,6 +205,14 @@
     }
   }
 
+  .ww-sheet-plain-input,
+  .ww-sheet-plain-input:focus {
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
   .adm-button {
     min-height: 50px;
     border: 0;

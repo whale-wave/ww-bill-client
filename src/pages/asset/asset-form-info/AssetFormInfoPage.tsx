@@ -226,7 +226,7 @@ const AssetFormInfo: FC = () => {
                       </span>
                     )}
                   >
-                    <div className="flex h-12 items-center gap-3 rounded-[15px] border border-solid border-border-primary bg-white/80 px-3 shadow-ww-xs focus-within:border-primary-mid focus-within:ring-2 focus-within:ring-primary-light/60">
+                    <div className="flex h-12 items-center gap-3 rounded-[15px] bg-white/70 px-3 transition focus-within:bg-white/95 focus-within:ring-2 focus-within:ring-primary-light/60">
                       <FieldIcon className="shrink-0 text-primary-deep" size={18} strokeWidth={1.8} />
                       <Form.Item
                         className="!m-0 min-w-0 flex-1 [&_.adm-form-item-child-inner]:!border-0"

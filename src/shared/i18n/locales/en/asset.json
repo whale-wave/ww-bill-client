@@ -124,6 +124,7 @@
     "current": "Adjust Current",
     "amountPlaceholder": "Enter adjusted amount",
     "submit": "Confirm Adjustment",
+    "submitting": "Adjusting…",
     "action": "Adjust Balance",
     "title": "Adjust Account Amount",
     "currentValue": "Current {{type}}: ¥{{amount}}",

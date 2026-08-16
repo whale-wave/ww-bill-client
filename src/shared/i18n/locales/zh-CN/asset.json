@@ -124,6 +124,7 @@
     "current": "调整当前",
     "amountPlaceholder": "请输入调整后的金额",
     "submit": "确认调整",
+    "submitting": "调整中…",
     "action": "调整余额",
     "title": "调整账户金额",
     "currentValue": "当前{{type}}为 ¥{{amount}}",
