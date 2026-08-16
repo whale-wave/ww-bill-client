@@ -27,13 +27,35 @@ export function usePendingHouseholdActivation() {
   });
   const household = query.data;
   const handledActiveRef = useRef(false);
+  const previousStatusRef = useRef<HouseholdStatus | undefined>(undefined);
 
   useEffect(() => {
-    if (household?.status !== HouseholdStatus.ACTIVE || handledActiveRef.current)
+    const previousStatus = previousStatusRef.current;
+
+    if (household)
+      previousStatusRef.current = household.status;
+
+    if (
+      !household
+      || household.status !== HouseholdStatus.ACTIVE
+      || handledActiveRef.current
+    ) {
       return;
+    }
+
     handledActiveRef.current = true;
     removeHouseholdInvitation(household.id);
-    Toast.show({ content: t('invitation.partnerJoined'), icon: 'success' });
-    navigate(ROUTES_PATH.HOUSEHOLD_HOME.getPath(household.id), { replace: true });
+
+    if (previousStatus === HouseholdStatus.PENDING_PARTNER) {
+      Toast.show({
+        content: t('invitation.partnerJoined'),
+        icon: 'success',
+      });
+    }
+
+    navigate(
+      ROUTES_PATH.HOUSEHOLD_HOME.getPath(household.id),
+      { replace: true },
+    );
   }, [household, navigate, t]);
 }

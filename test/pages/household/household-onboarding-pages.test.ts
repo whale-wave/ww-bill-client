@@ -160,6 +160,7 @@ describe('household entry', () => {
     const { router } = renderPage('/household', '/household', createElement(HouseholdEntryPage));
     await act(async () => Promise.resolve());
     expect(router.state.location.pathname).toBe('/households/household%2Fa');
+    expect(toastShow).not.toHaveBeenCalled();
   });
 
   it('returns to the bills page after dissolution instead of a dead household address', async () => {
