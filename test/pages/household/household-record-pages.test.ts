@@ -314,13 +314,32 @@ describe('household records', () => {
     expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(dateGroup?.textContent).toContain('records.dailyExpense');
     expect(dateGroup?.textContent).toContain('20.00');
-    expect(recordRow?.classList).toContain('h-16');
+    expect(recordRow?.classList).toContain('min-h-[72px]');
     expect(recordRow?.classList).not.toContain('min-h-[60px]');
     expect(amount?.classList).toContain('text-[#c04870]');
     expect(incomeAmount?.textContent).toBe('100.00');
     expect(container.querySelector('[data-date-group="2026-07-20"]')?.textContent).toContain('records.dailyIncome');
     expect(container.querySelector('[data-category-icon="catering"] svg')?.classList).toContain('lucide-utensils');
     expect(container.textContent).not.toContain('catering');
+  });
+
+  it('shows compact creator and tag metadata on home overview rows', () => {
+    const taggedRecord: FamilyRecord = {
+      ...record,
+      tags: [{ id: 'tag-a', name: '聚餐', status: 'ACTIVE' }],
+    };
+    hooks.useInfiniteHouseholdRecordsQuery.mockReturnValue({
+      ...query({ ...recordsPage, data: [taggedRecord] }),
+      fetchNextPage: hooks.fetchNextRecords,
+      hasNextPage: false,
+      isFetchingNextPage: false,
+    });
+    const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
+
+    const recordRow = container.querySelector('[data-record-id="7"]');
+    expect(recordRow?.textContent).toContain('#聚餐');
+    expect(recordRow?.textContent).toContain('@Avan');
+    expect(recordRow?.textContent).not.toContain('records.memberAttribution');
   });
 
   it('uses complete server daily totals when a date crosses the loaded page boundary', () => {
@@ -457,7 +476,7 @@ describe('household records', () => {
     const recordRow = container.querySelector('[data-record-id="7"]');
     expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="record-overview-list"]')?.getAttribute('data-record-list-variant')).toBe('overview');
-    expect(recordRow?.classList).toContain('h-16');
+    expect(recordRow?.classList).toContain('min-h-[72px]');
     expect(recordRow?.textContent).not.toContain('records.memberAttribution');
     expect(container.querySelector('[data-category-icon="餐"] svg')?.classList).toContain('lucide-utensils');
     await act(async () => recordRow?.dispatchEvent(new MouseEvent('click', { bubbles: true })));

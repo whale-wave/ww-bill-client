@@ -9,6 +9,7 @@ export interface RecordOverviewListItem {
   iconName: string;
   id: number | string;
   onClick?: () => void;
+  overviewSecondary?: ReactNode;
   primary: ReactNode;
   secondary?: ReactNode;
 }
@@ -103,20 +104,30 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
             <div className={isOverview
               ? cn(
                   'overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] py-0.5 shadow-ww backdrop-blur-xl',
-                  group.records.length === 1 && 'h-[70px]',
+                  group.records.length === 1 && !group.records.some(record => record.overviewSecondary) && 'h-[70px]',
                 )
               : ''}
             >
               {group.records.map((record, index) => {
                 if (isOverview) {
+                  const hasOverviewSecondary = Boolean(record.overviewSecondary);
                   return (
                     <div
-                      className="relative flex h-16 w-full items-center"
+                      className={cn(
+                        'relative flex w-full items-center',
+                        hasOverviewSecondary ? 'min-h-[72px] py-1' : 'h-16',
+                      )}
                       data-record-id={record.id}
                       key={record.id}
                       onClick={record.onClick}
                     >
-                      <div className="flex h-full w-full min-w-0 items-center gap-[13px] px-[18px] py-3" data-record-content>
+                      <div
+                        className={cn(
+                          'flex h-full w-full min-w-0 items-center gap-[13px] px-[18px]',
+                          !hasOverviewSecondary && 'py-3',
+                        )}
+                        data-record-content
+                      >
                         <span
                           className={cn(
                             'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
@@ -132,8 +143,15 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                         >
                           {renderCategoryIcon?.(record) ?? <Icon className="text-[18px]" name={record.iconName || 'bill'} />}
                         </span>
-                        <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[14px] font-semibold leading-[21px] text-ww-ink">
-                          {record.primary}
+                        <span className="min-w-0 flex-1">
+                          <span className="block overflow-hidden text-ellipsis whitespace-nowrap text-[14px] font-semibold leading-[21px] text-ww-ink">
+                            {record.primary}
+                          </span>
+                          {hasOverviewSecondary && (
+                            <span className="mt-0.5 block overflow-hidden text-ellipsis whitespace-nowrap text-[11px] font-semibold leading-[16.5px] text-ww-mid">
+                              {record.overviewSecondary}
+                            </span>
+                          )}
                         </span>
                         <span
                           className={cn(

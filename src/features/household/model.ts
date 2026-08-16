@@ -132,16 +132,22 @@ export function toHouseholdRecordOverviewGroups(
       dateLabel: formatDateHeading(date, options.locale),
       dateTime: date,
       key: date,
-      records: groupedRecords.map(record => ({
-        amount: `${record.type === 'add' ? '' : '-'}${toMoney(record.amount)}`,
-        amountTone: record.type === 'add' ? 'income' : 'expense',
-        categoryName: record.category?.name,
-        iconName: record.category?.icon ?? 'bill',
-        id: record.id,
-        onClick: options.onSelect ? () => options.onSelect?.(record) : undefined,
-        primary: record.remark || record.category?.name || '—',
-        secondary: `${options.memberLabel(getDisplayName(record.creator))}${record.tags.length > 0 ? ` · ${record.tags.map(tag => `#${tag.name}`).join(' ')}` : ''} · ${getPolicyLabel(record, options)}`,
-      })),
+      records: groupedRecords.map((record) => {
+        const displayName = getDisplayName(record.creator);
+        return {
+          amount: `${record.type === 'add' ? '' : '-'}${toMoney(record.amount)}`,
+          amountTone: record.type === 'add' ? 'income' : 'expense',
+          categoryName: record.category?.name,
+          iconName: record.category?.icon ?? 'bill',
+          id: record.id,
+          onClick: options.onSelect ? () => options.onSelect?.(record) : undefined,
+          overviewSecondary: record.tags.length > 0
+            ? `${record.tags.map(tag => `#${tag.name}`).join(' ')} @${displayName}`
+            : `@${displayName}`,
+          primary: record.remark || record.category?.name || '—',
+          secondary: `${options.memberLabel(displayName)}${record.tags.length > 0 ? ` · ${record.tags.map(tag => `#${tag.name}`).join(' ')}` : ''} · ${getPolicyLabel(record, options)}`,
+        };
+      }),
       summaries: dailyTotal
         ? [
             ...(dailyTotal.visibleIncome !== '0' && dailyTotal.visibleIncome !== '0.00'
