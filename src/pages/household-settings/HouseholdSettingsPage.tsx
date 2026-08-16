@@ -1,7 +1,7 @@
 import type { FC, FormEvent } from 'react';
 import type { Household } from '@/entities/household';
-import { Button, Toast } from 'antd-mobile';
-import { ShieldCheck } from 'lucide-react';
+import { Button, DatePicker, Toast } from 'antd-mobile';
+import { CalendarDays, ShieldCheck } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -13,6 +13,7 @@ import {
 } from '@/entities/household';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import {
+  formatMonthStart,
   getApiErrorMessage,
   getApiErrorStatus,
   HouseholdPageState,
@@ -26,6 +27,11 @@ import { AppBottomSheet, GradientPanel, PageHeader } from '@/shared/ui';
 
 type Editor = 'dissolve' | 'sharedStart' | null;
 
+function monthStartDate(value: string) {
+  const [year, month] = value.slice(0, 7).split('-').map(Number);
+  return new Date(year, month - 1, 1);
+}
+
 const SettingsContent: FC<{ household: Household }> = ({ household }) => {
   const { t } = useTranslation('household');
   const navigate = useNavigate();
@@ -37,6 +43,9 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
   const [updateHousehold, updateState] = useUpdateHouseholdMutation();
   const [dissolve, dissolveState] = useDissolveHouseholdMutation();
   const [editor, setEditor] = useState<Editor>(null);
+  const [draftMonth, setDraftMonth] = useState<Date>(() => monthStartDate(household.sharedStartMonth));
+  const [monthPickerVisible, setMonthPickerVisible] = useState(false);
+  const [today] = useState(() => new Date());
   const submittingRef = useRef(false);
 
   const handleError = async (error: unknown) => {
@@ -55,14 +64,11 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
     event.preventDefault();
     if (submittingRef.current)
       return;
-    const month = String(
-      new FormData(event.currentTarget).get('sharedStartMonth') ?? '',
-    );
     submittingRef.current = true;
     try {
       await updateHousehold({
         data: {
-          sharedStartMonth: `${month}-01`,
+          sharedStartMonth: formatMonthStart(draftMonth),
           version: household.version,
         },
         householdId: household.id,
@@ -182,7 +188,10 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
                     id: 'shared-start',
                     kind: 'link',
                     label: t('settings.sharedStartTitle'),
-                    onClick: () => setEditor('sharedStart'),
+                    onClick: () => {
+                      setDraftMonth(monthStartDate(household.sharedStartMonth));
+                      setEditor('sharedStart');
+                    },
                     value: household.sharedStartMonth.slice(0, 7),
                   }
                 : {
@@ -265,13 +274,27 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
           <form className="px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-14" onSubmit={handleSharedStart}>
             <h2>{t('settings.sharedStartTitle')}</h2>
             <p className="mt-2 text-[12px] font-semibold leading-5 text-ww-mid">{t('settings.sharedStartHint')}</p>
-            <input
-              className="mt-5 h-[52px] w-full border border-solid px-4 text-[15px] font-bold"
-              defaultValue={household.sharedStartMonth.slice(0, 7)}
-              min={household.sharedStartMonth.slice(0, 7)}
-              name="sharedStartMonth"
-              required
-              type="month"
+            <button
+              className="mt-5 flex h-[52px] w-full items-center justify-between rounded-[15px] border border-solid border-border-primary bg-white/85 px-4 text-[15px] font-bold text-ww-ink shadow-ww-xs"
+              data-testid="shared-start-month-field"
+              onClick={() => setMonthPickerVisible(true)}
+              type="button"
+            >
+              {formatMonthStart(draftMonth).slice(0, 7)}
+              <CalendarDays className="text-primary-deep" size={18} strokeWidth={1.8} />
+            </button>
+            <DatePicker
+              className="ww-app-date-picker"
+              max={today}
+              min={monthStartDate(household.sharedStartMonth)}
+              onClose={() => setMonthPickerVisible(false)}
+              onConfirm={(value) => {
+                setDraftMonth(value);
+                setMonthPickerVisible(false);
+              }}
+              precision="month"
+              value={draftMonth}
+              visible={monthPickerVisible}
             />
             <Button block className="mt-5 bg-[linear-gradient(135deg,#50bfd8,#14afc5)] text-white shadow-[0_8px_18px_rgba(20,175,197,0.25)]" loading={updateState.isLoading} type="submit">
               {t('common.save')}

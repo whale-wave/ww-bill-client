@@ -909,8 +909,23 @@ describe('household settings and members', () => {
   it('limits an owner to moving the sharing boundary later', async () => {
     const { container } = renderPage('/households/household%2Fa/settings', '/households/:householdId/settings', createElement(HouseholdSettingsPage));
     await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="shared-start"]')?.click());
-    const input = document.body.querySelector<HTMLInputElement>('input[name="sharedStartMonth"]');
-    expect(input?.min).toBe('2026-07');
+    const field = document.body.querySelector('[data-testid="shared-start-month-field"]');
+    expect(field?.textContent).toBe('2026-07');
+  });
+
+  it('submits the sharing boundary month as the first day of the picked month', async () => {
+    hooks.updateHousehold.mockResolvedValue({ data: { ...household, sharedStartMonth: '2026-07-01' } });
+    const { container } = renderPage('/households/household%2Fa/settings', '/households/:householdId/settings', createElement(HouseholdSettingsPage));
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="shared-start"]')?.click());
+
+    const field = document.body.querySelector('[data-testid="shared-start-month-field"]');
+    const form = field?.closest('form');
+    await act(async () => form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+
+    expect(hooks.updateHousehold).toHaveBeenCalledWith({
+      data: { sharedStartMonth: '2026-07-01', version: household.version },
+      householdId: 'household/a',
+    });
   });
 
   it('hides owner-only sharing boundary controls from the partner', () => {
@@ -921,7 +936,7 @@ describe('household settings and members', () => {
     hooks.useUserQuery.mockReturnValue({ data: { id: 2 } });
     const { container } = renderPage('/households/household%2Fa/settings', '/households/:householdId/settings', createElement(HouseholdSettingsPage));
 
-    expect(container.querySelector('input[name="sharedStartMonth"]')).toBeNull();
+    expect(container.querySelector('[data-testid="shared-start-month-field"]')).toBeNull();
     expect(container.textContent).toContain('settings.sharedStartTitle');
     expect(container.querySelector('[data-settings-row="shared-start"]')?.tagName).toBe('DIV');
   });
