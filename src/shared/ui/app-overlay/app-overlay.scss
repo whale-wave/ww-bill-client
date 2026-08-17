@@ -3,6 +3,11 @@
   backdrop-filter: blur(5px);
 }
 
+.adm-center-popup:has(.ww-app-dialog) {
+  --adm-center-popup-max-width: none;
+  --adm-center-popup-min-width: 0;
+}
+
 .ww-app-dialog {
   width: min(330px, calc(100vw - 44px));
   padding-top: 22px !important;

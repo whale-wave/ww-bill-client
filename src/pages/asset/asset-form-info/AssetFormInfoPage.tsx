@@ -186,7 +186,7 @@ const AssetFormInfo: FC = () => {
           </GradientPanel>
 
           <Form
-            className="!bg-transparent"
+            className="!bg-transparent [&_.adm-list-body]:!border-0 [&_.adm-list-item-content]:!border-0"
             disabled={isSaving}
             form={form}
             hasFeedback={false}
