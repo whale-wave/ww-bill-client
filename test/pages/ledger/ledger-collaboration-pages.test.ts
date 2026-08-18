@@ -13,6 +13,7 @@ import LedgerInvitePage from '@/pages/ledger-invite/LedgerInvitePage';
 import LedgerJoinRequestDetailPage from '@/pages/ledger-join-request-detail/LedgerJoinRequestDetailPage';
 import LedgerJoinPage from '@/pages/ledger-join/LedgerJoinPage';
 import LedgerMemberDetailPage from '@/pages/ledger-member-detail/LedgerMemberDetailPage';
+import LedgerMembersPage from '@/pages/ledger-members/LedgerMembersPage';
 
 const hooks = vi.hoisted(() => ({
   createInvitation: vi.fn(),
@@ -102,6 +103,7 @@ beforeEach(() => {
   dialogConfirm.mockReset();
   dialogConfirm.mockResolvedValue(true);
   toastShow.mockReset();
+  localStorage.clear();
   hooks.useLedgerQuery.mockReturnValue({
     data: ledger,
     isError: false,
@@ -498,6 +500,181 @@ describe('ledger invitation page', () => {
       statusCode: 201,
     }));
     expect(container.textContent).toContain('ABC123');
+  });
+
+  it('restores an unexpired invitation code from storage after a fresh mount', () => {
+    localStorage.setItem('wh:ledger-invitation:ledger/a', JSON.stringify({
+      schemaVersion: 1,
+      ledgerId: 'ledger/a',
+      id: 'invite-1',
+      code: 'SAVED1',
+      expiresAt: '2099-01-01T00:00:00.000Z',
+      invitationVersion: 3,
+    }));
+
+    const container = render(
+      '/ledgers/ledger%2Fa/invites',
+      '/ledgers/:ledgerId/invites',
+      createElement(LedgerInvitePage),
+    );
+
+    expect(container.querySelector('[data-testid="ledger-invite-code"]')?.textContent).toContain('SAVED1');
+    expect(container.querySelector('[data-testid="generate-invitation"]')).toBeNull();
+  });
+
+  it('clears consent after a successful generation so regeneration requires it again', async () => {
+    let resolveInvite: ((value: unknown) => void) | undefined;
+    hooks.createInvitation.mockReturnValue(new Promise(resolve => resolveInvite = resolve));
+    const container = render(
+      '/ledgers/ledger%2Fa/invites',
+      '/ledgers/:ledgerId/invites',
+      createElement(LedgerInvitePage),
+    );
+    const consent = container.querySelector<HTMLInputElement>('[data-testid="invite-consent"] input');
+    await act(async () => {
+      container.querySelector<HTMLElement>('[data-testid="invite-consent"]')?.click();
+    });
+    expect(consent?.checked).toBe(true);
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="generate-invitation"]')?.click();
+      resolveInvite?.({
+        data: {
+          code: 'ABC123',
+          expiresAt: '2099-01-01T00:00:00.000Z',
+          id: 'invite-1',
+          ledgerId: 'ledger/a',
+          status: 'ACTIVE',
+          version: 1,
+        },
+        message: 'ok',
+        statusCode: 201,
+      });
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('ABC123');
+    expect(localStorage.getItem('wh:ledger-invitation:ledger/a')).not.toBeNull();
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="ledger-invite-revoke"]')?.click();
+      await Promise.resolve();
+    });
+    expect(hooks.revokeInvitation).toHaveBeenCalledWith({
+      invitationId: 'invite-1',
+      ledgerId: 'ledger/a',
+    });
+    expect(localStorage.getItem('wh:ledger-invitation:ledger/a')).toBeNull();
+
+    const consentAfter = container.querySelector<HTMLInputElement>('[data-testid="invite-consent"] input');
+    expect(consentAfter?.checked).toBe(false);
+    expect(container.querySelector<HTMLButtonElement>('[data-testid="generate-invitation"]')?.disabled).toBe(true);
+  });
+
+  it('switches to the expired state and clears storage when the countdown ends', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-17T10:00:00.000Z'));
+    localStorage.setItem('wh:ledger-invitation:ledger/a', JSON.stringify({
+      schemaVersion: 1,
+      ledgerId: 'ledger/a',
+      id: 'invite-1',
+      code: 'DUE1',
+      expiresAt: '2026-08-17T10:00:02.000Z',
+      invitationVersion: 1,
+    }));
+
+    const container = render(
+      '/ledgers/ledger%2Fa/invites',
+      '/ledgers/:ledgerId/invites',
+      createElement(LedgerInvitePage),
+    );
+    expect(container.querySelector('[data-testid="ledger-invite-code"]')?.textContent).toContain('DUE1');
+
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    expect(container.textContent).toContain('invite.expired');
+    expect(container.querySelector('[data-testid="ledger-invite-code"]')).toBeNull();
+    expect(localStorage.getItem('wh:ledger-invitation:ledger/a')).toBeNull();
+    vi.useRealTimers();
+  });
+});
+
+describe('ledger members page', () => {
+  it('shows the invite dock and join requests entry only with the matching capabilities', () => {
+    hooks.useLedgerQuery.mockReturnValue({
+      data: {
+        ...ledger,
+        capabilities: [
+          LedgerCapability.MEMBER_READ,
+          LedgerCapability.MEMBER_INVITE,
+          LedgerCapability.MEMBER_REVIEW,
+        ],
+      },
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.useLedgerMembersQuery.mockReturnValue({
+      data: [{
+        capabilities: [],
+        id: 'member/me',
+        joinedAt: '2026-07-21T00:00:00.000Z',
+        nickname: '我',
+        role: LedgerRole.OWNER,
+        status: 'ACTIVE',
+        user: { id: 1, name: '我' },
+        version: 1,
+      }],
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    const container = render(
+      '/ledgers/ledger%2Fa/members',
+      '/ledgers/:ledgerId/members',
+      createElement(LedgerMembersPage),
+    );
+
+    expect(container.querySelector('[data-testid="ledger-members-invite"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="ledger-members-requests"]')).not.toBeNull();
+    expect(container.textContent).toContain('members.me');
+  });
+
+  it('hides the invite dock and join requests entry without their capabilities', () => {
+    hooks.useLedgerQuery.mockReturnValue({
+      data: {
+        ...ledger,
+        capabilities: [LedgerCapability.MEMBER_READ],
+      },
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    hooks.useLedgerMembersQuery.mockReturnValue({
+      data: [{
+        capabilities: [],
+        id: 'member/me',
+        joinedAt: '2026-07-21T00:00:00.000Z',
+        nickname: '我',
+        role: LedgerRole.OWNER,
+        status: 'ACTIVE',
+        user: { id: 1, name: '我' },
+        version: 1,
+      }],
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    const container = render(
+      '/ledgers/ledger%2Fa/members',
+      '/ledgers/:ledgerId/members',
+      createElement(LedgerMembersPage),
+    );
+
+    expect(container.querySelector('[data-testid="ledger-members-invite"]')).toBeNull();
+    expect(container.querySelector('[data-testid="ledger-members-requests"]')).toBeNull();
   });
 });
 

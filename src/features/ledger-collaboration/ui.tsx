@@ -7,7 +7,7 @@ import type {
   LedgerUserSummary,
 } from '@/entities/ledger';
 import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
-import { RightOutline, UserOutline } from 'antd-mobile-icons';
+import { ChevronRight } from 'lucide-react';
 import { LedgerVisualIcon } from '@/entities/ledger';
 import { getLedgerUserDisplayName } from './model';
 
@@ -71,7 +71,7 @@ export const LedgerUserAvatar: FC<UserAvatarProps> = ({ size = 42, user }) => (
     ? (
         <img
           alt=""
-          className="flex-shrink-0 rounded-full bg-bg-gray object-cover"
+          className="flex-shrink-0 rounded-[15px] border-2 border-solid border-white object-cover shadow-ww-xs"
           height={size}
           src={user.avatar}
           width={size}
@@ -79,10 +79,10 @@ export const LedgerUserAvatar: FC<UserAvatarProps> = ({ size = 42, user }) => (
       )
     : (
         <span
-          className="flex flex-shrink-0 items-center justify-center rounded-full bg-primary text-lg text-font-black"
+          className="flex flex-shrink-0 items-center justify-center rounded-[15px] bg-[linear-gradient(145deg,#c8eaf6,#e8f6ff)] text-lg font-black text-primary-deep shadow-ww-xs"
           style={{ height: size, width: size }}
         >
-          <UserOutline />
+          {getLedgerUserDisplayName(user, '?').slice(0, 1)}
         </span>
       )
 );
@@ -108,20 +108,20 @@ export const LedgerUserRow: FC<UserRowProps> = ({
     <>
       <LedgerUserAvatar user={user} />
       <span className="ml-3 min-w-0 flex-grow text-left">
-        <span className="one-line block text-base text-font-black">
+        <span className="one-line block text-[14px] font-black text-ww-ink">
           {getLedgerUserDisplayName(user, fallback)}
         </span>
-        {secondary && <span className="mt-1 block text-xs text-font-gray">{secondary}</span>}
+        {secondary && <span className="mt-1 block truncate text-[11px] font-semibold text-ww-soft">{secondary}</span>}
       </span>
       {trailing}
-      {onClick && <RightOutline className="ml-2 flex-shrink-0 text-font-gray" />}
+      {onClick && <ChevronRight className="ml-2 flex-shrink-0 text-[#9eb1bd]" size={18} />}
     </>
   );
 
   return onClick
     ? (
         <button
-          className="flex min-h-[68px] w-full items-center border-0 border-b border-solid border-[#EBEBEB] bg-white px-4 active:bg-slate-50"
+          className="flex min-h-[68px] w-full items-center border-0 border-b border-solid border-border-primary bg-transparent px-4 text-left transition last:border-b-0 active:bg-primary-light/25"
           data-testid={testId}
           onClick={onClick}
           type="button"
@@ -130,7 +130,7 @@ export const LedgerUserRow: FC<UserRowProps> = ({
         </button>
       )
     : (
-        <div className="flex min-h-[68px] items-center border-0 border-b border-solid border-[#EBEBEB] bg-white px-4">
+        <div className="flex min-h-[68px] items-center border-0 border-b border-solid border-border-primary bg-transparent px-4 last:border-b-0">
           {content}
         </div>
       );
@@ -148,10 +148,10 @@ export function CollaborationStatusBadge({
   return (
     <span
       className={active
-        ? 'rounded bg-primary px-2 py-1 text-xs text-font-black'
+        ? 'rounded-full bg-primary-light/65 px-2 py-0.5 text-[10px] font-bold text-primary-deep'
         : positive
-          ? 'rounded bg-green-50 px-2 py-1 text-xs text-green-700'
-          : 'rounded bg-bg-gray px-2 py-1 text-xs text-font-gray'}
+          ? 'rounded-full bg-[#e2f5ec]/80 px-2 py-0.5 text-[10px] font-bold text-[#1f7a52]'
+          : 'rounded-full bg-bg-gray px-2 py-0.5 text-[10px] font-bold text-font-gray'}
     >
       {label}
     </span>

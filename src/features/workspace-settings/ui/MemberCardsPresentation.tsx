@@ -1,8 +1,10 @@
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 import type { MemberCardItem } from '../model/types';
 import { ChevronRight } from 'lucide-react';
+import { useTranslation } from '@/shared/i18n';
 
 function MemberCard({ item }: { item: MemberCardItem }) {
+  const { t } = useTranslation('ledger');
   return (
     <button
       className="group flex min-h-[92px] w-full items-center border-0 border-b border-solid border-border-primary bg-transparent px-4 py-3.5 text-left transition active:bg-primary-light/25 last:border-b-0"
@@ -33,7 +35,7 @@ function MemberCard({ item }: { item: MemberCardItem }) {
           )}
           {item.isCurrent && (
             <span className="rounded-full bg-ww-purple-light/65 px-2 py-0.5 text-[10px] font-bold text-[#6755aa]">
-              我
+              {t('members.me')}
             </span>
           )}
         </span>
@@ -55,11 +57,17 @@ function MemberCard({ item }: { item: MemberCardItem }) {
 
 export const MemberCardsPresentation: FC<{
   current: MemberCardItem;
+  currentLabel?: ReactNode;
   others: MemberCardItem[];
-  othersLabel: string;
-}> = ({ current, others, othersLabel }) => (
-  <div className="space-y-5 pb-6" data-member-cards>
+  othersLabel: ReactNode;
+}> = ({ current, currentLabel, others, othersLabel }) => (
+  <div className="space-y-4 pb-2" data-member-cards>
     <section className="overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] shadow-ww backdrop-blur-xl">
+      {currentLabel && (
+        <h2 className="px-4 pb-2 pt-3 text-[11px] font-extrabold tracking-[0.4px] text-ww-mid">
+          {currentLabel}
+        </h2>
+      )}
       <MemberCard item={current} />
     </section>
     {others.length > 0 && (

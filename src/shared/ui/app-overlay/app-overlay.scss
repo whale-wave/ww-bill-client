@@ -68,6 +68,21 @@
   }
 }
 
+.ww-app-dialog--warning {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.99), rgba(255, 248, 233, 0.97));
+
+  .ww-app-dialog__icon {
+    color: #a9771c;
+    background: rgba(255, 233, 190, 0.72);
+  }
+
+  .adm-dialog-button:last-child {
+    color: #a9771c;
+    background: rgba(255, 233, 190, 0.72);
+    box-shadow: none;
+  }
+}
+
 .ww-app-dialog__heading {
   display: flex;
   flex-direction: column;
