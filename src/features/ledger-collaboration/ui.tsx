@@ -6,9 +6,16 @@ import type {
   LedgerSummary,
   LedgerUserSummary,
 } from '@/entities/ledger';
-import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
-import { ChevronRight } from 'lucide-react';
+import { Button, SpinLoading } from 'antd-mobile';
+import {
+  CircleAlert,
+  ChevronRight,
+  Inbox,
+  ShieldAlert,
+  TriangleAlert,
+} from 'lucide-react';
 import { LedgerVisualIcon } from '@/entities/ledger';
+import { IllustratedEmptyState } from '@/shared/ui';
 import { getLedgerUserDisplayName } from './model';
 
 interface QueryStateProps {
@@ -28,22 +35,32 @@ export const CollaborationQueryState: FC<QueryStateProps> = ({
 }) => {
   if (type === 'loading') {
     return (
-      <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 text-sm text-font-gray">
-        <SpinLoading />
+      <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 text-sm font-semibold text-ww-mid">
+        <span className="flex h-12 w-12 items-center justify-center rounded-[17px] border border-solid border-border-primary bg-white/80 shadow-ww-xs backdrop-blur-xl">
+          <SpinLoading />
+        </span>
         <span>{title}</span>
       </div>
     );
   }
 
+  const icon = type === 'empty'
+    ? <Inbox className="text-primary-deep" size={38} strokeWidth={1.7} />
+    : type === 'permission'
+      ? <ShieldAlert className="text-primary-deep" size={38} strokeWidth={1.7} />
+      : type === 'invalid'
+        ? <CircleAlert className="text-primary-deep" size={38} strokeWidth={1.7} />
+        : <TriangleAlert className="text-primary-deep" size={38} strokeWidth={1.7} />;
+
   return (
-    <div className="flex min-h-[360px] flex-col items-center justify-center px-4">
-      <ErrorBlock description={description} status="default" title={title} />
-      {onRetry && (
-        <Button className="mt-4" color="primary" fill="outline" onClick={onRetry}>
-          {retryLabel}
-        </Button>
-      )}
-    </div>
+    <IllustratedEmptyState
+      actionLabel={onRetry ? retryLabel : undefined}
+      className="min-h-[360px]"
+      description={description}
+      icon={icon}
+      onAction={onRetry}
+      title={title}
+    />
   );
 };
 
@@ -71,16 +88,17 @@ export const LedgerUserAvatar: FC<UserAvatarProps> = ({ size = 42, user }) => (
     ? (
         <img
           alt=""
-          className="flex-shrink-0 rounded-[15px] border-2 border-solid border-white object-cover shadow-ww-xs"
+          className="block flex-shrink-0 rounded-full border-2 border-solid border-white object-cover shadow-ww-xs"
           height={size}
           src={user.avatar}
+          style={{ height: size, minHeight: size, minWidth: size, width: size }}
           width={size}
         />
       )
     : (
         <span
-          className="flex flex-shrink-0 items-center justify-center rounded-[15px] bg-[linear-gradient(145deg,#c8eaf6,#e8f6ff)] text-lg font-black text-primary-deep shadow-ww-xs"
-          style={{ height: size, width: size }}
+          className="flex flex-shrink-0 items-center justify-center rounded-full bg-[linear-gradient(145deg,#c8eaf6,#e8f6ff)] text-lg font-black text-primary-deep shadow-ww-xs"
+          style={{ height: size, minHeight: size, minWidth: size, width: size }}
         >
           {getLedgerUserDisplayName(user, '?').slice(0, 1)}
         </span>
