@@ -691,7 +691,8 @@ describe('ledger join page', () => {
   it('uses official mobile form controls and disables an empty submission', () => {
     const container = render('/ledgers/join', '/ledgers/join', createElement(LedgerJoinPage));
 
-    expect(container.querySelector('.adm-nav-bar')).not.toBeNull();
+    expect(container.querySelector('.adm-nav-bar')).toBeNull();
+    expect(container.querySelector('[data-page-header]')).not.toBeNull();
     expect(container.querySelector('.adm-form')).not.toBeNull();
     expect(container.querySelector('.adm-input')).not.toBeNull();
     expect(container.querySelector('.adm-text-area')).not.toBeNull();
@@ -727,6 +728,29 @@ describe('ledger join page', () => {
       },
     });
     expect(container.textContent).toContain('join.submittedTitle');
+  });
+
+  it('replaces the green success icon with the new-ui illustrated success card', async () => {
+    hooks.submitJoinRequest.mockResolvedValue({ data: { id: 'request-1' } });
+    const container = render('/ledgers/join', '/ledgers/join', createElement(LedgerJoinPage));
+    const fields = container.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea');
+    const inputSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    const textareaSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+    await act(async () => {
+      inputSetter?.call(fields[0], 'ABC234');
+      fields[0].dispatchEvent(new Event('input', { bubbles: true }));
+      textareaSetter?.call(fields[1], '我是小勇');
+      fields[1].dispatchEvent(new Event('input', { bubbles: true }));
+      container.querySelector<HTMLFormElement>('form')?.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
+      await Promise.resolve();
+    });
+
+    expect(container.querySelector('.ledger-join-submitted')).toBeNull();
+    expect(container.querySelector('svg.text-green-500')).toBeNull();
+    expect(container.textContent).toContain('join.submittedTitle');
+    expect(container.textContent).toContain('common.done');
   });
 
   it('keeps an overlength normalized code disabled and does not submit it', async () => {

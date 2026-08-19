@@ -231,6 +231,7 @@
     "remarkGuide": "请输入你的附言，告诉对方你是谁",
     "remarkPlaceholder": "请输入，最多30字",
     "submit": "提交",
+    "submitting": "提交中…",
     "submitFailed": "提交加入申请失败，请稍后重试",
     "submittedTitle": "加入申请已发送",
     "submittedDescription": "申请 24 小时内有效。通过后即可在我的账本中查看。",

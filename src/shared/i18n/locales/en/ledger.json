@@ -231,6 +231,7 @@
     "remarkGuide": "Add a short message so the owner knows who you are",
     "remarkPlaceholder": "Tell the owner who you are, up to 30 characters",
     "submit": "Send Request",
+    "submitting": "Sending…",
     "submitFailed": "Unable to send the join request. Try again.",
     "submittedTitle": "Join Request Sent",
     "submittedDescription": "The request is valid for 24 hours. The ledger appears after approval.",

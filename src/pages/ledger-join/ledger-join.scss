@@ -42,22 +42,3 @@
     font-weight: 600;
   }
 }
-
-.ledger-join-submit.adm-button {
-  min-height: 52px;
-  border: 0;
-  border-radius: 18px;
-  font-size: 14px;
-  font-weight: 800;
-  box-shadow: var(--ww-shadow, 0 8px 20px rgba(49, 91, 112, 0.12));
-
-  &.adm-button-disabled {
-    --text-color: #a8b4ba !important;
-    --background-color: rgba(219, 232, 238, 0.9) !important;
-    --border-color: transparent !important;
-
-    color: #a8b4ba !important;
-    opacity: 1;
-    box-shadow: none;
-  }
-}

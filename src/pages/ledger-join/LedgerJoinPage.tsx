@@ -1,6 +1,6 @@
 import type { FC } from 'react';
-import { Button, Form, Input, TextArea, Toast } from 'antd-mobile';
-import { Check, KeyRound, MessageSquareText } from 'lucide-react';
+import { Form, Input, TextArea, Toast } from 'antd-mobile';
+import { CircleCheck, KeyRound, MessageSquareText } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSubmitJoinRequestMutation } from '@/entities/ledger';
@@ -74,7 +74,7 @@ const LedgerJoinPage: FC = () => {
   const isLoading = isSubmitting || mutation.isLoading;
 
   return (
-    <div className="page-new relative overflow-hidden">
+    <div className="page-new ledger-join-page relative overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-20 h-56 w-56 rounded-full bg-primary-light/35 blur-3xl" />
       <div aria-hidden="true" className="pointer-events-none absolute -left-24 bottom-16 h-52 w-52 rounded-full bg-ww-pink-light/25 blur-3xl" />
       <PageHeader
@@ -88,10 +88,9 @@ const LedgerJoinPage: FC = () => {
             ? (
                 <IllustratedEmptyState
                   actionLabel={t('common.done')}
-                  accentIcon={<Check className="text-white" size={19} strokeWidth={2.4} />}
                   className="min-h-[460px]"
                   description={t('join.submittedDescription')}
-                  icon={<Check className="text-primary-deep" size={42} strokeWidth={2.1} />}
+                  icon={<CircleCheck className="text-primary-deep" size={42} strokeWidth={2.1} />}
                   onAction={() => navigate(-1)}
                   title={t('join.submittedTitle')}
                 />
@@ -104,13 +103,14 @@ const LedgerJoinPage: FC = () => {
                 >
                   <GradientPanel
                     className="px-4 py-4"
+                    data-testid="ledger-join-code-field"
                     elevation="low"
                     surface="glass"
                   >
                     <label className="block text-[12px] font-extrabold text-ww-mid" htmlFor="ledger-invite-code">
                       {t('join.codeGuide')}
                     </label>
-                    <div className="mt-2.5 flex min-h-[54px] items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-white/75 px-3.5 shadow-ww-xs">
+                    <div className="mt-2.5 flex min-h-[54px] items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-primary-light/25 px-3.5 shadow-ww-xs">
                       <KeyRound className="shrink-0 text-primary-deep" size={19} strokeWidth={1.8} />
                       <Form.Item noStyle>
                         <Input
@@ -129,13 +129,14 @@ const LedgerJoinPage: FC = () => {
 
                   <GradientPanel
                     className="mt-3 px-4 py-4"
+                    data-testid="ledger-join-remark-field"
                     elevation="low"
                     surface="glass"
                   >
                     <label className="block text-[12px] font-extrabold text-ww-mid" htmlFor="ledger-join-remark">
                       {t('join.remarkGuide')}
                     </label>
-                    <div className="mt-2.5 flex min-h-[108px] items-start gap-3 rounded-[16px] border border-solid border-border-primary bg-white/75 px-3.5 py-3 shadow-ww-xs">
+                    <div className="mt-2.5 flex min-h-[108px] items-start gap-3 rounded-[16px] border border-solid border-border-primary bg-primary-light/25 px-3.5 py-3 shadow-ww-xs">
                       <MessageSquareText className="mt-0.5 shrink-0 text-primary-deep" size={19} strokeWidth={1.8} />
                       <Form.Item noStyle>
                         <TextArea
@@ -157,17 +158,14 @@ const LedgerJoinPage: FC = () => {
                       {errorMessage}
                     </p>
                   )}
-                  <Button
-                    block
-                    className="ledger-join-submit mt-4"
-                    color="primary"
+                  <button
+                    className="mt-4 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww transition disabled:opacity-45"
                     data-testid="ledger-join-submit"
                     disabled={!isFormValid || isLoading}
-                    loading={isLoading}
                     type="submit"
                   >
-                    {t('join.submit')}
-                  </Button>
+                    {isLoading ? t('join.submitting') : t('join.submit')}
+                  </button>
                 </Form>
               )}
         </div>
