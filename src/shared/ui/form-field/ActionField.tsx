@@ -23,7 +23,7 @@ export function ActionField({ className, disabled, label, onClick, testId, value
         type="button"
       >
         <span className="min-w-0 flex-1 truncate text-[14px] font-semibold text-ww-ink">{value}</span>
-        <ChevronRight aria-hidden="true" className="shrink-0 text-[#9eb1bd]" size={18} />
+        <ChevronRight aria-hidden="true" className="shrink-0 text-ww-soft" size={18} />
       </button>
     </div>
   );
