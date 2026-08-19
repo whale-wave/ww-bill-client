@@ -1,12 +1,12 @@
 import type { FC, ReactNode } from 'react';
 import type { MemberCardItem } from '../model/types';
-import { GradientPanel } from '@/shared/ui';
+import { ContentStack, GradientPanel } from '@/shared/ui';
 
 export const MemberEditorPresentation: FC<{
   children: ReactNode;
   member: MemberCardItem;
 }> = ({ children, member }) => (
-  <div className="space-y-4" data-member-editor>
+  <ContentStack>
     <GradientPanel className="flex items-center gap-3 px-4 py-4" elevation="low" surface="glass">
       {member.avatar
         ? (
@@ -43,5 +43,5 @@ export const MemberEditorPresentation: FC<{
     <GradientPanel className="px-4 py-4" elevation="low" surface="glass">
       {children}
     </GradientPanel>
-  </div>
+  </ContentStack>
 );

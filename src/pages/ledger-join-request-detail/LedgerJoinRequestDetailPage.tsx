@@ -21,7 +21,7 @@ import {
 } from '@/features/ledger-collaboration';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { AppBottomSheet, GradientPanel, PageHeader } from '@/shared/ui';
+import { AppBottomSheet, ContentStack, GradientPanel, PageHeader, SectionStack } from '@/shared/ui';
 import {
   getJoinRequestPermissionGroups,
   getJoinRequestRoleDescriptionKey,
@@ -143,80 +143,82 @@ const LedgerJoinRequestDetailPage: FC = () => {
             />
           )}
           {request && !loading && !error && (
-            <>
-              <GradientPanel className="flex items-center gap-3 px-4 py-4" elevation="low" surface="glass">
-                <span className="sr-only">{t('requestDetail.avatar')}</span>
-                <LedgerUserAvatar size={48} user={request.applicant} />
-                <span className="min-w-0 flex-grow">
-                  <span className="block truncate text-[15px] font-black text-ww-ink">{applicantName}</span>
-                  {request.applicantRemark && (
-                    <span className="mt-1 block truncate text-[12px] font-bold text-ww-mid">
-                      {request.applicantRemark}
-                    </span>
-                  )}
-                </span>
-              </GradientPanel>
-
-              <GradientPanel className="overflow-hidden px-4 py-1" elevation="low" surface="glass">
-                <div className="flex min-h-[56px] items-center justify-between gap-3 border-0 border-b border-solid border-border-primary">
-                  <span className="text-[12px] font-bold text-ww-mid">{t('requestDetail.remark')}</span>
-                  <span className="min-w-0 truncate text-right text-[13px] font-black text-ww-ink">
-                    {request.applicantRemark || '—'}
-                  </span>
-                </div>
-                {isPending && (
-                  <button
-                    className="flex min-h-[56px] w-full items-center justify-between gap-3 border-0 bg-transparent p-0 text-left"
-                    data-testid="join-request-role-row"
-                    disabled={assignableRoles.length === 0}
-                    onClick={() => setRolePickerOpen(true)}
-                    type="button"
-                  >
-                    <span className="text-[12px] font-bold text-ww-mid">{t('requestDetail.assignedRole')}</span>
-                    <span className="flex min-w-0 items-center gap-1 text-[13px] font-black text-ww-ink">
-                      <span className="truncate">
-                        {assignedRole ? t(`role.${assignedRole}`) : t('requestDetail.chooseRole')}
+            <SectionStack>
+              <ContentStack>
+                <GradientPanel className="flex items-center gap-3 px-4 py-4" elevation="low" surface="glass">
+                  <span className="sr-only">{t('requestDetail.avatar')}</span>
+                  <LedgerUserAvatar size={48} user={request.applicant} />
+                  <span className="min-w-0 flex-grow">
+                    <span className="block truncate text-[15px] font-black text-ww-ink">{applicantName}</span>
+                    {request.applicantRemark && (
+                      <span className="mt-1 block truncate text-[12px] font-bold text-ww-mid">
+                        {request.applicantRemark}
                       </span>
-                      <ChevronRight aria-hidden="true" className="shrink-0 text-[#9eb1bd]" size={18} />
+                    )}
+                  </span>
+                </GradientPanel>
+
+                <GradientPanel className="overflow-hidden px-4 py-1" elevation="low" surface="glass">
+                  <div className="flex min-h-[56px] items-center justify-between gap-3 border-0 border-b border-solid border-border-primary">
+                    <span className="text-[12px] font-bold text-ww-mid">{t('requestDetail.remark')}</span>
+                    <span className="min-w-0 truncate text-right text-[13px] font-black text-ww-ink">
+                      {request.applicantRemark || '—'}
                     </span>
-                  </button>
-                )}
-              </GradientPanel>
-
-              {isPending && assignedRole && (
-                <GradientPanel className="px-4 py-4" elevation="low" surface="glass">
-                  <h2 className="text-[12px] font-extrabold text-ww-ink">{t('requestDetail.permissionsTitle')}</h2>
-                  <div className="mt-2 space-y-2.5">
-                    {getJoinRequestPermissionGroups(assignedRole).map(group => (
-                      <div className="rounded-[14px] bg-white/60 px-3 py-2.5" key={group.key}>
-                        <span className="block text-[12px] font-black text-ww-ink">{t(group.titleKey)}</span>
-                        <span className="mt-0.5 block text-[11px] font-semibold leading-4 text-ww-mid">
-                          {t(group.descriptionKey)}
-                        </span>
-                      </div>
-                    ))}
                   </div>
+                  {isPending && (
+                    <button
+                      className="flex min-h-[56px] w-full items-center justify-between gap-3 border-0 bg-transparent p-0 text-left"
+                      data-testid="join-request-role-row"
+                      disabled={assignableRoles.length === 0}
+                      onClick={() => setRolePickerOpen(true)}
+                      type="button"
+                    >
+                      <span className="text-[12px] font-bold text-ww-mid">{t('requestDetail.assignedRole')}</span>
+                      <span className="flex min-w-0 items-center gap-1 text-[13px] font-black text-ww-ink">
+                        <span className="truncate">
+                          {assignedRole ? t(`role.${assignedRole}`) : t('requestDetail.chooseRole')}
+                        </span>
+                        <ChevronRight aria-hidden="true" className="shrink-0 text-[#9eb1bd]" size={18} />
+                      </span>
+                    </button>
+                  )}
                 </GradientPanel>
-              )}
 
-              {!isPending && (
-                <GradientPanel className="px-4 py-4" elevation="low" surface="glass">
-                  <p className="text-[13px] font-bold text-ww-mid">{t('requestDetail.alreadyProcessed')}</p>
-                  {request.assignedRole && (
-                    <p className="mt-2 text-[13px] font-black text-ww-ink">
-                      {t('requestDetail.resultRole', {
-                        role: t(`role.${request.assignedRole}`),
-                      })}
-                    </p>
-                  )}
-                  {request.decisionRemark && (
-                    <p className="mt-2 text-[12px] font-semibold text-ww-soft">{request.decisionRemark}</p>
-                  )}
-                </GradientPanel>
-              )}
+                {isPending && assignedRole && (
+                  <GradientPanel className="px-4 py-4" elevation="low" surface="glass">
+                    <h2 className="text-[12px] font-extrabold text-ww-ink">{t('requestDetail.permissionsTitle')}</h2>
+                    <div className="mt-2 space-y-2.5">
+                      {getJoinRequestPermissionGroups(assignedRole).map(group => (
+                        <div className="rounded-[14px] bg-white/60 px-3 py-2.5" key={group.key}>
+                          <span className="block text-[12px] font-black text-ww-ink">{t(group.titleKey)}</span>
+                          <span className="mt-0.5 block text-[11px] font-semibold leading-4 text-ww-mid">
+                            {t(group.descriptionKey)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </GradientPanel>
+                )}
+
+                {!isPending && (
+                  <GradientPanel className="px-4 py-4" elevation="low" surface="glass">
+                    <p className="text-[13px] font-bold text-ww-mid">{t('requestDetail.alreadyProcessed')}</p>
+                    {request.assignedRole && (
+                      <p className="mt-2 text-[13px] font-black text-ww-ink">
+                        {t('requestDetail.resultRole', {
+                          role: t(`role.${request.assignedRole}`),
+                        })}
+                      </p>
+                    )}
+                    {request.decisionRemark && (
+                      <p className="mt-2 text-[12px] font-semibold text-ww-soft">{request.decisionRemark}</p>
+                    )}
+                  </GradientPanel>
+                )}
+              </ContentStack>
 
               {isPending && (
-                <div className="mt-4">
+                <div>
                   {errorMessage && <p className="mb-3 text-center text-[12px] font-bold text-[#b24f71]" role="alert">{errorMessage}</p>}
                   <div className="grid grid-cols-2 gap-3">
                     <button
@@ -249,7 +251,7 @@ const LedgerJoinRequestDetailPage: FC = () => {
                   </div>
                 </div>
               )}
-            </>
+            </SectionStack>
           )}
         </div>
       </main>
