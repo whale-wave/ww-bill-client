@@ -360,7 +360,8 @@ describe('ledger reviewer and member editing pages', () => {
       createElement(LedgerMemberDetailPage),
     );
 
-    expect(container.querySelector<HTMLInputElement>('#member-nickname')?.disabled).toBe(true);
+    expect(container.querySelector('#member-nickname')).toBeNull();
+    expect(container.querySelectorAll('[data-testid="member-static-row"]').length).toBe(2);
     expect(container.querySelector<HTMLButtonElement>('button[type="submit"]')).toBeNull();
   });
 

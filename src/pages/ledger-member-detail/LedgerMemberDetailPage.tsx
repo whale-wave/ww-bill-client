@@ -31,14 +31,26 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedDateTime } from '@/shared/lib';
 import {
+  ActionField,
   AppBottomSheet,
   confirmAppAction,
+  ContentStack,
+  FormField,
   GradientPanel,
   PageHeader,
 } from '@/shared/ui';
 
 function isConflict(error: unknown) {
   return typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
+}
+
+function StaticInfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div data-testid="member-static-row">
+      <span className="block text-[12px] font-bold text-ww-mid">{label}</span>
+      <span className="mt-2 block text-[14px] font-semibold text-ww-ink">{value}</span>
+    </div>
+  );
 }
 
 const LedgerMemberDetailPage: FC = () => {
@@ -289,47 +301,44 @@ const LedgerMemberDetailPage: FC = () => {
                   userId: member.user.id,
                 }}
               >
-                <label className="block text-[12px] font-bold text-ww-mid" htmlFor="member-nickname">
-                  {t('memberDetail.nickname')}
-                </label>
-                <div className="mt-2 flex h-12 items-center rounded-[15px] bg-white/70 px-3 transition focus-within:bg-white/95 focus-within:ring-2 focus-within:ring-primary-light/60">
-                  <input
-                    className="min-w-0 flex-1 border-0 bg-transparent p-0 text-[13px] font-semibold text-ww-ink outline-none placeholder:text-ww-soft disabled:opacity-45"
-                    disabled={!canEditNickname}
-                    id="member-nickname"
-                    maxLength={30}
-                    onChange={event => setNicknameOverride(event.target.value)}
-                    value={nickname}
-                  />
-                </div>
-                <span className="mt-5 block text-[12px] font-bold text-ww-mid">
-                  {t('memberDetail.role')}
-                </span>
-                <button
-                  className="mt-2 flex h-12 w-full items-center justify-between gap-2 rounded-[15px] bg-white/70 px-3 text-left transition disabled:opacity-45"
-                  data-testid="member-role-row"
-                  disabled={!canManageRole}
-                  onClick={() => setRoleSheetOpen(true)}
-                  type="button"
-                >
-                  <span className="min-w-0 truncate text-[13px] font-semibold text-ww-ink">
-                    {t(`role.${role}`)}
-                  </span>
-                  {canManageRole && <ChevronRight className="ml-2 shrink-0 text-[#9eb1bd]" size={18} />}
-                </button>
-                <p className="mt-4 text-[11px] font-semibold leading-4 text-ww-soft">
-                  {t('memberDetail.capabilityHint', { count: member.capabilities.length })}
-                </p>
-                {errorMessage && <p className="mt-3 text-[12px] font-bold text-[#b24f71]" role="alert">{errorMessage}</p>}
-                {(canEditNickname || canManageRole) && (
-                  <button
-                    className="mt-5 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
-                    disabled={mutation.isLoading}
-                    type="submit"
-                  >
-                    {t('common.save')}
-                  </button>
-                )}
+                <ContentStack>
+                  {canEditNickname
+                    ? (
+                        <FormField
+                          id="member-nickname"
+                          label={t('memberDetail.nickname')}
+                          maxLength={30}
+                          onChange={setNicknameOverride}
+                          value={nickname}
+                        />
+                      )
+                    : (
+                        <StaticInfoRow label={t('memberDetail.nickname')} value={nickname || '-'} />
+                      )}
+                  {canManageRole
+                    ? (
+                        <ActionField
+                          label={t('memberDetail.role')}
+                          onClick={() => setRoleSheetOpen(true)}
+                          testId="member-role-row"
+                          value={t(`role.${role}`)}
+                        />
+                      )
+                    : (
+                        <StaticInfoRow label={t('memberDetail.role')} value={t(`role.${role}`)} />
+                      )}
+                  <p className="text-[11px] font-semibold leading-4 text-ww-soft">{t('memberDetail.capabilityHint', { count: member.capabilities.length })}</p>
+                  {errorMessage && <p className="text-[12px] font-bold text-[#b24f71]" role="alert">{errorMessage}</p>}
+                  {(canEditNickname || canManageRole) && (
+                    <button
+                      className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
+                      disabled={mutation.isLoading}
+                      type="submit"
+                    >
+                      {t('common.save')}
+                    </button>
+                  )}
+                </ContentStack>
               </MemberEditorPresentation>
 
               {(canRemove || canTransferOwnership) && (
