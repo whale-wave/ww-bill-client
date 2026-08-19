@@ -8,6 +8,7 @@ export interface FormFieldProps {
   autoComplete?: InputHTMLAttributes<HTMLInputElement>['autoComplete'];
   className?: string;
   disabled?: boolean;
+  id?: string;
   inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode'];
   label: ReactNode;
   maxLength?: number;
@@ -25,6 +26,7 @@ export function FormField({
   autoComplete,
   className,
   disabled,
+  id,
   inputMode,
   label,
   maxLength,
@@ -37,7 +39,8 @@ export function FormField({
   type = 'text',
   value,
 }: FormFieldProps) {
-  const inputId = useId();
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const inputType = type === 'password' && isPasswordVisible ? 'text' : type;
 
