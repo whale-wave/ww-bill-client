@@ -88,7 +88,7 @@ export const LedgerUserAvatar: FC<UserAvatarProps> = ({ size = 42, user }) => (
     ? (
         <img
           alt=""
-          className="block flex-shrink-0 rounded-full border-2 border-solid border-white object-cover shadow-ww-xs"
+          className="shrink-0 self-center rounded-full border-2 border-solid border-white object-cover shadow-ww-xs"
           height={size}
           src={user.avatar}
           style={{ height: size, minHeight: size, minWidth: size, width: size }}
@@ -97,7 +97,7 @@ export const LedgerUserAvatar: FC<UserAvatarProps> = ({ size = 42, user }) => (
       )
     : (
         <span
-          className="flex flex-shrink-0 items-center justify-center rounded-full bg-[linear-gradient(145deg,#c8eaf6,#e8f6ff)] text-lg font-black text-primary-deep shadow-ww-xs"
+          className="flex shrink-0 self-center items-center justify-center rounded-full bg-[linear-gradient(145deg,#c8eaf6,#e8f6ff)] text-lg font-black text-primary-deep shadow-ww-xs"
           style={{ height: size, minHeight: size, minWidth: size, width: size }}
         >
           {getLedgerUserDisplayName(user, '?').slice(0, 1)}
