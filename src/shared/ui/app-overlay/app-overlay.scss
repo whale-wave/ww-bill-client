@@ -179,7 +179,7 @@
   box-shadow: 0 -12px 42px rgba(49, 91, 112, 0.18);
 
   .adm-popup-close-icon {
-    top: 24px;
+    top: 16px;
     right: 18px;
     display: flex;
     width: 34px;
@@ -189,6 +189,12 @@
     border-radius: 12px;
     color: #71828d;
     background: rgba(226, 242, 248, 0.78);
+  }
+
+  &.ww-app-bottom-sheet--close-heading {
+    .adm-popup-close-icon {
+      top: 53px;
+    }
   }
 
   h2 {

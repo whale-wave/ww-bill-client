@@ -599,6 +599,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
         </div>
       </main>
       <AppBottomSheet
+        closeIconAlign="heading"
         destroyOnClose
         onMaskClick={() => setEditor(null)}
         position="bottom"
