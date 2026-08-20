@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   MemberCardsPresentation,
+  MemberEditorPresentation,
   SettingsOverviewPresentation,
 } from '@/features/workspace-settings';
 
@@ -78,5 +79,66 @@ describe('workspace settings presentations', () => {
       'other',
     ]);
     expect(container.textContent).toContain('其他成员');
+  });
+
+  it('renders MemberCards avatars as circles, with or without an avatar URL', () => {
+    const withAvatar = render(createElement(MemberCardsPresentation, {
+      current: {
+        avatar: 'https://example.com/me.png',
+        id: 'me',
+        name: '我',
+        userId: 1,
+      },
+      others: [{
+        avatar: 'https://example.com/other.png',
+        id: 'other',
+        name: '同事',
+        userId: 2,
+      }],
+      othersLabel: '其他成员',
+    }));
+    const avatars = [...withAvatar.querySelectorAll('[data-member-id] img')];
+    expect(avatars).toHaveLength(2);
+    expect(avatars.every(img => img.classList.contains('rounded-full'))).toBe(true);
+
+    const withoutAvatar = render(createElement(MemberCardsPresentation, {
+      current: {
+        id: 'me',
+        name: '我',
+        userId: 1,
+      },
+      others: [{
+        id: 'other',
+        name: '同事',
+        userId: 2,
+      }],
+      othersLabel: '其他成员',
+    }));
+    const fallbacks = [...withoutAvatar.querySelectorAll('[data-member-id] span[class*="linear-gradient"]')];
+    expect(fallbacks.every(span => span.classList.contains('rounded-full'))).toBe(true);
+  });
+
+  it('renders MemberEditor avatars as circles, with or without an avatar URL', () => {
+    const withAvatar = render(createElement(MemberEditorPresentation, {
+      children: null,
+      member: {
+        avatar: 'https://example.com/me.png',
+        id: 'me',
+        name: '我',
+        userId: 1,
+      },
+    }));
+    expect(withAvatar.querySelector('img')?.classList.contains('rounded-full')).toBe(true);
+
+    const withoutAvatar = render(createElement(MemberEditorPresentation, {
+      children: null,
+      member: {
+        id: 'me',
+        name: '我',
+        userId: 1,
+      },
+    }));
+    const fallback = withoutAvatar.querySelector('span[class*="rounded-full"][class*="linear-gradient"]');
+    expect(fallback?.classList.contains('rounded-full')).toBe(true);
   });
 });

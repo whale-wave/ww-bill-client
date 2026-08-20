@@ -16,12 +16,12 @@ function MemberCard({ item }: { item: MemberCardItem }) {
         ? (
             <img
               alt=""
-              className="h-12 w-12 shrink-0 rounded-[17px] border-2 border-solid border-white object-cover shadow-ww-xs"
+              className="h-12 w-12 shrink-0 rounded-full border-2 border-solid border-white object-cover shadow-ww-xs"
               src={item.avatar}
             />
           )
         : (
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] bg-[linear-gradient(145deg,#c8eaf6,#e8f6ff)] text-lg font-black text-primary-deep shadow-ww-xs">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(145deg,#c8eaf6,#e8f6ff)] text-lg font-black text-primary-deep shadow-ww-xs">
               {String(item.name).slice(0, 1)}
             </span>
           )}
