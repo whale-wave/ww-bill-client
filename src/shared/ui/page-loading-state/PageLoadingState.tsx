@@ -23,7 +23,7 @@ export function PageLoadingState({ className, compact = false, label, testId }: 
     >
       <img
         alt=""
-        className={cn('ww-page-loading__whale text-primary-deep', compact ? 'h-10 w-10' : 'h-14 w-14')}
+        className={cn('ww-page-loading__whale', compact ? 'h-10 w-10' : 'h-14 w-14')}
         src={whaleLoading}
       />
       <span>{label}</span>

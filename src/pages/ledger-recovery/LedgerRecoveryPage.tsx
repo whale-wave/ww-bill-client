@@ -19,13 +19,12 @@ function RecoveryContent({ ledgerId }: { ledgerId: string }) {
     return <ErrorBlock />;
   if (query.data.length === 0) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center px-4">
-        <IllustratedEmptyState
-          icon={<Inbox className="text-primary-deep" size={38} strokeWidth={1.7} />}
-          title={t('recovery.title')}
-          description={t('recovery.empty')}
-        />
-      </div>
+      <IllustratedEmptyState
+        className="px-4"
+        icon={<Inbox className="text-primary-deep" size={38} strokeWidth={1.7} />}
+        title={t('recovery.title')}
+        description={t('recovery.empty')}
+      />
     );
   }
   return (
