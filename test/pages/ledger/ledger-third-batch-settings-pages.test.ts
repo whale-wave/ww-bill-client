@@ -275,6 +275,17 @@ describe('ledger settings', () => {
     });
   });
 
+  it('disables the basic save action while the mutation is loading', async () => {
+    hooks.usePatchLedgerMutation.mockReturnValue([hooks.patchLedger, { isLoading: true }]);
+    const { container } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="basic"]')?.click());
+
+    const save = document.body.querySelector<HTMLButtonElement>('[data-testid="ledger-basic-save"]');
+    expect(save?.disabled).toBe(true);
+    expect(save?.getAttribute('aria-busy')).toBe('true');
+  });
+
   it('drives management entries from capabilities and never archives SYSTEM_DEFAULT', async () => {
     const { container, router } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
     expect(container.querySelector('[data-settings-row="archive"]')).not.toBeNull();

@@ -16,7 +16,7 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { normalizeAmount } from '@/shared/lib';
-import { AppButton, GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { AppButton, FieldFrame, GradientPanel, IllustratedEmptyState } from '@/shared/ui';
 import { AssetPageFrame } from '../ui';
 
 type AssetFormValues = Pick<Asset, 'amount' | 'cardId' | 'comment' | 'name'>;
@@ -227,7 +227,7 @@ const AssetFormInfo: FC = () => {
                       </span>
                     )}
                   >
-                    <div className={`asset-form-field-frame flex min-h-[52px] items-center gap-3 rounded-[15px] border border-solid border-border-primary bg-white/90 px-3 shadow-ww-xs transition focus-within:border-primary focus-within:bg-white focus-within:ring-2 focus-within:ring-primary-light/60 ${field.disabled ? 'bg-bg-gray/45 opacity-60' : ''}`}>
+                    <FieldFrame className="asset-form-field-frame !min-h-[52px] !rounded-[15px] !bg-white/90 !px-3 focus-within:!border-primary focus-within:!bg-white" disabled={field.disabled}>
                       <FieldIcon className="shrink-0 text-primary-deep" size={18} strokeWidth={1.8} />
                       <Form.Item
                         className="!m-0 min-w-0 flex-1 [&_.adm-form-item-child-inner]:!border-0"
@@ -246,7 +246,7 @@ const AssetFormInfo: FC = () => {
                           placeholder={field.placeholder ?? t('form.fieldPlaceholder', { field: field.label })}
                         />
                       </Form.Item>
-                    </div>
+                    </FieldFrame>
                   </Form.Item>
                 );
               })}

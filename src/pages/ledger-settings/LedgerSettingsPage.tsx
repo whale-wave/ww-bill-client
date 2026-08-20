@@ -24,6 +24,7 @@ import {
   LedgerRecordType,
   LedgerRole,
   LedgerStatus,
+  LedgerVisualIcon,
   useArchiveLedgerMutation,
   useLeaveLedgerMutation,
   useLedgerMembersQuery,
@@ -553,7 +554,6 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
     : [];
   const LedgerPreviewIcon = ledgerIconMap[iconKey as keyof typeof ledgerIconMap] ?? WalletCards;
   const themePreviewClass = ledgerThemeClassNames[themeKey as typeof LEDGER_THEME_KEYS[number]] ?? 'bg-primary';
-  const CurrentLedgerIcon = ledgerIconMap[ledger?.iconKey as keyof typeof ledgerIconMap] ?? WalletCards;
   const currentThemeClass = ledgerThemeClassNames[ledger?.themeKey as typeof LEDGER_THEME_KEYS[number]] ?? 'bg-primary';
 
   return (
@@ -571,7 +571,12 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
           {ledger && (
             <GradientPanel className="mb-5 flex items-center gap-3.5 px-4 py-4" data-ledger-settings-overview elevation="low" surface="ice">
               <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] border border-white/80 text-white shadow-ww-xs ${currentThemeClass}`}>
-                <CurrentLedgerIcon size={22} strokeWidth={1.8} />
+                <LedgerVisualIcon
+                  className="h-[22px] w-[22px]"
+                  iconKey={ledger.iconKey}
+                  kind={ledger.kind}
+                  templateKey={ledger.templateKey}
+                />
               </span>
               <div className="min-w-0 flex-1">
                 <h2 className="truncate text-[14px] font-extrabold text-ww-ink">{ledger.name}</h2>

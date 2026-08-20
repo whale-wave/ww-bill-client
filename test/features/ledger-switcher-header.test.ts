@@ -153,6 +153,7 @@ describe('ledger title switcher', () => {
     const createAction = document.querySelector<HTMLButtonElement>('[data-ledger-switcher-create]');
     const manageAction = document.querySelector<HTMLButtonElement>('[data-ledger-switcher-manage]');
     expect(defaultLedger?.textContent).toContain('默认账本');
+    expect(defaultLedger?.querySelector('img')).not.toBeNull();
     expect(defaultLedger?.textContent).not.toContain('系统默认账本');
     expect(createAction?.classList).toContain('ledger-switcher-panel__footer-action');
     expect(manageAction?.classList).toContain('ledger-switcher-panel__footer-action');

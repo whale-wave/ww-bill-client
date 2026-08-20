@@ -10,7 +10,7 @@ import {
 } from '@/shared/i18n';
 
 function isRawTranslationKey(value: string): boolean {
-  return /^(?:asset|ledger|settings|common)[:.]\S+/.test(value);
+  return /^(?:[a-z][a-z0-9-]*:)?[a-z][\w-]*(?:\.[\w-]+)+$/i.test(value);
 }
 
 describe('locale parity', () => {
@@ -20,9 +20,11 @@ describe('locale parity', () => {
   });
 
   it('does not render raw keys for any translated leaf', () => {
-    for (const [namespace, locale] of Object.entries(resources['zh-CN'])) {
-      for (const key of flattenLocaleKeys(locale as Record<string, unknown>)) {
-        expect(isRawTranslationKey(i18n.t(key, { lng: 'zh-CN', ns: namespace }))).toBe(false);
+    for (const language of Object.keys(resources) as Array<keyof typeof resources>) {
+      for (const [namespace, locale] of Object.entries(resources[language])) {
+        for (const key of flattenLocaleKeys(locale as Record<string, unknown>)) {
+          expect(isRawTranslationKey(i18n.t(key, { lng: language, ns: namespace }))).toBe(false);
+        }
       }
     }
   });

@@ -6,7 +6,7 @@ import { useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   isCreatableLedgerTemplateKey,
-  LedgerVisualIcon,
+  LedgerTemplateIcon,
   useCreateLedgerMutation,
   useLedgerTemplatesQuery,
 } from '@/entities/ledger';
@@ -150,7 +150,7 @@ const LedgerCreatePage: FC = () => {
                 </div>
                 <div aria-labelledby="selected-template-heading" className="relative mt-4 flex items-center gap-4">
                   <span className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-[20px] border border-white/90 bg-white/70 text-[25px] text-primary-deep shadow-ww-xs">
-                    <LedgerVisualIcon templateKey={selectedTemplate.key} />
+                    <LedgerTemplateIcon templateKey={selectedTemplate.key} />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[18px] font-black text-ww-ink">

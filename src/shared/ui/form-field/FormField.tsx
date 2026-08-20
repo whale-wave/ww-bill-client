@@ -3,6 +3,7 @@ import { Input } from 'antd-mobile';
 import { Eye, EyeOff } from 'lucide-react';
 import { useId, useState } from 'react';
 import { cn } from '@/shared/lib';
+import { FieldFrame } from './FieldFrame';
 
 export interface FormFieldProps {
   autoComplete?: InputHTMLAttributes<HTMLInputElement>['autoComplete'];
@@ -47,11 +48,7 @@ export function FormField({
   return (
     <label className={cn('block min-w-0', className)} htmlFor={inputId}>
       <span className="mb-2 block text-[12px] font-bold leading-[18px] text-ww-mid">{label}</span>
-      <span className={cn(
-        'flex min-h-[54px] items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww',
-        disabled && 'bg-white/50 opacity-70',
-      )}
-      >
+      <FieldFrame disabled={disabled}>
         {prefix && <span className="flex h-5 w-5 shrink-0 items-center justify-center text-primary-deep">{prefix}</span>}
         <Input
           autoComplete={autoComplete}
@@ -78,7 +75,7 @@ export function FormField({
           </button>
         )}
         {suffix && <span className="shrink-0">{suffix}</span>}
-      </span>
+      </FieldFrame>
     </label>
   );
 }
