@@ -5,14 +5,14 @@ import { AppBottomSheet } from '@/shared/ui';
 
 let cleanup: (() => void) | undefined;
 
-function renderSheet(props: { closeIconAlign?: 'default' | 'heading' }) {
+function renderSheet() {
   const container = document.createElement('div');
   document.body.appendChild(container);
   const root = createRoot(container);
   act(() => root.render(createElement(AppBottomSheet, {
     position: 'bottom',
+    showCloseButton: true,
     visible: true,
-    ...props,
   }, 'sheet-content')));
   cleanup = () => {
     act(() => root.unmount());
@@ -26,15 +26,10 @@ afterEach(() => {
   cleanup = undefined;
 });
 
-describe('appBottomSheet close icon alignment', () => {
-  it('keeps the default close icon position without a modifier', () => {
-    renderSheet({});
+describe('appBottomSheet close icon', () => {
+  it('keeps the default close icon', () => {
+    renderSheet();
     expect(document.body.querySelector('.ww-app-bottom-sheet')).not.toBeNull();
-    expect(document.body.querySelector('.ww-app-bottom-sheet--close-heading')).toBeNull();
-  });
-
-  it('appends the heading-aligned modifier when closeIconAlign is heading', () => {
-    renderSheet({ closeIconAlign: 'heading' });
-    expect(document.body.querySelector('.ww-app-bottom-sheet--close-heading')).not.toBeNull();
+    expect(document.body.querySelector('.adm-popup-close-icon')).not.toBeNull();
   });
 });

@@ -227,6 +227,24 @@ describe('household creation and join', () => {
     expect(router.state.location.pathname).toBe('/household-invitations/AB%2FC123');
   });
 
+  it('renders the invitation creator avatar as a circle', () => {
+    hooks.useHouseholdInvitationPreviewQuery.mockReturnValue(successfulQuery({
+      ...preview,
+      creator: {
+        ...preview.creator,
+        avatar: 'https://example.com/inviter.png',
+      },
+    }));
+    const { container } = renderPage(
+      '/household-invitations/ABC123',
+      '/household-invitations/:code',
+      createElement(HouseholdInvitationPreviewPage),
+    );
+    const avatar = container.querySelector<HTMLImageElement>('img[src="https://example.com/inviter.png"]');
+
+    expect(avatar?.closest('.adm-avatar')?.classList).toContain('rounded-full');
+  });
+
   it('disables join submission only for blank invite codes', () => {
     const { container } = renderPage('/household/join', '/household/join', createElement(HouseholdJoinPage));
     const submit = container.querySelector<HTMLButtonElement>('[data-testid="household-join-preview"]');

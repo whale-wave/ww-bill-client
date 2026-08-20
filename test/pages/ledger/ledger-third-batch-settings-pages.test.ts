@@ -503,6 +503,7 @@ describe('ledger category and tag management', () => {
     const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
 
     await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.archive"]')?.click());
+    await act(async () => container.querySelector<HTMLButtonElement>('button[aria-expanded="false"]')?.click());
     await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.restoreName"]')?.click());
 
     expect(hooks.updateCategory).toHaveBeenNthCalledWith(1, {

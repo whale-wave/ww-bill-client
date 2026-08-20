@@ -155,12 +155,14 @@ src/
 **FSD 导入方向** (硬性规则): `app → pages → widgets → features → entities → shared`。上层可导入下层，同层 slice 之间禁止互相导入。每个 slice 通过 `index.ts` 暴露 public API。
 
 **Page 规范**:
+
 - 目录: kebab-case (如 `pages/record/bookkeeping/`)
 - 文件: `*Page.tsx` (如 `BookkeepingPage.tsx`)
 - 私有组件: `ui/` (非 `components/`)
 - 页面级状态: `model/` (非 `store/` 或 `hooks/`)
 
 **Entity 结构**:
+
 ```
 entities/record/
 ├── api.ts        # 接口函数 + 请求/响应类型
@@ -172,6 +174,7 @@ entities/record/
 ```
 
 状态管理原则:
+
 - 服务端数据 → React Query (不进 Zustand)
 - 派生数据 → useMemo (不进 store)
 - 鉴权 token → features/auth/model/store.ts (Zustand persist)
@@ -214,6 +217,13 @@ src/
 - 展示组件负责 UI、局部交互和明确的 props/callback 输入输出。
 - 不让子组件隐式依赖父页面的路由、store 或请求细节，除非它本身就是业务容器。
 - 大组件拆分时先按 UI 区块拆，再按状态和副作用抽 hook。
+
+共享 UI 收敛规则：
+
+- 纵向内容堆叠优先复用 `ContentStack` / `SectionStack`，避免在相邻子项上散落间距类。
+- 人物头像优先走项目共享头像组件；具体视觉遵循 `DESIGN.md`，不要与分类或账本图标混用语义。
+- 页面级或独立区块 loading 复用 `PageLoadingState`，禁止裸放 `SpinLoading`；内嵌按钮、图表和其他小控件除外。
+- 长滚动 Bottom Sheet 使用统一的 header/content 结构，内容区独立滚动；短 Sheet 保留组件默认关闭入口和自动高度。
 
 Hook 放在组件顶部，推荐顺序：
 

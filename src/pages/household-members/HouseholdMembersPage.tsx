@@ -99,7 +99,6 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
                 othersLabel={t('members.partner')}
               />
               <AppBottomSheet
-                closeIconAlign="heading"
                 destroyOnClose
                 onMaskClick={() => setIsEditing(false)}
                 position="bottom"

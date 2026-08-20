@@ -263,7 +263,6 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
         ]}
       />
       <AppBottomSheet
-        closeIconAlign="heading"
         destroyOnClose
         onMaskClick={() => setEditor(null)}
         position="bottom"

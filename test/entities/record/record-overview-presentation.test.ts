@@ -80,7 +80,9 @@ describe('record overview presentation', () => {
       header: headerProps,
       state: 'loading',
     }));
-    expect(loading.querySelector('[data-record-overview-state="loading"]')).not.toBeNull();
+    const loadingState = loading.querySelector('[data-testid="record-overview-loading"]');
+    expect(loadingState?.getAttribute('role')).toBe('status');
+    expect(loadingState?.classList).toContain('min-h-[160px]');
     cleanup?.();
     cleanup = undefined;
 

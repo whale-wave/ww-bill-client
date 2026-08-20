@@ -392,7 +392,7 @@ describe('household records', () => {
     expect(row?.classList).toContain('h-[59px]');
   });
 
-  it('uses the shared fixed search header and keeps advanced household filters in its optional panel', async () => {
+  it('uses the shared glass search header and keeps advanced household filters in its optional panel', async () => {
     hooks.useHouseholdMembersQuery.mockReturnValue(query([
       { id: 'member-2', nickname: 'Partner', user: { id: 2, name: 'Partner' } },
     ]));
@@ -403,8 +403,10 @@ describe('household records', () => {
     );
 
     const header = container.querySelector('[data-record-search-header]');
+    const input = header?.querySelector('[data-record-search-input]');
     const shell = container.querySelector('[data-record-search-page-shell]');
-    expect(header?.classList).toContain('bg-primary');
+    expect(header?.classList).toContain('pt-[max(8px,env(safe-area-inset-top))]');
+    expect(input?.classList).toContain('bg-white/85');
     expect(shell?.classList).not.toContain('bg-bg-gray');
     expect(header?.querySelector<HTMLInputElement>('input')?.value).toBe('餐');
     expect(container.querySelector('[data-record-filter-panel]')).toBeNull();
@@ -412,13 +414,13 @@ describe('household records', () => {
     await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="record-filter-action"]')?.click());
     const filterPanel = container.querySelector<HTMLElement>('[data-record-filter-panel]');
     expect(filterPanel).not.toBeNull();
-    expect(filterPanel?.textContent).toContain('更多筛选');
+    expect(filterPanel?.textContent).toContain('search.more');
     await act(async () => [...filterPanel?.querySelectorAll<HTMLButtonElement>('button') ?? []]
-      .find(button => button.textContent?.includes('更多筛选'))
+      .find(button => button.textContent === 'search.more')
       ?.click());
     expect(container.querySelector('[data-record-filter-more]')).not.toBeNull();
     await act(async () => [...filterPanel?.querySelectorAll<HTMLButtonElement>('button') ?? []]
-      .find(button => button.textContent === '确定')
+      .find(button => button.textContent === 'search.confirm')
       ?.click());
     expect(Object.fromEntries(new URLSearchParams(router.state.location.search))).toEqual({
       categoryIds: '1,2',
@@ -458,7 +460,7 @@ describe('household records', () => {
       '/households/previous',
     );
 
-    const back = container.querySelector<HTMLElement>('[data-record-search-header] button[aria-label="返回"]');
+    const back = container.querySelector<HTMLElement>('[data-record-search-header] button[aria-label="common:nav.back"]');
     expect(container.querySelector(`[data-record-search-state="${stateTestId}"]`)).not.toBeNull();
     expect(back).not.toBeNull();
 

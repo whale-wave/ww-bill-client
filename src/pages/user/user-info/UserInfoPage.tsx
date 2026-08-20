@@ -116,7 +116,7 @@ const UserInfo: FC = () => {
         <div className="mx-auto w-full max-w-[520px] space-y-5">
           <GradientPanel className="flex flex-col items-center px-5 py-6 text-center" elevation="high" surface="ice">
             <button className="relative border-0 bg-transparent" onClick={() => void handleChangeAvatar()} type="button">
-              <span className="flex h-[82px] w-[82px] items-center justify-center overflow-hidden rounded-[28px] border-[3px] border-solid border-white bg-white shadow-ww-lg">
+              <span className="flex h-[82px] w-[82px] items-center justify-center overflow-hidden rounded-full border-[3px] border-solid border-white bg-white shadow-ww-lg">
                 {userInfo.avatar
                   ? <img alt={userInfo.name} className="h-full w-full object-cover" src={userInfo.avatar} />
                   : <UserRound className="text-primary-deep" size={34} />}
