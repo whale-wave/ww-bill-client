@@ -214,7 +214,7 @@ const AssetFormInfo: FC = () => {
                 const FieldIcon = field.icon;
                 return (
                   <Form.Item
-                    className="!mb-0 !border-0 !py-3 [&_.adm-form-item-child-inner]:!border-0 [&_.adm-form-item-label]:!mb-2 [&_.adm-form-item-label]:!text-[12px] [&_.adm-form-item-label]:!font-bold [&_.adm-form-item-label]:!text-ww-mid"
+                    className="!mb-0 !border-0 !py-3 [&_.adm-form-item-child-inner]:!border-0 [&_.adm-form-item-label]:!mb-2 [&_.adm-form-item-label]:!text-[12px] [&_.adm-form-item-label]:!font-bold [&_.adm-form-item-label]:!text-ww-mid [&_.adm-form-item-has-error_.asset-form-field-frame]:!border-[#d85e7b]"
                     key={field.name}
                     label={(
                       <span className="inline-flex items-center gap-1.5">
@@ -227,7 +227,7 @@ const AssetFormInfo: FC = () => {
                       </span>
                     )}
                   >
-                    <div className="flex h-12 items-center gap-3 rounded-[15px] bg-white/70 px-3 transition focus-within:bg-white/95 focus-within:ring-2 focus-within:ring-primary-light/60">
+                    <div className={`asset-form-field-frame flex min-h-[52px] items-center gap-3 rounded-[15px] border border-solid border-border-primary bg-white/90 px-3 shadow-ww-xs transition focus-within:border-primary focus-within:bg-white focus-within:ring-2 focus-within:ring-primary-light/60 ${field.disabled ? 'bg-bg-gray/45 opacity-60' : ''}`}>
                       <FieldIcon className="shrink-0 text-primary-deep" size={18} strokeWidth={1.8} />
                       <Form.Item
                         className="!m-0 min-w-0 flex-1 [&_.adm-form-item-child-inner]:!border-0"

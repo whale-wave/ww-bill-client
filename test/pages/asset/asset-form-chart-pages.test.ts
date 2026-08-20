@@ -121,6 +121,11 @@ describe('asset information form', () => {
     });
     expect(container.querySelector<HTMLInputElement>('input[aria-label="卡号 (后四位)"]')?.value).toBe('1024');
     expect(container.querySelector<HTMLInputElement>('input[aria-label="所在银行"]')?.value).toBe('工资卡');
+    expect(container.querySelector<HTMLInputElement>('input[aria-label="余额"]')?.inputMode).toBe('decimal');
+    expect(container.querySelector<HTMLInputElement>('input[aria-label="卡号 (后四位)"]')?.inputMode).toBe('numeric');
+    expect(container.querySelector<HTMLInputElement>('input[aria-label="所在银行"]')?.disabled).toBe(false);
+    expect(container.querySelector('.asset-form-field-frame')).not.toBeNull();
+    expect(container.querySelector('.asset-form-field-frame')?.className).toContain('focus-within:ring-2');
   });
 });
 
