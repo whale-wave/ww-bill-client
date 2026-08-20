@@ -6,7 +6,7 @@ import type {
   ChartOverviewMetric,
   ChartOverviewTab,
 } from '@/features/chart-overview';
-import { ErrorBlock, SpinLoading } from 'antd-mobile';
+import { ErrorBlock } from 'antd-mobile';
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLedgerChartQuery } from '@/entities/chart';
@@ -24,6 +24,7 @@ import {
 } from '@/features/chart-overview';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useTranslation } from '@/shared/i18n';
+import { PageLoadingState } from '@/shared/ui';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 import { combineLedgerNetTabs } from './model';
 
@@ -163,11 +164,7 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
   ]);
 
   if (isLoading || preferenceQuery.isLoading) {
-    return (
-      <div className="flex flex-grow items-center justify-center">
-        <SpinLoading />
-      </div>
-    );
+    return <PageLoadingState label={t('common:nav.loading')} testId="ledger-charts-loading" />;
   }
   if (isError || preferenceQuery.isError) {
     return (

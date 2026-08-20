@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { SpinLoading, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import { Camera, ChevronRight, Hash, LockKeyhole, LogOut, Mail, UserRound } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ import {
   FormField,
   GradientPanel,
   PageHeader,
+  PageLoadingState,
   showAppActionSheet,
 } from '@/shared/ui';
 
@@ -93,7 +94,7 @@ const UserInfo: FC = () => {
     return (
       <div className="page-new">
         <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('info.title')} />
-        <div className="flex flex-grow items-center justify-center"><SpinLoading color="primary" /></div>
+        <PageLoadingState label={t('common:nav.loading')} testId="user-info-loading" />
       </div>
     );
   }

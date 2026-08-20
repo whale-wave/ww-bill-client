@@ -48,7 +48,6 @@ vi.mock('@/shared/i18n', () => ({
 
 vi.mock('antd-mobile', () => ({
   ErrorBlock: ({ title }: { title: string }) => createElement('div', { 'data-testid': 'error' }, title),
-  SpinLoading: () => createElement('div', { 'data-testid': 'loading' }),
 }));
 
 let cleanup: (() => void) | undefined;
@@ -81,7 +80,7 @@ describe('record editing page', () => {
 
     const { container } = renderPage();
 
-    expect(container.querySelector('[data-testid="loading"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="editing-loading"]')).not.toBeNull();
     expectNoDetails(container);
   });
 
@@ -184,7 +183,7 @@ describe('record editing page', () => {
     const { container, rerender } = renderPage();
 
     expect(container.querySelector('[data-testid="record-detail"]')?.textContent).toContain('晚餐');
-    expect(container.querySelector('[data-testid="loading"]')).toBeNull();
+    expect(container.querySelector('[data-testid="editing-loading"]')).toBeNull();
 
     queryResult.isError = true;
     queryResult.isLoading = false;

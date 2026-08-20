@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { Asset, AssetGroup } from '@/entities/asset';
-import { SpinLoading, SwipeAction, Toast } from 'antd-mobile';
+import { SwipeAction, Toast } from 'antd-mobile';
 import { ChevronRight, FileWarning, Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDeleteAssetByIdMutation, useGetAssetGroupQuery, useGetAssetQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { formatAmount, math } from '@/shared/lib';
-import { confirmAppAction, DesignIcon, IllustratedEmptyState } from '@/shared/ui';
+import { confirmAppAction, DesignIcon, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
 import { IconBlock } from '../../ui';
 
 interface AssetListGroup {
@@ -98,9 +98,12 @@ export const AssetList: FC = () => {
 
   if (isListLoading || isGroupLoading) {
     return (
-      <div className="flex min-h-[260px] items-center justify-center rounded-[20px] border border-border-primary bg-white/70">
-        <SpinLoading color="primary" />
-      </div>
+      <PageLoadingState
+        compact
+        className="rounded-[20px] border border-border-primary bg-white/70"
+        label={t('common:nav.loading')}
+        testId="asset-list-loading"
+      />
     );
   }
 

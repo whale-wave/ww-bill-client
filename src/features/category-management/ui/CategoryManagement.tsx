@@ -21,7 +21,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button, Input, SpinLoading, Toast } from 'antd-mobile';
+import { Button, Input, Toast } from 'antd-mobile';
 import {
   GripVertical,
   ImagePlus,
@@ -41,7 +41,7 @@ import {
   useUploadLedgerCategoryIconMutation,
 } from '@/entities/category';
 import { useTranslation } from '@/shared/i18n';
-import { AppBottomSheet } from '@/shared/ui';
+import { AppBottomSheet, PageLoadingState } from '@/shared/ui';
 
 type EditorState = { category?: CategoryEntity; mode: 'create' | 'edit' } | null;
 
@@ -572,7 +572,7 @@ export function CategoryManagement({
           </div>
           <section className="overflow-hidden rounded-[22px] border border-solid border-[#e0ebf3] bg-white shadow-[0_14px_34px_rgba(43,91,119,0.08)]">
             {query.isLoading
-              ? <div className="flex min-h-32 items-center justify-center"><SpinLoading color="primary" /></div>
+              ? <PageLoadingState compact label={t('common:nav.loading')} testId="category-management-loading" />
               : (
                   <DndContext
                     collisionDetection={closestCenter}

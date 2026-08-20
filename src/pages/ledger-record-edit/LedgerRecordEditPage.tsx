@@ -5,7 +5,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
   Button,
   ErrorBlock,
-  SpinLoading,
   Toast,
 } from 'antd-mobile';
 import { useCallback, useMemo } from 'react';
@@ -27,6 +26,7 @@ import {
 } from '@/features/record-editor';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { PageLoadingState } from '@/shared/ui';
 
 interface LedgerRecordEditEditorProps {
   initialRecord: RecordEntry;
@@ -146,11 +146,7 @@ function LedgerRecordEditContent({
     ?? readLedgerRecordDetailState(location.state, ledgerId, recordId);
 
   if (recordQuery.isLoading && !initialRecord) {
-    return (
-      <div className="flex h-full items-center justify-center bg-white">
-        <SpinLoading />
-      </div>
-    );
+    return <PageLoadingState label={t('common:nav.loading')} testId="record-edit-loading" />;
   }
   if (!initialRecord) {
     return (

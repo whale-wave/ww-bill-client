@@ -1,5 +1,5 @@
 import type { GetRecordBillApiResponseData } from '@/entities/record';
-import { Button as AdmButton, ErrorBlock, SpinLoading } from 'antd-mobile';
+import { Button as AdmButton, ErrorBlock } from 'antd-mobile';
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { BillTabs } from '@/pages/bill/BillTabs';
 import { useBillPageStore } from '@/pages/bill/model';
 import { BillTabsType } from '@/pages/bill/types';
 import Content from '@/pages/bill/ui/Content';
-import { PageHeader, Button as WwButton } from '@/shared/ui';
+import { PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
 
 interface BillQueryState {
   data?: GetRecordBillApiResponseData;
@@ -49,9 +49,7 @@ function BillWorkspaceContent({ query }: { query: BillQueryState }) {
       ref={scrollContainerRef}
     >
       {query.isLoading && (
-        <div className="flex min-h-[320px] items-center justify-center">
-          <SpinLoading />
-        </div>
+        <PageLoadingState label={t('common:nav.loading')} testId="bill-loading" />
       )}
       {!query.isLoading && query.isError && (
         <div className="flex min-h-[320px] flex-col items-center justify-center gap-3">

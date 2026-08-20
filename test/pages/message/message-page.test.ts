@@ -43,12 +43,16 @@ vi.mock('@/shared/ui', () => ({
     children,
     right,
   ),
+  PageLoadingState: ({ label, testId }: { label: ReactNode; testId?: string }) => createElement(
+    'div',
+    { 'data-testid': testId, 'role': 'status' },
+    label,
+  ),
 }));
 
 vi.mock('antd-mobile', () => ({
   Button: ({ children, ...props }: { children: ReactNode }) => createElement('button', props, children),
   ErrorBlock: ({ title }: { title?: ReactNode }) => createElement('div', null, title),
-  SpinLoading: () => createElement('div', null, 'loading'),
   Toast: { show: toastShow },
 }));
 

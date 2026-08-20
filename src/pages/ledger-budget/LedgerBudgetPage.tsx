@@ -1,6 +1,6 @@
 import type { BudgetInfo } from '@/entities/budget';
 import type { Ledger } from '@/entities/ledger';
-import { ActionSheet, Dialog, ErrorBlock, Modal, SpinLoading, Toast } from 'antd-mobile';
+import { ActionSheet, Dialog, ErrorBlock, Modal, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useMemo, useRef, useState } from 'react';
 import {
@@ -26,6 +26,7 @@ import { LedgerCapability } from '@/entities/ledger';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useCurrentWorkspaceBack, useWorkspaceBack } from '@/features/workspace-navigation';
 import { useTranslation } from '@/shared/i18n';
+import { PageLoadingState } from '@/shared/ui';
 
 interface BudgetEditor {
   item?: BudgetInfo;
@@ -277,6 +278,7 @@ function ScopedLedgerBudgetPage({
 }
 
 export default function LedgerBudgetPage() {
+  const { t } = useTranslation('ledger');
   const onBack = useCurrentWorkspaceBack();
   const dropDownWrapperRef = useRef<HTMLDivElement>(null);
   const [budgetEntityType, setBudgetEntityType] = useState(BudgetEntityType.MONTH);
@@ -298,7 +300,7 @@ export default function LedgerBudgetPage() {
         >
           <div className="flex flex-grow items-center justify-center" data-ledger-budget-scope-state={state}>
             {state === 'loading'
-              ? <SpinLoading />
+              ? <PageLoadingState compact label={t('common:nav.loading')} testId="ledger-budget-loading" />
               : <ErrorBlock status="default" />}
           </div>
         </BudgetPageShell>

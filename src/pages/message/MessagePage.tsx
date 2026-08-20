@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import type { UserNotification } from '@/entities/notification';
-import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
+import { Button, ErrorBlock } from 'antd-mobile';
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import appAvatar from '@/assets/brand/whale-logo-surface.png';
@@ -13,7 +13,7 @@ import {
 import { getNotificationTarget } from '@/pages/system-notify/model';
 import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
-import { NavBar } from '@/shared/ui';
+import { NavBar, PageLoadingState } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const PAGE_SIZE = 20;
@@ -94,9 +94,7 @@ const Message: FC = () => {
       </NavBar>
       <main className={styles.content}>
         {notificationQuery.isLoading && (
-          <div className={styles.state}>
-            <SpinLoading />
-          </div>
+          <PageLoadingState label={t('nav.loading')} testId="message-loading" />
         )}
         {notificationQuery.isError && (
           <div className={styles.state}>

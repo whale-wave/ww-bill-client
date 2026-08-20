@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 import type { Ledger, LedgerCapability } from '@/entities/ledger';
-import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
+import { Button, ErrorBlock } from 'antd-mobile';
 import { Navigate, useParams } from 'react-router-dom';
 import { LedgerStatus, useLedgerQuery } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { PageLoadingState } from '@/shared/ui';
 
 export interface LedgerScope {
   ledger: Ledger;
@@ -51,11 +52,7 @@ export function LedgerScopeBoundary({
   if (ledgerQuery.isLoading) {
     if (renderState)
       return renderState('loading');
-    return (
-      <div className="flex min-h-[280px] items-center justify-center">
-        <SpinLoading />
-      </div>
-    );
+    return <PageLoadingState label={t('common:nav.loading')} testId="ledger-scope-loading" />;
   }
 
   if (ledgerQuery.isError && isDeterministicallyLostLedger(ledgerQuery.error))

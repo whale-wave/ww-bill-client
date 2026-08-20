@@ -1,4 +1,4 @@
-import { ErrorBlock, SpinLoading, Toast } from 'antd-mobile';
+import { ErrorBlock, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -22,7 +22,7 @@ import { useCurrentWorkspaceBack } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
-import { confirmDangerousAction, PageHeader } from '@/shared/ui';
+import { confirmDangerousAction, PageHeader, PageLoadingState } from '@/shared/ui';
 
 function FamilyPolicyEntry({ recordId, recordTime }: { recordId: number; recordTime: string }) {
   const { t } = useTranslation('ledger');
@@ -69,7 +69,7 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
   const record = query.data
     ?? readLedgerRecordDetailState(location.state, ledgerId, recordId);
   if (query.isLoading && !record)
-    return <SpinLoading />;
+    return <PageLoadingState label={t('common:nav.loading')} testId="record-detail-loading" />;
   if (!record)
     return <ErrorBlock title={t('records.notFound')} />;
   const date = new Date(record.time);

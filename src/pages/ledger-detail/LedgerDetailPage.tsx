@@ -1,5 +1,5 @@
 import type { FC, ReactNode } from 'react';
-import { ErrorBlock, SpinLoading } from 'antd-mobile';
+import { ErrorBlock } from 'antd-mobile';
 import {
   AddSquareOutline,
   BillOutline,
@@ -20,7 +20,7 @@ import {
 } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { PageHeader } from '@/shared/ui';
+import { PageHeader, PageLoadingState } from '@/shared/ui';
 
 const LEDGER_MODULES = ['records', 'bill', 'budget', 'charts', 'settings'] as const;
 
@@ -102,10 +102,7 @@ const LedgerDetailPage: FC = () => {
         )}
 
         {ledgerId && ledgerQuery.isLoading && (
-          <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 text-sm text-font-gray">
-            <SpinLoading />
-            <span>{t('detail.loading')}</span>
-          </div>
+          <PageLoadingState label={t('detail.loading')} testId="ledger-detail-loading" />
         )}
 
         {ledgerId && !ledgerQuery.isLoading && ledgerQuery.isError && (

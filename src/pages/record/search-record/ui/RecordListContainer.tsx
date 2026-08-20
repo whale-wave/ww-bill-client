@@ -1,16 +1,19 @@
 import type { RecordEntry } from '@/entities/record';
 import { useDebounce } from 'ahooks';
-import { ErrorBlock, SpinLoading } from 'antd-mobile';
+import { ErrorBlock } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import React, { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { RecordList, useGetRecordQuery } from '@/entities/record';
+import { useTranslation } from '@/shared/i18n';
+import { PageLoadingState } from '@/shared/ui';
 
 interface RecordListProps {
 }
 
 const RecordListContainer: React.FC<RecordListProps> = () => {
+  const { t } = useTranslation('common');
   const [searchParams] = useSearchParams();
   const searchRecordKeyword = searchParams.get('q') ?? '';
   const debounceSearchRecordKeyword = useDebounce(searchRecordKeyword, { wait: 250 });
@@ -62,7 +65,7 @@ const RecordListContainer: React.FC<RecordListProps> = () => {
       {!searchRecordKeyword
         ? emptyEl
         : isLoading
-          ? <div className="flex-grow flex justify-center items-center"><SpinLoading /></div>
+          ? <PageLoadingState compact label={t('nav.loading')} testId="record-list-loading" />
           : recordGroupByDate.length === 0
             ? emptyEl
             : recordGroupByDate.map(group => (<RecordList key={group.time} data={group} />))}
