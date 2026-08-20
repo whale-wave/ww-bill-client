@@ -554,7 +554,7 @@
     }
   },
   "tags": { "title": "标签管理", "name": "标签名称", "create": "新增", "creating": "新增中…", "archive": "归档", "empty": "还没有标签", "emptyDescription": "创建标签后，可为账本记录补充分类标记。", "saveFailed": "标签保存失败" },
-  "recovery": { "title": "最近删除", "restore": "恢复", "failed": "恢复失败，数据可能已更新" },
+  "recovery": { "title": "最近删除", "restore": "恢复", "failed": "恢复失败，数据可能已更新", "empty": "暂无最近删除记录" },
   "transfer": {
     "title": "跨账本迁移",
     "target": "目标账本",

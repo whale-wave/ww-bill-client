@@ -554,7 +554,7 @@
     }
   },
   "tags": { "title": "Tags", "name": "Tag Name", "create": "Add", "creating": "Adding…", "archive": "Archive", "empty": "No tags yet", "emptyDescription": "Create tags to add extra markers to ledger records.", "saveFailed": "Unable to save tag" },
-  "recovery": { "title": "Recently Deleted", "restore": "Restore", "failed": "Restore failed; the data may have changed" },
+  "recovery": { "title": "Recently Deleted", "restore": "Restore", "failed": "Restore failed; the data may have changed", "empty": "No recently deleted records" },
   "transfer": {
     "title": "Move Between Ledgers",
     "target": "Target Ledger",

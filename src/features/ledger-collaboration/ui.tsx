@@ -6,7 +6,6 @@ import type {
   LedgerSummary,
   LedgerUserSummary,
 } from '@/entities/ledger';
-import { SpinLoading } from 'antd-mobile';
 import {
   ChevronRight,
   CircleAlert,
@@ -15,7 +14,7 @@ import {
   TriangleAlert,
 } from 'lucide-react';
 import { LedgerVisualIcon } from '@/entities/ledger';
-import { IllustratedEmptyState } from '@/shared/ui';
+import { IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
 import { getLedgerUserDisplayName } from './model';
 
 interface QueryStateProps {
@@ -34,14 +33,7 @@ export const CollaborationQueryState: FC<QueryStateProps> = ({
   type,
 }) => {
   if (type === 'loading') {
-    return (
-      <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 text-sm font-semibold text-ww-mid">
-        <span className="flex h-12 w-12 items-center justify-center rounded-[17px] border border-solid border-border-primary bg-white/80 shadow-ww-xs backdrop-blur-xl">
-          <SpinLoading />
-        </span>
-        <span>{title}</span>
-      </div>
-    );
+    return <PageLoadingState compact label={title} testId="collaboration-loading" />;
   }
 
   const icon = type === 'empty'

@@ -63,12 +63,13 @@ describe('collaborationQueryState', () => {
     },
   );
 
-  it('keeps the spinner for the loading state', () => {
+  it('renders PageLoadingState for the loading state', () => {
     const container = render(createElement(CollaborationQueryState, {
       title: 'loading-title',
       type: 'loading',
     }));
-    expect(container.querySelector('.adm-spin-loading')).not.toBeNull();
+    expect(container.querySelector('[data-testid="collaboration-loading"]')).not.toBeNull();
+    expect(container.querySelector('[role="status"]')).not.toBeNull();
     expect(container.textContent).toContain('loading-title');
   });
 
