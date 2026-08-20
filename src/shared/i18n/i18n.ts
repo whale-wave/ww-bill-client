@@ -3,6 +3,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { DEFAULT_LANG } from './config';
 import { detectLanguage, setLanguage } from './detector';
+import { compareLocaleKeys } from './locale-parity';
 
 // en locales
 import enAsset from './locales/en/asset.json';
@@ -42,7 +43,7 @@ export type { SupportedLang } from './config';
 export { DEFAULT_LANG, SUPPORTED_LANGS } from './config';
 export { detectLanguage, setLanguage } from './detector';
 
-const resources = {
+export const resources = {
   'zh-CN': {
     'asset': zhAsset,
     'auth': zhAuth,
@@ -79,12 +80,31 @@ const resources = {
   },
 };
 
+const missingTranslationKeys = new Set<string>();
+
+export function getMissingTranslationKeys(): string[] {
+  return [...missingTranslationKeys].sort();
+}
+
+export function clearMissingTranslationKeys(): void {
+  missingTranslationKeys.clear();
+}
+
+export function getLocaleParity() {
+  return compareLocaleKeys(resources['zh-CN'], resources.en);
+}
+
 i18n.use(initReactI18next).init({
   resources,
   lng: detectLanguage(),
   fallbackLng: DEFAULT_LANG,
   interpolation: {
     escapeValue: false,
+  },
+  saveMissing: import.meta.env.MODE === 'test',
+  missingKeyHandler: (_lngs, namespace, key) => {
+    if (import.meta.env.MODE === 'test')
+      missingTranslationKeys.add(`${namespace}:${key}`);
   },
 });
 
