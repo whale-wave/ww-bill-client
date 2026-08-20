@@ -1,5 +1,5 @@
 import type { SettingsOverviewSection } from '@/features/workspace-settings';
-import { Button, ErrorBlock, Toast } from 'antd-mobile';
+import { ErrorBlock, Toast } from 'antd-mobile';
 import {
   Archive,
   BriefcaseBusiness,
@@ -40,6 +40,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import {
   AppBottomSheet,
+  AppButton,
   confirmAppAction,
   GradientPanel,
   PageHeader,
@@ -648,7 +649,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                 <span className={`flex h-11 w-11 items-center justify-center rounded-[15px] text-white shadow-ww-xs ${themePreviewClass}`}><LedgerPreviewIcon size={21} /></span>
                 <span className="min-w-0 flex-1 truncate text-[13px] font-extrabold text-ww-ink">{name || ledger?.name}</span>
               </div>
-              <Button block className="mt-5 !h-12 !rounded-[17px] !text-[14px] !font-extrabold" color="primary" data-testid="ledger-basic-save" loading={patchState.isLoading} onClick={handleBasicSave}>{t('common.save')}</Button>
+              <AppButton className="mt-5" data-testid="ledger-basic-save" fullWidth loading={patchState.isLoading} loadingLabel={t('common.loading')} onClick={handleBasicSave}>{t('common.save')}</AppButton>
             </div>
           </section>
         )}
@@ -672,7 +673,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                 <ChoiceGroup label={t('settings.defaultChartMetric')} onChange={value => setDefaultChartMetric(value as LedgerChartMetric)} options={[{ label: t('settings.expense'), value: LedgerChartMetric.EXPENSE }, { label: t('settings.income'), value: LedgerChartMetric.INCOME }, { label: t('settings.net'), value: LedgerChartMetric.NET }]} testId="ledger-default-chart-metric" value={defaultChartMetric} />
                 <ChoiceGroup label={t('settings.defaultChartDisplay')} onChange={value => setDefaultChartDisplay(value as LedgerChartDisplay)} options={[{ label: t('charts.display.pie'), value: LedgerChartDisplay.PIE }, { label: t('charts.display.line'), value: LedgerChartDisplay.LINE }]} testId="ledger-default-chart-display" value={defaultChartDisplay} />
               </div>
-              <Button block className="mt-5 !h-12 !rounded-[17px] !text-[14px] !font-extrabold" color="primary" data-testid="ledger-preferences-save" loading={preferenceState.isLoading} onClick={handlePreferenceSave}>{t('common.save')}</Button>
+              <AppButton className="mt-5" data-testid="ledger-preferences-save" fullWidth loading={preferenceState.isLoading} loadingLabel={t('common.loading')} onClick={handlePreferenceSave}>{t('common.save')}</AppButton>
             </div>
           </section>
         )}

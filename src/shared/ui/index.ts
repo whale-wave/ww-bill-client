@@ -1,4 +1,5 @@
 export * from './action-menu-card';
+export * from './app-button';
 export * from './app-overlay';
 export { BottomAction, type BottomActionActionItem } from './bottom-action';
 export * from './bottom-tab-bar';

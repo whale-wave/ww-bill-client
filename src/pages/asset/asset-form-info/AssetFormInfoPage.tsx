@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
-import { Button, Form, Input, Skeleton, Toast } from 'antd-mobile';
+import { Form, Input, Skeleton, Toast } from 'antd-mobile';
 import { clone } from 'lodash-es';
 import { BadgeDollarSign, Building2, CreditCard, FileWarning, Landmark, MessageSquareText, WalletCards } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -16,7 +16,7 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { normalizeAmount } from '@/shared/lib';
-import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { AppButton, GradientPanel, IllustratedEmptyState } from '@/shared/ui';
 import { AssetPageFrame } from '../ui';
 
 type AssetFormValues = Pick<Asset, 'amount' | 'cardId' | 'comment' | 'name'>;
@@ -195,14 +195,15 @@ const AssetFormInfo: FC = () => {
             onFinishFailed={handleFinishFailed}
             requiredMarkStyle="none"
             footer={(
-              <Button
-                block
-                className="!h-[50px] !rounded-[17px] !border-0 !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !text-[14px] !font-extrabold !text-white !shadow-ww"
+              <AppButton
+                className="!h-[50px] !rounded-[17px]"
+                fullWidth
+                loadingLabel={t('common:nav.loading')}
                 loading={isSaving}
                 type="submit"
               >
                 {t('form.save')}
-              </Button>
+              </AppButton>
             )}
           >
             <GradientPanel className="overflow-hidden px-4 py-2" elevation="low" surface="glass">
