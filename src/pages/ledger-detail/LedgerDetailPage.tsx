@@ -14,7 +14,6 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   LedgerCapability,
-  LedgerKind,
   LedgerVisualIcon,
   useLedgerQuery,
 } from '@/entities/ledger';
@@ -56,8 +55,6 @@ const LedgerDetailPage: FC = () => {
     queryOptions: { enabled: Boolean(ledgerId) },
   });
   const ledger = ledgerQuery.data;
-  const templateKey = ledger?.templateKey
-    ?? (ledger?.kind === LedgerKind.SYSTEM_DEFAULT ? 'system-default' : 'custom');
 
   const handleBack = () => navigate(-1);
   const collaborationItems = ledger
@@ -120,7 +117,7 @@ const LedgerDetailPage: FC = () => {
             <section className="bg-white px-4 py-4">
               <div className="flex items-center">
                 <span className="mr-3 flex h-[55px] w-[55px] items-center justify-center rounded-full bg-primary text-2xl text-font-black">
-                  <LedgerVisualIcon templateKey={templateKey} />
+                  <LedgerVisualIcon iconKey={ledger.iconKey} kind={ledger.kind} templateKey={ledger.templateKey} />
                 </span>
                 <div className="min-w-0">
                   <h1 className="one-line text-xl font-medium text-font-black">{ledger.name}</h1>
@@ -136,7 +133,7 @@ const LedgerDetailPage: FC = () => {
                 {t('detail.basicInfo')}
               </h2>
               {[
-                [t('detail.template'), t(`template.${templateKey}.name`)],
+                [t('detail.template'), ledger.templateKey ? t(`template.${ledger.templateKey}.name`) : t('detail.unknownTemplate')],
                 [t('detail.theme'), ledger.themeKey],
                 [t('detail.role'), t(`role.${ledger.myRole}`)],
                 [t('detail.status'), t(`status.${ledger.status}`)],

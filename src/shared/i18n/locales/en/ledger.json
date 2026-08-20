@@ -164,6 +164,7 @@
     "invalidLedgerDescription": "This link does not contain a valid ledger identifier.",
     "basicInfo": "Basic Information",
     "template": "Ledger Template",
+    "unknownTemplate": "No template specified",
     "theme": "Theme Key",
     "role": "My Role",
     "status": "Ledger Status",

@@ -3,8 +3,7 @@ import { CheckOutline } from 'antd-mobile-icons';
 import { Plus, Settings2, WalletCards } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import appLogo from '@/assets/brand/whale-logo-surface.png';
-import { useLedgerNavigationQuery } from '@/entities/ledger';
+import { LedgerVisualIcon, useLedgerNavigationQuery } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import {
@@ -180,9 +179,12 @@ export function LedgerSwitcherPanel({ onClose, visible }: LedgerSwitcherPanelPro
                     >
                       <span className="ledger-switcher-panel__option-content">
                         <span className="ledger-switcher-panel__icon" data-theme={item.type === 'custom' ? item.themeKey : 'personal'}>
-                          {item.type === 'personal'
-                            ? <img alt="" src={appLogo} />
-                            : <WalletCards aria-hidden="true" size={22} strokeWidth={1.8} />}
+                          <LedgerVisualIcon
+                            className="h-[22px] w-[22px]"
+                            iconKey={item.iconKey}
+                            kind={item.kind}
+                            templateKey={item.templateKey}
+                          />
                         </span>
                         <span className="ledger-switcher-panel__option-copy">
                           <span className="ledger-switcher-panel__option-title">

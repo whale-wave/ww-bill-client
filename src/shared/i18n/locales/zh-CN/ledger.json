@@ -164,6 +164,7 @@
     "invalidLedgerDescription": "当前链接没有包含有效的账本标识。",
     "basicInfo": "基本信息",
     "template": "账本模板",
+    "unknownTemplate": "未指定模板",
     "theme": "主题标识",
     "role": "我的角色",
     "status": "账本状态",

@@ -60,7 +60,7 @@ export function LedgerSummaryBlock({ ledger }: { ledger: LedgerSummary }) {
   return (
     <div className="flex items-center bg-white px-4 py-4">
       <span className="mr-3 flex h-[48px] w-[48px] items-center justify-center rounded-full bg-primary text-xl text-font-black">
-        <LedgerVisualIcon templateKey="custom" />
+        <LedgerVisualIcon iconKey={ledger.iconKey} kind={ledger.kind} templateKey={ledger.templateKey} />
       </span>
       <div className="min-w-0">
         <div className="one-line text-lg font-medium text-font-black">{ledger.name}</div>
