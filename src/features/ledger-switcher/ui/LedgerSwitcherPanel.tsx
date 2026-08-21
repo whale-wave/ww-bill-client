@@ -1,6 +1,6 @@
 import { ErrorBlock, Popup, SafeArea, SpinLoading } from 'antd-mobile';
 import { CheckOutline } from 'antd-mobile-icons';
-import { Plus, Settings2, WalletCards } from 'lucide-react';
+import { Plus, Settings2, Sparkles } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LedgerVisualIcon, useLedgerNavigationQuery } from '@/entities/ledger';
@@ -206,7 +206,7 @@ export function LedgerSwitcherPanel({ onClose, visible }: LedgerSwitcherPanelPro
               {!hasCustomLedger && (
                 <div className="mt-2 flex items-center gap-3 rounded-[15px] border border-solid border-border-primary bg-white/55 px-3.5 py-3">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-primary-light/55 text-primary-deep">
-                    <WalletCards aria-hidden="true" size={18} strokeWidth={1.8} />
+                    <Sparkles aria-hidden="true" size={18} strokeWidth={1.8} />
                   </span>
                   <p className="min-w-0 text-[12px] font-semibold leading-5 text-ww-mid">{t('switcher.customEmpty')}</p>
                 </div>

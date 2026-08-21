@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { FamilyRecord, Household } from '@/entities/household';
 import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
-import { CalendarDays, Ellipsis, List, Search, Settings, Target } from 'lucide-react';
+import { CalendarDays, Ellipsis, List, Search, Settings, Target, Users } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
@@ -22,7 +22,6 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import {
-  DesignIcon,
   showAppActionSheet,
   showAppInfoDialog,
 } from '@/shared/ui';
@@ -182,7 +181,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
           })),
           shortcutsTestId: 'household-shortcuts-card',
           testId: 'household-home-header',
-          titleIcon: <DesignIcon name="ledger" size={15} />,
+          titleIcon: <Users size={15} />,
           titleAlignment: 'start',
         }}
         onRetry={() => void recordsQuery.refetch()}
