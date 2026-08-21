@@ -94,6 +94,8 @@ export function getLocaleParity() {
   return compareLocaleKeys(resources['zh-CN'], resources.en);
 }
 
+const isDevOrTest = import.meta.env.DEV || import.meta.env.MODE === 'test';
+
 i18n.use(initReactI18next).init({
   resources,
   lng: detectLanguage(),
@@ -101,10 +103,11 @@ i18n.use(initReactI18next).init({
   interpolation: {
     escapeValue: false,
   },
-  saveMissing: import.meta.env.MODE === 'test',
+  saveMissing: isDevOrTest,
   missingKeyHandler: (_lngs, namespace, key) => {
-    if (import.meta.env.MODE === 'test')
-      missingTranslationKeys.add(`${namespace}:${key}`);
+    missingTranslationKeys.add(`${namespace}:${key}`);
+    if (import.meta.env.DEV)
+      console.warn(`[i18n] Missing translation key: "${key}" in namespace "${namespace}"`);
   },
 });
 

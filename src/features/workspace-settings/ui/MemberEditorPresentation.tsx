@@ -4,7 +4,7 @@ import { LedgerUserAvatar } from '@/entities/ledger';
 import { ContentStack, GradientPanel } from '@/shared/ui';
 
 export const MemberEditorPresentation: FC<{
-  children: ReactNode;
+  children?: ReactNode;
   member: MemberCardItem;
 }> = ({ children, member }) => {
   const user = member.user ?? {

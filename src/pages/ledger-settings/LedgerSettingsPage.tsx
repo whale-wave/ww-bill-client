@@ -434,7 +434,9 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
             kind: 'link',
             label: t('settings.preferences'),
             onClick: openPreferenceEditor,
-            value: t(`settings.${preferenceQuery.data?.defaultRecordType ?? LedgerRecordType.EXPENSE}`),
+            value: (preferenceQuery.data?.defaultRecordType ?? LedgerRecordType.EXPENSE) === LedgerRecordType.INCOME
+              ? t('settings.income')
+              : t('settings.expense'),
           }],
           title: t('settings.preferences'),
         },

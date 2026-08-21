@@ -29,10 +29,22 @@ describe('locale parity', () => {
     }
   });
 
-  it('records missing keys in the test environment before they can enter the UI', () => {
+  it('records missing keys and enables namespace/key tracking', () => {
     clearMissingTranslationKeys();
     expect(isRawTranslationKey(i18n.t('settings.__missing__', { ns: 'ledger' }))).toBe(true);
     expect(getMissingTranslationKeys()).toContain('ledger:settings.__missing__');
+  });
+
+  it('protects against settings.sub, ledger.*, and asset.* raw keys', () => {
+    clearMissingTranslationKeys();
+    // Verify valid keys exist and are translated
+    expect(i18n.t('settings.preferences', { ns: 'ledger' })).not.toBe('settings.preferences');
+    expect(i18n.t('settings.subtitle', { ns: 'ledger' })).not.toBe('settings.subtitle');
+    expect(i18n.t('form.save', { ns: 'asset' })).not.toBe('form.save');
+
+    // Verify non-existent sub key is flagged
+    expect(i18n.t('settings.sub', { ns: 'ledger' })).toBe('settings.sub');
+    expect(getMissingTranslationKeys()).toContain('ledger:settings.sub');
   });
 
   it('can clear test missing-key observations between checks', () => {
