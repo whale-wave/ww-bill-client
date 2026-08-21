@@ -63,6 +63,7 @@ const LedgerMembersPage: FC = () => {
     onClick: () => navigate(
       ROUTES_PATH.LEDGER_MEMBER_DETAIL.getPath(ledgerId, member.id),
     ),
+    user: member.user,
     userId: member.user.id,
   });
 

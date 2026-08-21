@@ -298,6 +298,7 @@ const LedgerMemberDetailPage: FC = () => {
                   }),
                   id: member.id,
                   name: member.user.name || member.user.username || t('common.unknownUser'),
+                  user: member.user,
                   userId: member.user.id,
                 }}
               >

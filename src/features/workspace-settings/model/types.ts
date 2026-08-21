@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { LedgerUserSummary } from '@/entities/ledger';
 
 export type SettingsIconKey
   = | 'account'
@@ -81,5 +82,6 @@ export interface MemberCardItem {
   isCurrent?: boolean;
   name: ReactNode;
   onClick?: () => void;
+  user?: Partial<LedgerUserSummary>;
   userId: ReactNode;
 }

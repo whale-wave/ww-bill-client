@@ -13,7 +13,7 @@ import {
   ShieldAlert,
   TriangleAlert,
 } from 'lucide-react';
-import { LedgerVisualIcon } from '@/entities/ledger';
+import { LedgerUserAvatar, LedgerVisualIcon } from '@/entities/ledger';
 import { IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
 import { getLedgerUserDisplayName } from './model';
 
@@ -70,32 +70,7 @@ export function LedgerSummaryBlock({ ledger }: { ledger: LedgerSummary }) {
   );
 }
 
-interface UserAvatarProps {
-  size?: number;
-  user: LedgerUserSummary;
-}
-
-export const LedgerUserAvatar: FC<UserAvatarProps> = ({ size = 42, user }) => (
-  user.avatar
-    ? (
-        <img
-          alt=""
-          className="shrink-0 self-center rounded-full border-2 border-solid border-white object-cover shadow-ww-xs"
-          height={size}
-          src={user.avatar}
-          style={{ height: size, minHeight: size, minWidth: size, width: size }}
-          width={size}
-        />
-      )
-    : (
-        <span
-          className="flex shrink-0 self-center items-center justify-center rounded-full bg-[linear-gradient(145deg,#c8eaf6,#e8f6ff)] text-lg font-black text-primary-deep shadow-ww-xs"
-          style={{ height: size, minHeight: size, minWidth: size, width: size }}
-        >
-          {getLedgerUserDisplayName(user, '?').slice(0, 1)}
-        </span>
-      )
-);
+export { LedgerUserAvatar };
 
 interface UserRowProps {
   fallback: string;

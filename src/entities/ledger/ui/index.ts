@@ -3,4 +3,6 @@ export { LedgerCoverCard } from './LedgerCoverCard';
 export type { LedgerCoverCardProps } from './LedgerCoverCard';
 export { LedgerTemplateCard } from './LedgerTemplateCard';
 export { LedgerTemplateIcon } from './LedgerTemplateIcon';
+export { LedgerUserAvatar } from './LedgerUserAvatar';
+export type { LedgerUserAvatarProps } from './LedgerUserAvatar';
 export { LedgerVisualIcon } from './LedgerVisualIcon';

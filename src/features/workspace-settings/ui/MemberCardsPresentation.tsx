@@ -1,10 +1,16 @@
 import type { FC, ReactNode } from 'react';
 import type { MemberCardItem } from '../model/types';
 import { ChevronRight } from 'lucide-react';
+import { LedgerUserAvatar } from '@/entities/ledger';
 import { useTranslation } from '@/shared/i18n';
 
 function MemberCard({ item }: { item: MemberCardItem }) {
   const { t } = useTranslation('ledger');
+  const user = item.user ?? {
+    avatar: item.avatar,
+    name: typeof item.name === 'string' ? item.name : undefined,
+  };
+
   return (
     <button
       className="group flex min-h-[92px] w-full items-center border-0 border-b border-solid border-border-primary bg-transparent px-4 py-3.5 text-left transition active:bg-primary-light/25 last:border-b-0"
@@ -12,19 +18,7 @@ function MemberCard({ item }: { item: MemberCardItem }) {
       onClick={item.onClick}
       type="button"
     >
-      {item.avatar
-        ? (
-            <img
-              alt=""
-              className="h-12 w-12 shrink-0 rounded-full border-2 border-solid border-white object-cover shadow-ww-xs"
-              src={item.avatar}
-            />
-          )
-        : (
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(145deg,#c8eaf6,#e8f6ff)] text-lg font-black text-primary-deep shadow-ww-xs">
-              {String(item.name).slice(0, 1)}
-            </span>
-          )}
+      <LedgerUserAvatar size={48} user={user} />
       <span className="ml-3 min-w-0 flex-grow">
         <span className="flex items-center gap-2">
           <strong className="truncate text-[15px] font-black text-ww-ink">{item.name}</strong>
