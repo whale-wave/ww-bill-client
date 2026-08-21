@@ -30,7 +30,7 @@ export const LedgerCard: FC<LedgerCardProps> = ({
       onClick={onClick}
       type="button"
     >
-      <span className="mr-3 flex h-[42px] w-[42px] flex-shrink-0 items-center justify-center rounded-full bg-primary text-xl text-font-black">
+      <span className="mr-3 flex h-[42px] w-[42px] flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-xl text-font-black">
         <LedgerVisualIcon iconKey={ledger.iconKey} kind={ledger.kind} templateKey={ledger.templateKey} />
       </span>
       <span className="min-w-0 flex-grow">

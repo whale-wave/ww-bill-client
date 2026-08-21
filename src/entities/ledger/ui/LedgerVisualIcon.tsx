@@ -47,7 +47,7 @@ export const LedgerVisualIcon: FC<LedgerVisualIconProps> = ({
   const visual = resolveLedgerVisual({ iconKey, kind, templateKey });
 
   if (visual.type === 'system-logo')
-    return <img alt="" className={className} src={appLogo} />;
+    return <img alt="" className="h-full w-full object-cover" src={appLogo} />;
 
   if (visual.type === 'fallback')
     return <img alt="" className={className} src={ledgerFallbackIcon} />;

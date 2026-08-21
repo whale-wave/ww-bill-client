@@ -573,7 +573,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
         <div className="mx-auto w-full max-w-[520px]">
           {ledger && (
             <GradientPanel className="mb-5 flex items-center gap-3.5 px-4 py-4" data-ledger-settings-overview elevation="low" surface="ice">
-              <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] border border-white/80 text-white shadow-ww-xs ${currentThemeClass}`}>
+              <span className={`flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-[17px] border border-white/80 text-white shadow-ww-xs ${currentThemeClass}`}>
                 <LedgerVisualIcon
                   className="h-[22px] w-[22px]"
                   iconKey={ledger.iconKey}

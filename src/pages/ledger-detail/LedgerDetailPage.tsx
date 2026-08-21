@@ -116,7 +116,7 @@ const LedgerDetailPage: FC = () => {
           <div>
             <section className="bg-white px-4 py-4">
               <div className="flex items-center">
-                <span className="mr-3 flex h-[55px] w-[55px] items-center justify-center rounded-full bg-primary text-2xl text-font-black">
+                <span className="mr-3 flex h-[55px] w-[55px] items-center justify-center overflow-hidden rounded-full bg-primary text-2xl text-font-black">
                   <LedgerVisualIcon iconKey={ledger.iconKey} kind={ledger.kind} templateKey={ledger.templateKey} />
                 </span>
                 <div className="min-w-0">

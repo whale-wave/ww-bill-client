@@ -207,12 +207,13 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
         shortcutsTestId: 'ledger-record-shortcuts',
         testId: 'ledger-records-header',
         titleIcon: (
-          <LedgerVisualIcon
-            className="h-4 w-4"
-            iconKey={ledger.iconKey}
-            kind={ledger.kind}
-            templateKey={ledger.templateKey}
-          />
+          <span className="flex h-[18px] w-[18px] flex-none overflow-hidden rounded-full">
+            <LedgerVisualIcon
+              iconKey={ledger.iconKey}
+              kind={ledger.kind}
+              templateKey={ledger.templateKey}
+            />
+          </span>
         ),
         titleAlignment: 'start',
       }}
