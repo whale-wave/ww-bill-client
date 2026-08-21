@@ -373,6 +373,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                 avatars: membersQuery.data.map(member => ({
                   alt: member.nickname || member.user.name || '',
                   id: member.id,
+                  name: member.nickname || member.user.name || member.user.username || '',
                   src: member.user.avatar,
                 })),
                 icon: 'member',

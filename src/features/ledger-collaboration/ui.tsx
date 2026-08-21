@@ -91,7 +91,7 @@ export const LedgerUserRow: FC<UserRowProps> = ({
 }) => {
   const content = (
     <>
-      <LedgerUserAvatar user={user} />
+      <LedgerUserAvatar size={42} user={user} />
       <span className="ml-3 min-w-0 flex-grow text-left">
         <span className="one-line block text-[14px] font-black text-ww-ink">
           {getLedgerUserDisplayName(user, fallback)}

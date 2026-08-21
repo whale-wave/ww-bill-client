@@ -21,6 +21,7 @@ import {
   UserRound,
   UsersRound,
 } from 'lucide-react';
+import { LedgerUserAvatar } from '@/entities/ledger';
 import { cn } from '@/shared/lib';
 
 const iconMap: Record<SettingsIconKey, typeof Archive> = {
@@ -46,24 +47,12 @@ function AvatarStack({
   return (
     <span className="flex items-center pl-2">
       {avatars.slice(0, 3).map(avatar => (
-        avatar.src
-          ? (
-              <img
-                alt={avatar.alt}
-                className="-ml-2 h-8 w-8 rounded-full border-2 border-solid border-white object-cover"
-                key={avatar.id}
-                src={avatar.src}
-              />
-            )
-          : (
-              <span
-                aria-label={avatar.alt}
-                className="-ml-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-solid border-white bg-bg-gray text-xs text-font-gray"
-                key={avatar.id}
-              >
-                {avatar.alt.slice(0, 1)}
-              </span>
-            )
+        <LedgerUserAvatar
+          className="-ml-2 border-2 border-solid border-white shadow-none"
+          key={avatar.id}
+          size={32}
+          user={{ avatar: avatar.src, name: avatar.name ?? avatar.alt }}
+        />
       ))}
       {overflowCount > 0 && (
         <span className="-ml-2 flex h-8 min-w-8 items-center justify-center rounded-full border-2 border-solid border-white bg-[#e8f6f9] px-1 text-xs text-[#18839b]">

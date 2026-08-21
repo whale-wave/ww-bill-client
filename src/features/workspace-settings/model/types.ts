@@ -42,7 +42,7 @@ export interface SettingsSwitchRow extends SettingsRowBase {
 }
 
 export interface SettingsAvatarStackRow extends SettingsRowBase {
-  avatars: Array<{ alt: string; id: string | number; src?: string }>;
+  avatars: Array<{ alt: string; id: string | number; name?: string; src?: string }>;
   kind: 'avatarStack';
   onClick: () => void;
   overflowCount?: number;
