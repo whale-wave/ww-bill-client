@@ -30,12 +30,11 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
       });
       return false;
     }
-    const getUserEmailChangeEmailCaptchaNewEmailRes
-      = await getUserEmailChangeEmailCaptchaNewEmailApi({
-        newEmail,
-        captcha,
-      });
-    switch (getUserEmailChangeEmailCaptchaNewEmailRes.statusCode) {
+    const response = await getUserEmailChangeEmailCaptchaNewEmailApi({
+      newEmail,
+      captcha,
+    }, false);
+    switch (response.statusCode) {
       case 4003:
       case 4005:
         setTimeout(() =>
@@ -45,9 +44,9 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
         );
         return false;
       case 200:
-        return true;
+        return response;
       default:
-        return false;
+        return response;
     }
   }, [captcha, email, navigate, newEmail, t]);
 

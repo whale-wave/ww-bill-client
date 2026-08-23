@@ -28,8 +28,7 @@ const ForgetPasswordVerifyCode: FC = () => {
   }, [navigate]);
 
   const handleResend = useCallback(async () => {
-    const response = await getToolsForgetPasswordEmailApi(email, true);
-    return response.statusCode === 200;
+    return getToolsForgetPasswordEmailApi(email, false);
   }, [email]);
 
   const handleSubmit = useCallback(async () => {

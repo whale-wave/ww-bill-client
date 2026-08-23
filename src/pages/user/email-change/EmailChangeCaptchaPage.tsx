@@ -21,9 +21,7 @@ const EmailChangeCaptcha: React.FC<EmailChangeProps> = () => {
   const onBack = useCallback(() => navigate(-1), [navigate]);
 
   const onSendCaptcha = useCallback(async () => {
-    const getUserEmailChangeEmailCaptchaRes
-      = await getUserEmailChangeEmailCaptchaApi();
-    return getUserEmailChangeEmailCaptchaRes.statusCode === 200;
+    return getUserEmailChangeEmailCaptchaApi({ loading: false });
   }, []);
 
   const onCaptchaVerify = useCallback(async () => {

@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import type { SuccessResponse } from '@/shared/api';
 import type { FormFieldProps } from '@/shared/ui';
+import { Toast } from 'antd-mobile';
 import { KeyRound } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { getToolsEmailApi } from '@/entities/tools';
@@ -15,7 +16,7 @@ interface EmailCaptchaInputProps extends Omit<FormFieldProps, 'label' | 'onChang
   email?: string;
   label?: string;
   onChange: (value: string) => void;
-  onSend?: () => Promise<boolean>;
+  onSend?: () => Promise<boolean | number | SuccessResponse<unknown>>;
   placeholder?: string;
   sendEmailApi?: (email: string) => Promise<SuccessResponse<unknown>>;
   value: string;
@@ -55,17 +56,27 @@ export const EmailCaptchaInput: FC<EmailCaptchaInputProps> = ({
 
     setIsSending(true);
     try {
-      const isSuccess = onSend
-        ? await onSend()
-        : (await sendEmailApi(email)).statusCode === 200;
-      if (isSuccess)
+      const result = onSend ? await onSend() : await sendEmailApi(email);
+      const statusCode = typeof result === 'boolean'
+        ? (result ? 200 : 4002)
+        : typeof result === 'number'
+          ? result
+          : result.statusCode;
+      if (statusCode === 200) {
         setCooldownUntil(Date.now() + WAIT_TIME * 1000);
+      }
+      else {
+        Toast.show({
+          content: getSendErrorMessage(statusCode, t),
+          position: 'top',
+        });
+      }
     }
     catch {}
     finally {
       setIsSending(false);
     }
-  }, [email, isSending, onSend, remainingSeconds, sendEmailApi]);
+  }, [email, isSending, onSend, remainingSeconds, sendEmailApi, t]);
 
   const sendLabel = remainingSeconds > 0
     ? t('retry.afterSeconds', { seconds: remainingSeconds })
@@ -96,3 +107,17 @@ export const EmailCaptchaInput: FC<EmailCaptchaInputProps> = ({
     />
   );
 };
+
+function getSendErrorMessage(statusCode: number, t: (key: string) => string) {
+  switch (statusCode) {
+    case 400:
+    case 4010:
+      return t('verificationEmailInvalid');
+    case 4000:
+      return t('verificationEmailNotFound');
+    case 4001:
+      return t('verificationRateLimited');
+    default:
+      return t('verificationSendFailed');
+  }
+}
