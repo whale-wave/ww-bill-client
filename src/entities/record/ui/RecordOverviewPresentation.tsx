@@ -1,8 +1,8 @@
 import type { FC, ReactNode } from 'react';
 import type { RecordOverviewHeaderProps } from './RecordOverviewHeader';
 import type { RecordOverviewListGroup } from './RecordOverviewList';
-import { Button, ErrorBlock } from 'antd-mobile';
-import { Plus } from 'lucide-react';
+import { Button } from 'antd-mobile';
+import { CircleAlert, Plus, RefreshCw } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
 import { DesignIcon, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
 import { RecordOverviewHeader } from './RecordOverviewHeader';
@@ -60,15 +60,21 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
         )}
         {state === 'error' && (
           <div
-            className="flex min-h-[240px] flex-grow flex-col items-center justify-center"
+            className="flex min-h-[320px] flex-grow items-center justify-center py-3"
             data-record-overview-state="error"
           >
-            <ErrorBlock description={errorDescription} title={errorTitle} />
-            {onRetry && (
-              <Button className="mt-3" onClick={onRetry} size="small">
-                {retryLabel}
-              </Button>
-            )}
+            <div className="w-full rounded-[24px] border border-solid border-border-primary bg-white/65 shadow-ww-xs backdrop-blur-xl">
+              <IllustratedEmptyState
+                accentIcon={<RefreshCw size={18} strokeWidth={2.2} />}
+                actionLabel={retryLabel ?? t('error.loadFail')}
+                className="min-h-[320px]"
+                description={errorDescription ?? t('error.networkError')}
+                icon={<CircleAlert className="text-ww-pink" size={46} strokeWidth={1.8} />}
+                onAction={onRetry}
+                testId="record-overview-error-state"
+                title={errorTitle ?? t('error.loadFail')}
+              />
+            </div>
           </div>
         )}
         {state === 'ready' && groups.length === 0 && (

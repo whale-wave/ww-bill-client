@@ -19,6 +19,14 @@ describe('locale parity', () => {
     expect(compareLocaleKeys(resources['zh-CN'], resources.en)).toEqual({ extra: [], missing: [] });
   });
 
+  it('translates the personal detail empty and error states in both supported languages', () => {
+    for (const language of ['zh-CN', 'en'] as const) {
+      expect(i18n.t('detail.errorTitle', { lng: language, ns: 'record' })).not.toBe('detail.errorTitle');
+      expect(i18n.t('detail.errorDescription', { lng: language, ns: 'record' })).not.toBe('detail.errorDescription');
+      expect(i18n.t('detail.errorAction', { lng: language, ns: 'record' })).not.toBe('detail.errorAction');
+    }
+  });
+
   it('does not render raw keys for any translated leaf', () => {
     for (const language of Object.keys(resources) as Array<keyof typeof resources>) {
       for (const [namespace, locale] of Object.entries(resources[language])) {
