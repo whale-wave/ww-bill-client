@@ -1,10 +1,9 @@
-import type { Dayjs } from 'dayjs';
 import { Toast } from 'antd-mobile';
 import { Mail, RefreshCw } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { getUserEmailChangeEmailCaptchaNewEmailApi, usePostUserEmailChangeEmailMutation } from '@/entities/user-email';
-import { WwInputVerifyCode } from '@/pages/auth/forget-password/ui';
+import { EmailCaptchaInput } from '@/features/email-captcha';
 import { useTranslation } from '@/shared/i18n';
 import { FormField, GradientPanel, PageHeader } from '@/shared/ui';
 
@@ -18,7 +17,6 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
   const captcha = urlSearchParams.get('captcha') || '';
   const [newEmail, setNewEmail] = useState<string>('');
   const [newCaptcha, setNewCaptcha] = useState<string>('');
-  const [startTime, setStartTime] = useState<Dayjs>();
   const [postUserEmailChangeEmailMutate]
     = usePostUserEmailChangeEmailMutation();
 
@@ -115,12 +113,11 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
               placeholder={t('user:emailChange.newEmail.placeholder')}
               prefix={<Mail size={18} />}
             />
-            <WwInputVerifyCode
+            <EmailCaptchaInput
+              email={newEmail}
               placeholder={t('user:emailChange.newEmail.captchaPlaceholder')}
               value={newCaptcha}
               onChange={setNewCaptcha}
-              startTime={startTime}
-              setStartTime={setStartTime}
               onSend={onSendNewCaptcha}
             />
             <button className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45" disabled={!newEmail.trim() || !newCaptcha.trim()} onClick={() => void onSendChangeEmail()} type="button">{t('user:emailChange.submit')}</button>

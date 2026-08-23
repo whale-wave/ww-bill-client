@@ -75,7 +75,10 @@ vi.mock('@/pages/auth/forget-password/ui', () => ({
     type,
     value,
   }),
-  WwInputVerifyCode: ({
+}));
+
+vi.mock('@/features/email-captcha', () => ({
+  EmailCaptchaInput: ({
     onChange,
     placeholder,
     value,

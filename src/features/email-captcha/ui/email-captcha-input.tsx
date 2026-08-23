@@ -1,44 +1,53 @@
 import type { FC } from 'react';
+import type { SuccessResponse } from '@/shared/api';
 import type { FormFieldProps } from '@/shared/ui';
 import { KeyRound } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { getToolsEmailApi } from '@/entities/tools';
 import { useTranslation } from '@/shared/i18n';
+
 import { FormField } from '@/shared/ui';
 
 const WAIT_TIME = 60;
 
-interface SendEmailResponse {
-  statusCode: number;
-}
-
 interface EmailCaptchaInputProps extends Omit<FormFieldProps, 'label' | 'onChange' | 'prefix' | 'suffix' | 'value'> {
+  cooldownStartedAt?: number;
   email?: string;
+  label?: string;
   onChange: (value: string) => void;
-  sendEmailApi?: (email: string) => Promise<SendEmailResponse>;
+  onSend?: () => Promise<boolean>;
+  placeholder?: string;
+  sendEmailApi?: (email: string) => Promise<SuccessResponse<unknown>>;
   value: string;
 }
 
 export const EmailCaptchaInput: FC<EmailCaptchaInputProps> = ({
   email,
+  cooldownStartedAt,
+  label,
   onChange,
+  onSend,
+  placeholder,
   sendEmailApi = getToolsEmailApi,
   value,
   ...fieldProps
 }) => {
   const { t } = useTranslation('auth');
-  const [remainingSeconds, setRemainingSeconds] = useState(0);
+  const [cooldownUntil, setCooldownUntil] = useState(() => cooldownStartedAt ? cooldownStartedAt + WAIT_TIME * 1000 : 0);
+  const [now, setNow] = useState(() => Date.now());
   const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
-    if (remainingSeconds <= 0)
+    if (cooldownUntil <= now)
       return;
 
     const timer = window.setTimeout(() => {
-      setRemainingSeconds(seconds => Math.max(0, seconds - 1));
-    }, 1000);
+      setNow(Date.now());
+    }, Math.min(1000, cooldownUntil - now));
     return () => window.clearTimeout(timer);
-  }, [remainingSeconds]);
+  }, [cooldownUntil, now]);
+
+  const remainingSeconds = Math.max(0, Math.ceil((cooldownUntil - now) / 1000));
 
   const handleSend = useCallback(async () => {
     if (!email || isSending || remainingSeconds > 0)
@@ -46,14 +55,17 @@ export const EmailCaptchaInput: FC<EmailCaptchaInputProps> = ({
 
     setIsSending(true);
     try {
-      const response = await sendEmailApi(email);
-      if (response.statusCode === 200)
-        setRemainingSeconds(WAIT_TIME);
+      const isSuccess = onSend
+        ? await onSend()
+        : (await sendEmailApi(email)).statusCode === 200;
+      if (isSuccess)
+        setCooldownUntil(Date.now() + WAIT_TIME * 1000);
     }
+    catch {}
     finally {
       setIsSending(false);
     }
-  }, [email, isSending, remainingSeconds, sendEmailApi]);
+  }, [email, isSending, onSend, remainingSeconds, sendEmailApi]);
 
   const sendLabel = remainingSeconds > 0
     ? t('retry.afterSeconds', { seconds: remainingSeconds })
@@ -65,10 +77,10 @@ export const EmailCaptchaInput: FC<EmailCaptchaInputProps> = ({
     <FormField
       {...fieldProps}
       inputMode="numeric"
-      label={t('sign.captcha')}
+      label={label ?? t('sign.captcha')}
       maxLength={6}
       onChange={onChange}
-      placeholder={t('emailCaptcha.placeholder')}
+      placeholder={placeholder ?? t('emailCaptcha.placeholder')}
       prefix={<KeyRound size={18} strokeWidth={1.8} />}
       suffix={(
         <button
