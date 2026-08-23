@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { SuccessResponse } from '@/shared/api';
 import type { FormFieldProps } from '@/shared/ui';
 import { Toast } from 'antd-mobile';
-import { KeyRound } from 'lucide-react';
+import { KeyRound, LoaderCircle } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { getToolsEmailApi } from '@/entities/tools';
 import { useTranslation } from '@/shared/i18n';
@@ -54,6 +54,14 @@ export const EmailCaptchaInput: FC<EmailCaptchaInputProps> = ({
     if (!email || isSending || remainingSeconds > 0)
       return;
 
+    if (!isValidEmail(email)) {
+      Toast.show({
+        content: t('verificationEmailInvalid'),
+        position: 'top',
+      });
+      return;
+    }
+
     setIsSending(true);
     try {
       const result = onSend ? await onSend() : await sendEmailApi(email);
@@ -95,12 +103,13 @@ export const EmailCaptchaInput: FC<EmailCaptchaInputProps> = ({
       prefix={<KeyRound size={18} strokeWidth={1.8} />}
       suffix={(
         <button
-          className="min-h-8 rounded-full border-0 bg-primary-light/55 px-3 text-[11px] font-bold text-primary-deep disabled:text-ww-soft"
+          className="inline-flex min-h-8 items-center gap-1 rounded-full border-0 bg-primary-light/55 px-3 text-[11px] font-bold text-primary-deep disabled:text-ww-soft"
           disabled={!email || isSending || remainingSeconds > 0}
           onClick={() => void handleSend()}
           type="button"
         >
-          {sendLabel}
+          {isSending && <LoaderCircle aria-hidden="true" className="animate-spin" size={12} />}
+          <span>{sendLabel}</span>
         </button>
       )}
       value={value}
@@ -110,7 +119,6 @@ export const EmailCaptchaInput: FC<EmailCaptchaInputProps> = ({
 
 function getSendErrorMessage(statusCode: number, t: (key: string) => string) {
   switch (statusCode) {
-    case 400:
     case 4010:
       return t('verificationEmailInvalid');
     case 4000:
@@ -120,4 +128,8 @@ function getSendErrorMessage(statusCode: number, t: (key: string) => string) {
     default:
       return t('verificationSendFailed');
   }
+}
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/.test(email);
 }
