@@ -33,8 +33,11 @@ export function getUserEmailChangeEmailCaptchaVerifyApi(
 }
 
 export function getUserEmailChangeEmailCaptchaNewEmailApi(
-  params: any,
-  loading = true,
+  params: {
+    newEmail: string;
+    captcha: string;
+  },
+  loading = false,
 ) {
   return request.get<unknown, SuccessResponse<unknown>>(
     '/user-email/change-email/captcha/new-email',
