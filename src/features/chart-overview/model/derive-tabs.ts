@@ -8,7 +8,7 @@ import type {
   WeekTabItem,
   YearTabItem,
 } from '@/entities/chart';
-import { getMonth, getWeek, getYear, isSameYear, subMonths, subWeeks, subYears } from 'date-fns';
+import { getISOWeek, getISOWeekYear, getMonth, getYear, subMonths, subWeeks, subYears } from 'date-fns';
 import {
   isMonthData,
   isWeekData,
@@ -17,19 +17,24 @@ import {
 import { i18n } from '@/shared/i18n';
 
 export function deriveWeekTabs(data: GetChartApiResponseWeekData[]): WeekTabItem[] {
+  const now = new Date();
+  const nowWeek = getISOWeek(now);
+  const nowWeekYear = getISOWeekYear(now);
+  const previousWeekDate = subWeeks(now, 1);
+  const previousWeek = getISOWeek(previousWeekDate);
+  const previousWeekYear = getISOWeekYear(previousWeekDate);
+
   return data.reduce<WeekTabItem[]>((acc, weekDataItem) => {
     acc.push(...weekDataItem.data.map((weekItem): WeekTabItem => {
-      const now = new Date();
-      const nowWeek = getWeek(now);
-      const prevWeek = getWeek(subWeeks(now, 1));
-      const isCurrentYear = isSameYear(now, new Date(String(`${weekDataItem.value}`)));
+      const isCurrentWeek = weekDataItem.value === nowWeekYear && weekItem.value === nowWeek;
+      const isPreviousWeek = weekDataItem.value === previousWeekYear && weekItem.value === previousWeek;
       let name = '';
 
-      if (nowWeek === weekItem.value)
+      if (isCurrentWeek)
         name = i18n.t('chart:tab.thisWeek');
-      else if (prevWeek === weekItem.value)
+      else if (isPreviousWeek)
         name = i18n.t('chart:tab.lastWeek');
-      else if (isCurrentYear)
+      else if (weekDataItem.value === nowWeekYear)
         name = i18n.t('chart:tab.weekNumber', { week: weekItem.value });
       else
         name = i18n.t('chart:tab.yearWeekNumber', { year: weekDataItem.value, week: weekItem.value });
@@ -45,25 +50,25 @@ export function deriveWeekTabs(data: GetChartApiResponseWeekData[]): WeekTabItem
 }
 
 export function deriveMonthTabs(data: GetChartApiResponseMonthData[]): MonthTabItem[] {
+  const now = new Date();
+  const nowMonth = getMonth(now) + 1;
+  const nowYear = getYear(now);
+  const previousMonthDate = subMonths(now, 1);
+  const previousMonth = getMonth(previousMonthDate) + 1;
+  const previousMonthYear = getYear(previousMonthDate);
+
   return data.reduce<MonthTabItem[]>((acc, monthDataItem) => {
     acc.push(...monthDataItem.data.map((monthItem): MonthTabItem => {
-      const now = new Date();
-      const nowMonth = getMonth(now) + 1;
-      const prevMonth = getMonth(subMonths(now, 1)) + 1;
-      const isCurrentYear = isSameYear(now, new Date(`${monthDataItem.value}`));
       let name = '';
 
-      if (isCurrentYear) {
-        if (nowMonth === monthItem.value)
-          name = i18n.t('chart:tab.thisMonth');
-        else if (prevMonth === monthItem.value)
-          name = i18n.t('chart:tab.lastMonth');
-        else
-          name = i18n.t('chart:tab.monthNumber', { month: monthItem.value });
-      }
-      else {
+      if (monthDataItem.value === nowYear && monthItem.value === nowMonth)
+        name = i18n.t('chart:tab.thisMonth');
+      else if (monthDataItem.value === previousMonthYear && monthItem.value === previousMonth)
+        name = i18n.t('chart:tab.lastMonth');
+      else if (monthDataItem.value === nowYear)
+        name = i18n.t('chart:tab.monthNumber', { month: monthItem.value });
+      else
         name = i18n.t('chart:tab.yearMonthNumber', { year: monthDataItem.value, month: monthItem.value });
-      }
 
       return {
         ...monthItem,
