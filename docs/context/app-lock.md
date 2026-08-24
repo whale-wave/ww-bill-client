@@ -5,6 +5,7 @@
 ## 数据边界
 
 - `UserAppConfig.gestureLockEnabled` 是用户偏好配置，服务端默认值为 `false`，用于跨设备同步“希望启用应用锁”的设置。
+- `UserAppConfig.userId` 由服务端根据当前登录态明确返回，客户端用它隔离当前用户的本地应用锁数据，不依赖未加载的用户实体关系。
 - 当前设备的凭证只保存在本地 `AppLockStorage`，按用户使用 `app-lock:{userId}:credential` 命名空间隔离。
 - 凭证由规范化后的点位序列通过 PBKDF2-SHA256 派生，包含随机 salt 和迭代次数；运行时 `unlocked` 不持久化。
 - 失败次数和 30 秒临时锁定状态保存在同一用户命名空间，用于限制误操作，不作为账号安全边界。

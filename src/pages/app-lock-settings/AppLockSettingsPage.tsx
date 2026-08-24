@@ -28,7 +28,7 @@ const AppLockSettingsPage: FC = () => {
   const { data: userInfo } = useGetUserUserInfoQuery();
   const [patchConfig, patchState] = usePatchUserAppConfigMutation();
   const { t } = useTranslation('settings');
-  const [phase, setPhase] = useState<Phase>('draw');
+  const [phase, setPhase] = useState<Phase | null>(null);
   const [action, setAction] = useState<Action>(null);
   const [pattern, setPattern] = useState<number[]>([]);
   const [firstPattern, setFirstPattern] = useState<number[]>([]);
@@ -50,7 +50,7 @@ const AppLockSettingsPage: FC = () => {
       body.style.touchAction = previousBodyTouchAction;
     };
   }, []);
-  const userId = config?.user?.id;
+  const userId = config?.userId;
   const credential
     = userId === undefined ? null : localAppLockStorage.getCredential(userId);
   const isEnabled = Boolean(config?.gestureLockEnabled && credential);
@@ -59,11 +59,12 @@ const AppLockSettingsPage: FC = () => {
       ? 'missing'
       : localAppLockStorage.getCredentialStatus(userId);
 
-  const currentPhase = isEnabled
-    ? 'idle'
-    : config?.gestureLockEnabled && credentialStatus === 'corrupted'
-      ? 'recover'
-      : phase;
+  const currentPhase = phase
+    ?? (isEnabled
+      ? 'idle'
+      : config?.gestureLockEnabled && credentialStatus === 'corrupted'
+        ? 'recover'
+        : 'draw');
 
   const reset = (nextPhase: Phase = isEnabled ? 'idle' : 'draw') => {
     setPhase(nextPhase);
@@ -95,8 +96,10 @@ const AppLockSettingsPage: FC = () => {
   };
 
   const handleSubmitPattern = async () => {
-    if (userId === undefined)
+    if (userId === undefined) {
+      setError(t('common.loadError'));
       return;
+    }
     if (pattern.length < APP_LOCK_MIN_POINTS) {
       setError(t('appLock.tooSimple'));
       return;
