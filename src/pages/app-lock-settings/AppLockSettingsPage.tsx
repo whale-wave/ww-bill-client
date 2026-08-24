@@ -285,19 +285,7 @@ const AppLockSettingsPage: FC = () => {
           title={t('appLock.title')}
         />
         <main className="relative z-[1] min-h-0 flex-grow overflow-hidden overscroll-none px-[18px] pb-8">
-          <div className="mx-auto w-full max-w-[520px]">
-            <GradientPanel
-              className="mb-5 px-5 py-5"
-              elevation="low"
-              surface="ice"
-            >
-              <h2 className="text-[18px] font-black text-ww-ink">
-                {t('appLock.enabled')}
-              </h2>
-              <p className="mt-2 text-[12px] leading-5 text-ww-mid">
-                {t('appLock.description')}
-              </p>
-            </GradientPanel>
+          <div className="mx-auto w-full max-w-[520px] pt-4">
             <div className="flex flex-col gap-3">
               <button
                 className="h-12 rounded-[16px] bg-primary font-bold text-white"
