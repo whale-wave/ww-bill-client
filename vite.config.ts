@@ -1,4 +1,5 @@
 import { resolve } from 'node:path';
+import babel from '@rolldown/plugin-babel';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
@@ -40,6 +41,9 @@ export default defineConfig(() => {
     },
     plugins: [
       react(),
+      babel({
+        plugins: [['@locator/babel-jsx/dist', { env: 'development' }]],
+      }),
       createHtmlPlugin({
         inject: {
           data: {
