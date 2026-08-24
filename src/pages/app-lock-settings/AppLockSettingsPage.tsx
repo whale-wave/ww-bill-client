@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Toast } from 'antd-mobile';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   APP_LOCK_MIN_POINTS,
@@ -38,6 +38,11 @@ const AppLockSettingsPage: FC = () => {
   const credential
     = userId === undefined ? null : localAppLockStorage.getCredential(userId);
   const isEnabled = Boolean(config?.gestureLockEnabled && credential);
+
+  useEffect(() => {
+    if (isEnabled && phase === 'draw')
+      setPhase('idle');
+  }, [isEnabled, phase]);
 
   const reset = (nextPhase: Phase = isEnabled ? 'idle' : 'draw') => {
     setPhase(nextPhase);

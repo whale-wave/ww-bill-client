@@ -1,18 +1,17 @@
 import type { FC, ReactNode } from 'react';
 import type { UserAppConfig } from '@/entities/user-app-config';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
+  isAppLockTemporarilyLocked,
   isTooSimplePattern,
   localAppLockStorage,
   PatternGesture,
+  recordAppLockFailure,
   verifyAppLockPattern,
 } from '@/entities/app-lock';
 import { useTranslation } from '@/shared/i18n';
 import { PageLoadingState } from '@/shared/ui';
-
-const MAX_ATTEMPTS = 5;
-const LOCK_DURATION_MS = 30_000;
 
 interface AppLockGuardProps {
   children: ReactNode;
@@ -37,24 +36,17 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
   const [unlocked, setUnlocked] = useState(false);
   const [error, setError] = useState('');
   const [now, setNow] = useState(() => Date.now());
-  const lockState = useMemo(
-    () =>
-      userId === undefined
-        ? { failedAttempts: 0, lockedUntil: null }
-        : localAppLockStorage.getLockState(userId),
-    [now, userId],
-  );
-  const credential = useMemo(
-    () =>
-      userId === undefined ? null : localAppLockStorage.getCredential(userId),
-    [config?.gestureLockEnabled, userId],
-  );
+  const lockState
+    = userId === undefined
+      ? { failedAttempts: 0, lockedUntil: null }
+      : localAppLockStorage.getLockState(userId);
+  const credential
+    = userId === undefined ? null : localAppLockStorage.getCredential(userId);
   const credentialStatus
     = userId === undefined
       ? 'missing'
       : localAppLockStorage.getCredentialStatus(userId);
-  const isLocked
-    = lockState.lockedUntil !== null && lockState.lockedUntil > now;
+  const isLocked = isAppLockTemporarilyLocked(lockState, now);
 
   useEffect(() => {
     if (!isLocked)
@@ -113,11 +105,7 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
       setError('');
       return;
     }
-    const failedAttempts = lockState.failedAttempts + 1;
-    const nextState
-      = failedAttempts >= MAX_ATTEMPTS
-        ? { failedAttempts, lockedUntil: Date.now() + LOCK_DURATION_MS }
-        : { failedAttempts, lockedUntil: null };
+    const nextState = recordAppLockFailure(lockState);
     localAppLockStorage.saveLockState(userId, nextState);
     setNow(Date.now());
     setError(nextState.lockedUntil ? t('appLock.locked') : t('appLock.wrong'));
