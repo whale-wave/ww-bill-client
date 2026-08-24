@@ -5,6 +5,9 @@
     "line": "Line",
     "pie": "Pie"
   },
+  "categoryRatio": "Category Ratio",
+  "other": "Other",
+  "noCategoryData": "No category data",
   "category": "Category Stats",
   "categoryDetail": "Category Detail",
   "categoryStat": "Category Statistics",

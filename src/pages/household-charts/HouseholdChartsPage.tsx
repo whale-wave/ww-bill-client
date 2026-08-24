@@ -21,6 +21,7 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { math } from '@/shared/lib';
+import { HouseholdCategoryPieChart } from './ui/HouseholdCategoryPieChart';
 
 function isAmountType(value: string | null): value is AmountType {
   return value === 'sub' || value === 'add';
@@ -309,7 +310,9 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
         retryLabel={t('common.retry')}
       >
         <ChartOverviewContext.Provider value={contextValue}>
-          <ChartOverviewPresentation />
+          <ChartOverviewPresentation
+            pieChart={<HouseholdCategoryPieChart ranking={currentTab?.ranking ?? []} />}
+          />
         </ChartOverviewContext.Provider>
       </HouseholdPageState>
       <HouseholdBottomNav

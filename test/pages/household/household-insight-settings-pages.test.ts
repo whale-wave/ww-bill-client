@@ -737,6 +737,58 @@ describe('household budget and charts', () => {
     }));
   });
 
+  it('renders household category segments and legend in pie mode', () => {
+    hooks.useHouseholdChartsQuery.mockReturnValue(query({
+      ...chart,
+      categories: [
+        { amount: '50.00', key: 'food', name: '餐饮', percent: 0.5 },
+        { amount: '30.00', key: 'travel', name: '交通', percent: 0.3 },
+        { amount: '10.00', key: 'home', name: '住房', percent: 0.1 },
+        { amount: '5.00', key: 'fun', name: '娱乐', percent: 0.05 },
+        { amount: '5.00', key: 'other', name: '其他分类', percent: 0.05 },
+      ],
+    }));
+
+    const { container } = renderPage(
+      '/households/household%2Fa/charts?display=pie',
+      '/households/:householdId/charts',
+      createElement(HouseholdChartsPage),
+    );
+
+    expect(container.querySelector('[data-household-pie-chart]')).not.toBeNull();
+    expect(container.querySelector('[data-household-pie-legend]')?.textContent).toContain('餐饮50%');
+    expect(container.querySelector('[data-household-pie-legend]')?.textContent).toContain('other5%');
+    expect(hooks.chartSetOption).toHaveBeenLastCalledWith(expect.objectContaining({
+      series: [expect.objectContaining({
+        data: [
+          expect.objectContaining({ id: 'category:food', name: '餐饮', value: 50 }),
+          expect.objectContaining({ id: 'category:travel', name: '交通', value: 30 }),
+          expect.objectContaining({ id: 'category:home', name: '住房', value: 10 }),
+          expect.objectContaining({ id: 'category:fun', name: '娱乐', value: 5 }),
+          expect.objectContaining({ id: 'aggregate:other', name: 'other', value: 5 }),
+        ],
+      })],
+    }));
+  });
+
+  it('shows a category empty state without initializing a pie chart', () => {
+    hooks.useHouseholdChartsQuery.mockReturnValue(query({
+      ...chart,
+      categories: [],
+      summary: { expense: '20.00', income: '0.00', net: '-20.00' },
+    }));
+
+    const { container } = renderPage(
+      '/households/household%2Fa/charts?display=pie',
+      '/households/:householdId/charts',
+      createElement(HouseholdChartsPage),
+    );
+
+    expect(container.querySelector('[data-household-pie-empty]')?.textContent).toContain('noCategoryData');
+    expect(container.querySelector('[data-household-pie-chart]')).toBeNull();
+    expect(hooks.chartSetOption).not.toHaveBeenCalled();
+  });
+
   it('renders counted household weeks with relative labels and selects an older week', async () => {
     hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([
       { anchorDate: '2025-12-22', isoWeek: 52, isoWeekYear: 2025, key: '2025-W52', period: 'week' },

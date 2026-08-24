@@ -5,6 +5,9 @@
     "line": "折线图",
     "pie": "饼图"
   },
+  "categoryRatio": "分类占比",
+  "other": "其他",
+  "noCategoryData": "暂无分类数据",
   "category": "分类统计",
   "categoryDetail": "分类详情",
   "categoryStat": "分类统计",
