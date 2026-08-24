@@ -123,4 +123,66 @@ describe('record overview presentation', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-overview-empty-state"] button')?.click());
     expect(onEmptyAction).toHaveBeenCalledOnce();
   });
+
+  it('uses the compact load-more action and exposes its busy state', () => {
+    const onLoadMore = vi.fn();
+    const container = render(createElement(RecordOverviewPresentation, {
+      groups: [{
+        dateLabel: 'July 30',
+        key: '2026-07-30',
+        records: [{
+          amount: '-8.00',
+          iconName: 'food',
+          id: 1,
+          primary: 'Lunch',
+        }],
+      }],
+      hasMore: true,
+      header: headerProps,
+      isLoadingMore: true,
+      loadMoreLabel: 'Load more',
+      loadMoreTestId: 'record-overview-load-more',
+      onLoadMore,
+      state: 'ready',
+    }));
+    const button = container.querySelector<HTMLButtonElement>('[data-testid="record-overview-load-more"]');
+
+    expect(button?.disabled).toBe(true);
+    expect(button?.getAttribute('aria-busy')).toBe('true');
+    expect(button?.classList).toContain('h-12');
+    expect(button?.classList).toContain('w-full');
+    expect(button?.classList).toContain('rounded-[16px]');
+    expect(button?.classList).toContain('text-[13px]');
+    expect(button?.classList).toContain('shadow-ww-xs');
+    expect(button?.classList).not.toContain('mx-3');
+    expect(button?.textContent).toMatch(/加载中|Loading/);
+    act(() => button?.click());
+    expect(onLoadMore).not.toHaveBeenCalled();
+  });
+
+  it('keeps the load-more action disabled when no further page exists', () => {
+    const container = render(createElement(RecordOverviewPresentation, {
+      groups: [{
+        dateLabel: 'July 30',
+        key: '2026-07-30',
+        records: [{
+          amount: '-8.00',
+          iconName: 'food',
+          id: 1,
+          primary: 'Lunch',
+        }],
+      }],
+      hasMore: false,
+      header: headerProps,
+      loadMoreLabel: 'Load more',
+      loadMoreTestId: 'record-overview-load-more',
+      state: 'ready',
+    }));
+    const button = container.querySelector<HTMLButtonElement>('[data-testid="record-overview-load-more"]');
+
+    expect(button).not.toBeNull();
+    expect(button?.disabled).toBe(true);
+    expect(button?.getAttribute('aria-busy')).toBeNull();
+    expect(button?.textContent).toBe('Load more');
+  });
 });

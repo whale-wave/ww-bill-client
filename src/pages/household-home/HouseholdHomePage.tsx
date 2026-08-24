@@ -184,6 +184,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
           titleIcon: <Users size={15} />,
           titleAlignment: 'start',
         }}
+        hasMore={Boolean(recordsQuery.hasNextPage)}
         onRetry={() => void recordsQuery.refetch()}
         isLoadingMore={recordsQuery.isFetchingNextPage}
         loadMoreLabel={t('records.loadMore')}

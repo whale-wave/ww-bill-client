@@ -4,7 +4,7 @@ import type { RecordOverviewListGroup } from './RecordOverviewList';
 import { Button, ErrorBlock } from 'antd-mobile';
 import { Plus } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
-import { DesignIcon, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
+import { AppButton, DesignIcon, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
 import { RecordOverviewHeader } from './RecordOverviewHeader';
 import { RecordOverviewList } from './RecordOverviewList';
 
@@ -17,6 +17,7 @@ export interface RecordOverviewPresentationProps {
   errorDescription?: ReactNode;
   errorTitle?: ReactNode;
   groups: RecordOverviewListGroup[];
+  hasMore?: boolean;
   header: RecordOverviewHeaderProps;
   isLoadingMore?: boolean;
   loadMoreLabel?: ReactNode;
@@ -36,6 +37,7 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
   errorDescription,
   errorTitle,
   groups,
+  hasMore,
   header,
   isLoadingMore = false,
   loadMoreLabel,
@@ -48,6 +50,9 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
   state,
 }) => {
   const { t } = useTranslation('common');
+  const canLoadMore = hasMore ?? onLoadMore !== undefined;
+  const shouldShowLoadMore = loadMoreLabel !== undefined
+    && (hasMore !== undefined || onLoadMore !== undefined);
   return (
     <>
       <RecordOverviewHeader {...header} />
@@ -93,15 +98,19 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
         {state === 'ready' && groups.length > 0 && (
           <>
             <RecordOverviewList groups={groups} renderCategoryIcon={renderCategoryIcon} variant="overview" />
-            {onLoadMore && (
-              <Button
-                className="mx-3 mt-3"
+            {shouldShowLoadMore && (
+              <AppButton
+                className="mt-3 h-12 rounded-[16px] text-[13px] shadow-ww-xs"
                 data-testid={loadMoreTestId}
+                disabled={isLoadingMore || !canLoadMore}
+                fullWidth
                 loading={isLoadingMore}
+                loadingLabel={t('nav.loading')}
                 onClick={onLoadMore}
+                variant="secondary"
               >
                 {loadMoreLabel}
-              </Button>
+              </AppButton>
             )}
             <div
               aria-hidden="true"
