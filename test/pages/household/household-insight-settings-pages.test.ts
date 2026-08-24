@@ -703,6 +703,40 @@ describe('household budget and charts', () => {
     });
   });
 
+  it.each([
+    ['', 'line'],
+    ['?display=line', 'line'],
+    ['?display=pie', 'pie'],
+    ['?display=unknown', 'line'],
+    ['?display=line&display=pie', 'line'],
+  ] as const)('resolves household chart display %s to %s', (search, display) => {
+    const { container } = renderPage(
+      `/households/household%2Fa/charts${search}`,
+      '/households/:householdId/charts',
+      createElement(HouseholdChartsPage),
+    );
+
+    expect(container.querySelector(`[data-chart-display-option="${display}"]`)?.getAttribute('aria-pressed')).toBe('true');
+    expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
+      params: expect.objectContaining({ filters: expect.objectContaining({ display }) }),
+    }));
+  });
+
+  it('changes only the household chart display query parameter', async () => {
+    const { container, router } = renderPage(
+      '/households/household%2Fa/charts?amount=sub&range=month&date=2026-07-01',
+      '/households/:householdId/charts',
+      createElement(HouseholdChartsPage),
+    );
+
+    await act(async () => container.querySelector<HTMLElement>('[data-chart-display-option="pie"]')?.click());
+
+    expect(router.state.location.search).toBe('?amount=sub&range=month&date=2026-07-01&display=pie');
+    expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
+      params: expect.objectContaining({ filters: expect.objectContaining({ display: 'pie' }) }),
+    }));
+  });
+
   it('renders counted household weeks with relative labels and selects an older week', async () => {
     hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([
       { anchorDate: '2025-12-22', isoWeek: 52, isoWeekYear: 2025, key: '2025-W52', period: 'week' },

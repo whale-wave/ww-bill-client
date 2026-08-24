@@ -1,19 +1,25 @@
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import { GradientPanel, MetricGrid, PageLoadingState } from '@/shared/ui';
 import { useChartOverview } from '../model/chart-overview-context';
+import { ChartDisplaySwitch } from './ChartDisplaySwitch';
 import { ChartEmptyState } from './ChartEmptyState';
 import { LineChart } from './LineChart';
 import { PieChart } from './PieChart';
 import { RankingList } from './RankingList';
 
-export const ChartContent: FC = () => {
+interface ChartContentProps {
+  pieChart?: ReactNode;
+}
+
+export const ChartContent: FC<ChartContentProps> = ({ pieChart }) => {
   const { t } = useTranslation(['chart', 'common']);
   const {
     curTab,
     currentAmountType,
     displayMode = 'line',
+    onDisplayModeChange,
     isAmountHidden = false,
     isContentLoading = false,
     totalLabel,
@@ -25,6 +31,11 @@ export const ChartContent: FC = () => {
       className={cn('ww-tab-bar-scroll-padding min-h-0 flex flex-grow flex-col overflow-y-auto px-[18px]')}
       data-chart-display={displayMode}
     >
+      {onDisplayModeChange && (
+        <div className="flex shrink-0 justify-end pb-2" data-chart-display-toolbar>
+          <ChartDisplaySwitch value={displayMode} onChange={onDisplayModeChange} />
+        </div>
+      )}
       {isContentLoading
         ? <div className="flex min-h-[212px] items-center justify-center"><PageLoadingState compact label={t('common:nav.loading')} /></div>
         : !curTab
@@ -56,7 +67,7 @@ export const ChartContent: FC = () => {
                       ]}
                       variant="chart-summary"
                     />
-                    {displayMode === 'pie' ? <PieChart /> : <LineChart />}
+                    {displayMode === 'pie' ? pieChart ?? <PieChart /> : <LineChart />}
                   </GradientPanel>
                   <RankingList />
                 </div>

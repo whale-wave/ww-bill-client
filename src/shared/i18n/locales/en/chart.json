@@ -1,5 +1,10 @@
 {
   "title": "Charts",
+  "display": {
+    "label": "Chart display",
+    "line": "Line",
+    "pie": "Pie"
+  },
   "category": "Category Stats",
   "categoryDetail": "Category Detail",
   "categoryStat": "Category Statistics",

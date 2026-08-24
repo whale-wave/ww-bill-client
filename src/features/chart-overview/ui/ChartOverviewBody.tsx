@@ -1,10 +1,14 @@
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 import { useCallback, useLayoutEffect, useRef } from 'react';
 import { useChartOverview } from '../model/chart-overview-context';
 import { ChartContent } from './ChartContent';
 import { Top } from './Top';
 
-export const ChartOverviewBody: FC = () => {
+export interface ChartOverviewPresentationProps {
+  pieChart?: ReactNode;
+}
+
+export const ChartOverviewBody: FC<ChartOverviewPresentationProps> = ({ pieChart }) => {
   const {
     currentAmountType,
     currentMetric,
@@ -66,7 +70,7 @@ export const ChartOverviewBody: FC = () => {
           </button>
         ))}
       </div>
-      <ChartContent />
+      <ChartContent pieChart={pieChart} />
     </div>
   );
 };

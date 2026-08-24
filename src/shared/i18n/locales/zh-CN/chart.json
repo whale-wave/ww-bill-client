@@ -1,5 +1,10 @@
 {
   "title": "图表",
+  "display": {
+    "label": "图表展示方式",
+    "line": "折线图",
+    "pie": "饼图"
+  },
   "category": "分类统计",
   "categoryDetail": "分类详情",
   "categoryStat": "分类统计",

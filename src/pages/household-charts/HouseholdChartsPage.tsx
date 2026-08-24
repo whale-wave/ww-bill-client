@@ -3,6 +3,7 @@ import type { AmountType, TimeRangeCategory } from '@/entities/chart';
 import type { Household, HouseholdChartPeriodOption, HouseholdChartResult } from '@/entities/household';
 import type {
   ChartOverviewContextValue,
+  ChartOverviewDisplay,
   ChartOverviewPeriodTab,
   ChartOverviewRankingItem,
   ChartOverviewTab,
@@ -168,6 +169,7 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
   const currentTimeRangeCategory = isTimeRangeCategory(searchParams.get('range'))
     ? searchParams.get('range') as TimeRangeCategory
     : 'month';
+  const displayMode: ChartOverviewDisplay = searchParams.get('display') === 'pie' ? 'pie' : 'line';
   const metric = currentAmountType === 'sub' ? 'expense' : 'income';
   const requestedDate = searchParams.get('date');
   const periodsQuery = useHouseholdChartPeriodsQuery({
@@ -196,7 +198,7 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     params: {
       filters: {
         anchorDate: selectedOption?.anchorDate ?? '',
-        display: 'line',
+        display: displayMode,
         metric,
         period: currentTimeRangeCategory,
       },
@@ -223,6 +225,13 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     setSearchParams((previous) => {
       previous.set('amount', amountType);
       previous.delete('date');
+      return previous;
+    }, { replace: true });
+  }, [setSearchParams]);
+
+  const handleDisplayModeChange = useCallback((mode: ChartOverviewDisplay) => {
+    setSearchParams((previous) => {
+      previous.set('display', mode);
       return previous;
     }, { replace: true });
   }, [setSearchParams]);
@@ -262,7 +271,9 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     currentAmountType,
     currentTimeRangeCategory,
     curTab: currentTab,
+    displayMode,
     isContentLoading: Boolean(selectedOption) && query.isFetching,
+    onDisplayModeChange: handleDisplayModeChange,
     rankingInteraction: 'none',
     rankingTitle: t('charts.categoryRanking'),
     setCurrentAmountType,
@@ -275,6 +286,8 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     currentTab,
     currentTimeRangeCategory,
     memberRanking,
+    displayMode,
+    handleDisplayModeChange,
     setCurrentAmountType,
     setCurrentTimeRangeCategory,
     setTabActive,

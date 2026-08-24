@@ -57,6 +57,7 @@ export interface ChartOverviewContextValue {
   currentMetric?: ChartOverviewMetric;
   currentTimeRangeCategory: TimeRangeCategory;
   displayMode?: ChartOverviewDisplay;
+  onDisplayModeChange?: (mode: ChartOverviewDisplay) => void;
   isAmountHidden?: boolean;
   metricOptions?: ChartOverviewMetricOption[];
   onMetricChange?: (metric: ChartOverviewMetric) => void;
