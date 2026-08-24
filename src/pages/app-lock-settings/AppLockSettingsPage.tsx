@@ -363,11 +363,6 @@ const AppLockSettingsPage: FC = () => {
               {error}
             </p>
           )}
-          {!isSubmitting && (
-            <p className="text-center text-[12px] font-semibold text-ww-mid">
-              {t('appLock.releaseHint')}
-            </p>
-          )}
           <div className="flex w-full max-w-[360px] gap-3" aria-live="polite">
             <AppButton
               className="flex-1"

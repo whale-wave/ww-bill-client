@@ -211,11 +211,6 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
       >
         {t('appLock.recovery')}
       </button>
-      {!isSubmitting && (
-        <p className="text-[12px] font-semibold text-ww-mid">
-          {t('appLock.releaseHint')}
-        </p>
-      )}
       {isSubmitting && (
         <div aria-live="polite">
           <AppButton loading loadingLabel={t('appLock.verifying')}>
