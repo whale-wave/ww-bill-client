@@ -25,6 +25,8 @@
     "tooSimple": "Use at least 4 points and avoid simple straight-line patterns",
     "submit": "Done",
     "processing": "Saving…",
+    "verifying": "Verifying…",
+    "releaseHint": "Release to verify automatically",
     "reset": "Reset",
     "unlock": "Draw to unlock",
     "wrong": "Incorrect pattern",

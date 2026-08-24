@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import type { UserAppConfig } from '@/entities/user-app-config';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   isAppLockTemporarilyLocked,
@@ -11,7 +11,7 @@ import {
   verifyAppLockPattern,
 } from '@/entities/app-lock';
 import { useTranslation } from '@/shared/i18n';
-import { PageLoadingState } from '@/shared/ui';
+import { AppButton, PageLoadingState } from '@/shared/ui';
 
 interface AppLockGuardProps {
   children: ReactNode;
@@ -39,6 +39,7 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const patternRef = useRef<number[]>([]);
   const isSubmittingRef = useRef(false);
+  const lockVersionRef = useRef(0);
   const lockState
     = userId === undefined
       ? { failedAttempts: 0, lockedUntil: null }
@@ -50,8 +51,20 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
       ? 'missing'
       : localAppLockStorage.getCredentialStatus(userId);
   const isLocked = isAppLockTemporarilyLocked(lockState, now);
-  const isAppLockSetupRoute
+  const isAppLockEntryRoute
     = location.pathname === '/settings/app-lock' || location.pathname === '/settings';
+  const isAppLockManagementRoute = location.pathname === '/settings/app-lock';
+
+  const resetRuntimeLock = useCallback(() => {
+    lockVersionRef.current += 1;
+    patternRef.current = [];
+    isSubmittingRef.current = false;
+    setPattern([]);
+    setUnlocked(false);
+    setError('');
+    setIsSubmitting(false);
+    setNow(Date.now());
+  }, []);
 
   useEffect(() => {
     if (!isLocked)
@@ -61,18 +74,40 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
   }, [isLocked]);
 
   useEffect(() => {
+    if (!token || !config?.gestureLockEnabled)
+      return undefined;
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden')
+        resetRuntimeLock();
+    };
+    const handlePageHide = () => resetRuntimeLock();
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted)
+        resetRuntimeLock();
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pagehide', handlePageHide);
+    window.addEventListener('pageshow', handlePageShow);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pagehide', handlePageHide);
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, [config?.gestureLockEnabled, resetRuntimeLock, token]);
+
+  useEffect(() => {
     if (
       token
       && config?.gestureLockEnabled
       && !credential
-      && !isAppLockSetupRoute
+      && !isAppLockEntryRoute
     ) {
       navigate('/settings/app-lock', { replace: true });
     }
   }, [
     config?.gestureLockEnabled,
     credential,
-    isAppLockSetupRoute,
+    isAppLockEntryRoute,
     location.pathname,
     navigate,
     token,
@@ -89,7 +124,7 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
   // The settings page owns account-based recovery and must remain reachable
   // while the device lock is active. The page still requires the old pattern
   // for normal changes/disabling, or the account password for recovery.
-  if (isAppLockSetupRoute)
+  if (isAppLockManagementRoute)
     return <>{children}</>;
   if (!credential) {
     return (
@@ -108,8 +143,7 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
     setPattern(nextPattern);
   };
 
-  const handleSubmitUnlock = async () => {
-    const submittedPattern = patternRef.current;
+  const handleSubmitUnlock = async (submittedPattern: number[]) => {
     if (isLocked || isSubmittingRef.current || userId === undefined)
       return;
     if (isTooSimplePattern(submittedPattern)) {
@@ -119,8 +153,11 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
     }
     isSubmittingRef.current = true;
     setIsSubmitting(true);
+    const submittedLockVersion = lockVersionRef.current;
     try {
       const valid = await verifyAppLockPattern(submittedPattern, credential);
+      if (submittedLockVersion !== lockVersionRef.current)
+        return;
       handlePatternChange([]);
       if (valid) {
         localAppLockStorage.removeLockState(userId);
@@ -134,12 +171,16 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
       setError(nextState.lockedUntil ? t('appLock.locked') : t('appLock.wrong'));
     }
     catch {
+      if (submittedLockVersion !== lockVersionRef.current)
+        return;
       handlePatternChange([]);
       setError(t('common.loadError'));
     }
     finally {
-      isSubmittingRef.current = false;
-      setIsSubmitting(false);
+      if (submittedLockVersion === lockVersionRef.current) {
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -156,6 +197,7 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
       <PatternGesture
         disabled={isLocked || isSubmitting}
         onChange={handlePatternChange}
+        onComplete={pattern => void handleSubmitUnlock(pattern)}
         pattern={pattern}
       />
       {error && (
@@ -163,19 +205,24 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
       )}
       <button
         className="text-[12px] font-bold text-primary-deep"
+        disabled={isSubmitting}
         onClick={() => navigate('/settings/app-lock')}
         type="button"
       >
         {t('appLock.recovery')}
       </button>
-      <button
-        className="rounded-full bg-primary px-6 py-2 text-[13px] font-bold text-white disabled:opacity-50"
-        disabled={isLocked || isSubmitting}
-        onClick={() => void handleSubmitUnlock()}
-        type="button"
-      >
-        {isSubmitting ? t('appLock.processing') : t('appLock.submit')}
-      </button>
+      {!isSubmitting && (
+        <p className="text-[12px] font-semibold text-ww-mid">
+          {t('appLock.releaseHint')}
+        </p>
+      )}
+      {isSubmitting && (
+        <div aria-live="polite">
+          <AppButton loading loadingLabel={t('appLock.verifying')}>
+            {t('appLock.verifying')}
+          </AppButton>
+        </div>
+      )}
     </div>
   );
 };

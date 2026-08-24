@@ -86,6 +86,26 @@ vi.mock('@/shared/i18n', () => ({
 vi.mock('@/shared/ui', async () => {
   const { createElement } = await import('react');
   return {
+    AppButton: ({
+      children,
+      disabled,
+      loading,
+      loadingLabel,
+      ...props
+    }: {
+      children: ReactElement | string;
+      disabled?: boolean;
+      loading?: boolean;
+      loadingLabel?: string;
+    }) => createElement(
+      'button',
+      {
+        ...props,
+        'aria-busy': loading || undefined,
+        'disabled': disabled || loading,
+      },
+      loading ? loadingLabel : children,
+    ),
     FormField: () => createElement('input'),
     GradientPanel: ({ children }: { children: ReactElement | ReactElement[] }) => createElement('section', null, children),
     PageHeader: ({ title }: { title: string }) => createElement('header', null, title),
@@ -174,14 +194,12 @@ describe('app lock settings page', () => {
 
     act(() => {
       drawPattern(container);
-      buttonByText(container, 'appLock.submit')?.click();
     });
 
     expect(container.textContent).toContain('appLock.confirm');
 
     await act(async () => {
       drawPattern(container);
-      buttonByText(container, 'appLock.submit')?.click();
     });
 
     expect(mocks.saveCredential).toHaveBeenCalledWith(7, expect.any(Object));
@@ -193,17 +211,15 @@ describe('app lock settings page', () => {
     const container = renderPage();
     act(() => {
       drawPattern(container);
-      buttonByText(container, 'appLock.submit')?.click();
     });
     mocks.createCredential.mockRejectedValueOnce(new Error('unavailable'));
 
     await act(async () => {
       drawPattern(container);
-      buttonByText(container, 'appLock.submit')?.click();
     });
 
     expect(container.textContent).toContain('common.loadError');
-    expect(buttonByText(container, 'appLock.submit')?.disabled).toBe(false);
+    expect(buttonByText(container, 'appLock.reset')?.disabled).toBe(false);
     expect(mocks.patchConfig).not.toHaveBeenCalled();
     expect(mocks.refetchConfig).not.toHaveBeenCalled();
   });
@@ -212,14 +228,12 @@ describe('app lock settings page', () => {
     const container = renderPage();
     act(() => {
       drawPattern(container);
-      buttonByText(container, 'appLock.submit')?.click();
     });
     mocks.patchConfig.mockRejectedValueOnce(new Error('network error'));
     mocks.refetchConfig.mockRejectedValueOnce(new Error('network error'));
 
     await act(async () => {
       drawPattern(container);
-      buttonByText(container, 'appLock.submit')?.click();
     });
 
     expect(container.textContent).toContain('common.loadError');
@@ -241,6 +255,22 @@ describe('app lock settings page', () => {
     },
   );
 
+  it('verifies the existing pattern on release before changing it', async () => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    const container = renderPage();
+
+    act(() => buttonByText(container, 'appLock.change')?.click());
+    await act(async () => drawPattern(container));
+
+    expect(mocks.verifyPattern).toHaveBeenCalledWith(
+      [1, 2, 5, 8],
+      { digest: 'digest' },
+    );
+    expect(container.textContent).toContain('appLock.setupTitle');
+  });
+
   it('enters account recovery from an enabled app lock', () => {
     mocks.config.gestureLockEnabled = true;
     mocks.getCredential.mockReturnValue({ digest: 'digest' });
@@ -252,7 +282,7 @@ describe('app lock settings page', () => {
     expect(container.textContent).toContain('appLock.recoveryDescription');
   });
 
-  it('submits the latest swipe pattern when unlocking', async () => {
+  it('submits the latest swipe pattern immediately when unlocking', async () => {
     mocks.config.gestureLockEnabled = true;
     mocks.getCredential.mockReturnValue({ digest: 'digest' });
     mocks.getCredentialStatus.mockReturnValue('valid');
@@ -278,7 +308,6 @@ describe('app lock settings page', () => {
 
     await act(async () => {
       drawPattern(container);
-      buttonByText(container, 'appLock.submit')?.click();
     });
 
     expect(mocks.getCredential).toHaveBeenCalledWith(7);
@@ -287,5 +316,121 @@ describe('app lock settings page', () => {
       { digest: 'digest' },
     );
     expect(container.querySelector('[data-testid="protected-content"]')).not.toBeNull();
+  });
+
+  it('shows saving state and ignores repeated gestures during final setup', async () => {
+    let resolveCredential: ((credential: {
+      algorithm: 'PBKDF2-SHA256';
+      digest: string;
+      iterations: number;
+      salt: string;
+    }) => void) | undefined;
+    mocks.createCredential.mockImplementationOnce(() => new Promise((resolve) => {
+      resolveCredential = resolve;
+    }));
+    const container = renderPage();
+
+    act(() => drawPattern(container));
+    act(() => drawPattern(container));
+
+    expect(container.textContent).toContain('appLock.processing');
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(buttonByText(container, 'appLock.reset')?.disabled).toBe(true);
+    expect(mocks.createCredential).toHaveBeenCalledTimes(1);
+
+    act(() => drawPattern(container));
+    expect(mocks.createCredential).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      resolveCredential?.({
+        algorithm: 'PBKDF2-SHA256',
+        digest: 'digest',
+        iterations: 120000,
+        salt: 'salt',
+      });
+    });
+
+    expect(mocks.patchConfig).toHaveBeenCalledTimes(1);
+  });
+
+  it('locks again after the app moves to the background', async () => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    const container = document.createElement('div');
+    document.body.append(container);
+    const root = createRoot(container);
+    act(() => root.render(
+      <MemoryRouter initialEntries={['/home']}>
+        <AppLockGuard
+          config={mocks.config}
+          isError={false}
+          isLoading={false}
+          token="token"
+        >
+          <div data-testid="protected-content" />
+        </AppLockGuard>
+      </MemoryRouter>,
+    ));
+    cleanup = () => {
+      act(() => root.unmount());
+      container.remove();
+      Reflect.deleteProperty(document, 'visibilityState');
+    };
+
+    await act(async () => drawPattern(container));
+    expect(container.querySelector('[data-testid="protected-content"]')).not.toBeNull();
+
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'hidden',
+    });
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+
+    expect(container.querySelector('[data-testid="protected-content"]')).toBeNull();
+    expect(container.querySelector('[data-pattern-gesture]')).not.toBeNull();
+  });
+
+  it('does not unlock from a verification that finishes after backgrounding', async () => {
+    let resolveVerification: ((isValid: boolean) => void) | undefined;
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    mocks.verifyPattern.mockImplementationOnce(() => new Promise((resolve) => {
+      resolveVerification = resolve;
+    }));
+    const container = document.createElement('div');
+    document.body.append(container);
+    const root = createRoot(container);
+    act(() => root.render(
+      <MemoryRouter initialEntries={['/home']}>
+        <AppLockGuard
+          config={mocks.config}
+          isError={false}
+          isLoading={false}
+          token="token"
+        >
+          <div data-testid="protected-content" />
+        </AppLockGuard>
+      </MemoryRouter>,
+    ));
+    cleanup = () => {
+      act(() => root.unmount());
+      container.remove();
+      Reflect.deleteProperty(document, 'visibilityState');
+    };
+
+    act(() => drawPattern(container));
+    expect(container.textContent).toContain('appLock.verifying');
+
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'hidden',
+    });
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+    await act(async () => resolveVerification?.(true));
+
+    expect(container.querySelector('[data-testid="protected-content"]')).toBeNull();
+    expect(container.querySelector('[data-pattern-gesture]')).not.toBeNull();
   });
 });

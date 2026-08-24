@@ -5,6 +5,7 @@ import { cn } from '@/shared/lib';
 interface PatternGestureProps {
   disabled?: boolean;
   onChange: (pattern: number[]) => void;
+  onComplete?: (pattern: number[]) => void;
   pattern: number[];
 }
 
@@ -57,6 +58,7 @@ function getIntermediatePoint(fromId: number, toId: number) {
 export const PatternGesture: FC<PatternGestureProps> = ({
   disabled,
   onChange,
+  onComplete,
   pattern,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -105,6 +107,13 @@ export const PatternGesture: FC<PatternGestureProps> = ({
       event.currentTarget.releasePointerCapture(event.pointerId);
   };
 
+  const handlePointerUp = (event: ReactPointerEvent<SVGSVGElement>) => {
+    const wasDrawing = drawingRef.current;
+    stopDrawing(event);
+    if (wasDrawing && patternRef.current.length > 0)
+      onComplete?.(patternRef.current);
+  };
+
   return (
     <div
       className={cn(
@@ -119,7 +128,7 @@ export const PatternGesture: FC<PatternGestureProps> = ({
         onPointerCancel={stopDrawing}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
-        onPointerUp={stopDrawing}
+        onPointerUp={handlePointerUp}
         ref={svgRef}
         role="application"
         viewBox="0 0 100 100"

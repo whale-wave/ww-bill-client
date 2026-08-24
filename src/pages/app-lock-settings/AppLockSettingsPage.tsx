@@ -17,7 +17,7 @@ import {
   usePatchUserAppConfigMutation,
 } from '@/entities/user-app-config';
 import { useTranslation } from '@/shared/i18n';
-import { FormField, GradientPanel, PageHeader } from '@/shared/ui';
+import { AppButton, FormField, GradientPanel, PageHeader } from '@/shared/ui';
 
 type Phase = 'confirm' | 'draw' | 'idle' | 'recover' | 'verify';
 type Action = 'change' | 'disable' | null;
@@ -35,7 +35,6 @@ const AppLockSettingsPage: FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const patternRef = useRef<number[]>([]);
   const isSubmittingRef = useRef(false);
 
   useEffect(() => {
@@ -70,7 +69,6 @@ const AppLockSettingsPage: FC = () => {
         : 'draw');
 
   const handlePatternChange = (nextPattern: number[]) => {
-    patternRef.current = nextPattern;
     setPattern(nextPattern);
   };
 
@@ -103,14 +101,15 @@ const AppLockSettingsPage: FC = () => {
     }
   };
 
-  const handleSubmitPattern = async () => {
-    const submittedPattern = patternRef.current;
+  const handleSubmitPattern = async (submittedPattern: number[]) => {
     if (userId === undefined) {
       setError(t('common.loadError'));
+      handlePatternChange([]);
       return;
     }
     if (submittedPattern.length < APP_LOCK_MIN_POINTS) {
       setError(t('appLock.tooSimple'));
+      handlePatternChange([]);
       return;
     }
     if (currentPhase === 'verify') {
@@ -142,6 +141,7 @@ const AppLockSettingsPage: FC = () => {
     }
     if (isTooSimplePattern(submittedPattern)) {
       setError(t('appLock.tooSimple'));
+      handlePatternChange([]);
       return;
     }
     if (currentPhase === 'draw') {
@@ -178,6 +178,7 @@ const AppLockSettingsPage: FC = () => {
           // The visible error below still allows the user to retry.
         }
         setError(t('common.loadError'));
+        handlePatternChange([]);
         return;
       }
       try {
@@ -190,6 +191,7 @@ const AppLockSettingsPage: FC = () => {
       }
       catch {
         setError(t('common.loadError'));
+        handlePatternChange([]);
         return;
       }
       try {
@@ -199,6 +201,7 @@ const AppLockSettingsPage: FC = () => {
         // The visible error below still allows the user to retry.
       }
       setError(t('common.loadError'));
+      handlePatternChange([]);
     }
     finally {
       isSubmittingRef.current = false;
@@ -349,28 +352,40 @@ const AppLockSettingsPage: FC = () => {
               {t('appLock.setupDescription')}
             </p>
           </GradientPanel>
-          <PatternGesture pattern={pattern} onChange={handlePatternChange} />
+          <PatternGesture
+            disabled={isSubmitting}
+            onChange={handlePatternChange}
+            onComplete={pattern => void handleSubmitPattern(pattern)}
+            pattern={pattern}
+          />
           {error && (
             <p className="text-center text-[12px] font-semibold text-red-500">
               {error}
             </p>
           )}
-          <div className="flex gap-3">
-            <button
-              className="rounded-full border border-border-primary px-5 py-2 text-[13px] font-bold text-ww-mid"
+          {!isSubmitting && (
+            <p className="text-center text-[12px] font-semibold text-ww-mid">
+              {t('appLock.releaseHint')}
+            </p>
+          )}
+          <div className="flex w-full max-w-[360px] gap-3" aria-live="polite">
+            <AppButton
+              className="flex-1"
+              disabled={patchState.isLoading || isSubmitting}
               onClick={() => reset()}
-              type="button"
+              variant="secondary"
             >
               {t('appLock.reset')}
-            </button>
-            <button
-              className="rounded-full bg-primary px-5 py-2 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={patchState.isLoading || isSubmitting}
-              onClick={() => void handleSubmitPattern()}
-              type="button"
-            >
-              {isSubmitting ? t('appLock.processing') : t('appLock.submit')}
-            </button>
+            </AppButton>
+            {isSubmitting && (
+              <AppButton
+                className="flex-1"
+                loading
+                loadingLabel={t('appLock.processing')}
+              >
+                {t('appLock.processing')}
+              </AppButton>
+            )}
           </div>
         </div>
       </main>
