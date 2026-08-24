@@ -61,18 +61,22 @@ export const PatternGesture: FC<PatternGestureProps> = ({
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const drawingRef = useRef(false);
+  const patternRef = useRef(pattern);
+  patternRef.current = pattern;
 
   const appendPoint = (pointId: number) => {
-    if (disabled || pattern.includes(pointId))
+    const currentPattern = patternRef.current;
+    if (disabled || currentPattern.includes(pointId))
       return;
-    const previousPoint = pattern.at(-1);
+    const previousPoint = currentPattern.at(-1);
     const intermediatePoint = previousPoint === undefined
       ? null
       : getIntermediatePoint(previousPoint, pointId);
     const nextPattern = intermediatePoint !== null
-      && !pattern.includes(intermediatePoint)
-      ? [...pattern, intermediatePoint, pointId]
-      : [...pattern, pointId];
+      && !currentPattern.includes(intermediatePoint)
+      ? [...currentPattern, intermediatePoint, pointId]
+      : [...currentPattern, pointId];
+    patternRef.current = nextPattern;
     onChange(nextPattern);
   };
 
@@ -104,7 +108,7 @@ export const PatternGesture: FC<PatternGestureProps> = ({
   return (
     <div
       className={cn(
-        'w-[min(82vw,320px)] rounded-[28px] bg-white/70 p-5 shadow-ww',
+        'w-[min(92vw,360px)] rounded-[28px] bg-white/70 p-2 shadow-ww',
         disabled && 'opacity-60',
       )}
       data-pattern-gesture

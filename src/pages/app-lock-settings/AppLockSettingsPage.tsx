@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Toast } from 'antd-mobile';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   APP_LOCK_MIN_POINTS,
@@ -34,6 +34,22 @@ const AppLockSettingsPage: FC = () => {
   const [firstPattern, setFirstPattern] = useState<number[]>([]);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const previousHtmlOverscrollBehavior = html.style.overscrollBehavior;
+    const previousBodyOverscrollBehavior = body.style.overscrollBehavior;
+    const previousBodyTouchAction = body.style.touchAction;
+    html.style.overscrollBehavior = 'none';
+    body.style.overscrollBehavior = 'none';
+    body.style.touchAction = 'none';
+    return () => {
+      html.style.overscrollBehavior = previousHtmlOverscrollBehavior;
+      body.style.overscrollBehavior = previousBodyOverscrollBehavior;
+      body.style.touchAction = previousBodyTouchAction;
+    };
+  }, []);
   const userId = config?.user?.id;
   const credential
     = userId === undefined ? null : localAppLockStorage.getCredential(userId);
@@ -144,13 +160,13 @@ const AppLockSettingsPage: FC = () => {
 
   if (currentPhase === 'idle') {
     return (
-      <div className="page-new relative overflow-hidden">
+      <div className="page-new relative touch-none overflow-hidden overscroll-none">
         <PageHeader
           backLabel={t('common.nav.back')}
           onBack={handleBack}
           title={t('appLock.title')}
         />
-        <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-8">
+        <main className="relative z-[1] min-h-0 flex-grow overflow-hidden overscroll-none px-[18px] pb-8">
           <div className="mx-auto w-full max-w-[520px]">
             <GradientPanel
               className="mb-5 px-5 py-5"
@@ -201,13 +217,13 @@ const AppLockSettingsPage: FC = () => {
 
   if (currentPhase === 'recover') {
     return (
-      <div className="page-new relative overflow-hidden">
+      <div className="page-new relative touch-none overflow-hidden overscroll-none">
         <PageHeader
           backLabel={t('common.nav.back')}
           onBack={handleBack}
           title={t('appLock.recovery')}
         />
-        <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-8">
+        <main className="relative z-[1] min-h-0 flex-grow overflow-hidden overscroll-none px-[18px] pb-8">
           <div className="mx-auto w-full max-w-[420px]">
             <GradientPanel
               className="space-y-4 px-5 py-5"
@@ -251,13 +267,13 @@ const AppLockSettingsPage: FC = () => {
         ? t('appLock.confirm')
         : t('appLock.setupTitle');
   return (
-    <div className="page-new relative overflow-hidden">
+    <div className="page-new relative touch-none overflow-hidden overscroll-none">
       <PageHeader
         backLabel={t('common.nav.back')}
         onBack={handleBack}
         title={t('appLock.title')}
       />
-      <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-8">
+      <main className="relative z-[1] min-h-0 flex-grow overflow-hidden overscroll-none px-[18px] pb-8">
         <div className="mx-auto flex w-full max-w-[520px] flex-col items-center gap-5">
           <GradientPanel
             className="w-full px-5 py-5"
@@ -284,7 +300,7 @@ const AppLockSettingsPage: FC = () => {
               {t('appLock.reset')}
             </button>
             <button
-              className="rounded-full bg-primary px-5 py-2 text-[13px] font-bold text-white disabled:opacity-50"
+              className="rounded-full bg-primary px-5 py-2 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
               disabled={
                 patchState.isLoading || pattern.length < APP_LOCK_MIN_POINTS
               }
