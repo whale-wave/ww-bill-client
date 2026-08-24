@@ -103,8 +103,6 @@ export const PUBLIC_LEDGER_TEMPLATE_KEYS = [
 export type CreatableLedgerTemplateKey = typeof PUBLIC_LEDGER_TEMPLATE_KEYS[number];
 export type LedgerTemplateKey = 'system-default' | CreatableLedgerTemplateKey;
 
-export type LedgerIconKey = 'wallet' | 'briefcase' | 'receipt' | 'building' | 'users' | 'store';
-
 const PUBLIC_LEDGER_TEMPLATE_KEY_SET: ReadonlySet<string> = new Set(
   PUBLIC_LEDGER_TEMPLATE_KEYS,
 );

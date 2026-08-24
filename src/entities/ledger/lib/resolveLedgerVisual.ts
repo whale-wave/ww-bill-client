@@ -1,4 +1,6 @@
-import type { LedgerIconKey, LedgerTemplateKey } from '../types';
+import type { LedgerIconKey } from '../model/ledger-icon';
+import type { LedgerTemplateKey } from '../types';
+import { isLedgerIconKey } from '../model/ledger-icon';
 import { isCreatableLedgerTemplateKey, LedgerKind } from '../types';
 
 export type ResolvedLedgerVisual
@@ -6,19 +8,6 @@ export type ResolvedLedgerVisual
     | { type: 'ledger-icon'; value: LedgerIconKey }
     | { type: 'template-icon'; value: Exclude<LedgerTemplateKey, 'system-default'> }
     | { type: 'fallback'; value: 'ledger' };
-
-const LEDGER_ICON_KEYS: ReadonlySet<string> = new Set<LedgerIconKey>([
-  'wallet',
-  'briefcase',
-  'receipt',
-  'building',
-  'users',
-  'store',
-]);
-
-function isLedgerIconKey(value: string | null | undefined): value is LedgerIconKey {
-  return typeof value === 'string' && LEDGER_ICON_KEYS.has(value);
-}
 
 export function resolveLedgerVisual({
   iconKey,

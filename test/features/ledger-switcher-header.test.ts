@@ -198,6 +198,19 @@ describe('ledger title switcher', () => {
     expect(router.state.historyAction).toBe('REPLACE');
   });
 
+  it('renders a custom ledger key as its public glyph in the selector instead of the fallback image', async () => {
+    const { container } = renderSwitcher(
+      createElement(LedgerTitleSwitcher, { ledgerName: '旅行账本' }),
+      '/ledgers/ledger-a/records',
+    );
+
+    await click(container.querySelector('[data-testid="ledger-switcher-title"]'));
+
+    const customLedger = document.querySelector('[data-ledger-switcher-id="ledger-a"]');
+    expect(customLedger?.querySelector('svg')).not.toBeNull();
+    expect(customLedger?.querySelector('img')).toBeNull();
+  });
+
   it('prevents regression to fixed DesignIcon("ledger") in application source files', () => {
     const modules = import.meta.glob<string>('/src/**/*.{ts,tsx}', {
       eager: true,

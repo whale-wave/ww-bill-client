@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { LedgerIconKey, LedgerKind, LedgerTemplateKey } from '../types';
+import type { LedgerKind, LedgerTemplateKey } from '../types';
 import {
   BriefcaseBusiness,
   Building2,
@@ -7,11 +7,11 @@ import {
   Settings2,
   Store,
   UsersRound,
-  WalletCards,
 } from 'lucide-react';
 import appLogo from '@/assets/brand/whale-logo-surface.png';
 import ledgerFallbackIcon from '@/assets/icons/figma/ledger.svg';
 import { resolveLedgerVisual } from '../lib/resolveLedgerVisual';
+import { LedgerIconGlyph } from './LedgerIconGlyph';
 
 interface LedgerVisualIconProps {
   templateKey?: LedgerTemplateKey;
@@ -19,15 +19,6 @@ interface LedgerVisualIconProps {
   kind?: LedgerKind;
   className?: string;
 }
-
-const ledgerIcons: Record<LedgerIconKey, FC<{ className?: string }>> = {
-  briefcase: BriefcaseBusiness,
-  building: Building2,
-  receipt: ReceiptText,
-  store: Store,
-  users: UsersRound,
-  wallet: WalletCards,
-};
 
 const templateIcons: Record<Exclude<LedgerTemplateKey, 'system-default'>, FC<{ className?: string }>> = {
   'business': BriefcaseBusiness,
@@ -52,8 +43,9 @@ export const LedgerVisualIcon: FC<LedgerVisualIconProps> = ({
   if (visual.type === 'fallback')
     return <img alt="" className={className} src={ledgerFallbackIcon} />;
 
-  const Icon = visual.type === 'ledger-icon'
-    ? ledgerIcons[visual.value]
-    : templateIcons[visual.value];
+  if (visual.type === 'ledger-icon')
+    return <LedgerIconGlyph className={className} iconKey={visual.value} />;
+
+  const Icon = templateIcons[visual.value];
   return <Icon aria-hidden="true" className={className} />;
 };

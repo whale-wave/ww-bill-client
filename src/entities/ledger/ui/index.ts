@@ -1,6 +1,8 @@
 export { LedgerCard } from './LedgerCard';
 export { LedgerCoverCard } from './LedgerCoverCard';
 export type { LedgerCoverCardProps } from './LedgerCoverCard';
+export { LedgerIconGlyph } from './LedgerIconGlyph';
+export type { LedgerIconGlyphProps } from './LedgerIconGlyph';
 export { LedgerTemplateCard } from './LedgerTemplateCard';
 export { LedgerTemplateIcon } from './LedgerTemplateIcon';
 export { LedgerUserAvatar } from './LedgerUserAvatar';

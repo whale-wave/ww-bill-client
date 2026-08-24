@@ -2,23 +2,21 @@ import type { SettingsOverviewSection } from '@/features/workspace-settings';
 import { ErrorBlock, Toast } from 'antd-mobile';
 import {
   Archive,
-  BriefcaseBusiness,
-  Building2,
   LogOut,
   Palette,
-  ReceiptText,
   Settings2,
-  Store,
-  UsersRound,
-  WalletCards,
 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import {
+  DEFAULT_LEDGER_ICON_KEY,
+  isLedgerIconKey,
+  LEDGER_ICON_KEYS,
   LedgerCapability,
   LedgerChartDisplay,
   LedgerChartMetric,
   LedgerChartPeriod,
+  LedgerIconGlyph,
   LedgerKind,
   LedgerMemberStatus,
   LedgerRecordType,
@@ -48,17 +46,7 @@ import {
   SheetHeader,
 } from '@/shared/ui';
 
-const LEDGER_ICON_KEYS = ['wallet', 'briefcase', 'receipt', 'building', 'users', 'store'] as const;
 const LEDGER_THEME_KEYS = ['blue', 'green', 'amber', 'orange', 'indigo', 'pink'] as const;
-
-const ledgerIconMap = {
-  briefcase: BriefcaseBusiness,
-  building: Building2,
-  receipt: ReceiptText,
-  store: Store,
-  users: UsersRound,
-  wallet: WalletCards,
-} as const;
 
 const ledgerThemeClassNames: Record<typeof LEDGER_THEME_KEYS[number], string> = {
   amber: 'bg-[#f5b84b]',
@@ -555,7 +543,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
         },
       ]
     : [];
-  const LedgerPreviewIcon = ledgerIconMap[iconKey as keyof typeof ledgerIconMap] ?? WalletCards;
+  const previewIconKey = isLedgerIconKey(iconKey) ? iconKey : DEFAULT_LEDGER_ICON_KEY;
   const themePreviewClass = ledgerThemeClassNames[themeKey as typeof LEDGER_THEME_KEYS[number]] ?? 'bg-primary';
   const currentThemeClass = ledgerThemeClassNames[ledger?.themeKey as typeof LEDGER_THEME_KEYS[number]] ?? 'bg-primary';
 
@@ -623,16 +611,15 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
               <div className="mt-5">
                 <span className="block text-[11px] font-bold text-ww-mid">{t('settings.icon')}</span>
                 <select aria-hidden="true" className="sr-only" data-testid="ledger-icon" onChange={event => setIconKey(event.target.value)} tabIndex={-1} value={iconKey}>
-                  {!LEDGER_ICON_KEYS.includes(iconKey as typeof LEDGER_ICON_KEYS[number]) && <option value={iconKey}>{iconKey}</option>}
+                  {!isLedgerIconKey(iconKey) && <option value={iconKey}>{iconKey}</option>}
                   {LEDGER_ICON_KEYS.map(value => <option key={value} value={value}>{t(`settings.iconOptions.${value}`)}</option>)}
                 </select>
                 <div className="mt-2 grid grid-cols-3 gap-2">
                   {LEDGER_ICON_KEYS.map((value) => {
-                    const Icon = ledgerIconMap[value];
                     const selected = iconKey === value;
                     return (
                       <button aria-pressed={selected} className={`flex min-h-[62px] flex-col items-center justify-center gap-1 rounded-[16px] border border-solid text-[10px] font-bold transition ${selected ? 'border-primary bg-primary-light/55 text-primary-deep shadow-ww-xs' : 'border-border-primary bg-white/65 text-ww-mid'}`} key={value} onClick={() => setIconKey(value)} type="button">
-                        <Icon size={19} strokeWidth={1.8} />
+                        <LedgerIconGlyph iconKey={value} size={19} strokeWidth={1.8} />
                         {t(`settings.iconOptions.${value}`)}
                       </button>
                     );
@@ -654,7 +641,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-3 rounded-[17px] border border-solid border-border-primary bg-white/75 px-4 py-3 shadow-ww-xs">
-                <span className={`flex h-11 w-11 items-center justify-center rounded-[15px] text-white shadow-ww-xs ${themePreviewClass}`}><LedgerPreviewIcon size={21} /></span>
+                <span className={`flex h-11 w-11 items-center justify-center rounded-[15px] text-white shadow-ww-xs ${themePreviewClass}`}><LedgerIconGlyph iconKey={previewIconKey} size={21} /></span>
                 <span className="min-w-0 flex-1 truncate text-[13px] font-extrabold text-ww-ink">{name || ledger?.name}</span>
               </div>
               <AppButton className="mt-5" data-testid="ledger-basic-save" fullWidth loading={patchState.isLoading} loadingLabel={t('common.loading')} onClick={handleBasicSave}>{t('common.save')}</AppButton>
