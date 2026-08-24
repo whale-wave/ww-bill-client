@@ -58,6 +58,8 @@ const AppLockSettingsPage: FC = () => {
     setError('');
   };
 
+  const handleBack = () => navigate('/settings');
+
   const handleDisable = async () => {
     try {
       await patchConfig({ gestureLockEnabled: false });
@@ -66,7 +68,7 @@ const AppLockSettingsPage: FC = () => {
         localAppLockStorage.removeLockState(userId);
       }
       Toast.show(t('appLock.disabled'));
-      navigate(-1);
+      handleBack();
     }
     catch {
       const refreshed = await refetchConfig();
@@ -113,7 +115,7 @@ const AppLockSettingsPage: FC = () => {
     try {
       await patchConfig({ gestureLockEnabled: true });
       Toast.show(t('appLock.enabled'));
-      navigate(-1);
+      handleBack();
     }
     catch {
       const refreshed = await refetchConfig();
@@ -133,7 +135,7 @@ const AppLockSettingsPage: FC = () => {
       localAppLockStorage.removeCredential(userId);
       localAppLockStorage.removeLockState(userId);
       Toast.show(t('appLock.disabled'));
-      navigate(-1);
+      handleBack();
     }
     catch {
       setError(t('appLock.wrong'));
@@ -145,7 +147,7 @@ const AppLockSettingsPage: FC = () => {
       <div className="page-new relative overflow-hidden">
         <PageHeader
           backLabel={t('common.nav.back')}
-          onBack={() => navigate(-1)}
+          onBack={handleBack}
           title={t('appLock.title')}
         />
         <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-8">
@@ -202,7 +204,7 @@ const AppLockSettingsPage: FC = () => {
       <div className="page-new relative overflow-hidden">
         <PageHeader
           backLabel={t('common.nav.back')}
-          onBack={() => reset()}
+          onBack={handleBack}
           title={t('appLock.recovery')}
         />
         <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-8">
@@ -252,7 +254,7 @@ const AppLockSettingsPage: FC = () => {
     <div className="page-new relative overflow-hidden">
       <PageHeader
         backLabel={t('common.nav.back')}
-        onBack={() => reset()}
+        onBack={handleBack}
         title={t('appLock.title')}
       />
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-8">
