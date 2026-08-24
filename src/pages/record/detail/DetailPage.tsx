@@ -60,12 +60,13 @@ const Detail: FC = () => {
         emptyActionLabel={t('detail.emptyAction')}
         emptyDescription={t('detail.emptyDescription')}
         emptyTitle={t('detail.emptyTitle')}
-        errorDescription={t('common:api.error')}
+        errorDescription={t('detail.errorDescription')}
+        errorTitle={t('detail.errorTitle')}
         groups={groups}
         header={header}
         onEmptyAction={() => navigate(ROUTES_PATH.BOOKKEEPING.getPath())}
         onRetry={() => void query.refetch()}
-        retryLabel={t('common:button.retry')}
+        retryLabel={t('detail.errorAction')}
         renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
         state={query.isLoading ? 'loading' : query.isError ? 'error' : 'ready'}
       />

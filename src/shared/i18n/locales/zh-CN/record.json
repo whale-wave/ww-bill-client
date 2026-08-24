@@ -31,7 +31,10 @@
     "deleteWarning": "删除后数据不可恢复!",
     "emptyTitle": "这个月还没有明细",
     "emptyDescription": "记下第一笔收支，月度明细会自动整理在这里",
-    "emptyAction": "去记一笔"
+    "emptyAction": "去记一笔",
+    "errorTitle": "明细加载失败",
+    "errorDescription": "请检查网络连接后重试",
+    "errorAction": "重新加载"
   },
   "editing": {
     "title": "编辑记录"

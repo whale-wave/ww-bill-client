@@ -185,4 +185,26 @@ describe('record overview presentation', () => {
     expect(button?.getAttribute('aria-busy')).toBeNull();
     expect(button?.textContent).toBe('Load more');
   });
+
+  it('uses the shared illustrated error state and forwards retry', () => {
+    const onRetry = vi.fn();
+    const container = render(createElement(RecordOverviewPresentation, {
+      errorDescription: 'Check your connection and try again',
+      errorTitle: 'Unable to load records',
+      groups: [],
+      header: headerProps,
+      onRetry,
+      retryLabel: 'Try again',
+      state: 'error',
+    }));
+
+    const errorState = container.querySelector('[data-record-overview-state="error"]');
+    expect(errorState).not.toBeNull();
+    expect(container.querySelector('[data-testid="record-overview-error-state"]')).not.toBeNull();
+    expect(container.querySelector('[data-design-icon="tab-detail-active"]')).toBeNull();
+    expect(container.textContent).toContain('Unable to load records');
+    expect(container.textContent).toContain('Check your connection and try again');
+    act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-overview-error-state"] button')?.click());
+    expect(onRetry).toHaveBeenCalledOnce();
+  });
 });

@@ -1,6 +1,4 @@
-import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
-import dayjs from 'dayjs';
 import { Mail } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -9,8 +7,8 @@ import {
   getToolsForgetPasswordEmailVerifyCodeApi,
 } from '@/entities/auth';
 import { AuthPageShell, AuthPrimaryButton } from '@/features/auth';
+import { EmailCaptchaInput } from '@/features/email-captcha';
 import { buildResetPath, readPasswordRecoveryParams } from '@/pages/auth/forget-password/model/params';
-import { WwInputVerifyCode } from '@/pages/auth/forget-password/ui';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { FormField } from '@/shared/ui';
@@ -19,9 +17,9 @@ const ForgetPasswordVerifyCode: FC = () => {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const [captcha, setCaptcha] = useState('');
+  const [cooldownStartedAt] = useState(() => Date.now());
   const [urlSearchParams] = useSearchParams();
   const { email } = readPasswordRecoveryParams(urlSearchParams);
-  const [startTime, setStartTime] = useState<Dayjs | undefined>(() => dayjs());
   const isDisabled = useMemo(() => captcha.trim().length < 6, [captcha]);
 
   const handleBack = useCallback(() => {
@@ -30,8 +28,7 @@ const ForgetPasswordVerifyCode: FC = () => {
   }, [navigate]);
 
   const handleResend = useCallback(async () => {
-    const response = await getToolsForgetPasswordEmailApi(email, true);
-    return response.statusCode === 200;
+    return getToolsForgetPasswordEmailApi(email, false);
   }, [email]);
 
   const handleSubmit = useCallback(async () => {
@@ -62,13 +59,13 @@ const ForgetPasswordVerifyCode: FC = () => {
           prefix={<Mail size={18} strokeWidth={1.8} />}
           value={email}
         />
-        <WwInputVerifyCode
+        <EmailCaptchaInput
+          cooldownStartedAt={cooldownStartedAt}
+          email={email}
           label={t('sign.captcha')}
           onChange={setCaptcha}
           onSend={handleResend}
           placeholder={t('captcha.placeholder')}
-          setStartTime={setStartTime}
-          startTime={startTime}
           value={captcha}
         />
       </div>
