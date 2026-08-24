@@ -74,7 +74,7 @@ const AppLockSettingsPage: FC = () => {
     setError('');
   };
 
-  const handleBack = () => navigate('/settings');
+  const handleBack = () => navigate('/settings', { replace: true });
 
   const handleDisable = async () => {
     try {
@@ -95,8 +95,12 @@ const AppLockSettingsPage: FC = () => {
   };
 
   const handleSubmitPattern = async () => {
-    if (pattern.length < APP_LOCK_MIN_POINTS || userId === undefined)
+    if (userId === undefined)
       return;
+    if (pattern.length < APP_LOCK_MIN_POINTS) {
+      setError(t('appLock.tooSimple'));
+      return;
+    }
     if (currentPhase === 'verify') {
       if (!credential || !(await verifyAppLockPattern(pattern, credential))) {
         setError(t('appLock.wrong'));
@@ -301,9 +305,7 @@ const AppLockSettingsPage: FC = () => {
             </button>
             <button
               className="rounded-full bg-primary px-5 py-2 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={
-                patchState.isLoading || pattern.length < APP_LOCK_MIN_POINTS
-              }
+              disabled={patchState.isLoading}
               onClick={() => void handleSubmitPattern()}
               type="button"
             >
