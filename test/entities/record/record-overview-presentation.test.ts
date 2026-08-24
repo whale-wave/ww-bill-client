@@ -149,7 +149,10 @@ describe('record overview presentation', () => {
 
     expect(button?.disabled).toBe(true);
     expect(button?.getAttribute('aria-busy')).toBe('true');
+    expect(container.querySelector('[data-record-overview-load-more]')?.classList).toContain('py-3');
     expect(button?.classList).toContain('h-12');
+    expect(button?.classList).toContain('py-0');
+    expect(button?.classList).toContain('leading-5');
     expect(button?.classList).toContain('w-full');
     expect(button?.classList).toContain('rounded-[16px]');
     expect(button?.classList).toContain('text-[13px]');

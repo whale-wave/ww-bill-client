@@ -198,6 +198,8 @@ describe('household records', () => {
     expect(title?.parentElement?.classList).toContain('gap-2');
     expect(title?.classList).toContain('text-left');
     expect(title?.classList).toContain('truncate');
+    expect(header?.querySelector('[data-record-overview-title-row] img')).not.toBeNull();
+    expect(header?.querySelector('[data-record-overview-title-row] svg')).toBeNull();
     expect(header?.querySelector('[data-record-overview-metrics]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-more-action"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-exit-action"]')).not.toBeNull();
@@ -364,6 +366,8 @@ describe('household records', () => {
     const dateHeader = container.querySelector('[data-date-group="2026-07-21"] > header');
     expect(dateHeader?.textContent).toContain('50.00');
     expect(dateHeader?.textContent).not.toContain('20.00');
+    expect(container.querySelector('[data-record-overview-load-more]')?.classList).toContain('py-3');
+    expect(container.querySelector('[data-testid="household-records-load-more"]')?.classList).toContain('py-0');
     expect(container.querySelector('[data-testid="household-records-load-more"]')).not.toBeNull();
   });
 

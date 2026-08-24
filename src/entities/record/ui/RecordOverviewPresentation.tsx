@@ -104,18 +104,20 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
           <>
             <RecordOverviewList groups={groups} renderCategoryIcon={renderCategoryIcon} variant="overview" />
             {shouldShowLoadMore && (
-              <AppButton
-                className="mt-3 h-12 rounded-[16px] text-[13px] shadow-ww-xs"
-                data-testid={loadMoreTestId}
-                disabled={isLoadingMore || !canLoadMore}
-                fullWidth
-                loading={isLoadingMore}
-                loadingLabel={t('nav.loading')}
-                onClick={onLoadMore}
-                variant="secondary"
-              >
-                {loadMoreLabel}
-              </AppButton>
+              <div className="py-3" data-record-overview-load-more>
+                <AppButton
+                  className="h-12 rounded-[16px] py-0 text-[13px] leading-5 shadow-ww-xs"
+                  data-testid={loadMoreTestId}
+                  disabled={isLoadingMore || !canLoadMore}
+                  fullWidth
+                  loading={isLoadingMore}
+                  loadingLabel={t('nav.loading')}
+                  onClick={onLoadMore}
+                  variant="secondary"
+                >
+                  {loadMoreLabel}
+                </AppButton>
+              </div>
             )}
             <div
               aria-hidden="true"
