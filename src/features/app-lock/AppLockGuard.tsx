@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import type { UserAppConfig } from '@/entities/user-app-config';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useBlocker, useLocation, useNavigate } from 'react-router-dom';
 import {
   isAppLockTemporarilyLocked,
   isTooSimplePattern,
@@ -51,6 +51,12 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
       ? 'missing'
       : localAppLockStorage.getCredentialStatus(userId);
   const isLocked = isAppLockTemporarilyLocked(lockState, now);
+  const isAppLockActive = Boolean(token && config?.gestureLockEnabled && !unlocked);
+  const historyBlocker = useBlocker(
+    isAppLockActive
+      ? ({ historyAction }) => historyAction === 'POP'
+      : false,
+  );
   const isAppLockEntryRoute
     = location.pathname === '/settings/app-lock' || location.pathname === '/settings';
   const isAppLockManagementRoute = location.pathname === '/settings/app-lock';
@@ -65,6 +71,29 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
     setIsSubmitting(false);
     setNow(Date.now());
   }, []);
+
+  useEffect(() => {
+    if (historyBlocker.state === 'blocked')
+      historyBlocker.reset();
+  }, [historyBlocker]);
+
+  useEffect(() => {
+    if (!isAppLockActive)
+      return undefined;
+    const html = document.documentElement;
+    const body = document.body;
+    const previousHtmlOverscrollBehavior = html.style.overscrollBehavior;
+    const previousBodyOverscrollBehavior = body.style.overscrollBehavior;
+    const previousBodyTouchAction = body.style.touchAction;
+    html.style.overscrollBehavior = 'none';
+    body.style.overscrollBehavior = 'none';
+    body.style.touchAction = 'none';
+    return () => {
+      html.style.overscrollBehavior = previousHtmlOverscrollBehavior;
+      body.style.overscrollBehavior = previousBodyOverscrollBehavior;
+      body.style.touchAction = previousBodyTouchAction;
+    };
+  }, [isAppLockActive]);
 
   useEffect(() => {
     if (!isLocked)
@@ -206,7 +235,7 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
       <button
         className="text-[12px] font-bold text-primary-deep"
         disabled={isSubmitting}
-        onClick={() => navigate('/settings/app-lock')}
+        onClick={() => navigate('/settings/app-lock', { state: { recovery: true } })}
         type="button"
       >
         {t('appLock.recovery')}

@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { Toast } from 'antd-mobile';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   APP_LOCK_MIN_POINTS,
   createAppLockCredential,
@@ -21,6 +21,10 @@ import { AppButton, FormField, GradientPanel, PageHeader } from '@/shared/ui';
 
 type Phase = 'confirm' | 'draw' | 'idle' | 'recover' | 'verify';
 type Action = 'change' | 'disable' | null;
+
+interface AppLockLocationState {
+  recovery?: boolean;
+}
 
 function getErrorStatusCode(error: unknown) {
   if (typeof error !== 'object' || error === null || !('statusCode' in error))
@@ -42,12 +46,16 @@ function isSuccessStatusCode(statusCode: number | undefined) {
 }
 
 const AppLockSettingsPage: FC = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const { data: config, refetch: refetchConfig } = useGetUserAppConfigQuery();
   const { data: userInfo } = useGetUserUserInfoQuery();
   const [patchConfig, patchState] = usePatchUserAppConfigMutation();
   const { t } = useTranslation(['settings', 'common', 'user']);
-  const [phase, setPhase] = useState<Phase | null>(null);
+  const [phase, setPhase] = useState<Phase | null>(() => {
+    const state = location.state as AppLockLocationState | null;
+    return state?.recovery === true ? 'recover' : null;
+  });
   const [action, setAction] = useState<Action>(null);
   const [pattern, setPattern] = useState<number[]>([]);
   const [firstPattern, setFirstPattern] = useState<number[]>([]);

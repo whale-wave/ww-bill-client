@@ -1,7 +1,12 @@
 import type { ReactElement } from 'react';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
-import { MemoryRouter } from 'react-router-dom';
+import {
+  createMemoryRouter,
+  MemoryRouter,
+  RouterProvider,
+  useLocation,
+} from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AppLockGuard } from '@/features/app-lock';
@@ -119,13 +124,13 @@ vi.mock('@/shared/ui', async () => {
 
 let cleanup = () => {};
 
-function renderPage() {
+function renderPage(initialEntry: string | { pathname: string; state?: unknown } = '/settings/app-lock') {
   const container = document.createElement('div');
   document.body.append(container);
   const root = createRoot(container);
   act(() => root.render(createElement(
     MemoryRouter,
-    { initialEntries: ['/settings/app-lock'] },
+    { initialEntries: [initialEntry] },
     createElement(AppLockSettingsPage),
   )));
   cleanup = () => {
@@ -133,6 +138,33 @@ function renderPage() {
     container.remove();
   };
   return container;
+}
+
+function renderGuard(children: ReactElement, initialEntries = ['/home']) {
+  const container = document.createElement('div');
+  document.body.append(container);
+  const root = createRoot(container);
+  const router = createMemoryRouter([
+    {
+      path: '*',
+      element: (
+        <AppLockGuard
+          config={mocks.config}
+          isError={false}
+          isLoading={false}
+          token="token"
+        >
+          {children}
+        </AppLockGuard>
+      ),
+    },
+  ], { initialEntries });
+  act(() => root.render(<RouterProvider router={router} />));
+  cleanup = () => {
+    act(() => root.unmount());
+    container.remove();
+  };
+  return { container, router };
 }
 
 function buttonByText(container: HTMLElement, text: string) {
@@ -179,6 +211,16 @@ function drawPattern(container: HTMLElement) {
   dispatchPointer(svg, 'pointermove', 150, 150);
   dispatchPointer(svg, 'pointermove', 150, 250);
   dispatchPointer(svg, 'pointerup', 150, 250);
+}
+
+function LocationProbe() {
+  const location = useLocation();
+  const state = location.state as { recovery?: boolean } | null;
+  return createElement(
+    'output',
+    { 'data-testid': 'location-probe' },
+    `${location.pathname}:${state?.recovery === true ? 'recovery' : ''}`,
+  );
 }
 
 describe('app lock settings page', () => {
@@ -287,6 +329,20 @@ describe('app lock settings page', () => {
     act(() => buttonByText(container, 'appLock.recovery')?.click());
 
     expect(container.textContent).toContain('appLock.recoveryDescription');
+  });
+
+  it('opens account recovery immediately when entered from the lock screen', () => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    const container = renderPage({
+      pathname: '/settings/app-lock',
+      state: { recovery: true },
+    });
+
+    expect(container.textContent).toContain('appLock.recoveryDescription');
+    expect(container.textContent).not.toContain('appLock.change');
+    expect(container.textContent).not.toContain('appLock.disable');
   });
 
   it.each([
@@ -439,25 +495,7 @@ describe('app lock settings page', () => {
     mocks.config.gestureLockEnabled = true;
     mocks.getCredential.mockReturnValue({ digest: 'digest' });
     mocks.getCredentialStatus.mockReturnValue('valid');
-    const container = document.createElement('div');
-    document.body.append(container);
-    const root = createRoot(container);
-    act(() => root.render(
-      <MemoryRouter initialEntries={['/home']}>
-        <AppLockGuard
-          config={mocks.config}
-          isError={false}
-          isLoading={false}
-          token="token"
-        >
-          <div data-testid="protected-content" />
-        </AppLockGuard>
-      </MemoryRouter>,
-    ));
-    cleanup = () => {
-      act(() => root.unmount());
-      container.remove();
-    };
+    const { container } = renderGuard(<div data-testid="protected-content" />);
 
     await act(async () => {
       drawPattern(container);
@@ -469,6 +507,73 @@ describe('app lock settings page', () => {
       { digest: 'digest' },
     );
     expect(container.querySelector('[data-testid="protected-content"]')).not.toBeNull();
+  });
+
+  it('passes the recovery intent from the lock screen to settings', () => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    const { container } = renderGuard(<LocationProbe />);
+
+    act(() => buttonByText(container, 'appLock.recovery')?.click());
+
+    expect(container.querySelector('[data-testid="location-probe"]')?.textContent)
+      .toBe('/settings/app-lock:recovery');
+  });
+
+  it('cancels browser back navigation while the lock screen is active', () => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    const { router } = renderGuard(
+      <div data-testid="protected-content" />,
+      ['/previous', '/home'],
+    );
+
+    act(() => {
+      router.navigate(-1);
+    });
+
+    expect(router.state.location.pathname).toBe('/home');
+  });
+
+  it('restores touch styles after leaving the lock screen', () => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    const previousBodyTouchAction = document.body.style.touchAction;
+    const previousBodyOverscrollBehavior = document.body.style.overscrollBehavior;
+    const previousHtmlOverscrollBehavior = document.documentElement.style.overscrollBehavior;
+    renderGuard(<div data-testid="protected-content" />);
+
+    expect(document.body.style.touchAction).toBe('none');
+    expect(document.body.style.overscrollBehavior).toBe('none');
+    expect(document.documentElement.style.overscrollBehavior).toBe('none');
+
+    cleanup();
+    cleanup = () => {};
+    expect(document.body.style.touchAction).toBe(previousBodyTouchAction);
+    expect(document.body.style.overscrollBehavior).toBe(previousBodyOverscrollBehavior);
+    expect(document.documentElement.style.overscrollBehavior).toBe(previousHtmlOverscrollBehavior);
+  });
+
+  it('allows browser back navigation after the lock is unlocked', async () => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    const { container, router } = renderGuard(
+      <div data-testid="protected-content" />,
+      ['/previous', '/home'],
+    );
+
+    await act(async () => {
+      drawPattern(container);
+    });
+    act(() => {
+      router.navigate(-1);
+    });
+
+    expect(router.state.location.pathname).toBe('/previous');
   });
 
   it('shows saving state and ignores repeated gestures during final setup', async () => {
@@ -510,24 +615,10 @@ describe('app lock settings page', () => {
     mocks.config.gestureLockEnabled = true;
     mocks.getCredential.mockReturnValue({ digest: 'digest' });
     mocks.getCredentialStatus.mockReturnValue('valid');
-    const container = document.createElement('div');
-    document.body.append(container);
-    const root = createRoot(container);
-    act(() => root.render(
-      <MemoryRouter initialEntries={['/home']}>
-        <AppLockGuard
-          config={mocks.config}
-          isError={false}
-          isLoading={false}
-          token="token"
-        >
-          <div data-testid="protected-content" />
-        </AppLockGuard>
-      </MemoryRouter>,
-    ));
+    const { container } = renderGuard(<div data-testid="protected-content" />);
+    const previousCleanup = cleanup;
     cleanup = () => {
-      act(() => root.unmount());
-      container.remove();
+      previousCleanup();
       Reflect.deleteProperty(document, 'visibilityState');
     };
 
@@ -552,24 +643,10 @@ describe('app lock settings page', () => {
     mocks.verifyPattern.mockImplementationOnce(() => new Promise((resolve) => {
       resolveVerification = resolve;
     }));
-    const container = document.createElement('div');
-    document.body.append(container);
-    const root = createRoot(container);
-    act(() => root.render(
-      <MemoryRouter initialEntries={['/home']}>
-        <AppLockGuard
-          config={mocks.config}
-          isError={false}
-          isLoading={false}
-          token="token"
-        >
-          <div data-testid="protected-content" />
-        </AppLockGuard>
-      </MemoryRouter>,
-    ));
+    const { container } = renderGuard(<div data-testid="protected-content" />);
+    const previousCleanup = cleanup;
     cleanup = () => {
-      act(() => root.unmount());
-      container.remove();
+      previousCleanup();
       Reflect.deleteProperty(document, 'visibilityState');
     };
 
