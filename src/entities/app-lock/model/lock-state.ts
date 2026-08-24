@@ -14,7 +14,11 @@ export function recordAppLockFailure(
   state: AppLockLockState,
   now = Date.now(),
 ): AppLockLockState {
-  const failedAttempts = state.failedAttempts + 1;
+  const previousAttempts
+    = state.lockedUntil !== null && state.lockedUntil <= now
+      ? 0
+      : state.failedAttempts;
+  const failedAttempts = previousAttempts + 1;
   return failedAttempts >= APP_LOCK_MAX_ATTEMPTS
     ? { failedAttempts, lockedUntil: now + APP_LOCK_LOCK_DURATION_MS }
     : { failedAttempts, lockedUntil: null };

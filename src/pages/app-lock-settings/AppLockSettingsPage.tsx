@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Toast } from 'antd-mobile';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   APP_LOCK_MIN_POINTS,
@@ -23,11 +23,11 @@ type Phase = 'confirm' | 'draw' | 'idle' | 'recover' | 'verify';
 type Action = 'change' | 'disable' | null;
 
 const AppLockSettingsPage: FC = () => {
-  const { t } = useTranslation('settings');
   const navigate = useNavigate();
-  const { data: config } = useGetUserAppConfigQuery();
+  const { data: config, refetch: refetchConfig } = useGetUserAppConfigQuery();
   const { data: userInfo } = useGetUserUserInfoQuery();
   const [patchConfig, patchState] = usePatchUserAppConfigMutation();
+  const { t } = useTranslation('settings');
   const [phase, setPhase] = useState<Phase>('draw');
   const [action, setAction] = useState<Action>(null);
   const [pattern, setPattern] = useState<number[]>([]);
@@ -38,11 +38,16 @@ const AppLockSettingsPage: FC = () => {
   const credential
     = userId === undefined ? null : localAppLockStorage.getCredential(userId);
   const isEnabled = Boolean(config?.gestureLockEnabled && credential);
+  const credentialStatus
+    = userId === undefined
+      ? 'missing'
+      : localAppLockStorage.getCredentialStatus(userId);
 
-  useEffect(() => {
-    if (isEnabled && phase === 'draw')
-      setPhase('idle');
-  }, [isEnabled, phase]);
+  const currentPhase = isEnabled
+    ? 'idle'
+    : config?.gestureLockEnabled && credentialStatus === 'corrupted'
+      ? 'recover'
+      : phase;
 
   const reset = (nextPhase: Phase = isEnabled ? 'idle' : 'draw') => {
     setPhase(nextPhase);
@@ -53,7 +58,7 @@ const AppLockSettingsPage: FC = () => {
     setError('');
   };
 
-  const disable = async () => {
+  const handleDisable = async () => {
     try {
       await patchConfig({ gestureLockEnabled: false });
       if (userId !== undefined) {
@@ -64,21 +69,24 @@ const AppLockSettingsPage: FC = () => {
       navigate(-1);
     }
     catch {
+      const refreshed = await refetchConfig();
+      if (refreshed.data?.data?.gestureLockEnabled)
+        return;
       setError(t('common.loadError'));
     }
   };
 
-  const submitPattern = async () => {
+  const handleSubmitPattern = async () => {
     if (pattern.length < APP_LOCK_MIN_POINTS || userId === undefined)
       return;
-    if (phase === 'verify') {
+    if (currentPhase === 'verify') {
       if (!credential || !(await verifyAppLockPattern(pattern, credential))) {
         setError(t('appLock.wrong'));
         setPattern([]);
         return;
       }
       if (action === 'disable') {
-        await disable();
+        await handleDisable();
         return;
       }
       reset('draw');
@@ -88,7 +96,7 @@ const AppLockSettingsPage: FC = () => {
       setError(t('appLock.tooSimple'));
       return;
     }
-    if (phase === 'draw') {
+    if (currentPhase === 'draw') {
       setFirstPattern(pattern);
       setPattern([]);
       setPhase('confirm');
@@ -108,12 +116,15 @@ const AppLockSettingsPage: FC = () => {
       navigate(-1);
     }
     catch {
+      const refreshed = await refetchConfig();
+      if (refreshed.data?.data?.gestureLockEnabled)
+        return;
       localAppLockStorage.removeCredential(userId);
       setError(t('common.loadError'));
     }
   };
 
-  const recover = async () => {
+  const handleRecover = async () => {
     if (!password || !userInfo?.username || userId === undefined)
       return;
     try {
@@ -129,7 +140,7 @@ const AppLockSettingsPage: FC = () => {
     }
   };
 
-  if (phase === 'idle') {
+  if (currentPhase === 'idle') {
     return (
       <div className="page-new relative overflow-hidden">
         <PageHeader
@@ -186,7 +197,7 @@ const AppLockSettingsPage: FC = () => {
     );
   }
 
-  if (phase === 'recover') {
+  if (currentPhase === 'recover') {
     return (
       <div className="page-new relative overflow-hidden">
         <PageHeader
@@ -219,7 +230,7 @@ const AppLockSettingsPage: FC = () => {
               <button
                 className="h-12 w-full rounded-[16px] bg-primary font-bold text-white disabled:opacity-50"
                 disabled={!password}
-                onClick={() => void recover()}
+                onClick={() => void handleRecover()}
                 type="button"
               >
                 {t('appLock.submit')}
@@ -232,9 +243,9 @@ const AppLockSettingsPage: FC = () => {
   }
 
   const title
-    = phase === 'verify'
+    = currentPhase === 'verify'
       ? t('appLock.unlock')
-      : phase === 'confirm'
+      : currentPhase === 'confirm'
         ? t('appLock.confirm')
         : t('appLock.setupTitle');
   return (
@@ -275,7 +286,7 @@ const AppLockSettingsPage: FC = () => {
               disabled={
                 patchState.isLoading || pattern.length < APP_LOCK_MIN_POINTS
               }
-              onClick={() => void submitPattern()}
+              onClick={() => void handleSubmitPattern()}
               type="button"
             >
               {t('appLock.submit')}

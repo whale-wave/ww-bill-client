@@ -28,9 +28,9 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
   isLoading,
   token,
 }) => {
-  const { t } = useTranslation('settings');
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation('settings');
   const userId = config?.user?.id;
   const [pattern, setPattern] = useState<number[]>([]);
   const [unlocked, setUnlocked] = useState(false);
@@ -80,9 +80,12 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
     return <PageLoadingState label={t('common.loadError')} />;
   if (!config || !config.gestureLockEnabled || unlocked)
     return <>{children}</>;
+  // The settings page owns account-based recovery and must remain reachable
+  // while the device lock is active. The page still requires the old pattern
+  // for normal changes/disabling, or the account password for recovery.
+  if (location.pathname === '/settings/app-lock')
+    return <>{children}</>;
   if (!credential) {
-    if (location.pathname === '/settings/app-lock')
-      return <>{children}</>;
     return (
       <PageLoadingState
         label={t(
@@ -94,7 +97,7 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
     );
   }
 
-  const submit = async () => {
+  const handleSubmitUnlock = async () => {
     if (isLocked || isTooSimplePattern(pattern) || userId === undefined)
       return;
     const valid = await verifyAppLockPattern(pattern, credential);
@@ -139,7 +142,7 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
       <button
         className="rounded-full bg-primary px-6 py-2 text-[13px] font-bold text-white disabled:opacity-50"
         disabled={isLocked || pattern.length < 4}
-        onClick={() => void submit()}
+        onClick={() => void handleSubmitUnlock()}
         type="button"
       >
         {t('appLock.submit')}

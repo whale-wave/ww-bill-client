@@ -51,6 +51,29 @@ describe('app lock credential and storage', () => {
     expect(localStorage.getItem('app-lock:b:lock-state')).not.toBeNull();
   });
 
+  it('treats malformed credentials and lock state as corrupted storage', () => {
+    window.localStorage.setItem(
+      'app-lock:user-a:credential',
+      JSON.stringify({
+        algorithm: 'PBKDF2-SHA256',
+        digest: 'not-base64',
+        iterations: 120_000,
+        salt: 'not-base64',
+      }),
+    );
+    window.localStorage.setItem(
+      'app-lock:user-a:lock-state',
+      JSON.stringify({ failedAttempts: '5', lockedUntil: 'later' }),
+    );
+
+    expect(localAppLockStorage.getCredentialStatus('user-a')).toBe('corrupted');
+    expect(localAppLockStorage.getCredential('user-a')).toBeNull();
+    expect(localAppLockStorage.getLockState('user-a')).toEqual({
+      failedAttempts: 0,
+      lockedUntil: null,
+    });
+  });
+
   it('persists a temporary lock after the fifth failed attempt', () => {
     let state = { failedAttempts: 0, lockedUntil: null as number | null };
     for (let attempt = 0; attempt < APP_LOCK_MAX_ATTEMPTS; attempt++)
@@ -60,5 +83,9 @@ describe('app lock credential and storage', () => {
     expect(isAppLockTemporarilyLocked(state, state.lockedUntil! + 1)).toBe(
       false,
     );
+    expect(recordAppLockFailure(state, state.lockedUntil! + 1)).toEqual({
+      failedAttempts: 1,
+      lockedUntil: null,
+    });
   });
 });
