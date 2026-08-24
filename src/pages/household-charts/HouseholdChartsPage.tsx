@@ -1,17 +1,18 @@
 import type { FC } from 'react';
 import type { AmountType, TimeRangeCategory } from '@/entities/chart';
-import type { Household, HouseholdChartResult } from '@/entities/household';
+import type { Household, HouseholdChartPeriodOption, HouseholdChartResult } from '@/entities/household';
 import type {
   ChartOverviewContextValue,
+  ChartOverviewPeriodTab,
   ChartOverviewRankingItem,
   ChartOverviewTab,
 } from '@/features/chart-overview';
-import { useCallback, useMemo, useState } from 'react';
+import { getISOWeek, getISOWeekYear } from 'date-fns';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { useHouseholdChartsQuery } from '@/entities/household';
+import { useHouseholdChartPeriodsQuery, useHouseholdChartsQuery } from '@/entities/household';
 import { ChartOverviewContext, ChartOverviewPresentation } from '@/features/chart-overview';
 import {
-  formatCalendarDate,
   HouseholdBottomNav,
   HouseholdPageState,
   HouseholdScopeBoundary,
@@ -33,12 +34,33 @@ function toPercentage(value: number) {
   return Number.isInteger(percentage) ? String(percentage) : percentage.toFixed(2);
 }
 
-function getPeriodName(data: HouseholdChartResult) {
-  if (data.period === 'year')
-    return data.startDate.slice(0, 4);
-  if (data.period === 'month')
-    return data.startDate.slice(0, 7);
-  return `${data.startDate.slice(5)}–${data.endDate.slice(5)}`;
+function getShanghaiToday() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    day: '2-digit',
+    month: '2-digit',
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return new Date(`${values.year}-${values.month}-${values.day}T12:00:00`);
+}
+
+function getPeriodName(option: HouseholdChartPeriodOption, t: (key: string, options?: Record<string, unknown>) => string) {
+  if (option.period === 'week') {
+    const now = getShanghaiToday();
+    const currentKey = `${getISOWeekYear(now)}-W${String(getISOWeek(now)).padStart(2, '0')}`;
+    const previous = new Date(now);
+    previous.setDate(previous.getDate() - 7);
+    const previousKey = `${getISOWeekYear(previous)}-W${String(getISOWeek(previous)).padStart(2, '0')}`;
+    if (option.key === currentKey)
+      return t('tab.thisWeek');
+    if (option.key === previousKey)
+      return t('tab.lastWeek');
+    return t('tab.weekNumber', { week: option.isoWeek });
+  }
+  if (option.period === 'month')
+    return `${option.year}-${String(option.month).padStart(2, '0')}`;
+  return String(option.year);
 }
 
 function mapCategoryRanking(
@@ -76,6 +98,8 @@ function mapMemberRanking(
 function toOverviewTab(
   data: HouseholdChartResult,
   amountType: AmountType,
+  option: HouseholdChartPeriodOption,
+  name: string,
 ): ChartOverviewTab {
   const metric = amountType === 'sub' ? 'expense' : 'income';
   const amount = data.summary[metric];
@@ -91,8 +115,8 @@ function toOverviewTab(
       tooltipMode: 'aggregate',
       value: point.key,
     })),
-    key: `${data.period}-${data.anchorDate}`,
-    name: getPeriodName(data),
+    key: option.key,
+    name,
     ranking: mapCategoryRanking(data, amountType),
   };
 }
@@ -110,32 +134,58 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation('household');
+  const { t: chartT } = useTranslation('chart');
   const currentAmountType = isAmountType(searchParams.get('amount'))
     ? searchParams.get('amount') as AmountType
     : 'sub';
   const currentTimeRangeCategory = isTimeRangeCategory(searchParams.get('range'))
     ? searchParams.get('range') as TimeRangeCategory
     : 'month';
-  const [anchorDate] = useState(() => formatCalendarDate(new Date()));
   const metric = currentAmountType === 'sub' ? 'expense' : 'income';
+  const requestedDate = searchParams.get('date');
+  const periodsQuery = useHouseholdChartPeriodsQuery({
+    params: { householdId: household.id, filters: { metric, period: currentTimeRangeCategory } },
+    queryOptions: { enabled: true },
+  });
+  const selectedOption = useMemo(() => {
+    if (!periodsQuery.data.length)
+      return undefined;
+    return periodsQuery.data.find(option => option.anchorDate === requestedDate)
+      ?? periodsQuery.data[periodsQuery.data.length - 1];
+  }, [periodsQuery.data, requestedDate]);
+  const periodTabs = useMemo<ChartOverviewPeriodTab[]>(
+    () => periodsQuery.data.map(option => ({ key: option.key, name: getPeriodName(option, chartT) })),
+    [chartT, periodsQuery.data],
+  );
+  useEffect(() => {
+    if (!selectedOption || selectedOption.anchorDate === requestedDate)
+      return;
+    setSearchParams((previous) => {
+      previous.set('date', selectedOption.anchorDate);
+      return previous;
+    }, { replace: true });
+  }, [requestedDate, selectedOption, setSearchParams]);
   const query = useHouseholdChartsQuery({
     params: {
       filters: {
-        anchorDate,
+        anchorDate: selectedOption?.anchorDate ?? '',
         display: 'line',
         metric,
         period: currentTimeRangeCategory,
       },
       householdId: household.id,
     },
-    queryOptions: { enabled: true },
+    queryOptions: { enabled: Boolean(selectedOption) },
   });
 
   const currentTab = useMemo(
-    () => query.data && hasOverviewData(query.data, currentAmountType)
-      ? toOverviewTab(query.data, currentAmountType)
+    () => selectedOption
+      && query.data
+      && query.data.anchorDate === selectedOption.anchorDate
+      && hasOverviewData(query.data, currentAmountType)
+      ? toOverviewTab(query.data, currentAmountType, selectedOption!, getPeriodName(selectedOption!, chartT))
       : undefined,
-    [currentAmountType, query.data],
+    [chartT, currentAmountType, query.data, selectedOption],
   );
   const memberRanking = useMemo(
     () => query.data ? mapMemberRanking(query.data, currentAmountType) : [],
@@ -145,6 +195,7 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
   const setCurrentAmountType = useCallback((amountType: AmountType) => {
     setSearchParams((previous) => {
       previous.set('amount', amountType);
+      previous.delete('date');
       return previous;
     }, { replace: true });
   }, [setSearchParams]);
@@ -152,9 +203,26 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
   const setCurrentTimeRangeCategory = useCallback((range: TimeRangeCategory) => {
     setSearchParams((previous) => {
       previous.set('range', range);
+      previous.delete('date');
       return previous;
     }, { replace: true });
   }, [setSearchParams]);
+
+  const setTabActive = useCallback((key: string) => {
+    const option = periodsQuery.data.find(item => item.key === key);
+    if (!option)
+      return;
+    setSearchParams((previous) => {
+      previous.set('date', option.anchorDate);
+      return previous;
+    }, { replace: true });
+  }, [periodsQuery.data, setSearchParams]);
+
+  const handleRetry = useCallback(() => {
+    void periodsQuery.refetch();
+    if (selectedOption)
+      void query.refetch();
+  }, [periodsQuery, query, selectedOption]);
 
   const contextValue = useMemo<ChartOverviewContextValue>(() => ({
     additionalRankingSections: memberRanking.length
@@ -167,13 +235,14 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     currentAmountType,
     currentTimeRangeCategory,
     curTab: currentTab,
+    isContentLoading: Boolean(selectedOption) && query.isFetching,
     rankingInteraction: 'none',
     rankingTitle: t('charts.categoryRanking'),
     setCurrentAmountType,
     setCurrentTimeRangeCategory,
-    setTabActive: () => undefined,
-    tabActive: currentTab?.key ?? '',
-    tabs: currentTab ? [currentTab] : [],
+    setTabActive,
+    tabActive: selectedOption?.key ?? '',
+    tabs: periodTabs,
   }), [
     currentAmountType,
     currentTab,
@@ -181,6 +250,10 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     memberRanking,
     setCurrentAmountType,
     setCurrentTimeRangeCategory,
+    setTabActive,
+    selectedOption,
+    periodTabs,
+    query.isFetching,
     t,
   ]);
 
@@ -189,10 +262,10 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
       <HouseholdPageState
         errorDescription={t('common.loadErrorDescription')}
         errorTitle={t('common.loadError')}
-        isError={query.isError}
-        isLoading={query.isLoading}
+        isError={periodsQuery.isError || query.isError}
+        isLoading={periodsQuery.isLoading}
         loadingLabel={t('common.loading')}
-        onRetry={() => void query.refetch()}
+        onRetry={handleRetry}
         retryLabel={t('common.retry')}
       >
         <ChartOverviewContext.Provider value={contextValue}>

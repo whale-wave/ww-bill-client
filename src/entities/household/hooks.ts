@@ -6,6 +6,7 @@ import type {
 import type {
   GetHouseholdBudgetsApiParams,
   GetHouseholdCalendarApiParams,
+  GetHouseholdChartPeriodsApiParams,
   GetHouseholdChartsApiParams,
   GetHouseholdRecordsApiParams,
   HouseholdRecordFilterOptions,
@@ -25,6 +26,7 @@ import type {
   Household,
   HouseholdBudgetOverview,
   HouseholdCalendarResult,
+  HouseholdChartPeriodOption,
   HouseholdChartResult,
   HouseholdExportTask,
   HouseholdInvitation,
@@ -47,6 +49,7 @@ import {
   getFamilyRecordPolicyApi,
   getHouseholdBudgetsApi,
   getHouseholdCalendarApi,
+  getHouseholdChartPeriodsApi,
   getHouseholdChartsApi,
   getHouseholdExportTaskApi,
   getHouseholdInvitationPreviewApi,
@@ -113,6 +116,13 @@ export async function getHouseholdChartsQueryFn(
   params: GetHouseholdChartsApiParams,
 ) {
   return assertSuccessApi(await getHouseholdChartsApi(householdId, params));
+}
+
+export async function getHouseholdChartPeriodsQueryFn(
+  householdId: string,
+  params: GetHouseholdChartPeriodsApiParams,
+) {
+  return assertSuccessApi(await getHouseholdChartPeriodsApi(householdId, params));
 }
 
 export async function getHouseholdCalendarQueryFn(
@@ -481,6 +491,27 @@ export function useHouseholdChartsQuery(options: {
     ...options.queryOptions,
   });
   return { response, data: response?.data, ...rest };
+}
+
+export function useHouseholdChartPeriodsQuery(options: {
+  params: { householdId: string; filters: GetHouseholdChartPeriodsApiParams };
+  queryOptions?: Omit<
+    UseQueryOptions<
+      SuccessResponse<HouseholdChartPeriodOption[]>,
+      unknown,
+      SuccessResponse<HouseholdChartPeriodOption[]>,
+      ReturnType<typeof householdKeys.chartPeriods>
+    >,
+    'queryFn' | 'queryKey'
+  >;
+}) {
+  const { householdId, filters } = options.params;
+  const { data: response, ...rest } = useQuery({
+    queryFn: () => getHouseholdChartPeriodsQueryFn(householdId, filters),
+    queryKey: householdKeys.chartPeriods(householdId, filters),
+    ...options.queryOptions,
+  });
+  return { response, data: response?.data ?? [], ...rest };
 }
 
 export function useHouseholdCalendarQuery(options: {

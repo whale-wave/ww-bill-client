@@ -182,7 +182,11 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
           })),
           shortcutsTestId: 'household-shortcuts-card',
           testId: 'household-home-header',
-          titleIcon: <LedgerVisualIcon kind={LedgerKind.SYSTEM_DEFAULT} />,
+          titleIcon: (
+            <span className="flex h-full w-full overflow-hidden rounded-full">
+              <LedgerVisualIcon kind={LedgerKind.SYSTEM_DEFAULT} />
+            </span>
+          ),
           titleAlignment: 'start',
         }}
         hasMore={Boolean(recordsQuery.hasNextPage)}

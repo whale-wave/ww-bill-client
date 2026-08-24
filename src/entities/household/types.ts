@@ -212,6 +212,34 @@ export type HouseholdChartPeriod = 'week' | 'month' | 'year';
 export type HouseholdChartMetric = 'expense' | 'income' | 'net';
 export type HouseholdChartDisplay = 'pie' | 'line';
 
+export interface HouseholdChartWeekPeriodOption {
+  period: 'week';
+  key: string;
+  anchorDate: string;
+  isoWeekYear: number;
+  isoWeek: number;
+}
+
+export interface HouseholdChartMonthPeriodOption {
+  period: 'month';
+  key: string;
+  anchorDate: string;
+  year: number;
+  month: number;
+}
+
+export interface HouseholdChartYearPeriodOption {
+  period: 'year';
+  key: string;
+  anchorDate: string;
+  year: number;
+}
+
+export type HouseholdChartPeriodOption
+  = | HouseholdChartWeekPeriodOption
+    | HouseholdChartMonthPeriodOption
+    | HouseholdChartYearPeriodOption;
+
 export interface HouseholdChartResult {
   period: HouseholdChartPeriod;
   anchorDate: string;

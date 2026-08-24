@@ -198,7 +198,12 @@ describe('household records', () => {
     expect(title?.parentElement?.classList).toContain('gap-2');
     expect(title?.classList).toContain('text-left');
     expect(title?.classList).toContain('truncate');
-    expect(header?.querySelector('[data-record-overview-title-row] img')).not.toBeNull();
+    const householdLogo = header?.querySelector<HTMLImageElement>('[data-record-overview-title-row] img');
+    expect(householdLogo).not.toBeNull();
+    expect(householdLogo?.classList).toContain('h-full');
+    expect(householdLogo?.classList).toContain('w-full');
+    expect(householdLogo?.parentElement?.classList).toContain('overflow-hidden');
+    expect(householdLogo?.parentElement?.classList).toContain('rounded-full');
     expect(header?.querySelector('[data-record-overview-title-row] svg')).toBeNull();
     expect(header?.querySelector('[data-record-overview-metrics]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-more-action"]')).not.toBeNull();

@@ -11,6 +11,7 @@ import type {
   HouseholdChartDisplay,
   HouseholdChartMetric,
   HouseholdChartPeriod,
+  HouseholdChartPeriodOption,
   HouseholdChartResult,
   HouseholdExportFilters,
   HouseholdExportFormat,
@@ -287,6 +288,21 @@ export interface GetHouseholdChartsApiParams {
   anchorDate: string;
   metric: HouseholdChartMetric;
   display: HouseholdChartDisplay;
+}
+
+export interface GetHouseholdChartPeriodsApiParams {
+  period: HouseholdChartPeriod;
+  metric: HouseholdChartMetric;
+}
+
+export function getHouseholdChartPeriodsApi(
+  householdId: string,
+  params: GetHouseholdChartPeriodsApiParams,
+) {
+  return request.get<unknown, SuccessResponse<HouseholdChartPeriodOption[]>>(
+    `/households/${encodeURIComponent(householdId)}/charts/periods`,
+    { params },
+  );
 }
 
 export function getHouseholdChartsApi(

@@ -27,6 +27,7 @@ const hooks = vi.hoisted(() => ({
   useDissolveHouseholdMutation: vi.fn(),
   useHouseholdBudgetsQuery: vi.fn(),
   useHouseholdChartsQuery: vi.fn(),
+  useHouseholdChartPeriodsQuery: vi.fn(),
   useHouseholdMembersQuery: vi.fn(),
   useMyHouseholdQuery: vi.fn(),
   useUpdateHouseholdMutation: vi.fn(),
@@ -41,6 +42,7 @@ vi.mock('@/entities/household', async importOriginal => ({
   useDissolveHouseholdMutation: hooks.useDissolveHouseholdMutation,
   useHouseholdBudgetsQuery: hooks.useHouseholdBudgetsQuery,
   useHouseholdChartsQuery: hooks.useHouseholdChartsQuery,
+  useHouseholdChartPeriodsQuery: hooks.useHouseholdChartPeriodsQuery,
   useHouseholdMembersQuery: hooks.useHouseholdMembersQuery,
   useMyHouseholdQuery: hooks.useMyHouseholdQuery,
   useUpdateHouseholdMutation: hooks.useUpdateHouseholdMutation,
@@ -102,7 +104,7 @@ const budget: HouseholdBudgetOverview = {
 };
 
 const chart: HouseholdChartResult = {
-  anchorDate: '2026-07-21',
+  anchorDate: '2026-07-01',
   categories: [{ amount: '20.00', key: 'food', name: '餐饮', percent: 1 }],
   display: 'pie',
   endDate: '2026-07-31',
@@ -191,6 +193,13 @@ beforeEach(() => {
   hooks.useHouseholdMembersQuery.mockReturnValue({ ...query(members), data: members });
   hooks.useHouseholdBudgetsQuery.mockReturnValue(query(budget));
   hooks.useHouseholdChartsQuery.mockReturnValue(query(chart));
+  hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([{
+    anchorDate: '2026-07-01',
+    key: '2026-07',
+    month: 7,
+    period: 'month',
+    year: 2026,
+  }]));
   hooks.useUpsertHouseholdBudgetMutation.mockReturnValue([hooks.upsertBudget, { isLoading: false }]);
   hooks.useDeleteHouseholdBudgetMutation.mockReturnValue([hooks.deleteBudget, { isLoading: false }]);
   hooks.useUpdateHouseholdMutation.mockReturnValue([hooks.updateHousehold, { isLoading: false }]);
@@ -692,6 +701,38 @@ describe('household budget and charts', () => {
       },
       queryOptions: { enabled: true },
     });
+  });
+
+  it('renders counted household weeks with relative labels and selects an older week', async () => {
+    hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([
+      { anchorDate: '2026-08-10', isoWeek: 33, isoWeekYear: 2026, key: '2026-W33', period: 'week' },
+      { anchorDate: '2026-08-17', isoWeek: 34, isoWeekYear: 2026, key: '2026-W34', period: 'week' },
+      { anchorDate: '2026-08-24', isoWeek: 35, isoWeekYear: 2026, key: '2026-W35', period: 'week' },
+    ]));
+    hooks.useHouseholdChartsQuery.mockReturnValue(query({
+      ...chart,
+      anchorDate: '2026-08-24',
+      endDate: '2026-08-30',
+      period: 'week',
+      startDate: '2026-08-24',
+      timeline: Array.from({ length: 7 }, (_, index) => ({
+        expense: '1.00',
+        income: '0.00',
+        key: `2026-08-${String(24 + index).padStart(2, '0')}`,
+        label: `08-${String(24 + index).padStart(2, '0')}`,
+        net: '-1.00',
+      })),
+    }));
+    const { container, router } = renderPage('/households/household%2Fa/charts?range=week', '/households/:householdId/charts', createElement(HouseholdChartsPage));
+
+    const tabs = [...container.querySelectorAll<HTMLButtonElement>('[data-chart-period-options] > button')];
+    expect(tabs.map(tab => tab.textContent)).toEqual(['tab.weekNumber', 'tab.lastWeek', 'tab.thisWeek']);
+    expect(tabs[2]?.getAttribute('aria-pressed')).toBe('true');
+    await act(async () => tabs[0]?.click());
+    expect(router.state.location.search).toContain('date=2026-08-10');
+    expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
+      params: expect.objectContaining({ filters: expect.objectContaining({ anchorDate: '2026-08-10' }) }),
+    }));
   });
 
   it('uses the shared amount selector for the household income query', async () => {
