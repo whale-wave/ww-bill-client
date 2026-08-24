@@ -208,6 +208,11 @@ describe('household records', () => {
     expect(header?.querySelector('[data-record-overview-metrics]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-more-action"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-exit-action"]')).not.toBeNull();
+    const actionCapsule = header?.querySelector('[data-workspace-capsule]');
+    expect(actionCapsule).not.toBeNull();
+    expect(actionCapsule?.querySelector('span[aria-hidden="true"]')).not.toBeNull();
+    expect(actionCapsule?.querySelector('[data-workspace-home-icon]')).not.toBeNull();
+    expect(actionCapsule?.querySelectorAll('button')).toHaveLength(2);
     expect(header?.querySelector('[data-testid="household-search-action"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-calendar-action"]')).not.toBeNull();
     expect(header?.querySelector('[data-testid="household-record-month-picker"]')?.textContent).toContain('07');
