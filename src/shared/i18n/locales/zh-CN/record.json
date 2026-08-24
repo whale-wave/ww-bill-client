@@ -87,7 +87,10 @@
     "startDate": "开始日期",
     "endDate": "结束日期",
     "reset": "重置",
-    "confirm": "确定"
+    "confirm": "确定",
+    "archivedCategory": "{{name}}（已停用）",
+    "archivedTag": "{{name}}（已归档）",
+    "resultSummary": "{{count}} 笔 · 收入 {{income}} · 支出 {{expense}}"
   },
   "type": {
     "expense": "支出",

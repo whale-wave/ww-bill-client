@@ -94,7 +94,7 @@ const RecordDetail: FC<{
       navigate(ROUTES_PATH.HOUSEHOLD_HOME.getPath(householdId), { replace: true });
     }
     catch {
-      void Toast.show({ content: t('common:api.failed'), icon: 'fail' });
+      void Toast.show({ content: t('common:api.requestFailed'), icon: 'fail' });
     }
   };
 

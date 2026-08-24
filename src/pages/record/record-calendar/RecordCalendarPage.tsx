@@ -48,7 +48,7 @@ function RecordCalendar() {
       days={days}
       emptyDescription={t('calendar.emptyDescription')}
       emptyLabel={t('common:empty')}
-      errorDescription={t('common:api.error')}
+      errorDescription={t('common:error.loadFail')}
       groups={groups}
       month={selectMonthValue}
       onBack={onBack}
@@ -57,7 +57,7 @@ function RecordCalendar() {
       onMonthChange={onMonthChange}
       onRetry={() => void refetch()}
       onToday={onToToday}
-      retryLabel={t('common:button.retry')}
+      retryLabel={t('common:retry')}
       renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
       selectedDayLabel={t('calendar.selectedDay')}
       selectedDate={selectDateValue}

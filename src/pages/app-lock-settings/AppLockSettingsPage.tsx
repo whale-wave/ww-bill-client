@@ -22,12 +22,31 @@ import { AppButton, FormField, GradientPanel, PageHeader } from '@/shared/ui';
 type Phase = 'confirm' | 'draw' | 'idle' | 'recover' | 'verify';
 type Action = 'change' | 'disable' | null;
 
+function getErrorStatusCode(error: unknown) {
+  if (typeof error !== 'object' || error === null || !('statusCode' in error))
+    return undefined;
+  const statusCode = error.statusCode;
+  if (typeof statusCode === 'number')
+    return statusCode;
+  if (typeof statusCode === 'string')
+    return Number(statusCode);
+  return undefined;
+}
+
+function isInvalidRecoveryPassword(statusCode: number | undefined) {
+  return statusCode === 400 || statusCode === 103;
+}
+
+function isSuccessStatusCode(statusCode: number | undefined) {
+  return statusCode !== undefined && statusCode >= 200 && statusCode < 300;
+}
+
 const AppLockSettingsPage: FC = () => {
   const navigate = useNavigate();
   const { data: config, refetch: refetchConfig } = useGetUserAppConfigQuery();
   const { data: userInfo } = useGetUserUserInfoQuery();
   const [patchConfig, patchState] = usePatchUserAppConfigMutation();
-  const { t } = useTranslation('settings');
+  const { t } = useTranslation(['settings', 'common', 'user']);
   const [phase, setPhase] = useState<Phase | null>(null);
   const [action, setAction] = useState<Action>(null);
   const [pattern, setPattern] = useState<number[]>([]);
@@ -97,13 +116,13 @@ const AppLockSettingsPage: FC = () => {
       const refreshed = await refetchConfig();
       if (refreshed.data?.data?.gestureLockEnabled)
         return;
-      setError(t('common.loadError'));
+      setError(t('common:error.loadFail'));
     }
   };
 
   const handleSubmitPattern = async (submittedPattern: number[]) => {
     if (userId === undefined) {
-      setError(t('common.loadError'));
+      setError(t('common:error.loadFail'));
       handlePatternChange([]);
       return;
     }
@@ -130,7 +149,7 @@ const AppLockSettingsPage: FC = () => {
         reset('draw');
       }
       catch {
-        setError(t('common.loadError'));
+        setError(t('common:error.loadFail'));
         handlePatternChange([]);
       }
       finally {
@@ -177,7 +196,7 @@ const AppLockSettingsPage: FC = () => {
         catch {
           // The visible error below still allows the user to retry.
         }
-        setError(t('common.loadError'));
+        setError(t('common:error.loadFail'));
         handlePatternChange([]);
         return;
       }
@@ -190,7 +209,7 @@ const AppLockSettingsPage: FC = () => {
         }
       }
       catch {
-        setError(t('common.loadError'));
+        setError(t('common:error.loadFail'));
         handlePatternChange([]);
         return;
       }
@@ -200,7 +219,7 @@ const AppLockSettingsPage: FC = () => {
       catch {
         // The visible error below still allows the user to retry.
       }
-      setError(t('common.loadError'));
+      setError(t('common:error.loadFail'));
       handlePatternChange([]);
     }
     finally {
@@ -210,18 +229,50 @@ const AppLockSettingsPage: FC = () => {
   };
 
   const handleRecover = async () => {
-    if (!password || !userInfo?.username || userId === undefined)
+    if (!password || !userInfo?.username || userId === undefined || isSubmittingRef.current)
       return;
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+    setError('');
     try {
-      await login({ username: userInfo.username, password }, false);
-      await patchConfig({ gestureLockEnabled: false });
+      let loginResponse;
+      try {
+        loginResponse = await login({ username: userInfo.username, password }, false);
+      }
+      catch (error) {
+        setError(isInvalidRecoveryPassword(getErrorStatusCode(error))
+          ? t('appLock.passwordIncorrect')
+          : t('appLock.recoveryFailed'));
+        return;
+      }
+      if (!isSuccessStatusCode(loginResponse.statusCode)) {
+        setError(isInvalidRecoveryPassword(loginResponse.statusCode)
+          ? t('appLock.passwordIncorrect')
+          : t('appLock.recoveryFailed'));
+        return;
+      }
+
+      let patchResponse;
+      try {
+        patchResponse = await patchConfig({ gestureLockEnabled: false });
+      }
+      catch {
+        setError(t('appLock.recoveryFailed'));
+        return;
+      }
+      if (!isSuccessStatusCode(patchResponse?.statusCode)) {
+        setError(t('appLock.recoveryFailed'));
+        return;
+      }
+
       localAppLockStorage.removeCredential(userId);
       localAppLockStorage.removeLockState(userId);
       Toast.show(t('appLock.disabled'));
       handleBack();
     }
-    catch {
-      setError(t('appLock.wrong'));
+    finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -229,7 +280,7 @@ const AppLockSettingsPage: FC = () => {
     return (
       <div className="page-new relative touch-none overflow-hidden overscroll-none">
         <PageHeader
-          backLabel={t('common.nav.back')}
+          backLabel={t('common:nav.back')}
           onBack={handleBack}
           title={t('appLock.title')}
         />
@@ -286,7 +337,7 @@ const AppLockSettingsPage: FC = () => {
     return (
       <div className="page-new relative touch-none overflow-hidden overscroll-none">
         <PageHeader
-          backLabel={t('common.nav.back')}
+          backLabel={t('common:nav.back')}
           onBack={handleBack}
           title={t('appLock.recovery')}
         />
@@ -302,7 +353,7 @@ const AppLockSettingsPage: FC = () => {
               </p>
               <FormField
                 autoComplete="current-password"
-                label={t('password.oldPassword')}
+                label={t('user:password.oldPassword')}
                 onChange={setPassword}
                 type="password"
                 value={password}
@@ -314,11 +365,11 @@ const AppLockSettingsPage: FC = () => {
               )}
               <button
                 className="h-12 w-full rounded-[16px] bg-primary font-bold text-white disabled:opacity-50"
-                disabled={!password}
+                disabled={!password || isSubmitting}
                 onClick={() => void handleRecover()}
                 type="button"
               >
-                {t('appLock.submit')}
+                {isSubmitting ? t('appLock.verifying') : t('appLock.submit')}
               </button>
             </GradientPanel>
           </div>
@@ -336,7 +387,7 @@ const AppLockSettingsPage: FC = () => {
   return (
     <div className="page-new relative touch-none overflow-hidden overscroll-none">
       <PageHeader
-        backLabel={t('common.nav.back')}
+        backLabel={t('common:nav.back')}
         onBack={handleBack}
         title={t('appLock.title')}
       />

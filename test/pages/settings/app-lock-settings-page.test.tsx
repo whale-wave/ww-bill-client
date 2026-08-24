@@ -27,7 +27,8 @@ const mocks = vi.hoisted(() => ({
   getCredential: vi.fn(),
   getCredentialStatus: vi.fn(() => 'missing'),
   getLockState: vi.fn(() => ({ failedAttempts: 0, lockedUntil: null })),
-  patchConfig: vi.fn(async () => undefined),
+  login: vi.fn(async () => ({ statusCode: 200 })),
+  patchConfig: vi.fn(async () => ({ statusCode: 200 })),
   removeCredential: vi.fn(),
   removeLockState: vi.fn(),
   refetchConfig: vi.fn(async () => ({ data: undefined })),
@@ -61,7 +62,7 @@ vi.mock('@/entities/app-lock', async (importOriginal) => {
 });
 
 vi.mock('@/entities/auth', () => ({
-  login: vi.fn(),
+  login: mocks.login,
 }));
 
 vi.mock('@/entities/user', () => ({
@@ -106,7 +107,11 @@ vi.mock('@/shared/ui', async () => {
       },
       loading ? loadingLabel : children,
     ),
-    FormField: () => createElement('input'),
+    FormField: ({ onChange, value }: { onChange?: (value: string) => void; value?: string }) => createElement('input', {
+      onInput: (event: Event) => onChange?.((event.target as HTMLInputElement).value),
+      type: 'password',
+      value,
+    }),
     GradientPanel: ({ children }: { children: ReactElement | ReactElement[] }) => createElement('section', null, children),
     PageHeader: ({ title }: { title: string }) => createElement('header', null, title),
   };
@@ -181,6 +186,8 @@ describe('app lock settings page', () => {
     mocks.config.gestureLockEnabled = false;
     mocks.getCredential.mockReturnValue(null);
     mocks.getCredentialStatus.mockReturnValue('missing');
+    mocks.login.mockResolvedValue({ statusCode: 200 });
+    mocks.patchConfig.mockResolvedValue({ statusCode: 200 });
   });
 
   afterEach(() => {
@@ -218,7 +225,7 @@ describe('app lock settings page', () => {
       drawPattern(container);
     });
 
-    expect(container.textContent).toContain('common.loadError');
+    expect(container.textContent).toContain('common:error.loadFail');
     expect(buttonByText(container, 'appLock.reset')?.disabled).toBe(false);
     expect(mocks.patchConfig).not.toHaveBeenCalled();
     expect(mocks.refetchConfig).not.toHaveBeenCalled();
@@ -236,7 +243,7 @@ describe('app lock settings page', () => {
       drawPattern(container);
     });
 
-    expect(container.textContent).toContain('common.loadError');
+    expect(container.textContent).toContain('common:error.loadFail');
     expect(mocks.saveCredential).toHaveBeenCalledWith(7, expect.any(Object));
     expect(mocks.removeCredential).not.toHaveBeenCalled();
   });
@@ -280,6 +287,152 @@ describe('app lock settings page', () => {
     act(() => buttonByText(container, 'appLock.recovery')?.click());
 
     expect(container.textContent).toContain('appLock.recoveryDescription');
+  });
+
+  it.each([
+    { statusCode: 400, description: 'an HTTP credential error' },
+    { statusCode: 103, description: 'a legacy business credential error' },
+  ])('shows a password error for $description', async ({ statusCode }) => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    mocks.login.mockRejectedValueOnce(Object.assign(new Error('invalid credentials'), { statusCode }));
+    const container = renderPage();
+
+    act(() => buttonByText(container, 'appLock.recovery')?.click());
+    const input = container.querySelector<HTMLInputElement>('input[type="password"]');
+    if (!input)
+      throw new Error('Recovery password input is missing');
+    act(() => {
+      input.value = 'wrong-password';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => buttonByText(container, 'appLock.submit')?.click());
+
+    expect(container.textContent).toContain('appLock.passwordIncorrect');
+    expect(container.textContent).not.toContain('appLock.wrong');
+    expect(mocks.patchConfig).not.toHaveBeenCalled();
+    expect(mocks.removeCredential).not.toHaveBeenCalled();
+  });
+
+  it('handles a credential error returned as a business response', async () => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    mocks.login.mockResolvedValueOnce({ statusCode: 103 });
+    const container = renderPage();
+
+    act(() => buttonByText(container, 'appLock.recovery')?.click());
+    const input = container.querySelector<HTMLInputElement>('input[type="password"]');
+    if (!input)
+      throw new Error('Recovery password input is missing');
+    act(() => {
+      input.value = 'wrong-password';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => buttonByText(container, 'appLock.submit')?.click());
+
+    expect(container.textContent).toContain('appLock.passwordIncorrect');
+    expect(mocks.patchConfig).not.toHaveBeenCalled();
+  });
+
+  it('shows a recovery error for technical login failures', async () => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    mocks.login.mockRejectedValueOnce(Object.assign(new Error('network error'), { statusCode: 0 }));
+    const container = renderPage();
+
+    act(() => buttonByText(container, 'appLock.recovery')?.click());
+    const input = container.querySelector<HTMLInputElement>('input[type="password"]');
+    if (!input)
+      throw new Error('Recovery password input is missing');
+    act(() => {
+      input.value = 'password';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => buttonByText(container, 'appLock.submit')?.click());
+
+    expect(container.textContent).toContain('appLock.recoveryFailed');
+    expect(container.textContent).not.toContain('appLock.wrong');
+    expect(mocks.patchConfig).not.toHaveBeenCalled();
+  });
+
+  it('disables recovery submission and ignores repeated clicks while verifying', async () => {
+    let resolveLogin: ((response: { statusCode: number }) => void) | undefined;
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    mocks.login.mockImplementationOnce(() => new Promise((resolve) => {
+      resolveLogin = resolve;
+    }));
+    const container = renderPage();
+
+    act(() => buttonByText(container, 'appLock.recovery')?.click());
+    const input = container.querySelector<HTMLInputElement>('input[type="password"]');
+    if (!input)
+      throw new Error('Recovery password input is missing');
+    act(() => {
+      input.value = 'password';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    const submitButton = buttonByText(container, 'appLock.submit');
+    if (!submitButton)
+      throw new Error('Recovery submit button is missing');
+    act(() => submitButton.click());
+
+    expect(submitButton.disabled).toBe(true);
+    expect(container.textContent).toContain('appLock.verifying');
+    act(() => submitButton.click());
+    expect(mocks.login).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      resolveLogin?.({ statusCode: 400 });
+    });
+  });
+
+  it('only clears app lock state after account verification and disabling both succeed', async () => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    const container = renderPage();
+
+    act(() => buttonByText(container, 'appLock.recovery')?.click());
+    const input = container.querySelector<HTMLInputElement>('input[type="password"]');
+    if (!input)
+      throw new Error('Recovery password input is missing');
+    act(() => {
+      input.value = 'correct-password';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => buttonByText(container, 'appLock.submit')?.click());
+
+    expect(mocks.login).toHaveBeenCalledWith({ username: 'test-user', password: 'correct-password' }, false);
+    expect(mocks.patchConfig).toHaveBeenCalledWith({ gestureLockEnabled: false });
+    expect(mocks.removeCredential).toHaveBeenCalledWith(7);
+    expect(mocks.removeLockState).toHaveBeenCalledWith(7);
+  });
+
+  it('keeps app lock state when disabling fails after account verification', async () => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    mocks.patchConfig.mockRejectedValueOnce(new Error('network error'));
+    const container = renderPage();
+
+    act(() => buttonByText(container, 'appLock.recovery')?.click());
+    const input = container.querySelector<HTMLInputElement>('input[type="password"]');
+    if (!input)
+      throw new Error('Recovery password input is missing');
+    act(() => {
+      input.value = 'correct-password';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => buttonByText(container, 'appLock.submit')?.click());
+
+    expect(container.textContent).toContain('appLock.recoveryFailed');
+    expect(mocks.removeCredential).not.toHaveBeenCalled();
+    expect(mocks.removeLockState).not.toHaveBeenCalled();
   });
 
   it('submits the latest swipe pattern immediately when unlocking', async () => {

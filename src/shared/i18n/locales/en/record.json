@@ -87,7 +87,10 @@
     "startDate": "Start date",
     "endDate": "End date",
     "reset": "Reset",
-    "confirm": "Apply"
+    "confirm": "Apply",
+    "archivedCategory": "{{name}} (inactive)",
+    "archivedTag": "{{name}} (archived)",
+    "resultSummary": "{{count}} records · Income {{income}} · Expense {{expense}}"
   },
   "type": {
     "expense": "Expense",

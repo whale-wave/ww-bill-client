@@ -9,7 +9,7 @@ import { PieChart } from './PieChart';
 import { RankingList } from './RankingList';
 
 export const ChartContent: FC = () => {
-  const { t } = useTranslation('chart');
+  const { t } = useTranslation(['chart', 'common']);
   const {
     curTab,
     currentAmountType,
@@ -26,7 +26,7 @@ export const ChartContent: FC = () => {
       data-chart-display={displayMode}
     >
       {isContentLoading
-        ? <div className="flex min-h-[212px] items-center justify-center"><PageLoadingState compact label={t('loading')} /></div>
+        ? <div className="flex min-h-[212px] items-center justify-center"><PageLoadingState compact label={t('common:nav.loading')} /></div>
         : !curTab
             ? <ChartEmptyState />
             : (

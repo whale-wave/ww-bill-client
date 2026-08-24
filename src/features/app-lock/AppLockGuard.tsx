@@ -30,7 +30,7 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { t } = useTranslation('settings');
+  const { t } = useTranslation(['settings', 'common']);
   const userId = config?.userId;
   const [pattern, setPattern] = useState<number[]>([]);
   const [unlocked, setUnlocked] = useState(false);
@@ -116,9 +116,9 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
   if (!token)
     return <>{children}</>;
   if (isLoading)
-    return <PageLoadingState label={t('common.loading')} />;
+    return <PageLoadingState label={t('common:nav.loading')} />;
   if (isError)
-    return <PageLoadingState label={t('common.loadError')} />;
+    return <PageLoadingState label={t('common:error.loadFail')} />;
   if (!config || !config.gestureLockEnabled || unlocked)
     return <>{children}</>;
   // The settings page owns account-based recovery and must remain reachable
@@ -174,7 +174,7 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
       if (submittedLockVersion !== lockVersionRef.current)
         return;
       handlePatternChange([]);
-      setError(t('common.loadError'));
+      setError(t('common:error.loadFail'));
     }
     finally {
       if (submittedLockVersion === lockVersionRef.current) {

@@ -46,7 +46,7 @@ function SearchRecord() {
 
   return (
     <RecordSearchPresentation
-      errorDescription={t('common:api.error')}
+      errorDescription={t('common:error.loadFail')}
       filterCapabilities={{
         category: optionsQuery.data.capabilities.category,
         tag: optionsQuery.data.capabilities.tag,
@@ -55,12 +55,12 @@ function SearchRecord() {
         categories: optionsQuery.data.categories.map(item => ({
           id: item.id,
           label: item.status === 'ARCHIVED'
-            ? t('records.archivedCategory', { name: item.name })
+            ? t('search.archivedCategory', { name: item.name })
             : item.name,
         })),
         tags: optionsQuery.data.tags.map(item => ({
           id: item.id,
-          label: item.status === 'ARCHIVED' ? `${item.name}（已归档）` : item.name,
+          label: item.status === 'ARCHIVED' ? t('search.archivedTag', { name: item.name }) : item.name,
         })),
       }}
       filters={filters}
@@ -71,7 +71,7 @@ function SearchRecord() {
       onKeywordChange={search.setValue}
       onRetry={() => void query.refetch()}
       placeholder={t('search.placeholder')}
-      retryLabel={t('common:button.retry')}
+      retryLabel={t('common:retry')}
       state={!isActive
         ? 'idle'
         : Object.keys(validation).length > 0
@@ -82,7 +82,11 @@ function SearchRecord() {
               ? 'error'
               : 'ready'}
       summary={query.data.total > 0
-        ? `${query.data.total}笔 · ${t('common:amount.income')} ${query.data.income} · ${t('common:amount.expend')} ${query.data.expend}`
+        ? t('search.resultSummary', {
+            count: query.data.total,
+            expense: query.data.expend,
+            income: query.data.income,
+          })
         : undefined}
       title={t('search.title')}
       validateFilters={filters => validateRecordSearchState({

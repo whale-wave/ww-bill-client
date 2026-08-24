@@ -30,6 +30,8 @@
     "reset": "Reset",
     "unlock": "Draw to unlock",
     "wrong": "Incorrect pattern",
+    "passwordIncorrect": "Current password is incorrect",
+    "recoveryFailed": "Verification failed. Please try again later",
     "locked": "Too many attempts. Try again later",
     "missingCredential": "Set up a pattern for this device first",
     "corruptedCredential": "The pattern credential is corrupted. Recover with your account",
