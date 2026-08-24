@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import type { UserAppConfig } from '@/entities/user-app-config';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   isAppLockTemporarilyLocked,
@@ -36,6 +36,9 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
   const [unlocked, setUnlocked] = useState(false);
   const [error, setError] = useState('');
   const [now, setNow] = useState(() => Date.now());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const patternRef = useRef<number[]>([]);
+  const isSubmittingRef = useRef(false);
   const lockState
     = userId === undefined
       ? { failedAttempts: 0, lockedUntil: null }
@@ -100,26 +103,44 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
     );
   }
 
+  const handlePatternChange = (nextPattern: number[]) => {
+    patternRef.current = nextPattern;
+    setPattern(nextPattern);
+  };
+
   const handleSubmitUnlock = async () => {
-    if (isLocked || userId === undefined)
+    const submittedPattern = patternRef.current;
+    if (isLocked || isSubmittingRef.current || userId === undefined)
       return;
-    if (isTooSimplePattern(pattern)) {
-      setPattern([]);
+    if (isTooSimplePattern(submittedPattern)) {
+      handlePatternChange([]);
       setError(t('appLock.tooSimple'));
       return;
     }
-    const valid = await verifyAppLockPattern(pattern, credential);
-    setPattern([]);
-    if (valid) {
-      localAppLockStorage.removeLockState(userId);
-      setUnlocked(true);
-      setError('');
-      return;
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+    try {
+      const valid = await verifyAppLockPattern(submittedPattern, credential);
+      handlePatternChange([]);
+      if (valid) {
+        localAppLockStorage.removeLockState(userId);
+        setUnlocked(true);
+        setError('');
+        return;
+      }
+      const nextState = recordAppLockFailure(lockState);
+      localAppLockStorage.saveLockState(userId, nextState);
+      setNow(Date.now());
+      setError(nextState.lockedUntil ? t('appLock.locked') : t('appLock.wrong'));
     }
-    const nextState = recordAppLockFailure(lockState);
-    localAppLockStorage.saveLockState(userId, nextState);
-    setNow(Date.now());
-    setError(nextState.lockedUntil ? t('appLock.locked') : t('appLock.wrong'));
+    catch {
+      handlePatternChange([]);
+      setError(t('common.loadError'));
+    }
+    finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -133,8 +154,8 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
         </p>
       </div>
       <PatternGesture
-        disabled={isLocked}
-        onChange={setPattern}
+        disabled={isLocked || isSubmitting}
+        onChange={handlePatternChange}
         pattern={pattern}
       />
       {error && (
@@ -149,11 +170,11 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
       </button>
       <button
         className="rounded-full bg-primary px-6 py-2 text-[13px] font-bold text-white disabled:opacity-50"
-        disabled={isLocked}
+        disabled={isLocked || isSubmitting}
         onClick={() => void handleSubmitUnlock()}
         type="button"
       >
-        {t('appLock.submit')}
+        {isSubmitting ? t('appLock.processing') : t('appLock.submit')}
       </button>
     </div>
   );

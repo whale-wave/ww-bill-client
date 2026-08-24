@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Toast } from 'antd-mobile';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   APP_LOCK_MIN_POINTS,
@@ -34,6 +34,9 @@ const AppLockSettingsPage: FC = () => {
   const [firstPattern, setFirstPattern] = useState<number[]>([]);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const patternRef = useRef<number[]>([]);
+  const isSubmittingRef = useRef(false);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -66,10 +69,15 @@ const AppLockSettingsPage: FC = () => {
         ? 'recover'
         : 'draw');
 
+  const handlePatternChange = (nextPattern: number[]) => {
+    patternRef.current = nextPattern;
+    setPattern(nextPattern);
+  };
+
   const reset = (nextPhase: Phase = isEnabled ? 'idle' : 'draw') => {
     setPhase(nextPhase);
     setAction(null);
-    setPattern([]);
+    handlePatternChange([]);
     setFirstPattern([]);
     setPassword('');
     setError('');
@@ -96,56 +104,105 @@ const AppLockSettingsPage: FC = () => {
   };
 
   const handleSubmitPattern = async () => {
+    const submittedPattern = patternRef.current;
     if (userId === undefined) {
       setError(t('common.loadError'));
       return;
     }
-    if (pattern.length < APP_LOCK_MIN_POINTS) {
+    if (submittedPattern.length < APP_LOCK_MIN_POINTS) {
       setError(t('appLock.tooSimple'));
       return;
     }
     if (currentPhase === 'verify') {
-      if (!credential || !(await verifyAppLockPattern(pattern, credential))) {
-        setError(t('appLock.wrong'));
-        setPattern([]);
+      if (isSubmittingRef.current)
         return;
+      isSubmittingRef.current = true;
+      setIsSubmitting(true);
+      try {
+        if (!credential || !(await verifyAppLockPattern(submittedPattern, credential))) {
+          setError(t('appLock.wrong'));
+          handlePatternChange([]);
+          return;
+        }
+        if (action === 'disable') {
+          await handleDisable();
+          return;
+        }
+        reset('draw');
       }
-      if (action === 'disable') {
-        await handleDisable();
-        return;
+      catch {
+        setError(t('common.loadError'));
+        handlePatternChange([]);
       }
-      reset('draw');
+      finally {
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
+      }
       return;
     }
-    if (isTooSimplePattern(pattern)) {
+    if (isTooSimplePattern(submittedPattern)) {
       setError(t('appLock.tooSimple'));
       return;
     }
     if (currentPhase === 'draw') {
-      setFirstPattern(pattern);
-      setPattern([]);
+      setFirstPattern(submittedPattern);
+      handlePatternChange([]);
       setPhase('confirm');
       setError('');
       return;
     }
-    if (pattern.join('-') !== firstPattern.join('-')) {
+    if (submittedPattern.join('-') !== firstPattern.join('-')) {
       setError(t('appLock.mismatch'));
-      setPattern([]);
+      handlePatternChange([]);
       return;
     }
-    const nextCredential = await createAppLockCredential(pattern);
-    localAppLockStorage.saveCredential(userId, nextCredential);
+    if (isSubmittingRef.current)
+      return;
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+    let didAttemptPatch = false;
     try {
+      const nextCredential = await createAppLockCredential(submittedPattern);
+      localAppLockStorage.saveCredential(userId, nextCredential);
+      didAttemptPatch = true;
       await patchConfig({ gestureLockEnabled: true });
       Toast.show(t('appLock.enabled'));
       handleBack();
     }
     catch {
-      const refreshed = await refetchConfig();
-      if (refreshed.data?.data?.gestureLockEnabled)
+      if (!didAttemptPatch) {
+        try {
+          localAppLockStorage.removeCredential(userId);
+        }
+        catch {
+          // The visible error below still allows the user to retry.
+        }
+        setError(t('common.loadError'));
         return;
-      localAppLockStorage.removeCredential(userId);
+      }
+      try {
+        const refreshed = await refetchConfig();
+        if (refreshed.data?.data?.gestureLockEnabled) {
+          Toast.show(t('appLock.enabled'));
+          handleBack();
+          return;
+        }
+      }
+      catch {
+        setError(t('common.loadError'));
+        return;
+      }
+      try {
+        localAppLockStorage.removeCredential(userId);
+      }
+      catch {
+        // The visible error below still allows the user to retry.
+      }
       setError(t('common.loadError'));
+    }
+    finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -292,7 +349,7 @@ const AppLockSettingsPage: FC = () => {
               {t('appLock.setupDescription')}
             </p>
           </GradientPanel>
-          <PatternGesture pattern={pattern} onChange={setPattern} />
+          <PatternGesture pattern={pattern} onChange={handlePatternChange} />
           {error && (
             <p className="text-center text-[12px] font-semibold text-red-500">
               {error}
@@ -308,11 +365,11 @@ const AppLockSettingsPage: FC = () => {
             </button>
             <button
               className="rounded-full bg-primary px-5 py-2 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={patchState.isLoading}
+              disabled={patchState.isLoading || isSubmitting}
               onClick={() => void handleSubmitPattern()}
               type="button"
             >
-              {t('appLock.submit')}
+              {isSubmitting ? t('appLock.processing') : t('appLock.submit')}
             </button>
           </div>
         </div>

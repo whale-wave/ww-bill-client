@@ -24,6 +24,7 @@
     "mismatch": "Patterns do not match",
     "tooSimple": "Use at least 4 points and avoid simple straight-line patterns",
     "submit": "Done",
+    "processing": "Saving…",
     "reset": "Reset",
     "unlock": "Draw to unlock",
     "wrong": "Incorrect pattern",

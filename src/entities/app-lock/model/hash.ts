@@ -1,4 +1,6 @@
 import type { AppLockCredential } from './types';
+import { pbkdf2Async } from '@noble/hashes/pbkdf2.js';
+import { sha256 } from '@noble/hashes/sha2.js';
 import { serializePattern } from './pattern';
 
 export const APP_LOCK_PBKDF2_ITERATIONS = 120_000;
@@ -15,8 +17,8 @@ function fromBase64(value: string) {
   return Uint8Array.from(atob(value), char => char.charCodeAt(0));
 }
 
-function getCrypto() {
-  if (!globalThis.crypto?.subtle || !globalThis.crypto.getRandomValues)
+function getRandomCrypto() {
+  if (!globalThis.crypto?.getRandomValues)
     throw new Error('APP_LOCK_CRYPTO_UNAVAILABLE');
   return globalThis.crypto;
 }
@@ -26,26 +28,19 @@ async function deriveDigest(
   salt: Uint8Array,
   iterations: number,
 ) {
-  const crypto = getCrypto();
-  const key = await crypto.subtle.importKey(
-    'raw',
+  const digest = await pbkdf2Async(
+    sha256,
     new TextEncoder().encode(serializePattern(pattern)),
-    'PBKDF2',
-    false,
-    ['deriveBits'],
+    salt,
+    { asyncTick: 10, c: iterations, dkLen: 32 },
   );
-  const bits = await crypto.subtle.deriveBits(
-    { hash: 'SHA-256', iterations, name: 'PBKDF2', salt: salt as BufferSource },
-    key,
-    256,
-  );
-  return toBase64(new Uint8Array(bits));
+  return toBase64(digest);
 }
 
 export async function createAppLockCredential(
   pattern: number[],
 ): Promise<AppLockCredential> {
-  const crypto = getCrypto();
+  const crypto = getRandomCrypto();
   const salt = crypto.getRandomValues(new Uint8Array(16));
   return {
     algorithm: 'PBKDF2-SHA256',

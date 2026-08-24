@@ -30,6 +30,34 @@ describe('app lock credential and storage', () => {
     expect(await verifyAppLockPattern([1, 4, 5, 9], credential)).toBe(false);
   });
 
+  it('creates and verifies credentials without Web Crypto subtle', async () => {
+    const cryptoDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+    const getRandomValues = globalThis.crypto.getRandomValues.bind(globalThis.crypto);
+    Object.defineProperty(globalThis, 'crypto', {
+      configurable: true,
+      value: { getRandomValues },
+    });
+    try {
+      const credential = await createAppLockCredential([1, 4, 5, 8]);
+      expect(await verifyAppLockPattern([1, 4, 5, 8], credential)).toBe(true);
+    }
+    finally {
+      if (cryptoDescriptor)
+        Object.defineProperty(globalThis, 'crypto', cryptoDescriptor);
+    }
+  });
+
+  it('verifies credentials created by the previous Web Crypto implementation', async () => {
+    const credential = {
+      algorithm: 'PBKDF2-SHA256' as const,
+      digest: 'T6sj/u+5CISCoB2nwoTScmbOWNrwI5LIeGmKNfaDsZk=',
+      iterations: 120_000,
+      salt: 'AAECAwQFBgcICQoLDA0ODw==',
+    };
+
+    expect(await verifyAppLockPattern([1, 4, 5, 8], credential)).toBe(true);
+  });
+
   it('names credentials and lock state per user', () => {
     localAppLockStorage.saveLockState('a', {
       failedAttempts: 2,

@@ -24,6 +24,7 @@
     "mismatch": "两次手势不一致",
     "tooSimple": "请使用至少 4 个点，避免连续直线等简单手势",
     "submit": "完成",
+    "processing": "正在保存…",
     "reset": "重置",
     "unlock": "绘制手势解锁",
     "wrong": "手势不正确",
