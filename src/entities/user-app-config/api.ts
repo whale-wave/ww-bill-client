@@ -4,6 +4,7 @@ import { request } from '@/shared/api';
 
 export interface UserAppConfig {
   id: string;
+  gestureLockEnabled: boolean;
   isDisplayAmount: boolean;
   isDisplayAmountSwitch: boolean;
   isOpenSoundEffect: boolean;

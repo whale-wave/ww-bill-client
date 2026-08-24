@@ -11,6 +11,7 @@ export type SettingsIconKey
     | 'export'
     | 'help'
     | 'language'
+    | 'lock'
     | 'member'
     | 'record'
     | 'storage'

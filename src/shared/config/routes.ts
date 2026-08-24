@@ -41,6 +41,9 @@ export const ROUTES_PATH = {
   CATEGORY_SETTINGS: {
     getPath: () => '/category',
   },
+  APP_LOCK_SETTINGS: {
+    getPath: () => '/settings/app-lock',
+  },
   COMMUNITY: {
     getPath: () => '/community',
   },
