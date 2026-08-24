@@ -7,7 +7,7 @@ import type {
   ChartOverviewRankingItem,
   ChartOverviewTab,
 } from '@/features/chart-overview';
-import { getISOWeek, getISOWeekYear } from 'date-fns';
+import { getISOWeek, getISOWeekYear, getMonth, getYear, subMonths, subYears } from 'date-fns';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useHouseholdChartPeriodsQuery, useHouseholdChartsQuery } from '@/entities/household';
@@ -45,6 +45,25 @@ function getShanghaiToday() {
   return new Date(`${values.year}-${values.month}-${values.day}T12:00:00`);
 }
 
+function getMonthPeriodName(
+  option: Extract<HouseholdChartPeriodOption, { period: 'month' }>,
+  t: (key: string, options?: Record<string, unknown>) => string,
+) {
+  const now = getShanghaiToday();
+  const currentMonth = getMonth(now) + 1;
+  const currentYear = getYear(now);
+  const previousMonthDate = subMonths(now, 1);
+  const previousMonth = getMonth(previousMonthDate) + 1;
+  const previousMonthYear = getYear(previousMonthDate);
+  if (option.year === currentYear && option.month === currentMonth)
+    return t('tab.thisMonth');
+  if (option.year === previousMonthYear && option.month === previousMonth)
+    return t('tab.lastMonth');
+  if (option.year === currentYear)
+    return t('tab.monthNumber', { month: option.month });
+  return t('tab.yearMonthNumber', { year: option.year, month: option.month });
+}
+
 function getPeriodName(option: HouseholdChartPeriodOption, t: (key: string, options?: Record<string, unknown>) => string) {
   if (option.period === 'week') {
     const now = getShanghaiToday();
@@ -56,11 +75,19 @@ function getPeriodName(option: HouseholdChartPeriodOption, t: (key: string, opti
       return t('tab.thisWeek');
     if (option.key === previousKey)
       return t('tab.lastWeek');
-    return t('tab.weekNumber', { week: option.isoWeek });
+    return option.isoWeekYear === getISOWeekYear(now)
+      ? t('tab.weekNumber', { week: option.isoWeek })
+      : t('tab.yearWeekNumber', { year: option.isoWeekYear, week: option.isoWeek });
   }
   if (option.period === 'month')
-    return `${option.year}-${String(option.month).padStart(2, '0')}`;
-  return String(option.year);
+    return getMonthPeriodName(option, t);
+  const currentYear = getYear(getShanghaiToday());
+  const previousYear = getYear(subYears(getShanghaiToday(), 1));
+  if (option.year === currentYear)
+    return t('tab.thisYear');
+  if (option.year === previousYear)
+    return t('tab.lastYear');
+  return t('tab.yearNumber', { year: option.year });
 }
 
 function mapCategoryRanking(
