@@ -4,10 +4,12 @@ import { App } from '@/app/App';
 import { initResetStyle } from '@/assets/styles/reset';
 import { useAuthStore } from '@/features/auth';
 import { setAuthDeps } from '@/shared/api';
+import { cleanupImageShareCache } from '@/shared/lib';
 import '@/shared/i18n';
 import '@/assets/styles/index.scss';
 
 initResetStyle();
+void cleanupImageShareCache();
 
 if (import.meta.env.DEV) {
   void import('@locator/runtime').then(({ default: setupLocatorUI }) => {

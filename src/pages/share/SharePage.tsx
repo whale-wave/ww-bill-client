@@ -6,7 +6,7 @@ import { useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
-import { downloadCanvas } from '@/shared/lib';
+import { canvasToPngBlob, saveImageToGallery } from '@/shared/lib';
 import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
 import {
   buildShareUrl,
@@ -63,7 +63,8 @@ function Share() {
         scale: Math.max(2, window.devicePixelRatio || 1),
         useCORS: true,
       });
-      downloadCanvas(canvas);
+      const blob = await canvasToPngBlob(canvas);
+      await saveImageToGallery(blob, config.appName);
       Toast.show({ content: t('share.saved'), icon: 'success' });
     }
     catch {

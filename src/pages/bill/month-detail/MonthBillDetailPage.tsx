@@ -7,7 +7,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useMonthBillDetailQuery } from '@/entities/record';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { useTranslation } from '@/shared/i18n';
-import { saveCanvas } from '@/shared/lib';
+import {
+  canvasToPngBlob,
+  GalleryPermissionDeniedError,
+  ImageShareCancelledError,
+  saveImageToGallery,
+  shareImage,
+} from '@/shared/lib';
 import { DesignIcon, IllustratedEmptyState, PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
 import { formatMonthTitle } from './model/monthBillDetail';
 import { MonthBillDetailRenderer } from './ui/MonthBillDetailRenderer';
@@ -18,6 +24,7 @@ const EXPORT_SESSION_WATCHDOG_MS = 30_000;
 
 type ExportStatus = 'idle' | 'preparing' | 'rendering';
 type TerminalState = 'success' | 'failure' | 'timeout' | 'cancelled';
+type ExportAction = 'save' | 'share';
 
 interface ExportSnapshot {
   bill: MonthBillDetailResponse;
@@ -128,6 +135,7 @@ export default function MonthBillDetailPage() {
   const snapshotRef = useRef<ExportSnapshot>();
   const watchdogRef = useRef<number>();
   const captureStartedRef = useRef(false);
+  const exportActionRef = useRef<ExportAction>('save');
 
   useEffect(() => {
     if (!isMonthValid)
@@ -154,7 +162,7 @@ export default function MonthBillDetailPage() {
     if (terminal === 'success')
       Toast.show({ content: successMessage || t('exportSaved'), icon: 'success' });
     else if (terminal === 'failure' || terminal === 'timeout')
-      Toast.show({ content: t('exportSaveFailed'), icon: 'fail' });
+      Toast.show({ content: successMessage || t('exportSaveFailed'), icon: 'fail' });
   }, [t]);
 
   useEffect(() => () => {
@@ -220,11 +228,32 @@ export default function MonthBillDetailPage() {
       });
       if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId))
         return;
-      const saveResult = await saveCanvas(canvas, `鲸浪账本_${snapshot.bill.month}月账单`);
-      finalizeSession(sessionId, 'success', saveResult === 'shared' ? t('exportShared') : t('exportDownloaded'));
+      const blob = await canvasToPngBlob(canvas);
+      const fileName = `鲸浪账本_${snapshot.bill.month}月账单`;
+      if (exportActionRef.current === 'share') {
+        await shareImage(blob, fileName);
+        finalizeSession(sessionId, 'success', t('exportShared'));
+      }
+      else {
+        const result = await saveImageToGallery(blob, fileName);
+        finalizeSession(sessionId, 'success', result === 'gallery' ? t('exportSaved') : t('exportDownloaded'));
+      }
     }
-    catch {
-      finalizeSession(sessionId, 'failure');
+    catch (error) {
+      if (error instanceof ImageShareCancelledError) {
+        finalizeSession(sessionId, 'cancelled');
+        return;
+      }
+      console.error('[month-bill-export] image delivery failed', {
+        action: exportActionRef.current,
+        error,
+        sessionId,
+        stage: 'delivery',
+      });
+      const message = error instanceof GalleryPermissionDeniedError
+        ? t('exportPermissionDenied')
+        : exportActionRef.current === 'share' ? t('exportShareFailed') : t('exportSaveFailed');
+      finalizeSession(sessionId, 'failure', message);
     }
   }, [avatarBarrier, finalizeSession, readyCharts.size, t]);
 
@@ -256,7 +285,7 @@ export default function MonthBillDetailPage() {
       void captureExport();
   }, [avatarBarrier?.sessionId, avatarBarrier?.state, captureExport, chartsEnabled, exportMounted, readyCharts.size]);
 
-  const handleSave = useCallback(async () => {
+  const handleExport = useCallback(async (action: ExportAction) => {
     if (!query.data || exportStatus !== 'idle' || inFlightRef.current)
       return;
     const sessionId = ++nextSessionIdRef.current;
@@ -276,6 +305,7 @@ export default function MonthBillDetailPage() {
       },
     };
     activeSessionRef.current = sessionId;
+    exportActionRef.current = action;
     inFlightRef.current = true;
     snapshotRef.current = snapshot;
     terminalSessionsRef.current.delete(sessionId);
@@ -293,7 +323,8 @@ export default function MonthBillDetailPage() {
       setQrCode(dataUrl);
       setExportMounted(true);
     }
-    catch {
+    catch (error) {
+      console.error('[month-bill-export] preparation failed', { action, error, sessionId, stage: 'preparation' });
       finalizeSession(sessionId, 'failure');
     }
   }, [exportStatus, finalizeSession, query.data, t, userQuery.data]);
@@ -315,7 +346,10 @@ export default function MonthBillDetailPage() {
         {!query.isLoading && !query.isError && query.data && query.data.summary.recordCount === 0 && <IllustratedEmptyState accentIcon={<DesignIcon name="tab-add" size={20} />} actionLabel={t('emptyAction')} className="min-h-[320px]" description={t('emptyDescription')} icon={<DesignIcon name="shortcut-bill" size={46} />} onAction={() => navigate('/bookkeeping')} title={t('emptyTitle')} />}
         {!query.isLoading && !query.isError && query.data && query.data.summary.recordCount > 0 && <MonthBillDetailRenderer data={query.data} mode="screen" />}
       </main>
-      <div className="absolute bottom-0 left-0 right-0 z-20 shrink-0 bg-gradient-to-t from-[#f4fbff] via-[#f4fbff]/95 to-transparent px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-5"><WwButton className="!h-12 !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww" onClick={() => void handleSave()} size="full">{exportStatus === 'idle' ? t('saveImage') : t('savingImage')}</WwButton></div>
+      <div className="absolute bottom-0 left-0 right-0 z-20 flex shrink-0 gap-3 bg-gradient-to-t from-[#f4fbff] via-[#f4fbff]/95 to-transparent px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-5">
+        <WwButton className="!h-12 !flex-1 !rounded-[16px] !border !border-primary/25 !bg-white/90 !font-bold !text-primary-deep" onClick={() => void handleExport('share')} size="full">{exportStatus === 'idle' ? t('shareImage') : t('savingImage')}</WwButton>
+        <WwButton className="!h-12 !flex-1 !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww" onClick={() => void handleExport('save')} size="full">{exportStatus === 'idle' ? t('saveImage') : t('savingImage')}</WwButton>
+      </div>
       {exportMounted && snapshotRef.current && qrCode && <div aria-hidden="true" className="pointer-events-none fixed left-[-10000px] top-0" ref={exportRef}><MonthBillDetailRenderer chartsEnabled={chartsEnabled} data={snapshotRef.current.bill} exportCopy={snapshotRef.current.copy} exportSessionId={snapshotRef.current.sessionId} exportUser={snapshotRef.current.user} mode="export" onAvatarReady={handleAvatarReady} onChartError={handleChartError} onChartReady={handleChartReady} qrCode={qrCode} /></div>}
     </div>
   );
