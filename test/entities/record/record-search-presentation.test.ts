@@ -66,6 +66,24 @@ describe('record search presentation', () => {
     expect(container.querySelector('[data-record-list-variant="search"]')).not.toBeNull();
   });
 
+  it('keeps search results in an independently scrollable flex region', () => {
+    const container = render('ready');
+    const shell = container.querySelector('[data-record-search-page-shell]');
+    const scrollRegion = container.querySelector('main');
+
+    expect(shell?.classList).toContain('fixed');
+    expect(shell?.classList).toContain('inset-0');
+    expect(shell?.classList).toContain('h-[100dvh]');
+    expect(shell?.classList).toContain('min-h-0');
+    expect(scrollRegion?.classList).toContain('h-0');
+    expect(scrollRegion?.classList).toContain('flex-1');
+    expect(scrollRegion?.classList).toContain('min-h-0');
+    expect(scrollRegion?.classList).toContain('overflow-y-auto');
+    expect(scrollRegion?.classList).toContain('overscroll-y-contain');
+    expect(scrollRegion?.classList).toContain('touch-pan-y');
+    expect(scrollRegion?.querySelector('[data-testid="record-overview-list"]')?.parentElement?.classList).toContain('shrink-0');
+  });
+
   it('initializes custom dates from the local Shanghai calendar day', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-07-30T16:30:00.000Z'));

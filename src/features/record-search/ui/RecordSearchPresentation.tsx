@@ -166,7 +166,7 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
   };
 
   return (
-    <div className="page-new relative overflow-hidden" data-record-search-page-shell>
+    <div className="page-new fixed inset-0 h-[100dvh] min-h-0 overflow-hidden" data-record-search-page-shell>
       <RecordSearchHeader
         autoFocus={autoFocus}
         filterActive={isFilterActive}
@@ -185,7 +185,7 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
           {summary}
         </div>
       )}
-      <main className="flex min-h-0 flex-grow flex-col overflow-auto px-[18px] pb-[max(18px,env(safe-area-inset-bottom))]">
+      <main className="h-0 min-h-0 flex flex-1 touch-pan-y flex-col overflow-y-auto overscroll-y-contain px-[18px] pb-[max(18px,env(safe-area-inset-bottom))] [-webkit-overflow-scrolling:touch]">
         {state === 'loading' && (
           <div className="flex flex-grow items-center justify-center" data-record-search-state="loading">
             <SpinLoading />
@@ -218,7 +218,7 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
         )}
         {state === 'ready' && groups.length > 0 && (
           <>
-            <div className="overflow-hidden rounded-[22px] border border-solid border-white/75 bg-white/68 shadow-ww backdrop-blur-md">
+            <div className="shrink-0 overflow-hidden rounded-[22px] border border-solid border-white/75 bg-white/68 shadow-ww backdrop-blur-md">
               <RecordOverviewList groups={groups} variant="search" />
             </div>
             {onLoadMore && (
