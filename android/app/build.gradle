@@ -1,10 +1,25 @@
 apply plugin: 'com.android.application'
 
+def generatedAppId = "com.demo.www"
+def capacitorConfigFile = file('src/main/assets/capacitor.config.json')
+if (capacitorConfigFile.exists()) {
+    try {
+        def capacitorConfig = new groovy.json.JsonSlurper().parseText(capacitorConfigFile.text)
+        if (capacitorConfig.appId instanceof String && capacitorConfig.appId ==~ /[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+/) {
+            generatedAppId = capacitorConfig.appId
+        }
+    } catch (Exception ignored) {
+        logger.warn("Unable to read appId from capacitor.config.json; using ${generatedAppId}")
+    }
+}
+
 android {
     namespace = "com.easyhappy.wwbill"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.easyhappy.wwbill"
+        applicationId generatedAppId
+        resValue "string", "package_name", generatedAppId
+        resValue "string", "custom_url_scheme", generatedAppId
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
