@@ -1,4 +1,5 @@
 import type { ComponentType, FC } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { LoginGuard } from '@/features/auth';
 import { registerRoutePrefetchers } from '@/shared/lib';
@@ -42,6 +43,10 @@ const tabRouteLoaders = {
 
 registerRoutePrefetchers(tabRouteLoaders);
 
+// Android already owns the native launch screen. Keep the animated web launch
+// screen for browser and iOS visits, but avoid showing it a second time in Android.
+const isAndroidPlatform = Capacitor.getPlatform() === 'android';
+
 const router = createHashRouter([
   {
     path: '/',
@@ -49,7 +54,9 @@ const router = createHashRouter([
     children: [
       {
         index: true,
-        lazy: lazyPage(() => import('@/pages/first-screen/FirstScreenPage')),
+        ...(isAndroidPlatform
+          ? { element: <Navigate replace to="/detail" /> }
+          : { lazy: lazyPage(() => import('@/pages/first-screen/FirstScreenPage')) }),
       },
       {
         path: 'budget',
