@@ -30,6 +30,8 @@
   "saveImage": "保存图片",
   "savingImage": "正在生成图片…",
   "exportSaved": "账单图片已保存",
+  "exportShared": "请在系统分享菜单中选择“存储图像”",
+  "exportDownloaded": "账单图片已下载，请在文件中查看",
   "exportSaveFailed": "保存失败，请稍后重试",
   "detailLoadFailed": "账单详情加载失败",
   "monthOverview": "月度概览",

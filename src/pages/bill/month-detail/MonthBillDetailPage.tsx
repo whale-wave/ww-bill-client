@@ -7,7 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useMonthBillDetailQuery } from '@/entities/record';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { useTranslation } from '@/shared/i18n';
-import { downloadCanvas } from '@/shared/lib';
+import { saveCanvas } from '@/shared/lib';
 import { DesignIcon, IllustratedEmptyState, PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
 import { formatMonthTitle } from './model/monthBillDetail';
 import { MonthBillDetailRenderer } from './ui/MonthBillDetailRenderer';
@@ -134,7 +134,7 @@ export default function MonthBillDetailPage() {
       navigate('/bill', { replace: true });
   }, [isMonthValid, navigate]);
 
-  const finalizeSession = useCallback((sessionId: number, terminal: TerminalState) => {
+  const finalizeSession = useCallback((sessionId: number, terminal: TerminalState, successMessage?: string) => {
     if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId))
       return;
     terminalSessionsRef.current.add(sessionId);
@@ -152,7 +152,7 @@ export default function MonthBillDetailPage() {
     setAvatarBarrier(undefined);
     setExportStatus('idle');
     if (terminal === 'success')
-      Toast.show({ content: t('exportSaved'), icon: 'success' });
+      Toast.show({ content: successMessage || t('exportSaved'), icon: 'success' });
     else if (terminal === 'failure' || terminal === 'timeout')
       Toast.show({ content: t('exportSaveFailed'), icon: 'fail' });
   }, [t]);
@@ -220,13 +220,13 @@ export default function MonthBillDetailPage() {
       });
       if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId))
         return;
-      downloadCanvas(canvas, `鲸浪账本_${snapshot.bill.month}月账单`);
-      finalizeSession(sessionId, 'success');
+      const saveResult = await saveCanvas(canvas, `鲸浪账本_${snapshot.bill.month}月账单`);
+      finalizeSession(sessionId, 'success', saveResult === 'shared' ? t('exportShared') : t('exportDownloaded'));
     }
     catch {
       finalizeSession(sessionId, 'failure');
     }
-  }, [avatarBarrier, finalizeSession, readyCharts.size]);
+  }, [avatarBarrier, finalizeSession, readyCharts.size, t]);
 
   useEffect(() => {
     if (!exportMounted || chartsEnabled || !snapshotRef.current || !activeSessionRef.current || !exportRef.current)

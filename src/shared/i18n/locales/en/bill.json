@@ -30,6 +30,8 @@
   "saveImage": "Save image",
   "savingImage": "Creating image…",
   "exportSaved": "Bill image saved",
+  "exportShared": "Choose “Save Image” in the system share sheet",
+  "exportDownloaded": "Bill image downloaded; check your files",
   "exportSaveFailed": "Could not save image. Try again later.",
   "detailLoadFailed": "Could not load bill details",
   "monthOverview": "Monthly overview",
