@@ -37,7 +37,7 @@ export interface BillRecordType {
 }
 
 export function getUserUserInfoApi() {
-  return request.get<unknown, SuccessResponse<UserInfo>>('/user/userInfo');
+  return request.get<unknown, SuccessResponse<UserInfo>>('/user/userInfo', { silent: true });
 }
 
 export interface usePutUserUserInfoData {

@@ -39,8 +39,10 @@ request.interceptors.response.use(
     const { code, config, message, response } = error;
 
     if (code === 'ECONNABORTED' || message?.includes('timeout')) {
-      Toast.clear();
-      Toast.show({ content: i18n.t('common:api.requestTimeout'), icon: 'fail', duration: 1000 });
+      if (!config?.silent) {
+        Toast.clear();
+        Toast.show({ content: i18n.t('common:api.requestTimeout'), icon: 'fail', duration: 1000 });
+      }
       console.error('请求超时');
       return Promise.reject(createRequestError({
         code: undefined,
@@ -51,8 +53,10 @@ request.interceptors.response.use(
     }
 
     if (!response) {
-      Toast.clear();
-      Toast.show({ content: i18n.t('common:api.networkError'), icon: 'fail', duration: 1000 });
+      if (!config?.silent) {
+        Toast.clear();
+        Toast.show({ content: i18n.t('common:api.networkError'), icon: 'fail', duration: 1000 });
+      }
       return Promise.reject(createRequestError({
         code: undefined,
         data: null,
