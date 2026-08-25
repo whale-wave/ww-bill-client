@@ -77,7 +77,8 @@
   /* Backward-compatible alias for antd-mobile components */
   --ww-font-size: var(--ww-font-size-base);
 
-  --ww-font-family-sans: 'Noto Sans SC', 'PingFang SC', system-ui, sans-serif;
+  --ww-font-family-sans: 'Noto Sans SC Variable', 'PingFang SC', system-ui, sans-serif;
+  --ww-font-family-number: 'Nunito Variable', 'Noto Sans SC Variable', system-ui, sans-serif;
   --adm-font-family: var(--ww-font-family-sans);
   --bwm-font-family: var(--ww-font-family-sans);
 

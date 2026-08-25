@@ -34,6 +34,7 @@ import {
   putRecordApi,
 } from './api';
 import { recordKeys } from './keys';
+import { normalizeMonthBillDetail } from './month-bill-detail';
 
 const emptyRecordInfo: GetRecordApiResponseData = {
   total: 0,
@@ -324,7 +325,10 @@ export function useMonthBillDetailQuery(options: {
   queryOptions?: Omit<UseQueryOptions<SuccessResponse<MonthBillDetailResponse>>, 'queryFn' | 'queryKey'>;
 }) {
   const { data: response, ...rest } = useQuery<SuccessResponse<MonthBillDetailResponse>>({
-    queryFn: async () => assertSuccessApi(await getMonthBillDetailApi(options.month)),
+    queryFn: async () => {
+      const response = assertSuccessApi(await getMonthBillDetailApi(options.month));
+      return { ...response, data: normalizeMonthBillDetail(response.data) };
+    },
     queryKey: recordKeys.billMonthDetail(options.month),
     ...options.queryOptions,
   });

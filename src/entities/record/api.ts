@@ -1,3 +1,4 @@
+import type { MonthBillDetailWireResponse } from './month-bill-detail';
 import type { RecordEntry } from './types';
 import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
@@ -20,6 +21,7 @@ export interface MonthBillCategoryAmount {
 }
 
 export interface MonthBillDetailResponse {
+  monthBillExportQrUrl: string;
   month: string;
   summary: {
     income: string;
@@ -55,7 +57,7 @@ export interface MonthBillDetailResponse {
 }
 
 export function getMonthBillDetailApi(month: string) {
-  return request.get<unknown, SuccessResponse<MonthBillDetailResponse>>(
+  return request.get<unknown, SuccessResponse<MonthBillDetailWireResponse>>(
     '/record/bill/month-detail',
     { params: { month } },
   );

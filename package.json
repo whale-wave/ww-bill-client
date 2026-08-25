@@ -39,7 +39,7 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.10.7",
     "echarts": "^5.5.1",
-    "html2canvas": "^1.4.1",
+    "html2canvas-pro": "2.4.0",
     "i18next": "^21.6.6",
     "immer": "^10.1.1",
     "lodash-es": "^4.17.21",

@@ -65,9 +65,9 @@ importers:
       echarts:
         specifier: ^5.5.1
         version: 5.6.0
-      html2canvas:
-        specifier: ^1.4.1
-        version: 1.4.1
+      html2canvas-pro:
+        specifier: 2.4.0
+        version: 2.4.0
       i18next:
         specifier: ^21.6.6
         version: 21.10.0
@@ -2973,9 +2973,9 @@ packages:
   html-parse-stringify@3.0.1:
     resolution: {integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==}
 
-  html2canvas@1.4.1:
-    resolution: {integrity: sha512-fPU6BHNpsyIhr8yyMpTLLxAbkaK8ArIBcmZIRiBLiDhjeqvXolaEmDGmELFuX9I4xDcaKKcJl+TKZLqruBbmWA==}
-    engines: {node: '>=8.0.0'}
+  html2canvas-pro@2.4.0:
+    resolution: {integrity: sha512-ERxMm/ZGRatO9g0mAM2EBlWFgCXDjma7RZFLCHm71gM6q/WqQRYaqB0MIGjjYKEHF8rKvXIeshrrJ8ovImd9aw==}
+    engines: {node: '>=16.0.0'}
 
   http-proxy-agent@7.0.2:
     resolution: {integrity: sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==}
@@ -7837,7 +7837,7 @@ snapshots:
     dependencies:
       void-elements: 3.1.0
 
-  html2canvas@1.4.1:
+  html2canvas-pro@2.4.0:
     dependencies:
       css-line-break: 2.1.0
       text-segmentation: 1.0.3

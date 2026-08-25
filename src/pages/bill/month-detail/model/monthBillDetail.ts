@@ -4,7 +4,73 @@ import { math } from '@/shared/lib';
 export interface MonthBillCategorySegment extends MonthBillCategoryAmount {
   key: string;
   kind: 'category' | 'aggregate';
+  color: string;
 }
+
+export const MONTH_BILL_CHART_COLORS = [
+  '#5BB9D5',
+  '#7C83E6',
+  '#EC7FA3',
+  '#35B89A',
+  '#F2A65A',
+  '#9B7EDE',
+  '#E06C75',
+  '#7FB069',
+  '#D6A84B',
+  '#4F9DA6',
+  '#B07AA1',
+  '#6C9BD2',
+  '#D9825B',
+  '#85A85A',
+  '#C66FB0',
+  '#5EAAA8',
+  '#E3957A',
+  '#8E8CD8',
+  '#79A9C9',
+  '#AA8F66',
+  '#5F7FA3',
+] as const;
+
+export const MONTH_BILL_CATEGORY_COLOR_MAP: Readonly<Record<string, string>> = {
+  'alcohol': '#AA8F66',
+  'beauty': '#EC7FA3',
+  'book': '#7C83E6',
+  'cash-gift': '#C66FB0',
+  'cash-gift-income': '#E06C75',
+  'cars': '#5EAAA8',
+  'catering': '#F2A65A',
+  'children': '#D6A84B',
+  'communication': '#4F9DA6',
+  'daily': '#5BB9D5',
+  'digital': '#6C9BD2',
+  'donation': '#85A85A',
+  'elder': '#7FB069',
+  'entertainment': '#9B7EDE',
+  'express': '#79A9C9',
+  'financial': '#35B89A',
+  'fress': '#B07AA1',
+  'fruits': '#E06C75',
+  'furniture': '#D9825B',
+  'housing': '#5F7FA3',
+  'medical': '#E3957A',
+  'motion': '#35B89A',
+  'office': '#8E8CD8',
+  'other-money': '#8796A5',
+  'part-time': '#9B7EDE',
+  'pet': '#79A9C9',
+  'repair': '#AA8F66',
+  'shopping': '#7C83E6',
+  'snacks': '#D6A84B',
+  'socializing': '#C66FB0',
+  'salary': '#35B89A',
+  'red-envelope': '#E06C75',
+  'study': '#6C9BD2',
+  'traffic': '#5BB9D5',
+  'travel': '#5EAAA8',
+  'vegetables': '#7FB069',
+} as const;
+
+const AGGREGATE_OTHER_COLOR = '#8796A5';
 
 export function toMonthBillDetailModel(data: MonthBillDetailResponse, otherLabel = '其他') {
   return {
@@ -21,10 +87,13 @@ export function toMonthBillDetailModel(data: MonthBillDetailResponse, otherLabel
 }
 
 function toChartSegments(categories: MonthBillCategoryAmount[], otherLabel: string): MonthBillCategorySegment[] {
-  const visible = categories.slice(0, 5).map(category => ({
+  const visibleCategories = categories.slice(0, 5);
+  const visibleColors = resolveVisibleCategoryColors(visibleCategories);
+  const visible = visibleCategories.map(category => ({
     ...category,
     key: `category:${category.categoryId}`,
     kind: 'category' as const,
+    color: visibleColors.get(category.categoryId)!,
   }));
   const otherAmount = categories.slice(5).reduce((total, category) => math.add(total, category.amount), math.add(0, 0));
   if (math.compare(otherAmount, 0) <= 0)
@@ -45,8 +114,35 @@ function toChartSegments(categories: MonthBillCategoryAmount[], otherLabel: stri
       name: otherLabel,
       percentage,
       sortOrder: Number.MAX_SAFE_INTEGER,
+      color: AGGREGATE_OTHER_COLOR,
     },
   ];
+}
+
+function resolveCategoryColor(category: MonthBillCategoryAmount) {
+  const iconKey = category.icon?.trim().toLowerCase();
+  if (iconKey && MONTH_BILL_CATEGORY_COLOR_MAP[iconKey])
+    return MONTH_BILL_CATEGORY_COLOR_MAP[iconKey];
+  const stableIndex = Math.abs(category.categoryId) % MONTH_BILL_CHART_COLORS.length;
+  return MONTH_BILL_CHART_COLORS[stableIndex];
+}
+
+function resolveVisibleCategoryColors(categories: MonthBillCategoryAmount[]) {
+  const colors = new Map<number, string>();
+  const usedColors = new Set([AGGREGATE_OTHER_COLOR]);
+  [...categories].sort((left, right) => left.categoryId - right.categoryId).forEach((category) => {
+    const preferredColor = resolveCategoryColor(category);
+    const preferredIndex = MONTH_BILL_CHART_COLORS.indexOf(preferredColor as typeof MONTH_BILL_CHART_COLORS[number]);
+    const startIndex = preferredIndex >= 0
+      ? preferredIndex
+      : Math.abs(category.categoryId) % MONTH_BILL_CHART_COLORS.length;
+    const color = Array.from({ length: MONTH_BILL_CHART_COLORS.length }, (_, offset) => (
+      MONTH_BILL_CHART_COLORS[(startIndex + offset) % MONTH_BILL_CHART_COLORS.length]
+    )).find(candidate => !usedColors.has(candidate)) ?? preferredColor;
+    colors.set(category.categoryId, color);
+    usedColors.add(color);
+  });
+  return colors;
 }
 
 export function formatMonthTitle(month: string) {

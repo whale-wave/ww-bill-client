@@ -2,7 +2,6 @@
 
 interface ImportMetaEnv {
   readonly VITE_HOST: string;
-  readonly VITE_PUBLIC_APP_URL?: string;
 }
 
 interface ImportMeta {

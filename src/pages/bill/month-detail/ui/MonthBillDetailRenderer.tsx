@@ -2,34 +2,46 @@ import type { EChartsOption } from 'echarts';
 import type { FC, ReactNode } from 'react';
 import type { MonthBillCategorySegment } from '../model/monthBillDetail';
 import type { MonthBillDetailResponse } from '@/entities/record';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import whaleLogo from '@/assets/brand/whale-logo-surface.png';
 import { CategoryIcon } from '@/entities/category';
+import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
 import { GradientPanel } from '@/shared/ui';
-import { toMonthBillDetailModel } from '../model/monthBillDetail';
+import { MONTH_BILL_CHART_COLORS, toMonthBillDetailModel } from '../model/monthBillDetail';
 import { MonthBillChart } from './MonthBillChart';
 
 interface RendererProps {
   data: MonthBillDetailResponse;
   mode: 'screen' | 'export';
-  onChartReady?: (chartKey: string) => void;
+  onChartReady?: (sessionId: number, chartKey: string) => void;
+  onChartError?: (sessionId: number, chartKey: string, error: Error) => void;
+  exportSessionId?: number;
+  chartsEnabled?: boolean;
   qrCode?: string;
 }
 
-const PIE_COLORS = ['#6fc2dc', '#f0a0b8', '#a996dc', '#79c6a8', '#efbc70', '#4aaac4'];
-
-export const MonthBillDetailRenderer: FC<RendererProps> = ({ data, mode, onChartReady, qrCode }) => {
+export const MonthBillDetailRenderer: FC<RendererProps> = ({ chartsEnabled = true, data, exportSessionId, mode, onChartError, onChartReady, qrCode }) => {
   const { t } = useTranslation('bill');
-  const model = toMonthBillDetailModel(data, t('other'));
+  const otherLabel = t('other');
+  const model = useMemo(() => toMonthBillDetailModel(data, otherLabel), [data, otherLabel]);
+  const handleChartError = useCallback((key: string, error: Error) => {
+    if (exportSessionId !== undefined)
+      onChartError?.(exportSessionId, key, error);
+  }, [exportSessionId, onChartError]);
+  const handleChartReady = useCallback((key: string) => {
+    if (exportSessionId !== undefined)
+      onChartReady?.(exportSessionId, key);
+  }, [exportSessionId, onChartReady]);
   const isExport = mode === 'export';
   return (
     <div className={isExport ? 'w-[375px] bg-[linear-gradient(154.699deg,#e2f6ff_6.9%,#f4fbff_50%,#fff2f7_93.1%)] px-[18px] pb-6 pt-5' : 'flex min-h-0 flex-col'} data-bill-renderer={mode}>
+      {isExport && <ExportMasthead month={data.month} />}
       <SummaryCard data={model} exportMode={isExport} />
-      <ExpenseCategoryCard data={model} exportMode={isExport} onChartReady={onChartReady} />
-      <ExpenseTrendCard data={model} exportMode={isExport} onChartReady={onChartReady} />
-      <ComparisonCard data={model} exportMode={isExport} onChartReady={onChartReady} />
-      <IncomeCard data={model} exportMode={isExport} onChartReady={onChartReady} />
+      <ExpenseCategoryCard chartsEnabled={chartsEnabled} data={model} exportMode={isExport} onChartError={handleChartError} onChartReady={handleChartReady} />
+      <ExpenseTrendCard chartsEnabled={chartsEnabled} data={model} exportMode={isExport} onChartError={handleChartError} onChartReady={handleChartReady} />
+      <ComparisonCard chartsEnabled={chartsEnabled} data={model} exportMode={isExport} onChartError={handleChartError} onChartReady={handleChartReady} />
+      <IncomeCard chartsEnabled={chartsEnabled} data={model} exportMode={isExport} onChartError={handleChartError} onChartReady={handleChartReady} />
       <AchievementCard data={model} exportMode={isExport} />
       {isExport && <ExportFooter qrCode={qrCode} />}
     </div>
@@ -79,12 +91,12 @@ function Metric({ label, tone, value }: { label: string; tone: 'income' | 'expen
   );
 }
 
-function ExpenseCategoryCard({ data, exportMode, onChartReady }: { data: ReturnType<typeof toMonthBillDetailModel>; exportMode?: boolean; onChartReady?: (key: string) => void }) {
+function ExpenseCategoryCard({ chartsEnabled = true, data, exportMode, onChartError, onChartReady }: { chartsEnabled?: boolean; data: ReturnType<typeof toMonthBillDetailModel>; exportMode?: boolean; onChartError?: (key: string, error: Error) => void; onChartReady?: (key: string) => void }) {
   const { t } = useTranslation('bill');
   const option = useMemo<EChartsOption>(() => ({
-    color: PIE_COLORS,
+    color: [...MONTH_BILL_CHART_COLORS],
     series: [{
-      data: data.expense.chartCategories.map(item => ({ name: item.name, value: Number(item.amount) })),
+      data: data.expense.chartCategories.map(item => ({ itemStyle: { color: item.color }, name: item.name, value: Number(item.amount) })),
       label: { show: false },
       labelLine: { show: false },
       radius: ['42%', '72%'],
@@ -96,7 +108,7 @@ function ExpenseCategoryCard({ data, exportMode, onChartReady }: { data: ReturnT
   return (
     <SectionCard exportMode={exportMode} title={t('expenseCategory')}>
       <div className="flex items-center gap-3">
-        <MonthBillChart chartKey="expense-pie" className="h-[138px] w-[138px] shrink-0" exportMode={exportMode} kind="pie" onReady={onChartReady} option={option} />
+        <MonthBillChart chartKey="expense-pie" className="h-[138px] w-[138px] shrink-0" enabled={chartsEnabled} exportMode={exportMode} kind="pie" onError={onChartError} onReady={onChartReady} option={option} />
         <div className="min-w-0 flex-1 space-y-2">
           {data.expense.chartCategories.map(item => <CategoryLegend item={item} key={item.key} />)}
         </div>
@@ -122,7 +134,7 @@ function ExpenseCategoryCard({ data, exportMode, onChartReady }: { data: ReturnT
 function CategoryLegend({ item }: { item: MonthBillCategorySegment }) {
   return (
     <div className="flex items-center gap-2 text-[11px]">
-      <span className="h-2.5 w-2.5 shrink-0 rounded-[3px] bg-primary" />
+      <span className="h-2.5 w-2.5 shrink-0 rounded-[3px]" style={{ backgroundColor: item.color }} />
       <span className="min-w-0 flex-1 truncate text-ww-mid">{item.name}</span>
       <span className="font-number font-bold text-ww-ink">
         {item.percentage.toFixed(1)}
@@ -140,7 +152,7 @@ function BillCategoryIcon({ categoryName, iconKey }: { categoryName: string; ico
   );
 }
 
-function ExpenseTrendCard({ data, exportMode, onChartReady }: { data: ReturnType<typeof toMonthBillDetailModel>; exportMode?: boolean; onChartReady?: (key: string) => void }) {
+function ExpenseTrendCard({ chartsEnabled = true, data, exportMode, onChartError, onChartReady }: { chartsEnabled?: boolean; data: ReturnType<typeof toMonthBillDetailModel>; exportMode?: boolean; onChartError?: (key: string, error: Error) => void; onChartReady?: (key: string) => void }) {
   const { t } = useTranslation('bill');
   const option = useMemo<EChartsOption>(() => ({
     grid: { bottom: 4, left: 4, right: 4, top: 10 },
@@ -165,12 +177,12 @@ function ExpenseTrendCard({ data, exportMode, onChartReady }: { data: ReturnType
         <Stat label={t('averageDailyExpense')} value={`¥${data.expense.averageDaily}`} />
         <Stat label={t('currentMonthExpense')} value={`¥${data.summary.expense}`} />
       </div>
-      <MonthBillChart chartKey="expense-daily" className="h-[140px] w-full" exportMode={exportMode} kind="line" onReady={onChartReady} option={option} />
+      <MonthBillChart chartKey="expense-daily" className="h-[140px] w-full" enabled={chartsEnabled} exportMode={exportMode} kind="line" onError={onChartError} onReady={onChartReady} option={option} />
     </SectionCard>
   );
 }
 
-function ComparisonCard({ data, exportMode, onChartReady }: { data: ReturnType<typeof toMonthBillDetailModel>; exportMode?: boolean; onChartReady?: (key: string) => void }) {
+function ComparisonCard({ chartsEnabled = true, data, exportMode, onChartError, onChartReady }: { chartsEnabled?: boolean; data: ReturnType<typeof toMonthBillDetailModel>; exportMode?: boolean; onChartError?: (key: string, error: Error) => void; onChartReady?: (key: string) => void }) {
   const { t } = useTranslation('bill');
   const option = useMemo<EChartsOption>(() => ({
     grid: { bottom: 28, containLabel: true, left: 2, right: 2, top: 30 },
@@ -178,7 +190,7 @@ function ComparisonCard({ data, exportMode, onChartReady }: { data: ReturnType<t
       barMaxWidth: 18,
       data: data.expense.monthlyTrend.map(item => Number(item.amount)),
       itemStyle: { borderRadius: [5, 5, 0, 0], color: '#6fc2dc' },
-      label: { color: '#5c7080', fontSize: 9, lineHeight: 12, position: 'top', show: true, formatter: (params: { value?: string | number }) => Number(params.value ?? 0) > 0 ? `${(Number(params.value) / 10000).toFixed(1)}万` : '' },
+      label: { color: '#5c7080', fontSize: 9, lineHeight: 12, position: 'top', show: true, formatter: params => Number(params.value ?? 0) > 0 ? `${(Number(params.value) / 10000).toFixed(1)}万` : '' },
       type: 'bar',
     }],
     xAxis: { axisLabel: { lineHeight: 14 }, axisLine: { show: false }, axisTick: { show: false }, data: data.expense.monthlyTrend.map(item => `${Number(item.month.slice(5))}月`), type: 'category' },
@@ -186,7 +198,7 @@ function ComparisonCard({ data, exportMode, onChartReady }: { data: ReturnType<t
   }), [data.expense.monthlyTrend]);
   return (
     <SectionCard exportMode={exportMode} title={t('monthlyExpenseComparison')}>
-      <MonthBillChart chartKey="expense-monthly" className="h-[170px] w-full" exportMode={exportMode} kind="bar" onReady={onChartReady} option={option} />
+      <MonthBillChart chartKey="expense-monthly" className="h-[170px] w-full" enabled={chartsEnabled} exportMode={exportMode} kind="bar" onError={onChartError} onReady={onChartReady} option={option} />
       <div className="mt-1 border-t border-border-primary pt-3 text-[11px] font-semibold text-ww-soft">{t('categoryChangeTop', { month: data.month })}</div>
       {data.expense.categoryChanges.length === 0
         ? <div className="py-4 text-center text-[12px] text-ww-soft">{t('noSignificantChange')}</div>
@@ -206,7 +218,7 @@ function ComparisonCard({ data, exportMode, onChartReady }: { data: ReturnType<t
   );
 }
 
-function IncomeCard({ data, exportMode, onChartReady }: { data: ReturnType<typeof toMonthBillDetailModel>; exportMode?: boolean; onChartReady?: (key: string) => void }) {
+function IncomeCard({ chartsEnabled = true, data, exportMode, onChartError, onChartReady }: { chartsEnabled?: boolean; data: ReturnType<typeof toMonthBillDetailModel>; exportMode?: boolean; onChartError?: (key: string, error: Error) => void; onChartReady?: (key: string) => void }) {
   const { t } = useTranslation('bill');
   const option = useMemo<EChartsOption>(() => ({
     grid: { bottom: 28, containLabel: true, left: 2, right: 2, top: 30 },
@@ -214,7 +226,7 @@ function IncomeCard({ data, exportMode, onChartReady }: { data: ReturnType<typeo
       barMaxWidth: 18,
       data: data.income.monthlyTrend.map(item => Number(item.amount)),
       itemStyle: { borderRadius: [5, 5, 0, 0], color: '#6fc2dc' },
-      label: { color: '#5c7080', fontSize: 9, lineHeight: 12, position: 'top', show: true, formatter: (params: { value?: string | number }) => Number(params.value ?? 0) > 0 ? `${(Number(params.value) / 10000).toFixed(1)}万` : '' },
+      label: { color: '#5c7080', fontSize: 9, lineHeight: 12, position: 'top', show: true, formatter: params => Number(params.value ?? 0) > 0 ? `${(Number(params.value) / 10000).toFixed(1)}万` : '' },
       type: 'bar',
     }],
     xAxis: { axisLabel: { lineHeight: 14 }, axisLine: { show: false }, axisTick: { show: false }, data: data.income.monthlyTrend.map(item => `${Number(item.month.slice(5))}月`), type: 'category' },
@@ -243,7 +255,7 @@ function IncomeCard({ data, exportMode, onChartReady }: { data: ReturnType<typeo
         ))}
       </div>
       <div className="mt-4 text-[11px] font-semibold text-ww-soft">{t('monthlyIncomeComparison')}</div>
-      <MonthBillChart chartKey="income-monthly" className="h-[170px] w-full" exportMode={exportMode} kind="bar" onReady={onChartReady} option={option} />
+      <MonthBillChart chartKey="income-monthly" className="h-[170px] w-full" enabled={chartsEnabled} exportMode={exportMode} kind="bar" onError={onChartError} onReady={onChartReady} option={option} />
     </SectionCard>
   );
 }
@@ -279,16 +291,37 @@ function AchievementValue({ label, value }: { label: string; value: string }) {
   );
 }
 
+function ExportMasthead({ month }: { month: string }) {
+  const { t } = useTranslation('bill');
+  return (
+    <header className="relative mb-3 overflow-hidden rounded-[22px] border border-[rgba(110,194,220,0.25)] bg-white/65 px-5 py-4 shadow-ww-xs" data-export-masthead>
+      <span className="absolute -right-5 -top-8 h-24 w-24 rounded-full border-[10px] border-[#f0a0b8]/25" />
+      <span className="absolute bottom-2 right-16 h-2 w-2 rounded-full bg-[#a996dc]" />
+      <div className="relative flex items-center gap-3">
+        <img alt="" className="h-11 w-11 rounded-[14px] bg-white/85 p-1 object-contain" src={whaleLogo} />
+        <div>
+          <div className="text-[17px] font-black tracking-[0.02em] text-ww-ink">{config.appName}</div>
+          <div className="mt-0.5 text-[11px] font-semibold text-ww-mid">{t('exportBrandTagline')}</div>
+        </div>
+        <div className="ml-auto text-right">
+          <div className="font-number text-[17px] font-black text-ww-ink">{month}</div>
+          <div className="text-[10px] font-semibold text-ww-soft">{t('monthOverview')}</div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
 function ExportFooter({ qrCode }: { qrCode?: string }) {
   const { t } = useTranslation('bill');
   return (
-    <footer className="mt-1 flex min-h-[150px] items-center justify-between rounded-[20px] border border-[rgba(110,194,220,0.28)] bg-[linear-gradient(135deg,#c8eaf6_0%,#e2f6ff_55%,#f4e8f8_100%)] px-5 py-5 text-ww-ink shadow-ww-xs">
+    <footer className="mt-1 flex min-h-[150px] items-center justify-between rounded-[20px] border border-[rgba(110,194,220,0.28)] bg-[linear-gradient(135deg,#c8eaf6_0%,#e2f6ff_55%,#f4e8f8_100%)] px-5 py-5 text-ww-ink shadow-ww-xs" data-export-footer>
       <div className={`flex items-center gap-3 ${qrCode ? '' : 'mx-auto'}`}>
         <span className="flex h-12 w-12 items-center justify-center rounded-[14px] border border-white/85 bg-white/75 p-1 shadow-ww-xs">
           <img alt="" className="h-full w-full rounded-[10px] object-contain" src={whaleLogo} />
         </span>
         <div>
-          <div className="text-[17px] font-black">鲸浪记账</div>
+          <div className="text-[17px] font-black">{config.appName}</div>
           <div className="mt-1 text-[11px] font-semibold text-ww-mid">{t('exportBrandTagline')}</div>
         </div>
       </div>
