@@ -3,7 +3,7 @@ import type { FC, ReactNode, SyntheticEvent } from 'react';
 import type { AvatarReadyState, ExportCopySnapshot, ExportUserSnapshot, MonthBillCategorySegment } from '../model/monthBillDetail';
 import type { MonthBillDetailResponse } from '@/entities/record';
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import whaleLogo from '@/assets/brand/whale-logo-surface.png';
+import whaleLogo from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
 import { CategoryIcon } from '@/entities/category';
 import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';

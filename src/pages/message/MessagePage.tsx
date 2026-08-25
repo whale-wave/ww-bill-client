@@ -3,7 +3,7 @@ import type { UserNotification } from '@/entities/notification';
 import { Button, ErrorBlock } from 'antd-mobile';
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import appAvatar from '@/assets/brand/whale-logo-surface.png';
+import appAvatar from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
 import {
   useMarkNotificationReadMutation,
   useNotificationsQuery,

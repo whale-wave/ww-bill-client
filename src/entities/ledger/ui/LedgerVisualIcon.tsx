@@ -8,7 +8,7 @@ import {
   Store,
   UsersRound,
 } from 'lucide-react';
-import appLogo from '@/assets/brand/whale-logo-surface.png';
+import appLogo from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
 import ledgerFallbackIcon from '@/assets/icons/figma/ledger.svg';
 import { resolveLedgerVisual } from '../lib/resolveLedgerVisual';
 import { LedgerIconGlyph } from './LedgerIconGlyph';

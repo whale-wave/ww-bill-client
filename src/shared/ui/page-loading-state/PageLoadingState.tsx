@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import whaleLoading from '@/assets/brand/whale-loading.png';
+import whaleLoading from '@/assets/brand/whale-loading-加载图120x120.png';
 import { cn } from '@/shared/lib';
 import './page-loading-state.scss';
 

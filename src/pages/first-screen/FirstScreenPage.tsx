@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import classNames from 'classnames';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import newLogo from '@/assets/brand/whale-logo-transparent.png';
+import newLogo from '@/assets/brand/whale-logo-transparent-透明背景原图.png';
 import config from '@/shared/config';
 import styles from './index.module.css';
 

@@ -50,7 +50,9 @@ describe('ledger icon catalog', () => {
     }));
     const image = container.querySelector('img');
 
-    expect(image?.getAttribute('src')).toContain('whale-logo-surface.png');
+    expect(decodeURIComponent(image?.getAttribute('src') ?? '')).toContain(
+      'whale-logo-surface-浅色渐变背景.png',
+    );
     expect(image?.classList).toContain('h-full');
     expect(image?.classList).toContain('w-full');
     expect(image?.classList).toContain('object-cover');
