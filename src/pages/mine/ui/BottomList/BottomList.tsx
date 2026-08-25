@@ -1,10 +1,10 @@
 import type { FC } from 'react';
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { APP_INFO } from '@/shared/config/app-info';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { SettingsListCard } from '@/shared/ui';
-import pkg from '../../../../../package.json';
 
 const BottomList: FC = () => {
   const { t } = useTranslation('user');
@@ -15,7 +15,12 @@ const BottomList: FC = () => {
     { key: 'household', label: t('household:common.title'), onClick: () => navigate(ROUTES_PATH.HOUSEHOLD.getPath()) },
     { key: 'settings', label: t('bottomList.settings'), onClick: () => navigate('/settings') },
     { key: 'feedback', label: t('bottomList.feedback'), onClick: () => navigate(ROUTES_PATH.FEEDBACK.getPath(), { state: { from: location.pathname } }) },
-    { key: 'about', label: t('bottomList.about', { version: pkg.version }), showArrow: false },
+    {
+      extra: t('settings:aboutSupport.version', { version: APP_INFO.version }),
+      key: 'about',
+      label: t('bottomList.about'),
+      onClick: () => navigate(ROUTES_PATH.SETTINGS_ABOUT.getPath()),
+    },
   ], [location.pathname, navigate, t]);
 
   return <SettingsListCard density="compact" items={items} />;
