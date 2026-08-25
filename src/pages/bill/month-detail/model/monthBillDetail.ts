@@ -7,6 +7,18 @@ export interface MonthBillCategorySegment extends MonthBillCategoryAmount {
   color: string;
 }
 
+export interface ExportUserSnapshot {
+  displayName: string;
+  avatar?: string;
+}
+
+export interface ExportCopySnapshot {
+  monthTitle: string;
+  reviewSubtitle: string;
+}
+
+export type AvatarReadyState = 'image-ready' | 'fallback-ready';
+
 export const MONTH_BILL_CHART_COLORS = [
   '#5BB9D5',
   '#7C83E6',
@@ -148,4 +160,34 @@ function resolveVisibleCategoryColors(categories: MonthBillCategoryAmount[]) {
 export function formatMonthTitle(month: string) {
   const [year, monthNumber] = month.split('-');
   return `${year}年${Number(monthNumber)}月账单`;
+}
+
+export function getAvatarInitial(displayName: string) {
+  const value = displayName.trim();
+  if (!value)
+    return '?';
+  if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
+    const Segmenter = Intl.Segmenter;
+    const segmenter = new Segmenter(undefined, { granularity: 'grapheme' });
+    return segmenter.segment(value)[Symbol.iterator]().next().value?.segment ?? '?';
+  }
+  return Array.from(value)[0] ?? '?';
+}
+
+export interface MonthBillRingSegment {
+  key: string;
+  color: string;
+  percentage: number;
+}
+
+export function getMonthBillRingSegments(categories: MonthBillCategorySegment[]): MonthBillRingSegment[] {
+  const amounts = categories.map(item => Number(item.amount)).map(amount => Number.isFinite(amount) && amount > 0 ? amount : 0);
+  const total = amounts.reduce((sum, amount) => sum + amount, 0);
+  if (total <= 0)
+    return [];
+  return categories.map((item, index) => ({
+    color: item.color,
+    key: item.key,
+    percentage: amounts[index] / total * 100,
+  }));
 }

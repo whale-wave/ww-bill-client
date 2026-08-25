@@ -14,14 +14,15 @@ interface MonthBillChartProps {
   className?: string;
   exportMode?: boolean;
   enabled?: boolean;
+  allowVerticalPageScroll?: boolean;
 }
 
 function nextFrame() {
   return new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 }
 
-export const MonthBillChart: FC<MonthBillChartProps> = ({ chartKey, className, enabled = true, exportMode = false, kind, onError, onReady, option }) => {
-  const { chartDomRef, myChart: chartInstance } = useChart();
+export const MonthBillChart: FC<MonthBillChartProps> = ({ allowVerticalPageScroll = false, chartKey, className, enabled = true, exportMode = false, kind, onError, onReady, option }) => {
+  const { chartDomRef, myChart: chartInstance } = useChart({ preventTouchMove: !allowVerticalPageScroll });
   const [snapshotUrl, setSnapshotUrl] = useState<string>();
   const hasReportedTerminalRef = useRef(false);
   const onErrorRef = useRef(onError);
@@ -108,7 +109,7 @@ export const MonthBillChart: FC<MonthBillChartProps> = ({ chartKey, className, e
 
   return (
     <div className={`relative ${className ?? 'h-[150px] w-full'}`} data-chart-placeholder={enabled ? undefined : chartKey}>
-      <div aria-label={`${kind} chart`} className={`absolute inset-0 ${!enabled || snapshotUrl ? 'invisible' : ''}`} ref={chartDomRef} />
+      <div aria-label={`${kind} chart`} className={`absolute inset-0 ${!enabled || snapshotUrl ? 'invisible' : ''}`} ref={chartDomRef} style={allowVerticalPageScroll ? { touchAction: 'pan-y' } : undefined} />
       {snapshotUrl && (
         <img
           alt=""

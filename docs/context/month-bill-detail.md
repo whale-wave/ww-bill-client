@@ -20,6 +20,8 @@ The client cache key is `['record', 'bill', 'month-detail', month]`, nested belo
 
 Image export mounts a separate 375px `ExportRenderer`, creates new ECharts instances, waits for fonts, images, QR generation, and chart `finished` events, then captures the full-height panel with html2canvas. It must not clone screen DOM or reuse screen chart instances. `exportStatus` is the sole state source. `VITE_PUBLIC_APP_URL` is optional; absent or failed QR generation hides the QR and still exports the brand footer.
 
+The export masthead freezes the best-effort user profile and translated masthead copy in the export snapshot. A remote avatar is decorative: a valid, decoded image is accepted; an empty URL, CORS failure, load failure, or decode failure commits a circular grapheme-safe initial fallback. Avatar readiness is session-scoped and is a capture barrier, but avatar failure never fails the export. The footer remains the only brand/QR area. Monthly screen charts opt out of the shared chart hook's default `touchmove.preventDefault()` and use `touch-action: pan-y`; offscreen export charts retain the default behavior.
+
 ## Maintenance notes
 
 - Keep the static month-detail controller route before `:id`.

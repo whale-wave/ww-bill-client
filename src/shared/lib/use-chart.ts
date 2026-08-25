@@ -2,7 +2,11 @@ import { useMount, useUnmount } from 'ahooks';
 import { useEffect, useRef, useState } from 'react';
 import { echarts } from '@/shared/lib/echarts';
 
-export function useChart() {
+interface UseChartOptions {
+  preventTouchMove?: boolean;
+}
+
+export function useChart({ preventTouchMove = true }: UseChartOptions = {}) {
   const [myChart, setMyChart] = useState<echarts.ECharts>();
   const chartDomRef = useRef<HTMLDivElement>(null);
   const chartInstanceRef = useRef<echarts.ECharts>();
@@ -39,16 +43,18 @@ export function useChart() {
       e.preventDefault();
     };
 
-    chartDom.addEventListener('touchmove', handleTouchMove, { passive: false });
+    if (preventTouchMove)
+      chartDom.addEventListener('touchmove', handleTouchMove, { passive: false });
     chartDom.addEventListener('touchend', handleTouchEnd);
     chartDom.addEventListener('touchcancel', handleTouchEnd);
 
     return () => {
-      chartDom.removeEventListener('touchmove', handleTouchMove);
+      if (preventTouchMove)
+        chartDom.removeEventListener('touchmove', handleTouchMove);
       chartDom.removeEventListener('touchend', handleTouchEnd);
       chartDom.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [myChart]);
+  }, [myChart, preventTouchMove]);
 
   return {
     chartDomRef,

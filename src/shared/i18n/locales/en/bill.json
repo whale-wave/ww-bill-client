@@ -55,6 +55,9 @@
   "increase": "Increase",
   "decrease": "Decrease",
   "other": "Other",
+  "exportUserFallbackName": "Ledger user",
+  "exportMonthTitle": "{{month}}/{{year}} monthly bill",
+  "monthlyIncomeExpenseReview": "Monthly income and expense review",
   "exportBrandTagline": "Track simply, see every month",
   "exportQrHint": "Scan to open Whale Wave Bill"
 }

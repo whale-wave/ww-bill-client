@@ -1,14 +1,14 @@
 import type { EChartsOption } from 'echarts';
-import type { FC, ReactNode } from 'react';
-import type { MonthBillCategorySegment } from '../model/monthBillDetail';
+import type { FC, ReactNode, SyntheticEvent } from 'react';
+import type { AvatarReadyState, ExportCopySnapshot, ExportUserSnapshot, MonthBillCategorySegment } from '../model/monthBillDetail';
 import type { MonthBillDetailResponse } from '@/entities/record';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import whaleLogo from '@/assets/brand/whale-logo-surface.png';
 import { CategoryIcon } from '@/entities/category';
 import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
 import { GradientPanel } from '@/shared/ui';
-import { MONTH_BILL_CHART_COLORS, toMonthBillDetailModel } from '../model/monthBillDetail';
+import { getAvatarInitial, getMonthBillRingSegments, MONTH_BILL_CHART_COLORS, toMonthBillDetailModel } from '../model/monthBillDetail';
 import { MonthBillChart } from './MonthBillChart';
 
 interface RendererProps {
@@ -17,11 +17,14 @@ interface RendererProps {
   onChartReady?: (sessionId: number, chartKey: string) => void;
   onChartError?: (sessionId: number, chartKey: string, error: Error) => void;
   exportSessionId?: number;
+  exportUser?: ExportUserSnapshot;
+  exportCopy?: ExportCopySnapshot;
+  onAvatarReady?: (sessionId: number, state: AvatarReadyState) => void;
   chartsEnabled?: boolean;
   qrCode?: string;
 }
 
-export const MonthBillDetailRenderer: FC<RendererProps> = ({ chartsEnabled = true, data, exportSessionId, mode, onChartError, onChartReady, qrCode }) => {
+export const MonthBillDetailRenderer: FC<RendererProps> = ({ chartsEnabled = true, data, exportCopy, exportSessionId, exportUser, mode, onAvatarReady, onChartError, onChartReady, qrCode }) => {
   const { t } = useTranslation('bill');
   const otherLabel = t('other');
   const model = useMemo(() => toMonthBillDetailModel(data, otherLabel), [data, otherLabel]);
@@ -36,7 +39,7 @@ export const MonthBillDetailRenderer: FC<RendererProps> = ({ chartsEnabled = tru
   const isExport = mode === 'export';
   return (
     <div className={isExport ? 'w-[375px] bg-[linear-gradient(154.699deg,#e2f6ff_6.9%,#f4fbff_50%,#fff2f7_93.1%)] px-[18px] pb-6 pt-5' : 'flex min-h-0 flex-col'} data-bill-renderer={mode}>
-      {isExport && <ExportMasthead month={data.month} />}
+      {isExport && exportSessionId !== undefined && exportUser && exportCopy && <ExportMasthead categories={model.expense.chartCategories} copy={exportCopy} onAvatarReady={onAvatarReady} sessionId={exportSessionId} user={exportUser} />}
       <SummaryCard data={model} exportMode={isExport} />
       <ExpenseCategoryCard chartsEnabled={chartsEnabled} data={model} exportMode={isExport} onChartError={handleChartError} onChartReady={handleChartReady} />
       <ExpenseTrendCard chartsEnabled={chartsEnabled} data={model} exportMode={isExport} onChartError={handleChartError} onChartReady={handleChartReady} />
@@ -108,7 +111,7 @@ function ExpenseCategoryCard({ chartsEnabled = true, data, exportMode, onChartEr
   return (
     <SectionCard exportMode={exportMode} title={t('expenseCategory')}>
       <div className="flex items-center gap-3">
-        <MonthBillChart chartKey="expense-pie" className="h-[138px] w-[138px] shrink-0" enabled={chartsEnabled} exportMode={exportMode} kind="pie" onError={onChartError} onReady={onChartReady} option={option} />
+        <MonthBillChart allowVerticalPageScroll={!exportMode} chartKey="expense-pie" className="h-[138px] w-[138px] shrink-0" enabled={chartsEnabled} exportMode={exportMode} kind="pie" onError={onChartError} onReady={onChartReady} option={option} />
         <div className="min-w-0 flex-1 space-y-2">
           {data.expense.chartCategories.map(item => <CategoryLegend item={item} key={item.key} />)}
         </div>
@@ -177,7 +180,7 @@ function ExpenseTrendCard({ chartsEnabled = true, data, exportMode, onChartError
         <Stat label={t('averageDailyExpense')} value={`¥${data.expense.averageDaily}`} />
         <Stat label={t('currentMonthExpense')} value={`¥${data.summary.expense}`} />
       </div>
-      <MonthBillChart chartKey="expense-daily" className="h-[140px] w-full" enabled={chartsEnabled} exportMode={exportMode} kind="line" onError={onChartError} onReady={onChartReady} option={option} />
+      <MonthBillChart allowVerticalPageScroll={!exportMode} chartKey="expense-daily" className="h-[140px] w-full" enabled={chartsEnabled} exportMode={exportMode} kind="line" onError={onChartError} onReady={onChartReady} option={option} />
     </SectionCard>
   );
 }
@@ -198,7 +201,7 @@ function ComparisonCard({ chartsEnabled = true, data, exportMode, onChartError, 
   }), [data.expense.monthlyTrend]);
   return (
     <SectionCard exportMode={exportMode} title={t('monthlyExpenseComparison')}>
-      <MonthBillChart chartKey="expense-monthly" className="h-[170px] w-full" enabled={chartsEnabled} exportMode={exportMode} kind="bar" onError={onChartError} onReady={onChartReady} option={option} />
+      <MonthBillChart allowVerticalPageScroll={!exportMode} chartKey="expense-monthly" className="h-[170px] w-full" enabled={chartsEnabled} exportMode={exportMode} kind="bar" onError={onChartError} onReady={onChartReady} option={option} />
       <div className="mt-1 border-t border-border-primary pt-3 text-[11px] font-semibold text-ww-soft">{t('categoryChangeTop', { month: data.month })}</div>
       {data.expense.categoryChanges.length === 0
         ? <div className="py-4 text-center text-[12px] text-ww-soft">{t('noSignificantChange')}</div>
@@ -255,7 +258,7 @@ function IncomeCard({ chartsEnabled = true, data, exportMode, onChartError, onCh
         ))}
       </div>
       <div className="mt-4 text-[11px] font-semibold text-ww-soft">{t('monthlyIncomeComparison')}</div>
-      <MonthBillChart chartKey="income-monthly" className="h-[170px] w-full" enabled={chartsEnabled} exportMode={exportMode} kind="bar" onError={onChartError} onReady={onChartReady} option={option} />
+      <MonthBillChart allowVerticalPageScroll={!exportMode} chartKey="income-monthly" className="h-[170px] w-full" enabled={chartsEnabled} exportMode={exportMode} kind="bar" onError={onChartError} onReady={onChartReady} option={option} />
     </SectionCard>
   );
 }
@@ -291,24 +294,83 @@ function AchievementValue({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ExportMasthead({ month }: { month: string }) {
-  const { t } = useTranslation('bill');
+function ExportMasthead({ categories, copy, onAvatarReady, sessionId, user }: { categories: MonthBillCategorySegment[]; copy: ExportCopySnapshot; onAvatarReady?: (sessionId: number, state: AvatarReadyState) => void; sessionId: number; user: ExportUserSnapshot }) {
   return (
-    <header className="relative mb-3 overflow-hidden rounded-[22px] border border-[rgba(110,194,220,0.25)] bg-white/65 px-5 py-4 shadow-ww-xs" data-export-masthead>
-      <span className="absolute -right-5 -top-8 h-24 w-24 rounded-full border-[10px] border-[#f0a0b8]/25" />
-      <span className="absolute bottom-2 right-16 h-2 w-2 rounded-full bg-[#a996dc]" />
+    <header className="relative mb-3 overflow-hidden px-1 py-2" data-export-masthead>
+      <span className="pointer-events-none absolute -right-7 -top-8 h-24 w-24 rounded-full border-[9px] border-[#f0a0b8]/20" />
+      <span className="pointer-events-none absolute bottom-0 right-20 h-2 w-2 rounded-full bg-[#a996dc]/70" />
       <div className="relative flex items-center gap-3">
-        <img alt="" className="h-11 w-11 rounded-[14px] bg-white/85 p-1 object-contain" src={whaleLogo} />
-        <div>
-          <div className="text-[17px] font-black tracking-[0.02em] text-ww-ink">{config.appName}</div>
-          <div className="mt-0.5 text-[11px] font-semibold text-ww-mid">{t('exportBrandTagline')}</div>
+        <ExportAvatar displayName={user.displayName} key={`${sessionId}:${user.avatar ?? 'fallback'}`} onReady={onAvatarReady} sessionId={sessionId} src={user.avatar} />
+        <div className="min-w-0">
+          <div className="truncate text-[16px] font-black tracking-[0.02em] text-ww-ink">{user.displayName}</div>
+          <div className="mt-1 truncate font-number text-[14px] font-black text-ww-ink">{copy.monthTitle}</div>
+          <div className="mt-0.5 truncate text-[10px] font-semibold text-ww-mid">{copy.reviewSubtitle}</div>
         </div>
-        <div className="ml-auto text-right">
-          <div className="font-number text-[17px] font-black text-ww-ink">{month}</div>
-          <div className="text-[10px] font-semibold text-ww-soft">{t('monthOverview')}</div>
-        </div>
+        <ExportCategoryRing categories={categories} />
       </div>
     </header>
+  );
+}
+
+function ExportAvatar({ displayName, onReady, sessionId, src }: { displayName: string; onReady?: (sessionId: number, state: AvatarReadyState) => void; sessionId: number; src?: string }) {
+  const normalizedSrc = src?.trim();
+  const [status, setStatus] = useState<'loading' | AvatarReadyState>(normalizedSrc ? 'loading' : 'fallback-ready');
+  const onReadyRef = useRef(onReady);
+  const loadAttemptRef = useRef(0);
+  onReadyRef.current = onReady;
+
+  useLayoutEffect(() => {
+    if (status !== 'loading')
+      onReadyRef.current?.(sessionId, status);
+  }, [sessionId, status]);
+
+  const markFallback = () => {
+    loadAttemptRef.current += 1;
+    setStatus('fallback-ready');
+  };
+
+  const handleLoad = async (event: SyntheticEvent<HTMLImageElement>) => {
+    const image = event.currentTarget;
+    const attempt = loadAttemptRef.current;
+    if (!image.complete || image.naturalWidth <= 0 || image.naturalHeight <= 0) {
+      markFallback();
+      return;
+    }
+    try {
+      if (typeof image.decode !== 'function')
+        throw new Error('Avatar decode is unavailable');
+      await image.decode();
+      if (attempt !== loadAttemptRef.current)
+        return;
+      if (image.naturalWidth <= 0 || image.naturalHeight <= 0)
+        throw new Error('Avatar decode produced an empty image');
+      setStatus('image-ready');
+    }
+    catch {
+      markFallback();
+    }
+  };
+
+  if (status === 'fallback-ready')
+    return <div aria-label={displayName} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-white/90 bg-primary-light text-[18px] font-black text-primary-deep shadow-ww-xs" data-export-avatar="fallback-ready">{getAvatarInitial(displayName)}</div>;
+
+  return <img alt="" className="h-12 w-12 shrink-0 rounded-full border-2 border-white/90 bg-white/85 object-cover shadow-ww-xs" crossOrigin="anonymous" data-export-avatar={status} onError={markFallback} onLoad={event => void handleLoad(event)} src={normalizedSrc} />;
+}
+
+function ExportCategoryRing({ categories }: { categories: MonthBillCategorySegment[] }) {
+  const segments = getMonthBillRingSegments(categories);
+  let offset = 0;
+  return (
+    <svg aria-hidden="true" className="ml-auto h-[78px] w-[78px] shrink-0" viewBox="0 0 64 64">
+      <circle cx="32" cy="32" fill="none" r="23" stroke="var(--ww-theme-color-light)" strokeWidth="8" />
+      {segments.map((segment) => {
+        const currentOffset = -offset;
+        offset += segment.percentage;
+        return <circle cx="32" cy="32" fill="none" key={segment.key} pathLength="100" r="23" stroke={segment.color} strokeDasharray={`${segment.percentage} ${100 - segment.percentage}`} strokeDashoffset={currentOffset} strokeLinecap="butt" strokeWidth="8" transform="rotate(-90 32 32)" />;
+      })}
+      <circle cx="32" cy="32" fill="var(--ww-card-color)" r="16" />
+      <circle cx="32" cy="32" fill="none" r="28" stroke="var(--ww-card-color)" strokeOpacity="0.6" strokeWidth="1" />
+    </svg>
   );
 }
 

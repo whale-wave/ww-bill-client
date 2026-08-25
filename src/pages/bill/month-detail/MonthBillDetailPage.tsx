@@ -1,9 +1,11 @@
+import type { AvatarReadyState, ExportCopySnapshot, ExportUserSnapshot } from './model/monthBillDetail';
 import type { MonthBillDetailResponse } from '@/entities/record';
 import { Toast } from 'antd-mobile';
 import html2canvas from 'html2canvas-pro';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMonthBillDetailQuery } from '@/entities/record';
+import { useGetUserUserInfoQuery } from '@/entities/user';
 import { useTranslation } from '@/shared/i18n';
 import { downloadCanvas } from '@/shared/lib';
 import { DesignIcon, IllustratedEmptyState, PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
@@ -21,6 +23,13 @@ interface ExportSnapshot {
   bill: MonthBillDetailResponse;
   qrUrl: string;
   sessionId: number;
+  user: ExportUserSnapshot;
+  copy: ExportCopySnapshot;
+}
+
+interface AvatarBarrierState {
+  sessionId: number;
+  state: 'loading' | AvatarReadyState;
 }
 
 function waitForImages(element: HTMLElement) {
@@ -55,6 +64,9 @@ async function waitForStrictQr(element: HTMLElement) {
 
 function getExportFontSample(snapshot: ExportSnapshot) {
   return [
+    snapshot.user.displayName,
+    snapshot.copy.monthTitle,
+    snapshot.copy.reviewSubtitle,
     ...snapshot.bill.expense.categories.map(item => item.name),
     ...snapshot.bill.income.categories.map(item => item.name),
     snapshot.bill.month,
@@ -101,11 +113,13 @@ export default function MonthBillDetailPage() {
   const { t } = useTranslation('bill');
   const isMonthValid = isValidMonth(month);
   const query = useMonthBillDetailQuery({ month: month ?? '', queryOptions: { enabled: isMonthValid } });
+  const userQuery = useGetUserUserInfoQuery({ options: { enabled: isMonthValid } });
   const [exportStatus, setExportStatus] = useState<ExportStatus>('idle');
   const [exportMounted, setExportMounted] = useState(false);
   const [chartsEnabled, setChartsEnabled] = useState(false);
   const [readyCharts, setReadyCharts] = useState<Set<string>>(() => new Set());
   const [qrCode, setQrCode] = useState<string>();
+  const [avatarBarrier, setAvatarBarrier] = useState<AvatarBarrierState>();
   const exportRef = useRef<HTMLDivElement>(null);
   const activeSessionRef = useRef(0);
   const nextSessionIdRef = useRef(0);
@@ -135,6 +149,7 @@ export default function MonthBillDetailPage() {
     setChartsEnabled(false);
     setReadyCharts(new Set());
     setQrCode(undefined);
+    setAvatarBarrier(undefined);
     setExportStatus('idle');
     if (terminal === 'success')
       Toast.show({ content: t('exportSaved'), icon: 'success' });
@@ -163,11 +178,22 @@ export default function MonthBillDetailPage() {
     finalizeSession(sessionId, 'failure');
   }, [finalizeSession]);
 
+  const handleAvatarReady = useCallback((sessionId: number, state: AvatarReadyState) => {
+    if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId))
+      return;
+    setAvatarBarrier({ sessionId, state });
+  }, []);
+
   const captureExport = useCallback(async () => {
     const sessionId = activeSessionRef.current;
     const snapshot = snapshotRef.current;
     const root = exportRef.current;
-    if (!sessionId || !snapshot || !root || captureStartedRef.current || readyCharts.size !== EXPORT_CHART_KEYS.size)
+    const avatarIsReady = avatarBarrier?.sessionId === sessionId
+      && (avatarBarrier.state === 'image-ready' || avatarBarrier.state === 'fallback-ready');
+    if (!sessionId || !snapshot || !root || captureStartedRef.current || readyCharts.size !== EXPORT_CHART_KEYS.size || !avatarIsReady)
+      return;
+    const avatarElement = root.querySelector<HTMLElement>('[data-export-avatar]');
+    if (!avatarElement || (avatarElement.dataset.exportAvatar !== 'image-ready' && avatarElement.dataset.exportAvatar !== 'fallback-ready'))
       return;
     captureStartedRef.current = true;
     try {
@@ -200,7 +226,7 @@ export default function MonthBillDetailPage() {
     catch {
       finalizeSession(sessionId, 'failure');
     }
-  }, [finalizeSession, readyCharts.size]);
+  }, [avatarBarrier, finalizeSession, readyCharts.size]);
 
   useEffect(() => {
     if (!exportMounted || chartsEnabled || !snapshotRef.current || !activeSessionRef.current || !exportRef.current)
@@ -225,15 +251,30 @@ export default function MonthBillDetailPage() {
   }, [chartsEnabled, exportMounted, finalizeSession, qrCode]);
 
   useEffect(() => {
-    if (exportMounted && chartsEnabled && readyCharts.size === EXPORT_CHART_KEYS.size)
+    const avatarIsReady = avatarBarrier?.state === 'image-ready' || avatarBarrier?.state === 'fallback-ready';
+    if (exportMounted && chartsEnabled && readyCharts.size === EXPORT_CHART_KEYS.size && avatarIsReady)
       void captureExport();
-  }, [captureExport, chartsEnabled, exportMounted, readyCharts.size]);
+  }, [avatarBarrier?.sessionId, avatarBarrier?.state, captureExport, chartsEnabled, exportMounted, readyCharts.size]);
 
   const handleSave = useCallback(async () => {
     if (!query.data || exportStatus !== 'idle' || inFlightRef.current)
       return;
     const sessionId = ++nextSessionIdRef.current;
-    const snapshot: ExportSnapshot = { bill: query.data, qrUrl: query.data.monthBillExportQrUrl, sessionId };
+    const displayName = userQuery.data?.name?.trim() || userQuery.data?.username?.trim() || t('exportUserFallbackName') || 'Ledger user';
+    const [year, monthNumber] = query.data.month.split('-');
+    const snapshot: ExportSnapshot = {
+      bill: query.data,
+      copy: {
+        monthTitle: t('exportMonthTitle', { month: Number(monthNumber), year }),
+        reviewSubtitle: t('monthlyIncomeExpenseReview'),
+      },
+      qrUrl: query.data.monthBillExportQrUrl,
+      sessionId,
+      user: {
+        avatar: userQuery.data?.avatar?.trim() || undefined,
+        displayName,
+      },
+    };
     activeSessionRef.current = sessionId;
     inFlightRef.current = true;
     snapshotRef.current = snapshot;
@@ -241,6 +282,7 @@ export default function MonthBillDetailPage() {
     captureStartedRef.current = false;
     setExportStatus('preparing');
     setReadyCharts(new Set());
+    setAvatarBarrier({ sessionId, state: 'loading' });
     setChartsEnabled(false);
     watchdogRef.current = window.setTimeout(finalizeSession, EXPORT_SESSION_WATCHDOG_MS, sessionId, 'timeout');
     try {
@@ -254,7 +296,7 @@ export default function MonthBillDetailPage() {
     catch {
       finalizeSession(sessionId, 'failure');
     }
-  }, [exportStatus, finalizeSession, query.data]);
+  }, [exportStatus, finalizeSession, query.data, t, userQuery.data]);
 
   if (!isMonthValid)
     return null;
@@ -274,7 +316,7 @@ export default function MonthBillDetailPage() {
         {!query.isLoading && !query.isError && query.data && query.data.summary.recordCount > 0 && <MonthBillDetailRenderer data={query.data} mode="screen" />}
       </main>
       <div className="absolute bottom-0 left-0 right-0 z-20 shrink-0 bg-gradient-to-t from-[#f4fbff] via-[#f4fbff]/95 to-transparent px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-5"><WwButton className="!h-12 !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww" onClick={() => void handleSave()} size="full">{exportStatus === 'idle' ? t('saveImage') : t('savingImage')}</WwButton></div>
-      {exportMounted && snapshotRef.current && qrCode && <div aria-hidden="true" className="pointer-events-none fixed left-[-10000px] top-0" ref={exportRef}><MonthBillDetailRenderer chartsEnabled={chartsEnabled} data={snapshotRef.current.bill} exportSessionId={snapshotRef.current.sessionId} mode="export" onChartError={handleChartError} onChartReady={handleChartReady} qrCode={qrCode} /></div>}
+      {exportMounted && snapshotRef.current && qrCode && <div aria-hidden="true" className="pointer-events-none fixed left-[-10000px] top-0" ref={exportRef}><MonthBillDetailRenderer chartsEnabled={chartsEnabled} data={snapshotRef.current.bill} exportCopy={snapshotRef.current.copy} exportSessionId={snapshotRef.current.sessionId} exportUser={snapshotRef.current.user} mode="export" onAvatarReady={handleAvatarReady} onChartError={handleChartError} onChartReady={handleChartReady} qrCode={qrCode} /></div>}
     </div>
   );
 }

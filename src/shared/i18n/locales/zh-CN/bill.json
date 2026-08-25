@@ -55,6 +55,9 @@
   "increase": "增长",
   "decrease": "下降",
   "other": "其他",
+  "exportUserFallbackName": "记账用户",
+  "exportMonthTitle": "{{year}}年{{month}}月账单",
+  "monthlyIncomeExpenseReview": "月度收支回顾",
   "exportBrandTagline": "轻松记账，看见每月变化",
   "exportQrHint": "扫码打开鲸浪账本"
 }

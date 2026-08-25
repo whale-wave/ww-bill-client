@@ -1,6 +1,6 @@
 import type { MonthBillDetailResponse } from '@/entities/record';
 import { describe, expect, it } from 'vitest';
-import { toMonthBillDetailModel } from '@/pages/bill/month-detail/model/monthBillDetail';
+import { getAvatarInitial, getMonthBillRingSegments, toMonthBillDetailModel } from '@/pages/bill/month-detail/model/monthBillDetail';
 
 function category(categoryId: number, amount: string) {
   return {
@@ -106,5 +106,28 @@ describe('toMonthBillDetailModel', () => {
     const colors = model.expense.chartCategories.map(item => item.color);
 
     expect(new Set(colors)).toHaveLength(colors.length);
+  });
+});
+
+describe('month bill export helpers', () => {
+  it('uses a grapheme-safe avatar initial with a portable fallback', () => {
+    expect(getAvatarInitial('  鲸浪账本')).toBe('鲸');
+    expect(getAvatarInitial('👨‍👩‍👧‍👦 账本')).toBe('👨‍👩‍👧‍👦');
+    expect(getAvatarInitial('')).toBe('?');
+  });
+
+  it('normalizes SVG ring geometry from amounts instead of rounded percentages', () => {
+    const segments = getMonthBillRingSegments([
+      { ...category(1, '1.00'), color: '#111111', key: 'category:1', kind: 'category' },
+      { ...category(2, '2.00'), color: '#222222', key: 'category:2', kind: 'category' },
+    ]);
+
+    expect(segments[0]?.percentage).toBeCloseTo(100 / 3);
+    expect(segments[1]?.percentage).toBeCloseTo(200 / 3);
+  });
+
+  it('returns no SVG segments for an empty or zero-valued category set', () => {
+    expect(getMonthBillRingSegments([])).toEqual([]);
+    expect(getMonthBillRingSegments([{ ...category(1, '0.00'), color: '#111111', key: 'category:1', kind: 'category' }])).toEqual([]);
   });
 });
