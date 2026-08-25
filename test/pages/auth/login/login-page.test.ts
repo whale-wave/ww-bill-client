@@ -7,11 +7,11 @@ import LoginPage from '@/pages/auth/login/LoginPage';
 
 const {
   login,
-  setToken,
+  startSession,
   setQueryData,
 } = vi.hoisted(() => ({
   login: vi.fn(),
-  setToken: vi.fn(),
+  startSession: vi.fn(),
   setQueryData: vi.fn(),
 }));
 
@@ -28,7 +28,7 @@ vi.mock('@/features/auth', () => ({
   AuthPageShell: ({ children, footer }: { children: ReactNode; footer?: ReactNode }) => createElement('main', null, children, footer),
   AuthPrimaryButton: ({ children, onClick }: { children: ReactNode; onClick: () => unknown }) => createElement('button', { onClick }, children),
   AuthSegmentedControl: () => null,
-  useAuthStore: (selector: (state: { setToken: typeof setToken }) => unknown) => selector({ setToken }),
+  useAuthStore: (selector: (state: { startSession: typeof startSession }) => unknown) => selector({ startSession }),
 }));
 
 vi.mock('@tanstack/react-query', () => ({
@@ -87,7 +87,7 @@ async function submitLogin(container: HTMLElement) {
 beforeEach(() => {
   vi.useFakeTimers();
   login.mockReset();
-  setToken.mockReset();
+  startSession.mockReset();
   setQueryData.mockReset();
   login.mockResolvedValue({
     statusCode: 200,

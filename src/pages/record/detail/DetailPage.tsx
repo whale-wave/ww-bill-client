@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { RecordOverviewPresentation } from '@/entities/record';
 import { useRecordOverviewHeader } from '@/pages/record/detail/Top';
+import { getQueryViewState } from '@/shared/api';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
@@ -53,6 +54,12 @@ const Detail: FC = () => {
       { key: 'expense', label: t('common:amount.expend'), value: group[4] },
     ],
   })), [handleRecord, query.record, t]);
+  const viewState = getQueryViewState({
+    hasData: query.hasData,
+    isError: query.isError,
+    isFetching: query.isFetching,
+    isLoading: query.isLoading,
+  });
 
   return (
     <div className="page">
@@ -68,7 +75,7 @@ const Detail: FC = () => {
         onRetry={() => void query.refetch()}
         retryLabel={t('detail.errorAction')}
         renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
-        state={query.isLoading ? 'loading' : query.isError ? 'error' : 'ready'}
+        state={viewState.isInitialLoading ? 'loading' : viewState.isBlockingError ? 'error' : 'ready'}
       />
       <TabBar active={0} />
     </div>

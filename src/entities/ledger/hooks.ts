@@ -507,6 +507,7 @@ export function useInvitationPreviewQuery(options: UseInvitationPreviewQueryOpti
   const { data: response, ...rest } = useQuery({
     queryFn: () => getLedgerInvitationPreviewQueryFn(options.params.code),
     queryKey: ledgerKeys.invitationPreview(options.params.code),
+    meta: { persist: false },
     ...options.queryOptions,
   });
 

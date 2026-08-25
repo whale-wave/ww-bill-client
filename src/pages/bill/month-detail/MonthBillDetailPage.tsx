@@ -120,6 +120,7 @@ export default function MonthBillDetailPage() {
   const { t } = useTranslation('bill');
   const isMonthValid = isValidMonth(month);
   const query = useMonthBillDetailQuery({ month: month ?? '', queryOptions: { enabled: isMonthValid } });
+  const hasData = Boolean(query.data);
   const userQuery = useGetUserUserInfoQuery({ options: { enabled: isMonthValid } });
   const [exportStatus, setExportStatus] = useState<ExportStatus>('idle');
   const [exportMounted, setExportMounted] = useState(false);
@@ -336,15 +337,15 @@ export default function MonthBillDetailPage() {
     <div className="page-new overflow-hidden">
       <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate('/bill')} title={formatMonthTitle(month)} />
       <main className="min-h-0 flex-grow overflow-auto px-[18px] pb-28 pt-2" data-bill-detail-scroll>
-        {query.isLoading && <PageLoadingState label={t('common:nav.loading')} testId="month-bill-detail-loading" />}
-        {!query.isLoading && query.isError && (
+        {query.isLoading && !hasData && <PageLoadingState label={t('common:nav.loading')} testId="month-bill-detail-loading" />}
+        {query.isError && !hasData && (
           <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 text-center">
             <div className="text-[15px] font-bold text-ww-ink">{t('detailLoadFailed')}</div>
             <button className="h-11 rounded-[16px] border border-border-primary bg-white/85 px-5 text-[13px] font-extrabold text-primary-deep shadow-ww-xs" onClick={() => void query.refetch()} type="button">{t('common:retry')}</button>
           </div>
         )}
-        {!query.isLoading && !query.isError && query.data && query.data.summary.recordCount === 0 && <IllustratedEmptyState accentIcon={<DesignIcon name="tab-add" size={20} />} actionLabel={t('emptyAction')} className="min-h-[320px]" description={t('emptyDescription')} icon={<DesignIcon name="shortcut-bill" size={46} />} onAction={() => navigate('/bookkeeping')} title={t('emptyTitle')} />}
-        {!query.isLoading && !query.isError && query.data && query.data.summary.recordCount > 0 && <MonthBillDetailRenderer data={query.data} mode="screen" />}
+        {query.data && query.data.summary.recordCount === 0 && <IllustratedEmptyState accentIcon={<DesignIcon name="tab-add" size={20} />} actionLabel={t('emptyAction')} className="min-h-[320px]" description={t('emptyDescription')} icon={<DesignIcon name="shortcut-bill" size={46} />} onAction={() => navigate('/bookkeeping')} title={t('emptyTitle')} />}
+        {query.data && query.data.summary.recordCount > 0 && <MonthBillDetailRenderer data={query.data} mode="screen" />}
       </main>
       <div className="absolute bottom-0 left-0 right-0 z-20 flex shrink-0 gap-3 bg-gradient-to-t from-[#f4fbff] via-[#f4fbff]/95 to-transparent px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-5">
         <WwButton className="!h-12 !flex-1 !rounded-[16px] !border !border-primary/25 !bg-white/90 !font-bold !text-primary-deep" onClick={() => void handleExport('share')} size="full">{exportStatus === 'idle' ? t('shareImage') : t('savingImage')}</WwButton>

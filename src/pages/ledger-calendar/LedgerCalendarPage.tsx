@@ -12,6 +12,7 @@ import {
 } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
+import { getQueryViewState } from '@/shared/api';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 
@@ -75,6 +76,12 @@ function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: strin
       ),
     showCategoryAsSecondary: true,
   }), [ledgerId, navigate, selectedRecords, t]);
+  const viewState = getQueryViewState({
+    hasData: Boolean(query.response),
+    isError: query.isError,
+    isFetching: query.isFetching,
+    isLoading: query.isLoading,
+  });
 
   const syncDate = (date: dayjs.Dayjs) => {
     const next = new URLSearchParams(searchParams);
@@ -118,7 +125,7 @@ function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: strin
       renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
       selectedDayLabel={t('record:calendar.selectedDay')}
       selectedDate={selectedDate}
-      state={query.isLoading ? 'loading' : query.isError ? 'error' : 'ready'}
+      state={viewState.isInitialLoading ? 'loading' : viewState.isBlockingError ? 'error' : 'ready'}
       todayLabel={t('common:time.today')}
     />
   );

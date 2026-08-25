@@ -22,6 +22,7 @@ import {
 } from '@/features/household';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { WorkspaceCapsule } from '@/features/workspace-navigation';
+import { getQueryViewState } from '@/shared/api';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedMonthDay, formatLocalizedYear } from '@/shared/lib';
@@ -156,6 +157,12 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
       t,
     ],
   );
+  const viewState = getQueryViewState({
+    hasData: Boolean(query.response),
+    isError: query.isError,
+    isFetching: query.isFetching,
+    isLoading: query.isLoading,
+  });
   return (
     <RecordOverviewPresentation
       emptyDescription={t('home.emptyDescription')}
@@ -220,7 +227,7 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
       onRetry={() => void query.refetch()}
       retryLabel={t('common.retry')}
       renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
-      state={query.isLoading ? 'loading' : query.isError ? 'error' : 'ready'}
+      state={viewState.isInitialLoading ? 'loading' : viewState.isBlockingError ? 'error' : 'ready'}
     />
   );
 }

@@ -89,6 +89,7 @@ export function useGetRecordQuery(options: {
   const { data: response, ...rest } = useQuery<SuccessResponse<GetRecordApiResponseData>>({
     queryFn: () => getRecordApi(options.params),
     queryKey: recordKeys.list(options.params),
+    keepPreviousData: true,
     ...options.queryOptions,
     ...options?.options,
   });
@@ -114,6 +115,7 @@ export function useLedgerRecordsQuery(options: {
   const { data: response, ...rest } = useQuery<SuccessResponse<GetRecordApiResponseData>>({
     queryFn: async () => assertSuccessApi(await getLedgerRecordsApi(ledgerId, filters)),
     queryKey: recordKeys.ledgerList(ledgerId, filters),
+    keepPreviousData: true,
     ...options.queryOptions,
   });
   return {
@@ -163,6 +165,7 @@ export function useLedgerRecordBillQuery(options: {
   const { data: response, ...rest } = useQuery<SuccessResponse<GetRecordBillApiResponseData>>({
     queryFn: async () => assertSuccessApi(await getLedgerRecordBillApi(ledgerId, filters)),
     queryKey: recordKeys.ledgerBill(ledgerId, filters),
+    keepPreviousData: true,
     ...options.queryOptions,
   });
   return { response, data: response?.data ?? emptyBill, ...rest };
@@ -177,6 +180,7 @@ export function useHouseholdRecordBillQuery(options: {
     queryFn: async () =>
       assertSuccessApi(await getHouseholdRecordBillApi(householdId, filters)),
     queryKey: recordKeys.householdBill(householdId, filters),
+    keepPreviousData: true,
     ...options.queryOptions,
   });
   return { response, data: response?.data ?? emptyBill, ...rest };
@@ -281,6 +285,7 @@ export function useGetRecordBillQuery(options?: {
   const { data: response, isLoading, ...rest } = useQuery<SuccessResponse<GetRecordBillApiResponseData>>({
     queryFn: () => getRecordBillApi(options!.params),
     queryKey: recordKeys.bill(options!.params),
+    keepPreviousData: true,
     ...options?.queryOptions,
     ...options?.options,
   });
@@ -330,6 +335,7 @@ export function useMonthBillDetailQuery(options: {
       return { ...response, data: normalizeMonthBillDetail(response.data) };
     },
     queryKey: recordKeys.billMonthDetail(options.month),
+    keepPreviousData: true,
     ...options.queryOptions,
   });
 

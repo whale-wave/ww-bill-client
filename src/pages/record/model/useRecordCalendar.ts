@@ -157,6 +157,8 @@ export function useRecordCalendar() {
     onToToday,
     onFixedPinClick,
     isError: recordQuery.isError,
+    hasData: Boolean(recordQuery.response),
+    isFetching: recordQuery.isFetching,
     isLoading: recordQuery.isLoading,
     refetch: recordQuery.refetch,
   };

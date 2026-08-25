@@ -143,11 +143,11 @@ const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) =
       renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
       selectedDayLabel={t('record:calendar.selectedDay')}
       selectedDate={selectDateValue}
-      state={calendarQuery.isLoading || recordsQuery.isLoading
+      state={(calendarQuery.isLoading && !calendarQuery.response) || (recordsQuery.isLoading && !recordsQuery.data)
         ? 'loading'
-        : calendarQuery.isError || recordsQuery.isError
-          ? 'error'
-          : 'ready'}
+        : (calendarQuery.isError && !calendarQuery.response) || (recordsQuery.isError && !recordsQuery.data)
+            ? 'error'
+            : 'ready'}
       todayLabel={t('common:time.today')}
     />
   );

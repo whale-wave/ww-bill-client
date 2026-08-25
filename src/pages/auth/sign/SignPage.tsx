@@ -14,13 +14,13 @@ const Sign: FC = () => {
   const { t } = useTranslation('auth');
   const [form, setForm] = useState({ email: '', password: '', emailCode: '' });
   const queryClient = useQueryClient();
-  const { setToken } = useAuthStore(({ setToken }) => ({ setToken }));
+  const { startSession } = useAuthStore(({ startSession }) => ({ startSession }));
   const navigate = useNavigate();
 
   const handleSign = async () => {
     const { statusCode, data } = await sign(form);
     if (statusCode === 200) {
-      setToken(data.token);
+      startSession(data.token, data.userInfo.userId || String(data.userInfo.id));
       queryClient.setQueryData(userKeys.info(), {
         statusCode: 200,
         message: '',

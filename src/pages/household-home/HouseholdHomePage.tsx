@@ -188,9 +188,9 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
           : undefined}
         retryLabel={t('common.retry')}
         renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
-        state={recordsQuery.isLoading
+        state={recordsQuery.isLoading && !recordsQuery.data
           ? 'loading'
-          : recordsQuery.isError
+          : recordsQuery.isError && !recordsQuery.data
             ? 'error'
             : 'ready'}
       />

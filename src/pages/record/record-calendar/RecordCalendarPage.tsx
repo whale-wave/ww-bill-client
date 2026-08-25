@@ -6,6 +6,7 @@ import {
   RecordCalendarPresentation,
   toRecordSearchGroups,
 } from '@/entities/record';
+import { getQueryViewState } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { useRecordCalendar } from '../model/useRecordCalendar';
@@ -24,9 +25,12 @@ function RecordCalendar() {
     onToToday,
     onFixedPinClick,
     isError,
+    hasData,
+    isFetching,
     isLoading,
     refetch,
   } = useRecordCalendar();
+  const viewState = getQueryViewState({ hasData, isError, isFetching, isLoading });
 
   const days = useMemo(() => Array.from(dateMap, ([timestamp, value]) => ({
     date: dayjs(timestamp).format('YYYY-MM-DD'),
@@ -61,7 +65,7 @@ function RecordCalendar() {
       renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
       selectedDayLabel={t('calendar.selectedDay')}
       selectedDate={selectDateValue}
-      state={isLoading ? 'loading' : isError ? 'error' : 'ready'}
+      state={viewState.isInitialLoading ? 'loading' : viewState.isBlockingError ? 'error' : 'ready'}
       todayLabel={t('common:time.today')}
     />
   );

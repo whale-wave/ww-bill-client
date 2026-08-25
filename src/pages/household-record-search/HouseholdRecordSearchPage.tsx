@@ -133,19 +133,19 @@ const SearchContent: FC<{ householdId: string }> = ({ householdId }) => {
       onRetry={() => void (isScopeReady ? query.refetch() : scopeQuery.refetch())}
       placeholder={t('records.keywordPlaceholder')}
       retryLabel={t('common.retry')}
-      state={scopeQuery.isLoading
+      state={scopeQuery.isLoading && !scopeQuery.data
         ? 'loading'
-        : scopeQuery.isError || !isScopeReady
-          ? 'error'
-          : !search.isActive
-              ? 'idle'
-              : Object.keys(validation).length > 0
+        : (scopeQuery.isError && !scopeQuery.data) || !isScopeReady
+            ? 'error'
+            : !search.isActive
                 ? 'idle'
-                : search.isDebouncing || query.isLoading
-                  ? 'loading'
-                  : query.isError
-                    ? 'error'
-                    : 'ready'}
+                : Object.keys(validation).length > 0
+                  ? 'idle'
+                  : search.isDebouncing || (query.isLoading && !query.data)
+                    ? 'loading'
+                    : query.isError && !query.data
+                      ? 'error'
+                      : 'ready'}
       summary={summary}
       title={t('records.searchTitle')}
       validateFilters={filters => validateRecordSearchState({

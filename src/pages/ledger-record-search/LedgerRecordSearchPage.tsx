@@ -117,9 +117,9 @@ function ScopedLedgerSearch({
         ? 'idle'
         : Object.keys(validation).length > 0
           ? 'idle'
-          : search.isDebouncing || query.isLoading
+          : search.isDebouncing || (query.isLoading && !query.response)
             ? 'loading'
-            : query.isError
+            : query.isError && !query.response
               ? 'error'
               : 'ready'}
       summary={query.data.total > 0

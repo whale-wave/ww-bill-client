@@ -376,6 +376,7 @@ export function useInfiniteHouseholdRecordsQuery(options: {
       { ...baseFilters, offset: pageParam as number },
     ),
     getNextPageParam: lastPage => getNextHouseholdRecordsOffset(lastPage.data),
+    keepPreviousData: true,
     ...options.queryOptions,
   });
   const firstPage = query.data?.pages[0]?.data;
@@ -446,6 +447,7 @@ export function useHouseholdInvitationPreviewQuery(options: {
   const { data: response, ...rest } = useQuery({
     queryFn: () => getHouseholdInvitationPreviewQueryFn(options.params.code),
     queryKey: householdKeys.invitationPreview(options.params.code),
+    meta: { persist: false },
     ...options.queryOptions,
   });
   return { response, data: response?.data, ...rest };
@@ -530,6 +532,7 @@ export function useHouseholdCalendarQuery(options: {
   const { data: response, ...rest } = useQuery({
     queryFn: () => getHouseholdCalendarQueryFn(householdId, { month }),
     queryKey: householdKeys.calendar(householdId, month),
+    keepPreviousData: true,
     ...options.queryOptions,
   });
   return { response, data: response?.data, days: response?.data.days ?? [], ...rest };

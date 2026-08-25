@@ -15,7 +15,9 @@ import { PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
 
 interface BillQueryState {
   data?: GetRecordBillApiResponseData;
+  response?: unknown;
   isError?: boolean;
+  isFetching?: boolean;
   isLoading?: boolean;
   refetch?: () => unknown;
 }
@@ -40,6 +42,7 @@ function BillWorkspaceContent({ query, onMonthSelect }: { query: BillQueryState;
         month: `${period}${isMonth ? t('month') : t('year')}`,
       }));
   }, [isMonth, query.data?.list, selectDate, t]);
+  const hasData = Boolean(query.response ?? query.data);
 
   useLayoutEffect(() => {
     if (scrollContainerRef.current)
@@ -48,14 +51,14 @@ function BillWorkspaceContent({ query, onMonthSelect }: { query: BillQueryState;
 
   return (
     <div
-      className="min-h-0 flex-grow overflow-auto px-[18px] pb-4"
+      className="relative min-h-0 flex-grow overflow-auto px-[18px] pb-4"
       data-testid="bill-scroll-container"
       ref={scrollContainerRef}
     >
-      {query.isLoading && (
+      {query.isLoading && !hasData && (
         <PageLoadingState label={t('common:nav.loading')} testId="bill-loading" />
       )}
-      {!query.isLoading && query.isError && (
+      {query.isError && !hasData && (
         <div className="flex min-h-[320px] flex-col items-center justify-center gap-3">
           <ErrorBlock />
           {query.refetch && (
@@ -65,11 +68,16 @@ function BillWorkspaceContent({ query, onMonthSelect }: { query: BillQueryState;
           )}
         </div>
       )}
-      {!query.isLoading && !query.isError && (
+      {hasData && (
         <>
           <BillRecordCard data={query.data?.all} />
           <Content data={list} onMonthSelect={onMonthSelect} />
         </>
+      )}
+      {hasData && query.isFetching && (
+        <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold text-primary-deep shadow-ww-xs">
+          {t('common:nav.loading')}
+        </div>
       )}
     </div>
   );

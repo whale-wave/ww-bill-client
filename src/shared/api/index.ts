@@ -4,5 +4,8 @@ export { setAuthDeps } from './auth-injection';
 export { default as request } from './http';
 export { isSuccessApi } from './is-success';
 export { queryClient } from './query-client';
+export { createQueryCachePersister, removeQueryCache } from './query-persister';
+export type { AccountQueryPersister } from './query-persister';
+export { getQueryViewState } from './query-state';
 export type { SuccessResponse } from './types';
 export { uploadFile } from './upload';

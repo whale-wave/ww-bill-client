@@ -44,7 +44,7 @@ const Login: FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { setToken } = useAuthStore(({ setToken }) => ({ setToken }));
+  const { startSession } = useAuthStore(({ startSession }) => ({ startSession }));
   const [userNameForm, setUserNameForm] = useState({ username: '', password: '' });
   const [emailForm, setEmailForm] = useState({ email: '', emailCode: '' });
   const [loginType, setLoginType] = useState<LoginType>('username');
@@ -58,7 +58,7 @@ const Login: FC = () => {
       loginType === 'username' ? userNameForm : emailForm,
     );
     if (statusCode === 200) {
-      setToken(data.token);
+      startSession(data.token, data.userInfo.userId || String(data.userInfo.id));
       queryClient.setQueryData(userKeys.info(), {
         statusCode: 200,
         message: '',
@@ -67,7 +67,7 @@ const Login: FC = () => {
       const redirectLocation = getSafeRedirectLocation(location.state?.from);
       setTimeout(navigate, 1000, redirectLocation, { replace: true });
     }
-  }, [emailForm, location.state, loginType, navigate, queryClient, setToken, userNameForm]);
+  }, [emailForm, location.state, loginType, navigate, queryClient, startSession, userNameForm]);
 
   const handleForgetPassword = useCallback(() => {
     playSound.turnPage();

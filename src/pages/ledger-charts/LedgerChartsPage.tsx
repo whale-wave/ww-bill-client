@@ -163,10 +163,19 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
     tabs,
   ]);
 
-  if (isLoading || preferenceQuery.isLoading) {
+  const hasChartData = metric === LedgerChartMetric.INCOME
+    ? Boolean(income.response)
+    : metric === LedgerChartMetric.EXPENSE
+      ? Boolean(expense.response)
+      : Boolean(income.response) || Boolean(expense.response);
+  const hasPreferenceData = Boolean(preferenceQuery.response);
+  const isInitialLoading = (isLoading && !hasChartData) || (preferenceQuery.isLoading && !hasPreferenceData);
+  const isBlockingError = (isError && !hasChartData) || (preferenceQuery.isError && !hasPreferenceData);
+
+  if (isInitialLoading) {
     return <PageLoadingState label={t('common:nav.loading')} testId="ledger-charts-loading" />;
   }
-  if (isError || preferenceQuery.isError) {
+  if (isBlockingError) {
     return (
       <div className="flex flex-grow items-center justify-center">
         <ErrorBlock

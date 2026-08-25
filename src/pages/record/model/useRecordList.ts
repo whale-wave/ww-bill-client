@@ -108,7 +108,9 @@ export function useRecordList(selectTime: Dayjs | undefined) {
 
   return {
     amounts,
+    hasData: Boolean(query.response),
     isError: query.isError,
+    isFetching: query.isFetching,
     isLoading: query.isLoading,
     record,
     refetch: query.refetch,

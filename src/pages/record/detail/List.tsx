@@ -8,7 +8,7 @@ import { CategoryIcon } from '@/entities/category';
 import { RecordOverviewList } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
-import { DesignIcon, IllustratedEmptyState } from '@/shared/ui';
+import { DesignIcon, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
 import { useRecordList } from '../model/useRecordList';
 
 type RecordGroup = [
@@ -30,7 +30,7 @@ interface ListProps {
 const List: FC<ListProps> = memo(({ selectTime, change }) => {
   const navigate = useNavigate();
   const { t } = useTranslation('record');
-  const { amounts, record } = useRecordList(selectTime);
+  const { amounts, hasData, isLoading, record } = useRecordList(selectTime);
 
   useEffect(() => {
     change?.(amounts);
@@ -63,29 +63,31 @@ const List: FC<ListProps> = memo(({ selectTime, change }) => {
 
   return (
     <div className="mt-[9px] flex min-h-0 flex-grow flex-col overflow-auto">
-      {groups.length > 0
-        ? (
-            <>
-              <RecordOverviewList
-                groups={groups}
-                renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
-                variant="overview"
+      {isLoading && !hasData
+        ? <PageLoadingState label={t('common:nav.loading')} testId="record-list-loading" />
+        : groups.length > 0
+          ? (
+              <>
+                <RecordOverviewList
+                  groups={groups}
+                  renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
+                  variant="overview"
+                />
+                <div className="h-[30px] flex-shrink-0"></div>
+              </>
+            )
+          : (
+              <IllustratedEmptyState
+                accentIcon={<Plus size={19} strokeWidth={2.2} />}
+                actionLabel={t('detail.emptyAction')}
+                className="min-h-[330px] flex-grow"
+                description={t('detail.emptyDescription')}
+                icon={<DesignIcon name="tab-detail-active" size={46} />}
+                onAction={() => navigate('/bookkeeping')}
+                testId="record-list-empty-state"
+                title={t('detail.emptyTitle')}
               />
-              <div className="h-[30px] flex-shrink-0"></div>
-            </>
-          )
-        : (
-            <IllustratedEmptyState
-              accentIcon={<Plus size={19} strokeWidth={2.2} />}
-              actionLabel={t('detail.emptyAction')}
-              className="min-h-[330px] flex-grow"
-              description={t('detail.emptyDescription')}
-              icon={<DesignIcon name="tab-detail-active" size={46} />}
-              onAction={() => navigate('/bookkeeping')}
-              testId="record-list-empty-state"
-              title={t('detail.emptyTitle')}
-            />
-          )}
+            )}
     </div>
   );
 });
