@@ -63,7 +63,7 @@
   "bottomList": {
     "settings": "Settings",
     "feedback": "Feedback",
-    "about": "About WhaleWave v{{version}}"
+    "about": "About WhaleWave"
   },
   "emailChange": {
     "title": "Change Email",

@@ -9,6 +9,7 @@ import { useWorkspaceBack } from '@/features/workspace-navigation';
 import {
   SettingsOverviewPresentation,
 } from '@/features/workspace-settings';
+import { APP_INFO } from '@/shared/config/app-info';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import {
   changeLanguage,
@@ -216,6 +217,14 @@ const Settings: FC = () => {
               {
                 id: 'placeholders',
                 rows: [
+                  {
+                    icon: 'about',
+                    id: 'about',
+                    kind: 'link',
+                    label: t('aboutSupport.title'),
+                    onClick: () => goTo(ROUTES_PATH.SETTINGS_ABOUT.getPath()),
+                    value: t('aboutSupport.version', { version: APP_INFO.version }),
+                  },
                   {
                     icon: 'help',
                     id: 'help',

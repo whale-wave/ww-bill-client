@@ -63,7 +63,7 @@
   "bottomList": {
     "settings": "设置",
     "feedback": "意见反馈",
-    "about": "关于鲸浪记账 v{{version}}"
+    "about": "关于鲸浪记账"
   },
   "emailChange": {
     "title": "修改邮箱",

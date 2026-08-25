@@ -240,6 +240,9 @@ export const ROUTES_PATH = {
   SETTINGS: {
     getPath: () => '/settings',
   },
+  SETTINGS_ABOUT: {
+    getPath: () => '/settings/about',
+  },
   SHARE: {
     getPath: () => '/share',
   },

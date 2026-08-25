@@ -3,6 +3,7 @@ import type { LedgerUserSummary } from '@/entities/ledger';
 
 export type SettingsIconKey
   = | 'account'
+    | 'about'
     | 'appearance'
     | 'archive'
     | 'calendar'

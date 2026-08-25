@@ -11,6 +11,7 @@ import {
   CircleHelp,
   Download,
   FolderOpen,
+  Info,
   Languages,
   LockKeyhole,
   MonitorDown,
@@ -27,6 +28,7 @@ import { cn } from '@/shared/lib';
 
 const iconMap: Record<SettingsIconKey, typeof Archive> = {
   account: UserRound,
+  about: Info,
   appearance: Paintbrush,
   archive: Archive,
   calendar: CalendarDays,

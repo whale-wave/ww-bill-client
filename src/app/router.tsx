@@ -238,6 +238,10 @@ const router = createHashRouter([
             lazy: lazyGuardedPage(() => import('@/pages/app-lock-settings/AppLockSettingsPage')),
           },
           {
+            path: 'about',
+            lazy: lazyGuardedPage(() => import('@/pages/about-support/AboutSupportPage')),
+          },
+          {
             path: 'email',
             children: [
               {
