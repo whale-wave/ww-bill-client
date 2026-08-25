@@ -10,6 +10,7 @@ import {
   recordAppLockFailure,
   verifyAppLockPattern,
 } from '@/entities/app-lock';
+import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { AppButton, PageLoadingState } from '@/shared/ui';
 
@@ -40,6 +41,8 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
   const patternRef = useRef<number[]>([]);
   const isSubmittingRef = useRef(false);
   const lockVersionRef = useRef(0);
+  const initialRouteRef = useRef(location.pathname);
+  const hasPendingInitialUnlockRef = useRef(true);
   const lockState
     = userId === undefined
       ? { failedAttempts: 0, lockedUntil: null }
@@ -190,8 +193,15 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
       handlePatternChange([]);
       if (valid) {
         localAppLockStorage.removeLockState(userId);
+        const shouldReturnToDefaultDetail = hasPendingInitialUnlockRef.current
+          && initialRouteRef.current === '/settings'
+          && location.pathname === '/settings';
+        hasPendingInitialUnlockRef.current = false;
         setUnlocked(true);
         setError('');
+        if (shouldReturnToDefaultDetail) {
+          navigate(ROUTES_PATH.DETAIL.getPath(), { replace: true });
+        }
         return;
       }
       const nextState = recordAppLockFailure(lockState);

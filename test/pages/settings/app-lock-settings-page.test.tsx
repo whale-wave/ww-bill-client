@@ -509,6 +509,40 @@ describe('app lock settings page', () => {
     expect(container.querySelector('[data-testid="protected-content"]')).not.toBeNull();
   });
 
+  it('returns to the default detail page after the first unlock from settings', async () => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    const { container, router } = renderGuard(
+      <div data-testid="protected-content" />,
+      ['/settings'],
+    );
+
+    await act(async () => {
+      drawPattern(container);
+    });
+
+    expect(router.state.location.pathname).toBe('/detail');
+    expect(router.state.historyAction).toBe('REPLACE');
+  });
+
+  it('keeps the original route after the first unlock outside settings', async () => {
+    mocks.config.gestureLockEnabled = true;
+    mocks.getCredential.mockReturnValue({ digest: 'digest' });
+    mocks.getCredentialStatus.mockReturnValue('valid');
+    const { container, router } = renderGuard(
+      <div data-testid="protected-content" />,
+      ['/record-calendar'],
+    );
+
+    await act(async () => {
+      drawPattern(container);
+    });
+
+    expect(router.state.location.pathname).toBe('/record-calendar');
+    expect(router.state.historyAction).toBe('POP');
+  });
+
   it('passes the recovery intent from the lock screen to settings', () => {
     mocks.config.gestureLockEnabled = true;
     mocks.getCredential.mockReturnValue({ digest: 'digest' });
