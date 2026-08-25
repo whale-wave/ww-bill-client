@@ -12,6 +12,9 @@ export const ROUTES_PATH = {
   BILL: {
     getPath: () => '/bill',
   },
+  BILL_MONTH_DETAIL: {
+    getPath: (month: string) => `/bill/${encodeRouteSegment(month)}`,
+  },
   BUDGET: {
     getPath: () => '/budget',
   },

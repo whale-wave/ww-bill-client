@@ -260,7 +260,16 @@ const router = createHashRouter([
       },
       {
         path: 'bill',
-        lazy: lazyGuardedPage(() => import('@/pages/bill/BillPage')),
+        children: [
+          {
+            index: true,
+            lazy: lazyGuardedPage(() => import('@/pages/bill/BillPage')),
+          },
+          {
+            path: ':month',
+            lazy: lazyGuardedPage(() => import('@/pages/bill/month-detail/MonthBillDetailPage')),
+          },
+        ],
       },
       {
         path: 'household',

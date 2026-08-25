@@ -1,5 +1,6 @@
 import type { GetRecordBillApiResponseData } from '@/entities/record';
 import { Button as AdmButton, ErrorBlock } from 'antd-mobile';
+import dayjs from 'dayjs';
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +10,7 @@ import { BillTabs } from '@/pages/bill/BillTabs';
 import { useBillPageStore } from '@/pages/bill/model';
 import { BillTabsType } from '@/pages/bill/types';
 import Content from '@/pages/bill/ui/Content';
+import { ROUTES_PATH } from '@/shared/config/routes';
 import { PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
 
 interface BillQueryState {
@@ -18,9 +20,10 @@ interface BillQueryState {
   refetch?: () => unknown;
 }
 
-function BillWorkspaceContent({ query }: { query: BillQueryState }) {
+function BillWorkspaceContent({ query, onMonthSelect }: { query: BillQueryState; onMonthSelect?: (period: string) => void }) {
   const { t } = useTranslation('bill');
   const isMonth = useBillPageStore(({ billTabType }) => billTabType === BillTabsType.MONTH);
+  const selectDate = useBillPageStore(({ selectDate }) => selectDate);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const list = useMemo(() => {
     const source = query.data?.list;
@@ -33,9 +36,10 @@ function BillWorkspaceContent({ query }: { query: BillQueryState }) {
         balance: source[period]!.balance,
         expand: source[period]!.expand,
         income: source[period]!.income,
+        period: isMonth ? `${dayjs(selectDate).year()}-${String(Number(period)).padStart(2, '0')}` : period,
         month: `${period}${isMonth ? t('month') : t('year')}`,
       }));
-  }, [isMonth, query.data?.list, t]);
+  }, [isMonth, query.data?.list, selectDate, t]);
 
   useLayoutEffect(() => {
     if (scrollContainerRef.current)
@@ -64,7 +68,7 @@ function BillWorkspaceContent({ query }: { query: BillQueryState }) {
       {!query.isLoading && !query.isError && (
         <>
           <BillRecordCard data={query.data?.all} />
-          <Content data={list} />
+          <Content data={list} onMonthSelect={onMonthSelect} />
         </>
       )}
     </div>
@@ -82,7 +86,10 @@ export function PersonalBillWorkspaceView({ query }: { query: BillQueryState }) 
       </header>
       <div className="flex flex-grow flex-col overflow-hidden">
         <BillTabs />
-        <BillWorkspaceContent query={query} />
+        <BillWorkspaceContent
+          onMonthSelect={period => navigate(ROUTES_PATH.BILL_MONTH_DETAIL.getPath(period))}
+          query={query}
+        />
       </div>
       <div className="shrink-0 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
         <WwButton

@@ -38,4 +38,5 @@ export const recordKeys = {
   detail: (params: { id: string }) => [...recordKeys.details(), params.id] as const,
   bills: () => [...recordKeys.all, 'bill'] as const,
   bill: (params: GetRecordBillApiParams) => [...recordKeys.bills(), params] as const,
+  billMonthDetail: (month: string) => [...recordKeys.bills(), 'month-detail', month] as const,
 };

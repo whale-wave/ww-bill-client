@@ -10,14 +10,16 @@ import { formatAmount } from '@/shared/lib';
 import { DesignIcon, IllustratedEmptyState } from '@/shared/ui';
 
 type DataItem = {
+  period: string;
   month: string;
 } & Bill;
 
 interface ContentProps {
   data: DataItem[];
+  onMonthSelect?: (period: string) => void;
 }
 
-const Content: FC<ContentProps> = memo(({ data }) => {
+const Content: FC<ContentProps> = memo(({ data, onMonthSelect }) => {
   const { t } = useTranslation('bill');
   const navigate = useNavigate();
   const billTabType = useBillPageStore(({ billTabType }) => billTabType);
@@ -51,37 +53,49 @@ const Content: FC<ContentProps> = memo(({ data }) => {
           )
         : (
             <ul className="overflow-hidden rounded-[20px] border border-border-primary bg-white/85 shadow-ww-xs backdrop-blur-xl">
-              {data.map((item, index) => (
-                <li
-                  className={index > 0 ? 'relative ml-[18px] flex h-[74px] items-center border-t border-solid border-[rgba(110,194,220,0.16)] pr-[18px]' : 'flex h-[74px] items-center px-[18px]'}
-                  key={item.month}
-                >
-                  <div className="w-[58px] shrink-0 font-number text-[18px] font-extrabold text-ww-ink">{item.month}</div>
-                  <dl className="grid min-w-0 flex-1 grid-cols-2 gap-2">
-                    <div className="min-w-0">
-                      <dt className="text-[10px] font-semibold text-ww-soft">{t('income')}</dt>
-                      <dd className="truncate font-number text-[13px] font-bold text-[#2a9460]">
-                        ¥
-                        {formatAmount(item.income)}
-                      </dd>
-                    </div>
-                    <div className="min-w-0">
-                      <dt className="text-[10px] font-semibold text-ww-soft">{t('expend')}</dt>
-                      <dd className="truncate font-number text-[13px] font-bold text-[#c04870]">
-                        ¥
-                        {formatAmount(item.expand)}
-                      </dd>
-                    </div>
-                  </dl>
-                  <div className="ml-2 w-[78px] min-w-0 text-right">
-                    <div className="text-[10px] font-semibold text-ww-soft">{t('balance')}</div>
-                    <div className="truncate font-number text-[14px] font-extrabold text-primary-deep">
-                      ¥
-                      {formatAmount(item.balance)}
-                    </div>
-                  </div>
-                </li>
-              ))}
+              {data.map((item, index) => {
+                const isClickable = isMonthTabType && Boolean(onMonthSelect);
+                return (
+                  <li
+                    className={index > 0 ? 'relative ml-[18px] flex h-[74px] items-center border-t border-solid border-[rgba(110,194,220,0.16)] pr-[18px]' : 'flex h-[74px] items-center px-[18px]'}
+                    key={item.month}
+                  >
+                    <button
+                      aria-label={isClickable ? `${item.month}${t('detail')}` : undefined}
+                      className="flex h-full w-full items-center bg-transparent text-left outline-none transition-colors active:bg-primary-light/25 focus-visible:bg-primary-light/25"
+                      data-bill-month={isClickable ? item.period : undefined}
+                      disabled={!isClickable}
+                      onClick={() => onMonthSelect?.(item.period)}
+                      type="button"
+                    >
+                      <div className="w-[58px] shrink-0 font-number text-[18px] font-extrabold text-ww-ink">{item.month}</div>
+                      <dl className="grid min-w-0 flex-1 grid-cols-2 gap-2">
+                        <div className="min-w-0">
+                          <dt className="text-[10px] font-semibold text-ww-soft">{t('income')}</dt>
+                          <dd className="truncate font-number text-[13px] font-bold text-[#2a9460]">
+                            ¥
+                            {formatAmount(item.income)}
+                          </dd>
+                        </div>
+                        <div className="min-w-0">
+                          <dt className="text-[10px] font-semibold text-ww-soft">{t('expend')}</dt>
+                          <dd className="truncate font-number text-[13px] font-bold text-[#c04870]">
+                            ¥
+                            {formatAmount(item.expand)}
+                          </dd>
+                        </div>
+                      </dl>
+                      <div className="ml-2 w-[78px] min-w-0 text-right">
+                        <div className="text-[10px] font-semibold text-ww-soft">{t('balance')}</div>
+                        <div className="truncate font-number text-[14px] font-extrabold text-primary-deep">
+                          ¥
+                          {formatAmount(item.balance)}
+                        </div>
+                      </div>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           )}
     </section>
