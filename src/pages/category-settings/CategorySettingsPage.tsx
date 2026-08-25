@@ -1,10 +1,10 @@
-import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
+import { Button, ErrorBlock } from 'antd-mobile';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LedgerKind, useLedgersQuery } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { PageHeader } from '@/shared/ui';
+import { PageHeader, PageLoadingState } from '@/shared/ui';
 
 export default function CategorySettingsPage() {
   const { t } = useTranslation('common');
@@ -26,10 +26,7 @@ export default function CategorySettingsPage() {
       <main className="flex min-h-0 flex-1 items-center justify-center px-6 pb-12">
         {query.isLoading || defaultLedger
           ? (
-              <div className="flex flex-col items-center gap-3 text-[12px] font-bold text-ww-mid">
-                <SpinLoading color="primary" />
-                <span>{t('loading')}</span>
-              </div>
+              <PageLoadingState label={t('nav.loading')} testId="category-settings-loading" />
             )
           : (
               <div className="w-full max-w-[360px] text-center">

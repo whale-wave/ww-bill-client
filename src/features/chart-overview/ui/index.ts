@@ -1,4 +1,5 @@
 export * from './ChartContent';
+export * from './ChartDisplaySwitch';
 export * from './ChartOverviewBody';
 export * from './LineChart';
 export * from './PieChart';

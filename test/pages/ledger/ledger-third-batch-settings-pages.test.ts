@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  LEDGER_ICON_KEYS,
   LedgerCapability,
   LedgerChartDisplay,
   LedgerChartMetric,
@@ -213,6 +214,32 @@ afterEach(() => {
 });
 
 describe('ledger settings', () => {
+  it('renders every settings icon option through the canonical ledger glyph catalog', async () => {
+    const { container } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="basic"]')?.click());
+
+    const iconSelect = document.body.querySelector<HTMLSelectElement>('[data-testid="ledger-icon"]');
+    expect([...iconSelect?.options ?? []].map(option => option.value))
+      .toEqual(['shop', ...LEDGER_ICON_KEYS]);
+
+    const iconButtons = [...document.body.querySelectorAll<HTMLButtonElement>('button')];
+
+    for (const iconKey of LEDGER_ICON_KEYS) {
+      const iconOption = iconButtons
+        .find(button => button.textContent === `settings.iconOptions.${iconKey}`);
+      expect(iconOption?.querySelector('svg')).not.toBeNull();
+      expect(iconOption?.querySelector('img')).toBeNull();
+    }
+
+    const walletOption = iconButtons
+      .find(button => button.textContent === 'settings.iconOptions.wallet');
+
+    await act(async () => walletOption?.click());
+
+    expect(walletOption?.getAttribute('aria-pressed')).toBe('true');
+  });
+
   it('saves canonical basic fields and the current member preferences with versions', async () => {
     hooks.patchLedger.mockResolvedValue({ data: ledger });
     hooks.patchPreferences.mockResolvedValue({ data: preference });
@@ -273,6 +300,17 @@ describe('ledger settings', () => {
       }),
       ledgerId: 'ledger/a',
     });
+  });
+
+  it('disables the basic save action while the mutation is loading', async () => {
+    hooks.usePatchLedgerMutation.mockReturnValue([hooks.patchLedger, { isLoading: true }]);
+    const { container } = renderPage('/ledgers/ledger%2Fa/settings', '/ledgers/:ledgerId/settings', createElement(LedgerSettingsPage));
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="basic"]')?.click());
+
+    const save = document.body.querySelector<HTMLButtonElement>('[data-testid="ledger-basic-save"]');
+    expect(save?.disabled).toBe(true);
+    expect(save?.getAttribute('aria-busy')).toBe('true');
   });
 
   it('drives management entries from capabilities and never archives SYSTEM_DEFAULT', async () => {
@@ -503,6 +541,7 @@ describe('ledger category and tag management', () => {
     const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
 
     await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.archive"]')?.click());
+    await act(async () => container.querySelector<HTMLButtonElement>('button[aria-expanded="false"]')?.click());
     await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.restoreName"]')?.click());
 
     expect(hooks.updateCategory).toHaveBeenNthCalledWith(1, {

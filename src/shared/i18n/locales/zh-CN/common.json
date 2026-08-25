@@ -75,6 +75,7 @@
     "surplus": "结余"
   },
   "empty": "暂无数据",
+  "retry": "重试",
   "categorySettings": {
     "title": "类别设置",
     "notice": "当前仅支持查看，新增/编辑/删除待接口能力确认后开放。",

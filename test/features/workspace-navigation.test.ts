@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  LEDGER_ICON_KEYS,
   LedgerCapability,
   LedgerKind,
   LedgerStatus,
@@ -160,5 +161,39 @@ describe('workspace navigation', () => {
     expect(panel).not.toBeNull();
     expect(companyOption?.classList).toContain('ledger-switcher-panel__option');
     expect(document.body.querySelectorAll('.ledger-switcher-panel__footer-action')).toHaveLength(2);
+  });
+
+  it('renders every custom ledger glyph and keeps the household Users icon in the selector', async () => {
+    hooks.useLedgerNavigationQuery.mockReturnValue({
+      data: LEDGER_ICON_KEYS.map((iconKey, index) => ({
+        activeMemberCount: index + 1,
+        capabilities: [LedgerCapability.LEDGER_READ, LedgerCapability.RECORD_READ],
+        iconKey,
+        id: `ledger/${iconKey}`,
+        kind: LedgerKind.CUSTOM,
+        name: iconKey,
+        status: LedgerStatus.ACTIVE,
+      })),
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    const { container } = renderRoute(createElement(WorkspaceCapsule, {
+      scope: { householdId: 'household/a', type: 'household' },
+    }));
+
+    await act(async () => container.querySelector<HTMLButtonElement>(
+      '[data-workspace-capsule] button[aria-label="切换账本"]',
+    )?.click());
+
+    for (const iconKey of LEDGER_ICON_KEYS) {
+      const option = document.body.querySelector(`[data-workspace-option="custom-ledger/${iconKey}"]`);
+      expect(option?.querySelector('svg')).not.toBeNull();
+      expect(option?.querySelector('img')).toBeNull();
+    }
+
+    const householdOption = document.body.querySelector('[data-workspace-option="household-household/a"]');
+    expect(householdOption?.querySelector('svg')?.classList).toContain('lucide-users');
+    expect(householdOption?.querySelector('img')).toBeNull();
   });
 });

@@ -125,7 +125,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               )}
               {categoryState === 'error' && (
                 <div className="flex min-h-[240px] flex-col items-center justify-center">
-                  <ErrorBlock description={t('common:loadErrorDescription')} />
+                  <ErrorBlock description={t('common:error.loadFail')} />
                   {onRetryCategories && (
                     <Button className="mt-3" onClick={onRetryCategories} size="small">
                       {t('common:retry')}

@@ -1,4 +1,3 @@
-import type { Dayjs } from 'dayjs';
 import { Mail, ShieldCheck } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
@@ -6,7 +5,7 @@ import {
   getUserEmailChangeEmailCaptchaApi,
   getUserEmailChangeEmailCaptchaVerifyApi,
 } from '@/entities/user-email';
-import { WwInputVerifyCode } from '@/pages/auth/forget-password/ui';
+import { EmailCaptchaInput } from '@/features/email-captcha';
 import { useTranslation } from '@/shared/i18n';
 import { FormField, GradientPanel, PageHeader } from '@/shared/ui';
 
@@ -18,14 +17,11 @@ const EmailChangeCaptcha: React.FC<EmailChangeProps> = () => {
   const [urlSearchParams] = useSearchParams();
   const email = urlSearchParams.get('email') || '';
   const [captcha, setCaptcha] = useState<string>('');
-  const [startTime, setStartTime] = useState<Dayjs>();
 
   const onBack = useCallback(() => navigate(-1), [navigate]);
 
   const onSendCaptcha = useCallback(async () => {
-    const getUserEmailChangeEmailCaptchaRes
-      = await getUserEmailChangeEmailCaptchaApi();
-    return getUserEmailChangeEmailCaptchaRes.statusCode === 200;
+    return getUserEmailChangeEmailCaptchaApi({ loading: false });
   }, []);
 
   const onCaptchaVerify = useCallback(async () => {
@@ -57,12 +53,11 @@ const EmailChangeCaptcha: React.FC<EmailChangeProps> = () => {
           </div>
           <GradientPanel className="space-y-4 px-5 py-5" elevation="high" surface="glass">
             <FormField disabled label={t('info.email')} prefix={<Mail size={18} />} value={email} />
-            <WwInputVerifyCode
+            <EmailCaptchaInput
+              email={email}
               placeholder={t('emailChange.enterCaptcha')}
               value={captcha}
               onChange={setCaptcha}
-              startTime={startTime}
-              setStartTime={setStartTime}
               onSend={onSendCaptcha}
             />
             <button className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45" disabled={!captcha.trim()} onClick={() => void onCaptchaVerify()} type="button">{t('emailChange.captcha.verify')}</button>

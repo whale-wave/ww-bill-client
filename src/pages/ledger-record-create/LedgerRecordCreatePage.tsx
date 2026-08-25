@@ -1,7 +1,7 @@
 import type { Ledger } from '@/entities/ledger';
 import type { RecordDraft } from '@/features/record-editor';
 import { useQueryClient } from '@tanstack/react-query';
-import { SpinLoading, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -21,6 +21,7 @@ import {
 } from '@/features/record-editor';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { PageLoadingState } from '@/shared/ui';
 
 function getValidSelectTime(value: string | null) {
   if (!value)
@@ -107,6 +108,7 @@ function LedgerRecordCreateContent({
   ledger: Ledger;
   ledgerId: string;
 }) {
+  const { t } = useTranslation('ledger');
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
   const canReadTags = ledger.capabilities.includes(LedgerCapability.TAG_READ);
   const tagsQuery = useLedgerTagsQuery({
@@ -115,11 +117,7 @@ function LedgerRecordCreateContent({
   });
 
   if (preferenceQuery.isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center bg-white">
-        <SpinLoading />
-      </div>
-    );
+    return <PageLoadingState label={t('common:nav.loading')} testId="record-create-loading" />;
   }
 
   const supportsTags = canReadTags && !tagsQuery.isError;

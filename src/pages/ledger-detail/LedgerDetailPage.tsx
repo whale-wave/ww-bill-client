@@ -1,5 +1,5 @@
 import type { FC, ReactNode } from 'react';
-import { ErrorBlock, SpinLoading } from 'antd-mobile';
+import { ErrorBlock } from 'antd-mobile';
 import {
   AddSquareOutline,
   BillOutline,
@@ -14,13 +14,12 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   LedgerCapability,
-  LedgerKind,
   LedgerVisualIcon,
   useLedgerQuery,
 } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { PageHeader } from '@/shared/ui';
+import { PageHeader, PageLoadingState } from '@/shared/ui';
 
 const LEDGER_MODULES = ['records', 'bill', 'budget', 'charts', 'settings'] as const;
 
@@ -56,8 +55,6 @@ const LedgerDetailPage: FC = () => {
     queryOptions: { enabled: Boolean(ledgerId) },
   });
   const ledger = ledgerQuery.data;
-  const templateKey = ledger?.templateKey
-    ?? (ledger?.kind === LedgerKind.SYSTEM_DEFAULT ? 'system-default' : 'custom');
 
   const handleBack = () => navigate(-1);
   const collaborationItems = ledger
@@ -102,10 +99,7 @@ const LedgerDetailPage: FC = () => {
         )}
 
         {ledgerId && ledgerQuery.isLoading && (
-          <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 text-sm text-font-gray">
-            <SpinLoading />
-            <span>{t('detail.loading')}</span>
-          </div>
+          <PageLoadingState label={t('detail.loading')} testId="ledger-detail-loading" />
         )}
 
         {ledgerId && !ledgerQuery.isLoading && ledgerQuery.isError && (
@@ -122,8 +116,8 @@ const LedgerDetailPage: FC = () => {
           <div>
             <section className="bg-white px-4 py-4">
               <div className="flex items-center">
-                <span className="mr-3 flex h-[55px] w-[55px] items-center justify-center rounded-full bg-primary text-2xl text-font-black">
-                  <LedgerVisualIcon templateKey={templateKey} />
+                <span className="mr-3 flex h-[55px] w-[55px] items-center justify-center overflow-hidden rounded-full bg-primary text-2xl text-font-black">
+                  <LedgerVisualIcon iconKey={ledger.iconKey} kind={ledger.kind} templateKey={ledger.templateKey} />
                 </span>
                 <div className="min-w-0">
                   <h1 className="one-line text-xl font-medium text-font-black">{ledger.name}</h1>
@@ -139,7 +133,7 @@ const LedgerDetailPage: FC = () => {
                 {t('detail.basicInfo')}
               </h2>
               {[
-                [t('detail.template'), t(`template.${templateKey}.name`)],
+                [t('detail.template'), ledger.templateKey ? t(`template.${ledger.templateKey}.name`) : t('detail.unknownTemplate')],
                 [t('detail.theme'), ledger.themeKey],
                 [t('detail.role'), t(`role.${ledger.myRole}`)],
                 [t('detail.status'), t(`status.${ledger.status}`)],

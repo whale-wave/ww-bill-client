@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
-import { Button, Form, Input, Skeleton, Toast } from 'antd-mobile';
+import { Form, Input, Skeleton, Toast } from 'antd-mobile';
 import { clone } from 'lodash-es';
 import { BadgeDollarSign, Building2, CreditCard, FileWarning, Landmark, MessageSquareText, WalletCards } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -16,7 +16,7 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { normalizeAmount } from '@/shared/lib';
-import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { AppButton, FieldFrame, GradientPanel, IllustratedEmptyState } from '@/shared/ui';
 import { AssetPageFrame } from '../ui';
 
 type AssetFormValues = Pick<Asset, 'amount' | 'cardId' | 'comment' | 'name'>;
@@ -186,7 +186,7 @@ const AssetFormInfo: FC = () => {
           </GradientPanel>
 
           <Form
-            className="!bg-transparent"
+            className="!bg-transparent [&_.adm-list-body]:!border-0 [&_.adm-list-item-content]:!border-0"
             disabled={isSaving}
             form={form}
             hasFeedback={false}
@@ -195,14 +195,15 @@ const AssetFormInfo: FC = () => {
             onFinishFailed={handleFinishFailed}
             requiredMarkStyle="none"
             footer={(
-              <Button
-                block
-                className="!h-[50px] !rounded-[17px] !border-0 !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !text-[14px] !font-extrabold !text-white !shadow-ww"
+              <AppButton
+                className="!h-[50px] !rounded-[17px]"
+                fullWidth
+                loadingLabel={t('common:nav.loading')}
                 loading={isSaving}
                 type="submit"
               >
                 {t('form.save')}
-              </Button>
+              </AppButton>
             )}
           >
             <GradientPanel className="overflow-hidden px-4 py-2" elevation="low" surface="glass">
@@ -213,7 +214,7 @@ const AssetFormInfo: FC = () => {
                 const FieldIcon = field.icon;
                 return (
                   <Form.Item
-                    className="!mb-0 !border-0 !py-3 [&_.adm-form-item-child-inner]:!border-0 [&_.adm-form-item-label]:!mb-2 [&_.adm-form-item-label]:!text-[12px] [&_.adm-form-item-label]:!font-bold [&_.adm-form-item-label]:!text-ww-mid"
+                    className="!mb-0 !border-0 !py-3 [&_.adm-form-item-child-inner]:!border-0 [&_.adm-form-item-label]:!mb-2 [&_.adm-form-item-label]:!text-[12px] [&_.adm-form-item-label]:!font-bold [&_.adm-form-item-label]:!text-ww-mid [&_.adm-form-item-has-error_.asset-form-field-frame]:!border-[#d85e7b]"
                     key={field.name}
                     label={(
                       <span className="inline-flex items-center gap-1.5">
@@ -226,7 +227,7 @@ const AssetFormInfo: FC = () => {
                       </span>
                     )}
                   >
-                    <div className="flex h-12 items-center gap-3 rounded-[15px] bg-white/70 px-3 transition focus-within:bg-white/95 focus-within:ring-2 focus-within:ring-primary-light/60">
+                    <FieldFrame className="asset-form-field-frame !min-h-[52px] !rounded-[15px] !bg-white/90 !px-3 focus-within:!border-primary focus-within:!bg-white" disabled={field.disabled}>
                       <FieldIcon className="shrink-0 text-primary-deep" size={18} strokeWidth={1.8} />
                       <Form.Item
                         className="!m-0 min-w-0 flex-1 [&_.adm-form-item-child-inner]:!border-0"
@@ -245,7 +246,7 @@ const AssetFormInfo: FC = () => {
                           placeholder={field.placeholder ?? t('form.fieldPlaceholder', { field: field.label })}
                         />
                       </Form.Item>
-                    </div>
+                    </FieldFrame>
                   </Form.Item>
                 );
               })}

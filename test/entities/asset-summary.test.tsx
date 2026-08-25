@@ -1,5 +1,5 @@
 import type { Asset } from '@/entities/asset';
-import { createElement } from 'react';
+import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useAssetSummaryInfo } from '@/entities/asset';
@@ -40,11 +40,11 @@ describe('asset summary', () => {
     const container = document.createElement('div');
     document.body.append(container);
     const root = createRoot(container);
-    root.render(createElement(SummaryProbe));
+    act(() => root.render(createElement(SummaryProbe)));
 
     const output = container.querySelector('output');
     expect(output?.getAttribute('data-add-percent')).toBe('0');
     expect(output?.getAttribute('data-sub-percent')).toBe('0');
-    root.unmount();
+    act(() => root.unmount());
   });
 });

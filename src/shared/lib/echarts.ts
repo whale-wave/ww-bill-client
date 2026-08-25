@@ -1,4 +1,4 @@
-import { LineChart, PieChart } from 'echarts/charts';
+import { BarChart, LineChart, PieChart } from 'echarts/charts';
 import {
   GridComponent,
   LegendComponent,
@@ -12,6 +12,7 @@ import { CanvasRenderer } from 'echarts/renderers';
 
 echarts.use([
   CanvasRenderer,
+  BarChart,
   GridComponent,
   LabelLayout,
   LegendComponent,

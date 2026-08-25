@@ -15,7 +15,6 @@ import discoveryBudget from '@/assets/icons/figma/discovery-budget.svg';
 import editorBack from '@/assets/icons/figma/editor-back.svg';
 import editorDate from '@/assets/icons/figma/editor-date.svg';
 import editorDelete from '@/assets/icons/figma/editor-delete.svg';
-import ledger from '@/assets/icons/figma/ledger.svg';
 import listChevron from '@/assets/icons/figma/list-chevron.svg';
 import mineBadge from '@/assets/icons/figma/mine-badge.svg';
 import mineInvite from '@/assets/icons/figma/mine-invite.svg';
@@ -55,7 +54,6 @@ const iconSources = {
   'editor-back': editorBack,
   'editor-date': editorDate,
   'editor-delete': editorDelete,
-  'ledger': ledger,
   'list-chevron': listChevron,
   'mine-badge': mineBadge,
   'mine-invite': mineInvite,

@@ -1,5 +1,4 @@
 import type { InvoiceEntity } from '@/entities/invoice';
-import { SpinLoading } from 'antd-mobile';
 import { FilePlus2, Plus, ReceiptText } from 'lucide-react';
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +6,7 @@ import { useGetInvoiceQuery } from '@/entities/invoice';
 import AddInvoiceButton from '@/pages/invoice/ui/AddInvoiceButton';
 import InvoiceItem from '@/pages/invoice/ui/InvoiceItem';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, IllustratedEmptyState, PageHeader } from '@/shared/ui';
+import { GradientPanel, IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
 
 interface InvoiceProps {}
 
@@ -49,7 +48,7 @@ const Invoice: React.FC<InvoiceProps> = () => {
           </GradientPanel>
 
           {query.isLoading && (
-            <div className="flex min-h-[300px] items-center justify-center"><SpinLoading color="primary" /></div>
+            <PageLoadingState compact label={t('common:nav.loading')} testId="invoice-loading" />
           )}
           {!query.isLoading && query.isError && (
             <GradientPanel elevation="low" surface="glass">

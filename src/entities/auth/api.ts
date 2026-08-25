@@ -27,7 +27,7 @@ export function sign(body: {
   });
 }
 
-export function loginEmailCaptchaApi(email: string, loading = true) {
+export function loginEmailCaptchaApi(email: string, loading = false) {
   return request.get<never, SuccessResponse<unknown>>(
     '/auth/login/email/captcha',
     {

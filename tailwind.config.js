@@ -5,7 +5,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: [
-          '"Noto Sans SC"',
+          '"Noto Sans SC Variable"',
           '"HarmonyOS Sans SC"',
           'MiSans',
           '"PingFang SC"',
@@ -23,13 +23,13 @@ module.exports = {
           '"HarmonyOS Sans SC"',
           'MiSans',
           '"PingFang SC"',
-          '"Noto Sans SC"',
+          '"Noto Sans SC Variable"',
           'system-ui',
           'sans-serif',
         ],
         number: [
-          'Nunito',
-          '"Noto Sans SC"',
+          '"Nunito Variable"',
+          '"Noto Sans SC Variable"',
           'system-ui',
           'sans-serif',
         ],

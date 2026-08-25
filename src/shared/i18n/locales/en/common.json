@@ -75,6 +75,7 @@
     "surplus": "Surplus"
   },
   "empty": "No data",
+  "retry": "Try again",
   "categorySettings": {
     "title": "Category Settings",
     "notice": "View-only. Add/edit/delete coming soon.",

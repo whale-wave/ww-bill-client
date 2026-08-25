@@ -13,11 +13,22 @@ import {
 import { useLedgerRecordsQuery } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, PageHeader } from '@/shared/ui';
-import { buildLedgerTransferRequest, groupLedgerTransferConflicts } from './model';
+import {
+  ContentStack,
+  GradientPanel,
+  PageHeader,
+  SectionStack,
+  SelectField,
+} from '@/shared/ui';
+import {
+  buildLedgerTransferRequest,
+  buildSourceLedgerOptions,
+  groupLedgerTransferConflicts,
+} from './model';
 
 function createIdempotencyKey() {
-  return globalThis.crypto?.randomUUID?.() ?? `transfer-${Date.now()}`;
+  return globalThis.crypto?.randomUUID?.()
+    ?? `transfer-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
 interface SourceCategory {
@@ -25,8 +36,6 @@ interface SourceCategory {
   name: string;
   type: 'add' | 'sub';
 }
-
-const transferSelectClassName = 'mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 text-[14px] font-semibold text-ww-ink shadow-ww-xs outline-none';
 
 function TransferRecordSelector({
   records,
@@ -39,8 +48,8 @@ function TransferRecordSelector({
 }) {
   const { t } = useTranslation('ledger');
   return (
-    <div className="mt-4">
-      <div className="mb-2 flex items-center justify-between">
+    <ContentStack>
+      <div className="flex items-center justify-between">
         <h2 className="text-[13px] font-bold text-ww-ink">{t('transfer.chooseRecords')}</h2>
         <span className="text-[11px] font-semibold text-ww-mid">
           {t('transfer.selectedCount', { count: selectedIds.length })}
@@ -82,24 +91,25 @@ function TransferRecordSelector({
         ))}
       </div>
       {selectedIds.length >= 100 && (
-        <p className="mt-2 text-[11px] font-semibold text-ww-mid">{t('transfer.maximumRecords')}</p>
+        <p className="text-[11px] font-semibold text-ww-mid">{t('transfer.maximumRecords')}</p>
       )}
-    </div>
+    </ContentStack>
   );
 }
 
 function TransferContent({ ledgerId }: { ledgerId: string }) {
   const { t } = useTranslation('ledger');
   const ledgers = useLedgersQuery();
-  const recordsQuery = useLedgerRecordsQuery({ params: { ledgerId } });
-  const [targetLedgerId, setTargetLedgerId] = useState('');
+  const [sourceLedgerId, setSourceLedgerId] = useState('');
+  const recordsQuery = useLedgerRecordsQuery({
+    params: { ledgerId: sourceLedgerId },
+    queryOptions: { enabled: Boolean(sourceLedgerId) },
+  });
   const targetCategories = useLedgerCategoriesQuery({
-    params: { ledgerId: targetLedgerId },
-    queryOptions: { enabled: Boolean(targetLedgerId) },
+    params: { ledgerId },
   });
   const targetTags = useLedgerTagsQuery({
-    params: { ledgerId: targetLedgerId, status: 'ACTIVE' },
-    queryOptions: { enabled: Boolean(targetLedgerId) },
+    params: { ledgerId, status: 'ACTIVE' },
   });
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [categoryMappings, setCategoryMappings] = useState<Record<string, number>>({});
@@ -132,133 +142,132 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
   }, [selectedRecords]);
   const mappingComplete = sourceCategories.every(category => Boolean(categoryMappings[category.id]))
     && (tagStrategy === 'drop' || sourceTags.every(tag => Boolean(tagMappings[tag.id])));
-  const canPreview = Boolean(targetLedgerId)
+  const canPreview = Boolean(sourceLedgerId)
     && selectedIds.length > 0
     && selectedIds.length <= 100
     && mappingComplete;
 
-  const invalidatePreview = () => setPreview(undefined);
+  const handleRequestChange = () => {
+    setRequestKey(createIdempotencyKey());
+    setPreview(undefined);
+  };
+  const handleSourceChange = (value: string) => {
+    setSourceLedgerId(value);
+    setSelectedIds([]);
+    setCategoryMappings({});
+    setTagMappings({});
+    handleRequestChange();
+  };
   const buildRequest = () => buildLedgerTransferRequest({
     categoryMappings,
     idempotencyKey: requestKey,
     recordIds: selectedIds,
-    sourceLedgerId: ledgerId,
+    sourceLedgerId,
     ...(tagStrategy === 'map' ? { tagMappings } : {}),
     tagStrategy,
-    targetLedgerId,
+    targetLedgerId: ledgerId,
   });
 
   return (
-    <div>
-      <GradientPanel className="mt-2 px-4 py-4" elevation="low" surface="ice">
-        <label className="block min-w-0 text-[12px] font-bold text-ww-mid">
-          {t('transfer.target')}
-          <select
-            className={transferSelectClassName}
-            onChange={(event) => {
-              setTargetLedgerId(event.target.value);
-              setCategoryMappings({});
-              setTagMappings({});
-              invalidatePreview();
-            }}
-            value={targetLedgerId}
-          >
-            <option value="">{t('transfer.chooseTarget')}</option>
-            {ledgers.data
-              .filter(ledger => ledger.id !== ledgerId
-                && ledger.capabilities.includes(LedgerCapability.RECORD_CREATE))
-              .map(ledger => <option key={ledger.id} value={ledger.id}>{ledger.name}</option>)}
-          </select>
-        </label>
+    <SectionStack className="pt-2">
+      <GradientPanel className="px-4 py-4" elevation="low" surface="ice">
+        <ContentStack>
+          <SelectField
+            label={t('transfer.source')}
+            onChange={handleSourceChange}
+            options={buildSourceLedgerOptions(ledgers.data, ledgerId)
+              .map(ledger => ({ label: ledger.name, value: ledger.id }))}
+            placeholder={t('transfer.chooseSource')}
+            value={sourceLedgerId}
+          />
 
-        <TransferRecordSelector
-          onChange={(recordId, selected) => {
-            setSelectedIds(current => selected
-              ? [...current, recordId]
-              : current.filter(id => id !== recordId));
-            invalidatePreview();
-          }}
-          records={recordsQuery.data.data}
-          selectedIds={selectedIds}
-        />
+          {sourceLedgerId
+            ? (
+                <TransferRecordSelector
+                  onChange={(recordId, selected) => {
+                    setSelectedIds(current => selected
+                      ? [...current, recordId]
+                      : current.filter(id => id !== recordId));
+                    handleRequestChange();
+                  }}
+                  records={recordsQuery.data.data}
+                  selectedIds={selectedIds}
+                />
+              )
+            : <p className="text-[12px] font-semibold leading-5 text-ww-mid">{t('transfer.chooseSourceHint')}</p>}
+        </ContentStack>
       </GradientPanel>
 
-      {targetLedgerId && sourceCategories.length > 0 && (
-        <GradientPanel className="mt-3 px-4 py-4" elevation="low" surface="glass">
-          <h2 className="text-[13px] font-bold text-ww-ink">{t('transfer.categoryMappings')}</h2>
-          <div className="mt-3 space-y-3">
-            {sourceCategories.map(source => (
-              <label className="block min-w-0 text-[12px] font-bold text-ww-mid" key={source.id}>
-                {t('transfer.categoryMappingLabel', { name: source.name })}
-                <select
-                  className={transferSelectClassName}
-                  onChange={(event) => {
+      {sourceLedgerId && sourceCategories.length > 0 && (
+        <GradientPanel className="px-4 py-4" elevation="low" surface="glass">
+          <ContentStack>
+            <h2 className="text-[13px] font-bold text-ww-ink">{t('transfer.categoryMappings')}</h2>
+            <ContentStack>
+              {sourceCategories.map(source => (
+                <SelectField
+                  key={source.id}
+                  label={t('transfer.categoryMappingLabel', { name: source.name })}
+                  onChange={(value) => {
                     setCategoryMappings(current => ({
                       ...current,
-                      [source.id]: Number(event.target.value),
+                      [source.id]: Number(value),
                     }));
-                    invalidatePreview();
+                    handleRequestChange();
                   }}
-                  value={categoryMappings[source.id] ?? ''}
-                >
-                  <option value="">{t('transfer.chooseCategory')}</option>
-                  {targetCategories.data
+                  options={targetCategories.data
                     .filter(category => category.type === source.type)
-                    .map(category => (
-                      <option key={category.id} value={category.id}>{category.name}</option>
-                    ))}
-                </select>
-              </label>
-            ))}
-          </div>
+                    .map(category => ({ label: category.name, value: String(category.id) }))}
+                  placeholder={t('transfer.chooseCategory')}
+                  value={categoryMappings[source.id] ? String(categoryMappings[source.id]) : ''}
+                />
+              ))}
+            </ContentStack>
+          </ContentStack>
         </GradientPanel>
       )}
 
       {sourceTags.length > 0 && (
-        <GradientPanel className="mt-3 px-4 py-4" elevation="low" surface="glass">
-          <h2 className="text-[13px] font-bold text-ww-ink">{t('transfer.tagHandling')}</h2>
-          <div className="mt-3 grid grid-cols-2 gap-1.5 rounded-[16px] border border-solid border-border-primary bg-white/70 p-1.5 shadow-ww-xs">
-            {(['drop', 'map'] as const).map(strategy => (
-              <button
-                className={`min-h-10 rounded-[13px] px-2 text-[12px] font-bold transition ${tagStrategy === strategy ? 'bg-primary text-white shadow-ww-xs' : 'bg-white/40 text-ww-mid'}`}
-                key={strategy}
-                onClick={() => {
-                  setTagStrategy(strategy);
-                  invalidatePreview();
-                }}
-                type="button"
-              >
-                {t(`transfer.tagStrategy.${strategy}`)}
-              </button>
-            ))}
-          </div>
-          {tagStrategy === 'map' && (
-            <div className="mt-3 space-y-3">
-              {sourceTags.map(source => (
-                <label className="block min-w-0 text-[12px] font-bold text-ww-mid" key={source.id}>
-                  {t('transfer.tagMappingLabel', { name: source.name })}
-                  <select
-                    className={transferSelectClassName}
-                    onChange={(event) => {
-                      setTagMappings(current => ({ ...current, [source.id]: event.target.value }));
-                      invalidatePreview();
-                    }}
-                    value={tagMappings[source.id] ?? ''}
-                  >
-                    <option value="">{t('transfer.chooseTag')}</option>
-                    {targetTags.data.map(tag => (
-                      <option key={tag.id} value={tag.id}>{tag.name}</option>
-                    ))}
-                  </select>
-                </label>
+        <GradientPanel className="px-4 py-4" elevation="low" surface="glass">
+          <ContentStack>
+            <h2 className="text-[13px] font-bold text-ww-ink">{t('transfer.tagHandling')}</h2>
+            <div className="grid grid-cols-2 gap-1.5 rounded-[16px] border border-solid border-border-primary bg-white/70 p-1.5 shadow-ww-xs">
+              {(['drop', 'map'] as const).map(strategy => (
+                <button
+                  className={`min-h-10 rounded-[13px] px-2 text-[12px] font-bold transition ${tagStrategy === strategy ? 'bg-primary text-white shadow-ww-xs' : 'bg-white/40 text-ww-mid'}`}
+                  key={strategy}
+                  onClick={() => {
+                    setTagStrategy(strategy);
+                    handleRequestChange();
+                  }}
+                  type="button"
+                >
+                  {t(`transfer.tagStrategy.${strategy}`)}
+                </button>
               ))}
             </div>
-          )}
+            {tagStrategy === 'map' && (
+              <ContentStack>
+                {sourceTags.map(source => (
+                  <SelectField
+                    key={source.id}
+                    label={t('transfer.tagMappingLabel', { name: source.name })}
+                    onChange={(value) => {
+                      setTagMappings(current => ({ ...current, [source.id]: value }));
+                      handleRequestChange();
+                    }}
+                    options={targetTags.data.map(tag => ({ label: tag.name, value: tag.id }))}
+                    placeholder={t('transfer.chooseTag')}
+                    value={tagMappings[source.id] ?? ''}
+                  />
+                ))}
+              </ContentStack>
+            )}
+          </ContentStack>
         </GradientPanel>
       )}
 
       <button
-        className="mt-4 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
+        className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
         disabled={!canPreview || previewState.isLoading}
         onClick={async () => {
           if (submittingRef.current || !canPreview)
@@ -281,23 +290,25 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
       </button>
 
       {preview && (
-        <GradientPanel className="mt-3 px-4 py-4" elevation="low" surface="ice">
-          <p className="text-[13px] font-bold text-ww-ink">
-            {t('transfer.previewSummary', { conflicts: preview.conflictCount, ready: preview.readyCount })}
-          </p>
-          {groupLedgerTransferConflicts(preview.conflicts).map(group => (
-            <p className="mt-2 text-[12px] font-semibold leading-5 text-ww-mid" key={group.recordId}>
-              #
-              {group.recordId}
-              :
-              {group.conflicts.map(conflict => conflict.message).join(' / ')}
+        <GradientPanel className="px-4 py-4" elevation="low" surface="ice">
+          <ContentStack>
+            <p className="text-[13px] font-bold text-ww-ink">
+              {t('transfer.previewSummary', { conflicts: preview.conflictCount, ready: preview.readyCount })}
             </p>
-          ))}
+            {groupLedgerTransferConflicts(preview.conflicts).map(group => (
+              <p className="text-[12px] font-semibold leading-5 text-ww-mid" key={group.recordId}>
+                #
+                {group.recordId}
+                :
+                {group.conflicts.map(conflict => conflict.message).join(' / ')}
+              </p>
+            ))}
+          </ContentStack>
         </GradientPanel>
       )}
 
       <button
-        className="mt-4 h-[52px] w-full rounded-[18px] border border-solid border-border-primary bg-white/85 text-[14px] font-extrabold text-primary-deep shadow-ww disabled:opacity-45"
+        className="h-[52px] w-full rounded-[18px] border border-solid border-border-primary bg-white/85 text-[14px] font-extrabold text-primary-deep shadow-ww disabled:opacity-45"
         disabled={!preview || preview.conflictCount > 0 || preview.readyCount !== selectedIds.length || executeState.isLoading}
         onClick={async () => {
           if (submittingRef.current || !preview)
@@ -323,7 +334,7 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
       >
         {executeState.isLoading ? t('transfer.executing') : t('transfer.execute')}
       </button>
-    </div>
+    </SectionStack>
   );
 }
 

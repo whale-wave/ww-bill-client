@@ -112,7 +112,6 @@ export function useRecordOverviewHeader({
       ),
     },
     renderTitle: className => <LedgerTitleSwitcher className={className} />,
-    titleIcon: <DesignIcon name="ledger" size={15} />,
     shortcuts: [
       {
         icon: <DesignIcon name="shortcut-bill" size={20} />,

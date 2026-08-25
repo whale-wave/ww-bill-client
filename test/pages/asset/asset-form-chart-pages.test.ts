@@ -121,6 +121,75 @@ describe('asset information form', () => {
     });
     expect(container.querySelector<HTMLInputElement>('input[aria-label="卡号 (后四位)"]')?.value).toBe('1024');
     expect(container.querySelector<HTMLInputElement>('input[aria-label="所在银行"]')?.value).toBe('工资卡');
+    expect(container.querySelector<HTMLInputElement>('input[aria-label="余额"]')?.inputMode).toBe('decimal');
+    expect(container.querySelector<HTMLInputElement>('input[aria-label="卡号 (后四位)"]')?.inputMode).toBe('numeric');
+    expect(container.querySelector<HTMLInputElement>('input[aria-label="所在银行"]')?.disabled).toBe(false);
+    expect(container.querySelector('.asset-form-field-frame')).not.toBeNull();
+    expect(container.querySelector('.asset-form-field-frame')?.className).toContain('focus-within:ring-2');
+  });
+
+  it('renders the same form contract in English', async () => {
+    await changeLanguage('en');
+    const { container } = renderRoute(
+      '/asset/add-form/asset-1',
+      '/asset/add-form/:id',
+      createElement(AssetFormInfoPage),
+    );
+
+    await act(async () => {});
+
+    expect(container.querySelector('input[aria-label="Bank"]')).not.toBeNull();
+    expect(container.querySelector('input[aria-label="Balance"]')).not.toBeNull();
+    expect(container.querySelector<HTMLButtonElement>('button[type="submit"]')?.textContent).toContain('Save');
+  });
+
+  it('shares the input contract with the add flow', async () => {
+    hooks.useGetAssetByIdQuery.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: false,
+      refetch: hooks.refetchAsset,
+    });
+    hooks.useGetAssetGroupById.mockReturnValue({
+      data: bankAsset.assetGroup,
+      isError: false,
+      isLoading: false,
+      refetch: hooks.refetchGroup,
+    });
+    const { container } = renderRoute(
+      '/asset/add-form?groupId=bank-group',
+      '/asset/add-form',
+      createElement(AssetFormInfoPage),
+    );
+
+    await act(async () => {});
+
+    expect(container.querySelector('input[aria-label="所在银行"]')).not.toBeNull();
+    expect(container.querySelector('.asset-form-field-frame')).not.toBeNull();
+  });
+
+  it('keeps the form error state visible when the account group cannot load', async () => {
+    hooks.useGetAssetByIdQuery.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: false,
+      refetch: hooks.refetchAsset,
+    });
+    hooks.useGetAssetGroupById.mockReturnValue({
+      data: undefined,
+      isError: true,
+      isLoading: false,
+      refetch: hooks.refetchGroup,
+    });
+    const { container } = renderRoute(
+      '/asset/add-form?groupId=bank-group',
+      '/asset/add-form',
+      createElement(AssetFormInfoPage),
+    );
+
+    await act(async () => {});
+
+    expect(container.textContent).toContain('账户信息加载失败');
   });
 });
 

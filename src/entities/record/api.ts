@@ -1,3 +1,4 @@
+import type { MonthBillDetailWireResponse } from './month-bill-detail';
 import type { RecordEntry } from './types';
 import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
@@ -8,6 +9,58 @@ export interface GetRecordByIdApiParams {
 
 export function getRecordByIdApi(getRecordByIdApiParams: GetRecordByIdApiParams) {
   return request.get<unknown, SuccessResponse<RecordEntry>>(`/record/${getRecordByIdApiParams.id}`);
+}
+
+export interface MonthBillCategoryAmount {
+  categoryId: number;
+  name: string;
+  icon?: string;
+  sortOrder: number;
+  amount: string;
+  percentage: number;
+}
+
+export interface MonthBillDetailResponse {
+  monthBillExportQrUrl: string;
+  month: string;
+  summary: {
+    income: string;
+    expense: string;
+    balance: string;
+    recordDays: number;
+    recordCount: number;
+  };
+  expense: {
+    highestDay: { date: string; amount: string } | null;
+    averageDaily: string;
+    categories: MonthBillCategoryAmount[];
+    dailyTrend: Array<{ date: string; amount: string }>;
+    monthlyTrend: Array<{ month: string; amount: string }>;
+    categoryChanges: Array<{
+      categoryId: number;
+      name: string;
+      icon?: string;
+      sortOrder: number;
+      direction: 'increase' | 'decrease';
+      amount: string;
+    }>;
+  };
+  income: {
+    categories: MonthBillCategoryAmount[];
+    monthlyTrend: Array<{ month: string; amount: string }>;
+  };
+  achievement: {
+    streakDays: number;
+    totalRecordDays: number;
+    totalRecordCount: number;
+  };
+}
+
+export function getMonthBillDetailApi(month: string) {
+  return request.get<unknown, SuccessResponse<MonthBillDetailWireResponse>>(
+    '/record/bill/month-detail',
+    { params: { month } },
+  );
 }
 
 export interface GetRecordApiResponseData {

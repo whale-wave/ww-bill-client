@@ -21,8 +21,9 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button, Input, SpinLoading, Toast } from 'antd-mobile';
+import { Button, Input, Toast } from 'antd-mobile';
 import {
+  ChevronDown,
   GripVertical,
   ImagePlus,
   Minus,
@@ -41,7 +42,7 @@ import {
   useUploadLedgerCategoryIconMutation,
 } from '@/entities/category';
 import { useTranslation } from '@/shared/i18n';
-import { AppBottomSheet } from '@/shared/ui';
+import { AppBottomSheet, PageLoadingState } from '@/shared/ui';
 
 type EditorState = { category?: CategoryEntity; mode: 'create' | 'edit' } | null;
 
@@ -440,6 +441,7 @@ export function CategoryManagement({
 }) {
   const { t } = useTranslation('ledger');
   const [type, setType] = useState<CategoryAmountType>('sub');
+  const [showArchived, setShowArchived] = useState(false);
   const query = useLedgerCategoriesQuery({
     params: { ledgerId, status: 'ALL', type },
     queryOptions: { enabled: Boolean(ledgerId) },
@@ -539,6 +541,13 @@ export function CategoryManagement({
     }
   };
 
+  const handleTypeChange = (nextType: CategoryAmountType) => {
+    if (nextType === type)
+      return;
+    setShowArchived(false);
+    setType(nextType);
+  };
+
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="shrink-0 px-[18px] pb-3 pt-2">
@@ -548,7 +557,7 @@ export function CategoryManagement({
               aria-pressed={type === value}
               className={`rounded-[12px] border-0 text-[13px] font-black transition-all ${type === value ? 'bg-primary text-white shadow-[0_6px_14px_rgba(47,137,183,0.24)]' : 'bg-transparent text-[#587183]'}`}
               key={value}
-              onClick={() => setType(value)}
+              onClick={() => handleTypeChange(value)}
               type="button"
             >
               {t(value === 'sub' ? 'records.type.sub' : 'records.type.add')}
@@ -572,7 +581,7 @@ export function CategoryManagement({
           </div>
           <section className="overflow-hidden rounded-[22px] border border-solid border-[#e0ebf3] bg-white shadow-[0_14px_34px_rgba(43,91,119,0.08)]">
             {query.isLoading
-              ? <div className="flex min-h-32 items-center justify-center"><SpinLoading color="primary" /></div>
+              ? <PageLoadingState compact label={t('common:nav.loading')} testId="category-management-loading" />
               : (
                   <DndContext
                     collisionDetection={closestCenter}
@@ -601,32 +610,54 @@ export function CategoryManagement({
           </section>
 
           <div className="mb-2 mt-6 px-1">
-            <h2 className="text-[13px] font-black tracking-wide text-ww-ink">{t('categories.more')}</h2>
-            <p className="mt-0.5 text-[10px] font-semibold text-ww-mid">{t('categories.moreHint')}</p>
+            <button
+              aria-controls="archived-category-list"
+              aria-expanded={showArchived}
+              className="flex w-full items-center justify-between border-0 bg-transparent p-0 text-left"
+              onClick={() => setShowArchived(current => !current)}
+              type="button"
+            >
+              <span>
+                <span className="block text-[13px] font-black tracking-wide text-ww-ink">
+                  {t('categories.moreCount', { count: archived.length })}
+                </span>
+                <span className="mt-0.5 block text-[10px] font-semibold text-ww-mid">{t('categories.moreHint')}</span>
+              </span>
+              <ChevronDown
+                aria-hidden="true"
+                className={`shrink-0 text-ww-mid transition-transform ${showArchived ? 'rotate-180' : ''}`}
+                size={18}
+              />
+            </button>
           </div>
-          <section className="overflow-hidden rounded-[22px] border border-solid border-[#e0ebf3] bg-white/90 shadow-[0_10px_28px_rgba(43,91,119,0.06)]">
-            {archived.length
-              ? archived.map(category => (
-                  <div className="flex min-h-[60px] items-center gap-3 border-b border-solid border-[#e8f0f7] px-3 last:border-b-0" key={category.id}>
-                    {canManage && (
-                      <button
-                        aria-label={t('categories.restoreName', { name: category.name })}
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-0 bg-[#e7f8ee] text-[#32b567]"
-                        onClick={() => void changeStatus(category, 'ACTIVE')}
-                        type="button"
-                      >
-                        <Plus size={18} strokeWidth={2.5} />
-                      </button>
-                    )}
-                    <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-[14px] bg-[#f1f5f7] text-[#718692]">
-                      <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} size={20} />
-                    </span>
-                    <span className="min-w-0 flex-1 truncate text-[14px] font-bold text-[#647985]">{category.name}</span>
-                    <span className="rounded-full bg-[#f1f4f6] px-2 py-1 text-[9px] font-bold text-[#8798a2]">{t('categories.inactive')}</span>
-                  </div>
-                ))
-              : <p className="px-4 py-6 text-center text-[11px] font-semibold text-ww-mid">{t('categories.noMore')}</p>}
-          </section>
+          {showArchived && (
+            <section
+              className="overflow-hidden rounded-[22px] border border-solid border-[#e0ebf3] bg-white/90 shadow-[0_10px_28px_rgba(43,91,119,0.06)]"
+              id="archived-category-list"
+            >
+              {archived.length
+                ? archived.map(category => (
+                    <div className="flex min-h-[60px] items-center gap-3 border-b border-solid border-[#e8f0f7] px-3 last:border-b-0" key={category.id}>
+                      {canManage && (
+                        <button
+                          aria-label={t('categories.restoreName', { name: category.name })}
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-0 bg-[#e7f8ee] text-[#32b567]"
+                          onClick={() => void changeStatus(category, 'ACTIVE')}
+                          type="button"
+                        >
+                          <Plus size={18} strokeWidth={2.5} />
+                        </button>
+                      )}
+                      <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-[14px] bg-[#f1f5f7] text-[#718692]">
+                        <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} size={20} />
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-[14px] font-bold text-[#647985]">{category.name}</span>
+                      <span className="rounded-full bg-[#f1f4f6] px-2 py-1 text-[9px] font-bold text-[#8798a2]">{t('categories.inactive')}</span>
+                    </div>
+                  ))
+                : <p className="px-4 py-6 text-center text-[11px] font-semibold text-ww-mid">{t('categories.noMore')}</p>}
+            </section>
+          )}
         </div>
       </main>
       {canManage && (

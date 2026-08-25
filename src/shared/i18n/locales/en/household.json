@@ -146,7 +146,9 @@
     "private": "Private",
     "inherited": "Uses household default",
     "ownedPolicy": "Change household visibility",
-    "memberAttribution": "Recorded by {{name}}"
+    "memberAttribution": "Recorded by {{name}}",
+    "archivedTag": "{{name}} (archived)",
+    "searchSummary": "{{count}} visible records · Counted in household: Income {{income}} · Expense {{expense}}"
   },
   "policy": {
     "title": "Household sharing policy",

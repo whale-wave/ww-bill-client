@@ -1,10 +1,10 @@
 .ledger-title-switcher {
   display: inline-flex;
   min-width: 0;
-  max-width: min(54vw, 220px);
+  max-width: min(60vw, 240px);
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 8px;
   border: 0;
   padding: 0;
   background: transparent;
@@ -286,6 +286,10 @@
   overflow: hidden;
   background: linear-gradient(145deg, var(--ww-theme-color-light), #e9e1ff);
   color: var(--ww-theme-color-deep);
+
+  &[data-theme='personal'] {
+    border-radius: 50%;
+  }
 
   img {
     width: 100%;

@@ -1,6 +1,5 @@
 import type { LedgerListItem } from '@/entities/ledger';
 import {
-  SpinLoading,
   Toast,
 } from 'antd-mobile';
 import { BookOpen, CircleAlert, Settings2 } from 'lucide-react';
@@ -17,7 +16,7 @@ import {
 } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { confirmAppAction, IllustratedEmptyState, PageHeader } from '@/shared/ui';
+import { confirmAppAction, IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
 import { LedgerManagementFooter } from './ui/LedgerManagementFooter';
 import { LedgerManagementGrid } from './ui/LedgerManagementGrid';
 import { SortableLedgerGrid } from './ui/SortableLedgerGrid';
@@ -197,10 +196,7 @@ function LedgerCenterPage() {
   const renderContent = () => {
     if (managementQuery.isLoading) {
       return (
-        <div className="ledger-center-state" data-testid="ledger-center-loading">
-          <SpinLoading />
-          <span>{t('center.loading')}</span>
-        </div>
+        <PageLoadingState compact label={t('center.loading')} testId="ledger-center-loading" />
       );
     }
 

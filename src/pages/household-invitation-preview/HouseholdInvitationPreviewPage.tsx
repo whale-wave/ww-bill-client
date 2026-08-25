@@ -96,7 +96,10 @@ const HouseholdInvitationPreviewPage: FC = () => {
                     <>
                       <GradientPanel className="mt-2 px-5 py-5" elevation="low" surface="ice">
                         <div className="flex items-center gap-3">
-                          <Avatar src={query.data.creator.avatar || ''} style={{ '--size': '52px' }} />
+                          <Avatar
+                            className="rounded-full [--border-radius:9999px] [--size:52px]"
+                            src={query.data.creator.avatar || ''}
+                          />
                           <div className="min-w-0">
                             <span className="block text-[11px] font-bold text-ww-soft">{t('invitation.inviter')}</span>
                             <strong className="mt-0.5 block truncate text-[16px] font-extrabold text-ww-ink">{getDisplayName(query.data.creator)}</strong>

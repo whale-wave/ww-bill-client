@@ -146,7 +146,9 @@
     "private": "仅自己可见",
     "inherited": "跟随家庭默认",
     "ownedPolicy": "调整家庭可见性",
-    "memberAttribution": "记录人：{{name}}"
+    "memberAttribution": "记录人：{{name}}",
+    "archivedTag": "{{name}}（已归档）",
+    "searchSummary": "{{count}} 笔可见记录 · 计入家庭账单：收入 {{income}} · 支出 {{expense}}"
   },
   "policy": {
     "title": "家庭共享策略",

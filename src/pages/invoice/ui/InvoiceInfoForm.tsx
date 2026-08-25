@@ -107,7 +107,7 @@ const InvoiceInfoForm: React.FC<InvoiceInfoFormProps> = (props) => {
   }, [formAction, invoice]);
   return (
     <Form
-      className="invoice-info-form !bg-transparent"
+      className="invoice-info-form !bg-transparent [&_.adm-list-body]:!border-0 [&_.adm-list-item-content]:!border-0"
       initialValues={invoice}
       form={formAction}
       layout="vertical"

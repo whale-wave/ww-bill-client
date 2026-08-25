@@ -227,6 +227,10 @@ const router = createHashRouter([
             lazy: lazyGuardedPage(() => import('@/pages/settings/SettingsPage')),
           },
           {
+            path: 'app-lock',
+            lazy: lazyGuardedPage(() => import('@/pages/app-lock-settings/AppLockSettingsPage')),
+          },
+          {
             path: 'email',
             children: [
               {
@@ -256,7 +260,16 @@ const router = createHashRouter([
       },
       {
         path: 'bill',
-        lazy: lazyGuardedPage(() => import('@/pages/bill/BillPage')),
+        children: [
+          {
+            index: true,
+            lazy: lazyGuardedPage(() => import('@/pages/bill/BillPage')),
+          },
+          {
+            path: ':month',
+            lazy: lazyGuardedPage(() => import('@/pages/bill/month-detail/MonthBillDetailPage')),
+          },
+        ],
       },
       {
         path: 'household',

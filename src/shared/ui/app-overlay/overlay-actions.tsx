@@ -10,7 +10,7 @@ interface AppConfirmOptions {
   description: ReactNode;
   icon?: ReactNode;
   title: ReactNode;
-  tone?: 'danger' | 'primary';
+  tone?: 'danger' | 'primary' | 'warning';
 }
 
 interface AppActionSheetOptions {

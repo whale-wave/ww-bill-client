@@ -93,7 +93,13 @@ describe('ledger workspace navigation', () => {
       ledger({ id: 'custom-1', myMembership: { id: 'm-1', sortOrder: 1, version: 1 } }),
     ]);
 
-    expect(items[0]).toEqual({ recordCount: 8, type: 'personal' });
+    expect(items[0]).toEqual({
+      iconKey: 'book',
+      kind: LedgerKind.SYSTEM_DEFAULT,
+      recordCount: 8,
+      templateKey: undefined,
+      type: 'personal',
+    });
     expect(items[0]).not.toHaveProperty('ledgerId');
     expect(items[0]).not.toHaveProperty('ledger');
     expect(items.slice(1).map(item => item.type === 'custom' && item.ledgerId))

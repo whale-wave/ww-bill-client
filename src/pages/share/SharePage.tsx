@@ -1,6 +1,6 @@
 import { Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 import { ChevronLeft, ReceiptText } from 'lucide-react';
 import { useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';

@@ -106,7 +106,7 @@ describe('ledger preferences page', () => {
     });
   });
 
-  it('renders the current quick-switch value with official mobile components', () => {
+  it('renders the current quick-switch value in the shared preferences shell', () => {
     hooks.useGetUserAppConfigQuery.mockReturnValue({
       data: {
         isLedgerQuickSwitchEnabled: true,
@@ -118,8 +118,9 @@ describe('ledger preferences page', () => {
 
     const container = render(createElement(LedgerPreferencesPage));
 
-    expect(container.querySelector('.adm-nav-bar')).not.toBeNull();
-    expect(container.querySelector('.adm-list')).not.toBeNull();
+    expect(container.querySelector('[data-page-header]')).not.toBeNull();
+    expect(container.querySelector('main section')?.textContent).toContain('preferences.quickSwitch');
+    expect(container.querySelector('.adm-switch')).not.toBeNull();
     expect(container.querySelector('.adm-safe-area-position-bottom')).not.toBeNull();
     expect(getSwitch(container)?.getAttribute('aria-checked')).toBe('true');
   });

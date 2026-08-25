@@ -6,9 +6,15 @@ import type {
   LedgerSummary,
   LedgerUserSummary,
 } from '@/entities/ledger';
-import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
-import { RightOutline, UserOutline } from 'antd-mobile-icons';
-import { LedgerVisualIcon } from '@/entities/ledger';
+import {
+  ChevronRight,
+  CircleAlert,
+  Inbox,
+  ShieldAlert,
+  TriangleAlert,
+} from 'lucide-react';
+import { LedgerUserAvatar, LedgerVisualIcon } from '@/entities/ledger';
+import { IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
 import { getLedgerUserDisplayName } from './model';
 
 interface QueryStateProps {
@@ -27,31 +33,34 @@ export const CollaborationQueryState: FC<QueryStateProps> = ({
   type,
 }) => {
   if (type === 'loading') {
-    return (
-      <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 text-sm text-font-gray">
-        <SpinLoading />
-        <span>{title}</span>
-      </div>
-    );
+    return <PageLoadingState compact label={title} testId="collaboration-loading" />;
   }
 
+  const icon = type === 'empty'
+    ? <Inbox className="text-primary-deep" size={38} strokeWidth={1.7} />
+    : type === 'permission'
+      ? <ShieldAlert className="text-primary-deep" size={38} strokeWidth={1.7} />
+      : type === 'invalid'
+        ? <CircleAlert className="text-primary-deep" size={38} strokeWidth={1.7} />
+        : <TriangleAlert className="text-primary-deep" size={38} strokeWidth={1.7} />;
+
   return (
-    <div className="flex min-h-[360px] flex-col items-center justify-center px-4">
-      <ErrorBlock description={description} status="default" title={title} />
-      {onRetry && (
-        <Button className="mt-4" color="primary" fill="outline" onClick={onRetry}>
-          {retryLabel}
-        </Button>
-      )}
-    </div>
+    <IllustratedEmptyState
+      actionLabel={onRetry ? retryLabel : undefined}
+      className="min-h-[360px]"
+      description={description}
+      icon={icon}
+      onAction={onRetry}
+      title={title}
+    />
   );
 };
 
 export function LedgerSummaryBlock({ ledger }: { ledger: LedgerSummary }) {
   return (
     <div className="flex items-center bg-white px-4 py-4">
-      <span className="mr-3 flex h-[48px] w-[48px] items-center justify-center rounded-full bg-primary text-xl text-font-black">
-        <LedgerVisualIcon templateKey="custom" />
+      <span className="mr-3 flex h-[48px] w-[48px] items-center justify-center overflow-hidden rounded-full bg-primary text-xl text-font-black">
+        <LedgerVisualIcon iconKey={ledger.iconKey} kind={ledger.kind} templateKey={ledger.templateKey} />
       </span>
       <div className="min-w-0">
         <div className="one-line text-lg font-medium text-font-black">{ledger.name}</div>
@@ -61,31 +70,7 @@ export function LedgerSummaryBlock({ ledger }: { ledger: LedgerSummary }) {
   );
 }
 
-interface UserAvatarProps {
-  size?: number;
-  user: LedgerUserSummary;
-}
-
-export const LedgerUserAvatar: FC<UserAvatarProps> = ({ size = 42, user }) => (
-  user.avatar
-    ? (
-        <img
-          alt=""
-          className="flex-shrink-0 rounded-full bg-bg-gray object-cover"
-          height={size}
-          src={user.avatar}
-          width={size}
-        />
-      )
-    : (
-        <span
-          className="flex flex-shrink-0 items-center justify-center rounded-full bg-primary text-lg text-font-black"
-          style={{ height: size, width: size }}
-        >
-          <UserOutline />
-        </span>
-      )
-);
+export { LedgerUserAvatar };
 
 interface UserRowProps {
   fallback: string;
@@ -106,22 +91,22 @@ export const LedgerUserRow: FC<UserRowProps> = ({
 }) => {
   const content = (
     <>
-      <LedgerUserAvatar user={user} />
+      <LedgerUserAvatar size={42} user={user} />
       <span className="ml-3 min-w-0 flex-grow text-left">
-        <span className="one-line block text-base text-font-black">
+        <span className="one-line block text-[14px] font-black text-ww-ink">
           {getLedgerUserDisplayName(user, fallback)}
         </span>
-        {secondary && <span className="mt-1 block text-xs text-font-gray">{secondary}</span>}
+        {secondary && <span className="mt-1 block truncate text-[11px] font-semibold text-ww-soft">{secondary}</span>}
       </span>
       {trailing}
-      {onClick && <RightOutline className="ml-2 flex-shrink-0 text-font-gray" />}
+      {onClick && <ChevronRight className="ml-2 flex-shrink-0 text-[#9eb1bd]" size={18} />}
     </>
   );
 
   return onClick
     ? (
         <button
-          className="flex min-h-[68px] w-full items-center border-0 border-b border-solid border-[#EBEBEB] bg-white px-4 active:bg-slate-50"
+          className="flex min-h-[68px] w-full items-center border-0 border-b border-solid border-border-primary bg-transparent px-4 text-left transition last:border-b-0 active:bg-primary-light/25"
           data-testid={testId}
           onClick={onClick}
           type="button"
@@ -130,7 +115,7 @@ export const LedgerUserRow: FC<UserRowProps> = ({
         </button>
       )
     : (
-        <div className="flex min-h-[68px] items-center border-0 border-b border-solid border-[#EBEBEB] bg-white px-4">
+        <div className="flex min-h-[68px] items-center border-0 border-b border-solid border-border-primary bg-transparent px-4 last:border-b-0">
           {content}
         </div>
       );
@@ -148,10 +133,10 @@ export function CollaborationStatusBadge({
   return (
     <span
       className={active
-        ? 'rounded bg-primary px-2 py-1 text-xs text-font-black'
+        ? 'rounded-full bg-primary-light/65 px-2 py-0.5 text-[10px] font-bold text-primary-deep'
         : positive
-          ? 'rounded bg-green-50 px-2 py-1 text-xs text-green-700'
-          : 'rounded bg-bg-gray px-2 py-1 text-xs text-font-gray'}
+          ? 'rounded-full bg-[#e2f5ec]/80 px-2 py-0.5 text-[10px] font-bold text-[#1f7a52]'
+          : 'rounded-full bg-bg-gray px-2 py-0.5 text-[10px] font-bold text-font-gray'}
     >
       {label}
     </span>

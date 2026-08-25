@@ -80,7 +80,9 @@ describe('record overview presentation', () => {
       header: headerProps,
       state: 'loading',
     }));
-    expect(loading.querySelector('[data-record-overview-state="loading"]')).not.toBeNull();
+    const loadingState = loading.querySelector('[data-testid="record-overview-loading"]');
+    expect(loadingState?.getAttribute('role')).toBe('status');
+    expect(loadingState?.classList).toContain('min-h-[160px]');
     cleanup?.();
     cleanup = undefined;
 
@@ -120,5 +122,92 @@ describe('record overview presentation', () => {
     expect(container.textContent).toContain('No records this month');
     act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-overview-empty-state"] button')?.click());
     expect(onEmptyAction).toHaveBeenCalledOnce();
+  });
+
+  it('uses the compact load-more action and exposes its busy state', () => {
+    const onLoadMore = vi.fn();
+    const container = render(createElement(RecordOverviewPresentation, {
+      groups: [{
+        dateLabel: 'July 30',
+        key: '2026-07-30',
+        records: [{
+          amount: '-8.00',
+          iconName: 'food',
+          id: 1,
+          primary: 'Lunch',
+        }],
+      }],
+      hasMore: true,
+      header: headerProps,
+      isLoadingMore: true,
+      loadMoreLabel: 'Load more',
+      loadMoreTestId: 'record-overview-load-more',
+      onLoadMore,
+      state: 'ready',
+    }));
+    const button = container.querySelector<HTMLButtonElement>('[data-testid="record-overview-load-more"]');
+
+    expect(button?.disabled).toBe(true);
+    expect(button?.getAttribute('aria-busy')).toBe('true');
+    expect(container.querySelector('[data-record-overview-load-more]')?.classList).toContain('py-3');
+    expect(button?.classList).toContain('h-12');
+    expect(button?.classList).toContain('py-0');
+    expect(button?.classList).toContain('leading-5');
+    expect(button?.classList).toContain('w-full');
+    expect(button?.classList).toContain('rounded-[16px]');
+    expect(button?.classList).toContain('text-[13px]');
+    expect(button?.classList).toContain('shadow-ww-xs');
+    expect(button?.classList).not.toContain('mx-3');
+    expect(button?.textContent).toMatch(/加载中|Loading/);
+    act(() => button?.click());
+    expect(onLoadMore).not.toHaveBeenCalled();
+  });
+
+  it('keeps the load-more action disabled when no further page exists', () => {
+    const container = render(createElement(RecordOverviewPresentation, {
+      groups: [{
+        dateLabel: 'July 30',
+        key: '2026-07-30',
+        records: [{
+          amount: '-8.00',
+          iconName: 'food',
+          id: 1,
+          primary: 'Lunch',
+        }],
+      }],
+      hasMore: false,
+      header: headerProps,
+      loadMoreLabel: 'Load more',
+      loadMoreTestId: 'record-overview-load-more',
+      state: 'ready',
+    }));
+    const button = container.querySelector<HTMLButtonElement>('[data-testid="record-overview-load-more"]');
+
+    expect(button).not.toBeNull();
+    expect(button?.disabled).toBe(true);
+    expect(button?.getAttribute('aria-busy')).toBeNull();
+    expect(button?.textContent).toBe('Load more');
+  });
+
+  it('uses the shared illustrated error state and forwards retry', () => {
+    const onRetry = vi.fn();
+    const container = render(createElement(RecordOverviewPresentation, {
+      errorDescription: 'Check your connection and try again',
+      errorTitle: 'Unable to load records',
+      groups: [],
+      header: headerProps,
+      onRetry,
+      retryLabel: 'Try again',
+      state: 'error',
+    }));
+
+    const errorState = container.querySelector('[data-record-overview-state="error"]');
+    expect(errorState).not.toBeNull();
+    expect(container.querySelector('[data-testid="record-overview-error-state"]')).not.toBeNull();
+    expect(container.querySelector('[data-design-icon="tab-detail-active"]')).toBeNull();
+    expect(container.textContent).toContain('Unable to load records');
+    expect(container.textContent).toContain('Check your connection and try again');
+    act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-overview-error-state"] button')?.click());
+    expect(onRetry).toHaveBeenCalledOnce();
   });
 });

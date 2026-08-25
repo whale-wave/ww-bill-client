@@ -1,0 +1,322 @@
+import type { AvatarReadyState, ExportCopySnapshot, ExportUserSnapshot } from './model/monthBillDetail';
+import type { MonthBillDetailResponse } from '@/entities/record';
+import { Toast } from 'antd-mobile';
+import html2canvas from 'html2canvas-pro';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useMonthBillDetailQuery } from '@/entities/record';
+import { useGetUserUserInfoQuery } from '@/entities/user';
+import { useTranslation } from '@/shared/i18n';
+import { saveCanvas } from '@/shared/lib';
+import { DesignIcon, IllustratedEmptyState, PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
+import { formatMonthTitle } from './model/monthBillDetail';
+import { MonthBillDetailRenderer } from './ui/MonthBillDetailRenderer';
+
+const MONTH_PATTERN = /^\d{4}-(?:0[1-9]|1[0-2])$/;
+const EXPORT_CHART_KEYS = new Set(['expense-pie', 'expense-daily', 'expense-monthly', 'income-monthly']);
+const EXPORT_SESSION_WATCHDOG_MS = 30_000;
+
+type ExportStatus = 'idle' | 'preparing' | 'rendering';
+type TerminalState = 'success' | 'failure' | 'timeout' | 'cancelled';
+
+interface ExportSnapshot {
+  bill: MonthBillDetailResponse;
+  qrUrl: string;
+  sessionId: number;
+  user: ExportUserSnapshot;
+  copy: ExportCopySnapshot;
+}
+
+interface AvatarBarrierState {
+  sessionId: number;
+  state: 'loading' | AvatarReadyState;
+}
+
+function waitForImages(element: HTMLElement) {
+  return Promise.all(Array.from(element.querySelectorAll('img')).map((image) => {
+    if (image.complete)
+      return typeof image.decode === 'function' ? image.decode().catch(() => undefined) : Promise.resolve();
+    return new Promise<void>((resolve) => {
+      image.addEventListener('load', () => resolve(), { once: true });
+      image.addEventListener('error', () => resolve(), { once: true });
+    });
+  }));
+}
+
+async function waitForStrictQr(element: HTMLElement) {
+  const image = element.querySelector<HTMLImageElement>('[data-export-qr]');
+  if (!image)
+    throw new Error('QR image is missing');
+  if (!image.complete) {
+    await new Promise<void>((resolve, reject) => {
+      image.addEventListener('load', () => resolve(), { once: true });
+      image.addEventListener('error', () => reject(new Error('QR image failed to load')), { once: true });
+    });
+  }
+  if (!image.complete || image.naturalWidth <= 0 || image.naturalHeight <= 0)
+    throw new Error('QR image did not render');
+  if (typeof image.decode !== 'function')
+    throw new Error('QR image decode is unavailable');
+  await image.decode();
+  if (image.naturalWidth <= 0 || image.naturalHeight <= 0)
+    throw new Error('QR image decode produced an empty image');
+}
+
+function getExportFontSample(snapshot: ExportSnapshot) {
+  return [
+    snapshot.user.displayName,
+    snapshot.copy.monthTitle,
+    snapshot.copy.reviewSubtitle,
+    ...snapshot.bill.expense.categories.map(item => item.name),
+    ...snapshot.bill.income.categories.map(item => item.name),
+    snapshot.bill.month,
+    snapshot.bill.summary.income,
+    snapshot.bill.summary.expense,
+    snapshot.bill.summary.balance,
+    snapshot.bill.monthBillExportQrUrl,
+    '收入支出账单月度概览其他分类 ¥￥0123456789.%+-↑↓',
+  ].join(' ');
+}
+
+async function prepareExportFonts(snapshot: ExportSnapshot) {
+  const sample = getExportFontSample(snapshot);
+  const faces = await Promise.all([
+    document.fonts.load('700 16px "Noto Sans SC Variable"', sample),
+    document.fonts.load('700 16px "Nunito Variable"', '0123456789.%+-¥￥'),
+  ]);
+  if (faces.some(face => face.length === 0))
+    throw new Error('Export font face was not loaded');
+  await document.fonts.ready;
+  if (!document.fonts.check('700 16px "Noto Sans SC Variable"', sample)
+    || !document.fonts.check('700 16px "Nunito Variable"', '0123456789.%+-¥￥')) {
+    throw new Error('Export font check failed');
+  }
+}
+
+function waitForFrames(count = 2) {
+  return Array.from({ length: count }).reduce<Promise<void>>(
+    promise => promise.then(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve()))),
+    Promise.resolve(),
+  );
+}
+
+function isValidMonth(month: string | undefined): month is string {
+  if (!month || !MONTH_PATTERN.test(month))
+    return false;
+  const currentMonth = new Intl.DateTimeFormat('en-CA', { month: '2-digit', timeZone: 'Asia/Shanghai', year: 'numeric' }).format(new Date());
+  return month <= currentMonth;
+}
+
+export default function MonthBillDetailPage() {
+  const { month } = useParams<{ month: string }>();
+  const navigate = useNavigate();
+  const { t } = useTranslation('bill');
+  const isMonthValid = isValidMonth(month);
+  const query = useMonthBillDetailQuery({ month: month ?? '', queryOptions: { enabled: isMonthValid } });
+  const userQuery = useGetUserUserInfoQuery({ options: { enabled: isMonthValid } });
+  const [exportStatus, setExportStatus] = useState<ExportStatus>('idle');
+  const [exportMounted, setExportMounted] = useState(false);
+  const [chartsEnabled, setChartsEnabled] = useState(false);
+  const [readyCharts, setReadyCharts] = useState<Set<string>>(() => new Set());
+  const [qrCode, setQrCode] = useState<string>();
+  const [avatarBarrier, setAvatarBarrier] = useState<AvatarBarrierState>();
+  const exportRef = useRef<HTMLDivElement>(null);
+  const activeSessionRef = useRef(0);
+  const nextSessionIdRef = useRef(0);
+  const inFlightRef = useRef(false);
+  const terminalSessionsRef = useRef(new Set<number>());
+  const snapshotRef = useRef<ExportSnapshot>();
+  const watchdogRef = useRef<number>();
+  const captureStartedRef = useRef(false);
+
+  useEffect(() => {
+    if (!isMonthValid)
+      navigate('/bill', { replace: true });
+  }, [isMonthValid, navigate]);
+
+  const finalizeSession = useCallback((sessionId: number, terminal: TerminalState, successMessage?: string) => {
+    if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId))
+      return;
+    terminalSessionsRef.current.add(sessionId);
+    if (watchdogRef.current !== undefined)
+      window.clearTimeout(watchdogRef.current);
+    watchdogRef.current = undefined;
+    activeSessionRef.current = 0;
+    inFlightRef.current = false;
+    snapshotRef.current = undefined;
+    captureStartedRef.current = false;
+    setExportMounted(false);
+    setChartsEnabled(false);
+    setReadyCharts(new Set());
+    setQrCode(undefined);
+    setAvatarBarrier(undefined);
+    setExportStatus('idle');
+    if (terminal === 'success')
+      Toast.show({ content: successMessage || t('exportSaved'), icon: 'success' });
+    else if (terminal === 'failure' || terminal === 'timeout')
+      Toast.show({ content: t('exportSaveFailed'), icon: 'fail' });
+  }, [t]);
+
+  useEffect(() => () => {
+    if (activeSessionRef.current)
+      finalizeSession(activeSessionRef.current, 'cancelled');
+  }, [finalizeSession]);
+
+  const handleChartReady = useCallback((sessionId: number, chartKey: string) => {
+    if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId) || !EXPORT_CHART_KEYS.has(chartKey))
+      return;
+    setReadyCharts((previous) => {
+      if (previous.has(chartKey))
+        return previous;
+      const next = new Set(previous);
+      next.add(chartKey);
+      return next;
+    });
+  }, []);
+
+  const handleChartError = useCallback((sessionId: number, _chartKey: string, _error: Error) => {
+    finalizeSession(sessionId, 'failure');
+  }, [finalizeSession]);
+
+  const handleAvatarReady = useCallback((sessionId: number, state: AvatarReadyState) => {
+    if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId))
+      return;
+    setAvatarBarrier({ sessionId, state });
+  }, []);
+
+  const captureExport = useCallback(async () => {
+    const sessionId = activeSessionRef.current;
+    const snapshot = snapshotRef.current;
+    const root = exportRef.current;
+    const avatarIsReady = avatarBarrier?.sessionId === sessionId
+      && (avatarBarrier.state === 'image-ready' || avatarBarrier.state === 'fallback-ready');
+    if (!sessionId || !snapshot || !root || captureStartedRef.current || readyCharts.size !== EXPORT_CHART_KEYS.size || !avatarIsReady)
+      return;
+    const avatarElement = root.querySelector<HTMLElement>('[data-export-avatar]');
+    if (!avatarElement || (avatarElement.dataset.exportAvatar !== 'image-ready' && avatarElement.dataset.exportAvatar !== 'fallback-ready'))
+      return;
+    captureStartedRef.current = true;
+    try {
+      await prepareExportFonts(snapshot);
+      await waitForImages(root);
+      await waitForStrictQr(root);
+      await waitForFrames();
+      if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId))
+        return;
+      setExportStatus('rendering');
+      const width = root.scrollWidth;
+      const height = root.scrollHeight;
+      const canvas = await html2canvas(root, {
+        backgroundColor: null,
+        height,
+        logging: false,
+        scale: Math.min(2, 16000 / Math.max(1, height)),
+        scrollX: 0,
+        scrollY: 0,
+        useCORS: true,
+        width,
+        windowHeight: height,
+        windowWidth: width,
+      });
+      if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId))
+        return;
+      const saveResult = await saveCanvas(canvas, `鲸浪账本_${snapshot.bill.month}月账单`);
+      finalizeSession(sessionId, 'success', saveResult === 'shared' ? t('exportShared') : t('exportDownloaded'));
+    }
+    catch {
+      finalizeSession(sessionId, 'failure');
+    }
+  }, [avatarBarrier, finalizeSession, readyCharts.size, t]);
+
+  useEffect(() => {
+    if (!exportMounted || chartsEnabled || !snapshotRef.current || !activeSessionRef.current || !exportRef.current)
+      return;
+    const sessionId = activeSessionRef.current;
+    const snapshot = snapshotRef.current;
+    let cancelled = false;
+    void (async () => {
+      try {
+        await Promise.all([prepareExportFonts(snapshot), waitForStrictQr(exportRef.current!)]);
+        if (!cancelled && activeSessionRef.current === sessionId)
+          setChartsEnabled(true);
+      }
+      catch {
+        if (!cancelled)
+          finalizeSession(sessionId, 'failure');
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [chartsEnabled, exportMounted, finalizeSession, qrCode]);
+
+  useEffect(() => {
+    const avatarIsReady = avatarBarrier?.state === 'image-ready' || avatarBarrier?.state === 'fallback-ready';
+    if (exportMounted && chartsEnabled && readyCharts.size === EXPORT_CHART_KEYS.size && avatarIsReady)
+      void captureExport();
+  }, [avatarBarrier?.sessionId, avatarBarrier?.state, captureExport, chartsEnabled, exportMounted, readyCharts.size]);
+
+  const handleSave = useCallback(async () => {
+    if (!query.data || exportStatus !== 'idle' || inFlightRef.current)
+      return;
+    const sessionId = ++nextSessionIdRef.current;
+    const displayName = userQuery.data?.name?.trim() || userQuery.data?.username?.trim() || t('exportUserFallbackName') || 'Ledger user';
+    const [year, monthNumber] = query.data.month.split('-');
+    const snapshot: ExportSnapshot = {
+      bill: query.data,
+      copy: {
+        monthTitle: t('exportMonthTitle', { month: Number(monthNumber), year }),
+        reviewSubtitle: t('monthlyIncomeExpenseReview'),
+      },
+      qrUrl: query.data.monthBillExportQrUrl,
+      sessionId,
+      user: {
+        avatar: userQuery.data?.avatar?.trim() || undefined,
+        displayName,
+      },
+    };
+    activeSessionRef.current = sessionId;
+    inFlightRef.current = true;
+    snapshotRef.current = snapshot;
+    terminalSessionsRef.current.delete(sessionId);
+    captureStartedRef.current = false;
+    setExportStatus('preparing');
+    setReadyCharts(new Set());
+    setAvatarBarrier({ sessionId, state: 'loading' });
+    setChartsEnabled(false);
+    watchdogRef.current = window.setTimeout(finalizeSession, EXPORT_SESSION_WATCHDOG_MS, sessionId, 'timeout');
+    try {
+      const qrModule = await import('qrcode');
+      const dataUrl = await qrModule.toDataURL(snapshot.qrUrl, { margin: 1, width: 240 });
+      if (activeSessionRef.current !== sessionId)
+        return;
+      setQrCode(dataUrl);
+      setExportMounted(true);
+    }
+    catch {
+      finalizeSession(sessionId, 'failure');
+    }
+  }, [exportStatus, finalizeSession, query.data, t, userQuery.data]);
+
+  if (!isMonthValid)
+    return null;
+
+  return (
+    <div className="page-new overflow-hidden">
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate('/bill')} title={formatMonthTitle(month)} />
+      <main className="min-h-0 flex-grow overflow-auto px-[18px] pb-28 pt-2" data-bill-detail-scroll>
+        {query.isLoading && <PageLoadingState label={t('common:nav.loading')} testId="month-bill-detail-loading" />}
+        {!query.isLoading && query.isError && (
+          <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 text-center">
+            <div className="text-[15px] font-bold text-ww-ink">{t('detailLoadFailed')}</div>
+            <button className="h-11 rounded-[16px] border border-border-primary bg-white/85 px-5 text-[13px] font-extrabold text-primary-deep shadow-ww-xs" onClick={() => void query.refetch()} type="button">{t('common:retry')}</button>
+          </div>
+        )}
+        {!query.isLoading && !query.isError && query.data && query.data.summary.recordCount === 0 && <IllustratedEmptyState accentIcon={<DesignIcon name="tab-add" size={20} />} actionLabel={t('emptyAction')} className="min-h-[320px]" description={t('emptyDescription')} icon={<DesignIcon name="shortcut-bill" size={46} />} onAction={() => navigate('/bookkeeping')} title={t('emptyTitle')} />}
+        {!query.isLoading && !query.isError && query.data && query.data.summary.recordCount > 0 && <MonthBillDetailRenderer data={query.data} mode="screen" />}
+      </main>
+      <div className="absolute bottom-0 left-0 right-0 z-20 shrink-0 bg-gradient-to-t from-[#f4fbff] via-[#f4fbff]/95 to-transparent px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-5"><WwButton className="!h-12 !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww" onClick={() => void handleSave()} size="full">{exportStatus === 'idle' ? t('saveImage') : t('savingImage')}</WwButton></div>
+      {exportMounted && snapshotRef.current && qrCode && <div aria-hidden="true" className="pointer-events-none fixed left-[-10000px] top-0" ref={exportRef}><MonthBillDetailRenderer chartsEnabled={chartsEnabled} data={snapshotRef.current.bill} exportCopy={snapshotRef.current.copy} exportSessionId={snapshotRef.current.sessionId} exportUser={snapshotRef.current.user} mode="export" onAvatarReady={handleAvatarReady} onChartError={handleChartError} onChartReady={handleChartReady} qrCode={qrCode} /></div>}
+    </div>
+  );
+}

@@ -87,7 +87,11 @@ const SearchContent: FC<{ householdId: string }> = ({ householdId }) => {
   ]);
 
   const summary = query.data?.total
-    ? `${query.data.total}笔可见记录 · 计入家庭账单：${t('common.income')} ${query.data.summary.income} · ${t('common.expense')} ${query.data.summary.expense}`
+    ? t('records.searchSummary', {
+        count: query.data.total,
+        expense: query.data.summary.expense,
+        income: query.data.summary.income,
+      })
     : undefined;
 
   return (
@@ -111,7 +115,7 @@ const SearchContent: FC<{ householdId: string }> = ({ householdId }) => {
         tags: filterOptionsQuery.data.tags.map(item => ({
           id: item.id,
           label: item.status === 'ARCHIVED'
-            ? `${item.name}（已归档）`
+            ? t('records.archivedTag', { name: item.name })
             : item.name,
         })),
       }}

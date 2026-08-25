@@ -2,11 +2,12 @@ import type { FC } from 'react';
 import type { FamilyRecord, Household } from '@/entities/household';
 import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
-import { CalendarDays, Ellipsis, List, Search, Settings, Target } from 'lucide-react';
+import { CalendarDays, List, Search, Settings, Target } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { useHouseholdCalendarQuery, useInfiniteHouseholdRecordsQuery } from '@/entities/household';
+import { LedgerKind, LedgerVisualIcon } from '@/entities/ledger';
 import {
   RecordMonthPicker,
   RecordOverviewPresentation,
@@ -19,10 +20,10 @@ import {
   toHouseholdRecordOverviewGroups,
   toMoney,
 } from '@/features/household';
+import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import {
-  DesignIcon,
   showAppActionSheet,
   showAppInfoDialog,
 } from '@/shared/ui';
@@ -118,27 +119,15 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
         groups={groups}
         header={{
           actions: (
-            <>
-              <button
-                aria-label={t('home.more')}
-                data-testid="household-more-action"
-                onClick={handleShowMore}
-                type="button"
-              >
-                <Ellipsis size={20} strokeWidth={2.4} />
-              </button>
-              <button
-                aria-label={t('home.exit')}
-                data-testid="household-exit-action"
-                onClick={handleExit}
-                type="button"
-              >
-                <span
-                  aria-hidden="true"
-                  className="h-2 w-2 rounded-full bg-current"
-                />
-              </button>
-            </>
+            <WorkspaceCapsule
+              onReturnPersonal={handleExit}
+              onSwitch={handleShowMore}
+              returnLabel={t('home.exit')}
+              returnTestId="household-exit-action"
+              scope={{ householdId: household.id, type: 'household' }}
+              switchLabel={t('home.more')}
+              switchTestId="household-more-action"
+            />
           ),
           metrics: [
             {
@@ -182,9 +171,14 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
           })),
           shortcutsTestId: 'household-shortcuts-card',
           testId: 'household-home-header',
-          titleIcon: <DesignIcon name="ledger" size={15} />,
+          titleIcon: (
+            <span className="flex h-full w-full overflow-hidden rounded-full">
+              <LedgerVisualIcon kind={LedgerKind.SYSTEM_DEFAULT} />
+            </span>
+          ),
           titleAlignment: 'start',
         }}
+        hasMore={Boolean(recordsQuery.hasNextPage)}
         onRetry={() => void recordsQuery.refetch()}
         isLoadingMore={recordsQuery.isFetchingNextPage}
         loadMoreLabel={t('records.loadMore')}

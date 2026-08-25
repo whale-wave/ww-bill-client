@@ -73,6 +73,13 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
     id: member.id,
     name: getDisplayName(member.user),
     onClick: editable ? () => setIsEditing(true) : undefined,
+    user: {
+      avatar: member.user.avatar,
+      id: member.user.id,
+      name: member.user.name,
+      nickname: member.nickname,
+      username: member.user.username,
+    },
     userId: member.user.id,
   });
 

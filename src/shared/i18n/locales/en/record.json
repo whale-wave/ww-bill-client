@@ -31,7 +31,10 @@
     "deleteWarning": "This cannot be undone!",
     "emptyTitle": "No records this month",
     "emptyDescription": "Add your first transaction and monthly records will appear here",
-    "emptyAction": "Add a transaction"
+    "emptyAction": "Add a transaction",
+    "errorTitle": "Unable to load records",
+    "errorDescription": "Check your connection and try again",
+    "errorAction": "Try again"
   },
   "editing": {
     "title": "Edit Record"
@@ -84,7 +87,10 @@
     "startDate": "Start date",
     "endDate": "End date",
     "reset": "Reset",
-    "confirm": "Apply"
+    "confirm": "Apply",
+    "archivedCategory": "{{name}} (inactive)",
+    "archivedTag": "{{name}} (archived)",
+    "resultSummary": "{{count}} records · Income {{income}} · Expense {{expense}}"
   },
   "type": {
     "expense": "Expense",

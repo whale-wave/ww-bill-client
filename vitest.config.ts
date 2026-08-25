@@ -14,7 +14,7 @@ export default defineConfig({
         url: 'http://localhost/',
       },
     },
-    include: ['test/**/*.test.ts'],
+    include: ['test/**/*.test.{ts,tsx}'],
     setupFiles: ['./test/setup.ts'],
   },
 });

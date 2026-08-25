@@ -1,15 +1,15 @@
-import type { UserEntity } from '@/entities/user';
 import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
 
 export interface UserAppConfig {
   id: string;
+  userId: number;
+  gestureLockEnabled: boolean;
   isDisplayAmount: boolean;
   isDisplayAmountSwitch: boolean;
   isOpenSoundEffect: boolean;
   isLedgerQuickSwitchEnabled: boolean;
   ledgerQuickSwitchVersion: number;
-  user: UserEntity;
 }
 
 export function getUserAppConfigApi() {
@@ -18,7 +18,7 @@ export function getUserAppConfigApi() {
 
 export interface PatchUserAppConfigBody extends Partial<Omit<
   UserAppConfig,
-  'user' | 'id' | 'isLedgerQuickSwitchEnabled' | 'ledgerQuickSwitchVersion'
+  'id' | 'userId' | 'isLedgerQuickSwitchEnabled' | 'ledgerQuickSwitchVersion'
 >> {}
 
 export function patchUserAppConfigApi(body: PatchUserAppConfigBody) {

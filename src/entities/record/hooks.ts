@@ -5,6 +5,7 @@ import type {
   GetRecordApiResponseData,
   GetRecordBillApiParams,
   GetRecordBillApiResponseData,
+  MonthBillDetailResponse,
   RecordFilterOptionsData,
 } from './api';
 import type { RecordEntry } from './types';
@@ -22,6 +23,7 @@ import {
   getLedgerRecordBillApi,
   getLedgerRecordByIdApi,
   getLedgerRecordsApi,
+  getMonthBillDetailApi,
   getRecordApi,
   getRecordBillApi,
   getRecordByIdApi,
@@ -32,6 +34,7 @@ import {
   putRecordApi,
 } from './api';
 import { recordKeys } from './keys';
+import { normalizeMonthBillDetail } from './month-bill-detail';
 
 const emptyRecordInfo: GetRecordApiResponseData = {
   total: 0,
@@ -313,6 +316,26 @@ export function useGetRecordBillQuery(options?: {
     data,
     isNotDataLoading,
     isLoading,
+    ...rest,
+  };
+}
+
+export function useMonthBillDetailQuery(options: {
+  month: string;
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<MonthBillDetailResponse>>, 'queryFn' | 'queryKey'>;
+}) {
+  const { data: response, ...rest } = useQuery<SuccessResponse<MonthBillDetailResponse>>({
+    queryFn: async () => {
+      const response = assertSuccessApi(await getMonthBillDetailApi(options.month));
+      return { ...response, data: normalizeMonthBillDetail(response.data) };
+    },
+    queryKey: recordKeys.billMonthDetail(options.month),
+    ...options.queryOptions,
+  });
+
+  return {
+    response,
+    data: response?.data,
     ...rest,
   };
 }

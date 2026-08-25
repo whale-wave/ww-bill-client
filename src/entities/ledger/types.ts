@@ -177,7 +177,9 @@ export interface LedgerUserSummary {
 export interface LedgerSummary {
   id: string;
   name: string;
-  iconKey: string;
+  kind: LedgerKind;
+  templateKey?: LedgerTemplateKey;
+  iconKey?: string;
   themeKey: string;
 }
 

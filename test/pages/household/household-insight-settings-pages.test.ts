@@ -27,6 +27,7 @@ const hooks = vi.hoisted(() => ({
   useDissolveHouseholdMutation: vi.fn(),
   useHouseholdBudgetsQuery: vi.fn(),
   useHouseholdChartsQuery: vi.fn(),
+  useHouseholdChartPeriodsQuery: vi.fn(),
   useHouseholdMembersQuery: vi.fn(),
   useMyHouseholdQuery: vi.fn(),
   useUpdateHouseholdMutation: vi.fn(),
@@ -41,6 +42,7 @@ vi.mock('@/entities/household', async importOriginal => ({
   useDissolveHouseholdMutation: hooks.useDissolveHouseholdMutation,
   useHouseholdBudgetsQuery: hooks.useHouseholdBudgetsQuery,
   useHouseholdChartsQuery: hooks.useHouseholdChartsQuery,
+  useHouseholdChartPeriodsQuery: hooks.useHouseholdChartPeriodsQuery,
   useHouseholdMembersQuery: hooks.useHouseholdMembersQuery,
   useMyHouseholdQuery: hooks.useMyHouseholdQuery,
   useUpdateHouseholdMutation: hooks.useUpdateHouseholdMutation,
@@ -102,7 +104,7 @@ const budget: HouseholdBudgetOverview = {
 };
 
 const chart: HouseholdChartResult = {
-  anchorDate: '2026-07-21',
+  anchorDate: '2026-07-01',
   categories: [{ amount: '20.00', key: 'food', name: '餐饮', percent: 1 }],
   display: 'pie',
   endDate: '2026-07-31',
@@ -138,13 +140,14 @@ function renderPage(pathname: string, routePath: string, element: ReactNode, pre
   return { container, router };
 }
 
-function getBudgetModal(container: HTMLElement) {
-  return container.querySelector<HTMLElement>('.adm-modal')
-    ?? document.body.querySelector<HTMLElement>('.adm-modal');
+function getBudgetEditor(container: HTMLElement) {
+  return container.querySelector<HTMLElement>('[data-budget-editor]')
+    ?? document.body.querySelector<HTMLElement>('[data-budget-editor]');
 }
 
-function setBudgetAmount(modal: HTMLElement | null | undefined, value: string) {
-  const amount = modal?.querySelector<HTMLInputElement>('input[name="householdBudgetAmount"]');
+function setBudgetAmount(editor: HTMLElement | null | undefined, value: string) {
+  const amount = editor?.querySelector<HTMLInputElement>('input[name="householdBudgetAmount"]');
+  expect(amount).toBeInstanceOf(HTMLInputElement);
   if (!amount)
     return;
   act(() => {
@@ -153,8 +156,11 @@ function setBudgetAmount(modal: HTMLElement | null | undefined, value: string) {
   });
 }
 
-async function confirmBudgetModal(modal: HTMLElement | null | undefined) {
-  await act(async () => modal?.querySelectorAll<HTMLElement>('.adm-modal-button')[0]?.click());
+async function saveBudgetEditor(editor: HTMLElement | null | undefined) {
+  const saveButton = [...editor?.querySelectorAll<HTMLButtonElement>('button') ?? []]
+    .find(button => button.textContent === 'common.save');
+  expect(saveButton).not.toBeUndefined();
+  await act(async () => saveButton?.click());
 }
 
 function householdCategoryOverview(version = 7): HouseholdBudgetOverview {
@@ -187,6 +193,13 @@ beforeEach(() => {
   hooks.useHouseholdMembersQuery.mockReturnValue({ ...query(members), data: members });
   hooks.useHouseholdBudgetsQuery.mockReturnValue(query(budget));
   hooks.useHouseholdChartsQuery.mockReturnValue(query(chart));
+  hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([{
+    anchorDate: '2026-07-01',
+    key: '2026-07',
+    month: 7,
+    period: 'month',
+    year: 2026,
+  }]));
   hooks.useUpsertHouseholdBudgetMutation.mockReturnValue([hooks.upsertBudget, { isLoading: false }]);
   hooks.useDeleteHouseholdBudgetMutation.mockReturnValue([hooks.deleteBudget, { isLoading: false }]);
   hooks.useUpdateHouseholdMutation.mockReturnValue([hooks.updateHousehold, { isLoading: false }]);
@@ -223,14 +236,11 @@ describe('household budget and charts', () => {
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
     expect(container.querySelector('[data-budget-page-shell]')).not.toBeNull();
-    expect(container.querySelector('.adm-dropdown-item-title')).not.toBeNull();
-    expect(container.querySelector('.bwm-nav-bar-right [data-budget-period-start]')).toBeNull();
+    expect(container.querySelector(`[data-budget-type="${BudgetEntityType.MONTH}"]`)).not.toBeNull();
+    expect(container.querySelectorAll('[data-budget-type]')).toHaveLength(2);
     expect(container.querySelector('[data-budget-id="budget-1"]')).not.toBeNull();
     expect(container.querySelector('[data-budget-id="category-budget-1"]')?.textContent).toContain('Dining');
-    expect(container.querySelector('[data-budget-add-category]')?.closest('.fixed')).not.toBeNull();
-    expect(container.querySelector('[data-testid="household-total-budget-form"]')).toBeNull();
-    expect(container.querySelector('[data-period-type]')).toBeNull();
-    expect(container.querySelector('[style*="conic-gradient"]')).toBeNull();
+    expect(container.querySelector('[data-budget-add-category]')).not.toBeNull();
     expect(hooks.chartSetOption.mock.calls[0]?.[0]).toEqual(expect.objectContaining({
       series: expect.arrayContaining([
         expect.objectContaining({
@@ -255,13 +265,14 @@ describe('household budget and charts', () => {
     }));
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
-    expect(container.querySelector('[data-budget-create-summary]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="budget-empty-state"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="budget-empty-state"] button')).not.toBeNull();
     expect(container.querySelector('[data-budget-id="category-budget-1"]')).toBeNull();
     expect(container.querySelector('[data-budget-add-category]')).toBeNull();
-    expect(container.querySelectorAll('.adm-error-block')).toHaveLength(1);
+    expect(container.querySelectorAll('[data-testid="budget-empty-state"]')).toHaveLength(1);
   });
 
-  it('keeps the original solid create action before any budget is created', () => {
+  it('keeps one actionable summary empty state before any budget is created', () => {
     hooks.useHouseholdBudgetsQuery.mockReturnValue(query({
       ...budget,
       summary: {
@@ -277,11 +288,10 @@ describe('household budget and charts', () => {
     expect(container.textContent).toContain('emptyBudget');
     expect(container.textContent).not.toContain('emptyCategoryBudget');
     expect(container.querySelector('[data-budget-add-category]')).toBeNull();
-    expect(container.querySelectorAll('.adm-error-block')).toHaveLength(1);
-    const createButton = container.querySelector('[data-budget-create-summary]');
-    expect(createButton?.classList.contains('adm-button-primary')).toBe(true);
-    expect(createButton?.classList.contains('adm-button-fill-outline')).toBe(false);
-    expect(createButton?.classList.contains('justify-center')).toBe(true);
+    expect(container.querySelectorAll('[data-testid="budget-empty-state"]')).toHaveLength(1);
+    const createButton = container.querySelector<HTMLButtonElement>('[data-testid="budget-empty-state"] button');
+    expect(createButton?.textContent).toBe('addBudget');
+    expect(createButton?.type).toBe('button');
   });
 
   it.each([
@@ -296,18 +306,17 @@ describe('household budget and charts', () => {
       '/household',
     );
 
-    const back = container.querySelector<HTMLElement>('.bwm-nav-bar-back');
+    const back = container.querySelector<HTMLButtonElement>('button[aria-label="common:nav.back"]');
     expect(container.querySelector(`[data-testid="${stateTestId}"]`)).not.toBeNull();
     expect(back).not.toBeNull();
-    expect(back?.textContent).toContain('common:nav.back');
+    expect(back?.getAttribute('aria-label')).toBe('common:nav.back');
 
     await act(async () => back?.click());
     expect(router.state.location.pathname).toBe('/household');
   });
 
-  it('uses the same two-option month/year dropdown as the personal budget page', async () => {
+  it('uses the same two-option month/year selector as the personal budget page', async () => {
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
-    await act(async () => container.querySelector<HTMLElement>('.adm-dropdown-item-title')?.click());
 
     const monthOption = container.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.MONTH}"]`)
       ?? document.body.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.MONTH}"]`);
@@ -341,11 +350,11 @@ describe('household budget and charts', () => {
     expect(actionSheet).toHaveBeenCalledOnce();
     act(() => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
 
-    const modal = getBudgetModal(container);
-    const amount = modal?.querySelector<HTMLInputElement>('input[name="householdBudgetAmount"]');
+    const editor = getBudgetEditor(container);
+    const amount = editor?.querySelector<HTMLInputElement>('input[name="householdBudgetAmount"]');
     expect(amount?.value).toBe('10000.00');
-    setBudgetAmount(modal, '12000');
-    await confirmBudgetModal(modal);
+    setBudgetAmount(editor, '12000');
+    await saveBudgetEditor(editor);
 
     expect(hooks.upsertBudget).toHaveBeenCalledWith({
       data: {
@@ -372,10 +381,10 @@ describe('household budget and charts', () => {
     }));
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-create-summary]')?.click());
-    const modal = getBudgetModal(container);
-    setBudgetAmount(modal, '8000');
-    await confirmBudgetModal(modal);
+    act(() => container.querySelector<HTMLElement>('[data-testid="budget-empty-state"] button')?.click());
+    const editor = getBudgetEditor(container);
+    setBudgetAmount(editor, '8000');
+    await saveBudgetEditor(editor);
 
     expect(hooks.upsertBudget).toHaveBeenCalledWith({
       data: {
@@ -438,16 +447,16 @@ describe('household budget and charts', () => {
 
     act(() => container.querySelector<HTMLElement>('[data-budget-id="budget-1"]')?.click());
     act(() => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
-    setBudgetAmount(getBudgetModal(container), '12000');
-    await confirmBudgetModal(getBudgetModal(container));
+    setBudgetAmount(getBudgetEditor(container), '12000');
+    await saveBudgetEditor(getBudgetEditor(container));
 
     expect(refetch).toHaveBeenCalledOnce();
 
     act(() => container.querySelector<HTMLElement>('[data-budget-id="budget-1"]')?.click());
     act(() => actionSheet.mock.calls[1]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
-    expect(getBudgetModal(container)?.querySelector<HTMLInputElement>('input[name="householdBudgetAmount"]')?.value).toBe('11000.00');
-    setBudgetAmount(getBudgetModal(container), '12500');
-    await confirmBudgetModal(getBudgetModal(container));
+    expect(getBudgetEditor(container)?.querySelector<HTMLInputElement>('input[name="householdBudgetAmount"]')?.value).toBe('11000.00');
+    setBudgetAmount(getBudgetEditor(container), '12500');
+    await saveBudgetEditor(getBudgetEditor(container));
 
     expect(hooks.upsertBudget).toHaveBeenNthCalledWith(1, {
       data: {
@@ -500,12 +509,12 @@ describe('household budget and charts', () => {
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
     act(() => container.querySelector<HTMLElement>('[data-budget-add-category]')?.click());
-    const modal = getBudgetModal(container);
-    expect(modal?.textContent).toContain('Travel');
-    expect(modal?.textContent).not.toContain('Dining');
-    act(() => modal?.querySelector<HTMLElement>('.adm-selector-item')?.click());
-    setBudgetAmount(modal, '500');
-    await confirmBudgetModal(modal);
+    const editor = getBudgetEditor(container);
+    expect(editor?.textContent).toContain('Travel');
+    expect(editor?.textContent).not.toContain('Dining');
+    act(() => editor?.querySelector<HTMLElement>('[role="option"]')?.click());
+    setBudgetAmount(editor, '500');
+    await saveBudgetEditor(editor);
 
     expect(hooks.upsertBudget).toHaveBeenCalledWith({
       data: {
@@ -541,13 +550,14 @@ describe('household budget and charts', () => {
     act(() => container.querySelector<HTMLElement>('[data-budget-id="category-budget-1"]')?.click());
     act(() => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
 
-    const modal = getBudgetModal(container);
-    const travelOption = [...modal?.querySelectorAll<HTMLElement>('.adm-selector-item') ?? []]
+    const editor = getBudgetEditor(container);
+    const travelOption = [...editor?.querySelectorAll<HTMLElement>('[role="option"]') ?? []]
       .find(option => option.textContent?.includes('Travel'));
-    expect(travelOption?.classList).toContain('adm-selector-item-disabled');
+    expect(travelOption?.getAttribute('aria-selected')).toBe('false');
     act(() => travelOption?.click());
-    setBudgetAmount(modal, '600');
-    await confirmBudgetModal(modal);
+    expect(travelOption?.getAttribute('aria-selected')).toBe('false');
+    setBudgetAmount(editor, '600');
+    await saveBudgetEditor(editor);
 
     expect(hooks.upsertBudget).toHaveBeenCalledWith({
       data: {
@@ -585,15 +595,15 @@ describe('household budget and charts', () => {
 
     act(() => container.querySelector<HTMLElement>('[data-budget-id="category-budget-1"]')?.click());
     act(() => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
-    setBudgetAmount(getBudgetModal(container), '600');
-    await confirmBudgetModal(getBudgetModal(container));
+    setBudgetAmount(getBudgetEditor(container), '600');
+    await saveBudgetEditor(getBudgetEditor(container));
 
     expect(refetch).toHaveBeenCalledOnce();
 
     act(() => container.querySelector<HTMLElement>('[data-budget-id="category-budget-1"]')?.click());
     act(() => actionSheet.mock.calls[1]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
-    setBudgetAmount(getBudgetModal(container), '650');
-    await confirmBudgetModal(getBudgetModal(container));
+    setBudgetAmount(getBudgetEditor(container), '650');
+    await saveBudgetEditor(getBudgetEditor(container));
 
     expect(hooks.upsertBudget).toHaveBeenNthCalledWith(1, {
       data: {
@@ -691,6 +701,137 @@ describe('household budget and charts', () => {
       },
       queryOptions: { enabled: true },
     });
+  });
+
+  it.each([
+    ['', 'line'],
+    ['?display=line', 'line'],
+    ['?display=pie', 'pie'],
+    ['?display=unknown', 'line'],
+    ['?display=line&display=pie', 'line'],
+  ] as const)('resolves household chart display %s to %s', (search, display) => {
+    const { container } = renderPage(
+      `/households/household%2Fa/charts${search}`,
+      '/households/:householdId/charts',
+      createElement(HouseholdChartsPage),
+    );
+
+    expect(container.querySelector(`[data-chart-display-option="${display}"]`)?.getAttribute('aria-pressed')).toBe('true');
+    expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
+      params: expect.objectContaining({ filters: expect.objectContaining({ display }) }),
+    }));
+  });
+
+  it('changes only the household chart display query parameter', async () => {
+    const { container, router } = renderPage(
+      '/households/household%2Fa/charts?amount=sub&range=month&date=2026-07-01',
+      '/households/:householdId/charts',
+      createElement(HouseholdChartsPage),
+    );
+
+    await act(async () => container.querySelector<HTMLElement>('[data-chart-display-option="pie"]')?.click());
+
+    expect(router.state.location.search).toBe('?amount=sub&range=month&date=2026-07-01&display=pie');
+    expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
+      params: expect.objectContaining({ filters: expect.objectContaining({ display: 'pie' }) }),
+    }));
+  });
+
+  it('renders household category segments and legend in pie mode', () => {
+    hooks.useHouseholdChartsQuery.mockReturnValue(query({
+      ...chart,
+      categories: [
+        { amount: '50.00', key: 'food', name: '餐饮', percent: 0.5 },
+        { amount: '30.00', key: 'travel', name: '交通', percent: 0.3 },
+        { amount: '10.00', key: 'home', name: '住房', percent: 0.1 },
+        { amount: '5.00', key: 'fun', name: '娱乐', percent: 0.05 },
+        { amount: '5.00', key: 'other', name: '其他分类', percent: 0.05 },
+      ],
+    }));
+
+    const { container } = renderPage(
+      '/households/household%2Fa/charts?display=pie',
+      '/households/:householdId/charts',
+      createElement(HouseholdChartsPage),
+    );
+
+    expect(container.querySelector('[data-household-pie-chart]')).not.toBeNull();
+    expect(container.querySelector('[data-household-pie-legend]')?.textContent).toContain('餐饮50%');
+    expect(container.querySelector('[data-household-pie-legend]')?.textContent).toContain('other5%');
+    expect(hooks.chartSetOption).toHaveBeenLastCalledWith(expect.objectContaining({
+      series: [expect.objectContaining({
+        data: [
+          expect.objectContaining({ id: 'category:food', name: '餐饮', value: 50 }),
+          expect.objectContaining({ id: 'category:travel', name: '交通', value: 30 }),
+          expect.objectContaining({ id: 'category:home', name: '住房', value: 10 }),
+          expect.objectContaining({ id: 'category:fun', name: '娱乐', value: 5 }),
+          expect.objectContaining({ id: 'aggregate:other', name: 'other', value: 5 }),
+        ],
+      })],
+    }));
+  });
+
+  it('shows a category empty state without initializing a pie chart', () => {
+    hooks.useHouseholdChartsQuery.mockReturnValue(query({
+      ...chart,
+      categories: [],
+      summary: { expense: '20.00', income: '0.00', net: '-20.00' },
+    }));
+
+    const { container } = renderPage(
+      '/households/household%2Fa/charts?display=pie',
+      '/households/:householdId/charts',
+      createElement(HouseholdChartsPage),
+    );
+
+    expect(container.querySelector('[data-household-pie-empty]')?.textContent).toContain('noCategoryData');
+    expect(container.querySelector('[data-household-pie-chart]')).toBeNull();
+    expect(hooks.chartSetOption).not.toHaveBeenCalled();
+  });
+
+  it('renders counted household weeks with relative labels and selects an older week', async () => {
+    hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([
+      { anchorDate: '2025-12-22', isoWeek: 52, isoWeekYear: 2025, key: '2025-W52', period: 'week' },
+      { anchorDate: '2026-08-10', isoWeek: 33, isoWeekYear: 2026, key: '2026-W33', period: 'week' },
+      { anchorDate: '2026-08-17', isoWeek: 34, isoWeekYear: 2026, key: '2026-W34', period: 'week' },
+      { anchorDate: '2026-08-24', isoWeek: 35, isoWeekYear: 2026, key: '2026-W35', period: 'week' },
+    ]));
+    hooks.useHouseholdChartsQuery.mockReturnValue(query({
+      ...chart,
+      anchorDate: '2026-08-24',
+      endDate: '2026-08-30',
+      period: 'week',
+      startDate: '2026-08-24',
+      timeline: Array.from({ length: 7 }, (_, index) => ({
+        expense: '1.00',
+        income: '0.00',
+        key: `2026-08-${String(24 + index).padStart(2, '0')}`,
+        label: `08-${String(24 + index).padStart(2, '0')}`,
+        net: '-1.00',
+      })),
+    }));
+    const { container, router } = renderPage('/households/household%2Fa/charts?range=week', '/households/:householdId/charts', createElement(HouseholdChartsPage));
+
+    const tabs = [...container.querySelectorAll<HTMLButtonElement>('[data-chart-period-options] > button')];
+    expect(tabs.map(tab => tab.textContent)).toEqual(['tab.yearWeekNumber', 'tab.weekNumber', 'tab.lastWeek', 'tab.thisWeek']);
+    expect(tabs[3]?.getAttribute('aria-pressed')).toBe('true');
+    await act(async () => tabs[1]?.click());
+    expect(router.state.location.search).toContain('date=2026-08-10');
+    expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
+      params: expect.objectContaining({ filters: expect.objectContaining({ anchorDate: '2026-08-10' }) }),
+    }));
+  });
+
+  it('prioritizes relative names for current and previous months', () => {
+    hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([
+      { anchorDate: '2025-12-01', key: '2025-12', month: 12, period: 'month', year: 2025 },
+      { anchorDate: '2026-07-01', key: '2026-07', month: 7, period: 'month', year: 2026 },
+      { anchorDate: '2026-08-01', key: '2026-08', month: 8, period: 'month', year: 2026 },
+    ]));
+    hooks.useHouseholdChartsQuery.mockReturnValue(query({ ...chart, anchorDate: '2026-08-01' }));
+    const { container } = renderPage('/households/household%2Fa/charts?range=month', '/households/:householdId/charts', createElement(HouseholdChartsPage));
+    const tabs = [...container.querySelectorAll<HTMLButtonElement>('[data-chart-period-options] > button')];
+    expect(tabs.map(tab => tab.textContent)).toEqual(['tab.yearMonthNumber', 'tab.lastMonth', 'tab.thisMonth']);
   });
 
   it('uses the shared amount selector for the household income query', async () => {

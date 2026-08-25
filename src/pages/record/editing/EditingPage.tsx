@@ -1,13 +1,13 @@
 import type { FC } from 'react';
 import type { RecordEntry } from '@/entities/record';
-import { ErrorBlock, SpinLoading, Toast } from 'antd-mobile';
+import { ErrorBlock, Toast } from 'antd-mobile';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { RecordDetailPresentation, useDeleteRecordMutation, useGetRecordByIdQuery } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
 import { playSound } from '@/shared/lib/play-sound';
-import { confirmDangerousAction } from '@/shared/ui';
+import { confirmDangerousAction, PageLoadingState } from '@/shared/ui';
 
 function isRecordCategory(value: unknown): value is RecordEntry['category'] {
   return typeof value === 'object'
@@ -66,11 +66,7 @@ const Editing: FC = () => {
 
   if (!state) {
     if (isLoading) {
-      return (
-        <div className="page flex justify-center items-center">
-          <SpinLoading />
-        </div>
-      );
+      return <PageLoadingState label={t('common:nav.loading')} testId="editing-loading" />;
     }
 
     return (

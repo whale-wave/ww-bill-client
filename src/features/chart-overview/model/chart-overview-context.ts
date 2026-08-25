@@ -31,6 +31,11 @@ export interface ChartOverviewTab {
   ranking: ChartOverviewRankingItem[];
 }
 
+export interface ChartOverviewPeriodTab {
+  key: string;
+  name: string;
+}
+
 export interface ChartOverviewRankingSection {
   items: ChartOverviewRankingItem[];
   key: string;
@@ -52,6 +57,7 @@ export interface ChartOverviewContextValue {
   currentMetric?: ChartOverviewMetric;
   currentTimeRangeCategory: TimeRangeCategory;
   displayMode?: ChartOverviewDisplay;
+  onDisplayModeChange?: (mode: ChartOverviewDisplay) => void;
   isAmountHidden?: boolean;
   metricOptions?: ChartOverviewMetricOption[];
   onMetricChange?: (metric: ChartOverviewMetric) => void;
@@ -62,8 +68,9 @@ export interface ChartOverviewContextValue {
   totalLabel?: string;
   totalTestId?: string;
   tabActive: string;
-  tabs: ChartOverviewTab[];
+  tabs: ChartOverviewPeriodTab[];
   curTab?: ChartOverviewTab;
+  isContentLoading?: boolean;
   setTabActive: (key: string) => void;
   setCurrentTimeRangeCategory: (range: TimeRangeCategory) => void;
   setCurrentAmountType: (type: AmountType) => void;

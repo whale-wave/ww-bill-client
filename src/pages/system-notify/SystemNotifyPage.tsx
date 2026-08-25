@@ -8,7 +8,6 @@ import {
   Button,
   Dialog,
   ErrorBlock,
-  SpinLoading,
   Toast,
 } from 'antd-mobile';
 import { useMemo, useRef } from 'react';
@@ -23,7 +22,7 @@ import {
 } from '@/entities/notification';
 import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
-import { NavBar } from '@/shared/ui';
+import { NavBar, PageLoadingState } from '@/shared/ui';
 import { getNotificationTarget } from './model';
 
 const PAGE_SIZE = 20;
@@ -287,9 +286,7 @@ function SystemNotifyPage() {
         </div>
 
         {isLoading && (
-          <div className="flex justify-center py-16">
-            <SpinLoading />
-          </div>
+          <PageLoadingState label={t('nav.loading')} testId="system-notify-loading" />
         )}
         {!isLoading && isError && (
           <div className="px-4 py-10 text-center">

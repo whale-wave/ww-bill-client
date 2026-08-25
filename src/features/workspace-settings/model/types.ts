@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { LedgerUserSummary } from '@/entities/ledger';
 
 export type SettingsIconKey
   = | 'account'
@@ -10,6 +11,7 @@ export type SettingsIconKey
     | 'export'
     | 'help'
     | 'language'
+    | 'lock'
     | 'member'
     | 'record'
     | 'storage'
@@ -41,7 +43,7 @@ export interface SettingsSwitchRow extends SettingsRowBase {
 }
 
 export interface SettingsAvatarStackRow extends SettingsRowBase {
-  avatars: Array<{ alt: string; id: string | number; src?: string }>;
+  avatars: Array<{ alt: string; id: string | number; name?: string; src?: string }>;
   kind: 'avatarStack';
   onClick: () => void;
   overflowCount?: number;
@@ -81,5 +83,6 @@ export interface MemberCardItem {
   isCurrent?: boolean;
   name: ReactNode;
   onClick?: () => void;
+  user?: Partial<LedgerUserSummary>;
   userId: ReactNode;
 }

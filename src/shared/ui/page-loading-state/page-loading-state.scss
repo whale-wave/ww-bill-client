@@ -1,0 +1,21 @@
+.ww-page-loading__whale {
+  animation: ww-page-loading-breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes ww-page-loading-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(-4px) scale(1.04);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ww-page-loading__whale {
+    animation: none;
+  }
+}

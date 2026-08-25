@@ -230,6 +230,7 @@ function renderPage(pathname: string, path: string, element: ReactNode) {
   const root = createRoot(container);
   const router = createMemoryRouter([
     { element, path },
+    { element: createElement('div', null, 'origin-target'), path: '/origin' },
     { element: createElement('div', null, 'personal-detail-target'), path: '/detail' },
     { element: createElement('div', null, 'personal-search-target'), path: '/search-record' },
     { element: createElement('div', null, 'personal-calendar-target'), path: '/record-calendar' },
@@ -364,7 +365,7 @@ describe('personal ledger workspace integration', () => {
 
     expect(container.querySelector('[data-testid="mini-program-capsule"]')).toBeNull();
     expect(container.textContent).toContain(businessTitle);
-    expect(container.querySelector('.bwm-nav-bar-back') !== null).toBe(hasTopBack);
+    expect(container.querySelector('button[aria-label="返回"]') !== null).toBe(hasTopBack);
     expect(container.querySelector('.bwm-tab-bar') !== null).toBe(hasTabBar);
   });
 
@@ -407,11 +408,10 @@ describe('personal ledger workspace integration', () => {
   it('changes personal budget period and returns through the restored navbar', async () => {
     const { container, router } = renderPage('/budget', '/budget', createElement(BudgetPage));
 
-    await click(container.querySelector('.adm-dropdown-item-title'));
-    await click(document.querySelector('[data-budget-type="1"]'));
-    expect(hooks.useGetBudgetInfoQuery).toHaveBeenLastCalledWith({ params: { type: 1 } });
+    await click(container.querySelector(`[data-budget-type="${BudgetEntityType.YEAR}"]`));
+    expect(hooks.useGetBudgetInfoQuery).toHaveBeenLastCalledWith({ params: { type: BudgetEntityType.YEAR } });
 
-    await click(container.querySelector('.bwm-nav-bar-back'));
+    await click(container.querySelector('button[aria-label="返回"]'));
     expect(router.state.location.pathname).toBe('/origin');
   });
 });
@@ -599,7 +599,7 @@ describe('custom ledger workspace integration', () => {
 
     expect(container.querySelector('[data-testid="ledger-switcher-title"]')).toBeNull();
     expect(container.querySelector('.ww-ledger-workspace-tab-bar') !== null).toBe(hasWorkspaceTabBar);
-    expect(container.querySelector('.adm-nav-bar-back, .bwm-nav-bar-back') !== null).toBe(!hasWorkspaceTabBar);
+    expect(container.querySelector('button[aria-label="返回"]') !== null).toBe(!hasWorkspaceTabBar);
   });
 
   it('returns a custom budget to the previous route', async () => {
@@ -609,7 +609,7 @@ describe('custom ledger workspace integration', () => {
       createElement(LedgerBudgetPage),
     );
 
-    await click(container.querySelector('.bwm-nav-bar-back'));
+    await click(container.querySelector('button[aria-label="返回"]'));
     expect(router.state.location.pathname).toBe('/origin');
   });
 
@@ -636,24 +636,30 @@ describe('custom ledger workspace integration', () => {
 
     expect(container.querySelector('[data-budget-page-shell]')).not.toBeNull();
     expect(container.querySelector('[data-budget-id="ledger-summary"]')).not.toBeNull();
-    expect(container.querySelector('.adm-dropdown-item-title')).not.toBeNull();
+    expect(container.querySelectorAll('[data-budget-type]')).toHaveLength(2);
+    expect(container.querySelector(`[data-budget-type="${BudgetEntityType.MONTH}"]`)?.textContent).toContain('月预算');
   });
 
   it.each([
     ['loading', { data: undefined, isError: false, isLoading: true, refetch: vi.fn() }],
     ['error', { data: undefined, error: new Error('scope failed'), isError: true, isLoading: false, refetch: vi.fn() }],
-  ])('keeps the budget shell and back navigation during scope %s', (_state, scopeQuery) => {
+  ])('keeps the budget shell and back navigation during scope %s', async (state, scopeQuery) => {
     hooks.useLedgerQuery.mockReturnValue(scopeQuery);
     hooks.useLedgerBudgetInfoQuery.mockClear();
-    const { container } = renderPage(
+    const { container, router } = renderPage(
       '/ledgers/ledger%2Fa/budget',
       '/ledgers/:ledgerId/budget',
       createElement(LedgerBudgetPage),
     );
 
+    const backButton = container.querySelector('button[aria-label="返回"]');
     expect(container.querySelector('[data-budget-page-shell]')).not.toBeNull();
-    expect(container.querySelector('.bwm-nav-bar-back')).not.toBeNull();
+    expect(container.querySelector(`[data-ledger-budget-scope-state="${state}"]`)).not.toBeNull();
+    expect(backButton).not.toBeNull();
     expect(hooks.useLedgerBudgetInfoQuery).not.toHaveBeenCalled();
+
+    await click(backButton);
+    expect(router.state.location.pathname).toBe('/origin');
   });
 
   it('confirms summary-budget clearing before running the ledger mutation', async () => {
@@ -684,7 +690,10 @@ describe('custom ledger workspace integration', () => {
     await act(async () => {
       await clearAction?.onClick?.();
     });
-    expect(confirm).toHaveBeenCalledWith({ content: 'clearSummaryBudgetWarning', title: 'warning.title' });
+    expect(confirm).toHaveBeenCalledWith(expect.objectContaining({
+      content: 'clearSummaryBudgetWarning',
+      title: 'warning.title',
+    }));
     expect(hooks.clearLedgerBudget).not.toHaveBeenCalled();
 
     confirm.mockResolvedValue(true);
@@ -719,15 +728,18 @@ describe('custom ledger workspace integration', () => {
       createElement(LedgerBudgetPage),
     );
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-create-summary]')?.click());
-    const input = document.body.querySelector<HTMLInputElement>('input[name="ledgerBudgetAmount"]');
+    await click(container.querySelector('[data-testid="budget-empty-state"] button'));
+    const editor = document.body.querySelector('[data-budget-editor]');
+    const input = editor?.querySelector<HTMLInputElement>('input[name="ledgerBudgetAmount"]');
+    expect(editor).not.toBeNull();
+    expect(input).not.toBeNull();
     const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
     await act(async () => {
       setValue?.call(input, '500');
       input?.dispatchEvent(new Event('input', { bubbles: true }));
       await Promise.resolve();
     });
-    const save = [...document.body.querySelectorAll<HTMLButtonElement>('.adm-modal-footer button')]
+    const save = [...(editor?.querySelectorAll<HTMLButtonElement>('button') ?? [])]
       .find(button => button.textContent === 'actions.save');
     await click(save);
     await act(async () => {

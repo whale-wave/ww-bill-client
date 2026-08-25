@@ -1,7 +1,10 @@
 import type { WorkspaceScope } from '../model/workspace-scope';
+import type {
+  LedgerTemplateKey,
+} from '@/entities/ledger';
 import { Popup, SafeArea, SpinLoading } from 'antd-mobile';
 import { CheckOutline } from 'antd-mobile-icons';
-import { Home, Landmark, Plus, Settings2, Users } from 'lucide-react';
+import { Plus, Settings2, Users } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HouseholdStatus, useMyHouseholdQuery } from '@/entities/household';
@@ -9,6 +12,7 @@ import {
   LedgerCapability,
   LedgerKind,
   LedgerStatus,
+  LedgerVisualIcon,
   useLedgerNavigationQuery,
 } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -25,11 +29,13 @@ interface WorkspaceSwitcherPanelProps {
 
 interface WorkspaceOption {
   description?: string;
-  icon: typeof Home;
+  iconKey?: string | null;
+  kind?: LedgerKind;
   key: string;
   label: string;
   path: string;
   scope: WorkspaceScope;
+  templateKey?: LedgerTemplateKey;
   themeKey?: string;
 }
 
@@ -61,8 +67,8 @@ export function WorkspaceSwitcherPanel({
   const { householdLedgerOptions, myLedgerOptions } = useMemo(() => {
     const personal: WorkspaceOption = {
       description: t('switcher.currentPersonal'),
-      icon: Home,
       key: 'personal',
+      kind: LedgerKind.SYSTEM_DEFAULT,
       label: t('switcher.personal'),
       path: ROUTES_PATH.DETAIL.getPath(),
       scope: { type: 'personal' },
@@ -75,8 +81,9 @@ export function WorkspaceSwitcherPanel({
         && ledger.capabilities.includes(LedgerCapability.LEDGER_READ))
       .map<WorkspaceOption>(ledger => ({
         description: t('switcher.memberCount', { count: ledger.activeMemberCount }),
-        icon: Landmark,
+        iconKey: ledger.iconKey,
         key: `custom-${ledger.id}`,
+        kind: ledger.kind,
         label: ledger.name,
         path: getWorkspaceHomePath({
           capabilities: ledger.capabilities,
@@ -88,12 +95,12 @@ export function WorkspaceSwitcherPanel({
           ledgerId: ledger.id,
           type: 'custom',
         },
+        templateKey: ledger.templateKey,
         themeKey: ledger.themeKey,
       }));
-    const household = householdQuery.data?.status === HouseholdStatus.ACTIVE
+    const household: WorkspaceOption[] = householdQuery.data?.status === HouseholdStatus.ACTIVE
       ? [{
           description: t('switcher.householdDescription'),
-          icon: Users,
           key: `household-${householdQuery.data.id}`,
           label: t('switcher.householdLedger'),
           path: ROUTES_PATH.HOUSEHOLD_HOME.getPath(householdQuery.data.id),
@@ -123,7 +130,6 @@ export function WorkspaceSwitcherPanel({
   };
 
   const renderOptions = (options: WorkspaceOption[]) => options.map((option) => {
-    const OptionIcon = option.icon;
     const isSelected = isSameScope(option.scope, currentScope);
     return (
       <button
@@ -140,7 +146,18 @@ export function WorkspaceSwitcherPanel({
             className={cn('ledger-switcher-panel__icon', isSelected && 'ledger-switcher-panel__icon--selected')}
             data-theme={option.themeKey}
           >
-            <OptionIcon aria-hidden="true" size={21} strokeWidth={1.8} />
+            {option.scope.type === 'household'
+              ? (
+                  <Users aria-hidden="true" size={21} strokeWidth={1.8} />
+                )
+              : (
+                  <LedgerVisualIcon
+                    className="h-[22px] w-[22px]"
+                    iconKey={option.iconKey}
+                    kind={option.scope.type === 'personal' ? LedgerKind.SYSTEM_DEFAULT : option.kind}
+                    templateKey={option.templateKey}
+                  />
+                )}
           </span>
           <span className="ledger-switcher-panel__option-copy">
             <strong className="ledger-switcher-panel__option-title">

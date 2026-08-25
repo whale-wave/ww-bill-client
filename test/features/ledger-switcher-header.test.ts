@@ -146,6 +146,7 @@ describe('ledger title switcher', () => {
     expect(title?.textContent).toContain('鲸浪账本');
     expect(title?.classList.contains('existing-title-slot')).toBe(true);
     expect(title?.tagName).toBe('BUTTON');
+    expect(title?.querySelector('img')).not.toBeNull();
 
     await click(title);
 
@@ -153,6 +154,7 @@ describe('ledger title switcher', () => {
     const createAction = document.querySelector<HTMLButtonElement>('[data-ledger-switcher-create]');
     const manageAction = document.querySelector<HTMLButtonElement>('[data-ledger-switcher-manage]');
     expect(defaultLedger?.textContent).toContain('默认账本');
+    expect(defaultLedger?.querySelector('img')).not.toBeNull();
     expect(defaultLedger?.textContent).not.toContain('系统默认账本');
     expect(createAction?.classList).toContain('ledger-switcher-panel__footer-action');
     expect(manageAction?.classList).toContain('ledger-switcher-panel__footer-action');
@@ -176,6 +178,7 @@ describe('ledger title switcher', () => {
     expect(title?.textContent).toBe('鲸浪账本');
     expect(title?.tagName).toBe('SPAN');
     expect(title?.getAttribute('aria-disabled')).toBe('true');
+    expect(title?.querySelector('img')).not.toBeNull();
     expect(title?.querySelector('svg')).toBeNull();
   });
 
@@ -185,12 +188,46 @@ describe('ledger title switcher', () => {
       '/ledgers/ledger-a/records',
     );
 
-    expect(container.querySelector('[data-testid="ledger-switcher-title"]')?.textContent)
-      .toContain('旅行账本');
-    await click(container.querySelector('[data-testid="ledger-switcher-title"]'));
+    const title = container.querySelector('[data-testid="ledger-switcher-title"]');
+    expect(title?.textContent).toContain('旅行账本');
+    expect(title?.querySelector('svg')).not.toBeNull();
+    await click(title);
     await click(document.querySelector('[data-testid="ledger-switch-item-personal"]'));
 
     expect(router.state.location.pathname).toBe('/detail');
     expect(router.state.historyAction).toBe('REPLACE');
+  });
+
+  it('renders a custom ledger key as its public glyph in the selector instead of the fallback image', async () => {
+    const { container } = renderSwitcher(
+      createElement(LedgerTitleSwitcher, { ledgerName: '旅行账本' }),
+      '/ledgers/ledger-a/records',
+    );
+
+    await click(container.querySelector('[data-testid="ledger-switcher-title"]'));
+
+    const customLedger = document.querySelector('[data-ledger-switcher-id="ledger-a"]');
+    expect(customLedger?.querySelector('svg')).not.toBeNull();
+    expect(customLedger?.querySelector('img')).toBeNull();
+  });
+
+  it('prevents regression to fixed DesignIcon("ledger") in application source files', () => {
+    const modules = import.meta.glob<string>('/src/**/*.{ts,tsx}', {
+      eager: true,
+      import: 'default',
+      query: '?raw',
+    });
+    const violations: string[] = [];
+
+    for (const [filePath, content] of Object.entries(modules)) {
+      if (
+        (content.includes('name="ledger"') || content.includes('name=\'ledger\''))
+        && !filePath.endsWith('DesignIcon.tsx')
+      ) {
+        violations.push(filePath);
+      }
+    }
+
+    expect(violations).toEqual([]);
   });
 });

@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { LedgerTemplate } from '../types';
 import { ArrowRight } from 'lucide-react';
-import { LedgerVisualIcon } from './LedgerVisualIcon';
+import { LedgerTemplateIcon } from './LedgerTemplateIcon';
 
 interface LedgerTemplateCardProps {
   description: string;
@@ -27,7 +27,7 @@ export const LedgerTemplateCard: FC<LedgerTemplateCardProps> = ({
     >
       <span aria-hidden="true" className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary-light/35" />
       <span className="relative mr-3 flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-[17px] bg-[linear-gradient(145deg,#c8eaf6,#e9e1ff)] text-[22px] text-primary-deep shadow-ww-xs">
-        <LedgerVisualIcon templateKey={template.key} />
+        <LedgerTemplateIcon templateKey={template.key} />
       </span>
       <span className="relative min-w-0 flex-grow">
         <span className="block text-[15px] font-extrabold leading-6 text-ww-ink">{name}</span>

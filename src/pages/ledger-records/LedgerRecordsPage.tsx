@@ -5,7 +5,11 @@ import { CalendarDays, ReceiptText, Search, Settings, Target } from 'lucide-reac
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
-import { LedgerCapability, useLedgerPreferencesQuery } from '@/entities/ledger';
+import {
+  LedgerCapability,
+  LedgerVisualIcon,
+  useLedgerPreferencesQuery,
+} from '@/entities/ledger';
 import {
   createLedgerRecordDetailState,
   RecordMonthPicker,
@@ -21,7 +25,6 @@ import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedMonthDay, formatLocalizedYear } from '@/shared/lib';
-import { DesignIcon } from '@/shared/ui';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 
 interface LedgerShortcut {
@@ -203,7 +206,15 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
         })),
         shortcutsTestId: 'ledger-record-shortcuts',
         testId: 'ledger-records-header',
-        titleIcon: <DesignIcon name="ledger" size={15} />,
+        titleIcon: (
+          <span className="flex h-[18px] w-[18px] flex-none overflow-hidden rounded-full">
+            <LedgerVisualIcon
+              iconKey={ledger.iconKey}
+              kind={ledger.kind}
+              templateKey={ledger.templateKey}
+            />
+          </span>
+        ),
         titleAlignment: 'start',
       }}
       onRetry={() => void query.refetch()}
