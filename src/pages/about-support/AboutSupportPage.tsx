@@ -1,4 +1,6 @@
 import type { FC, ReactNode } from 'react';
+import { App } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import {
@@ -7,11 +9,14 @@ import {
   Globe2,
   MessageCircle,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import androidLogo from '@/assets/brand/android-logo.png';
+import { isAndroidUpdateAvailable, useAndroidLatestReleaseQuery } from '@/entities/app-release';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { APP_INFO } from '@/shared/config/app-info';
 import { useTranslation } from '@/shared/i18n';
-import { PageHeader } from '@/shared/ui';
+import { openExternalUrl } from '@/shared/lib';
+import { AppButton, PageHeader } from '@/shared/ui';
 
 interface SupportRowProps {
   description?: ReactNode;
@@ -81,6 +86,19 @@ const SupportSection: FC<{ children: ReactNode; title: ReactNode }> = ({ childre
 const AboutSupportPage: FC = () => {
   const { t } = useTranslation('settings');
   const onBack = useWorkspaceBack({ type: 'personal' });
+  const isAndroid = Capacitor.getPlatform() === 'android';
+  const { data: latestRelease, isFetching, isError, refetch } = useAndroidLatestReleaseQuery({ enabled: isAndroid });
+  const [installedVersion, setInstalledVersion] = useState<{ versionCode: number; versionName: string } | null>(null);
+
+  useEffect(() => {
+    if (!isAndroid)
+      return;
+    void App.getInfo().then((info) => {
+      const versionCode = Number.parseInt(info.build, 10);
+      if (Number.isSafeInteger(versionCode) && versionCode > 0)
+        setInstalledVersion({ versionCode, versionName: info.version });
+    }).catch(() => undefined);
+  }, [isAndroid]);
 
   const handleCopy = (text: string) => {
     if (copy(text)) {
@@ -108,6 +126,42 @@ const AboutSupportPage: FC = () => {
               {APP_INFO.version}
             </span>
           </div>
+
+          {isAndroid && (
+            <SupportSection title={t('aboutSupport.versionCheck')}>
+              <div className="space-y-3 px-4 py-4">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-ww-mid">{t('aboutSupport.currentVersion')}</span>
+                  <span className="font-semibold text-ww-ink">{installedVersion?.versionName ?? APP_INFO.version}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-ww-mid">{t('aboutSupport.latestVersion')}</span>
+                  <span className="font-semibold text-ww-ink">{latestRelease?.versionName ?? '—'}</span>
+                </div>
+                <p className="text-[11px] leading-5 text-ww-soft">
+                  {isError
+                    ? t('aboutSupport.checkFailed')
+                    : isFetching
+                      ? t('aboutSupport.checking')
+                      : latestRelease && installedVersion && isAndroidUpdateAvailable(installedVersion, latestRelease)
+                        ? t('aboutSupport.updateAvailable')
+                        : latestRelease?.enabled === false
+                          ? t('aboutSupport.notAvailable')
+                          : t('aboutSupport.upToDate')}
+                </p>
+                <div className="flex gap-2">
+                  <AppButton className="h-11 flex-1 rounded-[14px] px-3 text-xs" disabled={isFetching} onClick={() => void refetch()} variant="secondary">
+                    {t('aboutSupport.checkNow')}
+                  </AppButton>
+                  {latestRelease && installedVersion && isAndroidUpdateAvailable(installedVersion, latestRelease) && (
+                    <AppButton className="h-11 flex-1 rounded-[14px] px-3 text-xs" onClick={() => void openExternalUrl(latestRelease.downloadUrl)}>
+                      {t('aboutSupport.downloadUpdate')}
+                    </AppButton>
+                  )}
+                </div>
+              </div>
+            </SupportSection>
+          )}
 
           <SupportSection title={t('aboutSupport.officialChannels')}>
             <SupportRow

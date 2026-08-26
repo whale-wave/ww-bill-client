@@ -2,33 +2,22 @@ import type { CapacitorConfig } from '@capacitor/cli';
 import process from 'node:process';
 
 const isTestBuild = process.env.CAPACITOR_BUILD_ENV === 'test';
-const defaultAppId = 'com.demo.www';
+const productionAppId = 'top.avan.bill';
+const testAppId = `${productionAppId}.test`;
 
-function appIdFromHost(host?: string): string {
+function assertProductionHost(host?: string) {
   if (!host)
-    return defaultAppId;
-
-  const hostname = host
-    .replace(/^[a-z]+:\/\//i, '')
-    .split('/')[0]
-    .split(':')[0]
-    .toLowerCase();
-
-  if (!hostname || hostname === 'demo.com')
-    return defaultAppId;
-
-  const labels = hostname.split('.').filter(Boolean);
-  if (labels.length < 2)
-    return defaultAppId;
-
-  const appId = labels.reverse().join('.');
-  return /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)+$/.test(appId)
-    ? appId
-    : defaultAppId;
+    throw new Error('VITE_HOST is required for a production Capacitor build');
+  const parsed = new URL(host);
+  if (parsed.protocol !== 'https:' || parsed.hostname === 'www.demo.com' || parsed.hostname === 'demo.com')
+    throw new Error('VITE_HOST must be a real HTTPS production host');
 }
 
+if (process.env.CAPACITOR_BUILD_ENV === 'production')
+  assertProductionHost(process.env.VITE_HOST);
+
 const config: CapacitorConfig = {
-  appId: appIdFromHost(process.env.VITE_HOST),
+  appId: isTestBuild ? testAppId : productionAppId,
   appName: '鲸浪账本',
   webDir: 'dist',
   ...(isTestBuild
