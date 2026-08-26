@@ -25,9 +25,10 @@ vi.mock('@/entities/user', () => ({
 }));
 
 vi.mock('@/features/auth', () => ({
-  AuthPageShell: ({ children, footer }: { children: ReactNode; footer?: ReactNode }) => createElement('main', null, children, footer),
+  AuthPageShell: ({ children, footer, onBack }: { children: ReactNode; footer?: ReactNode; onBack?: () => unknown }) => createElement('main', null, onBack ? createElement('button', { 'aria-label': '返回', 'onClick': onBack }) : null, children, footer),
   AuthPrimaryButton: ({ children, onClick }: { children: ReactNode; onClick: () => unknown }) => createElement('button', { onClick }, children),
   AuthSegmentedControl: () => null,
+  isAuthRequiredRedirectState: (state: unknown) => Boolean(state && typeof state === 'object' && (state as { kind?: string }).kind === 'auth-required'),
   useAuthStore: (selector: (state: { startSession: typeof startSession }) => unknown) => selector({ startSession }),
 }));
 
@@ -102,6 +103,21 @@ afterEach(() => {
 });
 
 describe('login redirect', () => {
+  it('hides the back action for a forced authentication redirect', () => {
+    const { container } = renderAt({
+      pathname: '/login',
+      state: { kind: 'auth-required', from: { pathname: '/detail', search: '', hash: '' } },
+    });
+
+    expect(container.querySelector('button[aria-label="返回"]')).toBeNull();
+  });
+
+  it('keeps the back action for a directly opened login page', () => {
+    const { container } = renderAt('/login');
+
+    expect(container.querySelector('button[aria-label="返回"]')).not.toBeNull();
+  });
+
   it('submits username and password without rendering a captcha field', async () => {
     const { container } = renderAt('/login');
 

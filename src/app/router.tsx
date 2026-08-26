@@ -102,11 +102,11 @@ const router = createHashRouter([
       },
       {
         path: 'bookkeeping',
-        lazy: lazyPage(tabRouteLoaders['personal-bookkeeping']),
+        lazy: lazyGuardedPage(tabRouteLoaders['personal-bookkeeping']),
       },
       {
         path: 'discovery',
-        lazy: lazyPage(tabRouteLoaders['personal-discovery']),
+        lazy: lazyGuardedPage(tabRouteLoaders['personal-discovery']),
       },
       {
         path: 'community',
@@ -173,11 +173,11 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            lazy: lazyPage(tabRouteLoaders['personal-chart']),
+            lazy: lazyGuardedPage(tabRouteLoaders['personal-chart']),
           },
           {
             path: 'category',
-            lazy: lazyPage(() => import('@/pages/chart/chart-category/ChartCategoryPage')),
+            lazy: lazyGuardedPage(() => import('@/pages/chart/chart-category/ChartCategoryPage')),
           },
         ],
       },
@@ -203,7 +203,7 @@ const router = createHashRouter([
       },
       {
         path: 'detail',
-        lazy: lazyPage(tabRouteLoaders['personal-detail']),
+        lazy: lazyGuardedPage(tabRouteLoaders['personal-detail']),
       },
       {
         path: 'message',

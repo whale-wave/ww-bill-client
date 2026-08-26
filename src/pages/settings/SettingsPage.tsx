@@ -144,7 +144,12 @@ const Settings: FC = () => {
                     id: 'app-lock',
                     kind: 'link',
                     label: t('appLock.title'),
-                    onClick: () => goTo(ROUTES_PATH.APP_LOCK_SETTINGS.getPath()),
+                    onClick: () => {
+                      playSound.turnPage();
+                      navigate(ROUTES_PATH.APP_LOCK_SETTINGS.getPath(), {
+                        state: { mode: 'management' },
+                      });
+                    },
                     value: userAppConfig?.gestureLockEnabled ? t('appLock.enabled') : t('appLock.disabled'),
                   },
                 ],

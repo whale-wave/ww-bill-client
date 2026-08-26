@@ -82,7 +82,7 @@
 3. 登录保护边界不足
 
 - 进展：`/user-info`、`/password`、`/post-topic` 继续使用 `LoginGuard`；`/mine`、`/settings/*`、`/message/*`、`/export-data`、`/budget`、`/budget/category/:type`、`/asset/*`、`/invoice/*`、`/fixed-expenses/*`、`/bill`、`/share`、`/record-calendar`、`/search-record`、`/community/*`、`/topic-detail/:id`、`/category` 已纳入登录保护。
-- 保留公开：`/`、`/login`、`/sign`、`/forget-password/*`、`/detail`、`/bookkeeping`、`/editing/:id`、`/chart`、`/chart/category`、`/discovery`、`/cateGory` 兼容跳转和 `*` 未命中页不包 `LoginGuard`。
+- 保留公开：`/`、`/login`、`/sign`、`/forget-password/*` 和 `*` 未命中页；`/detail`、`/bookkeeping`、`/editing/:id`、`/chart`、`/chart/category`、`/discovery`、`/cateGory` 兼容跳转及其余业务路由均包 `LoginGuard`。
 - 后续期望：继续把受保护业务路由集中维护，避免未登录时出现空数据、接口 401 后跳转闪烁或页面运行时错误。
 
 ### P2 可排期完善

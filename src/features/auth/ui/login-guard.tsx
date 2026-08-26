@@ -1,4 +1,5 @@
 import type { FC, JSX } from 'react';
+import type { AuthRedirectState } from '../model/redirect';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../model/store';
 
@@ -11,7 +12,7 @@ const LoginGuard: FC<LoginGuardProps> = ({ children }) => {
   const location = useLocation();
   if (token)
     return children;
-  return <Navigate to="/login" state={{ from: location }} replace />;
+  return <Navigate to="/login" state={{ from: location, kind: 'auth-required' } satisfies AuthRedirectState} replace />;
 };
 
 export default LoginGuard;

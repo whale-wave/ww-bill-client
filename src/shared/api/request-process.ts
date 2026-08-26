@@ -6,12 +6,8 @@ import { handleAuthFailure, isTransitionCurrent } from './auth-injection';
 function clearTokenToLogin(msg: string, identity?: AuthRequestIdentity, statusCode = 401) {
   if (identity && !isTransitionCurrent(identity))
     return undefined;
-  const marker = handleAuthFailure(identity ?? { sessionEpoch: 0, credentialRevision: 0 }, statusCode) as { sessionEpoch?: number } | undefined;
+  handleAuthFailure(identity ?? { sessionEpoch: 0, credentialRevision: 0 }, statusCode);
   Toast.show({ content: msg, icon: 'fail', duration: 1000 });
-  setTimeout(() => {
-    if (!marker || isTransitionCurrent({ sessionEpoch: marker.sessionEpoch ?? -1, credentialRevision: 0 }))
-      window.location.hash = '#/login';
-  }, 1000);
   return msg;
 }
 

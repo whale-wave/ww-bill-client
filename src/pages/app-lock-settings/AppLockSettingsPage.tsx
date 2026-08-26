@@ -1,6 +1,7 @@
 import type { FC } from 'react';
+import type { AppLockEntryMode } from '@/features/app-lock';
 import { Toast } from 'antd-mobile';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   APP_LOCK_MIN_POINTS,
@@ -16,6 +17,8 @@ import {
   useGetUserAppConfigQuery,
   usePatchUserAppConfigMutation,
 } from '@/entities/user-app-config';
+import { useAppLockRuntime } from '@/features/app-lock';
+import { shouldUseWorkspaceHistoryBack } from '@/features/workspace-navigation';
 import { useTranslation } from '@/shared/i18n';
 import { AppButton, FormField, GradientPanel, PageHeader } from '@/shared/ui';
 
@@ -23,6 +26,7 @@ type Phase = 'confirm' | 'draw' | 'idle' | 'recover' | 'verify';
 type Action = 'change' | 'disable' | null;
 
 interface AppLockLocationState {
+  mode?: AppLockEntryMode;
   recovery?: boolean;
 }
 
@@ -48,6 +52,7 @@ function isSuccessStatusCode(statusCode: number | undefined) {
 const AppLockSettingsPage: FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { completeSetup, isRuntimeUnlocked } = useAppLockRuntime();
   const { data: config, refetch: refetchConfig } = useGetUserAppConfigQuery();
   const { data: userInfo } = useGetUserUserInfoQuery();
   const [patchConfig, patchState] = usePatchUserAppConfigMutation();
@@ -62,6 +67,7 @@ const AppLockSettingsPage: FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<'back' | 'detail' | null>(null);
   const isSubmittingRef = useRef(false);
 
   useEffect(() => {
@@ -88,6 +94,19 @@ const AppLockSettingsPage: FC = () => {
       ? 'missing'
       : localAppLockStorage.getCredentialStatus(userId);
 
+  const entryMode = (() => {
+    const state = location.state as AppLockLocationState | null;
+    if (state?.mode)
+      return state.mode;
+    if (state?.recovery === true)
+      return 'recovery' as const;
+    if (config?.gestureLockEnabled && credentialStatus === 'missing')
+      return 'required-setup' as const;
+    return 'management' as const;
+  })();
+
+  const isRequiredSetup = entryMode === 'required-setup';
+
   const currentPhase = phase
     ?? (isEnabled
       ? 'idle'
@@ -108,7 +127,33 @@ const AppLockSettingsPage: FC = () => {
     setError('');
   };
 
-  const handleBack = () => navigate('/settings', { replace: true });
+  const handleManagementBack = useCallback(() => {
+    const historyIndex = typeof window.history.state?.idx === 'number'
+      ? window.history.state.idx
+      : undefined;
+    if (shouldUseWorkspaceHistoryBack({ historyIndex, locationKey: location.key })) {
+      navigate(-1);
+      return;
+    }
+    navigate('/settings', { replace: true });
+  }, [location.key, navigate]);
+
+  const handleBack = () => {
+    if (entryMode === 'management') {
+      handleManagementBack();
+      return;
+    }
+    navigate('/settings', { replace: true });
+  };
+
+  useEffect(() => {
+    if (!pendingNavigation || !isRuntimeUnlocked)
+      return;
+    if (pendingNavigation === 'detail')
+      navigate('/detail', { replace: true });
+    else
+      handleManagementBack();
+  }, [handleManagementBack, isRuntimeUnlocked, navigate, pendingNavigation]);
 
   const handleDisable = async () => {
     try {
@@ -192,9 +237,12 @@ const AppLockSettingsPage: FC = () => {
       const nextCredential = await createAppLockCredential(submittedPattern);
       localAppLockStorage.saveCredential(userId, nextCredential);
       didAttemptPatch = true;
-      await patchConfig({ gestureLockEnabled: true });
+      const response = await patchConfig({ gestureLockEnabled: true });
+      if (!isSuccessStatusCode(response?.statusCode))
+        throw response;
       Toast.show(t('appLock.enabled'));
-      handleBack();
+      completeSetup();
+      setPendingNavigation(isRequiredSetup ? 'detail' : 'back');
     }
     catch {
       if (!didAttemptPatch) {
@@ -212,7 +260,8 @@ const AppLockSettingsPage: FC = () => {
         const refreshed = await refetchConfig();
         if (refreshed.data?.data?.gestureLockEnabled) {
           Toast.show(t('appLock.enabled'));
-          handleBack();
+          completeSetup();
+          setPendingNavigation(isRequiredSetup ? 'detail' : 'back');
           return;
         }
       }
@@ -289,7 +338,7 @@ const AppLockSettingsPage: FC = () => {
       <div className="page-new relative touch-none overflow-hidden overscroll-none">
         <PageHeader
           backLabel={t('common:nav.back')}
-          onBack={handleBack}
+          onBack={isRequiredSetup ? undefined : handleBack}
           title={t('appLock.title')}
         />
         <main className="relative z-[1] min-h-0 flex-grow overflow-hidden overscroll-none px-[18px] pb-8">
@@ -334,7 +383,7 @@ const AppLockSettingsPage: FC = () => {
       <div className="page-new relative touch-none overflow-hidden overscroll-none">
         <PageHeader
           backLabel={t('common:nav.back')}
-          onBack={handleBack}
+          onBack={isRequiredSetup ? undefined : handleBack}
           title={t('appLock.recovery')}
         />
         <main className="relative z-[1] min-h-0 flex-grow overflow-hidden overscroll-none px-[18px] pb-8">
@@ -384,7 +433,7 @@ const AppLockSettingsPage: FC = () => {
     <div className="page-new relative touch-none overflow-hidden overscroll-none">
       <PageHeader
         backLabel={t('common:nav.back')}
-        onBack={handleBack}
+        onBack={isRequiredSetup ? undefined : handleBack}
         title={t('appLock.title')}
       />
       <main className="relative z-[1] min-h-0 flex-grow overflow-hidden overscroll-none px-[18px] pb-8">

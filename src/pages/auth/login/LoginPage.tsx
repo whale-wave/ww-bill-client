@@ -5,7 +5,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { login, loginEmailCaptchaApi } from '@/entities/auth';
 import { userKeys } from '@/entities/user';
-import { AuthPageShell, AuthPrimaryButton, AuthSegmentedControl, useAuthStore } from '@/features/auth';
+import { AuthPageShell, AuthPrimaryButton, AuthSegmentedControl, isAuthRequiredRedirectState, useAuthStore } from '@/features/auth';
 import { EmailCaptchaInput } from '@/features/email-captcha';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
@@ -44,6 +44,7 @@ const Login: FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const isAuthRequired = isAuthRequiredRedirectState(location.state);
   const { startSession } = useAuthStore(({ startSession }) => ({ startSession }));
   const [userNameForm, setUserNameForm] = useState({ username: '', password: '' });
   const [emailForm, setEmailForm] = useState({ email: '', emailCode: '' });
@@ -86,7 +87,7 @@ const Login: FC = () => {
         </span>
       )}
       kicker={t('brandKicker')}
-      onBack={() => navigate(-1)}
+      onBack={isAuthRequired ? undefined : () => navigate(-1)}
       subtitle={t('login.subtitle')}
       title={t('login.title')}
     >

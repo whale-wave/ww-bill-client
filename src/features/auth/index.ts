@@ -1,3 +1,5 @@
+export { isAuthRequiredRedirectState } from './model/redirect';
+export type { AuthRedirectState } from './model/redirect';
 export { useAuthStore } from './model/store';
 export type { AuthTransitionMarker, SessionRuntime } from './model/store';
 export { rehydrateAuthStore } from './model/store';

@@ -47,7 +47,7 @@ flowchart TD
   Detail --> Top["Top 查询用户配置与快捷入口"]
   Detail --> List["List 查询 /record 并按日期展示流水"]
   Top --> Feature{"用户选择功能"}
-  Feature --> PublicRoute["公开路由: /bookkeeping、/detail、/chart、/discovery"]
+  Feature --> ProtectedRoute["登录保护路由: /bookkeeping、/detail、/chart、/discovery"]
   Feature --> ProtectedRoute["LoginGuard 保护路由"]
   PublicRoute --> Bookkeeping["/bookkeeping 记账"]
   ProtectedRoute --> HasToken{"本地有 token?"}
@@ -63,7 +63,7 @@ flowchart TD
 
 源码入口：`src/app/router.tsx`, `src/pages/first-screen/FirstScreenPage.tsx`, `src/pages/record/detail/*`, `src/widgets/layout/*`。
 
-路由保护说明：`/user-info`、`/password`、`/post-topic` 继续由 `LoginGuard` 保护；预算、发票、社区、消息、设置、资产、固定支出等父级/index 与子路由，以及 `/mine`、`/share`、`/export-data`、`/bill`、`/record-calendar`、`/search-record`、`/topic-detail/:id`、`/category` 均按 token 登录态访问。`/login`、`/sign`、`/forget-password/*`、`/detail`、`/bookkeeping`、`/editing/:id`、`/chart/*`、`/discovery` 与未命中页保持公开；`/cateGory` 是未包 `LoginGuard` 的兼容重定向，最终进入受保护的 `/category`。
+路由保护说明：除启动页 `/`、认证页 `/login`、`/sign`、`/forget-password/*` 和未命中页外，业务路由均按 token 登录态访问，包括 `/detail`、`/bookkeeping`、`/discovery`、`/chart/*`、`/editing/:id`、预算、发票、社区、消息、设置、资产、固定支出、`/mine`、`/share`、`/export-data`、`/bill`、`/record-calendar`、`/search-record`、`/topic-detail/:id` 与 `/category`。`/cateGory` 是兼容重定向，最终进入受保护的 `/category`。强制登录入口携带 `kind: 'auth-required'`，登录页隐藏返回并由 RootLayout 统一拦截 POP；主动进入登录页仍保留返回能力。
 
 ## 登录、注册与找回密码
 

@@ -25,5 +25,5 @@
 ## 会话边界
 
 - QueryClient 不跨会话共享。旧 session 的 mutation、restore、401/402 和家庭/账本邀请回调不能修改新 session 的状态、Toast 或 localStorage；QueryClient 自身的旧回写可以留在旧实例中。
-- HTTP 请求在发出时一次性捕获 token、sessionEpoch 和 credentialRevision；只有仍属于当前身份的 401/402 才能触发 logout、认证 Toast 和登录跳转。跳转 timer 校验 logout 后的新 marker，重新登录会使旧 timer 失效。
+- HTTP 请求在发出时一次性捕获 token、sessionEpoch 和 credentialRevision；只有仍属于当前身份的 401/402 才能触发 logout 和认证 Toast。会话清空后由响应式 LoginGuard 统一以 `replace` 保存完整来源并进入登录页，避免请求层直接写 hash 或制造重复登录历史。
 - 本轮额外隔离的全局副作用仅包括 HTTP 认证处理、认证 Toast/redirect，以及家庭和账本邀请缓存；不宣称覆盖所有普通页面异步导航或 Toast。

@@ -12,7 +12,9 @@ export function shouldUseWorkspaceHistoryBack({
   historyIndex,
   locationKey,
 }: WorkspaceHistoryState) {
-  return (historyIndex ?? 0) > 0 || locationKey !== 'default';
+  return historyIndex === undefined
+    ? locationKey !== 'default'
+    : historyIndex > 0;
 }
 
 export function useWorkspaceBack(scope: WorkspaceScope) {

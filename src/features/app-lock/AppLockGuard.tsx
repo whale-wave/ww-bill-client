@@ -1,4 +1,5 @@
 import type { FC, ReactNode } from 'react';
+import type { AppLockEntryMode } from './model/runtime';
 import type { UserAppConfig } from '@/entities/user-app-config';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useBlocker, useLocation, useNavigate } from 'react-router-dom';
@@ -13,9 +14,11 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { AppButton, PageLoadingState } from '@/shared/ui';
+import { AppLockRuntimeProvider } from './model/runtime-provider';
 
 interface AppLockGuardProps {
   children: ReactNode;
+  blockPopNavigation?: boolean;
   config?: UserAppConfig;
   isError: boolean;
   isLoading: boolean;
@@ -23,6 +26,7 @@ interface AppLockGuardProps {
 }
 
 export const AppLockGuard: FC<AppLockGuardProps> = ({
+  blockPopNavigation = false,
   children,
   config,
   isError,
@@ -56,7 +60,7 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
   const isLocked = isAppLockTemporarilyLocked(lockState, now);
   const isAppLockActive = Boolean(token && config?.gestureLockEnabled && !unlocked);
   const historyBlocker = useBlocker(
-    isAppLockActive
+    isAppLockActive || blockPopNavigation
       ? ({ historyAction }) => historyAction === 'POP'
       : false,
   );
@@ -74,6 +78,30 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
     setIsSubmitting(false);
     setNow(Date.now());
   }, []);
+
+  const completeSetup = useCallback(() => {
+    if (userId === undefined)
+      return;
+    localAppLockStorage.removeLockState(userId);
+    lockVersionRef.current += 1;
+    patternRef.current = [];
+    isSubmittingRef.current = false;
+    setPattern([]);
+    setUnlocked(true);
+    setError('');
+    setIsSubmitting(false);
+    hasPendingInitialUnlockRef.current = false;
+  }, [userId]);
+
+  const runtime = {
+    completeSetup,
+    isRuntimeUnlocked: unlocked,
+  };
+  const renderWithRuntime = (content: ReactNode) => (
+    <AppLockRuntimeProvider value={runtime}>
+      {content}
+    </AppLockRuntimeProvider>
+  );
 
   useEffect(() => {
     if (historyBlocker.state === 'blocked')
@@ -134,7 +162,10 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
       && !credential
       && !isAppLockEntryRoute
     ) {
-      navigate('/settings/app-lock', { replace: true });
+      navigate('/settings/app-lock', {
+        replace: true,
+        state: { mode: 'required-setup' satisfies AppLockEntryMode },
+      });
     }
   }, [
     config?.gestureLockEnabled,
@@ -146,27 +177,27 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
   ]);
 
   if (!token)
-    return <>{children}</>;
+    return renderWithRuntime(<>{children}</>);
   if (isLoading)
-    return <PageLoadingState label={t('common:nav.loading')} />;
+    return renderWithRuntime(<PageLoadingState label={t('common:nav.loading')} />);
   if (isError)
-    return <PageLoadingState label={t('common:error.loadFail')} />;
+    return renderWithRuntime(<PageLoadingState label={t('common:error.loadFail')} />);
   if (!config || !config.gestureLockEnabled || unlocked)
-    return <>{children}</>;
+    return renderWithRuntime(<>{children}</>);
   // The settings page owns account-based recovery and must remain reachable
   // while the device lock is active. The page still requires the old pattern
   // for normal changes/disabling, or the account password for recovery.
   if (isAppLockManagementRoute)
-    return <>{children}</>;
+    return renderWithRuntime(<>{children}</>);
   if (!credential) {
-    return (
+    return renderWithRuntime(
       <PageLoadingState
         label={t(
           credentialStatus === 'corrupted'
             ? 'appLock.corruptedCredential'
             : 'appLock.missingCredential',
         )}
-      />
+      />,
     );
   }
 
@@ -223,7 +254,7 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
     }
   };
 
-  return (
+  return renderWithRuntime(
     <div className="page-new flex flex-col items-center justify-center gap-5 bg-primary-light/20 px-6">
       <div className="text-center">
         <h1 className="text-[22px] font-black text-ww-ink">
@@ -257,6 +288,6 @@ export const AppLockGuard: FC<AppLockGuardProps> = ({
           </AppButton>
         </div>
       )}
-    </div>
+    </div>,
   );
 };

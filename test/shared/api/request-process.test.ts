@@ -46,7 +46,7 @@ describe('base response processing', () => {
     expect(window.location.hash).toBe('');
   });
 
-  it('clears the session and redirects when authentication is missing', () => {
+  it('clears the session without directly changing the hash when authentication is missing', () => {
     baseResponseProcess(401);
 
     expect(handleLogout).toHaveBeenCalledOnce();
@@ -55,6 +55,6 @@ describe('base response processing', () => {
       icon: 'fail',
     }));
     vi.advanceTimersByTime(1000);
-    expect(window.location.hash).toBe('#/login');
+    expect(window.location.hash).toBe('');
   });
 });

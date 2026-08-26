@@ -110,6 +110,7 @@ describe('workspace navigation', () => {
   it('uses history only when the page was reached inside the app', () => {
     expect(shouldUseWorkspaceHistoryBack({ historyIndex: 2, locationKey: 'route-key' })).toBe(true);
     expect(shouldUseWorkspaceHistoryBack({ historyIndex: 0, locationKey: 'default' })).toBe(false);
+    expect(shouldUseWorkspaceHistoryBack({ historyIndex: 0, locationKey: 'route-key' })).toBe(false);
     expect(shouldUseWorkspaceHistoryBack({ locationKey: 'route-key' })).toBe(true);
   });
 
