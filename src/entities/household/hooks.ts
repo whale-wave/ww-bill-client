@@ -42,6 +42,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { assertSuccessApi } from '@/shared/api';
+import { captureSessionScope, isSessionScopeCurrent } from '@/shared/api/auth-injection';
 import {
   deleteHouseholdBudgetApi,
   deleteHouseholdInvitationApi,
@@ -563,7 +564,8 @@ export function useCreateHouseholdMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: createHouseholdMutationFn,
-    onSuccess: async (response) => {
+    onMutate: () => captureSessionScope(),
+    onSuccess: async (response, _variables, scope) => {
       await cacheHousehold(queryClient, {
         ...response,
         data: response.data.household,
@@ -572,7 +574,8 @@ export function useCreateHouseholdMutation() {
         householdKeys.invitation(response.data.household.id),
         response.data.invitation,
       );
-      writeHouseholdInvitation(response.data.household.id, response.data.invitation);
+      if (isSessionScopeCurrent(scope))
+        writeHouseholdInvitation(response.data.household.id, response.data.invitation);
     },
   });
   return [mutateAsync, rest] as const;
@@ -604,12 +607,14 @@ export function useCreateHouseholdInvitationMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: createHouseholdInvitationMutationFn,
-    onSuccess: (response, variables) => {
+    onMutate: () => captureSessionScope(),
+    onSuccess: (response, variables, scope) => {
       queryClient.setQueryData(
         householdKeys.invitation(variables.householdId),
         response.data,
       );
-      writeHouseholdInvitation(variables.householdId, response.data);
+      if (isSessionScopeCurrent(scope))
+        writeHouseholdInvitation(variables.householdId, response.data);
     },
   });
   return [mutateAsync, rest] as const;
@@ -619,12 +624,14 @@ export function useRevokeHouseholdInvitationMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: revokeHouseholdInvitationMutationFn,
-    onSuccess: (_response, variables) => {
+    onMutate: () => captureSessionScope(),
+    onSuccess: (_response, variables, scope) => {
       queryClient.removeQueries({
         exact: true,
         queryKey: householdKeys.invitation(variables.householdId),
       });
-      removeHouseholdInvitation(variables.householdId);
+      if (isSessionScopeCurrent(scope))
+        removeHouseholdInvitation(variables.householdId);
     },
   });
   return [mutateAsync, rest] as const;

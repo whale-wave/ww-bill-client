@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { LockKeyhole, Mail, UserRound } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -43,7 +42,6 @@ const Login: FC = () => {
   const { t } = useTranslation('auth');
   const location = useLocation();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { startSession } = useAuthStore(({ startSession }) => ({ startSession }));
   const [userNameForm, setUserNameForm] = useState({ username: '', password: '' });
   const [emailForm, setEmailForm] = useState({ email: '', emailCode: '' });
@@ -58,8 +56,8 @@ const Login: FC = () => {
       loginType === 'username' ? userNameForm : emailForm,
     );
     if (statusCode === 200) {
-      startSession(data.token, data.userInfo.userId || String(data.userInfo.id));
-      queryClient.setQueryData(userKeys.info(), {
+      const runtime = startSession(data.token, data.userInfo.userId || String(data.userInfo.id));
+      runtime.queryClient.setQueryData(userKeys.info(), {
         statusCode: 200,
         message: '',
         data: data.userInfo,
@@ -67,7 +65,7 @@ const Login: FC = () => {
       const redirectLocation = getSafeRedirectLocation(location.state?.from);
       setTimeout(navigate, 1000, redirectLocation, { replace: true });
     }
-  }, [emailForm, location.state, loginType, navigate, queryClient, startSession, userNameForm]);
+  }, [emailForm, location.state, loginType, navigate, startSession, userNameForm]);
 
   const handleForgetPassword = useCallback(() => {
     playSound.turnPage();

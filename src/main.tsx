@@ -2,8 +2,10 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from '@/app/App';
 import { initResetStyle } from '@/assets/styles/reset';
-import { useAuthStore } from '@/features/auth';
-import { setAuthDeps } from '@/shared/api';
+import { clearHouseholdInvitationCache } from '@/entities/household';
+import { clearLedgerInvitationCache } from '@/entities/ledger';
+import { rehydrateAuthStore, useAuthStore } from '@/features/auth';
+import { setAuthDeps } from '@/shared/api/auth-injection';
 import { cleanupImageShareCache } from '@/shared/lib';
 import '@/shared/i18n';
 import '@/assets/styles/index.scss';
@@ -18,16 +20,38 @@ if (import.meta.env.DEV) {
 }
 
 // Wire auth token/logout into shared/api (FSD: shared cannot import features)
-setAuthDeps({
-  tokenGetter: () => useAuthStore.getState().token,
-  logoutHandler: () => useAuthStore.getState().logOut(),
-});
-
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+void (async () => {
+  await rehydrateAuthStore();
+  setAuthDeps({
+    captureRequestAuth: () => {
+      const state = useAuthStore.getState();
+      return { token: state.token, identity: { sessionEpoch: state.runtime.sessionEpoch, credentialRevision: state.runtime.credentialRevision } };
+    },
+    captureSessionScope: () => {
+      const state = useAuthStore.getState();
+      return { sessionEpoch: state.runtime.sessionEpoch, credentialRevision: state.runtime.credentialRevision };
+    },
+    isTransitionCurrent: (identity) => {
+      const state = useAuthStore.getState();
+      return state.runtime.sessionEpoch === identity.sessionEpoch && state.runtime.credentialRevision === identity.credentialRevision;
+    },
+    isSessionScopeCurrent: (scope) => {
+      const state = useAuthStore.getState();
+      return state.runtime.sessionEpoch === scope.sessionEpoch;
+    },
+    handleAuthFailure: (identity) => {
+      const state = useAuthStore.getState();
+      if (state.runtime.sessionEpoch === identity.sessionEpoch && state.runtime.credentialRevision === identity.credentialRevision)
+        return state.logOut();
+    },
+    logoutHandler: () => { useAuthStore.getState().logOut(); },
+    clearSessionScopedCaches: () => {
+      clearHouseholdInvitationCache();
+      clearLedgerInvitationCache();
+    },
+  });
+  root.render(<React.StrictMode><App /></React.StrictMode>);
+})();

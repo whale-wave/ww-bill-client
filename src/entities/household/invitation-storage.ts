@@ -11,6 +11,20 @@ interface StoredHouseholdInvitation {
 
 const STORAGE_KEY_PREFIX = 'wh:invitation:';
 
+export function clearHouseholdInvitationCache() {
+  try {
+    const storage = globalThis.localStorage;
+    if (!storage)
+      return;
+    for (let index = storage.length - 1; index >= 0; index--) {
+      const key = storage.key(index);
+      if (key?.startsWith(STORAGE_KEY_PREFIX))
+        storage.removeItem(key);
+    }
+  }
+  catch { /* unavailable storage */ }
+}
+
 function buildStorageKey(householdId: string) {
   return `${STORAGE_KEY_PREFIX}${householdId}`;
 }

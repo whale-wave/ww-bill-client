@@ -23,6 +23,7 @@ import {
 import {
   useWorkspaceBack,
 } from '@/features/workspace-navigation';
+import { captureSessionScope, isSessionScopeCurrent } from '@/shared/api/auth-injection';
 import { useTranslation } from '@/shared/i18n';
 import { confirmAppAction, GradientPanel, PageHeader } from '@/shared/ui';
 
@@ -58,7 +59,10 @@ const LedgerInvitePage: FC = () => {
   });
 
   useEffect(() => {
+    const scope = captureSessionScope();
     const timer = window.setInterval(() => {
+      if (!isSessionScopeCurrent(scope))
+        return;
       setNow(Date.now());
       if (invitation && new Date(invitation.expiresAt).getTime() <= Date.now()) {
         removeLedgerInvitation(ledgerId);
@@ -80,6 +84,7 @@ const LedgerInvitePage: FC = () => {
     if (!ledgerId || !consented || submittingRef.current)
       return;
     submittingRef.current = true;
+    const scope = captureSessionScope();
     try {
       const response = await createInvitation({
         data: {
@@ -88,6 +93,8 @@ const LedgerInvitePage: FC = () => {
         },
         ledgerId,
       });
+      if (!isSessionScopeCurrent(scope))
+        return;
       setInvitation(response.data);
       writeLedgerInvitation(ledgerId, response.data);
       setNow(Date.now());
@@ -95,7 +102,8 @@ const LedgerInvitePage: FC = () => {
       Toast.show({ content: t('invite.generated'), icon: 'success' });
     }
     catch (error) {
-      Toast.show({ content: getErrorMessage(error, t('invite.generateFailed')) });
+      if (isSessionScopeCurrent(scope))
+        Toast.show({ content: getErrorMessage(error, t('invite.generateFailed')) });
     }
     finally {
       submittingRef.current = false;
@@ -116,15 +124,19 @@ const LedgerInvitePage: FC = () => {
     if (!confirmed)
       return;
     submittingRef.current = true;
+    const scope = captureSessionScope();
     try {
       await revokeInvitation({ invitationId: invitation.id, ledgerId });
+      if (!isSessionScopeCurrent(scope))
+        return;
       setInvitation(undefined);
       removeLedgerInvitation(ledgerId);
       setConsented(false);
       Toast.show({ content: t('invite.revoked'), icon: 'success' });
     }
     catch (error) {
-      Toast.show({ content: getErrorMessage(error, t('invite.revokeFailed')) });
+      if (isSessionScopeCurrent(scope))
+        Toast.show({ content: getErrorMessage(error, t('invite.revokeFailed')) });
     }
     finally {
       submittingRef.current = false;

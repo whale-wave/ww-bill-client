@@ -1,9 +1,10 @@
 export { assertSuccessApi } from './assert-success';
 export type { ApiEnvelopeError } from './assert-success';
-export { setAuthDeps } from './auth-injection';
+export { captureRequestAuth, captureSessionScope, clearSessionScopedCaches, handleAuthFailure, isSessionScopeCurrent, isTransitionCurrent, setAuthDeps } from './auth-injection';
+export type { AuthRequestAuth, AuthRequestIdentity, SessionScope } from './auth-injection';
 export { default as request } from './http';
 export { isSuccessApi } from './is-success';
-export { queryClient } from './query-client';
+export { CACHE_MAX_AGE, CACHE_VERSION, createQueryClient, dehydrateOptions, QUERY_PERSIST_BUSTER, queryClient } from './query-client';
 export { createQueryCachePersister, removeQueryCache } from './query-persister';
 export type { AccountQueryPersister } from './query-persister';
 export { getQueryViewState } from './query-state';

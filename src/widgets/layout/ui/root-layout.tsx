@@ -9,7 +9,7 @@ import { audioWeb } from '@/shared/lib';
 import { NavigationProgress } from './navigation-progress';
 
 export const RootLayout: FC = () => {
-  const { token, userId, setUserId } = useAuthStore(({ token, userId, setUserId }) => ({ token, userId, setUserId }));
+  const { token, userId, bindSessionUserId } = useAuthStore(({ token, userId, bindSessionUserId }) => ({ token, userId, bindSessionUserId }));
   const userQuery = useGetUserUserInfoQuery({ options: { enabled: Boolean(token && !userId) } });
   const { data: userAppConfig, isError, isLoading } = useGetUserAppConfigQuery({
     options: { enabled: Boolean(token) },
@@ -17,8 +17,8 @@ export const RootLayout: FC = () => {
 
   useEffect(() => {
     if (userQuery.data && !userId)
-      setUserId(userQuery.data.userId || String(userQuery.data.id));
-  }, [setUserId, userId, userQuery.data]);
+      bindSessionUserId(userQuery.data.userId || String(userQuery.data.id));
+  }, [bindSessionUserId, userId, userQuery.data]);
 
   useEffect(() => {
     audioWeb.loadCache();

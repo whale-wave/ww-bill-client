@@ -2,10 +2,9 @@ import type { FC } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { useMemo } from 'react';
 import { Router } from '@/app/router';
 import { useAuthStore } from '@/features/auth';
-import { createQueryCachePersister, queryClient } from '@/shared/api';
+import { CACHE_MAX_AGE, dehydrateOptions, QUERY_PERSIST_BUSTER } from '@/shared/api/query-client';
 import { QueryRefreshController } from '@/shared/api/query-refresh-controller';
 import { isDevToolEnabled } from '@/shared/config/dev-tools';
 import { SeniorModeProvider } from '@/shared/lib/senior-mode';
@@ -16,15 +15,13 @@ const isQueryDevtoolsEnabled = isDevToolEnabled({
 });
 
 export const App: FC = () => {
-  const userId = useAuthStore(state => state.userId);
-  const persister = useMemo(
-    () => userId ? createQueryCachePersister(userId) : undefined,
-    [userId],
-  );
+  const runtime = useAuthStore(state => state.runtime);
+  const { queryClient, persister } = runtime;
+  const providerKey = `${runtime.sessionEpoch}:${runtime.persistenceBindingRevision}`;
 
   if (!persister) {
     return (
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider key={providerKey} client={queryClient}>
         <QueryRefreshController>
           <SeniorModeProvider>
             {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
@@ -37,14 +34,13 @@ export const App: FC = () => {
 
   return (
     <PersistQueryClientProvider
+      key={providerKey}
       client={queryClient}
       persistOptions={{
-        buster: 'ww-bill-query-cache-v1',
-        maxAge: 1000 * 60 * 60 * 24 * 30,
+        buster: QUERY_PERSIST_BUSTER,
+        maxAge: CACHE_MAX_AGE,
         persister,
-        dehydrateOptions: {
-          shouldDehydrateQuery: query => query.state.status === 'success' && query.meta?.persist !== false,
-        },
+        dehydrateOptions,
       }}
     >
       <QueryRefreshController persister={persister}>

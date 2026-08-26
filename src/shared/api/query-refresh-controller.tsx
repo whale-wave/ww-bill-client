@@ -4,6 +4,7 @@ import { App } from '@capacitor/app';
 import { useIsRestoring, useQueryClient } from '@tanstack/react-query';
 import { persistQueryClientSave } from '@tanstack/react-query-persist-client';
 import { useEffect, useRef } from 'react';
+import { dehydrateOptions, QUERY_PERSIST_BUSTER } from './query-client';
 
 interface QueryRefreshControllerProps extends PropsWithChildren {
   persister?: AccountQueryPersister;
@@ -24,10 +25,8 @@ export const QueryRefreshController: FC<QueryRefreshControllerProps> = ({ childr
         await persistQueryClientSave({
           queryClient,
           persister,
-          buster: 'ww-bill-query-cache-v1',
-          dehydrateOptions: {
-            shouldDehydrateQuery: query => query.state.status === 'success' && query.meta?.persist !== false,
-          },
+          buster: QUERY_PERSIST_BUSTER,
+          dehydrateOptions,
         });
         await persister.flush();
       })();

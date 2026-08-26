@@ -12,6 +12,20 @@ interface StoredLedgerInvitation {
 
 const STORAGE_KEY_PREFIX = 'wh:ledger-invitation:';
 
+export function clearLedgerInvitationCache() {
+  try {
+    const storage = globalThis.localStorage;
+    if (!storage)
+      return;
+    for (let index = storage.length - 1; index >= 0; index--) {
+      const key = storage.key(index);
+      if (key?.startsWith(STORAGE_KEY_PREFIX))
+        storage.removeItem(key);
+    }
+  }
+  catch { /* unavailable storage */ }
+}
+
 function buildStorageKey(ledgerId: string) {
   return `${STORAGE_KEY_PREFIX}${ledgerId}`;
 }

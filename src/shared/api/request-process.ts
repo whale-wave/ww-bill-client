@@ -1,17 +1,21 @@
+import type { AuthRequestIdentity } from './auth-injection';
 import { Toast } from 'antd-mobile';
 import { i18n } from '@/shared/i18n';
-import { handleAuthLogout } from './auth-injection';
+import { handleAuthFailure, isTransitionCurrent } from './auth-injection';
 
-function clearTokenToLogin(msg: string) {
-  handleAuthLogout();
+function clearTokenToLogin(msg: string, identity?: AuthRequestIdentity, statusCode = 401) {
+  if (identity && !isTransitionCurrent(identity))
+    return undefined;
+  const marker = handleAuthFailure(identity ?? { sessionEpoch: 0, credentialRevision: 0 }, statusCode) as { sessionEpoch?: number } | undefined;
   Toast.show({ content: msg, icon: 'fail', duration: 1000 });
   setTimeout(() => {
-    window.location.hash = '#/login';
+    if (!marker || isTransitionCurrent({ sessionEpoch: marker.sessionEpoch ?? -1, credentialRevision: 0 }))
+      window.location.hash = '#/login';
   }, 1000);
   return msg;
 }
 
-export function baseResponseProcess(statusCode: number | string) {
+export function baseResponseProcess(statusCode: number | string, identity?: AuthRequestIdentity) {
   switch (Number.parseInt(`${statusCode}`)) {
     case 403:
       Toast.show({
@@ -21,9 +25,9 @@ export function baseResponseProcess(statusCode: number | string) {
       });
       return i18n.t('common:api.forbidden');
     case 402:
-      return clearTokenToLogin(i18n.t('common:api.authFailed'));
+      return clearTokenToLogin(i18n.t('common:api.authFailed'), identity, 402);
     case 401:
-      return clearTokenToLogin(i18n.t('common:api.notLoggedIn'));
+      return clearTokenToLogin(i18n.t('common:api.notLoggedIn'), identity);
   }
 }
 

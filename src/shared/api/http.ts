@@ -2,7 +2,7 @@ import type { SuccessResponse } from './types';
 import { Toast } from 'antd-mobile';
 import axios from 'axios';
 import { i18n } from '@/shared/i18n';
-import { getAuthToken } from './auth-injection';
+import { captureRequestAuth, isTransitionCurrent } from './auth-injection';
 import {
   baseResponseProcess,
   errorResponseProcess,
@@ -18,7 +18,9 @@ const request = axios.create({
 });
 
 request.interceptors.request.use((config) => {
-  const token = getAuthToken();
+  const auth = captureRequestAuth();
+  const token = auth.token;
+  (config as typeof config & { authIdentity?: typeof auth.identity }).authIdentity = auth.identity;
   if (token) {
     (
       config.headers as { Authorization: string }
@@ -66,8 +68,10 @@ request.interceptors.response.use(
     }
 
     const responseData = normalizeErrorResponse(response);
-    baseResponseProcess(responseData.statusCode);
-    if (config?.loading)
+    const identity = (config as typeof config & { authIdentity?: { sessionEpoch: number; credentialRevision: number } })?.authIdentity;
+    const current = !identity || isTransitionCurrent(identity);
+    baseResponseProcess(responseData.statusCode, identity);
+    if (config?.loading && ((responseData.statusCode !== 401 && responseData.statusCode !== 402) || current))
       errorResponseProcess(responseData);
     return Promise.reject(createRequestError(responseData));
   },

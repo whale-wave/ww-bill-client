@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { LockKeyhole, Mail } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -13,15 +12,14 @@ import { FormField } from '@/shared/ui';
 const Sign: FC = () => {
   const { t } = useTranslation('auth');
   const [form, setForm] = useState({ email: '', password: '', emailCode: '' });
-  const queryClient = useQueryClient();
   const { startSession } = useAuthStore(({ startSession }) => ({ startSession }));
   const navigate = useNavigate();
 
   const handleSign = async () => {
     const { statusCode, data } = await sign(form);
     if (statusCode === 200) {
-      startSession(data.token, data.userInfo.userId || String(data.userInfo.id));
-      queryClient.setQueryData(userKeys.info(), {
+      const runtime = startSession(data.token, data.userInfo.userId || String(data.userInfo.id));
+      runtime.queryClient.setQueryData(userKeys.info(), {
         statusCode: 200,
         message: '',
         data: data.userInfo,
