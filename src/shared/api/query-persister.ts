@@ -1,16 +1,32 @@
 import type { PersistedClient, Persister } from '@tanstack/react-query-persist-client';
 import { Capacitor } from '@capacitor/core';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
+import { CACHE_MAX_AGE, CACHE_VERSION } from './query-client';
 
-const CACHE_VERSION = 'v1';
-const CACHE_MAX_AGE = 1000 * 60 * 60 * 24 * 30;
 const DATABASE_NAME = 'ww-bill-query-cache';
 const DATABASE_VERSION = 1;
 const STORE_NAME = 'clients';
 const FILE_PREFIX = `query-cache/${CACHE_VERSION}`;
-export type AccountQueryPersister = Persister & { flush: () => Promise<void> };
+export type AccountQueryPersister = Persister & {
+  flush: () => Promise<void>;
+  terminate: (mode?: 'retain' | 'remove') => Promise<void>;
+  lease: SessionLease;
+};
 
-const activePersisters = new Map<string, AccountQueryPersister>();
+export interface SessionLease {
+  isValid: () => boolean;
+  invalidate: () => void;
+}
+
+export function createSessionLease(): SessionLease {
+  let valid = true;
+  return {
+    isValid: () => valid,
+    invalidate: () => {
+      valid = false;
+    },
+  };
+}
 
 interface QueryCacheRecord {
   key: string;
@@ -96,7 +112,9 @@ async function readFilesystem(userId: string): Promise<PersistedClient | undefin
     });
     return JSON.parse(String(result.data)) as PersistedClient;
   }
-  catch {
+  catch (error) {
+    if ((error as { code?: string }).code !== 'OS-PLUG-FILE-0008')
+      throw error;
     return undefined;
   }
 }
@@ -131,39 +149,89 @@ async function writeFilesystem(userId: string, client: PersistedClient) {
 }
 
 async function removeFilesystem(userId: string) {
-  await Filesystem.deleteFile({ path: getFilePath(userId), directory: Directory.Data }).catch(() => undefined);
-  await Filesystem.deleteFile({ path: `${getFilePath(userId)}.tmp`, directory: Directory.Data }).catch(() => undefined);
+  for (const path of [getFilePath(userId), `${getFilePath(userId)}.tmp`]) {
+    try {
+      await Filesystem.deleteFile({ path, directory: Directory.Data });
+    }
+    catch (error) {
+      if ((error as { code?: string }).code !== 'OS-PLUG-FILE-0008')
+        throw error;
+    }
+  }
+}
+
+type StorageOperation<T> = () => Promise<T>;
+const coordinatorTails = new Map<string, Promise<void>>();
+const coordinatorTombstones = new Set<string>();
+
+function enqueue<T>(key: string, operation: StorageOperation<T>): Promise<T> {
+  const previous = coordinatorTails.get(key) ?? Promise.resolve();
+  const run = previous.catch(() => undefined).then(operation);
+  const tail = run.then(() => undefined, () => undefined);
+  coordinatorTails.set(key, tail);
+  void tail.finally(() => {
+    if (coordinatorTails.get(key) === tail)
+      coordinatorTails.delete(key);
+  });
+  return run;
+}
+
+async function rawRead(userId: string) {
+  return Capacitor.isNativePlatform() ? readFilesystem(userId) : readIndexedDb(userId);
+}
+
+async function rawWrite(userId: string, client: PersistedClient) {
+  if (Capacitor.isNativePlatform())
+    await writeFilesystem(userId, client);
+  else
+    await writeIndexedDb(userId, client);
+}
+
+async function rawRemove(userId: string) {
+  if (Capacitor.isNativePlatform())
+    await removeFilesystem(userId);
+  else
+    await removeIndexedDb(userId);
+}
+
+function sanitizePersistedClient(client: PersistedClient): PersistedClient {
+  if (!client.clientState.mutations?.length)
+    return client;
+  return {
+    ...client,
+    clientState: { ...client.clientState, mutations: [] },
+  };
 }
 
 export function createQueryCachePersister(userId: string): AccountQueryPersister {
   let pendingClient: PersistedClient | undefined;
   let persistTimer: ReturnType<typeof setTimeout> | undefined;
-  let writeChain = Promise.resolve();
-  let generation = 0;
+  const lease = createSessionLease();
+  let terminalPromise: Promise<void> | undefined;
+  let terminalMode: 'retain' | 'remove' | undefined;
 
-  const queueWrite = (client: PersistedClient, currentGeneration: number) => {
-    writeChain = writeChain.then(async () => {
-      if (currentGeneration !== generation)
+  const queueWrite = (client: PersistedClient) => {
+    return enqueue(getStorageKey(userId), async () => {
+      if (!lease.isValid() || coordinatorTombstones.has(getStorageKey(userId)))
         return;
-      if (Capacitor.isNativePlatform())
-        await writeFilesystem(userId, client);
-      else
-        await writeIndexedDb(userId, client);
-    }).catch(() => undefined);
-    return writeChain;
+      await rawWrite(userId, client);
+      coordinatorTombstones.delete(getStorageKey(userId));
+    });
   };
 
   const scheduleFlush = () => {
     const client = pendingClient;
     pendingClient = undefined;
     persistTimer = undefined;
-    if (!client)
-      return writeChain;
-    return queueWrite(client, generation);
+    if (!client || !lease.isValid())
+      return Promise.resolve();
+    return queueWrite(client).catch(() => undefined);
   };
 
   const persister: AccountQueryPersister = {
     persistClient: (client) => {
+      if (terminalMode || !lease.isValid())
+        return Promise.resolve();
       pendingClient = client;
       if (!persistTimer)
         persistTimer = setTimeout(scheduleFlush, 1000);
@@ -177,59 +245,71 @@ export function createQueryCachePersister(userId: string): AccountQueryPersister
       await scheduleFlush();
     },
     restoreClient: async () => {
+      if (terminalMode || !lease.isValid())
+        return undefined;
       try {
-        const client = Capacitor.isNativePlatform()
-          ? await readFilesystem(userId)
-          : await readIndexedDb(userId);
+        const client = await enqueue(getStorageKey(userId), async () => {
+          if (!lease.isValid() || coordinatorTombstones.has(getStorageKey(userId)))
+            return undefined;
+          return rawRead(userId);
+        });
+        if (!lease.isValid() || terminalMode)
+          return undefined;
         if (!client || Date.now() - client.timestamp > CACHE_MAX_AGE) {
-          await removeStoredQueryCache(userId);
+          await enqueue(getStorageKey(userId), () => rawRemove(userId)).catch(() => undefined);
           return undefined;
         }
-        return client;
+        const sanitized = sanitizePersistedClient(client);
+        if (sanitized !== client)
+          await enqueue(getStorageKey(userId), () => rawWrite(userId, sanitized)).catch(() => undefined);
+        return sanitized;
       }
       catch {
-        await removeStoredQueryCache(userId);
         return undefined;
       }
     },
-    removeClient: async () => {
-      generation += 1;
+    removeClient: async () => persister.terminate('remove'),
+    terminate: async (mode = 'remove') => {
+      if (mode === 'retain') {
+        terminalMode = 'retain';
+        lease.invalidate();
+        pendingClient = undefined;
+        if (persistTimer) {
+          clearTimeout(persistTimer);
+          persistTimer = undefined;
+        }
+        return;
+      }
+      if (terminalPromise)
+        return terminalPromise;
+      terminalMode = 'remove';
+      lease.invalidate();
       pendingClient = undefined;
       if (persistTimer) {
         clearTimeout(persistTimer);
         persistTimer = undefined;
       }
-      await writeChain;
-      await removeStoredQueryCache(userId);
+      coordinatorTombstones.add(getStorageKey(userId));
+      terminalPromise = enqueue(getStorageKey(userId), async () => {
+        await rawRemove(userId);
+        coordinatorTombstones.delete(getStorageKey(userId));
+      }).catch(() => undefined);
+      return terminalPromise;
     },
+    lease,
   };
 
-  activePersisters.set(userId, persister);
   return persister;
 }
 
 export async function removeQueryCache(userId: string | undefined) {
   if (!userId)
     return;
-  const activePersister = activePersisters.get(userId);
-  if (activePersister) {
-    activePersisters.delete(userId);
-    await activePersister.removeClient();
-    return;
-  }
-  await removeStoredQueryCache(userId);
-}
-
-async function removeStoredQueryCache(userId: string) {
-  try {
-    if (Capacitor.isNativePlatform())
-      await removeFilesystem(userId);
-    else
-      await removeIndexedDb(userId);
-  }
-  catch {
-    // A missing or unavailable cache must not prevent logout.
-  }
+  coordinatorTombstones.add(getStorageKey(userId));
+  await enqueue(getStorageKey(userId), async () => {
+    await rawRemove(userId);
+    coordinatorTombstones.delete(getStorageKey(userId));
+  }).catch(() => undefined);
 }
 
 export { CACHE_MAX_AGE, CACHE_VERSION };
