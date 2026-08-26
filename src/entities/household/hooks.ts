@@ -574,7 +574,7 @@ export function useCreateHouseholdMutation() {
         householdKeys.invitation(response.data.household.id),
         response.data.invitation,
       );
-      if (isSessionScopeCurrent(scope))
+      if (scope && isSessionScopeCurrent(scope))
         writeHouseholdInvitation(response.data.household.id, response.data.invitation);
     },
   });
@@ -613,7 +613,7 @@ export function useCreateHouseholdInvitationMutation() {
         householdKeys.invitation(variables.householdId),
         response.data,
       );
-      if (isSessionScopeCurrent(scope))
+      if (scope && isSessionScopeCurrent(scope))
         writeHouseholdInvitation(variables.householdId, response.data);
     },
   });
@@ -630,7 +630,7 @@ export function useRevokeHouseholdInvitationMutation() {
         exact: true,
         queryKey: householdKeys.invitation(variables.householdId),
       });
-      if (isSessionScopeCurrent(scope))
+      if (scope && isSessionScopeCurrent(scope))
         removeHouseholdInvitation(variables.householdId);
     },
   });

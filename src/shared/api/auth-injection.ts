@@ -29,9 +29,9 @@ let tokenGetter: () => string = () => '';
 let logoutHandler: () => void = () => {};
 let captureRequestAuthImpl: () => AuthRequestAuth = () => ({ token: tokenGetter(), identity: { sessionEpoch: 0, credentialRevision: 0 } });
 let captureSessionScopeImpl: () => SessionScope = () => captureRequestAuthImpl().identity;
-let isTransitionCurrentImpl = () => true;
-let isSessionScopeCurrentImpl = () => true;
-let handleAuthFailureImpl = (_identity: AuthRequestIdentity, _statusCode: number) => {
+let isTransitionCurrentImpl: (identity: AuthRequestIdentity) => boolean = () => true;
+let isSessionScopeCurrentImpl: (scope: SessionScope) => boolean = () => true;
+let handleAuthFailureImpl: (identity: AuthRequestIdentity, statusCode: number) => unknown = (_identity, _statusCode) => {
   logoutHandler();
   return undefined;
 };

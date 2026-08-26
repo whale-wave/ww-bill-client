@@ -209,13 +209,22 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
   });
 
   const currentTab = useMemo(
-    () => selectedOption
-      && query.data
-      && query.data.anchorDate === selectedOption.anchorDate
-      && hasOverviewData(query.data, currentAmountType)
-      ? toOverviewTab(query.data, currentAmountType, selectedOption!, getPeriodName(selectedOption!, chartT))
+    () => selectedOption && query.data && hasOverviewData(query.data, currentAmountType)
+      ? toOverviewTab(
+          query.data,
+          currentAmountType,
+          query.data.anchorDate === selectedOption.anchorDate
+            ? selectedOption
+            : (periodsQuery.data.find(item => item.anchorDate === query.data?.anchorDate) ?? selectedOption),
+          getPeriodName(
+            query.data.anchorDate === selectedOption.anchorDate
+              ? selectedOption
+              : (periodsQuery.data.find(item => item.anchorDate === query.data?.anchorDate) ?? selectedOption),
+            chartT,
+          ),
+        )
       : undefined,
-    [chartT, currentAmountType, query.data, selectedOption],
+    [chartT, currentAmountType, periodsQuery.data, query.data, selectedOption],
   );
   const memberRanking = useMemo(
     () => query.data ? mapMemberRanking(query.data, currentAmountType) : [],
@@ -273,7 +282,7 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     currentTimeRangeCategory,
     curTab: currentTab,
     displayMode,
-    isContentLoading: Boolean(selectedOption) && query.isFetching,
+    isContentLoading: Boolean(selectedOption) && query.isLoading && !query.response,
     onDisplayModeChange: handleDisplayModeChange,
     rankingInteraction: 'none',
     rankingTitle: t('charts.categoryRanking'),
@@ -294,7 +303,8 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     setTabActive,
     selectedOption,
     periodTabs,
-    query.isFetching,
+    query.isLoading,
+    query.response,
     t,
   ]);
 
@@ -303,8 +313,11 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
       <HouseholdPageState
         errorDescription={t('common.loadErrorDescription')}
         errorTitle={t('common.loadError')}
-        isError={periodsQuery.isError || query.isError}
-        isLoading={periodsQuery.isLoading}
+        isError={(
+          (periodsQuery.isError && !periodsQuery.response)
+          || (query.isError && !query.response)
+        )}
+        isLoading={periodsQuery.isLoading && !periodsQuery.response}
         loadingLabel={t('common.loading')}
         onRetry={handleRetry}
         retryLabel={t('common.retry')}
