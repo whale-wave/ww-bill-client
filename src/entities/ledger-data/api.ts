@@ -13,6 +13,7 @@ import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
 
 export interface GetLedgerTagsApiParams {
+  categoryId?: number;
   status?: LedgerTagStatus | 'ACTIVE' | 'ARCHIVED';
 }
 
@@ -27,6 +28,7 @@ export function getLedgerTagsApi(
 }
 
 export interface PostLedgerTagApiData {
+  categoryId: number;
   name: string;
   colorKey?: string | null;
   iconKey?: string | null;

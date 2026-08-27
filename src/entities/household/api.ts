@@ -302,10 +302,13 @@ export function deleteHouseholdBudgetApi(
 }
 
 export interface GetHouseholdChartsApiParams {
-  period: HouseholdChartPeriod;
-  anchorDate: string;
-  metric: HouseholdChartMetric;
-  display: HouseholdChartDisplay;
+  period?: HouseholdChartPeriod;
+  anchorDate?: string;
+  metric?: HouseholdChartMetric;
+  display?: HouseholdChartDisplay;
+  categoryKey?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface GetHouseholdChartPeriodsApiParams {

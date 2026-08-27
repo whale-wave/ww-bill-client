@@ -8,6 +8,7 @@ export enum LedgerTagStatus {
 export interface LedgerTag {
   id: string;
   ledgerId: string;
+  categoryId: number;
   createdByUserId: number;
   name: string;
   colorKey?: string;
@@ -44,7 +45,8 @@ export type LedgerTransferConflictCode
     | 'TARGET_CATEGORY_INVALID'
     | 'TARGET_CATEGORY_TYPE_MISMATCH'
     | 'TAG_MAPPING_MISSING'
-    | 'TARGET_TAG_INVALID';
+    | 'TARGET_TAG_INVALID'
+    | 'TARGET_TAG_CATEGORY_MISMATCH';
 
 export interface LedgerTransferConflict {
   recordId: number;

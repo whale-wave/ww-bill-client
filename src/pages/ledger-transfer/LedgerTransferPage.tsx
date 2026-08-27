@@ -7,7 +7,7 @@ import { useLedgerCategoriesQuery } from '@/entities/category';
 import { LedgerCapability, useLedgersQuery } from '@/entities/ledger';
 import {
   useExecuteLedgerTransferMutation,
-  useLedgerTagsQuery,
+  useLedgerTagsByCategoriesQuery,
   usePreviewLedgerTransferMutation,
 } from '@/entities/ledger-data';
 import { useLedgerRecordsQuery } from '@/entities/record';
@@ -108,9 +108,6 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
   const targetCategories = useLedgerCategoriesQuery({
     params: { ledgerId },
   });
-  const targetTags = useLedgerTagsQuery({
-    params: { ledgerId, status: 'ACTIVE' },
-  });
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [categoryMappings, setCategoryMappings] = useState<Record<string, number>>({});
   const [tagMappings, setTagMappings] = useState<Record<string, string>>({});
@@ -136,10 +133,20 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
     return [...values.values()];
   }, [selectedRecords]);
   const sourceTags = useMemo(() => {
-    const values = new Map<string, string>();
-    selectedRecords.forEach(record => record.tags?.forEach(tag => values.set(tag.id, tag.name)));
-    return [...values].map(([id, name]) => ({ id, name }));
+    const values = new Map<string, { categoryId: number; name: string }>();
+    selectedRecords.forEach(record => record.tags?.forEach((tag) => {
+      values.set(tag.id, { categoryId: record.category.id, name: tag.name });
+    }));
+    return [...values].map(([id, tag]) => ({ id, ...tag }));
   }, [selectedRecords]);
+  const targetCategoryIds = useMemo(() => [...new Set(Object.values(categoryMappings)
+    .filter(Number.isInteger))]
+    .sort((left, right) => left - right), [categoryMappings]);
+  const targetTags = useLedgerTagsByCategoriesQuery({
+    categoryIds: targetCategoryIds,
+    enabled: tagStrategy === 'map',
+    ledgerId,
+  });
   const mappingComplete = sourceCategories.every(category => Boolean(categoryMappings[category.id]))
     && (tagStrategy === 'drop' || sourceTags.every(tag => Boolean(tagMappings[tag.id])));
   const canPreview = Boolean(sourceLedgerId)
@@ -212,6 +219,7 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
                       ...current,
                       [source.id]: Number(value),
                     }));
+                    setTagMappings({});
                     handleRequestChange();
                   }}
                   options={targetCategories.data
@@ -255,7 +263,9 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
                       setTagMappings(current => ({ ...current, [source.id]: value }));
                       handleRequestChange();
                     }}
-                    options={targetTags.data.map(tag => ({ label: tag.name, value: tag.id }))}
+                    options={targetTags.data
+                      .filter(tag => tag.categoryId === categoryMappings[source.categoryId])
+                      .map(tag => ({ label: tag.name, value: tag.id }))}
                     placeholder={t('transfer.chooseTag')}
                     value={tagMappings[source.id] ?? ''}
                   />

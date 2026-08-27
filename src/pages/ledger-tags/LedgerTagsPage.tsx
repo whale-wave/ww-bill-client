@@ -2,6 +2,7 @@ import { Toast } from 'antd-mobile';
 import { Tag } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLedgerCategoriesQuery } from '@/entities/category';
 import { LedgerCapability } from '@/entities/ledger';
 import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQuery, useUpdateLedgerTagMutation } from '@/entities/ledger-data';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
@@ -10,7 +11,10 @@ import { GradientPanel, IllustratedEmptyState, PageHeader } from '@/shared/ui';
 
 function TagsContent({ ledgerId }: { ledgerId: string }) {
   const { t } = useTranslation('ledger');
-  const query = useLedgerTagsQuery({ params: { ledgerId }, queryOptions: { enabled: Boolean(ledgerId) } });
+  const categoriesQuery = useLedgerCategoriesQuery({ params: { ledgerId } });
+  const [categoryId, setCategoryId] = useState<number>();
+  const effectiveCategoryId = categoryId ?? categoriesQuery.data[0]?.id;
+  const query = useLedgerTagsQuery({ params: { ledgerId, categoryId: effectiveCategoryId }, queryOptions: { enabled: Boolean(ledgerId && effectiveCategoryId) } });
   const [createTag, createState] = useCreateLedgerTagMutation();
   const [updateTag, updateState] = useUpdateLedgerTagMutation();
   const [archiveTag, archiveState] = useArchiveLedgerTagMutation();
@@ -21,6 +25,9 @@ function TagsContent({ ledgerId }: { ledgerId: string }) {
     <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))] pt-2">
       <div className="mx-auto w-full max-w-[520px]">
         <GradientPanel className="px-4 py-4" elevation="standard" surface="ice">
+          <select className="mb-3 h-11 w-full rounded-[14px] border border-border-primary bg-white px-3 text-sm" onChange={event => setCategoryId(Number(event.target.value))} value={effectiveCategoryId}>
+            {categoriesQuery.data.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
+          </select>
           <div className="flex gap-2">
             <input
               className="h-11 min-w-0 flex-1 rounded-[14px] border border-solid border-border-primary bg-white/85 px-3 text-[14px] font-semibold text-ww-ink outline-none shadow-ww-xs transition placeholder:text-ww-soft focus:border-primary-mid"
@@ -38,7 +45,9 @@ function TagsContent({ ledgerId }: { ledgerId: string }) {
                   return;
                 creatingRef.current = true;
                 try {
-                  await createTag({ data: { name: newName.trim() }, ledgerId });
+                  if (!effectiveCategoryId)
+                    return;
+                  await createTag({ data: { categoryId: effectiveCategoryId, name: newName.trim() }, ledgerId });
                   setNewName('');
                 }
                 finally {

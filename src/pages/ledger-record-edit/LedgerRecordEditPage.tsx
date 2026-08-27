@@ -35,7 +35,6 @@ interface LedgerRecordEditEditorProps {
   recordId: string;
   supportsTags: boolean;
   canManageTags: boolean;
-  tags: Array<{ id: string; name: string }>;
 }
 
 function LedgerRecordEditEditor({
@@ -44,7 +43,6 @@ function LedgerRecordEditEditor({
   recordId,
   supportsTags,
   canManageTags,
-  tags,
 }: LedgerRecordEditEditorProps) {
   const { t } = useTranslation('ledger');
   const navigate = useNavigate();
@@ -113,6 +111,10 @@ function LedgerRecordEditEditor({
       state: createLedgerRecordDetailState(initialRecord, ledgerId),
     });
   }, [initialRecord, ledgerId, navigate, recordId]);
+  const tagsQuery = useLedgerTagsQuery({
+    params: { ledgerId, categoryId: controller.selectedCategory?.id },
+    queryOptions: { enabled: supportsTags },
+  });
 
   return (
     <RecordEditorPresentation
@@ -127,8 +129,8 @@ function LedgerRecordEditEditor({
       onCancel={navigateToDetail}
       onRetryCategories={() => void categoryQuery.refetch()}
       canManageTags={canManageTags}
-      onCreateTag={async name => (await createTag({ data: { name }, ledgerId })).data}
-      tags={supportsTags ? tags : undefined}
+      onCreateTag={controller.selectedCategory ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId })).data : undefined}
+      tags={supportsTags && controller.selectedCategory ? tagsQuery.data : undefined}
     />
   );
 }
@@ -148,10 +150,6 @@ function LedgerRecordEditContent({
     queryOptions: { enabled: Boolean(recordId) },
   });
   const canReadTags = ledger.capabilities.includes(LedgerCapability.TAG_READ);
-  const tagsQuery = useLedgerTagsQuery({
-    params: { ledgerId },
-    queryOptions: { enabled: canReadTags },
-  });
   const initialRecord = recordQuery.data
     ?? readLedgerRecordDetailState(location.state, ledgerId, recordId);
 
@@ -172,7 +170,7 @@ function LedgerRecordEditContent({
     );
   }
 
-  const supportsTags = canReadTags && !tagsQuery.isError;
+  const supportsTags = canReadTags;
   return (
     <LedgerRecordEditEditor
       initialRecord={initialRecord}
@@ -180,7 +178,6 @@ function LedgerRecordEditContent({
       recordId={recordId}
       supportsTags={supportsTags}
       canManageTags={ledger.capabilities.includes(LedgerCapability.TAG_MANAGE)}
-      tags={supportsTags ? tagsQuery.data : []}
     />
   );
 }

@@ -22,7 +22,7 @@ describe('ledger-scoped third-batch query keys', () => {
     expect(categoryKeys.ledgerList('ledger/a', { type: 'sub' })).toEqual(['category', 'ledger', 'ledger/a', 'list', { type: 'sub' }]);
     expect(budgetKeys.ledgerInfo('ledger/a', { periodStart: '2026-07-01', type: 0 })).toEqual(['budget', 'ledger', 'ledger/a', 'info', { periodStart: '2026-07-01', type: 0 }]);
     expect(chartKeys.ledgerList('ledger/a', { category: 'month', type: 'sub' })).toEqual(['chart', 'ledger', 'ledger/a', 'list', { category: 'month', type: 'sub' }]);
-    expect(ledgerDataKeys.tags('ledger/a', 'ACTIVE')).toEqual(['ledger-data', 'tag', 'ledger/a', 'ACTIVE']);
+    expect(ledgerDataKeys.tags('ledger/a', 12, 'ACTIVE')).toEqual(['ledger-data', 'tag', 'ledger/a', 'ACTIVE', 12]);
     expect(ledgerDataKeys.recovery('ledger/a', 30)).toEqual(['ledger-data', 'recovery', 'ledger/a', 30]);
     expect(ledgerDataKeys.exportTask('ledger/a', 'task/a')).toEqual(['ledger-data', 'export', 'ledger/a', 'task/a']);
   });

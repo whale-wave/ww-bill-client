@@ -19,6 +19,7 @@ const hooks = vi.hoisted(() => ({
   useExecuteLedgerTransferMutation: vi.fn(),
   useLedgerCategoriesQuery: vi.fn(),
   useLedgerRecordsQuery: vi.fn(),
+  useLedgerTagsByCategoriesQuery: vi.fn(),
   useLedgerTagsQuery: vi.fn(),
   useLedgersQuery: vi.fn(),
   usePreviewLedgerTransferMutation: vi.fn(),
@@ -37,6 +38,7 @@ vi.mock('@/entities/category', async importOriginal => ({
 vi.mock('@/entities/ledger-data', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/ledger-data')>()),
   useExecuteLedgerTransferMutation: hooks.useExecuteLedgerTransferMutation,
+  useLedgerTagsByCategoriesQuery: hooks.useLedgerTagsByCategoriesQuery,
   useLedgerTagsQuery: hooks.useLedgerTagsQuery,
   usePreviewLedgerTransferMutation: hooks.usePreviewLedgerTransferMutation,
 }));
@@ -141,6 +143,7 @@ beforeEach(() => {
     { id: 8, name: 'Meals', type: 'sub' },
     { id: 9, name: 'Dining', type: 'sub' },
   ]));
+  hooks.useLedgerTagsByCategoriesQuery.mockReturnValue({ data: [], isLoading: false });
   hooks.useLedgerTagsQuery.mockReturnValue(query([]));
   hooks.previewTransfer.mockResolvedValue({
     data: {
@@ -171,8 +174,10 @@ describe('ledger transfer page', () => {
     expect(hooks.useLedgerCategoriesQuery).toHaveBeenLastCalledWith({
       params: { ledgerId: 'target-ledger' },
     });
-    expect(hooks.useLedgerTagsQuery).toHaveBeenLastCalledWith({
-      params: { ledgerId: 'target-ledger', status: 'ACTIVE' },
+    expect(hooks.useLedgerTagsByCategoriesQuery).toHaveBeenLastCalledWith({
+      categoryIds: [],
+      enabled: false,
+      ledgerId: 'target-ledger',
     });
     expect(container.textContent).toContain('transfer.chooseSourceHint');
 

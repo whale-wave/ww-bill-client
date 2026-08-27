@@ -73,11 +73,19 @@ export function useRecordEditorController({
       return;
     setRecordType(nextType);
     setSelectedCategory(undefined);
+    setSelectedTagIds([]);
+    setTagSelectionDirty(true);
+    setIsTagPickerVisible(false);
   }, [recordType]);
 
   const handleSelectCategory = useCallback((category: CategoryEntity) => {
+    if (selectedCategory?.id !== category.id) {
+      setSelectedTagIds([]);
+      setTagSelectionDirty(true);
+      setIsTagPickerVisible(false);
+    }
     setSelectedCategory(category);
-  }, []);
+  }, [selectedCategory?.id]);
 
   const handleKeyTouchStart = useCallback((index: number) => {
     setActiveKeyIndex(index);

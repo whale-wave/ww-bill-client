@@ -35,7 +35,6 @@ interface LedgerRecordCreateEditorProps {
   ledgerId: string;
   supportsTags: boolean;
   canManageTags: boolean;
-  tags: Array<{ id: string; name: string }>;
 }
 
 function LedgerRecordCreateEditor({
@@ -43,7 +42,6 @@ function LedgerRecordCreateEditor({
   ledgerId,
   supportsTags,
   canManageTags,
-  tags,
 }: LedgerRecordCreateEditorProps) {
   const { t } = useTranslation('ledger');
   const navigate = useNavigate();
@@ -93,6 +91,10 @@ function LedgerRecordCreateEditor({
   const categoryQuery = useLedgerCategoriesQuery({
     params: { ledgerId, type: controller.recordType },
   });
+  const tagsQuery = useLedgerTagsQuery({
+    params: { ledgerId, categoryId: controller.selectedCategory?.id },
+    queryOptions: { enabled: supportsTags },
+  });
 
   return (
     <RecordEditorPresentation
@@ -107,8 +109,8 @@ function LedgerRecordCreateEditor({
       onCancel={navigateAfterCreate}
       onRetryCategories={() => void categoryQuery.refetch()}
       canManageTags={canManageTags}
-      onCreateTag={async name => (await createTag({ data: { name }, ledgerId })).data}
-      tags={supportsTags ? tags : undefined}
+      onCreateTag={controller.selectedCategory ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId })).data : undefined}
+      tags={supportsTags && controller.selectedCategory ? tagsQuery.data : undefined}
     />
   );
 }
@@ -123,23 +125,18 @@ function LedgerRecordCreateContent({
   const { t } = useTranslation('ledger');
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
   const canReadTags = ledger.capabilities.includes(LedgerCapability.TAG_READ);
-  const tagsQuery = useLedgerTagsQuery({
-    params: { ledgerId },
-    queryOptions: { enabled: canReadTags },
-  });
 
   if (preferenceQuery.isLoading) {
     return <PageLoadingState label={t('common:nav.loading')} testId="record-create-loading" />;
   }
 
-  const supportsTags = canReadTags && !tagsQuery.isError;
+  const supportsTags = canReadTags;
   return (
     <LedgerRecordCreateEditor
       initialRecordType={preferenceQuery.data?.defaultRecordType ?? LedgerRecordType.EXPENSE}
       ledgerId={ledgerId}
       supportsTags={supportsTags}
       canManageTags={ledger.capabilities.includes(LedgerCapability.TAG_MANAGE)}
-      tags={supportsTags ? tagsQuery.data : []}
     />
   );
 }

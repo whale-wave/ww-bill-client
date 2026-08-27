@@ -16,7 +16,7 @@ import type {
   RecoverableLedgerRecord,
 } from './types';
 import type { SuccessResponse } from '@/shared/api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { assertSuccessApi } from '@/shared/api';
 import {
   deleteLedgerTagApi,
@@ -146,16 +146,37 @@ export async function createLedgerExportMutationFn(options: {
 }
 
 export function useLedgerTagsQuery(options: {
-  params: { ledgerId: string; status?: GetLedgerTagsApiParams['status'] };
+  params: { ledgerId: string; categoryId?: number; status?: GetLedgerTagsApiParams['status'] };
   queryOptions?: Omit<UseQueryOptions<SuccessResponse<LedgerTag[]>>, 'queryFn' | 'queryKey'>;
 }) {
   const status = options.params.status ?? 'ACTIVE';
+  const categoryId = options.params.categoryId;
   const { data: response, ...rest } = useQuery<SuccessResponse<LedgerTag[]>>({
-    queryFn: () => getLedgerTagsQueryFn(options.params.ledgerId, { status }),
-    queryKey: ledgerDataKeys.tags(options.params.ledgerId, status),
+    queryFn: () => getLedgerTagsQueryFn(options.params.ledgerId, { categoryId: categoryId!, status }),
+    queryKey: ledgerDataKeys.tags(options.params.ledgerId, categoryId, status),
+    enabled: Boolean(categoryId) && (options.queryOptions?.enabled ?? true),
     ...options.queryOptions,
   });
   return { response, data: response?.data ?? [], ...rest };
+}
+
+export function useLedgerTagsByCategoriesQuery(options: {
+  ledgerId: string;
+  categoryIds: number[];
+  enabled?: boolean;
+}) {
+  const categoryIds = [...new Set(options.categoryIds)].sort((left, right) => left - right);
+  const queries = useQueries({
+    queries: categoryIds.map(categoryId => ({
+      enabled: options.enabled ?? true,
+      queryFn: () => getLedgerTagsQueryFn(options.ledgerId, { categoryId, status: 'ACTIVE' }),
+      queryKey: ledgerDataKeys.tags(options.ledgerId, categoryId, 'ACTIVE'),
+    })),
+  });
+  return {
+    data: queries.flatMap(query => query.data?.data ?? []),
+    isLoading: queries.some(query => query.isLoading),
+  };
 }
 
 export function useLedgerRecoveryRecordsQuery(options: {

@@ -10,8 +10,8 @@ import {
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
-import { useGetChartQuery } from '@/entities/chart';
-import { CategoryTrendChart, ChartDisplaySwitch } from '@/features/chart-overview';
+import { useGetChartQuery, useTagRankingQuery } from '@/entities/chart';
+import { CategoryTrendChart, ChartDisplaySwitch, TagRankingSection } from '@/features/chart-overview';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
 import { GradientPanel, IllustratedEmptyState, MetricGrid, ProgressBar } from '@/shared/ui';
@@ -72,6 +72,14 @@ const ChartCategory: FC = () => {
     matchedRouteState?.rankingItem || selectedPeriod?.ranking?.find(item => String(item.category.id) === categoryId), [categoryId, matchedRouteState?.rankingItem, selectedPeriod]);
 
   const records = (selectedPeriod?.records || []).filter(record => String(record.category.id) === categoryId);
+  const tagRange = useMemo(() => {
+    const times = records.map(record => new Date(record.time).getTime()).filter(Number.isFinite).sort();
+    return times.length ? { endDate: new Date(times.at(-1)! + 24 * 60 * 60 * 1000).toISOString(), startDate: new Date(times[0]!).toISOString() } : undefined;
+  }, [records]);
+  const tagRanking = useTagRankingQuery({
+    params: { categoryId: categoryId ?? '', type: isAmountType(type) ? type : 'sub', ...tagRange },
+    enabled: Boolean(categoryId && tagRange),
+  });
   const [recordSort, setRecordSort] = useState<'amount' | 'time'>('amount');
   const [displayMode, setDisplayMode] = useState<'line' | 'pie'>('line');
   const sortedRecords = useMemo(() => [...records].sort((left, right) => {
@@ -160,6 +168,8 @@ const ChartCategory: FC = () => {
               <CategoryTrendChart displayMode={displayMode} records={records} />
             </GradientPanel>
           </section>
+
+          <TagRankingSection data={tagRanking.data} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />
 
           <section>
             <div className="mb-2.5 flex items-end justify-between px-1">

@@ -2,9 +2,10 @@ export const ledgerDataKeys = {
   all: ['ledger-data'] as const,
   tagRoot: () => [...ledgerDataKeys.all, 'tag'] as const,
   tagsRoot: (ledgerId: string) => [...ledgerDataKeys.tagRoot(), ledgerId] as const,
-  tags: (ledgerId: string, status: string = 'ACTIVE') => [
+  tags: (ledgerId: string, categoryId: number | undefined, status: string = 'ACTIVE') => [
     ...ledgerDataKeys.tagsRoot(ledgerId),
     status,
+    categoryId,
   ] as const,
   recoveryRoot: () => [...ledgerDataKeys.all, 'recovery'] as const,
   recovery: (ledgerId: string, days = 30) => [

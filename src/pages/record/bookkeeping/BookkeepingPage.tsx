@@ -43,10 +43,6 @@ function BookkeepingPage() {
   const ledgersQuery = useGetLedgersQuery();
   const defaultLedger = ledgersQuery.data.find(ledger => ledger.kind === LedgerKind.SYSTEM_DEFAULT);
   const canReadTags = Boolean(defaultLedger?.capabilities.includes(LedgerCapability.TAG_READ));
-  const tagsQuery = useLedgerTagsQuery({
-    params: { ledgerId: defaultLedger?.id ?? '' },
-    queryOptions: { enabled: Boolean(defaultLedger && canReadTags) },
-  });
   const selectTime = getValidSelectTime(searchParams.get('selectTime'));
   const editorState = isRecordEditorLocationState(location.state)
     ? location.state.recordEditor
@@ -144,12 +140,16 @@ function BookkeepingPage() {
         Toast.show({ content: t('bookkeeping.chooseCategory') });
     },
     seed,
-    supportsTags: canReadTags && !tagsQuery.isError,
+    supportsTags: canReadTags,
     isEditing: Boolean(initialRecord),
     onUploadImage: async file => (await uploadImage({ file, ledgerId: defaultLedger?.id })).data.assetId,
   });
   const categoryQuery = useGetCategoryQuery({
     params: { type: controller.recordType },
+  });
+  const tagsQuery = useLedgerTagsQuery({
+    params: { ledgerId: defaultLedger?.id ?? '', categoryId: controller.selectedCategory?.id },
+    queryOptions: { enabled: Boolean(defaultLedger && canReadTags) },
   });
 
   const handleCancel = useCallback(() => {
@@ -170,10 +170,10 @@ function BookkeepingPage() {
       onCancel={handleCancel}
       onRetryCategories={() => void categoryQuery.refetch()}
       canManageTags={Boolean(defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE))}
-      onCreateTag={defaultLedger
-        ? async name => (await createTag({ data: { name }, ledgerId: defaultLedger.id })).data
+      onCreateTag={defaultLedger && controller.selectedCategory
+        ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId: defaultLedger.id })).data
         : undefined}
-      tags={canReadTags && !tagsQuery.isError ? tagsQuery.data : undefined}
+      tags={canReadTags && controller.selectedCategory ? tagsQuery.data : undefined}
     />
   );
 }

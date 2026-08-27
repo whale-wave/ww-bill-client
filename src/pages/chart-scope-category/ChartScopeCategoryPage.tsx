@@ -1,14 +1,15 @@
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 import type { FamilyRecord } from '@/entities/household';
 import type { RecordEntry } from '@/entities/record';
 import { ChevronLeft, ReceiptText } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
-import { useHouseholdRecordsQuery } from '@/entities/household';
+import { useLedgerTagRankingQuery } from '@/entities/chart';
+import { useHouseholdRecordsQuery, useHouseholdTagRankingQuery } from '@/entities/household';
 import { LedgerCapability } from '@/entities/ledger';
 import { useLedgerRecordsQuery } from '@/entities/record';
-import { CategoryTrendChart, ChartDisplaySwitch } from '@/features/chart-overview';
+import { CategoryTrendChart, ChartDisplaySwitch, TagRankingSection } from '@/features/chart-overview';
 import { HouseholdScopeBoundary } from '@/features/household';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -35,7 +36,7 @@ function readState(value: unknown): ChartDetailState | undefined {
     : undefined;
 }
 
-function CategoryDetail({ isRecordsLoading, records, state, toRecord }: { isRecordsLoading?: boolean; records: Array<RecordEntry | FamilyRecord>; state: ChartDetailState; toRecord: (id: number) => string }) {
+function CategoryDetail({ isRecordsLoading, records, state, tagRanking, toRecord }: { isRecordsLoading?: boolean; records: Array<RecordEntry | FamilyRecord>; state: ChartDetailState; tagRanking?: ReactNode; toRecord: (id: number) => string }) {
   const { t } = useTranslation('chart');
   const navigate = useNavigate();
   const [sort, setSort] = useState<'amount' | 'time'>('amount');
@@ -80,6 +81,7 @@ function CategoryDetail({ isRecordsLoading, records, state, toRecord }: { isReco
               <CategoryTrendChart displayMode={displayMode} records={sortedRecords} />
             </GradientPanel>
           </section>
+          {tagRanking}
           <section>
             <div className="mb-2.5 flex items-end justify-between px-1">
               <h2 className="text-[15px] font-extrabold text-ww-ink">{t('ranking.title')}</h2>
@@ -125,17 +127,19 @@ function CategoryDetail({ isRecordsLoading, records, state, toRecord }: { isReco
 const LedgerCategoryPage: FC<{ ledgerId: string }> = ({ ledgerId }) => {
   const state = readState(useLocation().state);
   const query = useLedgerRecordsQuery({ params: { filters: state ? { endDate: state.endDate, startDate: state.startDate, type: state.type } : undefined, ledgerId }, queryOptions: { enabled: Boolean(state) } });
+  const tagRanking = useLedgerTagRankingQuery({ params: { ledgerId, filters: state ? { categoryId: String(state.category.id), endDate: state.endDate, startDate: state.startDate, type: state.type } : { categoryId: '', type: 'sub' } }, enabled: Boolean(state) });
   if (!state)
     return null;
-  return <CategoryDetail isRecordsLoading={query.isLoading} records={query.data.data} state={state} toRecord={recordId => ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId)} />;
+  return <CategoryDetail isRecordsLoading={query.isLoading} records={query.data.data} state={state} tagRanking={<TagRankingSection data={tagRanking.data} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />} toRecord={recordId => ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId)} />;
 };
 
 const HouseholdCategoryPage: FC<{ householdId: string }> = ({ householdId }) => {
   const state = readState(useLocation().state);
   const query = useHouseholdRecordsQuery({ params: { filters: state ? { categoryKeys: [String(state.category.id)], endDate: state.endDate, limit: 50, startDate: state.startDate, type: state.type } : undefined, householdId }, queryOptions: { enabled: Boolean(state) } });
+  const tagRanking = useHouseholdTagRankingQuery({ params: { householdId, filters: state ? { categoryKey: String(state.category.id), endDate: state.endDate, metric: state.type === 'sub' ? 'expense' : 'income', startDate: state.startDate } : { categoryKey: '', metric: 'expense' } }, queryOptions: { enabled: Boolean(state) } });
   if (!state)
     return null;
-  return <CategoryDetail isRecordsLoading={query.isLoading} records={query.records} state={state} toRecord={recordId => ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(householdId, recordId)} />;
+  return <CategoryDetail isRecordsLoading={query.isLoading} records={query.records} state={state} tagRanking={<TagRankingSection data={tagRanking.data} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />} toRecord={recordId => ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(householdId, recordId)} />;
 };
 
 export function LedgerChartCategoryPage() {
