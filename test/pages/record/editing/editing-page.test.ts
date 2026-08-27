@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { RecordEntry } from '@/entities/record';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -21,12 +22,13 @@ vi.mock('react-router-dom', () => ({
 }));
 
 vi.mock('@/entities/record', () => ({
-  RecordDetailPresentation: ({ category, footerActions, onBack, pinnedAction, rows }: {
+  RecordDetailPresentation: ({ category, footerActions, onBack, pinnedAction, rows, supplementaryContent }: {
     category: { name: string };
     footerActions?: Array<{ label: string }>;
     onBack: () => void;
     pinnedAction?: { label: string; onClick: () => void };
     rows: Array<{ label: string; value: string }>;
+    supplementaryContent?: ReactNode;
   }) => createElement('div', { 'data-testid': 'record-detail' }, [
     createElement('button', { 'data-testid': 'record-detail-back', 'key': 'back', 'onClick': onBack, 'type': 'button' }, 'Back'),
     createElement('span', { key: 'content' }, [
@@ -35,6 +37,7 @@ vi.mock('@/entities/record', () => ({
       pinnedAction?.label,
       ...footerActions?.map(action => action.label) ?? [],
     ].filter(Boolean).join('|')),
+    supplementaryContent && createElement('div', { 'data-testid': 'supplementary-content', 'key': 'supplementary-content' }),
     pinnedAction && createElement('button', { 'data-testid': 'record-detail-share', 'key': 'share', 'onClick': pinnedAction.onClick, 'type': 'button' }, pinnedAction.label),
   ]),
   useDeleteRecordMutation: () => [() => Promise.resolve({})],
@@ -128,6 +131,33 @@ describe('record editing page', () => {
 
     act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-detail-share"]')?.click());
     expect(navigate).toHaveBeenCalledWith('/share', { state: { record } });
+  });
+
+  it('does not pass an empty attachment section to the detail card', () => {
+    queryResult.data = {
+      amount: '20.00',
+      category: {
+        createdAt: '2026-07-16T00:00:00.000Z',
+        icon: 'food',
+        id: 1,
+        name: '餐饮',
+        updatedAt: '2026-07-16T00:00:00.000Z',
+      },
+      createdAt: '2026-07-16T12:30:00.000Z',
+      id: 10,
+      remark: '午餐',
+      time: '2026-07-16T12:30:00.000Z',
+      type: 'sub',
+      updatedAt: '2026-07-16T12:30:00.000Z',
+      version: 1,
+      attachments: [],
+    };
+    queryResult.isError = false;
+    queryResult.isLoading = false;
+
+    const { container } = renderPage();
+
+    expect(container.querySelector('[data-testid="supplementary-content"]')).toBeNull();
   });
 
   it('keeps the persisted-record back destination in the personal adapter', () => {

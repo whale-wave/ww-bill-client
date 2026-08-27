@@ -135,7 +135,9 @@ const Editing: FC = () => {
         { label: t('record:edit.date'), value: `${timeDate}  ${weekByDay}` },
         { label: t('record:edit.remark'), value: state.remark },
       ]}
-      supplementaryContent={<RecordAttachmentSection attachments={state.attachments} />}
+      supplementaryContent={state.attachments?.length
+        ? <RecordAttachmentSection attachments={state.attachments} />
+        : undefined}
       supplementaryRows={state.tags?.length
         ? [{ label: '标签', value: state.tags.map(tag => `#${tag.name}`).join(' ') }]
         : []}

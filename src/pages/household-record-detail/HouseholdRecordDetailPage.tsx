@@ -165,7 +165,9 @@ const RecordDetail: FC<{
           value: t(`policy.${record.effectivePolicy}`),
         },
       ]}
-      supplementaryContent={<RecordAttachmentSection attachments={record.attachments} householdId={householdId} />}
+      supplementaryContent={record.attachments?.length
+        ? <RecordAttachmentSection attachments={record.attachments} householdId={householdId} />
+        : undefined}
     />
   );
 };
