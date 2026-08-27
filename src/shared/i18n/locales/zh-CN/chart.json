@@ -25,6 +25,10 @@
   "currentPeriod": "当前周期",
   "recordList": "明细记录",
   "recordListHint": "查看这一分类下的每一笔收支",
+  "recordSort": {
+    "amount": "按金额",
+    "time": "按时间"
+  },
   "recordCount": "记录笔数",
   "recordCountValue": "{{count}} 笔",
   "categoryOverview": "分类概览",

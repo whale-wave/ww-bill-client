@@ -881,7 +881,8 @@ describe('household budget and charts', () => {
     expect(foodRow?.textContent).toContain('餐饮33.33%20.00');
     expect(travelRow?.textContent).toContain('交通66.67%40.50');
     expect(memberRow?.textContent).toContain('Avan100%60.50');
-    expect(foodRow instanceof HTMLElement ? foodRow.onclick : undefined).toBeNull();
+    expect(foodRow instanceof HTMLElement ? foodRow.onclick : undefined).not.toBeNull();
+    expect(memberRow instanceof HTMLElement ? memberRow.onclick : undefined).toBeNull();
   });
 
   it.each(['week', 'month'] as const)('keeps %s household day labels stable and renders aggregate tooltips', async (period) => {

@@ -1,3 +1,4 @@
+export * from './CategoryTrendChart';
 export * from './ChartContent';
 export * from './ChartDisplaySwitch';
 export * from './ChartOverviewBody';

@@ -118,6 +118,9 @@ export const ROUTES_PATH = {
   HOUSEHOLD_CHARTS: {
     getPath: (householdId: string) => `/households/${encodeRouteSegment(householdId)}/charts`,
   },
+  HOUSEHOLD_CHART_CATEGORY: {
+    getPath: (householdId: string) => `/households/${encodeRouteSegment(householdId)}/charts/category`,
+  },
   HOUSEHOLD_SETTINGS: {
     getPath: (householdId: string) => `/households/${encodeRouteSegment(householdId)}/settings`,
   },
@@ -182,6 +185,9 @@ export const ROUTES_PATH = {
   },
   LEDGER_CHARTS: {
     getPath: (ledgerId: string) => `/ledgers/${encodeRouteSegment(ledgerId)}/charts`,
+  },
+  LEDGER_CHART_CATEGORY: {
+    getPath: (ledgerId: string) => `/ledgers/${encodeRouteSegment(ledgerId)}/charts/category`,
   },
   LEDGER_EXPORT: {
     getPath: (ledgerId: string) => `/ledgers/${encodeRouteSegment(ledgerId)}/export`,

@@ -3,20 +3,18 @@ import type { ChartCategoryLocationState } from './model/chartCategoryUtils';
 import { SpinLoading } from 'antd-mobile';
 import {
   BarChart3,
-  CalendarDays,
   ChevronLeft,
-  ChevronRight,
   CircleAlert,
   ReceiptText,
-  TrendingUp,
 } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { useGetChartQuery } from '@/entities/chart';
+import { CategoryTrendChart, ChartDisplaySwitch } from '@/features/chart-overview';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
-import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { GradientPanel, IllustratedEmptyState, MetricGrid, ProgressBar } from '@/shared/ui';
 import {
   getMatchedRouteState,
   getPeriodFromState,
@@ -30,12 +28,6 @@ function displayAmount(value: number | string | undefined) {
   if (value === undefined || Number.isNaN(Number(value)))
     return '--';
   return formatAmount(Number(value));
-}
-
-function displayRecordDate(value: string) {
-  const datePart = value.slice(0, 10);
-  const [, month, day] = datePart.split('-');
-  return month && day ? `${month}.${day}` : value;
 }
 
 const ChartCategory: FC = () => {
@@ -80,15 +72,23 @@ const ChartCategory: FC = () => {
     matchedRouteState?.rankingItem || selectedPeriod?.ranking?.find(item => String(item.category.id) === categoryId), [categoryId, matchedRouteState?.rankingItem, selectedPeriod]);
 
   const records = (selectedPeriod?.records || []).filter(record => String(record.category.id) === categoryId);
+  const [recordSort, setRecordSort] = useState<'amount' | 'time'>('amount');
+  const [displayMode, setDisplayMode] = useState<'line' | 'pie'>('line');
+  const sortedRecords = useMemo(() => [...records].sort((left, right) => {
+    if (recordSort === 'amount')
+      return Number(right.amount) - Number(left.amount);
+    return new Date(right.time).getTime() - new Date(left.time).getTime();
+  }), [recordSort, records]);
+  const recordsAmount = useMemo(
+    () => sortedRecords.reduce((sum, record) => sum + Number(record.amount), 0),
+    [sortedRecords],
+  );
   const totalAmount = rankingItem?.amount ?? (records.length ? getRecordsAmount(records) : undefined);
   const percentage = rankingItem?.percentage;
-  const percentageValue = Math.min(100, Math.max(0, Number(percentage) || 0));
   const categoryInfo = rankingItem?.category || records[0]?.category;
   const periodName = matchedRouteState?.tabName || selectedPeriod?.name;
   const currentType = isAmountType(type) ? type : matchedRouteState?.amountType;
-  const currentCategory = isTimeRangeCategory(category) ? category : matchedRouteState?.timeRangeCategory;
   const hasMatchedDisplayData = !!rankingItem || records.length > 0;
-  const tone = currentType === 'add' ? 'text-[#16886f]' : 'text-primary-deep';
 
   const renderPageState = (kind: 'error' | 'missing') => (
     <div className="page-new relative overflow-hidden">
@@ -135,97 +135,88 @@ const ChartCategory: FC = () => {
         >
           <ChevronLeft size={19} />
         </button>
-        <h1 className="text-[17px] font-extrabold text-ww-ink">{t('categoryDetail')}</h1>
+        <h1 className="text-[17px] font-extrabold text-ww-ink">{categoryInfo?.name || t('categoryDetail')}</h1>
       </header>
 
       <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[520px] space-y-5">
-          <GradientPanel className="relative overflow-hidden px-5 pb-5 pt-[18px]" elevation="high" surface="chart">
-            <div aria-hidden="true" className="absolute -right-7 -top-9 h-32 w-32 rounded-full border-[22px] border-solid border-white/25" />
-            <div className="relative flex items-center gap-3">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] border border-white/80 bg-white/75 text-primary-deep shadow-ww-xs">
-                <CategoryIcon categoryName={categoryInfo?.name} iconKey={categoryInfo?.icon} size={23} strokeWidth={1.8} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <h2 className="truncate text-[18px] font-black leading-7 text-ww-ink">{categoryInfo?.name || t('categoryStat')}</h2>
-                <p className="mt-0.5 truncate text-[11px] font-semibold text-ww-mid">
-                  {periodName || t('currentPeriod')}
-                  {currentType ? ` · ${t(`amount.${currentType === 'sub' ? 'expend' : 'income'}`)}` : ''}
-                  {currentCategory ? ` · ${t('byPeriod', { period: t(`tabs.${currentCategory}`) })}` : ''}
-                </p>
-              </div>
+          <section>
+            <div className="mb-2 flex items-center justify-between px-1">
+              <p className="truncate text-[11px] font-semibold text-ww-mid">
+                {periodName || t('currentPeriod')}
+                {currentType ? ` · ${t(`amount.${currentType === 'sub' ? 'expend' : 'income'}`)}` : ''}
+              </p>
+              <ChartDisplaySwitch value={displayMode} onChange={setDisplayMode} />
             </div>
-
-            <div className="relative mt-6 flex items-end justify-between gap-4">
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold text-ww-mid">{t('categoryAmount')}</p>
-                <p className={`mt-1 truncate font-number text-[32px] font-black leading-10 tracking-[-0.8px] ${tone}`}>
-                  <span className="mr-1 text-[16px] font-extrabold">¥</span>
-                  {displayAmount(totalAmount)}
-                </p>
-              </div>
-              <div className="shrink-0 rounded-[14px] border border-white/80 bg-white/60 px-3.5 py-2 text-right backdrop-blur-sm">
-                <p className="text-[10px] font-semibold text-ww-soft">{t('percent')}</p>
-                <p className="font-number text-[18px] font-black text-ww-ink">{percentage === undefined ? '--' : `${percentage}%`}</p>
-              </div>
-            </div>
-            <div className="relative mt-4 h-1.5 overflow-hidden rounded-full bg-white/55">
-              <div
-                className="h-full rounded-full bg-[linear-gradient(90deg,#6fc2dc,#58aec8)] transition-[width] duration-500"
-                style={{ width: `${percentageValue}%` }}
+            <GradientPanel className="h-[212.5px] overflow-hidden px-5 pb-4 pt-5" elevation="high" surface="chart">
+              <MetricGrid
+                columns={2}
+                items={[
+                  { key: 'amount', label: t('categoryAmount'), suffix: '¥', tone: currentType === 'add' ? 'income' : 'primary', value: displayAmount(totalAmount) },
+                  { key: 'percent', label: t('percent'), tone: 'muted', value: percentage === undefined ? '--' : `${percentage}%` },
+                ]}
+                variant="chart-summary"
               />
-            </div>
-          </GradientPanel>
-
-          <section aria-label={t('categoryOverview')} className="grid grid-cols-3 gap-2.5">
-            {[
-              { icon: CalendarDays, label: t('periodTotal'), value: displayAmount(selectedPeriod?.amount) },
-              { icon: TrendingUp, label: t('average'), value: selectedPeriod?.average || '--' },
-              { icon: ReceiptText, label: t('recordCount'), value: t('recordCountValue', { count: records.length }) },
-            ].map(item => (
-              <GradientPanel className="min-w-0 px-3 py-3.5" elevation="low" key={item.label} surface="glass">
-                <item.icon className="text-primary-deep" size={16} strokeWidth={1.8} />
-                <p className="mt-2 truncate text-[10px] font-semibold text-ww-soft">{item.label}</p>
-                <p className="mt-0.5 truncate font-number text-[13px] font-extrabold text-ww-ink">{item.value}</p>
-              </GradientPanel>
-            ))}
+              <CategoryTrendChart displayMode={displayMode} records={records} />
+            </GradientPanel>
           </section>
 
           <section>
             <div className="mb-2.5 flex items-end justify-between px-1">
               <div>
-                <h2 className="text-[15px] font-extrabold leading-6 text-ww-ink">{t('recordList')}</h2>
-                <p className="text-[11px] leading-4 text-ww-soft">{t('recordListHint')}</p>
+                <h2 className="text-[15px] font-extrabold leading-6 text-ww-ink">{t('ranking.title')}</h2>
               </div>
-              {isFetching && <SpinLoading color="primary" style={{ '--size': '18px' }} />}
+              <div className="flex items-center gap-2">
+                <div className="flex overflow-hidden rounded-lg border border-border-primary bg-white/70 p-0.5 text-[11px] font-semibold text-ww-soft">
+                  {(['amount', 'time'] as const).map(sort => (
+                    <button
+                      className={`rounded-md px-2 py-1 ${recordSort === sort ? 'bg-primary-light/60 text-primary-deep' : ''}`}
+                      data-chart-category-sort={sort}
+                      key={sort}
+                      onClick={() => setRecordSort(sort)}
+                      type="button"
+                    >
+                      {t(`recordSort.${sort}`)}
+                    </button>
+                  ))}
+                </div>
+                {isFetching && <SpinLoading color="primary" style={{ '--size': '18px' }} />}
+              </div>
             </div>
 
             <GradientPanel className="overflow-hidden px-4 py-1.5" elevation="standard" surface="glass">
-              {records.map(record => (
-                <button
-                  className="flex min-h-[66px] w-full items-center gap-3 border-0 border-b border-solid border-border-primary bg-transparent py-2.5 text-left last:border-b-0"
-                  data-chart-category-record={record.id}
-                  key={record.id}
-                  onClick={() => navigate(`/editing/${record.id}`, { state: record })}
-                  type="button"
-                >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light/55 text-primary-deep">
-                    <CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} size={17} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] font-bold leading-5 text-ww-ink">{record.remark || record.category.name}</span>
-                    <span className="mt-0.5 block font-number text-[10px] leading-4 text-ww-soft">{displayRecordDate(record.time)}</span>
-                  </span>
-                  <span className="shrink-0 text-right">
-                    <span className={`block font-number text-[13px] font-extrabold ${record.type === 'add' ? 'text-[#16886f]' : 'text-ww-ink'}`}>
-                      {record.type === 'sub' ? '-' : '+'}
-                      ¥
-                      {displayAmount(record.amount)}
+              {sortedRecords.map((record) => {
+                const percentage = recordsAmount ? Number(record.amount) / recordsAmount : 0;
+                return (
+                  <button
+                    className="flex h-[56px] w-full items-center gap-[11px] border-0 border-t border-solid border-border-primary bg-transparent py-[10px] text-left first:border-0"
+                    data-chart-category-record={record.id}
+                    key={record.id}
+                    onClick={() => navigate(`/editing/${record.id}`, { state: record })}
+                    type="button"
+                  >
+                    <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(111,194,220,0.16)] text-primary-deep">
+                      <CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} size={16} />
                     </span>
-                  </span>
-                  <ChevronRight className="shrink-0 text-ww-ghost" size={15} />
-                </button>
-              ))}
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center justify-between">
+                        <span className="truncate text-[13px] font-semibold leading-[19.5px] text-ww-ink">{record.remark || record.category.name}</span>
+                        <span className="ml-2 flex shrink-0 items-center gap-2">
+                          <span className="font-number text-[10.5px] text-ww-soft">
+                            {(percentage * 100).toFixed(1)}
+                            %
+                          </span>
+                          <span className="font-number text-[13px] font-bold text-ww-mid">
+                            ¥
+                            {displayAmount(record.amount)}
+                          </span>
+                        </span>
+                      </span>
+                      <span className="mt-[5px] block h-1 overflow-hidden rounded-full bg-black/5"><ProgressBar percent={percentage} /></span>
+                    </span>
+                  </button>
+                );
+              })}
 
               {!records.length && !isFetching && (
                 <IllustratedEmptyState

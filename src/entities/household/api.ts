@@ -116,6 +116,7 @@ export interface GetHouseholdRecordsApiParams {
   type?: 'add' | 'sub';
   memberUserId?: number;
   categoryIds?: number[];
+  categoryKeys?: string[];
   tagIds?: string[];
   minAmount?: string;
   maxAmount?: string;

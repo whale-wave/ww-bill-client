@@ -284,7 +284,21 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     displayMode,
     isContentLoading: Boolean(selectedOption) && query.isLoading && !query.response,
     onDisplayModeChange: handleDisplayModeChange,
-    rankingInteraction: 'none',
+    onRankingItemClick: (item) => {
+      if (!query.data)
+        return;
+      navigate(ROUTES_PATH.HOUSEHOLD_CHART_CATEGORY.getPath(household.id), {
+        state: {
+          amount: item.amount,
+          category: item.category,
+          endDate: query.data.endDate,
+          percentage: item.percentage,
+          periodName: currentTab?.name ?? '',
+          startDate: query.data.startDate,
+          type: currentAmountType,
+        },
+      });
+    },
     rankingTitle: t('charts.categoryRanking'),
     setCurrentAmountType,
     setCurrentTimeRangeCategory,
@@ -305,6 +319,7 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     periodTabs,
     query.isLoading,
     query.response,
+    query.data,
     t,
   ]);
 

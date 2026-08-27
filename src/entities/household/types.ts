@@ -106,6 +106,7 @@ export interface CreateHouseholdResult {
 
 export interface FamilyRecordCategory {
   id: number;
+  key?: string;
   name: string;
   icon: string;
   templateKey?: string;

@@ -19,6 +19,10 @@
   "currentPeriod": "Current Period",
   "recordList": "Record List",
   "recordListHint": "Review every transaction in this category",
+  "recordSort": {
+    "amount": "Amount",
+    "time": "Time"
+  },
   "recordCount": "Records",
   "recordCountValue": "{{count}} entries",
   "categoryOverview": "Category overview",

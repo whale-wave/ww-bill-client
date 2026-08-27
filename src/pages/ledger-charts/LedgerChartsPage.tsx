@@ -8,7 +8,7 @@ import type {
 } from '@/features/chart-overview';
 import { ErrorBlock } from 'antd-mobile';
 import { useCallback, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLedgerChartQuery } from '@/entities/chart';
 import {
   LedgerCapability,
@@ -23,6 +23,7 @@ import {
   deriveChartTabs,
 } from '@/features/chart-overview';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
+import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { PageLoadingState } from '@/shared/ui';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
@@ -58,6 +59,7 @@ function toLedgerMetric(metric: ChartOverviewMetric): LedgerChartMetric {
 
 function ChartContent({ ledgerId }: { ledgerId: string }) {
   const { t } = useTranslation('ledger');
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
   const metric = isMetric(searchParams.get('metric'))
@@ -93,6 +95,10 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
   }, [expenseTabs, incomeTabs, metric]);
   const urlTab = searchParams.get('tab') ?? '';
   const curTab = tabs.find(tab => tab.key === urlTab) ?? tabs.at(-1);
+  const chartDateRange = useMemo(() => {
+    const dates = curTab?.data.map(point => point.value).filter(value => /^\\d{4}-\\d{2}-\\d{2}$/.test(value)) ?? [];
+    return dates.length ? { endDate: [...dates].sort().at(-1)!, startDate: [...dates].sort()[0] } : undefined;
+  }, [curTab]);
   const isLoading = metric === LedgerChartMetric.INCOME
     ? income.isLoading
     : metric === LedgerChartMetric.EXPENSE
@@ -138,10 +144,23 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
       },
     ],
     onMetricChange: value => setSearchValue('metric', toLedgerMetric(value), true),
+    onRankingItemClick: (item) => {
+      if (!chartDateRange || metric === LedgerChartMetric.NET)
+        return;
+      navigate(ROUTES_PATH.LEDGER_CHART_CATEGORY.getPath(ledgerId), {
+        state: {
+          amount: item.amount,
+          category: item.category,
+          ...chartDateRange,
+          percentage: item.percentage,
+          periodName: curTab?.name ?? '',
+          type: toAmountType(metric),
+        },
+      });
+    },
     rankingEmptyContent: metric === LedgerChartMetric.NET
       ? t('charts.netNoRanking')
       : undefined,
-    rankingInteraction: 'none',
     setCurrentAmountType: value =>
       setSearchValue('metric', toLedgerMetric(value), true),
     setCurrentTimeRangeCategory: value => setSearchValue('range', value, true),
@@ -158,6 +177,9 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
     metric,
     period,
     preferenceQuery.data?.hideTotalAmount,
+    chartDateRange,
+    ledgerId,
+    navigate,
     setSearchValue,
     t,
     tabs,

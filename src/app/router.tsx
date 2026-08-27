@@ -339,6 +339,10 @@ const router = createHashRouter([
             lazy: lazyGuardedPage(() => import('@/pages/household-budgets/HouseholdBudgetsPage')),
           },
           {
+            path: ':householdId/charts/category',
+            lazy: lazyGuardedPage(() => import('@/pages/chart-scope-category/ChartScopeCategoryPage').then(module => ({ default: module.HouseholdChartCategoryPage }))),
+          },
+          {
             path: ':householdId/charts',
             lazy: lazyGuardedPage(() => import('@/pages/household-charts/HouseholdChartsPage')),
           },
@@ -426,6 +430,10 @@ const router = createHashRouter([
           {
             path: ':ledgerId/budget',
             lazy: lazyGuardedPage(() => import('@/pages/ledger-budget/LedgerBudgetPage')),
+          },
+          {
+            path: ':ledgerId/charts/category',
+            lazy: lazyGuardedPage(() => import('@/pages/chart-scope-category/ChartScopeCategoryPage').then(module => ({ default: module.LedgerChartCategoryPage }))),
           },
           {
             path: ':ledgerId/charts',

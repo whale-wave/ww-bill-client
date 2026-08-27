@@ -75,7 +75,7 @@ export const RankingList: FC = () => {
               <RankingItem
                 key={item.category.id}
                 item={item}
-                onClick={rankingInteraction === 'none' ? undefined : () => handleRankingItemClick(item)}
+                onClick={rankingInteraction === 'none' || section.key !== 'category' ? undefined : () => handleRankingItemClick(item)}
               />
             ))}
       </div>
