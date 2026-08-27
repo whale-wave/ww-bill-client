@@ -69,7 +69,7 @@ function CategoryDetail({ isRecordsLoading, records, state, tagRanking, toRecord
               <p className="truncate text-[11px] font-semibold text-ww-mid">{state.periodName}</p>
               <ChartDisplaySwitch value={displayMode} onChange={setDisplayMode} />
             </div>
-            <GradientPanel className="h-[212.5px] overflow-hidden px-5 pb-4 pt-5" elevation="high" surface="chart">
+            <GradientPanel className={`overflow-hidden px-5 pb-4 pt-5 ${displayMode === 'pie' ? 'h-[228px]' : 'h-[212.5px]'}`} elevation="high" surface="chart">
               <MetricGrid
                 columns={2}
                 items={[
@@ -81,7 +81,6 @@ function CategoryDetail({ isRecordsLoading, records, state, tagRanking, toRecord
               <CategoryTrendChart displayMode={displayMode} records={sortedRecords} />
             </GradientPanel>
           </section>
-          {tagRanking}
           <section>
             <div className="mb-2.5 flex items-end justify-between px-1">
               <h2 className="text-[15px] font-extrabold text-ww-ink">{t('ranking.title')}</h2>
@@ -118,6 +117,7 @@ function CategoryDetail({ isRecordsLoading, records, state, tagRanking, toRecord
                   : <IllustratedEmptyState description={t('noRecordsHint')} icon={<ReceiptText size={32} />} title={t('noRecords')} />}
             </GradientPanel>
           </section>
+          {tagRanking}
         </div>
       </main>
     </div>

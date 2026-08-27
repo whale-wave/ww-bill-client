@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 import type { ChartCategoryLocationState } from './model/chartCategoryUtils';
-import { SpinLoading } from 'antd-mobile';
 import {
   BarChart3,
   ChevronLeft,
@@ -29,6 +28,20 @@ function displayAmount(value: number | string | undefined) {
     return '--';
   return formatAmount(Number(value));
 }
+
+const RecordRankingLoadingPlaceholder: FC<{ rows: number }> = ({ rows }) => (
+  <div aria-label="正在加载明细排行" className="space-y-4 border-t border-border-primary py-3" data-chart-category-record-loading role="status">
+    {Array.from({ length: rows }, (_, index) => (
+      <div className="space-y-2" key={index}>
+        <div className="flex items-center justify-between gap-4">
+          <div className="h-3 w-2/5 animate-pulse rounded-full bg-primary-light/60" />
+          <div className="h-3 w-1/5 animate-pulse rounded-full bg-primary-light/60" />
+        </div>
+        <div className="h-1.5 w-full animate-pulse rounded-full bg-primary-light/50" />
+      </div>
+    ))}
+  </div>
+);
 
 const ChartCategory: FC = () => {
   const { t } = useTranslation('chart');
@@ -156,7 +169,7 @@ const ChartCategory: FC = () => {
               </p>
               <ChartDisplaySwitch value={displayMode} onChange={setDisplayMode} />
             </div>
-            <GradientPanel className="h-[212.5px] overflow-hidden px-5 pb-4 pt-5" elevation="high" surface="chart">
+            <GradientPanel className={`overflow-hidden px-5 pb-4 pt-5 ${displayMode === 'pie' ? 'h-[228px]' : 'h-[212.5px]'}`} elevation="high" surface="chart">
               <MetricGrid
                 columns={2}
                 items={[
@@ -169,28 +182,23 @@ const ChartCategory: FC = () => {
             </GradientPanel>
           </section>
 
-          <TagRankingSection data={tagRanking.data} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />
-
           <section>
             <div className="mb-2.5 flex items-end justify-between px-1">
               <div>
                 <h2 className="text-[15px] font-extrabold leading-6 text-ww-ink">{t('ranking.title')}</h2>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="flex overflow-hidden rounded-lg border border-border-primary bg-white/70 p-0.5 text-[11px] font-semibold text-ww-soft">
-                  {(['amount', 'time'] as const).map(sort => (
-                    <button
-                      className={`rounded-md px-2 py-1 ${recordSort === sort ? 'bg-primary-light/60 text-primary-deep' : ''}`}
-                      data-chart-category-sort={sort}
-                      key={sort}
-                      onClick={() => setRecordSort(sort)}
-                      type="button"
-                    >
-                      {t(`recordSort.${sort}`)}
-                    </button>
-                  ))}
-                </div>
-                {isFetching && <SpinLoading color="primary" style={{ '--size': '18px' }} />}
+              <div className="flex overflow-hidden rounded-lg border border-border-primary bg-white/70 p-0.5 text-[11px] font-semibold text-ww-soft">
+                {(['amount', 'time'] as const).map(sort => (
+                  <button
+                    className={`rounded-md px-2 py-1 ${recordSort === sort ? 'bg-primary-light/60 text-primary-deep' : ''}`}
+                    data-chart-category-sort={sort}
+                    key={sort}
+                    onClick={() => setRecordSort(sort)}
+                    type="button"
+                  >
+                    {t(`recordSort.${sort}`)}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -228,6 +236,8 @@ const ChartCategory: FC = () => {
                 );
               })}
 
+              {isFetching && <RecordRankingLoadingPlaceholder rows={sortedRecords.length ? 1 : 3} />}
+
               {!records.length && !isFetching && (
                 <IllustratedEmptyState
                   className="min-h-[270px]"
@@ -238,13 +248,10 @@ const ChartCategory: FC = () => {
                 />
               )}
 
-              {!records.length && isFetching && (
-                <div className="flex min-h-[220px] items-center justify-center">
-                  <SpinLoading color="primary" />
-                </div>
-              )}
             </GradientPanel>
           </section>
+
+          <TagRankingSection data={tagRanking.data} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />
         </div>
       </main>
     </div>

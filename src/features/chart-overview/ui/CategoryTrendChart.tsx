@@ -66,20 +66,22 @@ export const CategoryTrendChart: FC<{ displayMode: ChartOverviewDisplay; records
     const pieOption: EChartsOption = {
       color: PIE_COLORS,
       series: [{
+        center: ['50%', '50%'],
         data: piePoints.map(([date, amount]) => ({ name: date, value: amount })),
-        emphasis: { scaleSize: 4 },
+        emphasis: { scale: false },
         label: { show: false },
         labelLine: { show: false },
-        radius: ['45%', '70%'],
+        radius: ['46%', '74%'],
         type: 'pie',
       }],
       title: {
+        itemGap: 0,
         left: '50%',
         subtext: `¥${formatAmount(totalAmount)}`,
-        subtextStyle: { color: '#263340', fontFamily: 'inherit', fontSize: 14, fontWeight: 700 },
+        subtextStyle: { color: '#263340', fontFamily: 'inherit', fontSize: 14, fontWeight: 800, lineHeight: 20 },
         text: t('categoryAmount'),
         textAlign: 'center',
-        textStyle: { color: '#8da2b2', fontFamily: 'inherit', fontSize: 10, fontWeight: 600 },
+        textStyle: { color: '#8da2b2', fontFamily: 'inherit', fontSize: 11, fontWeight: 600, lineHeight: 16 },
         top: 'center',
       },
       tooltip: { trigger: 'item' },
@@ -90,7 +92,7 @@ export const CategoryTrendChart: FC<{ displayMode: ChartOverviewDisplay; records
 
   return (
     <div
-      className={displayMode === 'pie' ? 'mt-2 flex h-[112px] min-w-0 items-center gap-2' : 'mt-[18px] h-[94px] w-full'}
+      className={displayMode === 'pie' ? 'mt-2 flex h-[124px] min-w-0 items-center gap-3' : 'mt-[18px] h-[94px] w-full'}
       data-chart-category-trend={displayMode}
     >
       <div
@@ -98,7 +100,7 @@ export const CategoryTrendChart: FC<{ displayMode: ChartOverviewDisplay; records
         ref={chartDomRef}
       />
       {displayMode === 'pie' && (
-        <ul aria-label={t('categoryRatio')} className="w-[43%] space-y-1.5 pr-1 text-[10px] font-semibold leading-4 text-ww-mid">
+        <ul aria-label={t('categoryRatio')} className="w-[44%] space-y-2 pr-1 text-[10px] font-semibold leading-4 text-ww-mid">
           {piePoints.map(([date, amount], index) => (
             <li className="flex min-w-0 items-center gap-1.5" key={date}>
               <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-[3px]" style={{ backgroundColor: PIE_COLORS[index] }} />

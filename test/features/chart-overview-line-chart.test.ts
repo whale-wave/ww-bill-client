@@ -2,16 +2,17 @@ import type { EChartsOption } from 'echarts';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { LineChart } from '@/features/chart-overview';
+import { CategoryTrendChart, LineChart } from '@/features/chart-overview';
 
 const mocks = vi.hoisted(() => ({
+  resize: vi.fn(),
   setOption: vi.fn(),
 }));
 
 vi.mock('@/shared/lib/use-chart', () => ({
   useChart: () => ({
     chartDomRef: { current: null },
-    myChart: { setOption: mocks.setOption },
+    myChart: { resize: mocks.resize, setOption: mocks.setOption },
   }),
 }));
 
@@ -35,6 +36,7 @@ afterEach(() => {
   cleanup?.();
   cleanup = undefined;
   mocks.setOption.mockReset();
+  mocks.resize.mockReset();
 });
 
 describe('chart overview line tooltip', () => {
@@ -57,5 +59,23 @@ describe('chart overview line tooltip', () => {
     expect(tooltip.padding).toBe(0);
     expect(tooltip.extraCssText).toContain('background: transparent !important');
     expect(tooltip.extraCssText).toContain('box-shadow: none !important');
+  });
+
+  it('keeps the pie chart centered and stable while showing the category total', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryTrendChart, {
+      displayMode: 'pie',
+      records: [{ amount: '90.00', time: '2026-08-24T00:00:00.000Z' }],
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    const option = mocks.setOption.mock.calls[0]?.[0] as EChartsOption;
+    const series = (option.series as Array<{ center?: string[]; emphasis?: { scale?: boolean }; radius?: string[] }>)[0];
+
+    expect(series.center).toEqual(['50%', '50%']);
+    expect(series.radius).toEqual(['46%', '74%']);
+    expect(series.emphasis?.scale).toBe(false);
+    expect(option.title).toEqual(expect.objectContaining({ itemGap: 0 }));
   });
 });
