@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import type { AmountType, TabItem, TimeRangeCategory } from '@/entities/chart';
-import type { ChartOverviewContextValue } from '@/features/chart-overview';
+import type { ChartOverviewContextValue, ChartOverviewDisplay } from '@/features/chart-overview';
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useGetChartQuery } from '@/entities/chart';
@@ -24,6 +24,7 @@ export const ChartHomeProvider: FC<{ children: ReactNode }> = ({ children }) => 
     ? searchParams.get('range') as TimeRangeCategory
     : 'week';
   const urlTab = searchParams.get('tab') ?? '';
+  const displayMode: ChartOverviewDisplay = searchParams.get('display') === 'pie' ? 'pie' : 'line';
 
   const { data } = useGetChartQuery({
     params: {
@@ -76,10 +77,19 @@ export const ChartHomeProvider: FC<{ children: ReactNode }> = ({ children }) => 
     );
   }, [setSearchParams]);
 
+  const handleDisplayModeChange = useCallback((mode: ChartOverviewDisplay) => {
+    setSearchParams((prev) => {
+      prev.set('display', mode);
+      return prev;
+    }, { replace: true });
+  }, [setSearchParams]);
+
   const value = useMemo<ChartOverviewContextValue>(
     () => ({
       currentAmountType,
       currentTimeRangeCategory,
+      displayMode,
+      onDisplayModeChange: handleDisplayModeChange,
       tabActive,
       tabs,
       curTab,
@@ -87,7 +97,7 @@ export const ChartHomeProvider: FC<{ children: ReactNode }> = ({ children }) => 
       setCurrentTimeRangeCategory,
       setCurrentAmountType,
     }),
-    [currentAmountType, currentTimeRangeCategory, tabActive, tabs, curTab, setTabActive, setCurrentTimeRangeCategory, setCurrentAmountType],
+    [currentAmountType, currentTimeRangeCategory, displayMode, handleDisplayModeChange, tabActive, tabs, curTab, setTabActive, setCurrentTimeRangeCategory, setCurrentAmountType],
   );
 
   return <ChartOverviewContext.Provider value={value}>{children}</ChartOverviewContext.Provider>;

@@ -4,7 +4,9 @@ import type { HouseholdPieSegment } from '../model/pie-segments';
 import type { ChartOverviewRankingItem } from '@/features/chart-overview';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from '@/shared/i18n';
+import { formatAmount, getDonutAmountSize } from '@/shared/lib';
 import { useChart } from '@/shared/lib/use-chart';
+import { DonutChart } from '@/shared/ui';
 import { mapHouseholdPieSegments } from '../model/pie-segments';
 
 interface HouseholdCategoryPieChartProps {
@@ -12,17 +14,18 @@ interface HouseholdCategoryPieChartProps {
 }
 
 interface HouseholdCategoryPieCanvasProps {
+  centerAmount: string;
   centerLabel: string;
   segments: HouseholdPieSegment[];
 }
 
-const HouseholdCategoryPieCanvas: FC<HouseholdCategoryPieCanvasProps> = ({ centerLabel, segments }) => {
+const HouseholdCategoryPieCanvas: FC<HouseholdCategoryPieCanvasProps> = ({ centerAmount, centerLabel, segments }) => {
   const { chartDomRef, myChart } = useChart();
   const chartData = useMemo(() => segments.map(segment => ({
     id: segment.key,
     itemStyle: { color: segment.color },
     name: segment.name,
-    value: Number(segment.amount),
+    value: Number(String(segment.amount).replace(/,/g, '')),
   })), [segments]);
 
   useEffect(() => {
@@ -37,30 +40,33 @@ const HouseholdCategoryPieCanvas: FC<HouseholdCategoryPieCanvasProps> = ({ cente
       }],
       tooltip: { trigger: 'item' },
     };
-    myChart?.setOption(option);
+    myChart?.setOption(option, { notMerge: true });
   }, [chartData, myChart]);
 
   return (
-    <div className="flex h-[112px] min-w-0 items-center gap-3" data-household-pie-chart>
-      <div className="relative h-[112px] w-[112px] shrink-0">
-        <div className="h-full w-full" ref={chartDomRef} />
-        <span className="pointer-events-none absolute inset-0 flex items-center justify-center px-2 text-center text-[10px] font-bold leading-[14px] text-ww-mid">
-          {centerLabel}
-        </span>
-      </div>
-      <div className="min-w-0 flex-1 space-y-1.5" data-household-pie-legend>
-        {segments.map(segment => (
-          <div className="flex min-w-0 items-center gap-1.5 text-[11px] leading-[16px] text-ww-mid" key={segment.key}>
-            <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: segment.color }} />
-            <span className="min-w-0 flex-1 truncate">{segment.name}</span>
-            <span className="shrink-0 font-semibold">
-              {segment.percentage}
-              %
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
+    <DonutChart
+      amount={centerAmount}
+      amountSize={getDonutAmountSize(`¥${centerAmount}`)}
+      chart={(
+        <div className="h-full w-full" data-household-pie-chart ref={chartDomRef} />
+      )}
+      label={centerLabel}
+      legend={(
+        <div className="space-y-2" data-household-pie-legend>
+          {segments.map(segment => (
+            <div className="flex min-w-0 items-center gap-2 text-[12px] leading-4 text-ww-mid" key={segment.key}>
+              <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: segment.color }} />
+              <span className="min-w-0 flex-1 truncate">{segment.name}</span>
+              <span className="shrink-0 font-semibold">
+                {segment.percentage}
+                %
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+      marker="household"
+    />
   );
 };
 
@@ -70,6 +76,7 @@ export const HouseholdCategoryPieChart: FC<HouseholdCategoryPieChartProps> = ({ 
     () => mapHouseholdPieSegments(ranking, { otherLabel: t('other') }),
     [ranking, t],
   );
+  const totalAmount = formatAmount(segments.reduce((sum, segment) => sum + Number(String(segment.amount).replace(/,/g, '')), 0));
 
   if (!segments.length) {
     return (
@@ -79,5 +86,5 @@ export const HouseholdCategoryPieChart: FC<HouseholdCategoryPieChartProps> = ({ 
     );
   }
 
-  return <HouseholdCategoryPieCanvas centerLabel={t('categoryRatio')} segments={segments} />;
+  return <HouseholdCategoryPieCanvas centerAmount={totalAmount} centerLabel={t('categoryAmount')} segments={segments} />;
 };

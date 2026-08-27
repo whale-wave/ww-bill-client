@@ -119,6 +119,12 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
     }, { replace: true });
   }, [setSearchParams]);
 
+  const handleDisplayModeChange = useCallback((mode: ChartOverviewDisplay) => {
+    if (metric === LedgerChartMetric.NET)
+      return;
+    setSearchValue('display', mode);
+  }, [metric, setSearchValue]);
+
   const contextValue = useMemo<ChartOverviewContextValue>(() => ({
     currentAmountType: toAmountType(metric),
     currentMetric: toChartMetric(metric),
@@ -143,6 +149,7 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
         value: 'net',
       },
     ],
+    onDisplayModeChange: metric === LedgerChartMetric.NET ? undefined : handleDisplayModeChange,
     onMetricChange: value => setSearchValue('metric', toLedgerMetric(value), true),
     onRankingItemClick: (item) => {
       if (!chartDateRange || metric === LedgerChartMetric.NET)
@@ -174,6 +181,7 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
   }), [
     curTab,
     display,
+    handleDisplayModeChange,
     metric,
     period,
     preferenceQuery.data?.hideTotalAmount,
