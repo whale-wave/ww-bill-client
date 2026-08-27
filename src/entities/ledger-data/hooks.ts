@@ -152,10 +152,10 @@ export function useLedgerTagsQuery(options: {
   const status = options.params.status ?? 'ACTIVE';
   const categoryId = options.params.categoryId;
   const { data: response, ...rest } = useQuery<SuccessResponse<LedgerTag[]>>({
+    ...options.queryOptions,
     queryFn: () => getLedgerTagsQueryFn(options.params.ledgerId, { categoryId: categoryId!, status }),
     queryKey: ledgerDataKeys.tags(options.params.ledgerId, categoryId, status),
     enabled: Boolean(categoryId) && (options.queryOptions?.enabled ?? true),
-    ...options.queryOptions,
   });
   return { response, data: response?.data ?? [], ...rest };
 }

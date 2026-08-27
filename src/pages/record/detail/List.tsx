@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
-import { RecordOverviewList } from '@/entities/record';
+import { getRecordListIndicators, RecordOverviewList } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { DesignIcon, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
@@ -44,15 +44,20 @@ const List: FC<ListProps> = memo(({ selectTime, change }) => {
   const groups = useMemo<RecordOverviewListGroup[]>(() => record.map((group: RecordGroup) => ({
     dateLabel: `${group[0]} ${group[1]}`,
     key: `${group[0]}-${group[1]}`,
-    records: group[3].map(item => ({
-      amount: item.type === 'add' ? item.amount : -item.amount,
-      amountTone: item.type === 'add' ? 'income' : 'expense',
-      categoryName: item.category.name,
-      iconName: item.category.icon,
-      id: item.id,
-      onClick: () => handleRecord(item),
-      primary: item.remark,
-    })),
+    records: group[3].map((item) => {
+      const indicators = getRecordListIndicators(item);
+      return {
+        amount: item.type === 'add' ? item.amount : -item.amount,
+        amountTone: item.type === 'add' ? 'income' : 'expense',
+        categoryName: item.category.name,
+        hasAttachment: indicators.hasAttachment,
+        iconName: item.category.icon,
+        id: item.id,
+        onClick: () => handleRecord(item),
+        overviewSecondary: indicators.tagSummary,
+        primary: item.remark,
+      };
+    }),
     summaries: [
       ...(group[5] > 0
         ? [{ key: 'income', label: t('common:amount.income'), value: group[5] }]

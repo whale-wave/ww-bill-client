@@ -124,7 +124,7 @@ describe('record editor controller', () => {
   it('resets the selected category when the record type changes', () => {
     const container = renderEditor();
 
-    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-cancel]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category-trigger]')?.click());
     clickButton(container, 'record:bookkeeping.income');
 
     expect(container.querySelector('[data-record-editor-keypad]')).toBeNull();

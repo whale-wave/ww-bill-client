@@ -1,4 +1,5 @@
 import type { FC, ReactNode } from 'react';
+import { Image as ImageIcon } from 'lucide-react';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { cn } from '@/shared/lib';
 import { Icon } from '@/shared/ui';
@@ -10,6 +11,7 @@ export interface RecordOverviewListItem {
   iconName: string;
   memberColorKey?: keyof typeof MEMBER_COLOR_PALETTE;
   id: number | string;
+  hasAttachment?: boolean;
   onClick?: () => void;
   overviewSecondary?: ReactNode;
   primary: ReactNode;
@@ -112,7 +114,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
             >
               {group.records.map((record, index) => {
                 if (isOverview) {
-                  const hasOverviewSecondary = Boolean(record.overviewSecondary);
+                  const hasOverviewSecondary = Boolean(record.overviewSecondary) || record.hasAttachment;
                   return (
                     <div
                       className={cn(
@@ -158,8 +160,9 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                             {record.primary}
                           </span>
                           {hasOverviewSecondary && (
-                            <span className="mt-0.5 block overflow-hidden text-ellipsis whitespace-nowrap text-[11px] font-semibold leading-[16.5px] text-ww-mid">
-                              {record.overviewSecondary}
+                            <span className="mt-0.5 flex min-w-0 items-center gap-1 overflow-hidden text-[11px] font-semibold leading-[16.5px] text-ww-mid">
+                              {record.overviewSecondary && <span className="min-w-0 truncate">{record.overviewSecondary}</span>}
+                              {record.hasAttachment && <ImageIcon aria-label="含图片" className="shrink-0 text-primary-deep" size={12} />}
                             </span>
                           )}
                         </span>
@@ -227,8 +230,11 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                     >
                       <span className="min-w-0 flex-grow">
                         <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{record.primary}</span>
-                        {record.secondary && (
-                          <span className="mt-1 block overflow-hidden text-ellipsis whitespace-nowrap text-xs text-[#969696]">{record.secondary}</span>
+                        {(record.secondary || record.hasAttachment) && (
+                          <span className="mt-1 flex min-w-0 items-center gap-1 overflow-hidden text-xs text-[#969696]">
+                            {record.secondary && <span className="min-w-0 truncate">{record.secondary}</span>}
+                            {record.hasAttachment && <ImageIcon aria-label="含图片" className="shrink-0 text-primary-deep" size={12} />}
+                          </span>
                         )}
                       </span>
                       <span

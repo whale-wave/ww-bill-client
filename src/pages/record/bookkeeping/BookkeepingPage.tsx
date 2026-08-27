@@ -66,6 +66,7 @@ function BookkeepingPage() {
     recordType: initialRecord?.type ?? 'sub' as const,
     remark: initialRecord?.remark,
     tagIds: initialRecord?.tags?.map(tag => tag.id),
+    attachment: initialRecord?.attachments?.[0],
     hasImage: Boolean(initialRecord?.attachments?.length),
     time: initialRecord?.time
       ?? (selectTime ? dayjs(selectTime).toISOString() : dayjs().toISOString()),

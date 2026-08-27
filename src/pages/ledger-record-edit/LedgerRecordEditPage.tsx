@@ -56,6 +56,7 @@ function LedgerRecordEditEditor({
     recordType: initialRecord.type,
     remark: initialRecord.remark,
     tagIds: supportsTags ? initialRecord.tags?.map(tag => tag.id) ?? [] : undefined,
+    attachment: initialRecord.attachments?.[0],
     hasImage: Boolean(initialRecord.attachments?.length),
     time: initialRecord.time,
   }), [initialRecord, supportsTags]);

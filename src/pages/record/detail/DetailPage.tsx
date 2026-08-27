@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
-import { RecordOverviewPresentation } from '@/entities/record';
+import { getRecordListIndicators, RecordOverviewPresentation } from '@/entities/record';
 import { useRecordOverviewHeader } from '@/pages/record/detail/Top';
 import { getQueryViewState } from '@/shared/api';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -38,15 +38,20 @@ const Detail: FC = () => {
   const groups = useMemo<RecordOverviewListGroup[]>(() => query.record.map(group => ({
     dateLabel: `${group[0]} ${group[1]}`,
     key: `${group[0]}-${group[1]}`,
-    records: group[3].map(item => ({
-      amount: item.type === 'add' ? item.amount : -Number(item.amount),
-      amountTone: item.type === 'add' ? 'income' : 'expense',
-      categoryName: item.category.name,
-      iconName: item.category.icon,
-      id: item.id,
-      onClick: () => handleRecord(item),
-      primary: item.remark,
-    })),
+    records: group[3].map((item) => {
+      const indicators = getRecordListIndicators(item);
+      return {
+        amount: item.type === 'add' ? item.amount : -Number(item.amount),
+        amountTone: item.type === 'add' ? 'income' : 'expense',
+        categoryName: item.category.name,
+        hasAttachment: indicators.hasAttachment,
+        iconName: item.category.icon,
+        id: item.id,
+        onClick: () => handleRecord(item),
+        overviewSecondary: indicators.tagSummary,
+        primary: item.remark,
+      };
+    }),
     summaries: [
       ...(group[5] > 0
         ? [{ key: 'income', label: t('common:amount.income'), value: group[5] }]

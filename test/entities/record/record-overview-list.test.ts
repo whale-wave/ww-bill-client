@@ -19,8 +19,10 @@ function render(variant?: 'overview' | 'search') {
       key: '2026-07-21',
       records: [{
         amount: '-20.00',
+        hasAttachment: true,
         iconName: 'food',
         id: 7,
+        overviewSecondary: '#聚餐',
         primary: 'Dinner',
         secondary: 'Avan · Shared',
       }],
@@ -54,12 +56,14 @@ describe('record overview list', () => {
     const amount = row?.querySelector('[data-record-amount]');
 
     expect(list?.getAttribute('data-record-list-variant')).toBe('overview');
-    expect(row?.classList).toContain('h-16');
+    expect(row?.classList).toContain('min-h-[72px]');
     expect(card?.classList).toContain('rounded-[20px]');
     expect(card?.parentElement?.classList).toContain('pt-2');
     expect(content?.classList).toContain('gap-[13px]');
     expect(content?.classList).toContain('px-[18px]');
     expect(amount?.classList).toContain('text-[15px]');
     expect(amount?.classList).toContain('leading-[22.5px]');
+    expect(row?.textContent).toContain('#聚餐');
+    expect(row?.querySelector('[aria-label="含图片"]')).not.toBeNull();
   });
 });

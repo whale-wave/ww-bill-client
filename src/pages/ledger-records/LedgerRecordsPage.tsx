@@ -12,6 +12,7 @@ import {
 } from '@/entities/ledger';
 import {
   createLedgerRecordDetailState,
+  getRecordListIndicators,
   RecordMonthPicker,
   RecordOverviewPresentation,
   useLedgerRecordsQuery,
@@ -104,17 +105,22 @@ function groupRecords(
       dateLabel: formatLocalizedMonthDay(`${dateKey}T00:00:00`, locale),
       dateTime: dateKey,
       key: dateKey,
-      records: groupedRecords.map(record => ({
-        amount: `${record.type === 'sub' ? '-' : ''}${Number(record.amount).toFixed(2)}`,
-        amountTone: record.type === 'add' ? 'income' : 'expense',
-        categoryName: record.category.name,
-        iconName: record.category.icon,
-        memberColorKey: record.creator?.colorKey,
-        id: record.id,
-        onClick: () => onRecordClick(record),
-        primary: record.remark || record.category.name,
-        secondary: `${record.category.name}${record.creator ? ` · @${record.creator.nickname || record.creator.name || record.creator.username || '成员'}` : ''}`,
-      })),
+      records: groupedRecords.map((record) => {
+        const indicators = getRecordListIndicators(record);
+        return {
+          amount: `${record.type === 'sub' ? '-' : ''}${Number(record.amount).toFixed(2)}`,
+          amountTone: record.type === 'add' ? 'income' : 'expense',
+          categoryName: record.category.name,
+          hasAttachment: indicators.hasAttachment,
+          iconName: record.category.icon,
+          memberColorKey: record.creator?.colorKey,
+          id: record.id,
+          onClick: () => onRecordClick(record),
+          overviewSecondary: indicators.tagSummary,
+          primary: record.remark || record.category.name,
+          secondary: `${record.category.name}${record.creator ? ` · @${record.creator.nickname || record.creator.name || record.creator.username || '成员'}` : ''}`,
+        };
+      }),
       summaries: showDailySummary
         ? [
             ...(dailyIncome > 0

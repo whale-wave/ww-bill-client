@@ -1,6 +1,7 @@
 import type { FamilyRecord, HouseholdCalendarDay } from '@/entities/household';
 import type { RecordOverviewListGroup } from '@/entities/record';
 import { FamilyRecordPolicy } from '@/entities/household';
+import { getRecordListIndicators } from '@/entities/record';
 
 function pad(value: number) {
   return String(value).padStart(2, '0');
@@ -134,6 +135,7 @@ export function toHouseholdRecordOverviewGroups(
       key: date,
       records: groupedRecords.map((record) => {
         const displayName = getDisplayName(record.creator);
+        const indicators = getRecordListIndicators(record);
         return {
           amount: `${record.type === 'add' ? '' : '-'}${toMoney(record.amount)}`,
           amountTone: record.type === 'add' ? 'income' : 'expense',
@@ -142,8 +144,9 @@ export function toHouseholdRecordOverviewGroups(
           memberColorKey: record.creator.colorKey,
           id: record.id,
           onClick: options.onSelect ? () => options.onSelect?.(record) : undefined,
-          overviewSecondary: record.tags.length > 0
-            ? `${record.tags.map(tag => `#${tag.name}`).join(' ')} @${displayName}`
+          hasAttachment: indicators.hasAttachment,
+          overviewSecondary: indicators.tagSummary
+            ? `${indicators.tagSummary} @${displayName}`
             : `@${displayName}`,
           primary: record.remark || record.category?.name || '—',
           secondary: `${options.memberLabel(displayName)}${record.tags.length > 0 ? ` · ${record.tags.map(tag => `#${tag.name}`).join(' ')}` : ''} · ${getPolicyLabel(record, options)}`,

@@ -52,7 +52,7 @@ export function RecordAttachmentSection({ attachments = [], householdId }: Recor
     });
   };
   return (
-    <section className="mt-3 border-t border-border-primary pt-3" data-record-attachment-section>
+    <section className="mt-3 pt-1" data-record-attachment-section>
       <p className="mb-2 text-[12px] font-semibold text-ww-soft">图片</p>
       {thumbnailUrl
         ? <button className="border-0 bg-transparent p-0" onClick={() => void open()} type="button"><img alt="记账凭证" className="h-20 w-20 rounded-xl object-cover" src={thumbnailUrl} /></button>

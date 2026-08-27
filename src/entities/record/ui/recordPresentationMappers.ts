@@ -10,6 +10,18 @@ interface RecordSearchGroupOptions {
   showCategoryAsSecondary?: boolean;
 }
 
+interface RecordListIndicatorSource {
+  attachments?: readonly unknown[];
+  tags?: readonly { name: string }[];
+}
+
+export function getRecordListIndicators(record: RecordListIndicatorSource) {
+  return {
+    hasAttachment: Boolean(record.attachments?.length),
+    tagSummary: record.tags?.map(tag => `#${tag.name}`).join(' ') || undefined,
+  };
+}
+
 export function toRecordSearchGroups(
   records: readonly RecordEntry[],
   options: RecordSearchGroupOptions,
@@ -44,6 +56,7 @@ export function toRecordSearchGroups(
       dateTime: dateKey,
       key: dateKey,
       records: groupedRecords.map(record => ({
+        ...getRecordListIndicators(record),
         amount: `${record.type === 'sub' ? '-' : ''}${record.amount}`,
         amountTone: record.type === 'add' ? 'income' : 'expense',
         categoryName: record.category.name,
@@ -54,9 +67,12 @@ export function toRecordSearchGroups(
           ? () => options.onRecordClick?.(record)
           : undefined,
         primary: record.remark || record.category.name,
-        secondary: options.showCategoryAsSecondary
-          ? `${record.category.name}${record.creator ? ` · @${record.creator.nickname || record.creator.name || record.creator.username || '成员'}` : ''}`
-          : undefined,
+        secondary: [
+          options.showCategoryAsSecondary
+            ? `${record.category.name}${record.creator ? ` · @${record.creator.nickname || record.creator.name || record.creator.username || '成员'}` : ''}`
+            : undefined,
+          getRecordListIndicators(record).tagSummary,
+        ].filter(Boolean).join(' · ') || undefined,
       })),
       summaries: [
         ...(income

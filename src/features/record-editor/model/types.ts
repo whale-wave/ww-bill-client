@@ -9,6 +9,7 @@ export interface RecordEditorSeed {
   recordType: CategoryAmountType;
   remark?: string;
   tagIds?: string[];
+  attachment?: NonNullable<RecordEntry['attachments']>[number];
   hasImage?: boolean;
   time: string;
 }

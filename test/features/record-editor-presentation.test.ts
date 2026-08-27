@@ -2,6 +2,7 @@ import type { CategoryEntity } from '@/entities/category';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { getRecordAttachmentContentApi } from '@/entities/record';
 import {
   RecordEditorPresentation,
   useRecordEditorController,
@@ -14,6 +15,10 @@ vi.mock('@/shared/i18n', () => ({
 vi.mock('@/shared/ui', () => ({
   DesignIcon: ({ name }: { name: string }) => createElement('span', { 'data-design-icon': name }),
   IllustratedEmptyState: ({ testId, title }: { testId: string; title: string }) => createElement('div', { 'data-testid': testId }, title),
+}));
+
+vi.mock('@/entities/record', () => ({
+  getRecordAttachmentContentApi: vi.fn(),
 }));
 
 const category: CategoryEntity = {
@@ -32,10 +37,15 @@ const category: CategoryEntity = {
 };
 
 let cleanup: (() => void) | undefined;
+const originalCreateObjectUrl = URL.createObjectURL;
+const originalRevokeObjectUrl = URL.revokeObjectURL;
 
 afterEach(() => {
   cleanup?.();
   cleanup = undefined;
+  Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: originalCreateObjectUrl });
+  Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: originalRevokeObjectUrl });
+  vi.clearAllMocks();
 });
 
 function TestEditor({ onCancel = vi.fn(), withTags = false }: { onCancel?: () => void; withTags?: boolean }) {
@@ -129,7 +139,7 @@ describe('record editor presentation', () => {
     expect(tag?.classList).not.toContain('bg-white');
   });
 
-  it('returns to categories before leaving the two-stage editor', () => {
+  it('leaves the editor from the back button and opens categories from the category name', () => {
     const onCancel = vi.fn();
     const container = document.createElement('div');
     const root = createRoot(container);
@@ -137,11 +147,83 @@ describe('record editor presentation', () => {
     cleanup = () => act(() => root.unmount());
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
-    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-cancel]')?.click());
-    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('category');
-    expect(onCancel).not.toHaveBeenCalled();
+    expect(container.querySelector('[data-record-editor-category-trigger]')?.textContent).toBe('餐饮');
 
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category-trigger]')?.click());
+    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('category');
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-cancel]')?.click());
     expect(onCancel).toHaveBeenCalledOnce();
+  });
+
+  it('shows the authenticated thumbnail in edit mode and opens a full-screen preview', async () => {
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: vi.fn()
+        .mockReturnValueOnce('blob:thumbnail')
+        .mockReturnValueOnce('blob:content'),
+    });
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
+    vi.mocked(getRecordAttachmentContentApi)
+      .mockResolvedValueOnce(new Blob(['thumbnail']))
+      .mockResolvedValueOnce(new Blob(['content']));
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    function ExistingImageEditor() {
+      return createElement(RecordEditorPresentation, {
+        categories: [category],
+        categoryState: 'ready',
+        controller: useRecordEditorController({
+          onSubmit: vi.fn(),
+          seed: {
+            attachment: {
+              byteSize: 12,
+              contentHash: 'hash',
+              createdAt: '',
+              height: 1,
+              id: 'attachment-1',
+              mimeType: 'image/webp',
+              sortOrder: 0,
+              type: 'IMAGE',
+              width: 1,
+            },
+            category,
+            recordType: 'sub',
+            time: '2026-07-21T12:00:00.000Z',
+          },
+        }),
+        onCancel: vi.fn(),
+      });
+    }
+
+    await act(async () => root.render(createElement(ExistingImageEditor)));
+    cleanup = () => {
+      act(() => root.unmount());
+      container.remove();
+    };
+
+    expect(getRecordAttachmentContentApi).toHaveBeenCalledWith('attachment-1', 'thumbnail');
+    expect(container.querySelector<HTMLImageElement>('[data-record-editor-image-preview] img')?.src).toBe('blob:thumbnail');
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-record-editor-image-preview]')?.click());
+
+    expect(getRecordAttachmentContentApi).toHaveBeenLastCalledWith('attachment-1', 'content');
+    expect(document.body.querySelector('[aria-label="关闭图片预览"] img')?.getAttribute('src')).toBe('blob:content');
+  });
+
+  it('allows the amount panel to shrink before clipping the keypad', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor)));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+
+    expect(container.querySelector('[data-record-editor-total]')?.parentElement?.classList).toContain('min-h-0');
+    expect(container.querySelector('[data-record-editor-total]')?.parentElement?.classList).not.toContain('min-h-[220px]');
+    expect(container.querySelector('[data-record-editor-keypad]')?.classList).toContain('pb-[max(14px,env(safe-area-inset-bottom))]');
   });
 });

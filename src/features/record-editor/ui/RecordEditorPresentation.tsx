@@ -4,8 +4,10 @@ import type { RecordEditorController } from '../model/useRecordEditorController'
 import type { CategoryEntity } from '@/entities/category';
 import { Button, DatePicker, ErrorBlock, Popup, SpinLoading } from 'antd-mobile';
 import { Delete as BackspaceIcon, ImagePlus, Tags, X } from 'lucide-react';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { CategoryIcon } from '@/entities/category';
+import { getRecordAttachmentContentApi } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import { DesignIcon, IllustratedEmptyState } from '@/shared/ui';
@@ -36,11 +38,77 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
 }) => {
   const { t } = useTranslation(['record', 'ledger', 'common']);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const contentUrlRef = useRef<string>();
+  const previewRequestRef = useRef(0);
   const [stage, setStage] = useState<'amount' | 'category'>(
     controller.selectedCategory ? 'amount' : 'category',
   );
   const [newTagName, setNewTagName] = useState('');
   const [isCreatingTag, setIsCreatingTag] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>();
+  const [contentUrl, setContentUrl] = useState<string>();
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
+  const [isImagePreviewLoading, setIsImagePreviewLoading] = useState(false);
+  const attachmentId = controller.initialAttachment?.id;
+
+  const clearContentUrl = useCallback(() => {
+    previewRequestRef.current += 1;
+    if (contentUrlRef.current)
+      URL.revokeObjectURL(contentUrlRef.current);
+    contentUrlRef.current = undefined;
+    setContentUrl(undefined);
+  }, []);
+
+  useEffect(() => {
+    if (!attachmentId)
+      return;
+    let active = true;
+    let url: string | undefined;
+    void getRecordAttachmentContentApi(attachmentId, 'thumbnail')
+      .then((blob) => {
+        if (!active)
+          return;
+        url = URL.createObjectURL(blob);
+        setThumbnailUrl(url);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+      if (url)
+        URL.revokeObjectURL(url);
+    };
+  }, [attachmentId]);
+
+  useEffect(() => clearContentUrl, [clearContentUrl]);
+
+  const closeImagePreview = useCallback(() => {
+    setIsImagePreviewOpen(false);
+    clearContentUrl();
+  }, [clearContentUrl]);
+
+  const openImagePreview = useCallback(async () => {
+    setIsImagePreviewOpen(true);
+    if (controller.imagePreviewUrl || !attachmentId || contentUrl)
+      return;
+    const request = ++previewRequestRef.current;
+    setIsImagePreviewLoading(true);
+    try {
+      const blob = await getRecordAttachmentContentApi(attachmentId, 'content');
+      if (request !== previewRequestRef.current)
+        return;
+      const url = URL.createObjectURL(blob);
+      contentUrlRef.current = url;
+      setContentUrl(url);
+    }
+    catch {
+      if (request === previewRequestRef.current)
+        setIsImagePreviewOpen(false);
+    }
+    finally {
+      if (request === previewRequestRef.current)
+        setIsImagePreviewLoading(false);
+    }
+  }, [attachmentId, contentUrl, controller.imagePreviewUrl]);
   const renderDateLabel = useCallback((type: string, value: number) => {
     const labelKeys: Record<string, string> = {
       day: 'common:time.day',
@@ -56,11 +124,6 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const showOperatorControls = Number.parseFloat(controller.calculator.totals) > 0;
 
   const handleBack = () => {
-    if (stage === 'amount') {
-      controller.setIsNoteFocused(false);
-      setStage('category');
-      return;
-    }
     onCancel();
   };
 
@@ -117,9 +180,18 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               </div>
             )
           : (
-              <div className="flex h-7 items-center rounded-full bg-primary-light px-[14px] py-1 text-[13px] font-bold leading-[19.5px] text-primary-deep">
+              <button
+                aria-label="选择分类"
+                className="flex h-7 items-center rounded-full border-0 bg-primary-light px-[14px] py-1 text-[13px] font-bold leading-[19.5px] text-primary-deep"
+                data-record-editor-category-trigger
+                onClick={() => {
+                  controller.setIsNoteFocused(false);
+                  setStage('category');
+                }}
+                type="button"
+              >
                 {controller.selectedCategory?.name}
-              </div>
+              </button>
             )}
         <span className="h-10 w-10" />
       </header>
@@ -238,15 +310,35 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               </label>
               {(controller.imagePreviewUrl || controller.hasInitialImage) && (
                 <div className="mx-[22px] mt-2 flex items-center gap-2 text-xs text-ww-soft" data-record-editor-image>
-                  {controller.imagePreviewUrl
-                    ? <img alt="待上传凭证" className="h-11 w-11 rounded-lg object-cover" src={controller.imagePreviewUrl} />
-                    : <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-light"><ImagePlus size={18} /></span>}
+                  <button
+                    aria-label="预览凭证图片"
+                    className="shrink-0 rounded-lg border-0 bg-transparent p-0"
+                    data-record-editor-image-preview
+                    onClick={() => void openImagePreview()}
+                    type="button"
+                  >
+                    {controller.imagePreviewUrl
+                      ? <img alt="待上传凭证" className="h-11 w-11 rounded-lg object-cover" src={controller.imagePreviewUrl} />
+                      : thumbnailUrl
+                        ? <img alt="已添加凭证图片" className="h-11 w-11 rounded-lg object-cover" src={thumbnailUrl} />
+                        : <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-light"><ImagePlus size={18} /></span>}
+                  </button>
                   <span>{controller.isImageUploading ? '正在上传图片…' : controller.imageUploadError ? '上传失败，可重新选择' : '已添加凭证图片'}</span>
-                  <button aria-label="移除图片" className="ml-auto p-1 text-ww-mid" onClick={controller.handleRemoveImage} type="button"><X size={16} /></button>
+                  <button
+                    aria-label="移除图片"
+                    className="ml-auto p-1 text-ww-mid"
+                    onClick={() => {
+                      closeImagePreview();
+                      controller.handleRemoveImage();
+                    }}
+                    type="button"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
               )}
 
-              <div className="relative flex min-h-[220px] flex-grow flex-col items-center justify-center text-center">
+              <div className="relative flex min-h-0 flex-grow flex-col items-center justify-center text-center">
                 <div className="pb-2 text-[11px] font-semibold leading-[16.5px] tracking-[0.5px] text-ww-soft">
                   {controller.recordType === 'sub' ? t('record:bookkeeping.expend') : t('record:bookkeeping.income')}
                   {t('record:bookkeeping.amount')}
@@ -278,7 +370,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               </div>
 
               <section
-                className="shrink-0 border-t border-solid border-border-primary bg-white/70 px-4 pb-[calc(38px+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl"
+                className="shrink-0 border-t border-solid border-border-primary bg-white/70 px-4 pb-[max(14px,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl"
                 data-record-editor-keypad
               >
                 <div className="grid grid-cols-[1fr_1fr] gap-[10px]">
@@ -411,6 +503,19 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           </form>
         )}
       </Popup>
+      {isImagePreviewOpen && typeof document !== 'undefined' && createPortal(
+        <button
+          aria-label="关闭图片预览"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-5"
+          onClick={closeImagePreview}
+          type="button"
+        >
+          {controller.imagePreviewUrl || contentUrl
+            ? <img alt="凭证图片预览" className="max-h-full max-w-full rounded-xl object-contain" src={controller.imagePreviewUrl ?? contentUrl} />
+            : isImagePreviewLoading && <SpinLoading color="white" />}
+        </button>,
+        document.body,
+      )}
     </div>
   );
 };
