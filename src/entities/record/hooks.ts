@@ -30,6 +30,7 @@ import {
   getRecordFilterOptionsApi,
   postLedgerRecordApi,
   postRecordApi,
+  postTemporaryRecordAttachmentApi,
   putLedgerRecordApi,
   putRecordApi,
 } from './api';
@@ -60,6 +61,14 @@ const emptyRecordFilterOptions: RecordFilterOptionsData = {
 };
 
 const ledgerNavigationKey = ['ledger', 'navigation'] as const;
+
+export function useUploadTemporaryRecordAttachmentMutation() {
+  const { mutateAsync, ...rest } = useMutation({
+    mutationFn: (options: { file: File; ledgerId?: string }) =>
+      postTemporaryRecordAttachmentApi(options.file, options.ledgerId),
+  });
+  return [mutateAsync, rest] as const;
+}
 
 export function invalidateRecordCountNavigationCache(queryClient: QueryClient) {
   return queryClient.invalidateQueries({ queryKey: ledgerNavigationKey });

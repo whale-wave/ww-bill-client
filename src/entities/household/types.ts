@@ -120,6 +120,18 @@ export interface FamilyRecordTag {
   status: 'ACTIVE' | 'ARCHIVED';
 }
 
+export interface FamilyRecordAttachment {
+  id: string;
+  type: 'IMAGE';
+  sortOrder: number;
+  createdAt: string;
+  contentHash: string;
+  mimeType: string;
+  byteSize: number;
+  width: number;
+  height: number;
+}
+
 export interface FamilyRecord {
   id: number;
   remark: string;
@@ -130,6 +142,7 @@ export interface FamilyRecord {
   creator: HouseholdUserSummary;
   category?: FamilyRecordCategory;
   tags: FamilyRecordTag[];
+  attachments?: FamilyRecordAttachment[];
   policy: FamilyRecordPolicy;
   effectivePolicy: Exclude<FamilyRecordPolicy, FamilyRecordPolicy.INHERIT>;
   counted: boolean;

@@ -9,7 +9,7 @@ import type {
 import { ErrorBlock } from 'antd-mobile';
 import { useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useLedgerChartQuery } from '@/entities/chart';
+import { useLedgerChartQuery, useLedgerTagRankingQuery } from '@/entities/chart';
 import {
   LedgerCapability,
   LedgerChartDisplay,
@@ -21,6 +21,7 @@ import {
   ChartOverviewContext,
   ChartOverviewPresentation,
   deriveChartTabs,
+  TagRankingSection,
 } from '@/features/chart-overview';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -96,9 +97,13 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
   const urlTab = searchParams.get('tab') ?? '';
   const curTab = tabs.find(tab => tab.key === urlTab) ?? tabs.at(-1);
   const chartDateRange = useMemo(() => {
-    const dates = curTab?.data.map(point => point.value).filter(value => /^\\d{4}-\\d{2}-\\d{2}$/.test(value)) ?? [];
+    const dates = curTab?.data.map(point => point.value).filter(value => /^\d{4}-\d{2}-\d{2}$/.test(value)) ?? [];
     return dates.length ? { endDate: [...dates].sort().at(-1)!, startDate: [...dates].sort()[0] } : undefined;
   }, [curTab]);
+  const tagRanking = useLedgerTagRankingQuery({
+    params: { ledgerId, filters: { type: toAmountType(metric), ...chartDateRange } },
+    enabled: metric !== LedgerChartMetric.NET && Boolean(chartDateRange),
+  });
   const isLoading = metric === LedgerChartMetric.INCOME
     ? income.isLoading
     : metric === LedgerChartMetric.EXPENSE
@@ -210,7 +215,11 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
 
   return (
     <ChartOverviewContext.Provider value={contextValue}>
-      <ChartOverviewPresentation />
+      <ChartOverviewPresentation
+        tagRanking={metric === LedgerChartMetric.NET
+          ? undefined
+          : <TagRankingSection data={tagRanking.data} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />}
+      />
     </ChartOverviewContext.Provider>
   );
 }

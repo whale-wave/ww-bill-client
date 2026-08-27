@@ -14,6 +14,8 @@ interface RecordEditorControllerOptions {
   onValidationError?: (error: RecordEditorValidationError) => void;
   seed: RecordEditorSeed;
   supportsTags?: boolean;
+  isEditing?: boolean;
+  onUploadImage?: (file: File) => Promise<string>;
 }
 
 export function useRecordEditorController({
@@ -21,6 +23,8 @@ export function useRecordEditorController({
   onValidationError,
   seed,
   supportsTags = false,
+  isEditing = false,
+  onUploadImage,
 }: RecordEditorControllerOptions) {
   const calculator = useCalculator();
   const { setNum: setCalculatorNum, setTotals: setCalculatorTotals } = calculator;
@@ -32,6 +36,11 @@ export function useRecordEditorController({
     return initialDate.isValid() ? initialDate.toDate() : new Date();
   });
   const [selectedTagIds, setSelectedTagIds] = useState(seed.tagIds ?? []);
+  const [tagSelectionDirty, setTagSelectionDirty] = useState(false);
+  const [imageAssetId, setImageAssetId] = useState<string | null | undefined>(undefined);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string>();
+  const [isImageUploading, setIsImageUploading] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState(false);
   const [isNoteFocused, setIsNoteFocused] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
   const [isTagPickerVisible, setIsTagPickerVisible] = useState(false);
@@ -39,6 +48,7 @@ export function useRecordEditorController({
   const [activeSideIndex, setActiveSideIndex] = useState(-1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submittingRef = useRef(false);
+  const imageSelectionRef = useRef(0);
 
   useEffect(() => {
     if (!seed.amount)
@@ -52,6 +62,11 @@ export function useRecordEditorController({
     document.addEventListener('contextmenu', handleContextMenu);
     return () => document.removeEventListener('contextmenu', handleContextMenu);
   }, []);
+
+  useEffect(() => () => {
+    if (imagePreviewUrl)
+      URL.revokeObjectURL(imagePreviewUrl);
+  }, [imagePreviewUrl]);
 
   const handleRecordTypeChange = useCallback((nextType: CategoryAmountType) => {
     if (nextType === recordType)
@@ -102,14 +117,57 @@ export function useRecordEditorController({
   }, [activeKeyIndex, calculator]);
 
   const handleToggleTag = useCallback((tagId: string) => {
-    setSelectedTagIds(current =>
-      current.includes(tagId)
-        ? current.filter(id => id !== tagId)
-        : [...current, tagId]);
+    setTagSelectionDirty(true);
+    // A historical record can start with multiple tags. Choosing its primary
+    // tag is still an explicit single-selection mutation, not a clear action.
+    setSelectedTagIds([tagId]);
+  }, []);
+
+  const handleClearTag = useCallback(() => {
+    setTagSelectionDirty(true);
+    setSelectedTagIds([]);
+  }, []);
+
+  const handleSelectImage = useCallback(async (file: File) => {
+    if (!onUploadImage)
+      return;
+    const selection = ++imageSelectionRef.current;
+    const preview = URL.createObjectURL(file);
+    setImagePreviewUrl((current) => {
+      if (current)
+        URL.revokeObjectURL(current);
+      return preview;
+    });
+    setImageUploadError(false);
+    setIsImageUploading(true);
+    try {
+      const assetId = await onUploadImage(file);
+      if (selection === imageSelectionRef.current)
+        setImageAssetId(assetId);
+    }
+    catch {
+      if (selection === imageSelectionRef.current)
+        setImageUploadError(true);
+    }
+    finally {
+      if (selection === imageSelectionRef.current)
+        setIsImageUploading(false);
+    }
+  }, [onUploadImage]);
+
+  const handleRemoveImage = useCallback(() => {
+    imageSelectionRef.current += 1;
+    setImagePreviewUrl((current) => {
+      if (current)
+        URL.revokeObjectURL(current);
+      return undefined;
+    });
+    setImageAssetId(null);
+    setImageUploadError(false);
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    if (submittingRef.current)
+    if (submittingRef.current || isImageUploading)
       return;
     if (!selectedCategory) {
       onValidationError?.('category');
@@ -127,7 +185,8 @@ export function useRecordEditorController({
       remark: remark.trim() || selectedCategory.name,
       time: dayjs(date).toISOString(),
       type: selectedCategory.type,
-      ...(supportsTags ? { tagIds: selectedTagIds } : {}),
+      ...(supportsTags && (!isEditing || tagSelectionDirty) ? { tagIds: selectedTagIds } : {}),
+      ...(imageAssetId !== undefined ? { imageAssetId } : {}),
     };
 
     submittingRef.current = true;
@@ -148,6 +207,10 @@ export function useRecordEditorController({
     selectedCategory,
     selectedTagIds,
     supportsTags,
+    isEditing,
+    tagSelectionDirty,
+    imageAssetId,
+    isImageUploading,
   ]);
 
   const formattedDate = useMemo(() => dayjs(date).format('YYYY/MM/DD'), [date]);
@@ -167,15 +230,23 @@ export function useRecordEditorController({
     handleSelectCategory,
     handleSubmit,
     handleToggleTag,
+    handleClearTag,
+    handleRemoveImage,
+    handleSelectImage,
     isDatePickerVisible,
     isNoteFocused,
     isSubmitting,
+    isImageUploading,
+    imagePreviewUrl,
+    imageUploadError,
+    hasInitialImage: Boolean(seed.hasImage),
     isTagPickerVisible,
     isToday,
     recordType,
     remark,
     selectedCategory,
     selectedTagIds,
+    tagSelectionDirty,
     setActiveSideIndex,
     setDate,
     setIsDatePickerVisible,

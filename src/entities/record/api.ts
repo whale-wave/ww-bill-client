@@ -147,6 +147,7 @@ export interface PostRecordApiData {
   amount: string;
   time: string;
   tagIds?: string[];
+  imageAssetId?: string;
 }
 
 // 创建记录
@@ -161,8 +162,41 @@ export function postLedgerRecordApi(ledgerId: string, data: PostRecordApiData) {
   );
 }
 
-export interface PutRecordApiData extends Partial<PostRecordApiData> {
+export interface PutRecordApiData extends Omit<Partial<PostRecordApiData>, 'imageAssetId'> {
   version: number;
+  imageAssetId?: string | null;
+}
+
+export interface TemporaryRecordAttachment {
+  assetId: string;
+  contentHash: string;
+  mimeType: string;
+  byteSize: number;
+  width: number;
+  height: number;
+  expiresAt: string;
+}
+
+export function postTemporaryRecordAttachmentApi(file: File, ledgerId?: string) {
+  const form = new FormData();
+  form.append('file', file);
+  if (ledgerId)
+    form.append('ledgerId', ledgerId);
+  return request.post<unknown, SuccessResponse<TemporaryRecordAttachment>>(
+    '/record-attachments/temp',
+    form,
+  );
+}
+
+export function getRecordAttachmentContentApi(
+  attachmentId: string,
+  variant: 'content' | 'thumbnail',
+  householdId?: string,
+) {
+  const path = householdId
+    ? `/households/${encodeURIComponent(householdId)}/record-attachments/${encodeURIComponent(attachmentId)}/${variant}`
+    : `/record-attachments/${encodeURIComponent(attachmentId)}/${variant}`;
+  return request.get<Blob, Blob>(path, { responseType: 'blob' });
 }
 
 // 更新记录

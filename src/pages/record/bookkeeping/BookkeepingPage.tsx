@@ -5,9 +5,12 @@ import dayjs from 'dayjs';
 import { useCallback, useMemo } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetCategoryQuery } from '@/entities/category';
+import { LedgerCapability, LedgerKind, useGetLedgersQuery } from '@/entities/ledger';
+import { useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
 import {
   usePostRecordMutation,
   usePutRecordMutation,
+  useUploadTemporaryRecordAttachmentMutation,
 } from '@/entities/record';
 import {
   invalidatePersonalRecordEditorCaches,
@@ -35,6 +38,15 @@ function BookkeepingPage() {
   const queryClient = useQueryClient();
   const [postRecord, postState] = usePostRecordMutation();
   const [putRecord, putState] = usePutRecordMutation();
+  const [uploadImage] = useUploadTemporaryRecordAttachmentMutation();
+  const [createTag] = useCreateLedgerTagMutation();
+  const ledgersQuery = useGetLedgersQuery();
+  const defaultLedger = ledgersQuery.data.find(ledger => ledger.kind === LedgerKind.SYSTEM_DEFAULT);
+  const canReadTags = Boolean(defaultLedger?.capabilities.includes(LedgerCapability.TAG_READ));
+  const tagsQuery = useLedgerTagsQuery({
+    params: { ledgerId: defaultLedger?.id ?? '' },
+    queryOptions: { enabled: Boolean(defaultLedger && canReadTags) },
+  });
   const selectTime = getValidSelectTime(searchParams.get('selectTime'));
   const editorState = isRecordEditorLocationState(location.state)
     ? location.state.recordEditor
@@ -57,6 +69,8 @@ function BookkeepingPage() {
       : undefined,
     recordType: initialRecord?.type ?? 'sub' as const,
     remark: initialRecord?.remark,
+    tagIds: initialRecord?.tags?.map(tag => tag.id),
+    hasImage: Boolean(initialRecord?.attachments?.length),
     time: initialRecord?.time
       ?? (selectTime ? dayjs(selectTime).toISOString() : dayjs().toISOString()),
   }), [initialRecord, selectTime]);
@@ -90,12 +104,13 @@ function BookkeepingPage() {
 
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
     try {
+      const { imageAssetId, ...recordData } = draft;
       const response = initialRecord
         ? await putRecord({
             data: { ...draft, version: initialRecord.version },
             id: String(initialRecord.id),
           })
-        : await postRecord(draft);
+        : await postRecord(imageAssetId === null ? recordData : { ...recordData, imageAssetId });
       if (response.statusCode !== 200)
         throw response;
       await invalidatePersonalRecordEditorCaches(queryClient);
@@ -129,6 +144,9 @@ function BookkeepingPage() {
         Toast.show({ content: t('bookkeeping.chooseCategory') });
     },
     seed,
+    supportsTags: canReadTags && !tagsQuery.isError,
+    isEditing: Boolean(initialRecord),
+    onUploadImage: async file => (await uploadImage({ file, ledgerId: defaultLedger?.id })).data.assetId,
   });
   const categoryQuery = useGetCategoryQuery({
     params: { type: controller.recordType },
@@ -151,6 +169,11 @@ function BookkeepingPage() {
       }}
       onCancel={handleCancel}
       onRetryCategories={() => void categoryQuery.refetch()}
+      canManageTags={Boolean(defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE))}
+      onCreateTag={defaultLedger
+        ? async name => (await createTag({ data: { name }, ledgerId: defaultLedger.id })).data
+        : undefined}
+      tags={canReadTags && !tagsQuery.isError ? tagsQuery.data : undefined}
     />
   );
 }

@@ -12,6 +12,7 @@ const hooks = vi.hoisted(() => ({
   createRecord: vi.fn(),
   updateRecord: vi.fn(),
   useLedgerCategoriesQuery: vi.fn(),
+  useCreateLedgerTagMutation: vi.fn(),
   useLedgerPreferencesQuery: vi.fn(),
   useLedgerRecordQuery: vi.fn(),
   useLedgerTagsQuery: vi.fn(),
@@ -32,6 +33,7 @@ vi.mock('@/entities/ledger', async importOriginal => ({
 }));
 
 vi.mock('@/entities/ledger-data', () => ({
+  useCreateLedgerTagMutation: hooks.useCreateLedgerTagMutation,
   useLedgerTagsQuery: hooks.useLedgerTagsQuery,
 }));
 
@@ -146,6 +148,7 @@ beforeEach(() => {
     isError: false,
     isLoading: false,
   });
+  hooks.useCreateLedgerTagMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
   hooks.useLedgerRecordQuery.mockReturnValue(loadedRecordQuery());
 });
 
@@ -324,16 +327,13 @@ describe('custom ledger record editor adapter', () => {
       await Promise.resolve();
     });
 
-    expect(hooks.updateRecord).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        amount: '20',
-        categoryId: 2,
-        tagIds: ['tag-a'],
-        version: 4,
-      }),
+    const updatePayload = hooks.updateRecord.mock.calls[0]?.[0];
+    expect(updatePayload).toEqual({
+      data: expect.objectContaining({ amount: '20', categoryId: 2, version: 4 }),
       ledgerId: 'ledger/a',
       recordId: '7',
     });
+    expect(updatePayload.data).not.toHaveProperty('tagIds');
     expect(router.state.location.pathname).toBe('/ledgers/ledger%2Fa/records/7');
   });
 

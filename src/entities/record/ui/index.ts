@@ -1,3 +1,4 @@
+export * from './RecordAttachmentSection';
 export * from './RecordCalendarPresentation';
 export * from './RecordDetailPresentation';
 export * from './RecordMonthPicker';

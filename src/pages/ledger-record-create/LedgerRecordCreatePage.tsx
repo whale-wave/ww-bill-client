@@ -11,8 +11,8 @@ import {
   LedgerRecordType,
   useLedgerPreferencesQuery,
 } from '@/entities/ledger';
-import { useLedgerTagsQuery } from '@/entities/ledger-data';
-import { useCreateLedgerRecordMutation } from '@/entities/record';
+import { useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
+import { useCreateLedgerRecordMutation, useUploadTemporaryRecordAttachmentMutation } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import {
   invalidateLedgerRecordEditorCaches,
@@ -34,6 +34,7 @@ interface LedgerRecordCreateEditorProps {
   initialRecordType: LedgerRecordType;
   ledgerId: string;
   supportsTags: boolean;
+  canManageTags: boolean;
   tags: Array<{ id: string; name: string }>;
 }
 
@@ -41,6 +42,7 @@ function LedgerRecordCreateEditor({
   initialRecordType,
   ledgerId,
   supportsTags,
+  canManageTags,
   tags,
 }: LedgerRecordCreateEditorProps) {
   const { t } = useTranslation('ledger');
@@ -49,6 +51,8 @@ function LedgerRecordCreateEditor({
   const queryClient = useQueryClient();
   const selectTime = getValidSelectTime(searchParams.get('selectTime'));
   const [createRecord, createState] = useCreateLedgerRecordMutation();
+  const [uploadImage] = useUploadTemporaryRecordAttachmentMutation();
+  const [createTag] = useCreateLedgerTagMutation();
   const seed = useMemo(() => ({
     recordType: initialRecordType,
     tagIds: supportsTags ? [] : undefined,
@@ -62,7 +66,11 @@ function LedgerRecordCreateEditor({
   }, [ledgerId, navigate, selectTime]);
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
     try {
-      const response = await createRecord({ data: draft, ledgerId });
+      const { imageAssetId, ...recordData } = draft;
+      const response = await createRecord({
+        data: imageAssetId === null ? recordData : { ...recordData, imageAssetId },
+        ledgerId,
+      });
       await invalidateLedgerRecordEditorCaches(queryClient, ledgerId);
       Toast.show({ content: response.message || t('records.saved'), icon: 'success' });
       navigateAfterCreate();
@@ -79,6 +87,8 @@ function LedgerRecordCreateEditor({
     },
     seed,
     supportsTags,
+    isEditing: false,
+    onUploadImage: async file => (await uploadImage({ file, ledgerId })).data.assetId,
   });
   const categoryQuery = useLedgerCategoriesQuery({
     params: { ledgerId, type: controller.recordType },
@@ -96,7 +106,9 @@ function LedgerRecordCreateEditor({
       }}
       onCancel={navigateAfterCreate}
       onRetryCategories={() => void categoryQuery.refetch()}
-      tags={tags}
+      canManageTags={canManageTags}
+      onCreateTag={async name => (await createTag({ data: { name }, ledgerId })).data}
+      tags={supportsTags ? tags : undefined}
     />
   );
 }
@@ -126,6 +138,7 @@ function LedgerRecordCreateContent({
       initialRecordType={preferenceQuery.data?.defaultRecordType ?? LedgerRecordType.EXPENSE}
       ledgerId={ledgerId}
       supportsTags={supportsTags}
+      canManageTags={ledger.capabilities.includes(LedgerCapability.TAG_MANAGE)}
       tags={supportsTags ? tagsQuery.data : []}
     />
   );

@@ -41,6 +41,7 @@ vi.mock('@/entities/user-app-config', () => ({
 vi.mock('@/entities/chart', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/chart')>()),
   useLedgerChartQuery: hooks.useLedgerChartQuery,
+  useLedgerTagRankingQuery: () => ({ data: undefined, isError: false, isLoading: false }),
 }));
 
 vi.mock('@/entities/record', async importOriginal => ({

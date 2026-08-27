@@ -77,6 +77,24 @@ export interface GetChartApiParams {
   categoryId?: string;
 }
 
+export interface TagRankingResponse {
+  totalAmount: string;
+  items: Array<{
+    key: string;
+    tagId: string | null;
+    name: string;
+    amount: string;
+    percentage: number;
+  }>;
+}
+
+export interface GetTagRankingParams {
+  type: 'sub' | 'add';
+  startDate?: string;
+  endDate?: string;
+  categoryId?: string;
+}
+
 export type GetChartApiResponse = GetChartApiResponseWeekData[] | GetChartApiResponseMonthData[] | GetChartApiResponseYearData[];
 
 export function getChartApi(params: GetChartApiParams) {
@@ -91,6 +109,17 @@ export function getLedgerChartApi(
 ) {
   return request.get<unknown, SuccessResponse<GetChartApiResponse>>(
     `/ledgers/${encodeURIComponent(ledgerId)}/charts`,
+    { params },
+  );
+}
+
+export function getTagRankingApi(params: GetTagRankingParams) {
+  return request.get<unknown, SuccessResponse<TagRankingResponse>>('/chart/tag-ranking', { params });
+}
+
+export function getLedgerTagRankingApi(ledgerId: string, params: GetTagRankingParams) {
+  return request.get<unknown, SuccessResponse<TagRankingResponse>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/charts/tag-ranking`,
     { params },
   );
 }

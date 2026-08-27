@@ -3,8 +3,8 @@ import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { CategoryEntity } from '@/entities/category';
 import { Button, DatePicker, ErrorBlock, Popup, SpinLoading } from 'antd-mobile';
-import { Delete as BackspaceIcon, Tags } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { Delete as BackspaceIcon, ImagePlus, Tags, X } from 'lucide-react';
+import { useCallback, useRef, useState } from 'react';
 import { CategoryIcon } from '@/entities/category';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
@@ -14,26 +14,33 @@ import { KEYPAD_LAYOUT } from '../model/constants';
 export type RecordEditorCategoryState = 'error' | 'loading' | 'ready';
 
 interface RecordEditorPresentationProps {
+  canManageTags?: boolean;
   categories: CategoryEntity[];
   categoryState: RecordEditorCategoryState;
   controller: RecordEditorController;
   onCancel: () => void;
   onRetryCategories?: () => void;
+  onCreateTag?: (name: string) => Promise<{ id: string; name: string }>;
   tags?: RecordEditorTag[];
 }
 
 export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   categories,
+  canManageTags = false,
   categoryState,
   controller,
   onCancel,
   onRetryCategories,
-  tags = [],
+  onCreateTag,
+  tags,
 }) => {
   const { t } = useTranslation(['record', 'ledger', 'common']);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [stage, setStage] = useState<'amount' | 'category'>(
     controller.selectedCategory ? 'amount' : 'category',
   );
+  const [newTagName, setNewTagName] = useState('');
+  const [isCreatingTag, setIsCreatingTag] = useState(false);
   const renderDateLabel = useCallback((type: string, value: number) => {
     const labelKeys: Record<string, string> = {
       day: 'common:time.day',
@@ -196,7 +203,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   type="text"
                   value={controller.remark}
                 />
-                {tags.length > 0 && (
+                {tags !== undefined && (
                   <button
                     className="shrink-0 border-0 bg-transparent px-1 text-[13px] font-semibold text-primary-deep"
                     data-record-editor-tag-trigger
@@ -208,7 +215,36 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     {controller.selectedTagIds.length || ''}
                   </button>
                 )}
+                <input
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = '';
+                    if (file)
+                      void controller.handleSelectImage(file);
+                  }}
+                  ref={imageInputRef}
+                  type="file"
+                />
+                <button
+                  aria-label="选择图片"
+                  className="ml-1 shrink-0 border-0 bg-transparent p-1 text-primary-deep"
+                  onClick={() => imageInputRef.current?.click()}
+                  type="button"
+                >
+                  <ImagePlus size={18} />
+                </button>
               </label>
+              {(controller.imagePreviewUrl || controller.hasInitialImage) && (
+                <div className="mx-[22px] mt-2 flex items-center gap-2 text-xs text-ww-soft" data-record-editor-image>
+                  {controller.imagePreviewUrl
+                    ? <img alt="待上传凭证" className="h-11 w-11 rounded-lg object-cover" src={controller.imagePreviewUrl} />
+                    : <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-light"><ImagePlus size={18} /></span>}
+                  <span>{controller.isImageUploading ? '正在上传图片…' : controller.imageUploadError ? '上传失败，可重新选择' : '已添加凭证图片'}</span>
+                  <button aria-label="移除图片" className="ml-auto p-1 text-ww-mid" onClick={controller.handleRemoveImage} type="button"><X size={16} /></button>
+                </div>
+              )}
 
               <div className="relative flex min-h-[220px] flex-grow flex-col items-center justify-center text-center">
                 <div className="pb-2 text-[11px] font-semibold leading-[16.5px] tracking-[0.5px] text-ww-soft">
@@ -256,7 +292,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   </button>
                   <button
                     className="h-[50px] rounded-[16px] bg-[linear-gradient(163.094deg,#6fc2dc_0%,#4aaac4_100%)] px-4 text-[15px] font-extrabold leading-[22.5px] text-white shadow-[0_5px_9px_rgba(74,170,200,0.4)] disabled:opacity-50"
-                    disabled={controller.isSubmitting}
+                    disabled={controller.isSubmitting || controller.isImageUploading}
                     onClick={() => void controller.handleSubmit()}
                     type="button"
                   >
@@ -316,8 +352,19 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         visible={controller.isTagPickerVisible}
       >
         <div className="mb-3 text-center text-base text-font-black">{t('ledger:records.tags')}</div>
+        {controller.selectedTagIds.length > 0 && (
+          <button className="mb-3 text-sm text-primary-deep" onClick={controller.handleClearTag} type="button">清除标签</button>
+        )}
+        {controller.selectedTagIds.length > 1 && (
+          <div className="mb-3 text-sm text-ww-soft">
+            已保留
+            {controller.selectedTagIds.length}
+            {' '}
+            个历史标签；选择后会收敛为单标签。
+          </div>
+        )}
         <div className="flex flex-wrap gap-2">
-          {tags.map(tag => (
+          {(tags ?? []).map(tag => (
             <button
               aria-pressed={controller.selectedTagIds.includes(tag.id)}
               className={cn(
@@ -334,6 +381,35 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </button>
           ))}
         </div>
+        {canManageTags && onCreateTag && (
+          <form
+            className="mt-4 flex gap-2 border-t border-border-primary pt-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const name = newTagName.trim();
+              if (!name || isCreatingTag)
+                return;
+              setIsCreatingTag(true);
+              void onCreateTag(name)
+                .then((tag) => {
+                  controller.handleToggleTag(tag.id);
+                  setNewTagName('');
+                })
+                .finally(() => setIsCreatingTag(false));
+            }}
+          >
+            <input
+              className="min-w-0 flex-1 rounded-xl border border-border-primary px-3 py-2 text-sm outline-none"
+              maxLength={32}
+              onChange={event => setNewTagName(event.target.value)}
+              placeholder="新建标签"
+              value={newTagName}
+            />
+            <button className="rounded-xl bg-primary px-3 text-sm font-semibold text-white disabled:opacity-50" disabled={!newTagName.trim() || isCreatingTag} type="submit">
+              添加
+            </button>
+          </form>
+        )}
       </Popup>
     </div>
   );

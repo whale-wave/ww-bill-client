@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { useHouseholdRecordQuery } from '@/entities/household';
 import { RecordDetailPresentation, useDeleteRecordMutation } from '@/entities/record';
+import { RecordAttachmentSection } from '@/entities/record/ui/RecordAttachmentSection';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { getDisplayName, HouseholdPageState, HouseholdScopeBoundary } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -51,6 +52,7 @@ const RecordDetail: FC<{
         createdAt: record.time,
         id: record.id,
         remark: record.remark,
+        attachments: record.attachments,
         tags: record.tags,
         time: record.time,
         type: record.type,
@@ -163,6 +165,7 @@ const RecordDetail: FC<{
           value: t(`policy.${record.effectivePolicy}`),
         },
       ]}
+      supplementaryContent={<RecordAttachmentSection attachments={record.attachments} householdId={householdId} />}
     />
   );
 };

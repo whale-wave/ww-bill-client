@@ -17,6 +17,7 @@ import {
   useDeleteLedgerRecordMutation,
   useLedgerRecordQuery,
 } from '@/entities/record';
+import { RecordAttachmentSection } from '@/entities/record/ui/RecordAttachmentSection';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useCurrentWorkspaceBack } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -136,9 +137,15 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
         { label: t('records.remark'), value: record.remark },
       ]}
       showNavigation={false}
-      supplementaryContent={showFamilyPolicy
-        ? <FamilyPolicyEntry recordId={record.id} recordTime={record.time} />
-        : undefined}
+      supplementaryContent={(
+        <>
+          <RecordAttachmentSection attachments={record.attachments} />
+          {showFamilyPolicy ? <FamilyPolicyEntry recordId={record.id} recordTime={record.time} /> : undefined}
+        </>
+      )}
+      supplementaryRows={record.tags?.length
+        ? [{ label: t('records.tags'), value: record.tags.map(tag => `#${tag.name}`).join(' ') }]
+        : []}
     />
   );
 }

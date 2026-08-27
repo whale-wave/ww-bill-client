@@ -4,6 +4,7 @@ import { ErrorBlock, Toast } from 'antd-mobile';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { RecordDetailPresentation, useDeleteRecordMutation, useGetRecordByIdQuery } from '@/entities/record';
+import { RecordAttachmentSection } from '@/entities/record/ui/RecordAttachmentSection';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
 import { playSound } from '@/shared/lib/play-sound';
@@ -134,6 +135,10 @@ const Editing: FC = () => {
         { label: t('record:edit.date'), value: `${timeDate}  ${weekByDay}` },
         { label: t('record:edit.remark'), value: state.remark },
       ]}
+      supplementaryContent={<RecordAttachmentSection attachments={state.attachments} />}
+      supplementaryRows={state.tags?.length
+        ? [{ label: '标签', value: state.tags.map(tag => `#${tag.name}`).join(' ') }]
+        : []}
     />
   );
 };

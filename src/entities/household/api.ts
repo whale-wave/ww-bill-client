@@ -22,6 +22,7 @@ import type {
   HouseholdMember,
   HouseholdRecordsPage,
 } from './types';
+import type { TagRankingResponse } from '@/entities/chart';
 import type { SuccessResponse } from '@/shared/api';
 import type { MemberColorKey } from '@/shared/config/member-colors';
 import { request } from '@/shared/api';
@@ -328,6 +329,16 @@ export function getHouseholdChartsApi(
 ) {
   return request.get<unknown, SuccessResponse<HouseholdChartResult>>(
     `/households/${encodeURIComponent(householdId)}/charts`,
+    { params },
+  );
+}
+
+export function getHouseholdTagRankingApi(
+  householdId: string,
+  params: GetHouseholdChartsApiParams,
+) {
+  return request.get<unknown, SuccessResponse<TagRankingResponse>>(
+    `/households/${encodeURIComponent(householdId)}/charts/tag-ranking`,
     { params },
   );
 }

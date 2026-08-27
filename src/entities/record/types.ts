@@ -31,6 +31,17 @@ export interface RecordEntry {
     iconKey?: string;
     status?: 'ACTIVE' | 'ARCHIVED';
   }>;
+  attachments?: Array<{
+    id: string;
+    type: 'IMAGE';
+    sortOrder: number;
+    createdAt: string;
+    contentHash: string;
+    mimeType: string;
+    byteSize: number;
+    width: number;
+    height: number;
+  }>;
 }
 
 export interface LedgerRecordDetailLocationState {

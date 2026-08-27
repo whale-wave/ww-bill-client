@@ -11,12 +11,13 @@ import { useCallback, useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useLedgerCategoriesQuery } from '@/entities/category';
 import { LedgerCapability } from '@/entities/ledger';
-import { useLedgerTagsQuery } from '@/entities/ledger-data';
+import { useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
 import {
   createLedgerRecordDetailState,
   readLedgerRecordDetailState,
   useLedgerRecordQuery,
   useUpdateLedgerRecordMutation,
+  useUploadTemporaryRecordAttachmentMutation,
 } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import {
@@ -33,6 +34,7 @@ interface LedgerRecordEditEditorProps {
   ledgerId: string;
   recordId: string;
   supportsTags: boolean;
+  canManageTags: boolean;
   tags: Array<{ id: string; name: string }>;
 }
 
@@ -41,18 +43,22 @@ function LedgerRecordEditEditor({
   ledgerId,
   recordId,
   supportsTags,
+  canManageTags,
   tags,
 }: LedgerRecordEditEditorProps) {
   const { t } = useTranslation('ledger');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [updateRecord, updateState] = useUpdateLedgerRecordMutation();
+  const [uploadImage] = useUploadTemporaryRecordAttachmentMutation();
+  const [createTag] = useCreateLedgerTagMutation();
   const seed = useMemo(() => ({
     amount: initialRecord.amount,
     category: { ...initialRecord.category, type: initialRecord.type },
     recordType: initialRecord.type,
     remark: initialRecord.remark,
     tagIds: supportsTags ? initialRecord.tags?.map(tag => tag.id) ?? [] : undefined,
+    hasImage: Boolean(initialRecord.attachments?.length),
     time: initialRecord.time,
   }), [initialRecord, supportsTags]);
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
@@ -95,6 +101,8 @@ function LedgerRecordEditEditor({
     },
     seed,
     supportsTags,
+    isEditing: true,
+    onUploadImage: async file => (await uploadImage({ file, ledgerId })).data.assetId,
   });
   const categoryQuery = useLedgerCategoriesQuery({
     params: { ledgerId, type: controller.recordType },
@@ -118,7 +126,9 @@ function LedgerRecordEditEditor({
       }}
       onCancel={navigateToDetail}
       onRetryCategories={() => void categoryQuery.refetch()}
-      tags={tags}
+      canManageTags={canManageTags}
+      onCreateTag={async name => (await createTag({ data: { name }, ledgerId })).data}
+      tags={supportsTags ? tags : undefined}
     />
   );
 }
@@ -169,6 +179,7 @@ function LedgerRecordEditContent({
       ledgerId={ledgerId}
       recordId={recordId}
       supportsTags={supportsTags}
+      canManageTags={ledger.capabilities.includes(LedgerCapability.TAG_MANAGE)}
       tags={supportsTags ? tagsQuery.data : []}
     />
   );

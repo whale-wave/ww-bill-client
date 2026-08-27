@@ -10,4 +10,6 @@ export const chartKeys = {
     ...chartKeys.ledgerLists(ledgerId),
     params,
   ] as const,
+  tagRanking: (params: unknown) => [...chartKeys.all, 'tag-ranking', params] as const,
+  ledgerTagRanking: (ledgerId: string, params: unknown) => [...chartKeys.ledgerRoot(ledgerId), 'tag-ranking', params] as const,
 };

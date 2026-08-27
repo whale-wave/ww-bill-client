@@ -5,12 +5,14 @@ import type {
   GetChartApiResponseMonthData,
   GetChartApiResponseWeekData,
   GetChartApiResponseYearData,
+  GetTagRankingParams,
+  TagRankingResponse,
 } from './api';
 import type { SuccessResponse } from '@/shared/api';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { assertSuccessApi, isSuccessApi } from '@/shared/api';
-import { getChartApi, getLedgerChartApi } from './api';
+import { getChartApi, getLedgerChartApi, getLedgerTagRankingApi, getTagRankingApi } from './api';
 import { chartKeys } from './keys';
 
 export function useGetChartQuery(options: {
@@ -55,6 +57,24 @@ export function useLedgerChartQuery(options: {
     response,
     ...rest,
   };
+}
+
+export function useTagRankingQuery(options: { params: GetTagRankingParams; enabled?: boolean }) {
+  const query = useQuery<SuccessResponse<TagRankingResponse>>({
+    queryFn: () => getTagRankingApi(options.params),
+    queryKey: chartKeys.tagRanking(options.params),
+    enabled: options.enabled ?? true,
+  });
+  return { ...query, data: isSuccessApi(query.data) ? query.data.data : undefined };
+}
+
+export function useLedgerTagRankingQuery(options: { params: { ledgerId: string; filters: GetTagRankingParams }; enabled?: boolean }) {
+  const query = useQuery<SuccessResponse<TagRankingResponse>>({
+    queryFn: () => getLedgerTagRankingApi(options.params.ledgerId, options.params.filters),
+    queryKey: chartKeys.ledgerTagRanking(options.params.ledgerId, options.params.filters),
+    enabled: options.enabled ?? true,
+  });
+  return { ...query, data: isSuccessApi(query.data) ? query.data.data : undefined };
 }
 
 export function isWeekData(data: GetChartApiResponse): data is GetChartApiResponseWeekData[] {

@@ -42,6 +42,7 @@ vi.mock('@/entities/household', async importOriginal => ({
   useDissolveHouseholdMutation: hooks.useDissolveHouseholdMutation,
   useHouseholdBudgetsQuery: hooks.useHouseholdBudgetsQuery,
   useHouseholdChartsQuery: hooks.useHouseholdChartsQuery,
+  useHouseholdTagRankingQuery: () => ({ data: undefined, isError: false, isLoading: false }),
   useHouseholdChartPeriodsQuery: hooks.useHouseholdChartPeriodsQuery,
   useHouseholdMembersQuery: hooks.useHouseholdMembersQuery,
   useMyHouseholdQuery: hooks.useMyHouseholdQuery,

@@ -68,6 +68,11 @@ export const householdKeys = {
     ...householdKeys.chartsRoot(householdId),
     params,
   ] as const,
+  tagRanking: (householdId: string, params: GetHouseholdChartsApiParams) => [
+    ...householdKeys.chartsRoot(householdId),
+    'tag-ranking',
+    params,
+  ] as const,
   chartPeriods: (householdId: string, params: GetHouseholdChartPeriodsApiParams) => [
     ...householdKeys.chartsRoot(householdId),
     'periods',

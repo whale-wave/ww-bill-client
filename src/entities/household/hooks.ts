@@ -34,6 +34,7 @@ import type {
   HouseholdMember,
   HouseholdRecordsPage,
 } from './types';
+import type { TagRankingResponse } from '@/entities/chart';
 import type { SuccessResponse } from '@/shared/api';
 import {
   useInfiniteQuery,
@@ -60,6 +61,7 @@ import {
   getHouseholdRecordApi,
   getHouseholdRecordFilterOptionsApi,
   getHouseholdRecordsApi,
+  getHouseholdTagRankingApi,
   getMyHouseholdApi,
   patchHouseholdApi,
   patchMyHouseholdNicknameApi,
@@ -119,6 +121,13 @@ export async function getHouseholdChartsQueryFn(
   params: GetHouseholdChartsApiParams,
 ) {
   return assertSuccessApi(await getHouseholdChartsApi(householdId, params));
+}
+
+export async function getHouseholdTagRankingQueryFn(
+  householdId: string,
+  params: GetHouseholdChartsApiParams,
+) {
+  return assertSuccessApi(await getHouseholdTagRankingApi(householdId, params));
 }
 
 export async function getHouseholdChartPeriodsQueryFn(
@@ -501,6 +510,19 @@ export function useHouseholdChartsQuery(options: {
   const { data: response, ...rest } = useQuery({
     queryFn: () => getHouseholdChartsQueryFn(householdId, filters),
     queryKey: householdKeys.charts(householdId, filters),
+    ...options.queryOptions,
+  });
+  return { response, data: response?.data, ...rest };
+}
+
+export function useHouseholdTagRankingQuery(options: {
+  params: { householdId: string; filters: GetHouseholdChartsApiParams };
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<TagRankingResponse>>, 'queryFn' | 'queryKey'>;
+}) {
+  const { householdId, filters } = options.params;
+  const { data: response, ...rest } = useQuery<SuccessResponse<TagRankingResponse>>({
+    queryFn: () => getHouseholdTagRankingQueryFn(householdId, filters),
+    queryKey: householdKeys.tagRanking(householdId, filters),
     ...options.queryOptions,
   });
   return { response, data: response?.data, ...rest };

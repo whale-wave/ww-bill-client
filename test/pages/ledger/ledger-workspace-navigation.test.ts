@@ -50,6 +50,7 @@ const hooks = vi.hoisted(() => ({
   useLedgerRecordsQuery: vi.fn(),
   useRecordFilterOptionsQuery: vi.fn(),
   useLedgerTagsQuery: vi.fn(),
+  useCreateLedgerTagMutation: vi.fn(),
   useLedgerTemplatesQuery: vi.fn(),
   useMyHouseholdQuery: vi.fn(),
   usePostBudgetClearMutation: vi.fn(),
@@ -87,6 +88,7 @@ vi.mock('@/entities/chart', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/chart')>()),
   useGetChartQuery: hooks.useGetChartQuery,
   useLedgerChartQuery: hooks.useLedgerChartQuery,
+  useLedgerTagRankingQuery: () => ({ data: undefined, isError: false, isLoading: false }),
 }));
 
 vi.mock('@/entities/budget', async importOriginal => ({
@@ -110,6 +112,7 @@ vi.mock('@/entities/category', async importOriginal => ({
 vi.mock('@/entities/ledger-data', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/ledger-data')>()),
   useLedgerTagsQuery: hooks.useLedgerTagsQuery,
+  useCreateLedgerTagMutation: hooks.useCreateLedgerTagMutation,
 }));
 
 vi.mock('@/pages/record/detail/List', () => ({ default: () => createElement('div', { 'data-testid': 'personal-record-list' }) }));
@@ -307,6 +310,7 @@ beforeEach(() => {
   hooks.useLedgerBudgetInfoQuery.mockReturnValue({ data: { categoryBudgets: [] }, isError: false, isLoading: false });
   hooks.useLedgerCategoriesQuery.mockReturnValue({ data: [], isError: false, isLoading: false, refetch: vi.fn() });
   hooks.useLedgerTagsQuery.mockReturnValue({ data: [], isError: false, isLoading: false });
+  hooks.useCreateLedgerTagMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
   hooks.useCreateLedgerRecordMutation.mockReturnValue([hooks.createLedgerRecord, { isLoading: false }]);
   hooks.useClearLedgerBudgetMutation.mockReturnValue([hooks.clearLedgerBudget, { isLoading: false }]);
   hooks.useCreateLedgerBudgetCategoryMutation.mockReturnValue([vi.fn(), { isLoading: false }]);

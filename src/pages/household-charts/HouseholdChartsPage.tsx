@@ -11,8 +11,8 @@ import type {
 import { getISOWeek, getISOWeekYear, getMonth, getYear, subMonths, subYears } from 'date-fns';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { useHouseholdChartPeriodsQuery, useHouseholdChartsQuery } from '@/entities/household';
-import { ChartOverviewContext, ChartOverviewPresentation } from '@/features/chart-overview';
+import { useHouseholdChartPeriodsQuery, useHouseholdChartsQuery, useHouseholdTagRankingQuery } from '@/entities/household';
+import { ChartOverviewContext, ChartOverviewPresentation, TagRankingSection } from '@/features/chart-overview';
 import {
   HouseholdBottomNav,
   HouseholdPageState,
@@ -207,6 +207,18 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     },
     queryOptions: { enabled: Boolean(selectedOption) },
   });
+  const tagRankingQuery = useHouseholdTagRankingQuery({
+    params: {
+      householdId: household.id,
+      filters: {
+        anchorDate: selectedOption?.anchorDate ?? '',
+        display: displayMode,
+        metric,
+        period: currentTimeRangeCategory,
+      },
+    },
+    queryOptions: { enabled: Boolean(selectedOption) },
+  });
 
   const currentTab = useMemo(
     () => selectedOption && query.data && hasOverviewData(query.data, currentAmountType)
@@ -309,7 +321,9 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     currentAmountType,
     currentTab,
     currentTimeRangeCategory,
+    household.id,
     memberRanking,
+    navigate,
     displayMode,
     handleDisplayModeChange,
     setCurrentAmountType,
@@ -340,6 +354,7 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
         <ChartOverviewContext.Provider value={contextValue}>
           <ChartOverviewPresentation
             pieChart={<HouseholdCategoryPieChart ranking={currentTab?.ranking ?? []} />}
+            tagRanking={<TagRankingSection data={tagRankingQuery.data} isError={tagRankingQuery.isError} isLoading={tagRankingQuery.isLoading} />}
           />
         </ChartOverviewContext.Provider>
       </HouseholdPageState>

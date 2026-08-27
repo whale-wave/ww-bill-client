@@ -6,9 +6,10 @@ import { Top } from './Top';
 
 export interface ChartOverviewPresentationProps {
   pieChart?: ReactNode;
+  tagRanking?: ReactNode;
 }
 
-export const ChartOverviewBody: FC<ChartOverviewPresentationProps> = ({ pieChart }) => {
+export const ChartOverviewBody: FC<ChartOverviewPresentationProps> = ({ pieChart, tagRanking }) => {
   const {
     currentAmountType,
     currentMetric,
@@ -70,7 +71,7 @@ export const ChartOverviewBody: FC<ChartOverviewPresentationProps> = ({ pieChart
           </button>
         ))}
       </div>
-      <ChartContent pieChart={pieChart} />
+      <ChartContent pieChart={pieChart} tagRanking={tagRanking} />
     </div>
   );
 };

@@ -1,11 +1,11 @@
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/shared/i18n';
 import { useChartOverview } from '../model/chart-overview-context';
 import { RankingItem } from './RankingItem';
 
-export const RankingList: FC = () => {
+export const RankingList: FC<{ betweenSections?: ReactNode }> = ({ betweenSections }) => {
   const { t } = useTranslation('chart');
   const navigate = useNavigate();
   const {
@@ -52,16 +52,12 @@ export const RankingList: FC = () => {
     });
   };
 
-  const rankingSections = [
-    {
-      items: rankingData,
-      key: 'category',
-      title: rankingTitle ?? `${currentAmountType === 'sub' ? t('amountType.expense') : t('amountType.income')}${t('ranking.title')}`,
-    },
-    ...additionalRankingSections,
-  ];
-
-  return rankingSections.map(section => (
+  const categorySection = {
+    items: rankingData,
+    key: 'category',
+    title: rankingTitle ?? `${currentAmountType === 'sub' ? t('amountType.expense') : t('amountType.income')}${t('ranking.title')}`,
+  };
+  const renderSection = (section: typeof categorySection) => (
     <section className="flex-shrink-0" key={section.key}>
       <h2 className="pb-[10px] text-[14px] font-bold leading-[21px] text-ww-ink">{section.title}</h2>
       <div className="overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] px-4 py-1.5 shadow-ww backdrop-blur-xl">
@@ -80,5 +76,13 @@ export const RankingList: FC = () => {
             ))}
       </div>
     </section>
-  ));
+  );
+
+  return (
+    <>
+      {renderSection(categorySection)}
+      {betweenSections}
+      {additionalRankingSections.map(renderSection)}
+    </>
+  );
 };

@@ -34,7 +34,7 @@ const category: CategoryEntity = {
 const submit = vi.fn<(draft: RecordDraft) => Promise<void>>();
 let cleanup: (() => void) | undefined;
 
-function Editor({ amount, remark }: { amount?: string; remark?: string }) {
+function Editor({ amount, editing = false, remark, tags = false }: { amount?: string; editing?: boolean; remark?: string; tags?: boolean }) {
   const controller = useRecordEditorController({
     onSubmit: submit,
     seed: {
@@ -42,18 +42,22 @@ function Editor({ amount, remark }: { amount?: string; remark?: string }) {
       category,
       recordType: 'sub',
       remark,
+      tagIds: editing ? ['00000000-0000-4000-8000-000000000301', '00000000-0000-4000-8000-000000000302'] : undefined,
       time: '2026-07-21T12:00:00.000Z',
     },
+    isEditing: editing,
+    supportsTags: tags,
   });
   return createElement(RecordEditorPresentation, {
     categories: [category],
     categoryState: 'ready',
     controller,
     onCancel: vi.fn(),
+    tags: tags ? [{ id: '00000000-0000-4000-8000-000000000303', name: '出游' }] : undefined,
   });
 }
 
-function renderEditor(props: { amount?: string; remark?: string } = {}) {
+function renderEditor(props: { amount?: string; editing?: boolean; remark?: string; tags?: boolean } = {}) {
   const container = document.createElement('div');
   document.body.appendChild(container);
   const root = createRoot(container);
@@ -197,6 +201,20 @@ describe('record editor controller', () => {
     });
 
     expect(submit).toHaveBeenCalledTimes(1);
+  });
+
+  it('preserves legacy multi-tag associations until the user changes tags', async () => {
+    const container = renderEditor({ amount: '20', editing: true, tags: true });
+    await complete(container);
+    expect(submit).toHaveBeenCalledWith(expect.not.objectContaining({ tagIds: expect.anything() }));
+
+    submit.mockClear();
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-tag-trigger]')?.click());
+    act(() => [...document.querySelectorAll('button')].find(button => button.textContent === '出游')?.click());
+    await complete(container);
+    expect(submit).toHaveBeenCalledWith(expect.objectContaining({
+      tagIds: ['00000000-0000-4000-8000-000000000303'],
+    }));
   });
 
   it('removes the context-menu guard when the editor unmounts', () => {

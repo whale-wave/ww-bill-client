@@ -11,9 +11,10 @@ import { RankingList } from './RankingList';
 
 interface ChartContentProps {
   pieChart?: ReactNode;
+  tagRanking?: ReactNode;
 }
 
-export const ChartContent: FC<ChartContentProps> = ({ pieChart }) => {
+export const ChartContent: FC<ChartContentProps> = ({ pieChart, tagRanking }) => {
   const { t } = useTranslation(['chart', 'common']);
   const {
     curTab,
@@ -69,7 +70,7 @@ export const ChartContent: FC<ChartContentProps> = ({ pieChart }) => {
                     />
                     {displayMode === 'pie' ? pieChart ?? <PieChart /> : <LineChart />}
                   </GradientPanel>
-                  <RankingList />
+                  <RankingList betweenSections={tagRanking} />
                 </div>
               )}
     </div>

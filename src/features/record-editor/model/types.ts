@@ -9,10 +9,11 @@ export interface RecordEditorSeed {
   recordType: CategoryAmountType;
   remark?: string;
   tagIds?: string[];
+  hasImage?: boolean;
   time: string;
 }
 
-export type RecordDraft = PostRecordApiData;
+export type RecordDraft = Omit<PostRecordApiData, 'imageAssetId'> & { imageAssetId?: string | null };
 
 export interface RecordEditorTag {
   id: string;
