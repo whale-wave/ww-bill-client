@@ -1,7 +1,7 @@
 {
   "name": "ww-bill-client",
   "type": "module",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "appRelease": {
     "androidVersionCode": 2
   },
