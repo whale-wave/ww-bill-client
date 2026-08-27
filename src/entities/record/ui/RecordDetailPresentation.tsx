@@ -1,6 +1,8 @@
 import type { FC, ReactNode } from 'react';
+import type { MemberColorKey } from '@/shared/config/member-colors';
 import { ChevronLeft, ChevronRight, Pencil, Share2, Trash2 } from 'lucide-react';
 import { Fragment, useEffect, useRef } from 'react';
+import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { formatAmount } from '@/shared/lib';
 import { GradientPanel, Icon } from '@/shared/ui';
 
@@ -28,6 +30,7 @@ export interface RecordDetailPresentationProps {
     name: string;
   };
   categoryIcon?: ReactNode;
+  memberColorKey?: MemberColorKey;
   footerActions?: readonly RecordDetailAction[];
   onBack: () => void;
   pinnedAction?: RecordDetailAction;
@@ -80,6 +83,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
   backLabel,
   category,
   categoryIcon,
+  memberColorKey,
   footerActions = [],
   onBack,
   pinnedAction,
@@ -129,8 +133,14 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
             <div aria-hidden="true" className="absolute -right-7 -top-9 h-32 w-32 rounded-full border-[22px] border-solid border-white/25" />
             <div className="relative flex items-center gap-3" data-record-detail-category>
               <div
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] border border-white/80 bg-white/75 text-primary-deep shadow-ww-xs"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] border border-white/80 text-primary-deep shadow-ww-xs"
                 data-category-icon={category.icon}
+                style={memberColorKey
+                  ? {
+                      backgroundColor: MEMBER_COLOR_PALETTE[memberColorKey].background,
+                      color: MEMBER_COLOR_PALETTE[memberColorKey].foreground,
+                    }
+                  : { backgroundColor: 'rgba(255,255,255,0.75)' }}
               >
                 {categoryIcon ?? <Icon className="text-[26px]" name={category.icon} />}
               </div>

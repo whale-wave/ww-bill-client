@@ -343,6 +343,10 @@ const router = createHashRouter([
             lazy: lazyGuardedPage(() => import('@/pages/household-charts/HouseholdChartsPage')),
           },
           {
+            path: ':householdId/settings/member-color',
+            lazy: lazyGuardedPage(() => import('@/pages/household-member-color/HouseholdMemberColorPage')),
+          },
+          {
             path: ':householdId/settings',
             lazy: lazyGuardedPage(() => import('@/pages/household-settings/HouseholdSettingsPage')),
           },
@@ -434,6 +438,10 @@ const router = createHashRouter([
           {
             path: ':ledgerId/settings/tags',
             lazy: lazyGuardedPage(() => import('@/pages/ledger-tags/LedgerTagsPage')),
+          },
+          {
+            path: ':ledgerId/settings/member-color',
+            lazy: lazyGuardedPage(() => import('@/pages/ledger-member-color/LedgerMemberColorPage')),
           },
           {
             path: ':ledgerId/settings',

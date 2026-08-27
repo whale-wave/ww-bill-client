@@ -21,6 +21,7 @@ import {
 } from '@/features/household';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { SettingsOverviewPresentation } from '@/features/workspace-settings';
+import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { AppBottomSheet, GradientPanel, PageHeader } from '@/shared/ui';
@@ -156,7 +157,7 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
                   name: member.nickname || member.user.name || member.user.username || '',
                   src: member.user.avatar,
                 })),
-                icon: 'member',
+                icon: 'member' as const,
                 id: 'members',
                 kind: 'avatarStack',
                 label: t('settings.members'),
@@ -176,6 +177,25 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
                 ),
                 value: currentMember?.nickname,
               },
+              {
+                description: '在家庭账本中区分不同成员的账单',
+                icon: 'appearance',
+                id: 'member-color',
+                kind: 'link',
+                label: '我的成员颜色',
+                onClick: () => navigate(ROUTES_PATH.HOUSEHOLD_MEMBER_COLOR.getPath(household.id)),
+                value: currentMember?.colorKey ? MEMBER_COLOR_PALETTE[currentMember.colorKey].label : '海蓝',
+              },
+              ...(isOwner
+                ? [{
+                    description: t('settings.invitationDescription'),
+                    icon: 'member' as const,
+                    id: 'invitation',
+                    kind: 'link' as const,
+                    label: t('settings.invitation'),
+                    onClick: () => navigate(ROUTES_PATH.HOUSEHOLD_INVITATION.getPath(household.id)),
+                  }]
+                : []),
             ],
           },
           {

@@ -46,6 +46,8 @@ import { captureSessionScope, isSessionScopeCurrent } from '@/shared/api/auth-in
 import {
   deleteHouseholdBudgetApi,
   deleteHouseholdInvitationApi,
+  deleteHouseholdMemberApi,
+  deleteMyHouseholdMemberApi,
   downloadHouseholdExportApi,
   getFamilyRecordPolicyApi,
   getHouseholdBudgetsApi,
@@ -169,6 +171,14 @@ export async function revokeHouseholdInvitationMutationFn(options: {
   return assertSuccessApi(
     await deleteHouseholdInvitationApi(options.householdId, options.invitationId),
   );
+}
+
+export async function leaveHouseholdMutationFn(householdId: string) {
+  return assertSuccessApi(await deleteMyHouseholdMemberApi(householdId));
+}
+
+export async function removeHouseholdMemberMutationFn(options: { householdId: string; memberId: string; version?: number }) {
+  return assertSuccessApi(await deleteHouseholdMemberApi(options.householdId, options.memberId, options.version));
 }
 
 export async function acceptHouseholdInvitationMutationFn(options: {
@@ -672,6 +682,7 @@ export function useUpdateMyHouseholdNicknameMutation() {
         queryClient.invalidateQueries({
           queryKey: householdKeys.members(variables.householdId),
         }),
+        queryClient.invalidateQueries({ queryKey: householdKeys.recordsRoot(variables.householdId) }),
       ]);
     },
   });
@@ -691,6 +702,33 @@ export function useDissolveHouseholdMutation() {
         predicate: query => query.queryKey[1] !== 'mine',
       });
       removeHouseholdInvitation(variables.householdId);
+    },
+  });
+  return [mutateAsync, rest] as const;
+}
+
+export function useLeaveHouseholdMutation() {
+  const queryClient = useQueryClient();
+  const { mutateAsync, ...rest } = useMutation({
+    mutationFn: leaveHouseholdMutationFn,
+    onSuccess: async (_response, householdId) => {
+      await queryClient.invalidateQueries({ queryKey: householdKeys.mine() });
+      await queryClient.invalidateQueries({ queryKey: householdKeys.members(householdId) });
+    },
+  });
+  return [mutateAsync, rest] as const;
+}
+
+export function useRemoveHouseholdMemberMutation() {
+  const queryClient = useQueryClient();
+  const { mutateAsync, ...rest } = useMutation({
+    mutationFn: removeHouseholdMemberMutationFn,
+    onSuccess: async (_response, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: householdKeys.mine() }),
+        queryClient.invalidateQueries({ queryKey: householdKeys.members(variables.householdId) }),
+        queryClient.invalidateQueries({ queryKey: householdKeys.recordsRoot(variables.householdId) }),
+      ]);
     },
   });
   return [mutateAsync, rest] as const;

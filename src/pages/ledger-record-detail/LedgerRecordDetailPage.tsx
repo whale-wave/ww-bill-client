@@ -108,6 +108,7 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
       backLabel={t('common:nav.back')}
       category={record.category}
       categoryIcon={<CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} size={36} />}
+      memberColorKey={record.creator?.colorKey}
       footerActions={[
         ...(canUpdate
           ? [{

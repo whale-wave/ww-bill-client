@@ -15,6 +15,14 @@ export interface RecordEntry {
   type: 'sub' | 'add';
   updatedAt: string;
   version: number;
+  creator?: {
+    id: number;
+    name?: string;
+    username?: string;
+    avatar?: string;
+    nickname?: string;
+    colorKey?: import('@/shared/config/member-colors').MemberColorKey;
+  };
   ledgerId?: string;
   tags?: Array<{
     id: string;

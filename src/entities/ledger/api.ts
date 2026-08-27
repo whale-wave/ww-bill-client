@@ -226,6 +226,7 @@ export function getLedgerMembersApi(
 export interface PatchLedgerMemberApiData {
   role?: Exclude<LedgerRole, LedgerRole.OWNER>;
   nickname?: string;
+  colorKey?: import('@/shared/config/member-colors').MemberColorKey;
   version: number;
 }
 

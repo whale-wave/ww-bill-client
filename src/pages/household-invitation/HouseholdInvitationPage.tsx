@@ -159,10 +159,11 @@ const HouseholdInvitationPage: FC = () => {
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[520px]">
           <HouseholdScopeBoundary allowPending householdId={householdId}>
-            {() => (
+            {household => (
               <GradientPanel className="mt-2 px-5 py-6 text-center" elevation="low" surface="ice">
                 <h1 className="text-[16px] font-extrabold text-ww-ink">{t('invitation.heading')}</h1>
                 <p className="mx-auto mt-2 max-w-[300px] text-[12px] font-semibold leading-5 text-ww-mid">{t('invitation.description')}</p>
+                <p className="mt-2 text-[12px] font-bold text-primary-deep">{t('invitation.remaining', { count: Math.max(0, (household.memberLimit ?? 12) - (household.memberCount ?? household.members.length)) })}</p>
 
                 {invitation && remaining > 0
                   ? (
@@ -219,7 +220,7 @@ const HouseholdInvitationPage: FC = () => {
                         <button
                           className="mt-5 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
                           data-testid="household-generate-invite"
-                          disabled={createState.isLoading}
+                          disabled={createState.isLoading || (household.memberCount ?? household.members.length) >= (household.memberLimit ?? 12)}
                           onClick={() => void handleGenerate()}
                           type="button"
                         >

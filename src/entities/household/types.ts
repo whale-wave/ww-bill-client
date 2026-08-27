@@ -1,3 +1,5 @@
+import type { MemberColorKey } from '@/shared/config/member-colors';
+
 export enum HouseholdStatus {
   PENDING_PARTNER = 'PENDING_PARTNER',
   ACTIVE = 'ACTIVE',
@@ -6,7 +8,13 @@ export enum HouseholdStatus {
 
 export enum HouseholdMemberRole {
   OWNER = 'OWNER',
-  PARTNER = 'PARTNER',
+  MEMBER = 'MEMBER',
+}
+
+// eslint-disable-next-line ts/no-namespace
+export namespace HouseholdMemberRole {
+  /** @deprecated Kept as a source-compatible alias for existing callers. */
+  export const PARTNER: HouseholdMemberRole = HouseholdMemberRole.MEMBER;
 }
 
 export enum HouseholdMemberStatus {
@@ -39,6 +47,7 @@ export interface HouseholdUserSummary {
   username?: string;
   avatar?: string;
   nickname?: string;
+  colorKey?: MemberColorKey;
 }
 
 export interface HouseholdMember {
@@ -46,6 +55,7 @@ export interface HouseholdMember {
   user: HouseholdUserSummary;
   role: HouseholdMemberRole;
   nickname: string;
+  colorKey?: MemberColorKey;
   joinedAt: string;
   version: number;
 }
@@ -59,6 +69,8 @@ export interface Household {
   version: number;
   myRole?: HouseholdMemberRole;
   members: HouseholdMember[];
+  memberCount?: number;
+  memberLimit?: number;
   createdAt: string;
   updatedAt: string;
 }

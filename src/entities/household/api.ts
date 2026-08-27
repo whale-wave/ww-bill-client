@@ -23,6 +23,7 @@ import type {
   HouseholdRecordsPage,
 } from './types';
 import type { SuccessResponse } from '@/shared/api';
+import type { MemberColorKey } from '@/shared/config/member-colors';
 import { request } from '@/shared/api';
 
 export interface PostHouseholdApiData {
@@ -61,7 +62,8 @@ export function patchHouseholdApi(
 }
 
 export interface PatchMyHouseholdNicknameApiData {
-  nickname: string;
+  nickname?: string;
+  colorKey?: MemberColorKey;
   version: number;
 }
 
@@ -69,6 +71,7 @@ export interface PatchMyHouseholdNicknameResult {
   householdId: string;
   userId: number;
   nickname: string;
+  colorKey: MemberColorKey;
   version: number;
 }
 
@@ -213,6 +216,19 @@ export function deleteHouseholdInvitationApi(
 ) {
   return request.delete<unknown, SuccessResponse<HouseholdInvitationRevocation>>(
     `/households/${encodeURIComponent(householdId)}/invitations/${encodeURIComponent(invitationId)}`,
+  );
+}
+
+export function deleteMyHouseholdMemberApi(householdId: string) {
+  return request.delete<unknown, SuccessResponse<{ householdId: string; userId: number; status: 'LEFT'; endedAt: string }>>(
+    `/households/${encodeURIComponent(householdId)}/members/me`,
+  );
+}
+
+export function deleteHouseholdMemberApi(householdId: string, memberId: string, version?: number) {
+  return request.delete<unknown, SuccessResponse<{ householdId: string; memberId: string; status: 'LEFT'; endedAt: string }>>(
+    `/households/${encodeURIComponent(householdId)}/members/${encodeURIComponent(memberId)}`,
+    { data: version === undefined ? undefined : { version } },
   );
 }
 

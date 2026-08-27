@@ -35,6 +35,7 @@ import { useGetUserUserInfoQuery } from '@/entities/user';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { SettingsOverviewPresentation } from '@/features/workspace-settings';
+import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import {
@@ -372,7 +373,20 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                   ROUTES_PATH.LEDGER_MEMBERS.getPath(ledgerId),
                 ),
                 overflowCount: Math.max(0, membersQuery.data.length - 3),
-              }]
+              }, ...(membersQuery.data.some(member => member.user.id === userQuery.data?.id)
+                ? [{
+                    icon: 'appearance' as const,
+                    id: 'member-color',
+                    kind: 'link' as const,
+                    label: '我的成员颜色',
+                    description: '在多人账本中区分不同成员的账单',
+                    onClick: () => navigate(ROUTES_PATH.LEDGER_MEMBER_COLOR.getPath(ledgerId)),
+                    value: (() => {
+                      const member = membersQuery.data.find(item => item.user.id === userQuery.data?.id);
+                      return member?.colorKey ? MEMBER_COLOR_PALETTE[member.colorKey].label : '海蓝';
+                    })(),
+                  }]
+                : [])]
             : [],
           title: t('settings.members'),
         },

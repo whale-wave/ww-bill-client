@@ -20,7 +20,7 @@ describe('household domain contract', () => {
       'ACTIVE',
       'DISSOLVED',
     ]);
-    expect(Object.values(HouseholdMemberRole)).toEqual(['OWNER', 'PARTNER']);
+    expect(Object.values(HouseholdMemberRole)).toEqual(['OWNER', 'MEMBER', 'MEMBER']);
     expect(Object.values(HouseholdInvitationStatus)).toEqual([
       'ACTIVE',
       'CONSUMED',

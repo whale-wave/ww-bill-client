@@ -109,10 +109,11 @@ function groupRecords(
         amountTone: record.type === 'add' ? 'income' : 'expense',
         categoryName: record.category.name,
         iconName: record.category.icon,
+        memberColorKey: record.creator?.colorKey,
         id: record.id,
         onClick: () => onRecordClick(record),
         primary: record.remark || record.category.name,
-        secondary: record.category.name,
+        secondary: `${record.category.name}${record.creator ? ` · @${record.creator.nickname || record.creator.name || record.creator.username || '成员'}` : ''}`,
       })),
       summaries: showDailySummary
         ? [

@@ -3,6 +3,7 @@ import type { FamilyRecord, HouseholdCalendarDay } from '@/entities/household';
 import { CategoryIcon } from '@/entities/category';
 import { FamilyRecordPolicy } from '@/entities/household';
 import { RecordOverviewList } from '@/entities/record';
+import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { cn } from '@/shared/lib';
 import {
   getDisplayName,
@@ -62,7 +63,15 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
   const renderRecord = (record: FamilyRecord, index: number) => {
     const content = (
       <>
-        <span className="mr-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bg-gray text-base">
+        <span
+          className="mr-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bg-gray text-base"
+          style={record.creator.colorKey
+            ? {
+                backgroundColor: MEMBER_COLOR_PALETTE[record.creator.colorKey].background,
+                color: MEMBER_COLOR_PALETTE[record.creator.colorKey].foreground,
+              }
+            : undefined}
+        >
           {record.category?.icon || record.category?.name?.slice(0, 1) || '￥'}
         </span>
         <span className="min-w-0 flex-grow">

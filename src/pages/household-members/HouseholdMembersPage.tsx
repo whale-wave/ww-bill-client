@@ -1,9 +1,11 @@
 import type { FC, FormEvent } from 'react';
 import type { Household } from '@/entities/household';
-import { Button, ErrorBlock, Toast } from 'antd-mobile';
+import { Button, Dialog, ErrorBlock, Toast } from 'antd-mobile';
 import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
+  deleteHouseholdMemberApi,
+  deleteMyHouseholdMemberApi,
   HouseholdMemberRole,
   useHouseholdMembersQuery,
   useUpdateMyHouseholdNicknameMutation,
@@ -18,6 +20,7 @@ import {
 } from '@/features/household';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { MemberCardsPresentation } from '@/features/workspace-settings';
+import { assertSuccessApi } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
 import { AppBottomSheet, PageHeader } from '@/shared/ui';
 
@@ -68,7 +71,7 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
     avatar: member.user.avatar,
     badge: member.role === HouseholdMemberRole.OWNER
       ? t('members.owner')
-      : t('members.partner'),
+      : t('members.member'),
     description: member.nickname,
     id: member.id,
     name: getDisplayName(member.user),
@@ -103,8 +106,50 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
                   isCurrent: true,
                 }}
                 others={others.map(member => toCard(member))}
-                othersLabel={t('members.partner')}
+                othersLabel={t('members.member')}
               />
+              <div className="space-y-2">
+                {current.role !== HouseholdMemberRole.OWNER && (
+                  <Button
+                    block
+                    color="danger"
+                    onClick={async () => {
+                      if (await Dialog.confirm({ content: t('members.confirmLeave') })) {
+                        try {
+                          await assertSuccessApi(await deleteMyHouseholdMemberApi(household.id));
+                          window.history.back();
+                        }
+                        catch (error) {
+                          Toast.show({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
+                        }
+                      }
+                    }}
+                  >
+                    {t('members.leave')}
+                  </Button>
+                )}
+                {current.role === HouseholdMemberRole.OWNER && others.map(member => (
+                  <Button
+                    block
+                    color="danger"
+                    fill="none"
+                    key={member.id}
+                    onClick={async () => {
+                      if (await Dialog.confirm({ content: t('members.confirmRemove', { name: getDisplayName(member.user) }) })) {
+                        try {
+                          await assertSuccessApi(await deleteHouseholdMemberApi(household.id, member.id, member.version));
+                          await query.refetch();
+                        }
+                        catch (error) {
+                          Toast.show({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
+                        }
+                      }
+                    }}
+                  >
+                    {t('members.remove', { name: getDisplayName(member.user) })}
+                  </Button>
+                ))}
+              </div>
               <AppBottomSheet
                 destroyOnClose
                 onMaskClick={() => setIsEditing(false)}

@@ -121,6 +121,9 @@ export const ROUTES_PATH = {
   HOUSEHOLD_SETTINGS: {
     getPath: (householdId: string) => `/households/${encodeRouteSegment(householdId)}/settings`,
   },
+  HOUSEHOLD_MEMBER_COLOR: {
+    getPath: (householdId: string) => `/households/${encodeRouteSegment(householdId)}/settings/member-color`,
+  },
   HOUSEHOLD_EXPORT: {
     getPath: (householdId: string) => `/households/${encodeRouteSegment(householdId)}/export`,
   },
@@ -203,6 +206,9 @@ export const ROUTES_PATH = {
   },
   LEDGER_SETTINGS: {
     getPath: (ledgerId: string) => `/ledgers/${encodeRouteSegment(ledgerId)}/settings`,
+  },
+  LEDGER_MEMBER_COLOR: {
+    getPath: (ledgerId: string) => `/ledgers/${encodeRouteSegment(ledgerId)}/settings/member-color`,
   },
   LEDGER_CATEGORIES: {
     getPath: (ledgerId: string) => `/ledgers/${encodeRouteSegment(ledgerId)}/settings/categories`,

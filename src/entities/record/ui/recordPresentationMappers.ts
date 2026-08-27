@@ -48,13 +48,14 @@ export function toRecordSearchGroups(
         amountTone: record.type === 'add' ? 'income' : 'expense',
         categoryName: record.category.name,
         iconName: record.category.icon,
+        memberColorKey: record.creator?.colorKey,
         id: record.id,
         onClick: options.onRecordClick
           ? () => options.onRecordClick?.(record)
           : undefined,
         primary: record.remark || record.category.name,
         secondary: options.showCategoryAsSecondary
-          ? record.category.name
+          ? `${record.category.name}${record.creator ? ` · @${record.creator.nickname || record.creator.name || record.creator.username || '成员'}` : ''}`
           : undefined,
       })),
       summaries: [

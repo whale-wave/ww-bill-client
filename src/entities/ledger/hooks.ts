@@ -630,6 +630,7 @@ export function useDecideJoinRequestMutation() {
         queryClient.invalidateQueries({
           queryKey: ledgerKeys.membersRoot(variables.ledgerId),
         }),
+        queryClient.invalidateQueries({ queryKey: ['record', variables.ledgerId] }),
         invalidateLedgerNavigationAndManagementCaches(queryClient),
       ]);
     },

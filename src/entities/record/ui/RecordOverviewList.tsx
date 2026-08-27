@@ -1,4 +1,5 @@
 import type { FC, ReactNode } from 'react';
+import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { cn } from '@/shared/lib';
 import { Icon } from '@/shared/ui';
 
@@ -7,6 +8,7 @@ export interface RecordOverviewListItem {
   amountTone?: 'expense' | 'income' | 'neutral';
   categoryName?: string;
   iconName: string;
+  memberColorKey?: keyof typeof MEMBER_COLOR_PALETTE;
   id: number | string;
   onClick?: () => void;
   overviewSecondary?: ReactNode;
@@ -131,14 +133,22 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                         <span
                           className={cn(
                             'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                            index % 4 === 1
+                            record.memberColorKey && 'border border-solid border-white/70 shadow-ww-xs',
+                            !record.memberColorKey && index % 4 === 1
                               ? 'bg-[#ffe8ee] text-[#d06080]'
-                              : index % 4 === 2
-                                ? 'bg-[#e0f6ee] text-[#3e9e7b]'
-                                : index % 4 === 3
-                                  ? 'bg-[#ede8ff] text-[#705cc0]'
-                                  : 'bg-[#e4f5fa] text-primary-deep',
+                              : !record.memberColorKey && index % 4 === 2
+                                  ? 'bg-[#e0f6ee] text-[#3e9e7b]'
+                                  : !record.memberColorKey && index % 4 === 3
+                                      ? 'bg-[#ede8ff] text-[#705cc0]'
+                                      : !record.memberColorKey ? 'bg-[#e4f5fa] text-primary-deep' : '',
                           )}
+                          style={record.memberColorKey
+                            ? {
+                                backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
+                                color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
+                                padding: 3,
+                              }
+                            : undefined}
                           data-category-icon={record.iconName}
                         >
                           {renderCategoryIcon?.(record) ?? <Icon className="text-[18px]" name={record.iconName || 'bill'} />}
@@ -177,17 +187,32 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                         ? 'flex h-full w-[52px] shrink-0 items-center justify-start'
                         : 'mx-4 flex shrink-0 items-center justify-center py-3'}
                       data-category-icon={record.iconName}
+                      style={record.memberColorKey
+                        ? {
+                            backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
+                            color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
+                          }
+                        : undefined}
                     >
-                      <span className={cn(
-                        'flex h-10 w-10 items-center justify-center rounded-full',
-                        index % 4 === 1
-                          ? 'bg-[#ffe8ee] text-[#d06080]'
-                          : index % 4 === 2
-                            ? 'bg-[#e0f6ee] text-[#3e9e7b]'
-                            : index % 4 === 3
-                              ? 'bg-[#ede8ff] text-[#705cc0]'
-                              : 'bg-[#e4f5fa] text-primary-deep',
-                      )}
+                      <span
+                        className={cn(
+                          'flex h-10 w-10 items-center justify-center rounded-full',
+                          record.memberColorKey && 'border border-solid border-white/70 shadow-ww-xs',
+                          !record.memberColorKey && index % 4 === 1
+                            ? 'bg-[#ffe8ee] text-[#d06080]'
+                            : index % 4 === 2
+                              ? 'bg-[#e0f6ee] text-[#3e9e7b]'
+                              : index % 4 === 3
+                                ? 'bg-[#ede8ff] text-[#705cc0]'
+                                : 'bg-[#e4f5fa] text-primary-deep',
+                        )}
+                        style={record.memberColorKey
+                          ? {
+                              backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
+                              color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
+                              padding: 3,
+                            }
+                          : undefined}
                       >
                         {renderCategoryIcon?.(record) ?? <Icon className="text-[18px]" name={record.iconName || 'bill'} />}
                       </span>

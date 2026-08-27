@@ -1,3 +1,5 @@
+import type { MemberColorKey } from '@/shared/config/member-colors';
+
 export enum LedgerKind {
   SYSTEM_DEFAULT = 'SYSTEM_DEFAULT',
   CUSTOM = 'CUSTOM',
@@ -226,6 +228,7 @@ export interface LedgerMember {
   role: LedgerRole;
   status: LedgerMemberStatus;
   nickname: string;
+  colorKey?: MemberColorKey;
   joinedAt: string;
   leftAt?: string;
   removedByUserId?: number;
