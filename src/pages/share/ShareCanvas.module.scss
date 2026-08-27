@@ -77,18 +77,15 @@
 }
 
 .brandMark {
-  display: flex;
   width: 34px;
   height: 34px;
-  align-items: center;
-  justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.92);
-  border-radius: 12px;
-  color: #198caa;
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 5px 14px rgba(70, 145, 170, 0.12);
-  font-size: 15px;
-  font-weight: 900;
+}
+
+.brandMarkImage {
+  object-fit: cover;
 }
 
 .receipt {

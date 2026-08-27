@@ -2,6 +2,7 @@ import type { FC, RefObject } from 'react';
 import { CategoryIcon } from '@/entities/category';
 import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
+import { BrandAvatar } from '@/shared/ui';
 import styles from './ShareCanvas.module.scss';
 
 export interface ShareData {
@@ -35,7 +36,7 @@ const ShareCanvas: FC<ShareCanvasProps> = ({ canvasRef, data }) => {
         <div className={styles.glowBottom} />
 
         <header className={styles.brand}>
-          <span className={styles.brandMark}>W</span>
+          <BrandAvatar className={styles.brandMark} imageClassName={styles.brandMarkImage} />
           <span>
             <strong>{config.appName}</strong>
             <small>{t('share.posterKicker')}</small>

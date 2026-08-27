@@ -6,7 +6,7 @@ import { useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
-import { canvasToPngBlob, saveImageToGallery } from '@/shared/lib';
+import { canvasToPngBlob, getImageExportCaptureOptions, saveImageToGallery, waitForImageExportReady } from '@/shared/lib';
 import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
 import {
   buildShareUrl,
@@ -28,17 +28,6 @@ function getSourceFromState(state: unknown): Record<string, unknown> | undefined
   return s;
 }
 
-async function waitForPosterImages(element: HTMLElement) {
-  const images = Array.from(element.querySelectorAll('img'));
-  await Promise.all(images.map(image => image.complete
-    ? Promise.resolve()
-    : new Promise<void>((resolve) => {
-        image.addEventListener('load', () => resolve(), { once: true });
-        image.addEventListener('error', () => resolve(), { once: true });
-      })));
-  await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
-}
-
 function Share() {
   const { t } = useTranslation('community');
   const navigate = useNavigate();
@@ -52,16 +41,21 @@ function Share() {
   }, [location.state, searchParams]);
 
   const saveCanvas = async () => {
-    if (!canvasRef.current) {
+    const canvasElement = canvasRef.current;
+    const data = shareData;
+    if (!canvasElement || !data) {
       Toast.show({ content: t('share.noData'), icon: 'fail' });
       return;
     }
     try {
-      await waitForPosterImages(canvasRef.current);
-      const canvas = await html2canvas(canvasRef.current, {
+      await waitForImageExportReady(canvasElement, {
+        fontSample: [data.categoryName, data.dateText, data.remark, data.amount, t('share.recordBill'), t('share.posterSignature')].join(' '),
+      });
+      const captureOptions = getImageExportCaptureOptions(canvasElement);
+      const canvas = await html2canvas(canvasElement, {
         backgroundColor: null,
-        scale: Math.max(2, window.devicePixelRatio || 1),
         useCORS: true,
+        ...captureOptions,
       });
       const blob = await canvasToPngBlob(canvas);
       await saveImageToGallery(blob, config.appName);
