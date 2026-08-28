@@ -60,6 +60,13 @@ export interface HouseholdMember {
   version: number;
 }
 
+export interface HouseholdPreference {
+  id: string;
+  hideTotalAmount: boolean;
+  version: number;
+  updatedAt: string;
+}
+
 export interface Household {
   id: string;
   sharedStartMonth: string;

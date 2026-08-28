@@ -12,6 +12,11 @@ export const householdKeys = {
   detail: (householdId: string) => [...householdKeys.details(), householdId] as const,
   memberRoot: () => [...householdKeys.all, 'member'] as const,
   members: (householdId: string) => [...householdKeys.memberRoot(), householdId] as const,
+  preferenceRoot: () => [...householdKeys.all, 'preference'] as const,
+  preferences: (householdId: string) => [
+    ...householdKeys.preferenceRoot(),
+    householdId,
+  ] as const,
   invitationRoot: () => [...householdKeys.all, 'invitation'] as const,
   invitation: (householdId: string) => [
     ...householdKeys.invitationRoot(),

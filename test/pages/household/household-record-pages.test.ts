@@ -24,9 +24,11 @@ const hooks = vi.hoisted(() => ({
   refetchRecords: vi.fn(),
   refetchRecordPolicy: vi.fn(),
   setPolicy: vi.fn(),
+  patchHouseholdPreferencesApi: vi.fn(),
   useHouseholdCalendarQuery: vi.fn(),
   useFamilyRecordPolicyQuery: vi.fn(),
   useHouseholdMembersQuery: vi.fn(),
+  useHouseholdPreferencesQuery: vi.fn(),
   useHouseholdRecordQuery: vi.fn(),
   useHouseholdRecordFilterOptionsQuery: vi.fn(),
   useInfiniteHouseholdRecordsQuery: vi.fn(),
@@ -40,9 +42,11 @@ const locale = vi.hoisted(() => ({ language: 'en' }));
 
 vi.mock('@/entities/household', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/household')>()),
+  patchHouseholdPreferencesApi: hooks.patchHouseholdPreferencesApi,
   useHouseholdCalendarQuery: hooks.useHouseholdCalendarQuery,
   useFamilyRecordPolicyQuery: hooks.useFamilyRecordPolicyQuery,
   useHouseholdMembersQuery: hooks.useHouseholdMembersQuery,
+  useHouseholdPreferencesQuery: hooks.useHouseholdPreferencesQuery,
   useHouseholdRecordQuery: hooks.useHouseholdRecordQuery,
   useHouseholdRecordFilterOptionsQuery: hooks.useHouseholdRecordFilterOptionsQuery,
   useInfiniteHouseholdRecordsQuery: hooks.useInfiniteHouseholdRecordsQuery,
@@ -137,6 +141,7 @@ beforeEach(() => {
   Object.values(hooks).forEach(mock => mock.mockReset());
   locale.language = 'en';
   hooks.useMyHouseholdQuery.mockReturnValue(query(household));
+  hooks.patchHouseholdPreferencesApi.mockResolvedValue({});
   hooks.useInfiniteHouseholdRecordsQuery.mockReturnValue({
     ...query(recordsPage),
     fetchNextPage: hooks.fetchNextRecords,
@@ -156,6 +161,12 @@ beforeEach(() => {
     refetch: hooks.refetchRecordPolicy,
   });
   hooks.useHouseholdMembersQuery.mockReturnValue(query([]));
+  hooks.useHouseholdPreferencesQuery.mockReturnValue({
+    data: { hideTotalAmount: false, id: 'preference/a', updatedAt: '2026-07-01T00:00:00.000Z', version: 1 },
+    isError: false,
+    isLoading: false,
+    refetch: vi.fn(),
+  });
   hooks.useHouseholdRecordQuery.mockReturnValue(query(record));
   hooks.useHouseholdRecordFilterOptionsQuery.mockReturnValue(query({
     capabilities: { category: true, member: true, tag: true },
@@ -219,6 +230,25 @@ describe('household records', () => {
     expect(header?.querySelector('[data-testid="household-monthly-income"]')?.textContent).toContain('0.00');
     expect(header?.querySelector('[data-testid="household-monthly-expense"]')?.textContent).toContain('20.00');
     expect(container.textContent).not.toContain('common.net');
+  });
+
+  it('persists the current member visibility preference from the home summary', async () => {
+    const refetchPreference = vi.fn().mockResolvedValue(undefined);
+    hooks.useHouseholdPreferencesQuery.mockReturnValue({
+      data: { hideTotalAmount: false, id: 'preference/a', updatedAt: '2026-07-01T00:00:00.000Z', version: 3 },
+      isError: false,
+      isLoading: false,
+      refetch: refetchPreference,
+    });
+    const { container } = renderPage('/households/household%2Fa', '/households/:householdId', createElement(HouseholdHomePage));
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="toggle amount visibility"]')?.click());
+
+    expect(hooks.patchHouseholdPreferencesApi).toHaveBeenCalledWith('household/a', {
+      hideTotalAmount: true,
+      version: 3,
+    });
+    expect(refetchPreference).toHaveBeenCalled();
   });
 
   it('uses the shared month picker trigger', () => {

@@ -19,6 +19,7 @@ import LedgerChartsPage from '@/pages/ledger-charts/LedgerChartsPage';
 import LedgerRecordsPage from '@/pages/ledger-records/LedgerRecordsPage';
 
 const hooks = vi.hoisted(() => ({
+  patchLedgerPreferencesApi: vi.fn(),
   useGetUserAppConfigQuery: vi.fn(),
   useLedgerChartQuery: vi.fn(),
   useLedgerNavigationQuery: vi.fn(),
@@ -29,6 +30,7 @@ const hooks = vi.hoisted(() => ({
 
 vi.mock('@/entities/ledger', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/ledger')>()),
+  patchLedgerPreferencesApi: hooks.patchLedgerPreferencesApi,
   useLedgerNavigationQuery: hooks.useLedgerNavigationQuery,
   useLedgerPreferencesQuery: hooks.useLedgerPreferencesQuery,
   useLedgerQuery: hooks.useLedgerQuery,
@@ -133,6 +135,7 @@ beforeEach(() => {
     isLoading: false,
   });
   hooks.useLedgerPreferencesQuery.mockReturnValue({ data: preference, isError: false, isLoading: false });
+  hooks.patchLedgerPreferencesApi.mockResolvedValue({});
   hooks.useLedgerRecordsQuery.mockReturnValue({
     data: { data: [], expend: 5, income: 10, total: 0 },
     isError: false,
@@ -159,6 +162,25 @@ describe('ledger preference consumers', () => {
     expect(container.querySelector('[data-testid="ledger-monthly-income"]')?.textContent).toContain('••••');
     expect(container.querySelector('[data-testid="ledger-monthly-expense"]')?.textContent).toContain('••••');
     expect(container.querySelector('[data-record-overview-metrics]')?.textContent).not.toContain('10');
+  });
+
+  it('persists amount visibility changes on the current shared ledger', async () => {
+    const refetchPreference = vi.fn().mockResolvedValue(undefined);
+    hooks.useLedgerPreferencesQuery.mockReturnValue({
+      data: { ...preference, version: 4 },
+      isError: false,
+      isLoading: false,
+      refetch: refetchPreference,
+    });
+    const container = renderPage(createElement(LedgerRecordsPage));
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="toggle amount visibility"]')?.click());
+
+    expect(hooks.patchLedgerPreferencesApi).toHaveBeenCalledWith('ledger/a', {
+      hideTotalAmount: true,
+      version: 4,
+    });
+    expect(refetchPreference).toHaveBeenCalled();
   });
 
   it('shows the selected day summary only when enabled', () => {

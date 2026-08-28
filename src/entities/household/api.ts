@@ -20,6 +20,7 @@ import type {
   HouseholdInvitationPreview,
   HouseholdInvitationRevocation,
   HouseholdMember,
+  HouseholdPreference,
   HouseholdRecordsPage,
 } from './types';
 import type { TagRankingResponse } from '@/entities/chart';
@@ -44,6 +45,27 @@ export function getMyHouseholdApi() {
 export function getHouseholdMembersApi(householdId: string) {
   return request.get<unknown, SuccessResponse<HouseholdMember[]>>(
     `/households/${encodeURIComponent(householdId)}/members`,
+  );
+}
+
+export function getHouseholdPreferencesApi(householdId: string) {
+  return request.get<unknown, SuccessResponse<HouseholdPreference>>(
+    `/households/${encodeURIComponent(householdId)}/preferences`,
+  );
+}
+
+export interface PatchHouseholdPreferencesApiData {
+  hideTotalAmount: boolean;
+  version: number;
+}
+
+export function patchHouseholdPreferencesApi(
+  householdId: string,
+  data: PatchHouseholdPreferencesApiData,
+) {
+  return request.patch<unknown, SuccessResponse<HouseholdPreference>>(
+    `/households/${encodeURIComponent(householdId)}/preferences`,
+    data,
   );
 }
 
