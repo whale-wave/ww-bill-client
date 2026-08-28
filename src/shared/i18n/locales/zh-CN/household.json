@@ -274,6 +274,8 @@
     "membersDescription": "查看成员资料并修改我的家庭昵称",
     "export": "导出家庭数据",
     "exportDescription": "仅导出当前共享范围内的数据",
+    "hideTotal": "隐藏首页收支金额",
+    "hideTotalDescription": "仅影响我在当前家庭账本首页看到的收支汇总",
     "sharedStart": "共享开始月份",
     "nickname": "我在家庭账本中的昵称",
     "nicknameDescription": "在家庭成员页面中修改",

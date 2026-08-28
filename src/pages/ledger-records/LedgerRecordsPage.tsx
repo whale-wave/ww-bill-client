@@ -72,7 +72,7 @@ const LEDGER_SHORTCUTS: readonly LedgerShortcut[] = [
 ];
 
 function formatAmount(value: number, isHidden: boolean) {
-  return isHidden ? '••••' : value.toFixed(2);
+  return isHidden ? '＊＊＊＊＊' : value.toFixed(2);
 }
 
 function groupRecords(
@@ -238,14 +238,14 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
         shortcutsTestId: 'ledger-record-shortcuts',
         testId: 'ledger-records-header',
         titleIcon: (
-          <span className="flex h-[18px] w-[18px] flex-none overflow-hidden rounded-full">
-            <LedgerVisualIcon
-              iconKey={ledger.iconKey}
-              kind={ledger.kind}
-              templateKey={ledger.templateKey}
-            />
-          </span>
+          <LedgerVisualIcon
+            className="h-[18px] w-[18px] text-primary-deep"
+            iconKey={ledger.iconKey}
+            kind={ledger.kind}
+            templateKey={ledger.templateKey}
+          />
         ),
+        titleIconContainerClassName: 'rounded-[12px] border border-white/80 bg-white/75 !bg-none text-primary-deep shadow-ww-xs',
         titleAlignment: 'start',
       }}
       onRetry={() => void query.refetch()}

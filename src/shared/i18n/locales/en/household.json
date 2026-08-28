@@ -274,6 +274,8 @@
     "membersDescription": "View member profiles and edit my household nickname",
     "export": "Export household data",
     "exportDescription": "Only data within the current sharing scope is exported",
+    "hideTotal": "Hide home income and expenses",
+    "hideTotalDescription": "Only affects the summary I see on this household ledger home page",
     "sharedStart": "Sharing start month",
     "nickname": "My household nickname",
     "nicknameDescription": "Edit it from the household members page",

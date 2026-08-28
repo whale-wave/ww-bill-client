@@ -159,9 +159,19 @@ describe('ledger preference consumers', () => {
 
     const container = renderPage(createElement(LedgerRecordsPage));
 
-    expect(container.querySelector('[data-testid="ledger-monthly-income"]')?.textContent).toContain('••••');
-    expect(container.querySelector('[data-testid="ledger-monthly-expense"]')?.textContent).toContain('••••');
+    expect(container.querySelector('[data-testid="ledger-monthly-income"]')?.textContent).toContain('＊＊＊＊＊');
+    expect(container.querySelector('[data-testid="ledger-monthly-expense"]')?.textContent).toContain('＊＊＊＊＊');
     expect(container.querySelector('[data-record-overview-metrics]')?.textContent).not.toContain('10');
+  });
+
+  it('uses the compact shared-ledger icon treatment in the title row', () => {
+    const container = renderPage(createElement(LedgerRecordsPage));
+
+    const iconContainer = container.querySelector('[data-record-overview-title-row] > span');
+    const icon = iconContainer?.querySelector('svg');
+    expect(iconContainer?.classList).toContain('bg-white/75');
+    expect(iconContainer?.classList).toContain('!bg-none');
+    expect(icon?.classList).toContain('text-primary-deep');
   });
 
   it('persists amount visibility changes on the current shared ledger', async () => {

@@ -150,12 +150,11 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
               switchTestId="household-more-action"
             />
           ),
-          amountToggle: preferenceQuery.data
-            ? {
-                content: <DesignIcon name={isAmountHidden ? 'amount-hidden' : 'amount-visible'} size={16} />,
-                onClick: handleToggleAmountVisibility,
-              }
-            : undefined,
+          amountToggle: {
+            content: <DesignIcon name={isAmountHidden ? 'amount-hidden' : 'amount-visible'} size={16} />,
+            disabled: !preferenceQuery.data,
+            onClick: handleToggleAmountVisibility,
+          },
           metrics: [
             {
               key: 'income',
