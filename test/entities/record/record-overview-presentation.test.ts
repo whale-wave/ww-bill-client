@@ -49,11 +49,11 @@ describe('record overview presentation', () => {
     const shortcut = container.querySelector('[aria-label="record shortcuts"] button');
 
     expect(header?.classList).toContain('pt-[max(8px,env(safe-area-inset-top))]');
-    expect(header?.querySelector('[data-record-overview-summary]')?.classList).toContain('h-[229.25px]');
+    expect(header?.querySelector('[data-record-overview-summary]')?.classList).toContain('h-[211px]');
     expect(titleRow?.classList).toContain('gap-2');
     expect(titleRow?.querySelector('img')?.parentElement?.classList).toContain('h-8');
     expect(shortcut?.classList).toContain('rounded-[14px]');
-    expect(shortcut?.classList).toContain('h-[70px]');
+    expect(shortcut?.classList).toContain('h-16');
     expect(metrics).not.toBeNull();
     expect(container.querySelectorAll('[aria-label="record shortcuts"] button')).toHaveLength(5);
   });

@@ -87,7 +87,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
       </div>
       <div className="px-[18px] pb-4">
         <GradientPanel
-          className="relative h-[229.25px] overflow-hidden px-[22px] pb-5 pt-[22px]"
+          className="relative h-[211px] overflow-hidden px-[22px] pb-4 pt-[18px]"
           data-record-overview-summary=""
           elevation="high"
           surface="aurora"
@@ -134,7 +134,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
           </div>
           <ActionMenuCard
             aria-label="record shortcuts"
-            className="relative h-[90px] overflow-y-hidden pt-5"
+            className="relative h-20 overflow-y-hidden pt-4"
             columns={3}
             items={shortcuts.map((shortcut, index) => ({
               ariaDisabled: shortcut.disabled,

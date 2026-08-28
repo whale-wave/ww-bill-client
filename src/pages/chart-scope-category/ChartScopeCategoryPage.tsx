@@ -128,7 +128,7 @@ const LedgerCategoryPage: FC<{ ledgerId: string }> = ({ ledgerId }) => {
   const tagRanking = useLedgerTagRankingQuery({ params: { ledgerId, filters: state ? { categoryId: String(state.category.id), endDate: state.endDate, startDate: state.startDate, type: state.type } : { categoryId: '', type: 'sub' } }, enabled: Boolean(state) });
   if (!state)
     return null;
-  return <CategoryDetail isRecordsLoading={query.isLoading} records={query.data.data} state={state} tagRanking={<TagRankingSection data={tagRanking.data} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />} toRecord={recordId => ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId)} />;
+  return <CategoryDetail isRecordsLoading={query.isLoading} records={query.data.data} state={state} tagRanking={<TagRankingSection data={tagRanking.data} fallbackRecords={query.data.data} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />} toRecord={recordId => ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId)} />;
 };
 
 const HouseholdCategoryPage: FC<{ householdId: string }> = ({ householdId }) => {
@@ -137,7 +137,7 @@ const HouseholdCategoryPage: FC<{ householdId: string }> = ({ householdId }) => 
   const tagRanking = useHouseholdTagRankingQuery({ params: { householdId, filters: state ? { categoryKey: String(state.category.id), endDate: state.endDate, metric: state.type === 'sub' ? 'expense' : 'income', startDate: state.startDate } : { categoryKey: '', metric: 'expense' } }, queryOptions: { enabled: Boolean(state) } });
   if (!state)
     return null;
-  return <CategoryDetail isRecordsLoading={query.isLoading} records={query.records} state={state} tagRanking={<TagRankingSection data={tagRanking.data} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />} toRecord={recordId => ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(householdId, recordId)} />;
+  return <CategoryDetail isRecordsLoading={query.isLoading} records={query.records} state={state} tagRanking={<TagRankingSection data={tagRanking.data} fallbackRecords={query.records} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />} toRecord={recordId => ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(householdId, recordId)} />;
 };
 
 export function LedgerChartCategoryPage() {

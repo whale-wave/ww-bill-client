@@ -90,7 +90,7 @@ export function ActionMenuCard({
               && `h-[75px] w-[calc((100%_-_20px)/3)] min-w-[calc((100%_-_20px)/3)] snap-start gap-2 rounded-[16px] px-2 pb-3 pt-4 ${tileToneClassNames[tone]}`,
               isDetailShortcuts
               && cn(
-                'h-[70px] gap-[7px] rounded-[14px] border border-white/90 px-[6px] py-3',
+                'h-16 gap-[5px] rounded-[14px] border border-white/90 px-[6px] py-2',
                 hasScrollableDetailShortcuts
                   ? 'w-[calc((100%_-_30px)/4)] min-w-[calc((100%_-_30px)/4)] flex-none snap-start'
                   : 'min-w-0 flex-1',
