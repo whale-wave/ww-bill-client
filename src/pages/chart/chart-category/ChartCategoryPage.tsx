@@ -10,7 +10,7 @@ import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { useGetChartQuery, useTagRankingQuery } from '@/entities/chart';
-import { CategoryTrendChart, ChartDisplaySwitch, TagRankingSection } from '@/features/chart-overview';
+import { CategoryTrendChart, TagRankingSection } from '@/features/chart-overview';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
 import { GradientPanel, IllustratedEmptyState, MetricGrid, ProgressBar } from '@/shared/ui';
@@ -94,7 +94,6 @@ const ChartCategory: FC = () => {
     enabled: Boolean(categoryId && tagRange),
   });
   const [recordSort, setRecordSort] = useState<'amount' | 'time'>('amount');
-  const [displayMode, setDisplayMode] = useState<'line' | 'pie'>('line');
   const sortedRecords = useMemo(() => [...records].sort((left, right) => {
     if (recordSort === 'amount')
       return Number(right.amount) - Number(left.amount);
@@ -162,14 +161,13 @@ const ChartCategory: FC = () => {
       <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[520px] space-y-5">
           <section>
-            <div className="mb-2 flex items-center justify-between px-1">
+            <div className="mb-2 px-1">
               <p className="truncate text-[11px] font-semibold text-ww-mid">
                 {periodName || t('currentPeriod')}
                 {currentType ? ` · ${t(`amount.${currentType === 'sub' ? 'expend' : 'income'}`)}` : ''}
               </p>
-              <ChartDisplaySwitch value={displayMode} onChange={setDisplayMode} />
             </div>
-            <GradientPanel className={`overflow-hidden px-5 pb-4 pt-5 ${displayMode === 'pie' ? 'h-[228px]' : 'h-[212.5px]'}`} elevation="high" surface="chart">
+            <GradientPanel className="h-[212.5px] overflow-hidden px-5 pb-4 pt-5" elevation="high" surface="chart">
               <MetricGrid
                 columns={2}
                 items={[
@@ -178,11 +176,11 @@ const ChartCategory: FC = () => {
                 ]}
                 variant="chart-summary"
               />
-              <CategoryTrendChart displayMode={displayMode} records={records} />
+              <CategoryTrendChart records={records} />
             </GradientPanel>
           </section>
 
-          <section>
+          <section data-record-ranking>
             <div className="mb-2.5 flex items-end justify-between px-1">
               <div>
                 <h2 className="text-[15px] font-extrabold leading-6 text-ww-ink">{t('ranking.title')}</h2>

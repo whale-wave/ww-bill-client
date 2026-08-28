@@ -10,9 +10,11 @@ import { useTranslation } from '@/shared/i18n';
 import {
   canvasToPngBlob,
   GalleryPermissionDeniedError,
+  getImageExportCaptureOptions,
   ImageShareCancelledError,
   saveImageToGallery,
   shareImage,
+  waitForImageExportReady,
 } from '@/shared/lib';
 import { DesignIcon, IllustratedEmptyState, PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
 import { formatMonthTitle } from './model/monthBillDetail';
@@ -37,17 +39,6 @@ interface ExportSnapshot {
 interface AvatarBarrierState {
   sessionId: number;
   state: 'loading' | AvatarReadyState;
-}
-
-function waitForImages(element: HTMLElement) {
-  return Promise.all(Array.from(element.querySelectorAll('img')).map((image) => {
-    if (image.complete)
-      return typeof image.decode === 'function' ? image.decode().catch(() => undefined) : Promise.resolve();
-    return new Promise<void>((resolve) => {
-      image.addEventListener('load', () => resolve(), { once: true });
-      image.addEventListener('error', () => resolve(), { once: true });
-    });
-  }));
 }
 
 async function waitForStrictQr(element: HTMLElement) {
@@ -83,28 +74,6 @@ function getExportFontSample(snapshot: ExportSnapshot) {
     snapshot.bill.monthBillExportQrUrl,
     '收入支出账单月度概览其他分类 ¥￥0123456789.%+-↑↓',
   ].join(' ');
-}
-
-async function prepareExportFonts(snapshot: ExportSnapshot) {
-  const sample = getExportFontSample(snapshot);
-  const faces = await Promise.all([
-    document.fonts.load('700 16px "Noto Sans SC Variable"', sample),
-    document.fonts.load('700 16px "Nunito Variable"', '0123456789.%+-¥￥'),
-  ]);
-  if (faces.some(face => face.length === 0))
-    throw new Error('Export font face was not loaded');
-  await document.fonts.ready;
-  if (!document.fonts.check('700 16px "Noto Sans SC Variable"', sample)
-    || !document.fonts.check('700 16px "Nunito Variable"', '0123456789.%+-¥￥')) {
-    throw new Error('Export font check failed');
-  }
-}
-
-function waitForFrames(count = 2) {
-  return Array.from({ length: count }).reduce<Promise<void>>(
-    promise => promise.then(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve()))),
-    Promise.resolve(),
-  );
 }
 
 function isValidMonth(month: string | undefined): month is string {
@@ -206,26 +175,16 @@ export default function MonthBillDetailPage() {
       return;
     captureStartedRef.current = true;
     try {
-      await prepareExportFonts(snapshot);
-      await waitForImages(root);
+      await waitForImageExportReady(root, { fontSample: getExportFontSample(snapshot) });
       await waitForStrictQr(root);
-      await waitForFrames();
       if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId))
         return;
       setExportStatus('rendering');
-      const width = root.scrollWidth;
-      const height = root.scrollHeight;
       const canvas = await html2canvas(root, {
         backgroundColor: null,
-        height,
         logging: false,
-        scale: Math.min(2, 16000 / Math.max(1, height)),
-        scrollX: 0,
-        scrollY: 0,
         useCORS: true,
-        width,
-        windowHeight: height,
-        windowWidth: width,
+        ...getImageExportCaptureOptions(root),
       });
       if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId))
         return;
@@ -266,7 +225,10 @@ export default function MonthBillDetailPage() {
     let cancelled = false;
     void (async () => {
       try {
-        await Promise.all([prepareExportFonts(snapshot), waitForStrictQr(exportRef.current!)]);
+        await Promise.all([
+          waitForImageExportReady(exportRef.current!, { fontSample: getExportFontSample(snapshot) }),
+          waitForStrictQr(exportRef.current!),
+        ]);
         if (!cancelled && activeSessionRef.current === sessionId)
           setChartsEnabled(true);
       }
@@ -335,7 +297,7 @@ export default function MonthBillDetailPage() {
 
   return (
     <div className="page-new overflow-hidden">
-      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={formatMonthTitle(month)} />
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate('/bill', { replace: true })} title={formatMonthTitle(month)} />
       <main className="min-h-0 flex-grow overflow-auto px-[18px] pb-28 pt-2" data-bill-detail-scroll>
         {query.isLoading && !hasData && <PageLoadingState label={t('common:nav.loading')} testId="month-bill-detail-loading" />}
         {query.isError && !hasData && (

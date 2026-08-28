@@ -79,22 +79,15 @@
 }
 
 .brandMark {
-  display: flex;
   width: 34px;
   height: 34px;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.92);
-  border-radius: 50%;
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 5px 14px rgba(70, 145, 170, 0.12);
+}
 
-  img {
-    width: 25px;
-    height: 25px;
-    object-fit: contain;
-  }
+.brandMarkImage {
+  object-fit: cover;
 }
 
 .receipt {

@@ -9,6 +9,11 @@ interface GalleryImagePlugin {
 const GalleryImage = registerPlugin<GalleryImagePlugin>('GalleryImage');
 const SHARE_DIRECTORY = 'bill-image-shares';
 
+export interface ImageExportReadinessOptions {
+  fontSample?: string;
+  frameCount?: number;
+}
+
 export class ImageShareCancelledError extends Error {
   constructor() {
     super('Image sharing was cancelled');
@@ -40,6 +45,59 @@ export function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
         reject(new Error('Canvas could not be converted to an image'));
     }, 'image/png');
   });
+}
+
+function waitForAnimationFrames(count: number): Promise<void> {
+  return Array.from({ length: count }).reduce<Promise<void>>(
+    promise => promise.then(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve()))),
+    Promise.resolve(),
+  );
+}
+
+async function waitForImageDecode(image: HTMLImageElement): Promise<void> {
+  if (!image.complete) {
+    await new Promise<void>((resolve) => {
+      image.addEventListener('load', () => resolve(), { once: true });
+      image.addEventListener('error', () => resolve(), { once: true });
+    });
+  }
+  if (image.complete && typeof image.decode === 'function')
+    await image.decode().catch(() => undefined);
+}
+
+export async function waitForImageExportReady(element: HTMLElement, options: ImageExportReadinessOptions = {}): Promise<void> {
+  const { fontSample = '', frameCount = 2 } = options;
+  await Promise.all(Array.from(element.querySelectorAll('img')).map(image => waitForImageDecode(image)));
+
+  if (typeof document !== 'undefined' && 'fonts' in document) {
+    const faces = await Promise.all([
+      document.fonts.load('700 16px "Noto Sans SC Variable"', fontSample),
+      document.fonts.load('700 16px "Nunito Variable"', '0123456789.%+-¥￥'),
+    ]);
+    if (faces.some(face => face.length === 0))
+      throw new Error('Export font face was not loaded');
+    await document.fonts.ready;
+    if (!document.fonts.check('700 16px "Noto Sans SC Variable"', fontSample)
+      || !document.fonts.check('700 16px "Nunito Variable"', '0123456789.%+-¥￥')) {
+      throw new Error('Export font check failed');
+    }
+  }
+
+  await waitForAnimationFrames(frameCount);
+}
+
+export function getImageExportCaptureOptions(element: HTMLElement) {
+  const width = Math.max(1, element.scrollWidth);
+  const height = Math.max(1, element.scrollHeight);
+  return {
+    height,
+    scale: Math.min(2, 16000 / height),
+    scrollX: 0,
+    scrollY: 0,
+    width,
+    windowHeight: height,
+    windowWidth: width,
+  };
 }
 
 function blobToDataUrl(blob: Blob): Promise<string> {

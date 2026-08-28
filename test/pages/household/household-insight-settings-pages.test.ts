@@ -759,17 +759,20 @@ describe('household budget and charts', () => {
     expect(container.querySelector('[data-household-pie-chart]')).not.toBeNull();
     expect(container.querySelector('[data-household-pie-legend]')?.textContent).toContain('餐饮50%');
     expect(container.querySelector('[data-household-pie-legend]')?.textContent).toContain('other5%');
-    expect(hooks.chartSetOption).toHaveBeenLastCalledWith(expect.objectContaining({
-      series: [expect.objectContaining({
-        data: [
-          expect.objectContaining({ id: 'category:food', name: '餐饮', value: 50 }),
-          expect.objectContaining({ id: 'category:travel', name: '交通', value: 30 }),
-          expect.objectContaining({ id: 'category:home', name: '住房', value: 10 }),
-          expect.objectContaining({ id: 'category:fun', name: '娱乐', value: 5 }),
-          expect.objectContaining({ id: 'aggregate:other', name: 'other', value: 5 }),
-        ],
-      })],
-    }));
+    expect(hooks.chartSetOption).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        series: [expect.objectContaining({
+          data: [
+            expect.objectContaining({ id: 'category:food', name: '餐饮', value: 50 }),
+            expect.objectContaining({ id: 'category:travel', name: '交通', value: 30 }),
+            expect.objectContaining({ id: 'category:home', name: '住房', value: 10 }),
+            expect.objectContaining({ id: 'category:fun', name: '娱乐', value: 5 }),
+            expect.objectContaining({ id: 'aggregate:other', name: 'other', value: 5 }),
+          ],
+        })],
+      }),
+      { notMerge: true },
+    );
   });
 
   it('shows a category empty state without initializing a pie chart', () => {

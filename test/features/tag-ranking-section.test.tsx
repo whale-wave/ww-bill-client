@@ -39,10 +39,23 @@ describe('tag ranking section', () => {
     const container = render({ data: ranking });
 
     expect(container.querySelector('[aria-label="标签金额占比"]')).not.toBeNull();
+    expect(container.querySelector('[data-tag-ranking-donut]')).not.toBeNull();
+    expect(container.querySelector('[data-tag-ranking-rows]')).not.toBeNull();
     expect(container.querySelectorAll('[data-tag-ranking-section]')).toHaveLength(1);
     expect(container.querySelectorAll('.bg-primary-mid')).toHaveLength(2);
     expect(container.textContent).toContain('¥139.20');
     expect(container.textContent).toContain('#大茶壶');
+  });
+
+  it('shrinks the center amount for a long formatted value', () => {
+    const container = render({
+      data: {
+        items: [{ amount: '1,234,567.89', key: 'tag-1', name: '大茶壶', percentage: 100, tagId: 'tag-1' }],
+        totalAmount: '1,234,567.89',
+      },
+    });
+
+    expect((container.querySelector('[data-tag-ranking-donut] span.font-number') as HTMLElement).style.fontSize).toBe('11px');
   });
 
   it('keeps unavailable and empty results inside the ranking section', () => {

@@ -1,5 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import type { TagRankingResponse } from '@/entities/chart';
+import { getDonutAmountSize } from '@/shared/lib';
+import { DonutChart } from '@/shared/ui';
 
 const COLORS = ['#7c78f6', '#19bf8b', '#70b5c9', '#f5ab57', '#e7799d', '#6e9fdb'];
 
@@ -18,17 +20,7 @@ const TagDonut: FC<{ data: TagRankingResponse }> = ({ data }) => {
     const end = index === data.items.length - 1 ? 100 : position;
     return `${COLORS[index % COLORS.length]} ${start}% ${end}%`;
   });
-  return (
-    <div aria-label="标签金额占比" className="relative h-[140px] w-[140px] shrink-0 rounded-full" style={{ background: `conic-gradient(${segments.join(', ')})` }}>
-      <div className="absolute inset-[27px] flex flex-col items-center justify-center rounded-full bg-white text-center">
-        <span className="text-[11px] leading-4 text-ww-soft">总金额</span>
-        <span className="font-number text-[17px] font-bold leading-6 text-ww-ink">
-          ¥
-          {data.totalAmount}
-        </span>
-      </div>
-    </div>
-  );
+  return <div aria-label="标签金额占比" className="h-full w-full rounded-full" style={{ background: `conic-gradient(${segments.join(', ')})` }} />;
 };
 
 const TagLegend: FC<{ data: TagRankingResponse }> = ({ data }) => (
@@ -97,32 +89,40 @@ export const TagRankingSection: FC<{ data?: TagRankingResponse; isError?: boolea
     <section data-tag-ranking-section>
       <h2 className="pb-[10px] text-[15px] font-extrabold leading-6 text-ww-ink">标签排行</h2>
       <div className="overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] px-4 py-3 shadow-ww backdrop-blur-xl">
-        <div className="flex items-center gap-4 px-1 py-2">
-          <TagDonut data={data} />
-          <TagLegend data={data} />
+        <div className="px-1 py-2">
+          <DonutChart
+            amount={data.totalAmount}
+            amountSize={getDonutAmountSize(`¥${data.totalAmount}`)}
+            chart={<TagDonut data={data} />}
+            label="总金额"
+            legend={<TagLegend data={data} />}
+            marker="tag"
+          />
         </div>
-        {data.items.map((item, index) => (
-          <div className="border-t border-border-primary py-3" key={item.key}>
-            <div className="flex items-center gap-3">
-              <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-              <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-ww-ink">
-                #
-                {item.name}
-              </span>
-              <span className="shrink-0 font-number text-[11px] text-ww-soft">
-                {item.percentage}
-                %
-              </span>
-              <span className="shrink-0 font-number text-[13px] font-bold text-ww-mid">
-                ¥
-                {item.amount}
-              </span>
+        <div data-tag-ranking-rows>
+          {data.items.map((item, index) => (
+            <div className="border-t border-border-primary py-3" key={item.key}>
+              <div className="flex items-center gap-3">
+                <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-ww-ink">
+                  #
+                  {item.name}
+                </span>
+                <span className="shrink-0 font-number text-[11px] text-ww-soft">
+                  {item.percentage}
+                  %
+                </span>
+                <span className="shrink-0 font-number text-[13px] font-bold text-ww-mid">
+                  ¥
+                  {item.amount}
+                </span>
+              </div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/5">
+                <div className="h-full rounded-full bg-primary-mid" style={{ width: `${Math.min(100, getPercentage(item, 100))}%` }} />
+              </div>
             </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/5">
-              <div className="h-full rounded-full bg-primary-mid" style={{ width: `${Math.min(100, getPercentage(item, 100))}%` }} />
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

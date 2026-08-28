@@ -9,7 +9,7 @@ import { useLedgerTagRankingQuery } from '@/entities/chart';
 import { useHouseholdRecordsQuery, useHouseholdTagRankingQuery } from '@/entities/household';
 import { LedgerCapability } from '@/entities/ledger';
 import { useLedgerRecordsQuery } from '@/entities/record';
-import { CategoryTrendChart, ChartDisplaySwitch, TagRankingSection } from '@/features/chart-overview';
+import { CategoryTrendChart, TagRankingSection } from '@/features/chart-overview';
 import { HouseholdScopeBoundary } from '@/features/household';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -36,11 +36,10 @@ function readState(value: unknown): ChartDetailState | undefined {
     : undefined;
 }
 
-function CategoryDetail({ isRecordsLoading, records, state, tagRanking, toRecord }: { isRecordsLoading?: boolean; records: Array<RecordEntry | FamilyRecord>; state: ChartDetailState; tagRanking?: ReactNode; toRecord: (id: number) => string }) {
+export function CategoryDetail({ isRecordsLoading, records, state, tagRanking, toRecord }: { isRecordsLoading?: boolean; records: Array<RecordEntry | FamilyRecord>; state: ChartDetailState; tagRanking?: ReactNode; toRecord: (id: number) => string }) {
   const { t } = useTranslation('chart');
   const navigate = useNavigate();
   const [sort, setSort] = useState<'amount' | 'time'>('amount');
-  const [displayMode, setDisplayMode] = useState<'line' | 'pie'>('line');
   const sortedRecords = useMemo(() => records
     .filter((record) => {
       const category = record.category;
@@ -65,11 +64,10 @@ function CategoryDetail({ isRecordsLoading, records, state, tagRanking, toRecord
       <main className="min-h-0 flex-grow overflow-y-auto px-[18px] pb-8">
         <div className="space-y-5">
           <section>
-            <div className="mb-2 flex items-center justify-between px-1">
+            <div className="mb-2 px-1">
               <p className="truncate text-[11px] font-semibold text-ww-mid">{state.periodName}</p>
-              <ChartDisplaySwitch value={displayMode} onChange={setDisplayMode} />
             </div>
-            <GradientPanel className={`overflow-hidden px-5 pb-4 pt-5 ${displayMode === 'pie' ? 'h-[228px]' : 'h-[212.5px]'}`} elevation="high" surface="chart">
+            <GradientPanel className="h-[212.5px] overflow-hidden px-5 pb-4 pt-5" elevation="high" surface="chart">
               <MetricGrid
                 columns={2}
                 items={[
@@ -78,10 +76,10 @@ function CategoryDetail({ isRecordsLoading, records, state, tagRanking, toRecord
                 ]}
                 variant="chart-summary"
               />
-              <CategoryTrendChart displayMode={displayMode} records={sortedRecords} />
+              <CategoryTrendChart records={sortedRecords} />
             </GradientPanel>
           </section>
-          <section>
+          <section data-record-ranking>
             <div className="mb-2.5 flex items-end justify-between px-1">
               <h2 className="text-[15px] font-extrabold text-ww-ink">{t('ranking.title')}</h2>
               <div className="flex overflow-hidden rounded-lg border border-border-primary bg-white/70 p-0.5 text-[11px] font-semibold text-ww-soft">{(['amount', 'time'] as const).map(option => <button className={`rounded-md px-2 py-1 ${sort === option ? 'bg-primary-light/60 text-primary-deep' : ''}`} data-chart-category-sort={option} key={option} onClick={() => setSort(option)} type="button">{t(`recordSort.${option}`)}</button>)}</div>

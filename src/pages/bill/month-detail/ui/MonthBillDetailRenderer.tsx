@@ -3,11 +3,10 @@ import type { FC, ReactNode, SyntheticEvent } from 'react';
 import type { AvatarReadyState, ExportCopySnapshot, ExportUserSnapshot, MonthBillCategorySegment } from '../model/monthBillDetail';
 import type { MonthBillDetailResponse } from '@/entities/record';
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import whaleLogo from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
 import { CategoryIcon } from '@/entities/category';
 import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel } from '@/shared/ui';
+import { BrandAvatar, GradientPanel } from '@/shared/ui';
 import { getAvatarInitial, getMonthBillRingSegments, MONTH_BILL_CHART_COLORS, toMonthBillDetailModel } from '../model/monthBillDetail';
 import { MonthBillChart } from './MonthBillChart';
 
@@ -379,9 +378,7 @@ function ExportFooter({ qrCode }: { qrCode?: string }) {
   return (
     <footer className="mt-1 flex min-h-[150px] items-center justify-between rounded-[20px] border border-[rgba(110,194,220,0.28)] bg-[linear-gradient(135deg,#c8eaf6_0%,#e2f6ff_55%,#f4e8f8_100%)] px-5 py-5 text-ww-ink shadow-ww-xs" data-export-footer>
       <div className={`flex items-center gap-3 ${qrCode ? '' : 'mx-auto'}`}>
-        <span className="flex h-12 w-12 items-center justify-center rounded-[14px] border border-white/85 bg-white/75 p-1 shadow-ww-xs">
-          <img alt="" className="h-full w-full rounded-[10px] object-contain" src={whaleLogo} />
-        </span>
+        <BrandAvatar className="h-12 w-12 border border-white/85 bg-white/75 p-1 shadow-ww-xs" imageClassName="object-contain" />
         <div>
           <div className="text-[17px] font-black">{config.appName}</div>
           <div className="mt-1 text-[11px] font-semibold text-ww-mid">{t('exportBrandTagline')}</div>

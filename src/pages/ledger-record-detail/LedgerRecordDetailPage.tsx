@@ -137,10 +137,12 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
         { label: t('records.remark'), value: record.remark },
       ]}
       showNavigation={false}
-      supplementaryContent={record.attachments?.length || showFamilyPolicy
+      supplementaryContent={(record.attachments?.length || showFamilyPolicy)
         ? (
             <>
-              <RecordAttachmentSection attachments={record.attachments} />
+              {record.attachments?.length
+                ? <RecordAttachmentSection attachments={record.attachments} />
+                : undefined}
               {showFamilyPolicy ? <FamilyPolicyEntry recordId={record.id} recordTime={record.time} /> : undefined}
             </>
           )
