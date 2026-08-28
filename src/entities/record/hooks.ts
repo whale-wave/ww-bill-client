@@ -25,6 +25,7 @@ import {
   getLedgerRecordsApi,
   getMonthBillDetailApi,
   getRecordApi,
+  getRecordAttachmentContentApi,
   getRecordBillApi,
   getRecordByIdApi,
   getRecordFilterOptionsApi,
@@ -68,6 +69,25 @@ export function useUploadTemporaryRecordAttachmentMutation() {
       postTemporaryRecordAttachmentApi(options.file, options.ledgerId),
   });
   return [mutateAsync, rest] as const;
+}
+
+/**
+ * Authenticated attachments stay in the in-memory query cache for this login
+ * session. Blob data must never be included in the persisted query cache.
+ */
+export function useRecordAttachmentContentQuery(options: {
+  attachmentId?: string;
+  householdId?: string;
+  variant: 'content' | 'thumbnail';
+  enabled?: boolean;
+}) {
+  const { attachmentId, enabled = true, householdId, variant } = options;
+  return useQuery<Blob>({
+    enabled: Boolean(attachmentId) && enabled,
+    meta: { persist: false },
+    queryFn: () => getRecordAttachmentContentApi(attachmentId!, variant, householdId),
+    queryKey: recordKeys.attachmentContent(attachmentId ?? '', variant, householdId),
+  });
 }
 
 export function invalidateRecordCountNavigationCache(queryClient: QueryClient) {

@@ -142,7 +142,7 @@ function query<T>(data: T) {
   return { data, isError: false, isLoading: false, refetch: vi.fn() };
 }
 
-function renderPage(pathname: string, routePath: string, element: ReactNode) {
+function renderPage(pathname: string | { pathname: string; state?: unknown }, routePath: string, element: ReactNode) {
   const container = document.createElement('div');
   const root = createRoot(container);
   const router = createMemoryRouter([
@@ -151,6 +151,7 @@ function renderPage(pathname: string, routePath: string, element: ReactNode) {
     { path: '/ledgers/:ledgerId/settings/tags', element: createElement('div', null, 'tags-target') },
     { path: '/ledgers/:ledgerId/members', element: createElement('div', null, 'members-target') },
     { path: '/detail', element: createElement('div', null, 'personal-detail-target') },
+    { path: '/record-editor', element: createElement('div', null, 'record-editor-target') },
     { path: '/ledgers', element: createElement('div', null, 'ledgers-target') },
   ].filter((route, index, routes) => routes.findIndex(candidate => candidate.path === route.path) === index), { initialEntries: [pathname] });
   act(() => root.render(createElement(RouterProvider, { router })));
@@ -718,9 +719,72 @@ describe('ledger category and tag management', () => {
     hooks.updateTag.mockResolvedValue({ statusCode: 200 });
     hooks.archiveTag.mockResolvedValue({ statusCode: 200 });
     const { container } = renderPage('/ledgers/ledger%2Fa/settings/tags', '/ledgers/:ledgerId/settings/tags', createElement(LedgerTagsPage));
+    expect(container.querySelector<HTMLButtonElement>('[data-testid="ledger-tag-save-tag/a"]')?.getAttribute('aria-label')).toBe('common.save');
+    expect(container.querySelector<HTMLButtonElement>('[data-testid="ledger-tag-archive-tag/a"]')?.getAttribute('aria-label')).toBe('tags.delete');
     await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-tag-save-tag/a"]')?.click());
     await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="ledger-tag-archive-tag/a"]')?.click());
     expect(hooks.updateTag).toHaveBeenCalledWith({ data: { name: '聚餐', version: 4 }, ledgerId: 'ledger/a', tagId: 'tag/a' });
     expect(hooks.archiveTag).toHaveBeenCalledWith({ ledgerId: 'ledger/a', tagId: 'tag/a', version: 4 });
+  });
+
+  it('uses the editor category context and restores a single draft marker on return', async () => {
+    hooks.useLedgerCategoriesQuery.mockReturnValue(query([
+      {
+        createdAt: '',
+        icon: 'meal',
+        iconType: 'BUILTIN',
+        id: 1,
+        isCustom: true,
+        ledgerId: ledger.id,
+        name: '餐饮',
+        sortOrder: 0,
+        status: 'ACTIVE',
+        type: 'sub',
+        updatedAt: '',
+        version: 1,
+      },
+      {
+        createdAt: '',
+        icon: 'traffic',
+        iconType: 'BUILTIN',
+        id: 2,
+        isCustom: true,
+        ledgerId: ledger.id,
+        name: '出行',
+        sortOrder: 1,
+        status: 'ACTIVE',
+        type: 'sub',
+        updatedAt: '',
+        version: 1,
+      },
+    ]));
+    const draft = {
+      category: { icon: 'traffic', id: 2, name: '出行', type: 'sub' as const },
+      recordType: 'sub' as const,
+      time: '2026-08-28T00:00:00.000Z',
+    };
+    const { container, router } = renderPage({
+      pathname: '/ledgers/ledger%2Fa/settings/tags',
+      state: {
+        recordEditorTagManagement: {
+          draft,
+          returnMode: 'replace',
+          returnTo: {
+            pathname: '/record-editor',
+            search: '',
+            state: { recordEditor: { returnContext: { kind: 'personal-detail', recordId: 9 } }, recordEditorTagManagement: { draft: { recordType: 'sub' } } },
+          },
+        },
+      },
+    }, '/ledgers/:ledgerId/settings/tags', createElement(LedgerTagsPage));
+
+    expect(container.querySelector<HTMLSelectElement>('[aria-label="tags.category"]')?.value).toBe('2');
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="common:nav.back"]')?.click());
+
+    expect(router.state.location.pathname).toBe('/record-editor');
+    expect(router.state.location.state).toEqual({
+      recordEditor: { returnContext: { kind: 'personal-detail', recordId: 9 } },
+      recordEditorTagManagement: { draft },
+    });
   });
 });

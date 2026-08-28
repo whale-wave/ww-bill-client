@@ -51,10 +51,17 @@ const TagLegend: FC<{ data: TagRankingResponse }> = ({ data }) => (
 
 const TagRankingSkeleton: FC = () => (
   <div aria-label="正在加载标签排行" className="space-y-3" data-tag-ranking-loading role="status">
-    <div className="flex items-center gap-4 px-1 py-2">
-      <div className="h-[140px] w-[140px] shrink-0 animate-pulse rounded-full bg-primary-light/60" />
+    <div className="flex items-center gap-4 px-1 py-1">
+      <div className="relative flex h-[112px] w-[112px] shrink-0 items-center justify-center rounded-full bg-primary-light/45 p-[17px] animate-pulse">
+        <div className="h-full w-full rounded-full bg-white/85" />
+      </div>
       <div className="min-w-0 flex-1 space-y-3">
-        {[0, 1, 2].map(item => <div className="h-3 animate-pulse rounded-full bg-primary-light/60" key={item} style={{ width: `${72 - item * 12}%` }} />)}
+        {[0, 1, 2].map(item => (
+          <div className="flex items-center gap-2" key={item}>
+            <span className="h-2.5 w-2.5 shrink-0 rounded-sm bg-primary-light/80" />
+            <span className="h-3 animate-pulse rounded-full bg-primary-light/60" style={{ width: `${76 - item * 12}%` }} />
+          </div>
+        ))}
       </div>
     </div>
     {[0, 1, 2].map(item => (

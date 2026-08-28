@@ -190,12 +190,6 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                         ? 'flex h-full w-[52px] shrink-0 items-center justify-start'
                         : 'mx-4 flex shrink-0 items-center justify-center py-3'}
                       data-category-icon={record.iconName}
-                      style={record.memberColorKey
-                        ? {
-                            backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
-                            color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
-                          }
-                        : undefined}
                     >
                       <span
                         className={cn(

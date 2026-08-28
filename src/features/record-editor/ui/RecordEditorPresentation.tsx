@@ -3,7 +3,7 @@ import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { CategoryEntity } from '@/entities/category';
 import { Button, DatePicker, ErrorBlock, Popup, SpinLoading } from 'antd-mobile';
-import { Delete as BackspaceIcon, ImagePlus, Tags, X } from 'lucide-react';
+import { Delete as BackspaceIcon, ImagePlus, Settings2, Tags, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CategoryIcon } from '@/entities/category';
@@ -21,6 +21,7 @@ interface RecordEditorPresentationProps {
   categoryState: RecordEditorCategoryState;
   controller: RecordEditorController;
   onCancel: () => void;
+  onManageTags?: () => void;
   onRetryCategories?: () => void;
   onCreateTag?: (name: string) => Promise<{ id: string; name: string }>;
   tags?: RecordEditorTag[];
@@ -32,11 +33,13 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   categoryState,
   controller,
   onCancel,
+  onManageTags,
   onRetryCategories,
   onCreateTag,
   tags,
 }) => {
   const { t } = useTranslation(['record', 'ledger', 'common']);
+  const { handleReconcileTags, shouldReconcileTags } = controller;
   const imageInputRef = useRef<HTMLInputElement>(null);
   const contentUrlRef = useRef<string>();
   const previewRequestRef = useRef(0);
@@ -49,7 +52,15 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const [contentUrl, setContentUrl] = useState<string>();
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [isImagePreviewLoading, setIsImagePreviewLoading] = useState(false);
+  const hasReconciledTagsRef = useRef(false);
   const attachmentId = controller.initialAttachment?.id;
+
+  useEffect(() => {
+    if (!shouldReconcileTags || tags === undefined || hasReconciledTagsRef.current)
+      return;
+    hasReconciledTagsRef.current = true;
+    handleReconcileTags(tags.map(tag => tag.id));
+  }, [handleReconcileTags, shouldReconcileTags, tags]);
 
   const clearContentUrl = useCallback(() => {
     previewRequestRef.current += 1;
@@ -443,9 +454,43 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         position="bottom"
         visible={controller.isTagPickerVisible}
       >
-        <div className="mb-3 text-center text-base text-font-black">{t('ledger:records.tags')}</div>
+        <div className="mb-3 flex items-center justify-between">
+          <span className="w-10" aria-hidden="true" />
+          <div className="text-center text-base text-font-black">{t('ledger:records.tags')}</div>
+          {onManageTags
+            ? (
+                <button
+                  aria-label="标签设置"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border-0 bg-primary-light/45 text-primary-deep active:bg-primary-light disabled:opacity-45"
+                  disabled={controller.isImageUploading}
+                  onClick={onManageTags}
+                  type="button"
+                >
+                  <Settings2 size={18} strokeWidth={1.9} />
+                </button>
+              )
+            : <span className="w-10" aria-hidden="true" />}
+        </div>
         {controller.selectedTagIds.length > 0 && (
-          <button className="mb-3 text-sm text-primary-deep" onClick={controller.handleClearTag} type="button">清除标签</button>
+          <section className="mb-4 rounded-[18px] border border-primary-light/80 bg-primary-light/25 p-3" data-record-editor-selected-tags>
+            <div className="mb-2 text-[12px] font-extrabold text-primary-deep">已选标签</div>
+            <div className="flex flex-wrap gap-2">
+              {(tags ?? []).filter(tag => controller.selectedTagIds.includes(tag.id)).map(tag => (
+                <span className="inline-flex h-9 items-center gap-1 rounded-full border border-primary/25 bg-white px-2 pl-3 text-[13px] font-bold text-primary-deep shadow-ww-xs" key={tag.id}>
+                  #
+                  {tag.name}
+                  <button
+                    aria-label={`移除标签 ${tag.name}`}
+                    className="ml-0.5 flex h-6 w-6 items-center justify-center rounded-full text-primary-deep transition active:bg-primary-light"
+                    onClick={() => controller.handleRemoveTag(tag.id)}
+                    type="button"
+                  >
+                    <X aria-hidden="true" size={14} strokeWidth={2.4} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          </section>
         )}
         {controller.selectedTagIds.length > 1 && (
           <div className="mb-3 text-sm text-ww-soft">

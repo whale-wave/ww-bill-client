@@ -16,6 +16,8 @@ import {
   invalidatePersonalRecordEditorCaches,
   isLegacyRecordEditorState,
   isRecordEditorLocationState,
+  omitRecordEditorTagManagementState,
+  readRecordEditorTagManagementState,
   RecordEditorPresentation,
   useRecordEditorController,
 } from '@/features/record-editor';
@@ -49,6 +51,8 @@ function BookkeepingPage() {
     : undefined;
   const initialRecord = editorState?.initialRecord
     ?? (isLegacyRecordEditorState(location.state) ? location.state : undefined);
+  const tagManagementState = readRecordEditorTagManagementState(location.state);
+  const restoredDraft = tagManagementState?.recordEditorTagManagement?.draft;
   const returnContext = useMemo<RecordEditorReturnContext>(() => {
     if (editorState)
       return editorState.returnContext;
@@ -58,7 +62,7 @@ function BookkeepingPage() {
       return { kind: 'personal-detail', recordId: initialRecord.id };
     return { kind: 'history' };
   }, [editorState, initialRecord, selectTime]);
-  const seed = useMemo(() => ({
+  const seed = useMemo(() => restoredDraft ?? ({
     amount: initialRecord?.amount,
     category: initialRecord?.category
       ? { ...initialRecord.category, type: initialRecord.type }
@@ -70,7 +74,7 @@ function BookkeepingPage() {
     hasImage: Boolean(initialRecord?.attachments?.length),
     time: initialRecord?.time
       ?? (selectTime ? dayjs(selectTime).toISOString() : dayjs().toISOString()),
-  }), [initialRecord, selectTime]);
+  }), [initialRecord, restoredDraft, selectTime]);
 
   const navigateToReturnContext = useCallback((
     context: RecordEditorReturnContext,
@@ -157,6 +161,20 @@ function BookkeepingPage() {
     playSound.turnPage();
     navigateToReturnContext(returnContext);
   }, [navigateToReturnContext, returnContext]);
+  const handleManageTags = useCallback(() => {
+    if (!defaultLedger)
+      return;
+    navigate(ROUTES_PATH.LEDGER_TAGS.getPath(defaultLedger.id), {
+      replace: true,
+      state: {
+        recordEditorTagManagement: {
+          draft: controller.getDraftSnapshot(),
+          returnMode: 'replace',
+          returnTo: { pathname: location.pathname, search: location.search, state: omitRecordEditorTagManagementState(location.state) },
+        },
+      },
+    });
+  }, [controller, defaultLedger, location.pathname, location.search, location.state, navigate]);
 
   return (
     <RecordEditorPresentation
@@ -169,6 +187,7 @@ function BookkeepingPage() {
         isSubmitting: controller.isSubmitting || postState.isLoading || putState.isLoading,
       }}
       onCancel={handleCancel}
+      onManageTags={canReadTags && defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE) ? handleManageTags : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
       canManageTags={Boolean(defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE))}
       onCreateTag={defaultLedger && controller.selectedCategory

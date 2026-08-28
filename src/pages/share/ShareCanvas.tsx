@@ -1,4 +1,5 @@
 import type { FC, RefObject } from 'react';
+import whaleLogo from '@/assets/brand/whale-logo-transparent-透明背景原图.png';
 import { CategoryIcon } from '@/entities/category';
 import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
@@ -35,7 +36,9 @@ const ShareCanvas: FC<ShareCanvasProps> = ({ canvasRef, data }) => {
         <div className={styles.glowBottom} />
 
         <header className={styles.brand}>
-          <span className={styles.brandMark}>W</span>
+          <span className={styles.brandMark} data-share-brand-logo>
+            <img alt={config.appName} src={whaleLogo} />
+          </span>
           <span>
             <strong>{config.appName}</strong>
             <small>{t('share.posterKicker')}</small>

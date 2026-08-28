@@ -1,3 +1,4 @@
+import type { CalculatorState } from './useCalculator';
 import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
 import type { PostRecordApiData, RecordEntry } from '@/entities/record';
 
@@ -5,13 +6,63 @@ export type RecordEditorMode = 'create' | 'edit';
 
 export interface RecordEditorSeed {
   amount?: string;
+  calculator?: CalculatorState;
   category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'>;
+  imageAssetId?: string | null;
+  imagePreviewFile?: File;
+  isTagPickerVisible?: boolean;
+  shouldReconcileTags?: boolean;
   recordType: CategoryAmountType;
   remark?: string;
   tagIds?: string[];
   attachment?: NonNullable<RecordEntry['attachments']>[number];
   hasImage?: boolean;
   time: string;
+}
+
+export interface RecordEditorTagManagementState {
+  draft: RecordEditorSeed;
+  returnMode: 'replace';
+  returnTo: {
+    pathname: string;
+    search: string;
+    state?: unknown;
+  };
+}
+
+export interface RecordEditorTagManagementLocationState {
+  recordEditorTagManagement?: Pick<RecordEditorTagManagementState, 'draft'>;
+}
+
+export function readRecordEditorTagManagementNavigationState(value: unknown): RecordEditorTagManagementState | undefined {
+  if (typeof value !== 'object' || value === null || !('recordEditorTagManagement' in value))
+    return undefined;
+  const tagManagement = value.recordEditorTagManagement;
+  if (typeof tagManagement !== 'object' || tagManagement === null || !('draft' in tagManagement) || !('returnMode' in tagManagement) || !('returnTo' in tagManagement))
+    return undefined;
+  if (tagManagement.returnMode !== 'replace')
+    return undefined;
+  const returnTo = tagManagement.returnTo;
+  if (typeof returnTo !== 'object' || returnTo === null || !('pathname' in returnTo) || typeof returnTo.pathname !== 'string')
+    return undefined;
+  return tagManagement as RecordEditorTagManagementState;
+}
+
+/** Removes a previous settings round-trip marker before creating another one. */
+export function omitRecordEditorTagManagementState(value: unknown) {
+  if (typeof value !== 'object' || value === null || !('recordEditorTagManagement' in value))
+    return value;
+  const { recordEditorTagManagement: _tagManagement, ...rest } = value as Record<string, unknown>;
+  return rest;
+}
+
+export function readRecordEditorTagManagementState(value: unknown): RecordEditorTagManagementLocationState | undefined {
+  if (typeof value !== 'object' || value === null || !('recordEditorTagManagement' in value))
+    return undefined;
+  const tagManagement = value.recordEditorTagManagement;
+  if (typeof tagManagement !== 'object' || tagManagement === null || !('draft' in tagManagement))
+    return undefined;
+  return value as RecordEditorTagManagementLocationState;
 }
 
 export type RecordDraft = Omit<PostRecordApiData, 'imageAssetId'> & { imageAssetId?: string | null };

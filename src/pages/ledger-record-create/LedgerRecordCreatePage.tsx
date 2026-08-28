@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useCallback, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useLedgerCategoriesQuery } from '@/entities/category';
 import {
   LedgerCapability,
@@ -16,6 +16,8 @@ import { useCreateLedgerRecordMutation, useUploadTemporaryRecordAttachmentMutati
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import {
   invalidateLedgerRecordEditorCaches,
+  omitRecordEditorTagManagementState,
+  readRecordEditorTagManagementState,
   RecordEditorPresentation,
   useRecordEditorController,
 } from '@/features/record-editor';
@@ -45,17 +47,19 @@ function LedgerRecordCreateEditor({
 }: LedgerRecordCreateEditorProps) {
   const { t } = useTranslation('ledger');
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const selectTime = getValidSelectTime(searchParams.get('selectTime'));
   const [createRecord, createState] = useCreateLedgerRecordMutation();
   const [uploadImage] = useUploadTemporaryRecordAttachmentMutation();
   const [createTag] = useCreateLedgerTagMutation();
-  const seed = useMemo(() => ({
+  const restoredDraft = readRecordEditorTagManagementState(location.state)?.recordEditorTagManagement?.draft;
+  const seed = useMemo(() => restoredDraft ?? ({
     recordType: initialRecordType,
     tagIds: supportsTags ? [] : undefined,
     time: selectTime ? dayjs(selectTime).toISOString() : dayjs().toISOString(),
-  }), [initialRecordType, selectTime, supportsTags]);
+  }), [initialRecordType, restoredDraft, selectTime, supportsTags]);
   const navigateAfterCreate = useCallback(() => {
     const target = selectTime
       ? `${ROUTES_PATH.LEDGER_CALENDAR.getPath(ledgerId)}?selectTime=${selectTime}`
@@ -95,6 +99,18 @@ function LedgerRecordCreateEditor({
     params: { ledgerId, categoryId: controller.selectedCategory?.id },
     queryOptions: { enabled: supportsTags },
   });
+  const handleManageTags = useCallback(() => {
+    navigate(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId), {
+      replace: true,
+      state: {
+        recordEditorTagManagement: {
+          draft: controller.getDraftSnapshot(),
+          returnMode: 'replace',
+          returnTo: { pathname: location.pathname, search: location.search, state: omitRecordEditorTagManagementState(location.state) },
+        },
+      },
+    });
+  }, [controller, ledgerId, location.pathname, location.search, location.state, navigate]);
 
   return (
     <RecordEditorPresentation
@@ -107,6 +123,7 @@ function LedgerRecordCreateEditor({
         isSubmitting: controller.isSubmitting || createState.isLoading,
       }}
       onCancel={navigateAfterCreate}
+      onManageTags={canManageTags ? handleManageTags : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
       canManageTags={canManageTags}
       onCreateTag={controller.selectedCategory ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId })).data : undefined}

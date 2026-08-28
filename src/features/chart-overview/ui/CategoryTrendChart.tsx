@@ -13,6 +13,19 @@ export interface CategoryTrendRecord {
 
 const PIE_COLORS = ['#6fc2dc', '#f0a0b8', '#a996dc', '#79c6a8', '#efbc70'];
 
+function getCenterAmountClass(value: number) {
+  const length = formatAmount(value).length;
+  if (length > 14)
+    return 'text-[10px]';
+  if (length > 11)
+    return 'text-[11px]';
+  return 'text-[17px]';
+}
+
+function formatCenterAmount(value: number) {
+  return `¥${formatAmount(value)}`;
+}
+
 export const CategoryTrendChart: FC<{ displayMode: ChartOverviewDisplay; records: CategoryTrendRecord[] }> = ({ displayMode, records }) => {
   const { t } = useTranslation('chart');
   const { chartDomRef, myChart } = useChart({ preventTouchMove: false });
@@ -74,16 +87,6 @@ export const CategoryTrendChart: FC<{ displayMode: ChartOverviewDisplay; records
         radius: ['46%', '74%'],
         type: 'pie',
       }],
-      title: {
-        itemGap: 0,
-        left: '50%',
-        subtext: `¥${formatAmount(totalAmount)}`,
-        subtextStyle: { color: '#263340', fontFamily: 'inherit', fontSize: 14, fontWeight: 800, lineHeight: 20 },
-        text: t('categoryAmount'),
-        textAlign: 'center',
-        textStyle: { color: '#8da2b2', fontFamily: 'inherit', fontSize: 11, fontWeight: 600, lineHeight: 16 },
-        top: 'center',
-      },
       tooltip: { trigger: 'item' },
     };
     myChart?.setOption(displayMode === 'pie' ? pieOption : lineOption, true);
@@ -92,15 +95,24 @@ export const CategoryTrendChart: FC<{ displayMode: ChartOverviewDisplay; records
 
   return (
     <div
-      className={displayMode === 'pie' ? 'mt-2 flex h-[124px] min-w-0 items-center gap-3' : 'mt-[18px] h-[94px] w-full'}
+      className={displayMode === 'pie' ? 'mt-2 flex h-[140px] min-w-0 items-center gap-4 px-1 py-2' : 'mt-[18px] h-[94px] w-full'}
       data-chart-category-trend={displayMode}
     >
-      <div
-        className={displayMode === 'pie' ? 'h-full min-w-0 flex-1 touch-pan-y' : 'h-full w-full touch-pan-y'}
-        ref={chartDomRef}
-      />
+      <div className={displayMode === 'pie' ? 'relative h-[140px] w-[140px] shrink-0' : 'h-full w-full'}>
+        <div
+          aria-label={displayMode === 'pie' ? `${t('categoryAmount')} ¥${formatAmount(totalAmount)}` : undefined}
+          className="h-full w-full touch-pan-y"
+          ref={chartDomRef}
+        />
+        {displayMode === 'pie' && (
+          <div aria-hidden="true" className="pointer-events-none absolute inset-[27px] flex flex-col items-center justify-center rounded-full bg-white/90 px-1 text-center">
+            <span className="text-[11px] leading-4 text-ww-soft">{t('categoryAmount')}</span>
+            <strong className={`mt-0.5 max-w-full whitespace-nowrap font-number font-bold leading-6 text-ww-ink ${getCenterAmountClass(totalAmount)}`}>{formatCenterAmount(totalAmount)}</strong>
+          </div>
+        )}
+      </div>
       {displayMode === 'pie' && (
-        <ul aria-label={t('categoryRatio')} className="w-[44%] space-y-2 pr-1 text-[10px] font-semibold leading-4 text-ww-mid">
+        <ul aria-label={t('categoryRatio')} className="min-w-0 flex-1 space-y-2 text-[12px] font-semibold leading-4 text-ww-soft">
           {piePoints.map(([date, amount], index) => (
             <li className="flex min-w-0 items-center gap-1.5" key={date}>
               <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-[3px]" style={{ backgroundColor: PIE_COLORS[index] }} />

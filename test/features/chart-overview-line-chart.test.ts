@@ -76,6 +76,28 @@ describe('chart overview line tooltip', () => {
     expect(series.center).toEqual(['50%', '50%']);
     expect(series.radius).toEqual(['46%', '74%']);
     expect(series.emphasis?.scale).toBe(false);
-    expect(option.title).toEqual(expect.objectContaining({ itemGap: 0 }));
+    expect(option.title).toBeUndefined();
+    expect(container.textContent).toContain('¥90.00');
+  });
+
+  it('keeps a bounded legend and the complete centre total for many dates and large amounts', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryTrendChart, {
+      displayMode: 'pie',
+      records: [
+        { amount: '120000000.00', time: '2026-08-01T00:00:00.000Z' },
+        { amount: '90000000.00', time: '2026-08-02T00:00:00.000Z' },
+        { amount: '80000000.00', time: '2026-08-03T00:00:00.000Z' },
+        { amount: '70000000.00', time: '2026-08-04T00:00:00.000Z' },
+        { amount: '60000000.00', time: '2026-08-05T00:00:00.000Z' },
+      ],
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    const option = mocks.setOption.mock.calls[0]?.[0] as EChartsOption;
+    const series = (option.series as Array<{ data: unknown[] }>)[0];
+    expect(series.data).toHaveLength(4);
+    expect(container.textContent).toContain('¥420000000.00');
   });
 });

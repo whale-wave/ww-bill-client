@@ -1,3 +1,4 @@
+import type { ShareData } from './ShareCanvas';
 import { Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import html2canvas from 'html2canvas-pro';
@@ -28,15 +29,53 @@ function getSourceFromState(state: unknown): Record<string, unknown> | undefined
   return s;
 }
 
+function getPosterFontSample(data: ShareData) {
+  return [
+    config.appName,
+    data.categoryName,
+    data.dateText,
+    data.remark,
+    data.amount,
+    '收入支出这笔记录每一笔都值得被记住 ¥￥0123456789.%+-',
+  ].filter(Boolean).join(' ');
+}
+
+async function preparePosterFonts(data: ShareData) {
+  if (!('fonts' in document))
+    return;
+  const sample = getPosterFontSample(data);
+  const faces = await Promise.all([
+    document.fonts.load('700 16px "Noto Sans SC Variable"', sample),
+    document.fonts.load('700 16px "Nunito Variable"', '0123456789.%+-¥￥'),
+  ]);
+  if (faces.some(face => face.length === 0))
+    throw new Error('Share poster font face was not loaded');
+  await document.fonts.ready;
+  if (!document.fonts.check('700 16px "Noto Sans SC Variable"', sample)
+    || !document.fonts.check('700 16px "Nunito Variable"', '0123456789.%+-¥￥')) {
+    throw new Error('Share poster font check failed');
+  }
+}
+
 async function waitForPosterImages(element: HTMLElement) {
   const images = Array.from(element.querySelectorAll('img'));
-  await Promise.all(images.map(image => image.complete
-    ? Promise.resolve()
-    : new Promise<void>((resolve) => {
+  await Promise.all(images.map(async (image) => {
+    if (!image.complete) {
+      await new Promise<void>((resolve) => {
         image.addEventListener('load', () => resolve(), { once: true });
         image.addEventListener('error', () => resolve(), { once: true });
-      })));
-  await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+      });
+    }
+    if (typeof image.decode === 'function')
+      await image.decode().catch(() => undefined);
+  }));
+}
+
+function waitForFrames(count = 2) {
+  return Array.from({ length: count }).reduce<Promise<void>>(
+    promise => promise.then(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve()))),
+    Promise.resolve(),
+  );
 }
 
 function Share() {
@@ -52,17 +91,29 @@ function Share() {
   }, [location.state, searchParams]);
 
   const saveCanvas = async () => {
-    if (!canvasRef.current) {
+    const posterData = shareData;
+    if (!canvasRef.current || !posterData) {
       Toast.show({ content: t('share.noData'), icon: 'fail' });
       return;
     }
     try {
+      await preparePosterFonts(posterData);
       await waitForPosterImages(canvasRef.current);
+      await waitForFrames();
+      const bounds = canvasRef.current.getBoundingClientRect();
+      const width = Math.round(bounds.width);
+      const height = Math.round(bounds.height);
+      if (!width || !height)
+        throw new Error('Share poster has no measurable bounds');
       const canvas = await html2canvas(canvasRef.current, {
-        backgroundColor: null,
+        backgroundColor: '#eef8fc',
+        height,
         scale: Math.max(2, window.devicePixelRatio || 1),
         useCORS: true,
+        width,
       });
+      if (canvas.width !== Math.round(width * Math.max(2, window.devicePixelRatio || 1)))
+        throw new Error('Share poster width does not match capture target');
       const blob = await canvasToPngBlob(canvas);
       await saveImageToGallery(blob, config.appName);
       Toast.show({ content: t('share.saved'), icon: 'success' });

@@ -22,6 +22,8 @@ import {
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import {
   invalidateLedgerRecordEditorCaches,
+  omitRecordEditorTagManagementState,
+  readRecordEditorTagManagementState,
   RecordEditorPresentation,
   useRecordEditorController,
 } from '@/features/record-editor';
@@ -46,11 +48,13 @@ function LedgerRecordEditEditor({
 }: LedgerRecordEditEditorProps) {
   const { t } = useTranslation('ledger');
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [updateRecord, updateState] = useUpdateLedgerRecordMutation();
   const [uploadImage] = useUploadTemporaryRecordAttachmentMutation();
   const [createTag] = useCreateLedgerTagMutation();
-  const seed = useMemo(() => ({
+  const restoredDraft = readRecordEditorTagManagementState(location.state)?.recordEditorTagManagement?.draft;
+  const seed = useMemo(() => restoredDraft ?? ({
     amount: initialRecord.amount,
     category: { ...initialRecord.category, type: initialRecord.type },
     recordType: initialRecord.type,
@@ -59,7 +63,7 @@ function LedgerRecordEditEditor({
     attachment: initialRecord.attachments?.[0],
     hasImage: Boolean(initialRecord.attachments?.length),
     time: initialRecord.time,
-  }), [initialRecord, supportsTags]);
+  }), [initialRecord, restoredDraft, supportsTags]);
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
     try {
       const response = await updateRecord({
@@ -116,6 +120,18 @@ function LedgerRecordEditEditor({
     params: { ledgerId, categoryId: controller.selectedCategory?.id },
     queryOptions: { enabled: supportsTags },
   });
+  const handleManageTags = useCallback(() => {
+    navigate(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId), {
+      replace: true,
+      state: {
+        recordEditorTagManagement: {
+          draft: controller.getDraftSnapshot(),
+          returnMode: 'replace',
+          returnTo: { pathname: location.pathname, search: location.search, state: omitRecordEditorTagManagementState(location.state) },
+        },
+      },
+    });
+  }, [controller, ledgerId, location.pathname, location.search, location.state, navigate]);
 
   return (
     <RecordEditorPresentation
@@ -128,6 +144,7 @@ function LedgerRecordEditEditor({
         isSubmitting: controller.isSubmitting || updateState.isLoading,
       }}
       onCancel={navigateToDetail}
+      onManageTags={canManageTags ? handleManageTags : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
       canManageTags={canManageTags}
       onCreateTag={controller.selectedCategory ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId })).data : undefined}

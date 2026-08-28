@@ -8,9 +8,11 @@
 }
 
 .canvas {
+  display: block;
+  box-sizing: border-box;
   position: relative;
   width: 316px;
-  min-height: 458px;
+  height: 458px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.9);
   border-radius: 30px;
@@ -82,13 +84,17 @@
   height: 34px;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.92);
-  border-radius: 12px;
-  color: #198caa;
+  border-radius: 50%;
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 5px 14px rgba(70, 145, 170, 0.12);
-  font-size: 15px;
-  font-weight: 900;
+
+  img {
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
+  }
 }
 
 .receipt {

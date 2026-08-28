@@ -335,7 +335,7 @@ export default function MonthBillDetailPage() {
 
   return (
     <div className="page-new overflow-hidden">
-      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate('/bill')} title={formatMonthTitle(month)} />
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={formatMonthTitle(month)} />
       <main className="min-h-0 flex-grow overflow-auto px-[18px] pb-28 pt-2" data-bill-detail-scroll>
         {query.isLoading && !hasData && <PageLoadingState label={t('common:nav.loading')} testId="month-bill-detail-loading" />}
         {query.isError && !hasData && (

@@ -137,6 +137,12 @@ describe('record editor presentation', () => {
     expect(tag?.getAttribute('aria-pressed')).toBe('true');
     expect(tag?.classList).toContain('bg-primary');
     expect(tag?.classList).not.toContain('bg-white');
+    expect(document.body.querySelector('[data-record-editor-selected-tags]')).not.toBeNull();
+
+    act(() => document.body.querySelector<HTMLButtonElement>('[aria-label="移除标签 聚餐"]')?.click());
+
+    expect(document.body.querySelector('[data-record-editor-selected-tags]')).toBeNull();
+    expect(tag?.getAttribute('aria-pressed')).toBe('false');
   });
 
   it('leaves the editor from the back button and opens categories from the category name', () => {
