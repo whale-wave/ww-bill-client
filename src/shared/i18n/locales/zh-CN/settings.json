@@ -53,6 +53,12 @@
     "effect": "声音开关",
     "effectDesc": "关闭后仍显示在列表"
   },
+  "soundAndHaptics": {
+    "title": "声音与触感",
+    "sound": "声音",
+    "haptics": "触感",
+    "saveFailed": "设置保存失败，请稍后重试"
+  },
   "amount": {
     "title": "金额设置",
     "visible": "隐藏总金额",

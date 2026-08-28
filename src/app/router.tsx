@@ -238,6 +238,10 @@ const router = createHashRouter([
             lazy: lazyGuardedPage(() => import('@/pages/app-lock-settings/AppLockSettingsPage')),
           },
           {
+            path: 'sound-and-haptics',
+            lazy: lazyGuardedPage(() => import('@/pages/sound-and-haptics/SoundAndHapticsPage')),
+          },
+          {
             path: 'about',
             lazy: lazyGuardedPage(() => import('@/pages/about-support/AboutSupportPage')),
           },

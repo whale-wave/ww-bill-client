@@ -47,6 +47,9 @@ export const ROUTES_PATH = {
   APP_LOCK_SETTINGS: {
     getPath: () => '/settings/app-lock',
   },
+  SETTINGS_SOUND_AND_HAPTICS: {
+    getPath: () => '/settings/sound-and-haptics',
+  },
   COMMUNITY: {
     getPath: () => '/community',
   },

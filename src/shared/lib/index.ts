@@ -1,6 +1,7 @@
 export * from './amount';
 export * from './class-name';
 export * from './component';
+export * from './haptic-feedback';
 export * from './image-export';
 export * from './locale-date';
 export * from './math';

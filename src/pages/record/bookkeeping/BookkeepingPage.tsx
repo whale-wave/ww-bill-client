@@ -23,6 +23,7 @@ import {
 } from '@/features/record-editor';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { hapticFeedback } from '@/shared/lib';
 import { playSound } from '@/shared/lib/play-sound';
 
 function getValidSelectTime(value: string | null) {
@@ -115,6 +116,7 @@ function BookkeepingPage() {
       if (response.statusCode !== 200)
         throw response;
       await invalidatePersonalRecordEditorCaches(queryClient);
+      hapticFeedback.success();
       Toast.show({ content: response.message, icon: 'success' });
       navigateToReturnContext(returnContext, draft);
     }

@@ -7,6 +7,7 @@ export interface UserAppConfig {
   gestureLockEnabled: boolean;
   isDisplayAmount: boolean;
   isDisplayAmountSwitch: boolean;
+  isOpenHapticEffect: boolean;
   isOpenSoundEffect: boolean;
   isLedgerQuickSwitchEnabled: boolean;
   ledgerQuickSwitchVersion: number;

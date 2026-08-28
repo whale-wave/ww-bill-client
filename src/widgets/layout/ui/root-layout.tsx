@@ -5,7 +5,7 @@ import { useGetUserUserInfoQuery } from '@/entities/user';
 import { useGetUserAppConfigQuery } from '@/entities/user-app-config';
 import { AppLockGuard } from '@/features/app-lock';
 import { isAuthRequiredRedirectState, useAuthStore } from '@/features/auth';
-import { audioWeb } from '@/shared/lib';
+import { audioWeb, hapticFeedback } from '@/shared/lib';
 import { NavigationProgress } from './navigation-progress';
 
 export const RootLayout: FC = () => {
@@ -31,6 +31,13 @@ export const RootLayout: FC = () => {
     else
       audioWeb.close();
   }, [userAppConfig?.isOpenSoundEffect]);
+
+  useEffect(() => {
+    if (userAppConfig?.isOpenHapticEffect)
+      hapticFeedback.open();
+    else
+      hapticFeedback.close();
+  }, [userAppConfig?.isOpenHapticEffect]);
 
   return (
     <>
