@@ -1,4 +1,5 @@
 import { Toast } from 'antd-mobile';
+import copy from 'copy-to-clipboard';
 import dayjs from 'dayjs';
 import {
   CheckCircle2,
@@ -44,13 +45,21 @@ export default function ShortcutBookkeepingSettingsPage() {
   const endpoint = useMemo(getShortcutDraftEndpoint, []);
 
   const handleCopy = async (value: string) => {
+    let copied = false;
     try {
-      await navigator.clipboard.writeText(value);
-      Toast.show({ content: t('shortcutBookkeeping.copied'), icon: 'success' });
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+        copied = true;
+      }
     }
     catch {
-      Toast.show({ content: t('shortcutBookkeeping.saveFailed'), icon: 'fail' });
+      copied = false;
     }
+    copied ||= copy(value);
+    Toast.show({
+      content: t(copied ? 'shortcutBookkeeping.copied' : 'shortcutBookkeeping.saveFailed'),
+      icon: copied ? 'success' : 'fail',
+    });
   };
 
   const handleCreateCredential = async () => {
