@@ -22,6 +22,17 @@ function getShortcutText(draft: ShortcutDraft) {
   return `${draft.merchantCandidate}\n${draft.rawText}`.toLowerCase();
 }
 
+function getStandaloneOcrAmount(rawText: string) {
+  const value = rawText.split(/\r?\n/)
+    .map(line => line.trim().match(/^[+\-−—–]?\s*(\d[\d,]*(?:\.\d{1,2})?)$/)?.[1])
+    .find((amount): amount is string => Boolean(amount));
+  return value?.replace(/,/g, '');
+}
+
+function getShortcutAmount(draft: ShortcutDraft) {
+  return draft.amountCandidate?.trim() || getStandaloneOcrAmount(draft.rawText);
+}
+
 export function inferShortcutRecordType(draft: ShortcutDraft): CategoryAmountType {
   return /退款|收款到账|转入|收入/.test(getShortcutText(draft))
     ? 'add'
@@ -68,7 +79,7 @@ export function createShortcutRecordSeed(
   draft: ShortcutDraft,
   recordType: CategoryAmountType,
 ): RecordEditorSeed {
-  const amount = draft.amountCandidate?.trim();
+  const amount = getShortcutAmount(draft);
   const hasValidAmount = Boolean(
     amount
     && /^(?=.*[1-9])(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/.test(amount),

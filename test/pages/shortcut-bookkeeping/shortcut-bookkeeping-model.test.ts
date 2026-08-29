@@ -42,6 +42,21 @@ describe('shortcut bookkeeping confirmation model', () => {
     expect(seed.recordType).toBe(LedgerRecordType.INCOME);
   });
 
+  it('falls back to a standalone signed OCR amount when the server candidate is missing', () => {
+    expect(createShortcutRecordSeed({
+      expiresAt: '2026-08-30T10:00:00.000Z',
+      id: 'draft-amount-fallback',
+      merchantCandidate: '中国联合网络通信有限公司',
+      rawText: '账单\n中国联通\n− 100.00\n当前状态\n支付成功',
+      source: 'WECHAT',
+      status: 'NEEDS_REVIEW',
+      warnings: ['AMOUNT_MISSING'],
+    }, LedgerRecordType.EXPENSE)).toMatchObject({
+      amount: '100.00',
+      remark: '中国联合网络通信有限公司',
+    });
+  });
+
   it('never converts candidate amounts through floating point or exponent notation', () => {
     const seed = createShortcutRecordSeed({
       amountCandidate: '1e3',
