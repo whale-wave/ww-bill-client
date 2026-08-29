@@ -16,7 +16,7 @@ export function createQueryClient() {
       queries: {
         cacheTime: Number.POSITIVE_INFINITY,
         staleTime: Number.POSITIVE_INFINITY,
-        refetchOnMount: query => query.state.isInvalidated,
+        refetchOnMount: 'always',
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
       },

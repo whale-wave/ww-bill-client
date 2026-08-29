@@ -25,6 +25,7 @@ describe('record detail presentation', () => {
     expect(container.textContent).not.toContain('Member');
     expect(container.querySelector('[data-record-detail-pin]')).toBeNull();
     expect(container.querySelector('[data-record-detail-footer]')).toBeNull();
+    expect(container.querySelector('[data-record-detail-supplementary]')).toBeNull();
   });
 
   it('keeps the new summary, information cards, share action, and floating footer while accepting household additions', () => {

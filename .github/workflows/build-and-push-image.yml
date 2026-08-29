@@ -51,6 +51,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
+          build-args: |
+            VITE_IOS_SHORTCUT_URL=${{ vars.VITE_IOS_SHORTCUT_URL }}
           context: .
           file: ./Dockerfile
           platforms: linux/amd64

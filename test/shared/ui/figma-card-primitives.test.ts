@@ -100,9 +100,9 @@ describe('figma card primitives', () => {
       variant: 'detail-shortcuts',
     }));
     const tile = container.querySelector('button');
-    expect(tile?.classList).toContain('h-[70px]');
+    expect(tile?.classList).toContain('h-16');
     expect(tile?.classList).toContain('rounded-[14px]');
-    expect(tile?.classList).toContain('gap-[7px]');
+    expect(tile?.classList).toContain('gap-[5px]');
     expect(tile?.className).toContain('#e8f6ff');
   });
 

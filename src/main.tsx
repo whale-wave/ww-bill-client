@@ -6,13 +6,10 @@ import { clearHouseholdInvitationCache } from '@/entities/household';
 import { clearLedgerInvitationCache } from '@/entities/ledger';
 import { rehydrateAuthStore, useAuthStore } from '@/features/auth';
 import { setAuthDeps } from '@/shared/api/auth-injection';
-import { cleanupImageShareCache } from '@/shared/lib';
 import '@/shared/i18n';
 import '@/assets/styles/index.scss';
 
 initResetStyle();
-void cleanupImageShareCache();
-
 if (import.meta.env.DEV) {
   void import('@locator/runtime').then(({ default: setupLocatorUI }) => {
     setupLocatorUI();

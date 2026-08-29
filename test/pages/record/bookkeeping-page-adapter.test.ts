@@ -10,6 +10,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import BookkeepingPage from '@/pages/record/bookkeeping/BookkeepingPage';
 
 const hooks = vi.hoisted(() => ({
+  confirmShortcutDraft: vi.fn(),
+  discardShortcutDraft: vi.fn(),
   postRecord: vi.fn(),
   putRecord: vi.fn(),
   useGetCategoryQuery: vi.fn(),
@@ -24,6 +26,24 @@ vi.mock('@/entities/record', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/record')>()),
   usePostRecordMutation: () => [hooks.postRecord, { isLoading: false }],
   usePutRecordMutation: () => [hooks.putRecord, { isLoading: false }],
+}));
+
+vi.mock('@/entities/ledger', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/entities/ledger')>()),
+  useGetLedgersQuery: () => ({
+    data: [{ capabilities: [], id: 'default-ledger', kind: 'SYSTEM_DEFAULT' }],
+  }),
+}));
+
+vi.mock('@/entities/shortcut-bookkeeping', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/entities/shortcut-bookkeeping')>()),
+  useConfirmShortcutDraftMutation: () => ({
+    isLoading: false,
+    mutateAsync: hooks.confirmShortcutDraft,
+  }),
+  useDiscardShortcutDraftMutation: () => ({
+    mutateAsync: hooks.discardShortcutDraft,
+  }),
 }));
 
 vi.mock('@/shared/i18n', () => ({
@@ -53,9 +73,12 @@ function renderRouter(router: ReturnType<typeof createMemoryRouter>) {
 beforeEach(() => {
   hooks.postRecord.mockReset();
   hooks.putRecord.mockReset();
+  hooks.confirmShortcutDraft.mockReset();
+  hooks.discardShortcutDraft.mockReset();
   hooks.useGetCategoryQuery.mockReset();
   hooks.postRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
   hooks.putRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
+  hooks.confirmShortcutDraft.mockResolvedValue({ ledgerId: 'default-ledger', recordId: 11 });
   hooks.useGetCategoryQuery.mockReturnValue({
     data: [{
       createdAt: '',
@@ -101,6 +124,100 @@ describe('personal record editor adapter', () => {
     }));
     expect(router.state.location.pathname).toBe('/record-calendar');
     expect(router.state.location.search).toBe(`?selectTime=${selectTime}`);
+  });
+
+  it('opens the original editor with shortcut candidates and confirms through the draft endpoint', async () => {
+    hooks.useGetCategoryQuery.mockReturnValue({
+      data: [{
+        createdAt: '',
+        icon: 'traffic',
+        id: 1,
+        name: '交通',
+        type: 'sub',
+        updatedAt: '',
+      }],
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    const router = createMemoryRouter([
+      { path: '/bookkeeping', element: createElement(BookkeepingPage) },
+      { path: '/editing/:id', element: createElement('div', null, 'detail') },
+    ], {
+      initialEntries: [{
+        pathname: '/bookkeeping',
+        state: {
+          shortcutBookkeeping: {
+            amountCandidate: '18.60',
+            capturedAt: '2026-08-29T10:00:00.000Z',
+            expiresAt: '2026-08-30T10:00:00.000Z',
+            id: 'shortcut-draft-1',
+            merchantCandidate: '滴滴出行',
+            rawText: '微信支付\\n滴滴出行\\n支付成功',
+            reviewCode: 'review-code-00001',
+            source: 'WECHAT',
+            status: 'CLAIMED',
+            warnings: [],
+          },
+        },
+      }],
+    });
+    const container = renderRouter(router);
+
+    await act(async () => Promise.resolve());
+    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
+    expect(container.querySelector<HTMLInputElement>('[data-record-editor-note] input')?.value).toBe('滴滴出行');
+    expect(container.querySelector('[data-record-editor-category-trigger]')?.textContent).toBe('交通');
+    expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('18.60');
+
+    await act(async () => {
+      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      await Promise.resolve();
+    });
+
+    expect(hooks.confirmShortcutDraft).toHaveBeenCalledWith(expect.objectContaining({
+      amount: '18.6',
+      categoryId: 1,
+      code: 'review-code-00001',
+      draftId: 'shortcut-draft-1',
+      ledgerId: 'default-ledger',
+      remark: '滴滴出行',
+      type: 'sub',
+    }));
+    expect(hooks.postRecord).not.toHaveBeenCalled();
+    expect(router.state.location.pathname).toBe('/editing/11');
+    expect(router.state.location.state).toEqual({
+      personalRecordDetail: { returnTo: 'personal-home' },
+    });
+  });
+
+  it('opens the amount editor with trusted shortcut fields even when no category can be inferred', async () => {
+    const router = createMemoryRouter([
+      { path: '/bookkeeping', element: createElement(BookkeepingPage) },
+    ], {
+      initialEntries: [{
+        pathname: '/bookkeeping',
+        state: {
+          shortcutBookkeeping: {
+            amountCandidate: '18.60',
+            capturedAt: '2026-08-29T10:00:00.000Z',
+            expiresAt: '2026-08-30T10:00:00.000Z',
+            id: 'shortcut-draft-2',
+            merchantCandidate: '未知商户',
+            rawText: '付款成功',
+            reviewCode: 'review-code-00002',
+            source: 'WECHAT',
+            status: 'CLAIMED',
+            warnings: [],
+          },
+        },
+      }],
+    });
+    const container = renderRouter(router);
+
+    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
+    expect(container.querySelector<HTMLInputElement>('[data-record-editor-note] input')?.value).toBe('未知商户');
+    expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('18.60');
   });
 
   it('returns a household-originated draft to the same household calendar', async () => {

@@ -2,7 +2,7 @@ export * from './amount';
 export * from './class-name';
 export * from './component';
 export * from './donut-amount';
-export * from './donut-amount';
+export * from './haptic-feedback';
 export * from './image-export';
 export * from './locale-date';
 export * from './math';

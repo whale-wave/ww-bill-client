@@ -7,12 +7,14 @@ import {
   RecordEditorPresentation,
   useRecordEditorController,
 } from '@/features/record-editor';
+import { confirmDangerousAction } from '@/shared/ui';
 
 vi.mock('@/shared/i18n', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
 vi.mock('@/shared/ui', () => ({
+  confirmDangerousAction: vi.fn(),
   DesignIcon: ({ name }: { name: string }) => createElement('span', { 'data-design-icon': name }),
   IllustratedEmptyState: ({ testId, title }: { testId: string; title: string }) => createElement('div', { 'data-testid': testId }, title),
 }));
@@ -48,7 +50,19 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-function TestEditor({ onCancel = vi.fn(), withTags = false }: { onCancel?: () => void; withTags?: boolean }) {
+function TestEditor({
+  onArchiveTag,
+  onCancel = vi.fn(),
+  onManageCategories,
+  remarkHistory,
+  withTags = false,
+}: {
+  onArchiveTag?: (tagId: string) => Promise<void>;
+  onCancel?: () => void;
+  onManageCategories?: () => void;
+  remarkHistory?: string[];
+  withTags?: boolean;
+}) {
   const controller = useRecordEditorController({
     onSubmit: vi.fn(),
     seed: {
@@ -62,7 +76,10 @@ function TestEditor({ onCancel = vi.fn(), withTags = false }: { onCancel?: () =>
     categories: [category],
     categoryState: 'ready',
     controller,
+    onArchiveTag,
     onCancel,
+    onManageCategories,
+    remarkHistory,
     tags: withTags ? [{ id: 'tag-a', name: '聚餐' }] : [],
   });
 }
@@ -117,6 +134,24 @@ describe('record editor presentation', () => {
     expect(backspace?.querySelector('svg')).not.toBeNull();
   });
 
+  it('renders category settings as the final category item', () => {
+    const onManageCategories = vi.fn();
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor, { onManageCategories })));
+    cleanup = () => act(() => root.unmount());
+
+    const items = container.querySelectorAll('[data-record-editor-categories] button');
+    const settings = container.querySelector<HTMLButtonElement>('[data-record-editor-category-settings]');
+
+    expect(items).toHaveLength(2);
+    expect(items.item(1)).toBe(settings);
+    expect(settings?.getAttribute('aria-label')).toBe('record:bookkeeping.categorySettings');
+
+    act(() => settings?.click());
+    expect(onManageCategories).toHaveBeenCalledOnce();
+  });
+
   it('keeps tags as an optional fixed entry instead of a separate form layout', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
@@ -137,6 +172,36 @@ describe('record editor presentation', () => {
     expect(tag?.getAttribute('aria-pressed')).toBe('true');
     expect(tag?.classList).toContain('bg-primary');
     expect(tag?.classList).not.toContain('bg-white');
+    expect(document.body.querySelector('[data-record-editor-selected-tags]')).not.toBeNull();
+
+    act(() => document.body.querySelector<HTMLButtonElement>('[aria-label="移除标签 聚餐"]')?.click());
+
+    expect(document.body.querySelector('[data-record-editor-selected-tags]')).toBeNull();
+    expect(tag?.getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('archives a tag from the picker and removes it from the current draft', async () => {
+    const onArchiveTag = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(confirmDangerousAction).mockResolvedValue(true);
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor, { onArchiveTag, withTags: true })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-tag-trigger]')?.click());
+    const tag = [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === '聚餐');
+    act(() => tag?.click());
+
+    await act(async () => {
+      document.body.querySelector<HTMLButtonElement>('[data-record-editor-tag-delete="tag-a"]')?.click();
+      await Promise.resolve();
+    });
+
+    expect(confirmDangerousAction).toHaveBeenCalledOnce();
+    expect(onArchiveTag).toHaveBeenCalledWith('tag-a');
+    expect(document.body.querySelector('[data-record-editor-selected-tags]')).toBeNull();
   });
 
   it('leaves the editor from the back button and opens categories from the category name', () => {
@@ -155,6 +220,23 @@ describe('record editor presentation', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-cancel]')?.click());
     expect(onCancel).toHaveBeenCalledOnce();
+  });
+
+  it('shows current-category history only while the note is focused and fills a selected note', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor, { remarkHistory: ['便利店', '午餐'] })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+    const input = container.querySelector<HTMLInputElement>('[data-record-editor-note] input')!;
+    expect(container.querySelector('[data-record-editor-remark-history]')).toBeNull();
+
+    act(() => input.dispatchEvent(new FocusEvent('focusin', { bubbles: true })));
+    expect(container.querySelector('[data-record-editor-remark-history]')?.textContent).toContain('便利店');
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-remark-history-item="午餐"]')?.click());
+    expect(input.value).toBe('午餐');
   });
 
   it('shows the authenticated thumbnail in edit mode and opens a full-screen preview', async () => {

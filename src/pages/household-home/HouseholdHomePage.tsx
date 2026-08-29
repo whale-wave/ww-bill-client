@@ -6,7 +6,12 @@ import { CalendarDays, List, Search, Settings, Target } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
-import { useHouseholdCalendarQuery, useInfiniteHouseholdRecordsQuery } from '@/entities/household';
+import {
+  patchHouseholdPreferencesApi,
+  useHouseholdCalendarQuery,
+  useHouseholdPreferencesQuery,
+  useInfiniteHouseholdRecordsQuery,
+} from '@/entities/household';
 import { LedgerKind, LedgerVisualIcon } from '@/entities/ledger';
 import {
   RecordMonthPicker,
@@ -24,6 +29,7 @@ import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import {
+  DesignIcon,
   showAppActionSheet,
   showAppInfoDialog,
 } from '@/shared/ui';
@@ -54,7 +60,12 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
     params: { householdId: household.id, month },
     queryOptions: { enabled: Boolean(household.id) },
   });
+  const preferenceQuery = useHouseholdPreferencesQuery({
+    params: { householdId: household.id },
+    queryOptions: { enabled: Boolean(household.id) },
+  });
   const { i18n, t } = useTranslation('household');
+  const isAmountHidden = preferenceQuery.data?.hideTotalAmount === true;
 
   const handleRecord = useCallback((record: FamilyRecord) => {
     navigate(ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(household.id, record.id));
@@ -63,6 +74,16 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
   const handleExit = useCallback(() => {
     navigate(ROUTES_PATH.DETAIL.getPath(), { replace: true });
   }, [navigate]);
+
+  const handleToggleAmountVisibility = useCallback(() => {
+    const preference = preferenceQuery.data;
+    if (!preference)
+      return;
+    void patchHouseholdPreferencesApi(household.id, {
+      hideTotalAmount: !preference.hideTotalAmount,
+      version: preference.version,
+    }).then(() => preferenceQuery.refetch());
+  }, [household.id, preferenceQuery]);
 
   const handleShowMore = useCallback(() => {
     showAppActionSheet({
@@ -129,18 +150,23 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
               switchTestId="household-more-action"
             />
           ),
+          amountToggle: {
+            content: <DesignIcon name={isAmountHidden ? 'amount-hidden' : 'amount-visible'} size={16} />,
+            disabled: !preferenceQuery.data,
+            onClick: handleToggleAmountVisibility,
+          },
           metrics: [
             {
               key: 'income',
               label: t('common.income'),
               testId: 'household-monthly-income',
-              value: toMoney(recordsQuery.data?.summary.income),
+              value: isAmountHidden ? '＊＊＊＊＊' : toMoney(recordsQuery.data?.summary.income),
             },
             {
               key: 'expense',
               label: t('common.expense'),
               testId: 'household-monthly-expense',
-              value: toMoney(recordsQuery.data?.summary.expense),
+              value: isAmountHidden ? '＊＊＊＊＊' : toMoney(recordsQuery.data?.summary.expense),
             },
           ],
           period: {

@@ -48,6 +48,27 @@ export interface LedgerRecordDetailLocationState {
   ledgerRecord: RecordEntry;
 }
 
+export interface PersonalRecordDetailNavigationState {
+  personalRecordDetail: {
+    returnTo: 'personal-home';
+  };
+}
+
+export function createPersonalRecordDetailNavigationState(): PersonalRecordDetailNavigationState {
+  return { personalRecordDetail: { returnTo: 'personal-home' } };
+}
+
+export function readPersonalRecordDetailNavigationState(
+  value: unknown,
+): PersonalRecordDetailNavigationState | undefined {
+  if (typeof value !== 'object' || value === null || !('personalRecordDetail' in value))
+    return undefined;
+  const detail = value.personalRecordDetail;
+  if (typeof detail !== 'object' || detail === null || !('returnTo' in detail) || detail.returnTo !== 'personal-home')
+    return undefined;
+  return value as PersonalRecordDetailNavigationState;
+}
+
 function isRecordEntry(value: unknown): value is RecordEntry {
   if (typeof value !== 'object' || value === null)
     return false;

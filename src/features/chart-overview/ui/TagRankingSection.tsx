@@ -5,6 +5,31 @@ import { DonutChart } from '@/shared/ui';
 
 const COLORS = ['#7c78f6', '#19bf8b', '#70b5c9', '#f5ab57', '#e7799d', '#6e9fdb'];
 
+interface TagRankingFallbackRecord {
+  amount: number | string;
+  tags?: readonly unknown[];
+}
+
+function getUntaggedRankingFallback(records: readonly TagRankingFallbackRecord[] | undefined): TagRankingResponse | undefined {
+  if (!records?.length || records.some(record => record.tags?.length))
+    return;
+
+  const total = records.reduce((sum, record) => sum + Number(record.amount), 0);
+  if (!Number.isFinite(total))
+    return;
+
+  return {
+    items: [{
+      amount: total.toFixed(2),
+      key: 'aggregate:untagged',
+      name: '无标签',
+      percentage: 100,
+      tagId: null,
+    }],
+    totalAmount: total.toFixed(2),
+  };
+}
+
 function getPercentage(item: TagRankingResponse['items'][number], total: number) {
   if (total > 0)
     return item.percentage / total * 100;
@@ -43,10 +68,17 @@ const TagLegend: FC<{ data: TagRankingResponse }> = ({ data }) => (
 
 const TagRankingSkeleton: FC = () => (
   <div aria-label="正在加载标签排行" className="space-y-3" data-tag-ranking-loading role="status">
-    <div className="flex items-center gap-4 px-1 py-2">
-      <div className="h-[140px] w-[140px] shrink-0 animate-pulse rounded-full bg-primary-light/60" />
+    <div className="flex items-center gap-4 px-1 py-1">
+      <div className="relative flex h-[112px] w-[112px] shrink-0 items-center justify-center rounded-full bg-primary-light/45 p-[17px] animate-pulse">
+        <div className="h-full w-full rounded-full bg-white/85" />
+      </div>
       <div className="min-w-0 flex-1 space-y-3">
-        {[0, 1, 2].map(item => <div className="h-3 animate-pulse rounded-full bg-primary-light/60" key={item} style={{ width: `${72 - item * 12}%` }} />)}
+        {[0, 1, 2].map(item => (
+          <div className="flex items-center gap-2" key={item}>
+            <span className="h-2.5 w-2.5 shrink-0 rounded-sm bg-primary-light/80" />
+            <span className="h-3 animate-pulse rounded-full bg-primary-light/60" style={{ width: `${76 - item * 12}%` }} />
+          </div>
+        ))}
       </div>
     </div>
     {[0, 1, 2].map(item => (
@@ -70,12 +102,18 @@ const TagRankingState: FC<{ children: ReactNode; testId?: string }> = ({ childre
   </section>
 );
 
-export const TagRankingSection: FC<{ data?: TagRankingResponse; isError?: boolean; isLoading?: boolean }> = ({ data, isError, isLoading }) => {
+export const TagRankingSection: FC<{
+  data?: TagRankingResponse;
+  fallbackRecords?: readonly TagRankingFallbackRecord[];
+  isError?: boolean;
+  isLoading?: boolean;
+}> = ({ data, fallbackRecords, isError, isLoading }) => {
   if (isLoading)
     return <TagRankingState testId="loading"><TagRankingSkeleton /></TagRankingState>;
   if (isError)
     return <TagRankingState testId="error"><div className="flex min-h-[108px] items-center justify-center text-sm text-ww-soft">标签排行暂不可用</div></TagRankingState>;
-  if (!data || data.items.length === 0)
+  const ranking = data?.items.length ? data : getUntaggedRankingFallback(fallbackRecords);
+  if (!ranking)
     return <TagRankingState testId="empty"><div className="flex min-h-[108px] items-center justify-center text-sm text-ww-soft" data-tag-ranking-empty>暂无标签统计</div></TagRankingState>;
 
   return (
@@ -84,16 +122,16 @@ export const TagRankingSection: FC<{ data?: TagRankingResponse; isError?: boolea
       <div className="overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] px-4 py-3 shadow-ww backdrop-blur-xl">
         <div className="px-1 py-2">
           <DonutChart
-            amount={data.totalAmount}
-            amountSize={getDonutAmountSize(`¥${data.totalAmount}`)}
-            chart={<TagDonut data={data} />}
+            amount={ranking.totalAmount}
+            amountSize={getDonutAmountSize(`¥${ranking.totalAmount}`)}
+            chart={<TagDonut data={ranking} />}
             label="总金额"
-            legend={<TagLegend data={data} />}
+            legend={<TagLegend data={ranking} />}
             marker="tag"
           />
         </div>
         <div data-tag-ranking-rows>
-          {data.items.map((item, index) => (
+          {ranking.items.map((item, index) => (
             <div className="border-t border-border-primary py-3" key={item.key}>
               <div className="flex items-center gap-3">
                 <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: COLORS[index % COLORS.length] }} />

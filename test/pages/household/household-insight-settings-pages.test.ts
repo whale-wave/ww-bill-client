@@ -21,6 +21,7 @@ const hooks = vi.hoisted(() => ({
   deleteBudget: vi.fn(),
   dissolve: vi.fn(),
   updateHousehold: vi.fn(),
+  updatePreferences: vi.fn(),
   updateNickname: vi.fn(),
   upsertBudget: vi.fn(),
   useDeleteHouseholdBudgetMutation: vi.fn(),
@@ -29,7 +30,9 @@ const hooks = vi.hoisted(() => ({
   useHouseholdChartsQuery: vi.fn(),
   useHouseholdChartPeriodsQuery: vi.fn(),
   useHouseholdMembersQuery: vi.fn(),
+  useHouseholdPreferencesQuery: vi.fn(),
   useMyHouseholdQuery: vi.fn(),
+  usePatchHouseholdPreferencesMutation: vi.fn(),
   useUpdateHouseholdMutation: vi.fn(),
   useUpdateMyHouseholdNicknameMutation: vi.fn(),
   useUpsertHouseholdBudgetMutation: vi.fn(),
@@ -45,7 +48,9 @@ vi.mock('@/entities/household', async importOriginal => ({
   useHouseholdTagRankingQuery: () => ({ data: undefined, isError: false, isLoading: false }),
   useHouseholdChartPeriodsQuery: hooks.useHouseholdChartPeriodsQuery,
   useHouseholdMembersQuery: hooks.useHouseholdMembersQuery,
+  useHouseholdPreferencesQuery: hooks.useHouseholdPreferencesQuery,
   useMyHouseholdQuery: hooks.useMyHouseholdQuery,
+  usePatchHouseholdPreferencesMutation: hooks.usePatchHouseholdPreferencesMutation,
   useUpdateHouseholdMutation: hooks.useUpdateHouseholdMutation,
   useUpdateMyHouseholdNicknameMutation: hooks.useUpdateMyHouseholdNicknameMutation,
   useUpsertHouseholdBudgetMutation: hooks.useUpsertHouseholdBudgetMutation,
@@ -192,6 +197,12 @@ beforeEach(() => {
   Object.values(hooks).forEach(mock => mock.mockReset());
   hooks.useMyHouseholdQuery.mockReturnValue(query(household));
   hooks.useHouseholdMembersQuery.mockReturnValue({ ...query(members), data: members });
+  hooks.useHouseholdPreferencesQuery.mockReturnValue(query({
+    hideTotalAmount: false,
+    id: 'preference-1',
+    updatedAt: '2026-07-01T00:00:00.000Z',
+    version: 4,
+  }));
   hooks.useHouseholdBudgetsQuery.mockReturnValue(query(budget));
   hooks.useHouseholdChartsQuery.mockReturnValue(query(chart));
   hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([{
@@ -204,6 +215,7 @@ beforeEach(() => {
   hooks.useUpsertHouseholdBudgetMutation.mockReturnValue([hooks.upsertBudget, { isLoading: false }]);
   hooks.useDeleteHouseholdBudgetMutation.mockReturnValue([hooks.deleteBudget, { isLoading: false }]);
   hooks.useUpdateHouseholdMutation.mockReturnValue([hooks.updateHousehold, { isLoading: false }]);
+  hooks.usePatchHouseholdPreferencesMutation.mockReturnValue([hooks.updatePreferences, { isLoading: false }]);
   hooks.useUpdateMyHouseholdNicknameMutation.mockReturnValue([hooks.updateNickname, { isLoading: false }]);
   hooks.useDissolveHouseholdMutation.mockReturnValue([hooks.dissolve, { isLoading: false }]);
   hooks.useUserQuery.mockReturnValue({ data: { id: 1 } });
@@ -1008,6 +1020,18 @@ describe('household budget and charts', () => {
 });
 
 describe('household settings and members', () => {
+  it('stores the current member amount visibility preference', async () => {
+    hooks.updatePreferences.mockResolvedValue({ data: {} });
+    const { container } = renderPage('/households/household%2Fa/settings', '/households/:householdId/settings', createElement(HouseholdSettingsPage));
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="hide-total"] [role="switch"]')?.click());
+
+    expect(hooks.updatePreferences).toHaveBeenCalledWith({
+      data: { hideTotalAmount: true, version: 4 },
+      householdId: 'household/a',
+    });
+  });
+
   it('opens household export from settings with the URL household id', async () => {
     const { container, router } = renderPage('/households/household%2Fa/settings', '/households/:householdId/settings', createElement(HouseholdSettingsPage));
     const exportButton = [...container.querySelectorAll<HTMLButtonElement>('button')]

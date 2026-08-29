@@ -133,7 +133,7 @@ describe('record-count mutation hook cache reconciliation', () => {
     expect(queryClient.getQueryState(ledgerKeys.navigation())?.isInvalidated).toBe(true);
   });
 
-  it('reuses personal delete success invalidations on 409', async () => {
+  it('refreshes the personal record detail on a delete conflict', async () => {
     const queryClient = reactQueryMocks.queryClient;
     seedQuery(queryClient, ledgerKeys.navigation());
     seedQuery(queryClient, recordKeys.list());
@@ -151,6 +151,28 @@ describe('record-count mutation hook cache reconciliation', () => {
     expect(queryClient.getQueryState(recordKeys.list())?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(recordKeys.detail({ id: 'record-a' }))?.isInvalidated)
       .toBe(true);
+    expect(queryClient.getQueryState(recordKeys.bill({ type: 'year', year: 2026 }))?.isInvalidated)
+      .toBe(true);
+    expect(queryClient.getQueryState(chartKeys.all)?.isInvalidated).toBe(true);
+  });
+
+  it('removes a successfully deleted personal record detail without waiting to refetch it', () => {
+    const queryClient = reactQueryMocks.queryClient;
+    seedQuery(queryClient, ledgerKeys.navigation());
+    seedQuery(queryClient, recordKeys.list());
+    seedQuery(queryClient, recordKeys.detail({ id: 'record-a' }));
+    seedQuery(queryClient, recordKeys.bill({ type: 'year', year: 2026 }));
+    seedQuery(queryClient, chartKeys.all);
+
+    useDeleteRecordMutation();
+    latestMutation<{ id: string; version: number }>().onSuccess?.(
+      { statusCode: 200 },
+      { id: 'record-a', version: 3 },
+    );
+
+    expect(queryClient.getQueryState(recordKeys.detail({ id: 'record-a' }))).toBeUndefined();
+    expect(queryClient.getQueryState(ledgerKeys.navigation())?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(recordKeys.list())?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(recordKeys.bill({ type: 'year', year: 2026 }))?.isInvalidated)
       .toBe(true);
     expect(queryClient.getQueryState(chartKeys.all)?.isInvalidated).toBe(true);

@@ -4,20 +4,22 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useCallback, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useLedgerCategoriesQuery } from '@/entities/category';
 import {
   LedgerCapability,
   LedgerRecordType,
   useLedgerPreferencesQuery,
 } from '@/entities/ledger';
-import { useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
-import { useCreateLedgerRecordMutation, useUploadTemporaryRecordAttachmentMutation } from '@/entities/record';
+import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
+import { useCreateLedgerRecordMutation, useRecordRemarkHistoryQuery, useUploadTemporaryRecordAttachmentMutation } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import {
   invalidateLedgerRecordEditorCaches,
+  readRecordEditorSettingsNavigationLocationState,
   RecordEditorPresentation,
   useRecordEditorController,
+  useRecordEditorSettingsNavigation,
 } from '@/features/record-editor';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
@@ -45,17 +47,20 @@ function LedgerRecordCreateEditor({
 }: LedgerRecordCreateEditorProps) {
   const { t } = useTranslation('ledger');
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const selectTime = getValidSelectTime(searchParams.get('selectTime'));
   const [createRecord, createState] = useCreateLedgerRecordMutation();
   const [uploadImage] = useUploadTemporaryRecordAttachmentMutation();
   const [createTag] = useCreateLedgerTagMutation();
-  const seed = useMemo(() => ({
+  const [archiveTag] = useArchiveLedgerTagMutation();
+  const restoredDraft = readRecordEditorSettingsNavigationLocationState(location.state)?.recordEditorSettingsNavigation?.draft;
+  const seed = useMemo(() => restoredDraft ?? ({
     recordType: initialRecordType,
     tagIds: supportsTags ? [] : undefined,
     time: selectTime ? dayjs(selectTime).toISOString() : dayjs().toISOString(),
-  }), [initialRecordType, selectTime, supportsTags]);
+  }), [initialRecordType, restoredDraft, selectTime, supportsTags]);
   const navigateAfterCreate = useCallback(() => {
     const target = selectTime
       ? `${ROUTES_PATH.LEDGER_CALENDAR.getPath(ledgerId)}?selectTime=${selectTime}`
@@ -88,6 +93,9 @@ function LedgerRecordCreateEditor({
     isEditing: false,
     onUploadImage: async file => (await uploadImage({ file, ledgerId })).data.assetId,
   });
+  const openRecordEditorSettings = useRecordEditorSettingsNavigation(
+    controller.getDraftSnapshot,
+  );
   const categoryQuery = useLedgerCategoriesQuery({
     params: { ledgerId, type: controller.recordType },
   });
@@ -95,6 +103,15 @@ function LedgerRecordCreateEditor({
     params: { ledgerId, categoryId: controller.selectedCategory?.id },
     queryOptions: { enabled: supportsTags },
   });
+  const remarkHistoryQuery = useRecordRemarkHistoryQuery({
+    params: { categoryId: controller.selectedCategory?.id, ledgerId },
+    queryOptions: { enabled: controller.isNoteFocused && Boolean(controller.selectedCategory) },
+  });
+  const handleArchiveTag = useCallback(async (tagId: string) => {
+    const tag = tagsQuery.data.find(item => item.id === tagId);
+    if (tag)
+      await archiveTag({ ledgerId, tagId, version: tag.version });
+  }, [archiveTag, ledgerId, tagsQuery.data]);
 
   return (
     <RecordEditorPresentation
@@ -106,8 +123,17 @@ function LedgerRecordCreateEditor({
         ...controller,
         isSubmitting: controller.isSubmitting || createState.isLoading,
       }}
+      onArchiveTag={canManageTags ? handleArchiveTag : undefined}
       onCancel={navigateAfterCreate}
+      onManageCategories={() => openRecordEditorSettings(
+        ROUTES_PATH.LEDGER_CATEGORIES.getPath(ledgerId),
+        { reopenTagPicker: false },
+      )}
+      onManageTags={canManageTags
+        ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId))
+        : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
+      remarkHistory={remarkHistoryQuery.data}
       canManageTags={canManageTags}
       onCreateTag={controller.selectedCategory ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId })).data : undefined}
       tags={supportsTags && controller.selectedCategory ? tagsQuery.data : undefined}

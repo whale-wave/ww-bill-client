@@ -249,7 +249,7 @@ const ChartCategory: FC = () => {
             </GradientPanel>
           </section>
 
-          <TagRankingSection data={tagRanking.data} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />
+          <TagRankingSection data={tagRanking.data} fallbackRecords={records} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />
         </div>
       </main>
     </div>

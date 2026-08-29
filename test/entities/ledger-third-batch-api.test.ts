@@ -32,7 +32,7 @@ import {
   patchLedgerPreferencesApi,
   postArchiveLedgerApi,
 } from '@/entities/ledger/api';
-import { deleteLedgerRecordApi, getLedgerRecordBillApi, getLedgerRecordByIdApi, getLedgerRecordsApi, postLedgerRecordApi, putLedgerRecordApi } from '@/entities/record/api';
+import { deleteLedgerRecordApi, getLedgerRecordBillApi, getLedgerRecordByIdApi, getLedgerRecordRemarkHistoryApi, getLedgerRecordsApi, getRecordRemarkHistoryApi, postLedgerRecordApi, putLedgerRecordApi } from '@/entities/record/api';
 
 const request = vi.hoisted(() => ({
   delete: vi.fn(),
@@ -73,6 +73,8 @@ describe('ledger third-batch canonical APIs', () => {
 
   it('keeps record, category, budget and chart requests scoped to the URL ledger', () => {
     getLedgerRecordsApi('ledger/a b', { keyword: '餐' });
+    getLedgerRecordRemarkHistoryApi('ledger/a b', { categoryId: 8 });
+    getRecordRemarkHistoryApi({ categoryId: 8 });
     getLedgerRecordByIdApi('ledger/a b', '9/1');
     postLedgerRecordApi('ledger/a b', { amount: '12', categoryId: 8, remark: '午餐', time: '2026-07-21', type: 'sub' });
     putLedgerRecordApi('ledger/a b', '9/1', { remark: '晚餐', version: 3 });
@@ -88,6 +90,8 @@ describe('ledger third-batch canonical APIs', () => {
     getLedgerChartApi('ledger/a b', { category: 'month', type: 'sub' });
 
     expect(request.get).toHaveBeenCalledWith('/ledgers/ledger%2Fa%20b/records', { params: { keyword: '餐' } });
+    expect(request.get).toHaveBeenCalledWith('/ledgers/ledger%2Fa%20b/records/remark-history', { params: { categoryId: 8 } });
+    expect(request.get).toHaveBeenCalledWith('/record/remark-history', { params: { categoryId: 8 } });
     expect(request.get).toHaveBeenCalledWith('/ledgers/ledger%2Fa%20b/records/9%2F1');
     expect(request.post).toHaveBeenCalledWith('/ledgers/ledger%2Fa%20b/records', { amount: '12', categoryId: 8, remark: '午餐', time: '2026-07-21', type: 'sub' });
     expect(request.put).toHaveBeenCalledWith('/ledgers/ledger%2Fa%20b/records/9%2F1', { remark: '晚餐', version: 3 });

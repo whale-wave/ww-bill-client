@@ -50,4 +50,12 @@ describe('appButton', () => {
     expect(button.className).toContain('focus-visible:ring-2');
     expect(button.className).toContain('border-border-primary');
   });
+
+  it('uses an inline flex container for button contents', () => {
+    const button = renderButton({ children: '复制凭证' });
+    const content = button.querySelector('button > span:last-child')!;
+
+    expect(content.className).toContain('inline-flex');
+    expect(content.className).toContain('items-center');
+  });
 });

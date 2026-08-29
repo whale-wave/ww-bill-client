@@ -18,6 +18,7 @@ const mocks = vi.hoisted(() => ({
     id: 'config-1',
     isDisplayAmount: false,
     isDisplayAmountSwitch: false,
+    isOpenHapticEffect: false,
     isLedgerQuickSwitchEnabled: false,
     isOpenSoundEffect: false,
     ledgerQuickSwitchVersion: 1,

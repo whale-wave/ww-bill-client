@@ -24,6 +24,7 @@ export interface RecordOverviewHeaderProps {
   actions?: ReactNode;
   amountToggle?: {
     content: ReactNode;
+    disabled?: boolean;
     onClick: () => void;
   };
   metrics: readonly [RecordOverviewMetric, RecordOverviewMetric];
@@ -39,6 +40,7 @@ export interface RecordOverviewHeaderProps {
   shortcutsTestId?: string;
   testId?: string;
   titleIcon?: ReactNode;
+  titleIconContainerClassName?: string;
   titleAlignment?: 'center' | 'start';
 }
 
@@ -52,6 +54,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
   shortcutsTestId,
   testId = 'record-overview-header',
   titleIcon,
+  titleIconContainerClassName,
   titleAlignment = 'center',
 }) => {
   const titleClassName = cn(
@@ -70,7 +73,11 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
       <div className="flex h-[52px] items-start justify-between gap-3 px-[22px] pb-4">
         <div className="flex h-8 min-w-0 items-center gap-2" data-record-overview-title-row>
           {titleIcon && (
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[16px] bg-[linear-gradient(145deg,#6fc2dc_6.1733%,#4aaac4_93.827%)]">
+            <span className={cn(
+              'flex h-8 w-8 shrink-0 items-center justify-center rounded-[16px] bg-[linear-gradient(145deg,#6fc2dc_6.1733%,#4aaac4_93.827%)]',
+              titleIconContainerClassName,
+            )}
+            >
               {titleIcon}
             </span>
           )}
@@ -80,7 +87,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
       </div>
       <div className="px-[18px] pb-4">
         <GradientPanel
-          className="relative h-[229.25px] overflow-hidden px-[22px] pb-5 pt-[22px]"
+          className="relative h-[211px] overflow-hidden px-[22px] pb-4 pt-[18px]"
           data-record-overview-summary=""
           elevation="high"
           surface="aurora"
@@ -113,7 +120,11 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
             {amountToggle && (
               <button
                 aria-label="toggle amount visibility"
-                className="mt-[14px] flex h-8 w-8 shrink-0 items-center justify-center rounded-[16px] border border-[rgba(100,160,200,0.2)] bg-white/[0.55] text-primary-deep"
+                className={cn(
+                  'mt-[14px] flex h-8 w-8 shrink-0 items-center justify-center rounded-[16px] border border-[rgba(100,160,200,0.2)] bg-white/[0.55] text-primary-deep',
+                  amountToggle.disabled && 'opacity-45',
+                )}
+                disabled={amountToggle.disabled}
                 onClick={amountToggle.onClick}
                 type="button"
               >
@@ -123,7 +134,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
           </div>
           <ActionMenuCard
             aria-label="record shortcuts"
-            className="relative h-[90px] overflow-y-hidden pt-5"
+            className="relative h-20 overflow-y-hidden pt-4"
             columns={3}
             items={shortcuts.map((shortcut, index) => ({
               ariaDisabled: shortcut.disabled,

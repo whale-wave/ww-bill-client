@@ -37,6 +37,8 @@ describe('ledger page routes', () => {
     ['/ledgers/preferences', 'preferences'],
     ['/ledgers/applications', 'applications'],
     ['/ledger-invites/AB%2FC', 'ledger-invites/:code'],
+    ['/bookkeeping/import', 'bookkeeping/import'],
+    ['/settings/shortcut-bookkeeping', 'shortcut-bookkeeping'],
     ['/ledgers/ledger%2Fa', ':ledgerId'],
     ['/ledgers/ledger%2Fa/records', ':ledgerId/records'],
     ['/ledgers/ledger%2Fa/bill', ':ledgerId/bill'],
