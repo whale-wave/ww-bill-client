@@ -26,6 +26,10 @@ import {
   PageHeader,
   PageLoadingState,
 } from '@/shared/ui';
+import {
+  getConfiguredIosShortcutInstallUrl,
+  openIosShortcutInstallUrl,
+} from './model';
 
 function getShortcutDraftEndpoint() {
   const configuredHost = typeof import.meta.env.VITE_HOST === 'string'
@@ -43,6 +47,7 @@ export default function ShortcutBookkeepingSettingsPage() {
   const [deviceName, setDeviceName] = useState('');
   const [newToken, setNewToken] = useState<string>();
   const endpoint = useMemo(getShortcutDraftEndpoint, []);
+  const installUrl = getConfiguredIosShortcutInstallUrl();
 
   const handleCopy = async (value: string) => {
     let copied = false;
@@ -60,6 +65,12 @@ export default function ShortcutBookkeepingSettingsPage() {
       content: t(copied ? 'shortcutBookkeeping.copied' : 'shortcutBookkeeping.saveFailed'),
       icon: copied ? 'success' : 'fail',
     });
+    return copied;
+  };
+
+  const handleCopyAndInstall = async (value: string) => {
+    if (installUrl && await handleCopy(value))
+      openIosShortcutInstallUrl(installUrl);
   };
 
   const handleCreateCredential = async () => {
@@ -72,6 +83,8 @@ export default function ShortcutBookkeepingSettingsPage() {
       });
       setNewToken(result.token);
       setDeviceName('');
+      if (installUrl)
+        await handleCopyAndInstall(result.token);
     }
     catch {
       Toast.show({ content: t('shortcutBookkeeping.saveFailed'), icon: 'fail' });
@@ -143,7 +156,9 @@ export default function ShortcutBookkeepingSettingsPage() {
               loadingLabel={t('shortcutBookkeeping.creatingCredential')}
               onClick={() => void handleCreateCredential()}
             >
-              {t('shortcutBookkeeping.createCredential')}
+              {t(installUrl
+                ? 'shortcutBookkeeping.createAndInstall'
+                : 'shortcutBookkeeping.createCredential')}
             </AppButton>
           </section>
 
@@ -155,9 +170,18 @@ export default function ShortcutBookkeepingSettingsPage() {
               </div>
               <p className="mt-2 text-[11px] leading-4 text-ww-mid">{t('shortcutBookkeeping.newCredentialHint')}</p>
               <code className="mt-3 block break-all rounded-[14px] bg-white/80 px-3 py-3 text-[12px] leading-5 text-ww-ink shadow-ww-xs">{newToken}</code>
-              <AppButton className="mt-3" fullWidth onClick={() => void handleCopy(newToken)} variant="secondary">
+              <AppButton
+                className="mt-3"
+                fullWidth
+                onClick={() => void (installUrl
+                  ? handleCopyAndInstall(newToken)
+                  : handleCopy(newToken))}
+                variant="secondary"
+              >
                 <Copy size={17} />
-                {t('shortcutBookkeeping.copyCredential')}
+                {t(installUrl
+                  ? 'shortcutBookkeeping.copyAndInstall'
+                  : 'shortcutBookkeeping.copyCredential')}
               </AppButton>
             </section>
           )}
@@ -201,8 +225,11 @@ export default function ShortcutBookkeepingSettingsPage() {
             </div>
           </section>
 
-          <section className="rounded-[20px] border border-border-primary bg-white/[0.88] p-4 shadow-ww">
-            <div className="flex items-center gap-2.5">
+          <details className="rounded-[20px] border border-border-primary bg-white/[0.88] p-4 shadow-ww" open={!installUrl}>
+            <summary className="cursor-pointer list-none text-[13px] font-extrabold text-ww-ink">
+              {t('shortcutBookkeeping.manualSetup')}
+            </summary>
+            <div className="mt-4 flex items-center gap-2.5 border-t border-solid border-border-primary pt-4">
               <Smartphone className="text-primary-deep" size={20} strokeWidth={1.8} />
               <h2 className="text-[14px] font-extrabold text-ww-ink">{t('shortcutBookkeeping.setupTitle')}</h2>
             </div>
@@ -223,7 +250,7 @@ export default function ShortcutBookkeepingSettingsPage() {
                 {t('shortcutBookkeeping.copyEndpoint')}
               </button>
             </div>
-          </section>
+          </details>
 
           <GradientPanel className="px-4 py-4" elevation="low" surface="blush">
             <h2 className="text-[13px] font-extrabold text-ww-ink">{t('shortcutBookkeeping.backTapTitle')}</h2>
