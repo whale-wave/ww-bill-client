@@ -5,6 +5,8 @@ describe('ledger route builders', () => {
   it('builds global ledger workflow routes', () => {
     expect(ROUTES_PATH.DETAIL.getPath()).toBe('/detail');
     expect(ROUTES_PATH.BOOKKEEPING.getPath()).toBe('/bookkeeping');
+    expect(ROUTES_PATH.SHORTCUT_BOOKKEEPING_CONFIRM.getPath()).toBe('/bookkeeping/import');
+    expect(ROUTES_PATH.SETTINGS_SHORTCUT_BOOKKEEPING.getPath()).toBe('/settings/shortcut-bookkeeping');
     expect(ROUTES_PATH.DISCOVERY.getPath()).toBe('/discovery');
     expect(ROUTES_PATH.FEEDBACK.getPath()).toBe('/feedback');
     expect(ROUTES_PATH.LEDGERS.getPath()).toBe('/ledgers');

@@ -15,6 +15,7 @@ export type SettingsIconKey
     | 'lock'
     | 'member'
     | 'record'
+    | 'shortcut'
     | 'storage'
     | 'tag';
 

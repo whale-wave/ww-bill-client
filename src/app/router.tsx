@@ -105,6 +105,10 @@ const router = createHashRouter([
         lazy: lazyGuardedPage(tabRouteLoaders['personal-bookkeeping']),
       },
       {
+        path: 'bookkeeping/import',
+        lazy: lazyGuardedPage(() => import('@/pages/shortcut-bookkeeping-confirm/ShortcutBookkeepingConfirmPage')),
+      },
+      {
         path: 'discovery',
         lazy: lazyGuardedPage(tabRouteLoaders['personal-discovery']),
       },
@@ -240,6 +244,10 @@ const router = createHashRouter([
           {
             path: 'sound-and-haptics',
             lazy: lazyGuardedPage(() => import('@/pages/sound-and-haptics/SoundAndHapticsPage')),
+          },
+          {
+            path: 'shortcut-bookkeeping',
+            lazy: lazyGuardedPage(() => import('@/pages/shortcut-bookkeeping-settings/ShortcutBookkeepingSettingsPage')),
           },
           {
             path: 'about',

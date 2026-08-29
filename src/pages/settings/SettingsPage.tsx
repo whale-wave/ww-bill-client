@@ -121,6 +121,14 @@ const Settings: FC = () => {
                     onClick: () => goTo(ROUTES_PATH.CATEGORY_SETTINGS.getPath()),
                   },
                   {
+                    description: t('shortcutBookkeeping.entryDescription'),
+                    icon: 'shortcut',
+                    id: 'shortcut-bookkeeping',
+                    kind: 'link',
+                    label: t('shortcutBookkeeping.title'),
+                    onClick: () => goTo(ROUTES_PATH.SETTINGS_SHORTCUT_BOOKKEEPING.getPath()),
+                  },
+                  {
                     description: t('appLock.description'),
                     icon: 'lock',
                     id: 'app-lock',

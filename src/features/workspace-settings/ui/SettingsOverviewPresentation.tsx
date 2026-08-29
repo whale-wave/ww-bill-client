@@ -18,6 +18,7 @@ import {
   Paintbrush,
   ReceiptText,
   SlidersHorizontal,
+  Smartphone,
   Tags,
   Trash2,
   UserRound,
@@ -40,6 +41,7 @@ const iconMap: Record<SettingsIconKey, typeof Archive> = {
   lock: LockKeyhole,
   member: UsersRound,
   record: ReceiptText,
+  shortcut: Smartphone,
   storage: Trash2,
   tag: Tags,
 };

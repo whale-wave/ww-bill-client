@@ -9,6 +9,9 @@ export const ROUTES_PATH = {
   BOOKKEEPING: {
     getPath: () => '/bookkeeping',
   },
+  SHORTCUT_BOOKKEEPING_CONFIRM: {
+    getPath: () => '/bookkeeping/import',
+  },
   BILL: {
     getPath: () => '/bill',
   },
@@ -257,6 +260,9 @@ export const ROUTES_PATH = {
   },
   SETTINGS_ABOUT: {
     getPath: () => '/settings/about',
+  },
+  SETTINGS_SHORTCUT_BOOKKEEPING: {
+    getPath: () => '/settings/shortcut-bookkeeping',
   },
   SHARE: {
     getPath: () => '/share',
