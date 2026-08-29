@@ -6,7 +6,7 @@ import { CategoryIcon, useLedgerCategoriesQuery } from '@/entities/category';
 import { LedgerCapability } from '@/entities/ledger';
 import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQuery, useUpdateLedgerTagMutation } from '@/entities/ledger-data';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
-import { omitRecordEditorTagManagementState, readRecordEditorTagManagementNavigationState } from '@/features/record-editor';
+import { omitRecordEditorSettingsNavigationState, readRecordEditorSettingsNavigationState } from '@/features/record-editor';
 import { useTranslation } from '@/shared/i18n';
 import { confirmDangerousAction, GradientPanel, IllustratedEmptyState, PageHeader } from '@/shared/ui';
 
@@ -151,18 +151,18 @@ export default function LedgerTagsPage() {
   const { t } = useTranslation('ledger');
   const location = useLocation();
   const navigate = useNavigate();
-  const tagManagementState = readRecordEditorTagManagementNavigationState(location.state);
+  const settingsNavigation = readRecordEditorSettingsNavigationState(location.state);
   const handleBack = () => {
-    if (!tagManagementState) {
+    if (!settingsNavigation) {
       navigate(-1);
       return;
     }
-    const sourceState = omitRecordEditorTagManagementState(tagManagementState.returnTo.state) ?? {};
-    navigate(`${tagManagementState.returnTo.pathname}${tagManagementState.returnTo.search}`, {
+    const sourceState = omitRecordEditorSettingsNavigationState(settingsNavigation.returnTo.state) ?? {};
+    navigate(`${settingsNavigation.returnTo.pathname}${settingsNavigation.returnTo.search}`, {
       replace: true,
       state: {
         ...sourceState,
-        recordEditorTagManagement: { draft: tagManagementState.draft },
+        recordEditorSettingsNavigation: { draft: settingsNavigation.draft },
       },
     });
   };
@@ -171,7 +171,7 @@ export default function LedgerTagsPage() {
       <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-24 h-52 w-52 rounded-full bg-primary-light/35 blur-3xl" />
       <PageHeader backLabel={t('common:nav.back')} onBack={handleBack} title={t('tags.title')} />
       <LedgerScopeBoundary capability={LedgerCapability.TAG_MANAGE}>
-        {({ ledgerId }) => <TagsContent initialCategoryId={tagManagementState?.draft.category?.id} ledgerId={ledgerId} />}
+        {({ ledgerId }) => <TagsContent initialCategoryId={settingsNavigation?.draft.category?.id} ledgerId={ledgerId} />}
       </LedgerScopeBoundary>
     </div>
   );

@@ -22,10 +22,10 @@ import {
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import {
   invalidateLedgerRecordEditorCaches,
-  omitRecordEditorTagManagementState,
-  readRecordEditorTagManagementState,
+  readRecordEditorSettingsNavigationLocationState,
   RecordEditorPresentation,
   useRecordEditorController,
+  useRecordEditorSettingsNavigation,
 } from '@/features/record-editor';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
@@ -54,7 +54,7 @@ function LedgerRecordEditEditor({
   const [uploadImage] = useUploadTemporaryRecordAttachmentMutation();
   const [createTag] = useCreateLedgerTagMutation();
   const [archiveTag] = useArchiveLedgerTagMutation();
-  const restoredDraft = readRecordEditorTagManagementState(location.state)?.recordEditorTagManagement?.draft;
+  const restoredDraft = readRecordEditorSettingsNavigationLocationState(location.state)?.recordEditorSettingsNavigation?.draft;
   const seed = useMemo(() => restoredDraft ?? ({
     amount: initialRecord.amount,
     category: { ...initialRecord.category, type: initialRecord.type },
@@ -108,6 +108,9 @@ function LedgerRecordEditEditor({
     isEditing: true,
     onUploadImage: async file => (await uploadImage({ file, ledgerId })).data.assetId,
   });
+  const openRecordEditorSettings = useRecordEditorSettingsNavigation(
+    controller.getDraftSnapshot,
+  );
   const categoryQuery = useLedgerCategoriesQuery({
     params: { ledgerId, type: controller.recordType },
   });
@@ -121,18 +124,6 @@ function LedgerRecordEditEditor({
     params: { ledgerId, categoryId: controller.selectedCategory?.id },
     queryOptions: { enabled: supportsTags },
   });
-  const handleManageTags = useCallback(() => {
-    navigate(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId), {
-      replace: true,
-      state: {
-        recordEditorTagManagement: {
-          draft: controller.getDraftSnapshot(),
-          returnMode: 'replace',
-          returnTo: { pathname: location.pathname, search: location.search, state: omitRecordEditorTagManagementState(location.state) },
-        },
-      },
-    });
-  }, [controller, ledgerId, location.pathname, location.search, location.state, navigate]);
   const handleArchiveTag = useCallback(async (tagId: string) => {
     const tag = tagsQuery.data.find(item => item.id === tagId);
     if (tag)
@@ -151,7 +142,10 @@ function LedgerRecordEditEditor({
       }}
       onArchiveTag={canManageTags ? handleArchiveTag : undefined}
       onCancel={navigateToDetail}
-      onManageTags={canManageTags ? handleManageTags : undefined}
+      onManageCategories={() => openRecordEditorSettings(ROUTES_PATH.LEDGER_CATEGORIES.getPath(ledgerId))}
+      onManageTags={canManageTags
+        ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId))
+        : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
       canManageTags={canManageTags}
       onCreateTag={controller.selectedCategory ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId })).data : undefined}

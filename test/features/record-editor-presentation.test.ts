@@ -53,10 +53,12 @@ afterEach(() => {
 function TestEditor({
   onArchiveTag,
   onCancel = vi.fn(),
+  onManageCategories,
   withTags = false,
 }: {
   onArchiveTag?: (tagId: string) => Promise<void>;
   onCancel?: () => void;
+  onManageCategories?: () => void;
   withTags?: boolean;
 }) {
   const controller = useRecordEditorController({
@@ -74,6 +76,7 @@ function TestEditor({
     controller,
     onArchiveTag,
     onCancel,
+    onManageCategories,
     tags: withTags ? [{ id: 'tag-a', name: '聚餐' }] : [],
   });
 }
@@ -126,6 +129,24 @@ describe('record editor presentation', () => {
     const backspace = container.querySelector<HTMLButtonElement>('[aria-label="record:bookkeeping.backspace"]');
     expect(backspace?.textContent).toContain('record:bookkeeping.backspace');
     expect(backspace?.querySelector('svg')).not.toBeNull();
+  });
+
+  it('renders category settings as the final category item', () => {
+    const onManageCategories = vi.fn();
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor, { onManageCategories })));
+    cleanup = () => act(() => root.unmount());
+
+    const items = container.querySelectorAll('[data-record-editor-categories] button');
+    const settings = container.querySelector<HTMLButtonElement>('[data-record-editor-category-settings]');
+
+    expect(items).toHaveLength(2);
+    expect(items.item(1)).toBe(settings);
+    expect(settings?.getAttribute('aria-label')).toBe('record:bookkeeping.categorySettings');
+
+    act(() => settings?.click());
+    expect(onManageCategories).toHaveBeenCalledOnce();
   });
 
   it('keeps tags as an optional fixed entry instead of a separate form layout', () => {

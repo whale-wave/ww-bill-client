@@ -26,10 +26,10 @@ import {
   invalidatePersonalRecordEditorCaches,
   isLegacyRecordEditorState,
   isRecordEditorLocationState,
-  omitRecordEditorTagManagementState,
-  readRecordEditorTagManagementState,
+  readRecordEditorSettingsNavigationLocationState,
   RecordEditorPresentation,
   useRecordEditorController,
+  useRecordEditorSettingsNavigation,
 } from '@/features/record-editor';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
@@ -84,8 +84,8 @@ function BookkeepingPage() {
     : undefined;
   const initialRecord = editorState?.initialRecord
     ?? (isLegacyRecordEditorState(location.state) ? location.state : undefined);
-  const tagManagementState = readRecordEditorTagManagementState(location.state);
-  const restoredDraft = tagManagementState?.recordEditorTagManagement?.draft;
+  const settingsNavigationState = readRecordEditorSettingsNavigationLocationState(location.state);
+  const restoredDraft = settingsNavigationState?.recordEditorSettingsNavigation?.draft;
   const shortcutBookkeeping = readShortcutBookkeepingState(location.state)?.shortcutBookkeeping;
   const personalRecordDetailNavigation = readPersonalRecordDetailNavigationState(location.state);
   const shortcutRecordType = shortcutBookkeeping
@@ -221,6 +221,9 @@ function BookkeepingPage() {
     isEditing: Boolean(initialRecord),
     onUploadImage: async file => (await uploadImage({ file, ledgerId: defaultLedger?.id })).data.assetId,
   });
+  const openRecordEditorSettings = useRecordEditorSettingsNavigation(
+    controller.getDraftSnapshot,
+  );
   const categoryQuery = useGetCategoryQuery({
     params: { type: controller.recordType },
   });
@@ -253,20 +256,6 @@ function BookkeepingPage() {
     playSound.turnPage();
     navigateToReturnContext(returnContext);
   }, [discardShortcutDraftMutation, navigate, navigateToReturnContext, returnContext, shortcutBookkeeping, t]);
-  const handleManageTags = useCallback(() => {
-    if (!defaultLedger)
-      return;
-    navigate(ROUTES_PATH.LEDGER_TAGS.getPath(defaultLedger.id), {
-      replace: true,
-      state: {
-        recordEditorTagManagement: {
-          draft: controller.getDraftSnapshot(),
-          returnMode: 'replace',
-          returnTo: { pathname: location.pathname, search: location.search, state: omitRecordEditorTagManagementState(location.state) },
-        },
-      },
-    });
-  }, [controller, defaultLedger, location.pathname, location.search, location.state, navigate]);
   const handleArchiveTag = useCallback(async (tagId: string) => {
     const tag = tagsQuery.data.find(item => item.id === tagId);
     if (defaultLedger && tag)
@@ -286,7 +275,12 @@ function BookkeepingPage() {
       initialStage={shortcutBookkeeping ? 'amount' : undefined}
       onArchiveTag={defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE) ? handleArchiveTag : undefined}
       onCancel={() => void handleCancel()}
-      onManageTags={canReadTags && defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE) ? handleManageTags : undefined}
+      onManageCategories={defaultLedger
+        ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_CATEGORIES.getPath(defaultLedger.id))
+        : undefined}
+      onManageTags={canReadTags && defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE)
+        ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(defaultLedger.id))
+        : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
       canManageTags={Boolean(defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE))}
       onCreateTag={defaultLedger && controller.selectedCategory

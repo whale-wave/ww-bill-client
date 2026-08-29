@@ -23,6 +23,7 @@ interface RecordEditorPresentationProps {
   initialStage?: 'amount' | 'category';
   onArchiveTag?: (tagId: string) => Promise<void>;
   onCancel: () => void;
+  onManageCategories?: () => void;
   onManageTags?: () => void;
   onRetryCategories?: () => void;
   onCreateTag?: (name: string) => Promise<{ id: string; name: string }>;
@@ -37,6 +38,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   initialStage,
   onArchiveTag,
   onCancel,
+  onManageCategories,
   onManageTags,
   onRetryCategories,
   onCreateTag,
@@ -252,7 +254,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   />
                 </div>
               )}
-              {categoryState === 'ready' && categories.length > 0 && (
+              {categoryState === 'ready' && (categories.length > 0 || onManageCategories) && (
                 <div className="grid grid-cols-4 gap-[9px]">
                   {categories.map((category, index) => (
                     <button
@@ -282,6 +284,22 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                       <span className="w-full truncate text-[11px] font-semibold leading-[16.5px] text-ww-mid">{category.name}</span>
                     </button>
                   ))}
+                  {onManageCategories && (
+                    <button
+                      aria-label={t('record:bookkeeping.categorySettings')}
+                      className="flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-dashed border-primary/35 bg-primary-light/25 px-1 pb-[10px] pt-[13px] text-primary-deep shadow-ww-xs transition active:scale-95"
+                      data-record-editor-category-settings
+                      onClick={onManageCategories}
+                      type="button"
+                    >
+                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/80">
+                        <Settings2 aria-hidden="true" size={22} strokeWidth={1.9} />
+                      </span>
+                      <span className="w-full truncate text-[11px] font-semibold leading-[16.5px]">
+                        {t('record:bookkeeping.categorySettings')}
+                      </span>
+                    </button>
+                  )}
                 </div>
               )}
             </main>

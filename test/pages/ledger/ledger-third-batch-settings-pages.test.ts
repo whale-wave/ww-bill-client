@@ -426,6 +426,41 @@ describe('ledger settings', () => {
 });
 
 describe('ledger category and tag management', () => {
+  it('returns from category settings to the editor with its draft intact', async () => {
+    const draft = {
+      amount: '32.50',
+      category: { icon: 'salary', id: 2, name: '工资', type: 'add' as const },
+      recordType: 'add' as const,
+      time: '2026-08-30T00:00:00.000Z',
+    };
+    const { container, router } = renderPage({
+      pathname: '/ledgers/ledger%2Fa/settings/categories',
+      state: {
+        recordEditorSettingsNavigation: {
+          draft,
+          returnMode: 'replace',
+          returnTo: {
+            pathname: '/record-editor',
+            search: '?selectTime=1788048000000',
+            state: { recordEditorSettingsNavigation: { draft: { recordType: 'sub' } } },
+          },
+        },
+      },
+    }, '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
+
+    const incomeTab = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'records.type.add');
+    expect(incomeTab?.getAttribute('aria-pressed')).toBe('true');
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="common:nav.back"]')?.click());
+
+    expect(router.state.location.pathname).toBe('/record-editor');
+    expect(router.state.location.search).toBe('?selectTime=1788048000000');
+    expect(router.state.location.state).toEqual({
+      recordEditorSettingsNavigation: { draft },
+    });
+  });
+
   it('uses one stable Whale Wave focus treatment for the category name field', async () => {
     const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
 
@@ -766,13 +801,13 @@ describe('ledger category and tag management', () => {
     const { container, router } = renderPage({
       pathname: '/ledgers/ledger%2Fa/settings/tags',
       state: {
-        recordEditorTagManagement: {
+        recordEditorSettingsNavigation: {
           draft,
           returnMode: 'replace',
           returnTo: {
             pathname: '/record-editor',
             search: '',
-            state: { recordEditor: { returnContext: { kind: 'personal-detail', recordId: 9 } }, recordEditorTagManagement: { draft: { recordType: 'sub' } } },
+            state: { recordEditor: { returnContext: { kind: 'personal-detail', recordId: 9 } }, recordEditorSettingsNavigation: { draft: { recordType: 'sub' } } },
           },
         },
       },
@@ -784,7 +819,7 @@ describe('ledger category and tag management', () => {
     expect(router.state.location.pathname).toBe('/record-editor');
     expect(router.state.location.state).toEqual({
       recordEditor: { returnContext: { kind: 'personal-detail', recordId: 9 } },
-      recordEditorTagManagement: { draft },
+      recordEditorSettingsNavigation: { draft },
     });
   });
 });

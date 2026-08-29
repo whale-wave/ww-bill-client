@@ -20,7 +20,7 @@ export interface RecordEditorSeed {
   time: string;
 }
 
-export interface RecordEditorTagManagementState {
+export interface RecordEditorSettingsNavigationState {
   draft: RecordEditorSeed;
   returnMode: 'replace';
   returnTo: {
@@ -30,39 +30,55 @@ export interface RecordEditorTagManagementState {
   };
 }
 
-export interface RecordEditorTagManagementLocationState {
-  recordEditorTagManagement?: Pick<RecordEditorTagManagementState, 'draft'>;
+export interface RecordEditorSettingsNavigationLocationState {
+  recordEditorSettingsNavigation?: Pick<RecordEditorSettingsNavigationState, 'draft'>;
 }
 
-export function readRecordEditorTagManagementNavigationState(value: unknown): RecordEditorTagManagementState | undefined {
-  if (typeof value !== 'object' || value === null || !('recordEditorTagManagement' in value))
+export function readRecordEditorSettingsNavigationState(value: unknown): RecordEditorSettingsNavigationState | undefined {
+  if (typeof value !== 'object' || value === null || !('recordEditorSettingsNavigation' in value))
     return undefined;
-  const tagManagement = value.recordEditorTagManagement;
-  if (typeof tagManagement !== 'object' || tagManagement === null || !('draft' in tagManagement) || !('returnMode' in tagManagement) || !('returnTo' in tagManagement))
+  const navigation = value.recordEditorSettingsNavigation;
+  if (typeof navigation !== 'object' || navigation === null || !('draft' in navigation) || !('returnMode' in navigation) || !('returnTo' in navigation))
     return undefined;
-  if (tagManagement.returnMode !== 'replace')
+  if (navigation.returnMode !== 'replace')
     return undefined;
-  const returnTo = tagManagement.returnTo;
+  const returnTo = navigation.returnTo;
   if (typeof returnTo !== 'object' || returnTo === null || !('pathname' in returnTo) || typeof returnTo.pathname !== 'string')
     return undefined;
-  return tagManagement as RecordEditorTagManagementState;
+  return navigation as RecordEditorSettingsNavigationState;
 }
 
 /** Removes a previous settings round-trip marker before creating another one. */
-export function omitRecordEditorTagManagementState(value: unknown) {
-  if (typeof value !== 'object' || value === null || !('recordEditorTagManagement' in value))
+export function omitRecordEditorSettingsNavigationState(value: unknown) {
+  if (typeof value !== 'object' || value === null || !('recordEditorSettingsNavigation' in value))
     return value;
-  const { recordEditorTagManagement: _tagManagement, ...rest } = value as Record<string, unknown>;
+  const { recordEditorSettingsNavigation: _navigation, ...rest } = value as Record<string, unknown>;
   return rest;
 }
 
-export function readRecordEditorTagManagementState(value: unknown): RecordEditorTagManagementLocationState | undefined {
-  if (typeof value !== 'object' || value === null || !('recordEditorTagManagement' in value))
+export function readRecordEditorSettingsNavigationLocationState(value: unknown): RecordEditorSettingsNavigationLocationState | undefined {
+  if (typeof value !== 'object' || value === null || !('recordEditorSettingsNavigation' in value))
     return undefined;
-  const tagManagement = value.recordEditorTagManagement;
-  if (typeof tagManagement !== 'object' || tagManagement === null || !('draft' in tagManagement))
+  const navigation = value.recordEditorSettingsNavigation;
+  if (typeof navigation !== 'object' || navigation === null || !('draft' in navigation))
     return undefined;
-  return value as RecordEditorTagManagementLocationState;
+  return value as RecordEditorSettingsNavigationLocationState;
+}
+
+export function createRecordEditorSettingsNavigationState(
+  draft: RecordEditorSeed,
+  returnTo: RecordEditorSettingsNavigationState['returnTo'],
+) {
+  return {
+    recordEditorSettingsNavigation: {
+      draft,
+      returnMode: 'replace' as const,
+      returnTo: {
+        ...returnTo,
+        state: omitRecordEditorSettingsNavigationState(returnTo.state),
+      },
+    },
+  };
 }
 
 export type RecordDraft = Omit<PostRecordApiData, 'imageAssetId'> & { imageAssetId?: string | null };

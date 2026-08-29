@@ -4,4 +4,5 @@ export * from './model/shortcut-bookkeeping';
 export * from './model/types';
 export * from './model/useCalculator';
 export * from './model/useRecordEditorController';
+export * from './model/useRecordEditorSettingsNavigation';
 export * from './ui/RecordEditorPresentation';
