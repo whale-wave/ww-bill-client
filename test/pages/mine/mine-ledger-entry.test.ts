@@ -33,6 +33,24 @@ afterEach(() => {
 });
 
 describe('mine ledger entries', () => {
+  it('keeps About & Support as a direct mine-list entry', async () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    const router = createMemoryRouter([
+      { path: '/mine', element: createElement(BottomList) },
+      { path: '/settings/about', element: createElement('div', null, 'about-target') },
+    ], { initialEntries: ['/mine'] });
+    act(() => root.render(createElement(RouterProvider, { router })));
+    cleanup = () => act(() => root.unmount());
+
+    const entry = [...container.querySelectorAll('button')]
+      .find(button => button.textContent === 'bottomList.aboutsettings:aboutSupport.version');
+    expect(entry).toBeDefined();
+    await act(async () => entry?.click());
+
+    expect(router.state.location.pathname).toBe('/settings/about');
+  });
+
   it('opens the ledger center from the mine list', async () => {
     const container = document.createElement('div');
     const root = createRoot(container);
