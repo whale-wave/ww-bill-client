@@ -186,6 +186,9 @@ describe('personal record editor adapter', () => {
     }));
     expect(hooks.postRecord).not.toHaveBeenCalled();
     expect(router.state.location.pathname).toBe('/editing/11');
+    expect(router.state.location.state).toEqual({
+      personalRecordDetail: { returnTo: 'personal-home' },
+    });
   });
 
   it('opens the amount editor with trusted shortcut fields even when no category can be inferred', async () => {

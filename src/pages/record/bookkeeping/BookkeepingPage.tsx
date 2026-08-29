@@ -9,6 +9,8 @@ import { useGetCategoryQuery } from '@/entities/category';
 import { LedgerCapability, LedgerKind, useGetLedgersQuery } from '@/entities/ledger';
 import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
 import {
+  createPersonalRecordDetailNavigationState,
+  readPersonalRecordDetailNavigationState,
   usePostRecordMutation,
   usePutRecordMutation,
   useUploadTemporaryRecordAttachmentMutation,
@@ -85,6 +87,7 @@ function BookkeepingPage() {
   const tagManagementState = readRecordEditorTagManagementState(location.state);
   const restoredDraft = tagManagementState?.recordEditorTagManagement?.draft;
   const shortcutBookkeeping = readShortcutBookkeepingState(location.state)?.shortcutBookkeeping;
+  const personalRecordDetailNavigation = readPersonalRecordDetailNavigationState(location.state);
   const shortcutRecordType = shortcutBookkeeping
     ? inferShortcutRecordType(shortcutBookkeeping)
     : undefined;
@@ -131,14 +134,19 @@ function BookkeepingPage() {
         navigate(`/editing/${context.recordId}`, {
           replace: true,
           state: initialRecord && draft
-            ? { ...initialRecord, ...draft, status: true }
+            ? {
+                ...initialRecord,
+                ...draft,
+                status: true,
+                ...personalRecordDetailNavigation,
+              }
             : undefined,
         });
         return;
       default:
         navigate(-1);
     }
-  }, [initialRecord, navigate]);
+  }, [initialRecord, navigate, personalRecordDetailNavigation]);
 
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
     try {
@@ -158,7 +166,10 @@ function BookkeepingPage() {
         await invalidatePersonalRecordEditorCaches(queryClient);
         hapticFeedback.success();
         Toast.show({ content: t('settings:shortcutBookkeeping.saved'), icon: 'success' });
-        navigate(`/editing/${result.recordId}`, { replace: true });
+        navigate(`/editing/${result.recordId}`, {
+          replace: true,
+          state: createPersonalRecordDetailNavigationState(),
+        });
         return;
       }
       const { imageAssetId, ...recordData } = draft;

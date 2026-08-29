@@ -3,7 +3,12 @@ import type { RecordEntry } from '@/entities/record';
 import { ErrorBlock, Toast } from 'antd-mobile';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
-import { RecordDetailPresentation, useDeleteRecordMutation, useGetRecordByIdQuery } from '@/entities/record';
+import {
+  readPersonalRecordDetailNavigationState,
+  RecordDetailPresentation,
+  useDeleteRecordMutation,
+  useGetRecordByIdQuery,
+} from '@/entities/record';
 import { RecordAttachmentSection } from '@/entities/record/ui/RecordAttachmentSection';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
@@ -64,6 +69,7 @@ const Editing: FC = () => {
   const [deleteRecordMutate] = useDeleteRecordMutation();
 
   const state = data ?? (isRecordEntry(navParams.state) ? navParams.state : undefined);
+  const personalRecordDetailNavigation = readPersonalRecordDetailNavigationState(navParams.state);
 
   if (!state) {
     if (isLoading) {
@@ -79,7 +85,10 @@ const Editing: FC = () => {
 
   const handleBack = () => {
     playSound.turnPage();
-    if (state.status) {
+    if (personalRecordDetailNavigation) {
+      navigate('/detail', { replace: true });
+    }
+    else if (state.status) {
       navigate('/detail');
     }
     else {
@@ -94,7 +103,10 @@ const Editing: FC = () => {
   };
 
   const handleEdit = () => {
-    navigate('/bookkeeping', { state, replace: true });
+    navigate('/bookkeeping', {
+      replace: true,
+      state: { ...state, ...personalRecordDetailNavigation },
+    });
   };
 
   const handleDelete = async () => {
