@@ -20,6 +20,7 @@ interface RecordEditorPresentationProps {
   categories: CategoryEntity[];
   categoryState: RecordEditorCategoryState;
   controller: RecordEditorController;
+  initialStage?: 'amount' | 'category';
   onArchiveTag?: (tagId: string) => Promise<void>;
   onCancel: () => void;
   onManageTags?: () => void;
@@ -33,6 +34,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   canManageTags = false,
   categoryState,
   controller,
+  initialStage,
   onArchiveTag,
   onCancel,
   onManageTags,
@@ -46,7 +48,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const contentUrlRef = useRef<string>();
   const previewRequestRef = useRef(0);
   const [stage, setStage] = useState<'amount' | 'category'>(
-    controller.selectedCategory ? 'amount' : 'category',
+    initialStage ?? (controller.selectedCategory ? 'amount' : 'category'),
   );
   const [newTagName, setNewTagName] = useState('');
   const [isCreatingTag, setIsCreatingTag] = useState(false);

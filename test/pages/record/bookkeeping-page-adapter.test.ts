@@ -188,6 +188,35 @@ describe('personal record editor adapter', () => {
     expect(router.state.location.pathname).toBe('/editing/11');
   });
 
+  it('opens the amount editor with trusted shortcut fields even when no category can be inferred', async () => {
+    const router = createMemoryRouter([
+      { path: '/bookkeeping', element: createElement(BookkeepingPage) },
+    ], {
+      initialEntries: [{
+        pathname: '/bookkeeping',
+        state: {
+          shortcutBookkeeping: {
+            amountCandidate: '18.60',
+            capturedAt: '2026-08-29T10:00:00.000Z',
+            expiresAt: '2026-08-30T10:00:00.000Z',
+            id: 'shortcut-draft-2',
+            merchantCandidate: '未知商户',
+            rawText: '付款成功',
+            reviewCode: 'review-code-00002',
+            source: 'WECHAT',
+            status: 'CLAIMED',
+            warnings: [],
+          },
+        },
+      }],
+    });
+    const container = renderRouter(router);
+
+    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
+    expect(container.querySelector<HTMLInputElement>('[data-record-editor-note] input')?.value).toBe('未知商户');
+    expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('18.60');
+  });
+
   it('returns a household-originated draft to the same household calendar', async () => {
     const selectTime = new Date('2026-07-21T12:00:00.000Z').valueOf();
     const router = createMemoryRouter([

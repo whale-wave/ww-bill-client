@@ -264,9 +264,6 @@ function BookkeepingPage() {
 
   return (
     <RecordEditorPresentation
-      key={shortcutBookkeeping
-        ? `${shortcutBookkeeping.id}:${controller.selectedCategory?.id ?? ''}`
-        : 'record-editor'}
       categories={categoryQuery.data}
       categoryState={categoryQuery.isLoading
         ? 'loading'
@@ -275,6 +272,7 @@ function BookkeepingPage() {
         ...controller,
         isSubmitting: controller.isSubmitting || postState.isLoading || putState.isLoading || confirmShortcutDraftMutation.isLoading,
       }}
+      initialStage={shortcutBookkeeping ? 'amount' : undefined}
       onArchiveTag={defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE) ? handleArchiveTag : undefined}
       onCancel={() => void handleCancel()}
       onManageTags={canReadTags && defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE) ? handleManageTags : undefined}
