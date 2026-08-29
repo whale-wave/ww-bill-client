@@ -121,6 +121,9 @@ export const ROUTES_PATH = {
   HOUSEHOLD_BILL: {
     getPath: (householdId: string) => `/households/${encodeRouteSegment(householdId)}/records/bill`,
   },
+  HOUSEHOLD_MONTH_BILL_DETAIL: {
+    getPath: (householdId: string, month: string) => `/households/${encodeRouteSegment(householdId)}/records/bill/${encodeRouteSegment(month)}`,
+  },
   HOUSEHOLD_CHARTS: {
     getPath: (householdId: string) => `/households/${encodeRouteSegment(householdId)}/charts`,
   },
@@ -185,6 +188,9 @@ export const ROUTES_PATH = {
   },
   LEDGER_BILL: {
     getPath: (ledgerId: string) => `/ledgers/${encodeRouteSegment(ledgerId)}/bill`,
+  },
+  LEDGER_MONTH_BILL_DETAIL: {
+    getPath: (ledgerId: string, month: string) => `/ledgers/${encodeRouteSegment(ledgerId)}/bill/${encodeRouteSegment(month)}`,
   },
   LEDGER_BUDGET: {
     getPath: (ledgerId: string) => `/ledgers/${encodeRouteSegment(ledgerId)}/budget`,
@@ -263,9 +269,6 @@ export const ROUTES_PATH = {
   },
   SETTINGS_SHORTCUT_BOOKKEEPING: {
     getPath: () => '/settings/shortcut-bookkeeping',
-  },
-  SHARE: {
-    getPath: () => '/share',
   },
   TOPIC_DETAIL: {
     getPath: (id: string) => `/topic-detail/${id}`,

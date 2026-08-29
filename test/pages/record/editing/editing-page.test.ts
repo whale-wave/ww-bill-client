@@ -115,7 +115,7 @@ describe('record editing page', () => {
     expectNoDetails(container);
   });
 
-  it('adapts the loaded personal record to the default detail presentation with its share and edit/delete actions', () => {
+  it('adapts the loaded personal record to the default detail presentation with edit/delete actions', () => {
     const record: RecordEntry = {
       amount: '88.00',
       category: {
@@ -142,12 +142,11 @@ describe('record editing page', () => {
     const detail = container.querySelector('[data-testid="record-detail"]');
     expect(detail?.textContent).toContain('餐饮');
     expect(detail?.textContent).toContain('edit.type:record:type.expense');
-    expect(detail?.textContent).toContain('edit.share');
+    expect(detail?.textContent).not.toContain('edit.share');
     expect(detail?.textContent).toContain('record:detail.edit');
     expect(detail?.textContent).toContain('record:detail.delete');
 
-    act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-detail-share"]')?.click());
-    expect(navigate).toHaveBeenCalledWith('/share', { state: { record } });
+    expect(container.querySelector('[data-testid="record-detail-share"]')).toBeNull();
   });
 
   it('does not pass an empty attachment section to the detail card', () => {

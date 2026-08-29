@@ -27,6 +27,7 @@ describe('ledger route builders', () => {
     expect(ROUTES_PATH.LEDGER_RECORD_SEARCH.getPath(ledgerId)).toBe('/ledgers/ledger%2Fa%20b/records/search');
     expect(ROUTES_PATH.LEDGER_CALENDAR.getPath(ledgerId)).toBe('/ledgers/ledger%2Fa%20b/calendar');
     expect(ROUTES_PATH.LEDGER_BILL.getPath(ledgerId)).toBe('/ledgers/ledger%2Fa%20b/bill');
+    expect(ROUTES_PATH.LEDGER_MONTH_BILL_DETAIL.getPath(ledgerId, '2026-08')).toBe('/ledgers/ledger%2Fa%20b/bill/2026-08');
     expect(ROUTES_PATH.LEDGER_BUDGET.getPath(ledgerId)).toBe('/ledgers/ledger%2Fa%20b/budget');
     expect(ROUTES_PATH.LEDGER_CHARTS.getPath(ledgerId)).toBe('/ledgers/ledger%2Fa%20b/charts');
     expect(ROUTES_PATH.LEDGER_EXPORT.getPath(ledgerId)).toBe('/ledgers/ledger%2Fa%20b/export');
@@ -80,6 +81,7 @@ describe('household route builders', () => {
     expect(ROUTES_PATH.HOUSEHOLD_RECORD_SEARCH.getPath(householdId)).toBe('/households/household%2Fa%20b/records/search');
     expect(ROUTES_PATH.HOUSEHOLD_RECORD_POLICY.getPath(householdId, 7)).toBe('/households/household%2Fa%20b/records/7/policy');
     expect(ROUTES_PATH.HOUSEHOLD_CALENDAR.getPath(householdId)).toBe('/households/household%2Fa%20b/calendar');
+    expect(ROUTES_PATH.HOUSEHOLD_MONTH_BILL_DETAIL.getPath(householdId, '2026-08')).toBe('/households/household%2Fa%20b/records/bill/2026-08');
     expect(ROUTES_PATH.HOUSEHOLD_BUDGETS.getPath(householdId)).toBe('/households/household%2Fa%20b/budgets');
     expect(ROUTES_PATH.HOUSEHOLD_CHARTS.getPath(householdId)).toBe('/households/household%2Fa%20b/charts');
     expect(ROUTES_PATH.HOUSEHOLD_SETTINGS.getPath(householdId)).toBe('/households/household%2Fa%20b/settings');

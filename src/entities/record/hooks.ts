@@ -19,9 +19,12 @@ import { i18n } from '@/shared/i18n';
 import {
   deleteLedgerRecordApi,
   deleteRecordApi,
+  getHouseholdMonthBillDetailApi,
   getHouseholdRecordBillApi,
+  getLedgerMonthBillDetailApi,
   getLedgerRecordBillApi,
   getLedgerRecordByIdApi,
+  getLedgerRecordRemarkHistoryApi,
   getLedgerRecordsApi,
   getMonthBillDetailApi,
   getRecordApi,
@@ -29,6 +32,7 @@ import {
   getRecordBillApi,
   getRecordByIdApi,
   getRecordFilterOptionsApi,
+  getRecordRemarkHistoryApi,
   postLedgerRecordApi,
   postRecordApi,
   postTemporaryRecordAttachmentApi,
@@ -171,6 +175,25 @@ export function useRecordFilterOptionsQuery(options: {
     data: response?.data ?? emptyRecordFilterOptions,
     ...rest,
   };
+}
+
+export function useRecordRemarkHistoryQuery(options: {
+  params: { categoryId?: number; ledgerId?: string };
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<string[]>>, 'queryFn' | 'queryKey'>;
+}) {
+  const { categoryId, ledgerId } = options.params;
+  const enabled = Boolean(categoryId);
+  const { data: response, ...rest } = useQuery<SuccessResponse<string[]>>({
+    enabled,
+    queryFn: () => ledgerId
+      ? getLedgerRecordRemarkHistoryApi(ledgerId, { categoryId: categoryId! })
+      : getRecordRemarkHistoryApi({ categoryId: categoryId! }),
+    queryKey: ledgerId
+      ? recordKeys.ledgerRemarkHistory(ledgerId, categoryId ?? 0)
+      : recordKeys.remarkHistory(categoryId ?? 0),
+    ...options.queryOptions,
+  });
+  return { response, data: response?.data ?? [], ...rest };
 }
 
 export function useLedgerRecordQuery(options: {
@@ -375,6 +398,40 @@ export function useMonthBillDetailQuery(options: {
   };
 }
 
+export function useLedgerMonthBillDetailQuery(options: {
+  ledgerId: string;
+  month: string;
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<MonthBillDetailResponse>>, 'queryFn' | 'queryKey'>;
+}) {
+  const { data: response, ...rest } = useQuery<SuccessResponse<MonthBillDetailResponse>>({
+    queryFn: async () => {
+      const response = assertSuccessApi(await getLedgerMonthBillDetailApi(options.ledgerId, options.month));
+      return { ...response, data: normalizeMonthBillDetail(response.data) };
+    },
+    queryKey: recordKeys.ledgerMonthBillDetail(options.ledgerId, options.month),
+    keepPreviousData: true,
+    ...options.queryOptions,
+  });
+  return { response, data: response?.data, ...rest };
+}
+
+export function useHouseholdMonthBillDetailQuery(options: {
+  householdId: string;
+  month: string;
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<MonthBillDetailResponse>>, 'queryFn' | 'queryKey'>;
+}) {
+  const { data: response, ...rest } = useQuery<SuccessResponse<MonthBillDetailResponse>>({
+    queryFn: async () => {
+      const response = assertSuccessApi(await getHouseholdMonthBillDetailApi(options.householdId, options.month));
+      return { ...response, data: normalizeMonthBillDetail(response.data) };
+    },
+    queryKey: recordKeys.householdMonthBillDetail(options.householdId, options.month),
+    keepPreviousData: true,
+    ...options.queryOptions,
+  });
+  return { response, data: response?.data, ...rest };
+}
+
 export function usePostRecordMutation() {
   const queryClient = useQueryClient();
   const { mutateAsync, ...rest } = useMutation({
@@ -452,6 +509,7 @@ async function invalidatePersonalRecordCaches(
   recordId?: string,
 ) {
   const invalidations = [
+    queryClient.invalidateQueries({ queryKey: recordKeys.remarkHistories() }),
     queryClient.invalidateQueries({ queryKey: recordKeys.lists() }),
     queryClient.invalidateQueries({ queryKey: recordKeys.bills() }),
     queryClient.invalidateQueries({ queryKey: chartKeys.all }),

@@ -2,7 +2,7 @@
 
 ## Scope
 
-`/bill/:month` is a read-only detail view for the user's system-default personal ledger. Month rows in yearly views, ordinary ledgers, and household ledgers remain non-interactive. The detail request is `GET /record/bill/month-detail?month=YYYY-MM` and does not accept a ledger id.
+`/bill/:month`, `/ledgers/:ledgerId/bill/:month`, and `/households/:householdId/records/bill/:month` are read-only month-detail views for personal, shared-ledger, and household bill scopes. Every monthly row is interactive and uses the matching scope-specific detail request. Household aggregation includes only records that are counted by the existing household policy.
 
 ## Time and money contracts
 
@@ -16,7 +16,7 @@ The `MonthBillDetailService` resolves the system-default ledger through `LedgerS
 
 ## Client and export
 
-The client cache key is `['record', 'bill', 'month-detail', month]`, nested below `recordKeys.bills()`, so record mutations invalidate it with other personal bill data. The page model aggregates categories after the fifth item under `aggregate:other`; the API never creates a virtual category.
+The client cache keys are scope-specific below the personal, ledger, or household bill roots, so record mutations invalidate the matching bill data without cross-scope reuse. The page model aggregates categories after the fifth item under `aggregate:other`; the API never creates a virtual category.
 
 Image export mounts a separate 375px `ExportRenderer`, creates new ECharts instances, waits for fonts, images, QR generation, and chart `finished` events, then captures the full-height panel with html2canvas. It must not clone screen DOM or reuse screen chart instances. `exportStatus` is the sole state source. `VITE_PUBLIC_APP_URL` is optional; absent or failed QR generation hides the QR and still exports the brand footer.
 
@@ -26,5 +26,5 @@ The export masthead freezes the best-effort user profile and translated masthead
 
 - Keep the static month-detail controller route before `:id`.
 - Do not introduce a second “current time” read in repository or statistic helpers.
-- Keep household and ordinary-ledger bill flows unchanged.
 - If adding another export format, reuse the data model and add a renderer rather than cloning the screen DOM.
+- TODO: When product work resumes on link sharing to WeChat, SMS, or other apps, define a share object, privacy/permission model, and landing page first. Do not restore the removed image-share implementation directly.

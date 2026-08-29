@@ -13,6 +13,7 @@ import {
   readPersonalRecordDetailNavigationState,
   usePostRecordMutation,
   usePutRecordMutation,
+  useRecordRemarkHistoryQuery,
   useUploadTemporaryRecordAttachmentMutation,
 } from '@/entities/record';
 import {
@@ -237,6 +238,10 @@ function BookkeepingPage() {
     params: { ledgerId: defaultLedger?.id ?? '', categoryId: controller.selectedCategory?.id },
     queryOptions: { enabled: Boolean(defaultLedger && canReadTags) },
   });
+  const remarkHistoryQuery = useRecordRemarkHistoryQuery({
+    params: { categoryId: controller.selectedCategory?.id },
+    queryOptions: { enabled: controller.isNoteFocused && Boolean(controller.selectedCategory) },
+  });
 
   const handleCancel = useCallback(async () => {
     if (shortcutBookkeeping) {
@@ -285,6 +290,7 @@ function BookkeepingPage() {
         ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(defaultLedger.id))
         : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
+      remarkHistory={remarkHistoryQuery.data}
       canManageTags={Boolean(defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE))}
       onCreateTag={defaultLedger && controller.selectedCategory
         ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId: defaultLedger.id })).data

@@ -27,6 +27,7 @@ interface RecordEditorPresentationProps {
   onManageTags?: () => void;
   onRetryCategories?: () => void;
   onCreateTag?: (name: string) => Promise<{ id: string; name: string }>;
+  remarkHistory?: string[];
   tags?: RecordEditorTag[];
 }
 
@@ -42,6 +43,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   onManageTags,
   onRetryCategories,
   onCreateTag,
+  remarkHistory = [],
   tags,
 }) => {
   const { t } = useTranslation(['record', 'ledger', 'common']);
@@ -355,6 +357,32 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   <ImagePlus size={18} />
                 </button>
               </label>
+              {controller.isNoteFocused && remarkHistory.length > 0 && (
+                <section
+                  aria-label={t('record:bookkeeping.remarkHistory')}
+                  className="mx-[22px] mt-2 max-h-48 shrink-0 overflow-y-auto rounded-[14px] border border-border-primary bg-white/[0.96] p-2 shadow-ww-xs"
+                  data-record-editor-remark-history
+                >
+                  <h2 className="px-2 pb-1 text-[12px] font-semibold leading-5 text-ww-soft">
+                    {t('record:bookkeeping.remarkHistory')}
+                  </h2>
+                  <div className="flex flex-col gap-1">
+                    {remarkHistory.map(remark => (
+                      <button
+                        aria-label={t('record:bookkeeping.selectRemarkHistory', { remark })}
+                        className="min-h-9 truncate rounded-[10px] px-2 text-left text-[14px] leading-5 text-ww-ink active:bg-primary-light"
+                        data-record-editor-remark-history-item={remark}
+                        key={remark}
+                        onClick={() => controller.setRemark(remark)}
+                        onMouseDown={event => event.preventDefault()}
+                        type="button"
+                      >
+                        {remark}
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              )}
               {(controller.imagePreviewUrl || controller.hasInitialImage) && (
                 <div className="mx-[22px] mt-2 flex items-center gap-2 text-xs text-ww-soft" data-record-editor-image>
                   <button

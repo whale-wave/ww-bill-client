@@ -4,6 +4,8 @@
     "amount": "Amount",
     "note": "Note",
     "notePlaceholder": "Add a note...",
+    "remarkHistory": "Previous notes",
+    "selectRemarkHistory": "Select previous note: {{remark}}",
     "save": "Save",
     "income": "Income",
     "expend": "Expense",

@@ -16,6 +16,7 @@ import {
   createLedgerRecordDetailState,
   readLedgerRecordDetailState,
   useLedgerRecordQuery,
+  useRecordRemarkHistoryQuery,
   useUpdateLedgerRecordMutation,
   useUploadTemporaryRecordAttachmentMutation,
 } from '@/entities/record';
@@ -124,6 +125,10 @@ function LedgerRecordEditEditor({
     params: { ledgerId, categoryId: controller.selectedCategory?.id },
     queryOptions: { enabled: supportsTags },
   });
+  const remarkHistoryQuery = useRecordRemarkHistoryQuery({
+    params: { categoryId: controller.selectedCategory?.id, ledgerId },
+    queryOptions: { enabled: controller.isNoteFocused && Boolean(controller.selectedCategory) },
+  });
   const handleArchiveTag = useCallback(async (tagId: string) => {
     const tag = tagsQuery.data.find(item => item.id === tagId);
     if (tag)
@@ -150,6 +155,7 @@ function LedgerRecordEditEditor({
         ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId))
         : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
+      remarkHistory={remarkHistoryQuery.data}
       canManageTags={canManageTags}
       onCreateTag={controller.selectedCategory ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId })).data : undefined}
       tags={supportsTags && controller.selectedCategory ? tagsQuery.data : undefined}

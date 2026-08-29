@@ -96,12 +96,6 @@ const Editing: FC = () => {
     }
   };
 
-  const handleShare = () => {
-    navigate('/share', {
-      state: { record: state },
-    });
-  };
-
   const handleEdit = () => {
     navigate('/bookkeeping', {
       replace: true,
@@ -149,7 +143,6 @@ const Editing: FC = () => {
         },
       ]}
       onBack={handleBack}
-      pinnedAction={{ label: t('record:edit.share'), onClick: handleShare }}
       rows={[
         { label: t('record:edit.type'), value: state.type === 'sub' ? t('record:type.expense') : t('record:type.income') },
         { label: t('record:edit.date'), value: `${timeDate}  ${weekByDay}` },

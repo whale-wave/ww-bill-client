@@ -190,10 +190,6 @@ const router = createHashRouter([
         lazy: lazyGuardedPage(tabRouteLoaders['personal-mine']),
       },
       {
-        path: 'share',
-        lazy: lazyGuardedPage(() => import('@/pages/share/SharePage')),
-      },
-      {
         path: 'post-topic',
         lazy: lazyGuardedPage(() => import('@/pages/post-topic/PostTopicPage')),
       },
@@ -347,6 +343,10 @@ const router = createHashRouter([
             lazy: lazyGuardedPage(() => import('@/pages/bill/HouseholdBillPage')),
           },
           {
+            path: ':householdId/records/bill/:month',
+            lazy: lazyGuardedPage(() => import('@/pages/bill/month-detail/MonthBillDetailPage')),
+          },
+          {
             path: ':householdId/budgets',
             lazy: lazyGuardedPage(() => import('@/pages/household-budgets/HouseholdBudgetsPage')),
           },
@@ -438,6 +438,10 @@ const router = createHashRouter([
           {
             path: ':ledgerId/bill',
             lazy: lazyGuardedPage(() => import('@/pages/bill/LedgerBillPage')),
+          },
+          {
+            path: ':ledgerId/bill/:month',
+            lazy: lazyGuardedPage(() => import('@/pages/bill/month-detail/MonthBillDetailPage')),
           },
           {
             path: ':ledgerId/budget',
