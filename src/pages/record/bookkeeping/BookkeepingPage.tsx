@@ -6,7 +6,7 @@ import { useCallback, useMemo } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetCategoryQuery } from '@/entities/category';
 import { LedgerCapability, LedgerKind, useGetLedgersQuery } from '@/entities/ledger';
-import { useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
+import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
 import {
   usePostRecordMutation,
   usePutRecordMutation,
@@ -43,6 +43,7 @@ function BookkeepingPage() {
   const [putRecord, putState] = usePutRecordMutation();
   const [uploadImage] = useUploadTemporaryRecordAttachmentMutation();
   const [createTag] = useCreateLedgerTagMutation();
+  const [archiveTag] = useArchiveLedgerTagMutation();
   const ledgersQuery = useGetLedgersQuery();
   const defaultLedger = ledgersQuery.data.find(ledger => ledger.kind === LedgerKind.SYSTEM_DEFAULT);
   const canReadTags = Boolean(defaultLedger?.capabilities.includes(LedgerCapability.TAG_READ));
@@ -177,6 +178,11 @@ function BookkeepingPage() {
       },
     });
   }, [controller, defaultLedger, location.pathname, location.search, location.state, navigate]);
+  const handleArchiveTag = useCallback(async (tagId: string) => {
+    const tag = tagsQuery.data.find(item => item.id === tagId);
+    if (defaultLedger && tag)
+      await archiveTag({ ledgerId: defaultLedger.id, tagId, version: tag.version });
+  }, [archiveTag, defaultLedger, tagsQuery.data]);
 
   return (
     <RecordEditorPresentation
@@ -188,6 +194,7 @@ function BookkeepingPage() {
         ...controller,
         isSubmitting: controller.isSubmitting || postState.isLoading || putState.isLoading,
       }}
+      onArchiveTag={defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE) ? handleArchiveTag : undefined}
       onCancel={handleCancel}
       onManageTags={canReadTags && defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE) ? handleManageTags : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}

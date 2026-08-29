@@ -7,12 +7,14 @@ import {
   RecordEditorPresentation,
   useRecordEditorController,
 } from '@/features/record-editor';
+import { confirmDangerousAction } from '@/shared/ui';
 
 vi.mock('@/shared/i18n', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
 vi.mock('@/shared/ui', () => ({
+  confirmDangerousAction: vi.fn(),
   DesignIcon: ({ name }: { name: string }) => createElement('span', { 'data-design-icon': name }),
   IllustratedEmptyState: ({ testId, title }: { testId: string; title: string }) => createElement('div', { 'data-testid': testId }, title),
 }));
@@ -48,7 +50,15 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-function TestEditor({ onCancel = vi.fn(), withTags = false }: { onCancel?: () => void; withTags?: boolean }) {
+function TestEditor({
+  onArchiveTag,
+  onCancel = vi.fn(),
+  withTags = false,
+}: {
+  onArchiveTag?: (tagId: string) => Promise<void>;
+  onCancel?: () => void;
+  withTags?: boolean;
+}) {
   const controller = useRecordEditorController({
     onSubmit: vi.fn(),
     seed: {
@@ -62,6 +72,7 @@ function TestEditor({ onCancel = vi.fn(), withTags = false }: { onCancel?: () =>
     categories: [category],
     categoryState: 'ready',
     controller,
+    onArchiveTag,
     onCancel,
     tags: withTags ? [{ id: 'tag-a', name: '聚餐' }] : [],
   });
@@ -143,6 +154,30 @@ describe('record editor presentation', () => {
 
     expect(document.body.querySelector('[data-record-editor-selected-tags]')).toBeNull();
     expect(tag?.getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('archives a tag from the picker and removes it from the current draft', async () => {
+    const onArchiveTag = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(confirmDangerousAction).mockResolvedValue(true);
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor, { onArchiveTag, withTags: true })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-tag-trigger]')?.click());
+    const tag = [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === '聚餐');
+    act(() => tag?.click());
+
+    await act(async () => {
+      document.body.querySelector<HTMLButtonElement>('[data-record-editor-tag-delete="tag-a"]')?.click();
+      await Promise.resolve();
+    });
+
+    expect(confirmDangerousAction).toHaveBeenCalledOnce();
+    expect(onArchiveTag).toHaveBeenCalledWith('tag-a');
+    expect(document.body.querySelector('[data-record-editor-selected-tags]')).toBeNull();
   });
 
   it('leaves the editor from the back button and opens categories from the category name', () => {

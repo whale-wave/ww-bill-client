@@ -11,7 +11,7 @@ import { useCallback, useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useLedgerCategoriesQuery } from '@/entities/category';
 import { LedgerCapability } from '@/entities/ledger';
-import { useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
+import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
 import {
   createLedgerRecordDetailState,
   readLedgerRecordDetailState,
@@ -53,6 +53,7 @@ function LedgerRecordEditEditor({
   const [updateRecord, updateState] = useUpdateLedgerRecordMutation();
   const [uploadImage] = useUploadTemporaryRecordAttachmentMutation();
   const [createTag] = useCreateLedgerTagMutation();
+  const [archiveTag] = useArchiveLedgerTagMutation();
   const restoredDraft = readRecordEditorTagManagementState(location.state)?.recordEditorTagManagement?.draft;
   const seed = useMemo(() => restoredDraft ?? ({
     amount: initialRecord.amount,
@@ -132,6 +133,11 @@ function LedgerRecordEditEditor({
       },
     });
   }, [controller, ledgerId, location.pathname, location.search, location.state, navigate]);
+  const handleArchiveTag = useCallback(async (tagId: string) => {
+    const tag = tagsQuery.data.find(item => item.id === tagId);
+    if (tag)
+      await archiveTag({ ledgerId, tagId, version: tag.version });
+  }, [archiveTag, ledgerId, tagsQuery.data]);
 
   return (
     <RecordEditorPresentation
@@ -143,6 +149,7 @@ function LedgerRecordEditEditor({
         ...controller,
         isSubmitting: controller.isSubmitting || updateState.isLoading,
       }}
+      onArchiveTag={canManageTags ? handleArchiveTag : undefined}
       onCancel={navigateToDetail}
       onManageTags={canManageTags ? handleManageTags : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}

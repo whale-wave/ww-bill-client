@@ -130,15 +130,19 @@
 }
 
 .typePill {
-  display: inline-block;
+  display: inline-flex;
+  box-sizing: border-box;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
   margin-top: 12px;
-  padding: 4px 10px;
+  padding: 0 10px;
   border-radius: 10px;
   color: #198caa;
   background: rgba(217, 242, 249, 0.85);
   font-size: 9px;
   font-weight: 800;
-  letter-spacing: 0.6px;
+  line-height: 1;
 }
 
 .income .typePill {

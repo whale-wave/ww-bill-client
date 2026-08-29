@@ -47,7 +47,7 @@ const ShareCanvas: FC<ShareCanvasProps> = ({ canvasRef, data }) => {
           <div className={styles.categoryIcon}>
             <CategoryIcon categoryName={data.categoryName} iconKey={data.categoryIcon} size={28} strokeWidth={1.7} />
           </div>
-          <span className={styles.typePill}>{typeText}</span>
+          <span className={styles.typePill} data-share-type-pill>{typeText}</span>
           <h1>{data.categoryName}</h1>
           <p className={styles.date}>{data.dateText}</p>
 

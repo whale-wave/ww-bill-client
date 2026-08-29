@@ -11,7 +11,7 @@ import {
   LedgerRecordType,
   useLedgerPreferencesQuery,
 } from '@/entities/ledger';
-import { useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
+import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
 import { useCreateLedgerRecordMutation, useUploadTemporaryRecordAttachmentMutation } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import {
@@ -54,6 +54,7 @@ function LedgerRecordCreateEditor({
   const [createRecord, createState] = useCreateLedgerRecordMutation();
   const [uploadImage] = useUploadTemporaryRecordAttachmentMutation();
   const [createTag] = useCreateLedgerTagMutation();
+  const [archiveTag] = useArchiveLedgerTagMutation();
   const restoredDraft = readRecordEditorTagManagementState(location.state)?.recordEditorTagManagement?.draft;
   const seed = useMemo(() => restoredDraft ?? ({
     recordType: initialRecordType,
@@ -111,6 +112,11 @@ function LedgerRecordCreateEditor({
       },
     });
   }, [controller, ledgerId, location.pathname, location.search, location.state, navigate]);
+  const handleArchiveTag = useCallback(async (tagId: string) => {
+    const tag = tagsQuery.data.find(item => item.id === tagId);
+    if (tag)
+      await archiveTag({ ledgerId, tagId, version: tag.version });
+  }, [archiveTag, ledgerId, tagsQuery.data]);
 
   return (
     <RecordEditorPresentation
@@ -122,6 +128,7 @@ function LedgerRecordCreateEditor({
         ...controller,
         isSubmitting: controller.isSubmitting || createState.isLoading,
       }}
+      onArchiveTag={canManageTags ? handleArchiveTag : undefined}
       onCancel={navigateAfterCreate}
       onManageTags={canManageTags ? handleManageTags : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
