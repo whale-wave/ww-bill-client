@@ -57,7 +57,7 @@ vi.mock('@/entities/record', () => ({
     supplementaryContent && createElement('div', { 'data-testid': 'supplementary-content', 'key': 'supplementary-content' }),
     pinnedAction && createElement('button', { 'data-testid': 'record-detail-share', 'key': 'share', 'onClick': pinnedAction.onClick, 'type': 'button' }, pinnedAction.label),
   ]),
-  useDeleteRecordMutation: () => [() => Promise.resolve({})],
+  useDeleteRecordMutation: () => [() => Promise.resolve({}), { isLoading: false }],
   useGetRecordByIdQuery: () => queryResult,
 }));
 

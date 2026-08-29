@@ -415,12 +415,12 @@ export function useDeleteRecordMutation() {
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: (params: { id: string; version: number }) =>
       deleteRecordApi(params.id, params.version).then(assertSuccessApi),
-    onSuccess: async (_response, variables) => {
-      await invalidatePersonalDeleteRecordCaches(queryClient, variables.id);
+    onSuccess: (_response, variables) => {
+      invalidatePersonalDeleteSuccessCaches(queryClient, variables.id);
     },
     onError: async (error, variables) => {
       if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
-        await invalidatePersonalDeleteRecordCaches(queryClient, variables.id);
+        await invalidatePersonalDeleteConflictCaches(queryClient, variables.id);
     },
   });
 
@@ -432,7 +432,15 @@ export function useDeleteRecordMutation() {
   ] as const;
 }
 
-async function invalidatePersonalDeleteRecordCaches(
+function invalidatePersonalDeleteSuccessCaches(
+  queryClient: QueryClient,
+  recordId: string,
+) {
+  queryClient.removeQueries({ queryKey: recordKeys.detail({ id: recordId }) });
+  void invalidatePersonalRecordCaches(queryClient);
+}
+
+async function invalidatePersonalDeleteConflictCaches(
   queryClient: QueryClient,
   recordId: string,
 ) {

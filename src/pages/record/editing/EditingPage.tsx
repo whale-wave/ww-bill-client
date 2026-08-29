@@ -66,7 +66,7 @@ const Editing: FC = () => {
   const { data, isLoading } = useGetRecordByIdQuery({
     params: { id: params.id ?? '' },
   });
-  const [deleteRecordMutate] = useDeleteRecordMutation();
+  const [deleteRecordMutate, deleteState] = useDeleteRecordMutation();
 
   const state = data ?? (isRecordEntry(navParams.state) ? navParams.state : undefined);
   const personalRecordDetailNavigation = readPersonalRecordDetailNavigationState(navParams.state);
@@ -118,10 +118,13 @@ const Editing: FC = () => {
     });
     if (!confirmed)
       return;
-    const res = await deleteRecordMutate({ id: `${state.id}`, version: state.version });
-    if (res.statusCode === 200 && res.message === '删除成功') {
-      Toast.show({ content: res.message });
-      navigate('/detail');
+    try {
+      const res = await deleteRecordMutate({ id: `${state.id}`, version: state.version });
+      Toast.show({ content: res.message || t('common:confirm.deleteSuccess'), icon: 'success' });
+      navigate('/detail', { replace: true });
+    }
+    catch {
+      Toast.show({ content: t('common:api.requestFailed'), icon: 'fail' });
     }
   };
 
@@ -138,7 +141,12 @@ const Editing: FC = () => {
       categoryIcon={<CategoryIcon categoryName={state.category.name} iconKey={state.category.icon} size={36} />}
       footerActions={[
         { label: t('record:detail.edit'), onClick: handleEdit },
-        { label: t('record:detail.delete'), onClick: () => void handleDelete(), tone: 'danger' },
+        {
+          disabled: deleteState.isLoading,
+          label: deleteState.isLoading ? t('common:loading') : t('record:detail.delete'),
+          onClick: () => void handleDelete(),
+          tone: 'danger',
+        },
       ]}
       onBack={handleBack}
       pinnedAction={{ label: t('record:edit.share'), onClick: handleShare }}
