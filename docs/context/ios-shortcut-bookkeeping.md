@@ -17,12 +17,12 @@ iPhone 快捷指令由背部轻点触发，依次执行截屏、本机文字识�
 正式模板固定请求 `https://abill.easyhappy.top/api/shortcut-drafts`，按以下顺序配置：
 
 1. “截屏”。
-2. “从图像中提取文本”，输入选择上一步截图。
-3. “生成 UUID”，作为 `clientRequestId`。
+2. “计算哈希”，输入选择上一步截图，算法选择 SHA-256；结果作为 `clientRequestId`。
+3. “从图像中提取文本”，输入选择上一步截图。
 4. “当前日期”，使用 ISO 8601 格式作为 `capturedAt`。
 5. “获取 URL 内容”，方法为 POST，请求正文为 JSON：
    - `rawText`：提取的文字；
-   - `clientRequestId`：生成的 UUID；
+   - `clientRequestId`：截图的 64 位 SHA-256 哈希；
    - `capturedAt`：格式化后的当前日期。
 6. 请求头 `Authorization` 设置为 `Bearer ` 加凭证。凭证文本必须配置成快捷指令的导入问题，提示用户粘贴鲸浪页面刚复制的凭证；公共模板中不得填写真实凭证。
 7. 从响应依次读取 `data` 和 `confirmationUrl`。有值时使用“打开 URL”，无值时显示“提交失败，请检查网络或重新创建凭证”。
