@@ -50,6 +50,7 @@ export function useRecordEditorController({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submittingRef = useRef(false);
   const imageSelectionRef = useRef(0);
+  const hasAppliedInitialCategoryRef = useRef(Boolean(seed.category));
 
   useEffect(() => {
     if (seed.calculator || !seed.amount)
@@ -87,6 +88,13 @@ export function useRecordEditorController({
     }
     setSelectedCategory(category);
   }, [selectedCategory?.id]);
+
+  const applyInitialCategory = useCallback((category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'>) => {
+    if (!category || selectedCategory || hasAppliedInitialCategoryRef.current)
+      return;
+    hasAppliedInitialCategoryRef.current = true;
+    setSelectedCategory(category);
+  }, [selectedCategory]);
 
   const handleKeyTouchStart = useCallback((index: number) => {
     setActiveKeyIndex(index);
@@ -265,6 +273,7 @@ export function useRecordEditorController({
   return {
     activeKeyIndex,
     activeSideIndex,
+    applyInitialCategory,
     calculator,
     date,
     formattedDate,

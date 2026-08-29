@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
-import { MemoryRouter } from 'react-router-dom';
+import { createMemoryRouter, RouterProvider, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ShortcutBookkeepingConfirmPage from '@/pages/shortcut-bookkeeping-confirm/ShortcutBookkeepingConfirmPage';
 
@@ -20,36 +20,12 @@ const mocks = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@/entities/category', () => ({
-  useLedgerCategoriesQuery: () => ({ data: [], isError: false, isLoading: false, refetch: vi.fn() }),
-}));
-
-vi.mock('@/entities/ledger', () => ({
-  LedgerCapability: { RECORD_CREATE: 'record:create' },
-  LedgerRecordType: { EXPENSE: 'sub', INCOME: 'add' },
-  useLedgerNavigationQuery: () => ({
-    data: [
-      { capabilities: ['record:create'], id: 'ledger-write', name: '家庭账本' },
-      { capabilities: ['record:read'], id: 'ledger-read', name: '只读账本' },
-    ],
-    isLoading: false,
-  }),
-}));
-
 vi.mock('@/entities/shortcut-bookkeeping', () => ({
   useClaimShortcutDraftMutation: () => ({
     isError: false,
     mutateAsync: mocks.claimDraft,
     reset: vi.fn(),
   }),
-  useConfirmShortcutDraftMutation: () => ({ isLoading: false, mutateAsync: vi.fn() }),
-  useDiscardShortcutDraftMutation: () => ({ mutateAsync: vi.fn() }),
-}));
-
-vi.mock('@/features/record-editor', () => ({
-  invalidateLedgerRecordEditorCaches: vi.fn(),
-  RecordEditorPresentation: () => createElement('div', { 'data-testid': 'shortcut-record-editor' }, 'editor'),
-  useRecordEditorController: () => ({ isSubmitting: false, recordType: 'sub' }),
 }));
 
 vi.mock('@/shared/i18n', () => ({
@@ -58,30 +34,31 @@ vi.mock('@/shared/i18n', () => ({
 
 let cleanup = () => {};
 
+function Destination() {
+  const location = useLocation();
+  return createElement('div', { 'data-testid': 'destination' }, JSON.stringify(location.state));
+}
+
 function renderPage(initialEntry = '/bookkeeping/import?draftId=draft-1&code=handoff-code') {
   const container = document.createElement('div');
   document.body.append(container);
   const root = createRoot(container);
   const queryClient = new QueryClient();
+  const router = createMemoryRouter([
+    { path: '/bookkeeping/import', element: createElement(ShortcutBookkeepingConfirmPage) },
+    { path: '/bookkeeping', element: createElement(Destination) },
+    { path: '/detail', element: createElement('div', null, 'detail') },
+  ], { initialEntries: [initialEntry] });
   act(() => root.render(createElement(
     QueryClientProvider,
     { client: queryClient },
-    createElement(
-      MemoryRouter,
-      { initialEntries: [initialEntry] },
-      createElement(ShortcutBookkeepingConfirmPage),
-    ),
+    createElement(RouterProvider, { router }),
   )));
   cleanup = () => {
     act(() => root.unmount());
     container.remove();
   };
-  return container;
-}
-
-function buttonByText(container: HTMLElement, text: string) {
-  return [...container.querySelectorAll<HTMLButtonElement>('button')]
-    .find(button => button.textContent?.includes(text));
+  return { container, router };
 }
 
 describe('shortcut bookkeeping confirmation page', () => {
@@ -96,35 +73,13 @@ describe('shortcut bookkeeping confirmation page', () => {
 
   afterEach(() => cleanup());
 
-  it('requires explicit record type and writable-ledger choices before opening the editor', async () => {
-    const container = renderPage();
+  it('claims the draft and hands it to the original bookkeeping route without keeping the code in the URL', async () => {
+    const { container, router } = renderPage();
     await act(async () => Promise.resolve());
-    const continueButton = buttonByText(container, 'shortcutBookkeeping.continueReview');
-
-    expect(container.textContent).toContain('鲸鱼便利店');
-    expect(container.textContent).toContain('家庭账本');
-    expect(container.textContent).not.toContain('只读账本');
-    expect(continueButton?.disabled).toBe(true);
-
-    act(() => buttonByText(container, '家庭账本')?.click());
-    expect(continueButton?.disabled).toBe(true);
-    act(() => buttonByText(container, 'shortcutBookkeeping.expense')?.click());
-    expect(continueButton?.disabled).toBe(false);
-
-    act(() => continueButton?.click());
-    expect(container.querySelector('[data-testid="shortcut-record-editor"]')).not.toBeNull();
-  });
-
-  it('recovers a claimed draft after refresh without keeping the code in the URL', async () => {
-    renderPage();
-    await act(async () => Promise.resolve());
-    expect(sessionStorage.getItem('ww-shortcut-handoff:draft-1')).toBe('handoff-code');
-
-    cleanup();
-    const refreshedContainer = renderPage('/bookkeeping/import?draftId=draft-1');
-    await act(async () => Promise.resolve());
-
-    expect(mocks.claimDraft).toHaveBeenCalledTimes(2);
-    expect(refreshedContainer.textContent).toContain('鲸鱼便利店');
+    expect(router.state.location.pathname).toBe('/bookkeeping');
+    expect(router.state.location.search).toBe('');
+    expect(container.querySelector('[data-testid="destination"]')?.textContent).toContain('review-code-00001');
+    expect(container.querySelector('[data-testid="destination"]')?.textContent).toContain('鲸鱼便利店');
+    expect(sessionStorage.getItem('ww-shortcut-handoff:draft-1')).toBeNull();
   });
 });

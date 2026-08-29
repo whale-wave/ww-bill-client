@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { LedgerRecordType } from '@/entities/ledger';
-import { createShortcutRecordSeed } from '@/pages/shortcut-bookkeeping-confirm/model';
+import {
+  createShortcutRecordSeed,
+  inferShortcutCategory,
+  inferShortcutRecordType,
+} from '@/features/record-editor';
 
 describe('shortcut bookkeeping confirmation model', () => {
   it('prefills only trustworthy OCR candidates for manual review', () => {
@@ -51,5 +55,41 @@ describe('shortcut bookkeeping confirmation model', () => {
     }, LedgerRecordType.EXPENSE);
 
     expect(seed).not.toHaveProperty('amount');
+  });
+
+  it('infers the record type and one matching existing category from payment OCR', () => {
+    const draft = {
+      expiresAt: '2026-08-30T10:00:00.000Z',
+      id: 'draft-4',
+      merchantCandidate: '滴滴出行',
+      rawText: '微信支付\\n滴滴出行\\n支付成功',
+      source: 'WECHAT' as const,
+      status: 'NEEDS_REVIEW' as const,
+      warnings: [],
+    };
+    const categories = [
+      { icon: 'catering', id: 1, name: '餐饮', type: 'sub' as const },
+      { icon: 'traffic', id: 2, name: '交通', type: 'sub' as const },
+    ];
+
+    expect(inferShortcutRecordType(draft)).toBe(LedgerRecordType.EXPENSE);
+    expect(inferShortcutCategory(categories, draft)).toEqual(categories[1]);
+  });
+
+  it('does not select a category when the OCR has no reliable category signal', () => {
+    const draft = {
+      expiresAt: '2026-08-30T10:00:00.000Z',
+      id: 'draft-5',
+      merchantCandidate: '未知商户',
+      rawText: '付款成功',
+      source: 'WECHAT' as const,
+      status: 'NEEDS_REVIEW' as const,
+      warnings: [],
+    };
+
+    expect(inferShortcutCategory([
+      { icon: 'catering', id: 1, name: '餐饮', type: 'sub' as const },
+      { icon: 'traffic', id: 2, name: '交通', type: 'sub' as const },
+    ], draft)).toBeUndefined();
   });
 });
