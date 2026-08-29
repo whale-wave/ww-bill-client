@@ -23,14 +23,74 @@ function getShortcutText(draft: ShortcutDraft) {
 }
 
 function getStandaloneOcrAmount(rawText: string) {
-  const value = rawText.split(/\r?\n/)
+  const lines = rawText.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const standalone = lines
     .map(line => line.trim().match(/^[+\-−—–]?\s*(\d[\d,]*(?:\.\d{1,2})?)$/)?.[1])
     .find((amount): amount is string => Boolean(amount));
-  return value?.replace(/,/g, '');
+  if (standalone)
+    return standalone.replace(/,/g, '');
+
+  const candidates = lines.flatMap((line, lineIndex) =>
+    [...line.matchAll(/[+\-−—–]?\s*\d[\d,]*(?:\.\d{1,2})?/g)].flatMap((match) => {
+      const token = match[0];
+      const start = match.index ?? 0;
+      const before = line[start - 1] ?? '';
+      const after = line[start + token.length] ?? '';
+      if (/[a-z]/i.test(before) || /[a-z]/i.test(after))
+        return [];
+      const amount = token.trim().replace(/^[+\-−—–]\s*/, '').replace(/,/g, '');
+      if (!/^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/.test(amount) || !/[1-9]/.test(amount))
+        return [];
+      const [integerPart] = amount.split('.');
+      const identifier = /订单号|流水号|交易号|商户单号|手机号|卡号|支付时间|日期|时间/.test(line);
+      const moneyContext = /支付|付款|实付|订单金额|金额|合计|总计|应付|消费|扣款|服务费|费用|价格/.test(line);
+      return [{
+        amount,
+        index: lineIndex,
+        score: (moneyContext ? 60 : 0)
+          + (/[¥￥]/.test(line) ? 50 : 0)
+          + (/^[+\-−—–]/.test(token.trim()) ? 40 : 0)
+          + (amount.includes('.') ? 20 : 0)
+          - (identifier ? 160 : 0)
+          - (integerPart.length >= 9 ? 100 : 0)
+          - (/^(?:19|20)\d{2}$/.test(integerPart) ? 40 : 0),
+      }];
+    }),
+  );
+  return candidates
+    .sort((left, right) => right.score - left.score || left.index - right.index)[0]
+    ?.amount;
 }
 
 function getShortcutAmount(draft: ShortcutDraft) {
-  return draft.amountCandidate?.trim() || getStandaloneOcrAmount(draft.rawText);
+  const candidate = draft.amountCandidate?.trim();
+  if (candidate && /^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/.test(candidate))
+    return candidate;
+  return getStandaloneOcrAmount(draft.rawText) ?? '0';
+}
+
+function getShortcutRemark(draft: ShortcutDraft) {
+  if (draft.merchantCandidate.trim())
+    return draft.merchantCandidate.trim();
+
+  const lines = draft.rawText.split(/\r?\n/)
+    .map(line => line.trim().replace(/\s+/g, ' '))
+    .filter(Boolean);
+  const fallback = lines
+    .map((line, index) => {
+      const isField = /订单号|流水号|交易号|商户单号|手机号|卡号|支付时间|日期|时间|状态|全部订单|账单详情/.test(line);
+      const isMostlyNumeric = !/[\p{L}\p{Script=Han}]/u.test(line) || /^[+\-−—–\d\s.,¥￥]+$/.test(line);
+      const followedByAmount = /[+\-−—–]?\s*\d[\d,]*(?:\.\d{1,2})?/.test(lines[index + 1] ?? '');
+      return {
+        index,
+        value: line.slice(0, 80),
+        score: (followedByAmount ? 40 : 0) + (index < 3 ? 10 : 0)
+          - (isField ? 100 : 0) - (isMostlyNumeric ? 100 : 0),
+      };
+    })
+    .filter(candidate => candidate.score > 0)
+    .sort((left, right) => right.score - left.score || left.index - right.index)[0];
+  return fallback?.value ?? (lines.join(' ').slice(0, 80) || '待核对订单');
 }
 
 export function inferShortcutRecordType(draft: ShortcutDraft): CategoryAmountType {
@@ -80,14 +140,10 @@ export function createShortcutRecordSeed(
   recordType: CategoryAmountType,
 ): RecordEditorSeed {
   const amount = getShortcutAmount(draft);
-  const hasValidAmount = Boolean(
-    amount
-    && /^(?=.*[1-9])(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/.test(amount),
-  );
   return {
-    ...(hasValidAmount ? { amount } : {}),
+    amount,
     recordType,
-    remark: draft.merchantCandidate,
+    remark: getShortcutRemark(draft),
     time: draft.capturedAt && dayjs(draft.capturedAt).isValid()
       ? dayjs(draft.capturedAt).toISOString()
       : dayjs().toISOString(),

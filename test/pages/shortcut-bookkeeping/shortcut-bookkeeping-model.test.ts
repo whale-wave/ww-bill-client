@@ -26,7 +26,7 @@ describe('shortcut bookkeeping confirmation model', () => {
     });
   });
 
-  it('leaves ambiguous or invalid amounts empty for user input', () => {
+  it('uses visible zero and a fallback remark when OCR has neither an amount nor a merchant', () => {
     const seed = createShortcutRecordSeed({
       expiresAt: '2026-08-30T10:00:00.000Z',
       id: 'draft-2',
@@ -37,8 +37,8 @@ describe('shortcut bookkeeping confirmation model', () => {
       warnings: ['AMOUNT_AMBIGUOUS'],
     }, LedgerRecordType.INCOME);
 
-    expect(seed).not.toHaveProperty('amount');
-    expect(seed.remark).toBe('');
+    expect(seed.amount).toBe('0');
+    expect(seed.remark).toBe('无法可靠识别');
     expect(seed.recordType).toBe(LedgerRecordType.INCOME);
   });
 
@@ -69,7 +69,22 @@ describe('shortcut bookkeeping confirmation model', () => {
       warnings: [],
     }, LedgerRecordType.EXPENSE);
 
-    expect(seed).not.toHaveProperty('amount');
+    expect(seed.amount).toBe('0');
+  });
+
+  it('finds a plausible amount and nearby descriptive remark in an unknown order layout', () => {
+    expect(createShortcutRecordSeed({
+      expiresAt: '2026-08-30T10:00:00.000Z',
+      id: 'draft-unknown-order',
+      merchantCandidate: '',
+      rawText: '全部订单\n灵感工作室\n服务费 36\n流水号 2026082112065785287',
+      source: 'UNKNOWN',
+      status: 'NEEDS_REVIEW',
+      warnings: ['SOURCE_UNKNOWN'],
+    }, LedgerRecordType.EXPENSE)).toMatchObject({
+      amount: '36',
+      remark: '灵感工作室',
+    });
   });
 
   it('infers the record type and one matching existing category from payment OCR', () => {
