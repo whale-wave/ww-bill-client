@@ -142,7 +142,10 @@ function LedgerRecordEditEditor({
       }}
       onArchiveTag={canManageTags ? handleArchiveTag : undefined}
       onCancel={navigateToDetail}
-      onManageCategories={() => openRecordEditorSettings(ROUTES_PATH.LEDGER_CATEGORIES.getPath(ledgerId))}
+      onManageCategories={() => openRecordEditorSettings(
+        ROUTES_PATH.LEDGER_CATEGORIES.getPath(ledgerId),
+        { reopenTagPicker: false },
+      )}
       onManageTags={canManageTags
         ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId))
         : undefined}

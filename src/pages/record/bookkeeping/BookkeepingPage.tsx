@@ -276,7 +276,10 @@ function BookkeepingPage() {
       onArchiveTag={defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE) ? handleArchiveTag : undefined}
       onCancel={() => void handleCancel()}
       onManageCategories={defaultLedger
-        ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_CATEGORIES.getPath(defaultLedger.id))
+        ? () => openRecordEditorSettings(
+            ROUTES_PATH.LEDGER_CATEGORIES.getPath(defaultLedger.id),
+            { reopenTagPicker: false },
+          )
         : undefined}
       onManageTags={canReadTags && defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE)
         ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(defaultLedger.id))
