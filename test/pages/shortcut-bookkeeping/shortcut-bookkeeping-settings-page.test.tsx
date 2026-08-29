@@ -5,11 +5,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ShortcutBookkeepingSettingsPage from '@/pages/shortcut-bookkeeping-settings/ShortcutBookkeepingSettingsPage';
 
 const mocks = vi.hoisted(() => ({
+  confirmAction: vi.fn(async () => true),
   copyFallback: vi.fn(() => true),
   installUrl: 'https://www.icloud.com/shortcuts/template123' as string | undefined,
   issue: vi.fn(),
   openInstaller: vi.fn(),
   revoke: vi.fn(),
+  tokens: [] as Array<{
+    createdAt: string;
+    expiresAt: string;
+    id: string;
+    name: string;
+    tokenPrefix: string;
+  }>,
   writeText: vi.fn(),
 }));
 
@@ -23,7 +31,7 @@ vi.mock('copy-to-clipboard', () => ({ default: mocks.copyFallback }));
 vi.mock('@/entities/shortcut-bookkeeping', () => ({
   useIssueShortcutAccessTokenMutation: () => ({ isLoading: false, mutateAsync: mocks.issue }),
   useRevokeShortcutAccessTokenMutation: () => ({ isLoading: false, mutateAsync: mocks.revoke }),
-  useShortcutAccessTokensQuery: () => ({ data: [], isError: false, isLoading: false }),
+  useShortcutAccessTokensQuery: () => ({ data: mocks.tokens, isError: false, isLoading: false }),
 }));
 
 vi.mock('@/pages/shortcut-bookkeeping-settings/model', async (importOriginal) => {
@@ -38,6 +46,11 @@ vi.mock('@/pages/shortcut-bookkeeping-settings/model', async (importOriginal) =>
 vi.mock('@/shared/i18n', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
+
+vi.mock('@/shared/ui', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@/shared/ui')>();
+  return { ...original, confirmAppAction: mocks.confirmAction };
+});
 
 let cleanup = () => {};
 
@@ -70,6 +83,7 @@ function inputText(input: HTMLInputElement, value: string) {
 
 beforeEach(() => {
   mocks.installUrl = 'https://www.icloud.com/shortcuts/template123';
+  mocks.tokens = [];
   mocks.copyFallback.mockReturnValue(true);
   mocks.issue.mockResolvedValue({ token: 'wws_test-credential' });
   mocks.writeText.mockResolvedValue(undefined);
@@ -157,5 +171,34 @@ describe('shortcut bookkeeping settings page', () => {
     expect(manualSetup).not.toBeNull();
     expect(manualSetup?.open).toBe(true);
     expect(manualSetup?.textContent).toContain('shortcutBookkeeping.manualSetup');
+  });
+
+  it('copies the request endpoint from the manual setup', async () => {
+    mocks.installUrl = undefined;
+    const container = renderPage();
+
+    act(() => buttonByText(container, 'shortcutBookkeeping.copyEndpoint')?.click());
+
+    await vi.waitFor(() => {
+      expect(mocks.writeText).toHaveBeenCalledWith(`${window.location.origin}/api/shortcut-drafts`);
+    });
+  });
+
+  it('revokes an active shortcut credential after confirmation', async () => {
+    mocks.tokens = [{
+      createdAt: '2026-08-29T00:00:00.000Z',
+      expiresAt: '2027-08-29T00:00:00.000Z',
+      id: 'token-1',
+      name: '我的 iPhone',
+      tokenPrefix: 'wws_abcd',
+    }];
+    const container = renderPage();
+
+    act(() => buttonByText(container, 'shortcutBookkeeping.revoke')?.click());
+
+    await vi.waitFor(() => {
+      expect(mocks.confirmAction).toHaveBeenCalledOnce();
+      expect(mocks.revoke).toHaveBeenCalledWith('token-1');
+    });
   });
 });
