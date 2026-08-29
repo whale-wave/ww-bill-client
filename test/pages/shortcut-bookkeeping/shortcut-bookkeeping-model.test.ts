@@ -69,14 +69,14 @@ describe('shortcut bookkeeping confirmation model', () => {
     };
     const categories = [
       { icon: 'catering', id: 1, name: '餐饮', type: 'sub' as const },
-      { icon: 'traffic', id: 2, name: '交通', type: 'sub' as const },
+      { icon: 'traffic', id: 3, name: '交通', type: 'sub' as const },
     ];
 
     expect(inferShortcutRecordType(draft)).toBe(LedgerRecordType.EXPENSE);
     expect(inferShortcutCategory(categories, draft)).toEqual(categories[1]);
   });
 
-  it('does not select a category when the OCR has no reliable category signal', () => {
+  it('uses the everyday fallback category when OCR has no reliable category signal', () => {
     const draft = {
       expiresAt: '2026-08-30T10:00:00.000Z',
       id: 'draft-5',
@@ -87,9 +87,12 @@ describe('shortcut bookkeeping confirmation model', () => {
       warnings: [],
     };
 
-    expect(inferShortcutCategory([
+    const categories = [
       { icon: 'catering', id: 1, name: '餐饮', type: 'sub' as const },
+      { icon: 'daily', id: 2, name: '日用', type: 'sub' as const },
       { icon: 'traffic', id: 2, name: '交通', type: 'sub' as const },
-    ], draft)).toBeUndefined();
+    ];
+
+    expect(inferShortcutCategory(categories, draft)).toEqual(categories[1]);
   });
 });

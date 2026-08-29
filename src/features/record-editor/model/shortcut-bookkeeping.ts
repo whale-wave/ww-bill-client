@@ -33,20 +33,35 @@ export function inferShortcutCategory(
   draft: ShortcutDraft,
 ): ShortcutCategory | undefined {
   const text = getShortcutText(draft);
-  const candidates = new Map<number, ShortcutCategory>();
-  const addCategoriesByName = (names: readonly string[]) => {
-    categories.filter(category => names.includes(category.name))
-      .forEach(category => candidates.set(category.id, category));
+  const scores = new Map<number, number>();
+  const addScore = (category: ShortcutCategory, score: number) => {
+    scores.set(category.id, (scores.get(category.id) ?? 0) + score);
   };
 
   categories
     .filter(category => category.name.length > 1 && text.includes(category.name.toLowerCase()))
-    .forEach(category => candidates.set(category.id, category));
+    .forEach(category => addScore(category, 4));
   CATEGORY_KEYWORDS
-    .filter(group => group.keywords.some(keyword => text.includes(keyword.toLowerCase())))
-    .forEach(group => addCategoriesByName(group.categoryNames));
+    .forEach((group) => {
+      const matchedKeywords = group.keywords.filter(keyword => text.includes(keyword.toLowerCase()));
+      if (matchedKeywords.length === 0)
+        return;
+      categories
+        .filter(category => group.categoryNames.includes(category.name))
+        .forEach(category => addScore(category, matchedKeywords.length * 2));
+    });
 
-  return candidates.size === 1 ? [...candidates.values()][0] : undefined;
+  const bestCategory = categories.reduce<ShortcutCategory | undefined>((best, category) => {
+    if (!best || (scores.get(category.id) ?? 0) > (scores.get(best.id) ?? 0))
+      return category;
+    return best;
+  }, undefined);
+  if (bestCategory && (scores.get(bestCategory.id) ?? 0) > 0)
+    return bestCategory;
+
+  return categories.find(category => /^(?:其他|其它)$/.test(category.name))
+    ?? categories.find(category => category.name === '日用')
+    ?? categories[0];
 }
 
 export function createShortcutRecordSeed(
