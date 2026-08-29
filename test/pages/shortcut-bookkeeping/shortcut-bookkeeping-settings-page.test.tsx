@@ -1,3 +1,4 @@
+import type { ShortcutAccessTokenSummary } from '@/entities/shortcut-bookkeeping';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
@@ -11,13 +12,7 @@ const mocks = vi.hoisted(() => ({
   issue: vi.fn(),
   openInstaller: vi.fn(),
   revoke: vi.fn(),
-  tokens: [] as Array<{
-    createdAt: string;
-    expiresAt: string;
-    id: string;
-    name: string;
-    tokenPrefix: string;
-  }>,
+  tokens: [] as ShortcutAccessTokenSummary[],
   writeText: vi.fn(),
 }));
 
@@ -186,6 +181,7 @@ describe('shortcut bookkeeping settings page', () => {
 
   it('revokes an active shortcut credential after confirmation', async () => {
     mocks.tokens = [{
+      confirmationBaseUrl: 'https://bill.example',
       createdAt: '2026-08-29T00:00:00.000Z',
       expiresAt: '2027-08-29T00:00:00.000Z',
       id: 'token-1',
