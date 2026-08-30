@@ -15,16 +15,6 @@ import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
 import { confirmDangerousAction, NavBar } from '@/shared/ui';
 
-function formatDateTime(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime()))
-    return value;
-  return new Intl.DateTimeFormat('zh-CN', {
-    dateStyle: 'long',
-    timeStyle: 'short',
-  }).format(date);
-}
-
 const RecordDetail: FC<{
   householdId: string;
   record: FamilyRecord;
@@ -33,7 +23,6 @@ const RecordDetail: FC<{
   const navigate = useNavigate();
   const userQuery = useGetUserUserInfoQuery();
   const isOwner = userQuery.data?.id === record.creator.id;
-  const amountSign = record.type === 'sub' ? '-' : '+';
   const tags = record.tags.map(tag => `#${tag.name}`).join(' ');
   const date = new Date(record.time);
   const timeDate = getTimeDateYear(date);
@@ -60,25 +49,6 @@ const RecordDetail: FC<{
         version: record.version,
       }
     : undefined;
-
-  const handleShare = async () => {
-    const text = t('recordDetail.shareText', {
-      amount: `${amountSign}${record.amount}`,
-      category: record.category?.name ?? t('recordDetail.uncategorized'),
-      date: formatDateTime(record.time),
-      remark: record.remark,
-    });
-    try {
-      if (navigator.share)
-        await navigator.share({ text, title: t('recordDetail.title') });
-      else
-        await navigator.clipboard?.writeText(text);
-      void Toast.show({ content: t('recordDetail.shared'), icon: 'success' });
-    }
-    catch {
-      // Cancelling the native share sheet should not turn into a page error.
-    }
-  };
 
   const handleDelete = async () => {
     const confirmed = await confirmDangerousAction({
@@ -144,7 +114,6 @@ const RecordDetail: FC<{
           ]
         : []}
       onBack={() => navigate(-1)}
-      pinnedAction={{ label: t('recordDetail.share'), onClick: () => void handleShare() }}
       rows={[
         { label: t('recordDetail.type'), value: record.type === 'sub' ? t('recordDetail.expense') : t('recordDetail.income') },
         { label: t('recordDetail.date'), value: `${timeDate}  ${weekByDay}` },

@@ -63,6 +63,20 @@ export function getMonthBillDetailApi(month: string) {
   );
 }
 
+export function getLedgerMonthBillDetailApi(ledgerId: string, month: string) {
+  return request.get<unknown, SuccessResponse<MonthBillDetailWireResponse>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/records/bill/month-detail`,
+    { params: { month } },
+  );
+}
+
+export function getHouseholdMonthBillDetailApi(householdId: string, month: string) {
+  return request.get<unknown, SuccessResponse<MonthBillDetailWireResponse>>(
+    `/households/${encodeURIComponent(householdId)}/records/bill/month-detail`,
+    { params: { month } },
+  );
+}
+
 export interface GetRecordApiResponseData {
   total: number;
   data: RecordEntry[];
@@ -77,6 +91,10 @@ export interface GetRecordApiParams {
   keywordTarget?: RecordKeywordTarget;
   type?: 'add' | 'sub';
   dateMode?: RecordDateMode;
+}
+
+export interface GetRecordRemarkHistoryApiParams {
+  categoryId: number;
 }
 
 export type RecordKeywordTarget = 'all' | 'category' | 'tag' | 'remark' | 'amount';
@@ -123,6 +141,20 @@ export function getLedgerRecordsApi(
 ) {
   return request.get<unknown, SuccessResponse<GetRecordApiResponseData>>(
     `/ledgers/${encodeURIComponent(ledgerId)}/records`,
+    { params },
+  );
+}
+
+export function getRecordRemarkHistoryApi(params: GetRecordRemarkHistoryApiParams) {
+  return request.get<unknown, SuccessResponse<string[]>>('/record/remark-history', { params });
+}
+
+export function getLedgerRecordRemarkHistoryApi(
+  ledgerId: string,
+  params: GetRecordRemarkHistoryApiParams,
+) {
+  return request.get<unknown, SuccessResponse<string[]>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/records/remark-history`,
     { params },
   );
 }

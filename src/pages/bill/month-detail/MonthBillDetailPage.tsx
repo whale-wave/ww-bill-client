@@ -4,16 +4,14 @@ import { Toast } from 'antd-mobile';
 import html2canvas from 'html2canvas-pro';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useMonthBillDetailQuery } from '@/entities/record';
+import { useHouseholdMonthBillDetailQuery, useLedgerMonthBillDetailQuery, useMonthBillDetailQuery } from '@/entities/record';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { useTranslation } from '@/shared/i18n';
 import {
   canvasToPngBlob,
   GalleryPermissionDeniedError,
   getImageExportCaptureOptions,
-  ImageShareCancelledError,
   saveImageToGallery,
-  shareImage,
   waitForImageExportReady,
 } from '@/shared/lib';
 import { DesignIcon, IllustratedEmptyState, PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
@@ -26,7 +24,6 @@ const EXPORT_SESSION_WATCHDOG_MS = 30_000;
 
 type ExportStatus = 'idle' | 'preparing' | 'rendering';
 type TerminalState = 'success' | 'failure' | 'timeout' | 'cancelled';
-type ExportAction = 'save' | 'share';
 
 interface ExportSnapshot {
   bill: MonthBillDetailResponse;
@@ -84,11 +81,19 @@ function isValidMonth(month: string | undefined): month is string {
 }
 
 export default function MonthBillDetailPage() {
-  const { month } = useParams<{ month: string }>();
+  const { householdId, ledgerId, month } = useParams<{ householdId: string; ledgerId: string; month: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation('bill');
   const isMonthValid = isValidMonth(month);
-  const query = useMonthBillDetailQuery({ month: month ?? '', queryOptions: { enabled: isMonthValid } });
+  const personalQuery = useMonthBillDetailQuery({ month: month ?? '', queryOptions: { enabled: isMonthValid && !ledgerId && !householdId } });
+  const ledgerQuery = useLedgerMonthBillDetailQuery({ ledgerId: ledgerId ?? '', month: month ?? '', queryOptions: { enabled: isMonthValid && Boolean(ledgerId) } });
+  const householdQuery = useHouseholdMonthBillDetailQuery({ householdId: householdId ?? '', month: month ?? '', queryOptions: { enabled: isMonthValid && Boolean(householdId) } });
+  const query = ledgerId ? ledgerQuery : householdId ? householdQuery : personalQuery;
+  const backPath = ledgerId
+    ? `/ledgers/${encodeURIComponent(ledgerId)}/bill`
+    : householdId
+      ? `/households/${encodeURIComponent(householdId)}/records/bill`
+      : '/bill';
   const hasData = Boolean(query.data);
   const userQuery = useGetUserUserInfoQuery({ options: { enabled: isMonthValid } });
   const [exportStatus, setExportStatus] = useState<ExportStatus>('idle');
@@ -105,12 +110,11 @@ export default function MonthBillDetailPage() {
   const snapshotRef = useRef<ExportSnapshot>();
   const watchdogRef = useRef<number>();
   const captureStartedRef = useRef(false);
-  const exportActionRef = useRef<ExportAction>('save');
 
   useEffect(() => {
     if (!isMonthValid)
-      navigate('/bill', { replace: true });
-  }, [isMonthValid, navigate]);
+      navigate(backPath, { replace: true });
+  }, [backPath, isMonthValid, navigate]);
 
   const finalizeSession = useCallback((sessionId: number, terminal: TerminalState, successMessage?: string) => {
     if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId))
@@ -190,29 +194,18 @@ export default function MonthBillDetailPage() {
         return;
       const blob = await canvasToPngBlob(canvas);
       const fileName = `鲸浪账本_${snapshot.bill.month}月账单`;
-      if (exportActionRef.current === 'share') {
-        await shareImage(blob, fileName);
-        finalizeSession(sessionId, 'success', t('exportShared'));
-      }
-      else {
-        const result = await saveImageToGallery(blob, fileName);
-        finalizeSession(sessionId, 'success', result === 'gallery' ? t('exportSaved') : t('exportDownloaded'));
-      }
+      const result = await saveImageToGallery(blob, fileName);
+      finalizeSession(sessionId, 'success', result === 'gallery' ? t('exportSaved') : t('exportDownloaded'));
     }
     catch (error) {
-      if (error instanceof ImageShareCancelledError) {
-        finalizeSession(sessionId, 'cancelled');
-        return;
-      }
       console.error('[month-bill-export] image delivery failed', {
-        action: exportActionRef.current,
         error,
         sessionId,
         stage: 'delivery',
       });
       const message = error instanceof GalleryPermissionDeniedError
         ? t('exportPermissionDenied')
-        : exportActionRef.current === 'share' ? t('exportShareFailed') : t('exportSaveFailed');
+        : t('exportSaveFailed');
       finalizeSession(sessionId, 'failure', message);
     }
   }, [avatarBarrier, finalizeSession, readyCharts.size, t]);
@@ -248,7 +241,7 @@ export default function MonthBillDetailPage() {
       void captureExport();
   }, [avatarBarrier?.sessionId, avatarBarrier?.state, captureExport, chartsEnabled, exportMounted, readyCharts.size]);
 
-  const handleExport = useCallback(async (action: ExportAction) => {
+  const handleExport = useCallback(async () => {
     if (!query.data || exportStatus !== 'idle' || inFlightRef.current)
       return;
     const sessionId = ++nextSessionIdRef.current;
@@ -268,7 +261,6 @@ export default function MonthBillDetailPage() {
       },
     };
     activeSessionRef.current = sessionId;
-    exportActionRef.current = action;
     inFlightRef.current = true;
     snapshotRef.current = snapshot;
     terminalSessionsRef.current.delete(sessionId);
@@ -287,7 +279,7 @@ export default function MonthBillDetailPage() {
       setExportMounted(true);
     }
     catch (error) {
-      console.error('[month-bill-export] preparation failed', { action, error, sessionId, stage: 'preparation' });
+      console.error('[month-bill-export] preparation failed', { error, sessionId, stage: 'preparation' });
       finalizeSession(sessionId, 'failure');
     }
   }, [exportStatus, finalizeSession, query.data, t, userQuery.data]);
@@ -297,7 +289,7 @@ export default function MonthBillDetailPage() {
 
   return (
     <div className="page-new overflow-hidden">
-      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate('/bill', { replace: true })} title={formatMonthTitle(month)} />
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={formatMonthTitle(month)} />
       <main className="min-h-0 flex-grow overflow-auto px-[18px] pb-28 pt-2" data-bill-detail-scroll>
         {query.isLoading && !hasData && <PageLoadingState label={t('common:nav.loading')} testId="month-bill-detail-loading" />}
         {query.isError && !hasData && (
@@ -309,9 +301,8 @@ export default function MonthBillDetailPage() {
         {query.data && query.data.summary.recordCount === 0 && <IllustratedEmptyState accentIcon={<DesignIcon name="tab-add" size={20} />} actionLabel={t('emptyAction')} className="min-h-[320px]" description={t('emptyDescription')} icon={<DesignIcon name="shortcut-bill" size={46} />} onAction={() => navigate('/bookkeeping')} title={t('emptyTitle')} />}
         {query.data && query.data.summary.recordCount > 0 && <MonthBillDetailRenderer data={query.data} mode="screen" />}
       </main>
-      <div className="absolute bottom-0 left-0 right-0 z-20 flex shrink-0 gap-3 bg-gradient-to-t from-[#f4fbff] via-[#f4fbff]/95 to-transparent px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-5">
-        <WwButton className="!h-12 !flex-1 !rounded-[16px] !border !border-primary/25 !bg-white/90 !font-bold !text-primary-deep" onClick={() => void handleExport('share')} size="full">{exportStatus === 'idle' ? t('shareImage') : t('savingImage')}</WwButton>
-        <WwButton className="!h-12 !flex-1 !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww" onClick={() => void handleExport('save')} size="full">{exportStatus === 'idle' ? t('saveImage') : t('savingImage')}</WwButton>
+      <div className="absolute bottom-0 left-0 right-0 z-20 flex shrink-0 bg-gradient-to-t from-[#f4fbff] via-[#f4fbff]/95 to-transparent px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-5">
+        <WwButton className="!h-12 !w-full !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww" onClick={() => void handleExport()} size="full">{exportStatus === 'idle' ? t('saveImage') : t('savingImage')}</WwButton>
       </div>
       {exportMounted && snapshotRef.current && qrCode && <div aria-hidden="true" className="pointer-events-none fixed left-[-10000px] top-0" ref={exportRef}><MonthBillDetailRenderer chartsEnabled={chartsEnabled} data={snapshotRef.current.bill} exportCopy={snapshotRef.current.copy} exportSessionId={snapshotRef.current.sessionId} exportUser={snapshotRef.current.user} mode="export" onAvatarReady={handleAvatarReady} onChartError={handleChartError} onChartReady={handleChartReady} qrCode={qrCode} /></div>}
     </div>

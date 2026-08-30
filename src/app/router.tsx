@@ -105,6 +105,10 @@ const router = createHashRouter([
         lazy: lazyGuardedPage(tabRouteLoaders['personal-bookkeeping']),
       },
       {
+        path: 'bookkeeping/import',
+        lazy: lazyGuardedPage(() => import('@/pages/shortcut-bookkeeping-confirm/ShortcutBookkeepingConfirmPage')),
+      },
+      {
         path: 'discovery',
         lazy: lazyGuardedPage(tabRouteLoaders['personal-discovery']),
       },
@@ -186,10 +190,6 @@ const router = createHashRouter([
         lazy: lazyGuardedPage(tabRouteLoaders['personal-mine']),
       },
       {
-        path: 'share',
-        lazy: lazyGuardedPage(() => import('@/pages/share/SharePage')),
-      },
-      {
         path: 'post-topic',
         lazy: lazyGuardedPage(() => import('@/pages/post-topic/PostTopicPage')),
       },
@@ -236,6 +236,14 @@ const router = createHashRouter([
           {
             path: 'app-lock',
             lazy: lazyGuardedPage(() => import('@/pages/app-lock-settings/AppLockSettingsPage')),
+          },
+          {
+            path: 'sound-and-haptics',
+            lazy: lazyGuardedPage(() => import('@/pages/sound-and-haptics/SoundAndHapticsPage')),
+          },
+          {
+            path: 'shortcut-bookkeeping',
+            lazy: lazyGuardedPage(() => import('@/pages/shortcut-bookkeeping-settings/ShortcutBookkeepingSettingsPage')),
           },
           {
             path: 'about',
@@ -335,6 +343,10 @@ const router = createHashRouter([
             lazy: lazyGuardedPage(() => import('@/pages/bill/HouseholdBillPage')),
           },
           {
+            path: ':householdId/records/bill/:month',
+            lazy: lazyGuardedPage(() => import('@/pages/bill/month-detail/MonthBillDetailPage')),
+          },
+          {
             path: ':householdId/budgets',
             lazy: lazyGuardedPage(() => import('@/pages/household-budgets/HouseholdBudgetsPage')),
           },
@@ -426,6 +438,10 @@ const router = createHashRouter([
           {
             path: ':ledgerId/bill',
             lazy: lazyGuardedPage(() => import('@/pages/bill/LedgerBillPage')),
+          },
+          {
+            path: ':ledgerId/bill/:month',
+            lazy: lazyGuardedPage(() => import('@/pages/bill/month-detail/MonthBillDetailPage')),
           },
           {
             path: ':ledgerId/budget',

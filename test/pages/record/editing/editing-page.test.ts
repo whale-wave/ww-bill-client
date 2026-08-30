@@ -22,9 +22,20 @@ vi.mock('react-router-dom', () => ({
 }));
 
 vi.mock('@/entities/record', () => ({
+  readPersonalRecordDetailNavigationState: (value: unknown) => {
+    if (typeof value !== 'object' || value === null || !('personalRecordDetail' in value))
+      return undefined;
+    const detail = value.personalRecordDetail;
+    return typeof detail === 'object'
+      && detail !== null
+      && 'returnTo' in detail
+      && detail.returnTo === 'personal-home'
+      ? value
+      : undefined;
+  },
   RecordDetailPresentation: ({ category, footerActions, onBack, pinnedAction, rows, supplementaryContent }: {
     category: { name: string };
-    footerActions?: Array<{ label: string }>;
+    footerActions?: Array<{ label: string; onClick: () => void }>;
     onBack: () => void;
     pinnedAction?: { label: string; onClick: () => void };
     rows: Array<{ label: string; value: string }>;
@@ -37,10 +48,16 @@ vi.mock('@/entities/record', () => ({
       pinnedAction?.label,
       ...footerActions?.map(action => action.label) ?? [],
     ].filter(Boolean).join('|')),
+    ...(footerActions?.map(action => createElement('button', {
+      'data-testid': `record-detail-${action.label}`,
+      'key': action.label,
+      'onClick': action.onClick,
+      'type': 'button',
+    }, action.label)) ?? []),
     supplementaryContent && createElement('div', { 'data-testid': 'supplementary-content', 'key': 'supplementary-content' }),
     pinnedAction && createElement('button', { 'data-testid': 'record-detail-share', 'key': 'share', 'onClick': pinnedAction.onClick, 'type': 'button' }, pinnedAction.label),
   ]),
-  useDeleteRecordMutation: () => [() => Promise.resolve({})],
+  useDeleteRecordMutation: () => [() => Promise.resolve({}), { isLoading: false }],
   useGetRecordByIdQuery: () => queryResult,
 }));
 
@@ -98,7 +115,7 @@ describe('record editing page', () => {
     expectNoDetails(container);
   });
 
-  it('adapts the loaded personal record to the default detail presentation with its share and edit/delete actions', () => {
+  it('adapts the loaded personal record to the default detail presentation with edit/delete actions', () => {
     const record: RecordEntry = {
       amount: '88.00',
       category: {
@@ -125,12 +142,11 @@ describe('record editing page', () => {
     const detail = container.querySelector('[data-testid="record-detail"]');
     expect(detail?.textContent).toContain('餐饮');
     expect(detail?.textContent).toContain('edit.type:record:type.expense');
-    expect(detail?.textContent).toContain('edit.share');
+    expect(detail?.textContent).not.toContain('edit.share');
     expect(detail?.textContent).toContain('record:detail.edit');
     expect(detail?.textContent).toContain('record:detail.delete');
 
-    act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-detail-share"]')?.click());
-    expect(navigate).toHaveBeenCalledWith('/share', { state: { record } });
+    expect(container.querySelector('[data-testid="record-detail-share"]')).toBeNull();
   });
 
   it('does not pass an empty attachment section to the detail card', () => {
@@ -185,6 +201,65 @@ describe('record editing page', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-detail-back"]')?.click());
 
     expect(navigate).toHaveBeenCalledWith('/detail');
+  });
+
+  it('returns a shortcut-created record to the personal homepage after its data reloads', () => {
+    queryResult.data = {
+      amount: '12.00',
+      category: {
+        createdAt: '2026-07-16T00:00:00.000Z',
+        icon: 'food',
+        id: 1,
+        name: '餐饮',
+        updatedAt: '2026-07-16T00:00:00.000Z',
+      },
+      createdAt: '2026-07-16T12:30:00.000Z',
+      id: 7,
+      remark: '午餐',
+      time: '2026-07-16T12:30:00.000Z',
+      type: 'sub',
+      updatedAt: '2026-07-16T12:30:00.000Z',
+      version: 3,
+    };
+    queryResult.isLoading = false;
+    location.state = { personalRecordDetail: { returnTo: 'personal-home' } };
+
+    const { container } = renderPage();
+    act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-detail-back"]')?.click());
+
+    expect(navigate).toHaveBeenCalledWith('/detail', { replace: true });
+  });
+
+  it('keeps the shortcut return target when opening the record editor', () => {
+    queryResult.data = {
+      amount: '12.00',
+      category: {
+        createdAt: '2026-07-16T00:00:00.000Z',
+        icon: 'food',
+        id: 1,
+        name: '餐饮',
+        updatedAt: '2026-07-16T00:00:00.000Z',
+      },
+      createdAt: '2026-07-16T12:30:00.000Z',
+      id: 7,
+      remark: '午餐',
+      time: '2026-07-16T12:30:00.000Z',
+      type: 'sub',
+      updatedAt: '2026-07-16T12:30:00.000Z',
+      version: 3,
+    };
+    queryResult.isLoading = false;
+    location.state = { personalRecordDetail: { returnTo: 'personal-home' } };
+
+    const { container } = renderPage();
+    act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-detail-record:detail.edit"]')?.click());
+
+    expect(navigate).toHaveBeenCalledWith('/bookkeeping', {
+      replace: true,
+      state: expect.objectContaining({
+        personalRecordDetail: { returnTo: 'personal-home' },
+      }),
+    });
   });
 
   it('renders a valid route-state record through loading and refresh errors', () => {

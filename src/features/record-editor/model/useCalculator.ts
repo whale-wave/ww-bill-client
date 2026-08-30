@@ -13,12 +13,12 @@ function isSubmittableAmount(value: string | number): boolean {
   return Number.isFinite(amount) && amount > 0;
 }
 
-export function useCalculator() {
-  const [totals, setTotals] = useState('0.00');
-  const [num, setNum] = useState('');
-  const [addNum, setAddNum] = useState('');
-  const [addition, setAddition] = useState('');
-  const [completeText, setCompleteText] = useState('完成');
+export function useCalculator(initialState?: CalculatorState) {
+  const [totals, setTotals] = useState(initialState?.totals ?? '0.00');
+  const [num, setNum] = useState(initialState?.num ?? '');
+  const [addNum, setAddNum] = useState(initialState?.addNum ?? '');
+  const [addition, setAddition] = useState(initialState?.addition ?? '');
+  const [completeText, setCompleteText] = useState(initialState?.completeText ?? '完成');
 
   const changePing = useCallback(
     (keys: string | number, toggle?: number): string | undefined => {

@@ -12,6 +12,8 @@ describe('query key factories', () => {
       { keyword: 'coffee' },
     ]);
     expect(recordKeys.detail({ id: '42' })).toEqual(['record', 'detail', '42']);
+    expect(recordKeys.remarkHistory(4)).toEqual(['record', 'remark-history', 4]);
+    expect(recordKeys.ledgerRemarkHistory('ledger-a', 4)).toEqual(['record', 'ledger', 'ledger-a', 'remark-history', 4]);
   });
 
   it('keeps domain roots separate', () => {

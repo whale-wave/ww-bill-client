@@ -11,6 +11,7 @@ import type {
   GetHouseholdRecordsApiParams,
   HouseholdRecordFilterOptions,
   PatchHouseholdApiData,
+  PatchHouseholdPreferencesApiData,
   PatchMyHouseholdNicknameApiData,
   PostAcceptHouseholdInvitationApiData,
   PostDissolveHouseholdApiData,
@@ -32,6 +33,7 @@ import type {
   HouseholdInvitation,
   HouseholdInvitationPreview,
   HouseholdMember,
+  HouseholdPreference,
   HouseholdRecordsPage,
 } from './types';
 import type { TagRankingResponse } from '@/entities/chart';
@@ -58,12 +60,14 @@ import {
   getHouseholdExportTaskApi,
   getHouseholdInvitationPreviewApi,
   getHouseholdMembersApi,
+  getHouseholdPreferencesApi,
   getHouseholdRecordApi,
   getHouseholdRecordFilterOptionsApi,
   getHouseholdRecordsApi,
   getHouseholdTagRankingApi,
   getMyHouseholdApi,
   patchHouseholdApi,
+  patchHouseholdPreferencesApi,
   patchMyHouseholdNicknameApi,
   postAcceptHouseholdInvitationApi,
   postDissolveHouseholdApi,
@@ -82,6 +86,10 @@ export async function getMyHouseholdQueryFn() {
 
 export async function getHouseholdMembersQueryFn(householdId: string) {
   return assertSuccessApi(await getHouseholdMembersApi(householdId));
+}
+
+export async function getHouseholdPreferencesQueryFn(householdId: string) {
+  return assertSuccessApi(await getHouseholdPreferencesApi(householdId));
 }
 
 export async function getHouseholdRecordsQueryFn(
@@ -206,6 +214,15 @@ export async function updateHouseholdMutationFn(options: {
   return assertSuccessApi(await patchHouseholdApi(options.householdId, options.data));
 }
 
+export async function updateHouseholdPreferencesMutationFn(options: {
+  householdId: string;
+  data: PatchHouseholdPreferencesApiData;
+}) {
+  return assertSuccessApi(
+    await patchHouseholdPreferencesApi(options.householdId, options.data),
+  );
+}
+
 export async function updateMyHouseholdNicknameMutationFn(options: {
   householdId: string;
   data: PatchMyHouseholdNicknameApiData;
@@ -302,6 +319,26 @@ export function useHouseholdMembersQuery(options: {
     ...options.queryOptions,
   });
   return { response, data: response?.data ?? [], ...rest };
+}
+
+export function useHouseholdPreferencesQuery(options: {
+  params: { householdId: string };
+  queryOptions?: Omit<
+    UseQueryOptions<
+      SuccessResponse<HouseholdPreference>,
+      unknown,
+      SuccessResponse<HouseholdPreference>,
+      ReturnType<typeof householdKeys.preferences>
+    >,
+    'queryFn' | 'queryKey'
+  >;
+}) {
+  const { data: response, ...rest } = useQuery({
+    queryFn: () => getHouseholdPreferencesQueryFn(options.params.householdId),
+    queryKey: householdKeys.preferences(options.params.householdId),
+    ...options.queryOptions,
+  });
+  return { response, data: response?.data, ...rest };
 }
 
 export function useHouseholdRecordsQuery(options: {
@@ -690,6 +727,24 @@ export function useUpdateHouseholdMutation() {
   const { mutateAsync, ...rest } = useMutation({
     mutationFn: updateHouseholdMutationFn,
     onSuccess: async response => cacheHousehold(queryClient, response),
+  });
+  return [mutateAsync, rest] as const;
+}
+
+export function usePatchHouseholdPreferencesMutation() {
+  const queryClient = useQueryClient();
+  const { mutateAsync, ...rest } = useMutation({
+    mutationFn: updateHouseholdPreferencesMutationFn,
+    onSuccess: (response, variables) => {
+      queryClient.setQueryData(
+        householdKeys.preferences(variables.householdId),
+        response,
+      );
+    },
+    onError: async (error, variables) => {
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
+        await queryClient.invalidateQueries({ queryKey: householdKeys.preferences(variables.householdId) });
+    },
   });
   return [mutateAsync, rest] as const;
 }

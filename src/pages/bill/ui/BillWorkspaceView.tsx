@@ -113,8 +113,10 @@ export function PersonalBillWorkspaceView({ query }: { query: BillQueryState }) 
 }
 
 export function LedgerBillWorkspaceView({
+  onMonthSelect,
   query,
 }: {
+  onMonthSelect: (period: string) => void;
   query: BillQueryState;
 }) {
   const { t } = useTranslation('bill');
@@ -125,7 +127,7 @@ export function LedgerBillWorkspaceView({
       <PageHeader backLabel={t('common:nav.back')} onBack={onBack} title={t('title')} />
       <div className="flex min-h-0 flex-grow flex-col overflow-hidden">
         <BillTabs />
-        <BillWorkspaceContent query={query} />
+        <BillWorkspaceContent onMonthSelect={onMonthSelect} query={query} />
       </div>
       <div className="shrink-0 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
         <WwButton

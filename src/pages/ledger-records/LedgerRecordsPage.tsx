@@ -2,12 +2,13 @@ import type { Ledger } from '@/entities/ledger';
 import type { RecordEntry, RecordOverviewListGroup } from '@/entities/record';
 import dayjs from 'dayjs';
 import { CalendarDays, ReceiptText, Search, Settings, Target } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import {
   LedgerCapability,
   LedgerVisualIcon,
+  patchLedgerPreferencesApi,
   useLedgerPreferencesQuery,
 } from '@/entities/ledger';
 import {
@@ -27,6 +28,7 @@ import { getQueryViewState } from '@/shared/api';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedMonthDay, formatLocalizedYear } from '@/shared/lib';
+import { DesignIcon } from '@/shared/ui';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 
 interface LedgerShortcut {
@@ -70,7 +72,7 @@ const LEDGER_SHORTCUTS: readonly LedgerShortcut[] = [
 ];
 
 function formatAmount(value: number, isHidden: boolean) {
-  return isHidden ? '••••' : value.toFixed(2);
+  return isHidden ? '＊＊＊＊＊' : value.toFixed(2);
 }
 
 function groupRecords(
@@ -144,6 +146,15 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
   const query = useLedgerRecordsQuery({ params: { filters, ledgerId } });
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
   const isAmountHidden = preferenceQuery.data?.hideTotalAmount === true;
+  const handleToggleAmountVisibility = useCallback(() => {
+    const preference = preferenceQuery.data;
+    if (!preference)
+      return;
+    void patchLedgerPreferencesApi(ledgerId, {
+      hideTotalAmount: !preference.hideTotalAmount,
+      version: preference.version,
+    }).then(() => preferenceQuery.refetch());
+  }, [ledgerId, preferenceQuery]);
   const groups = useMemo(
     () => groupRecords(
       query.data.data,
@@ -178,6 +189,12 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
       groups={groups}
       header={{
         actions: <WorkspaceCapsule scope={{ ledgerId, type: 'custom' }} />,
+        amountToggle: preferenceQuery.data
+          ? {
+              content: <DesignIcon name={isAmountHidden ? 'amount-hidden' : 'amount-visible'} size={16} />,
+              onClick: handleToggleAmountVisibility,
+            }
+          : undefined,
         metrics: [
           {
             key: 'income',
@@ -221,14 +238,14 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
         shortcutsTestId: 'ledger-record-shortcuts',
         testId: 'ledger-records-header',
         titleIcon: (
-          <span className="flex h-[18px] w-[18px] flex-none overflow-hidden rounded-full">
-            <LedgerVisualIcon
-              iconKey={ledger.iconKey}
-              kind={ledger.kind}
-              templateKey={ledger.templateKey}
-            />
-          </span>
+          <LedgerVisualIcon
+            className="h-[18px] w-[18px] text-primary-deep"
+            iconKey={ledger.iconKey}
+            kind={ledger.kind}
+            templateKey={ledger.templateKey}
+          />
         ),
+        titleIconContainerClassName: 'rounded-[12px] border border-white/80 bg-white/75 !bg-none text-primary-deep shadow-ww-xs',
         titleAlignment: 'start',
       }}
       onRetry={() => void query.refetch()}

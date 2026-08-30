@@ -70,12 +70,13 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
+          build-args: |
+            VITE_IOS_SHORTCUT_URL=${{ vars.VITE_IOS_SHORTCUT_URL }}
+            APP_VERSION=${{ steps.app_metadata.outputs.version }}
+            APP_BUILD_ID=${{ steps.app_metadata.outputs.build_id }}
           context: .
           file: ./Dockerfile
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            APP_VERSION=${{ steps.app_metadata.outputs.version }}
-            APP_BUILD_ID=${{ steps.app_metadata.outputs.build_id }}

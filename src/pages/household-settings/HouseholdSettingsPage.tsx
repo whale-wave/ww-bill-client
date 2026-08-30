@@ -8,7 +8,9 @@ import {
   HouseholdMemberRole,
   useDissolveHouseholdMutation,
   useHouseholdMembersQuery,
+  useHouseholdPreferencesQuery,
   useMyHouseholdQuery,
+  usePatchHouseholdPreferencesMutation,
   useUpdateHouseholdMutation,
 } from '@/entities/household';
 import { useGetUserUserInfoQuery } from '@/entities/user';
@@ -40,8 +42,12 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
   const membersQuery = useHouseholdMembersQuery({
     params: { householdId: household.id },
   });
+  const preferenceQuery = useHouseholdPreferencesQuery({
+    params: { householdId: household.id },
+  });
   const userQuery = useGetUserUserInfoQuery();
   const [updateHousehold, updateState] = useUpdateHouseholdMutation();
+  const [updatePreferences, updatePreferencesState] = usePatchHouseholdPreferencesMutation();
   const [dissolve, dissolveState] = useDissolveHouseholdMutation();
   const [editor, setEditor] = useState<Editor>(null);
   const [draftMonth, setDraftMonth] = useState<Date>(() => monthStartDate(household.sharedStartMonth));
@@ -116,6 +122,22 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
     }
     finally {
       submittingRef.current = false;
+    }
+  };
+
+  const handleHideTotalAmountChange = async (hideTotalAmount: boolean) => {
+    const preference = preferenceQuery.data;
+    if (!preference)
+      return;
+    try {
+      await updatePreferences({
+        data: { hideTotalAmount, version: preference.version },
+        householdId: household.id,
+      });
+      Toast.show({ content: t('settings.updated'), icon: 'success' });
+    }
+    catch (error) {
+      await handleError(error);
     }
   };
 
@@ -228,16 +250,28 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
           {
             id: 'data',
             title: t('settings.sectionData'),
-            rows: [{
-              description: t('settings.exportDescription'),
-              icon: 'export',
-              id: 'export',
-              kind: 'link',
-              label: t('settings.export'),
-              onClick: () => navigate(
-                ROUTES_PATH.HOUSEHOLD_EXPORT.getPath(household.id),
-              ),
-            }],
+            rows: [
+              {
+                checked: preferenceQuery.data?.hideTotalAmount ?? false,
+                description: t('settings.hideTotalDescription'),
+                disabled: !preferenceQuery.data || updatePreferencesState.isLoading,
+                icon: 'lock',
+                id: 'hide-total',
+                kind: 'switch',
+                label: t('settings.hideTotal'),
+                onChange: handleHideTotalAmountChange,
+              },
+              {
+                description: t('settings.exportDescription'),
+                icon: 'export',
+                id: 'export',
+                kind: 'link',
+                label: t('settings.export'),
+                onClick: () => navigate(
+                  ROUTES_PATH.HOUSEHOLD_EXPORT.getPath(household.id),
+                ),
+              },
+            ],
           },
           {
             id: 'placeholders',

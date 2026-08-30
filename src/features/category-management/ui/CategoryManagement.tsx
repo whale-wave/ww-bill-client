@@ -434,13 +434,15 @@ function CategoryEditorSheet({
 
 export function CategoryManagement({
   canManage,
+  initialType = 'sub',
   ledgerId,
 }: {
   canManage: boolean;
+  initialType?: CategoryAmountType;
   ledgerId: string;
 }) {
   const { t } = useTranslation('ledger');
-  const [type, setType] = useState<CategoryAmountType>('sub');
+  const [type, setType] = useState<CategoryAmountType>(initialType);
   const [showArchived, setShowArchived] = useState(false);
   const query = useLedgerCategoriesQuery({
     params: { ledgerId, status: 'ALL', type },

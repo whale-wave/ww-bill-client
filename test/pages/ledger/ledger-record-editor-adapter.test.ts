@@ -9,6 +9,7 @@ import LedgerRecordDetailPage from '@/pages/ledger-record-detail/LedgerRecordDet
 import LedgerRecordEditPage from '@/pages/ledger-record-edit/LedgerRecordEditPage';
 
 const hooks = vi.hoisted(() => ({
+  archiveTag: vi.fn(),
   createRecord: vi.fn(),
   updateRecord: vi.fn(),
   useLedgerCategoriesQuery: vi.fn(),
@@ -33,6 +34,7 @@ vi.mock('@/entities/ledger', async importOriginal => ({
 }));
 
 vi.mock('@/entities/ledger-data', () => ({
+  useArchiveLedgerTagMutation: () => [hooks.archiveTag, { isLoading: false }],
   useCreateLedgerTagMutation: hooks.useCreateLedgerTagMutation,
   useLedgerTagsQuery: hooks.useLedgerTagsQuery,
 }));
@@ -148,6 +150,7 @@ beforeEach(() => {
     isError: false,
     isLoading: false,
   });
+  hooks.archiveTag.mockResolvedValue({});
   hooks.useCreateLedgerTagMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
   hooks.useLedgerRecordQuery.mockReturnValue(loadedRecordQuery());
 });

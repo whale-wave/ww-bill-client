@@ -3,7 +3,12 @@ import type { RecordEntry } from '@/entities/record';
 import { ErrorBlock, Toast } from 'antd-mobile';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
-import { RecordDetailPresentation, useDeleteRecordMutation, useGetRecordByIdQuery } from '@/entities/record';
+import {
+  readPersonalRecordDetailNavigationState,
+  RecordDetailPresentation,
+  useDeleteRecordMutation,
+  useGetRecordByIdQuery,
+} from '@/entities/record';
 import { RecordAttachmentSection } from '@/entities/record/ui/RecordAttachmentSection';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
@@ -61,9 +66,10 @@ const Editing: FC = () => {
   const { data, isLoading } = useGetRecordByIdQuery({
     params: { id: params.id ?? '' },
   });
-  const [deleteRecordMutate] = useDeleteRecordMutation();
+  const [deleteRecordMutate, deleteState] = useDeleteRecordMutation();
 
   const state = data ?? (isRecordEntry(navParams.state) ? navParams.state : undefined);
+  const personalRecordDetailNavigation = readPersonalRecordDetailNavigationState(navParams.state);
 
   if (!state) {
     if (isLoading) {
@@ -79,7 +85,10 @@ const Editing: FC = () => {
 
   const handleBack = () => {
     playSound.turnPage();
-    if (state.status) {
+    if (personalRecordDetailNavigation) {
+      navigate('/detail', { replace: true });
+    }
+    else if (state.status) {
       navigate('/detail');
     }
     else {
@@ -87,14 +96,11 @@ const Editing: FC = () => {
     }
   };
 
-  const handleShare = () => {
-    navigate('/share', {
-      state: { record: state },
-    });
-  };
-
   const handleEdit = () => {
-    navigate('/bookkeeping', { state, replace: true });
+    navigate('/bookkeeping', {
+      replace: true,
+      state: { ...state, ...personalRecordDetailNavigation },
+    });
   };
 
   const handleDelete = async () => {
@@ -106,10 +112,13 @@ const Editing: FC = () => {
     });
     if (!confirmed)
       return;
-    const res = await deleteRecordMutate({ id: `${state.id}`, version: state.version });
-    if (res.statusCode === 200 && res.message === '删除成功') {
-      Toast.show({ content: res.message });
-      navigate('/detail');
+    try {
+      const res = await deleteRecordMutate({ id: `${state.id}`, version: state.version });
+      Toast.show({ content: res.message || t('common:confirm.deleteSuccess'), icon: 'success' });
+      navigate('/detail', { replace: true });
+    }
+    catch {
+      Toast.show({ content: t('common:api.requestFailed'), icon: 'fail' });
     }
   };
 
@@ -126,10 +135,14 @@ const Editing: FC = () => {
       categoryIcon={<CategoryIcon categoryName={state.category.name} iconKey={state.category.icon} size={36} />}
       footerActions={[
         { label: t('record:detail.edit'), onClick: handleEdit },
-        { label: t('record:detail.delete'), onClick: () => void handleDelete(), tone: 'danger' },
+        {
+          disabled: deleteState.isLoading,
+          label: deleteState.isLoading ? t('common:loading') : t('record:detail.delete'),
+          onClick: () => void handleDelete(),
+          tone: 'danger',
+        },
       ]}
       onBack={handleBack}
-      pinnedAction={{ label: t('record:edit.share'), onClick: handleShare }}
       rows={[
         { label: t('record:edit.type'), value: state.type === 'sub' ? t('record:type.expense') : t('record:type.income') },
         { label: t('record:edit.date'), value: `${timeDate}  ${weekByDay}` },

@@ -1,3 +1,4 @@
+import type { CalculatorState } from './useCalculator';
 import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
 import type { PostRecordApiData, RecordEntry } from '@/entities/record';
 
@@ -5,13 +6,79 @@ export type RecordEditorMode = 'create' | 'edit';
 
 export interface RecordEditorSeed {
   amount?: string;
+  calculator?: CalculatorState;
   category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'>;
+  imageAssetId?: string | null;
+  imagePreviewFile?: File;
+  isTagPickerVisible?: boolean;
+  shouldReconcileTags?: boolean;
   recordType: CategoryAmountType;
   remark?: string;
   tagIds?: string[];
   attachment?: NonNullable<RecordEntry['attachments']>[number];
   hasImage?: boolean;
   time: string;
+}
+
+export interface RecordEditorSettingsNavigationState {
+  draft: RecordEditorSeed;
+  returnMode: 'replace';
+  returnTo: {
+    pathname: string;
+    search: string;
+    state?: unknown;
+  };
+}
+
+export interface RecordEditorSettingsNavigationLocationState {
+  recordEditorSettingsNavigation?: Pick<RecordEditorSettingsNavigationState, 'draft'>;
+}
+
+export function readRecordEditorSettingsNavigationState(value: unknown): RecordEditorSettingsNavigationState | undefined {
+  if (typeof value !== 'object' || value === null || !('recordEditorSettingsNavigation' in value))
+    return undefined;
+  const navigation = value.recordEditorSettingsNavigation;
+  if (typeof navigation !== 'object' || navigation === null || !('draft' in navigation) || !('returnMode' in navigation) || !('returnTo' in navigation))
+    return undefined;
+  if (navigation.returnMode !== 'replace')
+    return undefined;
+  const returnTo = navigation.returnTo;
+  if (typeof returnTo !== 'object' || returnTo === null || !('pathname' in returnTo) || typeof returnTo.pathname !== 'string')
+    return undefined;
+  return navigation as RecordEditorSettingsNavigationState;
+}
+
+/** Removes a previous settings round-trip marker before creating another one. */
+export function omitRecordEditorSettingsNavigationState(value: unknown) {
+  if (typeof value !== 'object' || value === null || !('recordEditorSettingsNavigation' in value))
+    return value;
+  const { recordEditorSettingsNavigation: _navigation, ...rest } = value as Record<string, unknown>;
+  return rest;
+}
+
+export function readRecordEditorSettingsNavigationLocationState(value: unknown): RecordEditorSettingsNavigationLocationState | undefined {
+  if (typeof value !== 'object' || value === null || !('recordEditorSettingsNavigation' in value))
+    return undefined;
+  const navigation = value.recordEditorSettingsNavigation;
+  if (typeof navigation !== 'object' || navigation === null || !('draft' in navigation))
+    return undefined;
+  return value as RecordEditorSettingsNavigationLocationState;
+}
+
+export function createRecordEditorSettingsNavigationState(
+  draft: RecordEditorSeed,
+  returnTo: RecordEditorSettingsNavigationState['returnTo'],
+) {
+  return {
+    recordEditorSettingsNavigation: {
+      draft,
+      returnMode: 'replace' as const,
+      returnTo: {
+        ...returnTo,
+        state: omitRecordEditorSettingsNavigationState(returnTo.state),
+      },
+    },
+  };
 }
 
 export type RecordDraft = Omit<PostRecordApiData, 'imageAssetId'> & { imageAssetId?: string | null };

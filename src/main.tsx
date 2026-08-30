@@ -8,13 +8,10 @@ import { rehydrateAuthStore, useAuthStore } from '@/features/auth';
 import { setAuthDeps } from '@/shared/api/auth-injection';
 import { APP_INFO } from '@/shared/config/app-info';
 import { refreshBeforeAppStart } from '@/shared/config/build-info';
-import { cleanupImageShareCache } from '@/shared/lib';
 import '@/shared/i18n';
 import '@/assets/styles/index.scss';
 
 initResetStyle();
-void cleanupImageShareCache();
-
 if (import.meta.env.DEV) {
   void import('@locator/runtime').then(({ default: setupLocatorUI }) => {
     setupLocatorUI();

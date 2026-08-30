@@ -68,4 +68,15 @@ describe('tag ranking section', () => {
     expect(empty.querySelector('[data-tag-ranking-state="empty"]')).not.toBeNull();
     expect(empty.textContent).toContain('暂无标签统计');
   });
+
+  it('counts records without tags as the untagged ranking when the response is empty', () => {
+    const container = render({
+      data: { items: [], totalAmount: '0.00' },
+      fallbackRecords: [{ amount: '90.00', tags: [] }],
+    });
+
+    expect(container.querySelector('[data-tag-ranking-empty]')).toBeNull();
+    expect(container.textContent).toContain('无标签');
+    expect(container.textContent).toContain('¥90.00');
+  });
 });

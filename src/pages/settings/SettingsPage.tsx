@@ -9,7 +9,6 @@ import { useWorkspaceBack } from '@/features/workspace-navigation';
 import {
   SettingsOverviewPresentation,
 } from '@/features/workspace-settings';
-import { APP_INFO } from '@/shared/config/app-info';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import {
   changeLanguage,
@@ -18,7 +17,7 @@ import {
   useTranslation,
 } from '@/shared/i18n';
 import { clearLocalStorage, getLocalStorageSize } from '@/shared/lib';
-import { audioWeb, playSound } from '@/shared/lib/play-sound';
+import { playSound } from '@/shared/lib/play-sound';
 import { useSeniorMode } from '@/shared/lib/senior-mode';
 import {
   confirmAppAction,
@@ -32,7 +31,6 @@ const Settings: FC = () => {
   const navigate = useNavigate();
   const onBack = useWorkspaceBack({ type: 'personal' });
   const { data: userAppConfig } = useGetUserAppConfigQuery();
-  const canPlay = userAppConfig?.isOpenSoundEffect ?? false;
   const visibleAmountSwitch = userAppConfig?.isDisplayAmountSwitch ?? false;
   const { isSeniorMode, toggleSeniorMode } = useSeniorMode();
   const [patchUserAppConfig] = usePatchUserAppConfigMutation();
@@ -44,22 +42,6 @@ const Settings: FC = () => {
   const goTo = (path: string) => {
     playSound.turnPage();
     navigate(path);
-  };
-
-  const handleSoundSwitch = async (checked: boolean) => {
-    if (checked) {
-      if (audioWeb.hasCache())
-        audioWeb.loadCache();
-      else
-        void audioWeb.download();
-      audioWeb.open();
-    }
-    else {
-      audioWeb.close();
-    }
-    await patchUserAppConfig({ isOpenSoundEffect: checked });
-    setLocalStorageSize(getLocalStorageSize());
-    playSound.click();
   };
 
   const handleSwitchLang = useCallback(() => {
@@ -139,6 +121,14 @@ const Settings: FC = () => {
                     onClick: () => goTo(ROUTES_PATH.CATEGORY_SETTINGS.getPath()),
                   },
                   {
+                    description: t('shortcutBookkeeping.entryDescription'),
+                    icon: 'shortcut',
+                    id: 'shortcut-bookkeeping',
+                    kind: 'link',
+                    label: t('shortcutBookkeeping.title'),
+                    onClick: () => goTo(ROUTES_PATH.SETTINGS_SHORTCUT_BOOKKEEPING.getPath()),
+                  },
+                  {
                     description: t('appLock.description'),
                     icon: 'lock',
                     id: 'app-lock',
@@ -167,12 +157,11 @@ const Settings: FC = () => {
                     value: SUPPORTED_LANGS[currentLang],
                   },
                   {
-                    checked: canPlay,
                     icon: 'record',
-                    id: 'sound',
-                    kind: 'switch',
-                    label: t('sound.effect'),
-                    onChange: checked => void handleSoundSwitch(checked),
+                    id: 'sound-and-haptics',
+                    kind: 'link',
+                    label: t('soundAndHaptics.title'),
+                    onClick: () => goTo(ROUTES_PATH.SETTINGS_SOUND_AND_HAPTICS.getPath()),
                   },
                   {
                     checked: isSeniorMode,
@@ -222,14 +211,6 @@ const Settings: FC = () => {
               {
                 id: 'placeholders',
                 rows: [
-                  {
-                    icon: 'about',
-                    id: 'about',
-                    kind: 'link',
-                    label: t('aboutSupport.title'),
-                    onClick: () => goTo(ROUTES_PATH.SETTINGS_ABOUT.getPath()),
-                    value: t('aboutSupport.version', { version: APP_INFO.version }),
-                  },
                   {
                     icon: 'help',
                     id: 'help',

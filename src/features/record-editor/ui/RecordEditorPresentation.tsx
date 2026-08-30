@@ -3,14 +3,14 @@ import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { CategoryEntity } from '@/entities/category';
 import { Button, DatePicker, ErrorBlock, Popup, SpinLoading } from 'antd-mobile';
-import { Delete as BackspaceIcon, ImagePlus, Tags, X } from 'lucide-react';
+import { Delete as BackspaceIcon, ImagePlus, Settings2, Tags, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CategoryIcon } from '@/entities/category';
 import { getRecordAttachmentContentApi } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
-import { DesignIcon, IllustratedEmptyState } from '@/shared/ui';
+import { confirmDangerousAction, DesignIcon, IllustratedEmptyState } from '@/shared/ui';
 import { KEYPAD_LAYOUT } from '../model/constants';
 
 export type RecordEditorCategoryState = 'error' | 'loading' | 'ready';
@@ -20,9 +20,14 @@ interface RecordEditorPresentationProps {
   categories: CategoryEntity[];
   categoryState: RecordEditorCategoryState;
   controller: RecordEditorController;
+  initialStage?: 'amount' | 'category';
+  onArchiveTag?: (tagId: string) => Promise<void>;
   onCancel: () => void;
+  onManageCategories?: () => void;
+  onManageTags?: () => void;
   onRetryCategories?: () => void;
   onCreateTag?: (name: string) => Promise<{ id: string; name: string }>;
+  remarkHistory?: string[];
   tags?: RecordEditorTag[];
 }
 
@@ -31,17 +36,23 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   canManageTags = false,
   categoryState,
   controller,
+  initialStage,
+  onArchiveTag,
   onCancel,
+  onManageCategories,
+  onManageTags,
   onRetryCategories,
   onCreateTag,
+  remarkHistory = [],
   tags,
 }) => {
   const { t } = useTranslation(['record', 'ledger', 'common']);
+  const { handleReconcileTags, shouldReconcileTags } = controller;
   const imageInputRef = useRef<HTMLInputElement>(null);
   const contentUrlRef = useRef<string>();
   const previewRequestRef = useRef(0);
   const [stage, setStage] = useState<'amount' | 'category'>(
-    controller.selectedCategory ? 'amount' : 'category',
+    initialStage ?? (controller.selectedCategory ? 'amount' : 'category'),
   );
   const [newTagName, setNewTagName] = useState('');
   const [isCreatingTag, setIsCreatingTag] = useState(false);
@@ -49,7 +60,15 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const [contentUrl, setContentUrl] = useState<string>();
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [isImagePreviewLoading, setIsImagePreviewLoading] = useState(false);
+  const hasReconciledTagsRef = useRef(false);
   const attachmentId = controller.initialAttachment?.id;
+
+  useEffect(() => {
+    if (!shouldReconcileTags || tags === undefined || hasReconciledTagsRef.current)
+      return;
+    hasReconciledTagsRef.current = true;
+    handleReconcileTags(tags.map(tag => tag.id));
+  }, [handleReconcileTags, shouldReconcileTags, tags]);
 
   const clearContentUrl = useCallback(() => {
     previewRequestRef.current += 1;
@@ -120,6 +139,20 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
     };
     return labelKeys[type] ? `${value}${t(labelKeys[type]!)}` : value;
   }, [t]);
+  const handleArchiveTag = useCallback(async (tagId: string, name: string) => {
+    if (!onArchiveTag)
+      return;
+    const confirmed = await confirmDangerousAction({
+      cancelText: t('common:nav.cancel'),
+      confirmText: t('ledger:tags.delete'),
+      description: t('ledger:tags.deleteDescription', { name }),
+      title: t('ledger:tags.deleteTitle'),
+    });
+    if (!confirmed)
+      return;
+    await onArchiveTag(tagId);
+    controller.handleRemoveTag(tagId);
+  }, [controller, onArchiveTag, t]);
   const showNumericKeypad = stage === 'amount' && !controller.isNoteFocused;
   const showOperatorControls = Number.parseFloat(controller.calculator.totals) > 0;
 
@@ -223,7 +256,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   />
                 </div>
               )}
-              {categoryState === 'ready' && categories.length > 0 && (
+              {categoryState === 'ready' && (categories.length > 0 || onManageCategories) && (
                 <div className="grid grid-cols-4 gap-[9px]">
                   {categories.map((category, index) => (
                     <button
@@ -253,6 +286,22 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                       <span className="w-full truncate text-[11px] font-semibold leading-[16.5px] text-ww-mid">{category.name}</span>
                     </button>
                   ))}
+                  {onManageCategories && (
+                    <button
+                      aria-label={t('record:bookkeeping.categorySettings')}
+                      className="flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-dashed border-primary/35 bg-primary-light/25 px-1 pb-[10px] pt-[13px] text-primary-deep shadow-ww-xs transition active:scale-95"
+                      data-record-editor-category-settings
+                      onClick={onManageCategories}
+                      type="button"
+                    >
+                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/80">
+                        <Settings2 aria-hidden="true" size={22} strokeWidth={1.9} />
+                      </span>
+                      <span className="w-full truncate text-[11px] font-semibold leading-[16.5px]">
+                        {t('record:bookkeeping.categorySettings')}
+                      </span>
+                    </button>
+                  )}
                 </div>
               )}
             </main>
@@ -308,6 +357,32 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   <ImagePlus size={18} />
                 </button>
               </label>
+              {controller.isNoteFocused && remarkHistory.length > 0 && (
+                <section
+                  aria-label={t('record:bookkeeping.remarkHistory')}
+                  className="mx-[22px] mt-2 max-h-48 shrink-0 overflow-y-auto rounded-[14px] border border-border-primary bg-white/[0.96] p-2 shadow-ww-xs"
+                  data-record-editor-remark-history
+                >
+                  <h2 className="px-2 pb-1 text-[12px] font-semibold leading-5 text-ww-soft">
+                    {t('record:bookkeeping.remarkHistory')}
+                  </h2>
+                  <div className="flex flex-col gap-1">
+                    {remarkHistory.map(remark => (
+                      <button
+                        aria-label={t('record:bookkeeping.selectRemarkHistory', { remark })}
+                        className="min-h-9 truncate rounded-[10px] px-2 text-left text-[14px] leading-5 text-ww-ink active:bg-primary-light"
+                        data-record-editor-remark-history-item={remark}
+                        key={remark}
+                        onClick={() => controller.setRemark(remark)}
+                        onMouseDown={event => event.preventDefault()}
+                        type="button"
+                      >
+                        {remark}
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              )}
               {(controller.imagePreviewUrl || controller.hasInitialImage) && (
                 <div className="mx-[22px] mt-2 flex items-center gap-2 text-xs text-ww-soft" data-record-editor-image>
                   <button
@@ -443,9 +518,43 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         position="bottom"
         visible={controller.isTagPickerVisible}
       >
-        <div className="mb-3 text-center text-base text-font-black">{t('ledger:records.tags')}</div>
+        <div className="mb-3 flex items-center justify-between">
+          <span className="w-10" aria-hidden="true" />
+          <div className="text-center text-base text-font-black">{t('ledger:records.tags')}</div>
+          {onManageTags
+            ? (
+                <button
+                  aria-label="标签设置"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border-0 bg-primary-light/45 text-primary-deep active:bg-primary-light disabled:opacity-45"
+                  disabled={controller.isImageUploading}
+                  onClick={onManageTags}
+                  type="button"
+                >
+                  <Settings2 size={18} strokeWidth={1.9} />
+                </button>
+              )
+            : <span className="w-10" aria-hidden="true" />}
+        </div>
         {controller.selectedTagIds.length > 0 && (
-          <button className="mb-3 text-sm text-primary-deep" onClick={controller.handleClearTag} type="button">清除标签</button>
+          <section className="mb-4 rounded-[18px] border border-primary-light/80 bg-primary-light/25 p-3" data-record-editor-selected-tags>
+            <div className="mb-2 text-[12px] font-extrabold text-primary-deep">已选标签</div>
+            <div className="flex flex-wrap gap-2">
+              {(tags ?? []).filter(tag => controller.selectedTagIds.includes(tag.id)).map(tag => (
+                <span className="inline-flex h-9 items-center gap-1 rounded-full border border-primary/25 bg-white px-2 pl-3 text-[13px] font-bold text-primary-deep shadow-ww-xs" key={tag.id}>
+                  #
+                  {tag.name}
+                  <button
+                    aria-label={`移除标签 ${tag.name}`}
+                    className="ml-0.5 flex h-6 w-6 items-center justify-center rounded-full text-primary-deep transition active:bg-primary-light"
+                    onClick={() => controller.handleRemoveTag(tag.id)}
+                    type="button"
+                  >
+                    <X aria-hidden="true" size={14} strokeWidth={2.4} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          </section>
         )}
         {controller.selectedTagIds.length > 1 && (
           <div className="mb-3 text-sm text-ww-soft">
@@ -457,20 +566,38 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         )}
         <div className="flex flex-wrap gap-2">
           {(tags ?? []).map(tag => (
-            <button
-              aria-pressed={controller.selectedTagIds.includes(tag.id)}
-              className={cn(
-                'min-h-[36px] rounded-full border border-solid px-3 text-sm',
-                controller.selectedTagIds.includes(tag.id)
-                  ? 'border-primary bg-primary text-white'
-                  : 'border-border-primary bg-white text-ww-mid',
+            <div className="inline-flex overflow-hidden rounded-full" key={tag.id}>
+              <button
+                aria-pressed={controller.selectedTagIds.includes(tag.id)}
+                className={cn(
+                  'min-h-[36px] rounded-l-full border border-solid border-r-0 px-3 text-sm',
+                  controller.selectedTagIds.includes(tag.id)
+                    ? 'border-primary bg-primary text-white'
+                    : 'border-border-primary bg-white text-ww-mid',
+                )}
+                onClick={() => controller.handleToggleTag(tag.id)}
+                type="button"
+              >
+                {tag.name}
+              </button>
+              {onArchiveTag && (
+                <button
+                  aria-label={`${t('ledger:tags.delete')} ${tag.name}`}
+                  className={cn(
+                    'flex w-9 items-center justify-center border border-solid border-l border-l-white/35 transition disabled:opacity-45',
+                    controller.selectedTagIds.includes(tag.id)
+                      ? 'border-primary bg-primary text-white active:bg-primary-deep'
+                      : 'border-border-primary bg-white text-[#ad496b] active:bg-[#fff1f6]',
+                  )}
+                  data-record-editor-tag-delete={tag.id}
+                  disabled={controller.isImageUploading}
+                  onClick={() => void handleArchiveTag(tag.id, tag.name)}
+                  type="button"
+                >
+                  <Trash2 aria-hidden="true" size={15} strokeWidth={2} />
+                </button>
               )}
-              key={tag.id}
-              onClick={() => controller.handleToggleTag(tag.id)}
-              type="button"
-            >
-              {tag.name}
-            </button>
+            </div>
           ))}
         </div>
         {canManageTags && onCreateTag && (

@@ -9,6 +9,9 @@ export const ROUTES_PATH = {
   BOOKKEEPING: {
     getPath: () => '/bookkeeping',
   },
+  SHORTCUT_BOOKKEEPING_CONFIRM: {
+    getPath: () => '/bookkeeping/import',
+  },
   BILL: {
     getPath: () => '/bill',
   },
@@ -46,6 +49,9 @@ export const ROUTES_PATH = {
   },
   APP_LOCK_SETTINGS: {
     getPath: () => '/settings/app-lock',
+  },
+  SETTINGS_SOUND_AND_HAPTICS: {
+    getPath: () => '/settings/sound-and-haptics',
   },
   COMMUNITY: {
     getPath: () => '/community',
@@ -115,6 +121,9 @@ export const ROUTES_PATH = {
   HOUSEHOLD_BILL: {
     getPath: (householdId: string) => `/households/${encodeRouteSegment(householdId)}/records/bill`,
   },
+  HOUSEHOLD_MONTH_BILL_DETAIL: {
+    getPath: (householdId: string, month: string) => `/households/${encodeRouteSegment(householdId)}/records/bill/${encodeRouteSegment(month)}`,
+  },
   HOUSEHOLD_CHARTS: {
     getPath: (householdId: string) => `/households/${encodeRouteSegment(householdId)}/charts`,
   },
@@ -179,6 +188,9 @@ export const ROUTES_PATH = {
   },
   LEDGER_BILL: {
     getPath: (ledgerId: string) => `/ledgers/${encodeRouteSegment(ledgerId)}/bill`,
+  },
+  LEDGER_MONTH_BILL_DETAIL: {
+    getPath: (ledgerId: string, month: string) => `/ledgers/${encodeRouteSegment(ledgerId)}/bill/${encodeRouteSegment(month)}`,
   },
   LEDGER_BUDGET: {
     getPath: (ledgerId: string) => `/ledgers/${encodeRouteSegment(ledgerId)}/budget`,
@@ -255,8 +267,8 @@ export const ROUTES_PATH = {
   SETTINGS_ABOUT: {
     getPath: () => '/settings/about',
   },
-  SHARE: {
-    getPath: () => '/share',
+  SETTINGS_SHORTCUT_BOOKKEEPING: {
+    getPath: () => '/settings/shortcut-bookkeeping',
   },
   TOPIC_DETAIL: {
     getPath: (id: string) => `/topic-detail/${id}`,
