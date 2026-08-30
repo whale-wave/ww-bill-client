@@ -250,6 +250,10 @@ const router = createHashRouter([
             lazy: lazyGuardedPage(() => import('@/pages/about-support/AboutSupportPage')),
           },
           {
+            path: 'about/releases',
+            lazy: lazyGuardedPage(() => import('@/pages/app-releases/AndroidReleaseHistoryPage')),
+          },
+          {
             path: 'email',
             children: [
               {

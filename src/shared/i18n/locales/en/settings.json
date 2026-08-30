@@ -107,7 +107,13 @@
     "shareCancelled": "Sharing cancelled",
     "shareFailed": "Unable to share; update link copied",
     "officialHint": "Use the official links on this page to get the app package.",
-    "openFailed": "Unable to open the link. Please try again later."
+    "openFailed": "Unable to open the link. Please try again later.",
+    "releaseHistory": "What's new",
+    "viewReleaseHistory": "View what's new",
+    "latest": "Latest",
+    "releaseLoadFailed": "Unable to load release notes",
+    "releaseEmpty": "No release notes yet",
+    "releaseEmptyHint": "Release notes will appear here when a new version is published."
   },
   "shortcutBookkeeping": {
     "title": "iPhone Shortcut Bookkeeping",

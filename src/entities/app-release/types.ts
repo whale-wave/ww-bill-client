@@ -5,8 +5,14 @@ export interface AndroidReleaseManifest {
   versionName: string;
   downloadUrl: string;
   releaseNotes: string;
+  summary?: string;
+  highlights?: AndroidReleaseHighlight[];
+  publishedAt?: string | null;
   updatedAt: string | null;
 }
+
+export type AndroidReleaseHighlightCategory = 'feature' | 'improvement' | 'fix';
+export interface AndroidReleaseHighlight { category: AndroidReleaseHighlightCategory; text: string }
 
 export interface InstalledAndroidVersion {
   versionCode: number;

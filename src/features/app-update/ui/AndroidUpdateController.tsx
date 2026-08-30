@@ -3,27 +3,27 @@ import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { androidLatestReleaseQueryOptions, getInstalledAndroidVersion, isAndroidUpdateAvailable } from '@/entities/app-release';
 import { useTranslation } from '@/shared/i18n';
 import { openExternalUrl } from '@/shared/lib';
 import { showAppActionSheet } from '@/shared/ui';
 
-const DEDUPE_KEY = 'android-update-reminder';
-const REMINDER_INTERVAL = 24 * 60 * 60 * 1000;
+const DEDUPE_KEY = 'android-update-dismissed-version';
 
-function wasRecentlyReminded(versionCode: number) {
+function wasDismissed(versionCode: number) {
   try {
     const value = JSON.parse(localStorage.getItem(DEDUPE_KEY) ?? 'null') as { versionCode?: number; remindedAt?: number } | null;
-    return value?.versionCode === versionCode && typeof value.remindedAt === 'number' && Date.now() - value.remindedAt < REMINDER_INTERVAL;
+    return value?.versionCode === versionCode;
   }
   catch {
     return false;
   }
 }
 
-function rememberReminder(versionCode: number) {
+function rememberDismissed(versionCode: number) {
   try {
-    localStorage.setItem(DEDUPE_KEY, JSON.stringify({ versionCode, remindedAt: Date.now() }));
+    localStorage.setItem(DEDUPE_KEY, JSON.stringify({ versionCode }));
   }
   catch {
     // Storage is optional; a failed write should not block the update prompt.
@@ -33,6 +33,7 @@ function rememberReminder(versionCode: number) {
 export const AndroidUpdateController: FC = () => {
   const { t } = useTranslation('settings');
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const checkingRef = useRef(false);
   const installedRef = useRef<Awaited<ReturnType<typeof getInstalledAndroidVersion>>>(null);
 
@@ -47,12 +48,28 @@ export const AndroidUpdateController: FC = () => {
         return;
       const response = await queryClient.fetchQuery(androidLatestReleaseQueryOptions(force));
       const latest = response.data;
-      if (!isAndroidUpdateAvailable(installed, latest) || wasRecentlyReminded(latest.versionCode))
+      if (!isAndroidUpdateAvailable(installed, latest) || wasDismissed(latest.versionCode))
         return;
-      rememberReminder(latest.versionCode);
+      const markSeen = () => rememberDismissed(latest.versionCode);
+      markSeen();
       showAppActionSheet({
         actions: [
-          { key: 'update', text: t('aboutSupport.downloadUpdate'), onClick: () => void openExternalUrl(latest.downloadUrl) },
+          {
+            key: 'update',
+            text: t('aboutSupport.downloadUpdate'),
+            onClick: () => {
+              markSeen();
+              void openExternalUrl(latest.downloadUrl);
+            },
+          },
+          {
+            key: 'details',
+            text: t('aboutSupport.viewReleaseHistory'),
+            onClick: () => {
+              markSeen();
+              navigate('/settings/about/releases');
+            },
+          },
           { key: 'later', text: t('aboutSupport.later') },
         ],
         cancelText: t('common:actions.cancel'),
@@ -66,7 +83,7 @@ export const AndroidUpdateController: FC = () => {
     finally {
       checkingRef.current = false;
     }
-  }, [queryClient, t]);
+  }, [navigate, queryClient, t]);
 
   useEffect(() => {
     void check();

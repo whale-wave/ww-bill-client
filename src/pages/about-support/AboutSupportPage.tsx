@@ -10,6 +10,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import androidLogo from '@/assets/brand/android-logo.png';
 import { isAndroidUpdateAvailable, useAndroidLatestReleaseQuery } from '@/entities/app-release';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
@@ -86,6 +87,7 @@ const SupportSection: FC<{ children: ReactNode; title: ReactNode }> = ({ childre
 const AboutSupportPage: FC = () => {
   const { t } = useTranslation('settings');
   const onBack = useWorkspaceBack({ type: 'personal' });
+  const navigate = useNavigate();
   const isAndroid = Capacitor.getPlatform() === 'android';
   const { data: latestRelease, isFetching, isError, refetch } = useAndroidLatestReleaseQuery({ enabled: isAndroid });
   const [installedVersion, setInstalledVersion] = useState<{ versionCode: number; versionName: string } | null>(null);
@@ -159,6 +161,7 @@ const AboutSupportPage: FC = () => {
                     </AppButton>
                   )}
                 </div>
+                <button className="h-10 w-full border-0 bg-transparent text-xs font-extrabold text-primary-deep" onClick={() => navigate('/settings/about/releases')} type="button">{t('aboutSupport.viewReleaseHistory')}</button>
               </div>
             </SupportSection>
           )}

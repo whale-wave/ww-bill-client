@@ -8,3 +8,7 @@ export function getAndroidLatestReleaseApi(): Promise<SuccessResponse<AndroidRel
     timeout: 5000,
   });
 }
+
+export function getAndroidReleasesApi(): Promise<SuccessResponse<AndroidReleaseManifest[]>> {
+  return request.get<unknown, SuccessResponse<AndroidReleaseManifest[]>>('/client/releases/android', { silent: true });
+}
