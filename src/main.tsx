@@ -6,6 +6,8 @@ import { clearHouseholdInvitationCache } from '@/entities/household';
 import { clearLedgerInvitationCache } from '@/entities/ledger';
 import { rehydrateAuthStore, useAuthStore } from '@/features/auth';
 import { setAuthDeps } from '@/shared/api/auth-injection';
+import { APP_INFO } from '@/shared/config/app-info';
+import { refreshBeforeAppStart } from '@/shared/config/build-info';
 import { cleanupImageShareCache } from '@/shared/lib';
 import '@/shared/i18n';
 import '@/assets/styles/index.scss';
@@ -24,6 +26,19 @@ const container = document.getElementById('root')!;
 const root = createRoot(container);
 
 void (async () => {
+  if (import.meta.env.PROD) {
+    try {
+      const refreshed = await refreshBeforeAppStart({
+        currentBuildId: APP_INFO.buildId,
+        location: window.location,
+      });
+      if (refreshed)
+        return;
+    }
+    catch {
+      // Version checks are best-effort. Authentication and bookkeeping must still start offline.
+    }
+  }
   await rehydrateAuthStore();
   setAuthDeps({
     captureRequestAuth: () => {

@@ -3,7 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { Router } from '@/app/router';
-import { AndroidUpdateController } from '@/features/app-update';
+import { AndroidUpdateController, WebUpdateController } from '@/features/app-update';
 import { useAuthStore } from '@/features/auth';
 import { CACHE_MAX_AGE, dehydrateOptions, QUERY_PERSIST_BUSTER } from '@/shared/api/query-client';
 import { QueryRefreshController } from '@/shared/api/query-refresh-controller';
@@ -25,6 +25,7 @@ export const App: FC = () => {
       <QueryClientProvider key={providerKey} client={queryClient}>
         <QueryRefreshController>
           <AndroidUpdateController />
+          <WebUpdateController />
           <SeniorModeProvider>
             {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
             <Router />
@@ -47,6 +48,7 @@ export const App: FC = () => {
     >
       <QueryRefreshController persister={persister}>
         <AndroidUpdateController />
+        <WebUpdateController />
         <SeniorModeProvider>
           {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
           <Router />
