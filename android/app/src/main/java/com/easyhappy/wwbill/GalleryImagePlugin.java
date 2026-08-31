@@ -3,6 +3,8 @@ package com.easyhappy.wwbill;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.ClipData;
+import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -19,6 +21,8 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 
+import androidx.core.content.FileProvider;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -33,7 +37,6 @@ import java.util.Locale;
     }
 )
 public class GalleryImagePlugin extends Plugin {
-    private static final String ALBUM_NAME = "鲸浪账本";
 
     @PluginMethod
     public void saveImageToGallery(PluginCall call) {
@@ -43,6 +46,32 @@ public class GalleryImagePlugin extends Plugin {
             return;
         }
         save(call);
+    }
+
+    @PluginMethod
+    public void shareImage(PluginCall call) {
+        String value = call.getString("uri");
+        if (value == null || value.isEmpty()) {
+            call.reject("Image URI is required", "INVALID_IMAGE_URI");
+            return;
+        }
+
+        try {
+            Uri uri = Uri.parse(value);
+            if (!ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+                call.reject("Image URI must be a content URI", "INVALID_IMAGE_URI");
+                return;
+            }
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("image/png");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+            shareIntent.setClipData(ClipData.newRawUri("bill-image", uri));
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            getActivity().startActivity(Intent.createChooser(shareIntent, "分享账单图片"));
+            call.resolve();
+        } catch (Exception error) {
+            call.reject("Unable to open image share sheet", "IMAGE_SHARE_FAILED", error);
+        }
     }
 
     @PermissionCallback
@@ -83,7 +112,7 @@ public class GalleryImagePlugin extends Plugin {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/" + ALBUM_NAME);
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/Camera");
         values.put(MediaStore.Images.Media.IS_PENDING, 1);
 
         Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
@@ -109,12 +138,12 @@ public class GalleryImagePlugin extends Plugin {
 
     @SuppressWarnings("deprecation")
     private Uri saveLegacy(byte[] bytes, String fileName) throws Exception {
-        File pictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        File album = new File(pictures, ALBUM_NAME);
-        if (!album.exists() && !album.mkdirs()) {
-            throw new IllegalStateException("Unable to create gallery album");
+        File dcim = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        File camera = new File(dcim, "Camera");
+        if (!camera.exists() && !camera.mkdirs()) {
+            throw new IllegalStateException("Unable to create camera directory");
         }
-        File image = new File(album, fileName);
+        File image = new File(camera, fileName);
         try (OutputStream output = new FileOutputStream(image)) {
             output.write(bytes);
         }
@@ -124,7 +153,7 @@ public class GalleryImagePlugin extends Plugin {
             new String[] { "image/png" },
             null
         );
-        return Uri.fromFile(image);
+        return FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", image);
     }
 
     private String uniqueFileName(String requestedName) {
