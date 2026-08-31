@@ -15,7 +15,7 @@ const Mine: FC = () => {
   const navigate = useNavigate();
 
   const { data: userInfo } = useGetUserUserInfoQuery();
-  const [postCheckInMutate] = usePostCheckInMutation();
+  const [postCheckInMutate, { isLoading: isCheckInPending }] = usePostCheckInMutation();
 
   const checkIn = useMemo(() => {
     return !!userInfo?.checkIn;
@@ -34,13 +34,13 @@ const Mine: FC = () => {
     const { checkInAll, checkInKeep, recordCount } = userInfo;
 
     return {
-      checkInAll,
-      checkInKeep,
-      recordCount,
+      checkInAll: checkInAll ?? 0,
+      checkInKeep: checkInKeep ?? 0,
+      recordCount: recordCount ?? 0,
     };
   }, [userInfo]);
 
-  const onCheckIn = useCallback(async () => {
+  const handleCheckIn = useCallback(async () => {
     if (checkIn)
       return;
     await postCheckInMutate();
@@ -101,8 +101,9 @@ const Mine: FC = () => {
           name={userInfo?.name}
           avatar={userInfo?.avatar}
           checkIn={checkIn}
+          isCheckInPending={isCheckInPending}
           numberInfo={numberInfo}
-          onCheckIn={onCheckIn}
+          onCheckIn={handleCheckIn}
           onProfileClick={() => navigate('/user-info')}
         />
 

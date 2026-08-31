@@ -6,10 +6,11 @@ export interface UserSummaryCardProps {
   avatar?: string;
   name?: string;
   checkIn: boolean;
+  isCheckInPending?: boolean;
   numberInfo: {
-    checkInAll: number;
-    checkInKeep: number;
-    recordCount: number;
+    checkInAll?: number | null;
+    checkInKeep?: number | null;
+    recordCount?: number | null;
   };
   onCheckIn: () => void;
   onProfileClick: () => void;
@@ -19,6 +20,7 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
   name,
   avatar,
   checkIn,
+  isCheckInPending = false,
   onCheckIn,
   numberInfo,
   onProfileClick,
@@ -52,7 +54,7 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
             {name && (
               <button
                 className="mt-2 flex h-7 items-center rounded-[9px] bg-[linear-gradient(157.319deg,#6fc2dc_0%,#4aaac4_100%)] px-[13px] py-[5px] text-[12px] font-bold leading-[18px] text-white shadow-[0_4px_6px_rgba(74,170,200,0.36)] disabled:opacity-55"
-                disabled={checkIn}
+                disabled={checkIn || isCheckInPending}
                 onClick={onCheckIn}
                 type="button"
               >
@@ -66,9 +68,9 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
           className="mt-[22px] rounded-[14px] border border-border-primary bg-[rgba(240,248,255,0.8)] px-2 py-[14px]"
           density="hero"
           items={[
-            { key: 'keep', label: t('checkIn.keep'), suffix: t('checkIn.dayUnit'), tone: 'primary', value: numberInfo.checkInKeep },
-            { key: 'all', label: t('checkIn.allDays'), suffix: t('checkIn.dayUnit'), value: numberInfo.checkInAll },
-            { key: 'records', label: t('checkIn.recordCount'), suffix: t('checkIn.recordUnit'), tone: 'expense', value: numberInfo.recordCount },
+            { key: 'keep', label: t('checkIn.keep'), suffix: t('checkIn.dayUnit'), tone: 'primary', value: numberInfo.checkInKeep ?? 0 },
+            { key: 'all', label: t('checkIn.allDays'), suffix: t('checkIn.dayUnit'), value: numberInfo.checkInAll ?? 0 },
+            { key: 'records', label: t('checkIn.recordCount'), suffix: t('checkIn.recordUnit'), tone: 'expense', value: numberInfo.recordCount ?? 0 },
           ]}
         />
       </GradientPanel>
