@@ -1,7 +1,10 @@
 {
   "name": "ww-bill-client",
   "type": "module",
-  "version": "1.0.1",
+  "version": "1.0.5",
+  "appRelease": {
+    "androidVersionCode": 2
+  },
   "private": true,
   "packageManager": "pnpm@10.34.3",
   "engines": {
@@ -18,8 +21,8 @@
     "lint:type": "tsc -b --noEmit",
     "lint:fix": "eslint . --fix",
     "app:sync": "pnpm app:sync:prod",
-    "app:sync:test": "VITE_HOST=\"${VITE_HOST:-http://www.demo.com}\" CAPACITOR_BUILD_ENV=test pnpm build && VITE_HOST=\"${VITE_HOST:-http://www.demo.com}\" CAPACITOR_BUILD_ENV=test pnpm exec cap sync",
-    "app:sync:prod": "VITE_HOST=\"${VITE_HOST:-https://www.demo.com}\" CAPACITOR_BUILD_ENV=production pnpm build && VITE_HOST=\"${VITE_HOST:-https://www.demo.com}\" CAPACITOR_BUILD_ENV=production pnpm exec cap sync",
+    "app:sync:test": "VITE_HOST=\"${VITE_HOST:-http://localhost:3001}\" CAPACITOR_BUILD_ENV=test pnpm build && VITE_HOST=\"${VITE_HOST:-http://localhost:3001}\" CAPACITOR_BUILD_ENV=test pnpm exec cap sync",
+    "app:sync:prod": "VITE_HOST=\"${VITE_HOST:?VITE_HOST is required for a production app build}\" CAPACITOR_BUILD_ENV=production pnpm build && VITE_HOST=\"${VITE_HOST:?VITE_HOST is required for a production app build}\" CAPACITOR_BUILD_ENV=production pnpm exec cap sync",
     "app:build:test": "pnpm app:sync:test && (cd android && ./gradlew assembleDebug)",
     "app:build:prod": "pnpm app:sync:prod && (cd android && ./gradlew assembleRelease)",
     "app:open:android": "pnpm exec cap open android",
@@ -31,10 +34,11 @@
   "dependencies": {
     "@capacitor/android": "8.5.0",
     "@capacitor/app": "8.1.1",
+    "@capacitor/browser": "8.0.1",
     "@capacitor/core": "8.5.0",
     "@capacitor/filesystem": "8.1.3",
+    "@capacitor/haptics": "8.0.1",
     "@capacitor/ios": "8.5.0",
-    "@capacitor/share": "8.0.1",
     "@dnd-kit/core": "6.3.1",
     "@dnd-kit/sortable": "10.0.0",
     "@dnd-kit/utilities": "3.2.2",
