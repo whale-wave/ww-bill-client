@@ -1,23 +1,5 @@
 apply plugin: 'com.android.application'
 
-def packageJson = new groovy.json.JsonSlurper().parse(file('../../package.json'))
-def appVersionName = packageJson.version as String
-def appVersionCode = packageJson.appRelease?.androidVersionCode as Integer
-if (!appVersionName || !appVersionCode || appVersionCode < 1) {
-    throw new GradleException('package.json must define version and appRelease.androidVersionCode')
-}
-
-def releaseSigning = [
-    storeFile: System.getenv('WW_BILL_ANDROID_KEYSTORE_PATH'),
-    storePassword: System.getenv('WW_BILL_ANDROID_KEYSTORE_PASSWORD'),
-    keyAlias: System.getenv('WW_BILL_ANDROID_KEY_ALIAS'),
-    keyPassword: System.getenv('WW_BILL_ANDROID_KEY_PASSWORD'),
-]
-def isReleaseTask = gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }
-if (isReleaseTask && releaseSigning.values().any { !it }) {
-    throw new GradleException('Release builds require WW_BILL_ANDROID_KEYSTORE_PATH, WW_BILL_ANDROID_KEYSTORE_PASSWORD, WW_BILL_ANDROID_KEY_ALIAS and WW_BILL_ANDROID_KEY_PASSWORD')
-}
-
 def generatedAppId = "com.demo.www"
 def capacitorConfigFile = file('src/main/assets/capacitor.config.json')
 if (capacitorConfigFile.exists()) {
@@ -40,8 +22,8 @@ android {
         resValue "string", "custom_url_scheme", generatedAppId
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode appVersionCode
-        versionName appVersionName
+        versionCode 1
+        versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -49,21 +31,10 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
-    signingConfigs {
-        release {
-            if (releaseSigning.storeFile) {
-                storeFile file(releaseSigning.storeFile)
-                storePassword releaseSigning.storePassword
-                keyAlias releaseSigning.keyAlias
-                keyPassword releaseSigning.keyPassword
-            }
-        }
-    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
         }
     }
 }
