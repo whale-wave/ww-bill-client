@@ -111,7 +111,7 @@ describe('toMonthBillDetailModel', () => {
 
 describe('month bill export helpers', () => {
   it('uses a grapheme-safe avatar initial with a portable fallback', () => {
-    expect(getAvatarInitial('  鲸浪账本')).toBe('鲸');
+    expect(getAvatarInitial('  鲸浪记账')).toBe('鲸');
     expect(getAvatarInitial('👨‍👩‍👧‍👦 账本')).toBe('👨‍👩‍👧‍👦');
     expect(getAvatarInitial('')).toBe('?');
   });

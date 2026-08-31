@@ -214,7 +214,7 @@ export default function MonthBillDetailPage() {
       if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId))
         return;
       const blob = await canvasToPngBlob(canvas);
-      const fileName = `鲸浪账本_${snapshot.bill.month}月账单`;
+      const fileName = `鲸浪记账_${snapshot.bill.month}月账单`;
       const result = await saveImageToGallery(blob, fileName);
       if (result.destination === 'gallery')
         setSavedImagePreview({ uri: result.uri, url: URL.createObjectURL(blob) });

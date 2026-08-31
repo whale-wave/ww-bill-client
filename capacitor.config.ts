@@ -18,7 +18,7 @@ if (process.env.CAPACITOR_BUILD_ENV === 'production')
 
 const config: CapacitorConfig = {
   appId: isTestBuild ? testAppId : productionAppId,
-  appName: '鲸浪账本',
+  appName: '鲸浪记账',
   webDir: 'dist',
   ...(isTestBuild
     ? {

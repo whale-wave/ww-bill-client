@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">鲸浪账本</string>
-    <string name="title_activity_main">鲸浪账本</string>
+    <string name="app_name">鲸浪记账</string>
+    <string name="title_activity_main">鲸浪记账</string>
 </resources>

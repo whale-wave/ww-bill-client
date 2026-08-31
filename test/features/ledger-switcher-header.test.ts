@@ -143,7 +143,7 @@ describe('ledger title switcher', () => {
     );
     const title = container.querySelector('[data-testid="ledger-switcher-title"]');
 
-    expect(title?.textContent).toContain('鲸浪账本');
+    expect(title?.textContent).toContain('鲸浪记账');
     expect(title?.classList.contains('existing-title-slot')).toBe(true);
     expect(title?.tagName).toBe('BUTTON');
     expect(title?.querySelector('img')).not.toBeNull();
@@ -175,7 +175,7 @@ describe('ledger title switcher', () => {
     const { container } = renderSwitcher(createElement(LedgerTitleSwitcher));
     const title = container.querySelector('[data-testid="ledger-switcher-title"]');
 
-    expect(title?.textContent).toBe('鲸浪账本');
+    expect(title?.textContent).toBe('鲸浪记账');
     expect(title?.tagName).toBe('SPAN');
     expect(title?.getAttribute('aria-disabled')).toBe('true');
     expect(title?.querySelector('img')).not.toBeNull();
