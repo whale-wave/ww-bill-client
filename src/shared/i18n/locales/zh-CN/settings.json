@@ -107,13 +107,7 @@
     "shareCancelled": "已取消分享",
     "shareFailed": "暂时无法分享，更新地址已复制",
     "officialHint": "建议只通过这里提供的官方地址获取安装包。",
-    "openFailed": "无法打开链接，请稍后重试",
-    "releaseHistory": "更新内容",
-    "viewReleaseHistory": "查看更新内容",
-    "latest": "最新",
-    "releaseLoadFailed": "更新记录加载失败",
-    "releaseEmpty": "暂无更新记录",
-    "releaseEmptyHint": "有新版本发布后，更新内容会显示在这里。"
+    "openFailed": "无法打开链接，请稍后重试"
   },
   "shortcutBookkeeping": {
     "title": "iPhone 快捷记账",
