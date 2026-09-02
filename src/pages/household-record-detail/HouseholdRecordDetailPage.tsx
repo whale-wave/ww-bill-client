@@ -116,12 +116,12 @@ const RecordDetail: FC<{
       onBack={() => navigate(-1)}
       rows={[
         { label: t('recordDetail.type'), value: record.type === 'sub' ? t('recordDetail.expense') : t('recordDetail.income') },
-        { label: t('recordDetail.date'), value: `${timeDate}  ${weekByDay}` },
-        { label: t('recordDetail.remark'), value: record.remark || t('recordDetail.none') },
+        { copyValue: `${timeDate}  ${weekByDay}`, label: t('recordDetail.date'), value: `${timeDate}  ${weekByDay}` },
+        { ...(record.remark ? { copyValue: record.remark } : {}), label: t('recordDetail.remark'), value: record.remark || t('recordDetail.none') },
       ]}
       supplementaryRows={[
         { label: t('recordDetail.member'), value: getDisplayName(record.creator) },
-        ...(tags ? [{ label: t('recordDetail.tags'), value: tags }] : []),
+        ...(tags ? [{ copyValue: tags, label: t('recordDetail.tags'), value: tags }] : []),
         { label: t('recordDetail.counted'), value: record.counted ? t('recordDetail.counted') : t('recordDetail.uncounted') },
         {
           label: t('recordDetail.policy'),

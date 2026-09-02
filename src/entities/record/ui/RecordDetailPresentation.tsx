@@ -1,12 +1,16 @@
 import type { FC, ReactNode } from 'react';
 import type { MemberColorKey } from '@/shared/config/member-colors';
-import { ChevronLeft, ChevronRight, Pencil, Share2, Trash2 } from 'lucide-react';
+import { Toast } from 'antd-mobile';
+import copy from 'copy-to-clipboard';
+import { ChevronLeft, ChevronRight, Copy, Pencil, Share2, Trash2 } from 'lucide-react';
 import { Fragment, useEffect, useRef } from 'react';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
+import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
 import { GradientPanel, Icon } from '@/shared/ui';
 
 export interface RecordDetailRow {
+  copyValue?: string;
   label: string;
   onClick?: () => void;
   testId?: string;
@@ -46,7 +50,7 @@ function displayAmount(amount?: string) {
   return formatAmount(Number(amount));
 }
 
-function DetailRows({ rows }: { rows: readonly RecordDetailRow[] }) {
+function DetailRows({ onCopy, rows }: { onCopy: (value: string) => void; rows: readonly RecordDetailRow[] }) {
   return rows.map(item => (
     <Fragment key={item.label}>
       {item.onClick
@@ -63,16 +67,32 @@ function DetailRows({ rows }: { rows: readonly RecordDetailRow[] }) {
               <ChevronRight className="shrink-0 text-ww-ghost" size={15} />
             </button>
           )
-        : (
-            <div
-              className="flex min-h-[62px] w-full items-center gap-4 border-0 border-b border-solid border-border-primary py-3.5 last:border-b-0"
-              data-record-detail-row
-              data-testid={item.testId}
-            >
-              <span className="w-[72px] shrink-0 text-[12px] font-semibold text-ww-soft">{item.label}</span>
-              <span className="min-w-0 flex-1 break-words text-[13px] font-bold leading-5 text-ww-ink">{item.value}</span>
-            </div>
-          )}
+        : item.copyValue
+          ? (
+              <button
+                aria-label={`Copy ${item.label}`}
+                className="flex min-h-[62px] w-full items-center gap-4 border-0 border-b border-solid border-border-primary bg-transparent py-3.5 text-left last:border-b-0 active:bg-primary-light/20"
+                data-record-detail-copyable
+                data-record-detail-row
+                data-testid={item.testId}
+                onClick={() => onCopy(item.copyValue!)}
+                type="button"
+              >
+                <span className="w-[72px] shrink-0 text-[12px] font-semibold text-ww-soft">{item.label}</span>
+                <span className="min-w-0 flex-1 break-words text-[13px] font-bold leading-5 text-ww-ink">{item.value}</span>
+                <Copy aria-hidden="true" className="shrink-0 text-primary-deep" size={15} strokeWidth={1.9} />
+              </button>
+            )
+          : (
+              <div
+                className="flex min-h-[62px] w-full items-center gap-4 border-0 border-b border-solid border-border-primary py-3.5 last:border-b-0"
+                data-record-detail-row
+                data-testid={item.testId}
+              >
+                <span className="w-[72px] shrink-0 text-[12px] font-semibold text-ww-soft">{item.label}</span>
+                <span className="min-w-0 flex-1 break-words text-[13px] font-bold leading-5 text-ww-ink">{item.value}</span>
+              </div>
+            )}
     </Fragment>
   ));
 }
@@ -92,9 +112,29 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
   supplementaryContent,
   supplementaryRows = [],
 }) => {
+  const { t } = useTranslation('common');
   const amountTone = amountType === 'add' ? 'text-[#16886f]' : 'text-ww-ink';
   const amountSign = amountType === 'add' ? '+' : amountType === 'sub' ? '-' : '';
   const mainRef = useRef<HTMLElement>(null);
+  const amountValue = amount === undefined ? undefined : `${amountSign}¥${displayAmount(amount)}`;
+
+  const handleCopy = async (value: string) => {
+    let copied = false;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+        copied = true;
+      }
+    }
+    catch {
+      copied = false;
+    }
+    copied ||= copy(value);
+    Toast.show({
+      content: t(copied ? 'confirm.copySuccess' : 'api.requestFailed'),
+      icon: copied ? 'success' : 'fail',
+    });
+  };
 
   useEffect(() => {
     mainRef.current?.scrollTo?.({ top: 0 });
@@ -165,24 +205,32 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
 
             {amount !== undefined && (
               <div className="relative mt-6 border-0 border-t border-solid border-white/60 pt-4">
-                <p className={`font-number text-[34px] font-black leading-10 tracking-[-0.8px] ${amountTone}`} data-record-detail-amount>
+                <button
+                  aria-label="Copy amount"
+                  className={`-ml-2 flex items-center rounded-lg border-0 bg-transparent px-2 py-1 font-number text-[34px] font-black leading-10 tracking-[-0.8px] active:bg-white/40 ${amountTone}`}
+                  data-record-detail-amount
+                  data-record-detail-copyable
+                  onClick={() => void handleCopy(amountValue!)}
+                  type="button"
+                >
                   <span className="mr-1 text-[17px] font-extrabold">
                     {amountSign}
                     ¥
                   </span>
                   {displayAmount(amount)}
-                </p>
+                  <Copy aria-hidden="true" className="ml-2 shrink-0" size={16} strokeWidth={1.9} />
+                </button>
               </div>
             )}
           </GradientPanel>
 
           <GradientPanel className="px-4 py-1" data-record-detail-information elevation="standard" surface="glass">
-            <DetailRows rows={rows} />
+            <DetailRows onCopy={value => void handleCopy(value)} rows={rows} />
           </GradientPanel>
 
           {(supplementaryRows.length > 0 || supplementaryContent) && (
             <GradientPanel className="overflow-hidden px-4 py-1" data-record-detail-supplementary elevation="low" surface="glass">
-              <DetailRows rows={supplementaryRows} />
+              <DetailRows onCopy={value => void handleCopy(value)} rows={supplementaryRows} />
               {supplementaryContent}
             </GradientPanel>
           )}

@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { Router } from '@/app/router';
 import { AndroidUpdateController } from '@/features/app-update';
+import { AppearanceProvider } from '@/features/appearance';
 import { useAuthStore } from '@/features/auth';
 import { PresenceReporter } from '@/features/presence';
 import { CACHE_MAX_AGE, dehydrateOptions, QUERY_PERSIST_BUSTER } from '@/shared/api/query-client';
@@ -25,12 +26,14 @@ export const App: FC = () => {
     return (
       <QueryClientProvider key={providerKey} client={queryClient}>
         <QueryRefreshController>
-          <PresenceReporter />
-          <AndroidUpdateController />
-          <SeniorModeProvider>
-            {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
-            <Router />
-          </SeniorModeProvider>
+          <AppearanceProvider>
+            <PresenceReporter />
+            <AndroidUpdateController />
+            <SeniorModeProvider>
+              {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
+              <Router />
+            </SeniorModeProvider>
+          </AppearanceProvider>
         </QueryRefreshController>
       </QueryClientProvider>
     );
@@ -48,12 +51,14 @@ export const App: FC = () => {
       }}
     >
       <QueryRefreshController persister={persister}>
-        <PresenceReporter />
-        <AndroidUpdateController />
-        <SeniorModeProvider>
-          {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
-          <Router />
-        </SeniorModeProvider>
+        <AppearanceProvider>
+          <PresenceReporter />
+          <AndroidUpdateController />
+          <SeniorModeProvider>
+            {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
+            <Router />
+          </SeniorModeProvider>
+        </AppearanceProvider>
       </QueryRefreshController>
     </PersistQueryClientProvider>
   );

@@ -182,7 +182,7 @@ export const SettingsOverviewPresentation: FC<{
             {section.title}
           </h2>
         )}
-        <div className="overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] shadow-ww backdrop-blur-xl">
+        <div className="overflow-hidden rounded-[var(--ww-radius-card)] border border-border-primary bg-ww-surface shadow-ww backdrop-blur-[var(--ww-card-blur)]">
           {section.rows.map((row, index) => (
             <SettingsRow
               isLast={index === section.rows.length - 1}

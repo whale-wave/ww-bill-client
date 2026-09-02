@@ -185,5 +185,28 @@
   "seniorMode": {
     "switch": "Senior Mode",
     "desc": "Enlarge fonts globally for better readability"
+  },
+  "appearance": {
+    "title": "Appearance",
+    "entryDescription": "Choose a visual style and accent color",
+    "introTitle": "Make Whale Wave feel like yours",
+    "introDescription": "Mix visual styles and accent colors freely. Your choice follows your account.",
+    "templateTitle": "Visual style",
+    "accentTitle": "Accent color",
+    "saveFailed": "Unable to save the theme. Your previous setting was restored.",
+    "templates": {
+      "fresh": "Fresh",
+      "freshDescription": "Soft blue and pink, light gradients, and rounded cards.",
+      "minimal": "Minimal",
+      "minimalDescription": "Neutral space and fine borders keep the focus on your records.",
+      "glass": "Glass",
+      "glassDescription": "Translucent layers and a soft glow while amounts stay clear."
+    },
+    "accents": {
+      "sky": "Sky & pink",
+      "coral": "Coral orange",
+      "lavender": "Lavender",
+      "mint": "Mint"
+    }
   }
 }

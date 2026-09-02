@@ -157,6 +157,15 @@ const Settings: FC = () => {
                     value: SUPPORTED_LANGS[currentLang],
                   },
                   {
+                    description: t('appearance.entryDescription'),
+                    icon: 'appearance',
+                    id: 'appearance',
+                    kind: 'link',
+                    label: t('appearance.title'),
+                    onClick: () => goTo(ROUTES_PATH.SETTINGS_APPEARANCE.getPath()),
+                    value: t(`appearance.templates.${userAppConfig?.appearanceTemplate ?? 'fresh'}`),
+                  },
+                  {
                     icon: 'record',
                     id: 'sound-and-haptics',
                     kind: 'link',

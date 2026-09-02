@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { useEffect, useMemo } from 'react';
 import { renderToString } from 'react-dom/server';
 import { cn } from '@/shared/lib';
+import { readAppearanceToken, useAppearanceRevision, withAlpha } from '@/shared/lib/appearance-tokens';
 import { useChart } from '@/shared/lib/use-chart';
 import { useChartOverview } from '../model/chart-overview-context';
 import { TooltipContent } from './TooltipContent';
@@ -11,6 +12,7 @@ import { TooltipContent } from './TooltipContent';
 export const LineChart: FC = () => {
   const { chartDomRef, myChart } = useChart();
   const { currentAmountType, curTab } = useChartOverview();
+  const appearanceRevision = useAppearanceRevision();
 
   const seriesData = useMemo(() => {
     if (!curTab)
@@ -28,6 +30,10 @@ export const LineChart: FC = () => {
   }, [curTab]);
 
   useEffect(() => {
+    const appearanceColors = {
+      accent: readAppearanceToken('--ww-theme-color-mid', '#4aaac4'),
+      text: readAppearanceToken('--ww-theme-text-color', '#263340'),
+    };
     const option: EChartsOption = {
       grid: {
         top: 8,
@@ -50,7 +56,7 @@ export const LineChart: FC = () => {
           'padding: 0 !important',
         ].join(';'),
         textStyle: {
-          color: '#263340',
+          color: appearanceColors.text,
         },
         enterable: true,
         position: (point: any, _params: any, dom: any) => {
@@ -93,7 +99,7 @@ export const LineChart: FC = () => {
       yAxis: {
         type: 'value',
         axisLabel: { show: false },
-        splitLine: { lineStyle: { color: 'rgba(110,194,220,0.13)', type: 'dashed' } },
+        splitLine: { lineStyle: { color: withAlpha(appearanceColors.accent, 0.13), type: 'dashed' } },
         show: true,
       },
       series: [
@@ -105,13 +111,13 @@ export const LineChart: FC = () => {
           itemStyle: {
             color: (params) => {
               const data = params.data as { value: number };
-              return data.value === 0 ? '#fff' : '#4aaac4';
+              return data.value === 0 ? '#fff' : appearanceColors.accent;
             },
-            borderColor: '#4aaac4',
+            borderColor: appearanceColors.accent,
             borderWidth: 2,
           },
           lineStyle: {
-            color: '#4aaac4',
+            color: appearanceColors.accent,
             width: 2,
           },
           areaStyle: {
@@ -122,8 +128,8 @@ export const LineChart: FC = () => {
               x2: 0,
               y2: 1,
               colorStops: [
-                { offset: 0, color: 'rgba(111,194,220,0.35)' },
-                { offset: 1, color: 'rgba(111,194,220,0.02)' },
+                { offset: 0, color: withAlpha(appearanceColors.accent, 0.35) },
+                { offset: 1, color: withAlpha(appearanceColors.accent, 0.02) },
               ],
             },
           },
@@ -132,7 +138,7 @@ export const LineChart: FC = () => {
     };
 
     myChart?.setOption(option);
-  }, [seriesData, xAxisData, myChart, currentAmountType]);
+  }, [appearanceRevision, seriesData, xAxisData, myChart, currentAmountType]);
 
   return (
     <div className={cn('mt-[18px] h-[94px] w-[315px] max-w-full')} ref={chartDomRef} />

@@ -1,14 +1,24 @@
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RecordDetailPresentation } from '@/entities/record';
+
+const mocks = vi.hoisted(() => ({
+  copy: vi.fn(() => true),
+  toastShow: vi.fn(),
+}));
+
+vi.mock('antd-mobile', () => ({ Toast: { show: mocks.toastShow } }));
+vi.mock('copy-to-clipboard', () => ({ default: mocks.copy }));
 
 let cleanup: (() => void) | undefined;
 
 afterEach(() => {
   cleanup?.();
   cleanup = undefined;
+  mocks.copy.mockClear();
+  mocks.toastShow.mockClear();
 });
 
 describe('record detail presentation', () => {
@@ -82,6 +92,29 @@ describe('record detail presentation', () => {
     }));
 
     expect(container.querySelector<HTMLButtonElement>('[data-testid="delete-record"]')?.disabled).toBe(true);
+  });
+
+  it('copies designated detail values while leaving ordinary rows non-interactive', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+    const container = render(createElement(RecordDetailPresentation, {
+      amount: '20.00',
+      backLabel: 'Back',
+      category: { icon: 'bill', name: 'Uncategorised' },
+      onBack: () => undefined,
+      rows: [
+        { copyValue: '2026-09-02 Tuesday', label: 'Date', value: '2026-09-02 Tuesday' },
+        { label: 'Type', value: 'Expense' },
+      ],
+    }));
+
+    const copyable = container.querySelectorAll<HTMLButtonElement>('[data-record-detail-copyable]');
+    expect(copyable).toHaveLength(2);
+    await act(async () => copyable[1]?.click());
+
+    expect(writeText).toHaveBeenCalledWith('2026-09-02 Tuesday');
+    expect(mocks.toastShow).toHaveBeenCalledWith(expect.objectContaining({ icon: 'success' }));
+    expect(container.querySelector('[data-record-detail-row]:not(button)')?.textContent).toContain('Expense');
   });
 });
 

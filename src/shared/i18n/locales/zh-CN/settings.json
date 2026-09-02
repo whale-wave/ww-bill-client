@@ -185,5 +185,28 @@
   "seniorMode": {
     "switch": "老人模式",
     "desc": "开启后将放大全局字体，更适合长辈使用"
+  },
+  "appearance": {
+    "title": "主题外观",
+    "entryDescription": "选择页面风格与主题色",
+    "introTitle": "让鲸浪更像你",
+    "introDescription": "主题色和视觉风格可自由组合，切换后会同步到你的账号。",
+    "templateTitle": "视觉模板",
+    "accentTitle": "主题色",
+    "saveFailed": "主题保存失败，已恢复为上次设置",
+    "templates": {
+      "fresh": "清新",
+      "freshDescription": "保留柔和蓝粉、轻盈渐变与圆润卡片。",
+      "minimal": "极简",
+      "minimalDescription": "中性留白、细描边，专注记录本身。",
+      "glass": "玻璃",
+      "glassDescription": "半透明层次与柔和光感，仍保持金额清晰。"
+    },
+    "accents": {
+      "sky": "蓝粉",
+      "coral": "珊瑚橙",
+      "lavender": "薰衣草紫",
+      "mint": "薄荷绿"
+    }
   }
 }

@@ -133,8 +133,8 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
       onBack={() => navigate(-1)}
       rows={[
         { label: t('record:edit.type'), value: t(`records.type.${record.type}`) },
-        { label: t('records.date'), value: `${timeDate}  ${weekByDay}` },
-        { label: t('records.remark'), value: record.remark },
+        { copyValue: `${timeDate}  ${weekByDay}`, label: t('records.date'), value: `${timeDate}  ${weekByDay}` },
+        { ...(record.remark ? { copyValue: record.remark } : {}), label: t('records.remark'), value: record.remark },
       ]}
       showNavigation={false}
       supplementaryContent={(record.attachments?.length || showFamilyPolicy)
@@ -148,7 +148,7 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
           )
         : undefined}
       supplementaryRows={record.tags?.length
-        ? [{ label: t('records.tags'), value: record.tags.map(tag => `#${tag.name}`).join(' ') }]
+        ? [{ copyValue: record.tags.map(tag => `#${tag.name}`).join(' '), label: t('records.tags'), value: record.tags.map(tag => `#${tag.name}`).join(' ') }]
         : []}
     />
   );

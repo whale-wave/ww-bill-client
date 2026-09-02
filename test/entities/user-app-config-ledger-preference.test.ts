@@ -26,6 +26,8 @@ describe('user app config ledger quick-switch preference', () => {
       .not
       .toHaveProperty('ledgerQuickSwitchVersion');
     expectTypeOf<UserAppConfig>().toHaveProperty('userId');
+    expectTypeOf<UserAppConfig>().toHaveProperty('appearanceTemplate');
+    expectTypeOf<UserAppConfig>().toHaveProperty('appearanceAccent');
     expectTypeOf<UserAppConfig>().not.toHaveProperty('user');
     expectTypeOf<UserAppConfig>().not.toHaveProperty('activeLedgerId');
   });

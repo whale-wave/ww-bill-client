@@ -1,6 +1,12 @@
 import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
 
+export const APPEARANCE_TEMPLATES = ['fresh', 'minimal', 'glass'] as const;
+export type AppearanceTemplate = typeof APPEARANCE_TEMPLATES[number];
+
+export const APPEARANCE_ACCENTS = ['sky', 'coral', 'lavender', 'mint'] as const;
+export type AppearanceAccent = typeof APPEARANCE_ACCENTS[number];
+
 export interface UserAppConfig {
   id: string;
   userId: number;
@@ -11,6 +17,8 @@ export interface UserAppConfig {
   isOpenSoundEffect: boolean;
   isLedgerQuickSwitchEnabled: boolean;
   ledgerQuickSwitchVersion: number;
+  appearanceTemplate: AppearanceTemplate;
+  appearanceAccent: AppearanceAccent;
 }
 
 export function getUserAppConfigApi() {

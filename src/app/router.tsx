@@ -242,6 +242,10 @@ const router = createHashRouter([
             lazy: lazyGuardedPage(() => import('@/pages/sound-and-haptics/SoundAndHapticsPage')),
           },
           {
+            path: 'appearance',
+            lazy: lazyGuardedPage(() => import('@/pages/appearance-settings/AppearanceSettingsPage')),
+          },
+          {
             path: 'shortcut-bookkeeping',
             lazy: lazyGuardedPage(() => import('@/pages/shortcut-bookkeeping-settings/ShortcutBookkeepingSettingsPage')),
           },

@@ -47,7 +47,7 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
 }) => (
   <nav
     aria-label={ariaLabel}
-    className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar fixed bottom-[calc(12px+env(safe-area-inset-bottom))] left-[14px] right-[14px] z-[100] flex h-[66px] items-center justify-evenly rounded-[33px] border border-border-primary bg-white/[0.84] px-[5px] text-ww-ghost shadow-ww-floating backdrop-blur-xl"
+    className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar fixed bottom-[calc(12px+env(safe-area-inset-bottom))] left-[14px] right-[14px] z-[100] flex h-[66px] items-center justify-evenly rounded-[33px] border border-border-primary bg-ww-surface px-[5px] text-ww-ghost shadow-ww-floating backdrop-blur-[var(--ww-card-blur)]"
     role="tablist"
   >
     {items.map((item) => {
@@ -81,7 +81,7 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
             className={cn(
               'ww-tab-bar__button-icon tab-icon flex h-[19px] w-[19px] items-center justify-center text-[19px] transition-transform',
               item.prominent
-              && 'ww-tab-bar__create-icon absolute bottom-[13px] h-[52px] w-[52px] rounded-[26px] bg-[linear-gradient(145deg,#6fc2dc_6.1733%,#4aaac4_93.827%)] text-[22px] text-white shadow-[0_6px_10px_rgba(74,170,200,0.45)]',
+              && 'ww-tab-bar__create-icon absolute bottom-[13px] h-[52px] w-[52px] rounded-[26px] bg-[linear-gradient(145deg,var(--ww-theme-color)_6.1733%,var(--ww-theme-color-mid)_93.827%)] text-[22px] text-white shadow-ww-xs',
             )}
           >
             {isActive ? item.activeIcon ?? item.icon : item.icon}

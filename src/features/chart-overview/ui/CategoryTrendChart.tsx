@@ -1,6 +1,7 @@
 import type { EChartsOption } from 'echarts';
 import type { FC } from 'react';
 import { useEffect, useMemo } from 'react';
+import { readAppearanceToken, useAppearanceRevision, withAlpha } from '@/shared/lib/appearance-tokens';
 import { useChart } from '@/shared/lib/use-chart';
 
 export interface CategoryTrendRecord {
@@ -10,6 +11,8 @@ export interface CategoryTrendRecord {
 
 export const CategoryTrendChart: FC<{ records: CategoryTrendRecord[] }> = ({ records }) => {
   const { chartDomRef, myChart } = useChart({ preventTouchMove: false });
+  useAppearanceRevision();
+  const accent = readAppearanceToken('--ww-theme-color-mid', '#4aaac4');
   const points = useMemo(() => {
     const amounts = new Map<string, number>();
     records.forEach((record) => {
@@ -30,12 +33,12 @@ export const CategoryTrendChart: FC<{ records: CategoryTrendRecord[] }> = ({ rec
         data: points.map(([date]) => date),
         type: 'category',
       },
-      yAxis: { axisLabel: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: 'rgba(110,194,220,0.13)', type: 'dashed' } }, type: 'value' },
+      yAxis: { axisLabel: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: withAlpha(accent, 0.13), type: 'dashed' } }, type: 'value' },
       series: [{
-        areaStyle: { color: 'rgba(111,194,220,0.14)' },
+        areaStyle: { color: withAlpha(accent, 0.14) },
         data: points.map(([, amount]) => amount),
-        itemStyle: { color: '#4aaac4' },
-        lineStyle: { color: '#4aaac4', width: 2 },
+        itemStyle: { color: accent },
+        lineStyle: { color: accent, width: 2 },
         showSymbol: points.length <= 12,
         smooth: true,
         symbol: 'circle',
@@ -45,7 +48,7 @@ export const CategoryTrendChart: FC<{ records: CategoryTrendRecord[] }> = ({ rec
     };
     myChart?.setOption(lineOption, { notMerge: true });
     myChart?.resize();
-  }, [myChart, points]);
+  }, [accent, myChart, points]);
 
   return (
     <div

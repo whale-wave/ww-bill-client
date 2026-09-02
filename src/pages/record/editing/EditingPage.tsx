@@ -145,14 +145,14 @@ const Editing: FC = () => {
       onBack={handleBack}
       rows={[
         { label: t('record:edit.type'), value: state.type === 'sub' ? t('record:type.expense') : t('record:type.income') },
-        { label: t('record:edit.date'), value: `${timeDate}  ${weekByDay}` },
-        { label: t('record:edit.remark'), value: state.remark },
+        { copyValue: `${timeDate}  ${weekByDay}`, label: t('record:edit.date'), value: `${timeDate}  ${weekByDay}` },
+        { ...(state.remark ? { copyValue: state.remark } : {}), label: t('record:edit.remark'), value: state.remark },
       ]}
       supplementaryContent={state.attachments?.length
         ? <RecordAttachmentSection attachments={state.attachments} />
         : undefined}
       supplementaryRows={state.tags?.length
-        ? [{ label: '标签', value: state.tags.map(tag => `#${tag.name}`).join(' ') }]
+        ? [{ copyValue: state.tags.map(tag => `#${tag.name}`).join(' '), label: '标签', value: state.tags.map(tag => `#${tag.name}`).join(' ') }]
         : []}
     />
   );

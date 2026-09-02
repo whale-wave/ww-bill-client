@@ -53,6 +53,9 @@ export const ROUTES_PATH = {
   SETTINGS_SOUND_AND_HAPTICS: {
     getPath: () => '/settings/sound-and-haptics',
   },
+  SETTINGS_APPEARANCE: {
+    getPath: () => '/settings/appearance',
+  },
   COMMUNITY: {
     getPath: () => '/community',
   },

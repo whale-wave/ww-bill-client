@@ -3,21 +3,22 @@ import type { FC } from 'react';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, getDonutAmountSize } from '@/shared/lib';
+import { readAppearanceChartColors, useAppearanceRevision } from '@/shared/lib/appearance-tokens';
 import { useChart } from '@/shared/lib/use-chart';
 import { DonutChart } from '@/shared/ui';
 import { useChartOverview } from '../model/chart-overview-context';
-
-const COLORS = ['#6fc2dc', '#f0a0b8', '#a996dc', '#79c6a8', '#efbc70'];
 
 export const PieChart: FC = () => {
   const { chartDomRef, myChart } = useChart();
   const { t } = useTranslation('chart');
   const { curTab } = useChartOverview();
+  useAppearanceRevision();
+  const colors = readAppearanceChartColors();
   const segments = useMemo(() => {
     const ranking = curTab?.ranking ?? [];
     const visible = ranking.slice(0, 4).map((item, index) => ({
       amount: Number(String(item.amount).replace(/[¥,]/g, '')),
-      color: COLORS[index],
+      color: colors[index],
       name: item.category.name,
       percentage: item.percentage,
     }));
@@ -26,11 +27,11 @@ export const PieChart: FC = () => {
     const other = ranking.slice(4);
     return [...visible, {
       amount: other.reduce((sum, item) => sum + Number(String(item.amount).replace(/[¥,]/g, '')), 0),
-      color: COLORS[4],
+      color: colors[4],
       name: t('other'),
       percentage: other.reduce((sum, item) => sum + Number(item.percentage), 0).toFixed(1),
     }];
-  }, [curTab?.ranking, t]);
+  }, [colors, curTab?.ranking, t]);
   const data = useMemo(() => segments.map(segment => ({
     itemStyle: { color: segment.color },
     name: segment.name,
@@ -41,7 +42,7 @@ export const PieChart: FC = () => {
 
   useEffect(() => {
     const option: EChartsOption = {
-      color: ['#6fc2dc', '#f0a0b8', '#a996dc', '#79c6a8', '#efbc70'],
+      color: colors,
       series: [{
         data,
         emphasis: { scaleSize: 4 },
@@ -53,7 +54,7 @@ export const PieChart: FC = () => {
       tooltip: { trigger: 'item' },
     };
     myChart?.setOption(option, { notMerge: true });
-  }, [data, formattedAmount, myChart, t]);
+  }, [colors, data, formattedAmount, myChart, t]);
 
   return (
     <DonutChart

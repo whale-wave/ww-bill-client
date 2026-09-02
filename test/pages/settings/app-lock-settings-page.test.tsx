@@ -22,6 +22,8 @@ const mocks = vi.hoisted(() => ({
     isLedgerQuickSwitchEnabled: false,
     isOpenSoundEffect: false,
     ledgerQuickSwitchVersion: 1,
+    appearanceTemplate: 'fresh' as const,
+    appearanceAccent: 'sky' as const,
     userId: 7,
   },
   createCredential: vi.fn(async () => ({
