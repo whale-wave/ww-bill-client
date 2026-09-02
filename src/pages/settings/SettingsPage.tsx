@@ -163,7 +163,7 @@ const Settings: FC = () => {
                     kind: 'link',
                     label: t('appearance.title'),
                     onClick: () => goTo(ROUTES_PATH.SETTINGS_APPEARANCE.getPath()),
-                    value: t(`appearance.templates.${userAppConfig?.appearanceTemplate ?? 'fresh'}`),
+                    value: t(`appearance.templates.${userAppConfig?.appearanceTemplate ?? 'glass'}`),
                   },
                   {
                     icon: 'record',

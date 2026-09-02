@@ -74,7 +74,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
         <div className="flex h-8 min-w-0 items-center gap-2" data-record-overview-title-row>
           {titleIcon && (
             <span className={cn(
-              'flex h-8 w-8 shrink-0 items-center justify-center rounded-[16px] bg-[linear-gradient(145deg,#6fc2dc_6.1733%,#4aaac4_93.827%)]',
+              'ww-overview-title-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-[16px]',
               titleIconContainerClassName,
             )}
             >
@@ -83,7 +83,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
           )}
           {renderTitle(titleClassName)}
         </div>
-        {actions && <div className="flex shrink-0 items-center gap-[10px] [&>button]:flex [&>button]:h-9 [&>button]:w-9 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:border [&>button]:border-solid [&>button]:border-border-primary [&>button]:bg-white/[0.85] [&>button]:text-primary-deep [&>button]:shadow-ww-xs">{actions}</div>}
+        {actions && <div className="ww-overview-header-actions flex shrink-0 items-center gap-[10px] [&>button]:flex [&>button]:h-9 [&>button]:w-9 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:border [&>button]:border-solid">{actions}</div>}
       </div>
       <div className="px-[18px] pb-4">
         <GradientPanel
@@ -121,7 +121,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
               <button
                 aria-label="toggle amount visibility"
                 className={cn(
-                  'mt-[14px] flex h-8 w-8 shrink-0 items-center justify-center rounded-[16px] border border-[rgba(100,160,200,0.2)] bg-white/[0.55] text-primary-deep',
+                  'ww-overview-amount-toggle mt-[14px] flex h-8 w-8 shrink-0 items-center justify-center rounded-[16px] border',
                   amountToggle.disabled && 'opacity-45',
                 )}
                 disabled={amountToggle.disabled}

@@ -25,9 +25,9 @@ export const CurrentBudgetSummaryCardPresentation: FC<CurrentBudgetSummaryCardPr
   const percentage = Math.max(0, Math.min(100, Number(data?.remainingPercentage ?? 0)));
 
   return (
-    <GradientPanel as="article" className="cursor-pointer overflow-hidden px-5 py-[18px] shadow-[0_6px_11px_rgba(200,80,140,0.12)]" elevation="none" onClick={onClick} surface="blush">
+    <GradientPanel as="article" className="ww-current-budget-card cursor-pointer overflow-hidden px-5 py-[18px]" elevation="none" onClick={onClick} surface="blush">
       <div className="flex items-center gap-[10px]">
-        <span className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-white/70 text-[#d06080]">
+        <span className="ww-current-budget-icon flex h-[38px] w-[38px] items-center justify-center rounded-full">
           <DesignIcon name="discovery-budget" size={18} />
         </span>
         <div className="truncate text-[14px] font-bold leading-[21px] text-ww-ink">{title}</div>

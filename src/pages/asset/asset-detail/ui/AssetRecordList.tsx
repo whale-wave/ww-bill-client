@@ -133,7 +133,7 @@ export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
         <div className="space-y-3">
           {groups.map(group => (
             <GradientPanel className="overflow-hidden" elevation="low" key={group.key} surface="glass">
-              <header className="border-0 border-b border-solid border-border-primary bg-[linear-gradient(90deg,rgba(226,246,255,0.72),rgba(255,242,247,0.35))] px-4 py-2.5 text-[10px] font-extrabold text-ww-mid">
+              <header className="ww-asset-group-header border-0 border-b border-solid border-border-primary px-4 py-2.5 text-[10px] font-extrabold text-ww-mid">
                 {group.date}
               </header>
               <div>

@@ -2,8 +2,8 @@ import type { EChartsOption } from 'echarts';
 import type { TitleOption } from 'echarts/types/dist/shared';
 import type { FC } from 'react';
 import { memo, useLayoutEffect } from 'react';
-import { THEME_COLOR } from '@/assets/styles/reset';
 import { i18n } from '@/shared/i18n';
+import { readAppearanceToken, useAppearanceRevision } from '@/shared/lib/appearance-tokens';
 import { useChart } from '@/shared/lib/use-chart';
 
 interface RingChartProps {
@@ -13,6 +13,7 @@ interface RingChartProps {
 
 export const RingChart: FC<RingChartProps> = memo(({ percentage, isSummaryBudget }) => {
   const { chartDomRef, myChart } = useChart();
+  const appearanceRevision = useAppearanceRevision();
 
   useLayoutEffect(() => {
     if (percentage === undefined || percentage === null || percentage === '')
@@ -63,7 +64,7 @@ export const RingChart: FC<RingChartProps> = memo(({ percentage, isSummaryBudget
           data: [
             {
               value: percentageValue,
-              itemStyle: { color: THEME_COLOR },
+              itemStyle: { color: readAppearanceToken('--ww-theme-color', '#4aaac4') },
             },
             {
               value: remainingPercentageValue,
@@ -75,7 +76,7 @@ export const RingChart: FC<RingChartProps> = memo(({ percentage, isSummaryBudget
     };
 
     myChart?.setOption(option);
-  }, [myChart, percentage, isSummaryBudget]);
+  }, [appearanceRevision, myChart, percentage, isSummaryBudget]);
 
   return (
     <div className="flex justify-start items-center w-[100px] h-[100px]">

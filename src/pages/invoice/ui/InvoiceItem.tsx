@@ -24,7 +24,7 @@ const InvoiceItem: React.FC<InvoiceItemProps> = memo((props) => {
       onClick={onClick}
       type="button"
     >
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[linear-gradient(145deg,#c8eaf6,#e8f6ff)] text-primary-deep shadow-ww-xs">
+      <span className="ww-theme-icon-surface flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] text-primary-deep shadow-ww-xs">
         <Building2 size={23} strokeWidth={1.7} />
       </span>
       <span className="min-w-0 flex-1">

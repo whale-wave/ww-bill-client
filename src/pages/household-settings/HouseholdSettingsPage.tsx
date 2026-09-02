@@ -351,7 +351,7 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
               value={draftMonth}
               visible={monthPickerVisible}
             />
-            <Button block className="mt-5 bg-[linear-gradient(135deg,#50bfd8,#14afc5)] text-white shadow-[0_8px_18px_rgba(20,175,197,0.25)]" loading={updateState.isLoading} type="submit">
+            <Button block className="ww-theme-primary-action mt-5" loading={updateState.isLoading} type="submit">
               {t('common.save')}
             </Button>
           </form>

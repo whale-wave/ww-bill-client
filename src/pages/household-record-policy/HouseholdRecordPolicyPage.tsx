@@ -118,7 +118,7 @@ const PolicyContent: FC<{ household: Household; recordId: number }> = ({ househo
       <div className="sticky bottom-0 -mx-[18px] mt-6 border-t border-solid border-white/70 bg-white/75 px-[18px] pb-[max(18px,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
         <Button
           block
-          className="h-[52px] border-0 bg-[linear-gradient(135deg,#50bfd8,#14afc5)] text-[14px] font-black text-white shadow-[0_8px_18px_rgba(20,175,197,0.25)]"
+          className="ww-theme-primary-action h-[52px] border-0 text-[14px] font-black"
           data-testid="household-policy-save"
           loading={mutation.isLoading}
           onClick={() => void handleSave()}

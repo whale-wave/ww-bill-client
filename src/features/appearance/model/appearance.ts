@@ -1,13 +1,12 @@
-import type { AppearanceAccent, AppearanceTemplate, UserAppConfig } from '@/entities/user-app-config';
-import { APPEARANCE_ACCENTS, APPEARANCE_TEMPLATES } from '@/entities/user-app-config';
+import type { AppearanceTemplate, UserAppConfig } from '@/entities/user-app-config';
+import { APPEARANCE_TEMPLATES } from '@/entities/user-app-config';
 import { APPEARANCE_CHANGE_EVENT } from '@/shared/lib/appearance-tokens';
 
 export interface AppearancePreference {
-  accent: AppearanceAccent;
   template: AppearanceTemplate;
 }
 
-export const DEFAULT_APPEARANCE: AppearancePreference = { accent: 'sky', template: 'glass' };
+export const DEFAULT_APPEARANCE: AppearancePreference = { template: 'glass' };
 
 export const appearanceTemplateOptions: Array<{
   descriptionKey: string;
@@ -19,16 +18,8 @@ export const appearanceTemplateOptions: Array<{
   { descriptionKey: 'appearance.templates.minimalDescription', labelKey: 'appearance.templates.minimal', value: 'minimal' },
 ];
 
-export const appearanceAccentOptions: Array<{ labelKey: string; value: AppearanceAccent }> = [
-  { labelKey: 'appearance.accents.sky', value: 'sky' },
-  { labelKey: 'appearance.accents.coral', value: 'coral' },
-  { labelKey: 'appearance.accents.lavender', value: 'lavender' },
-  { labelKey: 'appearance.accents.mint', value: 'mint' },
-];
-
-export function readAppearancePreference(config?: Pick<UserAppConfig, 'appearanceAccent' | 'appearanceTemplate'>): AppearancePreference {
+export function readAppearancePreference(config?: Pick<UserAppConfig, 'appearanceTemplate'>): AppearancePreference {
   return {
-    accent: config?.appearanceAccent ?? DEFAULT_APPEARANCE.accent,
     template: config?.appearanceTemplate ?? DEFAULT_APPEARANCE.template,
   };
 }
@@ -36,7 +27,7 @@ export function readAppearancePreference(config?: Pick<UserAppConfig, 'appearanc
 export function applyAppearancePreference(preference: AppearancePreference): void {
   if (typeof document === 'undefined')
     return;
-  document.documentElement.dataset.appearanceAccent = preference.accent;
+  delete document.documentElement.dataset.appearanceAccent;
   document.documentElement.dataset.appearanceTemplate = preference.template;
   document.dispatchEvent(new Event(APPEARANCE_CHANGE_EVENT));
 }
@@ -47,8 +38,4 @@ export function resetAppearancePreference(): void {
 
 export function isAppearanceTemplate(value: string): value is AppearanceTemplate {
   return APPEARANCE_TEMPLATES.includes(value as AppearanceTemplate);
-}
-
-export function isAppearanceAccent(value: string): value is AppearanceAccent {
-  return APPEARANCE_ACCENTS.includes(value as AppearanceAccent);
 }

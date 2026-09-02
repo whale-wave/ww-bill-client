@@ -15,7 +15,7 @@ export const AddAssetAccountButton: FC = () => {
 
   return (
     <button
-      className="flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border-0 bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] text-[15px] font-bold text-white shadow-ww active:opacity-85"
+      className="ww-theme-primary-action flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border-0 text-[15px] font-bold active:opacity-85"
       data-testid="asset-add-account"
       onClick={handleAddAssetAccount}
       type="button"

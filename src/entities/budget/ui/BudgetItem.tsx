@@ -30,14 +30,14 @@ export interface BudgetItemProps {
   onClick?: () => void;
 }
 
-const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = BudgetEntityLevel.SUMMARY, className, data, index = 0, editable = true, onClick }) => {
+const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = BudgetEntityLevel.SUMMARY, className, data, editable = true, onClick }) => {
   const { t } = useTranslation('budget');
   const isSummaryBudget = type === BudgetEntityLevel.SUMMARY;
 
   return (
     <div
       className={classNames('relative flex flex-shrink-0 flex-col rounded-[20px] border border-solid border-border-primary p-4', className, {
-        'bg-[linear-gradient(155deg,rgba(212,240,250,0.96),rgba(255,255,255,0.92)_52%,rgba(241,232,255,0.82))] shadow-ww': isSummaryBudget,
+        'ww-budget-summary-item shadow-ww': isSummaryBudget,
         'bg-white/85 shadow-ww-xs backdrop-blur-xl': !isSummaryBudget,
       })}
       data-budget-id={data.id}
@@ -57,13 +57,7 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
                 <div className="flex items-center gap-2.5">
                   <span className={classNames(
                     'flex h-11 w-11 items-center justify-center rounded-full',
-                    index % 4 === 1
-                      ? 'bg-[#fff0f5] text-[#cf7894]'
-                      : index % 4 === 2
-                        ? 'bg-[#f1ecff] text-[#8d78c7]'
-                        : index % 4 === 3
-                          ? 'bg-[#e7f7f0] text-[#4d9d82]'
-                          : 'bg-[#e4f5fa] text-primary-deep',
+                    'ww-budget-category-icon',
                   )}
                   >
                     <CategoryIcon

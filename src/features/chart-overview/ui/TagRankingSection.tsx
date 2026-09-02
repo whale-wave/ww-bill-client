@@ -1,9 +1,8 @@
 import type { FC, ReactNode } from 'react';
 import type { TagRankingResponse } from '@/entities/chart';
 import { getDonutAmountSize } from '@/shared/lib';
+import { readAppearanceChartColors, useAppearanceRevision } from '@/shared/lib/appearance-tokens';
 import { DonutChart } from '@/shared/ui';
-
-const COLORS = ['#7c78f6', '#19bf8b', '#70b5c9', '#f5ab57', '#e7799d', '#6e9fdb'];
 
 interface TagRankingFallbackRecord {
   amount: number | string;
@@ -37,34 +36,42 @@ function getPercentage(item: TagRankingResponse['items'][number], total: number)
 }
 
 const TagDonut: FC<{ data: TagRankingResponse }> = ({ data }) => {
+  const appearanceRevision = useAppearanceRevision();
+  const colors = readAppearanceChartColors();
+  void appearanceRevision;
   const percentageTotal = data.items.reduce((sum, item) => sum + item.percentage, 0);
   let position = 0;
   const segments = data.items.map((item, index) => {
     const start = position;
     position += getPercentage(item, percentageTotal);
     const end = index === data.items.length - 1 ? 100 : position;
-    return `${COLORS[index % COLORS.length]} ${start}% ${end}%`;
+    return `${colors[index % colors.length]} ${start}% ${end}%`;
   });
   return <div aria-label="标签金额占比" className="h-full w-full rounded-full" style={{ background: `conic-gradient(${segments.join(', ')})` }} />;
 };
 
-const TagLegend: FC<{ data: TagRankingResponse }> = ({ data }) => (
-  <div className="min-w-0 flex-1 space-y-2">
-    {data.items.slice(0, 4).map((item, index) => (
-      <div className="flex min-w-0 items-center gap-1.5 text-[12px] leading-4 text-ww-soft" key={item.key}>
-        <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-        <span className="min-w-0 flex-1 truncate">
-          #
-          {item.name}
-        </span>
-        <span className="shrink-0 font-number">
-          {item.percentage}
-          %
-        </span>
-      </div>
-    ))}
-  </div>
-);
+const TagLegend: FC<{ data: TagRankingResponse }> = ({ data }) => {
+  const appearanceRevision = useAppearanceRevision();
+  const colors = readAppearanceChartColors();
+  void appearanceRevision;
+  return (
+    <div className="min-w-0 flex-1 space-y-2">
+      {data.items.slice(0, 4).map((item, index) => (
+        <div className="flex min-w-0 items-center gap-1.5 text-[12px] leading-4 text-ww-soft" key={item.key}>
+          <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: colors[index % colors.length] }} />
+          <span className="min-w-0 flex-1 truncate">
+            #
+            {item.name}
+          </span>
+          <span className="shrink-0 font-number">
+            {item.percentage}
+            %
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const TagRankingSkeleton: FC = () => (
   <div aria-label="正在加载标签排行" className="space-y-3" data-tag-ranking-loading role="status">
@@ -108,6 +115,9 @@ export const TagRankingSection: FC<{
   isError?: boolean;
   isLoading?: boolean;
 }> = ({ data, fallbackRecords, isError, isLoading }) => {
+  const appearanceRevision = useAppearanceRevision();
+  const colors = readAppearanceChartColors();
+  void appearanceRevision;
   if (isLoading)
     return <TagRankingState testId="loading"><TagRankingSkeleton /></TagRankingState>;
   if (isError)
@@ -134,7 +144,7 @@ export const TagRankingSection: FC<{
           {ranking.items.map((item, index) => (
             <div className="border-t border-border-primary py-3" key={item.key}>
               <div className="flex items-center gap-3">
-                <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: colors[index % colors.length] }} />
                 <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-ww-ink">
                   #
                   {item.name}

@@ -13,7 +13,7 @@ const AddInvoiceButton: React.FC<AddInvoiceButtonProps> = () => {
   return (
     <footer className="relative z-20 shrink-0 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
       <button
-        className="mx-auto flex h-[50px] w-full max-w-[520px] items-center justify-center gap-2 rounded-[17px] border-0 bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] text-[14px] font-extrabold text-white shadow-ww"
+        className="ww-theme-primary-action mx-auto flex h-[50px] w-full max-w-[520px] items-center justify-center gap-2 rounded-[17px] border-0 text-[14px] font-extrabold"
         data-testid="invoice-create-action"
         onClick={() => navigate('/invoice/create')}
         type="button"

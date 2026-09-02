@@ -65,7 +65,7 @@ export const BillRecordCard: FC<{ data?: Bill }> = ({ data = defaultProps.data }
       </div>
       <MetricGrid
         align="start"
-        className="border-t border-[rgba(100,160,200,0.18)] pt-[14px]"
+        className="border-t border-border-primary pt-[14px]"
         columns={2}
         density="standard"
         items={[

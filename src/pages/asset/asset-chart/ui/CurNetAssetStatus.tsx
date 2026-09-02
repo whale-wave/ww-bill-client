@@ -106,11 +106,11 @@ export const CurNetAssetStatus: FC = () => {
             </div>
             <div className="flex h-3 overflow-hidden rounded-full border border-white/60 bg-white/45 p-[2px]">
               <span
-                className="h-full rounded-l-full bg-[linear-gradient(90deg,#6fc2dc,#4aaac4)] transition-[width] duration-500"
+                className="ww-theme-progress h-full rounded-l-full transition-[width] duration-500"
                 style={{ width: `${metrics.assetShare * 100}%` }}
               />
               <span
-                className="h-full rounded-r-full bg-[linear-gradient(90deg,#f0a0b8,#c95d83)] transition-[width] duration-500"
+                className="ww-theme-liability-progress h-full rounded-r-full transition-[width] duration-500"
                 style={{ width: `${metrics.liabilityShare * 100}%` }}
               />
             </div>

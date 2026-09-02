@@ -5,21 +5,12 @@ import { useMemo } from 'react';
 import { AssetStatisticalRecordType, useAssetSummaryInfo, useGetAssetQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
+import { readAppearanceChartColors, useAppearanceRevision } from '@/shared/lib/appearance-tokens';
 import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
 import { ChartRetryButton } from './ChartRetryButton';
 
-const CHART_COLORS = [
-  '#4aaac4',
-  '#8174c8',
-  '#f0a0b8',
-  '#58b888',
-  '#e4a451',
-  '#5f8fc9',
-  '#b278b4',
-  '#73b7ad',
-];
-
 export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
+  const appearanceRevision = useAppearanceRevision();
   const { t } = useTranslation('asset');
   const { isError, isFetching, isLoading, refetch } = useGetAssetQuery();
   const { addAssetGroupPercent, subAssetGroupPercent, info } = useAssetSummaryInfo();
@@ -30,6 +21,8 @@ export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type 
   const groupPercent = isAsset ? addAssetGroupPercent : subAssetGroupPercent;
 
   const chartData = useMemo(() => {
+    void appearanceRevision;
+    const chartColors = readAppearanceChartColors();
     const validData = groupPercent
       .map(item => ({ name: item.group.name, value: Number(item.percent) }))
       .filter(item => Number.isFinite(item.value) && item.value > 0);
@@ -39,10 +32,10 @@ export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type 
 
     return validData.map((item, index) => ({
       ...item,
-      color: CHART_COLORS[index % CHART_COLORS.length],
+      color: chartColors[index % chartColors.length],
       percent: (item.value / total) * 100,
     }));
-  }, [groupPercent]);
+  }, [appearanceRevision, groupPercent]);
 
   const donutGradient = useMemo(() => {
     let cursor = 0;
@@ -57,7 +50,7 @@ export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type 
   return (
     <GradientPanel as="article" className="overflow-hidden px-[18px] py-[18px]" elevation="standard" surface="glass">
       <header className="flex items-center gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[linear-gradient(145deg,#e2f6ff,#f4efff)] text-primary-deep shadow-ww-xs">
+        <span className="ww-theme-icon-surface flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] text-primary-deep shadow-ww-xs">
           <PieChartIcon size={20} strokeWidth={2} />
         </span>
         <div className="min-w-0">
@@ -95,7 +88,7 @@ export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type 
         <div className="mt-5 flex items-center gap-4">
           <div
             aria-label={`${totalLabel} ${formatAmount(totalAmount)}`}
-            className="relative h-[126px] w-[126px] shrink-0 rounded-full shadow-[0_8px_22px_rgba(60,140,180,0.12)]"
+            className="relative h-[126px] w-[126px] shrink-0 rounded-full shadow-ww"
             role="img"
             style={{ background: donutGradient }}
           >

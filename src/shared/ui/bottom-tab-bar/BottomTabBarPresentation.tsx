@@ -81,7 +81,7 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
             className={cn(
               'ww-tab-bar__button-icon tab-icon flex h-[19px] w-[19px] items-center justify-center text-[19px] transition-transform',
               item.prominent
-              && 'ww-tab-bar__create-icon absolute bottom-[12px] h-12 w-12 rounded-3xl bg-[linear-gradient(145deg,var(--ww-theme-color)_6.1733%,var(--ww-theme-color-mid)_93.827%)] text-[21px] text-white shadow-ww-xs',
+              && 'ww-tab-bar__create-icon absolute bottom-[12px] h-12 w-12 rounded-3xl text-[21px] text-white shadow-ww-xs',
             )}
           >
             {isActive ? item.activeIcon ?? item.icon : item.icon}

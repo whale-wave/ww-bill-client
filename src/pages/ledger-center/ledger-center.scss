@@ -1,7 +1,7 @@
 .ledger-center-page {
   min-height: 0;
   overflow: hidden;
-  background: #f6fbfd;
+  background: var(--ww-background-color);
   color: var(--ww-theme-text-color);
 }
 
@@ -21,7 +21,7 @@
   overscroll-behavior: contain;
   position: relative;
   z-index: 1;
-  padding: 8px 18px 32px;
+  padding: 8px var(--ww-page-gutter) 32px;
 }
 
 .ledger-management-grid {
@@ -37,16 +37,12 @@
   flex-direction: column;
   align-items: flex-start;
   border: 0;
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--ww-border-color);
   border-radius: 20px;
   padding: 16px 13px 14px;
   overflow: hidden;
-  background: linear-gradient(
-    158deg,
-    color-mix(in srgb, var(--ww-theme-color) 78%, #000) 0%,
-    color-mix(in srgb, var(--ww-theme-color) 58%, #000) 100%
-  );
-  box-shadow: 0 10px 24px rgb(50 110 135 / 14%);
+  background: color-mix(in srgb, var(--ww-theme-color-deep) 94%, #000);
+  box-shadow: var(--ww-card-shadow);
   color: #fff;
   cursor: pointer;
   touch-action: manipulation;
@@ -217,7 +213,7 @@
   flex: 0 0 auto;
   border: 0;
   padding: 8px 18px 12px;
-  background: linear-gradient(180deg, transparent, #f6fbfd 24%);
+  background: linear-gradient(180deg, transparent, var(--ww-background-color) 24%);
 }
 
 .ledger-management-footer__create {
@@ -229,8 +225,8 @@
   border: 1px solid var(--ww-theme-color);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.86);
-  color: #198caa;
-  box-shadow: 0 8px 20px rgb(74 170 200 / 12%);
+  color: var(--ww-theme-color-deep);
+  box-shadow: var(--ww-card-shadow-xs);
   font-family: inherit;
   font-size: 14px;
   font-weight: 800;
@@ -255,7 +251,7 @@
   border: 0;
   border-radius: 28px;
   background: var(--ww-theme-color);
-  color: var(--ww-theme-text-color);
+  color: var(--ww-primary-foreground);
   font-family: inherit;
   cursor: pointer;
 

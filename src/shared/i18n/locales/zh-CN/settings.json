@@ -188,11 +188,11 @@
   },
   "appearance": {
     "title": "主题外观",
-    "entryDescription": "选择页面风格与主题色",
+    "entryDescription": "选择页面视觉风格",
     "introTitle": "让鲸浪更像你",
-    "introDescription": "主题色和视觉风格可自由组合，切换后会同步到你的账号。",
+    "introDescription": "每套主题都包含配色、材质与阴影，切换后会同步到你的账号。",
     "templateTitle": "视觉模板",
-    "accentTitle": "主题色",
+    "themePackageHint": "切换模板会同时应用整套配色与质感。",
     "recommended": "推荐",
     "saveFailed": "主题保存失败，已恢复为上次设置",
     "templates": {
@@ -200,14 +200,8 @@
       "freshDescription": "保留蓝粉轻盈感，以更利落的节奏呈现。",
       "minimal": "理性极简",
       "minimalDescription": "中性表面、细描边，把注意力留给记录。",
-      "glass": "平衡液态玻璃",
-      "glassDescription": "冰雾光感与半透明层次，金额始终清晰。"
-    },
-    "accents": {
-      "sky": "蓝粉",
-      "coral": "珊瑚橙",
-      "lavender": "薰衣草紫",
-      "mint": "薄荷绿"
+      "glass": "简约液态玻璃",
+      "glassDescription": "中性灰白空间、半透明白卡与单一鲸浪蓝操作色。"
     }
   }
 }

@@ -80,7 +80,7 @@ export default function FeedbackPage() {
                   </span>
                   <h1 className="mt-5 text-[20px] font-black text-ww-ink">{t('successTitle')}</h1>
                   <p className="mx-auto mt-2 max-w-[300px] text-[12px] font-semibold leading-5 text-ww-mid">{t('successDescription')}</p>
-                  <button className="mt-7 h-[50px] w-full rounded-[17px] border-0 bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] text-[14px] font-black text-white shadow-ww" onClick={handleContinue} type="button">
+                  <button className="ww-theme-primary-action mt-7 h-[50px] w-full rounded-[17px] border-0 text-[14px] font-black" onClick={handleContinue} type="button">
                     {t('continue')}
                   </button>
                   <button className="mt-2 h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-primary-deep" onClick={() => navigate(ROUTES_PATH.MINE.getPath(), { replace: true })} type="button">
@@ -169,7 +169,7 @@ export default function FeedbackPage() {
                   </GradientPanel>
 
                   <button
-                    className="mt-5 h-[52px] w-full rounded-[18px] border-0 bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] text-[14px] font-black text-white shadow-ww disabled:opacity-45"
+                    className="ww-theme-primary-action mt-5 h-[52px] w-full rounded-[18px] border-0 text-[14px] font-black disabled:opacity-45"
                     disabled={submitMutation.isLoading}
                     onClick={() => void handleSubmit()}
                     type="button"

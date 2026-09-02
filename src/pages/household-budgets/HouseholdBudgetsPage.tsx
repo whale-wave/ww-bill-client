@@ -205,7 +205,7 @@ const BudgetContent: FC<BudgetContentProps> = ({
   const showActions = (budget: HouseholdBudget, kind: BudgetEditor['kind']) => {
     const actionSheet = ActionSheet.show({
       popupClassName: BUDGET_ACTION_SHEET_CLASS_NAME,
-      styles: { mask: { backdropFilter: 'blur(2px)', background: 'rgba(38, 54, 74, 0.35)' } },
+      styles: { mask: { backdropFilter: 'blur(2px)', background: 'rgba(20, 20, 24, 0.28)' } },
       actions: [
         {
           disabled: upsertState.isLoading || removeState.isLoading,

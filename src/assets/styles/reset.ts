@@ -1,11 +1,6 @@
-export const THEME_COLOR = '#6fc2dc';
+export const THEME_COLOR = 'var(--ww-theme-color)';
 
 export function initResetStyle() {
-  const style = document.createElement('style');
-  style.innerHTML = `
-    :root {
-      --ww-theme-color: ${THEME_COLOR};
-    }
-  `;
-  document.head.appendChild(style);
+  // Appearance tokens are declared in appearance.scss. Keeping this hook avoids
+  // changing the bootstrap contract while no longer overwriting the active theme.
 }

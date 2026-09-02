@@ -50,7 +50,7 @@ const Budget: React.FC<BudgetProps> = () => {
 
     const actionSheet = ActionSheet.show({
       popupClassName: BUDGET_ACTION_SHEET_CLASS_NAME,
-      styles: { mask: { backdropFilter: 'blur(2px)', background: 'rgba(38, 54, 74, 0.35)' } },
+      styles: { mask: { backdropFilter: 'blur(2px)', background: 'rgba(20, 20, 24, 0.28)' } },
       cancelText: t('common:nav.cancel'),
       actions: [
         {

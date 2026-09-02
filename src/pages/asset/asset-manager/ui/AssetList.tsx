@@ -138,7 +138,7 @@ export const AssetList: FC = () => {
                   className="overflow-hidden rounded-[20px] border border-border-primary bg-white/85 shadow-ww-xs backdrop-blur-xl"
                   key={group.id}
                 >
-                  <header className="flex h-[46px] items-center justify-between bg-[linear-gradient(90deg,rgba(226,246,255,0.72),rgba(255,242,247,0.45))] px-[18px]">
+                  <header className="ww-asset-group-header flex h-[46px] items-center justify-between px-[18px]">
                     <div className="flex items-center gap-2">
                       <span className={group.type === 'add' ? 'h-2 w-2 rounded-full bg-[#58b888]' : 'h-2 w-2 rounded-full bg-[#d66b8f]'} />
                       <h3 className="text-[13px] font-bold text-ww-ink">{group.name}</h3>
@@ -163,7 +163,7 @@ export const AssetList: FC = () => {
                       >
                         <button
                           className={index > 0
-                            ? 'relative ml-[18px] flex h-[70px] w-[calc(100%-18px)] items-center gap-3 border-0 border-t border-solid border-[rgba(110,194,220,0.16)] bg-transparent pr-[14px] text-left'
+                            ? 'relative ml-[18px] flex h-[70px] w-[calc(100%-18px)] items-center gap-3 border-0 border-t border-solid border-border-primary bg-transparent pr-[14px] text-left'
                             : 'flex h-[70px] w-full items-center gap-3 border-0 bg-transparent px-[18px] text-left'}
                           onClick={handleItemClick(asset)}
                           type="button"

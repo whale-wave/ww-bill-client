@@ -58,7 +58,7 @@ export const BudgetEditorPresentation: FC<BudgetEditorPresentationProps> = ({
     closeOnMaskClick={!isSaving}
     content={(
       <div data-budget-editor>
-        <div className="bg-[linear-gradient(145deg,#d7f1fa,#f0edff)] px-5 pb-5 pt-6">
+        <div className="ww-budget-editor-header px-5 pb-5 pt-6">
           <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] border border-white/80 bg-white/75 text-primary-deep shadow-ww-xs">
               <WalletCards size={22} strokeWidth={1.7} />
@@ -82,7 +82,7 @@ export const BudgetEditorPresentation: FC<BudgetEditorPresentationProps> = ({
                     value={categoryValue ? [categoryValue] : []}
                   />
                 )
-              : <p className="rounded-[14px] bg-[#f5f6f8] px-4 py-3 text-[13px] text-ww-mid">{categoryEmptyContent}</p>
+              : <p className="rounded-[14px] bg-ww-surface-tint px-4 py-3 text-[13px] text-ww-mid">{categoryEmptyContent}</p>
           )}
           <label className="block">
             <span className="mb-2 block text-[12px] font-bold text-ww-mid">{amountPlaceholder}</span>
@@ -101,7 +101,7 @@ export const BudgetEditorPresentation: FC<BudgetEditorPresentationProps> = ({
           </label>
           <div className="grid grid-cols-[0.82fr_1.18fr] gap-3 pt-1">
             <button
-              className="h-12 rounded-[15px] border-0 bg-[#f1f3f5] text-[13px] font-bold text-ww-mid disabled:opacity-50"
+              className="h-12 rounded-[15px] border-0 bg-ww-surface-tint text-[13px] font-bold text-ww-mid disabled:opacity-50"
               disabled={isSaving}
               onClick={onCancel}
               type="button"
@@ -109,7 +109,7 @@ export const BudgetEditorPresentation: FC<BudgetEditorPresentationProps> = ({
               {cancelLabel}
             </button>
             <button
-              className="h-12 rounded-[15px] border-0 bg-[linear-gradient(135deg,#65c3dc,#16b3ca)] text-[13px] font-bold text-white shadow-ww disabled:opacity-50"
+              className="ww-theme-primary-action h-12 rounded-[15px] border-0 text-[13px] font-bold disabled:opacity-50"
               disabled={isSaving || (categoryOptions !== undefined && categoryOptions.length === 0)}
               onClick={() => void onSave()}
               type="button"

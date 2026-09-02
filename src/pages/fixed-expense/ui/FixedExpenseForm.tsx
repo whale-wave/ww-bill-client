@@ -201,7 +201,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
       footer={(
         <Button
           block
-          className="!h-[50px] !rounded-[17px] !border-0 !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !text-[14px] !font-extrabold !text-white !shadow-ww"
+          className="ww-theme-primary-action !h-[50px] !rounded-[17px] !border-0 !text-[14px] !font-extrabold"
           loading={isSaving}
           type="submit"
         >

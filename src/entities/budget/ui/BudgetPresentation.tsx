@@ -121,9 +121,9 @@ export const BudgetPresentation: React.FC<BudgetPresentationProps> = ({
         </section>
       </div>
       {!readOnly && (
-        <div className="z-10 shrink-0 border-0 border-t border-solid border-white/60 bg-[#f7f5f8]/90 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
+        <div className="z-10 shrink-0 border-0 border-t border-solid border-border-primary bg-ww-surface px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
           <button
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border-0 bg-[linear-gradient(135deg,#65c3dc,#16b3ca)] text-[14px] font-bold text-white shadow-ww"
+            className="ww-theme-primary-action flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border-0 text-[14px] font-bold"
             data-budget-add-category
             onClick={onAddCategory}
             type="button"

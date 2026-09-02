@@ -37,7 +37,7 @@ export const MonthBillDetailRenderer: FC<RendererProps> = ({ chartsEnabled = tru
   }, [exportSessionId, onChartReady]);
   const isExport = mode === 'export';
   return (
-    <div className={isExport ? 'w-[375px] bg-[linear-gradient(154.699deg,#e2f6ff_6.9%,#f4fbff_50%,#fff2f7_93.1%)] px-[18px] pb-6 pt-5' : 'flex min-h-0 flex-col'} data-bill-renderer={mode}>
+    <div className={isExport ? 'w-[375px] bg-[var(--ww-page-gradient)] px-[18px] pb-6 pt-5' : 'flex min-h-0 flex-col'} data-bill-renderer={mode}>
       {isExport && exportSessionId !== undefined && exportUser && exportCopy && <ExportMasthead categories={model.expense.chartCategories} copy={exportCopy} onAvatarReady={onAvatarReady} sessionId={exportSessionId} user={exportUser} />}
       <SummaryCard data={model} exportMode={isExport} />
       <ExpenseCategoryCard chartsEnabled={chartsEnabled} data={model} exportMode={isExport} onChartError={handleChartError} onChartReady={handleChartReady} />
@@ -148,7 +148,7 @@ function CategoryLegend({ item }: { item: MonthBillCategorySegment }) {
 
 function BillCategoryIcon({ categoryName, iconKey }: { categoryName: string; iconKey?: string }) {
   return (
-    <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border border-white/80 bg-[rgba(111,194,220,0.16)] text-primary-deep shadow-ww-xs">
+    <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border border-border-primary bg-ww-surface-tint text-primary-deep shadow-ww-xs">
       <CategoryIcon categoryName={categoryName} iconKey={iconKey} size={17} strokeWidth={1.7} />
     </span>
   );
@@ -376,7 +376,7 @@ function ExportCategoryRing({ categories }: { categories: MonthBillCategorySegme
 function ExportFooter({ qrCode }: { qrCode?: string }) {
   const { t } = useTranslation('bill');
   return (
-    <footer className="mt-1 flex min-h-[150px] items-center justify-between rounded-[20px] border border-[rgba(110,194,220,0.28)] bg-[linear-gradient(135deg,#c8eaf6_0%,#e2f6ff_55%,#f4e8f8_100%)] px-5 py-5 text-ww-ink shadow-ww-xs" data-export-footer>
+    <footer className="mt-1 flex min-h-[150px] items-center justify-between rounded-[20px] border border-border-primary bg-ww-surface px-5 py-5 text-ww-ink shadow-ww-xs" data-export-footer>
       <div className={`flex items-center gap-3 ${qrCode ? '' : 'mx-auto'}`}>
         <BrandAvatar className="h-12 w-12 border border-white/85 bg-white/75 p-1 shadow-ww-xs" imageClassName="object-contain" />
         <div>

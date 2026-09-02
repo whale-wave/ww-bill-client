@@ -138,7 +138,7 @@ export function MetricGrid({ align = 'center', items, columns = 3, density = 'st
       <dl className={`flex h-[57px] items-center pt-[14px] ${className}`}>
         {items.map((item, index) => (
           <div
-            className={`${index === 0 ? 'relative after:absolute after:-right-[17px] after:top-0 after:h-9 after:w-px after:bg-[rgba(100,160,200,0.25)]' : 'ml-[33px]'} flex w-[114px] min-w-0 flex-col items-start`}
+            className={`${index === 0 ? 'ww-metric-divider relative after:absolute after:-right-[17px] after:top-0 after:h-9 after:w-px' : 'ml-[33px]'} flex w-[114px] min-w-0 flex-col items-start`}
             data-metric-divider={index === 0 ? '' : undefined}
             key={item.key}
           >

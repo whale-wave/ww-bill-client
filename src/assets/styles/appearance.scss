@@ -1,5 +1,5 @@
 :root {
-  /* New and unconfigured accounts start in the balanced liquid-glass theme. */
+  /* New and unconfigured accounts start in the minimal liquid-glass theme. */
   --ww-page-gutter: 14px;
   --ww-section-gap: 10px;
   --ww-card-padding: 14px;
@@ -9,39 +9,70 @@
   --ww-radius-panel: 20px;
   --ww-radius-control: 14px;
   --ww-card-blur: 14px;
-  --ww-background-color: color-mix(in srgb, var(--ww-theme-color-light) 38%, #f8fbff);
-  --ww-page-gradient:
-    radial-gradient(
-      circle at -12% -8%,
-      color-mix(in srgb, var(--ww-theme-color-light) 82%, transparent),
-      transparent 39%
-    ),
-    radial-gradient(
-      circle at 108% 12%,
-      color-mix(in srgb, var(--ww-pink-color-light) 66%, transparent),
-      transparent 37%
-    ),
-    linear-gradient(155deg, #f9fcff 0%, color-mix(in srgb, var(--ww-theme-color-light) 26%, #ffffff) 50%, #fff9fc 100%);
-  --ww-card-color: color-mix(in srgb, #ffffff 82%, transparent);
-  --ww-surface-color: color-mix(in srgb, #ffffff 78%, transparent);
-  --ww-surface-raised-color: color-mix(in srgb, #ffffff 92%, transparent);
-  --ww-surface-tint-color: color-mix(in srgb, var(--ww-theme-color-light) 56%, #ffffff);
-  --ww-surface-accent-color: color-mix(in srgb, var(--ww-pink-color-light) 52%, #ffffff);
-  --ww-surface-secondary-color: color-mix(in srgb, var(--ww-theme-color-light) 28%, #ffffff);
-  --ww-border-color: color-mix(in srgb, #ffffff 64%, var(--ww-theme-color) 36%);
-  --ww-card-shadow: 0 8px 20px color-mix(in srgb, var(--ww-theme-color-deep) 11%, transparent);
-  --ww-card-shadow-xs: 0 3px 8px color-mix(in srgb, var(--ww-theme-color-deep) 8%, transparent);
-  --ww-card-shadow-lg: 0 12px 28px color-mix(in srgb, var(--ww-theme-color-deep) 14%, transparent);
-  --ww-card-shadow-floating: 0 12px 26px color-mix(in srgb, var(--ww-theme-color-deep) 16%, transparent);
-  --ww-chart-1: #4aaac4;
-  --ww-chart-2: #f0a0b8;
-  --ww-chart-3: #a996dc;
-  --ww-chart-4: #79c6a8;
-  --ww-chart-5: #efbc70;
-  --ww-chart-6: #6e9fdb;
+  --ww-theme-color: #3f9fbe;
+  --ww-theme-color-light: #d9f0f7;
+  --ww-theme-color-mid: #2788aa;
+  --ww-theme-color-deep: #24526a;
+  --ww-primary-foreground: #ffffff;
+  --ww-pink-color: #6d6d73;
+  --ww-pink-color-light: #ededf0;
+  --ww-theme-text-color: #202024;
+  --ww-text-color-mid: #77777e;
+  --ww-text-color-soft: #a4a4aa;
+  --ww-text-color-ghost: #c9c9cf;
+  --ww-background-color: #f4f4f6;
+  --ww-page-gradient: #f4f4f6;
+  --ww-card-color: rgba(255, 255, 255, 0.72);
+  --ww-surface-color: rgba(255, 255, 255, 0.76);
+  --ww-surface-raised-color: rgba(255, 255, 255, 0.9);
+  --ww-surface-tint-color: #f0f0f2;
+  --ww-surface-accent-color: #f7f7f8;
+  --ww-surface-secondary-color: #fbfbfc;
+  --ww-border-color: rgba(20, 20, 24, 0.07);
+  --ww-card-shadow: 0 10px 24px rgba(20, 20, 24, 0.07);
+  --ww-card-shadow-xs: 0 3px 10px rgba(20, 20, 24, 0.05);
+  --ww-card-shadow-lg: 0 16px 32px rgba(20, 20, 24, 0.08);
+  --ww-card-shadow-floating: 0 12px 28px rgba(20, 20, 24, 0.09);
+  --ww-surface-aurora: rgba(255, 255, 255, 0.78);
+  --ww-surface-ice: rgba(255, 255, 255, 0.72);
+  --ww-surface-chart: rgba(255, 255, 255, 0.76);
+  --ww-surface-lavender: rgba(255, 255, 255, 0.72);
+  --ww-surface-blush: rgba(255, 255, 255, 0.76);
+  --ww-surface-vip: rgba(255, 255, 255, 0.76);
+  --ww-shortcut-blue-bg: rgba(255, 255, 255, 0.72);
+  --ww-shortcut-blue-fg: #3c3c42;
+  --ww-shortcut-pink-bg: rgba(255, 255, 255, 0.72);
+  --ww-shortcut-pink-fg: #3c3c42;
+  --ww-shortcut-purple-bg: rgba(255, 255, 255, 0.72);
+  --ww-shortcut-purple-fg: #3c3c42;
+  --ww-shortcut-green-bg: rgba(255, 255, 255, 0.72);
+  --ww-shortcut-green-fg: #3c3c42;
+  --ww-shortcut-amber-bg: rgba(255, 255, 255, 0.72);
+  --ww-shortcut-amber-fg: #3c3c42;
+  --ww-shortcut-shadow: 0 5px 14px rgba(20, 20, 24, 0.05);
+  --ww-control-surface: rgba(255, 255, 255, 0.88);
+  --ww-control-shadow: 0 3px 9px rgba(20, 20, 24, 0.06);
+  --ww-divider-color: rgba(20, 20, 24, 0.08);
+  --ww-chart-1: #394d60;
+  --ww-chart-2: #596b7b;
+  --ww-chart-3: #798896;
+  --ww-chart-4: #99a4ae;
+  --ww-chart-5: #b8c0c7;
+  --ww-chart-6: #d4d8dc;
 }
 
 html[data-appearance-template='fresh'] {
+  --ww-theme-color: #6fc2dc;
+  --ww-theme-color-light: #c8eaf6;
+  --ww-theme-color-mid: #4aaac4;
+  --ww-theme-color-deep: #2b8baa;
+  --ww-primary-foreground: #ffffff;
+  --ww-pink-color: #f0a0b8;
+  --ww-pink-color-light: #ffd8e6;
+  --ww-theme-text-color: #263340;
+  --ww-text-color-mid: #5c7080;
+  --ww-text-color-soft: #9baebb;
+  --ww-text-color-ghost: #c4d4dc;
   --ww-background-color: #f4fbff;
   --ww-page-gradient: linear-gradient(155deg, #e7f7ff 0%, #f6fcff 48%, #fff4f8 100%);
   --ww-card-color: rgba(255, 255, 255, 0.9);
@@ -59,9 +90,46 @@ html[data-appearance-template='fresh'] {
   --ww-radius-panel: 18px;
   --ww-radius-control: 14px;
   --ww-card-blur: 8px;
+  --ww-surface-aurora: linear-gradient(155deg, #e5f7fc, #f8fdff 54%, #fff1f6);
+  --ww-surface-ice: linear-gradient(162deg, #e5f7fc, #ffffff, #f4efff);
+  --ww-surface-chart: linear-gradient(167deg, #e5f7fc, #ffffff, #f7fbff);
+  --ww-surface-lavender: linear-gradient(165deg, #f4efff, #ffffff);
+  --ww-surface-blush: linear-gradient(157deg, #fff1f6, #ffffff, #fff8fb);
+  --ww-surface-vip: linear-gradient(165deg, #f4efff, #ffffff);
+  --ww-shortcut-blue-bg: #e8f7fc;
+  --ww-shortcut-blue-fg: #298ba8;
+  --ww-shortcut-pink-bg: #fff0f5;
+  --ww-shortcut-pink-fg: #c75577;
+  --ww-shortcut-purple-bg: #f1eeff;
+  --ww-shortcut-purple-fg: #6a56bd;
+  --ww-shortcut-green-bg: #edf8f3;
+  --ww-shortcut-green-fg: #3a9575;
+  --ww-shortcut-amber-bg: #fff4df;
+  --ww-shortcut-amber-fg: #b27717;
+  --ww-shortcut-shadow: 0 4px 10px rgba(60, 140, 180, 0.08);
+  --ww-control-surface: rgba(255, 255, 255, 0.9);
+  --ww-control-shadow: 0 3px 8px rgba(60, 140, 180, 0.08);
+  --ww-divider-color: rgba(74, 170, 196, 0.2);
+  --ww-chart-1: #4aaac4;
+  --ww-chart-2: #f0a0b8;
+  --ww-chart-3: #a996dc;
+  --ww-chart-4: #79c6a8;
+  --ww-chart-5: #efbc70;
+  --ww-chart-6: #6e9fdb;
 }
 
 html[data-appearance-template='minimal'] {
+  --ww-theme-color: #52657e;
+  --ww-theme-color-light: #dce4eb;
+  --ww-theme-color-mid: #6d829d;
+  --ww-theme-color-deep: #2d3b4d;
+  --ww-primary-foreground: #ffffff;
+  --ww-pink-color: #81909e;
+  --ww-pink-color-light: #e8edf0;
+  --ww-theme-text-color: #273444;
+  --ww-text-color-mid: #617080;
+  --ww-text-color-soft: #9aa6b2;
+  --ww-text-color-ghost: #c7ced5;
   --ww-background-color: #f7f8fa;
   --ww-page-gradient: linear-gradient(180deg, #fafbfc 0%, #f4f6f8 100%);
   --ww-card-color: #ffffff;
@@ -79,6 +147,179 @@ html[data-appearance-template='minimal'] {
   --ww-radius-panel: 16px;
   --ww-radius-control: 12px;
   --ww-card-blur: 0px;
+  --ww-surface-aurora: #ffffff;
+  --ww-surface-ice: #ffffff;
+  --ww-surface-chart: #ffffff;
+  --ww-surface-lavender: #ffffff;
+  --ww-surface-blush: #ffffff;
+  --ww-surface-vip: #ffffff;
+  --ww-shortcut-blue-bg: #f3f5f7;
+  --ww-shortcut-blue-fg: #4e5d6f;
+  --ww-shortcut-pink-bg: #f3f5f7;
+  --ww-shortcut-pink-fg: #4e5d6f;
+  --ww-shortcut-purple-bg: #f3f5f7;
+  --ww-shortcut-purple-fg: #4e5d6f;
+  --ww-shortcut-green-bg: #f3f5f7;
+  --ww-shortcut-green-fg: #4e5d6f;
+  --ww-shortcut-amber-bg: #f3f5f7;
+  --ww-shortcut-amber-fg: #4e5d6f;
+  --ww-shortcut-shadow: none;
+  --ww-control-surface: #ffffff;
+  --ww-control-shadow: 0 1px 2px rgba(31, 41, 55, 0.05);
+  --ww-divider-color: #dde2e7;
+  --ww-chart-1: #52657e;
+  --ww-chart-2: #8798aa;
+  --ww-chart-3: #7b94a0;
+  --ww-chart-4: #99a878;
+  --ww-chart-5: #b49a74;
+  --ww-chart-6: #8b83a9;
+}
+
+.ww-theme-primary-action {
+  color: var(--ww-primary-foreground) !important;
+  background: var(--ww-theme-color) !important;
+  box-shadow: var(--ww-card-shadow) !important;
+}
+
+html[data-appearance-template='fresh'] .ww-theme-primary-action {
+  background: linear-gradient(135deg, var(--ww-theme-color), var(--ww-theme-color-mid)) !important;
+}
+
+.ww-tab-bar__create-icon {
+  color: var(--ww-primary-foreground) !important;
+  background: var(--ww-theme-color) !important;
+  box-shadow: var(--ww-card-shadow) !important;
+}
+
+html[data-appearance-template='fresh'] .ww-tab-bar__create-icon {
+  background: linear-gradient(145deg, var(--ww-theme-color), var(--ww-theme-color-mid)) !important;
+}
+
+.ww-theme-progress {
+  background: var(--ww-theme-color);
+}
+
+.ww-theme-liability-progress {
+  background: #c95d83;
+}
+
+html[data-appearance-template='fresh'] .ww-theme-progress {
+  background: linear-gradient(90deg, var(--ww-theme-color), var(--ww-theme-color-mid));
+}
+
+.ww-theme-icon-surface {
+  background: var(--ww-surface-tint-color);
+}
+
+html[data-appearance-template='fresh'] .ww-theme-icon-surface {
+  background: linear-gradient(145deg, var(--ww-surface-tint-color), var(--ww-surface-secondary-color));
+}
+
+/* These components previously carried their own blue/pink gradients.  Keep the
+ * visual material at the theme boundary so every template stays coherent. */
+.ww-user-summary-card,
+.ww-budget-summary-item,
+.ww-budget-editor-header {
+  background: var(--ww-surface-aurora) !important;
+  box-shadow: var(--ww-card-shadow);
+}
+
+.ww-user-summary-avatar {
+  background: var(--ww-surface-tint-color);
+}
+
+.ww-user-summary-edit {
+  color: var(--ww-primary-foreground);
+  background: var(--ww-theme-color);
+}
+
+.ww-user-summary-metrics {
+  background: var(--ww-surface-raised-color);
+}
+
+.ww-budget-category-icon,
+.ww-current-budget-icon {
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-surface-tint-color);
+}
+
+.ww-category-choice-icon {
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-surface-tint-color);
+}
+
+.ww-asset-group-header {
+  background: var(--ww-surface-tint-color);
+}
+
+.ww-chart-tooltip-category {
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-surface-tint-color);
+}
+
+.ww-page-fade-footer {
+  background: linear-gradient(180deg, transparent, var(--ww-background-color) 40%, var(--ww-background-color));
+}
+
+.ww-month-detail-footer {
+  background: linear-gradient(
+    0deg,
+    var(--ww-background-color),
+    color-mix(in srgb, var(--ww-background-color) 88%, transparent),
+    transparent
+  );
+}
+
+.ww-current-budget-card {
+  box-shadow: var(--ww-card-shadow);
+}
+
+html[data-appearance-template='fresh'] .ww-user-summary-card {
+  background: linear-gradient(155deg, #c6e8f8 6%, #ddf2fc 41%, #f4e0f4 94%) !important;
+}
+
+html[data-appearance-template='fresh'] .ww-user-summary-avatar {
+  background: linear-gradient(145deg, #8fc7e8, #e9a5c4);
+}
+
+html[data-appearance-template='fresh'] .ww-user-summary-edit {
+  background: var(--ww-pink-color);
+}
+
+html[data-appearance-template='fresh'] .ww-budget-summary-item,
+html[data-appearance-template='fresh'] .ww-budget-editor-header {
+  background: linear-gradient(
+    155deg,
+    rgba(212, 240, 250, 0.96),
+    rgba(255, 255, 255, 0.92) 52%,
+    rgba(241, 232, 255, 0.82)
+  ) !important;
+}
+
+html[data-appearance-template='fresh'] .ww-budget-category-icon:nth-child(4n + 1),
+html[data-appearance-template='fresh'] .ww-current-budget-icon {
+  color: #d06080;
+  background: #fff0f5;
+}
+
+html[data-appearance-template='fresh'] .ww-category-choice-icon {
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-theme-color-light);
+}
+
+html[data-appearance-template='fresh'] .ww-asset-group-header {
+  background: linear-gradient(90deg, rgba(226, 246, 255, 0.72), rgba(255, 242, 247, 0.45));
+}
+
+/* Figma exports include coloured active navigation and empty-state artwork.
+ * The glass and minimal packages intentionally render those ornamental icons
+ * as a single ink colour; finance/category data icons are not DesignIcon assets. */
+html[data-appearance-template='glass'] [data-design-icon] {
+  filter: grayscale(1) saturate(0) brightness(0.32);
+}
+
+html[data-appearance-template='minimal'] [data-design-icon] {
+  filter: grayscale(1) saturate(0) brightness(0.46);
 }
 
 html[data-appearance-template='minimal'],
@@ -116,109 +357,100 @@ html[data-appearance-template='glass'] {
 }
 
 .ww-surface-aurora {
-  background: linear-gradient(
-    155deg,
-    var(--ww-surface-tint-color),
-    color-mix(in srgb, var(--ww-surface-tint-color) 62%, #ffffff),
-    var(--ww-surface-secondary-color)
-  );
+  background: var(--ww-surface-aurora);
 }
 
 .ww-surface-ice {
-  background: linear-gradient(
-    162deg,
-    var(--ww-surface-tint-color),
-    var(--ww-surface-raised-color),
-    var(--ww-surface-secondary-color)
-  );
+  background: var(--ww-surface-ice);
 }
 
 .ww-surface-chart {
-  background: linear-gradient(
-    167deg,
-    var(--ww-surface-tint-color),
-    var(--ww-surface-raised-color),
-    color-mix(in srgb, var(--ww-surface-secondary-color) 66%, #ffffff)
-  );
+  background: var(--ww-surface-chart);
 }
 
-.ww-surface-lavender,
+.ww-surface-lavender {
+  background: var(--ww-surface-lavender);
+}
+
 .ww-surface-vip {
-  background: linear-gradient(165deg, var(--ww-surface-secondary-color), var(--ww-surface-raised-color));
+  background: var(--ww-surface-vip);
 }
 
 .ww-surface-blush {
-  background: linear-gradient(
-    157deg,
-    var(--ww-surface-accent-color),
-    var(--ww-surface-raised-color),
-    color-mix(in srgb, var(--ww-surface-accent-color) 45%, #ffffff)
-  );
+  background: var(--ww-surface-blush);
 }
 
-html[data-appearance-accent='sky'] {
-  --ww-theme-color: #6fc2dc;
-  --ww-theme-color-light: #c8eaf6;
-  --ww-theme-color-mid: #4aaac4;
-  --ww-theme-color-deep: #2b8baa;
-  --ww-pink-color: #f0a0b8;
-  --ww-pink-color-light: #ffd8e6;
-  --ww-chart-1: #4aaac4;
-  --ww-chart-2: #f0a0b8;
-  --ww-chart-3: #a996dc;
-  --ww-chart-4: #79c6a8;
-  --ww-chart-5: #efbc70;
-  --ww-chart-6: #6e9fdb;
+.ww-action-menu-card__item[data-action-menu-tone='blue'],
+.ww-action-menu-card__icon[data-action-menu-tone='blue'] {
+  --ww-action-surface: var(--ww-shortcut-blue-bg);
+  --ww-action-foreground: var(--ww-shortcut-blue-fg);
 }
 
-html[data-appearance-accent='coral'] {
-  --ww-theme-color: #f28e7d;
-  --ww-theme-color-light: #fad6cf;
-  --ww-theme-color-mid: #d96c5b;
-  --ww-theme-color-deep: #b94e42;
-  --ww-pink-color: #e7ae66;
-  --ww-pink-color-light: #f9e4bd;
-  --ww-chart-1: #d96c5b;
-  --ww-chart-2: #e7ae66;
-  --ww-chart-3: #9a8fe8;
-  --ww-chart-4: #66bfa1;
-  --ww-chart-5: #d9779b;
-  --ww-chart-6: #5f8fc9;
+.ww-action-menu-card__item[data-action-menu-tone='pink'],
+.ww-action-menu-card__icon[data-action-menu-tone='pink'] {
+  --ww-action-surface: var(--ww-shortcut-pink-bg);
+  --ww-action-foreground: var(--ww-shortcut-pink-fg);
 }
 
-html[data-appearance-accent='lavender'] {
-  --ww-theme-color: #9a8fe8;
-  --ww-theme-color-light: #ddd8fa;
-  --ww-theme-color-mid: #796cd0;
-  --ww-theme-color-deep: #5b50a9;
-  --ww-pink-color: #e3a2c7;
-  --ww-pink-color-light: #f8d9eb;
-  --ww-chart-1: #796cd0;
-  --ww-chart-2: #e3a2c7;
-  --ww-chart-3: #66bfa1;
-  --ww-chart-4: #e7ae66;
-  --ww-chart-5: #5f8fc9;
-  --ww-chart-6: #d96c5b;
+.ww-action-menu-card__item[data-action-menu-tone='purple'],
+.ww-action-menu-card__icon[data-action-menu-tone='purple'] {
+  --ww-action-surface: var(--ww-shortcut-purple-bg);
+  --ww-action-foreground: var(--ww-shortcut-purple-fg);
 }
 
-html[data-appearance-accent='mint'] {
-  --ww-theme-color: #66bfa1;
-  --ww-theme-color-light: #c6ebdd;
-  --ww-theme-color-mid: #469d82;
-  --ww-theme-color-deep: #2d7863;
-  --ww-pink-color: #e9b875;
-  --ww-pink-color-light: #f9e8cc;
-  --ww-chart-1: #469d82;
-  --ww-chart-2: #e9b875;
-  --ww-chart-3: #8d78c7;
-  --ww-chart-4: #e7799d;
-  --ww-chart-5: #5f8fc9;
-  --ww-chart-6: #d96c5b;
+.ww-action-menu-card__item[data-action-menu-tone='green'],
+.ww-action-menu-card__icon[data-action-menu-tone='green'] {
+  --ww-action-surface: var(--ww-shortcut-green-bg);
+  --ww-action-foreground: var(--ww-shortcut-green-fg);
+}
+
+.ww-action-menu-card__item[data-action-menu-tone='amber'],
+.ww-action-menu-card__icon[data-action-menu-tone='amber'] {
+  --ww-action-surface: var(--ww-shortcut-amber-bg);
+  --ww-action-foreground: var(--ww-shortcut-amber-fg);
+}
+
+.ww-action-menu-card__icon {
+  color: var(--ww-action-foreground);
+  background: var(--ww-action-surface);
+}
+
+.ww-action-menu-card__item[data-action-menu-variant='detail-shortcuts'],
+.ww-action-menu-card__item[data-action-menu-variant='gradient-tiles'] {
+  border-color: color-mix(in srgb, var(--ww-action-foreground) 12%, #ffffff);
+  color: var(--ww-action-foreground);
+  background: var(--ww-action-surface);
+  box-shadow: var(--ww-shortcut-shadow);
+}
+
+.ww-action-menu-card__item[data-action-menu-variant='tiles'] {
+  border-color: var(--ww-border-color);
+  background: var(--ww-surface-raised-color);
+  box-shadow: var(--ww-card-shadow-xs);
+}
+
+.ww-overview-title-icon {
+  color: #fff;
+  background: var(--ww-theme-color);
+  box-shadow: var(--ww-control-shadow);
+}
+
+.ww-overview-header-actions > button,
+.ww-overview-amount-toggle {
+  border-color: var(--ww-border-color) !important;
+  color: var(--ww-theme-color-deep) !important;
+  background: var(--ww-control-surface) !important;
+  box-shadow: var(--ww-control-shadow);
+  backdrop-filter: blur(var(--ww-card-blur));
+  -webkit-backdrop-filter: blur(var(--ww-card-blur));
+}
+
+.ww-metric-divider::after {
+  background: var(--ww-divider-color);
 }
 
 .appearance-settings__intro,
-.appearance-template-option,
-.appearance-accent-option {
+.appearance-template-option {
   border: 1px solid var(--ww-border-color);
   background: var(--ww-surface-color);
   box-shadow: var(--ww-card-shadow-xs);
@@ -262,8 +494,7 @@ html[data-appearance-accent='mint'] {
   line-height: 1.5;
 }
 
-.appearance-template-option,
-.appearance-accent-option {
+.appearance-template-option {
   display: flex;
   width: 100%;
   align-items: center;
@@ -282,21 +513,18 @@ html[data-appearance-accent='mint'] {
   padding: 10px;
 }
 
-.appearance-template-option[data-selected='true'],
-.appearance-accent-option[data-selected='true'] {
+.appearance-template-option[data-selected='true'] {
   border-color: var(--ww-theme-color-mid);
   box-shadow:
     0 0 0 2px color-mix(in srgb, var(--ww-theme-color) 20%, transparent),
     var(--ww-card-shadow-xs);
 }
 
-.appearance-template-option:enabled:active,
-.appearance-accent-option:enabled:active {
+.appearance-template-option:enabled:active {
   transform: scale(0.985);
 }
 
-.appearance-template-option:focus-visible,
-.appearance-accent-option:focus-visible {
+.appearance-template-option:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--ww-theme-color) 36%, transparent);
   outline-offset: 2px;
 }
@@ -378,6 +606,57 @@ html[data-appearance-accent='mint'] {
   backdrop-filter: blur(8px);
 }
 
+.appearance-template-option[data-template-preview='glass'] .appearance-template-option__preview {
+  border-color: rgba(20, 20, 24, 0.1);
+  background: #f4f4f6;
+}
+
+.appearance-template-option[data-template-preview='glass'] .appearance-template-option__preview-orb {
+  display: none;
+}
+
+.appearance-template-option[data-template-preview='glass'] .appearance-template-option__preview-card {
+  border-color: rgba(20, 20, 24, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 5px 11px rgba(20, 20, 24, 0.07);
+}
+
+.appearance-template-option[data-template-preview='glass'] .appearance-template-option__preview-card span {
+  background: #e5e5e8;
+}
+
+.appearance-template-option[data-template-preview='glass'] .appearance-template-option__preview-card span:last-child,
+.appearance-template-option[data-template-preview='glass'] .appearance-template-option__preview-line {
+  background: #2788aa;
+}
+
+.appearance-template-option[data-template-preview='fresh'] .appearance-template-option__preview {
+  border-color: rgba(74, 170, 196, 0.25);
+  background: linear-gradient(145deg, #c8eaf6, #f7fbff 55%, #ffd8e6);
+}
+
+.appearance-template-option[data-template-preview='fresh'] .appearance-template-option__preview-orb {
+  background: #ffd8e6;
+}
+
+.appearance-template-option[data-template-preview='fresh'] .appearance-template-option__preview-card span {
+  background: #c8eaf6;
+}
+
+.appearance-template-option[data-template-preview='fresh'] .appearance-template-option__preview-card span:last-child,
+.appearance-template-option[data-template-preview='fresh'] .appearance-template-option__preview-line {
+  background: #2b8baa;
+}
+
+.appearance-template-option[data-template-preview='minimal'] .appearance-template-option__preview-card span {
+  background: #dce4eb;
+}
+
+.appearance-template-option[data-template-preview='minimal'] .appearance-template-option__preview-card span:last-child,
+.appearance-template-option[data-template-preview='minimal'] .appearance-template-option__preview-line {
+  background: #52657e;
+}
+
 .appearance-template-option__preview-line {
   position: absolute;
   right: 10px;
@@ -404,56 +683,10 @@ html[data-appearance-accent='mint'] {
   background: var(--ww-theme-color);
 }
 
-.appearance-accent-option {
-  gap: 8px;
-  min-height: 72px;
-  padding: 10px;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.appearance-accent-option__swatch {
-  display: flex;
-  width: 34px;
-  height: 34px;
-  flex: 0 0 auto;
-  align-items: end;
-  gap: 3px;
-  padding: 5px;
-  border-radius: 12px;
-  background: var(--appearance-preview-light);
-}
-
-.appearance-accent-option__swatch span {
-  display: block;
-  width: 50%;
-  height: 58%;
-  border-radius: 5px;
-  background: var(--appearance-preview-primary);
-}
-
-.appearance-accent-option__swatch span:last-child {
-  height: 85%;
-  background: var(--appearance-preview-secondary);
-}
-
-.appearance-accent-option[data-appearance-accent='sky'] {
-  --appearance-preview-primary: #6fc2dc;
-  --appearance-preview-secondary: #f0a0b8;
-  --appearance-preview-light: #e8f7fc;
-}
-.appearance-accent-option[data-appearance-accent='coral'] {
-  --appearance-preview-primary: #f28e7d;
-  --appearance-preview-secondary: #e7ae66;
-  --appearance-preview-light: #fff1eb;
-}
-.appearance-accent-option[data-appearance-accent='lavender'] {
-  --appearance-preview-primary: #9a8fe8;
-  --appearance-preview-secondary: #e3a2c7;
-  --appearance-preview-light: #f1efff;
-}
-.appearance-accent-option[data-appearance-accent='mint'] {
-  --appearance-preview-primary: #66bfa1;
-  --appearance-preview-secondary: #e9b875;
-  --appearance-preview-light: #e9f8f1;
+.appearance-settings__theme-hint {
+  margin: 0;
+  color: var(--ww-text-color-soft);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
 }

@@ -1,5 +1,5 @@
 import type { FC, KeyboardEvent } from 'react';
-import type { AppearanceAccent, AppearanceTemplate } from '@/entities/user-app-config';
+import type { AppearanceTemplate } from '@/entities/user-app-config';
 import type { AppearancePreference } from '@/features/appearance';
 import { Toast } from 'antd-mobile';
 import { Check, Palette, Sparkles } from 'lucide-react';
@@ -9,7 +9,6 @@ import {
   usePatchUserAppConfigMutation,
 } from '@/entities/user-app-config';
 import {
-  appearanceAccentOptions,
   appearanceTemplateOptions,
   applyAppearancePreference,
   readAppearancePreference,
@@ -56,7 +55,7 @@ const AppearanceSettingsPage: FC = () => {
   const preference = pendingPreference ?? savedPreference;
 
   const savePreference = async (nextPreference: AppearancePreference) => {
-    if (patchMutation.isLoading || (nextPreference.accent === preference.accent && nextPreference.template === preference.template))
+    if (patchMutation.isLoading || nextPreference.template === preference.template)
       return;
 
     const previousPreference = preference;
@@ -64,7 +63,6 @@ const AppearanceSettingsPage: FC = () => {
     applyAppearancePreference(nextPreference);
     try {
       await patchUserAppConfig({
-        appearanceAccent: nextPreference.accent,
         appearanceTemplate: nextPreference.template,
       });
       setPendingPreference(undefined);
@@ -77,11 +75,7 @@ const AppearanceSettingsPage: FC = () => {
   };
 
   const handleTemplateChange = (template: AppearanceTemplate) => {
-    void savePreference({ ...preference, template });
-  };
-
-  const handleAccentChange = (accent: AppearanceAccent) => {
-    void savePreference({ ...preference, accent });
+    void savePreference({ template });
   };
 
   return (
@@ -143,35 +137,7 @@ const AppearanceSettingsPage: FC = () => {
           </div>
         </section>
 
-        <section className="mt-4 pb-5" aria-labelledby="appearance-accent-title">
-          <h2 className="mb-1.5 px-1 text-[13px] font-extrabold text-ww-ink" id="appearance-accent-title">{t('appearance.accentTitle')}</h2>
-          <div aria-label={t('appearance.accentTitle')} className="grid grid-cols-2 gap-2.5" role="radiogroup">
-            {appearanceAccentOptions.map((option) => {
-              const isSelected = preference.accent === option.value;
-              return (
-                <button
-                  aria-checked={isSelected}
-                  className="appearance-accent-option"
-                  data-appearance-accent={option.value}
-                  data-selected={isSelected}
-                  disabled={patchMutation.isLoading}
-                  key={option.value}
-                  onClick={() => handleAccentChange(option.value)}
-                  onKeyDown={event => moveRadioSelection(event, appearanceAccentOptions, preference.accent, handleAccentChange)}
-                  role="radio"
-                  type="button"
-                >
-                  <span aria-hidden="true" className="appearance-accent-option__swatch">
-                    <span />
-                    <span />
-                  </span>
-                  <span>{t(option.labelKey)}</span>
-                  {isSelected && <Check className="ml-auto" size={16} strokeWidth={3} />}
-                </button>
-              );
-            })}
-          </div>
-        </section>
+        <p className="appearance-settings__theme-hint px-1 pb-5 pt-3">{t('appearance.themePackageHint')}</p>
       </main>
     </div>
   );

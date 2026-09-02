@@ -55,7 +55,7 @@ export const LedgerUserAvatar: FC<LedgerUserAvatarProps> = ({
   return (
     <span
       className={cn(
-        'flex aspect-square shrink-0 flex-none self-center items-center justify-center overflow-hidden rounded-full bg-[linear-gradient(145deg,#c8eaf6,#e8f6ff)] font-black text-primary-deep shadow-ww-xs',
+        'ww-theme-icon-surface flex aspect-square shrink-0 flex-none self-center items-center justify-center overflow-hidden rounded-full font-black text-primary-deep shadow-ww-xs',
         className,
       )}
       data-avatar-type="fallback"

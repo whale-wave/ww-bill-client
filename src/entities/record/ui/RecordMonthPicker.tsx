@@ -125,7 +125,7 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
                   className={cn(
                     'h-[34px] rounded-[10px] px-1 text-[13px] font-medium leading-[19.5px]',
                     draftMonth.year() === year
-                      ? 'bg-[linear-gradient(156.176deg,#6fc2dc_0%,#4aaac4_100%)] font-extrabold text-white shadow-[0_3px_5px_rgba(74,170,200,0.35)]'
+                      ? 'ww-theme-primary-action font-extrabold'
                       : 'bg-white/80 text-ww-mid',
                   )}
                   key={year}
@@ -151,7 +151,7 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
                       className={cn(
                         'h-[42px] rounded-[12px] border border-solid text-[13px] font-medium leading-[19.5px]',
                         draftMonth.month() === monthIndex
-                          ? 'border-transparent bg-[linear-gradient(152.211deg,#6fc2dc_0%,#4aaac4_100%)] font-extrabold text-white shadow-[0_3px_5px_rgba(74,170,200,0.35)]'
+                          ? 'ww-theme-primary-action border-transparent font-extrabold'
                           : 'border-border-primary bg-white/80 text-ww-mid shadow-ww-xs',
                         isFuture && 'opacity-35',
                       )}

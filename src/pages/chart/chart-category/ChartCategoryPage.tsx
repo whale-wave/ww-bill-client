@@ -211,7 +211,7 @@ const ChartCategory: FC = () => {
                     onClick={() => navigate(`/editing/${record.id}`, { state: record })}
                     type="button"
                   >
-                    <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(111,194,220,0.16)] text-primary-deep">
+                    <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-ww-surface-tint text-primary-deep">
                       <CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} size={16} />
                     </span>
                     <span className="min-w-0 flex-1">

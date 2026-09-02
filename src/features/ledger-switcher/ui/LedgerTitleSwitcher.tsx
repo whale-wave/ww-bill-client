@@ -41,7 +41,7 @@ export function LedgerTitleSwitcher({
   const classes = ['ledger-title-switcher', className].filter(Boolean).join(' ');
 
   const visualIcon = (
-    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full overflow-hidden bg-[linear-gradient(145deg,#6fc2dc_6.1733%,#4aaac4_93.827%)]">
+    <span className="ww-theme-primary-action flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full">
       <LedgerVisualIcon
         className="h-4 w-4"
         iconKey={scope.type === 'custom' ? currentCustom?.iconKey : undefined}

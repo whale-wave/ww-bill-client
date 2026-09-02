@@ -19,7 +19,7 @@ function formatTooltipAmount(amount: number | string) {
   return String(amount).replace(/^¥\s*/, '');
 }
 
-const tooltipCardClassName = 'min-w-[176px] max-w-[280px] overflow-hidden rounded-[18px] border border-solid border-[rgba(110,194,220,0.28)] bg-white/[0.96] p-3.5 text-ww-ink shadow-[0_12px_30px_rgba(46,92,120,0.2)] backdrop-blur-xl';
+const tooltipCardClassName = 'min-w-[176px] max-w-[280px] overflow-hidden rounded-[18px] border border-solid border-border-primary bg-ww-surface p-3.5 text-ww-ink shadow-ww-floating backdrop-blur-xl';
 
 export const TooltipContent: FC<{ data: ChartOverviewPoint; currentAmountType: AmountType }> = ({ data, currentAmountType }) => {
   const { t } = useTranslation('chart');
@@ -77,9 +77,9 @@ export const TooltipContent: FC<{ data: ChartOverviewPoint; currentAmountType: A
       </div>
 
       <div className="mt-2.5 space-y-1.5">
-        {list.map((item, index) => (
-          <div className="flex min-w-0 items-center gap-2 rounded-[12px] bg-[#f6fafc] px-2 py-1.5" key={item.id}>
-            <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${index % 3 === 1 ? 'bg-[#fff0f5] text-[#cf7894]' : index % 3 === 2 ? 'bg-[#f1ecff] text-[#8d78c7]' : 'bg-[#e4f5fa] text-primary-deep'}`}>
+        {list.map(item => (
+          <div className="flex min-w-0 items-center gap-2 rounded-[12px] bg-ww-surface-tint px-2 py-1.5" key={item.id}>
+            <span className="ww-chart-tooltip-category flex h-7 w-7 shrink-0 items-center justify-center rounded-full">
               <CategoryIcon categoryName={item.category.name} iconKey={item.category.icon} size={15} />
             </span>
             <span className="min-w-0 flex-1">

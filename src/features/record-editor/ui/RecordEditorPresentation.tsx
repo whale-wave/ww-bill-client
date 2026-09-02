@@ -197,7 +197,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                       controller.recordType === item.type
                         ? item.type === 'sub'
                           ? 'bg-[linear-gradient(154.093deg,#f0a0b8_0%,#d06080_100%)] text-white shadow-ww-xs'
-                          : 'bg-[linear-gradient(154.093deg,#6fc2dc_0%,#4aaac4_100%)] text-white shadow-ww-xs'
+                          : 'ww-theme-primary-action'
                         : 'text-ww-soft',
                     )}
                     key={item.type}
@@ -258,7 +258,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               )}
               {categoryState === 'ready' && (categories.length > 0 || onManageCategories) && (
                 <div className="grid grid-cols-4 gap-[9px]">
-                  {categories.map((category, index) => (
+                  {categories.map(category => (
                     <button
                       aria-pressed={controller.selectedCategory?.id === category.id}
                       className="flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-border-primary bg-white/80 px-1 pb-[10px] pt-[13px] shadow-ww-xs transition active:scale-95"
@@ -271,14 +271,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                       type="button"
                     >
                       <span className={cn(
-                        'flex h-11 w-11 items-center justify-center rounded-full text-primary-deep',
-                        index % 4 === 1
-                          ? 'bg-[#fff0f5] text-[#cf7894]'
-                          : index % 4 === 2
-                            ? 'bg-[#f1ecff] text-[#8d78c7]'
-                            : index % 4 === 3
-                              ? 'bg-[#e7f7f0] text-[#4d9d82]'
-                              : 'bg-[#e4f5fa]',
+                        'ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full',
                       )}
                       >
                         <CategoryIcon categoryName={category.name} iconKey={category.icon} size={24} />
@@ -458,7 +451,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     {controller.isToday ? t('common:time.today') : controller.formattedDate}
                   </button>
                   <button
-                    className="h-[50px] rounded-[16px] bg-[linear-gradient(163.094deg,#6fc2dc_0%,#4aaac4_100%)] px-4 text-[15px] font-extrabold leading-[22.5px] text-white shadow-[0_5px_9px_rgba(74,170,200,0.4)] disabled:opacity-50"
+                    className="ww-theme-primary-action h-[50px] rounded-[16px] px-4 text-[15px] font-extrabold leading-[22.5px] disabled:opacity-50"
                     disabled={controller.isSubmitting || controller.isImageUploading}
                     onClick={() => void controller.handleSubmit()}
                     type="button"

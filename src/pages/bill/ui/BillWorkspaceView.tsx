@@ -101,7 +101,7 @@ export function PersonalBillWorkspaceView({ query }: { query: BillQueryState }) 
       </div>
       <div className="shrink-0 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
         <WwButton
-          className="!h-12 !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww"
+          className="ww-theme-primary-action !h-12 !rounded-[16px] !font-bold"
           size="full"
           onClick={() => navigate(-1)}
         >
@@ -131,7 +131,7 @@ export function LedgerBillWorkspaceView({
       </div>
       <div className="shrink-0 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
         <WwButton
-          className="!h-12 !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww"
+          className="ww-theme-primary-action !h-12 !rounded-[16px] !font-bold"
           size="full"
           onClick={onBack}
         >

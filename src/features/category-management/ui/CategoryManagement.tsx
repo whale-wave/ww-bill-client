@@ -115,7 +115,7 @@ function SortableCategoryRow({
 
   return (
     <div
-      className="flex min-h-[62px] items-center gap-3 border-b border-solid border-[#e8f0f7] px-3 last:border-b-0"
+      className="flex min-h-[62px] items-center gap-3 border-b border-solid border-border-primary px-3 last:border-b-0"
       ref={setNodeRef}
       role="listitem"
       style={style}
@@ -131,7 +131,7 @@ function SortableCategoryRow({
           <Minus size={17} strokeWidth={2.4} />
         </button>
       )}
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-[#eff7fc] text-primary-deep">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-ww-surface-tint text-primary-deep">
         <CategoryIcon
           categoryName={category.name}
           iconKey={category.icon}
@@ -143,7 +143,7 @@ function SortableCategoryRow({
         <div className="flex items-center gap-2">
           <span className="truncate text-[14px] font-extrabold text-ww-ink">{category.name}</span>
           {category.isCustom && (
-            <span className="shrink-0 rounded-full bg-[#e7f3fb] px-2 py-0.5 text-[9px] font-extrabold tracking-wide text-primary-deep">
+            <span className="shrink-0 rounded-full bg-primary-light/55 px-2 py-0.5 text-[9px] font-extrabold tracking-wide text-primary-deep">
               {t('categories.custom')}
             </span>
           )}
@@ -152,7 +152,7 @@ function SortableCategoryRow({
       {canManage && category.isCustom && (
         <button
           aria-label={t('categories.edit')}
-          className="flex h-9 w-9 items-center justify-center rounded-xl border-0 bg-transparent text-[#6f8798] disabled:cursor-not-allowed"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border-0 bg-transparent text-ww-mid disabled:cursor-not-allowed"
           disabled={writePending}
           onClick={onEdit}
           type="button"
@@ -169,7 +169,7 @@ function SortableCategoryRow({
             position,
             total,
           })}
-          className="flex h-10 w-8 touch-none items-center justify-center rounded-xl border-0 bg-transparent text-[#9eb0bd]"
+          className="flex h-10 w-8 touch-none items-center justify-center rounded-xl border-0 bg-transparent text-ww-soft"
           disabled={writePending}
           type="button"
         >
@@ -295,8 +295,8 @@ function CategoryEditorSheet({
       showCloseButton={false}
       visible
     >
-      <div className="flex h-full flex-col bg-[#fbfdff]">
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-solid border-[#e6eef5] px-4">
+      <div className="flex h-full flex-col bg-ww-background">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b border-solid border-border-primary px-4">
           <button className="border-0 bg-transparent text-[14px] font-bold text-ww-mid" onClick={onClose} type="button">{t('categories.cancel')}</button>
           <h2 className="text-[15px] font-black text-ww-ink">
             {t(editor.mode === 'create' ? 'categories.addTitle' : 'categories.editTitle', {
@@ -315,7 +315,7 @@ function CategoryEditorSheet({
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5">
           <div className="mx-auto max-w-[520px]">
             <div className="mb-5 flex justify-center">
-              <span className="flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-[22px] bg-[#dff1fb] text-primary-deep shadow-[0_12px_30px_rgba(55,130,170,0.16)]">
+              <span className="flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-[22px] bg-ww-surface-tint text-primary-deep shadow-ww">
                 {preview
                   ? <img alt="" className="h-full w-full object-cover" src={preview} />
                   : (
@@ -348,7 +348,7 @@ function CategoryEditorSheet({
             </div>
             {image && (isSaving || uploadProgress > 0) && (
               <div className="mt-3" role="progressbar" aria-label={t('categories.uploadProgress')} aria-valuemax={100} aria-valuemin={0} aria-valuenow={Math.round(uploadProgress * 100)}>
-                <div className="h-1.5 overflow-hidden rounded-full bg-[#e2edf4]">
+                <div className="h-1.5 overflow-hidden rounded-full bg-ww-surface-tint">
                   <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${Math.round(uploadProgress * 100)}%` }} />
                 </div>
                 <p className="mt-1 text-right text-[10px] font-bold text-primary-deep">
@@ -364,7 +364,7 @@ function CategoryEditorSheet({
                 return null;
               return (
                 <section className="mt-5" key={group}>
-                  <h3 className="mb-3 text-center text-[11px] font-extrabold tracking-[0.18em] text-[#718897]">
+                  <h3 className="mb-3 text-center text-[11px] font-extrabold tracking-[0.18em] text-ww-mid">
                     {t(`categories.iconGroups.${group}`)}
                   </h3>
                   <div className="grid grid-cols-5 gap-x-3 gap-y-4">
@@ -374,7 +374,7 @@ function CategoryEditorSheet({
                         <button
                           aria-label={i18n.resolvedLanguage?.startsWith('zh') ? item.name.zh : item.name.en}
                           aria-pressed={selected}
-                          className={`mx-auto flex h-11 w-11 items-center justify-center rounded-full border-0 transition ${selected ? 'bg-primary text-white shadow-[0_8px_20px_rgba(46,145,194,0.28)]' : 'bg-[#f0f4f6] text-[#667b88]'}`}
+                          className={`mx-auto flex h-11 w-11 items-center justify-center rounded-full border-0 transition ${selected ? 'bg-primary text-white shadow-ww' : 'bg-ww-surface-tint text-ww-mid'}`}
                           key={item.key}
                           onClick={() => {
                             setImage(undefined);
@@ -391,11 +391,11 @@ function CategoryEditorSheet({
                 </section>
               );
             })}
-            <label className="mt-6 flex min-h-14 cursor-pointer items-center gap-3 rounded-[18px] border border-dashed border-[#92c6df] bg-[#edf8fd] px-4 text-primary-deep">
+            <label className="mt-6 flex min-h-14 cursor-pointer items-center gap-3 rounded-[18px] border border-dashed border-primary/50 bg-primary-light/25 px-4 text-primary-deep">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white"><ImagePlus size={19} /></span>
               <span className="min-w-0 flex-1">
                 <strong className="block text-[13px] font-black">{t('categories.uploadImage')}</strong>
-                <small className="block truncate text-[10px] font-semibold text-[#6f8b9b]">{image ? t('categories.imageCropped') : t('categories.uploadHint')}</small>
+                <small className="block truncate text-[10px] font-semibold text-ww-mid">{image ? t('categories.imageCropped') : t('categories.uploadHint')}</small>
               </span>
               <input
                 accept="image/jpeg,image/png,image/webp"
@@ -553,11 +553,11 @@ export function CategoryManagement({
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="shrink-0 px-[18px] pb-3 pt-2">
-        <div className="mx-auto grid h-11 w-full max-w-[520px] grid-cols-2 rounded-[16px] bg-[#dfeef7] p-1 shadow-inner">
+        <div className="mx-auto grid h-11 w-full max-w-[520px] grid-cols-2 rounded-[16px] bg-ww-surface-tint p-1 shadow-inner">
           {(['sub', 'add'] as const).map(value => (
             <button
               aria-pressed={type === value}
-              className={`rounded-[12px] border-0 text-[13px] font-black transition-all ${type === value ? 'bg-primary text-white shadow-[0_6px_14px_rgba(47,137,183,0.24)]' : 'bg-transparent text-[#587183]'}`}
+              className={`rounded-[12px] border-0 text-[13px] font-black transition-all ${type === value ? 'bg-primary text-white shadow-ww-xs' : 'bg-transparent text-ww-mid'}`}
               key={value}
               onClick={() => handleTypeChange(value)}
               type="button"
@@ -570,7 +570,7 @@ export function CategoryManagement({
       <main className="min-h-0 flex-1 overflow-y-auto px-[18px] pb-[calc(96px+env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[520px]">
           {!canManage && (
-            <div className="mb-3 rounded-[16px] bg-[#edf7fc] px-4 py-3 text-[11px] font-bold leading-5 text-[#557586]">
+            <div className="mb-3 rounded-[16px] bg-ww-surface-tint px-4 py-3 text-[11px] font-bold leading-5 text-ww-mid">
               {t('categories.readOnly')}
             </div>
           )}
@@ -579,9 +579,9 @@ export function CategoryManagement({
               <h2 className="text-[13px] font-black tracking-wide text-ww-ink">{t('categories.current')}</h2>
               <p className="mt-0.5 text-[10px] font-semibold text-ww-mid">{t('categories.currentHint')}</p>
             </div>
-            <span className="text-[10px] font-extrabold text-[#7190a1]">{active.length}</span>
+            <span className="text-[10px] font-extrabold text-ww-mid">{active.length}</span>
           </div>
-          <section className="overflow-hidden rounded-[22px] border border-solid border-[#e0ebf3] bg-white shadow-[0_14px_34px_rgba(43,91,119,0.08)]">
+          <section className="overflow-hidden rounded-[22px] border border-solid border-border-primary bg-ww-surface shadow-ww">
             {query.isLoading
               ? <PageLoadingState compact label={t('common:nav.loading')} testId="category-management-loading" />
               : (
@@ -634,12 +634,12 @@ export function CategoryManagement({
           </div>
           {showArchived && (
             <section
-              className="overflow-hidden rounded-[22px] border border-solid border-[#e0ebf3] bg-white/90 shadow-[0_10px_28px_rgba(43,91,119,0.06)]"
+              className="overflow-hidden rounded-[22px] border border-solid border-border-primary bg-ww-surface shadow-ww-xs"
               id="archived-category-list"
             >
               {archived.length
                 ? archived.map(category => (
-                    <div className="flex min-h-[60px] items-center gap-3 border-b border-solid border-[#e8f0f7] px-3 last:border-b-0" key={category.id}>
+                    <div className="flex min-h-[60px] items-center gap-3 border-b border-solid border-border-primary px-3 last:border-b-0" key={category.id}>
                       {canManage && (
                         <button
                           aria-label={t('categories.restoreName', { name: category.name })}
@@ -650,11 +650,11 @@ export function CategoryManagement({
                           <Plus size={18} strokeWidth={2.5} />
                         </button>
                       )}
-                      <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-[14px] bg-[#f1f5f7] text-[#718692]">
+                      <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-[14px] bg-ww-surface-tint text-ww-mid">
                         <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} size={20} />
                       </span>
-                      <span className="min-w-0 flex-1 truncate text-[14px] font-bold text-[#647985]">{category.name}</span>
-                      <span className="rounded-full bg-[#f1f4f6] px-2 py-1 text-[9px] font-bold text-[#8798a2]">{t('categories.inactive')}</span>
+                      <span className="min-w-0 flex-1 truncate text-[14px] font-bold text-ww-mid">{category.name}</span>
+                      <span className="rounded-full bg-ww-surface-tint px-2 py-1 text-[9px] font-bold text-ww-soft">{t('categories.inactive')}</span>
                     </div>
                   ))
                 : <p className="px-4 py-6 text-center text-[11px] font-semibold text-ww-mid">{t('categories.noMore')}</p>}
@@ -663,7 +663,7 @@ export function CategoryManagement({
         </div>
       </main>
       {canManage && (
-        <div className="absolute inset-x-0 bottom-0 border-t border-solid border-[#dce8f0] bg-white/95 px-[18px] pb-[calc(12px+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
+        <div className="absolute inset-x-0 bottom-0 border-t border-solid border-border-primary bg-ww-surface px-[18px] pb-[calc(12px+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
           <Button
             block
             className="mx-auto !h-12 !max-w-[520px] !rounded-[17px] !border-0 !bg-primary !text-[14px] !font-black !text-white !shadow-[0_12px_26px_rgba(45,135,181,0.25)]"

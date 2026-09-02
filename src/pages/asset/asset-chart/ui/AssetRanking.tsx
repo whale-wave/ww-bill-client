@@ -8,6 +8,7 @@ import { AssetStatisticalRecordType, useGetAssetQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, math } from '@/shared/lib';
+import { readAppearanceChartColors, useAppearanceRevision } from '@/shared/lib/appearance-tokens';
 import { GradientPanel, IllustratedEmptyState, ProgressBar } from '@/shared/ui';
 import { IconBlock } from '../../ui';
 import { ChartRetryButton } from './ChartRetryButton';
@@ -15,13 +16,15 @@ import { ChartRetryButton } from './ChartRetryButton';
 type AssetPercentItem = Asset & { percent: number; percentStr: string };
 
 export const AssetRanking: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
+  useAppearanceRevision();
   const { t } = useTranslation('asset');
   const { data, isError, isFetching, isLoading, refetch } = useGetAssetQuery();
   const navigate = useNavigate();
   const title = type === AssetStatisticalRecordType.ASSET
     ? t('chart.assetRanking')
     : t('chart.liabilityRanking');
-  const accentColor = type === AssetStatisticalRecordType.ASSET ? '#4aaac4' : '#d66b8f';
+  const chartColors = readAppearanceChartColors();
+  const accentColor = type === AssetStatisticalRecordType.ASSET ? chartColors[0] : chartColors[1];
 
   const rankList = useMemo<AssetPercentItem[]>(() => {
     const filterType = type === AssetStatisticalRecordType.ASSET ? 'add' : 'sub';
@@ -50,7 +53,7 @@ export const AssetRanking: FC<{ type: AssetStatisticalRecordType }> = ({ type })
     <GradientPanel as="article" className="overflow-hidden px-[18px] py-[18px]" elevation="standard" surface="glass">
       <header className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[linear-gradient(145deg,#e2f6ff,#f4efff)] text-primary-deep shadow-ww-xs">
+          <span className="ww-theme-icon-surface flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] text-primary-deep shadow-ww-xs">
             <Trophy size={19} strokeWidth={2} />
           </span>
           <h2 className="truncate text-[14px] font-extrabold text-ww-ink">{title}</h2>

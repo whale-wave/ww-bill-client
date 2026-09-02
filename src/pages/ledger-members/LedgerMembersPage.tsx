@@ -160,7 +160,7 @@ const LedgerMembersPage: FC = () => {
         </div>
       </main>
       {ledgerQuery.data && canInvite && (
-        <div className="relative z-[2] shrink-0 bg-[linear-gradient(180deg,rgba(244,251,255,0)_0%,rgba(244,251,255,0.88)_40%,rgba(244,251,255,0.97)_100%)] px-[18px] pb-[max(16px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-sm">
+        <div className="ww-page-fade-footer relative z-[2] shrink-0 px-[18px] pb-[max(16px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-sm">
           <div className="mx-auto w-full max-w-[520px]">
             <button
               className="flex h-[52px] w-full items-center justify-center gap-2 rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"

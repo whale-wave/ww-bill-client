@@ -9,8 +9,10 @@ $class-prefix-modal: 'bwm-modal';
     min-width: 269px;
     display: flex;
     flex-direction: column;
-    background: #f0f0f0;
-    border-radius: 12px;
+    background: var(--ww-surface-raised-color);
+    border: 1px solid var(--ww-border-color);
+    border-radius: var(--ww-radius-card);
+    box-shadow: var(--ww-card-shadow-floating);
     header {
       display: flex;
       align-items: center;
@@ -18,20 +20,20 @@ $class-prefix-modal: 'bwm-modal';
       min-height: 58px;
       font-size: var(--ww-font-size-lg);
       font-weight: bold;
-      color: #010101;
+      color: var(--ww-theme-text-color);
     }
     main {
       flex-grow: 1;
     }
     footer {
-      $borderColor: #b4b4b4;
+      $borderColor: var(--ww-border-color);
       border-top: 1px solid $borderColor;
       button {
         width: 50%;
         height: 42px;
         font-size: var(--ww-font-size-base);
       }
-      $buttonColor: #356eef;
+      $buttonColor: var(--ww-theme-color-deep);
       .#{$class-prefix-modal}-cancel {
         color: $buttonColor;
         font-weight: bold;
@@ -40,7 +42,7 @@ $class-prefix-modal: 'bwm-modal';
       .#{$class-prefix-modal}-ok {
         color: $buttonColor;
         &.disabled {
-          color: #929292;
+          color: var(--ww-text-color-soft);
         }
       }
     }

@@ -336,18 +336,18 @@ export default function MonthBillDetailPage() {
         {query.data && query.data.summary.recordCount === 0 && <IllustratedEmptyState accentIcon={<DesignIcon name="tab-add" size={20} />} actionLabel={t('emptyAction')} className="min-h-[320px]" description={t('emptyDescription')} icon={<DesignIcon name="shortcut-bill" size={46} />} onAction={() => navigate('/bookkeeping')} title={t('emptyTitle')} />}
         {query.data && query.data.summary.recordCount > 0 && <MonthBillDetailRenderer data={query.data} mode="screen" />}
       </main>
-      <div className="absolute bottom-0 left-0 right-0 z-20 flex shrink-0 bg-gradient-to-t from-[#f4fbff] via-[#f4fbff]/95 to-transparent px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-5">
-        <WwButton className="!h-12 !w-full !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww" onClick={() => void handleExport()} size="full">{exportStatus === 'idle' ? t('saveImage') : t('savingImage')}</WwButton>
+      <div className="ww-month-detail-footer absolute bottom-0 left-0 right-0 z-20 flex shrink-0 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-5">
+        <WwButton className="ww-theme-primary-action !h-12 !w-full !rounded-[16px] !font-bold" onClick={() => void handleExport()} size="full">{exportStatus === 'idle' ? t('saveImage') : t('savingImage')}</WwButton>
       </div>
       <AppBottomSheet destroyOnClose onClose={closeSavedImagePreview} onMaskClick={closeSavedImagePreview} position="bottom" showCloseButton visible={Boolean(savedImagePreview)}>
         {savedImagePreview && (
           <div className="px-5 pb-[calc(20px+env(safe-area-inset-bottom))] pt-12">
             <h2 className="text-center text-[17px] font-black text-ww-ink">{t('exportPreviewTitle')}</h2>
             <p className="mt-2 text-center text-[13px] font-semibold text-ww-mid">{t('exportPreviewDescription')}</p>
-            <div className="mt-4 max-h-[52dvh] overflow-hidden rounded-[18px] bg-[#eef5f8] shadow-ww-xs">
+            <div className="mt-4 max-h-[52dvh] overflow-hidden rounded-[18px] bg-ww-surface-tint shadow-ww-xs">
               <img alt={t('exportPreviewTitle')} className="max-h-[52dvh] w-full object-contain" src={savedImagePreview.url} />
             </div>
-            <WwButton className="!mt-5 !h-12 !w-full !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww" onClick={() => void handleShareSavedImage()} size="full">
+            <WwButton className="ww-theme-primary-action !mt-5 !h-12 !w-full !rounded-[16px] !font-bold" onClick={() => void handleShareSavedImage()} size="full">
               <span className="inline-flex items-center justify-center gap-2">
                 <Share2 size={18} />
                 {t('shareImage')}

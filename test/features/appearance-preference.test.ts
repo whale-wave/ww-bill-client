@@ -2,30 +2,36 @@ import { describe, expect, it } from 'vitest';
 import {
   applyAppearancePreference,
   DEFAULT_APPEARANCE,
-  isAppearanceAccent,
   isAppearanceTemplate,
   readAppearancePreference,
 } from '@/features/appearance';
 
 describe('appearance preference', () => {
-  it('uses the balanced liquid-glass sky treatment until account configuration arrives', () => {
-    expect(readAppearancePreference()).toEqual({ accent: 'sky', template: 'glass' });
-    expect(DEFAULT_APPEARANCE).toEqual({ accent: 'sky', template: 'glass' });
+  it('uses the balanced liquid-glass theme package until account configuration arrives', () => {
+    expect(readAppearancePreference()).toEqual({ template: 'glass' });
+    expect(DEFAULT_APPEARANCE).toEqual({ template: 'glass' });
   });
 
-  it('applies account choices as document data attributes', () => {
-    applyAppearancePreference({ accent: 'lavender', template: 'glass' });
+  it('applies only the account template and clears a legacy accent attribute', () => {
+    document.documentElement.dataset.appearanceAccent = 'lavender';
+    applyAppearancePreference({ template: 'fresh' });
 
     expect(document.documentElement.dataset).toMatchObject({
-      appearanceAccent: 'lavender',
-      appearanceTemplate: 'glass',
+      appearanceTemplate: 'fresh',
     });
+    expect(document.documentElement.dataset.appearanceAccent).toBeUndefined();
   });
 
-  it('only accepts registered templates and accent palettes', () => {
+  it('only accepts registered visual templates', () => {
     expect(isAppearanceTemplate('minimal')).toBe(true);
     expect(isAppearanceTemplate('cartoon')).toBe(false);
-    expect(isAppearanceAccent('mint')).toBe(true);
-    expect(isAppearanceAccent('custom')).toBe(false);
+  });
+
+  it('does not let a legacy accent override its template package', () => {
+    const legacyPreference = { appearanceAccent: 'coral', appearanceTemplate: 'glass' } as const;
+
+    expect(readAppearancePreference(legacyPreference)).toEqual({
+      template: 'glass',
+    });
   });
 });

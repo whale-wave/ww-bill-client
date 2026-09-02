@@ -11,7 +11,7 @@ interface AuthPrimaryButtonProps {
 export function AuthPrimaryButton({ children, disabled, onClick, testId }: AuthPrimaryButtonProps) {
   return (
     <button
-      className="mt-6 flex h-[52px] w-full items-center justify-center rounded-[16px] border-0 bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] text-[15px] font-bold text-white shadow-ww transition active:opacity-85 disabled:cursor-not-allowed disabled:opacity-45"
+      className="ww-theme-primary-action mt-6 flex h-[52px] w-full items-center justify-center rounded-[16px] border-0 text-[15px] font-bold transition active:opacity-85 disabled:cursor-not-allowed disabled:opacity-45"
       data-testid={testId}
       disabled={disabled}
       onClick={onClick}

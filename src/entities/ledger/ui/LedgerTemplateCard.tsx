@@ -26,7 +26,7 @@ export const LedgerTemplateCard: FC<LedgerTemplateCardProps> = ({
       type="button"
     >
       <span aria-hidden="true" className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary-light/35" />
-      <span className="relative mr-3 flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-[17px] bg-[linear-gradient(145deg,#c8eaf6,#e9e1ff)] text-[22px] text-primary-deep shadow-ww-xs">
+      <span className="ww-theme-icon-surface relative mr-3 flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-[17px] text-[22px] text-primary-deep shadow-ww-xs">
         <LedgerTemplateIcon templateKey={template.key} />
       </span>
       <span className="relative min-w-0 flex-grow">

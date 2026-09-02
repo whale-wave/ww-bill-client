@@ -31,7 +31,7 @@
 .ledger-switcher-header-shell {
   position: relative;
   flex: 0 0 auto;
-  background: #fff;
+  background: var(--ww-surface-raised-color);
 }
 
 .ledger-switcher-header {
@@ -39,7 +39,7 @@
   --border-bottom: 1px solid #ebebeb;
 
   flex: 0 0 auto;
-  background: #fff;
+  background: var(--ww-surface-raised-color);
 
   .adm-nav-bar-title {
     min-width: 0;
@@ -189,9 +189,9 @@
   }
 
   &[data-selected='true'] {
-    border-color: color-mix(in srgb, var(--ww-theme-color) 36%, #fff);
-    background: color-mix(in srgb, var(--ww-theme-color-light) 48%, #fff);
-    box-shadow: 0 5px 16px rgb(60 140 180 / 11%);
+    border-color: color-mix(in srgb, var(--ww-theme-color) 36%, var(--ww-border-color));
+    background: var(--ww-surface-tint-color);
+    box-shadow: var(--ww-card-shadow-xs);
   }
 
   &:focus-visible {
@@ -284,7 +284,8 @@
   justify-content: center;
   border-radius: 15px;
   overflow: hidden;
-  background: linear-gradient(145deg, var(--ww-theme-color-light), #e9e1ff);
+  border: 1px solid var(--ww-border-color);
+  background: var(--ww-surface-tint-color);
   color: var(--ww-theme-color-deep);
 
   &[data-theme='personal'] {
@@ -344,7 +345,16 @@
 
   .ledger-switcher-panel__create {
     border-color: transparent;
-    background: linear-gradient(135deg, var(--ww-theme-color-mid), #34bdd0);
-    color: #fff;
+    background: var(--ww-theme-color);
+    color: var(--ww-primary-foreground);
+    box-shadow: var(--ww-card-shadow-xs);
   }
+}
+
+html[data-appearance-template='fresh'] .ledger-switcher-panel__icon {
+  background: linear-gradient(145deg, var(--ww-theme-color-light), var(--ww-surface-secondary-color));
+}
+
+html[data-appearance-template='fresh'] .ledger-switcher-panel__create {
+  background: linear-gradient(135deg, var(--ww-theme-color), var(--ww-theme-color-mid));
 }

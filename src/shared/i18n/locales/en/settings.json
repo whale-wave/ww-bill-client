@@ -188,11 +188,11 @@
   },
   "appearance": {
     "title": "Appearance",
-    "entryDescription": "Choose a visual style and accent color",
+    "entryDescription": "Choose a visual style",
     "introTitle": "Make Whale Wave feel like yours",
-    "introDescription": "Mix visual styles and accent colors freely. Your choice follows your account.",
+    "introDescription": "Every theme includes its palette, material, and shadow treatment. Your choice follows your account.",
     "templateTitle": "Visual style",
-    "accentTitle": "Accent color",
+    "themePackageHint": "Switching a style applies its full palette and material treatment.",
     "recommended": "Recommended",
     "saveFailed": "Unable to save the theme. Your previous setting was restored.",
     "templates": {
@@ -200,14 +200,8 @@
       "freshDescription": "Keep the soft blue-and-pink mood in a cleaner rhythm.",
       "minimal": "Focused minimal",
       "minimalDescription": "Neutral surfaces and fine borders keep the focus on records.",
-      "glass": "Balanced liquid glass",
-      "glassDescription": "A frosted glow and translucent layers, with clear amounts."
-    },
-    "accents": {
-      "sky": "Sky & pink",
-      "coral": "Coral orange",
-      "lavender": "Lavender",
-      "mint": "Mint"
+      "glass": "Minimal liquid glass",
+      "glassDescription": "Neutral space, translucent white surfaces, and a single whale-blue action color."
     }
   }
 }

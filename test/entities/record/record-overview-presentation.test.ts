@@ -54,6 +54,8 @@ describe('record overview presentation', () => {
     expect(titleRow?.querySelector('img')?.parentElement?.classList).toContain('h-8');
     expect(shortcut?.classList).toContain('rounded-[14px]');
     expect(shortcut?.classList).toContain('h-16');
+    expect(shortcut?.getAttribute('data-action-menu-variant')).toBe('detail-shortcuts');
+    expect(shortcut?.getAttribute('data-action-menu-tone')).toBe('blue');
     expect(metrics).not.toBeNull();
     expect(container.querySelectorAll('[aria-label="record shortcuts"] button')).toHaveLength(5);
   });

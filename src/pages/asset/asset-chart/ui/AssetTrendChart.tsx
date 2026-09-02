@@ -14,6 +14,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AssetStatisticalRecordType, useAssetStatisticalRecord, useGetAssetStatisticalRecordQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedYear } from '@/shared/lib';
+import { readAppearanceChartColors, readAppearanceToken, useAppearanceRevision, withAlpha } from '@/shared/lib/appearance-tokens';
 import { useChart } from '@/shared/lib/use-chart';
 import { GradientPanel } from '@/shared/ui';
 import { ChartRetryButton } from './ChartRetryButton';
@@ -24,13 +25,8 @@ type EChartsOption = echarts.ComposeOption<
   GridComponentOption | LineSeriesOption | MarkLineComponentOption | TooltipComponentOption
 >;
 
-const trendColors: Record<AssetStatisticalRecordType, { area: string; line: string }> = {
-  [AssetStatisticalRecordType.ASSET]: { area: 'rgba(111, 194, 220, 0.24)', line: '#4aaac4' },
-  [AssetStatisticalRecordType.LIABILITY]: { area: 'rgba(214, 107, 143, 0.2)', line: '#d66b8f' },
-  [AssetStatisticalRecordType.NET_ASSET]: { area: 'rgba(129, 116, 200, 0.2)', line: '#8174c8' },
-};
-
 export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
+  const appearanceRevision = useAppearanceRevision();
   const { i18n, t } = useTranslation('asset');
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const chartTitle = type === AssetStatisticalRecordType.LIABILITY
@@ -80,7 +76,15 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
     if (!myChart)
       return;
 
-    const { area, line } = trendColors[type];
+    const chartColors = readAppearanceChartColors();
+    const line = type === AssetStatisticalRecordType.ASSET
+      ? chartColors[0]
+      : type === AssetStatisticalRecordType.LIABILITY
+        ? chartColors[1]
+        : chartColors[2];
+    const area = withAlpha(line, 0.22);
+    const axisColor = readAppearanceToken('--ww-text-color-soft', '#9baebb');
+    const gridColor = withAlpha(line, 0.16);
     const option: EChartsOption = {
       animationDuration: 420,
       grid: {
@@ -93,7 +97,7 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
       tooltip: {
         axisPointer: {
           lineStyle: {
-            color: 'rgba(74, 170, 196, 0.32)',
+            color: withAlpha(line, 0.32),
             type: 'dashed',
           },
         },
@@ -108,14 +112,14 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
       },
       xAxis: {
         axisLabel: {
-          color: '#9baebb',
+          color: axisColor,
           fontSize: 10,
           interval: (index: number) => [0, 2, 5, 8, 11].includes(index),
           margin: 12,
         },
         axisLine: {
           lineStyle: {
-            color: 'rgba(110, 194, 220, 0.18)',
+            color: gridColor,
           },
         },
         axisTick: { show: false },
@@ -129,7 +133,7 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
         axisTick: { show: false },
         splitLine: {
           lineStyle: {
-            color: 'rgba(110, 194, 220, 0.1)',
+            color: withAlpha(line, 0.1),
             type: 'dashed',
           },
         },
@@ -172,7 +176,7 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
     };
 
     myChart.setOption(option, true);
-  }, [chartTitle, myChart, seriesData, type, xAxisData]);
+  }, [appearanceRevision, chartTitle, myChart, seriesData, type, xAxisData]);
 
   useEffect(() => {
     if (!myChart || !isChartReady)

@@ -17,7 +17,7 @@
     right: -64px;
     width: 176px;
     height: 176px;
-    background: radial-gradient(circle, rgba(111, 194, 220, 0.22), rgba(111, 194, 220, 0));
+    background: radial-gradient(circle, color-mix(in srgb, var(--ww-theme-color) 18%, transparent), transparent);
   }
 
   &::after {
@@ -25,8 +25,15 @@
     left: -92px;
     width: 210px;
     height: 210px;
-    background: radial-gradient(circle, rgba(240, 160, 184, 0.15), rgba(240, 160, 184, 0));
+    background: radial-gradient(circle, color-mix(in srgb, var(--ww-text-color-soft) 16%, transparent), transparent);
   }
+}
+
+:global(html[data-appearance-template='glass']) .asset-chart::before,
+:global(html[data-appearance-template='glass']) .asset-chart::after,
+:global(html[data-appearance-template='minimal']) .asset-chart::before,
+:global(html[data-appearance-template='minimal']) .asset-chart::after {
+  display: none;
 }
 
 .scroll-area {

@@ -12,8 +12,8 @@ $class-prefix-fixed-pin: 'bwm-fixed-pin';
   align-items: center;
   font-size: var(--ww-font-size-base);
   font-weight: bold;
-  color: #333233;
-  background: #aeeeff;
-  box-shadow: 0 3px 6px rgba(174, 238, 255, 0.41);
+  color: var(--ww-primary-foreground);
+  background: var(--ww-theme-color);
+  box-shadow: var(--ww-card-shadow-floating);
   border-radius: 50%;
 }

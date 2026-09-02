@@ -74,7 +74,7 @@ export const Top: FC = () => {
               aria-pressed={item.value === currentTimeRangeCategory}
               className={`rounded-[10px] py-2 text-[13px] leading-[19.5px] transition ${
                 item.value === currentTimeRangeCategory
-                  ? 'bg-[linear-gradient(161.513deg,#6fc2dc_0%,#4aaac4_100%)] font-bold text-white shadow-[0_3px_6px_rgba(74,170,200,0.36)]'
+                  ? 'ww-theme-primary-action font-bold'
                   : 'font-medium text-ww-soft'
               }`}
               key={item.value}

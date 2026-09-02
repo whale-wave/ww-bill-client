@@ -5,20 +5,20 @@ $class-prefix-input: 'bwm-input';
   width: 240px;
   outline: none;
   &::placeholder {
-    color: #ddd;
+    color: var(--ww-text-color-ghost);
     font-size: var(--ww-font-size-base);
   }
   &-wrapper {
     --width: 100%;
     --prefix-width: 'auto';
-    --border-inner: 1px solid #e7e7e7;
+    --border-inner: 1px solid var(--ww-border-color);
 
     display: flex;
     align-items: center;
     width: var(--width);
     height: 40px;
     font-size: var(--ww-font-size-xl);
-    color: #333233;
+    color: var(--ww-theme-text-color);
     border-bottom: var(--border-inner);
   }
   &-name {
