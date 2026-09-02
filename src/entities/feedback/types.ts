@@ -1,4 +1,4 @@
-export type FeedbackCategory = 'bug' | 'experience' | 'other' | 'suggestion';
+export type FeedbackCategory = 'bug' | 'suggestion';
 
 export interface CreateFeedbackInput {
   appVersion?: string;

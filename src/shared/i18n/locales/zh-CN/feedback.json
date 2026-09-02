@@ -5,10 +5,8 @@
   "heroDescription": "遇到问题、觉得哪里不顺手，或有期待的新功能，都可以告诉我们。",
   "categoryLabel": "这次想反馈什么？",
   "categories": {
-    "suggestion": "功能建议",
-    "bug": "问题反馈",
-    "experience": "体验优化",
-    "other": "其他"
+    "suggestion": "建议 / 想法",
+    "bug": "遇到问题"
   },
   "contentLabel": "详细描述",
   "contentPlaceholder": "请描述你的想法或遇到的问题。如果是问题，写上操作步骤会更容易定位…",

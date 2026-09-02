@@ -5,10 +5,8 @@
   "heroDescription": "Tell us about a problem, a rough edge, or a feature you would love to use.",
   "categoryLabel": "What is this about?",
   "categories": {
-    "suggestion": "Suggestion",
-    "bug": "Problem",
-    "experience": "Experience",
-    "other": "Other"
+    "suggestion": "Suggestion / idea",
+    "bug": "Something went wrong"
   },
   "contentLabel": "Tell us more",
   "contentPlaceholder": "Describe your idea or what happened. Steps to reproduce are especially helpful for problems…",
