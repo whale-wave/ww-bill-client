@@ -38,6 +38,7 @@ export interface ConfirmShortcutDraftInput {
   draftId: string;
   ledgerId: string;
   remark: string;
+  tagIds?: string[];
   time: string;
   type: 'add' | 'sub';
 }
