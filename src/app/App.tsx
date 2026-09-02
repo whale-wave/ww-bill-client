@@ -6,6 +6,7 @@ import { Router } from '@/app/router';
 import { AndroidUpdateController } from '@/features/app-update';
 import { AppearanceProvider } from '@/features/appearance';
 import { useAuthStore } from '@/features/auth';
+import { MotionEffectsProvider } from '@/features/motion';
 import { PresenceReporter } from '@/features/presence';
 import { CACHE_MAX_AGE, dehydrateOptions, QUERY_PERSIST_BUSTER } from '@/shared/api/query-client';
 import { QueryRefreshController } from '@/shared/api/query-refresh-controller';
@@ -30,8 +31,10 @@ export const App: FC = () => {
             <PresenceReporter />
             <AndroidUpdateController />
             <SeniorModeProvider>
-              {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
-              <Router />
+              <MotionEffectsProvider>
+                {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
+                <Router />
+              </MotionEffectsProvider>
             </SeniorModeProvider>
           </AppearanceProvider>
         </QueryRefreshController>
@@ -55,8 +58,10 @@ export const App: FC = () => {
           <PresenceReporter />
           <AndroidUpdateController />
           <SeniorModeProvider>
-            {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
-            <Router />
+            <MotionEffectsProvider>
+              {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
+              <Router />
+            </MotionEffectsProvider>
           </SeniorModeProvider>
         </AppearanceProvider>
       </QueryRefreshController>

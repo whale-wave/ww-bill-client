@@ -19,8 +19,10 @@ const SoundAndHapticsPage: FC = () => {
   const [patchConfig, patchState] = usePatchUserAppConfigMutation();
   const [soundOverride, setSoundOverride] = useState<boolean>();
   const [hapticOverride, setHapticOverride] = useState<boolean>();
+  const [motionOverride, setMotionOverride] = useState<boolean>();
   const soundEnabled = soundOverride ?? config?.isOpenSoundEffect ?? false;
   const hapticEnabled = hapticOverride ?? config?.isOpenHapticEffect ?? false;
+  const motionEnabled = motionOverride ?? config?.isOpenMotionEffect ?? true;
 
   const handleSoundSwitch = async (checked: boolean) => {
     const previous = soundEnabled;
@@ -81,6 +83,22 @@ const SoundAndHapticsPage: FC = () => {
     }
   };
 
+  const handleMotionSwitch = async (checked: boolean) => {
+    const previous = motionEnabled;
+    setMotionOverride(checked);
+
+    try {
+      await patchConfig({ isOpenMotionEffect: checked });
+    }
+    catch {
+      setMotionOverride(previous);
+      Toast.show({ content: t('soundAndHaptics.saveFailed'), icon: 'fail' });
+    }
+    finally {
+      setMotionOverride(undefined);
+    }
+  };
+
   return (
     <div className="page-new relative overflow-hidden">
       <PageHeader backLabel={t('common:nav.back')} onBack={onBack} title={t('soundAndHaptics.title')} />
@@ -107,6 +125,15 @@ const SoundAndHapticsPage: FC = () => {
                   kind: 'switch',
                   label: t('soundAndHaptics.haptics'),
                   onChange: checked => void handleHapticSwitch(checked),
+                },
+                {
+                  checked: motionEnabled,
+                  disabled: patchState.isLoading,
+                  icon: 'appearance',
+                  id: 'motion',
+                  kind: 'switch',
+                  label: t('soundAndHaptics.motion'),
+                  onChange: checked => void handleMotionSwitch(checked),
                 },
               ],
             }]}

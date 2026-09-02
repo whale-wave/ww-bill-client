@@ -3,14 +3,21 @@ import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { CategoryEntity } from '@/entities/category';
 import { Button, DatePicker, ErrorBlock, Popup, SpinLoading } from 'antd-mobile';
-import { Delete as BackspaceIcon, ImagePlus, Settings2, Tags, Trash2, X } from 'lucide-react';
+import { Delete as BackspaceIcon, CheckCircle2, ImagePlus, Settings2, Tags, Trash2, X } from 'lucide-react';
+import { m } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CategoryIcon } from '@/entities/category';
 import { getRecordAttachmentContentApi } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
-import { confirmDangerousAction, DesignIcon, IllustratedEmptyState } from '@/shared/ui';
+import {
+  confirmDangerousAction,
+  DesignIcon,
+  IllustratedEmptyState,
+  MOTION_PRESETS,
+  useMotionPreference,
+} from '@/shared/ui';
 import { KEYPAD_LAYOUT } from '../model/constants';
 
 export type RecordEditorCategoryState = 'error' | 'loading' | 'ready';
@@ -28,6 +35,7 @@ interface RecordEditorPresentationProps {
   onRetryCategories?: () => void;
   onCreateTag?: (name: string) => Promise<{ id: string; name: string }>;
   remarkHistory?: string[];
+  isSaveSucceeded?: boolean;
   tags?: RecordEditorTag[];
 }
 
@@ -44,6 +52,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   onRetryCategories,
   onCreateTag,
   remarkHistory = [],
+  isSaveSucceeded = false,
   tags,
 }) => {
   const { t } = useTranslation(['record', 'ledger', 'common']);
@@ -60,7 +69,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const [contentUrl, setContentUrl] = useState<string>();
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [isImagePreviewLoading, setIsImagePreviewLoading] = useState(false);
+  const [pendingCategoryId, setPendingCategoryId] = useState<number>();
   const hasReconciledTagsRef = useRef(false);
+  const categoryTransitionTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const { isMotionEnabled } = useMotionPreference();
   const attachmentId = controller.initialAttachment?.id;
 
   useEffect(() => {
@@ -99,6 +111,11 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   }, [attachmentId]);
 
   useEffect(() => clearContentUrl, [clearContentUrl]);
+
+  useEffect(() => () => {
+    if (categoryTransitionTimerRef.current)
+      clearTimeout(categoryTransitionTimerRef.current);
+  }, []);
 
   const closeImagePreview = useCallback(() => {
     setIsImagePreviewOpen(false);
@@ -160,9 +177,33 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
     onCancel();
   };
 
+  const handleSelectCategory = useCallback((category: CategoryEntity) => {
+    if (pendingCategoryId)
+      return;
+    controller.handleSelectCategory(category);
+    if (!isMotionEnabled) {
+      setStage('amount');
+      return;
+    }
+    setPendingCategoryId(category.id);
+    categoryTransitionTimerRef.current = setTimeout(() => {
+      setPendingCategoryId(undefined);
+      setStage('amount');
+    }, 180);
+  }, [controller, isMotionEnabled, pendingCategoryId]);
+
+  const stageMotionProps = isMotionEnabled
+    ? {
+        animate: MOTION_PRESETS.contentSwap.animate,
+        exit: MOTION_PRESETS.contentSwap.exit,
+        initial: MOTION_PRESETS.contentSwap.initial,
+        transition: MOTION_PRESETS.contentSwap.transition,
+      }
+    : { initial: false };
+
   return (
     <div
-      className="page select-none pt-[max(8px,env(safe-area-inset-top))] [-webkit-touch-callout:none]"
+      className="page relative select-none pt-[max(8px,env(safe-area-inset-top))] [-webkit-touch-callout:none]"
       data-record-editor-presentation
       data-record-editor-stage={stage}
     >
@@ -231,7 +272,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
 
       {stage === 'category'
         ? (
-            <main className="min-h-0 flex-grow overflow-auto px-[14px] pb-5" data-record-editor-categories>
+            <m.main key="category" {...stageMotionProps} className="min-h-0 flex-grow overflow-auto px-[14px] pb-5" data-record-editor-categories>
               {categoryState === 'loading' && (
                 <div className="flex min-h-[240px] items-center justify-center"><SpinLoading /></div>
               )}
@@ -259,16 +300,23 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               {categoryState === 'ready' && (categories.length > 0 || onManageCategories) && (
                 <div className="grid grid-cols-4 gap-[9px]">
                   {categories.map(category => (
-                    <button
+                    <m.button
                       aria-pressed={controller.selectedCategory?.id === category.id}
-                      className="flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-border-primary bg-white/80 px-1 pb-[10px] pt-[13px] shadow-ww-xs transition active:scale-95"
+                      animate={isMotionEnabled && pendingCategoryId === category.id
+                        ? { scale: [...MOTION_PRESETS.selection.scale] }
+                        : { scale: 1 }}
+                      aria-busy={pendingCategoryId === category.id || undefined}
+                      className={cn(
+                        'flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-border-primary bg-white/80 px-1 pb-[10px] pt-[13px] shadow-ww-xs',
+                        pendingCategoryId === category.id && 'border-primary bg-primary-light/45',
+                      )}
                       data-record-editor-category={category.id}
+                      disabled={Boolean(pendingCategoryId)}
                       key={category.id}
-                      onClick={() => {
-                        controller.handleSelectCategory(category);
-                        setStage('amount');
-                      }}
+                      onClick={() => handleSelectCategory(category)}
+                      transition={isMotionEnabled ? MOTION_PRESETS.selection.transition : { duration: 0 }}
                       type="button"
+                      whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
                     >
                       <span className={cn(
                         'ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full',
@@ -277,15 +325,16 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                         <CategoryIcon categoryName={category.name} iconKey={category.icon} size={24} />
                       </span>
                       <span className="w-full truncate text-[11px] font-semibold leading-[16.5px] text-ww-mid">{category.name}</span>
-                    </button>
+                    </m.button>
                   ))}
                   {onManageCategories && (
-                    <button
+                    <m.button
                       aria-label={t('record:bookkeeping.categorySettings')}
-                      className="flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-dashed border-primary/35 bg-primary-light/25 px-1 pb-[10px] pt-[13px] text-primary-deep shadow-ww-xs transition active:scale-95"
+                      className="flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-dashed border-primary/35 bg-primary-light/25 px-1 pb-[10px] pt-[13px] text-primary-deep shadow-ww-xs"
                       data-record-editor-category-settings
                       onClick={onManageCategories}
                       type="button"
+                      whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
                     >
                       <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/80">
                         <Settings2 aria-hidden="true" size={22} strokeWidth={1.9} />
@@ -293,14 +342,14 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                       <span className="w-full truncate text-[11px] font-semibold leading-[16.5px]">
                         {t('record:bookkeeping.categorySettings')}
                       </span>
-                    </button>
+                    </m.button>
                   )}
                 </div>
               )}
-            </main>
+            </m.main>
           )
         : (
-            <main className="flex min-h-0 flex-grow flex-col" data-record-editor-amount>
+            <m.main key="amount" {...stageMotionProps} className="flex min-h-0 flex-grow flex-col" data-record-editor-amount>
               <label className="mx-[22px] flex h-[50px] shrink-0 items-center rounded-[14px] border border-border-primary bg-white/[0.84] px-4 shadow-ww-xs" data-record-editor-note>
                 <input
                   className="min-w-0 flex-1 select-text border-0 bg-transparent py-3 text-[14px] leading-[normal] text-ww-ink outline-none placeholder:text-[rgba(38,51,64,0.5)] [-webkit-user-select:text]"
@@ -450,19 +499,20 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     <DesignIcon className="mr-1" name="editor-date" size={16} />
                     {controller.isToday ? t('common:time.today') : controller.formattedDate}
                   </button>
-                  <button
+                  <m.button
                     className="ww-theme-primary-action h-[50px] rounded-[16px] px-4 text-[15px] font-extrabold leading-[22.5px] disabled:opacity-50"
                     disabled={controller.isSubmitting || controller.isImageUploading}
                     onClick={() => void controller.handleSubmit()}
                     type="button"
+                    whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
                   >
                     {controller.calculator.completeText}
-                  </button>
+                  </m.button>
                 </div>
                 {showNumericKeypad && (
                   <div className="mt-[10px] grid grid-cols-3 gap-2">
                     {KEYPAD_LAYOUT.map((item, index) => (
-                      <button
+                      <m.button
                         aria-label={item.keys === 'x' ? t('record:bookkeeping.backspace') : undefined}
                         className={cn(
                           'flex h-[54px] items-center justify-center rounded-[16px] border border-border-primary bg-white/90 font-number text-[21px] font-bold leading-[31.5px] text-ww-ink shadow-ww-xs',
@@ -474,6 +524,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                         onTouchMove={controller.handleKeyTouchMove}
                         onTouchStart={() => controller.handleKeyTouchStart(index)}
                         type="button"
+                        whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
                       >
                         {item.keys === 'x'
                           ? (
@@ -483,13 +534,31 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                               </>
                             )
                           : item.keys}
-                      </button>
+                      </m.button>
                     ))}
                   </div>
                 )}
               </section>
-            </main>
+            </m.main>
           )}
+
+      {isSaveSucceeded && (
+        <m.div
+          animate={MOTION_PRESETS.success.animate}
+          aria-live="polite"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-white/35 px-6 backdrop-blur-sm"
+          initial={isMotionEnabled ? MOTION_PRESETS.success.initial : false}
+          role="status"
+          transition={isMotionEnabled ? MOTION_PRESETS.success.transition : { duration: 0 }}
+        >
+          <div className="flex min-w-[176px] flex-col items-center gap-2 rounded-[24px] border border-white/85 bg-white/95 px-7 py-6 text-center text-ww-ink shadow-ww-floating">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-light text-primary-deep">
+              <CheckCircle2 aria-hidden="true" size={30} strokeWidth={2.2} />
+            </span>
+            <span className="text-[15px] font-extrabold">{t('record:bookkeeping.saveSuccess')}</span>
+          </div>
+        </m.div>
+      )}
 
       <DatePicker
         onClose={() => controller.setIsDatePickerVisible(false)}

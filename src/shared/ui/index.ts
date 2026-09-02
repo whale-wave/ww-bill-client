@@ -22,6 +22,7 @@ export { default as List } from './list';
 export { default as Mask } from './mask';
 export * from './metric-grid';
 export { default as Modal } from './modal';
+export * from './motion';
 export { default as NavBar } from './nav-bar';
 export * from './page-header';
 export * from './page-loading-state';

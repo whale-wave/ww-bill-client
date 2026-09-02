@@ -1,0 +1,1 @@
+export { MotionEffectsProvider } from './MotionEffectsProvider';

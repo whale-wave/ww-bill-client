@@ -3,7 +3,7 @@ import type { RecordDraft, RecordEditorReturnContext } from '@/features/record-e
 import { useQueryClient } from '@tanstack/react-query';
 import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetCategoryQuery } from '@/entities/category';
 import { LedgerCapability, LedgerKind, useGetLedgersQuery } from '@/entities/ledger';
@@ -36,6 +36,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { hapticFeedback } from '@/shared/lib';
 import { playSound } from '@/shared/lib/play-sound';
+import { useMotionPreference } from '@/shared/ui';
 
 function getValidSelectTime(value: string | null) {
   if (!value) {
@@ -71,6 +72,7 @@ function BookkeepingPage() {
   const queryClient = useQueryClient();
   const [postRecord, postState] = usePostRecordMutation();
   const [putRecord, putState] = usePutRecordMutation();
+  const [isSaveSucceeded, setIsSaveSucceeded] = useState(false);
   const confirmShortcutDraftMutation = useConfirmShortcutDraftMutation();
   const discardShortcutDraftMutation = useDiscardShortcutDraftMutation();
   const [uploadImage] = useUploadTemporaryRecordAttachmentMutation();
@@ -89,6 +91,7 @@ function BookkeepingPage() {
   const restoredDraft = settingsNavigationState?.recordEditorSettingsNavigation?.draft;
   const shortcutBookkeeping = readShortcutBookkeepingState(location.state)?.shortcutBookkeeping;
   const personalRecordDetailNavigation = readPersonalRecordDetailNavigationState(location.state);
+  const { isMotionEnabled } = useMotionPreference();
   const shortcutRecordType = shortcutBookkeeping
     ? inferShortcutRecordType(shortcutBookkeeping)
     : undefined;
@@ -149,6 +152,13 @@ function BookkeepingPage() {
     }
   }, [initialRecord, navigate, personalRecordDetailNavigation]);
 
+  const showSuccessFeedback = useCallback(async () => {
+    setIsSaveSucceeded(true);
+    if (!isMotionEnabled)
+      return;
+    await new Promise<void>(resolve => window.setTimeout(resolve, 320));
+  }, [isMotionEnabled]);
+
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
     try {
       if (shortcutBookkeeping) {
@@ -168,6 +178,7 @@ function BookkeepingPage() {
         await invalidatePersonalRecordEditorCaches(queryClient);
         hapticFeedback.success();
         Toast.show({ content: t('settings:shortcutBookkeeping.saved'), icon: 'success' });
+        await showSuccessFeedback();
         navigate(`/editing/${result.recordId}`, {
           replace: true,
           state: createPersonalRecordDetailNavigationState(),
@@ -186,6 +197,7 @@ function BookkeepingPage() {
       await invalidatePersonalRecordEditorCaches(queryClient);
       hapticFeedback.success();
       Toast.show({ content: response.message, icon: 'success' });
+      await showSuccessFeedback();
       navigateToReturnContext(returnContext, draft);
     }
     catch (error) {
@@ -209,6 +221,7 @@ function BookkeepingPage() {
     queryClient,
     returnContext,
     shortcutBookkeeping,
+    showSuccessFeedback,
     t,
   ]);
 
@@ -279,6 +292,7 @@ function BookkeepingPage() {
         isSubmitting: controller.isSubmitting || postState.isLoading || putState.isLoading || confirmShortcutDraftMutation.isLoading,
       }}
       initialStage={shortcutBookkeeping ? 'amount' : undefined}
+      isSaveSucceeded={isSaveSucceeded}
       onArchiveTag={defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE) ? handleArchiveTag : undefined}
       onCancel={() => void handleCancel()}
       onManageCategories={defaultLedger

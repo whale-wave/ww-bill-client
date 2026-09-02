@@ -54,9 +54,10 @@
     "effectDesc": "关闭后仍显示在列表"
   },
   "soundAndHaptics": {
-    "title": "声音与触感",
+    "title": "声音、触感与动效",
     "sound": "声音",
     "haptics": "触感",
+    "motion": "动态效果",
     "saveFailed": "设置保存失败，请稍后重试"
   },
   "amount": {

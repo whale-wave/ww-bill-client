@@ -17,6 +17,13 @@ vi.mock('@/shared/ui', () => ({
   confirmDangerousAction: vi.fn(),
   DesignIcon: ({ name }: { name: string }) => createElement('span', { 'data-design-icon': name }),
   IllustratedEmptyState: ({ testId, title }: { testId: string; title: string }) => createElement('div', { 'data-testid': testId }, title),
+  MOTION_PRESETS: {
+    contentSwap: {},
+    press: {},
+    selection: { scale: [1] },
+    success: {},
+  },
+  useMotionPreference: () => ({ isMotionEnabled: false, shouldReduceMotion: true }),
 }));
 
 vi.mock('@/entities/record', () => ({
@@ -55,12 +62,14 @@ function TestEditor({
   onCancel = vi.fn(),
   onManageCategories,
   remarkHistory,
+  isSaveSucceeded = false,
   withTags = false,
 }: {
   onArchiveTag?: (tagId: string) => Promise<void>;
   onCancel?: () => void;
   onManageCategories?: () => void;
   remarkHistory?: string[];
+  isSaveSucceeded?: boolean;
   withTags?: boolean;
 }) {
   const controller = useRecordEditorController({
@@ -76,6 +85,7 @@ function TestEditor({
     categories: [category],
     categoryState: 'ready',
     controller,
+    isSaveSucceeded,
     onArchiveTag,
     onCancel,
     onManageCategories,
@@ -132,6 +142,15 @@ describe('record editor presentation', () => {
     const backspace = container.querySelector<HTMLButtonElement>('[aria-label="record:bookkeeping.backspace"]');
     expect(backspace?.textContent).toContain('record:bookkeeping.backspace');
     expect(backspace?.querySelector('svg')).not.toBeNull();
+  });
+
+  it('shows a semantic success confirmation after a completed save', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor, { isSaveSucceeded: true })));
+    cleanup = () => act(() => root.unmount());
+
+    expect(container.querySelector('[role="status"]')?.textContent).toContain('record:bookkeeping.saveSuccess');
   });
 
   it('renders category settings as the final category item', () => {

@@ -20,6 +20,7 @@ const mocks = vi.hoisted(() => ({
     isDisplayAmountSwitch: false,
     isOpenHapticEffect: false,
     isLedgerQuickSwitchEnabled: false,
+    isOpenMotionEffect: true,
     isOpenSoundEffect: false,
     ledgerQuickSwitchVersion: 1,
     appearanceTemplate: 'fresh' as const,

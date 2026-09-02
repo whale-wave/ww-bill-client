@@ -14,6 +14,7 @@ export interface UserAppConfig {
   isDisplayAmount: boolean;
   isDisplayAmountSwitch: boolean;
   isOpenHapticEffect: boolean;
+  isOpenMotionEffect: boolean;
   isOpenSoundEffect: boolean;
   isLedgerQuickSwitchEnabled: boolean;
   ledgerQuickSwitchVersion: number;
