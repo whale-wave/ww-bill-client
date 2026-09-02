@@ -161,6 +161,7 @@ function BookkeepingPage() {
           draftId: shortcutBookkeeping.id,
           ledgerId: defaultLedger.id,
           remark: draft.remark,
+          tagIds: draft.tagIds,
           time: draft.time,
           type: draft.type,
         });

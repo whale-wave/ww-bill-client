@@ -1,3 +1,4 @@
+import { Toast } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -26,6 +27,7 @@ afterEach(() => {
   cleanup?.();
   cleanup = undefined;
   vi.useRealTimers();
+  vi.restoreAllMocks();
 });
 
 describe('email captcha input', () => {
@@ -56,6 +58,21 @@ describe('email captcha input', () => {
     await act(async () => button.click());
 
     expect(sendEmailApi).toHaveBeenCalledOnce();
+    expect(button.textContent).toContain('获取验证码');
+    expect(button.disabled).toBe(false);
+  });
+
+  it('explains when the registration email is already in use', async () => {
+    const sendEmailApi = vi.fn().mockResolvedValue({ statusCode: 4018 });
+    const showToast = vi.spyOn(Toast, 'show');
+    const container = render({ sendEmailApi });
+    const button = container.querySelector('button')!;
+
+    await act(async () => button.click());
+
+    expect(showToast).toHaveBeenCalledWith(expect.objectContaining({
+      content: '该邮箱已注册，请直接登录或更换邮箱',
+    }));
     expect(button.textContent).toContain('获取验证码');
     expect(button.disabled).toBe(false);
   });

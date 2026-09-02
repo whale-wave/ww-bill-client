@@ -30,6 +30,9 @@
   "saveImage": "保存图片",
   "savingImage": "正在生成图片…",
   "exportSaved": "账单图片已保存",
+  "exportPreviewTitle": "账单图片已保存",
+  "exportPreviewDescription": "已保存到系统相机照片目录",
+  "shareImage": "分享图片",
   "exportShared": "已打开系统分享菜单",
   "exportDownloaded": "账单图片已下载，请在文件中查看",
   "exportPermissionDenied": "未获得相册权限，无法保存图片",
@@ -63,5 +66,5 @@
   "exportMonthTitle": "{{year}}年{{month}}月账单",
   "monthlyIncomeExpenseReview": "月度收支回顾",
   "exportBrandTagline": "轻松记账，看见每月变化",
-  "exportQrHint": "扫码打开鲸浪账本"
+  "exportQrHint": "扫码打开鲸浪记账"
 }

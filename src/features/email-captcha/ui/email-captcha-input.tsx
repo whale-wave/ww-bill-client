@@ -125,6 +125,8 @@ function getSendErrorMessage(statusCode: number, t: (key: string) => string) {
       return t('verificationEmailNotFound');
     case 4001:
       return t('verificationRateLimited');
+    case 4018:
+      return t('verificationEmailRegistered');
     default:
       return t('verificationSendFailed');
   }

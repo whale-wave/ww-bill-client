@@ -1,6 +1,6 @@
 import type { FeedbackCategory } from '@/entities/feedback';
 import { Input, TextArea, Toast } from 'antd-mobile';
-import { Bug, Check, Lightbulb, MessageCircleMore, ShieldCheck, Sparkles } from 'lucide-react';
+import { Bug, Check, Lightbulb, MessageCircleMore, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePostFeedbackMutation } from '@/entities/feedback';
@@ -12,8 +12,6 @@ import pkg from '../../../package.json';
 const CATEGORIES = [
   { icon: Lightbulb, key: 'suggestion' },
   { icon: Bug, key: 'bug' },
-  { icon: Sparkles, key: 'experience' },
-  { icon: MessageCircleMore, key: 'other' },
 ] as const satisfies ReadonlyArray<{ icon: typeof Lightbulb; key: FeedbackCategory }>;
 
 interface FeedbackLocationState {

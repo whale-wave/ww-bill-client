@@ -12,9 +12,11 @@ import BookkeepingPage from '@/pages/record/bookkeeping/BookkeepingPage';
 const hooks = vi.hoisted(() => ({
   confirmShortcutDraft: vi.fn(),
   discardShortcutDraft: vi.fn(),
+  ledgerCapabilities: [] as string[],
   postRecord: vi.fn(),
   putRecord: vi.fn(),
   useGetCategoryQuery: vi.fn(),
+  useLedgerTagsQuery: vi.fn(),
 }));
 
 vi.mock('@/entities/category', async importOriginal => ({
@@ -31,8 +33,14 @@ vi.mock('@/entities/record', async importOriginal => ({
 vi.mock('@/entities/ledger', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/ledger')>()),
   useGetLedgersQuery: () => ({
-    data: [{ capabilities: [], id: 'default-ledger', kind: 'SYSTEM_DEFAULT' }],
+    data: [{ capabilities: hooks.ledgerCapabilities, id: 'default-ledger', kind: 'SYSTEM_DEFAULT' }],
   }),
+}));
+
+vi.mock('@/entities/ledger-data', () => ({
+  useArchiveLedgerTagMutation: () => [vi.fn()],
+  useCreateLedgerTagMutation: () => [vi.fn()],
+  useLedgerTagsQuery: hooks.useLedgerTagsQuery,
 }));
 
 vi.mock('@/entities/shortcut-bookkeeping', async importOriginal => ({
@@ -76,6 +84,8 @@ beforeEach(() => {
   hooks.confirmShortcutDraft.mockReset();
   hooks.discardShortcutDraft.mockReset();
   hooks.useGetCategoryQuery.mockReset();
+  hooks.useLedgerTagsQuery.mockReset();
+  hooks.ledgerCapabilities = [];
   hooks.postRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
   hooks.putRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
   hooks.confirmShortcutDraft.mockResolvedValue({ ledgerId: 'default-ledger', recordId: 11 });
@@ -91,6 +101,9 @@ beforeEach(() => {
     isError: false,
     isLoading: false,
     refetch: vi.fn(),
+  });
+  hooks.useLedgerTagsQuery.mockReturnValue({
+    data: [],
   });
 });
 
@@ -127,6 +140,8 @@ describe('personal record editor adapter', () => {
   });
 
   it('opens the original editor with shortcut candidates and confirms through the draft endpoint', async () => {
+    const tagId = '00000000-0000-4000-8000-000000000001';
+    hooks.ledgerCapabilities = ['tag:read'];
     hooks.useGetCategoryQuery.mockReturnValue({
       data: [{
         createdAt: '',
@@ -139,6 +154,18 @@ describe('personal record editor adapter', () => {
       isError: false,
       isLoading: false,
       refetch: vi.fn(),
+    });
+    hooks.useLedgerTagsQuery.mockReturnValue({
+      data: [{
+        categoryId: 1,
+        colorKey: 'blue',
+        createdAt: '',
+        id: tagId,
+        name: '通勤',
+        status: 'ACTIVE',
+        updatedAt: '',
+        version: 1,
+      }],
     });
     const router = createMemoryRouter([
       { path: '/bookkeeping', element: createElement(BookkeepingPage) },
@@ -171,6 +198,15 @@ describe('personal record editor adapter', () => {
     expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('18.60');
 
     await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-record-editor-tag-trigger]')?.click();
+      await Promise.resolve();
+    });
+    await act(async () => {
+      [...document.querySelectorAll('button')].find(button => button.textContent === '通勤')?.click();
+      await Promise.resolve();
+    });
+
+    await act(async () => {
       [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
       await Promise.resolve();
     });
@@ -182,6 +218,7 @@ describe('personal record editor adapter', () => {
       draftId: 'shortcut-draft-1',
       ledgerId: 'default-ledger',
       remark: '滴滴出行',
+      tagIds: [tagId],
       type: 'sub',
     }));
     expect(hooks.postRecord).not.toHaveBeenCalled();

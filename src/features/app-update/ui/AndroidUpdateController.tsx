@@ -3,7 +3,7 @@ import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
-import { androidLatestReleaseQueryOptions, getInstalledAndroidVersion, isAndroidUpdateAvailable } from '@/entities/app-release';
+import { androidLatestReleaseQueryOptions, formatAndroidUpdateDescription, getInstalledAndroidVersion, isAndroidUpdateAvailable } from '@/entities/app-release';
 import { useTranslation } from '@/shared/i18n';
 import { openExternalUrl } from '@/shared/lib';
 import { showAppActionSheet } from '@/shared/ui';
@@ -56,7 +56,7 @@ export const AndroidUpdateController: FC = () => {
           { key: 'later', text: t('aboutSupport.later') },
         ],
         cancelText: t('common:actions.cancel'),
-        description: latest.releaseNotes || t('aboutSupport.updateAvailable'),
+        description: formatAndroidUpdateDescription(latest, t('aboutSupport.updateAvailable')),
         title: t('aboutSupport.updateAvailable'),
       });
     }

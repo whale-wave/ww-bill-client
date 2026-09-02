@@ -342,7 +342,7 @@ describe('personal ledger workspace integration', () => {
     expect(title?.parentElement?.classList).toContain('gap-2');
     expect(periodControl?.tagName).toBe('DIV');
     expect(periodControl?.querySelector('[data-testid="record-month-picker"]')?.tagName).toBe('BUTTON');
-    expect(title?.textContent).toContain('鲸浪账本');
+    expect(title?.textContent).toContain('鲸浪记账');
     expect(title?.tagName).toBe('BUTTON');
     expect(title?.className).toContain('text-center');
     expect(title?.className).not.toContain('text-left');

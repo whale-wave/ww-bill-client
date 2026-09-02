@@ -15,6 +15,12 @@ export function login(body:
   });
 }
 
+export function reportPresence() {
+  return request.post<never, SuccessResponse<unknown>>('/auth/presence', undefined, {
+    silent: true,
+  });
+}
+
 export function sign(body: {
   username?: string;
   name?: string;

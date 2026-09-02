@@ -1,6 +1,6 @@
 {
-  "name": "鲸浪账本",
-  "short_name": "鲸浪账本",
+  "name": "鲸浪记账",
+  "short_name": "鲸浪记账",
   "description": "记录每一笔生活",
   "start_url": "/",
   "scope": "/",

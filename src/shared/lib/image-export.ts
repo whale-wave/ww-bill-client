@@ -2,6 +2,7 @@ import { Capacitor, registerPlugin } from '@capacitor/core';
 
 interface GalleryImagePlugin {
   saveImageToGallery: (options: { data: string; fileName: string }) => Promise<{ uri: string }>;
+  shareImage: (options: { uri: string }) => Promise<void>;
 }
 
 const GalleryImage = registerPlugin<GalleryImagePlugin>('GalleryImage');
@@ -108,13 +109,17 @@ function downloadBlob(blob: Blob, fileName: string) {
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
-export async function saveImageToGallery(blob: Blob, fileName: string): Promise<'gallery' | 'downloaded'> {
+export type SavedImageResult
+  = | { destination: 'gallery'; uri: string }
+    | { destination: 'downloaded' };
+
+export async function saveImageToGallery(blob: Blob, fileName: string): Promise<SavedImageResult> {
   const normalizedName = normalizePngFileName(fileName);
   if (Capacitor.getPlatform() === 'android') {
     try {
       const data = await blobToDataUrl(blob);
-      await GalleryImage.saveImageToGallery({ data, fileName: normalizedName });
-      return 'gallery';
+      const savedImage = await GalleryImage.saveImageToGallery({ data, fileName: normalizedName });
+      return { destination: 'gallery', uri: savedImage.uri };
     }
     catch (error) {
       if (error instanceof Error && /permission/i.test(`${error.name} ${error.message}`))
@@ -123,5 +128,11 @@ export async function saveImageToGallery(blob: Blob, fileName: string): Promise<
     }
   }
   downloadBlob(blob, normalizedName);
-  return 'downloaded';
+  return { destination: 'downloaded' };
+}
+
+export async function shareSavedImage(uri: string): Promise<void> {
+  if (Capacitor.getPlatform() !== 'android')
+    throw new Error('Native image sharing is unavailable on this platform');
+  await GalleryImage.shareImage({ uri });
 }

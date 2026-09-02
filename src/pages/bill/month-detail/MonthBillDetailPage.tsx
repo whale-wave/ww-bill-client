@@ -2,6 +2,7 @@ import type { AvatarReadyState, ExportCopySnapshot, ExportUserSnapshot } from '.
 import type { MonthBillDetailResponse } from '@/entities/record';
 import { Toast } from 'antd-mobile';
 import html2canvas from 'html2canvas-pro';
+import { Share2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useHouseholdMonthBillDetailQuery, useLedgerMonthBillDetailQuery, useMonthBillDetailQuery } from '@/entities/record';
@@ -12,9 +13,10 @@ import {
   GalleryPermissionDeniedError,
   getImageExportCaptureOptions,
   saveImageToGallery,
+  shareSavedImage,
   waitForImageExportReady,
 } from '@/shared/lib';
-import { DesignIcon, IllustratedEmptyState, PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
+import { AppBottomSheet, DesignIcon, IllustratedEmptyState, PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
 import { formatMonthTitle } from './model/monthBillDetail';
 import { MonthBillDetailRenderer } from './ui/MonthBillDetailRenderer';
 
@@ -36,6 +38,11 @@ interface ExportSnapshot {
 interface AvatarBarrierState {
   sessionId: number;
   state: 'loading' | AvatarReadyState;
+}
+
+interface SavedImagePreview {
+  uri: string;
+  url: string;
 }
 
 async function waitForStrictQr(element: HTMLElement) {
@@ -102,6 +109,7 @@ export default function MonthBillDetailPage() {
   const [readyCharts, setReadyCharts] = useState<Set<string>>(() => new Set());
   const [qrCode, setQrCode] = useState<string>();
   const [avatarBarrier, setAvatarBarrier] = useState<AvatarBarrierState>();
+  const [savedImagePreview, setSavedImagePreview] = useState<SavedImagePreview>();
   const exportRef = useRef<HTMLDivElement>(null);
   const activeSessionRef = useRef(0);
   const nextSessionIdRef = useRef(0);
@@ -133,8 +141,8 @@ export default function MonthBillDetailPage() {
     setQrCode(undefined);
     setAvatarBarrier(undefined);
     setExportStatus('idle');
-    if (terminal === 'success')
-      Toast.show({ content: successMessage || t('exportSaved'), icon: 'success' });
+    if (terminal === 'success' && successMessage)
+      Toast.show({ content: successMessage, icon: 'success' });
     else if (terminal === 'failure' || terminal === 'timeout')
       Toast.show({ content: successMessage || t('exportSaveFailed'), icon: 'fail' });
   }, [t]);
@@ -143,6 +151,19 @@ export default function MonthBillDetailPage() {
     if (activeSessionRef.current)
       finalizeSession(activeSessionRef.current, 'cancelled');
   }, [finalizeSession]);
+
+  const closeSavedImagePreview = useCallback(() => {
+    setSavedImagePreview((current) => {
+      if (current)
+        URL.revokeObjectURL(current.url);
+      return undefined;
+    });
+  }, []);
+
+  useEffect(() => () => {
+    if (savedImagePreview)
+      URL.revokeObjectURL(savedImagePreview.url);
+  }, [savedImagePreview]);
 
   const handleChartReady = useCallback((sessionId: number, chartKey: string) => {
     if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId) || !EXPORT_CHART_KEYS.has(chartKey))
@@ -193,9 +214,11 @@ export default function MonthBillDetailPage() {
       if (activeSessionRef.current !== sessionId || terminalSessionsRef.current.has(sessionId))
         return;
       const blob = await canvasToPngBlob(canvas);
-      const fileName = `鲸浪账本_${snapshot.bill.month}月账单`;
+      const fileName = `鲸浪记账_${snapshot.bill.month}月账单`;
       const result = await saveImageToGallery(blob, fileName);
-      finalizeSession(sessionId, 'success', result === 'gallery' ? t('exportSaved') : t('exportDownloaded'));
+      if (result.destination === 'gallery')
+        setSavedImagePreview({ uri: result.uri, url: URL.createObjectURL(blob) });
+      finalizeSession(sessionId, 'success', result.destination === 'downloaded' ? t('exportDownloaded') : undefined);
     }
     catch (error) {
       console.error('[month-bill-export] image delivery failed', {
@@ -284,6 +307,18 @@ export default function MonthBillDetailPage() {
     }
   }, [exportStatus, finalizeSession, query.data, t, userQuery.data]);
 
+  const handleShareSavedImage = useCallback(async () => {
+    if (!savedImagePreview)
+      return;
+    try {
+      await shareSavedImage(savedImagePreview.uri);
+    }
+    catch (error) {
+      console.error('[month-bill-export] image share failed', { error });
+      Toast.show({ content: t('exportShareFailed'), icon: 'fail' });
+    }
+  }, [savedImagePreview, t]);
+
   if (!isMonthValid)
     return null;
 
@@ -304,6 +339,23 @@ export default function MonthBillDetailPage() {
       <div className="absolute bottom-0 left-0 right-0 z-20 flex shrink-0 bg-gradient-to-t from-[#f4fbff] via-[#f4fbff]/95 to-transparent px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-5">
         <WwButton className="!h-12 !w-full !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww" onClick={() => void handleExport()} size="full">{exportStatus === 'idle' ? t('saveImage') : t('savingImage')}</WwButton>
       </div>
+      <AppBottomSheet destroyOnClose onClose={closeSavedImagePreview} onMaskClick={closeSavedImagePreview} position="bottom" showCloseButton visible={Boolean(savedImagePreview)}>
+        {savedImagePreview && (
+          <div className="px-5 pb-[calc(20px+env(safe-area-inset-bottom))] pt-12">
+            <h2 className="text-center text-[17px] font-black text-ww-ink">{t('exportPreviewTitle')}</h2>
+            <p className="mt-2 text-center text-[13px] font-semibold text-ww-mid">{t('exportPreviewDescription')}</p>
+            <div className="mt-4 max-h-[52dvh] overflow-hidden rounded-[18px] bg-[#eef5f8] shadow-ww-xs">
+              <img alt={t('exportPreviewTitle')} className="max-h-[52dvh] w-full object-contain" src={savedImagePreview.url} />
+            </div>
+            <WwButton className="!mt-5 !h-12 !w-full !rounded-[16px] !bg-[linear-gradient(135deg,#6fc2dc,#4aaac4)] !font-bold !text-white !shadow-ww" onClick={() => void handleShareSavedImage()} size="full">
+              <span className="inline-flex items-center justify-center gap-2">
+                <Share2 size={18} />
+                {t('shareImage')}
+              </span>
+            </WwButton>
+          </div>
+        )}
+      </AppBottomSheet>
       {exportMounted && snapshotRef.current && qrCode && <div aria-hidden="true" className="pointer-events-none fixed left-[-10000px] top-0" ref={exportRef}><MonthBillDetailRenderer chartsEnabled={chartsEnabled} data={snapshotRef.current.bill} exportCopy={snapshotRef.current.copy} exportSessionId={snapshotRef.current.sessionId} exportUser={snapshotRef.current.user} mode="export" onAvatarReady={handleAvatarReady} onChartError={handleChartError} onChartReady={handleChartReady} qrCode={qrCode} /></div>}
     </div>
   );
