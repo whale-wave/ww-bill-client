@@ -68,9 +68,9 @@ export function ActionMenuCard({
             ? 'flex snap-x gap-[10px] overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
             : `grid ${columnClassNames[columns]} ${isMineActions ? 'gap-1' : 'gap-2'}`,
         variant === 'card'
-        && 'rounded-[18px] border border-border-primary bg-white/[0.82] px-[10px] py-[14px] shadow-ww-xs backdrop-blur-xl',
+        && 'rounded-[var(--ww-radius-card)] border border-border-primary bg-ww-surface px-[10px] py-3 shadow-ww-xs backdrop-blur-[var(--ww-card-blur)]',
         isMineActions
-        && 'rounded-[18px] border border-border-primary bg-white/[0.82] px-[10px] py-[14px] shadow-ww-xs backdrop-blur-xl',
+        && 'rounded-[var(--ww-radius-card)] border border-border-primary bg-ww-surface px-[10px] py-3 shadow-ww-xs backdrop-blur-[var(--ww-card-blur)]',
         className,
       )}
       role="group"
@@ -83,11 +83,11 @@ export function ActionMenuCard({
             className={cn(
               'flex min-w-0 flex-col items-center justify-center transition active:scale-95 disabled:opacity-45',
               variant === 'card' && 'gap-[7px] px-1 py-2',
-              isMineActions && 'h-[74px] gap-[7px] px-1 py-2',
+              isMineActions && 'h-[68px] gap-[6px] px-1 py-2',
               variant === 'tiles'
               && 'gap-[7px] rounded-[18px] border border-border-primary bg-white/80 px-1 pb-[10px] pt-[13px] shadow-ww-xs',
               isGradientTiles
-              && `h-[75px] w-[calc((100%_-_20px)/3)] min-w-[calc((100%_-_20px)/3)] snap-start gap-2 rounded-[16px] px-2 pb-3 pt-4 ${tileToneClassNames[tone]}`,
+              && `h-[68px] w-[calc((100%_-_20px)/3)] min-w-[calc((100%_-_20px)/3)] snap-start gap-1.5 rounded-[var(--ww-radius-control)] px-2 pb-2 pt-3 ${tileToneClassNames[tone]}`,
               isDetailShortcuts
               && cn(
                 'h-16 gap-[5px] rounded-[14px] border border-white/90 px-[6px] py-2',

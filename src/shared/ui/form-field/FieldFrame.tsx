@@ -12,8 +12,8 @@ export function FieldFrame({ children, className, disabled, error }: FieldFrameP
   return (
     <div
       className={cn(
-        'flex min-h-[54px] items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww focus-within:ring-2 focus-within:ring-primary-light/60',
-        disabled && 'bg-white/50 opacity-70',
+        'flex min-h-[48px] items-center gap-3 rounded-[var(--ww-radius-control)] border border-solid border-border-primary bg-ww-surface-raised px-[var(--ww-card-padding)] shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww focus-within:ring-2 focus-within:ring-primary-light/60',
+        disabled && 'bg-ww-surface opacity-70',
         error && 'border-[#d85e7b] focus-within:border-[#d85e7b]',
         className,
       )}

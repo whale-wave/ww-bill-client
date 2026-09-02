@@ -22,7 +22,7 @@ export function SelectField({ className, disabled, label, onChange, options, pla
       <span className="mb-2 block text-[12px] font-bold leading-[18px] text-ww-mid">{label}</span>
       <span className="relative block">
         <select
-          className="h-[54px] w-full appearance-none rounded-[16px] border border-solid border-border-primary bg-white/90 px-4 pr-10 text-[14px] font-semibold text-ww-ink shadow-ww-xs outline-none transition focus:border-primary-mid focus:shadow-ww disabled:opacity-45"
+          className="h-[48px] w-full appearance-none rounded-[var(--ww-radius-control)] border border-solid border-border-primary bg-ww-surface-raised px-[var(--ww-card-padding)] pr-10 text-[14px] font-semibold text-ww-ink shadow-ww-xs outline-none transition focus:border-primary-mid focus:shadow-ww disabled:opacity-45"
           disabled={disabled}
           id={selectId}
           onChange={event => onChange(event.target.value)}

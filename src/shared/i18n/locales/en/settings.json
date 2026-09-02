@@ -193,14 +193,15 @@
     "introDescription": "Mix visual styles and accent colors freely. Your choice follows your account.",
     "templateTitle": "Visual style",
     "accentTitle": "Accent color",
+    "recommended": "Recommended",
     "saveFailed": "Unable to save the theme. Your previous setting was restored.",
     "templates": {
-      "fresh": "Fresh",
-      "freshDescription": "Soft blue and pink, light gradients, and rounded cards.",
-      "minimal": "Minimal",
-      "minimalDescription": "Neutral space and fine borders keep the focus on your records.",
-      "glass": "Glass",
-      "glassDescription": "Translucent layers and a soft glow while amounts stay clear."
+      "fresh": "Fresh color",
+      "freshDescription": "Keep the soft blue-and-pink mood in a cleaner rhythm.",
+      "minimal": "Focused minimal",
+      "minimalDescription": "Neutral surfaces and fine borders keep the focus on records.",
+      "glass": "Balanced liquid glass",
+      "glassDescription": "A frosted glow and translucent layers, with clear amounts."
     },
     "accents": {
       "sky": "Sky & pink",

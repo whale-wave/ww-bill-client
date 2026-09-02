@@ -11,12 +11,12 @@ interface PageHeaderProps {
 
 export function PageHeader({ backLabel, onBack, right, subtitle, title }: PageHeaderProps) {
   return (
-    <header className="relative z-20 shrink-0 px-[18px] pt-[max(8px,env(safe-area-inset-top))]" data-page-header>
-      <div className="relative flex min-h-[52px] items-center justify-center">
+    <header className="relative z-20 shrink-0 px-[var(--ww-page-gutter)] pt-[max(6px,env(safe-area-inset-top))]" data-page-header>
+      <div className="relative flex min-h-[48px] items-center justify-center">
         {onBack && (
           <button
             aria-label={backLabel}
-            className="absolute left-0 flex h-9 w-9 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs backdrop-blur-xl"
+            className="absolute left-0 flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-ww-surface text-primary-deep shadow-ww-xs backdrop-blur-[var(--ww-card-blur)]"
             onClick={onBack}
             type="button"
           >
@@ -24,7 +24,7 @@ export function PageHeader({ backLabel, onBack, right, subtitle, title }: PageHe
           </button>
         )}
         <div className="min-w-0 max-w-[220px] text-center">
-          <h1 className="truncate text-[17px] font-extrabold leading-6 text-ww-ink">{title}</h1>
+          <h1 className="truncate text-[16px] font-extrabold leading-6 text-ww-ink">{title}</h1>
           {subtitle && <p className="mt-0.5 truncate text-[10px] font-semibold text-ww-soft">{subtitle}</p>}
         </div>
         {right && <div className="absolute right-0 flex items-center">{right}</div>}

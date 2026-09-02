@@ -16,7 +16,7 @@ const variantClassNames: Record<AppButtonVariant, string> = {
   danger: 'bg-[#b24f71] text-white shadow-ww disabled:opacity-45',
   ghost: 'bg-transparent text-primary-deep disabled:opacity-45',
   primary: 'bg-primary text-white shadow-ww disabled:opacity-45',
-  secondary: 'border border-solid border-border-primary bg-white/85 text-primary-deep shadow-ww disabled:opacity-45',
+  secondary: 'border border-solid border-border-primary bg-ww-surface-raised text-primary-deep shadow-ww disabled:opacity-45',
 };
 
 export const AppButton = forwardRef<HTMLButtonElement, AppButtonProps>(({
@@ -38,7 +38,7 @@ export const AppButton = forwardRef<HTMLButtonElement, AppButtonProps>(({
       {...buttonProps}
       aria-busy={loading || undefined}
       className={cn(
-        'inline-flex h-[52px] items-center justify-center gap-2 rounded-[18px] border-0 px-4 text-[14px] font-extrabold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[.99] disabled:cursor-not-allowed',
+        'inline-flex h-[48px] items-center justify-center gap-2 rounded-[var(--ww-radius-control)] border-0 px-4 text-[14px] font-extrabold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[.99] disabled:cursor-not-allowed',
         variantClassNames[variant],
         fullWidth && 'w-full',
         loading && 'cursor-wait',

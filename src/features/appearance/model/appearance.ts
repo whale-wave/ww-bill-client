@@ -7,16 +7,16 @@ export interface AppearancePreference {
   template: AppearanceTemplate;
 }
 
-export const DEFAULT_APPEARANCE: AppearancePreference = { accent: 'sky', template: 'fresh' };
+export const DEFAULT_APPEARANCE: AppearancePreference = { accent: 'sky', template: 'glass' };
 
 export const appearanceTemplateOptions: Array<{
   descriptionKey: string;
   labelKey: string;
   value: AppearanceTemplate;
 }> = [
+  { descriptionKey: 'appearance.templates.glassDescription', labelKey: 'appearance.templates.glass', value: 'glass' },
   { descriptionKey: 'appearance.templates.freshDescription', labelKey: 'appearance.templates.fresh', value: 'fresh' },
   { descriptionKey: 'appearance.templates.minimalDescription', labelKey: 'appearance.templates.minimal', value: 'minimal' },
-  { descriptionKey: 'appearance.templates.glassDescription', labelKey: 'appearance.templates.glass', value: 'glass' },
 ];
 
 export const appearanceAccentOptions: Array<{ labelKey: string; value: AppearanceAccent }> = [

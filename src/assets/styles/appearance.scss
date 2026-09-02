@@ -1,18 +1,64 @@
 :root {
-  --ww-surface-color: rgba(255, 255, 255, 0.84);
-  --ww-surface-raised-color: #ffffff;
-  --ww-surface-tint-color: #e5f7fc;
-  --ww-surface-accent-color: #fff1f6;
-  --ww-surface-secondary-color: #f4efff;
-  --ww-radius-card: 20px;
-  --ww-radius-panel: 24px;
-  --ww-card-blur: 24px;
+  /* New and unconfigured accounts start in the balanced liquid-glass theme. */
+  --ww-page-gutter: 14px;
+  --ww-section-gap: 10px;
+  --ww-card-padding: 14px;
+  --ww-control-height: 48px;
+  --ww-list-row-height: 48px;
+  --ww-radius-card: 18px;
+  --ww-radius-panel: 20px;
+  --ww-radius-control: 14px;
+  --ww-card-blur: 14px;
+  --ww-background-color: color-mix(in srgb, var(--ww-theme-color-light) 38%, #f8fbff);
+  --ww-page-gradient:
+    radial-gradient(
+      circle at -12% -8%,
+      color-mix(in srgb, var(--ww-theme-color-light) 82%, transparent),
+      transparent 39%
+    ),
+    radial-gradient(
+      circle at 108% 12%,
+      color-mix(in srgb, var(--ww-pink-color-light) 66%, transparent),
+      transparent 37%
+    ),
+    linear-gradient(155deg, #f9fcff 0%, color-mix(in srgb, var(--ww-theme-color-light) 26%, #ffffff) 50%, #fff9fc 100%);
+  --ww-card-color: color-mix(in srgb, #ffffff 82%, transparent);
+  --ww-surface-color: color-mix(in srgb, #ffffff 78%, transparent);
+  --ww-surface-raised-color: color-mix(in srgb, #ffffff 92%, transparent);
+  --ww-surface-tint-color: color-mix(in srgb, var(--ww-theme-color-light) 56%, #ffffff);
+  --ww-surface-accent-color: color-mix(in srgb, var(--ww-pink-color-light) 52%, #ffffff);
+  --ww-surface-secondary-color: color-mix(in srgb, var(--ww-theme-color-light) 28%, #ffffff);
+  --ww-border-color: color-mix(in srgb, #ffffff 64%, var(--ww-theme-color) 36%);
+  --ww-card-shadow: 0 8px 20px color-mix(in srgb, var(--ww-theme-color-deep) 11%, transparent);
+  --ww-card-shadow-xs: 0 3px 8px color-mix(in srgb, var(--ww-theme-color-deep) 8%, transparent);
+  --ww-card-shadow-lg: 0 12px 28px color-mix(in srgb, var(--ww-theme-color-deep) 14%, transparent);
+  --ww-card-shadow-floating: 0 12px 26px color-mix(in srgb, var(--ww-theme-color-deep) 16%, transparent);
   --ww-chart-1: #4aaac4;
   --ww-chart-2: #f0a0b8;
   --ww-chart-3: #a996dc;
   --ww-chart-4: #79c6a8;
   --ww-chart-5: #efbc70;
   --ww-chart-6: #6e9fdb;
+}
+
+html[data-appearance-template='fresh'] {
+  --ww-background-color: #f4fbff;
+  --ww-page-gradient: linear-gradient(155deg, #e7f7ff 0%, #f6fcff 48%, #fff4f8 100%);
+  --ww-card-color: rgba(255, 255, 255, 0.9);
+  --ww-surface-color: rgba(255, 255, 255, 0.88);
+  --ww-surface-raised-color: #ffffff;
+  --ww-surface-tint-color: #e5f7fc;
+  --ww-surface-accent-color: #fff1f6;
+  --ww-surface-secondary-color: #f4efff;
+  --ww-border-color: rgba(110, 194, 220, 0.2);
+  --ww-card-shadow: 0 3px 12px rgba(60, 140, 180, 0.09);
+  --ww-card-shadow-xs: 0 1px 5px rgba(60, 140, 180, 0.07);
+  --ww-card-shadow-lg: 0 5px 16px rgba(60, 140, 180, 0.11);
+  --ww-card-shadow-floating: 0 7px 18px rgba(60, 140, 180, 0.14);
+  --ww-radius-card: 16px;
+  --ww-radius-panel: 18px;
+  --ww-radius-control: 14px;
+  --ww-card-blur: 8px;
 }
 
 html[data-appearance-template='minimal'] {
@@ -29,8 +75,9 @@ html[data-appearance-template='minimal'] {
   --ww-card-shadow-xs: 0 1px 2px rgba(31, 41, 55, 0.05);
   --ww-card-shadow-lg: 0 4px 10px rgba(31, 41, 55, 0.08);
   --ww-card-shadow-floating: 0 6px 16px rgba(31, 41, 55, 0.1);
-  --ww-radius-card: 16px;
-  --ww-radius-panel: 20px;
+  --ww-radius-card: 14px;
+  --ww-radius-panel: 16px;
+  --ww-radius-control: 12px;
   --ww-card-blur: 0px;
 }
 
@@ -53,30 +100,60 @@ html[data-appearance-template='glass'] {
   }
 }
 
-html[data-appearance-template='glass'] {
-  --ww-background-color: color-mix(in srgb, var(--ww-theme-color-light) 45%, #f8fbff);
-  --ww-page-gradient:
-    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--ww-theme-color-light) 84%, transparent), transparent 36%),
-    radial-gradient(
-      circle at 100% 20%,
-      color-mix(in srgb, var(--ww-pink-color-light) 82%, transparent),
-      transparent 42%
-    ),
-    linear-gradient(150deg, #f8fcff 0%, color-mix(in srgb, var(--ww-theme-color-light) 42%, #ffffff) 52%, #fff9fc 100%);
-  --ww-card-color: color-mix(in srgb, #ffffff 70%, transparent);
-  --ww-surface-color: color-mix(in srgb, #ffffff 74%, transparent);
-  --ww-surface-raised-color: color-mix(in srgb, #ffffff 90%, transparent);
-  --ww-surface-tint-color: color-mix(in srgb, var(--ww-theme-color-light) 63%, #ffffff);
-  --ww-surface-accent-color: color-mix(in srgb, var(--ww-pink-color-light) 64%, #ffffff);
-  --ww-surface-secondary-color: color-mix(in srgb, var(--ww-theme-color-light) 36%, #ffffff);
-  --ww-border-color: color-mix(in srgb, #ffffff 68%, var(--ww-theme-color) 32%);
-  --ww-card-shadow: 0 12px 28px color-mix(in srgb, var(--ww-theme-color-deep) 16%, transparent);
-  --ww-card-shadow-xs: 0 4px 12px color-mix(in srgb, var(--ww-theme-color-deep) 10%, transparent);
-  --ww-card-shadow-lg: 0 18px 40px color-mix(in srgb, var(--ww-theme-color-deep) 20%, transparent);
-  --ww-card-shadow-floating: 0 16px 36px color-mix(in srgb, var(--ww-theme-color-deep) 22%, transparent);
-  --ww-radius-card: 22px;
-  --ww-radius-panel: 26px;
-  --ww-card-blur: 28px;
+.page > main[class*='px-[18px]'],
+.page-new > main[class*='px-[18px]'] {
+  padding-right: var(--ww-page-gutter) !important;
+  padding-left: var(--ww-page-gutter) !important;
+}
+
+.ww-surface-aurora,
+.ww-surface-ice,
+.ww-surface-chart,
+.ww-surface-lavender,
+.ww-surface-blush,
+.ww-surface-vip {
+  border-color: var(--ww-border-color);
+}
+
+.ww-surface-aurora {
+  background: linear-gradient(
+    155deg,
+    var(--ww-surface-tint-color),
+    color-mix(in srgb, var(--ww-surface-tint-color) 62%, #ffffff),
+    var(--ww-surface-secondary-color)
+  );
+}
+
+.ww-surface-ice {
+  background: linear-gradient(
+    162deg,
+    var(--ww-surface-tint-color),
+    var(--ww-surface-raised-color),
+    var(--ww-surface-secondary-color)
+  );
+}
+
+.ww-surface-chart {
+  background: linear-gradient(
+    167deg,
+    var(--ww-surface-tint-color),
+    var(--ww-surface-raised-color),
+    color-mix(in srgb, var(--ww-surface-secondary-color) 66%, #ffffff)
+  );
+}
+
+.ww-surface-lavender,
+.ww-surface-vip {
+  background: linear-gradient(165deg, var(--ww-surface-secondary-color), var(--ww-surface-raised-color));
+}
+
+.ww-surface-blush {
+  background: linear-gradient(
+    157deg,
+    var(--ww-surface-accent-color),
+    var(--ww-surface-raised-color),
+    color-mix(in srgb, var(--ww-surface-accent-color) 45%, #ffffff)
+  );
 }
 
 html[data-appearance-accent='sky'] {
@@ -153,14 +230,14 @@ html[data-appearance-accent='mint'] {
   display: flex;
   gap: 12px;
   align-items: center;
-  padding: 16px;
+  padding: var(--ww-card-padding);
   border-radius: var(--ww-radius-card);
 }
 
 .appearance-settings__intro-icon {
   display: grid;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   flex: 0 0 auto;
   place-items: center;
   border-radius: 16px;
@@ -201,8 +278,8 @@ html[data-appearance-accent='mint'] {
 
 .appearance-template-option {
   gap: 12px;
-  min-height: 92px;
-  padding: 12px;
+  min-height: 78px;
+  padding: 10px;
 }
 
 .appearance-template-option[data-selected='true'],
@@ -227,8 +304,8 @@ html[data-appearance-accent='mint'] {
 .appearance-template-option__preview {
   position: relative;
   display: block;
-  width: 88px;
-  height: 64px;
+  width: 76px;
+  height: 54px;
   flex: 0 0 auto;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--ww-border-color) 80%, transparent);
@@ -238,27 +315,38 @@ html[data-appearance-accent='mint'] {
 
 .appearance-template-option__preview-orb {
   position: absolute;
-  top: -24px;
-  right: -16px;
-  width: 56px;
-  height: 56px;
+  top: -22px;
+  right: -15px;
+  width: 50px;
+  height: 50px;
   border-radius: 999px;
   background: var(--ww-pink-color-light);
 }
 
 .appearance-template-option__preview-card {
   position: absolute;
-  top: 13px;
-  left: 10px;
+  top: 10px;
+  left: 9px;
   display: grid;
   gap: 5px;
-  width: 52px;
-  height: 37px;
-  padding: 9px;
+  width: 46px;
+  height: 33px;
+  padding: 8px;
   border: 1px solid var(--ww-border-color);
   border-radius: 11px;
   background: var(--ww-surface-raised-color);
   box-shadow: var(--ww-card-shadow-xs);
+}
+
+.appearance-template-option strong em {
+  border-radius: 999px;
+  padding: 1px 5px;
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-surface-tint-color);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 15px;
 }
 
 .appearance-template-option__preview-card span {

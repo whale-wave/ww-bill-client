@@ -47,7 +47,7 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
 }) => (
   <nav
     aria-label={ariaLabel}
-    className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar fixed bottom-[calc(12px+env(safe-area-inset-bottom))] left-[14px] right-[14px] z-[100] flex h-[66px] items-center justify-evenly rounded-[33px] border border-border-primary bg-ww-surface px-[5px] text-ww-ghost shadow-ww-floating backdrop-blur-[var(--ww-card-blur)]"
+    className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar fixed bottom-[calc(8px+env(safe-area-inset-bottom))] left-[var(--ww-page-gutter)] right-[var(--ww-page-gutter)] z-[100] flex h-[60px] items-center justify-evenly rounded-[30px] border border-border-primary bg-ww-surface px-[5px] text-ww-ghost shadow-ww-floating backdrop-blur-[var(--ww-card-blur)]"
     role="tablist"
   >
     {items.map((item) => {
@@ -57,7 +57,7 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
           aria-disabled={item.disabled}
           aria-selected={isActive}
           className={cn(
-            'item ww-tab-bar__button relative flex h-12 min-w-0 flex-1 flex-col items-center justify-center gap-[3px] rounded-[10px] border-0 bg-transparent px-1 text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
+            'item ww-tab-bar__button relative flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-[2px] rounded-[10px] border-0 bg-transparent px-1 text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
             isActive && 'text-primary-deep',
             item.disabled && 'opacity-45',
           )}
@@ -81,7 +81,7 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
             className={cn(
               'ww-tab-bar__button-icon tab-icon flex h-[19px] w-[19px] items-center justify-center text-[19px] transition-transform',
               item.prominent
-              && 'ww-tab-bar__create-icon absolute bottom-[13px] h-[52px] w-[52px] rounded-[26px] bg-[linear-gradient(145deg,var(--ww-theme-color)_6.1733%,var(--ww-theme-color-mid)_93.827%)] text-[22px] text-white shadow-ww-xs',
+              && 'ww-tab-bar__create-icon absolute bottom-[12px] h-12 w-12 rounded-3xl bg-[linear-gradient(145deg,var(--ww-theme-color)_6.1733%,var(--ww-theme-color-mid)_93.827%)] text-[21px] text-white shadow-ww-xs',
             )}
           >
             {isActive ? item.activeIcon ?? item.icon : item.icon}

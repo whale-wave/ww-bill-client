@@ -16,7 +16,7 @@ export function ActionField({ className, disabled, label, onClick, testId, value
     <div className={cn('min-w-0', className)}>
       <span className="mb-2 block text-[12px] font-bold leading-[18px] text-ww-mid">{label}</span>
       <button
-        className="flex min-h-[54px] w-full items-center justify-between gap-3 rounded-[16px] border border-solid border-border-primary bg-white/90 px-4 text-left shadow-ww-xs transition active:bg-primary-light/25 disabled:opacity-45"
+        className="flex min-h-[48px] w-full items-center justify-between gap-3 rounded-[var(--ww-radius-control)] border border-solid border-border-primary bg-ww-surface-raised px-[var(--ww-card-padding)] text-left shadow-ww-xs transition active:bg-primary-light/25 disabled:opacity-45"
         data-testid={testId}
         disabled={disabled}
         onClick={onClick}

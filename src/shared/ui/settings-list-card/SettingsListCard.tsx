@@ -20,11 +20,11 @@ export interface SettingsListCardProps {
 export function SettingsListCard({ items, className = '', density = 'standard' }: SettingsListCardProps) {
   return (
     <section
-      className={`overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] py-0.5 shadow-ww backdrop-blur-xl ${className}`}
+      className={`overflow-hidden rounded-[var(--ww-radius-card)] border border-border-primary bg-ww-surface py-0.5 shadow-ww backdrop-blur-[var(--ww-card-blur)] ${className}`}
     >
       {items.map((item, index) => (
         <button
-          className={`flex w-full items-center gap-3 px-[18px] text-left transition active:bg-primary-light/20 disabled:opacity-45 ${density === 'compact' ? 'min-h-[47px]' : 'min-h-[54px]'} ${
+          className={`flex w-full items-center gap-3 px-[var(--ww-card-padding)] text-left transition active:bg-primary-light/20 disabled:opacity-45 ${density === 'compact' ? 'min-h-[48px]' : 'min-h-[50px]'} ${
             index > 0 ? 'border-t border-border-primary' : ''
           }`}
           disabled={item.disabled}
@@ -33,7 +33,7 @@ export function SettingsListCard({ items, className = '', density = 'standard' }
           type="button"
         >
           {item.icon && (
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[11px] bg-[#eaf7fb] text-base text-primary-deep">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-[color:var(--ww-surface-tint-color)] text-base text-primary-deep">
               {item.icon}
             </span>
           )}

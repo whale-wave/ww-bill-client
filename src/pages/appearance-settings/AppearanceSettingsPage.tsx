@@ -91,8 +91,8 @@ const AppearanceSettingsPage: FC = () => {
         onBack={onBack}
         title={t('appearance.title')}
       />
-      <main className="min-h-0 flex-grow overflow-auto px-[18px] pb-[max(24px,env(safe-area-inset-bottom))]">
-        <section className="appearance-settings__intro mt-2">
+      <main className="min-h-0 flex-grow overflow-auto px-[var(--ww-page-gutter)] pb-[max(20px,env(safe-area-inset-bottom))]">
+        <section className="appearance-settings__intro mt-1">
           <span className="appearance-settings__intro-icon"><Palette size={21} strokeWidth={1.8} /></span>
           <div>
             <h2>{t('appearance.introTitle')}</h2>
@@ -100,12 +100,12 @@ const AppearanceSettingsPage: FC = () => {
           </div>
         </section>
 
-        <section className="mt-6" aria-labelledby="appearance-template-title">
-          <div className="mb-2 flex items-center gap-2 px-1">
+        <section className="mt-4" aria-labelledby="appearance-template-title">
+          <div className="mb-1.5 flex items-center gap-2 px-1">
             <Sparkles className="text-primary-deep" size={17} strokeWidth={1.8} />
             <h2 className="text-[13px] font-extrabold text-ww-ink" id="appearance-template-title">{t('appearance.templateTitle')}</h2>
           </div>
-          <div aria-label={t('appearance.templateTitle')} className="grid grid-cols-1 gap-3" role="radiogroup">
+          <div aria-label={t('appearance.templateTitle')} className="grid grid-cols-1 gap-2.5" role="radiogroup">
             {appearanceTemplateOptions.map((option) => {
               const isSelected = preference.template === option.value;
               return (
@@ -130,7 +130,10 @@ const AppearanceSettingsPage: FC = () => {
                     <span className="appearance-template-option__preview-line" />
                   </span>
                   <span className="min-w-0 flex-1 text-left">
-                    <strong>{t(option.labelKey)}</strong>
+                    <strong className="flex items-center gap-1.5">
+                      {t(option.labelKey)}
+                      {option.value === 'glass' && <em>{t('appearance.recommended')}</em>}
+                    </strong>
                     <small>{t(option.descriptionKey)}</small>
                   </span>
                   <span className="appearance-template-option__check">{isSelected && <Check size={15} strokeWidth={3} />}</span>
@@ -140,9 +143,9 @@ const AppearanceSettingsPage: FC = () => {
           </div>
         </section>
 
-        <section className="mt-6 pb-7" aria-labelledby="appearance-accent-title">
-          <h2 className="mb-2 px-1 text-[13px] font-extrabold text-ww-ink" id="appearance-accent-title">{t('appearance.accentTitle')}</h2>
-          <div aria-label={t('appearance.accentTitle')} className="grid grid-cols-2 gap-3" role="radiogroup">
+        <section className="mt-4 pb-5" aria-labelledby="appearance-accent-title">
+          <h2 className="mb-1.5 px-1 text-[13px] font-extrabold text-ww-ink" id="appearance-accent-title">{t('appearance.accentTitle')}</h2>
+          <div aria-label={t('appearance.accentTitle')} className="grid grid-cols-2 gap-2.5" role="radiogroup">
             {appearanceAccentOptions.map((option) => {
               const isSelected = preference.accent === option.value;
               return (

@@ -8,8 +8,9 @@ import {
 } from '@/features/appearance';
 
 describe('appearance preference', () => {
-  it('uses the existing fresh sky treatment until account configuration arrives', () => {
-    expect(readAppearancePreference()).toEqual(DEFAULT_APPEARANCE);
+  it('uses the balanced liquid-glass sky treatment until account configuration arrives', () => {
+    expect(readAppearancePreference()).toEqual({ accent: 'sky', template: 'glass' });
+    expect(DEFAULT_APPEARANCE).toEqual({ accent: 'sky', template: 'glass' });
   });
 
   it('applies account choices as document data attributes', () => {
