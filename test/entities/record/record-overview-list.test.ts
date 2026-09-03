@@ -47,7 +47,7 @@ describe('record overview list', () => {
     expect(iconCell?.classList).toContain('py-3');
   });
 
-  it('uses a roomier card row for overview pages', () => {
+  it('uses a compact but readable card row for overview pages', () => {
     const container = render('overview');
     const list = container.querySelector('[data-testid="record-overview-list"]');
     const row = container.querySelector('[data-record-id="7"]');
@@ -56,9 +56,9 @@ describe('record overview list', () => {
     const amount = row?.querySelector('[data-record-amount]');
 
     expect(list?.getAttribute('data-record-list-variant')).toBe('overview');
-    expect(row?.classList).toContain('min-h-[72px]');
+    expect(row?.classList).toContain('min-h-[68px]');
     expect(card?.classList).toContain('rounded-[20px]');
-    expect(card?.parentElement?.classList).toContain('pt-2');
+    expect(card?.parentElement?.classList).toContain('pt-1.5');
     expect(content?.classList).toContain('gap-[13px]');
     expect(content?.classList).toContain('px-[18px]');
     expect(amount?.classList).toContain('text-[15px]');
