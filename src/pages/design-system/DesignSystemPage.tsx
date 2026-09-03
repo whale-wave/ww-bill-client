@@ -3,7 +3,7 @@
 import type { StudioToken, StudioTokenOverrides } from './token-registry';
 import type { AppearanceTemplate } from '@/entities/user-app-config';
 import { Input, Popup, Toast } from 'antd-mobile';
-import { BarChart3, Bell, ChevronRight, Copy, CreditCard, House, Layers3, LayoutGrid, Plus, ReceiptText, RotateCcw, Search, Settings2, Sparkles, WalletCards } from 'lucide-react';
+import { BarChart3, Bell, ChevronRight, Compass, Copy, CreditCard, House, Layers3, LayoutGrid, Plus, ReceiptText, RotateCcw, Search, Settings2, Sparkles, WalletCards } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CategoryIcon } from '@/entities/category';
 import { RecordOverviewPresentation } from '@/entities/record';
@@ -157,8 +157,17 @@ function StudioPreview() {
       )}
       {activeTab === 'chart' && <ChartPreview />}
       {activeTab === 'create' && <BookkeepingPreview />}
+      {activeTab === 'discovery' && (
+        <div className="page-new px-[18px] pb-24 pt-6">
+          <Surface className="p-5" material="raised">
+            <Compass className="text-primary-deep" size={24} />
+            <h2 className="mt-4 text-[20px] font-black text-ww-ink">发现</h2>
+            <p className="mt-2 text-[13px] leading-5 text-ww-mid">静态样板保留正式应用的五页导航结构。</p>
+          </Surface>
+        </div>
+      )}
       {activeTab === 'mine' && <MinePreview />}
-      <BottomTabBarPresentation activeKey={activeTab} ariaLabel="演示底部导航" items={[{ key: 'detail', label: '明细', icon: <ReceiptText />, onSelect: () => setActiveTab('detail') }, { key: 'chart', label: '图表', icon: <BarChart3 />, onSelect: () => setActiveTab('chart') }, { key: 'create', label: '记账', icon: <Plus />, prominent: true, onSelect: () => setActiveTab('create') }, { key: 'mine', label: '我的', icon: <House />, onSelect: () => setActiveTab('mine') }]} />
+      <BottomTabBarPresentation activeKey={activeTab} ariaLabel="演示底部导航" items={[{ key: 'detail', label: '明细', icon: <ReceiptText />, onSelect: () => setActiveTab('detail') }, { key: 'chart', label: '图表', icon: <BarChart3 />, onSelect: () => setActiveTab('chart') }, { key: 'create', label: '记账', icon: <Plus />, prominent: true, onSelect: () => setActiveTab('create') }, { key: 'discovery', label: '发现', icon: <Compass />, onSelect: () => setActiveTab('discovery') }, { key: 'mine', label: '我的', icon: <House />, onSelect: () => setActiveTab('mine') }]} />
       <Popup bodyClassName="ww-app-bottom-sheet" destroyOnClose position="bottom" visible={isPopupVisible} onMaskClick={() => setIsPopupVisible(false)}>
         <div className="p-5">
           <div className="mx-auto h-1 w-10 rounded-full bg-ww-soft/40" />

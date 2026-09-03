@@ -204,7 +204,7 @@ describe('household records', () => {
     const header = container.querySelector('[data-testid="household-home-header"]');
     const title = header?.querySelector('h1');
     expect(header?.matches('[data-record-overview-header]')).toBe(true);
-    expect(header?.classList).toContain('pt-[max(8px,env(safe-area-inset-top))]');
+    expect(header?.classList).toContain('pt-[max(6px,env(safe-area-inset-top))]');
     expect(title?.textContent).toBe('home.title');
     expect(title?.parentElement?.classList).toContain('gap-2');
     expect(title?.classList).toContain('text-left');
@@ -356,7 +356,7 @@ describe('household records', () => {
     expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(dateGroup?.textContent).toContain('records.dailyExpense');
     expect(dateGroup?.textContent).toContain('20.00');
-    expect(recordRow?.classList).toContain('min-h-[72px]');
+    expect(recordRow?.classList).toContain('min-h-[68px]');
     expect(recordRow?.classList).not.toContain('min-h-[60px]');
     expect(amount?.classList).toContain('text-finance-expense');
     expect(incomeAmount?.textContent).toBe('100.00');
@@ -522,7 +522,7 @@ describe('household records', () => {
     const recordRow = container.querySelector('[data-record-id="7"]');
     expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="record-overview-list"]')?.getAttribute('data-record-list-variant')).toBe('overview');
-    expect(recordRow?.classList).toContain('min-h-[72px]');
+    expect(recordRow?.classList).toContain('min-h-[68px]');
     expect(recordRow?.textContent).not.toContain('records.memberAttribution');
     expect(container.querySelector('[data-category-icon="餐"] svg')?.classList).toContain('lucide-utensils');
     await act(async () => recordRow?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
