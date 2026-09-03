@@ -11,6 +11,7 @@ import { UserSummaryCard } from '@/entities/user';
 import { applyAppearancePreference } from '@/features/appearance';
 import { ChartOverviewContext, ChartOverviewPresentation } from '@/features/chart-overview';
 import { AppButton, BottomTabBarPresentation, FormField, Surface } from '@/shared/ui';
+import { BalanceCardMotionPrototype } from './BalanceCardMotionPrototype';
 import { channelsToColor, colorToChannels, createThemeCss, createThemeExport, filterValidStudioOverrides, getDependentOverrides, isValidTokenValue, readStudioDrafts, STUDIO_TOKENS, writeStudioDrafts } from './token-registry';
 import './design-system.scss';
 
@@ -128,6 +129,7 @@ function StudioPreview() {
   const [overrides, setOverrides] = useState<StudioTokenOverrides>({});
   const [activeTab, setActiveTab] = useState('detail');
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const isMotionPrototype = new URLSearchParams(window.location.search).has('motion-prototype');
   useEffect(() => {
     const receive = (event: MessageEvent<ThemeMessage>) => { if (event.origin === window.location.origin && event.data?.type === 'ww-design-studio:theme') { setTemplate(event.data.template); setOverrides(event.data.overrides); } };
     window.addEventListener('message', receive); window.parent.postMessage({ type: 'ww-design-studio:ready' }, window.location.origin); return () => window.removeEventListener('message', receive);
@@ -147,7 +149,8 @@ function StudioPreview() {
   }, [overrides, template]);
   return (
     <div className="page-new relative overflow-hidden pb-24" data-design-studio-preview>
-      {activeTab === 'detail' && (
+      {isMotionPrototype && <BalanceCardMotionPrototype />}
+      {!isMotionPrototype && activeTab === 'detail' && (
         <RecordOverviewPresentation
           groups={[{ key: '2026-09-03', dateLabel: '09/03 周三', summaries: [{ key: 'expense', label: '支出', value: '¥90.00' }], records: [{ id: 'lunch', iconName: 'food', categoryName: '餐饮', primary: '和朋友吃饭', overviewSecondary: '午餐 · 3 人', amount: '¥86.00', amountTone: 'expense' }, { id: 'metro', iconName: 'traffic', categoryName: '交通', primary: '地铁通勤', amount: '¥4.00', amountTone: 'expense' }] }]}
           header={{ actions: <button aria-label="通知" className="border-border-primary bg-ww-surface text-primary-deep shadow-ww-xs" onClick={() => setIsPopupVisible(true)} type="button"><Bell size={19} /></button>, metrics: [{ key: 'income', label: '收入', value: '¥ 8,600' }, { key: 'expense', label: '支出', value: '¥ 5,915.50' }], period: { label: '账单周期', value: <span className="font-number text-[30px] font-black">¥ 2,684.50</span> }, renderTitle: className => <h1 className={className}>我的账本</h1>, shortcuts: [{ key: 'food', label: '餐饮', icon: '🍜', onClick: () => setIsPopupVisible(true) }, { key: 'traffic', label: '出行', icon: '🚇', onClick: () => setIsPopupVisible(true) }, { key: 'shopping', label: '购物', icon: '🛍️', onClick: () => setIsPopupVisible(true) }], titleIcon: <WalletCards size={17} />, titleAlignment: 'start' }}
@@ -155,9 +158,9 @@ function StudioPreview() {
           state="ready"
         />
       )}
-      {activeTab === 'chart' && <ChartPreview />}
-      {activeTab === 'create' && <BookkeepingPreview />}
-      {activeTab === 'discovery' && (
+      {!isMotionPrototype && activeTab === 'chart' && <ChartPreview />}
+      {!isMotionPrototype && activeTab === 'create' && <BookkeepingPreview />}
+      {!isMotionPrototype && activeTab === 'discovery' && (
         <div className="page-new px-[18px] pb-24 pt-6">
           <Surface className="p-5" material="raised">
             <Compass className="text-primary-deep" size={24} />
@@ -166,16 +169,18 @@ function StudioPreview() {
           </Surface>
         </div>
       )}
-      {activeTab === 'mine' && <MinePreview />}
-      <BottomTabBarPresentation activeKey={activeTab} ariaLabel="演示底部导航" items={[{ key: 'detail', label: '明细', icon: <ReceiptText />, onSelect: () => setActiveTab('detail') }, { key: 'chart', label: '图表', icon: <BarChart3 />, onSelect: () => setActiveTab('chart') }, { key: 'create', label: '记账', icon: <Plus />, prominent: true, onSelect: () => setActiveTab('create') }, { key: 'discovery', label: '发现', icon: <Compass />, onSelect: () => setActiveTab('discovery') }, { key: 'mine', label: '我的', icon: <House />, onSelect: () => setActiveTab('mine') }]} />
-      <Popup bodyClassName="ww-app-bottom-sheet" destroyOnClose position="bottom" visible={isPopupVisible} onMaskClick={() => setIsPopupVisible(false)}>
-        <div className="p-5">
-          <div className="mx-auto h-1 w-10 rounded-full bg-ww-soft/40" />
-          <h2 className="mt-4 text-[18px] font-black text-ww-ink">提醒与浮层</h2>
-          <p className="mt-1 text-[13px] leading-5 text-ww-mid">这里的弹层与底栏都在隔离预览里，能直接观察 token 的影响。</p>
-          <AppButton className="mt-5" fullWidth onClick={() => setIsPopupVisible(false)}>知道了</AppButton>
-        </div>
-      </Popup>
+      {!isMotionPrototype && activeTab === 'mine' && <MinePreview />}
+      {!isMotionPrototype && <BottomTabBarPresentation activeKey={activeTab} ariaLabel="演示底部导航" items={[{ key: 'detail', label: '明细', icon: <ReceiptText />, onSelect: () => setActiveTab('detail') }, { key: 'chart', label: '图表', icon: <BarChart3 />, onSelect: () => setActiveTab('chart') }, { key: 'create', label: '记账', icon: <Plus />, prominent: true, onSelect: () => setActiveTab('create') }, { key: 'discovery', label: '发现', icon: <Compass />, onSelect: () => setActiveTab('discovery') }, { key: 'mine', label: '我的', icon: <House />, onSelect: () => setActiveTab('mine') }]} />}
+      {!isMotionPrototype && (
+        <Popup bodyClassName="ww-app-bottom-sheet" destroyOnClose position="bottom" visible={isPopupVisible} onMaskClick={() => setIsPopupVisible(false)}>
+          <div className="p-5">
+            <div className="mx-auto h-1 w-10 rounded-full bg-ww-soft/40" />
+            <h2 className="mt-4 text-[18px] font-black text-ww-ink">提醒与浮层</h2>
+            <p className="mt-1 text-[13px] leading-5 text-ww-mid">这里的弹层与底栏都在隔离预览里，能直接观察 token 的影响。</p>
+            <AppButton className="mt-5" fullWidth onClick={() => setIsPopupVisible(false)}>知道了</AppButton>
+          </div>
+        </Popup>
+      )}
     </div>
   );
 }

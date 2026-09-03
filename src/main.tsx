@@ -11,7 +11,10 @@ import '@/shared/i18n';
 import '@/assets/styles/index.scss';
 
 initResetStyle();
-if (import.meta.env.DEV) {
+const isDesignStudio = import.meta.env.DEV
+  && (window.location.hash === '#/design-system' || new URLSearchParams(window.location.search).has('design-system-preview'));
+
+if (import.meta.env.DEV && !isDesignStudio) {
   void import('@locator/runtime').then(({ default: setupLocatorUI }) => {
     setupLocatorUI();
   });
@@ -20,8 +23,6 @@ if (import.meta.env.DEV) {
 // Wire auth token/logout into shared/api (FSD: shared cannot import features)
 const container = document.getElementById('root')!;
 const root = createRoot(container);
-const isDesignStudio = import.meta.env.DEV
-  && (window.location.hash === '#/design-system' || new URLSearchParams(window.location.search).has('design-system-preview'));
 
 if (isDesignStudio) {
   void import('@/pages/design-system/DesignSystemPage').then(({ default: DesignSystemPage }) => {
