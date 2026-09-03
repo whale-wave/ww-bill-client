@@ -1,5 +1,7 @@
 :root {
-  --ww-material-content-background: var(--ww-surface-color);
+  /* Content stays optically quiet. Transparency without a backdrop blur reads
+   * as a stable paper-like surface instead of a white fog. */
+  --ww-material-content-background: var(--ww-surface-raised-color);
   --ww-material-content-border: var(--ww-border-color);
   --ww-material-content-radius: var(--ww-radius-card);
   --ww-material-content-shadow: none;
@@ -7,26 +9,48 @@
   --ww-material-raised-border: var(--ww-border-color);
   --ww-material-raised-radius: var(--ww-radius-card);
   --ww-material-raised-shadow: var(--ww-card-shadow-xs);
-  --ww-material-chrome-background: var(--ww-control-surface);
-  --ww-material-chrome-border: var(--ww-border-color);
+  --ww-material-chrome-background: rgb(255 255 255 / 0.72);
+  --ww-material-chrome-border: rgb(255 255 255 / 0.68);
   --ww-material-chrome-radius: var(--ww-radius-control);
-  --ww-material-chrome-shadow: var(--ww-control-shadow);
-  --ww-material-chrome-blur: blur(var(--ww-card-blur));
-  --ww-material-floating-background: var(--ww-surface-raised-color);
-  --ww-material-floating-border: var(--ww-border-color);
+  --ww-material-chrome-shadow: 0 5px 14px rgb(20 20 24 / 0.08);
+  --ww-material-chrome-blur: blur(16px) saturate(1.12);
+  --ww-material-floating-background: rgb(248 250 252 / 0.76);
+  --ww-material-floating-border: rgb(255 255 255 / 0.72);
   --ww-material-floating-radius: var(--ww-radius-panel);
-  --ww-material-floating-shadow: var(--ww-card-shadow-floating);
-  --ww-material-floating-blur: blur(var(--ww-card-blur));
-  --ww-material-overlay-background: var(--ww-surface-raised-color);
-  --ww-material-overlay-border: var(--ww-border-color);
+  --ww-material-floating-shadow: 0 12px 28px rgb(20 20 24 / 0.12);
+  --ww-material-floating-blur: blur(18px) saturate(1.16);
+  --ww-material-overlay-background: rgb(248 250 252 / 0.88);
+  --ww-material-overlay-border: rgb(255 255 255 / 0.76);
   --ww-material-overlay-radius: var(--ww-radius-panel);
-  --ww-material-overlay-shadow: var(--ww-card-shadow-lg);
+  --ww-material-overlay-shadow: 0 18px 36px rgb(20 20 24 / 0.16);
+  --ww-material-overlay-blur: blur(10px) saturate(1.08);
   --ww-material-scrim-background: rgb(20 20 24 / 0.36);
+  --ww-component-dock-background: var(--ww-material-floating-background);
+  --ww-component-dock-border: var(--ww-material-floating-border);
+  --ww-component-dock-shadow: var(--ww-material-floating-shadow);
+  --ww-component-dock-blur: var(--ww-material-floating-blur);
+  --ww-component-dock-active: rgb(255 255 255 / 0.52);
 }
 
+html[data-appearance-template='fresh'],
 html[data-appearance-template='minimal'] {
+  --ww-material-chrome-background: var(--ww-control-surface);
+  --ww-material-chrome-border: var(--ww-border-color);
+  --ww-material-chrome-shadow: var(--ww-control-shadow);
   --ww-material-chrome-blur: none;
+  --ww-material-floating-background: var(--ww-surface-raised-color);
+  --ww-material-floating-border: var(--ww-border-color);
+  --ww-material-floating-shadow: var(--ww-card-shadow-floating);
   --ww-material-floating-blur: none;
+  --ww-material-overlay-background: var(--ww-surface-raised-color);
+  --ww-material-overlay-border: var(--ww-border-color);
+  --ww-material-overlay-shadow: var(--ww-card-shadow-floating);
+  --ww-material-overlay-blur: none;
+  --ww-component-dock-background: var(--ww-surface-raised-color);
+  --ww-component-dock-border: var(--ww-border-color);
+  --ww-component-dock-shadow: var(--ww-card-shadow-floating);
+  --ww-component-dock-blur: none;
+  --ww-component-dock-active: var(--ww-theme-color-light);
 }
 
 .ww-surface {
@@ -73,4 +97,34 @@ html[data-appearance-template='minimal'] {
   --ww-surface-border: var(--ww-material-overlay-border);
   --ww-surface-radius: var(--ww-material-overlay-radius);
   --ww-surface-shadow: var(--ww-material-overlay-shadow);
+}
+
+/* The dock is deliberately not a Surface: it owns navigation semantics while
+ * Surface remains presentation-only. It is the persistent glass layer. */
+.ww-floating-dock {
+  position: relative;
+  overflow: visible;
+  border: 1px solid var(--ww-component-dock-border);
+  background: var(--ww-component-dock-background);
+  box-shadow: var(--ww-component-dock-shadow);
+  backdrop-filter: var(--ww-component-dock-blur);
+  -webkit-backdrop-filter: var(--ww-component-dock-blur);
+}
+
+.ww-floating-dock::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.58);
+  content: '';
+}
+
+.ww-floating-dock__button--active:not(.ww-floating-dock__button--prominent) {
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-component-dock-active);
+}
+
+.ww-floating-dock__create {
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--ww-theme-color) 34%, transparent);
 }

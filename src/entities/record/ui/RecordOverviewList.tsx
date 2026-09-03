@@ -76,13 +76,13 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
       {groups.map(group => (
         <section
           className={isOverview
-            ? 'pb-3'
+            ? 'pb-2'
             : 'flex flex-col border-0 border-b border-solid border-border-primary pt-3 last:border-0'}
           data-date-group={group.key}
           key={group.key}
         >
           <header className={isOverview
-            ? 'flex h-[27px] items-start justify-between gap-2 px-0.5 text-[12.5px] leading-[18.75px] text-ww-ink'
+            ? 'flex h-6 items-start justify-between gap-2 px-0.5 text-[12.5px] leading-[18.75px] text-ww-ink'
             : 'flex items-center justify-between px-4 text-sm text-ww-soft'}
           >
             {group.dateTime
@@ -104,10 +104,10 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
               ))}
             </span>
           </header>
-          <div className={isOverview ? 'pt-2' : ''}>
+          <div className={isOverview ? 'pt-1.5' : ''}>
             <div className={isOverview
               ? cn(
-                  'overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] py-0.5 shadow-ww backdrop-blur-xl',
+                  'overflow-hidden rounded-[20px] border border-border-primary bg-ww-surface-raised py-0.5',
                   group.records.length === 1 && !group.records.some(record => record.overviewSecondary) && 'h-[70px]',
                 )
               : ''}
@@ -119,7 +119,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                     <div
                       className={cn(
                         'relative flex w-full items-center',
-                        hasOverviewSecondary ? 'min-h-[72px] py-1' : 'h-16',
+                        hasOverviewSecondary ? 'min-h-[68px] py-0.5' : 'h-[60px]',
                       )}
                       data-record-id={record.id}
                       key={record.id}
@@ -245,7 +245,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                 return (
                   <div
                     className={isOverview
-                      ? cn('flex w-full items-center', group.records.length === 1 ? 'h-[66px]' : 'h-16')
+                      ? cn('flex w-full items-center', group.records.length === 1 ? 'h-[62px]' : 'h-[60px]')
                       : 'flex h-[59px] w-full items-center text-base'}
                     data-record-id={record.id}
                     key={record.id}

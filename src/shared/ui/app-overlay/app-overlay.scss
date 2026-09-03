@@ -1,6 +1,7 @@
 .ww-app-overlay-mask {
   background: var(--ww-material-scrim-background);
-  backdrop-filter: blur(5px);
+  backdrop-filter: var(--ww-material-overlay-blur);
+  -webkit-backdrop-filter: var(--ww-material-overlay-blur);
 }
 
 .adm-center-popup:has(.ww-app-dialog) {
@@ -12,10 +13,12 @@
   width: min(330px, calc(100vw - 44px));
   padding-top: 22px;
   overflow: hidden;
-  border: 1px solid var(--ww-border-color);
+  border: 1px solid var(--ww-material-overlay-border);
   border-radius: 24px;
-  background: var(--ww-surface-raised-color);
-  box-shadow: var(--ww-card-shadow-floating);
+  background: var(--ww-material-overlay-background);
+  box-shadow: var(--ww-material-overlay-shadow);
+  backdrop-filter: var(--ww-material-floating-blur);
+  -webkit-backdrop-filter: var(--ww-material-floating-blur);
 
   .adm-dialog-header {
     margin: 0;
@@ -56,12 +59,12 @@
 .ww-app-dialog--danger {
   .ww-app-dialog__icon {
     color: rgb(var(--ww-color-feedback-danger));
-    background: rgba(255, 216, 230, 0.72);
+    background: rgb(var(--ww-color-feedback-danger-surface) / 0.72);
   }
 
   .adm-dialog-button:last-child {
     color: rgb(var(--ww-color-feedback-danger));
-    background: rgba(255, 216, 230, 0.72);
+    background: rgb(var(--ww-color-feedback-danger-surface) / 0.72);
     box-shadow: none;
   }
 }
@@ -114,10 +117,12 @@
 
 .ww-app-action-sheet > .adm-popup-body {
   overflow: hidden;
-  border: 1px solid var(--ww-border-color);
+  border: 1px solid var(--ww-material-overlay-border);
   border-radius: 28px 28px 0 0;
-  background: var(--ww-surface-raised-color);
-  box-shadow: var(--ww-card-shadow-floating);
+  background: var(--ww-material-overlay-background);
+  box-shadow: var(--ww-material-overlay-shadow);
+  backdrop-filter: var(--ww-material-floating-blur);
+  -webkit-backdrop-filter: var(--ww-material-floating-blur);
 
   .adm-action-sheet-extra {
     padding: 22px 22px 14px;
@@ -125,28 +130,36 @@
   }
 
   .adm-action-sheet-button-list {
-    padding: 0 14px;
+    margin: 0 18px;
+    padding: 0;
+    overflow: hidden;
+    border-top: 1px solid var(--ww-border-color);
+    border-bottom: 1px solid var(--ww-border-color);
   }
 
   .adm-action-sheet-button-item-wrapper {
     border: 0;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--ww-border-color);
+    }
   }
 
   .adm-action-sheet-button-item {
-    min-height: 52px;
-    margin-bottom: 8px;
-    border-radius: 16px;
+    min-height: 56px;
+    margin: 0;
+    border-radius: 0;
     color: var(--ww-theme-text-color);
-    background: var(--ww-surface-color);
+    background: transparent;
     font-size: 14px;
     font-weight: 800;
-    box-shadow: inset 0 0 0 1px var(--ww-border-color);
+    box-shadow: none;
   }
 
   .adm-action-sheet-cancel {
-    margin: 2px 14px max(12px, env(safe-area-inset-bottom));
-    border: 0;
-    border-radius: 16px;
+    margin: 12px 18px max(12px, env(safe-area-inset-bottom));
+    border: 1px solid var(--ww-border-color);
+    border-radius: 18px;
     color: var(--ww-text-color-mid);
     background: var(--ww-surface-tint-color);
     font-size: 13px;
@@ -156,18 +169,22 @@
 
 .ww-app-top-sheet.adm-popup-body {
   overflow: hidden;
-  border: 1px solid var(--ww-border-color);
+  border: 1px solid var(--ww-material-overlay-border);
   border-radius: 0 0 24px 24px;
-  background: var(--ww-surface-raised-color);
-  box-shadow: var(--ww-card-shadow-floating);
+  background: var(--ww-material-overlay-background);
+  box-shadow: var(--ww-material-overlay-shadow);
+  backdrop-filter: var(--ww-material-floating-blur);
+  -webkit-backdrop-filter: var(--ww-material-floating-blur);
 }
 
 .ww-app-bottom-sheet.adm-popup-body {
   overflow: hidden;
-  border: 1px solid var(--ww-border-color);
+  border: 1px solid var(--ww-material-overlay-border);
   border-radius: 28px 28px 0 0;
-  background: var(--ww-surface-raised-color);
-  box-shadow: var(--ww-card-shadow-floating);
+  background: var(--ww-material-overlay-background);
+  box-shadow: var(--ww-material-overlay-shadow);
+  backdrop-filter: var(--ww-material-floating-blur);
+  -webkit-backdrop-filter: var(--ww-material-floating-blur);
 
   .adm-popup-close-icon {
     top: 16px;
@@ -260,8 +277,10 @@
   .adm-popup-body {
     overflow: hidden;
     border-radius: 28px 28px 0 0;
-    background: var(--ww-surface-raised-color);
-    box-shadow: var(--ww-card-shadow-floating);
+    background: var(--ww-material-overlay-background);
+    box-shadow: var(--ww-material-overlay-shadow);
+    backdrop-filter: var(--ww-material-floating-blur);
+    -webkit-backdrop-filter: var(--ww-material-floating-blur);
   }
 }
 

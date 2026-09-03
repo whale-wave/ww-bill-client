@@ -117,7 +117,7 @@ const SettingsRow: FC<{ isLast: boolean; row: SettingsOverviewRow }> = ({
         <Icon size={18} strokeWidth={1.8} />
       </span>
       <span className={cn(
-        'flex min-h-[64px] min-w-0 flex-grow items-center border-0',
+        'flex min-h-[60px] min-w-0 flex-grow items-center border-0',
         !isLast && 'border-b border-solid border-border-primary',
       )}
       >
@@ -147,7 +147,7 @@ const SettingsRow: FC<{ isLast: boolean; row: SettingsOverviewRow }> = ({
     ? (
         <button
           className={cn(
-            'flex min-h-[64px] w-full items-center border-0 bg-transparent px-4 text-left',
+            'flex min-h-[60px] w-full items-center border-0 bg-transparent px-4 text-left',
             row.disabled ? 'opacity-45' : '',
           )}
           data-settings-row={row.id}
@@ -161,7 +161,7 @@ const SettingsRow: FC<{ isLast: boolean; row: SettingsOverviewRow }> = ({
     : (
         <div
           className={cn(
-            'flex min-h-[64px] w-full items-center bg-transparent px-4 text-left',
+            'flex min-h-[60px] w-full items-center bg-transparent px-4 text-left',
             row.disabled ? 'opacity-45' : '',
           )}
           data-settings-row={row.id}
@@ -182,7 +182,7 @@ export const SettingsOverviewPresentation: FC<{
             {section.title}
           </h2>
         )}
-        <div className="overflow-hidden rounded-[var(--ww-radius-card)] border border-border-primary bg-ww-surface shadow-ww backdrop-blur-[var(--ww-card-blur)]">
+        <div className="ww-settings-list overflow-hidden rounded-[var(--ww-radius-card)] border border-border-primary bg-ww-surface-raised">
           {section.rows.map((row, index) => (
             <SettingsRow
               isLast={index === section.rows.length - 1}

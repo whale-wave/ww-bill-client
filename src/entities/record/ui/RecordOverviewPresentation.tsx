@@ -67,7 +67,7 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
             className="flex min-h-[320px] flex-grow items-center justify-center py-3"
             data-record-overview-state="error"
           >
-            <div className="w-full rounded-[24px] border border-solid border-border-primary bg-white/65 shadow-ww-xs backdrop-blur-xl">
+            <div className="w-full rounded-[var(--ww-radius-card)] border border-solid border-border-primary bg-ww-surface-raised">
               <IllustratedEmptyState
                 accentIcon={<RefreshCw size={18} strokeWidth={2.2} />}
                 actionLabel={retryLabel ?? t('error.loadFail')}
@@ -86,7 +86,7 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
             className="flex min-h-[320px] flex-grow items-center justify-center py-3"
             data-record-overview-state="empty"
           >
-            <div className="w-full rounded-[24px] border border-solid border-border-primary bg-white/65 shadow-ww-xs backdrop-blur-xl">
+            <div className="w-full rounded-[var(--ww-radius-card)] border border-solid border-border-primary bg-ww-surface-raised">
               <IllustratedEmptyState
                 accentIcon={onEmptyAction ? <Plus size={19} strokeWidth={2.2} /> : undefined}
                 actionLabel={emptyActionLabel}

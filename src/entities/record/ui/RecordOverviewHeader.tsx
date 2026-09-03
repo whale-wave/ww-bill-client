@@ -66,11 +66,11 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
 
   return (
     <div
-      className="record-detail-top w-full shrink-0 pt-[max(8px,env(safe-area-inset-top))]"
+      className="record-detail-top w-full shrink-0 pt-[max(6px,env(safe-area-inset-top))]"
       data-record-overview-header=""
       data-testid={testId}
     >
-      <div className="flex h-[60px] items-start justify-between gap-3 px-[22px] pb-4">
+      <div className="flex h-[56px] items-start justify-between gap-3 px-[22px] pb-3">
         <div className="flex h-8 min-w-0 items-center gap-2" data-record-overview-title-row>
           {titleIcon && (
             <span className={cn(
@@ -85,13 +85,13 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
         </div>
         {actions && <div className="ww-overview-header-actions flex shrink-0 items-center gap-[10px] [&>button]:flex [&>button]:h-11 [&>button]:w-11 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:border [&>button]:border-solid">{actions}</div>}
       </div>
-      <div className="px-[18px] pb-4">
+      <div className="px-[18px] pb-3">
         <Surface
-          className="relative h-[211px] overflow-hidden px-[22px] pb-4 pt-[18px]"
+          className="relative h-[190px] overflow-hidden px-5 pb-3 pt-[14px]"
           data-record-overview-summary=""
           material="raised"
         >
-          <div className="relative flex h-[39px] items-center gap-[6px]">
+          <div className="relative flex h-[35px] items-center gap-[6px]">
             <div data-record-overview-metrics>
               <div className="sr-only">{period.label}</div>
               <div
@@ -103,7 +103,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
               </div>
             </div>
           </div>
-          <div className="relative flex h-[57px] w-full items-center">
+          <div className="relative flex h-[52px] w-full items-center">
             <MetricGrid
               align="start"
               className="w-[249px] shrink-0"
@@ -133,7 +133,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
           </div>
           <ActionMenuCard
             aria-label="record shortcuts"
-            className="relative h-20 overflow-y-hidden pt-4"
+            className="ww-overview-shortcuts relative h-[70px] overflow-y-hidden border-0 border-t border-solid border-border-primary pt-1.5"
             columns={3}
             items={shortcuts.map((shortcut, index) => ({
               ariaDisabled: shortcut.disabled,

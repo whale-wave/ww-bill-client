@@ -339,6 +339,19 @@ html[data-appearance-template='glass'] {
   box-shadow: var(--ww-shortcut-shadow);
 }
 
+/* The billing summary uses inset actions, not a second row of little cards. */
+.ww-overview-shortcuts .ww-action-menu-card__item {
+  border: 0;
+  color: var(--ww-theme-color-deep);
+  background: transparent;
+  box-shadow: none;
+}
+
+.ww-overview-shortcuts .ww-action-menu-card__icon {
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-surface-tint-color);
+}
+
 .ww-action-menu-card__item[data-action-menu-variant='tiles'] {
   border-color: var(--ww-border-color);
   background: var(--ww-surface-raised-color);
@@ -357,8 +370,8 @@ html[data-appearance-template='glass'] {
   color: var(--ww-theme-color-deep);
   background: var(--ww-control-surface);
   box-shadow: var(--ww-control-shadow);
-  backdrop-filter: blur(var(--ww-card-blur));
-  -webkit-backdrop-filter: blur(var(--ww-card-blur));
+  backdrop-filter: var(--ww-material-chrome-blur);
+  -webkit-backdrop-filter: var(--ww-material-chrome-blur);
 }
 
 .ww-metric-divider::after {

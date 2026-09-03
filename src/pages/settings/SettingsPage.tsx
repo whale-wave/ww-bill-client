@@ -83,8 +83,6 @@ const Settings: FC = () => {
 
   return (
     <div className="page-new relative overflow-hidden">
-      <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-24 h-52 w-52 rounded-full bg-primary-light/35 blur-3xl" />
-      <div aria-hidden="true" className="pointer-events-none absolute -left-20 top-[52%] h-48 w-48 rounded-full bg-ww-pink-light/25 blur-3xl" />
       <PageHeader
         backLabel={t('common:nav.back')}
         onBack={onBack}
@@ -93,7 +91,7 @@ const Settings: FC = () => {
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(24px,env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[520px]">
           <Surface className="mb-5 flex items-center gap-3.5 px-4 py-4" material="raised">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] border border-white/80 bg-white/65 text-primary-deep shadow-ww-xs">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] bg-ww-surface-tint text-primary-deep">
               <SlidersHorizontal size={21} strokeWidth={1.8} />
             </span>
             <div>

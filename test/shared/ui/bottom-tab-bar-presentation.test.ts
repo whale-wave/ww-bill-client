@@ -29,12 +29,15 @@ describe('bottom tab bar presentation', () => {
 
     const tabList = container.querySelector('[role="tablist"]');
     expect(tabList?.classList).toContain('fixed');
-    expect(tabList?.classList).toContain('h-[66px]');
-    expect(tabList?.classList).toContain('rounded-[33px]');
-    expect(tabList?.classList).toContain('shadow-ww-floating');
+    expect(tabList?.classList).toContain('ww-floating-dock');
+    expect(tabList?.classList).toContain('h-[68px]');
+    expect(tabList?.classList).toContain('rounded-[34px]');
     expect(tabList?.classList).toContain('left-[14px]');
     expect(tabList?.classList).toContain('right-[14px]');
     expect(tabList?.querySelectorAll('[role="tab"]')).toHaveLength(count);
+    expect(tabList?.querySelector('.ww-floating-dock__button--active')).not.toBeNull();
+    expect(tabList?.querySelector('.ww-floating-dock__create')).not.toBeNull();
+    expect(tabList?.querySelector('.ww-tab-bar__button')?.className).not.toContain('transition-');
     expect(container.querySelector('.ww-tab-bar-spacer')).toBeNull();
   });
 });

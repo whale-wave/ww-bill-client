@@ -1,5 +1,6 @@
 import type { FC, KeyboardEvent, ReactNode } from 'react';
 import { cn } from '@/shared/lib';
+import { useMotionPreference } from '@/shared/ui/motion';
 
 export interface BottomTabBarItem {
   activeIcon?: ReactNode;
@@ -44,58 +45,65 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
   activeKey,
   ariaLabel,
   items,
-}) => (
-  <nav
-    aria-label={ariaLabel}
-    className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar fixed bottom-[calc(8px+env(safe-area-inset-bottom))] left-[14px] right-[14px] z-[100] flex h-[66px] items-center justify-evenly rounded-[33px] border border-border-primary bg-ww-surface px-[5px] text-ww-ghost shadow-ww-floating backdrop-blur-[var(--ww-card-blur)]"
-    role="tablist"
-  >
-    {items.map((item) => {
-      const isActive = item.key === activeKey;
-      return (
-        <button
-          aria-disabled={item.disabled}
-          aria-selected={isActive}
-          className={cn(
-            'item ww-tab-bar__button relative flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-[2px] rounded-[10px] border-0 bg-transparent px-1 text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
-            isActive && 'text-primary-deep',
-            item.disabled && 'opacity-45',
-          )}
-          data-prefetch-key={item.key}
-          data-route={item.route}
-          data-tab-key={item.key}
-          key={item.key}
-          onClick={() => {
-            if (!isActive)
-              item.onSelect();
-          }}
-          onFocus={item.disabled ? undefined : item.onPrefetch}
-          onKeyDown={handleArrowKey}
-          onMouseEnter={item.disabled ? undefined : item.onPrefetch}
-          onTouchStart={item.disabled ? undefined : item.onPrefetch}
-          role="tab"
-          tabIndex={isActive ? 0 : -1}
-          type="button"
-        >
-          <span
+}) => {
+  const { isMotionEnabled } = useMotionPreference();
+
+  return (
+    <nav
+      aria-label={ariaLabel}
+      className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar ww-floating-dock fixed bottom-[calc(10px+env(safe-area-inset-bottom))] left-[14px] right-[14px] z-[100] flex h-[68px] items-center justify-evenly rounded-[34px] px-[5px] text-ww-ghost"
+      role="tablist"
+    >
+      {items.map((item) => {
+        const isActive = item.key === activeKey;
+        return (
+          <button
+            aria-disabled={item.disabled}
+            aria-selected={isActive}
             className={cn(
-              'ww-tab-bar__button-icon tab-icon flex h-[19px] w-[19px] items-center justify-center text-[19px] transition-transform',
-              item.prominent
-              && 'ww-tab-bar__create-icon absolute bottom-[12px] h-[52px] w-[52px] rounded-3xl text-[21px] text-white shadow-ww-xs',
+              'item ww-tab-bar__button ww-floating-dock__button relative flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-[2px] rounded-[18px] border-0 bg-transparent px-1 text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
+              isMotionEnabled && 'transition-[background,color,transform] duration-200 ease-out active:scale-[0.97]',
+              isActive && 'ww-floating-dock__button--active',
+              item.prominent && 'ww-floating-dock__button--prominent',
+              item.disabled && 'opacity-45',
             )}
+            data-prefetch-key={item.key}
+            data-route={item.route}
+            data-tab-key={item.key}
+            key={item.key}
+            onClick={() => {
+              if (!isActive)
+                item.onSelect();
+            }}
+            onFocus={item.disabled ? undefined : item.onPrefetch}
+            onKeyDown={handleArrowKey}
+            onMouseEnter={item.disabled ? undefined : item.onPrefetch}
+            onTouchStart={item.disabled ? undefined : item.onPrefetch}
+            role="tab"
+            tabIndex={isActive ? 0 : -1}
+            type="button"
           >
-            {isActive ? item.activeIcon ?? item.icon : item.icon}
-          </span>
-          <span className={cn(
-            'name ww-tab-bar__button-label max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[9.5px] font-medium leading-[14.25px] tracking-[0.3px]',
-            isActive && 'font-bold',
-            item.prominent && 'invisible',
-          )}
-          >
-            {item.label}
-          </span>
-        </button>
-      );
-    })}
-  </nav>
-);
+            <span
+              className={cn(
+                'ww-tab-bar__button-icon tab-icon flex h-[19px] w-[19px] items-center justify-center text-[19px]',
+                isMotionEnabled && 'transition-transform duration-200 ease-out',
+                item.prominent
+                && 'ww-tab-bar__create-icon ww-floating-dock__create absolute bottom-[13px] h-14 w-14 rounded-full text-[22px] text-white',
+              )}
+            >
+              {isActive ? item.activeIcon ?? item.icon : item.icon}
+            </span>
+            <span className={cn(
+              'name ww-tab-bar__button-label max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[9.5px] font-medium leading-[14.25px] tracking-[0.3px]',
+              isActive && 'font-bold',
+              item.prominent && 'invisible',
+            )}
+            >
+              {item.label}
+            </span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+};

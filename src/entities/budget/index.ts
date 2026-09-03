@@ -10,3 +10,4 @@ export * from './ui/BudgetPageShell';
 export * from './ui/BudgetPeriodDropdown';
 export * from './ui/BudgetPresentation';
 export { default as CurMonthBudgetCard } from './ui/CurMonthBudgetCard';
+export * from './ui/CurMonthBudgetCard';

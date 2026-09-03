@@ -104,7 +104,7 @@ describe('personal tab bar', () => {
     ]);
     expect(container.querySelector('.bwm-tab-bar')).not.toBeNull();
     expect(container.querySelector('.ww-tab-bar')).not.toBeNull();
-    expect(container.querySelector('[data-tab-key="bookkeeping"] .ww-tab-bar__create-icon')?.classList).toContain('h-[52px]');
+    expect(container.querySelector('[data-tab-key="bookkeeping"] .ww-tab-bar__create-icon')?.classList).toContain('h-14');
     expect(container.querySelectorAll('.bwm-tab-bar > .item')).toHaveLength(5);
 
     for (const [key, path] of [

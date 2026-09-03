@@ -67,7 +67,6 @@ export function showAppActionSheet({
       </div>
     ),
     popupClassName: 'ww-app-action-sheet',
-    styles: { mask: { backdropFilter: 'blur(5px)' } },
   });
 }
 

@@ -7,8 +7,10 @@
   --ww-color-stroke: 20 20 24;
   --ww-color-action-primary: 63 159 190;
   --ww-color-action-primary-foreground: 255 255 255;
-  --ww-color-feedback-danger: 193 72 112;
-  --ww-color-feedback-danger-surface: 255 216 230;
+  /* Destructive and error feedback is intentionally independent from the
+   * finance-expense palette: it must never read as an ordinary expense. */
+  --ww-color-feedback-danger: 193 72 72;
+  --ww-color-feedback-danger-surface: 255 222 222;
   --ww-color-feedback-success: 42 148 96;
   --ww-color-feedback-warning: 138 90 0;
   --ww-color-feedback-warning-surface: 255 247 230;

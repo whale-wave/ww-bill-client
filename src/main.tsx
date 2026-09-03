@@ -20,41 +20,51 @@ if (import.meta.env.DEV) {
 // Wire auth token/logout into shared/api (FSD: shared cannot import features)
 const container = document.getElementById('root')!;
 const root = createRoot(container);
+const isDesignStudio = import.meta.env.DEV
+  && (window.location.hash === '#/design-system' || new URLSearchParams(window.location.search).has('design-system-preview'));
 
-void (async () => {
-  await rehydrateAuthStore();
-  const authState = useAuthStore.getState();
-  if (authState.token && authState.userId)
-    applyAppearancePreference(readAppearancePreferenceMirror(authState.userId));
-  else
-    resetAppearancePreference();
-  setAuthDeps({
-    captureRequestAuth: () => {
-      const state = useAuthStore.getState();
-      return { token: state.token, identity: { sessionEpoch: state.runtime.sessionEpoch, credentialRevision: state.runtime.credentialRevision } };
-    },
-    captureSessionScope: () => {
-      const state = useAuthStore.getState();
-      return { sessionEpoch: state.runtime.sessionEpoch, credentialRevision: state.runtime.credentialRevision };
-    },
-    isTransitionCurrent: (identity) => {
-      const state = useAuthStore.getState();
-      return state.runtime.sessionEpoch === identity.sessionEpoch && state.runtime.credentialRevision === identity.credentialRevision;
-    },
-    isSessionScopeCurrent: (scope) => {
-      const state = useAuthStore.getState();
-      return state.runtime.sessionEpoch === scope.sessionEpoch;
-    },
-    handleAuthFailure: (identity) => {
-      const state = useAuthStore.getState();
-      if (state.runtime.sessionEpoch === identity.sessionEpoch && state.runtime.credentialRevision === identity.credentialRevision)
-        return state.logOut();
-    },
-    logoutHandler: () => { useAuthStore.getState().logOut(); },
-    clearSessionScopedCaches: () => {
-      clearHouseholdInvitationCache();
-      clearLedgerInvitationCache();
-    },
+if (isDesignStudio) {
+  void import('@/pages/design-system/DesignSystemPage').then(({ default: DesignSystemPage }) => {
+    root.render(<React.StrictMode><DesignSystemPage /></React.StrictMode>);
   });
-  root.render(<React.StrictMode><App /></React.StrictMode>);
-})();
+}
+
+if (!isDesignStudio) {
+  void (async () => {
+    await rehydrateAuthStore();
+    const authState = useAuthStore.getState();
+    if (authState.token && authState.userId)
+      applyAppearancePreference(readAppearancePreferenceMirror(authState.userId));
+    else
+      resetAppearancePreference();
+    setAuthDeps({
+      captureRequestAuth: () => {
+        const state = useAuthStore.getState();
+        return { token: state.token, identity: { sessionEpoch: state.runtime.sessionEpoch, credentialRevision: state.runtime.credentialRevision } };
+      },
+      captureSessionScope: () => {
+        const state = useAuthStore.getState();
+        return { sessionEpoch: state.runtime.sessionEpoch, credentialRevision: state.runtime.credentialRevision };
+      },
+      isTransitionCurrent: (identity) => {
+        const state = useAuthStore.getState();
+        return state.runtime.sessionEpoch === identity.sessionEpoch && state.runtime.credentialRevision === identity.credentialRevision;
+      },
+      isSessionScopeCurrent: (scope) => {
+        const state = useAuthStore.getState();
+        return state.runtime.sessionEpoch === scope.sessionEpoch;
+      },
+      handleAuthFailure: (identity) => {
+        const state = useAuthStore.getState();
+        if (state.runtime.sessionEpoch === identity.sessionEpoch && state.runtime.credentialRevision === identity.credentialRevision)
+          return state.logOut();
+      },
+      logoutHandler: () => { useAuthStore.getState().logOut(); },
+      clearSessionScopedCaches: () => {
+        clearHouseholdInvitationCache();
+        clearLedgerInvitationCache();
+      },
+    });
+    root.render(<React.StrictMode><App /></React.StrictMode>);
+  })();
+}

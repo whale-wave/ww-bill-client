@@ -29,7 +29,7 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
 
   return (
     <div className="space-y-[14px]">
-      <Surface className="ww-user-summary-card overflow-hidden px-[22px] py-6" material="raised">
+      <Surface className="ww-user-summary-card overflow-hidden px-5 py-5" material="raised">
         <div className="flex items-center gap-4">
           <button
             className="ww-user-summary-avatar relative flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full border-[3px] border-white shadow-ww-xs"
@@ -65,7 +65,7 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
           </div>
         </div>
         <MetricGrid
-          className="ww-user-summary-metrics mt-[22px] rounded-[14px] border border-border-primary px-2 py-[14px]"
+          className="ww-user-summary-metrics mt-[18px] border-0 border-t border-solid border-border-primary px-1 pt-3"
           density="hero"
           items={[
             { key: 'keep', label: t('checkIn.keep'), suffix: t('checkIn.dayUnit'), tone: 'primary', value: numberInfo.checkInKeep ?? 0 },

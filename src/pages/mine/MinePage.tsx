@@ -107,15 +107,15 @@ const Mine: FC = () => {
           onProfileClick={() => navigate('/user-info')}
         />
 
-        <div className="mt-[14px] space-y-[14px]">
+        <div className="mt-3 space-y-3">
           <ActionMenuCard
             columns={5}
-            items={tabs.map((tab, index) => ({
+            items={tabs.map(tab => ({
               icon: <DesignIcon name={tab.icon} size={16} />,
               key: tab.name,
               label: tab.name,
               onClick: tab.onClick.bind(tab),
-              tone: index === 1 ? 'pink' : index === 2 ? 'amber' : index === 3 ? 'green' : index === 4 ? 'purple' : 'blue',
+              tone: 'blue',
             }))}
             variant="mine-actions"
           />
