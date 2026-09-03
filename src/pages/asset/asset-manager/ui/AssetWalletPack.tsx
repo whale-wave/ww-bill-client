@@ -112,11 +112,15 @@ export const AssetWalletPack: FC = () => {
       <m.div
         animate={{ height: walletHeight }}
         className="relative overflow-hidden rounded-[24px] bg-ww-surface shadow-[0_16px_30px_rgb(31_49_69_/_14%)]"
+        onClick={(event) => {
+          if (isExpanded && event.target === event.currentTarget)
+            setIsExpanded(false);
+        }}
         transition={{ duration: isMotionEnabled ? 0.45 : 0, ease: [0.22, 1, 0.36, 1] }}
       >
         <m.div
           animate={isExpanded ? { height: 126 } : { height: [174, 238, 300] }}
-          className="absolute bottom-4 left-4 right-4 rounded-[26px] bg-ww-ink shadow-[0_12px_22px_rgb(18_27_40_/_20%)]"
+          className="pointer-events-none absolute bottom-4 left-4 right-4 rounded-[26px] bg-ww-ink shadow-[0_12px_22px_rgb(18_27_40_/_20%)]"
           initial={{ height: 154 }}
           transition={{ duration: isMotionEnabled ? 0.82 : 0, ease: [0.22, 1, 0.36, 1], times: [0, 0.56, 1] }}
         />

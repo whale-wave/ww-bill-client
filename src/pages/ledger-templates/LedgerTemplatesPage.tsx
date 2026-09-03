@@ -42,7 +42,6 @@ const LedgerTemplatesPage: FC = () => {
       <PageHeader
         backLabel={t('common:nav.back')}
         onBack={handleBack}
-        subtitle={t('templates.subtitle')}
         title={t('templates.title')}
       />
       <main className="relative min-h-0 flex-grow overflow-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">

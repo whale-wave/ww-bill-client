@@ -24,7 +24,6 @@ const AssetDetail: FC = () => {
       backLabel={t('common:nav.back')}
       footer={query.data ? <AssetBottomActions assetId={query.data.id} /> : undefined}
       onBack={onBack}
-      subtitle={t('detail.subtitle')}
       title={t('detail.title')}
     >
       {query.isLoading && (

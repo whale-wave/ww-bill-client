@@ -35,7 +35,6 @@ const AddAssetAccount: FC = () => {
     <AssetPageFrame
       backLabel={t('common:nav.back')}
       onBack={() => navigate(-1)}
-      subtitle={parent ? t('group.chooseSubtype') : t('group.subtitle')}
       title={parent?.name ?? t('addAccount')}
     >
       {groupsQuery.isLoading && (

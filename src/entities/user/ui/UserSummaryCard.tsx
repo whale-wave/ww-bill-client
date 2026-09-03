@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { CalendarCheck2 } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
 import { DesignIcon, MetricGrid, Surface } from '@/shared/ui';
 
@@ -53,13 +54,15 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
             <div className="truncate text-[20px] font-extrabold leading-[30px] text-ww-ink">{name || t('notLoggedIn')}</div>
             {name && (
               <button
-                className="ww-theme-primary-action mt-2 flex h-11 items-center rounded-[12px] px-[13px] text-[12px] font-bold leading-[18px] disabled:opacity-55"
+                className="mt-2 flex h-11 items-center border-0 bg-transparent p-0 text-[12px] font-bold leading-[18px] transition-opacity active:opacity-75 disabled:opacity-55"
                 disabled={checkIn || isCheckInPending}
                 onClick={onCheckIn}
                 type="button"
               >
-                <DesignIcon className="mr-1" name="check-in" size={12} />
-                {checkIn ? t('checkIn.alreadyCheckedIn') : t('checkIn.button')}
+                <span className="ww-profile-check-in flex items-center px-[13px]">
+                  <CalendarCheck2 className="mr-1" size={14} strokeWidth={2} />
+                  {checkIn ? t('checkIn.alreadyCheckedIn') : t('checkIn.button')}
+                </span>
               </button>
             )}
           </div>

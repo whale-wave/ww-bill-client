@@ -75,7 +75,6 @@ const LedgerJoinRequestsPage: FC = () => {
       <PageHeader
         backLabel={t('common:nav.back')}
         onBack={() => navigate(-1)}
-        subtitle={t('requests.subtitle')}
         title={t('requests.title')}
       />
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-6">

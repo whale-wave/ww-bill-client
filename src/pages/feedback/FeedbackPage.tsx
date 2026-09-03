@@ -67,7 +67,6 @@ export default function FeedbackPage() {
       <PageHeader
         backLabel={t('common:nav.back')}
         onBack={() => navigate(-1)}
-        subtitle={t('subtitle')}
         title={t('title')}
       />
       <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))] pt-2">

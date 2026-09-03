@@ -9,7 +9,6 @@ interface AssetPageFrameProps {
   mainClassName?: string;
   onBack: () => void;
   right?: ReactNode;
-  subtitle?: ReactNode;
   title: ReactNode;
 }
 
@@ -20,7 +19,6 @@ export function AssetPageFrame({
   mainClassName,
   onBack,
   right,
-  subtitle,
   title,
 }: AssetPageFrameProps) {
   return (
@@ -31,7 +29,6 @@ export function AssetPageFrame({
         backLabel={backLabel}
         onBack={onBack}
         right={right}
-        subtitle={subtitle}
         title={title}
       />
       <main className={cn('relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-[max(24px,env(safe-area-inset-bottom))] pt-2', mainClassName)}>

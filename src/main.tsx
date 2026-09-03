@@ -11,8 +11,9 @@ import '@/shared/i18n';
 import '@/assets/styles/index.scss';
 
 initResetStyle();
+const designStudioHash = window.location.hash;
 const isDesignStudio = import.meta.env.DEV
-  && (window.location.hash === '#/design-system' || new URLSearchParams(window.location.search).has('design-system-preview'));
+  && (designStudioHash === '#/design-system' || designStudioHash.startsWith('#/design-system/preview'));
 
 if (import.meta.env.DEV && !isDesignStudio) {
   void import('@locator/runtime').then(({ default: setupLocatorUI }) => {

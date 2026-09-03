@@ -140,7 +140,7 @@ const HouseholdRecordPolicyPage: FC = () => {
     <div className="page-new relative overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-16 h-56 w-56 rounded-full bg-primary-light/45 blur-3xl" />
       <div aria-hidden="true" className="pointer-events-none absolute -left-24 bottom-12 h-48 w-48 rounded-full bg-ww-pink/15 blur-3xl" />
-      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} subtitle={t('settings.subtitle')} title={t('policy.title')} />
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('policy.title')} />
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-0 pt-2">
         {!Number.isInteger(parsedRecordId) || parsedRecordId <= 0
           ? <ErrorBlock status="default" title={t('common.invalidContext')} />

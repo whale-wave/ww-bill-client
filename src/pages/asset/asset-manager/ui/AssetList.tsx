@@ -138,9 +138,14 @@ export const AssetList: FC = () => {
                   className="overflow-hidden rounded-[20px] border border-border-primary bg-white/85 shadow-ww-xs backdrop-blur-xl"
                   key={group.id}
                 >
-                  <header className="ww-asset-group-header flex h-[46px] items-center justify-between px-[18px]">
+                  <header className={`ww-asset-group-header ww-asset-group-header--${group.type} flex h-[46px] items-center justify-between px-[18px]`}>
                     <div className="flex items-center gap-2">
-                      <span className={group.type === 'add' ? 'h-2 w-2 rounded-full bg-finance-income' : 'h-2 w-2 rounded-full bg-finance-expense'} />
+                      <span
+                        aria-hidden="true"
+                        className={group.type === 'add'
+                          ? 'h-5 w-1.5 rounded-full bg-finance-income'
+                          : 'h-5 w-1.5 rounded-full bg-finance-expense'}
+                      />
                       <h3 className="text-[13px] font-bold text-ww-ink">{group.name}</h3>
                     </div>
                     <span className={group.type === 'add'

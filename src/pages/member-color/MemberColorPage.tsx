@@ -96,7 +96,7 @@ const MemberColorPage: FC<Props> = ({ scope }) => {
 
   return (
     <div className="page-new min-h-screen px-[18px] pb-8">
-      <PageHeader backLabel="返回" onBack={() => navigate(-1)} title="我的成员颜色" subtitle="仅在当前协作账本中生效" />
+      <PageHeader backLabel="返回" onBack={() => navigate(-1)} title="我的成员颜色" />
       <main className="mx-auto mt-3 w-full max-w-[520px] space-y-4">
         <Surface className="px-4 py-4" material="raised">
           <p className="mb-3 text-[12px] font-semibold text-ww-mid">选择一个未被其他成员使用的颜色</p>

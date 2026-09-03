@@ -65,7 +65,6 @@ const AssetChart: FC = () => {
       <PageHeader
         backLabel={t('common:nav.back')}
         onBack={onBack}
-        subtitle={t('manager.subtitle')}
         title={t('assetChartTitle')}
       />
 

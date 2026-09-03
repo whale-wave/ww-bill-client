@@ -298,7 +298,6 @@ function LedgerCenterPage() {
             <Settings2 aria-hidden="true" size={18} />
           </button>
         )}
-        subtitle={t('center.subtitle')}
         title={t('center.title')}
       />
       <main className="ledger-center-content">

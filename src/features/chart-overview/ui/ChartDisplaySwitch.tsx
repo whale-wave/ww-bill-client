@@ -18,20 +18,20 @@ export const ChartDisplaySwitch: FC<ChartDisplaySwitchProps> = ({ compact = fals
   return (
     <div
       aria-label={t('display.label')}
-      className={`inline-flex rounded-full border border-border-primary bg-white/[0.84] p-1 shadow-ww-xs ${compact ? 'origin-right' : ''}`}
+      className={`ww-chart-display-switch inline-flex items-center border p-[2px] ${compact ? 'origin-right' : ''}`}
       data-chart-display-switch
       role="group"
     >
       {options.map(option => (
         <button
           aria-pressed={option.value === value}
-          className={`min-h-11 rounded-full font-bold transition ${compact ? 'min-w-[48px] px-2 text-[11px] leading-4' : 'min-w-[52px] px-3 text-[12px] leading-[18px]'} ${option.value === value ? 'bg-primary-light text-primary-deep shadow-[0_2px_5px_rgba(60,140,180,0.12)]' : 'text-ww-soft'}`}
+          className={`ww-chart-display-switch__option relative -my-2 flex h-11 items-center justify-center border-0 bg-transparent font-bold transition-colors ${compact ? 'min-w-[44px] px-2 text-[11px] leading-4' : 'min-w-[52px] px-3 text-[12px] leading-[18px]'} ${option.value === value ? 'ww-chart-display-switch__option--active' : ''}`}
           data-chart-display-option={option.value}
           key={option.value}
           onClick={() => onChange(option.value)}
           type="button"
         >
-          {option.label}
+          <span className="relative z-[1]">{option.label}</span>
         </button>
       ))}
     </div>

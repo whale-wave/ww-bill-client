@@ -5,11 +5,10 @@ interface PageHeaderProps {
   backLabel: string;
   onBack?: () => void;
   right?: ReactNode;
-  subtitle?: ReactNode;
   title: ReactNode;
 }
 
-export function PageHeader({ backLabel, onBack, right, subtitle, title }: PageHeaderProps) {
+export function PageHeader({ backLabel, onBack, right, title }: PageHeaderProps) {
   return (
     <header className="relative z-20 shrink-0 px-[var(--ww-page-gutter)] pt-[max(6px,env(safe-area-inset-top))]" data-page-header>
       <div className="relative flex min-h-[48px] items-center justify-center">
@@ -25,7 +24,6 @@ export function PageHeader({ backLabel, onBack, right, subtitle, title }: PageHe
         )}
         <div className="min-w-0 max-w-[220px] text-center">
           <h1 className="truncate text-[16px] font-extrabold leading-6 text-ww-ink">{title}</h1>
-          {subtitle && <p className="mt-0.5 truncate text-[10px] font-semibold text-ww-soft">{subtitle}</p>}
         </div>
         {right && <div className="absolute right-0 flex items-center">{right}</div>}
       </div>

@@ -17,7 +17,7 @@ export function FixedExpenseFormPage({ id, title }: FixedExpenseFormPageProps) {
     <div className="page-new relative overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-20 h-56 w-56 rounded-full bg-primary-light/40 blur-3xl" />
       <div aria-hidden="true" className="pointer-events-none absolute -left-24 bottom-16 h-48 w-48 rounded-full bg-ww-pink/15 blur-3xl" />
-      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} subtitle={t('subtitle')} title={title} />
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={title} />
       <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-8 pt-2">
         <div className="mx-auto w-full max-w-[520px]">
           <Surface className="mb-4 flex items-center gap-3 px-4 py-3.5" material="raised">

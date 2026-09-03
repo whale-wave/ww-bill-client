@@ -16,7 +16,6 @@ export const AssetHeader: FC = () => {
     <PageHeader
       backLabel={t('common:nav.back')}
       onBack={handleBack}
-      subtitle={t('manager.subtitle')}
       title={t('manager.title')}
     />
   );

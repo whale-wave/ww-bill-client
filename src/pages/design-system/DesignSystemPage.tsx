@@ -5,6 +5,7 @@ import type { AppearanceTemplate } from '@/entities/user-app-config';
 import { Input, Popup, Toast } from 'antd-mobile';
 import { BarChart3, Bell, ChevronRight, Compass, Copy, CreditCard, House, Layers3, LayoutGrid, Plus, ReceiptText, RotateCcw, Search, Settings2, Sparkles, WalletCards } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { RecordOverviewPresentation } from '@/entities/record';
 import { UserSummaryCard } from '@/entities/user';
@@ -17,7 +18,9 @@ import './design-system.scss';
 
 const templates: readonly AppearanceTemplate[] = ['glass', 'fresh', 'minimal'];
 const labels: Record<AppearanceTemplate, string> = { glass: '玻璃鲸浪', fresh: '清新海风', minimal: '极简沉静' };
-const previewUrl = `${window.location.pathname}?design-system-preview=1`;
+const previewUrl = `${window.location.pathname}#/design-system/preview?tab=detail`;
+const previewTabKeys = ['detail', 'chart', 'create', 'discovery', 'mine'] as const;
+type PreviewTabKey = typeof previewTabKeys[number];
 const navigationItems: Array<{ icon: typeof LayoutGrid; label: string }> = [
   { icon: LayoutGrid, label: '业务场景' },
   { icon: Layers3, label: '基础组件' },
@@ -46,6 +49,11 @@ function getColorInputValue(token: StudioToken, value: string, defaultValue: str
 
 function getColorOverrideValue(token: StudioToken, value: string): string {
   return token.kind === 'channel-color' ? colorToChannels(value) ?? '' : value;
+}
+
+function readPreviewTab(): PreviewTabKey {
+  const tab = window.location.hash.split('?')[1] ? new URLSearchParams(window.location.hash.split('?')[1]).get('tab') : null;
+  return previewTabKeys.includes(tab as PreviewTabKey) ? tab as PreviewTabKey : 'detail';
 }
 
 function ChartPreview() {
@@ -127,7 +135,7 @@ function MinePreview() {
 function StudioPreview() {
   const [template, setTemplate] = useState<AppearanceTemplate>('glass');
   const [overrides, setOverrides] = useState<StudioTokenOverrides>({});
-  const [activeTab, setActiveTab] = useState('detail');
+  const [activeTab, setActiveTab] = useState<PreviewTabKey>(readPreviewTab);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const isMotionPrototype = new URLSearchParams(window.location.search).has('motion-prototype');
   useEffect(() => {
@@ -144,6 +152,14 @@ function StudioPreview() {
     return () => Object.keys(validOverrides).forEach(name => document.documentElement.style.removeProperty(name));
   }, [overrides, template]);
   useEffect(() => {
+    const syncPreviewTab = () => setActiveTab(readPreviewTab());
+    window.addEventListener('hashchange', syncPreviewTab);
+    return () => window.removeEventListener('hashchange', syncPreviewTab);
+  }, []);
+  const selectPreviewTab = (tab: PreviewTabKey) => {
+    window.location.hash = `#/design-system/preview?tab=${tab}`;
+  };
+  useEffect(() => {
     const values = Object.fromEntries(STUDIO_TOKENS.map(token => [token.name, getComputedStyle(document.documentElement).getPropertyValue(token.name).trim()]));
     window.parent.postMessage({ type: 'ww-design-studio:defaults', values }, window.location.origin);
   }, [overrides, template]);
@@ -158,7 +174,7 @@ function StudioPreview() {
           state="ready"
         />
       )}
-      {!isMotionPrototype && activeTab === 'chart' && <ChartPreview />}
+      {!isMotionPrototype && activeTab === 'chart' && <MemoryRouter><ChartPreview /></MemoryRouter>}
       {!isMotionPrototype && activeTab === 'create' && <BookkeepingPreview />}
       {!isMotionPrototype && activeTab === 'discovery' && (
         <div className="page-new px-[18px] pb-24 pt-6">
@@ -170,7 +186,7 @@ function StudioPreview() {
         </div>
       )}
       {!isMotionPrototype && activeTab === 'mine' && <MinePreview />}
-      {!isMotionPrototype && <BottomTabBarPresentation activeKey={activeTab} ariaLabel="演示底部导航" items={[{ key: 'detail', label: '明细', icon: <ReceiptText />, onSelect: () => setActiveTab('detail') }, { key: 'chart', label: '图表', icon: <BarChart3 />, onSelect: () => setActiveTab('chart') }, { key: 'create', label: '记账', icon: <Plus />, prominent: true, onSelect: () => setActiveTab('create') }, { key: 'discovery', label: '发现', icon: <Compass />, onSelect: () => setActiveTab('discovery') }, { key: 'mine', label: '我的', icon: <House />, onSelect: () => setActiveTab('mine') }]} />}
+      {!isMotionPrototype && <BottomTabBarPresentation activeKey={activeTab} ariaLabel="演示底部导航" items={[{ key: 'detail', label: '明细', icon: <ReceiptText />, onSelect: () => selectPreviewTab('detail') }, { key: 'chart', label: '图表', icon: <BarChart3 />, onSelect: () => selectPreviewTab('chart') }, { key: 'create', label: '记账', icon: <Plus />, prominent: true, onSelect: () => selectPreviewTab('create') }, { key: 'discovery', label: '发现', icon: <Compass />, onSelect: () => selectPreviewTab('discovery') }, { key: 'mine', label: '我的', icon: <House />, onSelect: () => selectPreviewTab('mine') }]} />}
       {!isMotionPrototype && (
         <Popup bodyClassName="ww-app-bottom-sheet" destroyOnClose position="bottom" visible={isPopupVisible} onMaskClick={() => setIsPopupVisible(false)}>
           <div className="p-5">
@@ -186,7 +202,7 @@ function StudioPreview() {
 }
 
 export default function DesignSystemPage() {
-  return new URLSearchParams(window.location.search).has('design-system-preview') ? <StudioPreview /> : <StudioConsole />;
+  return window.location.hash.startsWith('#/design-system/preview') ? <StudioPreview /> : <StudioConsole />;
 }
 
 function StudioConsole() {

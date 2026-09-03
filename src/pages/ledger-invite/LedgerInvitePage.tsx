@@ -199,7 +199,6 @@ const LedgerInvitePage: FC = () => {
       <PageHeader
         backLabel={t('common:nav.back')}
         onBack={onBack}
-        subtitle={t('invite.subtitle')}
         title={t('invite.title')}
       />
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">

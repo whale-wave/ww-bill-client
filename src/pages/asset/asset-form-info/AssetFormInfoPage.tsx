@@ -151,7 +151,6 @@ const AssetFormInfo: FC = () => {
     <AssetPageFrame
       backLabel={t('common:nav.back')}
       onBack={() => navigate(-1)}
-      subtitle={t('form.subtitle')}
       title={title}
     >
       {isLoading && (

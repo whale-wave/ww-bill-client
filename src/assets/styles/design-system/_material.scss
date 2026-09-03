@@ -30,6 +30,21 @@
   --ww-component-dock-shadow: var(--ww-material-floating-shadow);
   --ww-component-dock-blur: var(--ww-material-floating-blur);
   --ww-component-dock-active: rgb(255 255 255 / 0.52);
+  --ww-component-dock-create-icon-filter: brightness(0) invert(1);
+  --ww-component-overview-icon-foreground: var(--ww-theme-color-deep);
+  --ww-component-chart-switch-background: var(--ww-surface-color);
+  --ww-component-chart-switch-border: var(--ww-border-color);
+  --ww-component-chart-switch-active: var(--ww-surface-tint-color);
+  --ww-component-chart-switch-visible-height: 32px;
+  --ww-component-chart-switch-radius: 999px;
+  --ww-component-chart-switch-active-radius: 999px;
+  --ww-component-chart-switch-inactive-foreground: var(--ww-text-color-soft);
+  --ww-component-chart-switch-active-foreground: var(--ww-theme-color-deep);
+  --ww-component-profile-action-background: color-mix(in srgb, var(--ww-theme-color-light) 48%, transparent);
+  --ww-component-profile-action-border: color-mix(in srgb, var(--ww-theme-color) 32%, var(--ww-border-color));
+  --ww-component-profile-action-foreground: var(--ww-theme-color-deep);
+  --ww-component-profile-action-visible-height: 32px;
+  --ww-component-profile-action-radius: 999px;
 }
 
 html[data-appearance-template='fresh'],
@@ -51,6 +66,8 @@ html[data-appearance-template='minimal'] {
   --ww-component-dock-shadow: var(--ww-card-shadow-floating);
   --ww-component-dock-blur: none;
   --ww-component-dock-active: var(--ww-theme-color-light);
+  --ww-component-chart-switch-background: var(--ww-surface-raised-color);
+  --ww-component-chart-switch-active: var(--ww-theme-color-light);
 }
 
 .ww-surface {
@@ -127,4 +144,42 @@ html[data-appearance-template='minimal'] {
 
 .ww-floating-dock__create {
   box-shadow: 0 8px 18px color-mix(in srgb, var(--ww-theme-color) 34%, transparent);
+}
+
+.ww-floating-dock__create [data-design-icon] {
+  filter: var(--ww-component-dock-create-icon-filter) !important;
+}
+
+.ww-chart-display-switch {
+  height: var(--ww-component-chart-switch-visible-height);
+  border-color: var(--ww-component-chart-switch-border);
+  border-radius: var(--ww-component-chart-switch-radius);
+  color: var(--ww-component-chart-switch-inactive-foreground);
+  background: var(--ww-component-chart-switch-background);
+}
+
+.ww-chart-display-switch__option {
+  color: var(--ww-component-chart-switch-inactive-foreground);
+}
+
+.ww-chart-display-switch__option--active {
+  color: var(--ww-component-chart-switch-active-foreground);
+}
+
+.ww-chart-display-switch__option--active::before {
+  position: absolute;
+  inset: 8px 2px;
+  z-index: 0;
+  border-radius: var(--ww-component-chart-switch-active-radius);
+  background: var(--ww-component-chart-switch-active);
+  content: '';
+}
+
+.ww-profile-check-in {
+  height: var(--ww-component-profile-action-visible-height);
+  border: 1px solid var(--ww-component-profile-action-border);
+  border-color: var(--ww-component-profile-action-border);
+  border-radius: var(--ww-component-profile-action-radius);
+  color: var(--ww-component-profile-action-foreground);
+  background: var(--ww-component-profile-action-background);
 }

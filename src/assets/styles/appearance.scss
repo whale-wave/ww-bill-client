@@ -261,8 +261,12 @@ html[data-appearance-template='glass'] {
   background: var(--ww-category-choice-background);
 }
 
-.ww-asset-group-header {
-  background: var(--ww-group-header-background);
+.ww-asset-group-header--add {
+  background: color-mix(in srgb, rgb(var(--ww-color-finance-income)) 10%, var(--ww-surface-raised-color));
+}
+
+.ww-asset-group-header--sub {
+  background: color-mix(in srgb, rgb(var(--ww-color-finance-expense)) 10%, var(--ww-surface-raised-color));
 }
 
 .ww-chart-tooltip-category {
@@ -364,14 +368,19 @@ html[data-appearance-template='glass'] {
   box-shadow: var(--ww-control-shadow);
 }
 
-.ww-overview-header-actions > button,
-.ww-overview-amount-toggle {
+.ww-overview-header-actions > button {
   border-color: var(--ww-border-color);
   color: var(--ww-theme-color-deep);
   background: var(--ww-control-surface);
   box-shadow: var(--ww-control-shadow);
   backdrop-filter: var(--ww-material-chrome-blur);
   -webkit-backdrop-filter: var(--ww-material-chrome-blur);
+}
+
+.ww-overview-amount-toggle {
+  color: var(--ww-component-overview-icon-foreground);
+  background: transparent;
+  box-shadow: none;
 }
 
 .ww-metric-divider::after {

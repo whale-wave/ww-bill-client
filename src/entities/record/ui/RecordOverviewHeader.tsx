@@ -120,7 +120,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
               <button
                 aria-label="toggle amount visibility"
                 className={cn(
-                  'ww-overview-amount-toggle mt-[14px] flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] border',
+                  'ww-overview-amount-toggle mt-[14px] flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] transition-colors active:bg-primary-light/50',
                   amountToggle.disabled && 'opacity-45',
                 )}
                 disabled={amountToggle.disabled}
