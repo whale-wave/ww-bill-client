@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { useAssetSummaryInfo, useGetAssetQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, math } from '@/shared/lib';
-import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { IllustratedEmptyState, Surface } from '@/shared/ui';
 import { ChartRetryButton } from './ChartRetryButton';
 
 export const CurNetAssetStatus: FC = () => {
@@ -32,7 +32,7 @@ export const CurNetAssetStatus: FC = () => {
   }, [info.addAsset, info.subAsset]);
 
   return (
-    <GradientPanel as="article" className="overflow-hidden px-[18px] py-[18px]" elevation="high" surface="lavender">
+    <Surface as="article" className="overflow-hidden px-[18px] py-[18px]" material="raised">
       <header className="flex items-center gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] border border-white/70 bg-white/60 text-primary-deep shadow-ww-xs">
           <Scale size={20} strokeWidth={2} />
@@ -51,7 +51,7 @@ export const CurNetAssetStatus: FC = () => {
 
       {!isLoading && isError && (
         <div className="flex min-h-[210px] flex-col items-center justify-center text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#fff0f4] text-[#c04870]">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-feedback-danger-surface text-feedback-danger">
             <TriangleAlert size={21} />
           </span>
           <p className="mt-3 text-[13px] font-extrabold text-ww-ink">{t('manager.loadError')}</p>
@@ -83,10 +83,10 @@ export const CurNetAssetStatus: FC = () => {
             </div>
             <div className="rounded-[16px] border border-white/75 bg-white/55 px-3.5 py-3.5 shadow-ww-xs backdrop-blur-xl">
               <div className="flex items-center gap-1.5 text-[10px] font-bold text-ww-mid">
-                <CreditCard className="text-[#c04870]" size={13} />
+                <CreditCard className="text-feedback-danger" size={13} />
                 <span>{t('chart.liability')}</span>
               </div>
-              <p className="mt-2 truncate font-number text-[16px] font-black text-[#c04870]">
+              <p className="mt-2 truncate font-number text-[16px] font-black text-feedback-danger">
                 ¥
                 {formatAmount(info.subAsset)}
               </p>
@@ -134,6 +134,6 @@ export const CurNetAssetStatus: FC = () => {
           </div>
         </div>
       )}
-    </GradientPanel>
+    </Surface>
   );
 };

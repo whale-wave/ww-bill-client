@@ -8,7 +8,7 @@ import { useGetRecordBillQuery } from '@/entities/record';
 import { formatMonthStart, getApiErrorMessage } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, PageHeader } from '@/shared/ui';
+import { PageHeader, Surface } from '@/shared/ui';
 
 function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `household-${Date.now()}`;
@@ -71,7 +71,7 @@ const HouseholdCreatePage: FC = () => {
       <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('create.title')} />
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">
         <form className="mx-auto w-full max-w-[520px]" onSubmit={handleSubmit}>
-          <GradientPanel className="mt-2 px-5 py-5" elevation="low" surface="aurora">
+          <Surface className="mt-2 px-5 py-5" material="raised">
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-white/70 bg-white/85 text-primary-deep shadow-ww-xs">
                 <Sparkles size={20} strokeWidth={1.8} />
@@ -81,9 +81,9 @@ const HouseholdCreatePage: FC = () => {
                 <p className="mt-0.5 text-[12px] font-semibold leading-5 text-ww-mid">{t('create.description')}</p>
               </div>
             </div>
-          </GradientPanel>
+          </Surface>
 
-          <GradientPanel className="mt-4 px-5 py-5" elevation="low" surface="glass">
+          <Surface className="mt-4 px-5 py-5" material="content">
             <label className="block min-w-0">
               <span className="mb-2 block text-[12px] font-bold leading-[18px] text-ww-mid">{t('create.month')}</span>
               <span className="flex min-h-[54px] items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww">
@@ -119,7 +119,7 @@ const HouseholdCreatePage: FC = () => {
             >
               {mutation.isLoading ? t('create.submitting') : t('create.submit')}
             </button>
-          </GradientPanel>
+          </Surface>
         </form>
       </main>
     </div>

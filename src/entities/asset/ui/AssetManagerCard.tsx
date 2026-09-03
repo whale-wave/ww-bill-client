@@ -1,10 +1,9 @@
-import type { FC, KeyboardEvent } from 'react';
+import type { FC } from 'react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { cn } from '@/shared/lib';
-import { DesignIcon, GradientPanel, MetricGrid } from '@/shared/ui';
+import { DesignIcon, MetricGrid, Surface } from '@/shared/ui';
 import { useAssetSummaryInfo } from '../lib/use-asset-summary';
 
 export interface AssetSummaryCardPresentationProps {
@@ -23,26 +22,15 @@ export const AssetSummaryCardPresentation: FC<AssetSummaryCardPresentationProps>
   title,
 }) => {
   const { t } = useTranslation('asset');
-  const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-    if (!onClick || (event.key !== 'Enter' && event.key !== ' '))
-      return;
-    event.preventDefault();
-    onClick();
-  };
   return (
-    <GradientPanel
-      aria-label={onClick ? title : undefined}
+    <Surface
       as="article"
-      className={cn('overflow-hidden px-5 py-[18px] shadow-[0_6px_11px_rgba(96,80,184,0.12)]', onClick && 'cursor-pointer transition active:scale-[0.99]')}
-      elevation="none"
-      onClick={onClick}
-      onKeyDown={handleKeyDown}
-      role={onClick ? 'button' : undefined}
-      surface="lavender"
-      tabIndex={onClick ? 0 : undefined}
+      className="relative overflow-hidden px-5 py-[18px]"
+      material="raised"
     >
+      {onClick && <button aria-label={title} className="absolute inset-0 z-[1] cursor-pointer border-0 bg-transparent" onClick={onClick} type="button" />}
       <div className="flex items-center gap-[10px]">
-        <span className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-white/70 text-[#705cc0]">
+        <span className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-white/70 text-primary-deep">
           <DesignIcon name="discovery-asset" size={18} />
         </span>
         <div className="text-[14px] font-bold leading-[21px] text-ww-ink">{title}</div>
@@ -56,7 +44,7 @@ export const AssetSummaryCardPresentation: FC<AssetSummaryCardPresentationProps>
           { key: 'liability', label: t('asset:manager.liability'), tone: 'expense', value: `¥${liability}` },
         ]}
       />
-    </GradientPanel>
+    </Surface>
   );
 };
 

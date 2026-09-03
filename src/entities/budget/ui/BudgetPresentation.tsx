@@ -4,7 +4,7 @@ import { Skeleton } from 'antd-mobile';
 import { Plus, Tags, WalletCards } from 'lucide-react';
 import { useLayoutEffect, useRef } from 'react';
 import { useTranslation } from '@/shared/i18n';
-import { IllustratedEmptyState } from '@/shared/ui';
+import { IllustratedEmptyState, Surface } from '@/shared/ui';
 import { BudgetEntityLevel } from '../api';
 import BudgetItem from './BudgetItem';
 
@@ -42,13 +42,13 @@ export const BudgetPresentation: React.FC<BudgetPresentationProps> = ({
   if (isLoading) {
     return (
       <div className="flex flex-grow flex-col gap-4 px-[18px] py-2">
-        <div className="rounded-[20px] border border-solid border-border-primary bg-white/70 p-5 shadow-ww-xs">
+        <Surface className="p-5" material="raised">
           <Skeleton.Title animated />
           <Skeleton.Paragraph lineCount={3} animated />
-        </div>
-        <div className="rounded-[20px] border border-solid border-border-primary bg-white/70 p-5 shadow-ww-xs">
+        </Surface>
+        <Surface className="p-5" material="raised">
           <Skeleton.Paragraph lineCount={4} animated />
-        </div>
+        </Surface>
       </div>
     );
   }
@@ -56,7 +56,7 @@ export const BudgetPresentation: React.FC<BudgetPresentationProps> = ({
   if (!summary) {
     return (
       <div className="flex flex-grow items-center px-[18px] pb-20">
-        <div className="w-full rounded-[24px] border border-solid border-border-primary bg-white/70 shadow-ww backdrop-blur-xl">
+        <Surface className="w-full" material="raised">
           <IllustratedEmptyState
             accentIcon={<Plus size={19} strokeWidth={2.2} />}
             actionLabel={!readOnly ? t('addBudget') : undefined}
@@ -67,7 +67,7 @@ export const BudgetPresentation: React.FC<BudgetPresentationProps> = ({
             testId="budget-empty-state"
             title={t('emptyBudget')}
           />
-        </div>
+        </Surface>
       </div>
     );
   }
@@ -93,14 +93,14 @@ export const BudgetPresentation: React.FC<BudgetPresentationProps> = ({
           </div>
           {categories.length === 0
             ? (
-                <div className="rounded-[20px] border border-dashed border-border-primary bg-white/55">
+                <Surface className="border-dashed" material="content">
                   <IllustratedEmptyState
                     className="min-h-[250px] py-5"
                     description={t('emptyCategoryBudgetDescription')}
                     icon={<Tags className="text-primary-deep" size={38} strokeWidth={1.5} />}
                     title={t('emptyCategoryBudget')}
                   />
-                </div>
+                </Surface>
               )
             : (
                 <div className="space-y-3">
@@ -121,16 +121,18 @@ export const BudgetPresentation: React.FC<BudgetPresentationProps> = ({
         </section>
       </div>
       {!readOnly && (
-        <div className="z-10 shrink-0 border-0 border-t border-solid border-border-primary bg-ww-surface px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
-          <button
-            className="ww-theme-primary-action flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border-0 text-[14px] font-bold"
-            data-budget-add-category
-            onClick={onAddCategory}
-            type="button"
-          >
-            <Plus size={18} strokeWidth={2.2} />
-            <span>{t('addCategoryBudget')}</span>
-          </button>
+        <div className="z-10 shrink-0 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
+          <Surface className="px-3 py-2" material="chrome">
+            <button
+              className="ww-theme-primary-action flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border-0 text-[14px] font-bold"
+              data-budget-add-category
+              onClick={onAddCategory}
+              type="button"
+            >
+              <Plus size={18} strokeWidth={2.2} />
+              <span>{t('addCategoryBudget')}</span>
+            </button>
+          </Surface>
         </div>
       )}
     </div>

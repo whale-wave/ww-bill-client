@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import { format } from 'date-fns';
 import { useEffect, useMemo } from 'react';
 import { renderToString } from 'react-dom/server';
+import { CHART_STYLE_FALLBACKS } from '@/shared/config/chart-style-fallbacks';
 import { cn } from '@/shared/lib';
 import { readAppearanceToken, useAppearanceRevision, withAlpha } from '@/shared/lib/appearance-tokens';
 import { useChart } from '@/shared/lib/use-chart';
@@ -31,8 +32,8 @@ export const LineChart: FC = () => {
 
   useEffect(() => {
     const appearanceColors = {
-      accent: readAppearanceToken('--ww-theme-color-mid', '#4aaac4'),
-      text: readAppearanceToken('--ww-theme-text-color', '#263340'),
+      accent: readAppearanceToken('--ww-theme-color-mid', CHART_STYLE_FALLBACKS.primary),
+      text: readAppearanceToken('--ww-theme-text-color', CHART_STYLE_FALLBACKS.text),
     };
     const option: EChartsOption = {
       grid: {
@@ -49,11 +50,11 @@ export const LineChart: FC = () => {
         borderWidth: 0,
         padding: 0,
         extraCssText: [
-          'background: transparent !important',
-          'border: 0 !important',
-          'border-radius: 18px !important',
-          'box-shadow: none !important',
-          'padding: 0 !important',
+          'background: transparent',
+          'border: 0',
+          'border-radius: 18px',
+          'box-shadow: none',
+          'padding: 0',
         ].join(';'),
         textStyle: {
           color: appearanceColors.text,
@@ -111,7 +112,7 @@ export const LineChart: FC = () => {
           itemStyle: {
             color: (params) => {
               const data = params.data as { value: number };
-              return data.value === 0 ? '#fff' : appearanceColors.accent;
+              return data.value === 0 ? CHART_STYLE_FALLBACKS.inverse : appearanceColors.accent;
             },
             borderColor: appearanceColors.accent,
             borderWidth: 2,

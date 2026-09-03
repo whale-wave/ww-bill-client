@@ -86,9 +86,11 @@ describe('budget presentation', () => {
     expect(container.textContent).toContain('900.00');
     expect(container.textContent).toContain('70.00');
     expect(container.querySelector('[data-budget-id="category-1"] .lucide-cooking-pot')).not.toBeNull();
+    expect(container.querySelector('[data-budget-id="summary-1"]')?.closest('article')?.classList).toContain('ww-surface--raised');
+    expect(container.querySelector('[data-budget-id="category-1"]')?.closest('article')?.classList).toContain('ww-surface--content');
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="summary-1"]')?.click());
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="summary-1"] [data-budget-item-action]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="category-1"] [data-budget-item-action]')?.click());
     act(() => container.querySelector<HTMLElement>('[data-budget-add-category]')?.click());
 
     expect(handleSummaryEdit).toHaveBeenCalledOnce();

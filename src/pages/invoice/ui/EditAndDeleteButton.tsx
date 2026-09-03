@@ -62,7 +62,7 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
         <Pencil size={17} strokeWidth={1.9} />
         {t('editButton.edit')}
       </button>
-      <button className="flex h-[48px] items-center justify-center gap-2 rounded-[16px] border border-solid border-[#f2c5d5] bg-[#fff1f6]/90 text-[13px] font-extrabold text-[#ad496b] shadow-ww-xs disabled:opacity-45" disabled={!invoiceId || deleteState.isLoading} onClick={() => void handleDelete()} type="button">
+      <button className="flex h-[48px] items-center justify-center gap-2 rounded-[16px] border border-solid border-feedback-danger bg-feedback-danger-surface/90 text-[13px] font-extrabold text-feedback-danger shadow-ww-xs disabled:opacity-45" disabled={!invoiceId || deleteState.isLoading} onClick={() => void handleDelete()} type="button">
         <Trash2 size={17} strokeWidth={1.9} />
         {t('delete')}
       </button>

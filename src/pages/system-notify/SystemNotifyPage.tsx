@@ -66,7 +66,7 @@ function NotificationItem({
   const target = getNotificationTarget(notification.payload);
 
   return (
-    <article className="border-b border-[#ebebeb] bg-white px-4 py-3 last:border-b-0">
+    <article className="border-b border-border-primary bg-white px-4 py-3 last:border-b-0">
       <div className="flex items-start gap-2">
         <span
           className={`mt-[7px] h-2 w-2 shrink-0 rounded-full ${isUnread ? 'bg-[var(--ww-theme-color)]' : 'bg-transparent'}`}
@@ -75,20 +75,20 @@ function NotificationItem({
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
-            <h2 className={`min-w-0 text-[15px] leading-[22px] text-[#323334] ${isUnread ? 'font-semibold' : 'font-normal'}`}>
+            <h2 className={`min-w-0 text-[15px] leading-[22px] text-ww-ink ${isUnread ? 'font-semibold' : 'font-normal'}`}>
               {notification.title}
             </h2>
             <time
-              className="shrink-0 text-xs leading-[20px] text-[#969696]"
+              className="shrink-0 text-xs leading-[20px] text-ww-soft"
               dateTime={notification.createdAt}
             >
               {showDate(notification.createdAt)}
             </time>
           </div>
-          <div className="mt-1 inline-flex rounded bg-[#f2f3f5] px-1.5 py-0.5 text-xs text-[#747374]">
+          <div className="mt-1 inline-flex rounded bg-ww-surface-tint px-1.5 py-0.5 text-xs text-ww-mid">
             {t(`message.notificationCenter.types.${notification.type}`)}
           </div>
-          <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-5 text-[#747374]">
+          <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-5 text-ww-mid">
             {notification.content}
           </p>
           <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
@@ -96,6 +96,7 @@ function NotificationItem({
               <Button
                 size="mini"
                 fill="none"
+                className="min-h-11"
                 data-testid={`notification-open-${notification.id}`}
                 onClick={() => onOpen(notification)}
               >
@@ -106,6 +107,7 @@ function NotificationItem({
               <Button
                 size="mini"
                 fill="none"
+                className="min-h-11"
                 disabled={isMutating}
                 data-testid={`notification-read-${notification.id}`}
                 onClick={() => onMarkRead(notification)}
@@ -118,6 +120,7 @@ function NotificationItem({
                 size="mini"
                 fill="none"
                 color="danger"
+                className="min-h-11"
                 disabled={isMutating}
                 data-testid={`notification-delete-${notification.id}`}
                 onClick={() => onArchive(notification)}
@@ -229,7 +232,7 @@ function SystemNotifyPage() {
   };
 
   return (
-    <div className="page bg-[#f5f5f5]">
+    <div className="page bg-bg-gray">
       <NavBar
         back={t('nav.back')}
         onBack={() => navigate(-1)}
@@ -237,7 +240,7 @@ function SystemNotifyPage() {
         right={(
           <button
             type="button"
-            className="border-0 bg-transparent px-0 text-sm text-[#323334] disabled:text-[#b7babd]"
+            className="flex min-h-11 items-center border-0 bg-transparent px-0 text-sm text-ww-ink disabled:text-ww-ghost"
             disabled={isMutating}
             data-testid="notification-read-all"
             onClick={handleMarkAllRead}
@@ -250,11 +253,11 @@ function SystemNotifyPage() {
       </NavBar>
 
       <main className="min-h-0 flex-1 overflow-auto pb-6">
-        <div className="sticky top-0 z-10 flex gap-2 border-y border-[#ebebeb] bg-white px-4 py-2">
+        <div className="sticky top-0 z-10 flex gap-2 border-y border-border-primary bg-white px-4 py-2">
           <label className="min-w-0 flex-1">
             <span className="sr-only">{t('message.notificationCenter.statusFilter')}</span>
             <select
-              className="h-9 w-full rounded border border-[#d7d7d7] bg-white px-2 text-sm text-[#323334]"
+              className="h-11 w-full rounded border border-border-primary bg-white px-2 text-sm text-ww-ink"
               aria-label={t('message.notificationCenter.statusFilter')}
               value={status ?? ''}
               onChange={event => handleFilterChange('status', event)}
@@ -270,7 +273,7 @@ function SystemNotifyPage() {
           <label className="min-w-0 flex-1">
             <span className="sr-only">{t('message.notificationCenter.typeFilter')}</span>
             <select
-              className="h-9 w-full rounded border border-[#d7d7d7] bg-white px-2 text-sm text-[#323334]"
+              className="h-11 w-full rounded border border-border-primary bg-white px-2 text-sm text-ww-ink"
               aria-label={t('message.notificationCenter.typeFilter')}
               value={type ?? ''}
               onChange={event => handleFilterChange('type', event)}
@@ -309,7 +312,7 @@ function SystemNotifyPage() {
           </div>
         )}
         {!isLoading && !isError && data.length > 0 && (
-          <section className="mt-2 border-y border-[#ebebeb]">
+          <section className="mt-2 border-y border-border-primary">
             {data.map(notification => (
               <NotificationItem
                 key={notification.id}

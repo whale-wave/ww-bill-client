@@ -52,16 +52,22 @@ const UserInfo: FC<UserInfoProps> = ({
       <div className={styles.middle}>
         <span className={styles.name}>{data?.name || t('userInfo.defaultName')}</span>
         <div className={styles.desc}>
-          <div onClick={() => data && goToFollowListPage(data.id, 'follow')}>
+          <button
+            onClick={() => data && goToFollowListPage(data.id, 'follow')}
+            type="button"
+          >
             <span>{followCount || 0}</span>
             {' '}
             {t('userInfo.followedButton')}
-          </div>
-          <div onClick={() => data && goToFollowListPage(data.id, 'fans')}>
+          </button>
+          <button
+            onClick={() => data && goToFollowListPage(data.id, 'fans')}
+            type="button"
+          >
             <span>{fansCount || 0}</span>
             {' '}
             {t('userInfo.fansLabel')}
-          </div>
+          </button>
         </div>
       </div>
       <div className={styles.btn}>
@@ -69,10 +75,10 @@ const UserInfo: FC<UserInfoProps> = ({
           && data.id !== userInfo?.id
           && (isFollow
             ? (
-                <button onClick={() => unFollowUser(data.id)}>{t('userInfo.followedButton')}</button>
+                <button onClick={() => unFollowUser(data.id)} type="button">{t('userInfo.followedButton')}</button>
               )
             : (
-                <button onClick={() => followUser(data.id)}>{t('userInfo.followButton')}</button>
+                <button onClick={() => followUser(data.id)} type="button">{t('userInfo.followButton')}</button>
               ))}
       </div>
     </div>

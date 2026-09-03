@@ -1,4 +1,5 @@
 import type { ChartOverviewRankingItem } from '@/features/chart-overview';
+import { HOUSEHOLD_PIE_COLORS } from '@/shared/config/household-pie-colors';
 import { math } from '@/shared/lib';
 
 export interface HouseholdPieSegment {
@@ -12,14 +13,6 @@ export interface HouseholdPieSegment {
 interface MapHouseholdPieSegmentsOptions {
   otherLabel: string;
 }
-
-const HOUSEHOLD_PIE_COLORS = [
-  '#6fc2dc',
-  '#f0a0b8',
-  '#a996dc',
-  '#79c6a8',
-  '#efbc70',
-] as const;
 
 function formatPercentage(value: ReturnType<typeof math.add>) {
   return value.toFixed(2).replace(/\.?(0+)$/, '') || '0';

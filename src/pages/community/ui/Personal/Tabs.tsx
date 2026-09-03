@@ -23,18 +23,20 @@ const Tabs: FC<TabsProps> = ({ checkInfo, topics }) => {
     <>
       <div className={styles.tabs}>
         {tabs.map((tab, i) => (
-          <div
+          <button
+            aria-pressed={activeTab === i}
             key={tab.name}
             className={classNames(styles.tab, {
               [styles.active]: activeTab === i,
             })}
             onClick={() => changeIndex(i)}
+            type="button"
           >
             {tab.name}
-          </div>
+          </button>
         ))}
       </div>
-      <div style={{ backgroundColor: '#F6F7F8', height: 8 }} />
+      <div aria-hidden="true" className="h-2 bg-[color:var(--ww-background-color)]" />
       {tabContent(activeTab, checkInfo, topics)}
     </>
   );
@@ -64,7 +66,7 @@ const Home: FC<HomeProps> = ({ checkInfo, topics }) => {
         <div className={styles.achieve}>{t('personal.achievementTitle')}</div>
         <CheckInfo className={styles['check-info']} data={checkInfo} />
       </div>
-      <div style={{ backgroundColor: '#F6F7F8', height: 8 }} />
+      <div aria-hidden="true" className="h-2 bg-[color:var(--ww-background-color)]" />
       <Topics topics={topics} />
     </div>
   );

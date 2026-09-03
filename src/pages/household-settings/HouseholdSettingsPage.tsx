@@ -26,7 +26,7 @@ import { SettingsOverviewPresentation } from '@/features/workspace-settings';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { AppBottomSheet, GradientPanel, PageHeader } from '@/shared/ui';
+import { AppBottomSheet, PageHeader, Surface } from '@/shared/ui';
 
 type Editor = 'dissolve' | 'sharedStart' | null;
 
@@ -155,7 +155,7 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
       onRetry={() => void Promise.all([membersQuery.refetch(), userQuery.refetch()])}
       retryLabel={t('common.retry')}
     >
-      <GradientPanel className="mb-5 overflow-hidden px-5 py-5" elevation="standard" surface="aurora">
+      <Surface className="mb-5 overflow-hidden px-5 py-5" material="raised">
         <div className="flex items-start gap-3.5">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] bg-white/70 text-primary-deep shadow-ww-xs">
             <ShieldCheck size={23} strokeWidth={1.8} />
@@ -165,7 +165,7 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
             <p className="mt-1 text-[11px] font-semibold leading-[18px] text-ww-mid">{t('settings.overviewDescription')}</p>
           </div>
         </div>
-      </GradientPanel>
+      </Surface>
       <SettingsOverviewPresentation
         sections={[
           {
@@ -358,14 +358,14 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
         )}
         {editor === 'dissolve' && (
           <form className="px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-14" onSubmit={handleDissolve}>
-            <h2 className="!text-[#ad496b]">{t('settings.dissolveTitle')}</h2>
+            <h2 className="!text-feedback-danger">{t('settings.dissolveTitle')}</h2>
             <p className="mt-2 text-[12px] font-semibold leading-5 text-ww-mid">{t('settings.dissolveDescription')}</p>
             <textarea className="mt-5 min-h-[96px] w-full border border-solid p-4 text-sm" maxLength={500} name="reason" placeholder={t('settings.dissolveReasonPlaceholder')} />
             <label className="mt-4 flex items-start gap-2.5 rounded-[15px] bg-ww-pink-light/45 px-3.5 py-3 text-[12px] font-bold leading-5 text-ww-ink">
               <input className="mt-1 accent-red-500" name="confirmDissolve" type="checkbox" />
               <span>{t('settings.confirmDissolve')}</span>
             </label>
-            <Button block className="mt-5 !bg-[#ad496b] text-white" loading={dissolveState.isLoading} type="submit">
+            <Button block className="mt-5 !bg-feedback-danger text-white" loading={dissolveState.isLoading} type="submit">
               {t('settings.dissolveAction')}
             </Button>
           </form>

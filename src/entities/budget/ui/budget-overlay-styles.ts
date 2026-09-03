@@ -1,4 +1,4 @@
-export const BUDGET_OVERLAY_MASK_CLASS_NAME = '!bg-[#26364a]/35 !backdrop-blur-[2px]';
+export const BUDGET_OVERLAY_MASK_CLASS_NAME = '!bg-[color:var(--ww-material-scrim-background)] !backdrop-blur-[2px]';
 
 export const BUDGET_CENTER_POPUP_CLASS_NAME = [
   '[--adm-center-popup-min-width:min(390px,calc(100vw-36px))]',
@@ -28,8 +28,8 @@ export const BUDGET_ACTION_SHEET_CLASS_NAME = [
   '[&_.adm-action-sheet-button-item]:!my-1 [&_.adm-action-sheet-button-item]:!min-h-[50px]',
   '[&_.adm-action-sheet-button-item]:!rounded-[15px] [&_.adm-action-sheet-button-item]:!bg-primary-light/25',
   '[&_.adm-action-sheet-button-item-name]:!text-[14px] [&_.adm-action-sheet-button-item-name]:!font-bold [&_.adm-action-sheet-button-item-name]:!text-ww-ink',
-  '[&_.adm-action-sheet-button-item-danger]:!bg-[#fff0f1]',
-  '[&_.adm-action-sheet-button-item-danger_.adm-action-sheet-button-item-name]:!text-[#d95761]',
+  '[&_.adm-action-sheet-button-item-danger]:!bg-[color:rgb(var(--ww-color-feedback-danger-surface))]',
+  '[&_.adm-action-sheet-button-item-danger_.adm-action-sheet-button-item-name]:!text-feedback-danger',
   '[&_.adm-action-sheet-cancel]:!mx-3 [&_.adm-action-sheet-cancel]:!mt-2 [&_.adm-action-sheet-cancel]:!border-0',
-  '[&_.adm-action-sheet-cancel_.adm-action-sheet-button-item]:!rounded-[15px] [&_.adm-action-sheet-cancel_.adm-action-sheet-button-item]:!bg-[#f4f5f7]',
+  '[&_.adm-action-sheet-cancel_.adm-action-sheet-button-item]:!rounded-[15px] [&_.adm-action-sheet-cancel_.adm-action-sheet-button-item]:!bg-ww-surface-tint',
 ].join(' ');

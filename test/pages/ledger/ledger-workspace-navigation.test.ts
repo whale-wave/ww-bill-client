@@ -689,7 +689,7 @@ describe('custom ledger workspace integration', () => {
       createElement(LedgerBudgetPage),
     );
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="ledger-summary"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="ledger-summary"] [data-budget-item-action]')?.click());
     const clearAction = actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'delete');
     await act(async () => {
       await clearAction?.onClick?.();

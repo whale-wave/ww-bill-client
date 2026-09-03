@@ -5,16 +5,16 @@ $class-prefix-comment: 'bwm-comment';
   display: flex;
   align-items: center;
   min-height: 54px;
-  background: #ffffff;
+  background: var(--ww-surface-raised-color);
   padding: 9px 0 10px 16px;
-  box-shadow: 0 0 7px #00000020;
+  box-shadow: 0 0 7px rgb(var(--ww-color-fg) / 0.125);
   &-test {
     width: 188px;
     height: 35px;
     line-height: 23px;
     overflow: hidden;
     padding: 8px 16px;
-    background: #f6f6f6;
+    background: var(--ww-surface-tint-color);
     border-radius: 18px;
     resize: none;
     &-editing {
@@ -34,7 +34,7 @@ $class-prefix-comment: 'bwm-comment';
     font-size: var(--ww-font-size-xl);
   }
   &-box {
-    color: #9b9da8;
+    color: var(--ww-text-color-soft);
     position: relative;
     span {
       left: 100%;

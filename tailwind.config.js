@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
+const tokenColor = name => ({ opacityValue }) => `rgb(var(${name}) / ${opacityValue ?? 1})`;
+
 module.exports = {
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
+  safelist: ['bg-action-primary/20', 'text-fg/60', 'border-stroke/50'],
   theme: {
     extend: {
       fontFamily: {
@@ -35,6 +38,20 @@ module.exports = {
         ],
       },
       colors: {
+        'action-primary': tokenColor('--ww-color-action-primary'),
+        'action-primary-foreground': tokenColor('--ww-color-action-primary-foreground'),
+        'fg': tokenColor('--ww-color-fg'),
+        'fg-muted': tokenColor('--ww-color-fg-muted'),
+        'fg-inverse': tokenColor('--ww-color-fg-inverse'),
+        'finance-expense': tokenColor('--ww-color-finance-expense'),
+        'feedback-danger': tokenColor('--ww-color-feedback-danger'),
+        'feedback-danger-surface': tokenColor('--ww-color-feedback-danger-surface'),
+        'feedback-success': tokenColor('--ww-color-feedback-success'),
+        'feedback-warning': tokenColor('--ww-color-feedback-warning'),
+        'feedback-warning-surface': tokenColor('--ww-color-feedback-warning-surface'),
+        'feedback-warning-stroke': tokenColor('--ww-color-feedback-warning-stroke'),
+        'finance-income': tokenColor('--ww-color-finance-income'),
+        'stroke': tokenColor('--ww-color-stroke'),
         'primary': 'var(--ww-theme-color)',
         'primary-light': 'var(--ww-theme-color-light)',
         'primary-mid': 'var(--ww-theme-color-mid)',
@@ -53,6 +70,9 @@ module.exports = {
         'ww-border-color': 'var(--ww-border-color)',
         'ww-surface': 'var(--ww-surface-color)',
         'ww-surface-raised': 'var(--ww-surface-raised-color)',
+        'ww-surface-tint': 'var(--ww-surface-tint-color)',
+        'ww-surface-accent': 'var(--ww-surface-accent-color)',
+        'ww-surface-secondary': 'var(--ww-surface-secondary-color)',
 
         'gray96': '#969696',
         'black333': '#333333',

@@ -7,7 +7,7 @@ import { Fragment, useEffect, useRef } from 'react';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
-import { GradientPanel, Icon } from '@/shared/ui';
+import { Icon, Surface } from '@/shared/ui';
 
 export interface RecordDetailRow {
   copyValue?: string;
@@ -113,7 +113,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
   supplementaryRows = [],
 }) => {
   const { t } = useTranslation('common');
-  const amountTone = amountType === 'add' ? 'text-[#16886f]' : 'text-ww-ink';
+  const amountTone = amountType === 'add' ? 'text-finance-income' : 'text-ww-ink';
   const amountSign = amountType === 'add' ? '+' : amountType === 'sub' ? '-' : '';
   const mainRef = useRef<HTMLElement>(null);
   const amountValue = amount === undefined ? undefined : `${amountSign}¥${displayAmount(amount)}`;
@@ -149,7 +149,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
         <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,env(safe-area-inset-top))]" data-record-detail-navigation>
           <button
             aria-label={backLabel}
-            className="absolute left-[18px] flex h-9 w-9 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
+            className="absolute left-[18px] flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
             onClick={onBack}
             type="button"
           >
@@ -164,11 +164,10 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
         ref={mainRef}
       >
         <div className="mx-auto w-full max-w-[520px] space-y-4">
-          <GradientPanel
+          <Surface
             className="relative overflow-hidden px-5 py-5"
             data-record-detail-header
-            elevation="high"
-            surface={amountType === 'add' ? 'aurora' : 'chart'}
+            material="raised"
           >
             <div aria-hidden="true" className="absolute -right-7 -top-9 h-32 w-32 rounded-full border-[22px] border-solid border-white/25" />
             <div className="relative flex items-center gap-3" data-record-detail-category>
@@ -190,7 +189,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
               {pinnedAction && (
                 <button
                   aria-label={pinnedAction.label}
-                  className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-white/80 bg-white/65 px-3 text-[11px] font-bold text-primary-deep shadow-ww-xs backdrop-blur-sm disabled:opacity-50"
+                  className="flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-white/80 bg-white/65 px-3 text-[11px] font-bold text-primary-deep shadow-ww-xs backdrop-blur-sm disabled:opacity-50"
                   data-record-detail-pin
                   data-testid={pinnedAction.testId}
                   disabled={pinnedAction.disabled}
@@ -222,17 +221,17 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
                 </button>
               </div>
             )}
-          </GradientPanel>
+          </Surface>
 
-          <GradientPanel className="px-4 py-1" data-record-detail-information elevation="standard" surface="glass">
+          <Surface className="px-4 py-1" data-record-detail-information material="content">
             <DetailRows onCopy={value => void handleCopy(value)} rows={rows} />
-          </GradientPanel>
+          </Surface>
 
           {(supplementaryRows.length > 0 || supplementaryContent) && (
-            <GradientPanel className="overflow-hidden px-4 py-1" data-record-detail-supplementary elevation="low" surface="glass">
+            <Surface className="overflow-hidden px-4 py-1" data-record-detail-supplementary material="content">
               <DetailRows onCopy={value => void handleCopy(value)} rows={supplementaryRows} />
               {supplementaryContent}
-            </GradientPanel>
+            </Surface>
           )}
         </div>
       </main>
@@ -245,7 +244,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
               const ActionIcon = isDanger ? Trash2 : Pencil;
               return (
                 <button
-                  className={`flex h-full min-w-0 flex-1 items-center justify-center gap-2 rounded-[17px] border-0 text-[13px] font-extrabold transition active:scale-[0.98] disabled:opacity-45 ${isDanger ? 'bg-ww-pink-light/55 text-[#b24f71]' : 'bg-primary text-white shadow-ww-xs'}`}
+                  className={`flex h-full min-w-0 flex-1 items-center justify-center gap-2 rounded-[17px] border-0 text-[13px] font-extrabold transition active:scale-[0.98] disabled:opacity-45 ${isDanger ? 'bg-feedback-danger-surface/55 text-feedback-danger' : 'bg-primary text-white shadow-ww-xs'}`}
                   data-testid={action.testId}
                   disabled={action.disabled}
                   key={action.label}

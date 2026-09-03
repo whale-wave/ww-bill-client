@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  z-index: 9999;
+  z-index: var(--ww-ref-z-progress);
   pointer-events: none;
   overflow: hidden;
 
@@ -14,7 +14,7 @@
     left: 0;
     height: 100%;
     width: 30%;
-    background: var(--adm-color-primary, #333);
+    background: var(--adm-color-primary, var(--ww-theme-text-color));
     animation: nav-progress-slide 1s ease-in-out infinite;
   }
 }

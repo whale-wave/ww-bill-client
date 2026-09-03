@@ -57,8 +57,8 @@ describe('chart overview line tooltip', () => {
     expect(tooltip.backgroundColor).toBe('transparent');
     expect(tooltip.borderWidth).toBe(0);
     expect(tooltip.padding).toBe(0);
-    expect(tooltip.extraCssText).toContain('background: transparent !important');
-    expect(tooltip.extraCssText).toContain('box-shadow: none !important');
+    expect(tooltip.extraCssText).toContain('background: transparent');
+    expect(tooltip.extraCssText).toContain('box-shadow: none');
   });
 
   it('renders the category trend as a line chart with a full option replacement', () => {

@@ -42,7 +42,7 @@ export const RecordSearchHeader: FC<RecordSearchHeaderProps> = ({
       <div className="relative flex h-11 items-center justify-center px-14">
         <button
           aria-label={backLabel}
-          className="absolute left-0 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-solid border-white/70 bg-white/75 p-0 text-primary-dark shadow-ww-xs backdrop-blur-md transition active:scale-95"
+          className="absolute left-0 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-solid border-white/70 bg-white/75 p-0 text-primary-dark shadow-ww-xs backdrop-blur-md transition active:scale-95"
           onClick={onBack}
           type="button"
         >
@@ -64,7 +64,7 @@ export const RecordSearchHeader: FC<RecordSearchHeaderProps> = ({
         <button
           aria-expanded={filterExpanded}
           className={cn(
-            'flex h-9 shrink-0 items-center rounded-xl border border-solid border-primary/15 bg-primary-light/45 px-3 text-[13px] font-bold text-primary-dark transition active:scale-95',
+            'flex h-11 shrink-0 items-center rounded-xl border border-solid border-primary/15 bg-primary-light/45 px-3 text-[13px] font-bold text-primary-dark transition active:scale-95',
             filterActive && 'border-primary/40 bg-primary text-white shadow-ww-xs',
           )}
           data-testid="record-filter-action"

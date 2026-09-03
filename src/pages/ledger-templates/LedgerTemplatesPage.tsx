@@ -11,9 +11,9 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import {
-  GradientPanel,
   IllustratedEmptyState,
   PageHeader,
+  Surface,
 } from '@/shared/ui';
 
 const LedgerTemplatesPage: FC = () => {
@@ -65,7 +65,7 @@ const LedgerTemplatesPage: FC = () => {
           )}
 
           {!templateQuery.isLoading && templateQuery.isError && (
-            <GradientPanel className="overflow-hidden" elevation="low" surface="glass">
+            <Surface className="overflow-hidden" material="content">
               <IllustratedEmptyState
                 description={t('templates.loadErrorDescription')}
                 icon={<CircleAlert className="text-primary-deep" size={38} />}
@@ -76,7 +76,7 @@ const LedgerTemplatesPage: FC = () => {
                   {t('templates.retry')}
                 </Button>
               </div>
-            </GradientPanel>
+            </Surface>
           )}
 
           {!templateQuery.isLoading && !templateQuery.isError && !orderedTemplates.length && (

@@ -1,0 +1,5 @@
+{
+  "baseRevision": "751714cf254b5e68844f26a2046b0875977b1c25",
+  "description": "Approved v2 debt inventory. Signatures are rule + file + normalized source + occurrence. CI rejects new debt and requires this list to shrink whenever existing debt is removed.",
+  "violations": []
+}

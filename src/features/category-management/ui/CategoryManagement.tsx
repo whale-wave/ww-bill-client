@@ -123,7 +123,7 @@ function SortableCategoryRow({
       {canManage && (
         <button
           aria-label={disableArchive ? t('categories.lastActive') : t('categories.archive')}
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-0 bg-[#fff1f2] text-[#ef5261] disabled:cursor-not-allowed ${disableArchive ? 'opacity-35' : ''}`}
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-feedback-danger/10 text-feedback-danger disabled:cursor-not-allowed ${disableArchive ? 'opacity-35' : ''}`}
           disabled={disableArchive || writePending}
           onClick={onArchive}
           type="button"
@@ -152,7 +152,7 @@ function SortableCategoryRow({
       {canManage && category.isCustom && (
         <button
           aria-label={t('categories.edit')}
-          className="flex h-9 w-9 items-center justify-center rounded-xl border-0 bg-transparent text-ww-mid disabled:cursor-not-allowed"
+          className="flex h-11 w-11 items-center justify-center rounded-xl border-0 bg-transparent text-ww-mid disabled:cursor-not-allowed"
           disabled={writePending}
           onClick={onEdit}
           type="button"
@@ -169,7 +169,7 @@ function SortableCategoryRow({
             position,
             total,
           })}
-          className="flex h-10 w-8 touch-none items-center justify-center rounded-xl border-0 bg-transparent text-ww-soft"
+          className="flex h-11 w-11 touch-none items-center justify-center rounded-xl border-0 bg-transparent text-ww-soft"
           disabled={writePending}
           type="button"
         >
@@ -643,7 +643,7 @@ export function CategoryManagement({
                       {canManage && (
                         <button
                           aria-label={t('categories.restoreName', { name: category.name })}
-                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-0 bg-[#e7f8ee] text-[#32b567]"
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-feedback-success/10 text-feedback-success"
                           onClick={() => void changeStatus(category, 'ACTIVE')}
                           type="button"
                         >

@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { FixedExpenseStatus, useDeleteFixedExpenseMutation, useGetFixedExpenseQuery } from '@/entities/fixed-expense';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { confirmAppAction, GradientPanel, IllustratedEmptyState, PageHeader } from '@/shared/ui';
+import { confirmAppAction, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 import {
   AddFixedExpenseButton,
   FilterTabs,
@@ -109,14 +109,14 @@ const FixedExpenses: React.FC = () => {
           <div className="space-y-3 pb-4">
             {query.isLoading && list.length === 0
               ? (
-                  <GradientPanel className="p-4" elevation="low" surface="glass">
+                  <Surface className="p-4" material="content">
                     <Skeleton.Title animated />
                     <Skeleton.Paragraph animated lineCount={4} />
-                  </GradientPanel>
+                  </Surface>
                 )
               : query.isError
                 ? (
-                    <GradientPanel elevation="low" surface="glass">
+                    <Surface material="content">
                       <IllustratedEmptyState
                         actionLabel={t('retry')}
                         description={t('loadErrorDescription')}
@@ -124,11 +124,11 @@ const FixedExpenses: React.FC = () => {
                         onAction={() => void query.refetch()}
                         title={t('loadError')}
                       />
-                    </GradientPanel>
+                    </Surface>
                   )
                 : filteredList.length === 0
                   ? (
-                      <GradientPanel elevation="low" surface="glass">
+                      <Surface material="content">
                         <IllustratedEmptyState
                           accentIcon={<Plus size={19} />}
                           actionLabel={t('list.addFixedExpense')}
@@ -137,7 +137,7 @@ const FixedExpenses: React.FC = () => {
                           onAction={() => navigate(ROUTES_PATH.FIXED_EXPENSES_CREATE.getPath())}
                           title={t('list.empty')}
                         />
-                      </GradientPanel>
+                      </Surface>
                     )
                   : (
                       filteredList.map(item => (

@@ -3,9 +3,9 @@ import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   ActionMenuCard,
-  GradientPanel,
   MetricGrid,
   SettingsListCard,
+  Surface,
 } from '@/shared/ui';
 
 let cleanup: (() => void) | undefined;
@@ -24,11 +24,10 @@ function render(element: ReturnType<typeof createElement>) {
 }
 
 describe('figma card primitives', () => {
-  it('renders the selected surface and elevation', () => {
-    const container = render(createElement(GradientPanel, { elevation: 'high', surface: 'blush' }, 'Budget'));
-    expect(container.firstElementChild?.classList).toContain('rounded-[20px]');
-    expect(container.firstElementChild?.classList).toContain('shadow-ww-lg');
-    expect(container.firstElementChild?.className).toContain('#f8d8e8');
+  it('renders the selected semantic material', () => {
+    const container = render(createElement(Surface, { material: 'raised' }, 'Budget'));
+    expect(container.firstElementChild?.classList).toContain('ww-surface');
+    expect(container.firstElementChild?.classList).toContain('ww-surface--raised');
   });
 
   it('renders semantic metric values in a stable grid', () => {
@@ -54,8 +53,8 @@ describe('figma card primitives', () => {
       variant: 'detail-summary',
     }));
     const values = container.querySelectorAll('dd');
-    expect(values[0]?.className).toContain('#2a9460');
-    expect(values[1]?.className).toContain('#c04870');
+    expect(values[0]?.className).toContain('text-finance-income');
+    expect(values[1]?.className).toContain('text-finance-expense');
     expect(container.querySelector('[data-metric-divider]')?.classList).toContain('after:h-9');
   });
 
@@ -103,7 +102,7 @@ describe('figma card primitives', () => {
     expect(tile?.classList).toContain('h-16');
     expect(tile?.classList).toContain('rounded-[14px]');
     expect(tile?.classList).toContain('gap-[5px]');
-    expect(tile?.className).toContain('#e8f6ff');
+    expect(tile?.classList).toContain('ww-action-menu-card__item');
   });
 
   it('spreads up to five detail shortcuts evenly without scrolling', () => {

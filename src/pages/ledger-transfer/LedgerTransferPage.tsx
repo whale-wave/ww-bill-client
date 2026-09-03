@@ -15,10 +15,10 @@ import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useTranslation } from '@/shared/i18n';
 import {
   ContentStack,
-  GradientPanel,
   PageHeader,
   SectionStack,
   SelectField,
+  Surface,
 } from '@/shared/ui';
 import {
   buildLedgerTransferRequest,
@@ -177,7 +177,7 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
 
   return (
     <SectionStack className="pt-2">
-      <GradientPanel className="px-4 py-4" elevation="low" surface="ice">
+      <Surface className="px-4 py-4" material="raised">
         <ContentStack>
           <SelectField
             label={t('transfer.source')}
@@ -203,10 +203,10 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
               )
             : <p className="text-[12px] font-semibold leading-5 text-ww-mid">{t('transfer.chooseSourceHint')}</p>}
         </ContentStack>
-      </GradientPanel>
+      </Surface>
 
       {sourceLedgerId && sourceCategories.length > 0 && (
-        <GradientPanel className="px-4 py-4" elevation="low" surface="glass">
+        <Surface className="px-4 py-4" material="content">
           <ContentStack>
             <h2 className="text-[13px] font-bold text-ww-ink">{t('transfer.categoryMappings')}</h2>
             <ContentStack>
@@ -231,11 +231,11 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
               ))}
             </ContentStack>
           </ContentStack>
-        </GradientPanel>
+        </Surface>
       )}
 
       {sourceTags.length > 0 && (
-        <GradientPanel className="px-4 py-4" elevation="low" surface="glass">
+        <Surface className="px-4 py-4" material="content">
           <ContentStack>
             <h2 className="text-[13px] font-bold text-ww-ink">{t('transfer.tagHandling')}</h2>
             <div className="grid grid-cols-2 gap-1.5 rounded-[16px] border border-solid border-border-primary bg-white/70 p-1.5 shadow-ww-xs">
@@ -273,7 +273,7 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
               </ContentStack>
             )}
           </ContentStack>
-        </GradientPanel>
+        </Surface>
       )}
 
       <button
@@ -300,7 +300,7 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
       </button>
 
       {preview && (
-        <GradientPanel className="px-4 py-4" elevation="low" surface="ice">
+        <Surface className="px-4 py-4" material="raised">
           <ContentStack>
             <p className="text-[13px] font-bold text-ww-ink">
               {t('transfer.previewSummary', { conflicts: preview.conflictCount, ready: preview.readyCount })}
@@ -314,7 +314,7 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
               </p>
             ))}
           </ContentStack>
-        </GradientPanel>
+        </Surface>
       )}
 
       <button

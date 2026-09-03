@@ -26,7 +26,7 @@ const WwInput: FC<{
   return (
     <div
       className={classNames(
-        'bg-[#f6f7f8] w-[80%] min-h-[48px] flex items-center rounded-[12px] px-4',
+        'bg-ww-surface-tint w-[80%] min-h-[48px] flex items-center rounded-[12px] px-4',
         className,
       )}
     >

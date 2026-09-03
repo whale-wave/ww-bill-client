@@ -13,9 +13,9 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import {
-  GradientPanel,
   IllustratedEmptyState,
   PageHeader,
+  Surface,
 } from '@/shared/ui';
 import { buildLedgerCreatePayload } from './model/ledger-create-form';
 import { LedgerCreateForm } from './ui/LedgerCreateForm';
@@ -78,7 +78,7 @@ const LedgerCreatePage: FC = () => {
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[520px]">
           {!templateKey && (
-            <GradientPanel className="overflow-hidden" elevation="low" surface="glass">
+            <Surface className="overflow-hidden" material="content">
               <IllustratedEmptyState
                 accentIcon={<Sparkles size={17} />}
                 description={t('create.invalidTemplateDescription')}
@@ -90,7 +90,7 @@ const LedgerCreatePage: FC = () => {
                   {t('create.chooseTemplate')}
                 </Button>
               </div>
-            </GradientPanel>
+            </Surface>
           )}
 
           {templateKey && templateQuery.isLoading && (
@@ -103,7 +103,7 @@ const LedgerCreatePage: FC = () => {
           )}
 
           {templateKey && !templateQuery.isLoading && templateQuery.isError && (
-            <GradientPanel className="overflow-hidden" elevation="low" surface="glass">
+            <Surface className="overflow-hidden" material="content">
               <IllustratedEmptyState
                 description={t('create.loadErrorDescription')}
                 icon={<CircleAlert className="text-primary-deep" size={38} />}
@@ -114,14 +114,14 @@ const LedgerCreatePage: FC = () => {
                   {t('create.retry')}
                 </Button>
               </div>
-            </GradientPanel>
+            </Surface>
           )}
 
           {templateKey
             && !templateQuery.isLoading
             && !templateQuery.isError
             && !selectedTemplate && (
-            <GradientPanel className="overflow-hidden" elevation="low" surface="glass">
+            <Surface className="overflow-hidden" material="content">
               <IllustratedEmptyState
                 accentIcon={<Sparkles size={17} />}
                 description={t('create.invalidTemplateDescription')}
@@ -133,12 +133,12 @@ const LedgerCreatePage: FC = () => {
                   {t('create.chooseTemplate')}
                 </Button>
               </div>
-            </GradientPanel>
+            </Surface>
           )}
 
           {selectedTemplate && !templateQuery.isLoading && !templateQuery.isError && (
             <div className="space-y-4">
-              <GradientPanel className="relative overflow-hidden px-5 py-5" elevation="high" surface="ice">
+              <Surface className="relative overflow-hidden px-5 py-5" material="raised">
                 <div aria-hidden="true" className="absolute -right-7 -top-8 h-24 w-24 rounded-full border-[18px] border-solid border-white/20" />
                 <div className="relative flex items-start justify-between gap-3">
                   <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-primary-deep" id="selected-template-heading">
@@ -164,7 +164,7 @@ const LedgerCreatePage: FC = () => {
                     </span>
                   </span>
                 </div>
-              </GradientPanel>
+              </Surface>
               <LedgerCreateForm
                 defaultName={t(`template.${selectedTemplate.key}.name`)}
                 isSubmitting={createState.isLoading}

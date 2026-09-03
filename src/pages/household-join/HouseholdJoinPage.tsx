@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, IllustratedEmptyState, PageHeader } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 
 function normalizeInviteCode(value: string) {
   return value.toUpperCase().replace(/\s+/g, '');
@@ -39,7 +39,7 @@ const HouseholdJoinPage: FC = () => {
       <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('join.title')} />
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">
         <form className="mx-auto w-full max-w-[520px]" onSubmit={handleSubmit}>
-          <GradientPanel className="mt-2 px-5 py-6" elevation="low" surface="ice">
+          <Surface className="mt-2 px-5 py-6" material="raised">
             <IllustratedEmptyState
               className="min-h-[210px] py-4"
               description={t('join.help')}
@@ -62,7 +62,7 @@ const HouseholdJoinPage: FC = () => {
               </span>
             </label>
             {isInvalid && (
-              <p className="mt-2 text-center text-[12px] font-bold text-[#c04870]">{t('join.invalidCode')}</p>
+              <p className="mt-2 text-center text-[12px] font-bold text-feedback-danger">{t('join.invalidCode')}</p>
             )}
             <button
               className="mt-6 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
@@ -72,7 +72,7 @@ const HouseholdJoinPage: FC = () => {
             >
               {t('join.preview')}
             </button>
-          </GradientPanel>
+          </Surface>
         </form>
       </main>
     </div>

@@ -49,7 +49,7 @@ export const AssetBottomActions: FC<{ assetId?: string }> = ({ assetId }) => {
         {t('detail.edit')}
       </button>
       <button
-        className="flex h-[48px] items-center justify-center gap-2 rounded-[16px] border border-solid border-[#f2c5d5] bg-[#fff1f6]/90 text-[13px] font-extrabold text-[#ad496b] shadow-ww-xs disabled:opacity-45"
+        className="flex h-[48px] items-center justify-center gap-2 rounded-[16px] border border-solid border-feedback-danger bg-feedback-danger-surface/90 text-[13px] font-extrabold text-feedback-danger shadow-ww-xs disabled:opacity-45"
         disabled={!id || deleteState.isLoading}
         onClick={() => void handleDelete()}
         type="button"

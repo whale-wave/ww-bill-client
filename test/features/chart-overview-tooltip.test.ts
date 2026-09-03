@@ -24,7 +24,7 @@ describe('chart overview aggregate tooltip', () => {
       expect(tooltip).not.toContain('26/07/20');
       expect(tooltip).toContain('data-chart-tooltip="aggregate"');
       expect(tooltip).toContain('rounded-[18px]');
-      expect(tooltip).toContain('bg-white/[0.96]');
+      expect(tooltip).toContain('bg-ww-surface');
       expect(tooltip).not.toContain('bg-[#4e4c4d]');
     }
     finally {

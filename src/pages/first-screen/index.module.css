@@ -1,12 +1,17 @@
 .bg {
-  z-index: 222;
+  z-index: var(--ww-ref-z-splash);
   isolation: isolate;
-  background: linear-gradient(154.699deg, #e2f6ff 6.9018%, #f4fbff 50%, #fff2f7 93.098%);
+  background: linear-gradient(
+    154.699deg,
+    var(--ww-surface-accent-color) 6.9018%,
+    var(--ww-surface-raised-color) 50%,
+    rgb(var(--ww-color-feedback-danger-surface) / 0.6) 93.098%
+  );
 }
 
 .content {
   position: relative;
-  z-index: 1;
+  z-index: var(--ww-ref-z-content);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -46,7 +51,7 @@
 }
 
 .logoWrap {
-  z-index: 1;
+  z-index: var(--ww-ref-z-content);
   display: grid;
   width: 106px;
   height: 106px;

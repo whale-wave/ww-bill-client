@@ -6,7 +6,7 @@ import { RecordMonthPicker } from '@/entities/record';
 import { useBillPageStore } from '@/pages/bill/model';
 import { BillTabsType } from '@/pages/bill/types';
 import { formatAmount } from '@/shared/lib';
-import { GradientPanel, MetricGrid } from '@/shared/ui';
+import { MetricGrid, Surface } from '@/shared/ui';
 
 const defaultProps = {
   data: {
@@ -28,7 +28,7 @@ export const BillRecordCard: FC<{ data?: Bill }> = ({ data = defaultProps.data }
   const isMonth = billTabType === BillTabsType.MONTH;
 
   return (
-    <GradientPanel className="mb-[14px] overflow-hidden px-[22px] py-5" elevation="high" surface="aurora">
+    <Surface className="mb-[14px] overflow-hidden px-[22px] py-5" material="raised">
       <div className="flex h-8 items-center justify-between">
         {isMonth
           ? (
@@ -73,6 +73,6 @@ export const BillRecordCard: FC<{ data?: Bill }> = ({ data = defaultProps.data }
           { key: 'expense', label: `${isMonth ? t('year') : t('total')}${t('expend')}`, tone: 'expense', value: `¥${renderAmount(data.expand)}` },
         ]}
       />
-    </GradientPanel>
+    </Surface>
   );
 };

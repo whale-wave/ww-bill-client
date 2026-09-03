@@ -38,7 +38,7 @@ const headerProps = {
 };
 
 describe('record overview presentation', () => {
-  it('uses the shared gradient summary and action layout', () => {
+  it('uses the shared raised summary and action layout', () => {
     const container = render(createElement(RecordOverviewHeader, {
       ...headerProps,
       titleIcon: createElement('img', { alt: '', src: '/ledger.svg' }),
@@ -50,6 +50,7 @@ describe('record overview presentation', () => {
 
     expect(header?.classList).toContain('pt-[max(8px,env(safe-area-inset-top))]');
     expect(header?.querySelector('[data-record-overview-summary]')?.classList).toContain('h-[211px]');
+    expect(header?.querySelector('[data-record-overview-summary]')?.classList).toContain('ww-surface--raised');
     expect(titleRow?.classList).toContain('gap-2');
     expect(titleRow?.querySelector('img')?.parentElement?.classList).toContain('h-8');
     expect(shortcut?.classList).toContain('rounded-[14px]');

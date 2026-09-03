@@ -1,5 +1,8 @@
 @use 'global';
 @use 'appearance';
+@use 'design-system/reference';
+@use 'design-system/semantic';
+@use 'design-system/material';
 @use 'reset' as appReset;
 @use 'reset-component' as componentReset;
 

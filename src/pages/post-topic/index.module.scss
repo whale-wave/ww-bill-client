@@ -1,7 +1,7 @@
 .wrapper {
   .top {
-    background: #fefefe;
-    border-bottom: 1px solid #d9d9d9;
+    background: var(--ww-surface-raised-color);
+    border-bottom: 1px solid var(--ww-border-color);
   }
 
   main {
@@ -12,8 +12,8 @@
       margin: 17px 0;
       font-size: var(--ww-font-size-base);
       &:empty:before {
-        color: #9d9d9d;
-        content: '请输入内容';
+        color: var(--ww-text-color-soft);
+        content: attr(data-placeholder);
       }
     }
     .imgs {
@@ -23,7 +23,7 @@
         width: 30%;
         height: 0;
         padding-bottom: 30%;
-        background: #f2f2f2;
+        background: var(--ww-surface-tint-color);
         opacity: 1;
         img {
           position: absolute;
@@ -34,12 +34,15 @@
         .circle {
           width: 22px;
           height: 22px;
-          z-index: 20;
+          z-index: var(--ww-ref-z-navigation);
           position: absolute;
           top: 2px;
           right: 2px;
-          background: #96969670;
+          padding: 0;
+          border: 0;
+          background: color-mix(in srgb, var(--ww-text-color-mid) 44%, transparent);
           border-radius: 50%;
+          cursor: pointer;
           .del {
             position: absolute;
             top: 50%;
@@ -47,6 +50,11 @@
             transform: translate(-50%, -50%) rotate(45deg);
             font-size: var(--ww-font-size-sm);
           }
+        }
+        &.addImage {
+          padding: 0;
+          border: 0;
+          cursor: pointer;
         }
         .add {
           position: absolute;
@@ -60,21 +68,21 @@
   footer {
     margin-top: 24-9px;
     padding: 11px 0;
-    border-top: 1px solid #d9d9d9;
-    border-bottom: 1px solid #d9d9d9;
+    border-top: 1px solid var(--ww-border-color);
+    border-bottom: 1px solid var(--ww-border-color);
     > div {
       padding: 0 9px;
       font-size: var(--ww-font-size-base);
       span {
-        color: #9d9d9d;
+        color: var(--ww-text-color-soft);
       }
       div {
         width: 199px;
         height: 27px;
         text-align: center;
         line-height: 27px;
-        color: #000000;
-        background: #f2f2f2;
+        color: var(--ww-theme-text-color);
+        background: var(--ww-surface-tint-color);
         border-radius: 12px;
       }
     }

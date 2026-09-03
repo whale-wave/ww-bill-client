@@ -32,7 +32,7 @@ const PostTopic: FC = () => {
     setImgs(state);
   };
 
-  const addImg = (e: MouseEvent<HTMLDivElement>) => {
+  const addImg = (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     uploadRef.current?.click();
   };
@@ -124,19 +124,33 @@ const PostTopic: FC = () => {
             setContent(e.target.textContent ?? '');
           }}
           contentEditable={true}
+          aria-label={t('post.content')}
+          aria-multiline="true"
+          data-placeholder={t('post.content')}
+          role="textbox"
           className={classNames('max-width-full', styles.textarea)}
         />
         <div className={classNames(styles.imgs, 'flex flex-wrap')}>
           {imgs.map((img, i) => (
             <div key={img} className={styles.img}>
-              <div className={styles.circle} onClick={() => deleteImg(i)}>
+              <button
+                aria-label={t('post.deleteImage')}
+                className={styles.circle}
+                onClick={() => deleteImg(i)}
+                type="button"
+              >
                 <Icon name="add" className={styles.del} />
-              </div>
-              <img src={img} alt="" onClick={() => console.error(1)} />
+              </button>
+              <img src={img} alt="" />
             </div>
           ))}
           {imgs.length < 9 && (
-            <div className={styles.img} onClick={addImg}>
+            <button
+              aria-label={t('post.addImage')}
+              className={classNames(styles.img, styles.addImage)}
+              onClick={addImg}
+              type="button"
+            >
               <input
                 onClick={e => e.stopPropagation()}
                 ref={uploadRef}
@@ -153,7 +167,7 @@ const PostTopic: FC = () => {
                 }}
                 name="add"
               />
-            </div>
+            </button>
           )}
         </div>
         <footer className="flex items-center">

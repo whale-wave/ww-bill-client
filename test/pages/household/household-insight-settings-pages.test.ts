@@ -359,7 +359,7 @@ describe('household budget and charts', () => {
     const actionSheet = vi.spyOn(ActionSheet, 'show').mockReturnValue({ close: vi.fn() });
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="budget-1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="budget-1"] [data-budget-item-action]')?.click());
     expect(actionSheet).toHaveBeenCalledOnce();
     act(() => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
 
@@ -415,7 +415,7 @@ describe('household budget and charts', () => {
     vi.spyOn(Dialog, 'confirm').mockResolvedValue(true);
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="budget-1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="budget-1"] [data-budget-item-action]')?.click());
     await act(async () => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'delete')?.onClick?.());
     await act(async () => Promise.resolve());
 
@@ -458,14 +458,14 @@ describe('household budget and charts', () => {
     vi.spyOn(Toast, 'show').mockReturnValue({ close: vi.fn() });
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="budget-1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="budget-1"] [data-budget-item-action]')?.click());
     act(() => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
     setBudgetAmount(getBudgetEditor(container), '12000');
     await saveBudgetEditor(getBudgetEditor(container));
 
     expect(refetch).toHaveBeenCalledOnce();
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="budget-1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="budget-1"] [data-budget-item-action]')?.click());
     act(() => actionSheet.mock.calls[1]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
     expect(getBudgetEditor(container)?.querySelector<HTMLInputElement>('input[name="householdBudgetAmount"]')?.value).toBe('11000.00');
     setBudgetAmount(getBudgetEditor(container), '12500');
@@ -560,7 +560,7 @@ describe('household budget and charts', () => {
     const actionSheet = vi.spyOn(ActionSheet, 'show').mockReturnValue({ close: vi.fn() });
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-budget-1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="category-budget-1"] [data-budget-item-action]')?.click());
     act(() => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
 
     const editor = getBudgetEditor(container);
@@ -606,14 +606,14 @@ describe('household budget and charts', () => {
     vi.spyOn(Toast, 'show').mockReturnValue({ close: vi.fn() });
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-budget-1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="category-budget-1"] [data-budget-item-action]')?.click());
     act(() => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
     setBudgetAmount(getBudgetEditor(container), '600');
     await saveBudgetEditor(getBudgetEditor(container));
 
     expect(refetch).toHaveBeenCalledOnce();
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-budget-1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="category-budget-1"] [data-budget-item-action]')?.click());
     act(() => actionSheet.mock.calls[1]?.[0].actions.find(action => action.key === 'edit')?.onClick?.());
     setBudgetAmount(getBudgetEditor(container), '650');
     await saveBudgetEditor(getBudgetEditor(container));
@@ -647,7 +647,7 @@ describe('household budget and charts', () => {
     vi.spyOn(Dialog, 'confirm').mockResolvedValue(true);
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-budget-1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="category-budget-1"] [data-budget-item-action]')?.click());
     await act(async () => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'delete')?.onClick?.());
     await act(async () => Promise.resolve());
 
@@ -685,7 +685,7 @@ describe('household budget and charts', () => {
     vi.spyOn(Toast, 'show').mockReturnValue({ close: vi.fn() });
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-budget-1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="category-budget-1"] [data-budget-item-action]')?.click());
     await act(async () => actionSheet.mock.calls[0]?.[0].actions.find(action => action.key === 'delete')?.onClick?.());
     await act(async () => Promise.resolve());
 
@@ -806,48 +806,62 @@ describe('household budget and charts', () => {
   });
 
   it('renders counted household weeks with relative labels and selects an older week', async () => {
-    hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([
-      { anchorDate: '2025-12-22', isoWeek: 52, isoWeekYear: 2025, key: '2025-W52', period: 'week' },
-      { anchorDate: '2026-08-10', isoWeek: 33, isoWeekYear: 2026, key: '2026-W33', period: 'week' },
-      { anchorDate: '2026-08-17', isoWeek: 34, isoWeekYear: 2026, key: '2026-W34', period: 'week' },
-      { anchorDate: '2026-08-24', isoWeek: 35, isoWeekYear: 2026, key: '2026-W35', period: 'week' },
-    ]));
-    hooks.useHouseholdChartsQuery.mockReturnValue(query({
-      ...chart,
-      anchorDate: '2026-08-24',
-      endDate: '2026-08-30',
-      period: 'week',
-      startDate: '2026-08-24',
-      timeline: Array.from({ length: 7 }, (_, index) => ({
-        expense: '1.00',
-        income: '0.00',
-        key: `2026-08-${String(24 + index).padStart(2, '0')}`,
-        label: `08-${String(24 + index).padStart(2, '0')}`,
-        net: '-1.00',
-      })),
-    }));
-    const { container, router } = renderPage('/households/household%2Fa/charts?range=week', '/households/:householdId/charts', createElement(HouseholdChartsPage));
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-25T12:00:00.000Z'));
+    try {
+      hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([
+        { anchorDate: '2025-12-22', isoWeek: 52, isoWeekYear: 2025, key: '2025-W52', period: 'week' },
+        { anchorDate: '2026-08-10', isoWeek: 33, isoWeekYear: 2026, key: '2026-W33', period: 'week' },
+        { anchorDate: '2026-08-17', isoWeek: 34, isoWeekYear: 2026, key: '2026-W34', period: 'week' },
+        { anchorDate: '2026-08-24', isoWeek: 35, isoWeekYear: 2026, key: '2026-W35', period: 'week' },
+      ]));
+      hooks.useHouseholdChartsQuery.mockReturnValue(query({
+        ...chart,
+        anchorDate: '2026-08-24',
+        endDate: '2026-08-30',
+        period: 'week',
+        startDate: '2026-08-24',
+        timeline: Array.from({ length: 7 }, (_, index) => ({
+          expense: '1.00',
+          income: '0.00',
+          key: `2026-08-${String(24 + index).padStart(2, '0')}`,
+          label: `08-${String(24 + index).padStart(2, '0')}`,
+          net: '-1.00',
+        })),
+      }));
+      const { container, router } = renderPage('/households/household%2Fa/charts?range=week', '/households/:householdId/charts', createElement(HouseholdChartsPage));
 
-    const tabs = [...container.querySelectorAll<HTMLButtonElement>('[data-chart-period-options] > button')];
-    expect(tabs.map(tab => tab.textContent)).toEqual(['tab.yearWeekNumber', 'tab.weekNumber', 'tab.lastWeek', 'tab.thisWeek']);
-    expect(tabs[3]?.getAttribute('aria-pressed')).toBe('true');
-    await act(async () => tabs[1]?.click());
-    expect(router.state.location.search).toContain('date=2026-08-10');
-    expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
-      params: expect.objectContaining({ filters: expect.objectContaining({ anchorDate: '2026-08-10' }) }),
-    }));
+      const tabs = [...container.querySelectorAll<HTMLButtonElement>('[data-chart-period-options] > button')];
+      expect(tabs.map(tab => tab.textContent)).toEqual(['tab.yearWeekNumber', 'tab.weekNumber', 'tab.lastWeek', 'tab.thisWeek']);
+      expect(tabs[3]?.getAttribute('aria-pressed')).toBe('true');
+      await act(async () => tabs[1]?.click());
+      expect(router.state.location.search).toContain('date=2026-08-10');
+      expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
+        params: expect.objectContaining({ filters: expect.objectContaining({ anchorDate: '2026-08-10' }) }),
+      }));
+    }
+    finally {
+      vi.useRealTimers();
+    }
   });
 
   it('prioritizes relative names for current and previous months', () => {
-    hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([
-      { anchorDate: '2025-12-01', key: '2025-12', month: 12, period: 'month', year: 2025 },
-      { anchorDate: '2026-07-01', key: '2026-07', month: 7, period: 'month', year: 2026 },
-      { anchorDate: '2026-08-01', key: '2026-08', month: 8, period: 'month', year: 2026 },
-    ]));
-    hooks.useHouseholdChartsQuery.mockReturnValue(query({ ...chart, anchorDate: '2026-08-01' }));
-    const { container } = renderPage('/households/household%2Fa/charts?range=month', '/households/:householdId/charts', createElement(HouseholdChartsPage));
-    const tabs = [...container.querySelectorAll<HTMLButtonElement>('[data-chart-period-options] > button')];
-    expect(tabs.map(tab => tab.textContent)).toEqual(['tab.yearMonthNumber', 'tab.lastMonth', 'tab.thisMonth']);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-25T12:00:00.000Z'));
+    try {
+      hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([
+        { anchorDate: '2025-12-01', key: '2025-12', month: 12, period: 'month', year: 2025 },
+        { anchorDate: '2026-07-01', key: '2026-07', month: 7, period: 'month', year: 2026 },
+        { anchorDate: '2026-08-01', key: '2026-08', month: 8, period: 'month', year: 2026 },
+      ]));
+      hooks.useHouseholdChartsQuery.mockReturnValue(query({ ...chart, anchorDate: '2026-08-01' }));
+      const { container } = renderPage('/households/household%2Fa/charts?range=month', '/households/:householdId/charts', createElement(HouseholdChartsPage));
+      const tabs = [...container.querySelectorAll<HTMLButtonElement>('[data-chart-period-options] > button')];
+      expect(tabs.map(tab => tab.textContent)).toEqual(['tab.yearMonthNumber', 'tab.lastMonth', 'tab.thisMonth']);
+    }
+    finally {
+      vi.useRealTimers();
+    }
   });
 
   it('uses the shared amount selector for the household income query', async () => {

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { changePassword } from '@/entities/user';
 import { useTranslation } from '@/shared/i18n';
-import { FormField, GradientPanel, PageHeader } from '@/shared/ui';
+import { FormField, PageHeader, Surface } from '@/shared/ui';
 
 const Password: FC = () => {
   const { t } = useTranslation('user');
@@ -47,12 +47,12 @@ const Password: FC = () => {
               <p className="mt-0.5 text-[11px] text-ww-mid">{t('password.securityHint')}</p>
             </div>
           </div>
-          <GradientPanel className="space-y-4 px-5 py-5" elevation="high" surface="glass">
+          <Surface className="space-y-4 px-5 py-5" material="raised">
             <FormField autoComplete="current-password" label={t('password.oldPassword')} onChange={setOldPassword} placeholder={t('password.oldPasswordPlaceholder')} prefix={<LockKeyhole size={18} />} type="password" value={oldPassword} />
             <FormField autoComplete="new-password" label={t('password.newPassword')} onChange={setNewPassword} placeholder={t('password.newPasswordPlaceholder')} prefix={<LockKeyhole size={18} />} type="password" value={newPassword} />
             <FormField autoComplete="new-password" label={t('password.confirmPassword')} onChange={setRePassword} placeholder={t('password.confirmPasswordPlaceholder')} prefix={<LockKeyhole size={18} />} type="password" value={rePassword} />
             <button className="mt-2 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45" disabled={disabled} onClick={() => void handleChangePassword()} type="button">{isSubmitting ? t('common:nav.loading') : t('password.save')}</button>
-          </GradientPanel>
+          </Surface>
         </div>
       </main>
     </div>

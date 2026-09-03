@@ -10,18 +10,28 @@ interface ItemProps {
 }
 
 const Item: FC<ItemProps> = ({ data }) => {
-  return (
-    <div key={data.id} className={`${classPrefix}-opt`} onClick={data.onClick}>
+  const content = (
+    <>
       <div
         style={{
           height: 47,
           width: 47,
           borderRadius: '50%',
-          backgroundColor: data.color ?? '#f6f6f6',
+          backgroundColor: data.color ?? 'var(--ww-surface-tint-color)',
         }}
       />
       <span>{data.name}</span>
-    </div>
+    </>
+  );
+
+  if (!data.onClick) {
+    return <div className={`${classPrefix}-opt`}>{content}</div>;
+  }
+
+  return (
+    <button className={`${classPrefix}-opt`} onClick={data.onClick} type="button">
+      {content}
+    </button>
   );
 };
 

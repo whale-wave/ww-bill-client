@@ -116,9 +116,9 @@ describe('personal budget page presentation', () => {
     expect(container.querySelector('[data-budget-id="category-1"]')?.textContent).toContain('Dining');
     expect(container.querySelector('[data-budget-add-category]')?.closest('.shrink-0')).not.toBeNull();
 
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="summary-1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="summary-1"] [data-budget-item-action]')?.click());
     expect(actionSheet.mock.calls[0]?.[0].actions.some(action => action.key === 'edit')).toBe(true);
-    act(() => container.querySelector<HTMLElement>('[data-budget-id="category-1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="category-1"] [data-budget-item-action]')?.click());
     expect(actionSheet.mock.calls[1]?.[0].actions.some(action => action.key === 'edit')).toBe(true);
 
     await act(async () => container.querySelector<HTMLElement>('[data-budget-type="0"]')?.click());

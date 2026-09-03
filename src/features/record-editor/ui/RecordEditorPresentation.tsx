@@ -211,14 +211,14 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         className={cn(
           'flex shrink-0 items-start justify-between gap-3',
           stage === 'category'
-            ? 'h-[58px] px-5 pb-[14px] pt-1'
-            : 'h-14 px-[22px] pb-4',
+            ? 'h-[60px] px-5 pb-[14px] pt-1'
+            : 'h-[60px] px-[22px] pb-4',
         )}
         data-record-editor-header
       >
         <button
           aria-label={t('common:nav.cancel')}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-border-primary bg-white/90 text-ww-mid shadow-ww-xs"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-border-primary bg-white/90 text-ww-mid shadow-ww-xs"
           data-record-editor-cancel
           onClick={handleBack}
           type="button"
@@ -234,7 +234,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 ] as const).map(item => (
                   <button
                     className={cn(
-                      'rounded-[10px] px-[22px] py-[7px] text-[13px] font-bold leading-[19.5px] transition',
+                      'min-h-11 rounded-[10px] px-[22px] py-[7px] text-[13px] font-bold leading-[19.5px] transition',
                       controller.recordType === item.type
                         ? item.type === 'sub'
                           ? 'bg-[linear-gradient(154.093deg,#f0a0b8_0%,#d06080_100%)] text-white shadow-ww-xs'
@@ -256,7 +256,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           : (
               <button
                 aria-label="选择分类"
-                className="flex h-7 items-center rounded-full border-0 bg-primary-light px-[14px] py-1 text-[13px] font-bold leading-[19.5px] text-primary-deep"
+                className="flex h-11 items-center rounded-full border-0 bg-primary-light px-[14px] text-[13px] font-bold leading-[19.5px] text-primary-deep"
                 data-record-editor-category-trigger
                 onClick={() => {
                   controller.setIsNoteFocused(false);
@@ -267,7 +267,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 {controller.selectedCategory?.name}
               </button>
             )}
-        <span className="h-10 w-10" />
+        <span className="h-11 w-11" />
       </header>
 
       {stage === 'category'
@@ -368,7 +368,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 />
                 {tags !== undefined && (
                   <button
-                    className="shrink-0 border-0 bg-transparent px-1 text-[13px] font-semibold text-primary-deep"
+                    className="min-h-11 shrink-0 border-0 bg-transparent px-1 text-[13px] font-semibold text-primary-deep"
                     data-record-editor-tag-trigger
                     onClick={() => controller.setIsTagPickerVisible(true)}
                     type="button"
@@ -392,7 +392,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 />
                 <button
                   aria-label="选择图片"
-                  className="ml-1 shrink-0 border-0 bg-transparent p-1 text-primary-deep"
+                  className="ml-1 flex h-11 w-11 shrink-0 items-center justify-center border-0 bg-transparent p-1 text-primary-deep"
                   onClick={() => imageInputRef.current?.click()}
                   type="button"
                 >
@@ -412,7 +412,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     {remarkHistory.map(remark => (
                       <button
                         aria-label={t('record:bookkeeping.selectRemarkHistory', { remark })}
-                        className="min-h-9 truncate rounded-[10px] px-2 text-left text-[14px] leading-5 text-ww-ink active:bg-primary-light"
+                        className="min-h-11 truncate rounded-[10px] px-2 text-left text-[14px] leading-5 text-ww-ink active:bg-primary-light"
                         data-record-editor-remark-history-item={remark}
                         key={remark}
                         onClick={() => controller.setRemark(remark)}
@@ -443,7 +443,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   <span>{controller.isImageUploading ? '正在上传图片…' : controller.imageUploadError ? '上传失败，可重新选择' : '已添加凭证图片'}</span>
                   <button
                     aria-label="移除图片"
-                    className="ml-auto p-1 text-ww-mid"
+                    className="ml-auto flex h-11 w-11 items-center justify-center p-1 text-ww-mid"
                     onClick={() => {
                       closeImagePreview();
                       controller.handleRemoveImage();
@@ -470,7 +470,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     {['+', '-'].map((operator, index) => (
                       <button
                         className={cn(
-                          'flex h-8 w-11 items-center justify-center rounded-[10px] border border-border-primary bg-white/80 font-number text-lg font-bold text-primary-deep shadow-ww-xs',
+                          'flex h-11 w-11 items-center justify-center rounded-[10px] border border-border-primary bg-white/80 font-number text-lg font-bold text-primary-deep shadow-ww-xs',
                           controller.activeSideIndex === index + 1 && 'bg-primary-light',
                         )}
                         key={operator}
@@ -587,7 +587,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             ? (
                 <button
                   aria-label="标签设置"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border-0 bg-primary-light/45 text-primary-deep active:bg-primary-light disabled:opacity-45"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl border-0 bg-primary-light/45 text-primary-deep active:bg-primary-light disabled:opacity-45"
                   disabled={controller.isImageUploading}
                   onClick={onManageTags}
                   type="button"
@@ -602,12 +602,12 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             <div className="mb-2 text-[12px] font-extrabold text-primary-deep">已选标签</div>
             <div className="flex flex-wrap gap-2">
               {(tags ?? []).filter(tag => controller.selectedTagIds.includes(tag.id)).map(tag => (
-                <span className="inline-flex h-9 items-center gap-1 rounded-full border border-primary/25 bg-white px-2 pl-3 text-[13px] font-bold text-primary-deep shadow-ww-xs" key={tag.id}>
+                <span className="inline-flex min-h-11 items-center gap-1 rounded-full border border-primary/25 bg-white px-2 pl-3 text-[13px] font-bold text-primary-deep shadow-ww-xs" key={tag.id}>
                   #
                   {tag.name}
                   <button
                     aria-label={`移除标签 ${tag.name}`}
-                    className="ml-0.5 flex h-6 w-6 items-center justify-center rounded-full text-primary-deep transition active:bg-primary-light"
+                    className="ml-0.5 flex h-11 w-11 items-center justify-center rounded-full text-primary-deep transition active:bg-primary-light"
                     onClick={() => controller.handleRemoveTag(tag.id)}
                     type="button"
                   >
@@ -632,7 +632,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               <button
                 aria-pressed={controller.selectedTagIds.includes(tag.id)}
                 className={cn(
-                  'min-h-[36px] rounded-l-full border border-solid border-r-0 px-3 text-sm',
+                  'min-h-11 rounded-l-full border border-solid border-r-0 px-3 text-sm',
                   controller.selectedTagIds.includes(tag.id)
                     ? 'border-primary bg-primary text-white'
                     : 'border-border-primary bg-white text-ww-mid',
@@ -646,10 +646,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 <button
                   aria-label={`${t('ledger:tags.delete')} ${tag.name}`}
                   className={cn(
-                    'flex w-9 items-center justify-center border border-solid border-l border-l-white/35 transition disabled:opacity-45',
+                    'flex min-h-11 w-11 items-center justify-center border border-solid border-l border-l-white/35 transition disabled:opacity-45',
                     controller.selectedTagIds.includes(tag.id)
                       ? 'border-primary bg-primary text-white active:bg-primary-deep'
-                      : 'border-border-primary bg-white text-[#ad496b] active:bg-[#fff1f6]',
+                      : 'border-border-primary bg-white text-feedback-danger active:bg-feedback-danger-surface',
                   )}
                   data-record-editor-tag-delete={tag.id}
                   disabled={controller.isImageUploading}
@@ -686,7 +686,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               placeholder="新建标签"
               value={newTagName}
             />
-            <button className="rounded-xl bg-primary px-3 text-sm font-semibold text-white disabled:opacity-50" disabled={!newTagName.trim() || isCreatingTag} type="submit">
+            <button className="min-h-11 rounded-xl bg-primary px-3 text-sm font-semibold text-white disabled:opacity-50" disabled={!newTagName.trim() || isCreatingTag} type="submit">
               添加
             </button>
           </form>

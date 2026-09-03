@@ -1,16 +1,16 @@
 .wrapper {
   display: flex;
   padding: 13px 16px 30px;
-  background: #ffffff;
-  border-top: 1px solid #ebebeb;
-  border-bottom: 1px solid #d9d9d9;
+  background: var(--ww-surface-raised-color);
+  border-top: 1px solid var(--ww-border-color);
+  border-bottom: 1px solid var(--ww-border-color);
 
   .avatar {
     width: 70px;
     height: 70px;
     margin-right: 12px;
     overflow: hidden;
-    background: #aca3a3;
+    background: var(--ww-surface-tint-color);
   }
 
   .middle {
@@ -19,20 +19,28 @@
     flex-direction: column;
     justify-content: center;
     .name {
-      color: #1c1d1f;
+      color: var(--ww-theme-text-color);
       font-size: var(--ww-font-size-lg);
     }
 
     .desc {
       display: flex;
       margin-top: 8px;
-      color: #888b92;
+      color: var(--ww-text-color-mid);
       font-size: var(--ww-font-size-sm);
-      > div {
+      > button {
+        min-height: 44px;
         margin-right: 20px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
       }
       span {
-        color: #1c1d1f;
+        color: var(--ww-theme-text-color);
         font-size: var(--ww-font-size-base);
         font-weight: bold;
       }
@@ -43,12 +51,11 @@
     justify-content: center;
     align-items: center;
     > button {
-      width: 55px;
-      height: 22px;
-      line-height: 22px;
+      min-width: 55px;
+      min-height: 44px;
       text-align: center;
       font-size: var(--ww-font-size-sm);
-      color: #1c1c1f;
+      color: var(--ww-primary-foreground);
       background: var(--ww-theme-color);
       border-radius: 11px;
     }

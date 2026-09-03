@@ -11,10 +11,10 @@ import choseFile from '@/shared/lib/chose-file';
 import {
   confirmAppAction,
   FormField,
-  GradientPanel,
   PageHeader,
   PageLoadingState,
   showAppActionSheet,
+  Surface,
 } from '@/shared/ui';
 
 const UserInfo: FC = () => {
@@ -114,7 +114,7 @@ const UserInfo: FC = () => {
 
       <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[520px] space-y-5">
-          <GradientPanel className="flex flex-col items-center px-5 py-6 text-center" elevation="high" surface="ice">
+          <Surface className="flex flex-col items-center px-5 py-6 text-center" material="raised">
             <button className="relative border-0 bg-transparent" onClick={() => void handleChangeAvatar()} type="button">
               <span className="flex h-[82px] w-[82px] items-center justify-center overflow-hidden rounded-full border-[3px] border-solid border-white bg-white shadow-ww-lg">
                 {userInfo.avatar
@@ -127,12 +127,12 @@ const UserInfo: FC = () => {
             </button>
             <h2 className="mt-4 text-[20px] font-black text-ww-ink">{userInfo.name}</h2>
             <p className="mt-1 text-[11px] font-semibold text-ww-mid">{userInfo.email}</p>
-            <button className="mt-4 rounded-full border border-solid border-white/90 bg-white/65 px-4 py-2 text-[11px] font-extrabold text-primary-deep shadow-ww-xs" onClick={() => void handleChangeAvatar()} type="button">
+            <button className="mt-4 min-h-11 rounded-full border border-solid border-white/90 bg-white/65 px-4 text-[11px] font-extrabold text-primary-deep shadow-ww-xs" onClick={() => void handleChangeAvatar()} type="button">
               {t('info.changeAvatar')}
             </button>
-          </GradientPanel>
+          </Surface>
 
-          <GradientPanel className="overflow-hidden px-4 py-1" elevation="standard" surface="glass">
+          <Surface className="overflow-hidden px-4 py-1" material="content">
             {rows.map(row => (
               <button
                 className="flex min-h-[66px] w-full items-center gap-3 border-0 border-b border-solid border-border-primary bg-transparent text-left last:border-b-0"
@@ -149,9 +149,9 @@ const UserInfo: FC = () => {
                 {row.onClick && <ChevronRight className="text-ww-ghost" size={16} />}
               </button>
             ))}
-          </GradientPanel>
+          </Surface>
 
-          <button className="flex h-[52px] w-full items-center justify-center gap-2 rounded-[18px] border border-solid border-[#f3c9d6] bg-white/75 text-[13px] font-extrabold text-[#b24f71] shadow-ww-xs" onClick={() => void onLogout()} type="button">
+          <button className="flex h-[52px] w-full items-center justify-center gap-2 rounded-[18px] border border-solid border-feedback-danger bg-white/75 text-[13px] font-extrabold text-feedback-danger shadow-ww-xs" onClick={() => void onLogout()} type="button">
             <LogOut size={17} />
             {t('common:action.logout')}
           </button>
@@ -160,14 +160,16 @@ const UserInfo: FC = () => {
 
       {modalVisible && (
         <div aria-labelledby="nickname-dialog-title" aria-modal="true" className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/20 px-6 backdrop-blur-[3px]" onClick={() => setModalVisible(false)} role="dialog">
-          <GradientPanel className="w-full max-w-[340px] px-5 py-5" elevation="floating" onClick={event => event.stopPropagation()} surface="glass">
-            <h2 className="text-center text-[17px] font-extrabold text-ww-ink" id="nickname-dialog-title">{t('info.changeNickname')}</h2>
-            <FormField className="mt-5" label={t('info.nickname')} onChange={setName} placeholder={t('info.namePlaceholder')} value={name} />
-            <div className="mt-5 grid grid-cols-2 gap-2">
-              <button className="h-11 rounded-[15px] border-0 bg-bg-gray text-[13px] font-bold text-ww-mid" onClick={() => setModalVisible(false)} type="button">{t('common:nav.cancel')}</button>
-              <button className="h-11 rounded-[15px] border-0 bg-primary text-[13px] font-extrabold text-white" onClick={() => void onChangeName()} type="button">{t('common:nav.confirm')}</button>
+          <Surface className="w-full max-w-[340px] px-5 py-5" material="floating">
+            <div onClick={event => event.stopPropagation()}>
+              <h2 className="text-center text-[17px] font-extrabold text-ww-ink" id="nickname-dialog-title">{t('info.changeNickname')}</h2>
+              <FormField className="mt-5" label={t('info.nickname')} onChange={setName} placeholder={t('info.namePlaceholder')} value={name} />
+              <div className="mt-5 grid grid-cols-2 gap-2">
+                <button className="h-11 rounded-[15px] border-0 bg-bg-gray text-[13px] font-bold text-ww-mid" onClick={() => setModalVisible(false)} type="button">{t('common:nav.cancel')}</button>
+                <button className="h-11 rounded-[15px] border-0 bg-primary text-[13px] font-extrabold text-white" onClick={() => void onChangeName()} type="button">{t('common:nav.confirm')}</button>
+              </div>
             </div>
-          </GradientPanel>
+          </Surface>
         </div>
       )}
     </div>

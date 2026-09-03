@@ -2,6 +2,7 @@ import type { EChartsOption } from 'echarts';
 import type { TitleOption } from 'echarts/types/dist/shared';
 import type { FC } from 'react';
 import { memo, useLayoutEffect } from 'react';
+import { CHART_STYLE_FALLBACKS } from '@/shared/config/chart-style-fallbacks';
 import { i18n } from '@/shared/i18n';
 import { readAppearanceToken, useAppearanceRevision } from '@/shared/lib/appearance-tokens';
 import { useChart } from '@/shared/lib/use-chart';
@@ -29,13 +30,13 @@ export const RingChart: FC<RingChartProps> = memo(({ percentage, isSummaryBudget
       text: i18n.t('budget:ringChart.remaining'),
       textStyle: {
         fontSize: isSummaryBudget ? 12 : 11,
-        color: '#666',
+        color: CHART_STYLE_FALLBACKS.textMuted,
         fontWeight: 'normal',
       },
       subtext,
       subtextStyle: {
         fontSize: isSummaryBudget ? 14 : 13,
-        color: '#333',
+        color: CHART_STYLE_FALLBACKS.textStrong,
       },
       itemGap: 5,
       top: '27%',
@@ -46,7 +47,7 @@ export const RingChart: FC<RingChartProps> = memo(({ percentage, isSummaryBudget
       text: i18n.t('budget:ringChart.overBudget'),
       textStyle: {
         fontSize: isSummaryBudget ? 16 : 14,
-        color: '#e84149',
+        color: CHART_STYLE_FALLBACKS.negative,
       },
       top: 'center',
       left: 'center',
@@ -64,11 +65,11 @@ export const RingChart: FC<RingChartProps> = memo(({ percentage, isSummaryBudget
           data: [
             {
               value: percentageValue,
-              itemStyle: { color: readAppearanceToken('--ww-theme-color', '#4aaac4') },
+              itemStyle: { color: readAppearanceToken('--ww-theme-color', CHART_STYLE_FALLBACKS.primary) },
             },
             {
               value: remainingPercentageValue,
-              itemStyle: { color: '#f5f5f5' },
+              itemStyle: { color: CHART_STYLE_FALLBACKS.surface },
             },
           ],
         },

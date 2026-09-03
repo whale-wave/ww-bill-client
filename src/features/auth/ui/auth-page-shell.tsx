@@ -2,7 +2,7 @@ import type { PropsWithChildren, ReactNode } from 'react';
 import { ArrowLeft, Languages } from 'lucide-react';
 import appLogo from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
 import { changeLanguage, useTranslation } from '@/shared/i18n';
-import { GradientPanel } from '@/shared/ui';
+import { Surface } from '@/shared/ui';
 
 interface AuthPageShellProps {
   footer?: ReactNode;
@@ -33,17 +33,17 @@ export function AuthPageShell({
           ? (
               <button
                 aria-label={t('common:nav.back')}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
                 onClick={onBack}
                 type="button"
               >
                 <ArrowLeft size={17} strokeWidth={2} />
               </button>
             )
-          : <span className="h-9 w-9" />}
+          : <span className="h-11 w-11" />}
         <button
           aria-label={t('languageSwitch')}
-          className="flex h-9 items-center gap-1.5 rounded-full border border-solid border-border-primary bg-white/80 px-3 text-[12px] font-bold text-primary-deep shadow-ww-xs"
+          className="flex h-11 items-center gap-1.5 rounded-full border border-solid border-border-primary bg-white/80 px-3 text-[12px] font-bold text-primary-deep shadow-ww-xs"
           data-testid="auth-language-switch"
           onClick={handleLanguageChange}
           type="button"
@@ -70,9 +70,9 @@ export function AuthPageShell({
               <p className="mt-0.5 truncate text-[12px] leading-[18px] text-ww-mid">{subtitle}</p>
             </div>
           </div>
-          <GradientPanel className="px-5 py-[22px]" elevation="high" surface="glass">
+          <Surface className="px-5 py-[22px]" material="raised">
             {children}
-          </GradientPanel>
+          </Surface>
           {footer && <div className="px-2 pt-5 text-center text-[13px] leading-5 text-ww-mid">{footer}</div>}
         </div>
       </main>

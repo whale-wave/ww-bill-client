@@ -18,7 +18,7 @@ Figma Design 文件 `Whale Wave Bill New UI` 是新版界面的唯一视觉基�
 - 我的：`1:1949`
 - 年月 Sheet：`1:2488`
 
-新增页面和组件应优先复用当前项目已有样式入口，不另起一套设计系统。
+新增页面和组件应优先复用当前项目已有样式入口与 WW Design System v2 原语，不另起平行的设计系统。
 
 - `src/assets/styles/reset.ts` 定义项目主色 `--ww-theme-color`，当前值为 `#6FC2DC`。
 - `src/assets/styles/global.scss` 定义全局页面结构、Ant Design Mobile 变量映射、基础文本色和背景色。
@@ -80,7 +80,7 @@ Version 10 使用柔和的大圆角卡片和两级浅阴影，但不使用厚重
 - **人物头像**：统一使用 `rounded-full` 的完整圆形裁切；分类图标和账本图标保持各自容器语义，不套用头像规则。
 - **阴影**：`shadow-ww-xs` 为小控件，`shadow-ww` 为普通卡片，`shadow-ww-lg` 为汇总卡，`shadow-ww-floating` 为底栏。列表行自身不用阴影。
 
-共享展示优先使用 `GradientPanel`、`MetricGrid`、`ActionMenuCard`、`SettingsListCard`，避免在页面中重复拼接相同的圆角、描边和阴影。
+共享展示优先使用 `Surface`、`MetricGrid`、`ActionMenuCard`、`SettingsListCard`，避免在页面中重复拼接相同的圆角、描边和阴影。`GradientPanel` 已移除；新旧代码都不得恢复它或等价的自由材质容器。
 
 ## 7. 核心组件模式
 
@@ -182,3 +182,17 @@ Version 10 使用柔和的大圆角卡片和两级浅阴影，但不使用厚重
 - 空状态、加载态、错误态和禁用态是否完整。
 - 是否复用了 Version 10 的 18px 圆角、两级浅阴影和限定的柔和渐变，避免营销式 Hero 和任意装饰色。
 - 变更文件是否按项目规范执行对应 ESLint 命令。
+
+## 12. WW Design System v2 Contract
+
+责任流固定为：**Reference 定义可用值，Semantic 定义意义，Appearance 选择语义取值，Material 定义表面规则，Primitive 定义行为边界，Product Component 表达业务模式，Page 只负责编排。**
+
+- Theme 只认识 token，不认识业务组件；页面拥有 layout/composition，不能拥有 material。
+- Token 分为 Reference、Semantic、Material、Component 四层。财务色、反馈色和图表色保持独立语义，不互相复用。
+- `Surface` 是仅展示的 Material primitive，材料仅为 `content`、`raised`、`chrome`、`floating`、`overlay`。它不接收事件处理、`role`、`tabIndex` 或 `style`；允许有意义的 `aria-*` 和 `data-*` 属性。
+- `Surface.className` 只能编排布局（flex/grid、间距、尺寸、overflow 等），不能覆盖背景、描边颜色、阴影、blur、opacity 或 Material 圆角。交互必须由内部或外部原生控件承担。
+- `content` 与 `raised` 在任一 Appearance 下均不得使用 `backdrop-filter`；`chrome` 和 `floating` 才能拥有 blur，Minimal 必须解析成实色/无 blur。定位、`z-index` 和安全区属于 layout，不属于 Surface。
+- 组件 recipe 必须是跨域复用、稳定产品视觉模式、稳定交互结构或统一 Appearance 响应中的至少一种；公开业务组件不以 `Recipe` 命名。页面、路由或单一业务实体名称不能成为 Design System recipe 名。
+- Appearance 的运行时不可信值必须经 `resolveAppearanceTemplate()` 解析，未知、空或损坏值一律回退 `glass`。每个账户保留非敏感本地 mirror：冷启动、运行中账号切换、登出和服务端 reconciliation 都必须遵循该边界。新客户端 mutation 不支持 `appearanceAccent`。
+- WCAG 2.2 AA 是无障碍基线；WW 额外采用至少 `44×44 CSS px` 的产品级交互目标。该 44px 标准不是 WCAG 的直接表述。
+- 新视觉债务由 `lint:design-system` 阻止；迁移中的遗留债务只能删除，不能在其他位置新增。`verify:design-system` 必须从真实构建产物验证 token alpha、Material cascade 和 blur invariant。

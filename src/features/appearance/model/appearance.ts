@@ -20,7 +20,7 @@ export const appearanceTemplateOptions: Array<{
 
 export function readAppearancePreference(config?: Pick<UserAppConfig, 'appearanceTemplate'>): AppearancePreference {
   return {
-    template: config?.appearanceTemplate ?? DEFAULT_APPEARANCE.template,
+    template: resolveAppearanceTemplate(config?.appearanceTemplate),
   };
 }
 
@@ -36,6 +36,10 @@ export function resetAppearancePreference(): void {
   applyAppearancePreference(DEFAULT_APPEARANCE);
 }
 
-export function isAppearanceTemplate(value: string): value is AppearanceTemplate {
+export function isAppearanceTemplate(value: unknown): value is AppearanceTemplate {
   return APPEARANCE_TEMPLATES.includes(value as AppearanceTemplate);
+}
+
+export function resolveAppearanceTemplate(value: unknown): AppearanceTemplate {
+  return isAppearanceTemplate(value) ? value : DEFAULT_APPEARANCE.template;
 }

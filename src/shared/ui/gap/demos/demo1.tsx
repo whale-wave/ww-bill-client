@@ -10,7 +10,7 @@
 //         <span>间隔20px</span>
 //         <Gap height={20} />
 //         <span>修改不同的颜色</span>
-//         <Gap color="#333" />
+//         <Gap color="var(--ww-theme-text-color)" />
 //       </div>
 //     </div>
 //   );

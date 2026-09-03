@@ -103,7 +103,7 @@ export const EmailCaptchaInput: FC<EmailCaptchaInputProps> = ({
       prefix={<KeyRound size={18} strokeWidth={1.8} />}
       suffix={(
         <button
-          className="inline-flex min-h-8 items-center gap-1 rounded-full border-0 bg-primary-light/55 px-3 text-[11px] font-bold text-primary-deep disabled:text-ww-soft"
+          className="inline-flex min-h-11 items-center gap-1 rounded-full border-0 bg-primary-light/55 px-3 text-[11px] font-bold text-primary-deep disabled:text-ww-soft"
           disabled={!email || isSending || remainingSeconds > 0}
           onClick={() => void handleSend()}
           type="button"

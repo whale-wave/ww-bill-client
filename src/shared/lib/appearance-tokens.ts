@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { CHART_STYLE_FALLBACKS } from '@/shared/config/chart-style-fallbacks';
 
 export const APPEARANCE_CHANGE_EVENT = 'ww:appearance-change';
 
@@ -10,12 +11,9 @@ function readCssVariable(name: string, fallback: string): string {
 
 export function readAppearanceChartColors(): string[] {
   return [
-    readCssVariable('--ww-chart-1', '#4aaac4'),
-    readCssVariable('--ww-chart-2', '#f0a0b8'),
-    readCssVariable('--ww-chart-3', '#a996dc'),
-    readCssVariable('--ww-chart-4', '#79c6a8'),
-    readCssVariable('--ww-chart-5', '#efbc70'),
-    readCssVariable('--ww-chart-6', '#6e9fdb'),
+    ...CHART_STYLE_FALLBACKS.chartColors.map((fallback, index) => (
+      readCssVariable(`--ww-chart-${index + 1}`, fallback)
+    )),
   ];
 }
 

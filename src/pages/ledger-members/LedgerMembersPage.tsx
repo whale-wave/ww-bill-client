@@ -17,7 +17,7 @@ import {
 import { MemberCardsPresentation } from '@/features/workspace-settings';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, PageHeader } from '@/shared/ui';
+import { PageHeader, Surface } from '@/shared/ui';
 
 const LedgerMembersPage: FC = () => {
   const { t } = useTranslation('ledger');
@@ -129,10 +129,9 @@ const LedgerMembersPage: FC = () => {
                 othersLabel={t('members.others')}
               />
               {canReview && (
-                <GradientPanel
+                <Surface
                   className="flex items-center gap-3 px-4 py-3.5"
-                  elevation="low"
-                  surface="glass"
+                  material="content"
                 >
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-primary-light/65 text-primary-deep shadow-ww-xs">
                     <ClipboardList size={20} strokeWidth={1.8} />
@@ -151,9 +150,9 @@ const LedgerMembersPage: FC = () => {
                         {t('members.requestsDescription')}
                       </span>
                     </span>
-                    <ChevronRight className="ml-2 shrink-0 text-[#9eb1bd]" size={18} />
+                    <ChevronRight className="ml-2 shrink-0 text-ww-ghost" size={18} />
                   </button>
-                </GradientPanel>
+                </Surface>
               )}
             </>
           )}

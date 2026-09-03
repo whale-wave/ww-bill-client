@@ -21,7 +21,7 @@ import {
 } from '@/features/ledger-collaboration';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { AppBottomSheet, ContentStack, GradientPanel, PageHeader, SectionStack } from '@/shared/ui';
+import { AppBottomSheet, ContentStack, PageHeader, SectionStack, Surface } from '@/shared/ui';
 import {
   getJoinRequestPermissionGroups,
   getJoinRequestRoleDescriptionKey,
@@ -145,7 +145,7 @@ const LedgerJoinRequestDetailPage: FC = () => {
           {request && !loading && !error && (
             <SectionStack>
               <ContentStack>
-                <GradientPanel className="flex items-center gap-3 px-4 py-4" elevation="low" surface="glass">
+                <Surface className="flex items-center gap-3 px-4 py-4" material="content">
                   <span className="sr-only">{t('requestDetail.avatar')}</span>
                   <LedgerUserAvatar size={48} user={request.applicant} />
                   <span className="min-w-0 flex-grow">
@@ -156,9 +156,9 @@ const LedgerJoinRequestDetailPage: FC = () => {
                       </span>
                     )}
                   </span>
-                </GradientPanel>
+                </Surface>
 
-                <GradientPanel className="overflow-hidden px-4 py-1" elevation="low" surface="glass">
+                <Surface className="overflow-hidden px-4 py-1" material="content">
                   <div className="flex min-h-[56px] items-center justify-between gap-3 border-0 border-b border-solid border-border-primary">
                     <span className="text-[12px] font-bold text-ww-mid">{t('requestDetail.remark')}</span>
                     <span className="min-w-0 truncate text-right text-[13px] font-black text-ww-ink">
@@ -178,14 +178,14 @@ const LedgerJoinRequestDetailPage: FC = () => {
                         <span className="truncate">
                           {assignedRole ? t(`role.${assignedRole}`) : t('requestDetail.chooseRole')}
                         </span>
-                        <ChevronRight aria-hidden="true" className="shrink-0 text-[#9eb1bd]" size={18} />
+                        <ChevronRight aria-hidden="true" className="shrink-0 text-ww-ghost" size={18} />
                       </span>
                     </button>
                   )}
-                </GradientPanel>
+                </Surface>
 
                 {isPending && assignedRole && (
-                  <GradientPanel className="px-4 py-4" elevation="low" surface="glass">
+                  <Surface className="px-4 py-4" material="content">
                     <h2 className="text-[12px] font-extrabold text-ww-ink">{t('requestDetail.permissionsTitle')}</h2>
                     <div className="mt-2 space-y-2.5">
                       {getJoinRequestPermissionGroups(assignedRole).map(group => (
@@ -197,11 +197,11 @@ const LedgerJoinRequestDetailPage: FC = () => {
                         </div>
                       ))}
                     </div>
-                  </GradientPanel>
+                  </Surface>
                 )}
 
                 {!isPending && (
-                  <GradientPanel className="px-4 py-4" elevation="low" surface="glass">
+                  <Surface className="px-4 py-4" material="content">
                     <p className="text-[13px] font-bold text-ww-mid">{t('requestDetail.alreadyProcessed')}</p>
                     {request.assignedRole && (
                       <p className="mt-2 text-[13px] font-black text-ww-ink">
@@ -213,13 +213,13 @@ const LedgerJoinRequestDetailPage: FC = () => {
                     {request.decisionRemark && (
                       <p className="mt-2 text-[12px] font-semibold text-ww-soft">{request.decisionRemark}</p>
                     )}
-                  </GradientPanel>
+                  </Surface>
                 )}
               </ContentStack>
 
               {isPending && (
                 <div>
-                  {errorMessage && <p className="mb-3 text-center text-[12px] font-bold text-[#b24f71]" role="alert">{errorMessage}</p>}
+                  {errorMessage && <p className="mb-3 text-center text-[12px] font-bold text-feedback-danger" role="alert">{errorMessage}</p>}
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       className="h-[52px] w-full rounded-[18px] border border-solid border-border-primary bg-white/85 text-[14px] font-extrabold text-primary-deep shadow-ww disabled:opacity-45"

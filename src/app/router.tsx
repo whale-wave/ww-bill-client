@@ -52,6 +52,12 @@ const router = createHashRouter([
     path: '/',
     element: <RootLayout />,
     children: [
+      ...(import.meta.env.DEV
+        ? [{
+            path: 'design-system',
+            lazy: lazyPage(() => import('@/pages/design-system/DesignSystemPage')),
+          }]
+        : []),
       {
         index: true,
         ...(isAndroidPlatform

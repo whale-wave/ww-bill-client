@@ -1,7 +1,7 @@
 $class-prefix-fixed-pin: 'bwm-fixed-pin';
 
 .#{$class-prefix-fixed-pin} {
-  z-index: 200;
+  z-index: var(--ww-ref-z-floating);
   width: 55px;
   height: 55px;
   position: fixed;

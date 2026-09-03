@@ -19,7 +19,7 @@ import {
   usePendingHouseholdActivation,
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, PageHeader } from '@/shared/ui';
+import { PageHeader, Surface } from '@/shared/ui';
 
 function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `household-invite-${Date.now()}`;
@@ -160,7 +160,7 @@ const HouseholdInvitationPage: FC = () => {
         <div className="mx-auto w-full max-w-[520px]">
           <HouseholdScopeBoundary allowPending householdId={householdId}>
             {household => (
-              <GradientPanel className="mt-2 px-5 py-6 text-center" elevation="low" surface="ice">
+              <Surface className="mt-2 px-5 py-6 text-center" material="raised">
                 <h1 className="text-[16px] font-extrabold text-ww-ink">{t('invitation.heading')}</h1>
                 <p className="mx-auto mt-2 max-w-[300px] text-[12px] font-semibold leading-5 text-ww-mid">{t('invitation.description')}</p>
                 <p className="mt-2 text-[12px] font-bold text-primary-deep">{t('invitation.remaining', { count: Math.max(0, (household.memberLimit ?? 12) - (household.memberCount ?? household.members.length)) })}</p>
@@ -196,7 +196,7 @@ const HouseholdInvitationPage: FC = () => {
                         </div>
                         <p className="mt-4 text-[12px] font-semibold text-ww-mid">{t('invitation.waiting')}</p>
                         <button
-                          className="mt-3 h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-[#b24f71] disabled:opacity-45"
+                          className="mt-3 h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-feedback-danger disabled:opacity-45"
                           disabled={revokeState.isLoading}
                           onClick={() => void handleRevoke()}
                           type="button"
@@ -207,7 +207,7 @@ const HouseholdInvitationPage: FC = () => {
                     )
                   : (
                       <div className="mt-6">
-                        {invitation && <p className="mb-4 text-[13px] font-bold text-[#c04870]">{t('invitation.expired')}</p>}
+                        {invitation && <p className="mb-4 text-[13px] font-bold text-feedback-danger">{t('invitation.expired')}</p>}
                         <label className="flex items-start gap-3 rounded-[15px] bg-primary-light/25 px-3.5 py-3 text-left text-[12px] font-bold leading-5 text-ww-ink">
                           <input
                             checked={consent}
@@ -232,7 +232,7 @@ const HouseholdInvitationPage: FC = () => {
                         </button>
                       </div>
                     )}
-              </GradientPanel>
+              </Surface>
             )}
           </HouseholdScopeBoundary>
         </div>

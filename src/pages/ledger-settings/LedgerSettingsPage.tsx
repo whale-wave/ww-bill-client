@@ -35,6 +35,10 @@ import { useGetUserUserInfoQuery } from '@/entities/user';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { SettingsOverviewPresentation } from '@/features/workspace-settings';
+import {
+  LEDGER_THEME_CLASS_NAMES,
+  LEDGER_THEME_KEYS,
+} from '@/shared/config/ledger-themes';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
@@ -42,21 +46,10 @@ import {
   AppBottomSheet,
   AppButton,
   confirmAppAction,
-  GradientPanel,
   PageHeader,
   SheetHeader,
+  Surface,
 } from '@/shared/ui';
-
-const LEDGER_THEME_KEYS = ['blue', 'green', 'amber', 'orange', 'indigo', 'pink'] as const;
-
-const ledgerThemeClassNames: Record<typeof LEDGER_THEME_KEYS[number], string> = {
-  amber: 'bg-[#f5b84b]',
-  blue: 'bg-[#55b8d2]',
-  green: 'bg-[#55b989]',
-  indigo: 'bg-[#7f78cf]',
-  orange: 'bg-[#ef9061]',
-  pink: 'bg-[#df789c]',
-};
 
 function isConflict(error: unknown) {
   return typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
@@ -83,7 +76,7 @@ function PreferenceSwitch({
         onChange={event => onChange(event.target.checked)}
         type="checkbox"
       />
-      <span className="relative h-7 w-12 rounded-full bg-[#dce5ea] transition peer-checked:bg-primary">
+      <span className="relative h-7 w-12 rounded-full bg-ww-surface-tint transition peer-checked:bg-primary">
         <span className="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow-ww-xs transition-transform peer-checked:translate-x-5" />
       </span>
     </label>
@@ -120,7 +113,7 @@ function ChoiceGroup({
         {options.map(option => (
           <button
             aria-pressed={option.value === value}
-            className={`min-h-10 rounded-[13px] px-2 text-[12px] font-bold transition ${option.value === value ? 'bg-primary text-white shadow-ww-xs' : 'bg-white/40 text-ww-mid'}`}
+            className={`min-h-11 rounded-[13px] px-2 text-[12px] font-bold transition ${option.value === value ? 'bg-primary text-white shadow-ww-xs' : 'bg-white/40 text-ww-mid'}`}
             key={option.value}
             onClick={() => onChange(option.value)}
             type="button"
@@ -558,8 +551,8 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
       ]
     : [];
   const previewIconKey = isLedgerIconKey(iconKey) ? iconKey : DEFAULT_LEDGER_ICON_KEY;
-  const themePreviewClass = ledgerThemeClassNames[themeKey as typeof LEDGER_THEME_KEYS[number]] ?? 'bg-primary';
-  const currentThemeClass = ledgerThemeClassNames[ledger?.themeKey as typeof LEDGER_THEME_KEYS[number]] ?? 'bg-primary';
+  const themePreviewClass = LEDGER_THEME_CLASS_NAMES[themeKey as typeof LEDGER_THEME_KEYS[number]] ?? 'bg-primary';
+  const currentThemeClass = LEDGER_THEME_CLASS_NAMES[ledger?.themeKey as typeof LEDGER_THEME_KEYS[number]] ?? 'bg-primary';
 
   return (
     <div className="page-new relative overflow-hidden" data-ledger-settings-page>
@@ -574,7 +567,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(24px,env(safe-area-inset-bottom))]" data-ledger-settings-content>
         <div className="mx-auto w-full max-w-[520px]">
           {ledger && (
-            <GradientPanel className="mb-5 flex items-center gap-3.5 px-4 py-4" data-ledger-settings-overview elevation="low" surface="ice">
+            <Surface className="mb-5 flex items-center gap-3.5 px-4 py-4" data-ledger-settings-overview material="raised">
               <span className={`flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-[17px] border border-white/80 text-white shadow-ww-xs ${currentThemeClass}`}>
                 <LedgerVisualIcon
                   className="h-[22px] w-[22px]"
@@ -590,7 +583,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
               <span className="shrink-0 rounded-full border border-white/80 bg-white/60 px-2.5 py-1 text-[10px] font-bold text-primary-deep">
                 {t('settings.monthStartDayValue', { day: ledger.monthStartDay })}
               </span>
-            </GradientPanel>
+            </Surface>
           )}
           <SettingsOverviewPresentation sections={sections} />
         </div>
@@ -646,10 +639,10 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                   {!LEDGER_THEME_KEYS.includes(themeKey as typeof LEDGER_THEME_KEYS[number]) && <option value={themeKey}>{themeKey}</option>}
                   {LEDGER_THEME_KEYS.map(value => <option key={value} value={value}>{t(`settings.themeOptions.${value}`)}</option>)}
                 </select>
-                <div className="mt-2 grid grid-cols-6 gap-2">
+                <div className="mt-2 grid grid-cols-6 gap-1">
                   {LEDGER_THEME_KEYS.map(value => (
-                    <button aria-label={t(`settings.themeOptions.${value}`)} aria-pressed={themeKey === value} className={`flex aspect-square items-center justify-center rounded-[15px] border-2 border-solid transition ${themeKey === value ? 'border-primary bg-white shadow-ww-xs' : 'border-transparent bg-white/55'}`} key={value} onClick={() => setThemeKey(value)} type="button">
-                      <span className={`h-6 w-6 rounded-full ${ledgerThemeClassNames[value]}`} />
+                    <button aria-label={t(`settings.themeOptions.${value}`)} aria-pressed={themeKey === value} className={`flex aspect-square min-h-11 min-w-11 items-center justify-center rounded-[15px] border-2 border-solid transition ${themeKey === value ? 'border-primary bg-white shadow-ww-xs' : 'border-transparent bg-white/55'}`} key={value} onClick={() => setThemeKey(value)} type="button">
+                      <span className={`h-6 w-6 rounded-full ${LEDGER_THEME_CLASS_NAMES[value]}`} />
                     </button>
                   ))}
                 </div>

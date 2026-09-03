@@ -15,7 +15,7 @@ import {
   HouseholdScopeBoundary,
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, PageHeader } from '@/shared/ui';
+import { PageHeader, Surface } from '@/shared/ui';
 
 const ExportContent: FC<{ household: Household }> = ({ household }) => {
   const { t } = useTranslation('household');
@@ -90,7 +90,7 @@ const ExportContent: FC<{ household: Household }> = ({ household }) => {
   return (
     <div>
       <form className="mt-2" data-testid="household-export-form" onSubmit={handleCreate}>
-        <GradientPanel className="px-5 py-5" elevation="low" surface="ice">
+        <Surface className="px-5 py-5" material="raised">
           <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] border border-white/80 bg-white/85 text-primary-deep shadow-ww-xs">
               <FileSpreadsheet size={21} />
@@ -144,7 +144,7 @@ const ExportContent: FC<{ household: Household }> = ({ household }) => {
           >
             {createState.isLoading ? t('export.creating') : t('export.create')}
           </button>
-        </GradientPanel>
+        </Surface>
       </form>
 
       {taskId && (
@@ -158,7 +158,7 @@ const ExportContent: FC<{ household: Household }> = ({ household }) => {
           retryLabel={t('common.retry')}
         >
           {taskQuery.data && (
-            <GradientPanel className="mt-4 px-5 py-5" elevation="low" surface="glass">
+            <Surface className="mt-4 px-5 py-5" material="content">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-[15px] font-extrabold text-ww-ink">{t('export.task')}</h2>
                 <span className="shrink-0 rounded-full bg-primary-light/35 px-3 py-1 text-[11px] font-bold text-primary-deep">
@@ -171,7 +171,7 @@ const ExportContent: FC<{ household: Household }> = ({ household }) => {
                 </p>
               )}
               {taskQuery.data.status === 'FAILED' && (
-                <p className="mt-2 text-[13px] font-semibold text-[#b24f71]">{t('export.failed')}</p>
+                <p className="mt-2 text-[13px] font-semibold text-feedback-danger">{t('export.failed')}</p>
               )}
               {taskQuery.data.status === 'PENDING' && (
                 <p className="mt-2 text-[13px] font-semibold text-ww-mid">{t('export.processing')}</p>
@@ -187,7 +187,7 @@ const ExportContent: FC<{ household: Household }> = ({ household }) => {
                   {downloadState.isLoading ? t('export.downloading') : t('export.download')}
                 </button>
               )}
-            </GradientPanel>
+            </Surface>
           )}
         </HouseholdPageState>
       )}

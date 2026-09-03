@@ -56,7 +56,7 @@ const LedgerApplicationsPage: FC = () => {
                 type="button"
               >
                 <LedgerSummaryBlock ledger={request.ledger} />
-                <div className="flex items-center justify-between border-0 border-t border-solid border-[#EBEBEB] px-4 py-3">
+                <div className="flex items-center justify-between border-0 border-t border-solid border-border-primary px-4 py-3">
                   <div className="min-w-0 pr-3">
                     <p className="one-line text-sm text-font-black">{request.applicantRemark}</p>
                     <p className="mt-1 text-xs text-font-gray">

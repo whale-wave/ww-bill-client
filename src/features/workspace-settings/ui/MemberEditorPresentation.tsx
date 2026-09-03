@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import type { MemberCardItem } from '../model/types';
 import { LedgerUserAvatar } from '@/entities/ledger';
-import { ContentStack, GradientPanel } from '@/shared/ui';
+import { ContentStack, Surface } from '@/shared/ui';
 
 export const MemberEditorPresentation: FC<{
   children?: ReactNode;
@@ -14,7 +14,7 @@ export const MemberEditorPresentation: FC<{
 
   return (
     <ContentStack>
-      <GradientPanel className="flex items-center gap-3 px-4 py-4" elevation="low" surface="glass">
+      <Surface className="flex items-center gap-3 px-4 py-4" material="content">
         <LedgerUserAvatar size={56} user={user} />
         <span className="min-w-0 flex-grow">
           <span className="flex items-center gap-2">
@@ -34,10 +34,10 @@ export const MemberEditorPresentation: FC<{
             <span className="mt-1 block truncate text-[12px] font-bold text-ww-mid">{member.description}</span>
           )}
         </span>
-      </GradientPanel>
-      <GradientPanel className="px-4 py-4" elevation="low" surface="glass">
+      </Surface>
+      <Surface className="px-4 py-4" material="content">
         {children}
-      </GradientPanel>
+      </Surface>
     </ContentStack>
   );
 };

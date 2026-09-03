@@ -6,7 +6,8 @@ import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { CategoryIcon } from '@/entities/category';
 import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
-import { BrandAvatar, GradientPanel } from '@/shared/ui';
+import { readAppearanceChartColors, readAppearanceToken, useAppearanceRevision, withAlpha } from '@/shared/lib/appearance-tokens';
+import { BrandAvatar, Surface } from '@/shared/ui';
 import { getAvatarInitial, getMonthBillRingSegments, MONTH_BILL_CHART_COLORS, toMonthBillDetailModel } from '../model/monthBillDetail';
 import { MonthBillChart } from './MonthBillChart';
 
@@ -52,17 +53,17 @@ export const MonthBillDetailRenderer: FC<RendererProps> = ({ chartsEnabled = tru
 
 function SectionCard({ children, exportMode, title }: { children: ReactNode; exportMode?: boolean; title: string }) {
   return (
-    <GradientPanel className={`mb-3 overflow-hidden px-[14px] py-4 ${exportMode ? '!backdrop-blur-none !bg-white' : ''}`} elevation="low" surface="glass">
+    <Surface className="mb-3 overflow-hidden px-[14px] py-4" data-export-mode={exportMode ? 'export' : undefined} material="content">
       <h2 className="mb-3 text-[15px] font-extrabold text-ww-ink">{title}</h2>
       {children}
-    </GradientPanel>
+    </Surface>
   );
 }
 
 function SummaryCard({ data, exportMode }: { data: ReturnType<typeof toMonthBillDetailModel>; exportMode?: boolean }) {
   const { t } = useTranslation('bill');
   return (
-    <GradientPanel className={`mb-3 px-[18px] py-4 ${exportMode ? 'backdrop-blur-none' : ''}`} elevation="high" surface="aurora">
+    <Surface className="mb-3 px-[18px] py-4" data-export-mode={exportMode ? 'export' : undefined} material="raised">
       <div className="mb-3 flex items-center justify-between">
         <span className="rounded-full bg-white/55 px-3 py-1 font-number text-[13px] font-extrabold text-ww-ink">{data.month}</span>
         <span className="text-[11px] font-semibold text-ww-mid">{t('monthOverview')}</span>
@@ -80,7 +81,7 @@ function SummaryCard({ data, exportMode }: { data: ReturnType<typeof toMonthBill
         <span>{t('recordDays', { count: data.summary.recordDays })}</span>
         <span>{t('recordCount', { count: data.summary.recordCount })}</span>
       </div>
-    </GradientPanel>
+    </Surface>
   );
 }
 
@@ -88,7 +89,7 @@ function Metric({ label, tone, value }: { label: string; tone: 'income' | 'expen
   return (
     <div>
       <div className="text-[11px] font-semibold text-ww-soft">{label}</div>
-      <div className={`mt-1 font-number text-[18px] font-black ${tone === 'income' ? 'text-[#2a9460]' : 'text-[#c04870]'}`}>{value}</div>
+      <div className={`mt-1 font-number text-[18px] font-black ${tone === 'income' ? 'text-finance-income' : 'text-finance-expense'}`}>{value}</div>
     </div>
   );
 }
@@ -122,7 +123,7 @@ function ExpenseCategoryCard({ chartsEnabled = true, data, exportMode, onChartEr
             <span className="w-4 font-number text-[12px] font-extrabold text-ww-mid">{index + 1}</span>
             <BillCategoryIcon categoryName={item.name} iconKey={item.icon} />
             <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-ww-ink">{item.name}</span>
-            <span className="font-number text-[12px] font-extrabold text-[#c04870]">
+            <span className="font-number text-[12px] font-extrabold text-finance-expense">
               -¥
               {item.amount}
             </span>
@@ -154,15 +155,30 @@ function BillCategoryIcon({ categoryName, iconKey }: { categoryName: string; ico
   );
 }
 
+function useChartAppearanceTokens() {
+  const appearanceRevision = useAppearanceRevision();
+  return useMemo(() => {
+    void appearanceRevision;
+    const chartColors = readAppearanceChartColors();
+    const primary = readAppearanceToken('--ww-theme-color', chartColors[0]);
+    return {
+      line: readAppearanceToken('--ww-theme-color-mid', chartColors[0]),
+      primary,
+      text: readAppearanceToken('--ww-text-color-mid', chartColors[0]),
+    };
+  }, [appearanceRevision]);
+}
+
 function ExpenseTrendCard({ chartsEnabled = true, data, exportMode, onChartError, onChartReady }: { chartsEnabled?: boolean; data: ReturnType<typeof toMonthBillDetailModel>; exportMode?: boolean; onChartError?: (key: string, error: Error) => void; onChartReady?: (key: string) => void }) {
   const { t } = useTranslation('bill');
+  const chartTokens = useChartAppearanceTokens();
   const option = useMemo<EChartsOption>(() => ({
     grid: { bottom: 4, left: 4, right: 4, top: 10 },
     series: [{
-      areaStyle: { color: 'rgba(111,194,220,0.20)' },
+      areaStyle: { color: withAlpha(chartTokens.primary, 0.2) },
       data: data.expense.dailyTrend.map(item => Number(item.amount)),
-      itemStyle: { color: '#4aaac4' },
-      lineStyle: { color: '#4aaac4', width: 2 },
+      itemStyle: { color: chartTokens.line },
+      lineStyle: { color: chartTokens.line, width: 2 },
       smooth: true,
       symbol: 'circle',
       symbolSize: 4,
@@ -171,7 +187,7 @@ function ExpenseTrendCard({ chartsEnabled = true, data, exportMode, onChartError
     tooltip: { trigger: 'axis', valueFormatter: value => `¥${Number(value).toFixed(2)}` },
     xAxis: { axisLabel: { show: false }, boundaryGap: false, data: data.expense.dailyTrend.map(item => item.date.slice(-2)), type: 'category' },
     yAxis: { axisLabel: { show: false }, splitLine: { lineStyle: { type: 'dashed', color: 'rgba(110,194,220,0.16)' } }, type: 'value' },
-  }), [data.expense.dailyTrend]);
+  }), [chartTokens, data.expense.dailyTrend]);
   return (
     <SectionCard exportMode={exportMode} title={t('expenseTrend')}>
       <div className="mb-2 grid grid-cols-3 gap-2">
@@ -186,18 +202,19 @@ function ExpenseTrendCard({ chartsEnabled = true, data, exportMode, onChartError
 
 function ComparisonCard({ chartsEnabled = true, data, exportMode, onChartError, onChartReady }: { chartsEnabled?: boolean; data: ReturnType<typeof toMonthBillDetailModel>; exportMode?: boolean; onChartError?: (key: string, error: Error) => void; onChartReady?: (key: string) => void }) {
   const { t } = useTranslation('bill');
+  const chartTokens = useChartAppearanceTokens();
   const option = useMemo<EChartsOption>(() => ({
     grid: { bottom: 28, containLabel: true, left: 2, right: 2, top: 30 },
     series: [{
       barMaxWidth: 18,
       data: data.expense.monthlyTrend.map(item => Number(item.amount)),
-      itemStyle: { borderRadius: [5, 5, 0, 0], color: '#6fc2dc' },
-      label: { color: '#5c7080', fontSize: 9, lineHeight: 12, position: 'top', show: true, formatter: params => Number(params.value ?? 0) > 0 ? `${(Number(params.value) / 10000).toFixed(1)}万` : '' },
+      itemStyle: { borderRadius: [5, 5, 0, 0], color: chartTokens.primary },
+      label: { color: chartTokens.text, fontSize: 9, lineHeight: 12, position: 'top', show: true, formatter: params => Number(params.value ?? 0) > 0 ? `${(Number(params.value) / 10000).toFixed(1)}万` : '' },
       type: 'bar',
     }],
     xAxis: { axisLabel: { lineHeight: 14 }, axisLine: { show: false }, axisTick: { show: false }, data: data.expense.monthlyTrend.map(item => `${Number(item.month.slice(5))}月`), type: 'category' },
     yAxis: { axisLabel: { show: false }, splitLine: { lineStyle: { type: 'dashed', color: 'rgba(110,194,220,0.12)' } }, type: 'value' },
-  }), [data.expense.monthlyTrend]);
+  }), [chartTokens, data.expense.monthlyTrend]);
   return (
     <SectionCard exportMode={exportMode} title={t('monthlyExpenseComparison')}>
       <MonthBillChart allowVerticalPageScroll={!exportMode} chartKey="expense-monthly" className="h-[170px] w-full" enabled={chartsEnabled} exportMode={exportMode} kind="bar" onError={onChartError} onReady={onChartReady} option={option} />
@@ -209,7 +226,7 @@ function ComparisonCard({ chartsEnabled = true, data, exportMode, onChartError, 
               <span className="w-4 font-number text-[12px] font-extrabold text-ww-mid">{index + 1}</span>
               <BillCategoryIcon categoryName={item.name} iconKey={item.icon} />
               <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-ww-ink">{item.name}</span>
-              <span className={item.direction === 'increase' ? 'font-number text-[11px] font-bold text-[#d35b58]' : 'font-number text-[11px] font-bold text-[#2a9460]'}>
+              <span className={item.direction === 'increase' ? 'font-number text-[11px] font-bold text-finance-expense' : 'font-number text-[11px] font-bold text-finance-income'}>
                 {item.direction === 'increase' ? `↑ ${t('increase')}` : `↓ ${t('decrease')}`}
                 {' '}
                 {item.amount}
@@ -222,23 +239,24 @@ function ComparisonCard({ chartsEnabled = true, data, exportMode, onChartError, 
 
 function IncomeCard({ chartsEnabled = true, data, exportMode, onChartError, onChartReady }: { chartsEnabled?: boolean; data: ReturnType<typeof toMonthBillDetailModel>; exportMode?: boolean; onChartError?: (key: string, error: Error) => void; onChartReady?: (key: string) => void }) {
   const { t } = useTranslation('bill');
+  const chartTokens = useChartAppearanceTokens();
   const option = useMemo<EChartsOption>(() => ({
     grid: { bottom: 28, containLabel: true, left: 2, right: 2, top: 30 },
     series: [{
       barMaxWidth: 18,
       data: data.income.monthlyTrend.map(item => Number(item.amount)),
-      itemStyle: { borderRadius: [5, 5, 0, 0], color: '#6fc2dc' },
-      label: { color: '#5c7080', fontSize: 9, lineHeight: 12, position: 'top', show: true, formatter: params => Number(params.value ?? 0) > 0 ? `${(Number(params.value) / 10000).toFixed(1)}万` : '' },
+      itemStyle: { borderRadius: [5, 5, 0, 0], color: chartTokens.primary },
+      label: { color: chartTokens.text, fontSize: 9, lineHeight: 12, position: 'top', show: true, formatter: params => Number(params.value ?? 0) > 0 ? `${(Number(params.value) / 10000).toFixed(1)}万` : '' },
       type: 'bar',
     }],
     xAxis: { axisLabel: { lineHeight: 14 }, axisLine: { show: false }, axisTick: { show: false }, data: data.income.monthlyTrend.map(item => `${Number(item.month.slice(5))}月`), type: 'category' },
     yAxis: { axisLabel: { show: false }, splitLine: { lineStyle: { type: 'dashed', color: 'rgba(110,194,220,0.12)' } }, type: 'value' },
-  }), [data.income.monthlyTrend]);
+  }), [chartTokens, data.income.monthlyTrend]);
   return (
     <SectionCard exportMode={exportMode} title={t('incomeAnalysis')}>
       <div className="mb-3 flex items-baseline justify-between">
         <span className="text-[12px] font-semibold text-ww-soft">{t('totalIncome')}</span>
-        <span className="font-number text-[22px] font-black text-[#2a9460]">
+        <span className="font-number text-[22px] font-black text-finance-income">
           ¥
           {data.summary.income}
         </span>
@@ -296,8 +314,8 @@ function AchievementValue({ label, value }: { label: string; value: string }) {
 function ExportMasthead({ categories, copy, onAvatarReady, sessionId, user }: { categories: MonthBillCategorySegment[]; copy: ExportCopySnapshot; onAvatarReady?: (sessionId: number, state: AvatarReadyState) => void; sessionId: number; user: ExportUserSnapshot }) {
   return (
     <header className="relative mb-3 overflow-hidden px-1 py-2" data-export-masthead>
-      <span className="pointer-events-none absolute -right-7 -top-8 h-24 w-24 rounded-full border-[9px] border-[#f0a0b8]/20" />
-      <span className="pointer-events-none absolute bottom-0 right-20 h-2 w-2 rounded-full bg-[#a996dc]/70" />
+      <span className="pointer-events-none absolute -right-7 -top-8 h-24 w-24 rounded-full border-[9px] border-ww-pink/20" />
+      <span className="pointer-events-none absolute bottom-0 right-20 h-2 w-2 rounded-full bg-primary-mid/70" />
       <div className="relative flex items-center gap-3">
         <ExportAvatar displayName={user.displayName} key={`${sessionId}:${user.avatar ?? 'fallback'}`} onReady={onAvatarReady} sessionId={sessionId} src={user.avatar} />
         <div className="min-w-0">

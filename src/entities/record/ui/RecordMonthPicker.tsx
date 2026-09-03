@@ -50,11 +50,11 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
     <>
       <button
         className={cn(
-          'relative flex items-center border-0 text-font-black',
+          'relative flex min-h-11 items-center border-0 text-font-black',
           variant === 'calendar'
-            ? 'mx-auto h-10 min-w-0 justify-center gap-2 rounded-full border border-solid border-white/70 bg-white/70 px-4 text-[16px] font-extrabold tracking-[-0.02em] text-ww-ink shadow-ww-xs backdrop-blur-md transition active:scale-[0.98]'
+            ? 'mx-auto h-11 min-w-0 justify-center gap-2 rounded-full border border-solid border-white/70 bg-white/70 px-4 text-[16px] font-extrabold tracking-[-0.02em] text-ww-ink shadow-ww-xs backdrop-blur-md transition active:scale-[0.98]'
             : variant === 'compact'
-              ? 'h-8 gap-1 rounded-full border border-border-primary bg-white/55 px-3 font-number text-[13px] font-bold'
+              ? 'h-11 gap-1 rounded-full border border-border-primary bg-white/55 px-3 font-number text-[13px] font-bold'
               : 'gap-[6px] bg-transparent p-0',
         )}
         data-testid={testId}
@@ -108,7 +108,7 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
               {isYearOnly ? t('record:periodPicker.selectYear') : t('record:periodPicker.selectMonth')}
             </strong>
             <button
-              className="text-[13px] font-semibold leading-[19.5px] text-ww-soft"
+              className="min-h-11 px-2 text-[13px] font-semibold leading-[19.5px] text-ww-soft"
               onClick={() => setIsVisible(false)}
               type="button"
             >
@@ -123,7 +123,7 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
               {years.map(year => (
                 <button
                   className={cn(
-                    'h-[34px] rounded-[10px] px-1 text-[13px] font-medium leading-[19.5px]',
+                    'h-11 rounded-[10px] px-1 text-[13px] font-medium leading-[19.5px]',
                     draftMonth.year() === year
                       ? 'ww-theme-primary-action font-extrabold'
                       : 'bg-white/80 text-ww-mid',
@@ -149,7 +149,7 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
                   return (
                     <button
                       className={cn(
-                        'h-[42px] rounded-[12px] border border-solid text-[13px] font-medium leading-[19.5px]',
+                        'h-11 rounded-[12px] border border-solid text-[13px] font-medium leading-[19.5px]',
                         draftMonth.month() === monthIndex
                           ? 'ww-theme-primary-action border-transparent font-extrabold'
                           : 'border-border-primary bg-white/80 text-ww-mid shadow-ww-xs',

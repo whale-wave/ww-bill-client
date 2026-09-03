@@ -291,7 +291,7 @@ function LedgerCenterPage() {
         right={(
           <button
             aria-label={t('center.quickSettings')}
-            className="ledger-center-navbar__settings flex h-9 w-9 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
+            className="ledger-center-navbar__settings flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
             onClick={() => navigate(ROUTES_PATH.LEDGER_PREFERENCES.getPath())}
             type="button"
           >

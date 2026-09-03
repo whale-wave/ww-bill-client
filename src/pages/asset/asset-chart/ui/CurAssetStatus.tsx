@@ -6,7 +6,7 @@ import { AssetStatisticalRecordType, useAssetSummaryInfo, useGetAssetQuery } fro
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
 import { readAppearanceChartColors, useAppearanceRevision } from '@/shared/lib/appearance-tokens';
-import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { IllustratedEmptyState, Surface } from '@/shared/ui';
 import { ChartRetryButton } from './ChartRetryButton';
 
 export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
@@ -48,7 +48,7 @@ export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type 
   }, [chartData]);
 
   return (
-    <GradientPanel as="article" className="overflow-hidden px-[18px] py-[18px]" elevation="standard" surface="glass">
+    <Surface as="article" className="overflow-hidden px-[18px] py-[18px]" material="content">
       <header className="flex items-center gap-3">
         <span className="ww-theme-icon-surface flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] text-primary-deep shadow-ww-xs">
           <PieChartIcon size={20} strokeWidth={2} />
@@ -67,7 +67,7 @@ export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type 
 
       {!isLoading && isError && (
         <div className="flex min-h-[200px] flex-col items-center justify-center text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#fff0f4] text-[#c04870]">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-feedback-danger-surface text-feedback-danger">
             <TriangleAlert size={21} />
           </span>
           <p className="mt-3 text-[13px] font-extrabold text-ww-ink">{t('manager.loadError')}</p>
@@ -115,6 +115,6 @@ export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type 
           </div>
         </div>
       )}
-    </GradientPanel>
+    </Surface>
   );
 };

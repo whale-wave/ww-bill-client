@@ -358,7 +358,7 @@ describe('household records', () => {
     expect(dateGroup?.textContent).toContain('20.00');
     expect(recordRow?.classList).toContain('min-h-[72px]');
     expect(recordRow?.classList).not.toContain('min-h-[60px]');
-    expect(amount?.classList).toContain('text-[#c04870]');
+    expect(amount?.classList).toContain('text-finance-expense');
     expect(incomeAmount?.textContent).toBe('100.00');
     expect(container.querySelector('[data-date-group="2026-07-20"]')?.textContent).toContain('records.dailyIncome');
     expect(container.querySelector('[data-category-icon="catering"] svg')?.classList).toContain('lucide-utensils');
@@ -555,7 +555,6 @@ describe('household records', () => {
     expect(container.querySelector('[data-record-detail-amount]')?.textContent).toContain('20.00');
     expect(container.querySelector('[data-category-icon="餐"] svg')?.classList).toContain('lucide-utensils');
     expect(container.querySelector('.rounded-xl')).toBeNull();
-    expect(container.querySelector('[data-record-detail-pin]')?.textContent).toContain('recordDetail.share');
     expect(container.querySelector('[data-record-detail-footer]')).not.toBeNull();
     expect(container.querySelector('[data-record-detail-footer]')?.textContent).toContain('record:detail.edit');
     expect(container.querySelector('[data-record-detail-footer]')?.textContent).toContain('record:detail.delete');

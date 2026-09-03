@@ -12,9 +12,9 @@ import {
 } from '@/features/ledger-collaboration';
 import { useTranslation } from '@/shared/i18n';
 import {
-  GradientPanel,
   IllustratedEmptyState,
   PageHeader,
+  Surface,
 } from '@/shared/ui';
 import './ledger-join.scss';
 
@@ -101,11 +101,10 @@ const LedgerJoinPage: FC = () => {
                   layout="vertical"
                   onFinish={handleSubmit}
                 >
-                  <GradientPanel
+                  <Surface
                     className="px-4 py-4"
                     data-testid="ledger-join-code-field"
-                    elevation="low"
-                    surface="glass"
+                    material="content"
                   >
                     <label className="block text-[12px] font-extrabold text-ww-mid" htmlFor="ledger-invite-code">
                       {t('join.codeGuide')}
@@ -125,13 +124,12 @@ const LedgerJoinPage: FC = () => {
                         />
                       </Form.Item>
                     </div>
-                  </GradientPanel>
+                  </Surface>
 
-                  <GradientPanel
+                  <Surface
                     className="mt-3 px-4 py-4"
                     data-testid="ledger-join-remark-field"
-                    elevation="low"
-                    surface="glass"
+                    material="content"
                   >
                     <label className="block text-[12px] font-extrabold text-ww-mid" htmlFor="ledger-join-remark">
                       {t('join.remarkGuide')}
@@ -151,10 +149,10 @@ const LedgerJoinPage: FC = () => {
                         />
                       </Form.Item>
                     </div>
-                  </GradientPanel>
+                  </Surface>
 
                   {errorMessage && (
-                    <p className="mt-3 text-center text-[12px] font-bold text-[#b24f71]" role="alert">
+                    <p className="mt-3 text-center text-[12px] font-bold text-feedback-danger" role="alert">
                       {errorMessage}
                     </p>
                   )}

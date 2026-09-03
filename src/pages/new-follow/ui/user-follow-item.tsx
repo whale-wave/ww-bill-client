@@ -25,27 +25,32 @@ export const UserFollowItem: FC<UserFollowItemProps> = (p) => {
   const { t } = useTranslation(['community', 'common']);
   const props = { ...defaultProps, ...p };
   return (
-    <div
-      className={classNames(classPrefix, props.className)}
-      onClick={props.onClick}
-    >
-      <img onClick={props.onAvatar} src={props.avatar || ''} alt={t('common:avatar')} />
-      <div className={`${classPrefix}-box`}>
+    <article className={classNames(classPrefix, props.className)}>
+      <button
+        aria-label={t('common:avatar')}
+        className={`${classPrefix}-avatar-button`}
+        onClick={props.onAvatar ?? props.onClick}
+        type="button"
+      >
+        <img src={props.avatar || ''} alt="" />
+      </button>
+      <button className={`${classPrefix}-box`} onClick={props.onClick} type="button">
         <span className={`${classPrefix}-box-username`}>{props.username}</span>
         <span className={`${classPrefix}-box-desc`}>
           {props.followTime}
           {' '}
           {t('community:followList.startedFollowing')}
         </span>
-      </div>
+      </button>
       <button
         onClick={e => stopPropagation(e, props.onSubmit)}
-        className={classNames({
+        className={classNames(`${classPrefix}-follow-button`, {
           follow: props.isFollow,
         })}
+        type="button"
       >
         {props.isFollow ? t('community:followList.followed') : t('community:followList.follow')}
       </button>
-    </div>
+    </article>
   );
 };

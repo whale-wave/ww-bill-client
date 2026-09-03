@@ -1,25 +1,64 @@
 .item {
   margin: 0 16px;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid var(--ww-border-color);
   .head {
     display: flex;
     height: 64px;
     align-items: center;
     .img {
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin-right: 10px;
-      background: #ebebeb;
+      padding: 0;
+      border: 0;
+      background: transparent;
+
+      &:is(button) {
+        cursor: pointer;
+      }
+
+      &:is(button):focus-visible {
+        outline: 2px solid var(--ww-theme-color);
+        outline-offset: 2px;
+      }
+
+      img {
+        width: 36px;
+        height: 36px;
+        background: var(--ww-surface-tint-color);
+      }
     }
-    > div {
+    .profile {
+      min-height: 44px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      text-align: left;
+
+      &:is(button) {
+        cursor: pointer;
+      }
+
+      &:is(button):focus-visible {
+        outline: 2px solid var(--ww-theme-color);
+        outline-offset: 2px;
+      }
+
       .name {
         font-weight: 600;
         font-size: var(--ww-font-size-base);
-        color: #1c1c1f;
+        color: var(--ww-theme-text-color);
       }
       .time {
         font-size: var(--ww-font-size-sm);
-        color: #9a9ea9;
+        color: var(--ww-text-color-soft);
       }
     }
   }
@@ -29,8 +68,24 @@
     transform: translateY(-7px);
     .content {
       margin-bottom: 12px;
+      min-height: 44px;
+      width: 100%;
+      display: block;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      text-align: left;
       font-size: var(--ww-font-size-base);
-      color: #333233;
+      color: var(--ww-theme-text-color);
+
+      &:is(button) {
+        cursor: pointer;
+      }
+
+      &:is(button):focus-visible {
+        outline: 2px solid var(--ww-theme-color);
+        outline-offset: 2px;
+      }
     }
     .imgs {
       .img {
@@ -38,6 +93,9 @@
         padding-bottom: 30%;
         margin: 0 6px 6px 0;
         border-radius: 4px;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
         img {
           position: absolute;
           top: 0;
@@ -47,11 +105,26 @@
     }
     footer {
       margin-top: 10px;
-      span {
+      .action {
         flex-grow: 1;
         flex-shrink: 0;
+        min-height: 44px;
         display: flex;
         align-items: center;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+
+        &:is(button) {
+          cursor: pointer;
+        }
+
+        &:is(button):focus-visible {
+          outline: 2px solid var(--ww-theme-color);
+          outline-offset: 2px;
+        }
         font-size: var(--ww-font-size-base);
         svg {
           font-size: var(--ww-font-size-xl);

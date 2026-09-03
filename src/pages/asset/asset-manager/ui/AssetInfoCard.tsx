@@ -3,18 +3,17 @@ import { Skeleton } from 'antd-mobile';
 import { RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAssetSummaryInfo } from '@/entities/asset';
-import { GradientPanel, MetricGrid } from '@/shared/ui';
+import { MetricGrid, Surface } from '@/shared/ui';
 
 export const AssetInfoCard: FC = () => {
   const { t } = useTranslation('asset');
   const { formatInfo, isError, isLoading, refetch } = useAssetSummaryInfo();
 
   return (
-    <GradientPanel
+    <Surface
       as="article"
       className="overflow-hidden px-[22px] pb-5 pt-[22px]"
-      elevation="high"
-      surface="lavender"
+      material="raised"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -33,7 +32,7 @@ export const AssetInfoCard: FC = () => {
         {isError
           ? (
               <button
-                className="flex h-8 items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-3 text-[10px] font-black text-primary-deep shadow-ww-xs"
+                className="flex h-11 items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-3 text-[10px] font-black text-primary-deep shadow-ww-xs"
                 onClick={() => void refetch()}
                 type="button"
               >
@@ -57,6 +56,6 @@ export const AssetInfoCard: FC = () => {
           { key: 'liabilities', label: t('summary.liabilities'), tone: 'expense', value: isLoading || isError ? '--' : `¥${formatInfo.subAsset}` },
         ]}
       />
-    </GradientPanel>
+    </Surface>
   );
 };

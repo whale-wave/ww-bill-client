@@ -99,7 +99,7 @@ export const LedgerUserRow: FC<UserRowProps> = ({
         {secondary && <span className="mt-1 block truncate text-[11px] font-semibold text-ww-soft">{secondary}</span>}
       </span>
       {trailing}
-      {onClick && <ChevronRight className="ml-2 flex-shrink-0 text-[#9eb1bd]" size={18} />}
+      {onClick && <ChevronRight className="ml-2 flex-shrink-0 text-ww-ghost" size={18} />}
     </>
   );
 
@@ -135,7 +135,7 @@ export function CollaborationStatusBadge({
       className={active
         ? 'rounded-full bg-primary-light/65 px-2 py-0.5 text-[10px] font-bold text-primary-deep'
         : positive
-          ? 'rounded-full bg-[#e2f5ec]/80 px-2 py-0.5 text-[10px] font-bold text-[#1f7a52]'
+          ? 'rounded-full bg-finance-income/15 px-2 py-0.5 text-[10px] font-bold text-finance-income'
           : 'rounded-full bg-bg-gray px-2 py-0.5 text-[10px] font-bold text-font-gray'}
     >
       {label}

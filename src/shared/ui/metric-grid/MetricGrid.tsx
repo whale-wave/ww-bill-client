@@ -22,8 +22,8 @@ export interface MetricGridProps {
 
 const toneClassNames: Record<MetricTone, string> = {
   default: 'text-ww-ink',
-  income: 'text-[#2a9460]',
-  expense: 'text-[#c04870]',
+  income: 'text-finance-income',
+  expense: 'text-finance-expense',
   primary: 'text-primary-deep',
   muted: 'text-ww-mid',
 };
@@ -110,7 +110,7 @@ function ChartSummaryMetricGrid({ className, items }: { className: string; items
     <dl className={`grid h-[62.5px] grid-cols-2 items-stretch ${className}`} ref={gridRef}>
       {items.map((item, index) => (
         <div
-          className={`${index > 0 ? 'border-l border-[rgba(100,160,200,0.22)]' : ''} min-w-0 px-5 text-left`}
+          className={`${index > 0 ? 'border-l border-primary/25' : ''} min-w-0 px-5 text-left`}
           data-chart-metric
           data-metric-divider={index > 0 ? '' : undefined}
           key={item.key}
@@ -163,7 +163,7 @@ export function MetricGrid({ align = 'center', items, columns = 3, density = 'st
     >
       {items.map((item, index) => (
         <div
-          className={`min-w-0 px-2 ${align === 'center' ? 'text-center' : 'text-left'} ${index > 0 ? 'border-l border-[rgba(110,194,220,0.2)]' : ''}`}
+          className={`min-w-0 px-2 ${align === 'center' ? 'text-center' : 'text-left'} ${index > 0 ? 'border-l border-primary/25' : ''}`}
           key={item.key}
         >
           <dt className={`truncate text-ww-mid ${densityClasses.label}`}>{item.label}</dt>

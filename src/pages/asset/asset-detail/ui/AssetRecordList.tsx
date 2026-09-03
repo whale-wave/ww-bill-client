@@ -7,7 +7,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useGetAssetRecordQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, formatLocalizedMonthDay } from '@/shared/lib';
-import { GradientPanel, IllustratedEmptyState, showAppInfoDialog } from '@/shared/ui';
+import { IllustratedEmptyState, showAppInfoDialog, Surface } from '@/shared/ui';
 
 interface RecordGroup {
   date: string;
@@ -88,7 +88,7 @@ export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
           <p className="mt-0.5 text-[10px] font-semibold text-ww-soft">{t('detail.recordListDescription')}</p>
         </div>
         <button
-          className="flex h-9 shrink-0 items-center gap-1.5 rounded-[13px] border border-solid border-border-primary bg-white/78 px-3 font-number text-[11px] font-bold text-primary-deep shadow-ww-xs"
+          className="flex h-11 shrink-0 items-center gap-1.5 rounded-[13px] border border-solid border-border-primary bg-white/78 px-3 font-number text-[11px] font-bold text-primary-deep shadow-ww-xs"
           onClick={() => void handleSelectMonth()}
           type="button"
         >
@@ -99,14 +99,14 @@ export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
       </div>
 
       {query.isLoading && (
-        <GradientPanel className="p-5" elevation="low" surface="glass">
+        <Surface className="p-5" material="content">
           <Skeleton.Title animated />
           <Skeleton.Paragraph animated lineCount={4} />
-        </GradientPanel>
+        </Surface>
       )}
 
       {!query.isLoading && query.isError && (
-        <GradientPanel elevation="low" surface="glass">
+        <Surface material="content">
           <IllustratedEmptyState
             actionLabel={t('retry')}
             className="min-h-[260px]"
@@ -115,24 +115,24 @@ export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
             onAction={() => void query.refetch()}
             title={t('detail.recordsLoadError')}
           />
-        </GradientPanel>
+        </Surface>
       )}
 
       {!query.isLoading && !query.isError && groups.length === 0 && (
-        <GradientPanel elevation="low" surface="glass">
+        <Surface material="content">
           <IllustratedEmptyState
             className="min-h-[260px]"
             description={t('detail.emptyRecordsDescription')}
             icon={<ReceiptText className="text-primary-deep" size={40} strokeWidth={1.6} />}
             title={t('detail.emptyRecords')}
           />
-        </GradientPanel>
+        </Surface>
       )}
 
       {!query.isLoading && !query.isError && groups.length > 0 && (
         <div className="space-y-3">
           {groups.map(group => (
-            <GradientPanel className="overflow-hidden" elevation="low" key={group.key} surface="glass">
+            <Surface className="overflow-hidden" key={group.key} material="content">
               <header className="ww-asset-group-header border-0 border-b border-solid border-border-primary px-4 py-2.5 text-[10px] font-extrabold text-ww-mid">
                 {group.date}
               </header>
@@ -146,14 +146,14 @@ export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
                       onClick={() => handleRecord(record)}
                       type="button"
                     >
-                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] ${isExpense ? 'bg-ww-pink-light/60 text-[#b24f71]' : 'bg-primary-light/65 text-primary-deep'}`}>
+                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] ${isExpense ? 'bg-feedback-danger-surface/60 text-feedback-danger' : 'bg-primary-light/65 text-primary-deep'}`}>
                         <RefreshCcw size={18} strokeWidth={1.8} />
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-[13px] font-black text-ww-ink">{record.name}</span>
                         <span className="mt-0.5 block truncate text-[10px] font-semibold text-ww-soft">{record.comment || t('detail.noRemark')}</span>
                       </span>
-                      <span className={`shrink-0 font-number text-[14px] font-black ${isExpense ? 'text-[#c04870]' : 'text-[#2a9460]'}`}>
+                      <span className={`shrink-0 font-number text-[14px] font-black ${isExpense ? 'text-finance-expense' : 'text-finance-income'}`}>
                         {isExpense ? '-' : '+'}
                         ¥
                         {formatAmount(Number(record.amount))}
@@ -162,7 +162,7 @@ export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
                   );
                 })}
               </div>
-            </GradientPanel>
+            </Surface>
           ))}
         </div>
       )}

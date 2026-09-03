@@ -68,7 +68,8 @@ describe('record detail presentation', () => {
     }));
 
     expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
-    expect(container.querySelector('[data-record-detail-header]')?.classList).toContain('rounded-[20px]');
+    expect(container.querySelector('[data-record-detail-header]')?.classList).toContain('ww-surface--raised');
+    expect(container.querySelector('[data-record-detail-information]')?.classList).toContain('ww-surface--content');
     expect(container.querySelector('[data-record-detail-amount]')?.textContent).toContain('20.00');
     const category = container.querySelector('[data-record-detail-category]');
     expect(category?.classList).toContain('items-center');

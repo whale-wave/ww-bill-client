@@ -25,7 +25,7 @@ import {
 } from '@/features/workspace-navigation';
 import { captureSessionScope, isSessionScopeCurrent } from '@/shared/api/auth-injection';
 import { useTranslation } from '@/shared/i18n';
-import { confirmAppAction, GradientPanel, PageHeader } from '@/shared/ui';
+import { confirmAppAction, PageHeader, Surface } from '@/shared/ui';
 
 function isShareCancelError(error: unknown) {
   if (typeof error !== 'object' || error === null)
@@ -232,7 +232,7 @@ const LedgerInvitePage: FC = () => {
           )}
           {ledgerQuery.data && canInvite && (
             <>
-              <GradientPanel className="mt-2 px-5 py-6 text-center" elevation="low" surface="ice">
+              <Surface className="mt-2 px-5 py-6 text-center" material="raised">
                 <span className="mx-auto flex h-[52px] w-[52px] items-center justify-center rounded-[18px] bg-white/75 text-primary-deep shadow-ww-xs">
                   <Users size={26} strokeWidth={1.8} />
                 </span>
@@ -275,7 +275,7 @@ const LedgerInvitePage: FC = () => {
                         </div>
                         <p className="mt-4 text-[12px] font-semibold text-ww-mid">{t('invite.waiting')}</p>
                         <button
-                          className="mt-3 h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-[#b24f71] disabled:opacity-45"
+                          className="mt-3 h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-feedback-danger disabled:opacity-45"
                           data-testid="ledger-invite-revoke"
                           disabled={revokeState.isLoading}
                           onClick={() => void handleRevoke()}
@@ -288,8 +288,8 @@ const LedgerInvitePage: FC = () => {
                   : (
                       <div className="mt-6">
                         {invitation && (
-                          <div className="mb-4 rounded-[15px] bg-[#fff1f0]/80 px-3.5 py-3 text-left">
-                            <p className="text-[13px] font-bold text-[#b24f71]">{t('invite.expired')}</p>
+                          <div className="mb-4 rounded-[15px] bg-feedback-danger-surface/80 px-3.5 py-3 text-left">
+                            <p className="text-[13px] font-bold text-feedback-danger">{t('invite.expired')}</p>
                             <p className="mt-1 text-[11px] font-semibold leading-4 text-ww-mid">
                               {t('invite.expiredDescription')}
                             </p>
@@ -323,9 +323,9 @@ const LedgerInvitePage: FC = () => {
                         <p className="mt-4 text-[11px] font-semibold text-ww-soft">{t('invite.validFor')}</p>
                       </div>
                     )}
-              </GradientPanel>
+              </Surface>
 
-              <GradientPanel className="mt-4 px-5 py-5" elevation="low" surface="glass">
+              <Surface className="mt-4 px-5 py-5" material="content">
                 <h2 className="text-[13px] font-extrabold text-ww-ink">{t('invite.howToJoin')}</h2>
                 <ol className="mt-3 space-y-2.5">
                   {[1, 2, 3, 4, 5].map(step => (
@@ -337,7 +337,7 @@ const LedgerInvitePage: FC = () => {
                     </li>
                   ))}
                 </ol>
-              </GradientPanel>
+              </Surface>
             </>
           )}
         </div>

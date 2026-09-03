@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { MetricGridItem } from '@/shared/ui';
 import { useTranslation } from '@/shared/i18n';
 import { zeroFill } from '@/shared/lib/time';
-import { DesignIcon, GradientPanel, MetricGrid } from '@/shared/ui';
+import { DesignIcon, MetricGrid, Surface } from '@/shared/ui';
 
 export interface CurrentMonthBillCardProps {
   billRecord?: {
@@ -23,14 +23,13 @@ export const CurrentMonthBillCard: FC<CurrentMonthBillCardProps> = ({ billRecord
   ];
 
   return (
-    <GradientPanel
+    <Surface
       as="article"
-      className="cursor-pointer overflow-hidden px-5 py-[18px] shadow-[0_6px_11px_rgba(60,140,180,0.15)]"
+      className="relative overflow-hidden px-5 py-[18px]"
       data-testid="current-month-bill-card"
-      elevation="none"
-      onClick={onClick}
-      surface="ice"
+      material="raised"
     >
+      <button aria-label={t('bill:monthCard.title')} className="absolute inset-0 z-[1] cursor-pointer border-0 bg-transparent" onClick={onClick} type="button" />
       <div className="flex items-center gap-[10px]">
         <span className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-white/70 text-primary-deep">
           <DesignIcon name="discovery-bill" size={18} />
@@ -44,6 +43,6 @@ export const CurrentMonthBillCard: FC<CurrentMonthBillCardProps> = ({ billRecord
         </div>
       </div>
       <MetricGrid className="mt-[14px]" density="compact" items={items} />
-    </GradientPanel>
+    </Surface>
   );
 };

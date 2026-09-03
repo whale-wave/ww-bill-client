@@ -22,9 +22,9 @@ import {
   AppButton,
   confirmAppAction,
   FormField,
-  GradientPanel,
   PageHeader,
   PageLoadingState,
+  Surface,
 } from '@/shared/ui';
 import {
   getConfiguredIosShortcutInstallUrl,
@@ -121,7 +121,7 @@ export default function ShortcutBookkeepingSettingsPage() {
       />
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[560px] space-y-5">
-          <GradientPanel className="flex items-start gap-3.5 px-4 py-4" elevation="low" surface="ice">
+          <Surface className="flex items-start gap-3.5 px-4 py-4" material="raised">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] border border-white/80 bg-white/70 text-primary-deep shadow-ww-xs">
               <ShieldCheck size={22} strokeWidth={1.8} />
             </span>
@@ -129,7 +129,7 @@ export default function ShortcutBookkeepingSettingsPage() {
               <h2 className="text-[14px] font-extrabold text-ww-ink">{t('shortcutBookkeeping.introTitle')}</h2>
               <p className="mt-1 text-[11px] leading-5 text-ww-mid">{t('shortcutBookkeeping.introDescription')}</p>
             </div>
-          </GradientPanel>
+          </Surface>
 
           <section className="rounded-[20px] border border-border-primary bg-white/[0.88] p-4 shadow-ww backdrop-blur-xl">
             <div className="mb-4 flex items-start gap-3">
@@ -216,7 +216,7 @@ export default function ShortcutBookkeepingSettingsPage() {
                         {t('shortcutBookkeeping.expires', { time: dayjs(token.expiresAt).format('YYYY/MM/DD') })}
                       </p>
                     </div>
-                    <button className="shrink-0 border-0 bg-transparent px-2 py-1 text-[12px] font-bold text-[#b24f71]" onClick={() => void handleRevoke(token.id)} type="button">
+                    <button className="shrink-0 border-0 bg-transparent px-2 py-1 text-[12px] font-bold text-feedback-danger" onClick={() => void handleRevoke(token.id)} type="button">
                       {t('shortcutBookkeeping.revoke')}
                     </button>
                   </div>
@@ -252,11 +252,11 @@ export default function ShortcutBookkeepingSettingsPage() {
             </div>
           </details>
 
-          <GradientPanel className="px-4 py-4" elevation="low" surface="blush">
+          <Surface className="px-4 py-4" material="content">
             <h2 className="text-[13px] font-extrabold text-ww-ink">{t('shortcutBookkeeping.backTapTitle')}</h2>
             <p className="mt-1 text-[11px] leading-5 text-ww-mid">{t('shortcutBookkeeping.backTapDescription')}</p>
             <p className="mt-3 border-t border-solid border-white/70 pt-3 text-[10px] leading-5 text-ww-soft">{t('shortcutBookkeeping.browserLoginHint')}</p>
-          </GradientPanel>
+          </Surface>
         </div>
       </main>
     </div>

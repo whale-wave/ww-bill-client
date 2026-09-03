@@ -1,0 +1,45 @@
+:root {
+  /* RGB channels keep Tailwind alpha utilities token-backed. */
+  --ww-color-fg: 32 32 36;
+  --ww-color-fg-muted: 119 119 126;
+  --ww-color-fg-subtle: 164 164 170;
+  --ww-color-fg-inverse: 255 255 255;
+  --ww-color-stroke: 20 20 24;
+  --ww-color-action-primary: 63 159 190;
+  --ww-color-action-primary-foreground: 255 255 255;
+  --ww-color-feedback-danger: 193 72 112;
+  --ww-color-feedback-danger-surface: 255 216 230;
+  --ww-color-feedback-success: 42 148 96;
+  --ww-color-feedback-warning: 138 90 0;
+  --ww-color-feedback-warning-surface: 255 247 230;
+  --ww-color-feedback-warning-stroke: 246 223 174;
+  --ww-color-finance-income: 42 148 96;
+  --ww-color-finance-expense: 192 72 112;
+  --ww-color-chart-1: 57 77 96;
+  --ww-layer-navigation: var(--ww-ref-z-navigation);
+  --ww-layer-floating: var(--ww-ref-z-floating);
+  --ww-layer-overlay: var(--ww-ref-z-overlay);
+  --ww-layer-scrim: var(--ww-ref-z-scrim);
+}
+
+html[data-appearance-template='fresh'] {
+  --ww-color-fg: 38 51 64;
+  --ww-color-fg-muted: 92 112 128;
+  --ww-color-fg-subtle: 155 174 187;
+  --ww-color-stroke: 110 194 220;
+  --ww-color-action-primary: 111 194 220;
+  --ww-color-finance-income: 42 148 96;
+  --ww-color-finance-expense: 192 72 112;
+  --ww-color-chart-1: 74 170 196;
+}
+
+html[data-appearance-template='minimal'] {
+  --ww-color-fg: 39 52 68;
+  --ww-color-fg-muted: 97 112 128;
+  --ww-color-fg-subtle: 154 166 178;
+  --ww-color-stroke: 82 101 126;
+  --ww-color-action-primary: 82 101 126;
+  --ww-color-finance-income: 42 148 96;
+  --ww-color-finance-expense: 192 72 112;
+  --ww-color-chart-1: 82 101 126;
+}

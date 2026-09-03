@@ -9,7 +9,7 @@ import InvoiceInfo, {
   getOptionListByInvoice,
 } from '@/pages/invoice/ui/InvoiceInfo';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, IllustratedEmptyState, PageHeader } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 
 interface InvoiceDetailProps {}
 
@@ -51,13 +51,13 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = () => {
       <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-6 pt-2">
         <div className="mx-auto w-full max-w-[520px]">
           {query.isLoading && (
-            <GradientPanel className="p-5" elevation="low" surface="glass">
+            <Surface className="p-5" material="content">
               <Skeleton.Title animated />
               <Skeleton.Paragraph animated lineCount={6} />
-            </GradientPanel>
+            </Surface>
           )}
           {!query.isLoading && (query.isError || !invoice) && (
-            <GradientPanel elevation="low" surface="glass">
+            <Surface material="content">
               <IllustratedEmptyState
                 actionLabel={query.isError ? t('retry') : undefined}
                 description={query.isError ? t('loadErrorDescription') : t('invoiceNotFetched')}
@@ -65,11 +65,11 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = () => {
                 onAction={query.isError ? () => void query.refetch() : undefined}
                 title={query.isError ? t('loadError') : t('invoiceNotFetched')}
               />
-            </GradientPanel>
+            </Surface>
           )}
           {!query.isLoading && invoice && (
             <>
-              <GradientPanel className="relative mb-4 overflow-hidden px-5 py-5" elevation="high" surface="ice">
+              <Surface className="relative mb-4 overflow-hidden px-5 py-5" material="raised">
                 <div aria-hidden="true" className="absolute -right-6 -top-8 h-28 w-28 rounded-full border-[18px] border-solid border-white/25" />
                 <div className="relative flex items-center gap-4">
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[19px] border border-white/80 bg-white/75 text-primary-deep shadow-ww">
@@ -84,7 +84,7 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = () => {
                     </p>
                   </div>
                 </div>
-              </GradientPanel>
+              </Surface>
               <InvoiceInfo invoice={invoice} />
               <Button
                 block

@@ -36,8 +36,8 @@ import {
   confirmAppAction,
   ContentStack,
   FormField,
-  GradientPanel,
   PageHeader,
+  Surface,
 } from '@/shared/ui';
 
 function isConflict(error: unknown) {
@@ -329,7 +329,7 @@ const LedgerMemberDetailPage: FC = () => {
                         <StaticInfoRow label={t('memberDetail.role')} value={t(`role.${role}`)} />
                       )}
                   <p className="text-[11px] font-semibold leading-4 text-ww-soft">{t('memberDetail.capabilityHint', { count: member.capabilities.length })}</p>
-                  {errorMessage && <p className="text-[12px] font-bold text-[#b24f71]" role="alert">{errorMessage}</p>}
+                  {errorMessage && <p className="text-[12px] font-bold text-feedback-danger" role="alert">{errorMessage}</p>}
                   {(canEditNickname || canManageRole) && (
                     <button
                       className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
@@ -343,7 +343,7 @@ const LedgerMemberDetailPage: FC = () => {
               </MemberEditorPresentation>
 
               {(canRemove || canTransferOwnership) && (
-                <GradientPanel className="overflow-hidden px-4 py-1" elevation="low" surface="glass">
+                <Surface className="overflow-hidden px-4 py-1" material="content">
                   <h2 className="px-0 pb-1 pt-3 text-[11px] font-extrabold tracking-[0.4px] text-ww-mid">
                     {t('memberDetail.manage')}
                   </h2>
@@ -355,11 +355,11 @@ const LedgerMemberDetailPage: FC = () => {
                       onClick={() => void handleTransferOwnership()}
                       type="button"
                     >
-                      <span className="flex items-center gap-2 text-[13px] font-black text-[#a9771c]">
+                      <span className="flex items-center gap-2 text-[13px] font-black text-feedback-warning">
                         <Crown size={17} strokeWidth={1.8} />
                         {t('memberDetail.transferOwnership')}
                       </span>
-                      <ChevronRight className="shrink-0 text-[#9eb1bd]" size={18} />
+                      <ChevronRight className="shrink-0 text-ww-ghost" size={18} />
                     </button>
                   )}
                   {canRemove && (
@@ -370,14 +370,14 @@ const LedgerMemberDetailPage: FC = () => {
                       onClick={() => void handleRemove()}
                       type="button"
                     >
-                      <span className="flex items-center gap-2 text-[13px] font-black text-[#b24f71]">
+                      <span className="flex items-center gap-2 text-[13px] font-black text-feedback-danger">
                         <Trash2 size={17} strokeWidth={1.8} />
                         {t('memberDetail.remove')}
                       </span>
-                      <ChevronRight className="shrink-0 text-[#9eb1bd]" size={18} />
+                      <ChevronRight className="shrink-0 text-ww-ghost" size={18} />
                     </button>
                   )}
-                </GradientPanel>
+                </Surface>
               )}
             </form>
           )}

@@ -1,14 +1,14 @@
 .navBar {
   flex-shrink: 0;
-  border-bottom: 1px solid #f2f2f2;
-  background: #fff;
+  border-bottom: 1px solid var(--ww-border-color);
+  background: var(--ww-surface-raised-color);
 }
 
 .content {
   min-height: 0;
   flex-grow: 1;
   overflow: auto;
-  background: #fff;
+  background: var(--ww-surface-raised-color);
 }
 
 .list {
@@ -18,8 +18,8 @@
 .item {
   position: relative;
   margin: 0 16px;
-  border-bottom: 1px solid #ebebeb;
-  background: #fff;
+  border-bottom: 1px solid var(--ww-border-color);
+  background: var(--ww-surface-raised-color);
 }
 
 .itemButton,
@@ -73,7 +73,7 @@
   position: absolute;
   top: -2px;
   right: -2px;
-  border: 2px solid #fff;
+  border: 2px solid rgb(var(--ww-color-fg-inverse));
   border-radius: 50%;
   background: var(--ww-theme-color);
 }
@@ -93,7 +93,7 @@
 .title {
   min-width: 0;
   overflow: hidden;
-  color: #323334;
+  color: var(--ww-theme-text-color);
   font-size: 15px;
   font-weight: 500;
   line-height: 22px;
@@ -102,7 +102,7 @@
 }
 
 .time {
-  color: #a1a1a1;
+  color: var(--ww-text-color-soft);
   font-size: 12px;
   line-height: 20px;
 }
@@ -110,7 +110,7 @@
 .description {
   display: block;
   margin-top: 5px;
-  color: #777;
+  color: var(--ww-text-color-mid);
   font-size: 14px;
   line-height: 21px;
   white-space: pre-wrap;

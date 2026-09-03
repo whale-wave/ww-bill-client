@@ -139,7 +139,7 @@ const LedgerDetailPage: FC = () => {
                 [t('detail.status'), t(`status.${ledger.status}`)],
                 [t('detail.monthStartDay'), t('detail.monthStartDayValue', { day: ledger.monthStartDay })],
               ].map(([label, value]) => (
-                <div className="ml-4 flex min-h-[55px] items-center justify-between border-0 border-t border-solid border-[#EBEBEB] pr-4" key={label}>
+                <div className="ml-4 flex min-h-[55px] items-center justify-between border-0 border-t border-solid border-border-primary pr-4" key={label}>
                   <span className="text-sm text-font-black">{label}</span>
                   <span className="ml-4 text-right text-sm text-font-gray">{value}</span>
                 </div>
@@ -162,7 +162,7 @@ const LedgerDetailPage: FC = () => {
                 return (
                   <button
                     aria-disabled={!isEnabled}
-                    className="ml-4 flex min-h-[59px] w-[calc(100%-1rem)] items-center border-0 border-t border-solid border-[#EBEBEB] bg-white pr-4 text-left"
+                    className="ml-4 flex min-h-[59px] w-[calc(100%-1rem)] items-center border-0 border-t border-solid border-border-primary bg-white pr-4 text-left"
                     data-module-key={moduleKey}
                     key={moduleKey}
                     onClick={() => isEnabled && navigate(paths[moduleKey])}
@@ -187,7 +187,7 @@ const LedgerDetailPage: FC = () => {
                 </h2>
                 {collaborationItems.map(item => (
                   <button
-                    className="ml-4 flex min-h-[59px] w-[calc(100%-1rem)] items-center border-0 border-t border-solid border-[#EBEBEB] bg-white pr-4 text-left active:bg-slate-50"
+                    className="ml-4 flex min-h-[59px] w-[calc(100%-1rem)] items-center border-0 border-t border-solid border-border-primary bg-white pr-4 text-left active:bg-slate-50"
                     data-testid={`ledger-${item.key}`}
                     key={item.key}
                     onClick={() => navigate(item.path)}

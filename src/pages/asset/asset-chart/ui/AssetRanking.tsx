@@ -9,7 +9,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, math } from '@/shared/lib';
 import { readAppearanceChartColors, useAppearanceRevision } from '@/shared/lib/appearance-tokens';
-import { GradientPanel, IllustratedEmptyState, ProgressBar } from '@/shared/ui';
+import { IllustratedEmptyState, ProgressBar, Surface } from '@/shared/ui';
 import { IconBlock } from '../../ui';
 import { ChartRetryButton } from './ChartRetryButton';
 
@@ -50,7 +50,7 @@ export const AssetRanking: FC<{ type: AssetStatisticalRecordType }> = ({ type })
   }, [navigate]);
 
   return (
-    <GradientPanel as="article" className="overflow-hidden px-[18px] py-[18px]" elevation="standard" surface="glass">
+    <Surface as="article" className="overflow-hidden px-[18px] py-[18px]" material="content">
       <header className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <span className="ww-theme-icon-surface flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] text-primary-deep shadow-ww-xs">
@@ -73,7 +73,7 @@ export const AssetRanking: FC<{ type: AssetStatisticalRecordType }> = ({ type })
 
       {!isLoading && isError && (
         <div className="flex min-h-[200px] flex-col items-center justify-center text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#fff0f4] text-[#c04870]">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-feedback-danger-surface text-feedback-danger">
             <TriangleAlert size={21} />
           </span>
           <p className="mt-3 text-[13px] font-extrabold text-ww-ink">{t('manager.loadError')}</p>
@@ -106,7 +106,7 @@ export const AssetRanking: FC<{ type: AssetStatisticalRecordType }> = ({ type })
                 <IconBlock name={item.assetGroup.icon} />
                 <span
                   className="absolute -left-1.5 -top-1.5 flex h-[19px] min-w-[19px] items-center justify-center rounded-full border-2 border-solid border-white px-1 font-number text-[9px] font-black text-white shadow-ww-xs"
-                  style={{ backgroundColor: index < 3 ? accentColor : '#9baebb' }}
+                  style={{ backgroundColor: index < 3 ? accentColor : 'var(--ww-text-color-soft)' }}
                 >
                   {index + 1}
                 </span>
@@ -133,6 +133,6 @@ export const AssetRanking: FC<{ type: AssetStatisticalRecordType }> = ({ type })
           ))}
         </div>
       )}
-    </GradientPanel>
+    </Surface>
   );
 };

@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 import { useTranslation } from '@/shared/i18n';
-import { mergerProps } from '@/shared/lib';
 
 const classPrefix = 'bwm-comment-list-item';
 
@@ -20,9 +19,9 @@ const defaultProps = {
 
 export const CommentListItem: FC<CommentListItemProps> = (p) => {
   const { t } = useTranslation('common');
-  const props = mergerProps(defaultProps, p);
+  const props = { ...defaultProps, ...p };
   return (
-    <div className={classPrefix} onClick={props.onClick}>
+    <article className={classPrefix}>
       <div className={`${classPrefix}-left`}>
         <div className={`${classPrefix}-left-img`}>
           <img src={props.avatar} alt={t('common:avatar')} />
@@ -42,6 +41,14 @@ export const CommentListItem: FC<CommentListItemProps> = (p) => {
           <img src={props.coverPicture} alt={t('common:coverImage')} />
         </div>
       )}
-    </div>
+      {props.onClick && (
+        <button
+          aria-label={`${props.name}: ${props.content}`}
+          className={`${classPrefix}-action`}
+          onClick={props.onClick}
+          type="button"
+        />
+      )}
+    </article>
   );
 };

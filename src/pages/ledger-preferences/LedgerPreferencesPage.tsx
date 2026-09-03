@@ -8,7 +8,7 @@ import {
   usePatchLedgerQuickSwitchMutation,
 } from '@/entities/user-app-config';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, PageHeader } from '@/shared/ui';
+import { PageHeader, Surface } from '@/shared/ui';
 
 interface QuickSwitchPreferenceState {
   enabled: boolean;
@@ -79,7 +79,7 @@ const LedgerPreferencesPage: FC = () => {
       <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('preferences.title')} />
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-6 pt-2">
         <div className="mx-auto w-full max-w-[520px]">
-          <GradientPanel className="flex min-h-[78px] items-center gap-3 px-4 py-3.5" elevation="standard" surface="glass">
+          <Surface className="flex min-h-[78px] items-center gap-3 px-4 py-3.5" material="raised">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] bg-primary-light/55 text-primary-deep"><BookOpenCheck size={21} /></span>
             <span className="min-w-0 flex-1">
               <strong className="block text-[13px] font-extrabold text-ww-ink">{t('preferences.quickSwitch')}</strong>
@@ -92,7 +92,7 @@ const LedgerPreferencesPage: FC = () => {
               loading={isLoading}
               onChange={handleChange}
             />
-          </GradientPanel>
+          </Surface>
         </div>
       </main>
       <SafeArea position="bottom" />

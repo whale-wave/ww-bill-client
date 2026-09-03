@@ -1,7 +1,7 @@
 import { FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, PageHeader } from '@/shared/ui';
+import { PageHeader, Surface } from '@/shared/ui';
 import InvoiceInfoForm from './InvoiceInfoForm';
 
 interface InvoiceFormPageProps {
@@ -25,12 +25,12 @@ export function InvoiceFormPage({ id, title }: InvoiceFormPageProps) {
       />
       <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-8 pt-2">
         <div className="mx-auto w-full max-w-[520px]">
-          <GradientPanel className="mb-4 flex items-center gap-3 px-4 py-3.5" elevation="low" surface="ice">
+          <Surface className="mb-4 flex items-center gap-3 px-4 py-3.5" material="raised">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-white/75 text-primary-deep shadow-ww-xs">
               <FileText size={21} strokeWidth={1.8} />
             </span>
             <p className="text-[12px] font-semibold leading-5 text-ww-mid">{t('formDescription')}</p>
-          </GradientPanel>
+          </Surface>
           <InvoiceInfoForm id={id} />
         </div>
       </main>

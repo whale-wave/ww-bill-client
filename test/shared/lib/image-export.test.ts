@@ -55,7 +55,7 @@ describe('image export', () => {
   it('uses the Android gallery plugin for native saves', async () => {
     nativeMocks.getPlatform.mockReturnValue('android');
     const result = await saveImageToGallery(new Blob(['png'], { type: 'image/png' }), 'August');
-    expect(result).toBe('gallery');
+    expect(result).toEqual({ destination: 'gallery', uri: 'content://image/1' });
     expect(nativeMocks.saveImageToGallery).toHaveBeenCalledWith(expect.objectContaining({ fileName: 'August.png' }));
   });
 

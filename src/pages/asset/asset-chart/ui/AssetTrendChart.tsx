@@ -12,11 +12,12 @@ import { CanvasRenderer } from 'echarts/renderers';
 import { CalendarDays, ChartNoAxesCombined, ChevronDown, TriangleAlert } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AssetStatisticalRecordType, useAssetStatisticalRecord, useGetAssetStatisticalRecordQuery } from '@/entities/asset';
+import { CHART_STYLE_FALLBACKS } from '@/shared/config/chart-style-fallbacks';
 import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedYear } from '@/shared/lib';
 import { readAppearanceChartColors, readAppearanceToken, useAppearanceRevision, withAlpha } from '@/shared/lib/appearance-tokens';
 import { useChart } from '@/shared/lib/use-chart';
-import { GradientPanel } from '@/shared/ui';
+import { Surface } from '@/shared/ui';
 import { ChartRetryButton } from './ChartRetryButton';
 
 echarts.use([GridComponent, LineChart, CanvasRenderer, UniversalTransition, TooltipComponent, MarkLineComponent]);
@@ -83,7 +84,7 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
         ? chartColors[1]
         : chartColors[2];
     const area = withAlpha(line, 0.22);
-    const axisColor = readAppearanceToken('--ww-text-color-soft', '#9baebb');
+    const axisColor = readAppearanceToken('--ww-text-color-soft', CHART_STYLE_FALLBACKS.textSoft);
     const gridColor = withAlpha(line, 0.16);
     const option: EChartsOption = {
       animationDuration: 420,
@@ -101,11 +102,11 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
             type: 'dashed',
           },
         },
-        backgroundColor: 'rgba(38, 51, 64, 0.92)',
+        backgroundColor: CHART_STYLE_FALLBACKS.tooltipBackground,
         borderWidth: 0,
         confine: true,
         textStyle: {
-          color: '#fff',
+          color: CHART_STYLE_FALLBACKS.inverse,
           fontSize: 11,
         },
         trigger: 'axis',
@@ -143,20 +144,20 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { color: area, offset: 0 },
-            { color: 'rgba(255, 255, 255, 0)', offset: 1 },
+            { color: CHART_STYLE_FALLBACKS.transparentSurface, offset: 1 },
           ]),
         },
         data: seriesData,
         emphasis: {
           itemStyle: {
-            borderColor: '#fff',
+            borderColor: CHART_STYLE_FALLBACKS.inverse,
             borderWidth: 3,
             color: line,
           },
           scale: 1.25,
         },
         itemStyle: {
-          borderColor: '#fff',
+          borderColor: CHART_STYLE_FALLBACKS.inverse,
           borderWidth: 2,
           color: line,
         },
@@ -186,7 +187,7 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
   }, [isChartReady, myChart]);
 
   return (
-    <GradientPanel as="article" className="overflow-hidden px-[18px] pb-4 pt-[18px]" elevation="standard" surface="chart">
+    <Surface as="article" className="overflow-hidden px-[18px] pb-4 pt-[18px]" material="raised">
       <header className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] border border-white/75 bg-white/65 text-primary-deep shadow-ww-xs">
@@ -199,7 +200,7 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
         </div>
         <button
           aria-label={`${chartTitle} ${yearLabel}`}
-          className="flex h-9 shrink-0 items-center gap-1.5 rounded-[12px] border border-solid border-white/80 bg-white/70 px-2.5 font-number text-[11px] font-extrabold text-ww-mid shadow-ww-xs backdrop-blur-xl active:bg-white"
+          className="flex h-11 shrink-0 items-center gap-1.5 rounded-[12px] border border-solid border-white/80 bg-white/70 px-2.5 font-number text-[11px] font-extrabold text-ww-mid shadow-ww-xs backdrop-blur-xl active:bg-white"
           onClick={handleSelectYear}
           type="button"
         >
@@ -222,7 +223,7 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
               : isError
                 ? (
                     <>
-                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/75 text-[#c04870] shadow-ww-xs">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/75 text-feedback-danger shadow-ww-xs">
                         <TriangleAlert size={20} />
                       </span>
                       <p className="mt-3 text-[12px] font-bold text-ww-mid">{t('manager.loadError')}</p>
@@ -240,6 +241,6 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
           </div>
         )}
       </div>
-    </GradientPanel>
+    </Surface>
   );
 };

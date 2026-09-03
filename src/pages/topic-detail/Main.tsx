@@ -3,6 +3,7 @@ import type { TopicDetail } from '@/entities/topic';
 import { useState } from 'react';
 import { TopicItem } from '@/entities/topic';
 import ReplyArea from '@/pages/topic-detail/ReplyArea';
+import { SHARE_PLATFORM_COLORS } from '@/shared/config/share-platform-colors';
 import { useTranslation } from '@/shared/i18n';
 import { FixedPin, ImagePreview, Share } from '@/shared/ui';
 
@@ -23,7 +24,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       id: 1,
       name: t('share.wechat'),
       icon: 'wechat',
-      color: '#55BA38',
+      color: SHARE_PLATFORM_COLORS.wechat,
       onClick: () => {
         console.error('share.wechat(topic)');
       },
@@ -32,7 +33,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       id: 2,
       name: t('share.wechatMoments'),
       icon: 'wechat-friends',
-      color: '#55BA3A',
+      color: SHARE_PLATFORM_COLORS.wechatMoments,
       onClick: () => {
         console.error('share.wechat-friends(topic)');
       },
@@ -41,7 +42,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       id: 3,
       name: 'QQ',
       icon: 'qq',
-      color: '#4EAAF7',
+      color: SHARE_PLATFORM_COLORS.qq,
       onClick: () => {
         console.error('share.qq(topic)');
       },
@@ -50,7 +51,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
       id: 4,
       name: t('share.qqZone'),
       icon: 'qq-zone',
-      color: '#F3B140',
+      color: SHARE_PLATFORM_COLORS.qqZone,
       onClick: () => {
         console.error('share.qq-zone(topic)');
       },
@@ -82,19 +83,9 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
           }}
         />
       )}
-      <div
-        style={{
-          height: '8px',
-          background: '#F6F7F8',
-        }}
-      />
+      <div aria-hidden="true" className="h-2 bg-[color:var(--ww-background-color)]" />
       <ReplyArea comments={comments} />
-      <div
-        style={{
-          height: '8px',
-          background: '#F6F7F8',
-        }}
-      />
+      <div aria-hidden="true" className="h-2 bg-[color:var(--ww-background-color)]" />
     </div>
   );
 };

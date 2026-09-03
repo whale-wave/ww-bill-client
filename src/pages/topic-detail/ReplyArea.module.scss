@@ -1,13 +1,13 @@
 .header {
   height: 43px;
   padding: 0 16px;
-  background: #ffffff;
+  background: var(--ww-surface-color);
   font-size: var(--ww-font-size-base);
-  color: #1c1d1f;
-  border-bottom: 1px solid #e8e8e8;
+  color: var(--ww-theme-text-color);
+  border-bottom: 1px solid var(--ww-border-color);
   > div {
     font-size: var(--ww-font-size-base);
-    color: #598bd2;
+    color: var(--ww-theme-color-deep);
   }
 }
 
@@ -23,7 +23,7 @@
       content: '';
       width: 359px;
       height: 1px;
-      background: #fbfbfb;
+      background: var(--ww-surface-tint-color);
     }
     main {
       padding: 11px 0;
@@ -33,27 +33,27 @@
         margin: 0 9px 0 15px;
       }
       .right {
-        color: #8b8b8b;
+        color: var(--ww-text-color-mid);
         font-size: var(--ww-font-size-sm);
         .name {
         }
         .content {
           margin: 6px 0 12px;
           font-size: var(--ww-font-size-base);
-          color: #202020;
+          color: var(--ww-theme-text-color);
         }
         .time {
           font-size: var(--ww-font-size-sm);
-          color: #8b8d8c;
+          color: var(--ww-text-color-mid);
           .report {
             display: inline-block;
             width: 52px;
             height: 20px;
             line-height: 20px;
-            background: #f6f7f9;
+            background: var(--ww-surface-tint-color);
             border-radius: 10px;
             font-size: var(--ww-font-size-sm);
-            color: #1b1b1b;
+            color: var(--ww-theme-text-color);
           }
         }
       }
@@ -62,17 +62,17 @@
       padding: 0 15px 12px 54px;
       .reply-box {
         padding: 8px 10px 10px;
-        background: #f7f7f7;
+        background: var(--ww-surface-tint-color);
         border-radius: 4px;
         .name {
           font-size: var(--ww-font-size-base);
-          color: #5986c1;
+          color: var(--ww-theme-color-deep);
         }
       }
     }
   }
   .empty {
     font-size: var(--ww-font-size-base);
-    color: #a4a4a4;
+    color: var(--ww-text-color-soft);
   }
 }

@@ -5,7 +5,7 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { getUserEmailChangeEmailCaptchaNewEmailApi, usePostUserEmailChangeEmailMutation } from '@/entities/user-email';
 import { EmailCaptchaInput } from '@/features/email-captcha';
 import { useTranslation } from '@/shared/i18n';
-import { FormField, GradientPanel, PageHeader } from '@/shared/ui';
+import { FormField, PageHeader, Surface } from '@/shared/ui';
 
 interface EmailChangeProps {}
 
@@ -103,7 +103,7 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
               <p className="mt-0.5 text-[11px] text-ww-mid">{t('user:emailChange.newStepHint')}</p>
             </div>
           </div>
-          <GradientPanel className="space-y-4 px-5 py-5" elevation="high" surface="glass">
+          <Surface className="space-y-4 px-5 py-5" material="raised">
             <FormField disabled label={t('user:info.email')} prefix={<Mail size={18} />} value={email} />
             <FormField
               label={t('user:email.newEmail')}
@@ -120,7 +120,7 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
               onSend={onSendNewCaptcha}
             />
             <button className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45" disabled={!newEmail.trim() || !newCaptcha.trim()} onClick={() => void onSendChangeEmail()} type="button">{t('user:emailChange.submit')}</button>
-          </GradientPanel>
+          </Surface>
         </div>
       </main>
     </div>

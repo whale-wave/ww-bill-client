@@ -122,7 +122,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
       <header className="relative z-10 grid shrink-0 grid-cols-[48px_minmax(0,1fr)_48px] items-center gap-2 px-[18px] pb-2 pt-[max(10px,env(safe-area-inset-top))]">
         <button
           aria-label={backLabel}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-solid border-white/70 bg-white/75 p-0 text-primary-dark shadow-ww-xs backdrop-blur-md transition active:scale-95"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-solid border-white/70 bg-white/75 p-0 text-primary-dark shadow-ww-xs backdrop-blur-md transition active:scale-95"
           onClick={onBack}
           type="button"
         >
@@ -139,7 +139,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
             )
           : (
               <button
-                className="mx-auto h-10 rounded-full border border-solid border-white/70 bg-white/70 px-4 font-number text-[16px] font-extrabold text-ww-ink shadow-ww-xs"
+                className="mx-auto h-11 rounded-full border border-solid border-white/70 bg-white/70 px-4 font-number text-[16px] font-extrabold text-ww-ink shadow-ww-xs"
                 onClick={onMonthClick}
                 type="button"
               >
@@ -147,11 +147,11 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
               </button>
             )}
         {isTodaySelected
-          ? <span aria-hidden="true" className="h-9 w-12" data-record-calendar-today-placeholder />
+          ? <span aria-hidden="true" className="h-11 w-12" data-record-calendar-today-placeholder />
           : (
               <button
                 aria-label={todayLabel}
-                className="flex h-9 w-12 items-center justify-center rounded-full border border-solid border-primary/15 bg-white/65 px-0 text-[12px] font-extrabold text-primary-dark shadow-ww-xs backdrop-blur-md transition active:scale-95 active:bg-primary-light/70"
+                className="flex h-11 w-12 items-center justify-center rounded-full border border-solid border-primary/15 bg-white/65 px-0 text-[12px] font-extrabold text-primary-dark shadow-ww-xs backdrop-blur-md transition active:scale-95 active:bg-primary-light/70"
                 data-record-calendar-today
                 onClick={onToday}
                 title={todayLabel}
@@ -205,7 +205,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
                             {dateValue.date()}
                           </div>
                           <div className="flex flex-grow flex-col text-[9px] font-semibold leading-[9px]">
-                            <div className="flex h-[9px] justify-center text-[#36a777]">
+                            <div className="flex h-[9px] justify-center text-finance-income">
                               {day?.income
                                 ? (
                                     <>
@@ -215,7 +215,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
                                   )
                                 : null}
                             </div>
-                            <div className="flex h-[9px] justify-center text-[#d47a84]">
+                            <div className="flex h-[9px] justify-center text-finance-expense">
                               {day?.expense
                                 ? (
                                     <>

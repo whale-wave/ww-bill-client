@@ -28,7 +28,7 @@ function MemberCard({ item }: { item: MemberCardItem }) {
             </span>
           )}
           {item.isCurrent && (
-            <span className="rounded-full bg-ww-purple-light/65 px-2 py-0.5 text-[10px] font-bold text-[#6755aa]">
+            <span className="rounded-full bg-primary-light/45 px-2 py-0.5 text-[10px] font-bold text-primary-deep">
               {t('members.me')}
             </span>
           )}
@@ -44,7 +44,7 @@ function MemberCard({ item }: { item: MemberCardItem }) {
           </span>
         )}
       </span>
-      {item.onClick && <ChevronRight className="ml-2 shrink-0 text-[#9eb1bd] transition group-active:translate-x-0.5" size={18} />}
+      {item.onClick && <ChevronRight className="ml-2 shrink-0 text-ww-ghost transition group-active:translate-x-0.5" size={18} />}
     </button>
   );
 }

@@ -42,10 +42,10 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
   return (
     <div className="page-new h-[100dvh] min-h-[100svh] overflow-hidden" data-create-budget-category-page>
       <header className="relative z-10 shrink-0 px-[18px] pb-4 pt-[max(10px,env(safe-area-inset-top))]">
-        <div className="relative flex h-10 items-center justify-center">
+        <div className="relative flex h-11 items-center justify-center">
           <button
             aria-label={t('nav.back')}
-            className="absolute left-0 flex h-9 w-9 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
+            className="absolute left-0 flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
             onClick={onBack}
             type="button"
           >

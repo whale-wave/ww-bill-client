@@ -3,15 +3,15 @@
   flex-shrink: 0;
   padding-left: 15px;
   font-size: var(--ww-font-size-base);
-  color: #94969a;
-  background: #fefefe;
-  border-bottom: 1px solid #d9d9d9;
+  color: var(--ww-text-color-soft);
+  background: var(--ww-surface-raised-color);
+  border-bottom: 1px solid var(--ww-border-color);
   .title {
     width: 67px;
     &.active {
       font-size: var(--ww-font-size-lg);
       font-weight: 600;
-      color: #333233;
+      color: var(--ww-theme-text-color);
       &::before {
         display: block;
         content: '';

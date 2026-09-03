@@ -14,7 +14,7 @@ import React, { useMemo, useState } from 'react';
 import { FixedExpenseCycle } from '@/entities/fixed-expense';
 import { useTranslation } from '@/shared/i18n';
 import { cn, normalizeAmount } from '@/shared/lib';
-import { GradientPanel } from '@/shared/ui';
+import { Surface } from '@/shared/ui';
 import {
   getCurrencyOptions,
   getCycleOptions,
@@ -51,39 +51,42 @@ const Section: React.FC<SectionProps> = ({
   const { t } = useTranslation('fixed-expense');
   const [open, setOpen] = useState(defaultOpen);
   const expanded = !collapsible || open;
-
-  return (
-    <GradientPanel className={cn('mb-4 overflow-hidden', className)} elevation="low" surface="glass">
-      <div
-        className={cn(
-          'flex items-center justify-between px-4 py-3.5',
-          collapsible ? 'cursor-pointer active:bg-primary-light/20' : '',
-          expanded ? 'border-b border-border-primary' : '',
-        )}
-        onClick={collapsible ? () => setOpen(v => !v) : undefined}
-      >
-        <div className="flex flex-col">
-          <div className="flex items-center space-x-1.5">
-            {required && (
-              <span className="h-1.5 w-1.5 rounded-full bg-ww-pink" />
-            )}
-            <span className="text-[13px] font-extrabold text-ww-ink">{title}</span>
-            {required && (
-              <span className="rounded-full bg-[#fff1f6] px-2 py-0.5 text-[9px] font-bold text-[#ad496b]">{t('form.required')}</span>
-            )}
-          </div>
-          {description && (
-            <span className="mt-1 text-[10px] font-semibold leading-4 text-ww-soft">{description}</span>
+  const headerClassName = cn(
+    'flex min-h-11 w-full items-center justify-between px-4 py-3.5 text-left',
+    collapsible ? 'cursor-pointer active:bg-primary-light/20' : '',
+    expanded ? 'border-b border-border-primary' : '',
+  );
+  const headerContent = (
+    <>
+      <div className="flex flex-col">
+        <div className="flex items-center space-x-1.5">
+          {required && (
+            <span className="h-1.5 w-1.5 rounded-full bg-ww-pink" />
+          )}
+          <span className="text-[13px] font-extrabold text-ww-ink">{title}</span>
+          {required && (
+            <span className="rounded-full bg-feedback-danger-surface px-2 py-0.5 text-[9px] font-bold text-feedback-danger">{t('form.required')}</span>
           )}
         </div>
-        {collapsible && (
-          <span className="text-primary-deep">
-            {open ? <DownOutline /> : <RightOutline />}
-          </span>
+        {description && (
+          <span className="mt-1 text-[10px] font-semibold leading-4 text-ww-soft">{description}</span>
         )}
       </div>
+      {collapsible && (
+        <span className="text-primary-deep">
+          {open ? <DownOutline /> : <RightOutline />}
+        </span>
+      )}
+    </>
+  );
+
+  return (
+    <Surface className={cn('mb-4 overflow-hidden', className)} material="content">
+      {collapsible
+        ? <button aria-expanded={expanded} className={cn(headerClassName, 'border-0 bg-transparent')} onClick={() => setOpen(v => !v)} type="button">{headerContent}</button>
+        : <div className={headerClassName}>{headerContent}</div>}
       {expanded && <div>{children}</div>}
-    </GradientPanel>
+    </Surface>
   );
 };
 
@@ -105,23 +108,23 @@ const DatePickerField: React.FC<DatePickerFieldProps> = (props) => {
 
   return (
     <>
-      <div
-        className="flex min-h-10 w-full items-center justify-between rounded-[13px] bg-white/70 px-3"
-        onClick={() => setVisible(true)}
-      >
-        <span className={cn(display ? 'text-slate-800' : 'text-font-gray')}>
-          {display || placeholder}
-        </span>
+      <div className="flex min-h-11 w-full items-center rounded-[13px] bg-white/70">
+        <button className="flex min-h-11 min-w-0 flex-1 items-center justify-between px-3 text-left" onClick={() => setVisible(true)} type="button">
+          <span className={cn(display ? 'text-slate-800' : 'text-font-gray')}>
+            {display || placeholder}
+          </span>
+        </button>
         {clearable && display && (
-          <span
-            className="ml-2 text-sm text-font-gray"
-            onClick={(e) => {
-              e.stopPropagation();
+          <button
+            aria-label={t('form.clear')}
+            className="min-h-11 px-3 text-sm text-font-gray"
+            onClick={() => {
               onChange?.(undefined);
             }}
+            type="button"
           >
             {t('form.clear')}
-          </span>
+          </button>
         )}
       </div>
       <DatePicker

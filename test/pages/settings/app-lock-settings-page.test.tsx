@@ -121,7 +121,7 @@ vi.mock('@/shared/ui', async () => {
       type: 'password',
       value,
     }),
-    GradientPanel: ({ children }: { children: ReactElement | ReactElement[] }) => createElement('section', null, children),
+    Surface: ({ children }: { children: ReactElement | ReactElement[] }) => createElement('section', null, children),
     PageHeader: ({ title }: { title: string }) => createElement('header', null, title),
   };
 });

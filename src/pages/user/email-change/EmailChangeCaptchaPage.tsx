@@ -7,7 +7,7 @@ import {
 } from '@/entities/user-email';
 import { EmailCaptchaInput } from '@/features/email-captcha';
 import { useTranslation } from '@/shared/i18n';
-import { FormField, GradientPanel, PageHeader } from '@/shared/ui';
+import { FormField, PageHeader, Surface } from '@/shared/ui';
 
 interface EmailChangeProps {}
 
@@ -51,7 +51,7 @@ const EmailChangeCaptcha: React.FC<EmailChangeProps> = () => {
               <p className="mt-0.5 text-[11px] text-ww-mid">{t('emailChange.currentStepHint')}</p>
             </div>
           </div>
-          <GradientPanel className="space-y-4 px-5 py-5" elevation="high" surface="glass">
+          <Surface className="space-y-4 px-5 py-5" material="raised">
             <FormField disabled label={t('info.email')} prefix={<Mail size={18} />} value={email} />
             <EmailCaptchaInput
               email={email}
@@ -61,7 +61,7 @@ const EmailChangeCaptcha: React.FC<EmailChangeProps> = () => {
               onSend={onSendCaptcha}
             />
             <button className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45" disabled={!captcha.trim()} onClick={() => void onCaptchaVerify()} type="button">{t('emailChange.captcha.verify')}</button>
-          </GradientPanel>
+          </Surface>
         </div>
       </main>
     </div>

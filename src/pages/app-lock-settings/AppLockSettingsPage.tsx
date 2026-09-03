@@ -20,7 +20,7 @@ import {
 import { useAppLockRuntime } from '@/features/app-lock';
 import { shouldUseWorkspaceHistoryBack } from '@/features/workspace-navigation';
 import { useTranslation } from '@/shared/i18n';
-import { AppButton, FormField, GradientPanel, PageHeader } from '@/shared/ui';
+import { AppButton, FormField, PageHeader, Surface } from '@/shared/ui';
 
 type Phase = 'confirm' | 'draw' | 'idle' | 'recover' | 'verify';
 type Action = 'change' | 'disable' | null;
@@ -388,10 +388,9 @@ const AppLockSettingsPage: FC = () => {
         />
         <main className="relative z-[1] min-h-0 flex-grow overflow-hidden overscroll-none px-[18px] pb-8">
           <div className="mx-auto w-full max-w-[420px]">
-            <GradientPanel
+            <Surface
               className="space-y-4 px-5 py-5"
-              elevation="high"
-              surface="glass"
+              material="raised"
             >
               <p className="text-[13px] leading-5 text-ww-mid">
                 {t('appLock.recoveryDescription')}
@@ -416,7 +415,7 @@ const AppLockSettingsPage: FC = () => {
               >
                 {isSubmitting ? t('appLock.verifying') : t('appLock.submit')}
               </button>
-            </GradientPanel>
+            </Surface>
           </div>
         </main>
       </div>
@@ -438,16 +437,15 @@ const AppLockSettingsPage: FC = () => {
       />
       <main className="relative z-[1] min-h-0 flex-grow overflow-hidden overscroll-none px-[18px] pb-8">
         <div className="mx-auto flex w-full max-w-[520px] flex-col items-center gap-5">
-          <GradientPanel
+          <Surface
             className="w-full px-5 py-5"
-            elevation="low"
-            surface="ice"
+            material="content"
           >
             <h2 className="text-[18px] font-black text-ww-ink">{title}</h2>
             <p className="mt-2 text-[12px] leading-5 text-ww-mid">
               {t('appLock.setupDescription')}
             </p>
-          </GradientPanel>
+          </Surface>
           <PatternGesture
             disabled={isSubmitting}
             onChange={handlePatternChange}

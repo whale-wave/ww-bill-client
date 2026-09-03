@@ -72,14 +72,14 @@ const Content: FC<ContentProps> = memo(({ data, onMonthSelect }) => {
                       <dl className="grid min-w-0 flex-1 grid-cols-2 gap-2">
                         <div className="min-w-0">
                           <dt className="text-[10px] font-semibold text-ww-soft">{t('income')}</dt>
-                          <dd className="truncate font-number text-[13px] font-bold text-[#2a9460]">
+                          <dd className="truncate font-number text-[13px] font-bold text-finance-income">
                             ¥
                             {formatAmount(item.income)}
                           </dd>
                         </div>
                         <div className="min-w-0">
                           <dt className="text-[10px] font-semibold text-ww-soft">{t('expend')}</dt>
-                          <dd className="truncate font-number text-[13px] font-bold text-[#c04870]">
+                          <dd className="truncate font-number text-[13px] font-bold text-finance-expense">
                             ¥
                             {formatAmount(item.expand)}
                           </dd>

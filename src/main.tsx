@@ -4,6 +4,7 @@ import { App } from '@/app/App';
 import { initResetStyle } from '@/assets/styles/reset';
 import { clearHouseholdInvitationCache } from '@/entities/household';
 import { clearLedgerInvitationCache } from '@/entities/ledger';
+import { applyAppearancePreference, readAppearancePreferenceMirror, resetAppearancePreference } from '@/features/appearance';
 import { rehydrateAuthStore, useAuthStore } from '@/features/auth';
 import { setAuthDeps } from '@/shared/api/auth-injection';
 import '@/shared/i18n';
@@ -22,6 +23,11 @@ const root = createRoot(container);
 
 void (async () => {
   await rehydrateAuthStore();
+  const authState = useAuthStore.getState();
+  if (authState.token && authState.userId)
+    applyAppearancePreference(readAppearancePreferenceMirror(authState.userId));
+  else
+    resetAppearancePreference();
   setAuthDeps({
     captureRequestAuth: () => {
       const state = useAuthStore.getState();

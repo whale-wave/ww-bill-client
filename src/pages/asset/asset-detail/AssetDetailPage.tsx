@@ -5,7 +5,7 @@ import { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetAssetByIdQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { IllustratedEmptyState, Surface } from '@/shared/ui';
 import { AssetPageFrame } from '../ui';
 import { AssetBottomActions, AssetInfoCard, AssetRecordList } from './ui';
 
@@ -28,13 +28,13 @@ const AssetDetail: FC = () => {
       title={t('detail.title')}
     >
       {query.isLoading && (
-        <GradientPanel className="p-5" elevation="low" surface="glass">
+        <Surface className="p-5" material="content">
           <Skeleton.Title animated />
           <Skeleton.Paragraph animated lineCount={6} />
-        </GradientPanel>
+        </Surface>
       )}
       {!query.isLoading && (query.isError || !query.data) && (
-        <GradientPanel elevation="low" surface="glass">
+        <Surface material="content">
           <IllustratedEmptyState
             actionLabel={query.isError ? t('retry') : undefined}
             description={query.isError ? t('detail.loadErrorDescription') : t('detail.notFoundDescription')}
@@ -42,7 +42,7 @@ const AssetDetail: FC = () => {
             onAction={query.isError ? () => void query.refetch() : undefined}
             title={query.isError ? t('detail.loadError') : t('detail.notFound')}
           />
-        </GradientPanel>
+        </Surface>
       )}
       {!query.isLoading && query.data && (
         <div className="space-y-4">

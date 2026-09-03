@@ -6,7 +6,7 @@ import type {
 import { Minus, PencilLine, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel } from '@/shared/ui';
+import { Surface } from '@/shared/ui';
 import { validateLedgerCreateForm } from '../model/ledger-create-form';
 
 interface LedgerCreateFormProps {
@@ -62,7 +62,7 @@ export const LedgerCreateForm: FC<LedgerCreateFormProps> = ({
 
   return (
     <form className="space-y-4" data-ledger-create-form onSubmit={handleSubmit}>
-      <GradientPanel className="px-5 py-5" elevation="standard" surface="glass">
+      <Surface className="px-5 py-5" material="content">
         <div>
           <div className="mb-2.5 flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-[11px] bg-primary-light/55 text-primary-deep"><PencilLine size={16} /></span>
@@ -70,7 +70,7 @@ export const LedgerCreateForm: FC<LedgerCreateFormProps> = ({
               {t('create.name')}
             </label>
           </div>
-          <div className={`flex h-[52px] items-center rounded-[17px] border border-solid bg-white/80 px-4 shadow-ww-xs transition ${errors.name ? 'border-[#e89ab4]' : 'border-border-primary focus-within:border-primary'}`}>
+          <div className={`flex h-[52px] items-center rounded-[17px] border border-solid bg-white/80 px-4 shadow-ww-xs transition ${errors.name ? 'border-feedback-danger' : 'border-border-primary focus-within:border-primary'}`}>
             <input
               aria-invalid={Boolean(errors.name)}
               className="min-w-0 flex-1 border-0 bg-transparent text-[14px] font-bold text-ww-ink outline-none placeholder:text-ww-ghost"
@@ -86,7 +86,7 @@ export const LedgerCreateForm: FC<LedgerCreateFormProps> = ({
             </span>
           </div>
           {errors.name && (
-            <div className="mt-2 text-[10px] font-semibold text-[#b24f71]" role="alert">
+            <div className="mt-2 text-[10px] font-semibold text-feedback-danger" role="alert">
               {t(getErrorTranslationKey(errors.name))}
             </div>
           )}
@@ -103,21 +103,21 @@ export const LedgerCreateForm: FC<LedgerCreateFormProps> = ({
               </div>
             </div>
             <div aria-label={t('create.monthStartDay')} className="flex shrink-0 items-center gap-1 rounded-[16px] border border-solid border-border-primary bg-white/80 p-1 shadow-ww-xs" role="group">
-              <button aria-label={t('create.decreaseDay')} className="flex h-9 w-9 items-center justify-center rounded-[12px] border-0 bg-primary-light/45 text-primary-deep disabled:opacity-35" disabled={monthStartDay <= 1} onClick={() => adjustMonthStartDay(-1)} type="button"><Minus size={16} strokeWidth={2.2} /></button>
+              <button aria-label={t('create.decreaseDay')} className="flex h-11 w-11 items-center justify-center rounded-[12px] border-0 bg-primary-light/45 text-primary-deep disabled:opacity-35" disabled={monthStartDay <= 1} onClick={() => adjustMonthStartDay(-1)} type="button"><Minus size={16} strokeWidth={2.2} /></button>
               <output className="min-w-[38px] text-center text-[17px] font-black tabular-nums text-ww-ink">{monthStartDay}</output>
-              <button aria-label={t('create.increaseDay')} className="flex h-9 w-9 items-center justify-center rounded-[12px] border-0 bg-primary text-white shadow-ww-xs disabled:opacity-35" disabled={monthStartDay >= 28} onClick={() => adjustMonthStartDay(1)} type="button"><Plus size={16} strokeWidth={2.2} /></button>
+              <button aria-label={t('create.increaseDay')} className="flex h-11 w-11 items-center justify-center rounded-[12px] border-0 bg-primary text-white shadow-ww-xs disabled:opacity-35" disabled={monthStartDay >= 28} onClick={() => adjustMonthStartDay(1)} type="button"><Plus size={16} strokeWidth={2.2} /></button>
             </div>
           </div>
           <div className="mt-3 inline-flex rounded-full bg-primary-light/35 px-3 py-1.5 text-[10px] font-bold text-primary-deep">
             {t('create.monthStartDayValue', { day: monthStartDay })}
           </div>
           {errors.monthStartDay && (
-            <div className="mt-2 text-[10px] font-semibold text-[#b24f71]" role="alert">
+            <div className="mt-2 text-[10px] font-semibold text-feedback-danger" role="alert">
               {t(getErrorTranslationKey(errors.monthStartDay))}
             </div>
           )}
         </div>
-      </GradientPanel>
+      </Surface>
       <button
         className="h-[54px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww transition active:scale-[0.99] disabled:opacity-45"
         disabled={isSubmitting}

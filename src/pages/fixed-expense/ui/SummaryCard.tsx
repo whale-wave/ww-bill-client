@@ -2,7 +2,7 @@ import type { FixedExpenseSummary } from '@/entities/fixed-expense';
 import React, { memo } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
-import { GradientPanel } from '@/shared/ui';
+import { Surface } from '@/shared/ui';
 import { formatThousands } from '../utils';
 
 interface SummaryCardProps {
@@ -17,13 +17,12 @@ const SummaryCard: React.FC<SummaryCardProps> = memo((props) => {
   const { className, summary, totalCount, activeCount } = props;
 
   return (
-    <GradientPanel
+    <Surface
       className={cn(
         className,
         'relative overflow-hidden px-5 py-5',
       )}
-      elevation="high"
-      surface="ice"
+      material="raised"
     >
       <div className="absolute -right-8 -top-12 h-32 w-32 rounded-full border-[20px] border-solid border-white/25" />
 
@@ -63,7 +62,7 @@ const SummaryCard: React.FC<SummaryCardProps> = memo((props) => {
           </div>
         </div>
       </div>
-    </GradientPanel>
+    </Surface>
   );
 });
 

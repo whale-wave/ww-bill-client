@@ -31,10 +31,10 @@ const Item: FC<ItemProps> = ({ data, t }) => {
       <div className={styles['btn-wrapper']}>
         {data.isFollow
           ? (
-              <button className={styles.active}>{t('followList.followed')}</button>
+              <span className={`${styles['follow-status']} ${styles.active}`}>{t('followList.followed')}</span>
             )
           : (
-              <button>{t('followList.follow')}</button>
+              <span className={styles['follow-status']}>{t('followList.follow')}</span>
             )}
       </div>
     </div>

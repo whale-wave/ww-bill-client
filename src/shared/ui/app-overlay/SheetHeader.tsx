@@ -19,7 +19,7 @@ export function SheetHeader({ closeLabel, description, icon, onClose, title }: S
       </div>
       <button
         aria-label={closeLabel}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] border-0 bg-primary-light/70 p-0 text-ww-soft transition active:bg-primary-light"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px] border-0 bg-primary-light/70 p-0 text-ww-soft transition active:bg-primary-light"
         onClick={onClose}
         type="button"
       >

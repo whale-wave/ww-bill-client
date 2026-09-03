@@ -1,7 +1,7 @@
 .middle {
   height: 64px;
   bottom: 55px;
-  color: #000;
+  color: var(--ww-theme-text-color);
   &-wrapper {
     padding: 0 16px;
   }

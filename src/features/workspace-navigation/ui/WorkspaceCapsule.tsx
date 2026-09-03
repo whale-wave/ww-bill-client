@@ -47,7 +47,7 @@ export function WorkspaceCapsule({ className, onReturnPersonal, onSwitch, return
       <div
         aria-label={t('workspace.quickActions')}
         className={cn(
-          'flex h-9 w-[84px] items-center rounded-full border border-solid border-border-primary bg-white/[0.85] text-primary-deep shadow-ww-xs',
+          'flex h-11 w-[84px] items-center rounded-full border border-solid border-border-primary bg-white/[0.85] text-primary-deep shadow-ww-xs',
           className,
         )}
         data-workspace-capsule

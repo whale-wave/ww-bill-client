@@ -30,7 +30,7 @@ function RecoveryContent({ ledgerId }: { ledgerId: string }) {
   return (
     <>
       {query.data.map(record => (
-        <div className="flex min-h-[59px] items-center justify-between border-0 border-b border-solid border-[#EBEBEB] bg-white px-4" key={record.id}>
+        <div className="flex min-h-[59px] items-center justify-between border-0 border-b border-solid border-border-primary bg-white px-4" key={record.id}>
           <span>{record.remark}</span>
           <Button
             disabled={restoreState.isLoading}

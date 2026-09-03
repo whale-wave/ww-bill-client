@@ -33,12 +33,26 @@
   --ww-card-shadow-xs: 0 3px 10px rgba(20, 20, 24, 0.05);
   --ww-card-shadow-lg: 0 16px 32px rgba(20, 20, 24, 0.08);
   --ww-card-shadow-floating: 0 12px 28px rgba(20, 20, 24, 0.09);
-  --ww-surface-aurora: rgba(255, 255, 255, 0.78);
-  --ww-surface-ice: rgba(255, 255, 255, 0.72);
-  --ww-surface-chart: rgba(255, 255, 255, 0.76);
-  --ww-surface-lavender: rgba(255, 255, 255, 0.72);
-  --ww-surface-blush: rgba(255, 255, 255, 0.76);
-  --ww-surface-vip: rgba(255, 255, 255, 0.76);
+  --ww-action-primary-background: var(--ww-theme-color);
+  --ww-action-primary-shadow: var(--ww-card-shadow);
+  --ww-tab-create-background: var(--ww-theme-color);
+  --ww-progress-primary-background: var(--ww-theme-color);
+  --ww-progress-negative-background: rgb(var(--ww-color-feedback-danger));
+  --ww-icon-surface-background: var(--ww-surface-tint-color);
+  --ww-highlight-avatar-background: var(--ww-surface-tint-color);
+  --ww-highlight-edit-background: var(--ww-theme-color);
+  --ww-highlight-metrics-background: var(--ww-surface-raised-color);
+  --ww-category-icon-background: var(--ww-surface-tint-color);
+  --ww-category-icon-foreground: var(--ww-theme-color-deep);
+  --ww-category-icon-emphasis-background: var(--ww-surface-tint-color);
+  --ww-category-icon-emphasis-foreground: var(--ww-theme-color-deep);
+  --ww-category-choice-background: var(--ww-surface-tint-color);
+  --ww-category-choice-foreground: var(--ww-theme-color-deep);
+  --ww-group-header-background: var(--ww-surface-tint-color);
+  --ww-control-icon-background: var(--ww-surface-tint-color);
+  --ww-control-primary-background: var(--ww-theme-color);
+  --ww-page-ornament-display: none;
+  --ww-design-icon-filter: none;
   --ww-shortcut-blue-bg: rgba(255, 255, 255, 0.72);
   --ww-shortcut-blue-fg: #3c3c42;
   --ww-shortcut-pink-bg: rgba(255, 255, 255, 0.72);
@@ -86,16 +100,29 @@ html[data-appearance-template='fresh'] {
   --ww-card-shadow-xs: 0 1px 5px rgba(60, 140, 180, 0.07);
   --ww-card-shadow-lg: 0 5px 16px rgba(60, 140, 180, 0.11);
   --ww-card-shadow-floating: 0 7px 18px rgba(60, 140, 180, 0.14);
+  --ww-action-primary-background: linear-gradient(135deg, var(--ww-theme-color), var(--ww-theme-color-mid));
+  --ww-tab-create-background: linear-gradient(145deg, var(--ww-theme-color), var(--ww-theme-color-mid));
+  --ww-progress-primary-background: linear-gradient(90deg, var(--ww-theme-color), var(--ww-theme-color-mid));
+  --ww-icon-surface-background: linear-gradient(
+    145deg,
+    var(--ww-surface-tint-color),
+    var(--ww-surface-secondary-color)
+  );
+  --ww-highlight-avatar-background: linear-gradient(145deg, var(--ww-theme-color-light), var(--ww-pink-color-light));
+  --ww-highlight-edit-background: var(--ww-pink-color);
+  --ww-category-icon-background: var(--ww-surface-tint-color);
+  --ww-category-icon-foreground: var(--ww-theme-color-deep);
+  --ww-category-icon-emphasis-background: var(--ww-surface-accent-color);
+  --ww-category-icon-emphasis-foreground: var(--ww-pink-color);
+  --ww-category-choice-background: var(--ww-theme-color-light);
+  --ww-group-header-background: linear-gradient(90deg, rgba(226, 246, 255, 0.72), rgba(255, 242, 247, 0.45));
+  --ww-control-icon-background: linear-gradient(145deg, var(--ww-theme-color-light), var(--ww-surface-secondary-color));
+  --ww-control-primary-background: linear-gradient(135deg, var(--ww-theme-color), var(--ww-theme-color-mid));
+  --ww-page-ornament-display: block;
   --ww-radius-card: 16px;
   --ww-radius-panel: 18px;
   --ww-radius-control: 14px;
   --ww-card-blur: 8px;
-  --ww-surface-aurora: linear-gradient(155deg, #e5f7fc, #f8fdff 54%, #fff1f6);
-  --ww-surface-ice: linear-gradient(162deg, #e5f7fc, #ffffff, #f4efff);
-  --ww-surface-chart: linear-gradient(167deg, #e5f7fc, #ffffff, #f7fbff);
-  --ww-surface-lavender: linear-gradient(165deg, #f4efff, #ffffff);
-  --ww-surface-blush: linear-gradient(157deg, #fff1f6, #ffffff, #fff8fb);
-  --ww-surface-vip: linear-gradient(165deg, #f4efff, #ffffff);
   --ww-shortcut-blue-bg: #e8f7fc;
   --ww-shortcut-blue-fg: #298ba8;
   --ww-shortcut-pink-bg: #fff0f5;
@@ -147,12 +174,6 @@ html[data-appearance-template='minimal'] {
   --ww-radius-panel: 16px;
   --ww-radius-control: 12px;
   --ww-card-blur: 0px;
-  --ww-surface-aurora: #ffffff;
-  --ww-surface-ice: #ffffff;
-  --ww-surface-chart: #ffffff;
-  --ww-surface-lavender: #ffffff;
-  --ww-surface-blush: #ffffff;
-  --ww-surface-vip: #ffffff;
   --ww-shortcut-blue-bg: #f3f5f7;
   --ww-shortcut-blue-fg: #4e5d6f;
   --ww-shortcut-pink-bg: #f3f5f7;
@@ -173,83 +194,75 @@ html[data-appearance-template='minimal'] {
   --ww-chart-4: #99a878;
   --ww-chart-5: #b49a74;
   --ww-chart-6: #8b83a9;
+  --ww-design-icon-filter: grayscale(1) saturate(0) brightness(0.46);
+}
+
+html[data-appearance-template='glass'] {
+  --ww-design-icon-filter: grayscale(1) saturate(0) brightness(0.32);
 }
 
 .ww-theme-primary-action {
-  color: var(--ww-primary-foreground) !important;
-  background: var(--ww-theme-color) !important;
-  box-shadow: var(--ww-card-shadow) !important;
-}
-
-html[data-appearance-template='fresh'] .ww-theme-primary-action {
-  background: linear-gradient(135deg, var(--ww-theme-color), var(--ww-theme-color-mid)) !important;
+  color: var(--ww-primary-foreground);
+  background: var(--ww-action-primary-background);
+  box-shadow: var(--ww-action-primary-shadow);
 }
 
 .ww-tab-bar__create-icon {
-  color: var(--ww-primary-foreground) !important;
-  background: var(--ww-theme-color) !important;
-  box-shadow: var(--ww-card-shadow) !important;
-}
-
-html[data-appearance-template='fresh'] .ww-tab-bar__create-icon {
-  background: linear-gradient(145deg, var(--ww-theme-color), var(--ww-theme-color-mid)) !important;
+  color: var(--ww-primary-foreground);
+  background: var(--ww-tab-create-background);
+  box-shadow: var(--ww-card-shadow);
 }
 
 .ww-theme-progress {
-  background: var(--ww-theme-color);
+  background: var(--ww-progress-primary-background);
 }
 
 .ww-theme-liability-progress {
-  background: #c95d83;
-}
-
-html[data-appearance-template='fresh'] .ww-theme-progress {
-  background: linear-gradient(90deg, var(--ww-theme-color), var(--ww-theme-color-mid));
+  background: var(--ww-progress-negative-background);
 }
 
 .ww-theme-icon-surface {
-  background: var(--ww-surface-tint-color);
-}
-
-html[data-appearance-template='fresh'] .ww-theme-icon-surface {
-  background: linear-gradient(145deg, var(--ww-surface-tint-color), var(--ww-surface-secondary-color));
+  background: var(--ww-icon-surface-background);
 }
 
 /* These components previously carried their own blue/pink gradients.  Keep the
  * visual material at the theme boundary so every template stays coherent. */
-.ww-user-summary-card,
 .ww-budget-summary-item,
 .ww-budget-editor-header {
-  background: var(--ww-surface-aurora) !important;
-  box-shadow: var(--ww-card-shadow);
+  background: var(--ww-surface-raised-color);
 }
 
 .ww-user-summary-avatar {
-  background: var(--ww-surface-tint-color);
+  background: var(--ww-highlight-avatar-background);
 }
 
 .ww-user-summary-edit {
   color: var(--ww-primary-foreground);
-  background: var(--ww-theme-color);
+  background: var(--ww-highlight-edit-background);
 }
 
 .ww-user-summary-metrics {
-  background: var(--ww-surface-raised-color);
+  background: var(--ww-highlight-metrics-background);
 }
 
-.ww-budget-category-icon,
+.ww-budget-category-icon {
+  color: var(--ww-category-icon-foreground);
+  background: var(--ww-category-icon-background);
+}
+
+.ww-budget-category-icon:nth-child(4n + 1),
 .ww-current-budget-icon {
-  color: var(--ww-theme-color-deep);
-  background: var(--ww-surface-tint-color);
+  color: var(--ww-category-icon-emphasis-foreground);
+  background: var(--ww-category-icon-emphasis-background);
 }
 
 .ww-category-choice-icon {
-  color: var(--ww-theme-color-deep);
-  background: var(--ww-surface-tint-color);
+  color: var(--ww-category-choice-foreground);
+  background: var(--ww-category-choice-background);
 }
 
 .ww-asset-group-header {
-  background: var(--ww-surface-tint-color);
+  background: var(--ww-group-header-background);
 }
 
 .ww-chart-tooltip-category {
@@ -270,114 +283,17 @@ html[data-appearance-template='fresh'] .ww-theme-icon-surface {
   );
 }
 
-.ww-current-budget-card {
-  box-shadow: var(--ww-card-shadow);
-}
-
-html[data-appearance-template='fresh'] .ww-user-summary-card {
-  background: linear-gradient(155deg, #c6e8f8 6%, #ddf2fc 41%, #f4e0f4 94%) !important;
-}
-
-html[data-appearance-template='fresh'] .ww-user-summary-avatar {
-  background: linear-gradient(145deg, #8fc7e8, #e9a5c4);
-}
-
-html[data-appearance-template='fresh'] .ww-user-summary-edit {
-  background: var(--ww-pink-color);
-}
-
-html[data-appearance-template='fresh'] .ww-budget-summary-item,
-html[data-appearance-template='fresh'] .ww-budget-editor-header {
-  background: linear-gradient(
-    155deg,
-    rgba(212, 240, 250, 0.96),
-    rgba(255, 255, 255, 0.92) 52%,
-    rgba(241, 232, 255, 0.82)
-  ) !important;
-}
-
-html[data-appearance-template='fresh'] .ww-budget-category-icon:nth-child(4n + 1),
-html[data-appearance-template='fresh'] .ww-current-budget-icon {
-  color: #d06080;
-  background: #fff0f5;
-}
-
-html[data-appearance-template='fresh'] .ww-category-choice-icon {
-  color: var(--ww-theme-color-deep);
-  background: var(--ww-theme-color-light);
-}
-
-html[data-appearance-template='fresh'] .ww-asset-group-header {
-  background: linear-gradient(90deg, rgba(226, 246, 255, 0.72), rgba(255, 242, 247, 0.45));
-}
-
 /* Figma exports include coloured active navigation and empty-state artwork.
  * The glass and minimal packages intentionally render those ornamental icons
  * as a single ink colour; finance/category data icons are not DesignIcon assets. */
-html[data-appearance-template='glass'] [data-design-icon] {
-  filter: grayscale(1) saturate(0) brightness(0.32);
+[data-design-icon] {
+  filter: var(--ww-design-icon-filter);
 }
 
-html[data-appearance-template='minimal'] [data-design-icon] {
-  filter: grayscale(1) saturate(0) brightness(0.46);
-}
-
-html[data-appearance-template='minimal'],
-html[data-appearance-template='glass'] {
-  .bg-white {
-    background-color: var(--ww-surface-color) !important;
-  }
-
-  .bg-gray-50,
-  .bg-gray-100 {
-    background-color: var(--ww-surface-tint-color) !important;
-  }
-
-  .border-gray-100,
-  .border-gray-200,
-  .border-slate-100,
-  .border-slate-200 {
-    border-color: var(--ww-border-color) !important;
-  }
-}
-
-.page > main[class*='px-[18px]'],
-.page-new > main[class*='px-[18px]'] {
-  padding-right: var(--ww-page-gutter) !important;
-  padding-left: var(--ww-page-gutter) !important;
-}
-
-.ww-surface-aurora,
-.ww-surface-ice,
-.ww-surface-chart,
-.ww-surface-lavender,
-.ww-surface-blush,
-.ww-surface-vip {
-  border-color: var(--ww-border-color);
-}
-
-.ww-surface-aurora {
-  background: var(--ww-surface-aurora);
-}
-
-.ww-surface-ice {
-  background: var(--ww-surface-ice);
-}
-
-.ww-surface-chart {
-  background: var(--ww-surface-chart);
-}
-
-.ww-surface-lavender {
-  background: var(--ww-surface-lavender);
-}
-
-.ww-surface-vip {
-  background: var(--ww-surface-vip);
-}
-
-.ww-surface-blush {
-  background: var(--ww-surface-blush);
+:root .page > main[class*='px-[18px]'],
+:root .page-new > main[class*='px-[18px]'] {
+  padding-right: var(--ww-page-gutter);
+  padding-left: var(--ww-page-gutter);
 }
 
 .ww-action-menu-card__item[data-action-menu-tone='blue'],
@@ -437,9 +353,9 @@ html[data-appearance-template='glass'] {
 
 .ww-overview-header-actions > button,
 .ww-overview-amount-toggle {
-  border-color: var(--ww-border-color) !important;
-  color: var(--ww-theme-color-deep) !important;
-  background: var(--ww-control-surface) !important;
+  border-color: var(--ww-border-color);
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-control-surface);
   box-shadow: var(--ww-control-shadow);
   backdrop-filter: blur(var(--ww-card-blur));
   -webkit-backdrop-filter: blur(var(--ww-card-blur));

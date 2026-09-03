@@ -8,6 +8,7 @@
     z-index: 0;
     border-radius: 999px;
     content: '';
+    display: var(--ww-page-ornament-display);
     pointer-events: none;
     filter: blur(2px);
   }
@@ -27,13 +28,6 @@
     height: 210px;
     background: radial-gradient(circle, color-mix(in srgb, var(--ww-text-color-soft) 16%, transparent), transparent);
   }
-}
-
-:global(html[data-appearance-template='glass']) .asset-chart::before,
-:global(html[data-appearance-template='glass']) .asset-chart::after,
-:global(html[data-appearance-template='minimal']) .asset-chart::before,
-:global(html[data-appearance-template='minimal']) .asset-chart::after {
-  display: none;
 }
 
 .scroll-area {

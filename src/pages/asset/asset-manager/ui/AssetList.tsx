@@ -140,12 +140,12 @@ export const AssetList: FC = () => {
                 >
                   <header className="ww-asset-group-header flex h-[46px] items-center justify-between px-[18px]">
                     <div className="flex items-center gap-2">
-                      <span className={group.type === 'add' ? 'h-2 w-2 rounded-full bg-[#58b888]' : 'h-2 w-2 rounded-full bg-[#d66b8f]'} />
+                      <span className={group.type === 'add' ? 'h-2 w-2 rounded-full bg-finance-income' : 'h-2 w-2 rounded-full bg-finance-expense'} />
                       <h3 className="text-[13px] font-bold text-ww-ink">{group.name}</h3>
                     </div>
                     <span className={group.type === 'add'
-                      ? 'font-number text-[14px] font-extrabold text-[#2a9460]'
-                      : 'font-number text-[14px] font-extrabold text-[#c04870]'}
+                      ? 'font-number text-[14px] font-extrabold text-finance-income'
+                      : 'font-number text-[14px] font-extrabold text-finance-expense'}
                     >
                       {parseAmount(group.amount, group.type)}
                     </span>
@@ -186,7 +186,7 @@ export const AssetList: FC = () => {
                           <span className="flex shrink-0 items-center gap-1.5">
                             <span className={asset.assetGroup.type === 'add'
                               ? 'font-number text-[15px] font-extrabold text-ww-ink'
-                              : 'font-number text-[15px] font-extrabold text-[#c04870]'}
+                              : 'font-number text-[15px] font-extrabold text-finance-expense'}
                             >
                               {parseAmount(asset.amount, asset.assetGroup.type)}
                             </span>

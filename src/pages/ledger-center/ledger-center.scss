@@ -20,7 +20,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   position: relative;
-  z-index: 1;
+  z-index: var(--ww-ref-z-content);
   padding: 8px var(--ww-page-gutter) 32px;
 }
 
@@ -41,9 +41,9 @@
   border-radius: 20px;
   padding: 16px 13px 14px;
   overflow: hidden;
-  background: color-mix(in srgb, var(--ww-theme-color-deep) 94%, #000);
+  background: var(--ww-theme-color-deep);
   box-shadow: var(--ww-card-shadow);
-  color: #fff;
+  color: rgb(var(--ww-color-fg-inverse));
   cursor: pointer;
   touch-action: manipulation;
 
@@ -87,9 +87,9 @@
 
 .ledger-cover-card__currency {
   position: relative;
-  z-index: 1;
+  z-index: var(--ww-ref-z-content);
   flex: 0 0 auto;
-  color: #fff;
+  color: rgb(var(--ww-color-fg-inverse));
   font-size: 40px;
 }
 
@@ -105,7 +105,7 @@
 .ledger-cover-card__tag,
 .ledger-cover-card__status {
   position: relative;
-  z-index: 1;
+  z-index: var(--ww-ref-z-content);
   max-width: 100%;
   padding-inline: 4px;
   overflow: hidden;
@@ -124,7 +124,7 @@
 
 .ledger-cover-card__title {
   position: relative;
-  z-index: 1;
+  z-index: var(--ww-ref-z-content);
   display: block;
   width: 100%;
   margin-top: 5px;
@@ -149,7 +149,7 @@
 
 .ledger-remove-badge {
   position: absolute;
-  z-index: 3;
+  z-index: var(--ww-ref-z-control);
   top: -8px;
   left: -8px;
   display: flex;
@@ -160,9 +160,9 @@
   border: 0;
   border-radius: 50%;
   padding: 0;
-  background: #333;
+  background: var(--ww-theme-text-color);
   box-shadow: 0 1px 4px rgb(0 0 0 / 16%);
-  color: #fff;
+  color: rgb(var(--ww-color-fg-inverse));
   cursor: pointer;
 
   &:focus-visible {
@@ -171,7 +171,7 @@
   }
 
   &:disabled {
-    background: #b8b8b8;
+    background: var(--ww-text-color-ghost);
     cursor: not-allowed;
   }
 
@@ -182,11 +182,11 @@
 
 .ledger-center-suspended-note {
   margin: 0 0 16px;
-  border: 1px solid #f6dfae;
+  border: 1px solid rgb(var(--ww-color-feedback-warning-stroke));
   border-radius: 15px;
   padding: 10px 12px;
-  background: rgba(255, 247, 230, 0.82);
-  color: #8a5a00;
+  background: rgb(var(--ww-color-feedback-warning-surface) / 0.82);
+  color: rgb(var(--ww-color-feedback-warning));
   font-size: var(--ww-font-size-sm);
   line-height: 18px;
 }
@@ -199,7 +199,7 @@
   align-items: center;
   justify-content: center;
   gap: 18px;
-  color: #969696;
+  color: var(--ww-text-color-soft);
   font-size: var(--ww-font-size-sm);
 }
 
@@ -209,7 +209,7 @@
 }
 
 .ledger-management-footer {
-  z-index: 10;
+  z-index: var(--ww-ref-z-control);
   flex: 0 0 auto;
   border: 0;
   padding: 8px 18px 12px;

@@ -34,10 +34,10 @@ export const BudgetPeriodDropdown: React.FC<BudgetPeriodDropdownProps> = ({
 
   return (
     <header className="relative z-10 shrink-0 px-[18px] pb-3 pt-[max(10px,env(safe-area-inset-top))]">
-      <div className="relative flex h-10 items-center justify-center">
+      <div className="relative flex h-11 items-center justify-center">
         <button
           aria-label={t('common:nav.back')}
-          className="absolute left-0 flex h-9 w-9 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
+          className="absolute left-0 flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
           onClick={() => onBack ? onBack() : navigate(-1)}
           type="button"
         >
@@ -52,7 +52,7 @@ export const BudgetPeriodDropdown: React.FC<BudgetPeriodDropdownProps> = ({
       <div className="mx-auto mt-3 grid max-w-[360px] grid-cols-2 rounded-[16px] border border-solid border-border-primary bg-white/60 p-1 shadow-ww-xs backdrop-blur-xl">
         {actions.map(item => (
           <button
-            className={`h-10 rounded-[13px] border-0 text-[13px] font-bold transition-all ${budgetEntityType === item.key ? 'bg-white text-primary-deep shadow-ww-xs' : 'bg-transparent text-ww-mid'}`}
+            className={`h-11 rounded-[13px] border-0 text-[13px] font-bold transition-all ${budgetEntityType === item.key ? 'bg-white text-primary-deep shadow-ww-xs' : 'bg-transparent text-ww-mid'}`}
             data-budget-type={item.key}
             key={item.title}
             onClick={() => onBudgetEntityTypeChange(item.key)}

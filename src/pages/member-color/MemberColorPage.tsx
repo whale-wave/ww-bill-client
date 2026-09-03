@@ -18,7 +18,7 @@ import {
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { getApiErrorStatus } from '@/features/household';
 import { MEMBER_COLOR_KEYS, MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
-import { AppButton, GradientPanel, PageHeader } from '@/shared/ui';
+import { AppButton, PageHeader, Surface } from '@/shared/ui';
 
 type Scope = 'household' | 'ledger';
 
@@ -98,7 +98,7 @@ const MemberColorPage: FC<Props> = ({ scope }) => {
     <div className="page-new min-h-screen px-[18px] pb-8">
       <PageHeader backLabel="返回" onBack={() => navigate(-1)} title="我的成员颜色" subtitle="仅在当前协作账本中生效" />
       <main className="mx-auto mt-3 w-full max-w-[520px] space-y-4">
-        <GradientPanel className="px-4 py-4" elevation="standard" surface="glass">
+        <Surface className="px-4 py-4" material="raised">
           <p className="mb-3 text-[12px] font-semibold text-ww-mid">选择一个未被其他成员使用的颜色</p>
           <div className="grid grid-cols-4 gap-3" role="group" aria-label="成员颜色">
             {MEMBER_COLOR_KEYS.map((key) => {
@@ -131,7 +131,7 @@ const MemberColorPage: FC<Props> = ({ scope }) => {
               );
             })}
           </div>
-        </GradientPanel>
+        </Surface>
         <AppButton disabled={!currentMember || !selected || selected === currentMember.colorKey} fullWidth loading={loading} loadingLabel="保存中" onClick={() => void save()}>
           保存成员颜色
         </AppButton>

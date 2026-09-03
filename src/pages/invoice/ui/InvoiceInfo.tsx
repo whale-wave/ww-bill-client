@@ -4,7 +4,7 @@ import copy from 'copy-to-clipboard';
 import { Copy } from 'lucide-react';
 import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel } from '@/shared/ui';
+import { Surface } from '@/shared/ui';
 
 interface InvoiceInfoProps {
   invoice: InvoiceEntity;
@@ -76,7 +76,7 @@ const InvoiceInfo: React.FC<InvoiceInfoProps> = memo((props) => {
   );
 
   return (
-    <GradientPanel className="overflow-hidden px-4 py-1" elevation="low" surface="glass">
+    <Surface className="overflow-hidden px-4 py-1" material="content">
       {list.map(item => (
         <button
           aria-label={t('copyField', { field: item.label })}
@@ -93,7 +93,7 @@ const InvoiceInfo: React.FC<InvoiceInfoProps> = memo((props) => {
           {item.value && <Copy className="shrink-0 text-primary-deep" size={16} strokeWidth={1.8} />}
         </button>
       ))}
-    </GradientPanel>
+    </Surface>
   );
 });
 

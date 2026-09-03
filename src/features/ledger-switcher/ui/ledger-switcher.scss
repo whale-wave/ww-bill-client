@@ -36,7 +36,7 @@
 
 .ledger-switcher-header {
   --height: 45px;
-  --border-bottom: 1px solid #ebebeb;
+  --border-bottom: 1px solid var(--ww-border-color);
 
   flex: 0 0 auto;
   background: var(--ww-surface-raised-color);
@@ -285,7 +285,7 @@
   border-radius: 15px;
   overflow: hidden;
   border: 1px solid var(--ww-border-color);
-  background: var(--ww-surface-tint-color);
+  background: var(--ww-control-icon-background);
   color: var(--ww-theme-color-deep);
 
   &[data-theme='personal'] {
@@ -345,16 +345,8 @@
 
   .ledger-switcher-panel__create {
     border-color: transparent;
-    background: var(--ww-theme-color);
+    background: var(--ww-control-primary-background);
     color: var(--ww-primary-foreground);
     box-shadow: var(--ww-card-shadow-xs);
   }
-}
-
-html[data-appearance-template='fresh'] .ledger-switcher-panel__icon {
-  background: linear-gradient(145deg, var(--ww-theme-color-light), var(--ww-surface-secondary-color));
-}
-
-html[data-appearance-template='fresh'] .ledger-switcher-panel__create {
-  background: linear-gradient(135deg, var(--ww-theme-color), var(--ww-theme-color-mid));
 }

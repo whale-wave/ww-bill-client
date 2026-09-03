@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FixedExpenseCycle, useGetFixedExpenseByIdQuery } from '@/entities/fixed-expense';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
-import { GradientPanel, IllustratedEmptyState, PageHeader } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 import {
   getCurrencyLabelMap,
   getCycleLabelMap,
@@ -28,12 +28,12 @@ const Row: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, valu
 );
 
 const Card: React.FC<{ title?: string; children: React.ReactNode; className?: string }> = ({ title, children, className }) => (
-  <GradientPanel className={cn('px-4 py-3', className)} elevation="low" surface="glass">
+  <Surface className={cn('px-4 py-3', className)} material="content">
     {title && (
       <div className="pb-2 text-[12px] font-extrabold text-ww-ink">{title}</div>
     )}
     <div>{children}</div>
-  </GradientPanel>
+  </Surface>
 );
 
 const FixedExpenseDetail: React.FC = () => {
@@ -64,14 +64,14 @@ const FixedExpenseDetail: React.FC = () => {
         <div className="mx-auto w-full max-w-[520px] space-y-3">
           {query.isLoading
             ? (
-                <GradientPanel className="p-5" elevation="low" surface="glass">
+                <Surface className="p-5" material="content">
                   <Skeleton.Title animated />
                   <Skeleton.Paragraph animated lineCount={6} />
-                </GradientPanel>
+                </Surface>
               )
             : query.isError || !detail
               ? (
-                  <GradientPanel elevation="low" surface="glass">
+                  <Surface material="content">
                     <IllustratedEmptyState
                       actionLabel={query.isError ? t('retry') : undefined}
                       description={query.isError ? t('loadErrorDescription') : t('detail.noFixedExpenseInfo')}
@@ -79,11 +79,11 @@ const FixedExpenseDetail: React.FC = () => {
                       onAction={query.isError ? () => void query.refetch() : undefined}
                       title={query.isError ? t('loadError') : t('detail.noFixedExpenseInfo')}
                     />
-                  </GradientPanel>
+                  </Surface>
                 )
               : (
                   <>
-                    <GradientPanel className="relative overflow-hidden px-5 py-5" elevation="high" surface="ice">
+                    <Surface className="relative overflow-hidden px-5 py-5" material="raised">
                       <div className="absolute -right-8 -top-12 h-32 w-32 rounded-full border-[20px] border-solid border-white/25" />
                       <div className="relative flex items-center gap-3 text-ww-ink">
                         {TypeIcon && (
@@ -114,7 +114,7 @@ const FixedExpenseDetail: React.FC = () => {
                           {formatNextBillingDate(detail.nextBillingDate)}
                         </div>
                       )}
-                    </GradientPanel>
+                    </Surface>
 
                     <Card title={t('form.basicInfo')}>
                       <Row label={t('detail.type')} value={typeLabels[detail.type]} />

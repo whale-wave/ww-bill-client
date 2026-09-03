@@ -16,7 +16,7 @@ import {
   HouseholdScopeBoundary,
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, PageHeader } from '@/shared/ui';
+import { PageHeader, Surface } from '@/shared/ui';
 
 const POLICY_OPTIONS = Object.values(FamilyRecordPolicy);
 const POLICY_ICONS = {
@@ -80,7 +80,7 @@ const PolicyContent: FC<{ household: Household; recordId: number }> = ({ househo
       onRetry={() => void policyQuery.refetch()}
       retryLabel={t('common.retry')}
     >
-      <GradientPanel className="px-5 py-5" elevation="standard" surface="aurora">
+      <Surface className="px-5 py-5" material="raised">
         <div className="flex items-start gap-3.5">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] bg-white/72 text-primary-deep shadow-ww-xs">
             <ShieldCheck size={23} strokeWidth={1.8} />
@@ -90,7 +90,7 @@ const PolicyContent: FC<{ household: Household; recordId: number }> = ({ househo
             <p className="mt-1 text-[11px] font-semibold leading-[18px] text-ww-mid">{t('policy.description')}</p>
           </div>
         </div>
-      </GradientPanel>
+      </Surface>
       <div className="mt-5 space-y-3" role="radiogroup">
         {POLICY_OPTIONS.map((option) => {
           const PolicyIcon = POLICY_ICONS[option];
@@ -101,14 +101,14 @@ const PolicyContent: FC<{ household: Household; recordId: number }> = ({ househo
               key={option}
             >
               <input checked={isSelected} className="sr-only" name="policy" onChange={() => setSelectedPolicy(option)} type="radio" value={option} />
-              <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] ${isSelected ? 'bg-white text-primary-deep shadow-ww-xs' : 'bg-[#eef6f9] text-ww-mid'}`}>
+              <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] ${isSelected ? 'bg-white text-primary-deep shadow-ww-xs' : 'bg-ww-surface-tint text-ww-mid'}`}>
                 <PolicyIcon size={20} strokeWidth={1.8} />
               </span>
               <span className="min-w-0 flex-1">
                 <strong className="block text-[13px] font-black leading-5 text-ww-ink">{t(`policy.${option}`)}</strong>
                 <span className="mt-0.5 block text-[10px] font-semibold leading-4 text-ww-soft">{t(`policy.${option}Description`)}</span>
               </span>
-              <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-solid ${isSelected ? 'border-primary bg-primary text-white' : 'border-[#cbdbe2] bg-white/70 text-transparent'}`}>
+              <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-solid ${isSelected ? 'border-primary bg-primary text-white' : 'border-border-primary bg-white/70 text-transparent'}`}>
                 <Check size={14} strokeWidth={3} />
               </span>
             </label>

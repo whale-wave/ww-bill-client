@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { HouseholdStatus, useMyHouseholdQuery } from '@/entities/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { IllustratedEmptyState, Surface } from '@/shared/ui';
 import { HouseholdPageState } from './HouseholdPageState';
 
 interface HouseholdScopeBoundaryProps {
@@ -51,7 +51,7 @@ export const HouseholdScopeBoundary: FC<HouseholdScopeBoundaryProps> = ({
       {!query.data || query.data.id !== householdId
         ? (
             <div className="mx-auto w-full max-w-[520px] px-[18px] py-6">
-              <GradientPanel className="overflow-hidden" elevation="low" surface="glass">
+              <Surface className="overflow-hidden" material="content">
                 <IllustratedEmptyState
                   actionLabel={t('invalid.action')}
                   description={t('invalid.description')}
@@ -59,13 +59,13 @@ export const HouseholdScopeBoundary: FC<HouseholdScopeBoundaryProps> = ({
                   onAction={handleBackToEntry}
                   title={t('invalid.title')}
                 />
-              </GradientPanel>
+              </Surface>
             </div>
           )
         : query.data.status === HouseholdStatus.DISSOLVED
           ? (
               <div className="mx-auto w-full max-w-[520px] px-[18px] py-6">
-                <GradientPanel className="overflow-hidden" elevation="low" surface="glass">
+                <Surface className="overflow-hidden" material="content">
                   <IllustratedEmptyState
                     actionLabel={t('invalid.action')}
                     description={t('invalid.description')}
@@ -73,7 +73,7 @@ export const HouseholdScopeBoundary: FC<HouseholdScopeBoundaryProps> = ({
                     onAction={handleBackToEntry}
                     title={t('common.dissolved')}
                   />
-                </GradientPanel>
+                </Surface>
               </div>
             )
           : query.data.status === HouseholdStatus.PENDING_PARTNER && !allowPending

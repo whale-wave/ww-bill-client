@@ -5,7 +5,7 @@ import { useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetAssetGroupQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { IllustratedEmptyState, Surface } from '@/shared/ui';
 import { AssetPageFrame, IconBlock } from '../ui';
 import { getAssetGroupNavigationPath, getAssetGroupParentId } from './model/asset-group-navigation';
 
@@ -39,14 +39,14 @@ const AddAssetAccount: FC = () => {
       title={parent?.name ?? t('addAccount')}
     >
       {groupsQuery.isLoading && (
-        <GradientPanel className="p-5" elevation="low" surface="glass">
+        <Surface className="p-5" material="content">
           <Skeleton.Title animated />
           <Skeleton.Paragraph animated lineCount={5} />
-        </GradientPanel>
+        </Surface>
       )}
 
       {!groupsQuery.isLoading && groupsQuery.isError && (
-        <GradientPanel elevation="low" surface="glass">
+        <Surface material="content">
           <IllustratedEmptyState
             actionLabel={t('retry')}
             description={t('group.loadErrorDescription')}
@@ -54,29 +54,29 @@ const AddAssetAccount: FC = () => {
             onAction={() => void groupsQuery.refetch()}
             title={t('group.loadError')}
           />
-        </GradientPanel>
+        </Surface>
       )}
 
       {!groupsQuery.isLoading && !groupsQuery.isError && groups.length === 0 && (
-        <GradientPanel elevation="low" surface="glass">
+        <Surface material="content">
           <IllustratedEmptyState
             description={t('group.emptyDescription')}
             icon={<WalletCards className="text-primary-deep" size={40} strokeWidth={1.6} />}
             title={t('group.empty')}
           />
-        </GradientPanel>
+        </Surface>
       )}
 
       {!groupsQuery.isLoading && !groupsQuery.isError && groups.length > 0 && (
         <div className="space-y-3">
-          <GradientPanel className="flex items-center gap-3 px-4 py-3.5" elevation="low" surface="ice">
+          <Surface className="flex items-center gap-3 px-4 py-3.5" material="raised">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-white/75 text-primary-deep shadow-ww-xs">
               <Layers3 size={21} strokeWidth={1.8} />
             </span>
             <p className="text-[11px] font-semibold leading-5 text-ww-mid">{t('group.description')}</p>
-          </GradientPanel>
+          </Surface>
 
-          <GradientPanel className="overflow-hidden" elevation="low" surface="glass">
+          <Surface className="overflow-hidden" material="content">
             {groups.map((group, index) => (
               <button
                 className={`flex min-h-[76px] w-full items-center gap-3 border-0 bg-transparent px-4 text-left active:bg-primary-light/20 ${index ? 'border-t border-solid border-border-primary' : ''}`}
@@ -94,7 +94,7 @@ const AddAssetAccount: FC = () => {
                 <ChevronRight className="shrink-0 text-ww-ghost" size={17} strokeWidth={2} />
               </button>
             ))}
-          </GradientPanel>
+          </Surface>
           <Button
             block
             className="!mt-4 !h-[48px] !rounded-[16px] !border !border-solid !border-border-primary !bg-white/75 !text-[12px] !font-extrabold !text-ww-mid !shadow-ww-xs"

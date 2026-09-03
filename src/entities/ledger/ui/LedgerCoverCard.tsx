@@ -17,7 +17,7 @@ type LedgerTagStyle = CSSProperties & Partial<Record<
 const WHITE_TAG_STYLE: LedgerTagStyle = {
   '--background-color': 'rgb(255 255 255 / 92%)',
   '--border-color': 'transparent',
-  '--text-color': 'color-mix(in srgb, var(--ww-theme-color) 54%, #000)',
+  '--text-color': 'color-mix(in srgb, var(--ww-theme-color) 54%, var(--ww-theme-text-color))',
 };
 
 export interface LedgerCoverCardProps {

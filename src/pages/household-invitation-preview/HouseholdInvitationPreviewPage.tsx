@@ -15,7 +15,7 @@ import {
 } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, PageHeader } from '@/shared/ui';
+import { PageHeader, Surface } from '@/shared/ui';
 
 const HouseholdInvitationPreviewPage: FC = () => {
   const { t } = useTranslation('household');
@@ -94,7 +94,7 @@ const HouseholdInvitationPreviewPage: FC = () => {
                 >
                   {query.data && (
                     <>
-                      <GradientPanel className="mt-2 px-5 py-5" elevation="low" surface="ice">
+                      <Surface className="mt-2 px-5 py-5" material="raised">
                         <div className="flex items-center gap-3">
                           <Avatar
                             className="rounded-full [--border-radius:9999px] [--size:52px]"
@@ -112,9 +112,9 @@ const HouseholdInvitationPreviewPage: FC = () => {
                             <strong className="mt-0.5 block font-number text-[15px] font-extrabold text-ww-ink">{query.data.sharedStartMonth.slice(0, 7)}</strong>
                           </div>
                         </div>
-                      </GradientPanel>
+                      </Surface>
 
-                      <GradientPanel className="mt-4 px-5 py-5" elevation="low" surface="glass">
+                      <Surface className="mt-4 px-5 py-5" material="content">
                         <label className="block min-w-0">
                           <span className="mb-2 block text-[12px] font-bold leading-[18px] text-ww-mid">{t('invitation.nickname')}</span>
                           <span className="flex min-h-[54px] items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww">
@@ -146,7 +146,7 @@ const HouseholdInvitationPreviewPage: FC = () => {
                         >
                           {mutation.isLoading ? t('invitation.accepting') : t('invitation.accept')}
                         </button>
-                      </GradientPanel>
+                      </Surface>
                     </>
                   )}
                 </HouseholdPageState>

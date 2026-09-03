@@ -16,7 +16,7 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { normalizeAmount } from '@/shared/lib';
-import { AppButton, FieldFrame, GradientPanel, IllustratedEmptyState } from '@/shared/ui';
+import { AppButton, FieldFrame, IllustratedEmptyState, Surface } from '@/shared/ui';
 import { AssetPageFrame } from '../ui';
 
 type AssetFormValues = Pick<Asset, 'amount' | 'cardId' | 'comment' | 'name'>;
@@ -155,14 +155,14 @@ const AssetFormInfo: FC = () => {
       title={title}
     >
       {isLoading && (
-        <GradientPanel className="p-5" elevation="low" surface="glass">
+        <Surface className="p-5" material="content">
           <Skeleton.Title animated />
           <Skeleton.Paragraph animated lineCount={5} />
-        </GradientPanel>
+        </Surface>
       )}
 
       {!isLoading && (isError || !assetGroup) && (
-        <GradientPanel elevation="low" surface="glass">
+        <Surface material="content">
           <IllustratedEmptyState
             actionLabel={t('retry')}
             description={t('form.loadErrorDescription')}
@@ -170,12 +170,12 @@ const AssetFormInfo: FC = () => {
             onAction={() => void (isEdit ? assetQuery.refetch() : groupQuery.refetch())}
             title={t('form.loadError')}
           />
-        </GradientPanel>
+        </Surface>
       )}
 
       {!isLoading && !isError && assetGroup && (
         <>
-          <GradientPanel className="mb-4 flex items-center gap-3 px-4 py-3.5" elevation="low" surface="ice">
+          <Surface className="mb-4 flex items-center gap-3 px-4 py-3.5" material="raised">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-white/75 text-primary-deep shadow-ww-xs">
               <Landmark size={21} strokeWidth={1.8} />
             </span>
@@ -183,7 +183,7 @@ const AssetFormInfo: FC = () => {
               <p className="truncate text-[13px] font-black text-ww-ink">{assetGroup.name}</p>
               <p className="mt-0.5 text-[10px] font-semibold leading-4 text-ww-mid">{assetGroup.description || t('form.description')}</p>
             </div>
-          </GradientPanel>
+          </Surface>
 
           <Form
             className="!bg-transparent [&_.adm-list-body]:!border-0 [&_.adm-list-item-content]:!border-0"
@@ -206,7 +206,7 @@ const AssetFormInfo: FC = () => {
               </AppButton>
             )}
           >
-            <GradientPanel className="overflow-hidden px-4 py-2" elevation="low" surface="glass">
+            <Surface className="overflow-hidden px-4 py-2" material="content">
               <h2 className="border-0 border-b border-solid border-border-primary py-3 text-[12px] font-extrabold text-ww-ink">
                 {t('form.basicSection')}
               </h2>
@@ -214,13 +214,13 @@ const AssetFormInfo: FC = () => {
                 const FieldIcon = field.icon;
                 return (
                   <Form.Item
-                    className="!mb-0 !border-0 !py-3 [&_.adm-form-item-child-inner]:!border-0 [&_.adm-form-item-label]:!mb-2 [&_.adm-form-item-label]:!text-[12px] [&_.adm-form-item-label]:!font-bold [&_.adm-form-item-label]:!text-ww-mid [&_.adm-form-item-has-error_.asset-form-field-frame]:!border-[#d85e7b]"
+                    className="!mb-0 !border-0 !py-3 [&_.adm-form-item-child-inner]:!border-0 [&_.adm-form-item-label]:!mb-2 [&_.adm-form-item-label]:!text-[12px] [&_.adm-form-item-label]:!font-bold [&_.adm-form-item-label]:!text-ww-mid [&_.adm-form-item-has-error_.asset-form-field-frame]:!border-feedback-danger"
                     key={field.name}
                     label={(
                       <span className="inline-flex items-center gap-1.5">
                         {field.label}
                         {field.required && (
-                          <span className="rounded-full bg-ww-pink-light/70 px-1.5 py-0.5 text-[8px] font-black text-[#ad496b]">
+                          <span className="rounded-full bg-feedback-danger-surface/70 px-1.5 py-0.5 text-[8px] font-black text-feedback-danger">
                             {t('form.required')}
                           </span>
                         )}
@@ -250,7 +250,7 @@ const AssetFormInfo: FC = () => {
                   </Form.Item>
                 );
               })}
-            </GradientPanel>
+            </Surface>
           </Form>
         </>
       )}

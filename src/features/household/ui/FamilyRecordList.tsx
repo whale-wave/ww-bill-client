@@ -94,7 +94,7 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
     );
     const className = cn(
       'flex min-h-[76px] w-full items-center border-0 bg-white px-3 py-2 text-left',
-      index > 0 && 'border-t border-solid border-[#EBEBEB]',
+      index > 0 && 'border-t border-solid border-border-primary',
     );
 
     return onSelect

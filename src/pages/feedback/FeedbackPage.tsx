@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { usePostFeedbackMutation } from '@/entities/feedback';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, PageHeader } from '@/shared/ui';
+import { PageHeader, Surface } from '@/shared/ui';
 import pkg from '../../../package.json';
 
 const CATEGORIES = [
@@ -74,7 +74,7 @@ export default function FeedbackPage() {
         <div className="mx-auto w-full max-w-[480px]">
           {isComplete
             ? (
-                <GradientPanel className="mt-8 px-6 py-8 text-center" elevation="high" surface="aurora">
+                <Surface className="mt-8 px-6 py-8 text-center" material="raised">
                   <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-[22px] bg-white/75 text-primary-deep shadow-ww">
                     <Check size={30} strokeWidth={2.4} />
                   </span>
@@ -86,11 +86,11 @@ export default function FeedbackPage() {
                   <button className="mt-2 h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-primary-deep" onClick={() => navigate(ROUTES_PATH.MINE.getPath(), { replace: true })} type="button">
                     {t('backMine')}
                   </button>
-                </GradientPanel>
+                </Surface>
               )
             : (
                 <>
-                  <GradientPanel className="mb-5 flex items-start gap-3.5 px-5 py-5" elevation="standard" surface="aurora">
+                  <Surface className="mb-5 flex items-start gap-3.5 px-5 py-5" material="raised">
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] bg-white/72 text-primary-deep shadow-ww-xs">
                       <MessageCircleMore size={23} strokeWidth={1.8} />
                     </span>
@@ -98,7 +98,7 @@ export default function FeedbackPage() {
                       <h1 className="text-[16px] font-black leading-6 text-ww-ink">{t('heroTitle')}</h1>
                       <p className="mt-1 text-[11px] font-semibold leading-[18px] text-ww-mid">{t('heroDescription')}</p>
                     </div>
-                  </GradientPanel>
+                  </Surface>
 
                   <section aria-labelledby="feedback-category-label">
                     <h2 className="mb-2 px-1 text-[12px] font-black text-ww-ink" id="feedback-category-label">{t('categoryLabel')}</h2>
@@ -113,7 +113,7 @@ export default function FeedbackPage() {
                             onClick={() => setCategory(key)}
                             type="button"
                           >
-                            <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] ${isSelected ? 'bg-white text-primary-deep shadow-ww-xs' : 'bg-[#eef6f9] text-ww-mid'}`}>
+                            <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] ${isSelected ? 'bg-white text-primary-deep shadow-ww-xs' : 'bg-ww-surface-tint text-ww-mid'}`}>
                               <CategoryIcon size={18} strokeWidth={1.8} />
                             </span>
                             <span className="min-w-0 truncate text-[12px] font-black text-ww-ink">{t(`categories.${key}`)}</span>
@@ -123,7 +123,7 @@ export default function FeedbackPage() {
                     </div>
                   </section>
 
-                  <GradientPanel className="mt-5 overflow-hidden px-4 py-4" elevation="low" surface="glass">
+                  <Surface className="mt-5 overflow-hidden px-4 py-4" material="content">
                     <div className="flex items-center justify-between gap-3">
                       <label className="text-[12px] font-black text-ww-ink" htmlFor="feedback-content">{t('contentLabel')}</label>
                       <span className="font-number text-[10px] font-bold text-ww-soft">
@@ -131,7 +131,7 @@ export default function FeedbackPage() {
                         /2000
                       </span>
                     </div>
-                    <div className={`mt-3 rounded-[16px] border border-solid bg-white/82 px-3.5 py-3 shadow-ww-xs focus-within:ring-2 ${hasAttemptedSubmit && !isContentValid ? 'border-[#d76a86] ring-2 ring-ww-pink-light/65' : 'border-border-primary focus-within:border-primary-mid focus-within:ring-primary-light/60'}`}>
+                    <div className={`mt-3 rounded-[16px] border border-solid bg-white/82 px-3.5 py-3 shadow-ww-xs focus-within:ring-2 ${hasAttemptedSubmit && !isContentValid ? 'border-feedback-danger ring-2 ring-feedback-danger-surface/65' : 'border-border-primary focus-within:border-primary-mid focus-within:ring-primary-light/60'}`}>
                       <TextArea
                         aria-describedby="feedback-content-hint"
                         aria-invalid={hasAttemptedSubmit && !isContentValid}
@@ -144,7 +144,7 @@ export default function FeedbackPage() {
                       />
                     </div>
                     <p
-                      className={`mt-2 px-1 text-[10px] font-bold ${hasAttemptedSubmit && !isContentValid ? 'text-[#b74f70]' : 'text-ww-soft'}`}
+                      className={`mt-2 px-1 text-[10px] font-bold ${hasAttemptedSubmit && !isContentValid ? 'text-feedback-danger' : 'text-ww-soft'}`}
                       id="feedback-content-hint"
                       role={hasAttemptedSubmit && !isContentValid ? 'alert' : undefined}
                     >
@@ -166,7 +166,7 @@ export default function FeedbackPage() {
                       <ShieldCheck className="mt-0.5 shrink-0" size={13} />
                       <span>{t('privacyHint')}</span>
                     </p>
-                  </GradientPanel>
+                  </Surface>
 
                   <button
                     className="ww-theme-primary-action mt-5 h-[52px] w-full rounded-[18px] border-0 text-[14px] font-black disabled:opacity-45"

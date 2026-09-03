@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import { Toast } from 'antd-mobile';
 import { cn } from '@/shared/lib';
-import { ActionMenuCard, GradientPanel, MetricGrid } from '@/shared/ui';
+import { ActionMenuCard, MetricGrid, Surface } from '@/shared/ui';
 
 export interface RecordOverviewMetric {
   key: string;
@@ -70,7 +70,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
       data-record-overview-header=""
       data-testid={testId}
     >
-      <div className="flex h-[52px] items-start justify-between gap-3 px-[22px] pb-4">
+      <div className="flex h-[60px] items-start justify-between gap-3 px-[22px] pb-4">
         <div className="flex h-8 min-w-0 items-center gap-2" data-record-overview-title-row>
           {titleIcon && (
             <span className={cn(
@@ -83,14 +83,13 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
           )}
           {renderTitle(titleClassName)}
         </div>
-        {actions && <div className="ww-overview-header-actions flex shrink-0 items-center gap-[10px] [&>button]:flex [&>button]:h-9 [&>button]:w-9 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:border [&>button]:border-solid">{actions}</div>}
+        {actions && <div className="ww-overview-header-actions flex shrink-0 items-center gap-[10px] [&>button]:flex [&>button]:h-11 [&>button]:w-11 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:border [&>button]:border-solid">{actions}</div>}
       </div>
       <div className="px-[18px] pb-4">
-        <GradientPanel
+        <Surface
           className="relative h-[211px] overflow-hidden px-[22px] pb-4 pt-[18px]"
           data-record-overview-summary=""
-          elevation="high"
-          surface="aurora"
+          material="raised"
         >
           <div className="relative flex h-[39px] items-center gap-[6px]">
             <div data-record-overview-metrics>
@@ -107,7 +106,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
           <div className="relative flex h-[57px] w-full items-center">
             <MetricGrid
               align="start"
-              className="w-[261px] shrink-0"
+              className="w-[249px] shrink-0"
               columns={2}
               items={metrics.map((metric, index) => ({
                 key: metric.key,
@@ -121,7 +120,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
               <button
                 aria-label="toggle amount visibility"
                 className={cn(
-                  'ww-overview-amount-toggle mt-[14px] flex h-8 w-8 shrink-0 items-center justify-center rounded-[16px] border',
+                  'ww-overview-amount-toggle mt-[14px] flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] border',
                   amountToggle.disabled && 'opacity-45',
                 )}
                 disabled={amountToggle.disabled}
@@ -154,7 +153,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
             variant="detail-shortcuts"
           />
           {shortcutsTestId && <span className="hidden" data-testid={shortcutsTestId} />}
-        </GradientPanel>
+        </Surface>
       </div>
     </div>
   );

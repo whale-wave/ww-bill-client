@@ -35,6 +35,8 @@
   "post": {
     "title": "New Post",
     "content": "Share your thoughts...",
+    "addImage": "Add image",
+    "deleteImage": "Delete image",
     "publish": "Publish",
     "publishSuccess": "Published successfully",
     "participate": "Join Topic",

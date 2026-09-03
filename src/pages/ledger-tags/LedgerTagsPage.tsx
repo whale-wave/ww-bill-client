@@ -8,7 +8,7 @@ import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQ
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { omitRecordEditorSettingsNavigationState, readRecordEditorSettingsNavigationState } from '@/features/record-editor';
 import { useTranslation } from '@/shared/i18n';
-import { confirmDangerousAction, GradientPanel, IllustratedEmptyState, PageHeader } from '@/shared/ui';
+import { confirmDangerousAction, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 
 function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: number; ledgerId: string }) {
   const { t } = useTranslation('ledger');
@@ -27,7 +27,7 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
   return (
     <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))] pt-2">
       <div className="mx-auto w-full max-w-[520px]">
-        <GradientPanel className="px-4 py-4" elevation="standard" surface="ice">
+        <Surface className="px-4 py-4" material="raised">
           <p className="mb-2 text-[12px] font-bold text-ww-mid">{t('tags.category')}</p>
           <label className="relative mb-4 flex h-12 items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-white/80 px-3 shadow-ww-xs">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[11px] bg-primary-light/50 text-primary-deep">
@@ -71,22 +71,22 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
               {createState.isLoading ? t('tags.creating') : t('tags.create')}
             </button>
           </div>
-        </GradientPanel>
+        </Surface>
 
         {query.data.length === 0 && (
-          <GradientPanel className="mt-3 overflow-hidden" elevation="low" surface="glass">
+          <Surface className="mt-3 overflow-hidden" material="content">
             <IllustratedEmptyState
               description={t('tags.emptyDescription')}
               icon={<Tag className="text-primary-deep" size={38} strokeWidth={1.8} />}
               title={t('tags.empty')}
             />
-          </GradientPanel>
+          </Surface>
         )}
 
         {query.data.length > 0 && <p className="mb-2 mt-5 text-[14px] font-extrabold text-ww-ink">{t('tags.title')}</p>}
 
         {query.data.map(tag => (
-          <GradientPanel className="mt-2 flex items-center gap-2 px-3 py-3" elevation="low" key={tag.id} surface="glass">
+          <Surface className="mt-2 flex items-center gap-2 px-3 py-3" key={tag.id} material="content">
             <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-primary-light/45 text-primary-deep"><Tag size={16} strokeWidth={2} /></span>
             <input
               aria-label={t('tags.name')}
@@ -96,7 +96,7 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
             />
             <button
               aria-label={t('common.save')}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] border border-solid border-primary-light bg-white/70 text-primary-deep shadow-ww-xs disabled:opacity-45"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px] border border-solid border-primary-light bg-white/70 text-primary-deep shadow-ww-xs disabled:opacity-45"
               data-testid={`ledger-tag-save-${tag.id}`}
               disabled={updateState.isLoading}
               onClick={async () => {
@@ -116,7 +116,7 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
             </button>
             <button
               aria-label={t('tags.delete')}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] border border-solid border-[#f2c5d5] bg-[#fff1f6]/90 text-[#ad496b] shadow-ww-xs disabled:opacity-45"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px] border border-solid border-feedback-danger/30 bg-feedback-danger/10 text-feedback-danger shadow-ww-xs disabled:opacity-45"
               data-testid={`ledger-tag-archive-${tag.id}`}
               disabled={archiveState.isLoading}
               onClick={async () => {
@@ -140,7 +140,7 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
             >
               <Trash2 aria-hidden="true" size={16} strokeWidth={1.9} />
             </button>
-          </GradientPanel>
+          </Surface>
         ))}
       </div>
     </main>

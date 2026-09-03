@@ -6,7 +6,7 @@ import { useGetInvoiceQuery } from '@/entities/invoice';
 import AddInvoiceButton from '@/pages/invoice/ui/AddInvoiceButton';
 import InvoiceItem from '@/pages/invoice/ui/InvoiceItem';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, PageLoadingState, Surface } from '@/shared/ui';
 
 interface InvoiceProps {}
 
@@ -31,7 +31,7 @@ const Invoice: React.FC<InvoiceProps> = () => {
       <PageHeader backLabel={t('common:nav.back')} onBack={onBack} title={t('indexTitle')} />
       <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-5 pt-2">
         <div className="mx-auto w-full max-w-[520px]">
-          <GradientPanel className="relative mb-4 overflow-hidden px-5 py-5" elevation="high" surface="ice">
+          <Surface className="relative mb-4 overflow-hidden px-5 py-5" material="raised">
             <div aria-hidden="true" className="absolute -right-6 -top-8 h-28 w-28 rounded-full border-[18px] border-solid border-white/25" />
             <div className="relative flex items-center gap-4">
               <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[19px] border border-white/80 bg-white/75 text-primary-deep shadow-ww">
@@ -45,13 +45,13 @@ const Invoice: React.FC<InvoiceProps> = () => {
                 {t('count', { count: query.data.length })}
               </span>
             </div>
-          </GradientPanel>
+          </Surface>
 
           {query.isLoading && (
             <PageLoadingState compact label={t('common:nav.loading')} testId="invoice-loading" />
           )}
           {!query.isLoading && query.isError && (
-            <GradientPanel elevation="low" surface="glass">
+            <Surface material="content">
               <IllustratedEmptyState
                 accentIcon={<ReceiptText size={18} />}
                 actionLabel={t('retry')}
@@ -60,10 +60,10 @@ const Invoice: React.FC<InvoiceProps> = () => {
                 onAction={() => void query.refetch()}
                 title={t('loadError')}
               />
-            </GradientPanel>
+            </Surface>
           )}
           {!query.isLoading && !query.isError && query.data.length === 0 && (
-            <GradientPanel elevation="low" surface="glass">
+            <Surface material="content">
               <IllustratedEmptyState
                 accentIcon={<Plus size={19} />}
                 actionLabel={t('addInvoiceInfo')}
@@ -72,7 +72,7 @@ const Invoice: React.FC<InvoiceProps> = () => {
                 onAction={() => navigate('/invoice/create')}
                 title={t('empty')}
               />
-            </GradientPanel>
+            </Surface>
           )}
           {!query.isLoading && !query.isError && query.data.length > 0 && (
             <div className="space-y-3" data-testid="invoice-list">

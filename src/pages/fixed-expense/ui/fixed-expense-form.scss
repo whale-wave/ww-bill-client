@@ -58,9 +58,9 @@
   }
 
   .adm-selector-item-active {
-    border-color: color-mix(in srgb, var(--ww-theme-color) 50%, #fff);
+    border-color: color-mix(in srgb, var(--ww-theme-color) 50%, var(--ww-surface-raised-color));
     color: var(--ww-theme-color-deep);
-    background: color-mix(in srgb, var(--ww-theme-color-light) 58%, #fff);
+    background: color-mix(in srgb, var(--ww-theme-color-light) 58%, var(--ww-surface-raised-color));
   }
 
   .adm-stepper {

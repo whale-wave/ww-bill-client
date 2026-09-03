@@ -5,7 +5,7 @@ import { HouseholdStatus, useMyHouseholdQuery } from '@/entities/household';
 import { HouseholdPageState, usePendingHouseholdActivation } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, IllustratedEmptyState, PageHeader } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 
 const HouseholdEntryPage: FC = () => {
   const { t } = useTranslation('household');
@@ -45,7 +45,7 @@ const HouseholdEntryPage: FC = () => {
             retryLabel={t('common.retry')}
           >
             {!household && (
-              <GradientPanel className="mt-2 overflow-hidden" elevation="low" surface="aurora">
+              <Surface className="mt-2 overflow-hidden" material="raised">
                 <IllustratedEmptyState
                   description={t('entry.noneDescription')}
                   icon={<Home className="text-primary-deep" size={38} strokeWidth={1.8} />}
@@ -69,11 +69,11 @@ const HouseholdEntryPage: FC = () => {
                     {t('entry.join')}
                   </button>
                 </div>
-              </GradientPanel>
+              </Surface>
             )}
 
             {household?.status === HouseholdStatus.PENDING_PARTNER && (
-              <GradientPanel className="mt-2 overflow-hidden" elevation="low" surface="ice">
+              <Surface className="mt-2 overflow-hidden" material="raised">
                 <IllustratedEmptyState
                   actionLabel={t('entry.manageInvitation')}
                   description={`${t('entry.pendingDescription')} · ${t('entry.sharedSince', { month: household.sharedStartMonth.slice(0, 7) })}`}
@@ -81,11 +81,11 @@ const HouseholdEntryPage: FC = () => {
                   onAction={() => navigate(ROUTES_PATH.HOUSEHOLD_INVITATION.getPath(household.id))}
                   title={t('entry.pending')}
                 />
-              </GradientPanel>
+              </Surface>
             )}
 
             {household?.status === HouseholdStatus.DISSOLVED && (
-              <GradientPanel className="mt-2 overflow-hidden" elevation="low" surface="glass">
+              <Surface className="mt-2 overflow-hidden" material="content">
                 <IllustratedEmptyState
                   actionLabel={t('dissolvedState.createAgain')}
                   description={t('dissolvedState.description')}
@@ -102,7 +102,7 @@ const HouseholdEntryPage: FC = () => {
                     {t('dissolvedState.backToBills')}
                   </button>
                 </div>
-              </GradientPanel>
+              </Surface>
             )}
           </HouseholdPageState>
         </div>

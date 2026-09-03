@@ -6,7 +6,7 @@ import { LedgerCapability } from '@/entities/ledger';
 import { useCreateLedgerExportMutation, useDownloadLedgerExportMutation, useLedgerExportTaskQuery } from '@/entities/ledger-data';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, PageHeader } from '@/shared/ui';
+import { PageHeader, Surface } from '@/shared/ui';
 
 function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `export-${Date.now()}`;
@@ -23,7 +23,7 @@ function ExportContent({ ledgerId }: { ledgerId: string }) {
   return (
     <main className="min-h-0 flex-grow overflow-auto px-[18px] pb-6 pt-2">
       <div className="mx-auto w-full max-w-[520px]">
-        <GradientPanel className="px-4 py-4" elevation="standard" surface="ice">
+        <Surface className="px-4 py-4" material="raised">
           <div className="mb-4 flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-[16px] bg-white/70 text-primary-deep shadow-ww-xs"><FileSpreadsheet size={21} /></span>
             <strong className="text-[14px] font-extrabold text-ww-ink">{t('export.title')}</strong>
@@ -81,7 +81,7 @@ function ExportContent({ ledgerId }: { ledgerId: string }) {
               )}
             </div>
           )}
-        </GradientPanel>
+        </Surface>
       </div>
     </main>
   );

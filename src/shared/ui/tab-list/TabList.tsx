@@ -9,18 +9,20 @@ export const TabList: FC<{ className?: string; selectValue: any; tabs: { name: s
 
   return (
     <div
-      className={classNames('border-[1px] border-solid border-[#333] inline-flex rounded-lg overflow-hidden', className)}
+      className={classNames('inline-flex overflow-hidden rounded-lg border-[1px] border-solid border-fg', className)}
     >
       {tabs.map(tab => (
-        <div
-          className={classNames('py-[7px] px-4 flex-1 flex justify-center items-center', {
-            'bg-[#333] text-[#fff]': selectValue === tab.value,
+        <button
+          aria-pressed={selectValue === tab.value}
+          className={classNames('flex min-h-11 flex-1 items-center justify-center px-4 py-[7px]', {
+            'bg-fg text-fg-inverse': selectValue === tab.value,
           })}
           key={tab.value}
           onClick={handleChange(tab.value)}
+          type="button"
         >
           {tab.name}
-        </div>
+        </button>
       ))}
     </div>
   );

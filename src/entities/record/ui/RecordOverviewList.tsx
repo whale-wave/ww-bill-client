@@ -40,9 +40,9 @@ interface RecordOverviewListProps {
 
 function getAmountClassName(tone: RecordOverviewListItem['amountTone']) {
   if (tone === 'income')
-    return 'text-[#2a9460]';
+    return 'text-finance-income';
   if (tone === 'expense')
-    return 'text-[#c04870]';
+    return 'text-finance-expense';
   return 'text-font-black';
 }
 
@@ -77,13 +77,13 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
         <section
           className={isOverview
             ? 'pb-3'
-            : 'flex flex-col border-0 border-b border-solid border-[#ebebeb] pt-3 last:border-0'}
+            : 'flex flex-col border-0 border-b border-solid border-border-primary pt-3 last:border-0'}
           data-date-group={group.key}
           key={group.key}
         >
           <header className={isOverview
             ? 'flex h-[27px] items-start justify-between gap-2 px-0.5 text-[12.5px] leading-[18.75px] text-ww-ink'
-            : 'flex items-center justify-between px-4 text-sm text-[#969696]'}
+            : 'flex items-center justify-between px-4 text-sm text-ww-soft'}
           >
             {group.dateTime
               ? <time dateTime={group.dateTime}>{renderDateLabel(group.dateLabel)}</time>
@@ -92,8 +92,8 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
               {group.summaries?.map(summary => (
                 <span
                   className={cn(
-                    summary.key === 'income' && 'text-[#2a9460]',
-                    summary.key === 'expense' && 'text-[#c04870]',
+                    summary.key === 'income' && 'text-finance-income',
+                    summary.key === 'expense' && 'text-finance-expense',
                   )}
                   key={summary.key}
                 >
@@ -137,12 +137,12 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                             'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
                             record.memberColorKey && 'border border-solid border-white/70 shadow-ww-xs',
                             !record.memberColorKey && index % 4 === 1
-                              ? 'bg-[#ffe8ee] text-[#d06080]'
+                              ? 'bg-ww-pink-light text-ww-pink'
                               : !record.memberColorKey && index % 4 === 2
-                                  ? 'bg-[#e0f6ee] text-[#3e9e7b]'
+                                  ? 'bg-finance-income/10 text-finance-income'
                                   : !record.memberColorKey && index % 4 === 3
-                                      ? 'bg-[#ede8ff] text-[#705cc0]'
-                                      : !record.memberColorKey ? 'bg-[#e4f5fa] text-primary-deep' : '',
+                                      ? 'bg-[color:var(--ww-surface-accent-color)] text-primary-deep'
+                                      : !record.memberColorKey ? 'bg-[color:var(--ww-surface-tint-color)] text-primary-deep' : '',
                           )}
                           style={record.memberColorKey
                             ? {
@@ -177,7 +177,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                         </span>
                       </div>
                       {index !== group.records.length - 1 && (
-                        <span aria-hidden="true" className="absolute bottom-0 left-[71px] right-0 h-px bg-[rgba(110,194,220,0.2)]" />
+                        <span aria-hidden="true" className="absolute bottom-0 left-[71px] right-0 h-px bg-border-primary" />
                       )}
                     </div>
                   );
@@ -196,12 +196,12 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                           'flex h-10 w-10 items-center justify-center rounded-full',
                           record.memberColorKey && 'border border-solid border-white/70 shadow-ww-xs',
                           !record.memberColorKey && index % 4 === 1
-                            ? 'bg-[#ffe8ee] text-[#d06080]'
+                            ? 'bg-ww-pink-light text-ww-pink'
                             : index % 4 === 2
-                              ? 'bg-[#e0f6ee] text-[#3e9e7b]'
+                              ? 'bg-finance-income/10 text-finance-income'
                               : index % 4 === 3
-                                ? 'bg-[#ede8ff] text-[#705cc0]'
-                                : 'bg-[#e4f5fa] text-primary-deep',
+                                ? 'bg-[color:var(--ww-surface-accent-color)] text-primary-deep'
+                                : 'bg-[color:var(--ww-surface-tint-color)] text-primary-deep',
                         )}
                         style={record.memberColorKey
                           ? {
@@ -219,13 +219,13 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                         'flex min-w-0 flex-grow items-center justify-between text-[14px] font-semibold leading-[21px] text-ww-ink',
                         isOverview ? 'h-full pr-1' : 'h-[59px] py-3 pr-3',
                         index !== group.records.length - 1
-                        && 'border-0 border-b border-solid border-[#eaf2f5]',
+                        && 'border-0 border-b border-solid border-border-primary',
                       )}
                     >
                       <span className="min-w-0 flex-grow">
                         <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{record.primary}</span>
                         {(record.secondary || record.hasAttachment) && (
-                          <span className="mt-1 flex min-w-0 items-center gap-1 overflow-hidden text-xs text-[#969696]">
+                          <span className="mt-1 flex min-w-0 items-center gap-1 overflow-hidden text-xs text-ww-soft">
                             {record.secondary && <span className="min-w-0 truncate">{record.secondary}</span>}
                             {record.hasAttachment && <ImageIcon aria-label="含图片" className="shrink-0 text-primary-deep" size={12} />}
                           </span>

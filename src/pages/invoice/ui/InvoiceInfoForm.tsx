@@ -9,7 +9,7 @@ import {
   usePostInvoiceMutation,
 } from '@/entities/invoice';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel } from '@/shared/ui';
+import { Surface } from '@/shared/ui';
 
 interface InvoiceInfoFormProps {
   id?: string;
@@ -129,7 +129,7 @@ const InvoiceInfoForm: React.FC<InvoiceInfoFormProps> = (props) => {
         { options: formOptions.slice(0, 2), title: t('requiredSection') },
         { options: formOptions.slice(2), title: t('optionalSection') },
       ]).map(section => (
-        <GradientPanel className="mb-4 overflow-hidden px-4 py-2" elevation="low" key={section.title} surface="glass">
+        <Surface className="mb-4 overflow-hidden px-4 py-2" key={section.title} material="content">
           <h2 className="border-0 border-b border-solid border-border-primary py-3 text-[12px] font-extrabold text-ww-ink">
             {section.title}
           </h2>
@@ -155,7 +155,7 @@ const InvoiceInfoForm: React.FC<InvoiceInfoFormProps> = (props) => {
               </Form.Item>
             );
           })}
-        </GradientPanel>
+        </Surface>
       ))}
     </Form>
   );

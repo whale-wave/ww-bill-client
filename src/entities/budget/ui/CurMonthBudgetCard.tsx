@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/shared/i18n';
-import { DesignIcon, GradientPanel, MetricGrid } from '@/shared/ui';
+import { DesignIcon, MetricGrid, Surface } from '@/shared/ui';
 import { BudgetEntityType } from '../api';
 import { useGetBudgetInfoQuery } from '../hooks';
 
@@ -24,8 +24,8 @@ export const CurrentBudgetSummaryCardPresentation: FC<CurrentBudgetSummaryCardPr
   const { t } = useTranslation('budget');
   const percentage = Math.max(0, Math.min(100, Number(data?.remainingPercentage ?? 0)));
 
-  return (
-    <GradientPanel as="article" className="ww-current-budget-card cursor-pointer overflow-hidden px-5 py-[18px]" elevation="none" onClick={onClick} surface="blush">
+  const content = (
+    <Surface as="article" className="ww-current-budget-card overflow-hidden px-5 py-[18px]" material="raised">
       <div className="flex items-center gap-[10px]">
         <span className="ww-current-budget-icon flex h-[38px] w-[38px] items-center justify-center rounded-full">
           <DesignIcon name="discovery-budget" size={18} />
@@ -54,7 +54,16 @@ export const CurrentBudgetSummaryCardPresentation: FC<CurrentBudgetSummaryCardPr
           { key: 'expense', label: t('content.expense'), tone: 'expense', value: `¥${data?.amount ?? '0.00'}` },
         ]}
       />
-    </GradientPanel>
+    </Surface>
+  );
+
+  if (!onClick)
+    return content;
+
+  return (
+    <button className="block w-full border-0 bg-transparent p-0 text-left" onClick={onClick} type="button">
+      {content}
+    </button>
   );
 };
 

@@ -35,6 +35,8 @@
   "post": {
     "title": "发帖",
     "content": "分享你的想法...",
+    "addImage": "添加图片",
+    "deleteImage": "删除图片",
     "publish": "发布",
     "publishSuccess": "发布成功",
     "participate": "参与话题",

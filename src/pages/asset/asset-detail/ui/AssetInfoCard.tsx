@@ -4,7 +4,7 @@ import { SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
-import { GradientPanel } from '@/shared/ui';
+import { Surface } from '@/shared/ui';
 import { IconBlock } from '../../ui';
 import { AssetAdjustPopup } from './AssetAdjustPopup';
 
@@ -15,7 +15,7 @@ export const AssetInfoCard: FC<{ asset: Asset }> = ({ asset }) => {
 
   return (
     <>
-      <GradientPanel className="relative overflow-hidden px-5 py-5" elevation="high" surface="ice">
+      <Surface className="relative overflow-hidden px-5 py-5" material="raised">
         <div aria-hidden="true" className="absolute -right-7 -top-10 h-32 w-32 rounded-full border-[20px] border-solid border-white/25" />
         <div className="relative flex items-start gap-3.5">
           <IconBlock name={asset.assetGroup.icon} />
@@ -43,7 +43,7 @@ export const AssetInfoCard: FC<{ asset: Asset }> = ({ asset }) => {
             </p>
           </div>
           <button
-            className="mb-1 flex h-10 shrink-0 items-center gap-1.5 rounded-[14px] border border-solid border-white/85 bg-white/72 px-3 text-[11px] font-black text-primary-deep shadow-ww-xs"
+            className="mb-1 flex h-11 shrink-0 items-center gap-1.5 rounded-[14px] border border-solid border-white/85 bg-white/72 px-3 text-[11px] font-black text-primary-deep shadow-ww-xs"
             onClick={() => setAdjustPopupVisible(true)}
             type="button"
           >
@@ -51,7 +51,7 @@ export const AssetInfoCard: FC<{ asset: Asset }> = ({ asset }) => {
             {t('adjust.action')}
           </button>
         </div>
-      </GradientPanel>
+      </Surface>
       {adjustPopupVisible && (
         <AssetAdjustPopup
           asset={asset}

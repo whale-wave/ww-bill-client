@@ -61,7 +61,7 @@ function AvatarStack({
         />
       ))}
       {overflowCount > 0 && (
-        <span className="-ml-2 flex h-8 min-w-8 items-center justify-center rounded-full border-2 border-solid border-white bg-[#e8f6f9] px-1 text-xs text-[#18839b]">
+        <span className="-ml-2 flex h-8 min-w-8 items-center justify-center rounded-full border-2 border-solid border-white bg-ww-surface-tint px-1 text-xs text-primary-deep">
           +
           {overflowCount}
         </span>
@@ -84,8 +84,8 @@ const SettingsRow: FC<{ isLast: boolean; row: SettingsOverviewRow }> = ({
         <button
           aria-checked={row.checked}
           className={cn(
-            'relative h-7 w-12 rounded-full border-0 transition-colors',
-            row.checked ? 'bg-primary' : 'bg-[#DADDE1]',
+            'relative h-11 w-12 rounded-full border-0 transition-colors',
+            row.checked ? 'bg-primary' : 'bg-ww-surface-tint',
           )}
           disabled={row.disabled}
           onClick={() => row.onChange(!row.checked)}
@@ -110,7 +110,7 @@ const SettingsRow: FC<{ isLast: boolean; row: SettingsOverviewRow }> = ({
       <span className={cn(
         'mr-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px]',
         row.kind === 'action' && row.danger
-          ? 'bg-ww-pink-light/60 text-[#b24f71]'
+          ? 'bg-feedback-danger-surface/60 text-feedback-danger'
           : 'bg-primary-light/55 text-primary-deep',
       )}
       >
@@ -137,7 +137,7 @@ const SettingsRow: FC<{ isLast: boolean; row: SettingsOverviewRow }> = ({
         </span>
         {trailing}
         {clickable && (
-          <ChevronRight className="ml-2 shrink-0 text-[#C3C6C9]" size={18} />
+          <ChevronRight className="ml-2 shrink-0 text-ww-ghost" size={18} />
         )}
       </span>
     </>

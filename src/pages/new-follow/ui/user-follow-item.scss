@@ -12,37 +12,74 @@ $class-prefix-user-follow-item: 'bwm-user-follow-item';
     right: 0;
     width: 360px;
     height: 1px;
-    background: #e9ebee;
+    background: var(--ww-border-color);
   }
-  img {
+  &-avatar-button {
     width: 47px;
     height: 47px;
+    padding: 0;
+    border: 0;
     margin-right: 11px;
+    background: transparent;
     border-radius: 50%;
-    border: 1px solid #dedede;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--ww-theme-color);
+      outline-offset: 2px;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: 1px solid var(--ww-border-color);
+      border-radius: inherit;
+    }
   }
   &-box {
     flex-grow: 1;
     display: flex;
+    min-height: 44px;
     flex-direction: column;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--ww-theme-color);
+      outline-offset: 2px;
+    }
+
     &-username {
       font-size: var(--ww-font-size-base);
       font-weight: bold;
-      color: #1c1c1f;
+      color: var(--ww-theme-text-color);
     }
     &-desc {
       font-size: var(--ww-font-size-sm);
-      color: #888b92;
+      color: var(--ww-text-color-mid);
     }
   }
-  button {
-    width: 54px;
-    height: 25px;
-    background: #ffffff;
+  &-follow-button {
+    min-width: 54px;
+    min-height: 44px;
+    padding: 0 8px;
+    background: var(--ww-surface-raised-color);
     border-radius: 13px 13px 13px 13px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--ww-border-color);
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--ww-theme-color);
+      outline-offset: 2px;
+    }
+
     &.follow {
-      color: #92979f;
+      color: var(--ww-text-color-soft);
     }
   }
 }

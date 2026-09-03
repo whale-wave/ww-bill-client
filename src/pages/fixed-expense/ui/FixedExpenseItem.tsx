@@ -117,7 +117,7 @@ const FixedExpenseItem: React.FC<FixedExpenseItemProps> = memo((props) => {
               {t(typeKeyMap[item.type])}
             </span>
             {item.autoRenew && (
-              <span className="rounded-full bg-[#fff1f6] px-2 py-1 text-[9px] font-bold text-[#ad496b]">
+              <span className="rounded-full bg-feedback-danger-surface px-2 py-1 text-[9px] font-bold text-feedback-danger">
                 {t('form.autoRenew')}
               </span>
             )}

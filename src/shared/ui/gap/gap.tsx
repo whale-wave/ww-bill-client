@@ -19,7 +19,7 @@ interface GapProps {
 
 const defaultProps = {
   height: 10,
-  color: '#f5f5f5',
+  color: 'var(--ww-surface-tint-color)',
 };
 
 const classPrefix = 'bwm-gap';

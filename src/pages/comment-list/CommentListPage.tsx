@@ -21,7 +21,7 @@ function CommentList() {
   return (
     <div className="page">
       <NavBar
-        style={{ background: '#fff' }}
+        className="bg-ww-surface-raised"
         onBack={() => navigate(-1)}
         back={t('commentList.back')}
       >

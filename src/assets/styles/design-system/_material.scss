@@ -1,0 +1,76 @@
+:root {
+  --ww-material-content-background: var(--ww-surface-color);
+  --ww-material-content-border: var(--ww-border-color);
+  --ww-material-content-radius: var(--ww-radius-card);
+  --ww-material-content-shadow: none;
+  --ww-material-raised-background: var(--ww-surface-raised-color);
+  --ww-material-raised-border: var(--ww-border-color);
+  --ww-material-raised-radius: var(--ww-radius-card);
+  --ww-material-raised-shadow: var(--ww-card-shadow-xs);
+  --ww-material-chrome-background: var(--ww-control-surface);
+  --ww-material-chrome-border: var(--ww-border-color);
+  --ww-material-chrome-radius: var(--ww-radius-control);
+  --ww-material-chrome-shadow: var(--ww-control-shadow);
+  --ww-material-chrome-blur: blur(var(--ww-card-blur));
+  --ww-material-floating-background: var(--ww-surface-raised-color);
+  --ww-material-floating-border: var(--ww-border-color);
+  --ww-material-floating-radius: var(--ww-radius-panel);
+  --ww-material-floating-shadow: var(--ww-card-shadow-floating);
+  --ww-material-floating-blur: blur(var(--ww-card-blur));
+  --ww-material-overlay-background: var(--ww-surface-raised-color);
+  --ww-material-overlay-border: var(--ww-border-color);
+  --ww-material-overlay-radius: var(--ww-radius-panel);
+  --ww-material-overlay-shadow: var(--ww-card-shadow-lg);
+  --ww-material-scrim-background: rgb(20 20 24 / 0.36);
+}
+
+html[data-appearance-template='minimal'] {
+  --ww-material-chrome-blur: none;
+  --ww-material-floating-blur: none;
+}
+
+.ww-surface {
+  border: 1px solid var(--ww-surface-border);
+  border-radius: var(--ww-surface-radius);
+  background: var(--ww-surface-background);
+  box-shadow: var(--ww-surface-shadow);
+}
+
+.ww-surface--content {
+  --ww-surface-background: var(--ww-material-content-background);
+  --ww-surface-border: var(--ww-material-content-border);
+  --ww-surface-radius: var(--ww-material-content-radius);
+  --ww-surface-shadow: var(--ww-material-content-shadow);
+}
+
+.ww-surface--raised {
+  --ww-surface-background: var(--ww-material-raised-background);
+  --ww-surface-border: var(--ww-material-raised-border);
+  --ww-surface-radius: var(--ww-material-raised-radius);
+  --ww-surface-shadow: var(--ww-material-raised-shadow);
+}
+
+.ww-surface--chrome {
+  --ww-surface-background: var(--ww-material-chrome-background);
+  --ww-surface-border: var(--ww-material-chrome-border);
+  --ww-surface-radius: var(--ww-material-chrome-radius);
+  --ww-surface-shadow: var(--ww-material-chrome-shadow);
+  backdrop-filter: var(--ww-material-chrome-blur);
+  -webkit-backdrop-filter: var(--ww-material-chrome-blur);
+}
+
+.ww-surface--floating {
+  --ww-surface-background: var(--ww-material-floating-background);
+  --ww-surface-border: var(--ww-material-floating-border);
+  --ww-surface-radius: var(--ww-material-floating-radius);
+  --ww-surface-shadow: var(--ww-material-floating-shadow);
+  backdrop-filter: var(--ww-material-floating-blur);
+  -webkit-backdrop-filter: var(--ww-material-floating-blur);
+}
+
+.ww-surface--overlay {
+  --ww-surface-background: var(--ww-material-overlay-background);
+  --ww-surface-border: var(--ww-material-overlay-border);
+  --ww-surface-radius: var(--ww-material-overlay-radius);
+  --ww-surface-shadow: var(--ww-material-overlay-shadow);
+}

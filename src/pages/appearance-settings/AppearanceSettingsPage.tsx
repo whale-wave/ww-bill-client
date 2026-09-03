@@ -12,7 +12,9 @@ import {
   appearanceTemplateOptions,
   applyAppearancePreference,
   readAppearancePreference,
+  writeAppearancePreferenceMirror,
 } from '@/features/appearance';
+import { useAuthStore } from '@/features/auth';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { useTranslation } from '@/shared/i18n';
 import { PageHeader } from '@/shared/ui';
@@ -46,6 +48,7 @@ const AppearanceSettingsPage: FC = () => {
   const { t } = useTranslation('settings');
   const onBack = useWorkspaceBack({ type: 'personal' });
   const appearanceQuery = useGetUserAppConfigQuery();
+  const userId = useAuthStore(state => state.userId);
   const [patchUserAppConfig, patchMutation] = usePatchUserAppConfigMutation();
   const [pendingPreference, setPendingPreference] = useState<AppearancePreference>();
   const savedPreference = useMemo(
@@ -65,11 +68,14 @@ const AppearanceSettingsPage: FC = () => {
       await patchUserAppConfig({
         appearanceTemplate: nextPreference.template,
       });
+      if (useAuthStore.getState().userId === userId)
+        writeAppearancePreferenceMirror(userId, nextPreference);
       setPendingPreference(undefined);
     }
     catch {
       setPendingPreference(previousPreference);
-      applyAppearancePreference(previousPreference);
+      if (useAuthStore.getState().userId === userId)
+        applyAppearancePreference(previousPreference);
       Toast.show(t('appearance.saveFailed'));
     }
   };

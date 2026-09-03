@@ -1,5 +1,5 @@
 .ww-app-overlay-mask {
-  background: rgba(20, 20, 24, 0.28) !important;
+  background: var(--ww-material-scrim-background);
   backdrop-filter: blur(5px);
 }
 
@@ -10,7 +10,7 @@
 
 .ww-app-dialog {
   width: min(330px, calc(100vw - 44px));
-  padding-top: 22px !important;
+  padding-top: 22px;
   overflow: hidden;
   border: 1px solid var(--ww-border-color);
   border-radius: 24px;
@@ -37,12 +37,12 @@
 
   .adm-dialog-button {
     min-height: 44px;
-    padding: 9px 14px !important;
-    border: 0 !important;
-    border-radius: 15px !important;
+    padding: 9px 14px;
+    border: 0;
+    border-radius: 15px;
     color: var(--ww-text-color-mid);
     background: var(--ww-surface-tint-color);
-    font-size: 13px !important;
+    font-size: 13px;
     font-weight: 800;
 
     &:last-child {
@@ -55,12 +55,12 @@
 
 .ww-app-dialog--danger {
   .ww-app-dialog__icon {
-    color: #ad496b;
+    color: rgb(var(--ww-color-feedback-danger));
     background: rgba(255, 216, 230, 0.72);
   }
 
   .adm-dialog-button:last-child {
-    color: #ad496b;
+    color: rgb(var(--ww-color-feedback-danger));
     background: rgba(255, 216, 230, 0.72);
     box-shadow: none;
   }
@@ -68,12 +68,12 @@
 
 .ww-app-dialog--warning {
   .ww-app-dialog__icon {
-    color: #a9771c;
+    color: rgb(var(--ww-color-feedback-warning));
     background: rgba(255, 233, 190, 0.72);
   }
 
   .adm-dialog-button:last-child {
-    color: #a9771c;
+    color: rgb(var(--ww-color-feedback-warning));
     background: rgba(255, 233, 190, 0.72);
     box-shadow: none;
   }
@@ -191,10 +191,10 @@
   input:not([type='checkbox']),
   select,
   textarea {
-    border-color: var(--ww-border-color) !important;
-    border-radius: 15px !important;
+    border-color: var(--ww-border-color);
+    border-radius: 15px;
     color: var(--ww-theme-text-color);
-    background: var(--ww-surface-color) !important;
+    background: var(--ww-surface-color);
     box-shadow: var(--ww-card-shadow-xs);
     outline: none;
   }
@@ -202,26 +202,26 @@
   input:not([type='checkbox']):focus,
   select:focus,
   textarea:focus {
-    border-color: var(--ww-theme-color) !important;
+    border-color: var(--ww-theme-color);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--ww-theme-color) 16%, transparent);
   }
 
   .ww-category-name-field {
     .adm-input-element,
     .adm-input-element:focus {
-      border: 0 !important;
-      border-radius: 0 !important;
-      background: transparent !important;
-      box-shadow: none !important;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
     }
   }
 
   .ww-sheet-plain-input,
   .ww-sheet-plain-input:focus {
-    border: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   .adm-button {
@@ -253,7 +253,7 @@
 
 .adm-picker-popup:has(.ww-app-date-picker) {
   .adm-mask {
-    background: rgba(20, 20, 24, 0.28) !important;
+    background: var(--ww-material-scrim-background);
     backdrop-filter: blur(5px);
   }
 

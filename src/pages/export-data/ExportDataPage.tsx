@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { getRecordApi } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { exportData } from '@/shared/lib/export-data';
-import { GradientPanel, PageHeader } from '@/shared/ui';
+import { PageHeader, Surface } from '@/shared/ui';
 
 enum ChangeType {
   START,
@@ -90,7 +90,7 @@ function ExportData() {
       <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('common:export.title')} />
       <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[420px]">
-          <GradientPanel className="mb-5 flex items-center gap-3.5 px-4 py-4" elevation="low" surface="ice">
+          <Surface className="mb-5 flex items-center gap-3.5 px-4 py-4" material="raised">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] border border-white/80 bg-white/65 text-primary-deep shadow-ww-xs">
               <FileSpreadsheet size={22} strokeWidth={1.8} />
             </span>
@@ -98,9 +98,9 @@ function ExportData() {
               <h2 className="text-[14px] font-extrabold text-ww-ink">{t('common:export.rangeTitle')}</h2>
               <p className="mt-0.5 text-[11px] leading-4 text-ww-mid">{t('common:export.description')}</p>
             </div>
-          </GradientPanel>
+          </Surface>
 
-          <GradientPanel className="overflow-hidden px-4 py-1" elevation="standard" surface="glass">
+          <Surface className="overflow-hidden px-4 py-1" material="content">
             {([
               [ChangeType.START, t('common:export.startTime'), exportTimeRange.startTime || t('common:placeholder.selectStartTime')],
               [ChangeType.END, t('common:export.endTime'), exportTimeRange.endTime || t('common:placeholder.selectEndTime')],
@@ -114,7 +114,7 @@ function ExportData() {
                 <ArrowRight className="text-ww-soft" size={17} />
               </button>
             ))}
-          </GradientPanel>
+          </Surface>
 
           <p className="mb-6 mt-3 px-1 text-[10px] leading-4 text-ww-soft">{t('common:export.fileHint')}</p>
           <button className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45" disabled={isExporting} onClick={() => void handleExportData()} type="button">

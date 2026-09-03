@@ -47,7 +47,7 @@ const SupportRow: FC<SupportRowProps> = ({
         {description && <span className="mt-0.5 block text-[10px] leading-4 text-ww-soft">{description}</span>}
       </span>
       {value && <span className="max-w-[45%] truncate text-xs text-ww-soft">{value}</span>}
-      <ChevronRight className="shrink-0 text-[#C3C6C9]" size={18} />
+      <ChevronRight className="shrink-0 text-ww-ghost" size={18} />
     </>
   );
 

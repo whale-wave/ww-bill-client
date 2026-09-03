@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import { CircleAlert } from 'lucide-react';
-import { GradientPanel, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
+import { IllustratedEmptyState, PageLoadingState, Surface } from '@/shared/ui';
 
 interface HouseholdPageStateProps {
   children: ReactNode;
@@ -30,7 +30,7 @@ export const HouseholdPageState: FC<HouseholdPageStateProps> = ({
   if (isError) {
     return (
       <div className="mx-auto w-full max-w-[520px] px-[18px] py-6" data-testid="household-error">
-        <GradientPanel className="overflow-hidden" elevation="low" surface="glass">
+        <Surface className="overflow-hidden" material="content">
           <IllustratedEmptyState
             actionLabel={onRetry ? retryLabel : undefined}
             description={errorDescription}
@@ -38,7 +38,7 @@ export const HouseholdPageState: FC<HouseholdPageStateProps> = ({
             onAction={onRetry}
             title={errorTitle}
           />
-        </GradientPanel>
+        </Surface>
       </div>
     );
   }

@@ -1,6 +1,7 @@
 import type { EChartsOption } from 'echarts';
 import type { FC } from 'react';
 import { useEffect, useMemo } from 'react';
+import { CHART_STYLE_FALLBACKS } from '@/shared/config/chart-style-fallbacks';
 import { readAppearanceToken, useAppearanceRevision, withAlpha } from '@/shared/lib/appearance-tokens';
 import { useChart } from '@/shared/lib/use-chart';
 
@@ -12,7 +13,7 @@ export interface CategoryTrendRecord {
 export const CategoryTrendChart: FC<{ records: CategoryTrendRecord[] }> = ({ records }) => {
   const { chartDomRef, myChart } = useChart({ preventTouchMove: false });
   useAppearanceRevision();
-  const accent = readAppearanceToken('--ww-theme-color-mid', '#4aaac4');
+  const accent = readAppearanceToken('--ww-theme-color-mid', CHART_STYLE_FALLBACKS.primary);
   const points = useMemo(() => {
     const amounts = new Map<string, number>();
     records.forEach((record) => {

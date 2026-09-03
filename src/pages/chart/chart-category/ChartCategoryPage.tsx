@@ -13,7 +13,7 @@ import { useGetChartQuery, useTagRankingQuery } from '@/entities/chart';
 import { CategoryTrendChart, TagRankingSection } from '@/features/chart-overview';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
-import { GradientPanel, IllustratedEmptyState, MetricGrid, ProgressBar } from '@/shared/ui';
+import { IllustratedEmptyState, MetricGrid, ProgressBar, Surface } from '@/shared/ui';
 import {
   getMatchedRouteState,
   getPeriodFromState,
@@ -115,7 +115,7 @@ const ChartCategory: FC = () => {
       <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,env(safe-area-inset-top))]">
         <button
           aria-label={t('common:nav.back')}
-          className="absolute left-[18px] flex h-9 w-9 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
+          className="absolute left-[18px] flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
           onClick={() => navigate(-1)}
           type="button"
         >
@@ -124,13 +124,13 @@ const ChartCategory: FC = () => {
         <h1 className="text-[17px] font-extrabold text-ww-ink">{t('categoryDetail')}</h1>
       </header>
       <main className="flex min-h-0 flex-grow items-center px-[18px] pb-12">
-        <GradientPanel className="w-full" elevation="low" surface="glass">
+        <Surface className="w-full" material="content">
           <IllustratedEmptyState
             description={kind === 'missing' ? t('missingParamsHint') : t('loadFailHint')}
             icon={kind === 'missing' ? <BarChart3 className="text-primary-deep" size={38} /> : <CircleAlert className="text-primary-deep" size={38} />}
             title={kind === 'missing' ? t('missingParams') : t('loadFail')}
           />
-        </GradientPanel>
+        </Surface>
       </main>
     </div>
   );
@@ -149,7 +149,7 @@ const ChartCategory: FC = () => {
       <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,env(safe-area-inset-top))]">
         <button
           aria-label={t('common:nav.back')}
-          className="absolute left-[18px] flex h-9 w-9 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
+          className="absolute left-[18px] flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
           onClick={() => navigate(-1)}
           type="button"
         >
@@ -167,7 +167,7 @@ const ChartCategory: FC = () => {
                 {currentType ? ` · ${t(`amount.${currentType === 'sub' ? 'expend' : 'income'}`)}` : ''}
               </p>
             </div>
-            <GradientPanel className="h-[212.5px] overflow-hidden px-5 pb-4 pt-5" elevation="high" surface="chart">
+            <Surface className="h-[212.5px] overflow-hidden px-5 pb-4 pt-5" material="raised">
               <MetricGrid
                 columns={2}
                 items={[
@@ -177,7 +177,7 @@ const ChartCategory: FC = () => {
                 variant="chart-summary"
               />
               <CategoryTrendChart records={records} />
-            </GradientPanel>
+            </Surface>
           </section>
 
           <section data-record-ranking>
@@ -200,7 +200,7 @@ const ChartCategory: FC = () => {
               </div>
             </div>
 
-            <GradientPanel className="overflow-hidden px-4 py-1.5" elevation="standard" surface="glass">
+            <Surface className="overflow-hidden px-4 py-1.5" material="content">
               {sortedRecords.map((record) => {
                 const percentage = recordsAmount ? Number(record.amount) / recordsAmount : 0;
                 return (
@@ -246,7 +246,7 @@ const ChartCategory: FC = () => {
                 />
               )}
 
-            </GradientPanel>
+            </Surface>
           </section>
 
           <TagRankingSection data={tagRanking.data} fallbackRecords={records} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />

@@ -14,7 +14,7 @@ import {
 } from '@/features/ledger-collaboration';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { GradientPanel, PageHeader } from '@/shared/ui';
+import { PageHeader, Surface } from '@/shared/ui';
 
 const LedgerJoinRequestsPage: FC = () => {
   const { t } = useTranslation('ledger');
@@ -46,7 +46,7 @@ const LedgerJoinRequestsPage: FC = () => {
     title: string,
     requests: typeof requestsQuery.data,
   ) => requests.length > 0 && (
-    <GradientPanel className="overflow-hidden px-0 py-0" elevation="low" surface="glass">
+    <Surface className="overflow-hidden px-0 py-0" material="content">
       <h2 className="px-4 pb-2 pt-3 text-[11px] font-extrabold tracking-[0.4px] text-ww-mid">{title}</h2>
       {requests.map(request => (
         <LedgerUserRow
@@ -65,7 +65,7 @@ const LedgerJoinRequestsPage: FC = () => {
           user={request.applicant}
         />
       ))}
-    </GradientPanel>
+    </Surface>
   );
 
   return (

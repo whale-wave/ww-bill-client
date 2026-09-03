@@ -138,7 +138,7 @@ describe('workspace settings presentations', () => {
         userId: 1,
       },
     }));
-    const fallback = withoutAvatar.querySelector('span[class*="rounded-full"][class*="linear-gradient"]');
+    const fallback = withoutAvatar.querySelector('[data-avatar-type="fallback"]');
     expect(fallback?.classList.contains('rounded-full')).toBe(true);
   });
 });

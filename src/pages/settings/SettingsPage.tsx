@@ -21,9 +21,9 @@ import { playSound } from '@/shared/lib/play-sound';
 import { useSeniorMode } from '@/shared/lib/senior-mode';
 import {
   confirmAppAction,
-  GradientPanel,
   PageHeader,
   showAppActionSheet,
+  Surface,
 } from '@/shared/ui';
 
 const Settings: FC = () => {
@@ -92,7 +92,7 @@ const Settings: FC = () => {
       />
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(24px,env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[520px]">
-          <GradientPanel className="mb-5 flex items-center gap-3.5 px-4 py-4" elevation="low" surface="ice">
+          <Surface className="mb-5 flex items-center gap-3.5 px-4 py-4" material="raised">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] border border-white/80 bg-white/65 text-primary-deep shadow-ww-xs">
               <SlidersHorizontal size={21} strokeWidth={1.8} />
             </span>
@@ -100,7 +100,7 @@ const Settings: FC = () => {
               <h2 className="text-[14px] font-extrabold text-ww-ink">{t('overview.title')}</h2>
               <p className="mt-0.5 text-[11px] leading-4 text-ww-mid">{t('overview.description')}</p>
             </div>
-          </GradientPanel>
+          </Surface>
           <SettingsOverviewPresentation
             sections={[
               {
