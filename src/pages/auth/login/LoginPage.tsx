@@ -86,9 +86,7 @@ const Login: FC = () => {
           </button>
         </span>
       )}
-      kicker={t('brandKicker')}
       onBack={isAuthRequired ? undefined : () => navigate(-1)}
-      subtitle={t('login.subtitle')}
       title={t('login.title')}
     >
       <AuthSegmentedControl

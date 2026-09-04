@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
 import { SpinLoading } from 'antd-mobile';
-import { ChevronRight, ListOrdered, TriangleAlert, Trophy } from 'lucide-react';
+import { ChevronRight, TriangleAlert, Trophy } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AssetStatisticalRecordType, useGetAssetQuery } from '@/entities/asset';
@@ -9,7 +9,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, math } from '@/shared/lib';
 import { readAppearanceChartColors, useAppearanceRevision } from '@/shared/lib/appearance-tokens';
-import { IllustratedEmptyState, ProgressBar, Surface } from '@/shared/ui';
+import { ProgressBar, Surface } from '@/shared/ui';
 import { IconBlock } from '../../ui';
 import { ChartRetryButton } from './ChartRetryButton';
 
@@ -83,11 +83,9 @@ export const AssetRanking: FC<{ type: AssetStatisticalRecordType }> = ({ type })
       )}
 
       {!isLoading && !isError && rankList.length === 0 && (
-        <IllustratedEmptyState
-          className="min-h-[230px] px-2 py-5"
-          icon={<ListOrdered className="text-primary-deep" size={38} />}
-          title={t('common:empty')}
-        />
+        <p className="flex min-h-[190px] items-center justify-center text-[12px] font-bold text-ww-mid">
+          {t('common:empty')}
+        </p>
       )}
 
       {!isLoading && !isError && rankList.length > 0 && (

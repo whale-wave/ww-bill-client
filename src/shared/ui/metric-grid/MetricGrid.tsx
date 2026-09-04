@@ -135,11 +135,10 @@ export function MetricGrid({ align = 'center', items, columns = 3, density = 'st
 
   if (variant === 'detail-summary') {
     return (
-      <dl className={`flex h-[57px] items-center pt-[14px] ${className}`}>
-        {items.map((item, index) => (
+      <dl className={`flex h-[57px] items-center gap-5 pt-[14px] ${className}`}>
+        {items.map(item => (
           <div
-            className={`${index === 0 ? 'ww-metric-divider relative after:absolute after:-right-[17px] after:top-0 after:h-9 after:w-px' : 'ml-[33px]'} flex w-[114px] min-w-0 flex-col items-start`}
-            data-metric-divider={index === 0 ? '' : undefined}
+            className="flex min-w-0 flex-1 flex-col items-start"
             key={item.key}
           >
             <dt className="w-full truncate text-[10.5px] font-semibold leading-[15.75px] tracking-[0.5px] text-ww-mid">{item.label}</dt>

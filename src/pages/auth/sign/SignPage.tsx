@@ -41,9 +41,7 @@ const Sign: FC = () => {
           </button>
         </span>
       )}
-      kicker={t('brandKicker')}
       onBack={() => navigate(-1)}
-      subtitle={t('sign.subtitle')}
       title={t('sign.title')}
     >
       <div className="space-y-4">

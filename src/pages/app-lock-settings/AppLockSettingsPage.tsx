@@ -437,15 +437,12 @@ const AppLockSettingsPage: FC = () => {
       />
       <main className="relative z-[1] min-h-0 flex-grow overflow-hidden overscroll-none px-[18px] pb-8">
         <div className="mx-auto flex w-full max-w-[520px] flex-col items-center gap-5">
-          <Surface
-            className="w-full px-5 py-5"
-            material="content"
-          >
+          <div className="w-full px-1 pt-1 text-center">
             <h2 className="text-[18px] font-black text-ww-ink">{title}</h2>
             <p className="mt-2 text-[12px] leading-5 text-ww-mid">
               {t('appLock.setupDescription')}
             </p>
-          </Surface>
+          </div>
           <PatternGesture
             disabled={isSubmitting}
             onChange={handlePatternChange}

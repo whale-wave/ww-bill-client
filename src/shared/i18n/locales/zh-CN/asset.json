@@ -37,6 +37,7 @@
     "note": "备注",
     "noteHint": "先填这些基本信息即可创建",
     "bank": "所在银行",
+    "fixedValue": "已选定",
     "nameRequired": "请输入名称",
     "cardNumber": "卡号 (后四位)",
     "optional": "(选填)",

@@ -231,12 +231,7 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
                     </>
                   )
                 : (
-                    <>
-                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/75 text-primary-deep shadow-ww-xs">
-                        <ChartNoAxesCombined size={20} />
-                      </span>
-                      <p className="mt-3 text-[12px] font-bold text-ww-mid">{t('common:empty')}</p>
-                    </>
+                    <p className="text-[12px] font-bold text-ww-mid">{t('common:empty')}</p>
                   )}
           </div>
         )}

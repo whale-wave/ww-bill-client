@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { SupportedLang } from '@/shared/i18n';
 import { Toast } from 'antd-mobile';
-import { SlidersHorizontal, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
@@ -23,7 +23,6 @@ import {
   confirmAppAction,
   PageHeader,
   showAppActionSheet,
-  Surface,
 } from '@/shared/ui';
 
 const Settings: FC = () => {
@@ -90,15 +89,6 @@ const Settings: FC = () => {
       />
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(24px,env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[520px]">
-          <Surface className="mb-5 flex items-center gap-3.5 px-4 py-4" material="raised">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] bg-ww-surface-tint text-primary-deep">
-              <SlidersHorizontal size={21} strokeWidth={1.8} />
-            </span>
-            <div>
-              <h2 className="text-[14px] font-extrabold text-ww-ink">{t('overview.title')}</h2>
-              <p className="mt-0.5 text-[11px] leading-4 text-ww-mid">{t('overview.description')}</p>
-            </div>
-          </Surface>
           <SettingsOverviewPresentation
             sections={[
               {

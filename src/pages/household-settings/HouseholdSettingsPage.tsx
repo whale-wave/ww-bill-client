@@ -1,7 +1,7 @@
 import type { FC, FormEvent } from 'react';
 import type { Household } from '@/entities/household';
 import { Button, DatePicker, Toast } from 'antd-mobile';
-import { CalendarDays, ShieldCheck } from 'lucide-react';
+import { CalendarDays } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -26,7 +26,7 @@ import { SettingsOverviewPresentation } from '@/features/workspace-settings';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { AppBottomSheet, PageHeader, Surface } from '@/shared/ui';
+import { AppBottomSheet, PageHeader } from '@/shared/ui';
 
 type Editor = 'dissolve' | 'sharedStart' | null;
 
@@ -155,17 +155,6 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
       onRetry={() => void Promise.all([membersQuery.refetch(), userQuery.refetch()])}
       retryLabel={t('common.retry')}
     >
-      <Surface className="mb-5 overflow-hidden px-5 py-5" material="raised">
-        <div className="flex items-start gap-3.5">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] bg-white/70 text-primary-deep shadow-ww-xs">
-            <ShieldCheck size={23} strokeWidth={1.8} />
-          </span>
-          <div className="min-w-0 pt-0.5">
-            <h2 className="text-[16px] font-black leading-6 text-ww-ink">{t('settings.overviewTitle')}</h2>
-            <p className="mt-1 text-[11px] font-semibold leading-[18px] text-ww-mid">{t('settings.overviewDescription')}</p>
-          </div>
-        </div>
-      </Surface>
       <SettingsOverviewPresentation
         sections={[
           {
@@ -388,7 +377,7 @@ const HouseholdSettingsPage: FC = () => {
         onBack={onBack}
         title={t('settings.title')}
       />
-      <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-8 pt-2">
+      <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-8">
         <HouseholdScopeBoundary householdId={householdId}>
           {household => <SettingsContent household={household} />}
         </HouseholdScopeBoundary>

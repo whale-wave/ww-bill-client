@@ -50,8 +50,10 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
 }) => {
   const { t } = useTranslation('common');
   const canLoadMore = hasMore ?? onLoadMore !== undefined;
-  const shouldShowLoadMore = loadMoreLabel !== undefined
-    && (hasMore !== undefined || onLoadMore !== undefined);
+  // A completed paginated list needs neither a disabled control nor its
+  // surrounding whitespace. Keep the affordance only while another page can
+  // actually be requested.
+  const shouldShowLoadMore = loadMoreLabel !== undefined && canLoadMore;
   return (
     <>
       <RecordOverviewHeader {...header} />

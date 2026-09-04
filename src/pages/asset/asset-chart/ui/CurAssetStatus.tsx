@@ -6,7 +6,7 @@ import { AssetStatisticalRecordType, useAssetSummaryInfo, useGetAssetQuery } fro
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
 import { readAppearanceChartColors, useAppearanceRevision } from '@/shared/lib/appearance-tokens';
-import { IllustratedEmptyState, Surface } from '@/shared/ui';
+import { Surface } from '@/shared/ui';
 import { ChartRetryButton } from './ChartRetryButton';
 
 export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {
@@ -77,11 +77,9 @@ export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type 
       )}
 
       {!isLoading && !isError && chartData.length === 0 && (
-        <IllustratedEmptyState
-          className="min-h-[230px] px-2 py-5"
-          icon={<PieChartIcon className="text-primary-deep" size={38} />}
-          title={t('common:empty')}
-        />
+        <p className="flex min-h-[190px] items-center justify-center text-[12px] font-bold text-ww-mid">
+          {t('common:empty')}
+        </p>
       )}
 
       {!isLoading && !isError && chartData.length > 0 && (

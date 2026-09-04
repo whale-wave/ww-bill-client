@@ -8,8 +8,9 @@ import { useNavigate } from 'react-router-dom';
 import { useDeleteAssetByIdMutation, useGetAssetGroupQuery, useGetAssetQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { formatAmount, math } from '@/shared/lib';
-import { confirmAppAction, DesignIcon, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
+import { confirmAppAction, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
 import { IconBlock } from '../../ui';
+import { AssetEmptyState } from './AssetEmptyState';
 
 interface AssetListGroup {
   amount: number;
@@ -206,16 +207,7 @@ export const AssetList: FC = () => {
             </div>
           )
         : (
-            <div className="overflow-hidden rounded-[20px] border border-border-primary bg-white/75 shadow-ww-xs backdrop-blur-xl">
-              <IllustratedEmptyState
-                accentIcon={<DesignIcon name="tab-add" size={20} />}
-                className="min-h-[300px]"
-                description={t('manager.emptyDescription')}
-                icon={<DesignIcon name="discovery-asset" size={46} />}
-                testId="asset-empty-state"
-                title={t('manager.emptyTitle')}
-              />
-            </div>
+            <AssetEmptyState />
           )}
     </section>
   );

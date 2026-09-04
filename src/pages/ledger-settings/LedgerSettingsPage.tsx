@@ -22,7 +22,6 @@ import {
   LedgerRecordType,
   LedgerRole,
   LedgerStatus,
-  LedgerVisualIcon,
   useArchiveLedgerMutation,
   useLeaveLedgerMutation,
   useLedgerMembersQuery,
@@ -48,7 +47,6 @@ import {
   confirmAppAction,
   PageHeader,
   SheetHeader,
-  Surface,
 } from '@/shared/ui';
 
 function isConflict(error: unknown) {
@@ -552,7 +550,6 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
     : [];
   const previewIconKey = isLedgerIconKey(iconKey) ? iconKey : DEFAULT_LEDGER_ICON_KEY;
   const themePreviewClass = LEDGER_THEME_CLASS_NAMES[themeKey as typeof LEDGER_THEME_KEYS[number]] ?? 'bg-primary';
-  const currentThemeClass = LEDGER_THEME_CLASS_NAMES[ledger?.themeKey as typeof LEDGER_THEME_KEYS[number]] ?? 'bg-primary';
 
   return (
     <div className="page-new relative overflow-hidden" data-ledger-settings-page>
@@ -565,25 +562,6 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
       />
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(24px,env(safe-area-inset-bottom))]" data-ledger-settings-content>
         <div className="mx-auto w-full max-w-[520px]">
-          {ledger && (
-            <Surface className="mb-5 flex items-center gap-3.5 px-4 py-4" data-ledger-settings-overview material="raised">
-              <span className={`flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-[17px] border border-white/80 text-white shadow-ww-xs ${currentThemeClass}`}>
-                <LedgerVisualIcon
-                  className="h-[22px] w-[22px]"
-                  iconKey={ledger.iconKey}
-                  kind={ledger.kind}
-                  templateKey={ledger.templateKey}
-                />
-              </span>
-              <div className="min-w-0 flex-1">
-                <h2 className="truncate text-[14px] font-extrabold text-ww-ink">{ledger.name}</h2>
-                <p className="mt-0.5 text-[11px] leading-4 text-ww-mid">{t('settings.overviewDescription')}</p>
-              </div>
-              <span className="shrink-0 rounded-full border border-white/80 bg-white/60 px-2.5 py-1 text-[10px] font-bold text-primary-deep">
-                {t('settings.monthStartDayValue', { day: ledger.monthStartDay })}
-              </span>
-            </Surface>
-          )}
           <SettingsOverviewPresentation sections={sections} />
         </div>
       </main>

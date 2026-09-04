@@ -37,6 +37,7 @@
     "note": "Note",
     "noteHint": "Fill in basic info to create",
     "bank": "Bank",
+    "fixedValue": "Selected",
     "nameRequired": "Please enter a name",
     "cardNumber": "Card Number (last 4 digits)",
     "optional": "(Optional)",

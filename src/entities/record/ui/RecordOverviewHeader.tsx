@@ -133,7 +133,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
           </div>
           <ActionMenuCard
             aria-label="record shortcuts"
-            className="ww-overview-shortcuts relative h-[70px] overflow-y-hidden border-0 border-t border-solid border-border-primary pt-1.5"
+            className="ww-overview-shortcuts relative h-[70px] overflow-y-hidden rounded-[14px] bg-primary-light/15 pt-1.5"
             columns={3}
             items={shortcuts.map((shortcut, index) => ({
               ariaDisabled: shortcut.disabled,

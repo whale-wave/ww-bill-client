@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { useAssetSummaryInfo, useGetAssetQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, math } from '@/shared/lib';
-import { IllustratedEmptyState, Surface } from '@/shared/ui';
+import { Surface } from '@/shared/ui';
 import { ChartRetryButton } from './ChartRetryButton';
 
 export const CurNetAssetStatus: FC = () => {
@@ -61,11 +61,9 @@ export const CurNetAssetStatus: FC = () => {
       )}
 
       {!isLoading && !isError && data.length === 0 && (
-        <IllustratedEmptyState
-          className="min-h-[240px] px-2 py-5"
-          icon={<Scale className="text-primary-deep" size={38} />}
-          title={t('common:empty')}
-        />
+        <p className="flex min-h-[190px] items-center justify-center text-[12px] font-bold text-ww-mid">
+          {t('common:empty')}
+        </p>
       )}
 
       {!isLoading && !isError && data.length > 0 && (

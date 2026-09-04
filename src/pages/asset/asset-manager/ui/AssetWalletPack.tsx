@@ -8,8 +8,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAssetSummaryInfo, useGetAssetQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { formatAmount } from '@/shared/lib';
-import { DesignIcon, IllustratedEmptyState, PageLoadingState, useMotionPreference } from '@/shared/ui';
+import { IllustratedEmptyState, PageLoadingState, useMotionPreference } from '@/shared/ui';
 import { IconBlock } from '../../ui';
+import { AssetEmptyState } from './AssetEmptyState';
 
 interface WalletCardTone {
   amountClassName: string;
@@ -37,7 +38,7 @@ function getWalletCardTone(asset: Asset, index: number): WalletCardTone {
   if (index % 3 === 1) {
     return {
       amountClassName: 'text-ww-ink',
-      className: 'border border-white/75 bg-ww-surface text-ww-ink',
+      className: 'border border-white/75 bg-white text-ww-ink',
       detailClassName: 'text-ww-mid',
     };
   }
@@ -61,8 +62,12 @@ export const AssetWalletPack: FC = () => {
     if (!isExpanded)
       return 338;
     // Keep the total bar outside the last expanded card instead of layering it above.
-    return Math.max(430, assets.length * 138 + 182);
+    return Math.max(430, assets.length * 138 + 234);
   }, [assets.length, isExpanded]);
+  const walletBackOffset = isExpanded ? assets.length * 138 - 24 : 0;
+  const walletFrontOffset = isExpanded ? assets.length * 138 - 64 : 0;
+  const walletBackHeight = walletHeight - 58 - walletBackOffset;
+  const walletFrontHeight = walletHeight - 132 - walletFrontOffset;
 
   if (isLoading) {
     return <PageLoadingState compact className="rounded-[20px] border border-border-primary bg-white/70" label={t('common:nav.loading')} />;
@@ -85,17 +90,10 @@ export const AssetWalletPack: FC = () => {
 
   if (assets.length === 0) {
     return (
-      <div className="overflow-hidden rounded-[20px] border border-border-primary bg-white/75 shadow-ww-xs">
-        <IllustratedEmptyState
-          accentIcon={<DesignIcon name="tab-add" size={20} />}
-          actionLabel={t('manager.addAccount')}
-          className="min-h-[300px]"
-          description={t('manager.emptyDescription')}
-          icon={<DesignIcon name="discovery-asset" size={46} />}
-          onAction={() => navigate(ROUTES_PATH.ASSET_ADD_ACCOUNT.getPath())}
-          title={t('manager.emptyTitle')}
-        />
-      </div>
+      <AssetEmptyState
+        actionLabel={t('manager.addAccount')}
+        onAction={() => navigate(ROUTES_PATH.ASSET_ADD_ACCOUNT.getPath())}
+      />
     );
   }
 
@@ -116,13 +114,13 @@ export const AssetWalletPack: FC = () => {
           if (isExpanded && event.target === event.currentTarget)
             setIsExpanded(false);
         }}
-        transition={{ duration: isMotionEnabled ? 0.45 : 0, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: isMotionEnabled ? 0.42 : 0, ease: [0.22, 1, 0.36, 1] }}
       >
         <m.div
-          animate={isExpanded ? { height: 126 } : { height: [174, 238, 300] }}
-          className="pointer-events-none absolute bottom-4 left-4 right-4 rounded-[26px] bg-ww-ink shadow-[0_12px_22px_rgb(18_27_40_/_20%)]"
-          initial={{ height: 154 }}
-          transition={{ duration: isMotionEnabled ? 0.82 : 0, ease: [0.22, 1, 0.36, 1], times: [0, 0.56, 1] }}
+          animate={{ height: walletBackHeight, y: walletBackOffset }}
+          className="pointer-events-none absolute left-3 right-3 top-[42px] z-[2] rounded-[26px] bg-ww-ink shadow-[0_12px_22px_rgb(18_27_40_/_20%)]"
+          initial={false}
+          transition={{ duration: isMotionEnabled ? 0.42 : 0, ease: [0.22, 1, 0.36, 1] }}
         />
 
         {assets.map((asset, index) => {
@@ -143,7 +141,7 @@ export const AssetWalletPack: FC = () => {
               }}
               aria-label={isExpanded ? t('manager.walletOpenAsset', { name: asset.name }) : t('manager.walletExpand')}
               className={`absolute left-7 right-7 top-0 h-[122px] rounded-[21px] border-0 px-4 py-3.5 text-left shadow-[0_10px_20px_rgb(29_49_71_/_16%)] ${tone.className}`}
-              initial={{ opacity: isVisibleWhenCollapsed ? 0 : 0, scale: 0.9, y: 134 }}
+              initial={false}
               key={asset.id}
               onClick={() => {
                 if (isExpanded)
@@ -151,10 +149,12 @@ export const AssetWalletPack: FC = () => {
                 else
                   setIsExpanded(true);
               }}
-              style={{ pointerEvents: isExpanded || isVisibleWhenCollapsed ? 'auto' : 'none', zIndex: 4 + index }}
+              style={{
+                pointerEvents: isExpanded || isVisibleWhenCollapsed ? 'auto' : 'none',
+                zIndex: 4 + index,
+              }}
               transition={{
-                delay: isExpanded ? index * 0.1 : index * 0.045,
-                duration: isMotionEnabled ? (isExpanded ? 0.58 : 0.72) : 0,
+                duration: isMotionEnabled ? 0.42 : 0,
                 ease: [0.22, 1, 0.36, 1],
               }}
               type="button"
@@ -183,15 +183,16 @@ export const AssetWalletPack: FC = () => {
         })}
 
         <m.button
-          animate={isExpanded ? { opacity: 1, y: 0 } : { opacity: [0, 0, 1], y: [8, 8, 0] }}
+          animate={{ height: walletFrontHeight, opacity: 1, y: walletFrontOffset }}
           aria-label={isExpanded ? t('manager.walletCollapse') : t('manager.walletExpand')}
-          className="absolute bottom-5 left-6 right-6 z-[40] min-h-[116px] rounded-[18px] border border-white/[0.07] bg-white/[0.035] px-3.5 py-3 text-left text-white"
-          initial={{ opacity: 0, y: 8 }}
+          className="absolute left-4 right-4 top-[116px] z-20 flex flex-col justify-end rounded-[26px] border border-white/[0.07] bg-ww-ink px-5 pb-5 pt-4 text-left text-white shadow-[0_12px_22px_rgb(18_27_40_/_20%)]"
+          initial={false}
           onClick={() => setIsExpanded(value => !value)}
-          transition={{ delay: isExpanded ? 0.32 : 0.42, duration: isMotionEnabled ? 0.24 : 0, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: isMotionEnabled ? 0.42 : 0, ease: [0.22, 1, 0.36, 1] }}
           type="button"
           whileTap={isMotionEnabled ? { scale: 0.985 } : undefined}
         >
+          <span aria-hidden="true" className="pointer-events-none absolute -top-[34px] left-[20%] right-[20%] h-[38px] rounded-t-[46px] bg-ww-ink" />
           <span className="flex items-center justify-between gap-3">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.08] px-2 py-1 text-[9px] font-black tracking-[0.04em] text-white/68">
               <WalletCards size={12} strokeWidth={2.2} />

@@ -1,9 +1,36 @@
 import type { FC } from 'react';
-import { useState } from 'react';
+import type { AssetViewMode } from './ui';
+import { useCallback, useState } from 'react';
+import { useGetAssetQuery } from '@/entities/asset';
 import { AddAssetAccountButton, AssetHeader, AssetInfoCard, AssetList, AssetTabBar, AssetViewModeToggle, AssetWalletPack } from './ui';
 
+const ASSET_VIEW_MODE_STORAGE_KEY = 'ww-bill:asset-view-mode';
+
+function getInitialAssetViewMode(): AssetViewMode {
+  try {
+    const storedValue = globalThis.localStorage?.getItem(ASSET_VIEW_MODE_STORAGE_KEY);
+    return storedValue === 'wallet' ? 'wallet' : 'list';
+  }
+  catch {
+    return 'list';
+  }
+}
+
 const AssetManager: FC = () => {
-  const [viewMode, setViewMode] = useState<'list' | 'wallet'>('list');
+  const [viewMode, setViewMode] = useState<AssetViewMode>(getInitialAssetViewMode);
+  const { data: assets } = useGetAssetQuery();
+  const hasAssets = assets.length > 0;
+  const shouldShowAddAccountButton = viewMode === 'list' || hasAssets;
+
+  const handleViewModeChange = useCallback((nextViewMode: AssetViewMode) => {
+    setViewMode(nextViewMode);
+    try {
+      globalThis.localStorage?.setItem(ASSET_VIEW_MODE_STORAGE_KEY, nextViewMode);
+    }
+    catch {
+      // Keep the current session's selection when persistent storage is unavailable.
+    }
+  }, []);
 
   return (
     <div className="page-new relative overflow-hidden">
@@ -12,16 +39,16 @@ const AssetManager: FC = () => {
       <AssetHeader />
       <main className="ww-tab-bar-scroll-padding relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pt-2">
         <div className="mx-auto max-w-[520px] space-y-[14px] pb-4">
-          <AssetViewModeToggle onChange={setViewMode} value={viewMode} />
+          <AssetViewModeToggle onChange={handleViewModeChange} value={viewMode} />
           {viewMode === 'list'
             ? (
                 <>
-                  <AssetInfoCard />
+                  {hasAssets && <AssetInfoCard />}
                   <AssetList />
                 </>
               )
             : <AssetWalletPack />}
-          <AddAssetAccountButton />
+          {shouldShowAddAccountButton && <AddAssetAccountButton />}
         </div>
       </main>
       <AssetTabBar activeKey="home" />

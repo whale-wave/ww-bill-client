@@ -8,7 +8,7 @@ interface AuthPageShellProps {
   footer?: ReactNode;
   kicker?: ReactNode;
   onBack?: () => void;
-  subtitle: ReactNode;
+  subtitle?: ReactNode;
   title: ReactNode;
 }
 
@@ -67,7 +67,9 @@ export function AuthPageShell({
                   </span>
                 )}
               </div>
-              <p className="mt-0.5 truncate text-[12px] leading-[18px] text-ww-mid">{subtitle}</p>
+              {subtitle && (
+                <p className="mt-0.5 truncate text-[12px] leading-[18px] text-ww-mid">{subtitle}</p>
+              )}
             </div>
           </div>
           <Surface className="px-5 py-[22px]" material="raised">

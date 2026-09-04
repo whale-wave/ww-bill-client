@@ -211,6 +211,7 @@ const AssetFormInfo: FC = () => {
               </h2>
               {fields.map((field) => {
                 const FieldIcon = field.icon;
+                const isFixedValue = Boolean(field.disabled);
                 return (
                   <Form.Item
                     className="!mb-0 !border-0 !py-3 [&_.adm-form-item-child-inner]:!border-0 [&_.adm-form-item-label]:!mb-2 [&_.adm-form-item-label]:!text-[12px] [&_.adm-form-item-label]:!font-bold [&_.adm-form-item-label]:!text-ww-mid [&_.adm-form-item-has-error_.asset-form-field-frame]:!border-feedback-danger"
@@ -226,26 +227,43 @@ const AssetFormInfo: FC = () => {
                       </span>
                     )}
                   >
-                    <FieldFrame className="asset-form-field-frame !min-h-[52px] !rounded-[15px] !bg-white/90 !px-3 focus-within:!border-primary focus-within:!bg-white" disabled={field.disabled}>
-                      <FieldIcon className="shrink-0 text-primary-deep" size={18} strokeWidth={1.8} />
-                      <Form.Item
-                        className="!m-0 min-w-0 flex-1 [&_.adm-form-item-child-inner]:!border-0"
-                        name={field.name}
-                        normalize={field.normalize}
-                        noStyle
-                        rules={field.rules}
-                      >
-                        <Input
-                          aria-label={field.label}
-                          className="min-w-0 flex-1 text-[13px]"
-                          clearable={!field.disabled}
-                          disabled={field.disabled}
-                          inputMode={field.inputMode}
-                          maxLength={field.maxLength}
-                          placeholder={field.placeholder ?? t('form.fieldPlaceholder', { field: field.label })}
-                        />
-                      </Form.Item>
-                    </FieldFrame>
+                    {isFixedValue
+                      ? (
+                          <div className="flex min-h-[44px] items-center gap-2.5 px-1">
+                            <Form.Item
+                              name={field.name}
+                              noStyle
+                              rules={field.rules}
+                            >
+                              <input aria-hidden="true" readOnly tabIndex={-1} type="hidden" />
+                            </Form.Item>
+                            <FieldIcon className="shrink-0 text-primary-deep" size={18} strokeWidth={1.8} />
+                            <span className="min-w-0 flex-1 truncate text-[14px] font-bold text-ww-ink">{assetGroup.name}</span>
+                            <span className="text-[11px] font-medium text-ww-soft">{t('form.fixedValue')}</span>
+                          </div>
+                        )
+                      : (
+                          <FieldFrame className="asset-form-field-frame !min-h-[52px] !rounded-[15px] !bg-white/90 !px-3 focus-within:!border-primary focus-within:!bg-white" disabled={field.disabled}>
+                            <FieldIcon className="shrink-0 text-primary-deep" size={18} strokeWidth={1.8} />
+                            <Form.Item
+                              className="!m-0 min-w-0 flex-1 [&_.adm-form-item-child-inner]:!border-0"
+                              name={field.name}
+                              normalize={field.normalize}
+                              noStyle
+                              rules={field.rules}
+                            >
+                              <Input
+                                aria-label={field.label}
+                                className="min-w-0 flex-1 text-[13px]"
+                                clearable={!field.disabled}
+                                disabled={field.disabled}
+                                inputMode={field.inputMode}
+                                maxLength={field.maxLength}
+                                placeholder={field.placeholder ?? t('form.fieldPlaceholder', { field: field.label })}
+                              />
+                            </Form.Item>
+                          </FieldFrame>
+                        )}
                   </Form.Item>
                 );
               })}

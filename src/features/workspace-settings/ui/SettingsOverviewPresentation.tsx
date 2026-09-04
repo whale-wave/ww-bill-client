@@ -84,19 +84,26 @@ const SettingsRow: FC<{ isLast: boolean; row: SettingsOverviewRow }> = ({
         <button
           aria-checked={row.checked}
           className={cn(
-            'relative h-11 w-12 rounded-full border-0 transition-colors',
-            row.checked ? 'bg-primary' : 'bg-ww-surface-tint',
+            'relative flex h-11 w-12 items-center justify-center border-0 bg-transparent p-0',
           )}
           disabled={row.disabled}
           onClick={() => row.onChange(!row.checked)}
           role="switch"
           type="button"
         >
-          <span className={cn(
-            'absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform',
-            row.checked ? 'translate-x-5' : 'translate-x-0',
-          )}
-          />
+          <span
+            aria-hidden="true"
+            className={cn(
+              'relative h-7 w-12 rounded-full transition-colors',
+              row.checked ? 'bg-primary' : 'bg-ww-surface-tint',
+            )}
+          >
+            <span className={cn(
+              'absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow-ww-xs transition-transform',
+              row.checked ? 'translate-x-5' : 'translate-x-0',
+            )}
+            />
+          </span>
         </button>
       )
     : row.kind === 'avatarStack'

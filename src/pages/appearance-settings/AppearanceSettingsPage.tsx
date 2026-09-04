@@ -2,7 +2,7 @@ import type { FC, KeyboardEvent } from 'react';
 import type { AppearanceTemplate } from '@/entities/user-app-config';
 import type { AppearancePreference } from '@/features/appearance';
 import { Toast } from 'antd-mobile';
-import { Check, Palette, Sparkles } from 'lucide-react';
+import { Check, Sparkles } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import {
   useGetUserAppConfigQuery,
@@ -92,15 +92,7 @@ const AppearanceSettingsPage: FC = () => {
         title={t('appearance.title')}
       />
       <main className="min-h-0 flex-grow overflow-auto px-[var(--ww-page-gutter)] pb-[max(20px,env(safe-area-inset-bottom))]">
-        <section className="appearance-settings__intro mt-1">
-          <span className="appearance-settings__intro-icon"><Palette size={21} strokeWidth={1.8} /></span>
-          <div>
-            <h2>{t('appearance.introTitle')}</h2>
-            <p>{t('appearance.introDescription')}</p>
-          </div>
-        </section>
-
-        <section className="mt-4" aria-labelledby="appearance-template-title">
+        <section className="pt-1" aria-labelledby="appearance-template-title">
           <div className="mb-1.5 flex items-center gap-2 px-1">
             <Sparkles className="text-primary-deep" size={17} strokeWidth={1.8} />
             <h2 className="text-[13px] font-extrabold text-ww-ink" id="appearance-template-title">{t('appearance.templateTitle')}</h2>
