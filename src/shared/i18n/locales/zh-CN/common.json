@@ -95,6 +95,20 @@
     "comingSoon": "敬请期待",
     "discovery": "发现"
   },
+  "discoveryCards": {
+    "asset": "资产管家",
+    "bill": "账单",
+    "budget": "预算总览",
+    "done": "完成",
+    "drag": "长按拖动把手调整顺序",
+    "dragHint": "长按右上拖拽把手，即可调整展示顺序",
+    "hide": "隐藏",
+    "manage": "管理卡片",
+    "managerDescription": "选择发现页展示的卡片",
+    "managerTitle": "管理发现卡片",
+    "minimumHint": "至少保留一张卡片显示",
+    "saveFailed": "保存卡片设置失败，请稍后重试"
+  },
   "api": {
     "requestTimeout": "请求超时",
     "networkError": "网络异常，请稍后重试",

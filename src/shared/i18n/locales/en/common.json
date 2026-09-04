@@ -146,6 +146,20 @@
     "comingSoon": "Coming Soon",
     "discovery": "Discover"
   },
+  "discoveryCards": {
+    "asset": "Asset Manager",
+    "bill": "Bills",
+    "budget": "Budget Overview",
+    "done": "Done",
+    "drag": "Press and hold to reorder",
+    "dragHint": "Press and hold the top-right drag handle to reorder.",
+    "hide": "Hide",
+    "manage": "Manage Cards",
+    "managerDescription": "Choose the cards shown on Discover.",
+    "managerTitle": "Manage Discover Cards",
+    "minimumHint": "Keep at least one card visible.",
+    "saveFailed": "Couldn't save card settings. Try again."
+  },
   "api": {
     "requestTimeout": "Request timeout",
     "networkError": "Network error, please try again",

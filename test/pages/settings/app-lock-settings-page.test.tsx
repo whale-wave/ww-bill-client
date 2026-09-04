@@ -25,6 +25,8 @@ const mocks = vi.hoisted(() => ({
     ledgerQuickSwitchVersion: 1,
     appearanceTemplate: 'fresh' as const,
     appearanceAccent: 'sky' as const,
+    discoveryCardOrder: ['bill', 'budget', 'asset'] as Array<'bill' | 'budget' | 'asset'>,
+    visibleDiscoveryCards: ['bill', 'budget', 'asset'] as Array<'bill' | 'budget' | 'asset'>,
     userId: 7,
   },
   createCredential: vi.fn(async () => ({

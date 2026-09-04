@@ -7,6 +7,9 @@ export type AppearanceTemplate = typeof APPEARANCE_TEMPLATES[number];
 export const APPEARANCE_ACCENTS = ['sky', 'coral', 'lavender', 'mint'] as const;
 export type AppearanceAccent = typeof APPEARANCE_ACCENTS[number];
 
+export const DISCOVERY_CARD_IDS = ['bill', 'budget', 'asset'] as const;
+export type DiscoveryCardId = typeof DISCOVERY_CARD_IDS[number];
+
 export interface UserAppConfig {
   id: string;
   userId: number;
@@ -20,6 +23,8 @@ export interface UserAppConfig {
   ledgerQuickSwitchVersion: number;
   appearanceTemplate: AppearanceTemplate;
   appearanceAccent: AppearanceAccent;
+  discoveryCardOrder: DiscoveryCardId[];
+  visibleDiscoveryCards: DiscoveryCardId[];
 }
 
 export function getUserAppConfigApi() {
