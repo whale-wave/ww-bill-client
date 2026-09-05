@@ -7,6 +7,7 @@ import TopBar from '@/pages/community/TopBar';
 import { useTranslation } from '@/shared/i18n';
 import { FixedPin } from '@/shared/ui';
 import { TabBar } from '@/widgets/layout';
+import styles from './CommunityPage.module.scss';
 
 const Community: FC = () => {
   const [tabIndex, setTabIndex] = useState(2);
@@ -38,11 +39,16 @@ const Community: FC = () => {
   };
 
   return (
-    <div className="page">
-      <TopBar data={tabs} index={tabIndex} onChange={onChange} />
+    <div className="page-new relative overflow-hidden" data-community-page>
+      <header className={styles.header}>
+        <div className={styles['header-copy']}>
+          <strong>{t('title')}</strong>
+        </div>
+        <TopBar data={tabs} index={tabIndex} onChange={onChange} />
+      </header>
       <ItemList data={queryEnabled ? data.topics : []} />
       <TabBar active={3} />
-      <FixedPin onClick={handlePostTopic}>{t('postTopic')}</FixedPin>
+      <FixedPin className={styles['post-pin']} onClick={handlePostTopic}>{t('postTopic')}</FixedPin>
     </div>
   );
 };

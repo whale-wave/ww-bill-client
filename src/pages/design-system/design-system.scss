@@ -37,6 +37,12 @@
   gap: 10px;
 }
 
+.design-studio__record-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
 .design-studio__panel {
   border: 1px solid var(--ww-border-color);
   border-radius: 20px;
@@ -59,11 +65,58 @@
   transition: width 0.22s ease;
 }
 
+.design-studio__frame-wrap[data-preview-width='375'] {
+  width: 375px;
+}
+
+.design-studio__frame-wrap[data-preview-width='430'] {
+  width: 430px;
+}
+
 .design-studio__frame {
   display: block;
   width: 100%;
   height: 820px;
   border: 0;
+}
+
+.design-studio__inspect-trigger {
+  border-color: rgb(var(--ww-color-stroke) / 0.16);
+  background: var(--ww-surface-raised-color);
+  color: rgb(var(--ww-color-fg-muted));
+  transition:
+    color 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.design-studio__inspect-trigger:hover,
+.design-studio__inspect-trigger[data-active='true'] {
+  border-color: rgb(var(--ww-color-action-primary) / 0.36);
+  background: rgb(var(--ww-color-action-primary) / 0.1);
+  color: var(--ww-theme-color-deep);
+}
+
+.design-studio__inspect-outline {
+  --ww-design-studio-inspector-hover-layer: 2147483646;
+  position: fixed;
+  z-index: var(--ww-design-studio-inspector-hover-layer);
+  box-sizing: border-box;
+  pointer-events: none;
+  border: 2px solid rgb(var(--ww-color-action-primary) / 0.82);
+  border-radius: 6px;
+  background: rgb(var(--ww-color-action-primary) / 0.07);
+  box-shadow: 0 0 0 2px rgb(255 255 255 / 0.76);
+  transition:
+    width 0.08s ease,
+    height 0.08s ease,
+    transform 0.08s ease;
+}
+
+.design-studio__inspect-outline--selected {
+  --ww-design-studio-inspector-hover-layer: 2147483647;
+  border-color: rgb(var(--ww-color-feedback-warning) / 0.9);
+  background: rgb(var(--ww-color-feedback-warning) / 0.08);
 }
 
 [data-design-studio-preview] {
@@ -86,26 +139,95 @@
 }
 
 @media (max-width: 740px) {
+  [data-design-studio-shell] {
+    overflow-x: clip;
+  }
+  .design-studio__header {
+    padding: 12px 14px;
+  }
   .design-studio__grid {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     padding: 10px;
   }
   .design-studio__rail {
+    position: static;
+    display: flex;
+    width: calc(100vw - 20px);
+    max-width: none;
+    gap: 8px;
+    align-self: stretch;
+    overflow-x: auto;
+    padding: 8px;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .design-studio__rail::-webkit-scrollbar {
     display: none;
   }
-  .design-studio__frame-wrap {
+  .design-studio__rail > p,
+  .design-studio__rail > div {
+    display: none;
+  }
+  .design-studio__rail .design-studio__template {
+    width: 144px;
+    min-height: 52px;
+    flex: 0 0 144px;
+    margin: 0;
+    padding: 8px;
+  }
+  .design-studio__rail .design-studio__template > span:last-child {
+    min-width: 0;
+  }
+  .design-studio__rail .design-studio__template > span:last-child > span:first-child,
+  .design-studio__rail .design-studio__template > span:last-child > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .design-studio__grid > main,
+  .design-studio__editor {
+    width: 100%;
+    min-width: 0;
+  }
+  .design-studio__record-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .design-studio__grid > main {
+    order: 2;
+    padding: 12px;
+  }
+  .design-studio__grid > main > .mb-4 {
+    margin-bottom: 12px;
+  }
+  .design-studio__grid > main > .mb-4 > div:first-child > p {
+    max-width: 210px;
+  }
+  .design-studio__viewport-picker {
+    display: none;
+  }
+  .design-studio__frame-wrap[data-preview-width] {
+    width: 100%;
+    border-width: 6px;
+    border-radius: 28px;
     transform-origin: top center;
   }
   .design-studio__frame {
-    height: 760px;
+    height: min(680px, calc(100svh - 180px));
   }
   .design-studio__editor {
+    order: 3;
     margin-top: 14px;
+    padding: 12px;
   }
   .design-studio__editor > .mt-4.space-y-3 {
     display: block;
   }
   .design-studio__editor > .mt-4.space-y-3 > * + * {
     margin-top: 10px;
+  }
+  .design-studio__grid > main > .mt-4.grid {
+    grid-template-columns: 1fr;
   }
 }

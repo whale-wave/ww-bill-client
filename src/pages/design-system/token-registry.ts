@@ -1,4 +1,9 @@
 import type { AppearanceTemplate } from '@/entities/user-app-config';
+import { MONO_DEVELOPMENT_TOKENS } from '@/features/appearance/model/development-appearance';
+
+/** Studio templates stay local to the isolated preview until explicitly promoted. */
+export const STUDIO_TEMPLATES = ['glass', 'fresh', 'minimal', 'mono'] as const;
+export type StudioTemplate = typeof STUDIO_TEMPLATES[number];
 
 export type StudioTokenKind = 'channel-color' | 'color' | 'select' | 'slider';
 
@@ -24,7 +29,7 @@ export interface StudioToken {
 export type StudioTokenOverrides = Partial<Record<string, string>>;
 
 export interface StudioThemeExport {
-  baseTemplate: AppearanceTemplate;
+  baseTemplate: StudioTemplate;
   name: string;
   tokens: StudioTokenOverrides;
   version: 1;
@@ -107,15 +112,34 @@ const linkedChannelTokens: Record<string, string> = {
   '--ww-text-color-soft': '--ww-color-fg-subtle',
 };
 
-export const STUDIO_TOKEN_STORAGE_KEY = 'ww:design-studio:overrides:v1';
+export const STUDIO_DEBUG_RECORD_STORAGE_KEY = 'ww:design-studio:debug-records:v1';
 
-export function createThemeExport(template: AppearanceTemplate, overrides: StudioTokenOverrides): StudioThemeExport {
+export interface StudioDebugRecord {
+  id: string;
+  label: string;
+  overrides: StudioTokenOverrides;
+  savedAt: string;
+  template: StudioTemplate;
+}
+
+export function resolveStudioAppearanceTemplate(template: StudioTemplate): AppearanceTemplate {
+  return template === 'mono' ? 'minimal' : template;
+}
+
+export function getStudioTemplateTokens(template: StudioTemplate): StudioTokenOverrides {
+  return template === 'mono' ? { ...MONO_DEVELOPMENT_TOKENS } : {};
+}
+
+export function createThemeExport(template: StudioTemplate, overrides: StudioTokenOverrides): StudioThemeExport {
   return { version: 1, name: `鲸浪主题 · ${template}`, baseTemplate: template, tokens: filterValidStudioOverrides(overrides) };
 }
 
-export function createThemeCss(template: AppearanceTemplate, overrides: StudioTokenOverrides): string {
+export function createThemeCss(template: StudioTemplate, overrides: StudioTokenOverrides): string {
   const lines = Object.entries(filterValidStudioOverrides(overrides)).map(([name, value]) => `  ${name}: ${value};`);
-  return `html[data-appearance-template='${template}'] {\n${lines.join('\n')}\n}`;
+  const selector = template === 'mono'
+    ? 'html[data-design-studio-template=\'mono\']'
+    : `html[data-appearance-template='${template}']`;
+  return `${selector} {\n${lines.join('\n')}\n}`;
 }
 
 export function colorToChannels(value: string): string | null {
@@ -143,13 +167,15 @@ export function isValidTokenValue(token: StudioToken, value: string): boolean {
   if (!value.trim())
     return false;
   if (token.kind === 'color')
-    return /^#[\da-f]{6}$/i.test(value.trim());
+    return /^#[\da-f]{6}$/i.test(value.trim()) || /^var\(--ww-[\w-]+\)$/.test(value.trim());
   if (token.kind === 'channel-color')
     return channelsToColor(value) !== null;
   if (token.kind === 'slider') {
     const numeric = Number.parseFloat(value);
     return Number.isFinite(numeric) && numeric >= (token.min ?? 0) && numeric <= (token.max ?? Number.POSITIVE_INFINITY);
   }
+  if (/^var\(--ww-[\w-]+\)$/.test(value.trim()))
+    return true;
   if (token.options?.some(option => option.value === value))
     return true;
   if (token.name === '--ww-page-gradient')
@@ -170,16 +196,46 @@ export function filterValidStudioOverrides(overrides: StudioTokenOverrides): Stu
   }));
 }
 
-export function readStudioDrafts(): Partial<Record<AppearanceTemplate, StudioTokenOverrides>> {
+function isStudioTemplate(value: unknown): value is StudioTemplate {
+  return typeof value === 'string' && STUDIO_TEMPLATES.includes(value as StudioTemplate);
+}
+
+export function createStudioDebugRecord(template: StudioTemplate, overrides: StudioTokenOverrides, savedAt = new Date().toISOString()): StudioDebugRecord {
+  const timeLabel = savedAt.replace('T', ' ').slice(0, 16);
+  return {
+    id: `${template}-${savedAt}-${Math.random().toString(36).slice(2, 8)}`,
+    label: `${template.toUpperCase()} · ${timeLabel}`,
+    overrides: filterValidStudioOverrides(overrides),
+    savedAt,
+    template,
+  };
+}
+
+export function readStudioDebugRecords(): StudioDebugRecord[] {
   try {
-    const value: unknown = JSON.parse(localStorage.getItem(STUDIO_TOKEN_STORAGE_KEY) ?? '{}');
-    return value && typeof value === 'object' ? value as Partial<Record<AppearanceTemplate, StudioTokenOverrides>> : {};
+    const value: unknown = JSON.parse(localStorage.getItem(STUDIO_DEBUG_RECORD_STORAGE_KEY) ?? '[]');
+    if (!Array.isArray(value))
+      return [];
+    return value.flatMap((record): StudioDebugRecord[] => {
+      if (!record || typeof record !== 'object')
+        return [];
+      const candidate = record as Partial<StudioDebugRecord>;
+      if (typeof candidate.id !== 'string' || typeof candidate.label !== 'string' || typeof candidate.savedAt !== 'string' || !isStudioTemplate(candidate.template) || !candidate.overrides || typeof candidate.overrides !== 'object')
+        return [];
+      return [{ id: candidate.id, label: candidate.label, savedAt: candidate.savedAt, template: candidate.template, overrides: filterValidStudioOverrides(candidate.overrides) }];
+    }).slice(0, 20);
   }
   catch {
-    return {};
+    return [];
   }
 }
 
-export function writeStudioDrafts(drafts: Partial<Record<AppearanceTemplate, StudioTokenOverrides>>): void {
-  localStorage.setItem(STUDIO_TOKEN_STORAGE_KEY, JSON.stringify(drafts));
+export function writeStudioDebugRecords(records: readonly StudioDebugRecord[]): boolean {
+  try {
+    localStorage.setItem(STUDIO_DEBUG_RECORD_STORAGE_KEY, JSON.stringify(records.slice(0, 20)));
+    return true;
+  }
+  catch {
+    return false;
+  }
 }

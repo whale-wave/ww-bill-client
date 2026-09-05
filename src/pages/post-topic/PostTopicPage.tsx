@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePostTopicMutation } from '@/entities/topic';
 import { uploadFile } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
-import { Button, Icon, NavBar } from '@/shared/ui';
+import { AppButton, Icon, PageHeader } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const PostTopic: FC = () => {
@@ -109,78 +109,73 @@ const PostTopic: FC = () => {
   }, [clearFiles, imgs]);
 
   return (
-    <div className={classNames('page', styles.wrapper)}>
-      <NavBar
-        className={styles.top}
-        back={t('common:nav.cancel')}
-        backArrow={false}
+    <div className={classNames('page-new', styles.wrapper)} data-post-topic-page>
+      <PageHeader
+        backLabel={t('common:nav.cancel')}
         onBack={() => navigator(-1)}
-      >
-        {t('post.title')}
-      </NavBar>
-      <main className="grow">
-        <div
-          onInput={(e: ChangeEvent<HTMLDivElement>) => {
-            setContent(e.target.textContent ?? '');
-          }}
-          contentEditable={true}
-          aria-label={t('post.content')}
-          aria-multiline="true"
-          data-placeholder={t('post.content')}
-          role="textbox"
-          className={classNames('max-width-full', styles.textarea)}
-        />
-        <div className={classNames(styles.imgs, 'flex flex-wrap')}>
-          {imgs.map((img, i) => (
-            <div key={img} className={styles.img}>
+        title={t('post.title')}
+      />
+      <main className={styles.content}>
+        <section className={styles['editor-card']}>
+          <div
+            onInput={(e: ChangeEvent<HTMLDivElement>) => {
+              setContent(e.target.textContent ?? '');
+            }}
+            contentEditable={true}
+            aria-label={t('post.content')}
+            aria-multiline="true"
+            data-placeholder={t('post.content')}
+            role="textbox"
+            className={classNames('max-width-full', styles.textarea)}
+          />
+          <div className={styles.imgs}>
+            {imgs.map((img, i) => (
+              <div key={img} className={styles.img}>
+                <button
+                  aria-label={t('post.deleteImage')}
+                  className={styles.circle}
+                  onClick={() => deleteImg(i)}
+                  type="button"
+                >
+                  <Icon name="add" className={styles.del} />
+                </button>
+                <img src={img} alt="" />
+              </div>
+            ))}
+            {imgs.length < 9 && (
               <button
-                aria-label={t('post.deleteImage')}
-                className={styles.circle}
-                onClick={() => deleteImg(i)}
+                aria-label={t('post.addImage')}
+                className={classNames(styles.img, styles['add-image'])}
+                onClick={addImg}
                 type="button"
               >
-                <Icon name="add" className={styles.del} />
+                <input
+                  onClick={e => e.stopPropagation()}
+                  ref={uploadRef}
+                  type="file"
+                  hidden
+                  onChange={changeFiles}
+                  accept="image/*"
+                  multiple={true}
+                />
+                <Icon className={styles.add} name="add" />
               </button>
-              <img src={img} alt="" />
-            </div>
-          ))}
-          {imgs.length < 9 && (
-            <button
-              aria-label={t('post.addImage')}
-              className={classNames(styles.img, styles.addImage)}
-              onClick={addImg}
-              type="button"
-            >
-              <input
-                onClick={e => e.stopPropagation()}
-                ref={uploadRef}
-                type="file"
-                hidden
-                onChange={changeFiles}
-                accept="image/*"
-                multiple={true}
-              />
-              <Icon
-                className={classNames(styles.add, 'absolute top-1/2 left-1/2')}
-                style={{
-                  transform: 'translate(-50%, -50%)',
-                }}
-                name="add"
-              />
-            </button>
-          )}
-        </div>
-        <footer className="flex items-center">
-          <div className="flex-grow flex items-center justify-between">
-            <span>{t('post.joinTopic')}</span>
-            <div>{t('post.topicTip')}</div>
+            )}
           </div>
-          <Icon name="left" />
-        </footer>
+          <footer className={styles['topic-row']}>
+            <span>{t('post.joinTopic')}</span>
+            <div>
+              <span>{t('post.topicTip')}</span>
+              <Icon name="left" />
+            </div>
+          </footer>
+        </section>
       </main>
-      <Button size="full" onClick={handleAddTopic}>
-        {t('post.publishButton')}
-      </Button>
+      <div className={styles['publish-bar']}>
+        <AppButton fullWidth onClick={handleAddTopic}>
+          {t('post.publishButton')}
+        </AppButton>
+      </div>
     </div>
   );
 };

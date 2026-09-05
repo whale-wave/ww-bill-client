@@ -67,7 +67,7 @@ const Detail: FC = () => {
   });
 
   return (
-    <div className="page">
+    <div className="page-new relative overflow-hidden">
       <RecordOverviewPresentation
         emptyActionLabel={t('detail.emptyAction')}
         emptyDescription={t('detail.emptyDescription')}

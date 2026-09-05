@@ -1,7 +1,8 @@
 import type { SettingsOverviewSection } from '@/features/workspace-settings';
-import { ErrorBlock, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import {
   Archive,
+  CircleAlert,
   LogOut,
   Palette,
   Settings2,
@@ -45,8 +46,10 @@ import {
   AppBottomSheet,
   AppButton,
   confirmAppAction,
+  IllustratedEmptyState,
   PageHeader,
   SheetHeader,
+  Surface,
 } from '@/shared/ui';
 
 function isConflict(error: unknown) {
@@ -334,8 +337,25 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
   const ledger = ledgerQuery.data;
   const ledgerWritable = ledger?.status === LedgerStatus.ACTIVE;
   const preferencesWritable = ledgerWritable;
-  if (!ledgerId || ledgerQuery.isError)
-    return <ErrorBlock title={t('common.invalidLedger')} />;
+  if (!ledgerId || ledgerQuery.isError) {
+    return (
+      <div className="page-new relative overflow-hidden">
+        <PageHeader backLabel={t('common:nav.back')} onBack={onBack} title={t('settings.title')} />
+        <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(24px,env(safe-area-inset-bottom))]">
+          <div className="mx-auto w-full max-w-[520px] pt-4">
+            <Surface className="overflow-hidden" material="content">
+              <IllustratedEmptyState
+                actionLabel={t('common:nav.back')}
+                icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+                onAction={onBack}
+                title={t('common.invalidLedger')}
+              />
+            </Surface>
+          </div>
+        </main>
+      </div>
+    );
+  }
   if (ledgerQuery.data?.status === LedgerStatus.ARCHIVED)
     return <Navigate replace to={ROUTES_PATH.DETAIL.getPath()} />;
 
@@ -405,7 +425,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                   icon: 'appearance',
                   id: 'appearance',
                   kind: 'link',
-                  label: `${t('settings.icon')} · ${t('settings.theme')}`,
+                  label: t('settings.iconAndTheme'),
                   onClick: openBasicEditor,
                   value: `${t(`settings.iconOptions.${ledger.iconKey}`, { defaultValue: ledger.iconKey })} · ${t(`settings.themeOptions.${ledger.themeKey}`, { defaultValue: ledger.themeKey })}`,
                 }
@@ -413,7 +433,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                   icon: 'appearance',
                   id: 'appearance',
                   kind: 'value',
-                  label: `${t('settings.icon')} · ${t('settings.theme')}`,
+                  label: t('settings.iconAndTheme'),
                   value: `${t(`settings.iconOptions.${ledger.iconKey}`, { defaultValue: ledger.iconKey })} · ${t(`settings.themeOptions.${ledger.themeKey}`, { defaultValue: ledger.themeKey })}`,
                 },
           ],

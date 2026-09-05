@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { Household } from '@/entities/household';
-import { Button, ErrorBlock, Toast } from 'antd-mobile';
-import { Check, Eye, EyeOff, ShieldCheck, UsersRound } from 'lucide-react';
+import { Button, Toast } from 'antd-mobile';
+import { Check, CircleAlert, Eye, EyeOff, ShieldCheck, UsersRound } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -16,7 +16,7 @@ import {
   HouseholdScopeBoundary,
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
-import { PageHeader, Surface } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 
 const POLICY_OPTIONS = Object.values(FamilyRecordPolicy);
 const POLICY_ICONS = {
@@ -143,7 +143,16 @@ const HouseholdRecordPolicyPage: FC = () => {
       <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('policy.title')} />
       <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-0 pt-2">
         {!Number.isInteger(parsedRecordId) || parsedRecordId <= 0
-          ? <ErrorBlock status="default" title={t('common.invalidContext')} />
+          ? (
+              <Surface className="mt-4 overflow-hidden" material="content">
+                <IllustratedEmptyState
+                  actionLabel={t('common:nav.back')}
+                  icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+                  onAction={() => navigate(-1)}
+                  title={t('common.invalidContext')}
+                />
+              </Surface>
+            )
           : (
               <HouseholdScopeBoundary householdId={householdId}>
                 {household => <PolicyContent household={household} recordId={parsedRecordId} />}

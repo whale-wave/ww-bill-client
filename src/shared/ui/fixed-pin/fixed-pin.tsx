@@ -19,13 +19,13 @@ interface FixedPinProps {
   /**
    * 点击事件
    */
-  onClick?: (e: MouseEvent<HTMLDivElement>) => void;
+  onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
 }
 
-export const FixedPin: FC<FixedPinProps> = ({ children, onClick }) => {
+export const FixedPin: FC<FixedPinProps> = ({ children, className, style, onClick }) => {
   return (
-    <div className={classPrefix} onClick={onClick}>
+    <button className={`${classPrefix}${className ? ` ${className}` : ''}`} onClick={onClick} style={style} type="button">
       {children}
-    </div>
+    </button>
   );
 };

@@ -17,7 +17,7 @@ import {
 } from '@/features/ledger-collaboration';
 import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedDateTime } from '@/shared/lib';
-import { NavBar } from '@/shared/ui';
+import { PageHeader } from '@/shared/ui';
 
 const LedgerInvitationPreviewPage: FC = () => {
   const { i18n, t } = useTranslation('ledger');
@@ -71,29 +71,37 @@ const LedgerInvitationPreviewPage: FC = () => {
   };
 
   return (
-    <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
-        {t('preview.title')}
-      </NavBar>
-      <main className="min-h-0 flex-grow overflow-auto pb-6">
+    <div className="page-new relative overflow-hidden" data-ledger-invitation-preview-page>
+      <PageHeader
+        backLabel={t('common:nav.back')}
+        onBack={() => navigate(-1)}
+        title={t('preview.title')}
+      />
+      <main className="relative z-10 min-h-0 flex-grow overflow-y-auto px-[var(--ww-page-gutter)] pb-[max(24px,env(safe-area-inset-bottom))] pt-1">
         {!code && (
-          <CollaborationQueryState
-            description={t('preview.invalidDescription')}
-            title={t('preview.invalid')}
-            type="invalid"
-          />
+          <div className="rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised shadow-ww-xs">
+            <CollaborationQueryState
+              description={t('preview.invalidDescription')}
+              title={t('preview.invalid')}
+              type="invalid"
+            />
+          </div>
         )}
         {code && previewQuery.isLoading && (
-          <CollaborationQueryState title={t('preview.loading')} type="loading" />
+          <div className="rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised shadow-ww-xs">
+            <CollaborationQueryState title={t('preview.loading')} type="loading" />
+          </div>
         )}
         {code && previewQuery.isError && (
-          <CollaborationQueryState
-            description={t('preview.loadErrorDescription')}
-            onRetry={() => previewQuery.refetch()}
-            retryLabel={t('common.retry')}
-            title={t('preview.loadError')}
-            type="error"
-          />
+          <div className="rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised shadow-ww-xs">
+            <CollaborationQueryState
+              description={t('preview.loadErrorDescription')}
+              onRetry={() => previewQuery.refetch()}
+              retryLabel={t('common.retry')}
+              title={t('preview.loadError')}
+              type="error"
+            />
+          </div>
         )}
         {previewQuery.data && !submitted && (
           <>
@@ -101,7 +109,7 @@ const LedgerInvitationPreviewPage: FC = () => {
               fallbackOwner={t('common.unknownUser')}
               preview={previewQuery.data}
             />
-            <form className="mt-3 bg-white px-4 py-5" onSubmit={handleSubmit}>
+            <form className="mt-3 rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised px-4 py-5 shadow-ww-xs" onSubmit={handleSubmit}>
               <p className="text-sm text-font-gray">
                 {t('preview.expiresAt', {
                   date: formatLocalizedDateTime(previewQuery.data.expiresAt, locale),
@@ -137,7 +145,7 @@ const LedgerInvitationPreviewPage: FC = () => {
           </>
         )}
         {submitted && (
-          <div className="mx-4 mt-6 flex flex-col items-center rounded bg-white px-5 py-12 text-center">
+          <div className="mt-2 flex flex-col items-center rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised px-5 py-12 text-center shadow-ww-xs">
             <CheckCircleFill className="text-6xl text-green-500" />
             <h1 className="mt-5 text-2xl font-medium text-font-black">
               {t('join.submittedTitle')}

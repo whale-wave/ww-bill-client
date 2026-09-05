@@ -444,6 +444,7 @@
     "name": "Ledger Name",
     "monthStartDay": "Month Start Day",
     "icon": "Ledger Icon",
+    "iconAndTheme": "Icon & Theme",
     "theme": "Theme Color",
     "iconOptions": {
       "wallet": "Wallet",

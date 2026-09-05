@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { formatAmount, normalizeAmount } from '@/shared/lib/amount';
+import { formatAmount, formatCompactAmount, normalizeAmount } from '@/shared/lib/amount';
 
 describe('amount helpers', () => {
   it('formats amounts to two decimal places', () => {
     expect(formatAmount(12)).toBe('12.00');
     expect(formatAmount(12.345)).toBe('12.35');
+  });
+
+  it('uses a compact 万 unit for large metric-card values', () => {
+    expect(formatCompactAmount(74000)).toBe('7.4万');
+    expect(formatCompactAmount(-865090)).toBe('-86.5万');
+    expect(formatCompactAmount(13.5)).toBe('13.50');
   });
 
   it('normalizes leading decimal input', () => {

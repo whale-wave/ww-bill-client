@@ -1,7 +1,8 @@
 import type { BudgetInfo } from '@/entities/budget';
 import type { Ledger } from '@/entities/ledger';
-import { ActionSheet, Dialog, ErrorBlock, Modal, Toast } from 'antd-mobile';
+import { ActionSheet, Dialog, Modal, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
+import { CircleAlert } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import {
   BUDGET_ACTION_SHEET_CLASS_NAME,
@@ -26,7 +27,7 @@ import { LedgerCapability } from '@/entities/ledger';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useCurrentWorkspaceBack, useWorkspaceBack } from '@/features/workspace-navigation';
 import { useTranslation } from '@/shared/i18n';
-import { PageLoadingState } from '@/shared/ui';
+import { IllustratedEmptyState, PageLoadingState, Surface } from '@/shared/ui';
 
 interface BudgetEditor {
   item?: BudgetInfo;
@@ -176,8 +177,16 @@ function BudgetContent({
 
   if (query.isError) {
     return (
-      <div className="flex flex-grow items-center justify-center" data-ledger-budget-error>
-        <ErrorBlock status="default" />
+      <div className="flex flex-grow items-center justify-center px-[var(--ww-page-gutter)]" data-ledger-budget-error>
+        <Surface className="w-full max-w-[520px] overflow-hidden" material="content">
+          <IllustratedEmptyState
+            actionLabel={t('common:nav.retry')}
+            description={t('common:error.networkError')}
+            icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+            onAction={() => void query.refetch()}
+            title={t('common:error.loadFail')}
+          />
+        </Surface>
       </div>
     );
   }
@@ -301,7 +310,16 @@ export default function LedgerBudgetPage() {
           <div className="flex flex-grow items-center justify-center" data-ledger-budget-scope-state={state}>
             {state === 'loading'
               ? <PageLoadingState compact label={t('common:nav.loading')} testId="ledger-budget-loading" />
-              : <ErrorBlock status="default" />}
+              : (
+                  <Surface className="w-full max-w-[520px] overflow-hidden" material="content">
+                    <IllustratedEmptyState
+                      actionLabel={t('common:nav.back')}
+                      icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+                      onAction={onBack}
+                      title={t('common.invalidLedger')}
+                    />
+                  </Surface>
+                )}
           </div>
         </BudgetPageShell>
       )}

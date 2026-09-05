@@ -1,9 +1,10 @@
 import type { FC } from 'react';
 import type { Follow } from '@/entities/follow';
+import { UsersRound } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FollowTypeEnum, useGetFollowQuery } from '@/entities/follow';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
 import styles from './FollowList.module.scss';
 
 interface ItemProps {
@@ -49,7 +50,12 @@ function FollowList() {
     = type === FollowTypeEnum.FOLLOW || type === FollowTypeEnum.FANS
       ? type
       : FollowTypeEnum.FOLLOW;
-  const { data } = useGetFollowQuery({
+  const {
+    data,
+    isError,
+    isLoading,
+    refetch,
+  } = useGetFollowQuery({
     params: {
       id: id ?? '',
       params: {
@@ -66,18 +72,43 @@ function FollowList() {
   };
 
   return (
-    <div>
-      <NavBar
-        className={styles['nav-bar']}
-        back={t('common:nav.back')}
+    <div className="page-new relative overflow-hidden" data-follow-list-page>
+      <PageHeader
+        backLabel={t('common:nav.back')}
         onBack={() => navigate(-1)}
-      >
-        {t('followList.userNamePrefix')}
-        {followName(followType)}
-      </NavBar>
-      {data.data.map(i => (
-        <Item key={i.id} data={i} t={t} />
-      ))}
+        title={`${t('followList.userNamePrefix')}${followName(followType)}`}
+      />
+      <main className="relative z-10 min-h-0 flex-1 overflow-y-auto px-[var(--ww-page-gutter)] pb-[max(24px,env(safe-area-inset-bottom))] pt-1">
+        {isLoading && <PageLoadingState label={t('common:nav.loading')} />}
+        {!isLoading && isError && (
+          <div className="rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised shadow-ww-xs">
+            <IllustratedEmptyState
+              actionLabel={t('common:retry')}
+              className="min-h-[360px]"
+              icon={<UsersRound aria-hidden="true" size={38} strokeWidth={1.8} />}
+              onAction={() => void refetch()}
+              title={t('common:error.loadFail')}
+            />
+          </div>
+        )}
+        {!isLoading && !isError && data.data.length === 0 && (
+          <div className="rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised shadow-ww-xs">
+            <IllustratedEmptyState
+              className="min-h-[400px]"
+              description={t('followList.emptyHint')}
+              icon={<UsersRound aria-hidden="true" size={38} strokeWidth={1.8} />}
+              title={t('followList.empty')}
+            />
+          </div>
+        )}
+        {!isLoading && !isError && data.data.length > 0 && (
+          <section className={styles.list}>
+            {data.data.map(i => (
+              <Item key={i.id} data={i} t={t} />
+            ))}
+          </section>
+        )}
+      </main>
     </div>
   );
 }

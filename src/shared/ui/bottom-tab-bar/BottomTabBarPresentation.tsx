@@ -47,13 +47,17 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
   items,
 }) => {
   const { isMotionEnabled } = useMotionPreference();
+  const activeIndex = items.findIndex(item => item.key === activeKey && !item.prominent);
 
   return (
     <nav
       aria-label={ariaLabel}
-      className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar ww-floating-dock !fixed bottom-[calc(10px+env(safe-area-inset-bottom))] left-[14px] right-[14px] z-[100] flex h-[68px] items-center justify-evenly rounded-[34px] px-[5px] text-ww-ghost"
+      className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar ww-floating-dock fixed bottom-[calc(10px+env(safe-area-inset-bottom))] left-[14px] right-[14px] z-[100] flex h-[68px] items-center justify-evenly rounded-[34px] px-[5px] text-ww-ghost"
+      data-active-index={activeIndex >= 0 ? activeIndex : undefined}
+      data-motion-enabled={isMotionEnabled}
       role="tablist"
     >
+      <span aria-hidden="true" className="ww-floating-dock__active-indicator" />
       {items.map((item) => {
         const isActive = item.key === activeKey;
         return (

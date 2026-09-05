@@ -57,7 +57,15 @@ export const ChartOverviewBody: FC<ChartOverviewPresentationProps> = ({ pieChart
   return (
     <div className="flex min-h-0 flex-grow flex-col overflow-hidden" data-chart-overview>
       <Top />
-      <div ref={scrollContainerRef} className="flex h-[46px] shrink-0 snap-x snap-proximity gap-[7px] overflow-x-auto px-[18px] pb-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-chart-period-options>
+      <div
+        ref={scrollContainerRef}
+        className="flex h-[46px] shrink-0 snap-x snap-proximity gap-[7px] overflow-x-auto px-[18px] pb-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        data-chart-period-options
+        style={{
+          WebkitMaskImage: 'linear-gradient(to right, transparent, black 18px, black calc(100% - 18px), transparent)',
+          maskImage: 'linear-gradient(to right, transparent, black 18px, black calc(100% - 18px), transparent)',
+        }}
+      >
         {tabs.map(tabItem => (
           <button
             ref={tabItem.key === tabActive ? activeTabRef : undefined}

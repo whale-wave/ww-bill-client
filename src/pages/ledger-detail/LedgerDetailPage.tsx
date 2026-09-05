@@ -1,5 +1,4 @@
 import type { FC, ReactNode } from 'react';
-import { ErrorBlock } from 'antd-mobile';
 import {
   AddSquareOutline,
   BillOutline,
@@ -11,6 +10,7 @@ import {
   TeamOutline,
   UnorderedListOutline,
 } from 'antd-mobile-icons';
+import { CircleAlert } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   LedgerCapability,
@@ -19,7 +19,7 @@ import {
 } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { PageHeader, PageLoadingState } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, PageLoadingState, Surface } from '@/shared/ui';
 
 const LEDGER_MODULES = ['records', 'bill', 'budget', 'charts', 'settings'] as const;
 
@@ -87,14 +87,18 @@ const LedgerDetailPage: FC = () => {
     <div className="page-new relative overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-24 h-52 w-52 rounded-full bg-primary-light/35 blur-3xl" />
       <PageHeader backLabel={t('common:nav.back')} onBack={handleBack} title={ledger?.name ?? t('detail.title')} />
-      <main className="min-h-0 flex-grow overflow-auto pb-4">
+      <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[var(--ww-page-gutter)] pb-[max(24px,env(safe-area-inset-bottom))]">
         {!ledgerId && (
-          <div className="flex min-h-[360px] items-center justify-center px-4">
-            <ErrorBlock
-              description={t('detail.invalidLedgerDescription')}
-              status="default"
-              title={t('detail.invalidLedger')}
-            />
+          <div className="mx-auto flex min-h-[360px] w-full max-w-[520px] items-center">
+            <Surface className="w-full overflow-hidden" material="content">
+              <IllustratedEmptyState
+                actionLabel={t('common:nav.back')}
+                description={t('detail.invalidLedgerDescription')}
+                icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+                onAction={handleBack}
+                title={t('detail.invalidLedger')}
+              />
+            </Surface>
           </div>
         )}
 
@@ -103,33 +107,37 @@ const LedgerDetailPage: FC = () => {
         )}
 
         {ledgerId && !ledgerQuery.isLoading && ledgerQuery.isError && (
-          <div className="flex min-h-[360px] items-center justify-center px-4">
-            <ErrorBlock
-              description={t('detail.loadErrorDescription')}
-              status="default"
-              title={t('detail.loadError')}
-            />
+          <div className="mx-auto flex min-h-[360px] w-full max-w-[520px] items-center">
+            <Surface className="w-full overflow-hidden" material="content">
+              <IllustratedEmptyState
+                actionLabel={t('common:nav.retry')}
+                description={t('detail.loadErrorDescription')}
+                icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+                onAction={() => void ledgerQuery.refetch()}
+                title={t('detail.loadError')}
+              />
+            </Surface>
           </div>
         )}
 
         {ledger && !ledgerQuery.isLoading && !ledgerQuery.isError && (
-          <div>
-            <section className="bg-white px-4 py-4">
+          <div className="mx-auto w-full max-w-[520px] space-y-3 pt-2">
+            <Surface className="px-5 py-5" material="raised">
               <div className="flex items-center">
-                <span className="mr-3 flex h-[55px] w-[55px] items-center justify-center overflow-hidden rounded-full bg-primary text-2xl text-font-black">
+                <span className="mr-3.5 flex h-14 w-14 items-center justify-center overflow-hidden rounded-[18px] bg-primary text-2xl text-white shadow-ww-xs">
                   <LedgerVisualIcon iconKey={ledger.iconKey} kind={ledger.kind} templateKey={ledger.templateKey} />
                 </span>
                 <div className="min-w-0">
-                  <h1 className="one-line text-xl font-medium text-font-black">{ledger.name}</h1>
-                  <p className="mt-1 text-sm text-font-gray">
+                  <h1 className="one-line text-[19px] font-black text-ww-ink">{ledger.name}</h1>
+                  <p className="mt-1 text-[12px] font-semibold text-ww-mid">
                     {t(`kind.${ledger.kind}`)}
                   </p>
                 </div>
               </div>
-            </section>
+            </Surface>
 
-            <section className="mt-3 bg-white" aria-labelledby="ledger-basic-info-heading">
-              <h2 className="px-4 pb-2 pt-3 text-sm font-medium text-font-black" id="ledger-basic-info-heading">
+            <Surface aria-labelledby="ledger-basic-info-heading" className="overflow-hidden" material="content">
+              <h2 className="px-5 pb-2 pt-4 text-[13px] font-extrabold text-ww-ink" id="ledger-basic-info-heading">
                 {t('detail.basicInfo')}
               </h2>
               {[
@@ -139,15 +147,15 @@ const LedgerDetailPage: FC = () => {
                 [t('detail.status'), t(`status.${ledger.status}`)],
                 [t('detail.monthStartDay'), t('detail.monthStartDayValue', { day: ledger.monthStartDay })],
               ].map(([label, value]) => (
-                <div className="ml-4 flex min-h-[55px] items-center justify-between border-0 border-t border-solid border-border-primary pr-4" key={label}>
-                  <span className="text-sm text-font-black">{label}</span>
-                  <span className="ml-4 text-right text-sm text-font-gray">{value}</span>
+                <div className="ml-5 flex min-h-[54px] items-center justify-between border-0 border-t border-solid border-border-primary pr-5" key={label}>
+                  <span className="text-[13px] font-bold text-ww-ink">{label}</span>
+                  <span className="ml-4 text-right text-[12px] font-semibold text-ww-mid">{value}</span>
                 </div>
               ))}
-            </section>
+            </Surface>
 
-            <section className="mt-3 bg-white" aria-labelledby="ledger-modules-heading">
-              <h2 className="px-4 pb-2 pt-3 text-sm font-medium text-font-black" id="ledger-modules-heading">
+            <Surface aria-labelledby="ledger-modules-heading" className="overflow-hidden" material="content">
+              <h2 className="px-5 pb-2 pt-4 text-[13px] font-extrabold text-ww-ink" id="ledger-modules-heading">
                 {t('detail.modules')}
               </h2>
               {LEDGER_MODULES.map((moduleKey) => {
@@ -162,47 +170,47 @@ const LedgerDetailPage: FC = () => {
                 return (
                   <button
                     aria-disabled={!isEnabled}
-                    className="ml-4 flex min-h-[59px] w-[calc(100%-1rem)] items-center border-0 border-t border-solid border-border-primary bg-white pr-4 text-left"
+                    className="ml-5 flex min-h-[60px] w-[calc(100%-1.25rem)] items-center border-0 border-t border-solid border-border-primary bg-transparent pr-5 text-left"
                     data-module-key={moduleKey}
                     key={moduleKey}
                     onClick={() => isEnabled && navigate(paths[moduleKey])}
                     type="button"
                   >
-                    <span className="mr-3 flex h-[35px] w-[35px] items-center justify-center rounded-full bg-bg-gray text-lg text-font-black">
+                    <span className="mr-3 flex h-9 w-9 items-center justify-center rounded-[12px] bg-ww-surface-tint text-lg text-primary-deep">
                       {getModuleIcon(moduleKey)}
                     </span>
-                    <span className="flex-grow text-base text-font-black">
+                    <span className="flex-grow text-[14px] font-bold text-ww-ink">
                       {t(`detail.module.${moduleKey}`)}
                     </span>
-                    {isEnabled ? <RightOutline className="text-font-gray" /> : <span className="text-xs text-font-gray">{t('detail.comingSoon')}</span>}
+                    {isEnabled ? <RightOutline className="text-ww-ghost" /> : <span className="text-[11px] font-semibold text-ww-soft">{t('detail.comingSoon')}</span>}
                   </button>
                 );
               })}
-            </section>
+            </Surface>
 
             {collaborationItems.length > 0 && (
-              <section className="mt-3 bg-white" aria-labelledby="ledger-collaboration-heading">
-                <h2 className="px-4 pb-2 pt-3 text-sm font-medium text-font-black" id="ledger-collaboration-heading">
+              <Surface aria-labelledby="ledger-collaboration-heading" className="overflow-hidden" material="content">
+                <h2 className="px-5 pb-2 pt-4 text-[13px] font-extrabold text-ww-ink" id="ledger-collaboration-heading">
                   {t('detail.collaboration')}
                 </h2>
                 {collaborationItems.map(item => (
                   <button
-                    className="ml-4 flex min-h-[59px] w-[calc(100%-1rem)] items-center border-0 border-t border-solid border-border-primary bg-white pr-4 text-left active:bg-slate-50"
+                    className="ml-5 flex min-h-[60px] w-[calc(100%-1.25rem)] items-center border-0 border-t border-solid border-border-primary bg-transparent pr-5 text-left active:bg-ww-surface-tint"
                     data-testid={`ledger-${item.key}`}
                     key={item.key}
                     onClick={() => navigate(item.path)}
                     type="button"
                   >
-                    <span className="mr-3 flex h-[35px] w-[35px] items-center justify-center rounded-full bg-primary text-lg text-font-black">
+                    <span className="mr-3 flex h-9 w-9 items-center justify-center rounded-[12px] bg-primary text-lg text-white">
                       {item.icon}
                     </span>
-                    <span className="flex-grow text-base text-font-black">
+                    <span className="flex-grow text-[14px] font-bold text-ww-ink">
                       {t(`detail.collaborationItem.${item.key}`)}
                     </span>
-                    <RightOutline className="text-font-gray" />
+                    <RightOutline className="text-ww-ghost" />
                   </button>
                 ))}
-              </section>
+              </Surface>
             )}
           </div>
         )}

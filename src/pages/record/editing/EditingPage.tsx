@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import type { RecordEntry } from '@/entities/record';
-import { ErrorBlock, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
+import { CircleAlert } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import {
@@ -13,7 +14,7 @@ import { RecordAttachmentSection } from '@/entities/record/ui/RecordAttachmentSe
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
 import { playSound } from '@/shared/lib/play-sound';
-import { confirmDangerousAction, PageLoadingState } from '@/shared/ui';
+import { confirmDangerousAction, IllustratedEmptyState, PageHeader, PageLoadingState, Surface } from '@/shared/ui';
 
 function isRecordCategory(value: unknown): value is RecordEntry['category'] {
   return typeof value === 'object'
@@ -77,8 +78,18 @@ const Editing: FC = () => {
     }
 
     return (
-      <div className="page flex justify-center items-center">
-        <ErrorBlock status="default" title={t('common:error.loadFail')} description={false} />
+      <div className="page-new relative overflow-hidden">
+        <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('editing.title')} />
+        <main className="flex min-h-0 flex-grow items-center px-[var(--ww-page-gutter)] pb-[max(24px,env(safe-area-inset-bottom))]">
+          <Surface className="w-full overflow-hidden" data-testid="error" material="content">
+            <IllustratedEmptyState
+              actionLabel={t('common:nav.back')}
+              icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+              onAction={() => navigate(-1)}
+              title={t('common:error.loadFail')}
+            />
+          </Surface>
+        </main>
       </div>
     );
   }

@@ -13,7 +13,7 @@ import { getDisplayName, HouseholdPageState, HouseholdScopeBoundary } from '@/fe
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
-import { confirmDangerousAction, NavBar } from '@/shared/ui';
+import { confirmDangerousAction, PageHeader } from '@/shared/ui';
 
 const RecordDetail: FC<{
   householdId: string;
@@ -154,9 +154,13 @@ const HouseholdRecordDetailPage: FC = () => {
   });
 
   return (
-    <div className="page">
+    <div className="page-new relative overflow-hidden">
       {!recordQuery.data && (
-        <NavBar back={t('common:nav.back')} backArrow={false} onBack={() => navigate(-1)} />
+        <PageHeader
+          backLabel={t('common:nav.back')}
+          onBack={() => navigate(-1)}
+          title={t('recordDetail.title')}
+        />
       )}
       <div className="min-h-0 flex-grow overflow-hidden">
         <HouseholdScopeBoundary householdId={householdId}>

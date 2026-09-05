@@ -2,7 +2,9 @@ import type { PatchUserAppConfigBody } from '@/entities/user-app-config';
 import { describe, expect, it } from 'vitest';
 import {
   applyAppearancePreference,
+  applyDevelopmentAppearancePreference,
   DEFAULT_APPEARANCE,
+  getVisibleAppearanceTemplateOptions,
   isAppearanceTemplate,
   readAppearancePreference,
   resolveAppearanceTemplate,
@@ -46,5 +48,22 @@ describe('appearance preference', () => {
     expect(readAppearancePreference(legacyPreference)).toEqual({
       template: 'glass',
     });
+  });
+
+  it('keeps MONO out of the production-visible template set', () => {
+    expect(getVisibleAppearanceTemplateOptions(false).map(option => option.value)).not.toContain('mono');
+    expect(getVisibleAppearanceTemplateOptions(true).map(option => option.value)).toContain('mono');
+  });
+
+  it('applies MONO only as a development-local candidate', () => {
+    applyDevelopmentAppearancePreference('mono');
+    if (import.meta.env.DEV) {
+      expect(document.documentElement.dataset.designStudioTemplate).toBe('mono');
+      expect(document.documentElement.style.getPropertyValue('--ww-radius-card')).toBe('28px');
+    }
+    else {
+      expect(document.documentElement.dataset.designStudioTemplate).toBeUndefined();
+      expect(document.documentElement.dataset.appearanceTemplate).toBe('glass');
+    }
   });
 });

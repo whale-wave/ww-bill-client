@@ -1,6 +1,6 @@
 import type { FC } from 'react';
-import { Avatar, ErrorBlock, Toast } from 'antd-mobile';
-import { CalendarDays, UserRound } from 'lucide-react';
+import { Avatar, Toast } from 'antd-mobile';
+import { CalendarDays, CircleAlert, UserRound } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -15,7 +15,7 @@ import {
 } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { PageHeader, Surface } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 
 const HouseholdInvitationPreviewPage: FC = () => {
   const { t } = useTranslation('household');
@@ -79,7 +79,14 @@ const HouseholdInvitationPreviewPage: FC = () => {
           {!code
             ? (
                 <div className="flex min-h-[360px] items-center justify-center">
-                  <ErrorBlock status="default" title={t('join.invalidCode')} />
+                  <Surface className="w-full overflow-hidden" material="content">
+                    <IllustratedEmptyState
+                      actionLabel={t('common:nav.back')}
+                      icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+                      onAction={() => navigate(-1)}
+                      title={t('join.invalidCode')}
+                    />
+                  </Surface>
                 </div>
               )
             : (

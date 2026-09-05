@@ -444,6 +444,7 @@
     "name": "账本名称",
     "monthStartDay": "每月开始日",
     "icon": "账本图标",
+    "iconAndTheme": "图标与主题",
     "theme": "主题颜色",
     "iconOptions": {
       "wallet": "钱包",

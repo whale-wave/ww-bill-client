@@ -57,7 +57,7 @@ const Content: FC<ContentProps> = memo(({ data, onMonthSelect }) => {
                 const isClickable = isMonthTabType && Boolean(onMonthSelect);
                 return (
                   <li
-                    className={index > 0 ? 'relative ml-[18px] flex h-[74px] items-center border-t border-solid border-[rgba(110,194,220,0.16)] pr-[18px]' : 'flex h-[74px] items-center px-[18px]'}
+                    className={index > 0 ? 'relative ml-[18px] flex min-h-[88px] items-center border-t border-solid border-[rgba(110,194,220,0.16)] pr-[18px]' : 'flex min-h-[88px] items-center px-[18px]'}
                     key={item.month}
                   >
                     <button
@@ -68,30 +68,30 @@ const Content: FC<ContentProps> = memo(({ data, onMonthSelect }) => {
                       onClick={() => onMonthSelect?.(item.period)}
                       type="button"
                     >
-                      <div className="w-[58px] shrink-0 font-number text-[18px] font-extrabold text-ww-ink">{item.month}</div>
-                      <dl className="grid min-w-0 flex-1 grid-cols-2 gap-2">
-                        <div className="min-w-0">
+                      <div className="w-[42px] shrink-0 font-number text-[17px] font-extrabold text-ww-ink">{item.month}</div>
+                      <dl className="grid min-w-0 flex-1 grid-cols-2 gap-x-3 gap-y-1.5">
+                        <div>
                           <dt className="text-[10px] font-semibold text-ww-soft">{t('income')}</dt>
-                          <dd className="truncate font-number text-[13px] font-bold text-finance-income">
+                          <dd className="whitespace-nowrap font-number text-[clamp(11px,3.5vw,13px)] font-bold text-finance-income">
                             ¥
                             {formatAmount(item.income)}
                           </dd>
                         </div>
-                        <div className="min-w-0">
+                        <div>
                           <dt className="text-[10px] font-semibold text-ww-soft">{t('expend')}</dt>
-                          <dd className="truncate font-number text-[13px] font-bold text-finance-expense">
+                          <dd className="whitespace-nowrap font-number text-[clamp(11px,3.5vw,13px)] font-bold text-finance-expense">
                             ¥
                             {formatAmount(item.expand)}
                           </dd>
                         </div>
-                      </dl>
-                      <div className="ml-2 w-[78px] min-w-0 text-right">
-                        <div className="text-[10px] font-semibold text-ww-soft">{t('balance')}</div>
-                        <div className="truncate font-number text-[14px] font-extrabold text-primary-deep">
-                          ¥
-                          {formatAmount(item.balance)}
+                        <div className="col-span-2 flex min-w-0 items-baseline justify-between gap-3 border-t border-[rgba(110,194,220,0.12)] pt-1">
+                          <dt className="shrink-0 text-[10px] font-semibold text-ww-soft">{t('balance')}</dt>
+                          <dd className="whitespace-nowrap font-number text-[clamp(12px,3.8vw,14px)] font-extrabold text-primary-deep">
+                            ¥
+                            {formatAmount(item.balance)}
+                          </dd>
                         </div>
-                      </div>
+                      </dl>
                     </button>
                   </li>
                 );

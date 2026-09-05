@@ -6,7 +6,7 @@ import type {
   ChartOverviewMetric,
   ChartOverviewTab,
 } from '@/features/chart-overview';
-import { ErrorBlock } from 'antd-mobile';
+import { CircleAlert } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLedgerChartQuery } from '@/entities/chart';
@@ -25,7 +25,7 @@ import {
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { PageLoadingState } from '@/shared/ui';
+import { IllustratedEmptyState, PageLoadingState, Surface } from '@/shared/ui';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 import { combineLedgerNetTabs } from './model';
 
@@ -207,11 +207,20 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
   }
   if (isBlockingError) {
     return (
-      <div className="flex flex-grow items-center justify-center">
-        <ErrorBlock
-          description={t('common.loadErrorDescription')}
-          title={t('common.loadError')}
-        />
+      <div className="flex flex-grow items-center justify-center px-[var(--ww-page-gutter)]">
+        <Surface className="w-full max-w-[520px] overflow-hidden" material="content">
+          <IllustratedEmptyState
+            actionLabel={t('common.retry')}
+            description={t('common.loadErrorDescription')}
+            icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+            onAction={() => {
+              void expense.refetch();
+              void income.refetch();
+              void preferenceQuery.refetch();
+            }}
+            title={t('common.loadError')}
+          />
+        </Surface>
       </div>
     );
   }

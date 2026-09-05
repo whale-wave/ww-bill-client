@@ -36,6 +36,8 @@ describe('bottom tab bar presentation', () => {
     expect(tabList?.classList).toContain('right-[14px]');
     expect(tabList?.querySelectorAll('[role="tab"]')).toHaveLength(count);
     expect(tabList?.querySelector('.ww-floating-dock__button--active')).not.toBeNull();
+    expect(tabList?.getAttribute('data-active-index')).toBe('0');
+    expect(tabList?.querySelector('.ww-floating-dock__active-indicator')).not.toBeNull();
     expect(tabList?.querySelector('.ww-floating-dock__create')).not.toBeNull();
     expect(tabList?.querySelector('.ww-tab-bar__button')?.className).not.toContain('transition-');
     expect(container.querySelector('.ww-tab-bar-spacer')).toBeNull();

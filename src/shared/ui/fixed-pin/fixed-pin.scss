@@ -12,8 +12,15 @@ $class-prefix-fixed-pin: 'bwm-fixed-pin';
   align-items: center;
   font-size: var(--ww-font-size-base);
   font-weight: bold;
+  border: 0;
   color: var(--ww-primary-foreground);
   background: var(--ww-theme-color);
   box-shadow: var(--ww-card-shadow-floating);
   border-radius: 50%;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--ww-theme-color);
+    outline-offset: 3px;
+  }
 }

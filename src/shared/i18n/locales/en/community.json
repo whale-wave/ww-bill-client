@@ -11,7 +11,9 @@
   "commentList": {
     "back": "Back",
     "title": "Comments",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "empty": "No new comments",
+    "emptyHint": "Your recent interactions will appear here."
   },
   "follow": "Follow",
   "followList": {
@@ -21,9 +23,15 @@
     "follow": "+Follow",
     "fans": "Followers",
     "userNamePrefix": "'s ",
-    "startedFollowing": "started following you"
+    "startedFollowing": "started following you",
+    "empty": "No followers yet",
+    "emptyHint": "New follow relationships will appear here."
   },
   "newFollow": "New Followers",
+  "newFollowState": {
+    "empty": "No new followers",
+    "emptyHint": "New followers will appear here."
+  },
   "personal": {
     "tab": {
       "home": "Home",

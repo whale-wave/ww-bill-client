@@ -73,7 +73,14 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
           items={[
             { key: 'keep', label: t('checkIn.keep'), suffix: t('checkIn.dayUnit'), tone: 'primary', value: numberInfo.checkInKeep ?? 0 },
             { key: 'all', label: t('checkIn.allDays'), suffix: t('checkIn.dayUnit'), value: numberInfo.checkInAll ?? 0 },
-            { key: 'records', label: t('checkIn.recordCount'), suffix: t('checkIn.recordUnit'), tone: 'expense', value: numberInfo.recordCount ?? 0 },
+            {
+              key: 'records',
+              label: t('checkIn.recordCount'),
+              suffix: t('checkIn.recordUnit'),
+              tone: 'expense',
+              value: numberInfo.recordCount ?? 0,
+              valueClassName: 'whitespace-nowrap text-[clamp(14px,5vw,20px)] tracking-[-0.04em]',
+            },
           ]}
         />
       </Surface>

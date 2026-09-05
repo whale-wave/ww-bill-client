@@ -137,6 +137,19 @@ html[data-appearance-template='minimal'] {
   content: '';
 }
 
+/* The indicator is dormant outside studio candidates. Keeping its structure
+ * in the primitive lets a candidate theme animate selection without changing
+ * tab semantics or event handling. */
+.ww-floating-dock__active-indicator {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.ww-floating-dock__button {
+  z-index: var(--ww-ref-z-content);
+}
+
 .ww-floating-dock__button--active:not(.ww-floating-dock__button--prominent) {
   color: var(--ww-theme-color-deep);
   background: var(--ww-component-dock-active);
@@ -168,7 +181,7 @@ html[data-appearance-template='minimal'] {
 
 .ww-chart-display-switch__option--active::before {
   position: absolute;
-  inset: 8px 2px;
+  inset: 0;
   z-index: 0;
   border-radius: var(--ww-component-chart-switch-active-radius);
   background: var(--ww-component-chart-switch-active);

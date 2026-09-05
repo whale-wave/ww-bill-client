@@ -10,7 +10,9 @@ $class-prefix-user-follow-item: 'bwm-user-follow-item';
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 360px;
+    left: 15px;
+    width: calc(100% - 15px);
+    max-width: 360px;
     height: 1px;
     background: var(--ww-border-color);
   }

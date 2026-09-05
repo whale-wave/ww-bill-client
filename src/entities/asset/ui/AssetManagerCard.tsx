@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { formatCompactAmount } from '@/shared/lib';
 import { DesignIcon, MetricGrid, Surface } from '@/shared/ui';
 import { useAssetSummaryInfo } from '../lib/use-asset-summary';
 
@@ -39,9 +40,9 @@ export const AssetSummaryCardPresentation: FC<AssetSummaryCardPresentationProps>
         className="mt-[14px]"
         density="compact"
         items={[
-          { key: 'netAsset', label: t('asset:manager.netAsset'), tone: 'primary', value: `¥${netAsset}` },
-          { key: 'asset', label: t('asset:manager.asset'), tone: 'income', value: `¥${asset}` },
-          { key: 'liability', label: t('asset:manager.liability'), tone: 'expense', value: `¥${liability}` },
+          { key: 'netAsset', label: t('asset:manager.netAsset'), tone: 'primary', value: `¥${formatCompactAmount(Number(netAsset))}`, valueClassName: 'whitespace-nowrap tracking-[-0.045em]' },
+          { key: 'asset', label: t('asset:manager.asset'), tone: 'income', value: `¥${formatCompactAmount(Number(asset))}`, valueClassName: 'whitespace-nowrap tracking-[-0.045em]' },
+          { key: 'liability', label: t('asset:manager.liability'), tone: 'expense', value: `¥${formatCompactAmount(Number(liability))}`, valueClassName: 'whitespace-nowrap tracking-[-0.045em]' },
         ]}
       />
     </Surface>

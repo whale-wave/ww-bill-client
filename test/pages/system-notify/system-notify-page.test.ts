@@ -39,12 +39,13 @@ vi.mock('@/shared/i18n', () => ({
 }));
 
 vi.mock('@/shared/ui', () => ({
-  NavBar: ({ children, right }: { children: ReactNode; right?: ReactNode }) => createElement(
+  PageHeader: ({ title, right }: { title: ReactNode; right?: ReactNode }) => createElement(
     'header',
     null,
-    children,
+    title,
     right,
   ),
+  IllustratedEmptyState: ({ title }: { title: ReactNode }) => createElement('div', null, title),
   PageLoadingState: ({ label, testId }: { label: ReactNode; testId?: string }) => createElement(
     'div',
     { 'data-testid': testId, 'role': 'status' },
@@ -55,7 +56,6 @@ vi.mock('@/shared/ui', () => ({
 vi.mock('antd-mobile', () => ({
   Button: ({ children, ...props }: { children: ReactNode }) => createElement('button', props, children),
   Dialog: { confirm: dialogConfirm },
-  ErrorBlock: ({ title }: { title?: ReactNode }) => createElement('div', null, title),
   Toast: { show: toastShow },
 }));
 

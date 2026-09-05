@@ -21,7 +21,8 @@
       left: 50%;
       transform: translateX(-50%);
       content: '';
-      width: 359px;
+      width: calc(100% - 32px);
+      max-width: 359px;
       height: 1px;
       background: var(--ww-surface-tint-color);
     }

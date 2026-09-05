@@ -11,7 +11,9 @@
   "commentList": {
     "back": "返回",
     "title": "评论",
-    "loading": "加载中..."
+    "loading": "加载中...",
+    "empty": "暂无新评论",
+    "emptyHint": "你的互动消息会显示在这里。"
   },
   "follow": "关注",
   "followList": {
@@ -21,9 +23,15 @@
     "follow": "+关注",
     "fans": "粉丝",
     "userNamePrefix": "阿文的",
-    "startedFollowing": "开始关注你了"
+    "startedFollowing": "开始关注你了",
+    "empty": "暂无关注",
+    "emptyHint": "有新的关注关系后会显示在这里。"
   },
   "newFollow": "新的关注",
+  "newFollowState": {
+    "empty": "暂无新的关注",
+    "emptyHint": "有新的用户关注你时，会显示在这里。"
+  },
   "personal": {
     "tab": {
       "home": "主页",

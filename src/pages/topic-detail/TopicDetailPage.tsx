@@ -7,7 +7,7 @@ import {
 } from '@/entities/topic';
 import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
-import { Comment, NavBar } from '@/shared/ui';
+import { Comment, PageHeader } from '@/shared/ui';
 import styles from './index.module.scss';
 import Main from './Main';
 
@@ -50,20 +50,20 @@ const TopicDetail: FC = () => {
   };
 
   return (
-    <div className="page">
-      <NavBar back={t('common:nav.back')} className={styles.nav} onBack={() => navigate(-1)}>
-        {config.appName}
-      </NavBar>
+    <div className="page-new relative overflow-hidden" data-topic-detail-page>
+      <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={config.appName} />
       <Main
         topic={topic}
         comments={topic?.comments}
         onLike={handleLike}
       />
-      <Comment
-        onSubmit={onSubmit}
-        data={topic ?? emptyCommentData}
-        onLike={handleLike}
-      />
+      <div className={styles['comment-bar']}>
+        <Comment
+          onSubmit={onSubmit}
+          data={topic ?? emptyCommentData}
+          onLike={handleLike}
+        />
+      </div>
     </div>
   );
 };

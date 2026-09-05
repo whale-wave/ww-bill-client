@@ -1,11 +1,26 @@
+.list {
+  display: grid;
+  gap: 10px;
+}
+
+.card {
+  overflow: hidden;
+  border: 1px solid var(--ww-border-color);
+  border-radius: var(--ww-card-radius);
+  background: var(--ww-surface-raised-color);
+  box-shadow: var(--ww-card-shadow-xs);
+
+  :global(article) {
+    margin: 0;
+    border: 0;
+  }
+}
+
 .not-data {
   &-wrapper {
-    color: var(--ww-text-color-ghost);
-  }
-  width: 105.6px;
-  height: 69.6px;
-  &-text {
-    margin-top: 3px;
-    font-size: 16.8px;
+    border: 1px solid var(--ww-border-color);
+    border-radius: var(--ww-card-radius);
+    background: var(--ww-surface-raised-color);
+    box-shadow: var(--ww-card-shadow-xs);
   }
 }

@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import type { UserNotification } from '@/entities/notification';
 import { Button, ErrorBlock } from 'antd-mobile';
+import { Bell } from 'lucide-react';
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import appAvatar from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
@@ -13,7 +14,7 @@ import {
 import { getNotificationTarget } from '@/pages/system-notify/model';
 import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
-import { NavBar, PageLoadingState } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const PAGE_SIZE = 20;
@@ -84,14 +85,12 @@ const Message: FC = () => {
   };
 
   return (
-    <div className="page">
-      <NavBar
-        back={t('nav.back')}
-        className={styles.navBar}
+    <div className="page-new relative overflow-hidden" data-message-page>
+      <PageHeader
+        backLabel={t('nav.back')}
         onBack={() => navigate(-1)}
-      >
-        {t('message.title')}
-      </NavBar>
+        title={t('message.title')}
+      />
       <main className={styles.content}>
         {notificationQuery.isLoading && (
           <PageLoadingState label={t('nav.loading')} testId="message-loading" />
@@ -111,13 +110,13 @@ const Message: FC = () => {
         {!notificationQuery.isLoading
           && !notificationQuery.isError
           && notificationQuery.data.length === 0 && (
-          <div className={styles.state}>
-            <ErrorBlock
-              description={t('message.notificationCenter.emptyHint')}
-              status="empty"
-              title={t('message.notificationCenter.empty')}
-            />
-          </div>
+          <IllustratedEmptyState
+            className={styles.emptyState}
+            description={t('message.notificationCenter.emptyHint')}
+            icon={<Bell size={38} strokeWidth={1.8} />}
+            testId="message-empty-state"
+            title={t('message.notificationCenter.empty')}
+          />
         )}
         {!notificationQuery.isLoading
           && !notificationQuery.isError

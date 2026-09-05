@@ -3,7 +3,7 @@ import { useGetTopicUserInfoQuery } from '@/entities/topic';
 import Tabs from '@/pages/community/ui/Personal/Tabs';
 import UserInfo from '@/pages/community/ui/Personal/UserInfo';
 import { useTranslation } from '@/shared/i18n';
-import { NavBar } from '@/shared/ui';
+import { PageHeader } from '@/shared/ui';
 import styles from './Personal.module.scss';
 
 function Personal() {
@@ -21,19 +21,21 @@ function Personal() {
   });
 
   return (
-    <div className="page">
-      <NavBar
+    <div className="page-new relative overflow-hidden" data-community-personal-page>
+      <PageHeader
+        backLabel={t('common:nav.back')}
         onBack={() => navigate(-1)}
-        back={t('common:nav.back')}
-        className={styles['nav-bar']}
+        title={data?.userInfo.name ?? t('userInfo.defaultName')}
       />
-      <UserInfo
-        data={data?.userInfo}
-        isFollow={data?.isFollow}
-        fansCount={data?.fans}
-        followCount={data?.follow}
-      />
-      <Tabs checkInfo={data?.checkInfo} topics={data?.topics.topics} />
+      <main className={styles.content}>
+        <UserInfo
+          data={data?.userInfo}
+          isFollow={data?.isFollow}
+          fansCount={data?.fans}
+          followCount={data?.follow}
+        />
+        <Tabs checkInfo={data?.checkInfo} topics={data?.topics.topics} />
+      </main>
     </div>
   );
 }

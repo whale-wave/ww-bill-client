@@ -1,12 +1,12 @@
-import { Button, ErrorBlock, Toast } from 'antd-mobile';
-import { Inbox } from 'lucide-react';
+import { Button, Toast } from 'antd-mobile';
+import { CircleAlert, Inbox } from 'lucide-react';
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LedgerCapability } from '@/entities/ledger';
 import { useLedgerRecoveryRecordsQuery, useRestoreLedgerRecordMutation } from '@/entities/ledger-data';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useTranslation } from '@/shared/i18n';
-import { IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, PageLoadingState, Surface } from '@/shared/ui';
 
 function RecoveryContent({ ledgerId }: { ledgerId: string }) {
   const { t } = useTranslation('ledger');
@@ -15,8 +15,21 @@ function RecoveryContent({ ledgerId }: { ledgerId: string }) {
   const restoringRef = useRef<number>();
   if (query.isLoading)
     return <PageLoadingState label={t('common:nav.loading')} testId="recovery-loading" />;
-  if (query.isError)
-    return <ErrorBlock />;
+  if (query.isError) {
+    return (
+      <div className="mx-auto w-full max-w-[520px] px-[var(--ww-page-gutter)] py-6">
+        <Surface className="overflow-hidden" material="content">
+          <IllustratedEmptyState
+            actionLabel={t('common:nav.retry')}
+            description={t('common:error.networkError')}
+            icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+            onAction={() => void query.refetch()}
+            title={t('common:error.loadFail')}
+          />
+        </Surface>
+      </div>
+    );
+  }
   if (query.data.length === 0) {
     return (
       <IllustratedEmptyState

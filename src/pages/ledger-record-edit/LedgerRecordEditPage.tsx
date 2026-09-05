@@ -2,11 +2,8 @@ import type { Ledger } from '@/entities/ledger';
 import type { RecordEntry } from '@/entities/record';
 import type { RecordDraft } from '@/features/record-editor';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  Button,
-  ErrorBlock,
-  Toast,
-} from 'antd-mobile';
+import { Toast } from 'antd-mobile';
+import { CircleAlert } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useLedgerCategoriesQuery } from '@/entities/category';
@@ -30,7 +27,7 @@ import {
 } from '@/features/record-editor';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { PageLoadingState } from '@/shared/ui';
+import { IllustratedEmptyState, PageLoadingState, Surface } from '@/shared/ui';
 
 interface LedgerRecordEditEditorProps {
   initialRecord: RecordEntry;
@@ -186,14 +183,16 @@ function LedgerRecordEditContent({
   }
   if (!initialRecord) {
     return (
-      <div className="flex h-full flex-col items-center justify-center bg-white px-4">
-        <ErrorBlock
-          description={t('common.loadErrorDescription')}
-          title={t('common.loadError')}
-        />
-        <Button className="mt-3" onClick={() => void recordQuery.refetch()} size="small">
-          {t('common.retry')}
-        </Button>
+      <div className="flex h-full flex-col items-center justify-center px-[var(--ww-page-gutter)]">
+        <Surface className="w-full max-w-[520px] overflow-hidden" material="content">
+          <IllustratedEmptyState
+            actionLabel={t('common.retry')}
+            description={t('common.loadErrorDescription')}
+            icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+            onAction={() => void recordQuery.refetch()}
+            title={t('common.loadError')}
+          />
+        </Surface>
       </div>
     );
   }

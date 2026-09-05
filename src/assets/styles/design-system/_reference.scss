@@ -7,6 +7,34 @@
   --ww-ref-shadow-sm: 0 10px 24px rgba(20, 20, 24, 0.07);
   --ww-ref-shadow-md: 0 16px 32px rgba(20, 20, 24, 0.08);
   --ww-ref-shadow-lg: 0 12px 28px rgba(20, 20, 24, 0.09);
+  /* Candidate palette for the isolated MONO theme studio preview. */
+  --ww-ref-mono-purple: #765cff;
+  --ww-ref-mono-purple-pressed: #6248f4;
+  --ww-ref-mono-purple-soft: #e9e5ff;
+  --ww-ref-mono-purple-ink: #5b46d8;
+  --ww-ref-mono-white: #ffffff;
+  --ww-ref-mono-violet-surface: #f0eeff;
+  --ww-ref-mono-ink: #121217;
+  --ww-ref-mono-muted: #8a8a94;
+  --ww-ref-mono-subtle: #b6b6bf;
+  --ww-ref-mono-canvas: #f4f4f6;
+  --ww-ref-mono-selection: #ececf2;
+  --ww-ref-mono-surface: #f8f8fa;
+  --ww-ref-mono-chart-purple-soft: #9c8dff;
+  --ww-ref-mono-income: #34c759;
+  --ww-ref-mono-expense: #2f8ff3;
+  --ww-ref-mono-warning: #ff9f0a;
+  --ww-ref-mono-chart-muted: #c7c7d0;
+  /* MONO material recipes: soft neutral depth, never glassy blur. */
+  --ww-ref-mono-border-soft: rgb(18 18 23 / 0.06);
+  --ww-ref-mono-border-dock: rgb(255 255 255 / 0.92);
+  --ww-ref-mono-shadow-control: 0 3px 10px rgb(18 18 23 / 0.05);
+  --ww-ref-mono-shadow-card: 0 10px 24px rgb(18 18 23 / 0.07);
+  --ww-ref-mono-shadow-panel: 0 16px 32px rgb(18 18 23 / 0.08);
+  --ww-ref-mono-shadow-dock: 0 18px 40px rgb(18 18 23 / 0.1);
+  --ww-ref-mono-shadow-selection: 0 5px 13px rgb(18 18 23 / 0.025);
+  --ww-ref-mono-selection-sheen: rgb(255 255 255 / 0.74);
+  --ww-ref-mono-scrim: rgb(18 18 23 / 0.28);
   --ww-ref-z-content: 1;
   --ww-ref-z-control: 10;
   --ww-ref-z-navigation: 20;

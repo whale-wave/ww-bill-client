@@ -8,7 +8,8 @@ $class-prefix-comment-list-item: 'bwm-comment-list-item';
   &::before {
     content: '';
     display: block;
-    width: 360px;
+    width: calc(100% - 15px);
+    max-width: 360px;
     height: 1px;
     position: absolute;
     bottom: 0;

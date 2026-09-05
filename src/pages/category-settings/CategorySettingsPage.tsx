@@ -1,10 +1,10 @@
-import { Button, ErrorBlock } from 'antd-mobile';
+import { CircleAlert } from 'lucide-react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LedgerKind, useLedgersQuery } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { PageHeader, PageLoadingState } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, PageLoadingState, Surface } from '@/shared/ui';
 
 export default function CategorySettingsPage() {
   const { t } = useTranslation('common');
@@ -29,20 +29,19 @@ export default function CategorySettingsPage() {
               <PageLoadingState label={t('nav.loading')} testId="category-settings-loading" />
             )
           : (
-              <div className="w-full max-w-[360px] text-center">
-                <ErrorBlock
+              <Surface className="w-full max-w-[360px] overflow-hidden" material="content">
+                <IllustratedEmptyState
+                  actionLabel={t('retry')}
                   description={query.isError
                     ? t('categorySettings.loadFailDesc')
                     : t('categorySettings.emptyDesc')}
-                  status="default"
+                  icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+                  onAction={() => void query.refetch()}
                   title={query.isError
                     ? t('categorySettings.loadFail')
                     : t('categorySettings.empty')}
                 />
-                <Button className="mt-4" onClick={() => void query.refetch()} size="small">
-                  {t('retry')}
-                </Button>
-              </div>
+              </Surface>
             )}
       </main>
     </div>

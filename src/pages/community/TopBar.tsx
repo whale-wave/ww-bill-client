@@ -18,17 +18,21 @@ const TopBar: FC<TopBarProps> = ({ data, index, onChange }) => {
   return (
     <div className={classNames(styles.wrapper, 'flex items-center')}>
       {data.map((tab, i) => (
-        <div
+        <button
           key={tab.name}
           className={classNames(
             styles.title,
             index === i && styles.active,
             'flex items-center justify-center h-full relative',
           )}
-          onClick={() => onChange(i)}
+          onClick={() => {
+            tab.onClick();
+            onChange(i);
+          }}
+          type="button"
         >
           {tab.name}
-        </div>
+        </button>
       ))}
     </div>
   );

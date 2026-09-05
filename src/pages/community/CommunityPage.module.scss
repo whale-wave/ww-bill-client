@@ -1,0 +1,28 @@
+.header {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  padding: max(10px, env(safe-area-inset-top)) var(--ww-page-gutter) 8px;
+  background: color-mix(in srgb, var(--ww-background-color) 88%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.header-copy {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  padding: 0 2px 9px;
+
+  strong {
+    font-size: 21px;
+    font-weight: 850;
+    letter-spacing: -0.04em;
+    color: var(--ww-theme-text-color);
+  }
+}
+
+.post-pin {
+  right: var(--ww-page-gutter);
+  bottom: calc(84px + env(safe-area-inset-bottom));
+  top: auto;
+}

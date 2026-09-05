@@ -1,8 +1,16 @@
 .tabs {
   display: flex;
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid var(--ww-border-color);
+  border-radius: var(--ww-control-radius);
+  background: var(--ww-surface-raised-color);
+  box-shadow: var(--ww-card-shadow-xs);
+
   .tab {
-    min-height: 44px;
-    flex-grow: 1;
+    position: relative;
+    min-height: 46px;
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -20,38 +28,48 @@
     }
 
     &.active {
-      position: relative;
-      font-weight: bold;
-      color: var(--ww-theme-text-color);
-      &:before {
-        content: '';
-        position: absolute;
-        left: 50%;
-        bottom: 1px;
-        transform: translateX(-50%);
-        width: 14px;
-        height: 3px;
-        display: block;
-        background: var(--ww-theme-color);
-        border-radius: 1.5px;
+      margin: 4px;
+      border-radius: calc(var(--ww-control-radius) - 4px);
+      background: var(--ww-surface-tint-color);
+      color: var(--ww-theme-color-deep);
+      font-weight: 800;
+      box-shadow: var(--ww-card-shadow-xs);
+
+      &::before {
+        display: none;
       }
     }
   }
 }
 
 .achieve {
-  padding: 13px 16px 0;
-  font-size: var(--ww-font-size-base);
-  font-weight: bold;
+  margin-top: 12px;
+  padding: 16px 16px 0;
+  border: 1px solid var(--ww-border-color);
+  border-bottom: 0;
+  border-radius: var(--ww-card-radius) var(--ww-card-radius) 0 0;
+  background: var(--ww-surface-raised-color);
+  font-size: 15px;
+  font-weight: 800;
   color: var(--ww-theme-text-color);
 }
 
 .check-info {
+  min-height: 104px;
+  padding: 14px 8px 18px;
+  border: 1px solid var(--ww-border-color);
+  border-top: 0;
+  border-radius: 0 0 var(--ww-card-radius) var(--ww-card-radius);
+  background: var(--ww-surface-raised-color);
+  box-shadow: var(--ww-card-shadow-xs);
+
   .font-bold {
-    font-size: var(--ww-font-size-base);
+    font-size: 18px;
+    font-weight: 800;
     color: var(--ww-theme-text-color);
   }
   p {
+    margin-top: 4px;
     font-size: var(--ww-font-size-sm);
     color: var(--ww-text-color-mid);
   }

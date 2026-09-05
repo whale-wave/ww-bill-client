@@ -1,6 +1,5 @@
 import type { FC, KeyboardEvent } from 'react';
-import type { AppearanceTemplate } from '@/entities/user-app-config';
-import type { AppearancePreference } from '@/features/appearance';
+import type { AppearancePreference, DevelopmentAppearanceTemplate } from '@/features/appearance';
 import { Toast } from 'antd-mobile';
 import { Check, Sparkles } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -9,8 +8,10 @@ import {
   usePatchUserAppConfigMutation,
 } from '@/entities/user-app-config';
 import {
-  appearanceTemplateOptions,
   applyAppearancePreference,
+  applyDevelopmentAppearancePreference,
+  getVisibleAppearanceTemplateOptions,
+  MONO_DEVELOPMENT_TEMPLATE,
   readAppearancePreference,
   writeAppearancePreferenceMirror,
 } from '@/features/appearance';
@@ -51,11 +52,17 @@ const AppearanceSettingsPage: FC = () => {
   const userId = useAuthStore(state => state.userId);
   const [patchUserAppConfig, patchMutation] = usePatchUserAppConfigMutation();
   const [pendingPreference, setPendingPreference] = useState<AppearancePreference>();
+  const [developmentTemplate, setDevelopmentTemplate] = useState<typeof MONO_DEVELOPMENT_TEMPLATE | undefined>(() => import.meta.env.DEV && document.documentElement.dataset.designStudioTemplate === MONO_DEVELOPMENT_TEMPLATE ? MONO_DEVELOPMENT_TEMPLATE : undefined);
   const savedPreference = useMemo(
     () => readAppearancePreference(appearanceQuery.data),
     [appearanceQuery.data],
   );
   const preference = pendingPreference ?? savedPreference;
+  const templateOptions = useMemo(
+    () => getVisibleAppearanceTemplateOptions(),
+    [],
+  );
+  const selectedTemplate: DevelopmentAppearanceTemplate = developmentTemplate ?? preference.template;
 
   const savePreference = async (nextPreference: AppearancePreference) => {
     if (patchMutation.isLoading || nextPreference.template === preference.template)
@@ -80,7 +87,17 @@ const AppearanceSettingsPage: FC = () => {
     }
   };
 
-  const handleTemplateChange = (template: AppearanceTemplate) => {
+  const handleTemplateChange = (template: DevelopmentAppearanceTemplate) => {
+    if (template === MONO_DEVELOPMENT_TEMPLATE) {
+      setDevelopmentTemplate(template);
+      applyDevelopmentAppearancePreference(template);
+      return;
+    }
+    setDevelopmentTemplate(undefined);
+    if (template === preference.template) {
+      applyAppearancePreference({ template });
+      return;
+    }
     void savePreference({ template });
   };
 
@@ -98,8 +115,8 @@ const AppearanceSettingsPage: FC = () => {
             <h2 className="text-[13px] font-extrabold text-ww-ink" id="appearance-template-title">{t('appearance.templateTitle')}</h2>
           </div>
           <div aria-label={t('appearance.templateTitle')} className="grid grid-cols-1 gap-2.5" role="radiogroup">
-            {appearanceTemplateOptions.map((option) => {
-              const isSelected = preference.template === option.value;
+            {templateOptions.map((option) => {
+              const isSelected = selectedTemplate === option.value;
               return (
                 <button
                   aria-checked={isSelected}
@@ -109,7 +126,7 @@ const AppearanceSettingsPage: FC = () => {
                   disabled={patchMutation.isLoading}
                   key={option.value}
                   onClick={() => handleTemplateChange(option.value)}
-                  onKeyDown={event => moveRadioSelection(event, appearanceTemplateOptions, preference.template, handleTemplateChange)}
+                  onKeyDown={event => moveRadioSelection(event, templateOptions, selectedTemplate, handleTemplateChange)}
                   role="radio"
                   type="button"
                 >

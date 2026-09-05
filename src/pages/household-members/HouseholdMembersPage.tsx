@@ -1,6 +1,7 @@
 import type { FC, FormEvent } from 'react';
 import type { Household } from '@/entities/household';
-import { Button, Dialog, ErrorBlock, Toast } from 'antd-mobile';
+import { Button, Dialog, Toast } from 'antd-mobile';
+import { CircleAlert } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
@@ -22,7 +23,7 @@ import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { MemberCardsPresentation } from '@/features/workspace-settings';
 import { assertSuccessApi } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
-import { AppBottomSheet, PageHeader } from '@/shared/ui';
+import { AppBottomSheet, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 
 const MembersContent: FC<{ household: Household }> = ({ household }) => {
   const { t } = useTranslation('household');
@@ -97,7 +98,16 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
       retryLabel={t('common.retry')}
     >
       {!current
-        ? <ErrorBlock status="empty" title={t('members.empty')} />
+        ? (
+            <Surface className="overflow-hidden" material="content">
+              <IllustratedEmptyState
+                actionLabel={t('common.retry')}
+                icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+                onAction={() => void query.refetch()}
+                title={t('members.empty')}
+              />
+            </Surface>
+          )
         : (
             <>
               <MemberCardsPresentation

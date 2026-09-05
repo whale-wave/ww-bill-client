@@ -22,6 +22,8 @@ import {
 import { invalidateCategoryConsumers } from './cache';
 import { categoryKeys } from './keys';
 
+const EMPTY_CATEGORY_LIST: GetCategoryApiResponseData['data'] = [];
+
 export function useGetCategoryQuery(options?: {
   params?: GetCategoryApiParams;
   queryOptions?: Omit<UseQueryOptions<SuccessResponse<GetCategoryApiResponseData>>, 'queryFn' | 'queryKey'>;
@@ -68,7 +70,10 @@ export function useLedgerCategoriesQuery(options: {
   });
   return {
     response,
-    data: isSuccessApi(response) ? response.data.data : [],
+    // Consumers such as CategoryManagement sync this value into local state.
+    // Keep the pre-load value referentially stable so that an unresolved query
+    // does not retrigger that synchronisation on every render.
+    data: isSuccessApi(response) ? response.data.data : EMPTY_CATEGORY_LIST,
     ...rest,
   };
 }

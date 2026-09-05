@@ -56,13 +56,13 @@ function DetailRows({ onCopy, rows }: { onCopy: (value: string) => void; rows: r
       {item.onClick
         ? (
             <button
-              className="flex min-h-[62px] w-full items-center gap-4 border-0 border-b border-solid border-border-primary bg-transparent py-3.5 text-left last:border-b-0"
+              className="flex min-h-[62px] w-full items-center gap-3 border-0 border-b border-solid border-border-primary bg-transparent py-3.5 text-left last:border-b-0"
               data-record-detail-row
               data-testid={item.testId}
               onClick={item.onClick}
               type="button"
             >
-              <span className="w-[72px] shrink-0 text-[12px] font-semibold text-ww-soft">{item.label}</span>
+              <span className="w-[64px] shrink-0 text-[12px] font-semibold text-ww-soft">{item.label}</span>
               <span className="min-w-0 flex-1 break-words text-[13px] font-bold leading-5 text-ww-ink">{item.value}</span>
               <ChevronRight className="shrink-0 text-ww-ghost" size={15} />
             </button>
@@ -71,25 +71,25 @@ function DetailRows({ onCopy, rows }: { onCopy: (value: string) => void; rows: r
           ? (
               <button
                 aria-label={`Copy ${item.label}`}
-                className="flex min-h-[62px] w-full items-center gap-4 border-0 border-b border-solid border-border-primary bg-transparent py-3.5 text-left last:border-b-0 active:bg-primary-light/20"
+                className="flex min-h-[62px] w-full items-center gap-3 border-0 border-b border-solid border-border-primary bg-transparent py-3.5 text-left last:border-b-0 active:bg-primary-light/20"
                 data-record-detail-copyable
                 data-record-detail-row
                 data-testid={item.testId}
                 onClick={() => onCopy(item.copyValue!)}
                 type="button"
               >
-                <span className="w-[72px] shrink-0 text-[12px] font-semibold text-ww-soft">{item.label}</span>
+                <span className="w-[64px] shrink-0 text-[12px] font-semibold text-ww-soft">{item.label}</span>
                 <span className="min-w-0 flex-1 break-words text-[13px] font-bold leading-5 text-ww-ink">{item.value}</span>
                 <Copy aria-hidden="true" className="shrink-0 text-primary-deep" size={15} strokeWidth={1.9} />
               </button>
             )
           : (
               <div
-                className="flex min-h-[62px] w-full items-center gap-4 border-0 border-b border-solid border-border-primary py-3.5 last:border-b-0"
+                className="flex min-h-[62px] w-full items-center gap-3 border-0 border-b border-solid border-border-primary py-3.5 last:border-b-0"
                 data-record-detail-row
                 data-testid={item.testId}
               >
-                <span className="w-[72px] shrink-0 text-[12px] font-semibold text-ww-soft">{item.label}</span>
+                <span className="w-[64px] shrink-0 text-[12px] font-semibold text-ww-soft">{item.label}</span>
                 <span className="min-w-0 flex-1 break-words text-[13px] font-bold leading-5 text-ww-ink">{item.value}</span>
               </div>
             )}

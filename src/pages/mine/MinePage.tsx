@@ -95,7 +95,7 @@ const Mine: FC = () => {
   ], [navigate, t]);
 
   return (
-    <div className="page">
+    <div className="page-new relative overflow-hidden">
       <main className="ww-tab-bar-scroll-padding grow overflow-auto px-[18px] pt-[max(0px,env(safe-area-inset-top)+18px)]">
         <UserSummaryCard
           name={userInfo?.name}
@@ -111,7 +111,7 @@ const Mine: FC = () => {
           <ActionMenuCard
             columns={5}
             items={tabs.map(tab => ({
-              icon: <DesignIcon name={tab.icon} size={16} />,
+              icon: <DesignIcon name={tab.icon} size={20} />,
               key: tab.name,
               label: tab.name,
               onClick: tab.onClick.bind(tab),

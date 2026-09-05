@@ -1,48 +1,84 @@
-.nav-bar {
+.list {
+  overflow: hidden;
+  border: 1px solid var(--ww-border-color);
+  border-radius: var(--ww-card-radius);
   background: var(--ww-surface-raised-color);
+  box-shadow: var(--ww-card-shadow-xs);
 }
 
 .item {
+  position: relative;
   display: flex;
   align-items: center;
-  height: 71px;
-  background: var(--ww-surface-raised-color);
-  img {
-    width: 47px;
-    height: 47px;
-    margin: 0 16px 0 11px;
-    background: var(--ww-surface-tint-color);
+  min-height: 74px;
+  padding: 12px 14px;
+
+  &:not(:last-child)::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 74px;
+    height: 1px;
+    background: var(--ww-border-color);
+    content: '';
   }
+
+  img {
+    width: 46px;
+    height: 46px;
+    margin-right: 12px;
+    background: var(--ww-surface-tint-color);
+    border: 1px solid var(--ww-border-color);
+  }
+
   .box {
-    flex-grow: 1;
+    min-width: 0;
+    flex: 1;
+
     .name {
-      font-size: var(--ww-font-size-base);
-      font-weight: bold;
+      overflow: hidden;
+      font-size: 15px;
+      font-weight: 800;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       color: var(--ww-theme-text-color);
     }
+
     .desc {
+      display: flex;
+      gap: 12px;
+      margin-top: 3px;
       font-size: var(--ww-font-size-sm);
       color: var(--ww-text-color-mid);
+
       span {
-        margin-right: 17px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
   }
+
   .btn-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0 16px;
+    margin-left: 12px;
+
     .follow-status {
-      width: 54px;
-      height: 25px;
-      display: flex;
+      display: inline-flex;
+      min-width: 58px;
+      height: 28px;
       align-items: center;
       justify-content: center;
-      font-size: var(--ww-font-size-sm);
-      border-radius: 13px;
-      border: 1px solid var(--ww-border-color);
+      padding: 0 8px;
+      border: 1px solid color-mix(in srgb, var(--ww-theme-color) 28%, var(--ww-border-color));
+      border-radius: 14px;
+      background: var(--ww-theme-color-light);
+      color: var(--ww-theme-color-deep);
+      font-size: 11px;
+      font-weight: 700;
+
       &.active {
+        border-color: var(--ww-border-color);
+        background: var(--ww-surface-tint-color);
         color: var(--ww-text-color-soft);
       }
     }

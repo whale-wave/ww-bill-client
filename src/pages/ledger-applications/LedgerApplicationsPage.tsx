@@ -12,7 +12,7 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedDateTime } from '@/shared/lib';
-import { NavBar } from '@/shared/ui';
+import { PageHeader } from '@/shared/ui';
 
 const LedgerApplicationsPage: FC = () => {
   const { i18n, t } = useTranslation('ledger');
@@ -21,35 +21,41 @@ const LedgerApplicationsPage: FC = () => {
   const query = useMyJoinRequestsQuery();
 
   return (
-    <div className="page-new overflow-hidden bg-bg-gray">
-      <NavBar back={t('common:nav.back')} onBack={() => navigate(-1)}>
-        {t('applications.title')}
-      </NavBar>
-      <main className="min-h-0 flex-grow overflow-auto pb-6">
+    <div className="page-new relative overflow-hidden" data-ledger-applications-page>
+      <PageHeader
+        backLabel={t('common:nav.back')}
+        onBack={() => navigate(-1)}
+        title={t('applications.title')}
+      />
+      <main className="relative z-10 min-h-0 flex-grow overflow-y-auto px-[var(--ww-page-gutter)] pb-[max(24px,env(safe-area-inset-bottom))] pt-1">
         {query.isLoading && (
           <CollaborationQueryState title={t('applications.loading')} type="loading" />
         )}
         {query.isError && (
-          <CollaborationQueryState
-            description={t('applications.loadErrorDescription')}
-            onRetry={() => query.refetch()}
-            retryLabel={t('common.retry')}
-            title={t('applications.loadError')}
-            type="error"
-          />
+          <div className="rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised shadow-ww-xs">
+            <CollaborationQueryState
+              description={t('applications.loadErrorDescription')}
+              onRetry={() => query.refetch()}
+              retryLabel={t('common.retry')}
+              title={t('applications.loadError')}
+              type="error"
+            />
+          </div>
         )}
         {!query.isLoading && !query.isError && !query.data.length && (
-          <CollaborationQueryState
-            description={t('applications.emptyDescription')}
-            title={t('applications.empty')}
-            type="empty"
-          />
+          <div className="rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised shadow-ww-xs">
+            <CollaborationQueryState
+              description={t('applications.emptyDescription')}
+              title={t('applications.empty')}
+              type="empty"
+            />
+          </div>
         )}
         {!query.isLoading && !query.isError && query.data.length > 0 && (
-          <div className="space-y-3 pt-3">
+          <div className="space-y-3">
             {query.data.map(request => (
               <button
-                className="block w-full border-0 bg-white p-0 text-left active:bg-slate-50"
+                className="block w-full overflow-hidden rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised p-0 text-left shadow-ww-xs transition active:bg-primary-light/25"
                 disabled={request.status !== LedgerJoinRequestStatus.APPROVED}
                 key={request.id}
                 onClick={() => navigate(ROUTES_PATH.LEDGER_DETAIL.getPath(request.ledger.id))}

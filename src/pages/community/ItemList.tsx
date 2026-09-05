@@ -1,11 +1,12 @@
 import type { FC } from 'react';
 import type { Topic } from '@/entities/topic';
 import classNames from 'classnames';
+import { MessageCircleMore } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TopicItem, usePutTopicLikeMutation } from '@/entities/topic';
 import { useTranslation } from '@/shared/i18n';
-import { Icon, ImagePreview } from '@/shared/ui';
+import { IllustratedEmptyState, ImagePreview } from '@/shared/ui';
 import styles from './ItemList.module.scss';
 
 interface ItemListProps {
@@ -27,9 +28,7 @@ const ItemList: FC<ItemListProps> = ({ data }) => {
   }, [navigate]);
 
   return (
-    <div
-      className="ww-tab-bar-scroll-padding relative flex-grow overflow-auto"
-    >
+    <main className="ww-tab-bar-scroll-padding relative min-h-0 flex-grow overflow-auto px-[var(--ww-page-gutter)] pb-[118px] pt-1">
       <ImagePreview
         visible={imgVisible}
         image={imgSrc}
@@ -37,37 +36,35 @@ const ItemList: FC<ItemListProps> = ({ data }) => {
       />
       {data && !!data.length
         ? (
-            data.map(i => (
-              <TopicItem
-                key={i.id}
-                data={i}
-                onClick={id => toDetail(id)}
-                onComment={id => toDetail(id)}
-                onShare={() => console.error('share')}
-                onLike={() => handleLike(i.id)}
-                onImg={(_, src) => {
-                  setImgVisible(true);
-                  setImgSrc(src);
-                }}
-                onAvatar={id => navigate(`/community/personal/${id}`)}
-              />
-            ))
+            <section className={styles.list}>
+              {data.map(i => (
+                <div className={styles.card} key={i.id}>
+                  <TopicItem
+                    data={i}
+                    onClick={id => toDetail(id)}
+                    onComment={id => toDetail(id)}
+                    onShare={() => console.error('share')}
+                    onLike={() => handleLike(i.id)}
+                    onImg={(_, src) => {
+                      setImgVisible(true);
+                      setImgSrc(src);
+                    }}
+                    onAvatar={id => navigate(`/community/personal/${id}`)}
+                  />
+                </div>
+              ))}
+            </section>
           )
         : (
-            <div
-              className={classNames(
-                styles['not-data-wrapper'],
-                'absolute top-1/2 left-1/2 text-center',
-              )}
-              style={{
-                transform: 'translate(-50%, -50%)',
-              }}
-            >
-              <Icon name="not-data" block className={styles['not-data']} />
-              <span className={styles['not-data-text']}>{t('common:empty')}</span>
+            <div className={classNames(styles['not-data-wrapper'], 'pt-20')}>
+              <IllustratedEmptyState
+                className="min-h-[320px]"
+                icon={<MessageCircleMore size={36} strokeWidth={1.7} />}
+                title={t('common:empty')}
+              />
             </div>
           )}
-    </div>
+    </main>
   );
 };
 export default ItemList;

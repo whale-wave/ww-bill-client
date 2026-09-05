@@ -6,6 +6,7 @@ import ReplyArea from '@/pages/topic-detail/ReplyArea';
 import { SHARE_PLATFORM_COLORS } from '@/shared/config/share-platform-colors';
 import { useTranslation } from '@/shared/i18n';
 import { FixedPin, ImagePreview, Share } from '@/shared/ui';
+import styles from './index.module.scss';
 
 interface MainProps {
   topic?: TopicDetail;
@@ -59,7 +60,7 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
   ];
 
   return (
-    <div className="flex-grow overflow-auto">
+    <main className={styles.content}>
       <Share
         shares={shares}
         visible={shareVisible}
@@ -72,21 +73,23 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
         onClose={() => setImgVisible(false)}
       />
       {topic && (
-        <TopicItem
-          data={topic}
-          onClick={() => console.error('click item')}
-          onShare={() => console.error('share')}
-          onLike={onLike}
-          onImg={(_, src) => {
-            setImgVisible(true);
-            setImgSrc(src);
-          }}
-        />
+        <section className={styles['topic-card']}>
+          <TopicItem
+            data={topic}
+            onClick={() => console.error('click item')}
+            onShare={() => console.error('share')}
+            onLike={onLike}
+            onImg={(_, src) => {
+              setImgVisible(true);
+              setImgSrc(src);
+            }}
+          />
+        </section>
       )}
-      <div aria-hidden="true" className="h-2 bg-[color:var(--ww-background-color)]" />
-      <ReplyArea comments={comments} />
-      <div aria-hidden="true" className="h-2 bg-[color:var(--ww-background-color)]" />
-    </div>
+      <section className={styles['reply-card']}>
+        <ReplyArea comments={comments} />
+      </section>
+    </main>
   );
 };
 

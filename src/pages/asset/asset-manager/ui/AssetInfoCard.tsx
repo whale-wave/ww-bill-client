@@ -15,19 +15,9 @@ export const AssetInfoCard: FC = () => {
       className="overflow-hidden px-[22px] pb-5 pt-[22px]"
       material="raised"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="text-[11px] font-semibold leading-[16.5px] tracking-[0.5px] text-ww-mid">
-            {t('summary.netWorth')}
-          </div>
-          {isLoading
-            ? <Skeleton.Title className="!mt-2 !h-8 !w-[160px]" animated />
-            : (
-                <div className="mt-1 flex min-w-0 items-baseline font-number text-ww-ink">
-                  <span className="mr-1 text-[15px] font-extrabold text-ww-mid">¥</span>
-                  <span className="truncate text-[32px] font-black leading-[42px]">{isError ? '--' : formatInfo.totalAsset}</span>
-                </div>
-              )}
+      <div className="flex items-center justify-between gap-3">
+        <div className="text-[11px] font-semibold leading-[16.5px] tracking-[0.5px] text-ww-mid">
+          {t('summary.netWorth')}
         </div>
         {isError
           ? (
@@ -46,6 +36,14 @@ export const AssetInfoCard: FC = () => {
               </span>
             )}
       </div>
+      {isLoading
+        ? <Skeleton.Title className="!mt-2 !h-8 !w-[160px]" animated />
+        : (
+            <div className="mt-1 flex items-baseline font-number text-ww-ink">
+              <span className="mr-1 text-[15px] font-extrabold text-ww-mid">¥</span>
+              <span className="whitespace-nowrap text-[clamp(26px,8.2vw,32px)] font-black leading-[42px]">{isError ? '--' : formatInfo.totalAsset}</span>
+            </div>
+          )}
       <MetricGrid
         align="start"
         className="mt-[18px] border-t border-[rgba(100,160,200,0.18)] pt-[14px]"

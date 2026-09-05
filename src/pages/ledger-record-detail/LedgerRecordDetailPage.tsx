@@ -1,5 +1,6 @@
-import { ErrorBlock, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
+import { CircleAlert } from 'lucide-react';
 import { useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
@@ -23,7 +24,7 @@ import { useCurrentWorkspaceBack } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
-import { confirmDangerousAction, PageHeader, PageLoadingState } from '@/shared/ui';
+import { confirmDangerousAction, IllustratedEmptyState, PageHeader, PageLoadingState, Surface } from '@/shared/ui';
 
 function FamilyPolicyEntry({ recordId, recordTime }: { recordId: number; recordTime: string }) {
   const { t } = useTranslation('ledger');
@@ -71,8 +72,22 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
     ?? readLedgerRecordDetailState(location.state, ledgerId, recordId);
   if (query.isLoading && !record)
     return <PageLoadingState label={t('common:nav.loading')} testId="record-detail-loading" />;
-  if (!record)
-    return <ErrorBlock title={t('records.notFound')} />;
+  if (!record) {
+    const canRetry = query.isError;
+    return (
+      <div className="mx-auto w-full max-w-[520px] px-[var(--ww-page-gutter)] py-6">
+        <Surface className="overflow-hidden" material="content">
+          <IllustratedEmptyState
+            actionLabel={canRetry ? t('common:nav.retry') : t('common:nav.back')}
+            description={canRetry ? t('common:error.networkError') : undefined}
+            icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+            onAction={canRetry ? () => void query.refetch() : () => navigate(-1)}
+            title={t('records.notFound')}
+          />
+        </Surface>
+      </div>
+    );
+  }
   const date = new Date(record.time);
   const timeDate = getTimeDateYear(date);
   const weekByDay = getWeekByDay(getTimedate(date));

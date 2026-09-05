@@ -7,9 +7,9 @@ import type {
 import {
   Button,
   Dialog,
-  ErrorBlock,
   Toast,
 } from 'antd-mobile';
+import { Bell, ChevronDown } from 'lucide-react';
 import { useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -22,7 +22,7 @@ import {
 } from '@/entities/notification';
 import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
-import { NavBar, PageLoadingState } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
 import { getNotificationTarget } from './model';
 
 const PAGE_SIZE = 20;
@@ -66,7 +66,7 @@ function NotificationItem({
   const target = getNotificationTarget(notification.payload);
 
   return (
-    <article className="border-b border-border-primary bg-white px-4 py-3 last:border-b-0">
+    <article className="border-b border-border-primary px-4 py-4 last:border-b-0">
       <div className="flex items-start gap-2">
         <span
           className={`mt-[7px] h-2 w-2 shrink-0 rounded-full ${isUnread ? 'bg-[var(--ww-theme-color)]' : 'bg-transparent'}`}
@@ -85,13 +85,13 @@ function NotificationItem({
               {showDate(notification.createdAt)}
             </time>
           </div>
-          <div className="mt-1 inline-flex rounded bg-ww-surface-tint px-1.5 py-0.5 text-xs text-ww-mid">
+          <div className="mt-2 inline-flex rounded-full bg-ww-surface-tint px-2 py-0.5 text-xs text-ww-mid">
             {t(`message.notificationCenter.types.${notification.type}`)}
           </div>
           <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-5 text-ww-mid">
             {notification.content}
           </p>
-          <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
+          <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
             {target && (
               <Button
                 size="mini"
@@ -232,15 +232,15 @@ function SystemNotifyPage() {
   };
 
   return (
-    <div className="page bg-bg-gray">
-      <NavBar
-        back={t('nav.back')}
+    <div className="page-new relative overflow-hidden" data-system-notify-page>
+      <PageHeader
+        backLabel={t('nav.back')}
         onBack={() => navigate(-1)}
-        className="bg-white"
+        title={t('message.systemNotify.title')}
         right={(
           <button
             type="button"
-            className="flex min-h-11 items-center border-0 bg-transparent px-0 text-sm text-ww-ink disabled:text-ww-ghost"
+            className="min-h-9 rounded-full border border-solid border-border-primary bg-ww-surface px-3 text-xs font-bold text-ww-ink shadow-ww-xs backdrop-blur-[var(--ww-card-blur)] disabled:text-ww-ghost"
             disabled={isMutating}
             data-testid="notification-read-all"
             onClick={handleMarkAllRead}
@@ -248,71 +248,77 @@ function SystemNotifyPage() {
             {t('message.notificationCenter.markAllRead')}
           </button>
         )}
-      >
-        {t('message.systemNotify.title')}
-      </NavBar>
+      />
 
-      <main className="min-h-0 flex-1 overflow-auto pb-6">
-        <div className="sticky top-0 z-10 flex gap-2 border-y border-border-primary bg-white px-4 py-2">
-          <label className="min-w-0 flex-1">
-            <span className="sr-only">{t('message.notificationCenter.statusFilter')}</span>
-            <select
-              className="h-11 w-full rounded border border-border-primary bg-white px-2 text-sm text-ww-ink"
-              aria-label={t('message.notificationCenter.statusFilter')}
-              value={status ?? ''}
-              onChange={event => handleFilterChange('status', event)}
-            >
-              <option value="">{t('message.notificationCenter.allStatuses')}</option>
-              {Object.values(UserNotificationStatus).map(value => (
-                <option key={value} value={value}>
-                  {t(`message.notificationCenter.statuses.${value}`)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="min-w-0 flex-1">
-            <span className="sr-only">{t('message.notificationCenter.typeFilter')}</span>
-            <select
-              className="h-11 w-full rounded border border-border-primary bg-white px-2 text-sm text-ww-ink"
-              aria-label={t('message.notificationCenter.typeFilter')}
-              value={type ?? ''}
-              onChange={event => handleFilterChange('type', event)}
-            >
-              <option value="">{t('message.notificationCenter.allTypes')}</option>
-              {Object.values(UserNotificationType).map(value => (
-                <option key={value} value={value}>
-                  {t(`message.notificationCenter.types.${value}`)}
-                </option>
-              ))}
-            </select>
-          </label>
+      <main className="relative z-10 min-h-0 flex-1 overflow-y-auto px-[var(--ww-page-gutter)] pb-[max(24px,env(safe-area-inset-bottom))] pt-1">
+        <div className="sticky top-0 z-10 -mx-1 pb-3 pt-1">
+          <div className="flex gap-2 rounded-[var(--ww-control-radius)] border border-solid border-border-primary bg-ww-surface-raised p-2 shadow-ww-xs backdrop-blur-[var(--ww-card-blur)]">
+            <label className="relative min-w-0 flex-1">
+              <span className="sr-only">{t('message.notificationCenter.statusFilter')}</span>
+              <select
+                className="h-10 w-full appearance-none rounded-[calc(var(--ww-control-radius)-4px)] border border-border-primary bg-ww-surface px-3 pr-8 text-sm font-medium text-ww-ink outline-none transition focus:border-primary-mid"
+                aria-label={t('message.notificationCenter.statusFilter')}
+                value={status ?? ''}
+                onChange={event => handleFilterChange('status', event)}
+              >
+                <option value="">{t('message.notificationCenter.allStatuses')}</option>
+                {Object.values(UserNotificationStatus).map(value => (
+                  <option key={value} value={value}>
+                    {t(`message.notificationCenter.statuses.${value}`)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-ww-soft" size={15} strokeWidth={2.25} />
+            </label>
+            <label className="relative min-w-0 flex-1">
+              <span className="sr-only">{t('message.notificationCenter.typeFilter')}</span>
+              <select
+                className="h-10 w-full appearance-none rounded-[calc(var(--ww-control-radius)-4px)] border border-border-primary bg-ww-surface px-3 pr-8 text-sm font-medium text-ww-ink outline-none transition focus:border-primary-mid"
+                aria-label={t('message.notificationCenter.typeFilter')}
+                value={type ?? ''}
+                onChange={event => handleFilterChange('type', event)}
+              >
+                <option value="">{t('message.notificationCenter.allTypes')}</option>
+                {Object.values(UserNotificationType).map(value => (
+                  <option key={value} value={value}>
+                    {t(`message.notificationCenter.types.${value}`)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-ww-soft" size={15} strokeWidth={2.25} />
+            </label>
+          </div>
         </div>
 
         {isLoading && (
           <PageLoadingState label={t('nav.loading')} testId="system-notify-loading" />
         )}
         {!isLoading && isError && (
-          <div className="px-4 py-10 text-center">
-            <ErrorBlock
-              title={t('message.notificationCenter.loadFailed')}
+          <div className="rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised shadow-ww-xs">
+            <IllustratedEmptyState
+              className="min-h-[360px]"
               description={t('message.notificationCenter.loadFailedHint')}
+              icon={<Bell aria-hidden="true" size={38} strokeWidth={1.8} />}
+              title={t('message.notificationCenter.loadFailed')}
             />
-            <Button size="small" className="mt-3" onClick={() => void refetch()}>
+            <Button size="small" className="mb-7 px-5" onClick={() => void refetch()}>
               {t('message.notificationCenter.retry')}
             </Button>
           </div>
         )}
         {!isLoading && !isError && data.length === 0 && (
-          <div className="px-4 py-10">
-            <ErrorBlock
-              status="empty"
-              title={t('message.notificationCenter.empty')}
+          <div className="rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised shadow-ww-xs">
+            <IllustratedEmptyState
+              className="min-h-[400px]"
               description={t('message.notificationCenter.emptyHint')}
+              icon={<Bell aria-hidden="true" size={38} strokeWidth={1.8} />}
+              testId="system-notify-empty-state"
+              title={t('message.notificationCenter.empty')}
             />
           </div>
         )}
         {!isLoading && !isError && data.length > 0 && (
-          <section className="mt-2 border-y border-border-primary">
+          <section className="overflow-hidden rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised shadow-ww-xs">
             {data.map(notification => (
               <NotificationItem
                 key={notification.id}
@@ -326,7 +332,7 @@ function SystemNotifyPage() {
           </section>
         )}
         {hasNextPage && (
-          <div className="px-4 py-4">
+          <div className="py-4">
             <Button
               block
               size="small"

@@ -37,12 +37,12 @@ vi.mock('@/shared/lib/time', () => ({
 }));
 
 vi.mock('@/shared/ui', () => ({
-  NavBar: ({ children, right }: { children: ReactNode; right?: ReactNode }) => createElement(
+  PageHeader: ({ title }: { title: ReactNode }) => createElement(
     'header',
     null,
-    children,
-    right,
+    title,
   ),
+  IllustratedEmptyState: ({ title }: { title: ReactNode }) => createElement('div', null, title),
   PageLoadingState: ({ label, testId }: { label: ReactNode; testId?: string }) => createElement(
     'div',
     { 'data-testid': testId, 'role': 'status' },

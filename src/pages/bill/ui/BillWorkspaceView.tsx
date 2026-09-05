@@ -1,6 +1,6 @@
 import type { GetRecordBillApiResponseData } from '@/entities/record';
-import { Button as AdmButton, ErrorBlock } from 'antd-mobile';
 import dayjs from 'dayjs';
+import { CircleAlert } from 'lucide-react';
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +11,7 @@ import { useBillPageStore } from '@/pages/bill/model';
 import { BillTabsType } from '@/pages/bill/types';
 import Content from '@/pages/bill/ui/Content';
 import { ROUTES_PATH } from '@/shared/config/routes';
-import { PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, PageLoadingState, Surface, Button as WwButton } from '@/shared/ui';
 
 interface BillQueryState {
   data?: GetRecordBillApiResponseData;
@@ -59,13 +59,16 @@ function BillWorkspaceContent({ query, onMonthSelect }: { query: BillQueryState;
         <PageLoadingState label={t('common:nav.loading')} testId="bill-loading" />
       )}
       {query.isError && !hasData && (
-        <div className="flex min-h-[320px] flex-col items-center justify-center gap-3">
-          <ErrorBlock />
-          {query.refetch && (
-            <AdmButton onClick={() => void query.refetch?.()} size="small">
-              {t('common:retry')}
-            </AdmButton>
-          )}
+        <div className="flex min-h-[320px] items-center justify-center py-3">
+          <Surface className="w-full overflow-hidden" material="content">
+            <IllustratedEmptyState
+              actionLabel={query.refetch ? t('common:retry') : undefined}
+              description={t('common:error.networkError')}
+              icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+              onAction={query.refetch ? () => void query.refetch?.() : undefined}
+              title={t('common:error.loadFail')}
+            />
+          </Surface>
         </div>
       )}
       {hasData && (

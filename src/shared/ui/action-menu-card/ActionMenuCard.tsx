@@ -55,7 +55,7 @@ export function ActionMenuCard({
         variant === 'card'
         && 'rounded-[var(--ww-radius-card)] border border-border-primary bg-ww-surface-raised px-[10px] py-3',
         isMineActions
-        && 'rounded-[var(--ww-radius-card)] border border-border-primary bg-ww-surface-raised px-[10px] py-3',
+        && 'rounded-[var(--ww-radius-card)] border border-border-primary bg-ww-surface-raised px-[10px] py-2',
         className,
       )}
       role="group"
@@ -68,7 +68,7 @@ export function ActionMenuCard({
             className={cn(
               'ww-action-menu-card__item flex min-w-0 flex-col items-center justify-center transition active:scale-95 disabled:opacity-45',
               variant === 'card' && 'gap-[7px] px-1 py-2',
-              isMineActions && 'h-16 gap-[5px] px-1 py-1.5',
+              isMineActions && 'h-14 gap-[5px] p-0',
               variant === 'tiles'
               && 'gap-[7px] rounded-[18px] border px-1 pb-[10px] pt-[13px]',
               isGradientTiles

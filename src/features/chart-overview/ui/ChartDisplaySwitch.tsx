@@ -18,14 +18,14 @@ export const ChartDisplaySwitch: FC<ChartDisplaySwitchProps> = ({ compact = fals
   return (
     <div
       aria-label={t('display.label')}
-      className={`ww-chart-display-switch inline-flex items-center border p-[2px] ${compact ? 'origin-right' : ''}`}
+      className={`ww-chart-display-switch inline-flex items-center border p-[2px] ${compact ? 'w-[92px] origin-right' : ''}`}
       data-chart-display-switch
       role="group"
     >
       {options.map(option => (
         <button
           aria-pressed={option.value === value}
-          className={`ww-chart-display-switch__option relative -my-2 flex h-11 items-center justify-center border-0 bg-transparent font-bold transition-colors ${compact ? 'min-w-[44px] px-2 text-[11px] leading-4' : 'min-w-[52px] px-3 text-[12px] leading-[18px]'} ${option.value === value ? 'ww-chart-display-switch__option--active' : ''}`}
+          className={`ww-chart-display-switch__option relative flex h-full items-center justify-center border-0 bg-transparent font-bold transition-colors ${compact ? 'min-w-0 flex-1 px-1 text-[11px] leading-4' : 'min-w-[52px] px-3 text-[12px] leading-[18px]'} ${option.value === value ? 'ww-chart-display-switch__option--active' : ''}`}
           data-chart-display-option={option.value}
           key={option.value}
           onClick={() => onChange(option.value)}

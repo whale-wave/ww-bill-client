@@ -7,6 +7,7 @@ export interface MetricGridItem {
   key: string;
   label: ReactNode;
   value: ReactNode;
+  valueClassName?: string;
   suffix?: ReactNode;
   tone?: MetricTone;
 }
@@ -143,8 +144,8 @@ export function MetricGrid({ align = 'center', items, columns = 3, density = 'st
           >
             <dt className="w-full truncate text-[10.5px] font-semibold leading-[15.75px] tracking-[0.5px] text-ww-mid">{item.label}</dt>
             <dd className={`mt-[3px] flex h-6 min-w-0 items-baseline font-number text-[16px] font-extrabold leading-6 ${toneClassNames[item.tone ?? 'default']}`}>
-              <span className="truncate">{item.value}</span>
-              {item.suffix && <span className="text-xs font-normal text-ww-mid">{item.suffix}</span>}
+              <span className={`truncate ${item.valueClassName ?? ''}`}>{item.value}</span>
+              {item.suffix && <span className="shrink-0 text-xs font-normal text-ww-mid">{item.suffix}</span>}
             </dd>
           </div>
         ))}
@@ -169,8 +170,8 @@ export function MetricGrid({ align = 'center', items, columns = 3, density = 'st
           <dd
             className={`flex min-w-0 items-baseline gap-0.5 font-number ${align === 'center' ? 'justify-center' : 'justify-start'} ${densityClasses.value} ${toneClassNames[item.tone ?? 'default']}`}
           >
-            <span className="truncate">{item.value}</span>
-            {item.suffix && <span className="text-xs font-normal text-ww-mid">{item.suffix}</span>}
+            <span className={`truncate ${item.valueClassName ?? ''}`}>{item.value}</span>
+            {item.suffix && <span className="shrink-0 text-xs font-normal text-ww-mid">{item.suffix}</span>}
           </dd>
         </div>
       ))}
