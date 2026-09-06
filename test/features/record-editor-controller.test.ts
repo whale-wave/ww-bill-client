@@ -1,3 +1,4 @@
+import type { Asset } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
 import type { RecordDraft } from '@/features/record-editor';
 import { act, createElement } from 'react';
@@ -31,33 +32,56 @@ const category: CategoryEntity = {
   updatedAt: '',
   version: 1,
 };
+const assetAccount: Asset = {
+  amount: '1000',
+  assetGroup: {
+    assetType: 'bank' as Asset['assetGroup']['assetType'],
+    createdAt: '',
+    description: '',
+    fixedName: true,
+    icon: 'bank',
+    id: '00000000-0000-4000-8000-000000000400',
+    level: 1,
+    name: '储蓄卡',
+    parentId: '',
+    type: 'add',
+    updatedAt: '',
+  },
+  createdAt: '',
+  id: '00000000-0000-4000-8000-000000000401',
+  name: '工资卡',
+  updatedAt: '',
+};
 const submit = vi.fn<(draft: RecordDraft) => Promise<void>>();
 let cleanup: (() => void) | undefined;
 
-function Editor({ amount, editing = false, remark, tags = false }: { amount?: string; editing?: boolean; remark?: string; tags?: boolean }) {
+function Editor({ amount, assets = false, editing = false, remark, tags = false }: { amount?: string; assets?: boolean; editing?: boolean; remark?: string; tags?: boolean }) {
   const controller = useRecordEditorController({
     onSubmit: submit,
     seed: {
       amount,
       category,
+      linkedAssetId: editing && assets ? '00000000-0000-4000-8000-000000000401' : null,
       recordType: 'sub',
       remark,
       tagIds: editing ? ['00000000-0000-4000-8000-000000000301', '00000000-0000-4000-8000-000000000302'] : undefined,
       time: '2026-07-21T12:00:00.000Z',
     },
     isEditing: editing,
+    supportsAssetLink: assets,
     supportsTags: tags,
   });
   return createElement(RecordEditorPresentation, {
     categories: [category],
     categoryState: 'ready',
     controller,
+    assetAccounts: assets ? [assetAccount] : undefined,
     onCancel: vi.fn(),
     tags: tags ? [{ id: '00000000-0000-4000-8000-000000000303', name: '出游' }] : undefined,
   });
 }
 
-function renderEditor(props: { amount?: string; editing?: boolean; remark?: string; tags?: boolean } = {}) {
+function renderEditor(props: { amount?: string; assets?: boolean; editing?: boolean; remark?: string; tags?: boolean } = {}) {
   const container = document.createElement('div');
   document.body.appendChild(container);
   const root = createRoot(container);
@@ -215,6 +239,21 @@ describe('record editor controller', () => {
     expect(submit).toHaveBeenCalledWith(expect.objectContaining({
       tagIds: ['00000000-0000-4000-8000-000000000303'],
     }));
+  });
+
+  it('keeps an existing asset link unless the user explicitly unlinks it', async () => {
+    const container = renderEditor({ amount: '20', assets: true, editing: true });
+    await complete(container);
+    expect(submit).toHaveBeenCalledWith(expect.not.objectContaining({ linkedAssetId: expect.anything() }));
+
+    submit.mockClear();
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
+    const unlink = [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('record:bookkeeping.noLinkedAsset'));
+    act(() => unlink?.click());
+    await complete(container);
+
+    expect(submit).toHaveBeenCalledWith(expect.objectContaining({ linkedAssetId: null }));
   });
 
   it('removes the context-menu guard when the editor unmounts', () => {

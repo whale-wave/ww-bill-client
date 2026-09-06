@@ -13,6 +13,7 @@ interface RecordEditorControllerOptions {
   onSubmit: (draft: RecordDraft) => Promise<void>;
   onValidationError?: (error: RecordEditorValidationError) => void;
   seed: RecordEditorSeed;
+  supportsAssetLink?: boolean;
   supportsTags?: boolean;
   isEditing?: boolean;
   onUploadImage?: (file: File) => Promise<string>;
@@ -22,6 +23,7 @@ export function useRecordEditorController({
   onSubmit,
   onValidationError,
   seed,
+  supportsAssetLink = false,
   supportsTags = false,
   isEditing = false,
   onUploadImage,
@@ -37,6 +39,8 @@ export function useRecordEditorController({
   });
   const [selectedTagIds, setSelectedTagIds] = useState(seed.tagIds ?? []);
   const [tagSelectionDirty, setTagSelectionDirty] = useState(false);
+  const [linkedAssetId, setLinkedAssetId] = useState<string | null>(seed.linkedAssetId ?? null);
+  const [assetSelectionDirty, setAssetSelectionDirty] = useState(false);
   const [imageAssetId, setImageAssetId] = useState<string | null | undefined>(seed.imageAssetId);
   const [imagePreviewFile, setImagePreviewFile] = useState<File>();
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | undefined>(() => seed.imagePreviewFile ? URL.createObjectURL(seed.imagePreviewFile) : undefined);
@@ -145,6 +149,11 @@ export function useRecordEditorController({
     setSelectedTagIds([]);
   }, []);
 
+  const handleSelectLinkedAsset = useCallback((assetId: string | null) => {
+    setLinkedAssetId(assetId);
+    setAssetSelectionDirty(true);
+  }, []);
+
   const handleRemoveTag = useCallback((tagId: string) => {
     setTagSelectionDirty(true);
     setSelectedTagIds(current => current.filter(id => id !== tagId));
@@ -219,6 +228,7 @@ export function useRecordEditorController({
       time: dayjs(date).toISOString(),
       type: selectedCategory.type,
       ...(supportsTags && (!isEditing || tagSelectionDirty) ? { tagIds: selectedTagIds } : {}),
+      ...(supportsAssetLink && (!isEditing || assetSelectionDirty) ? { linkedAssetId } : {}),
       ...(imageAssetId !== undefined ? { imageAssetId } : {}),
     };
 
@@ -244,6 +254,9 @@ export function useRecordEditorController({
     tagSelectionDirty,
     imageAssetId,
     isImageUploading,
+    linkedAssetId,
+    assetSelectionDirty,
+    supportsAssetLink,
   ]);
 
   const formattedDate = useMemo(() => dayjs(date).format('YYYY/MM/DD'), [date]);
@@ -262,13 +275,14 @@ export function useRecordEditorController({
     hasImage: Boolean(seed.attachment ?? seed.hasImage) || (imageAssetId !== null && Boolean(imageAssetId ?? imagePreviewFile)),
     imageAssetId,
     imagePreviewFile,
+    linkedAssetId,
     isTagPickerVisible: true,
     recordType,
     remark,
     tagIds: selectedTagIds,
     time: dayjs(date).toISOString(),
     shouldReconcileTags: true,
-  }), [calculator, date, imageAssetId, imagePreviewFile, recordType, remark, seed.attachment, seed.hasImage, selectedCategory, selectedTagIds]);
+  }), [calculator, date, imageAssetId, imagePreviewFile, linkedAssetId, recordType, remark, seed.attachment, seed.hasImage, selectedCategory, selectedTagIds]);
 
   return {
     activeKeyIndex,
@@ -291,12 +305,14 @@ export function useRecordEditorController({
     handleReconcileTags,
     handleRemoveImage,
     handleSelectImage,
+    handleSelectLinkedAsset,
     isDatePickerVisible,
     isNoteFocused,
     isSubmitting,
     isImageUploading,
     imagePreviewUrl,
     imageUploadError,
+    linkedAssetId,
     initialAttachment: seed.attachment,
     hasInitialImage: Boolean(seed.attachment ?? seed.hasImage) && imageAssetId !== null,
     isTagPickerVisible,
@@ -307,6 +323,7 @@ export function useRecordEditorController({
     selectedTagIds,
     shouldReconcileTags: Boolean(seed.shouldReconcileTags),
     tagSelectionDirty,
+    assetSelectionDirty,
     setActiveSideIndex,
     setDate,
     setIsDatePickerVisible,

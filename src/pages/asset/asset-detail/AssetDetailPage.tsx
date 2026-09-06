@@ -22,7 +22,7 @@ const AssetDetail: FC = () => {
   return (
     <AssetPageFrame
       backLabel={t('common:nav.back')}
-      footer={query.data ? <AssetBottomActions assetId={query.data.id} /> : undefined}
+      footer={query.data ? <AssetBottomActions asset={query.data} /> : undefined}
       onBack={onBack}
       title={t('detail.title')}
     >

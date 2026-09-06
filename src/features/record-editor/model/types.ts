@@ -10,6 +10,7 @@ export interface RecordEditorSeed {
   category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'>;
   imageAssetId?: string | null;
   imagePreviewFile?: File;
+  linkedAssetId?: string | null;
   isTagPickerVisible?: boolean;
   shouldReconcileTags?: boolean;
   recordType: CategoryAmountType;

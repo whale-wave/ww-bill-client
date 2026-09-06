@@ -15,6 +15,7 @@ const hooks = vi.hoisted(() => ({
   ledgerCapabilities: [] as string[],
   postRecord: vi.fn(),
   putRecord: vi.fn(),
+  useGetAssetQuery: vi.fn(),
   useGetCategoryQuery: vi.fn(),
   useLedgerTagsQuery: vi.fn(),
 }));
@@ -22,6 +23,11 @@ const hooks = vi.hoisted(() => ({
 vi.mock('@/entities/category', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/category')>()),
   useGetCategoryQuery: hooks.useGetCategoryQuery,
+}));
+
+vi.mock('@/entities/asset', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/entities/asset')>()),
+  useGetAssetQuery: hooks.useGetAssetQuery,
 }));
 
 vi.mock('@/entities/record', async importOriginal => ({
@@ -55,6 +61,7 @@ vi.mock('@/entities/shortcut-bookkeeping', async importOriginal => ({
 }));
 
 vi.mock('@/shared/i18n', () => ({
+  i18n: { t: (key: string) => key },
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
@@ -84,11 +91,13 @@ beforeEach(() => {
   hooks.confirmShortcutDraft.mockReset();
   hooks.discardShortcutDraft.mockReset();
   hooks.useGetCategoryQuery.mockReset();
+  hooks.useGetAssetQuery.mockReset();
   hooks.useLedgerTagsQuery.mockReset();
   hooks.ledgerCapabilities = [];
   hooks.postRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
   hooks.putRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
   hooks.confirmShortcutDraft.mockResolvedValue({ ledgerId: 'default-ledger', recordId: 11 });
+  hooks.useGetAssetQuery.mockReturnValue({ data: [] });
   hooks.useGetCategoryQuery.mockReturnValue({
     data: [{
       createdAt: '',
@@ -192,6 +201,7 @@ describe('personal record editor adapter', () => {
     const container = renderRouter(router);
 
     await act(async () => Promise.resolve());
+    expect(hooks.useGetAssetQuery).toHaveBeenCalledWith({ queryOptions: { enabled: false } });
     expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
     expect(container.querySelector<HTMLInputElement>('[data-record-editor-note] input')?.value).toBe('滴滴出行');
     expect(container.querySelector('[data-record-editor-category-trigger]')?.textContent).toBe('交通');
@@ -281,6 +291,9 @@ describe('personal record editor adapter', () => {
       }],
     });
     const container = renderRouter(router);
+
+    expect(hooks.useGetAssetQuery).toHaveBeenCalledWith({ queryOptions: { enabled: false } });
+    expect(container.querySelector('[data-record-editor-asset-trigger]')).toBeNull();
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());

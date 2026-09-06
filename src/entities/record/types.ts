@@ -15,6 +15,17 @@ export interface RecordEntry {
   type: 'sub' | 'add';
   updatedAt: string;
   version: number;
+  linkedAsset?: {
+    id: string;
+    amount: string;
+    cardId?: string;
+    name: string;
+    assetGroup: {
+      icon: string;
+      name: string;
+      type: 'add' | 'sub';
+    };
+  } | null;
   creator?: {
     id: number;
     name?: string;

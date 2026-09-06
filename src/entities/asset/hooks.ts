@@ -1,4 +1,4 @@
-import type { UseQueryOptions } from '@tanstack/react-query';
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query';
 import type {
   Asset,
   AssetGroup,
@@ -7,6 +7,7 @@ import type {
   GetAssetRecordApiParams,
   GetAssetStatisticalRecordApiParams,
   PatchAssetAdjustApiData,
+  PostAssetTransferApiData,
 } from './api';
 import type { SuccessResponse } from '@/shared/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -22,8 +23,19 @@ import {
   getAssetStatisticalRecordApi,
   patchAssetAdjustApi,
   postAssetApi,
+  postAssetTransferApi,
+  postVoidAssetTransferApi,
 } from './api';
 import { assetKeys } from './keys';
+
+export function invalidateAssetQueries(queryClient: QueryClient) {
+  return Promise.all([
+    queryClient.invalidateQueries({ queryKey: assetKeys.lists() }),
+    queryClient.invalidateQueries({ queryKey: assetKeys.details() }),
+    queryClient.invalidateQueries({ queryKey: assetKeys.records() }),
+    queryClient.invalidateQueries({ queryKey: assetKeys.statisticalRecords() }),
+  ]);
+}
 
 export function useGetAssetQuery(options?: {
   queryOptions?: Omit<UseQueryOptions<SuccessResponse<Asset[]>>, 'queryFn' | 'queryKey'>;
@@ -252,4 +264,27 @@ export function useDeleteAssetByIdMutation() {
       ...rest,
     },
   ] as const;
+}
+
+export function usePostAssetTransferMutation() {
+  const queryClient = useQueryClient();
+  const { mutateAsync, ...rest } = useMutation({
+    mutationFn: (data: PostAssetTransferApiData) => postAssetTransferApi(data).then(assertSuccessApi),
+    onSuccess: async () => {
+      await invalidateAssetQueries(queryClient);
+    },
+  });
+  return [mutateAsync, rest] as const;
+}
+
+export function useVoidAssetTransferMutation() {
+  const queryClient = useQueryClient();
+  const { mutateAsync, ...rest } = useMutation({
+    mutationFn: ({ id, version }: { id: string; version: number }) =>
+      postVoidAssetTransferApi(id, version).then(assertSuccessApi),
+    onSuccess: async () => {
+      await invalidateAssetQueries(queryClient);
+    },
+  });
+  return [mutateAsync, rest] as const;
 }

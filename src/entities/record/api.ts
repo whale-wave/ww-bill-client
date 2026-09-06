@@ -180,6 +180,7 @@ export interface PostRecordApiData {
   time: string;
   tagIds?: string[];
   imageAssetId?: string;
+  linkedAssetId?: string | null;
 }
 
 // 创建记录

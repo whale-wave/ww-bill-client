@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { readAgentRecordEditorState, useConfirmAgentActionMutation } from '@/entities/agent';
+import { invalidateAssetQueries, useGetAssetQuery } from '@/entities/asset';
 import { useGetCategoryQuery } from '@/entities/category';
 import { LedgerCapability, LedgerKind, useGetLedgersQuery } from '@/entities/ledger';
 import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
@@ -107,6 +108,11 @@ function BookkeepingPage() {
       return { kind: 'personal-detail', recordId: initialRecord.id };
     return { kind: 'history' };
   }, [editorState, initialRecord, selectTime]);
+  const isPersonalAssetLinkContext = returnContext.kind === 'history'
+    || returnContext.kind === 'personal-calendar'
+    || returnContext.kind === 'personal-detail';
+  const supportsAssetLink = isPersonalAssetLinkContext && !shortcutBookkeeping && !agentRecordDraft;
+  const assetQuery = useGetAssetQuery({ queryOptions: { enabled: supportsAssetLink } });
   const seed = useMemo(() => restoredDraft ?? (agentRecordDraft
     ? {
         amount: agentRecordDraft.record.amount,
@@ -128,6 +134,7 @@ function BookkeepingPage() {
           tagIds: initialRecord?.tags?.map(tag => tag.id),
           attachment: initialRecord?.attachments?.[0],
           hasImage: Boolean(initialRecord?.attachments?.length),
+          linkedAssetId: initialRecord?.linkedAsset?.id ?? null,
           time: initialRecord?.time
             ?? (selectTime ? dayjs(selectTime).toISOString() : dayjs().toISOString()),
         }), [agentRecordDraft, initialRecord, restoredDraft, selectTime, shortcutBookkeeping, shortcutRecordType]);
@@ -220,6 +227,7 @@ function BookkeepingPage() {
       if (response.statusCode !== 200)
         throw response;
       await invalidatePersonalRecordEditorCaches(queryClient);
+      await invalidateAssetQueries(queryClient);
       hapticFeedback.success();
       Toast.show({ content: response.message, icon: 'success' });
       await showSuccessFeedback();
@@ -260,6 +268,7 @@ function BookkeepingPage() {
     },
     seed,
     supportsTags: canReadTags,
+    supportsAssetLink,
     isEditing: Boolean(initialRecord),
     onUploadImage: async file => (await uploadImage({ file, ledgerId: defaultLedger?.id })).data.assetId,
   });
@@ -315,6 +324,7 @@ function BookkeepingPage() {
 
   return (
     <RecordEditorPresentation
+      assetAccounts={supportsAssetLink ? assetQuery.data : undefined}
       categories={categoryQuery.data}
       categoryState={categoryQuery.isLoading
         ? 'loading'

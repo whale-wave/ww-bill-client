@@ -45,7 +45,39 @@ export interface AssetRecord {
   afterAmount: string;
   createdAt: string;
   updatedAt: string;
+  occurredAt?: string;
+  sourceType?: 'BOOKKEEPING' | 'MANUAL_ADJUSTMENT' | 'TRANSFER';
+  status?: 'ACTIVE' | 'VOIDED';
+  transferSide?: 'IN' | 'OUT';
+  counterpartyNameSnapshot?: string;
+  linkedRecordId?: number;
+  transfer?: {
+    canVoid: boolean;
+    id: string;
+    status: 'ACTIVE' | 'VOIDED';
+    version: number;
+  };
   asset: Asset;
+}
+
+export interface AssetTransfer {
+  id: string;
+  amount: string;
+  occurredAt: string;
+  sourceAssetId?: string;
+  sourceName: string;
+  status: 'ACTIVE' | 'VOIDED';
+  targetAssetId?: string;
+  targetName: string;
+  version: number;
+}
+
+export interface PostAssetTransferApiData {
+  sourceAssetId: string;
+  targetAssetId: string;
+  amount: string;
+  occurredAt: string;
+  idempotencyKey: string;
 }
 
 export enum AssetGroupAssetType {
@@ -86,6 +118,14 @@ export function getAssetApi() {
 
 export function getAssetByIdApi(id: string) {
   return request.get<unknown, SuccessResponse<Asset>>(`/asset/${id}`);
+}
+
+export function postAssetTransferApi(data: PostAssetTransferApiData) {
+  return request.post<unknown, SuccessResponse<AssetTransfer>>('/asset/transfers', data);
+}
+
+export function postVoidAssetTransferApi(id: string, version: number) {
+  return request.post<unknown, SuccessResponse<AssetTransfer>>(`/asset/transfers/${id}/void`, { version });
 }
 
 export interface GetAssetRecordApiParams {

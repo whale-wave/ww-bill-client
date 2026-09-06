@@ -162,9 +162,14 @@ const Editing: FC = () => {
       supplementaryContent={state.attachments?.length
         ? <RecordAttachmentSection attachments={state.attachments} />
         : undefined}
-      supplementaryRows={state.tags?.length
-        ? [{ copyValue: state.tags.map(tag => `#${tag.name}`).join(' '), label: '标签', value: state.tags.map(tag => `#${tag.name}`).join(' ') }]
-        : []}
+      supplementaryRows={[
+        ...(state.linkedAsset
+          ? [{ label: '资产账户', value: `${state.linkedAsset.name} · ¥${state.linkedAsset.amount}` }]
+          : []),
+        ...(state.tags?.length
+          ? [{ copyValue: state.tags.map(tag => `#${tag.name}`).join(' '), label: '标签', value: state.tags.map(tag => `#${tag.name}`).join(' ') }]
+          : []),
+      ]}
     />
   );
 };

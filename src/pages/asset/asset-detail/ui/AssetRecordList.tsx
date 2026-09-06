@@ -1,13 +1,14 @@
 import type { FC } from 'react';
 import type { AssetRecord } from '@/entities/asset';
-import { DatePicker, Skeleton } from 'antd-mobile';
+import { DatePicker, Skeleton, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { CalendarDays, ChevronDown, ReceiptText, RefreshCcw } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
-import { useGetAssetRecordQuery } from '@/entities/asset';
+import { useNavigate } from 'react-router-dom';
+import { useGetAssetRecordQuery, useVoidAssetTransferMutation } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, formatLocalizedMonthDay } from '@/shared/lib';
-import { IllustratedEmptyState, showAppInfoDialog, Surface } from '@/shared/ui';
+import { confirmAppAction, IllustratedEmptyState, showAppInfoDialog, Surface } from '@/shared/ui';
 
 interface RecordGroup {
   date: string;
@@ -17,6 +18,7 @@ interface RecordGroup {
 
 export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
   const { i18n, t } = useTranslation('asset');
+  const navigate = useNavigate();
   const [selectMonth, setSelectMonth] = useState(() => dayjs());
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const startTime = useMemo(() => selectMonth.startOf('month').valueOf(), [selectMonth]);
@@ -25,10 +27,11 @@ export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
     params: { assetId, startTime, endTime },
     options: { enabled: Boolean(assetId) },
   });
+  const [voidTransfer] = useVoidAssetTransferMutation();
 
   const groups = useMemo<RecordGroup[]>(() => {
     const recordsByDay = query.data.reduce((acc, record) => {
-      const key = dayjs(record.createdAt).startOf('day').format('YYYY-MM-DD');
+      const key = dayjs(record.occurredAt ?? record.createdAt).startOf('day').format('YYYY-MM-DD');
       const records = acc.get(key) ?? [];
       records.push(record);
       acc.set(key, records);
@@ -60,7 +63,40 @@ export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
       setSelectMonth(dayjs(value));
   }, [selectMonth, t]);
 
-  const handleRecord = useCallback((record: AssetRecord) => {
+  const handleRecord = useCallback(async (record: AssetRecord) => {
+    if (record.sourceType === 'BOOKKEEPING' && record.linkedRecordId) {
+      navigate(`/editing/${record.linkedRecordId}`);
+      return;
+    }
+    if (record.sourceType === 'TRANSFER' && record.transfer) {
+      if (!record.transfer.canVoid) {
+        void showAppInfoDialog({
+          confirmText: t('common:nav.confirm'),
+          description: record.comment || t('detail.noRemark'),
+          icon: <RefreshCcw size={22} strokeWidth={1.8} />,
+          title: record.name,
+        });
+        return;
+      }
+      const confirmed = await confirmAppAction({
+        cancelText: t('common:nav.cancel'),
+        confirmText: t('transfer.voidConfirm'),
+        description: t('transfer.voidDescription'),
+        icon: <RefreshCcw size={22} strokeWidth={1.8} />,
+        title: t('transfer.voidTitle'),
+        tone: 'danger',
+      });
+      if (!confirmed)
+        return;
+      try {
+        await voidTransfer({ id: record.transfer.id, version: record.transfer.version });
+        Toast.show({ content: t('transfer.voidSuccess'), icon: 'success' });
+      }
+      catch {
+        Toast.show({ content: t('transfer.voidFailed'), icon: 'fail' });
+      }
+      return;
+    }
     const sign = record.type === 'sub' ? '-' : '+';
     void showAppInfoDialog({
       confirmText: t('common:nav.confirm'),
@@ -78,7 +114,7 @@ export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
       icon: <RefreshCcw size={22} strokeWidth={1.8} />,
       title: record.name,
     });
-  }, [t]);
+  }, [navigate, t, voidTransfer]);
 
   return (
     <section>
@@ -143,7 +179,7 @@ export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
                     <button
                       className={`flex min-h-[68px] w-full items-center gap-3 border-0 bg-transparent px-4 text-left active:bg-primary-light/20 ${index ? 'border-t border-solid border-border-primary' : ''}`}
                       key={record.id}
-                      onClick={() => handleRecord(record)}
+                      onClick={() => void handleRecord(record)}
                       type="button"
                     >
                       <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] ${isExpense ? 'bg-feedback-danger-surface/60 text-feedback-danger' : 'bg-primary-light/65 text-primary-deep'}`}>

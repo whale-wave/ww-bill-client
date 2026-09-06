@@ -143,6 +143,25 @@
     "success": "账户金额已更新",
     "failed": "调整失败，请稍后重试"
   },
+  "transfer": {
+    "action": "转账",
+    "title": "资产转账",
+    "description": "只变更资产账户，不计入日常收支",
+    "source": "转出账户",
+    "target": "转入账户",
+    "selectTarget": "请选择转入账户",
+    "amount": "转账金额",
+    "date": "转账时间",
+    "submit": "确认转账",
+    "submitting": "转账中…",
+    "success": "转账成功",
+    "failed": "转账失败，请稍后重试",
+    "voidTitle": "撤销这笔转账？",
+    "voidDescription": "两个账户会同时恢复这笔转账产生的金额变化，其他记录不受影响。",
+    "voidConfirm": "确认撤销",
+    "voidSuccess": "转账已撤销",
+    "voidFailed": "撤销失败，请稍后重试"
+  },
   "back": "返回",
   "tab": {
     "assets": "资产",

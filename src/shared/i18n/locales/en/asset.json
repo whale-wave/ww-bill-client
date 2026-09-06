@@ -143,6 +143,25 @@
     "success": "Account amount updated",
     "failed": "Unable to adjust. Try again later."
   },
+  "transfer": {
+    "action": "Transfer",
+    "title": "Asset transfer",
+    "description": "Moves balances between accounts without changing income or expenses",
+    "source": "From account",
+    "target": "To account",
+    "selectTarget": "Select an account",
+    "amount": "Transfer amount",
+    "date": "Transfer time",
+    "submit": "Confirm transfer",
+    "submitting": "Transferring…",
+    "success": "Transfer complete",
+    "failed": "Unable to transfer. Try again later.",
+    "voidTitle": "Void this transfer?",
+    "voidDescription": "Both accounts will reverse only this transfer. Other entries remain unchanged.",
+    "voidConfirm": "Void transfer",
+    "voidSuccess": "Transfer voided",
+    "voidFailed": "Unable to void transfer. Try again later."
+  },
   "back": "Back",
   "tab": {
     "assets": "Assets",
