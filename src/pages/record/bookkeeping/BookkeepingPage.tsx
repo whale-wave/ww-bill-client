@@ -5,6 +5,7 @@ import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { readAgentRecordEditorState, useConfirmAgentActionMutation } from '@/entities/agent';
 import { useGetCategoryQuery } from '@/entities/category';
 import { LedgerCapability, LedgerKind, useGetLedgersQuery } from '@/entities/ledger';
 import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
@@ -74,6 +75,7 @@ function BookkeepingPage() {
   const [putRecord, putState] = usePutRecordMutation();
   const [isSaveSucceeded, setIsSaveSucceeded] = useState(false);
   const confirmShortcutDraftMutation = useConfirmShortcutDraftMutation();
+  const confirmAgentActionMutation = useConfirmAgentActionMutation();
   const discardShortcutDraftMutation = useDiscardShortcutDraftMutation();
   const [uploadImage] = useUploadTemporaryRecordAttachmentMutation();
   const [createTag] = useCreateLedgerTagMutation();
@@ -90,6 +92,7 @@ function BookkeepingPage() {
   const settingsNavigationState = readRecordEditorSettingsNavigationLocationState(location.state);
   const restoredDraft = settingsNavigationState?.recordEditorSettingsNavigation?.draft;
   const shortcutBookkeeping = readShortcutBookkeepingState(location.state)?.shortcutBookkeeping;
+  const agentRecordDraft = readAgentRecordEditorState(location.state)?.agentRecordDraft;
   const personalRecordDetailNavigation = readPersonalRecordDetailNavigationState(location.state);
   const { isMotionEnabled } = useMotionPreference();
   const shortcutRecordType = shortcutBookkeeping
@@ -104,21 +107,30 @@ function BookkeepingPage() {
       return { kind: 'personal-detail', recordId: initialRecord.id };
     return { kind: 'history' };
   }, [editorState, initialRecord, selectTime]);
-  const seed = useMemo(() => restoredDraft ?? (shortcutBookkeeping && shortcutRecordType
-    ? createShortcutRecordSeed(shortcutBookkeeping, shortcutRecordType)
-    : {
-        amount: initialRecord?.amount,
-        category: initialRecord?.category
-          ? { ...initialRecord.category, type: initialRecord.type }
-          : undefined,
-        recordType: initialRecord?.type ?? 'sub' as const,
-        remark: initialRecord?.remark,
-        tagIds: initialRecord?.tags?.map(tag => tag.id),
-        attachment: initialRecord?.attachments?.[0],
-        hasImage: Boolean(initialRecord?.attachments?.length),
-        time: initialRecord?.time
-          ?? (selectTime ? dayjs(selectTime).toISOString() : dayjs().toISOString()),
-      }), [initialRecord, restoredDraft, selectTime, shortcutBookkeeping, shortcutRecordType]);
+  const seed = useMemo(() => restoredDraft ?? (agentRecordDraft
+    ? {
+        amount: agentRecordDraft.record.amount,
+        category: agentRecordDraft.category,
+        recordType: agentRecordDraft.record.type,
+        remark: agentRecordDraft.record.remark,
+        tagIds: agentRecordDraft.record.tagIds,
+        time: agentRecordDraft.record.time,
+      }
+    : shortcutBookkeeping && shortcutRecordType
+      ? createShortcutRecordSeed(shortcutBookkeeping, shortcutRecordType)
+      : {
+          amount: initialRecord?.amount,
+          category: initialRecord?.category
+            ? { ...initialRecord.category, type: initialRecord.type }
+            : undefined,
+          recordType: initialRecord?.type ?? 'sub' as const,
+          remark: initialRecord?.remark,
+          tagIds: initialRecord?.tags?.map(tag => tag.id),
+          attachment: initialRecord?.attachments?.[0],
+          hasImage: Boolean(initialRecord?.attachments?.length),
+          time: initialRecord?.time
+            ?? (selectTime ? dayjs(selectTime).toISOString() : dayjs().toISOString()),
+        }), [agentRecordDraft, initialRecord, restoredDraft, selectTime, shortcutBookkeeping, shortcutRecordType]);
 
   const navigateToReturnContext = useCallback((
     context: RecordEditorReturnContext,
@@ -161,6 +173,19 @@ function BookkeepingPage() {
 
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
     try {
+      if (agentRecordDraft) {
+        const { imageAssetId: _imageAssetId, ...record } = draft;
+        await confirmAgentActionMutation.mutateAsync({
+          actionId: agentRecordDraft.actionId,
+          record,
+        });
+        await invalidatePersonalRecordEditorCaches(queryClient);
+        hapticFeedback.success();
+        Toast.show({ content: t('agent:confirmed'), icon: 'success' });
+        await showSuccessFeedback();
+        navigate(`${ROUTES_PATH.AGENT.getPath()}?conversationId=${encodeURIComponent(agentRecordDraft.conversationId)}`, { replace: true });
+        return;
+      }
       if (shortcutBookkeeping) {
         if (!defaultLedger)
           throw new Error('No default ledger available');
@@ -211,6 +236,8 @@ function BookkeepingPage() {
       });
     }
   }, [
+    agentRecordDraft,
+    confirmAgentActionMutation,
     confirmShortcutDraftMutation,
     defaultLedger,
     initialRecord,
@@ -258,6 +285,11 @@ function BookkeepingPage() {
   });
 
   const handleCancel = useCallback(async () => {
+    if (agentRecordDraft) {
+      playSound.turnPage();
+      navigate(`${ROUTES_PATH.AGENT.getPath()}?conversationId=${encodeURIComponent(agentRecordDraft.conversationId)}`, { replace: true });
+      return;
+    }
     if (shortcutBookkeeping) {
       try {
         await discardShortcutDraftMutation.mutateAsync({
@@ -274,7 +306,7 @@ function BookkeepingPage() {
     }
     playSound.turnPage();
     navigateToReturnContext(returnContext);
-  }, [discardShortcutDraftMutation, navigate, navigateToReturnContext, returnContext, shortcutBookkeeping, t]);
+  }, [agentRecordDraft, discardShortcutDraftMutation, navigate, navigateToReturnContext, returnContext, shortcutBookkeeping, t]);
   const handleArchiveTag = useCallback(async (tagId: string) => {
     const tag = tagsQuery.data.find(item => item.id === tagId);
     if (defaultLedger && tag)
@@ -289,9 +321,9 @@ function BookkeepingPage() {
         : categoryQuery.isError ? 'error' : 'ready'}
       controller={{
         ...controller,
-        isSubmitting: controller.isSubmitting || postState.isLoading || putState.isLoading || confirmShortcutDraftMutation.isLoading,
+        isSubmitting: controller.isSubmitting || postState.isLoading || putState.isLoading || confirmShortcutDraftMutation.isLoading || confirmAgentActionMutation.isLoading,
       }}
-      initialStage={shortcutBookkeeping ? 'amount' : undefined}
+      initialStage={shortcutBookkeeping || agentRecordDraft ? 'amount' : undefined}
       isSaveSucceeded={isSaveSucceeded}
       onArchiveTag={defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE) ? handleArchiveTag : undefined}
       onCancel={() => void handleCancel()}

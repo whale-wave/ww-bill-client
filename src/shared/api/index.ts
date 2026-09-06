@@ -2,6 +2,7 @@ export { assertSuccessApi } from './assert-success';
 export type { ApiEnvelopeError } from './assert-success';
 export { captureRequestAuth, captureSessionScope, clearSessionScopedCaches, handleAuthFailure, isSessionScopeCurrent, isTransitionCurrent, setAuthDeps } from './auth-injection';
 export type { AuthRequestAuth, AuthRequestIdentity, SessionScope } from './auth-injection';
+export { fetchAuthenticatedEventStream } from './event-stream';
 export { default as request } from './http';
 export { isSuccessApi } from './is-success';
 export { CACHE_MAX_AGE, CACHE_VERSION, createQueryClient, dehydrateOptions, QUERY_PERSIST_BUSTER, queryClient } from './query-client';

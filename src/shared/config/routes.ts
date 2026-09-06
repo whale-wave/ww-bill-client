@@ -3,6 +3,9 @@ function encodeRouteSegment(value: string | number) {
 }
 
 export const ROUTES_PATH = {
+  AGENT: {
+    getPath: () => '/agent',
+  },
   DETAIL: {
     getPath: () => '/detail',
   },

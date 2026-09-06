@@ -5,6 +5,7 @@ import { DEFAULT_LANG } from './config';
 import { detectLanguage, setLanguage } from './detector';
 import { compareLocaleKeys } from './locale-parity';
 
+import enAgent from './locales/en/agent.json';
 // en locales
 import enAsset from './locales/en/asset.json';
 import enAuth from './locales/en/auth.json';
@@ -22,6 +23,7 @@ import enRecord from './locales/en/record.json';
 import enSettings from './locales/en/settings.json';
 import enUser from './locales/en/user.json';
 
+import zhAgent from './locales/zh-CN/agent.json';
 // zh-CN locales
 import zhAsset from './locales/zh-CN/asset.json';
 import zhAuth from './locales/zh-CN/auth.json';
@@ -45,6 +47,7 @@ export { detectLanguage, setLanguage } from './detector';
 
 export const resources = {
   'zh-CN': {
+    'agent': zhAgent,
     'asset': zhAsset,
     'auth': zhAuth,
     'bill': zhBill,
@@ -62,6 +65,7 @@ export const resources = {
     'user': zhUser,
   },
   'en': {
+    'agent': enAgent,
     'asset': enAsset,
     'auth': enAuth,
     'bill': enBill,

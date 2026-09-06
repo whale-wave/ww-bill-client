@@ -78,6 +78,10 @@ const router = createHashRouter([
         ],
       },
       {
+        path: 'agent',
+        lazy: lazyGuardedPage(() => import('@/pages/agent-chat/AgentChatPage')),
+      },
+      {
         path: 'record-calendar',
         lazy: lazyGuardedPage(() => import('@/pages/record/record-calendar/RecordCalendarPage')),
       },
