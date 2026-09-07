@@ -21,7 +21,7 @@ interface RecordOverviewHeaderAdapterOptions {
 
 function renderAmount(parts: string[] | undefined, isVisible: boolean): ReactNode {
   if (!isVisible)
-    return <span className="text-[16px] font-extrabold leading-6">＊＊＊＊＊</span>;
+    return <span className="font-extrabold">＊＊＊＊＊</span>;
 
   return (
     <span className="truncate">

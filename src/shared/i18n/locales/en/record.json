@@ -58,7 +58,8 @@
     "selectMonth": "Select year and month",
     "selectYear": "Select year",
     "year": "Year",
-    "month": "Month"
+    "month": "Month",
+    "futureMonthHint": "This month is in the future. Choose the current month or an earlier month."
   },
   "search": {
     "title": "Search",

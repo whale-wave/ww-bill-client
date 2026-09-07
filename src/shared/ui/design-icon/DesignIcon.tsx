@@ -1,97 +1,94 @@
-import type { ImgHTMLAttributes } from 'react';
-import actionAsset from '@/assets/icons/figma/action-asset.svg';
-import actionExchange from '@/assets/icons/figma/action-exchange.svg';
-import actionInvoice from '@/assets/icons/figma/action-invoice.svg';
-import amountHidden from '@/assets/icons/figma/amount-hidden.svg';
-import amountVisible from '@/assets/icons/figma/amount-visible.svg';
-import avatarEdit from '@/assets/icons/figma/avatar-edit.svg';
-import avatarUser from '@/assets/icons/figma/avatar-user.svg';
-import calendar from '@/assets/icons/figma/calendar.svg';
-import chartSelectorChevron from '@/assets/icons/figma/chart-selector-chevron.svg';
-import checkIn from '@/assets/icons/figma/check-in.svg';
-import discoveryAsset from '@/assets/icons/figma/discovery-asset.svg';
-import discoveryBill from '@/assets/icons/figma/discovery-bill.svg';
-import discoveryBudget from '@/assets/icons/figma/discovery-budget.svg';
-import editorBack from '@/assets/icons/figma/editor-back.svg';
-import editorDate from '@/assets/icons/figma/editor-date.svg';
-import editorDelete from '@/assets/icons/figma/editor-delete.svg';
-import listChevron from '@/assets/icons/figma/list-chevron.svg';
-import mineBadge from '@/assets/icons/figma/mine-badge.svg';
-import mineInvite from '@/assets/icons/figma/mine-invite.svg';
-import mineMessage from '@/assets/icons/figma/mine-message.svg';
-import minePoints from '@/assets/icons/figma/mine-points.svg';
-import mineSettings from '@/assets/icons/figma/mine-settings.svg';
-import periodChevron from '@/assets/icons/figma/period-chevron.svg';
-import search from '@/assets/icons/figma/search.svg';
-import shortcutAsset from '@/assets/icons/figma/shortcut-asset.svg';
-import shortcutBill from '@/assets/icons/figma/shortcut-bill.svg';
-import shortcutBudget from '@/assets/icons/figma/shortcut-budget.svg';
-import tabAdd from '@/assets/icons/figma/tab-add.svg';
-import tabChartActive from '@/assets/icons/figma/tab-chart-active.svg';
-import tabChart from '@/assets/icons/figma/tab-chart.svg';
-import tabDetailActive from '@/assets/icons/figma/tab-detail-active.svg';
-import tabDetail from '@/assets/icons/figma/tab-detail.svg';
-import tabDiscoveryActive from '@/assets/icons/figma/tab-discovery-active.svg';
-import tabDiscovery from '@/assets/icons/figma/tab-discovery.svg';
-import tabMineActive from '@/assets/icons/figma/tab-mine-active.svg';
-import tabMine from '@/assets/icons/figma/tab-mine.svg';
-import vipCrown from '@/assets/icons/figma/vip-crown.svg';
+import type { LucideIcon, LucideProps } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRightLeft,
+  Award,
+  CalendarCheck2,
+  CalendarDays,
+  ChartColumn,
+  ChartPie,
+  ChevronDown,
+  ChevronRight,
+  Compass,
+  Crown,
+  Delete,
+  Eye,
+  EyeOff,
+  Gift,
+  MessageSquare,
+  Pencil,
+  Plus,
+  ReceiptText,
+  Search,
+  Settings,
+  Star,
+  UserRound,
+  WalletCards,
+} from 'lucide-react';
 
-const iconSources = {
-  'action-asset': actionAsset,
-  'action-exchange': actionExchange,
-  'action-invoice': actionInvoice,
-  'amount-hidden': amountHidden,
-  'amount-visible': amountVisible,
-  'avatar-edit': avatarEdit,
-  'avatar-user': avatarUser,
-  'calendar': calendar,
-  'chart-selector-chevron': chartSelectorChevron,
-  'check-in': checkIn,
-  'discovery-asset': discoveryAsset,
-  'discovery-bill': discoveryBill,
-  'discovery-budget': discoveryBudget,
-  'editor-back': editorBack,
-  'editor-date': editorDate,
-  'editor-delete': editorDelete,
-  'list-chevron': listChevron,
-  'mine-badge': mineBadge,
-  'mine-invite': mineInvite,
-  'mine-message': mineMessage,
-  'mine-points': minePoints,
-  'mine-settings': mineSettings,
-  'period-chevron': periodChevron,
-  'search': search,
-  'shortcut-asset': shortcutAsset,
-  'shortcut-bill': shortcutBill,
-  'shortcut-budget': shortcutBudget,
-  'tab-add': tabAdd,
-  'tab-chart-active': tabChartActive,
-  'tab-chart': tabChart,
-  'tab-detail-active': tabDetailActive,
-  'tab-detail': tabDetail,
-  'tab-discovery-active': tabDiscoveryActive,
-  'tab-discovery': tabDiscovery,
-  'tab-mine-active': tabMineActive,
-  'tab-mine': tabMine,
-  'vip-crown': vipCrown,
-} as const;
+const iconComponents = {
+  'action-asset': WalletCards,
+  'action-exchange': ArrowRightLeft,
+  'action-invoice': ReceiptText,
+  'amount-hidden': EyeOff,
+  'amount-visible': Eye,
+  'avatar-edit': Pencil,
+  'avatar-user': UserRound,
+  'calendar': CalendarDays,
+  'chart-selector-chevron': ChevronDown,
+  'check-in': CalendarCheck2,
+  'discovery-asset': WalletCards,
+  'discovery-bill': ReceiptText,
+  'discovery-budget': ChartPie,
+  'editor-back': ArrowLeft,
+  'editor-date': CalendarDays,
+  'editor-delete': Delete,
+  'list-chevron': ChevronRight,
+  'mine-badge': Award,
+  'mine-invite': Gift,
+  'mine-message': MessageSquare,
+  'mine-points': Star,
+  'mine-settings': Settings,
+  'period-chevron': ChevronRight,
+  'search': Search,
+  'shortcut-asset': WalletCards,
+  'shortcut-bill': ReceiptText,
+  'shortcut-budget': ChartPie,
+  'tab-add': Plus,
+  'tab-chart-active': ChartColumn,
+  'tab-chart': ChartColumn,
+  'tab-detail-active': ReceiptText,
+  'tab-detail': ReceiptText,
+  'tab-discovery-active': Compass,
+  'tab-discovery': Compass,
+  'tab-mine-active': UserRound,
+  'tab-mine': UserRound,
+  'vip-crown': Crown,
+} as const satisfies Record<string, LucideIcon>;
 
-export type DesignIconName = keyof typeof iconSources;
+export type DesignIconName = keyof typeof iconComponents;
 
-export interface DesignIconProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'height' | 'src' | 'width'> {
+export interface DesignIconProps extends Omit<LucideProps, 'ref' | 'size'> {
+  alt?: string;
   name: DesignIconName;
   size?: number;
 }
 
-export function DesignIcon({ alt = '', name, size = 20, ...props }: DesignIconProps) {
+export function DesignIcon({ alt = '', className, name, size = 20, ...props }: DesignIconProps) {
+  const Icon = iconComponents[name];
+  const label = props['aria-label'] ?? (alt || undefined);
+  const isDecorative = !label && !props['aria-labelledby'];
+
   return (
-    <img
-      alt={alt}
+    <Icon
+      aria-hidden={isDecorative || undefined}
+      aria-label={label}
+      className={`shrink-0 ${className ?? ''}`}
       data-design-icon={name}
-      height={size}
-      src={iconSources[name]}
-      width={size}
+      focusable="false"
+      role={isDecorative ? undefined : 'img'}
+      size={size}
+      strokeWidth={1.8}
       {...props}
     />
   );

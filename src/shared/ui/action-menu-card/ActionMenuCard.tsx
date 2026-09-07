@@ -66,7 +66,7 @@ export function ActionMenuCard({
           <button
             aria-disabled={item.ariaDisabled ?? item.disabled}
             className={cn(
-              'ww-action-menu-card__item flex min-w-0 flex-col items-center justify-center transition active:scale-95 disabled:opacity-45',
+              'ww-action-menu-card__item flex min-w-0 flex-col items-center justify-center transition active:scale-95 disabled:opacity-45 motion-reduce:transform-none motion-reduce:transition-none',
               variant === 'card' && 'gap-[7px] px-1 py-2',
               isMineActions && 'h-14 gap-[5px] p-0',
               variant === 'tiles'
@@ -75,7 +75,7 @@ export function ActionMenuCard({
               && 'h-[68px] w-[calc((100%_-_20px)/3)] min-w-[calc((100%_-_20px)/3)] snap-start gap-1.5 rounded-[var(--ww-radius-control)] px-2 pb-2 pt-3',
               isDetailShortcuts
               && cn(
-                'h-16 gap-[5px] rounded-[14px] border px-[6px] py-2',
+                'min-h-[max(44px,var(--ww-component-summary-shortcut-height))] gap-[var(--ww-component-summary-shortcut-gap)] rounded-[var(--ww-radius-control)] border px-[6px] py-1',
                 hasScrollableDetailShortcuts
                   ? 'w-[calc((100%_-_30px)/4)] min-w-[calc((100%_-_30px)/4)] flex-none snap-start'
                   : 'min-w-0 flex-1',
@@ -94,7 +94,7 @@ export function ActionMenuCard({
               className={cn(
                 'flex items-center justify-center',
                 isDetailShortcuts
-                  ? 'h-5 w-5 bg-transparent text-[20px]'
+                  ? 'ww-summary-shortcut-icon h-[var(--ww-component-summary-shortcut-icon-surface-size)] w-[var(--ww-component-summary-shortcut-icon-surface-size)] shrink-0 rounded-[var(--ww-component-summary-shortcut-icon-radius)] bg-[color:var(--ww-component-summary-shortcut-icon-background)] [&>img]:h-[var(--ww-component-summary-shortcut-icon-size)] [&>img]:w-[var(--ww-component-summary-shortcut-icon-size)] [&>svg]:h-[var(--ww-component-summary-shortcut-icon-size)] [&>svg]:w-[var(--ww-component-summary-shortcut-icon-size)]'
                   : isGradientTiles
                     ? 'h-[22px] w-[22px] bg-transparent text-[22px]'
                     : variant === 'tiles'
@@ -108,8 +108,8 @@ export function ActionMenuCard({
               {item.icon}
             </span>
             <span className={cn(
-              'w-full truncate text-center font-semibold',
-              isDetailShortcuts || isGradientTiles ? 'text-[11px] font-bold leading-[16.5px]' : 'text-[10px] font-semibold leading-[15px] text-ww-ink',
+              'w-full min-w-0 truncate text-center font-semibold',
+              isDetailShortcuts ? 'text-[length:var(--ww-component-summary-shortcut-label-size)] font-medium leading-normal' : isGradientTiles ? 'text-[11px] font-bold leading-[16.5px]' : 'text-[10px] font-semibold leading-[15px] text-ww-ink',
             )}
             >
               {item.label}

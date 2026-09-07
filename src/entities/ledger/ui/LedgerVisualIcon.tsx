@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import type { LedgerKind, LedgerTemplateKey } from '../types';
 import {
+  BookOpen,
   BriefcaseBusiness,
   Building2,
   ReceiptText,
@@ -9,7 +10,6 @@ import {
   UsersRound,
 } from 'lucide-react';
 import appLogo from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
-import ledgerFallbackIcon from '@/assets/icons/figma/ledger.svg';
 import { resolveLedgerVisual } from '../lib/resolveLedgerVisual';
 import { LedgerIconGlyph } from './LedgerIconGlyph';
 
@@ -41,7 +41,7 @@ export const LedgerVisualIcon: FC<LedgerVisualIconProps> = ({
     return <img alt="" className="h-full w-full object-cover" src={appLogo} />;
 
   if (visual.type === 'fallback')
-    return <img alt="" className={className} src={ledgerFallbackIcon} />;
+    return <BookOpen aria-hidden="true" className={className} strokeWidth={1.8} />;
 
   if (visual.type === 'ledger-icon')
     return <LedgerIconGlyph className={className} iconKey={visual.value} />;

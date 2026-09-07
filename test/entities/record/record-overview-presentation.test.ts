@@ -49,12 +49,12 @@ describe('record overview presentation', () => {
     const shortcut = container.querySelector('[aria-label="record shortcuts"] button');
 
     expect(header?.classList).toContain('pt-[max(6px,env(safe-area-inset-top))]');
-    expect(header?.querySelector('[data-record-overview-summary]')?.classList).toContain('h-[190px]');
+    expect(header?.querySelector('[data-record-overview-summary]')?.classList).not.toContain('h-[190px]');
     expect(header?.querySelector('[data-record-overview-summary]')?.classList).toContain('ww-surface--raised');
     expect(titleRow?.classList).toContain('gap-2');
     expect(titleRow?.querySelector('img')?.parentElement?.classList).toContain('h-8');
-    expect(shortcut?.classList).toContain('rounded-[14px]');
-    expect(shortcut?.classList).toContain('h-16');
+    expect(shortcut?.classList).toContain('rounded-[var(--ww-radius-control)]');
+    expect(shortcut?.classList).toContain('min-h-[max(44px,var(--ww-component-summary-shortcut-height))]');
     expect(shortcut?.getAttribute('data-action-menu-variant')).toBe('detail-shortcuts');
     expect(shortcut?.getAttribute('data-action-menu-tone')).toBe('blue');
     expect(metrics).not.toBeNull();

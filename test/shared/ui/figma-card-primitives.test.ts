@@ -43,7 +43,7 @@ describe('figma card primitives', () => {
     expect(container.textContent).toContain('Expense8.00');
   });
 
-  it('renders the exact detail metric geometry and tones', () => {
+  it('renders responsive detail metrics with independent financial tones', () => {
     const container = render(createElement(MetricGrid, {
       columns: 2,
       items: [
@@ -55,7 +55,7 @@ describe('figma card primitives', () => {
     const values = container.querySelectorAll('dd');
     expect(values[0]?.className).toContain('text-finance-income');
     expect(values[1]?.className).toContain('text-finance-expense');
-    expect(container.querySelector('[data-metric-divider]')?.classList).toContain('after:h-9');
+    expect(container.querySelector('dl')?.classList).toContain('grid-cols-2');
   });
 
   it('renders the exact chart summary geometry and currency baseline', () => {
@@ -99,9 +99,9 @@ describe('figma card primitives', () => {
       variant: 'detail-shortcuts',
     }));
     const tile = container.querySelector('button');
-    expect(tile?.classList).toContain('h-16');
-    expect(tile?.classList).toContain('rounded-[14px]');
-    expect(tile?.classList).toContain('gap-[5px]');
+    expect(tile?.classList).toContain('min-h-[max(44px,var(--ww-component-summary-shortcut-height))]');
+    expect(tile?.classList).toContain('rounded-[var(--ww-radius-control)]');
+    expect(tile?.classList).toContain('gap-[var(--ww-component-summary-shortcut-gap)]');
     expect(tile?.classList).toContain('ww-action-menu-card__item');
   });
 

@@ -56,7 +56,6 @@
   --ww-control-icon-background: var(--ww-surface-tint-color);
   --ww-control-primary-background: var(--ww-theme-color);
   --ww-page-ornament-display: none;
-  --ww-design-icon-filter: none;
   --ww-shortcut-blue-bg: rgba(255, 255, 255, 0.72);
   --ww-shortcut-blue-fg: #3c3c42;
   --ww-shortcut-pink-bg: rgba(255, 255, 255, 0.72);
@@ -198,11 +197,6 @@ html[data-appearance-template='minimal'] {
   --ww-chart-4: #99a878;
   --ww-chart-5: #b49a74;
   --ww-chart-6: #8b83a9;
-  --ww-design-icon-filter: grayscale(1) saturate(0) brightness(0.46);
-}
-
-html[data-appearance-template='glass'] {
-  --ww-design-icon-filter: grayscale(1) saturate(0) brightness(0.32);
 }
 
 .ww-theme-primary-action {
@@ -291,13 +285,6 @@ html[data-appearance-template='glass'] {
   );
 }
 
-/* Figma exports include coloured active navigation and empty-state artwork.
- * The glass and minimal packages intentionally render those ornamental icons
- * as a single ink colour; finance/category data icons are not DesignIcon assets. */
-[data-design-icon] {
-  filter: var(--ww-design-icon-filter);
-}
-
 :root .page > main[class*='px-[18px]'],
 :root .page-new > main[class*='px-[18px]'] {
   padding-right: var(--ww-page-gutter);
@@ -347,17 +334,24 @@ html[data-appearance-template='glass'] {
   box-shadow: var(--ww-shortcut-shadow);
 }
 
-/* The billing summary uses inset actions, not a second row of little cards. */
 .ww-overview-shortcuts .ww-action-menu-card__item {
   border: 0;
-  color: var(--ww-theme-color-deep);
+  color: var(--ww-component-summary-shortcut-foreground);
   background: transparent;
   box-shadow: none;
 }
 
-.ww-overview-shortcuts .ww-action-menu-card__icon {
-  color: var(--ww-theme-color-deep);
-  background: var(--ww-surface-tint-color);
+.ww-overview-shortcuts .ww-action-menu-card__item:active,
+.ww-overview-amount-toggle:active {
+  background: var(--ww-component-summary-control-active);
+}
+
+.ww-overview-shortcuts .ww-summary-shortcut-icon {
+  color: var(--ww-component-summary-icon-foreground);
+}
+
+.ww-summary-period [data-design-icon] {
+  color: var(--ww-component-summary-label-foreground);
 }
 
 .ww-action-menu-card__item[data-action-menu-variant='tiles'] {

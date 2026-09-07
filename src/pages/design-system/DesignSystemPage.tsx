@@ -3,14 +3,15 @@
 import type { StudioInspectorSelection } from './PreviewElementInspector';
 import type { StudioDebugRecord, StudioTemplate, StudioToken, StudioTokenOverrides } from './token-registry';
 import { Input, Popup, Toast } from 'antd-mobile';
-import { BarChart3, Bell, BookmarkPlus, CalendarDays, ChevronLeft, Compass, Copy, CreditCard, Crosshair, House, Layers3, LayoutGrid, Plus, ReceiptText, RotateCcw, Search, Settings2, Sparkles, WalletCards } from 'lucide-react';
+import dayjs from 'dayjs';
+import { BarChart3, BookmarkPlus, CalendarDays, ChevronLeft, Compass, Copy, CreditCard, Crosshair, House, Layers3, LayoutGrid, MessageCircleMore, Plus, ReceiptText, RotateCcw, Search, Settings2, Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { AssetSummaryCardPresentation } from '@/entities/asset';
 import { CurrentMonthBillCard } from '@/entities/bill';
 import { CurrentBudgetSummaryCardPresentation } from '@/entities/budget';
 import { CategoryIcon } from '@/entities/category';
-import { RecordOverviewPresentation } from '@/entities/record';
+import { RecordMonthPicker, RecordOverviewPresentation } from '@/entities/record';
 import { UserSummaryCard } from '@/entities/user';
 import { applyAppearancePreference } from '@/features/appearance';
 import { ChartOverviewContext, ChartOverviewPresentation } from '@/features/chart-overview';
@@ -256,6 +257,8 @@ function StudioPreview() {
   const [activeTab, setActiveTab] = useState<PreviewTabKey>(readPreviewTab);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isInspectorEnabled, setIsInspectorEnabled] = useState(false);
+  const [summaryMonth, setSummaryMonth] = useState(() => dayjs('2026-09-01'));
+  const [isSummaryVisible, setIsSummaryVisible] = useState(true);
   const isMotionPrototype = new URLSearchParams(window.location.search).has('motion-prototype');
   useEffect(() => {
     const receive = (event: MessageEvent<StudioPreviewMessage>) => {
@@ -308,7 +311,21 @@ function StudioPreview() {
       {!isMotionPrototype && activeTab === 'detail' && (
         <RecordOverviewPresentation
           groups={[{ key: '2026-09-03', dateLabel: '09/03 周三', summaries: [{ key: 'expense', label: '支出', value: '¥90.00' }], records: [{ id: 'lunch', iconName: 'food', categoryName: '餐饮', primary: '和朋友吃饭', overviewSecondary: '午餐 · 3 人', amount: '¥86.00', amountTone: 'expense' }, { id: 'metro', iconName: 'traffic', categoryName: '交通', primary: '地铁通勤', amount: '¥4.00', amountTone: 'expense' }] }]}
-          header={{ actions: <button aria-label="通知" className="border-border-primary bg-ww-surface text-primary-deep shadow-ww-xs" onClick={() => setIsPopupVisible(true)} type="button"><Bell size={19} /></button>, metrics: [{ key: 'income', label: '收入', value: '¥ 8,600' }, { key: 'expense', label: '支出', value: '¥ 5,915.50' }], period: { label: '账单周期', value: <span className="font-number text-[30px] font-black">¥ 2,684.50</span> }, renderTitle: className => <h1 className={className}>我的账本</h1>, shortcuts: [{ key: 'food', label: '餐饮', icon: <CategoryIcon categoryName="餐饮" iconKey="catering" size={20} />, onClick: () => setIsPopupVisible(true) }, { key: 'traffic', label: '出行', icon: <CategoryIcon categoryName="出行" iconKey="traffic" size={20} />, onClick: () => setIsPopupVisible(true) }, { key: 'shopping', label: '购物', icon: <CategoryIcon categoryName="购物" iconKey="shopping" size={20} />, onClick: () => setIsPopupVisible(true) }], titleIcon: <WalletCards size={17} />, titleAlignment: 'start' }}
+          header={{
+            actions: (
+              <>
+                <button aria-label="智能记账" onClick={() => setIsPopupVisible(true)} type="button"><MessageCircleMore size={17} /></button>
+                <button aria-label="搜索" onClick={() => setIsPopupVisible(true)} type="button"><DesignIcon name="search" size={16} /></button>
+                <button aria-label="日历" onClick={() => setIsPopupVisible(true)} type="button"><DesignIcon name="calendar" size={16} /></button>
+              </>
+            ),
+            amountToggle: { content: <DesignIcon name={isSummaryVisible ? 'amount-visible' : 'amount-hidden'} size={16} />, onClick: () => setIsSummaryVisible(value => !value) },
+            metrics: [{ key: 'income', label: '收入', value: isSummaryVisible ? '8,600.00' : '＊＊＊＊＊' }, { key: 'expense', label: '支出', value: isSummaryVisible ? '5,915.50' : '＊＊＊＊＊' }],
+            period: { label: '账单周期', value: <RecordMonthPicker month={summaryMonth} monthLabel="月" onChange={setSummaryMonth} testId="studio-summary-month" /> },
+            renderTitle: className => <h1 className={className}>鲸浪记账</h1>,
+            shortcuts: [{ key: 'bill', label: '账单', icon: <DesignIcon name="shortcut-bill" size={20} />, onClick: () => setIsPopupVisible(true) }, { key: 'budget', label: '预算', icon: <DesignIcon name="shortcut-budget" size={20} />, onClick: () => setIsPopupVisible(true) }, { key: 'asset', label: '资产管家', icon: <DesignIcon name="shortcut-asset" size={20} />, onClick: () => setIsPopupVisible(true) }],
+            titleAlignment: 'start',
+          }}
           renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
           state="ready"
         />

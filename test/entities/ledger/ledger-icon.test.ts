@@ -1,7 +1,6 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import ledgerFallbackIcon from '@/assets/icons/figma/ledger.svg';
 import {
   DEFAULT_LEDGER_ICON_KEY,
   isLedgerIconKey,
@@ -59,16 +58,16 @@ describe('ledger icon catalog', () => {
     expect(image?.classList).not.toContain('h-4');
   });
 
-  it('keeps the ledger SVG fallback for an unknown custom visual', () => {
+  it('uses the library book icon for an unknown custom visual', () => {
     const container = render(createElement(LedgerVisualIcon, {
       className: 'h-4 w-4',
       iconKey: 'unknown-ledger-icon',
       kind: LedgerKind.CUSTOM,
     }));
-    const image = container.querySelector('img');
+    const icon = container.querySelector('svg');
 
-    expect(image?.getAttribute('src')).toBe(ledgerFallbackIcon);
-    expect(image?.classList).toContain('h-4');
-    expect(container.querySelector('svg')).toBeNull();
+    expect(icon?.classList).toContain('lucide-book-open');
+    expect(icon?.classList).toContain('h-4');
+    expect(container.querySelector('img')).toBeNull();
   });
 });

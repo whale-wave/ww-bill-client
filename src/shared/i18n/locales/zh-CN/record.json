@@ -58,7 +58,8 @@
     "selectMonth": "选择年月",
     "selectYear": "选择年份",
     "year": "年份",
-    "month": "月份"
+    "month": "月份",
+    "futureMonthHint": "所选月份尚未到来，请选择当前或过去的月份"
   },
   "search": {
     "title": "搜索",

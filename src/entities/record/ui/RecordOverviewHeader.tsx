@@ -87,12 +87,12 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
       </div>
       <div className="px-[18px] pb-3">
         <Surface
-          className="relative h-[190px] overflow-hidden px-5 pb-3 pt-[14px]"
+          className="relative flex flex-col gap-[var(--ww-component-summary-gap)] overflow-hidden px-[var(--ww-component-summary-padding-x)] py-[var(--ww-component-summary-padding-y)]"
           data-record-overview-summary=""
           material="raised"
         >
-          <div className="relative flex h-[35px] items-center gap-[6px]">
-            <div data-record-overview-metrics>
+          <div className="relative flex min-h-11 items-center justify-between gap-2">
+            <div className="min-w-0 flex-1" data-record-overview-metrics>
               <div className="sr-only">{period.label}</div>
               <div
                 className={cn('min-w-0 text-ww-ink', period.valueWidth === 'cell' ? 'max-w-[190px]' : '')}
@@ -102,25 +102,11 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
                 {period.value}
               </div>
             </div>
-          </div>
-          <div className="relative flex h-[52px] w-full items-center">
-            <MetricGrid
-              align="start"
-              className="w-[249px] shrink-0"
-              columns={2}
-              items={metrics.map((metric, index) => ({
-                key: metric.key,
-                label: metric.label,
-                tone: index === 0 ? 'income' : 'expense',
-                value: <span data-testid={metric.testId}>{metric.value}</span>,
-              }))}
-              variant="detail-summary"
-            />
             {amountToggle && (
               <button
                 aria-label="toggle amount visibility"
                 className={cn(
-                  'ww-overview-amount-toggle mt-[14px] flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] transition-colors active:bg-primary-light/50',
+                  'ww-overview-amount-toggle flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--ww-radius-control)] border-0 p-0 transition-colors',
                   amountToggle.disabled && 'opacity-45',
                 )}
                 disabled={amountToggle.disabled}
@@ -131,9 +117,21 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
               </button>
             )}
           </div>
+          <MetricGrid
+            align="start"
+            className="w-full"
+            columns={2}
+            items={metrics.map((metric, index) => ({
+              key: metric.key,
+              label: metric.label,
+              tone: index === 0 ? 'income' : 'expense',
+              value: <span data-testid={metric.testId}>{metric.value}</span>,
+            }))}
+            variant="detail-summary"
+          />
           <ActionMenuCard
             aria-label="record shortcuts"
-            className="ww-overview-shortcuts relative h-[70px] overflow-y-hidden rounded-[14px] bg-primary-light/15 pt-1.5"
+            className="ww-overview-shortcuts relative mt-[var(--ww-component-summary-shortcut-offset)] overflow-y-hidden"
             columns={3}
             items={shortcuts.map((shortcut, index) => ({
               ariaDisabled: shortcut.disabled,

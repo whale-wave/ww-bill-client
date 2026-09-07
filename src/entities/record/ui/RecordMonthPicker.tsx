@@ -6,7 +6,7 @@ import { CalendarDays, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
-import { DesignIcon } from '@/shared/ui';
+import { AppButton, DesignIcon } from '@/shared/ui';
 
 interface RecordMonthPickerProps {
   month: Dayjs;
@@ -31,6 +31,7 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
   const currentYear = dayjs().year();
   const years = Array.from({ length: 6 }, (_, index) => currentYear - 5 + index);
   const isYearOnly = precision === 'year';
+  const isDraftMonthInFuture = draftMonth.isAfter(dayjs(), 'month');
 
   const openPicker = () => {
     setDraftMonth(month);
@@ -46,6 +47,13 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
     }
   };
 
+  const handleConfirm = () => {
+    if (isDraftMonthInFuture)
+      return;
+    onChange(draftMonth);
+    setIsVisible(false);
+  };
+
   return (
     <>
       <button
@@ -55,7 +63,7 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
             ? 'mx-auto h-11 min-w-0 justify-center gap-2 rounded-full border border-solid border-white/70 bg-white/70 px-4 text-[16px] font-extrabold tracking-[-0.02em] text-ww-ink shadow-ww-xs backdrop-blur-md transition active:scale-[0.98]'
             : variant === 'compact'
               ? 'h-11 gap-1 rounded-full border border-border-primary bg-white/55 px-3 font-number text-[13px] font-bold'
-              : 'gap-[6px] bg-transparent p-0',
+              : 'ww-summary-period min-w-0 gap-[var(--ww-component-summary-period-gap)] bg-transparent p-0',
         )}
         data-testid={testId}
         onClick={openPicker}
@@ -78,12 +86,12 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
               )
             : (
                 <>
-                  <span className="font-number text-[26px] font-black leading-[39px]">
+                  <span className="font-number text-[length:var(--ww-component-summary-period-size)] font-bold leading-snug text-[color:var(--ww-component-summary-period-muted)]">
                     {month.format('YYYY')}
                     {t('common:dateTime.yearSuffix')}
                   </span>
                   {!isYearOnly && (
-                    <span className="font-number text-[20px] font-bold leading-[30px] text-primary-deep">
+                    <span className="font-number text-[length:var(--ww-component-summary-period-size)] font-bold leading-snug text-[color:var(--ww-component-summary-period-foreground)]">
                       {month.format('MM')}
                       {monthLabel}
                     </span>
@@ -171,6 +179,23 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
                   );
                 })}
               </div>
+            </div>
+          )}
+          {!isYearOnly && (
+            <div className="px-[18px] pt-4">
+              {isDraftMonthInFuture && (
+                <p className="mb-3 text-[12px] leading-5 text-ww-mid" role="status">
+                  {t('record:periodPicker.futureMonthHint')}
+                </p>
+              )}
+              <AppButton
+                data-testid="record-month-confirm"
+                disabled={isDraftMonthInFuture}
+                fullWidth
+                onClick={handleConfirm}
+              >
+                {t('common:nav.confirm')}
+              </AppButton>
             </div>
           )}
         </div>

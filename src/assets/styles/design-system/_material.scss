@@ -30,8 +30,32 @@
   --ww-component-dock-shadow: var(--ww-material-floating-shadow);
   --ww-component-dock-blur: var(--ww-material-floating-blur);
   --ww-component-dock-active: rgb(255 255 255 / 0.52);
-  --ww-component-dock-create-icon-filter: brightness(0) invert(1);
-  --ww-component-overview-icon-foreground: var(--ww-theme-color-deep);
+  --ww-component-dock-create-icon-foreground: var(--ww-primary-foreground);
+  --ww-component-overview-icon-foreground: var(--ww-theme-text-color);
+  /* Compact summary composition shared by personal, household and custom ledgers. */
+  --ww-component-summary-padding-x: 18px;
+  --ww-component-summary-padding-y: 12px;
+  --ww-component-summary-gap: 4px;
+  --ww-component-summary-period-gap: 6px;
+  --ww-component-summary-period-size: 16px;
+  --ww-component-summary-period-muted: var(--ww-component-summary-label-foreground);
+  --ww-component-summary-period-foreground: var(--ww-theme-text-color);
+  --ww-component-summary-metric-gap: 20px;
+  --ww-component-summary-label-size: 11px;
+  --ww-component-summary-label-foreground: color-mix(in srgb, var(--ww-text-color-mid) 85%, var(--ww-theme-text-color));
+  --ww-component-summary-value-size: 24px;
+  --ww-component-summary-value-gap: 4px;
+  --ww-component-summary-shortcut-offset: 8px;
+  --ww-component-summary-shortcut-height: 64px;
+  --ww-component-summary-shortcut-gap: 6px;
+  --ww-component-summary-shortcut-icon-size: 20px;
+  --ww-component-summary-shortcut-icon-surface-size: 32px;
+  --ww-component-summary-shortcut-icon-radius: 10px;
+  --ww-component-summary-shortcut-icon-background: var(--ww-surface-tint-color);
+  --ww-component-summary-shortcut-label-size: 11px;
+  --ww-component-summary-shortcut-foreground: var(--ww-theme-text-color);
+  --ww-component-summary-control-active: var(--ww-surface-tint-color);
+  --ww-component-summary-icon-foreground: var(--ww-theme-text-color);
   --ww-component-chart-switch-background: var(--ww-surface-color);
   --ww-component-chart-switch-border: var(--ww-border-color);
   --ww-component-chart-switch-active: var(--ww-surface-tint-color);
@@ -160,7 +184,7 @@ html[data-appearance-template='minimal'] {
 }
 
 .ww-floating-dock__create [data-design-icon] {
-  filter: var(--ww-component-dock-create-icon-filter) !important;
+  color: var(--ww-component-dock-create-icon-foreground);
 }
 
 .ww-chart-display-switch {
