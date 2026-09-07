@@ -165,12 +165,7 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
                       )}
                       disabled={isFuture}
                       key={monthIndex}
-                      onClick={() => {
-                        const nextMonth = draftMonth.month(monthIndex);
-                        setDraftMonth(nextMonth);
-                        onChange(nextMonth);
-                        setIsVisible(false);
-                      }}
+                      onClick={() => setDraftMonth(draftMonth.month(monthIndex))}
                       type="button"
                     >
                       {monthIndex + 1}

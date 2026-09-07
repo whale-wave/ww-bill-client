@@ -43,7 +43,7 @@ function confirmMonth() {
 }
 
 describe('record month picker', () => {
-  it('selects a year and month from the bottom sheet', async () => {
+  it('applies the selected year and month only after confirmation', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-08-10T12:00:00.000Z'));
     const onChange = vi.fn();
@@ -68,6 +68,14 @@ describe('record month picker', () => {
     expect(sheet).not.toBeNull();
     act(() => year?.click());
     act(() => month?.click());
+
+    expect(onChange).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(400));
+    const popup = document.body.querySelector<HTMLElement>('.adm-popup');
+    expect(popup).not.toBeNull();
+    expect(popup?.style.display).not.toBe('none');
+
+    confirmMonth();
 
     expect(onChange).toHaveBeenCalledOnce();
     expect(onChange.mock.calls[0]?.[0].format('YYYY-MM')).toBe('2026-08');
