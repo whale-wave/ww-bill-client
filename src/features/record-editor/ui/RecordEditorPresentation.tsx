@@ -1,13 +1,14 @@
 import type { FC } from 'react';
 import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
-import type { Asset } from '@/entities/asset';
+import type { Asset, AssetGroup } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
 import { Button, DatePicker, ErrorBlock, Popup, SpinLoading } from 'antd-mobile';
-import { Delete as BackspaceIcon, Banknote, CheckCircle2, ChevronDown, ImagePlus, Settings2, Tags, Trash2, X } from 'lucide-react';
+import { Delete as BackspaceIcon, Banknote, Check, CheckCircle2, ChevronDown, ImagePlus, Settings2, Tags, Trash2, X } from 'lucide-react';
 import { m } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { getAssetAccountTypeLabel } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
 import { getRecordAttachmentContentApi } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
@@ -28,6 +29,7 @@ export type RecordEditorCategoryState = 'error' | 'loading' | 'ready';
 interface RecordEditorPresentationProps {
   canManageTags?: boolean;
   assetAccounts?: Asset[];
+  assetGroups?: AssetGroup[];
   categories: CategoryEntity[];
   categoryState: RecordEditorCategoryState;
   controller: RecordEditorController;
@@ -46,6 +48,7 @@ interface RecordEditorPresentationProps {
 export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   categories,
   assetAccounts,
+  assetGroups = [],
   canManageTags = false,
   categoryState,
   controller,
@@ -619,11 +622,12 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           <button
             aria-pressed={controller.linkedAssetId === null}
             className={cn(
-              'flex min-h-[58px] w-full items-center gap-3 rounded-[16px] border px-3 text-left',
+              'flex min-h-[58px] w-full items-center gap-3 rounded-[16px] border bg-white px-3 text-left transition-colors active:bg-primary-light/25 focus-visible:border-primary',
               controller.linkedAssetId === null
-                ? 'border-primary bg-primary-light/45'
-                : 'border-border-primary bg-white',
+                ? 'border-primary'
+                : 'border-transparent',
             )}
+            data-record-editor-asset-option="none"
             onClick={() => {
               controller.handleSelectLinkedAsset(null);
               setIsAssetPickerVisible(false);
@@ -631,17 +635,23 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             type="button"
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-surface-subtle text-ww-soft"><X size={17} /></span>
-            <span className="text-[14px] font-extrabold text-ww-ink">{t('record:bookkeeping.noLinkedAsset')}</span>
+            <span className="min-w-0 flex-1 text-[14px] font-extrabold text-ww-ink">{t('record:bookkeeping.noLinkedAsset')}</span>
+            {controller.linkedAssetId === null && (
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-deep">
+                <Check aria-hidden="true" size={14} strokeWidth={2.5} />
+              </span>
+            )}
           </button>
           {(assetAccounts ?? []).map(asset => (
             <button
               aria-pressed={controller.linkedAssetId === asset.id}
               className={cn(
-                'flex min-h-[64px] w-full items-center gap-3 rounded-[16px] border px-3 text-left',
+                'flex min-h-[64px] w-full items-center gap-3 rounded-[16px] border bg-white px-3 text-left transition-colors active:bg-primary-light/25 focus-visible:border-primary',
                 controller.linkedAssetId === asset.id
-                  ? 'border-primary bg-primary-light/45'
-                  : 'border-border-primary bg-white',
+                  ? 'border-primary'
+                  : 'border-transparent',
               )}
+              data-record-editor-asset-option={asset.id}
               key={asset.id}
               onClick={() => {
                 controller.handleSelectLinkedAsset(asset.id);
@@ -652,12 +662,19 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               <span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-primary-light text-primary-deep"><Banknote size={18} /></span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[14px] font-extrabold text-ww-ink">{asset.name}</span>
-                <span className="block truncate text-[11px] font-semibold text-ww-soft">{asset.assetGroup.name}</span>
+                <span className="block truncate text-[11px] font-semibold text-ww-soft">
+                  {getAssetAccountTypeLabel(asset, assetGroups)}
+                </span>
               </span>
               <span className="shrink-0 font-number text-[13px] font-bold text-ww-mid">
                 ¥
                 {asset.amount}
               </span>
+              {controller.linkedAssetId === asset.id && (
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-deep">
+                  <Check aria-hidden="true" size={14} strokeWidth={2.5} />
+                </span>
+              )}
             </button>
           ))}
         </div>

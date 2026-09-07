@@ -3,6 +3,7 @@ import type { SuccessResponse } from '@/shared/api';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { assertSuccessApi } from '@/shared/api';
 import {
+  deleteAgentConversationApi,
   getAgentConversationsApi,
   getAgentMessagesApi,
   postAgentConversationApi,
@@ -35,6 +36,8 @@ export function useAgentMessagesQuery(conversationId?: string) {
       typeof pageParam === 'string' ? pageParam : undefined,
     )),
     queryKey: agentKeys.messages(conversationId ?? ''),
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: 'always',
   });
   return {
     ...query,
@@ -48,6 +51,18 @@ export function useCreateAgentConversationMutation() {
   return useMutation({
     mutationFn: async () => assertSuccessApi(await postAgentConversationApi()).data,
     onSuccess: async () => queryClient.invalidateQueries({ queryKey: agentKeys.conversations() }),
+  });
+}
+
+export function useDeleteAgentConversationMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (conversationId: string) =>
+      assertSuccessApi(await deleteAgentConversationApi(conversationId)).data,
+    onSuccess: async (_, conversationId) => {
+      queryClient.removeQueries({ queryKey: agentKeys.messages(conversationId) });
+      await queryClient.invalidateQueries({ queryKey: agentKeys.conversations() });
+    },
   });
 }
 

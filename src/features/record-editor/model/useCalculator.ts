@@ -13,6 +13,15 @@ function isSubmittableAmount(value: string | number): boolean {
   return Number.isFinite(amount) && amount > 0;
 }
 
+function toMinorUnits(value: string): number {
+  const [integerPart = '0', fractionPart = ''] = value.split('.');
+  const isNegative = integerPart.startsWith('-');
+  const integerDigits = isNegative ? integerPart.slice(1) : integerPart;
+  const minorUnits = Number(integerDigits || '0') * 100
+    + Number(fractionPart.padEnd(2, '0').slice(0, 2));
+  return isNegative ? -minorUnits : minorUnits;
+}
+
 export function useCalculator(initialState?: CalculatorState) {
   const [totals, setTotals] = useState(initialState?.totals ?? '0.00');
   const [num, setNum] = useState(initialState?.num ?? '');
@@ -50,8 +59,8 @@ export function useCalculator(initialState?: CalculatorState) {
             }
             return undefined;
           }
-          const n1 = Number(num) * 100;
-          const n2 = Number(addNum) * 100;
+          const n1 = toMinorUnits(num);
+          const n2 = toMinorUnits(addNum);
           if (addition === '+') {
             const numericResult = (n1 + n2) / 100;
             if (keys === '' && !isSubmittableAmount(numericResult))

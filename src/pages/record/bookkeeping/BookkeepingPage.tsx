@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { readAgentRecordEditorState, useConfirmAgentActionMutation } from '@/entities/agent';
-import { invalidateAssetQueries, useGetAssetQuery } from '@/entities/asset';
+import { invalidateAssetQueries, useGetAssetGroupQuery, useGetAssetQuery } from '@/entities/asset';
 import { useGetCategoryQuery } from '@/entities/category';
 import { LedgerCapability, LedgerKind, useGetLedgersQuery } from '@/entities/ledger';
 import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
@@ -113,6 +113,7 @@ function BookkeepingPage() {
     || returnContext.kind === 'personal-detail';
   const supportsAssetLink = isPersonalAssetLinkContext && !shortcutBookkeeping && !agentRecordDraft;
   const assetQuery = useGetAssetQuery({ queryOptions: { enabled: supportsAssetLink } });
+  const assetGroupQuery = useGetAssetGroupQuery({ queryOptions: { enabled: supportsAssetLink } });
   const seed = useMemo(() => restoredDraft ?? (agentRecordDraft
     ? {
         amount: agentRecordDraft.record.amount,
@@ -300,22 +301,16 @@ function BookkeepingPage() {
       return;
     }
     if (shortcutBookkeeping) {
-      try {
-        await discardShortcutDraftMutation.mutateAsync({
-          code: shortcutBookkeeping.reviewCode,
-          draftId: shortcutBookkeeping.id,
-        });
-      }
-      catch {
-        Toast.show({ content: t('bookkeeping.saveFailed'), icon: 'fail' });
-        return;
-      }
       navigate(ROUTES_PATH.DETAIL.getPath(), { replace: true });
+      void discardShortcutDraftMutation.mutateAsync({
+        code: shortcutBookkeeping.reviewCode,
+        draftId: shortcutBookkeeping.id,
+      }).catch(() => undefined);
       return;
     }
     playSound.turnPage();
     navigateToReturnContext(returnContext);
-  }, [agentRecordDraft, discardShortcutDraftMutation, navigate, navigateToReturnContext, returnContext, shortcutBookkeeping, t]);
+  }, [agentRecordDraft, discardShortcutDraftMutation, navigate, navigateToReturnContext, returnContext, shortcutBookkeeping]);
   const handleArchiveTag = useCallback(async (tagId: string) => {
     const tag = tagsQuery.data.find(item => item.id === tagId);
     if (defaultLedger && tag)
@@ -325,6 +320,7 @@ function BookkeepingPage() {
   return (
     <RecordEditorPresentation
       assetAccounts={supportsAssetLink ? assetQuery.data : undefined}
+      assetGroups={supportsAssetLink ? assetGroupQuery.data : undefined}
       categories={categoryQuery.data}
       categoryState={categoryQuery.isLoading
         ? 'loading'

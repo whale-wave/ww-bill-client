@@ -13,6 +13,7 @@ import type { SuccessResponse } from '@/shared/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Toast } from 'antd-mobile';
 import { useEffect, useMemo, useRef } from 'react';
+import { agentKeys } from '@/entities/agent';
 import { chartKeys } from '@/entities/chart';
 import { assertSuccessApi, isSuccessApi } from '@/shared/api';
 import { i18n } from '@/shared/i18n';
@@ -494,6 +495,7 @@ function invalidatePersonalDeleteSuccessCaches(
   recordId: string,
 ) {
   queryClient.removeQueries({ queryKey: recordKeys.detail({ id: recordId }) });
+  void queryClient.invalidateQueries({ queryKey: agentKeys.messagesRoot() });
   void invalidatePersonalRecordCaches(queryClient);
 }
 

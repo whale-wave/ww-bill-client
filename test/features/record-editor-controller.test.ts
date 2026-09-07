@@ -10,6 +10,7 @@ import {
 } from '@/features/record-editor';
 
 vi.mock('@/shared/i18n', () => ({
+  i18n: { t: (key: string) => key },
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
@@ -143,6 +144,21 @@ describe('record editor controller', () => {
     await complete(container);
 
     expect(submit).toHaveBeenCalledWith(expect.objectContaining({ amount: '6' }));
+  });
+
+  it('keeps decimal calculations at cent precision', async () => {
+    const container = renderEditor();
+    clickButton(container, '4');
+    clickButton(container, '.');
+    clickButton(container, '4');
+    clickButton(container, '-');
+    clickButton(container, '1');
+    clickButton(container, '.');
+    clickButton(container, '7');
+    await complete(container);
+
+    expect(container.querySelector('[data-record-editor-total]')?.textContent).toBe('¥2.7');
+    expect(submit).toHaveBeenCalledWith(expect.objectContaining({ amount: '2.7' }));
   });
 
   it('resets the selected category when the record type changes', () => {

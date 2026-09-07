@@ -32,7 +32,7 @@ export interface AgentRecordResultCard {
   category: AgentCategory;
   kind: 'RECORD_RESULT';
   record: AgentRecordDraft & { id: number; version: number };
-  status: 'CONFIRMED';
+  status: 'CONFIRMED' | 'DELETED';
   version: 1;
 }
 

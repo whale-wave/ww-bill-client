@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+import type { Asset } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -10,10 +12,14 @@ import {
 import { confirmDangerousAction } from '@/shared/ui';
 
 vi.mock('@/shared/i18n', () => ({
+  i18n: { t: (key: string) => key },
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
 vi.mock('@/shared/ui', () => ({
+  AppBottomSheet: ({ children, visible }: { children: ReactNode; visible?: boolean }) => visible
+    ? createElement('section', { 'data-testid': 'bottom-sheet' }, children)
+    : null,
   confirmDangerousAction: vi.fn(),
   DesignIcon: ({ name }: { name: string }) => createElement('span', { 'data-design-icon': name }),
   IllustratedEmptyState: ({ testId, title }: { testId: string; title: string }) => createElement('div', { 'data-testid': testId }, title),
@@ -23,6 +29,12 @@ vi.mock('@/shared/ui', () => ({
     selection: { scale: [1] },
     success: {},
   },
+  SheetHeader: ({ onClose, title }: { onClose: () => void; title: string }) => createElement(
+    'header',
+    null,
+    createElement('h2', null, title),
+    createElement('button', { onClick: onClose, type: 'button' }, 'close'),
+  ),
   useMotionPreference: () => ({ isMotionEnabled: false, shouldReduceMotion: true }),
 }));
 
@@ -45,6 +57,27 @@ const category: CategoryEntity = {
   version: 1,
 };
 
+const assetAccount: Asset = {
+  amount: '50000',
+  assetGroup: {
+    assetType: 'bank' as Asset['assetGroup']['assetType'],
+    createdAt: '',
+    description: '',
+    fixedName: false,
+    icon: 'bank-card',
+    id: 'bank-group',
+    level: 2,
+    name: '中信银行',
+    parentId: 'savings-group',
+    type: 'add',
+    updatedAt: '',
+  },
+  createdAt: '',
+  id: 'asset-account',
+  name: '中信银行',
+  updatedAt: '',
+};
+
 let cleanup: (() => void) | undefined;
 const originalCreateObjectUrl = URL.createObjectURL;
 const originalRevokeObjectUrl = URL.revokeObjectURL;
@@ -63,6 +96,7 @@ function TestEditor({
   onManageCategories,
   remarkHistory,
   isSaveSucceeded = false,
+  withAssetAccount = false,
   withTags = false,
 }: {
   onArchiveTag?: (tagId: string) => Promise<void>;
@@ -70,6 +104,7 @@ function TestEditor({
   onManageCategories?: () => void;
   remarkHistory?: string[];
   isSaveSucceeded?: boolean;
+  withAssetAccount?: boolean;
   withTags?: boolean;
 }) {
   const controller = useRecordEditorController({
@@ -78,10 +113,15 @@ function TestEditor({
       recordType: 'sub',
       time: '2026-07-21T12:00:00.000Z',
     },
+    supportsAssetLink: withAssetAccount,
     supportsTags: withTags,
   });
 
   return createElement(RecordEditorPresentation, {
+    assetAccounts: withAssetAccount ? [assetAccount] : undefined,
+    assetGroups: withAssetAccount
+      ? [{ ...assetAccount.assetGroup, id: 'savings-group', level: 0, name: '储蓄卡', parentId: '' }]
+      : undefined,
     categories: [category],
     categoryState: 'ready',
     controller,
@@ -326,5 +366,29 @@ describe('record editor presentation', () => {
     expect(container.querySelector('[data-record-editor-total]')?.parentElement?.classList).toContain('min-h-0');
     expect(container.querySelector('[data-record-editor-total]')?.parentElement?.classList).not.toContain('min-h-[220px]');
     expect(container.querySelector('[data-record-editor-keypad]')?.classList).toContain('pb-[max(14px,env(safe-area-inset-bottom))]');
+  });
+
+  it('uses a quiet outline and checkmark for the selected linked account', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor, { withAssetAccount: true })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
+
+    const noAccountOption = container.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="none"]');
+    expect(noAccountOption?.classList).toContain('border-primary');
+    expect(noAccountOption?.classList).not.toContain('bg-primary-light/45');
+    expect(noAccountOption?.querySelector('svg.lucide-check')).not.toBeNull();
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="asset-account"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
+
+    const assetOption = container.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="asset-account"]');
+    expect(assetOption?.getAttribute('aria-pressed')).toBe('true');
+    expect(assetOption?.classList).toContain('border-primary');
+    expect(assetOption?.querySelector('svg.lucide-check')).not.toBeNull();
+    expect(assetOption?.textContent).toContain('储蓄卡');
   });
 });

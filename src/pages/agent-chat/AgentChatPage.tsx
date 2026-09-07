@@ -1,8 +1,8 @@
-import type { AgentMessage, AgentRecordDraftCard, AgentStatisticCard } from '@/entities/agent';
+import type { AgentConversation, AgentMessage, AgentRecordDraftCard, AgentStatisticCard } from '@/entities/agent';
 import { useQueryClient } from '@tanstack/react-query';
 import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
-import { History, MessageCircleMore, Plus, SendHorizontal, Sparkles } from 'lucide-react';
+import { History, MessageCircleMore, Plus, SendHorizontal, Sparkles, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -14,10 +14,11 @@ import {
   useCancelAgentActionMutation,
   useConfirmAgentActionMutation,
   useCreateAgentConversationMutation,
+  useDeleteAgentConversationMutation,
 } from '@/entities/agent';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { AppBottomSheet, PageHeader, PageLoadingState } from '@/shared/ui';
+import { AppBottomSheet, confirmDangerousAction, PageHeader, PageLoadingState } from '@/shared/ui';
 import { AgentCardView } from './ui/AgentCardView';
 
 interface PendingTurn {
@@ -43,6 +44,7 @@ function AgentChatPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const conversationsQuery = useAgentConversationsQuery();
   const createConversation = useCreateAgentConversationMutation();
+  const deleteConversation = useDeleteAgentConversationMutation();
   const confirmAction = useConfirmAgentActionMutation();
   const cancelAction = useCancelAgentActionMutation();
   const requestedConversationId = searchParams.get('conversationId');
@@ -73,6 +75,35 @@ function AgentChatPage() {
       Toast.show({ content: t('loadFailed'), icon: 'fail' });
     }
   }, [createConversation, selectConversation, t]);
+
+  const handleDeleteConversation = useCallback(async (conversation: AgentConversation) => {
+    if (deleteConversation.isLoading)
+      return;
+    const confirmed = await confirmDangerousAction({
+      cancelText: t('deleteCancel'),
+      confirmText: t('deleteConversation'),
+      description: t('deleteConversationDescription'),
+      title: t('deleteConversationTitle'),
+    });
+    if (!confirmed)
+      return;
+    try {
+      await deleteConversation.mutateAsync(conversation.id);
+      Toast.show({ content: t('conversationDeleted'), icon: 'success' });
+      if (conversation.id !== activeConversationId)
+        return;
+      const nextConversation = conversationsQuery.data.find(item => item.id !== conversation.id);
+      if (nextConversation) {
+        selectConversation(nextConversation.id);
+        return;
+      }
+      setHistoryVisible(false);
+      await handleNewConversation();
+    }
+    catch {
+      Toast.show({ content: t('deleteConversationFailed'), icon: 'fail' });
+    }
+  }, [activeConversationId, conversationsQuery.data, deleteConversation, handleNewConversation, selectConversation, t]);
 
   useEffect(() => {
     if (conversationsQuery.isLoading || conversationsQuery.isError || conversationsQuery.data.length > 0
@@ -286,10 +317,21 @@ function AgentChatPage() {
           {conversationsQuery.data.length === 0 && <p className="py-12 text-center text-sm font-semibold text-ww-mid">{t('emptyHistory')}</p>}
           <div className="space-y-2 overflow-y-auto">
             {conversationsQuery.data.map(conversation => (
-              <button key={conversation.id} className={`w-full rounded-2xl border border-solid p-3 text-left ${conversation.id === activeConversationId ? 'border-primary bg-primary/10' : 'border-border-primary bg-ww-surface'}`} onClick={() => selectConversation(conversation.id)} type="button">
-                <p className="m-0 truncate text-[13px] font-extrabold text-ww-ink">{conversation.title}</p>
-                <p className="mb-0 mt-1 text-[11px] font-semibold text-ww-mid">{dayjs(conversation.lastMessageAt).format('MM月DD日 HH:mm')}</p>
-              </button>
+              <div key={conversation.id} className={`flex items-stretch overflow-hidden rounded-2xl border border-solid ${conversation.id === activeConversationId ? 'border-primary bg-primary/10' : 'border-border-primary bg-ww-surface'}`}>
+                <button className="min-w-0 flex-1 border-0 bg-transparent p-3 text-left" onClick={() => selectConversation(conversation.id)} type="button">
+                  <p className="m-0 truncate text-[13px] font-extrabold text-ww-ink">{conversation.title}</p>
+                  <p className="mb-0 mt-1 text-[11px] font-semibold text-ww-mid">{dayjs(conversation.lastMessageAt).format('MM月DD日 HH:mm')}</p>
+                </button>
+                <button
+                  aria-label={t('deleteConversationLabel', { title: conversation.title })}
+                  className="flex min-h-11 w-12 shrink-0 items-center justify-center border-0 bg-transparent text-feedback-danger disabled:opacity-40"
+                  disabled={deleteConversation.isLoading}
+                  onClick={() => void handleDeleteConversation(conversation)}
+                  type="button"
+                >
+                  <Trash2 size={17} />
+                </button>
+              </div>
             ))}
             {conversationsQuery.hasNextPage && (
               <button

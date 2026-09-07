@@ -19,6 +19,12 @@ export function postAgentConversationApi() {
   return request.post<unknown, SuccessResponse<AgentConversation>>('/agent/conversations');
 }
 
+export function deleteAgentConversationApi(conversationId: string) {
+  return request.delete<unknown, SuccessResponse<{ id: string }>>(
+    `/agent/conversations/${encodeURIComponent(conversationId)}`,
+  );
+}
+
 export function getAgentMessagesApi(conversationId: string, cursor?: string) {
   return request.get<unknown, SuccessResponse<AgentPage<AgentMessage>>>(
     `/agent/conversations/${encodeURIComponent(conversationId)}/messages`,

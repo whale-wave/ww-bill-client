@@ -103,7 +103,12 @@ export function AgentCardView({
           {t(card.status === 'CANCELLED' ? 'cancelled' : 'expired')}
         </div>
       )}
-      {!isDraft && (
+      {!isDraft && card.status === 'DELETED' && (
+        <div className="mt-4 rounded-xl bg-ww-surface px-3 py-2 text-center text-[12px] font-bold text-ww-mid">
+          {t('deletedRecord')}
+        </div>
+      )}
+      {!isDraft && card.status === 'CONFIRMED' && (
         <AppButton className="mt-4 h-11" fullWidth onClick={() => onEditRecord(card.record.id)} variant="secondary">
           <Pencil size={15} />
           {t('editRecord')}

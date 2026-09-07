@@ -1,6 +1,7 @@
 import type { QueryClient as QueryClientType } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { agentKeys } from '@/entities/agent';
 import { budgetKeys } from '@/entities/budget';
 import { chartKeys } from '@/entities/chart';
 import { householdKeys } from '@/entities/household';
@@ -163,6 +164,7 @@ describe('record-count mutation hook cache reconciliation', () => {
     seedQuery(queryClient, recordKeys.detail({ id: 'record-a' }));
     seedQuery(queryClient, recordKeys.bill({ type: 'year', year: 2026 }));
     seedQuery(queryClient, chartKeys.all);
+    seedQuery(queryClient, agentKeys.messagesRoot());
 
     useDeleteRecordMutation();
     latestMutation<{ id: string; version: number }>().onSuccess?.(
@@ -176,6 +178,7 @@ describe('record-count mutation hook cache reconciliation', () => {
     expect(queryClient.getQueryState(recordKeys.bill({ type: 'year', year: 2026 }))?.isInvalidated)
       .toBe(true);
     expect(queryClient.getQueryState(chartKeys.all)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(agentKeys.messagesRoot())?.isInvalidated).toBe(true);
   });
 
   it('reuses restore success invalidations on 409', async () => {

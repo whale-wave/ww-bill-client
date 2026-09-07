@@ -15,6 +15,7 @@ const hooks = vi.hoisted(() => ({
   ledgerCapabilities: [] as string[],
   postRecord: vi.fn(),
   putRecord: vi.fn(),
+  useGetAssetGroupQuery: vi.fn(),
   useGetAssetQuery: vi.fn(),
   useGetCategoryQuery: vi.fn(),
   useLedgerTagsQuery: vi.fn(),
@@ -27,6 +28,7 @@ vi.mock('@/entities/category', async importOriginal => ({
 
 vi.mock('@/entities/asset', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/asset')>()),
+  useGetAssetGroupQuery: hooks.useGetAssetGroupQuery,
   useGetAssetQuery: hooks.useGetAssetQuery,
 }));
 
@@ -91,6 +93,7 @@ beforeEach(() => {
   hooks.confirmShortcutDraft.mockReset();
   hooks.discardShortcutDraft.mockReset();
   hooks.useGetCategoryQuery.mockReset();
+  hooks.useGetAssetGroupQuery.mockReset();
   hooks.useGetAssetQuery.mockReset();
   hooks.useLedgerTagsQuery.mockReset();
   hooks.ledgerCapabilities = [];
@@ -98,6 +101,7 @@ beforeEach(() => {
   hooks.putRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
   hooks.confirmShortcutDraft.mockResolvedValue({ ledgerId: 'default-ledger', recordId: 11 });
   hooks.useGetAssetQuery.mockReturnValue({ data: [] });
+  hooks.useGetAssetGroupQuery.mockReturnValue({ data: [] });
   hooks.useGetCategoryQuery.mockReturnValue({
     data: [{
       createdAt: '',
@@ -202,6 +206,7 @@ describe('personal record editor adapter', () => {
 
     await act(async () => Promise.resolve());
     expect(hooks.useGetAssetQuery).toHaveBeenCalledWith({ queryOptions: { enabled: false } });
+    expect(hooks.useGetAssetGroupQuery).toHaveBeenCalledWith({ queryOptions: { enabled: false } });
     expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
     expect(container.querySelector<HTMLInputElement>('[data-record-editor-note] input')?.value).toBe('滴滴出行');
     expect(container.querySelector('[data-record-editor-category-trigger]')?.textContent).toBe('交通');
@@ -267,6 +272,77 @@ describe('personal record editor adapter', () => {
     expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('18.60');
   });
 
+  it('returns from shortcut bookkeeping without waiting for draft cleanup', async () => {
+    hooks.discardShortcutDraft.mockReturnValue(new Promise(() => undefined));
+    const router = createMemoryRouter([
+      { path: '/bookkeeping', element: createElement(BookkeepingPage) },
+      { path: '/detail', element: createElement('div', null, 'personal-home') },
+    ], {
+      initialEntries: [{
+        pathname: '/bookkeeping',
+        state: {
+          shortcutBookkeeping: {
+            amountCandidate: '18.60',
+            capturedAt: '2026-08-29T10:00:00.000Z',
+            expiresAt: '2026-08-30T10:00:00.000Z',
+            id: 'shortcut-draft-cancel',
+            merchantCandidate: '滴滴出行',
+            rawText: '付款成功',
+            reviewCode: 'review-code-cancel',
+            source: 'WECHAT',
+            status: 'CLAIMED',
+            warnings: [],
+          },
+        },
+      }],
+    });
+    const container = renderRouter(router);
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-record-editor-cancel]')?.click();
+    });
+
+    expect(router.state.location.pathname).toBe('/detail');
+    expect(hooks.discardShortcutDraft).toHaveBeenCalledWith({
+      code: 'review-code-cancel',
+      draftId: 'shortcut-draft-cancel',
+    });
+  });
+
+  it('still returns from shortcut bookkeeping when draft cleanup fails', async () => {
+    hooks.discardShortcutDraft.mockRejectedValue(new Error('network unavailable'));
+    const router = createMemoryRouter([
+      { path: '/bookkeeping', element: createElement(BookkeepingPage) },
+      { path: '/detail', element: createElement('div', null, 'personal-home') },
+    ], {
+      initialEntries: [{
+        pathname: '/bookkeeping',
+        state: {
+          shortcutBookkeeping: {
+            amountCandidate: '18.60',
+            capturedAt: '2026-08-29T10:00:00.000Z',
+            expiresAt: '2026-08-30T10:00:00.000Z',
+            id: 'shortcut-draft-failed-cancel',
+            merchantCandidate: '滴滴出行',
+            rawText: '付款成功',
+            reviewCode: 'review-code-failed-cancel',
+            source: 'WECHAT',
+            status: 'CLAIMED',
+            warnings: [],
+          },
+        },
+      }],
+    });
+    const container = renderRouter(router);
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-record-editor-cancel]')?.click();
+      await Promise.resolve();
+    });
+
+    expect(router.state.location.pathname).toBe('/detail');
+  });
+
   it('returns a household-originated draft to the same household calendar', async () => {
     const selectTime = new Date('2026-07-21T12:00:00.000Z').valueOf();
     const router = createMemoryRouter([
@@ -293,6 +369,7 @@ describe('personal record editor adapter', () => {
     const container = renderRouter(router);
 
     expect(hooks.useGetAssetQuery).toHaveBeenCalledWith({ queryOptions: { enabled: false } });
+    expect(hooks.useGetAssetGroupQuery).toHaveBeenCalledWith({ queryOptions: { enabled: false } });
     expect(container.querySelector('[data-record-editor-asset-trigger]')).toBeNull();
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());

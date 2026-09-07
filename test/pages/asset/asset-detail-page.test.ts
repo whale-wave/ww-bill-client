@@ -13,10 +13,12 @@ const hooks = vi.hoisted(() => ({
   patchAsset: vi.fn(),
   refetchDetail: vi.fn(),
   refetchRecords: vi.fn(),
+  voidTransfer: vi.fn(),
   useDeleteAssetByIdMutation: vi.fn(),
   useGetAssetByIdQuery: vi.fn(),
   useGetAssetRecordQuery: vi.fn(),
   usePatchAssetAdjustMutation: vi.fn(),
+  useVoidAssetTransferMutation: vi.fn(),
 }));
 
 vi.mock('antd-mobile', async (importOriginal) => {
@@ -40,6 +42,7 @@ vi.mock('@/entities/asset', async (importOriginal) => {
     useGetAssetByIdQuery: hooks.useGetAssetByIdQuery,
     useGetAssetRecordQuery: hooks.useGetAssetRecordQuery,
     usePatchAssetAdjustMutation: hooks.usePatchAssetAdjustMutation,
+    useVoidAssetTransferMutation: hooks.useVoidAssetTransferMutation,
   };
 });
 
@@ -100,6 +103,7 @@ beforeEach(async () => {
   Object.values(hooks).forEach(mock => mock.mockReset());
   hooks.useDeleteAssetByIdMutation.mockReturnValue([hooks.deleteAsset, { isLoading: false }]);
   hooks.usePatchAssetAdjustMutation.mockReturnValue([hooks.patchAsset, { isLoading: false }]);
+  hooks.useVoidAssetTransferMutation.mockReturnValue([hooks.voidTransfer, { isLoading: false }]);
   hooks.useGetAssetByIdQuery.mockReturnValue({
     data: asset,
     isError: false,
