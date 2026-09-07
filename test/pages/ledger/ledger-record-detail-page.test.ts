@@ -46,6 +46,14 @@ vi.mock('@/entities/record', async importOriginal => ({
   useLedgerRecordsQuery: hooks.useLedgerRecordsQuery,
 }));
 
+vi.mock('@/features/record-adjustment', () => ({
+  RecordAdjustmentSection: () => createElement('div', { 'data-testid': 'record-adjustments' }),
+}));
+
+vi.mock('@/entities/asset', () => ({
+  useGetAssetQuery: () => ({ data: [] }),
+}));
+
 vi.mock('@/entities/household', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/household')>()),
   useFamilyRecordPolicyQuery: hooks.useFamilyRecordPolicyQuery,

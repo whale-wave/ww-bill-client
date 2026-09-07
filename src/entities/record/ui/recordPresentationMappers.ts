@@ -1,6 +1,7 @@
 import type { RecordEntry } from '../types';
 import type { RecordOverviewListGroup } from './RecordOverviewList';
 import dayjs from 'dayjs';
+import { i18n } from '@/shared/i18n';
 import { math } from '@/shared/lib';
 
 interface RecordSearchGroupOptions {
@@ -11,12 +12,28 @@ interface RecordSearchGroupOptions {
 }
 
 interface RecordListIndicatorSource {
+  adjustmentSummary?: RecordEntry['adjustmentSummary'];
   attachments?: readonly unknown[];
   tags?: readonly { name: string }[];
 }
 
 export function getRecordListIndicators(record: RecordListIndicatorSource) {
+  const summary = record.adjustmentSummary;
+  const adjustmentSummary = summary
+    ? [
+        Number(summary.refundAmount) > 0
+          ? i18n.t('adjustment.refundWithAmount', { amount: summary.refundAmount, ns: 'record' })
+          : undefined,
+        Number(summary.cashbackAmount) > 0
+          ? i18n.t('adjustment.cashbackWithAmount', { amount: summary.cashbackAmount, ns: 'record' })
+          : undefined,
+        Number(summary.supplementAmount) > 0
+          ? i18n.t('adjustment.supplementWithAmount', { amount: summary.supplementAmount, ns: 'record' })
+          : undefined,
+      ].filter(Boolean).join(' · ')
+    : undefined;
   return {
+    adjustmentSummary,
     hasAttachment: Boolean(record.attachments?.length),
     tagSummary: record.tags?.map(tag => `#${tag.name}`).join(' ') || undefined,
   };
@@ -62,6 +79,7 @@ export function toRecordSearchGroups(
             ? `${record.category.name}${record.creator ? ` · @${record.creator.nickname || record.creator.name || record.creator.username || '成员'}` : ''}`
             : undefined,
           indicators.tagSummary,
+          indicators.adjustmentSummary,
         ].filter(Boolean).join(' · ') || undefined;
         return {
           amount: `${record.type === 'sub' ? '-' : ''}${record.amount}`,
@@ -75,6 +93,9 @@ export function toRecordSearchGroups(
             ? () => options.onRecordClick?.(record)
             : undefined,
           overviewSecondary: secondary,
+          originalAmount: record.originalAmount
+            ? `${record.type === 'sub' ? '-' : ''}${record.originalAmount}`
+            : undefined,
           primary: record.remark || record.category.name,
           secondary,
         };

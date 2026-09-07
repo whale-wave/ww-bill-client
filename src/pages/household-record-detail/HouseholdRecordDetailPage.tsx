@@ -4,12 +4,14 @@ import type { RecordEntry } from '@/entities/record';
 import type { RecordEditorLocationState } from '@/features/record-editor';
 import { Toast } from 'antd-mobile';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useGetAssetQuery } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
 import { useHouseholdRecordQuery } from '@/entities/household';
 import { RecordDetailPresentation, useDeleteRecordMutation } from '@/entities/record';
 import { RecordAttachmentSection } from '@/entities/record/ui/RecordAttachmentSection';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { getDisplayName, HouseholdPageState, HouseholdScopeBoundary } from '@/features/household';
+import { RecordAdjustmentSection } from '@/features/record-adjustment';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
@@ -23,6 +25,7 @@ const RecordDetail: FC<{
   const navigate = useNavigate();
   const userQuery = useGetUserUserInfoQuery();
   const isOwner = userQuery.data?.id === record.creator.id;
+  const assetQuery = useGetAssetQuery({ queryOptions: { enabled: isOwner } });
   const tags = record.tags.map(tag => `#${tag.name}`).join(' ');
   const date = new Date(record.time);
   const timeDate = getTimeDateYear(date);
@@ -30,7 +33,10 @@ const RecordDetail: FC<{
   const [deleteRecord, deleteState] = useDeleteRecordMutation();
   const editableRecord: RecordEntry | undefined = record.category
     ? {
-        amount: record.amount,
+        amount: record.originalAmount ?? record.amount,
+        originalAmount: record.originalAmount,
+        adjustmentSummary: record.adjustmentSummary,
+        adjustments: record.adjustments,
         category: {
           createdAt: record.time,
           icon: record.category.icon,
@@ -134,9 +140,28 @@ const RecordDetail: FC<{
           value: t(`policy.${record.effectivePolicy}`),
         },
       ]}
-      supplementaryContent={record.attachments?.length
-        ? <RecordAttachmentSection attachments={record.attachments} householdId={householdId} />
-        : undefined}
+      supplementaryContent={(
+        <>
+          {record.attachments?.length
+            ? <RecordAttachmentSection attachments={record.attachments} householdId={householdId} />
+            : undefined}
+          {record.type === 'sub' && (
+            <RecordAdjustmentSection
+              assetOptions={assetQuery.data.map(asset => ({ amount: asset.amount, id: asset.id, name: asset.name }))}
+              canManage={isOwner}
+              record={{
+                adjustments: record.adjustments,
+                adjustmentSummary: record.adjustmentSummary,
+                amount: record.amount,
+                id: record.id,
+                linkedAsset: undefined,
+                originalAmount: record.originalAmount,
+              }}
+              supportsAssetLink={isOwner}
+            />
+          )}
+        </>
+      )}
     />
   );
 };

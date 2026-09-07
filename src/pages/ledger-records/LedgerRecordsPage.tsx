@@ -122,7 +122,8 @@ function groupRecords(
           memberColorKey: record.creator?.colorKey,
           id: record.id,
           onClick: () => onRecordClick(record),
-          overviewSecondary: indicators.tagSummary,
+          originalAmount: record.originalAmount ? `-${Number(record.originalAmount).toFixed(2)}` : undefined,
+          overviewSecondary: [indicators.adjustmentSummary, indicators.tagSummary].filter(Boolean).join(' · ') || undefined,
           primary: record.remark || record.category.name,
           ...(onRecordDelete
             ? {

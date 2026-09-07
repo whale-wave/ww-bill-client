@@ -4,6 +4,7 @@ import type { RecordEditorLocationState } from '@/features/record-editor';
 import { Toast } from 'antd-mobile';
 import { CircleAlert } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useGetAssetQuery } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
 import {
   readPersonalRecordDetailNavigationState,
@@ -12,6 +13,7 @@ import {
   useGetRecordByIdQuery,
 } from '@/entities/record';
 import { RecordAttachmentSection } from '@/entities/record/ui/RecordAttachmentSection';
+import { RecordAdjustmentSection } from '@/features/record-adjustment';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
 import { playSound } from '@/shared/lib/play-sound';
@@ -69,6 +71,7 @@ const Editing: FC = () => {
     params: { id: params.id ?? '' },
   });
   const [deleteRecordMutate, deleteState] = useDeleteRecordMutation();
+  const assetQuery = useGetAssetQuery({ queryOptions: { enabled: true } });
 
   const state = data ?? (isRecordEntry(navParams.state) ? navParams.state : undefined);
   const personalRecordDetailNavigation = readPersonalRecordDetailNavigationState(navParams.state);
@@ -111,7 +114,10 @@ const Editing: FC = () => {
   const handleEdit = () => {
     const recordEditorState: RecordEditorLocationState = {
       recordEditor: {
-        initialRecord: state,
+        initialRecord: {
+          ...state,
+          amount: state.originalAmount ?? state.amount,
+        },
         returnContext: { kind: 'personal-detail', recordId: state.id },
       },
     };
@@ -169,9 +175,21 @@ const Editing: FC = () => {
         { copyValue: `${timeDate}  ${weekByDay}`, label: t('record:edit.date'), value: `${timeDate}  ${weekByDay}` },
         { ...(state.remark ? { copyValue: state.remark } : {}), label: t('record:edit.remark'), value: state.remark },
       ]}
-      supplementaryContent={state.attachments?.length
-        ? <RecordAttachmentSection attachments={state.attachments} />
-        : undefined}
+      supplementaryContent={(
+        <>
+          {state.attachments?.length
+            ? <RecordAttachmentSection attachments={state.attachments} />
+            : undefined}
+          {state.type === 'sub' && (
+            <RecordAdjustmentSection
+              assetOptions={assetQuery.data.map(asset => ({ amount: asset.amount, id: asset.id, name: asset.name }))}
+              canManage
+              record={state}
+              supportsAssetLink
+            />
+          )}
+        </>
+      )}
       supplementaryRows={[
         ...(state.linkedAsset
           ? [{ label: '资产账户', value: `${state.linkedAsset.name} · ¥${state.linkedAsset.amount}` }]

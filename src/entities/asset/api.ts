@@ -46,7 +46,7 @@ export interface AssetRecord {
   createdAt: string;
   updatedAt: string;
   occurredAt?: string;
-  sourceType?: 'BOOKKEEPING' | 'MANUAL_ADJUSTMENT' | 'TRANSFER';
+  sourceType?: 'BOOKKEEPING' | 'MANUAL_ADJUSTMENT' | 'RECORD_ADJUSTMENT' | 'TRANSFER';
   status?: 'ACTIVE' | 'VOIDED';
   transferSide?: 'IN' | 'OUT';
   counterpartyNameSnapshot?: string;

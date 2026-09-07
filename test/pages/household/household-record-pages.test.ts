@@ -63,6 +63,14 @@ vi.mock('@/entities/record', async importOriginal => ({
   useDeleteRecordMutation: hooks.useDeleteRecordMutation,
 }));
 
+vi.mock('@/features/record-adjustment', () => ({
+  RecordAdjustmentSection: () => createElement('div', { 'data-testid': 'record-adjustments' }),
+}));
+
+vi.mock('@/entities/asset', () => ({
+  useGetAssetQuery: () => ({ data: [] }),
+}));
+
 vi.mock('@/shared/i18n', () => ({
   i18n: { t: (key: string) => key },
   useTranslation: () => ({

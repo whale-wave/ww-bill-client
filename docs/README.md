@@ -5,6 +5,7 @@
 ## 文档入口
 
 - [功能流程图](./flowcharts/feature-flows.md)
+- [记账退款、返现与补款](./context/record-adjustments.md)
 
 ## 组织约定
 

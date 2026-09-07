@@ -145,6 +145,42 @@ export interface FamilyRecord {
   time: string;
   type: 'add' | 'sub';
   amount: string;
+  originalAmount?: string;
+  adjustmentSummary?: {
+    adjustedAmount: string;
+    cashbackAmount: string;
+    count: number;
+    originalAmount: string;
+    refundAmount: string;
+    supplementAmount: string;
+  };
+  adjustments?: Array<{
+    adjustedAmount: string;
+    amount: string;
+    canManage?: boolean;
+    createdAt: string;
+    createdBy: HouseholdUserSummary;
+    id: string;
+    linkedAsset?: null | {
+      id: string;
+      amount: string;
+      cardId?: string;
+      name: string;
+      assetGroup: {
+        icon: string;
+        name: string;
+        type: 'add' | 'sub';
+      };
+    };
+    occurredAt: string;
+    originalAmount: string;
+    recordId: number;
+    recordVersion: number;
+    remark: string;
+    type: 'refund' | 'cashback' | 'supplement';
+    updatedAt: string;
+    version: number;
+  }>;
   version: number;
   creator: HouseholdUserSummary;
   category?: FamilyRecordCategory;

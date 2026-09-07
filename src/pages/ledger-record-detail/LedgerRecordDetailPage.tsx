@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { CircleAlert } from 'lucide-react';
 import { useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useGetAssetQuery } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
 import {
   FamilyRecordPolicy,
@@ -20,6 +21,7 @@ import {
 } from '@/entities/record';
 import { RecordAttachmentSection } from '@/entities/record/ui/RecordAttachmentSection';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
+import { RecordAdjustmentSection } from '@/features/record-adjustment';
 import { useCurrentWorkspaceBack } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
@@ -67,6 +69,7 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
   const { recordId = '' } = useParams<{ recordId: string }>();
   const query = useLedgerRecordQuery({ params: { ledgerId, recordId }, queryOptions: { enabled: Boolean(recordId) } });
   const [deleteRecord, deleteState] = useDeleteLedgerRecordMutation();
+  const assetQuery = useGetAssetQuery({ queryOptions: { enabled: showFamilyPolicy } });
   const deletingRef = useRef(false);
   const record = query.data
     ?? readLedgerRecordDetailState(location.state, ledgerId, recordId);
@@ -131,7 +134,12 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
               label: t('records.edit'),
               onClick: () => navigate(
                 ROUTES_PATH.LEDGER_RECORD_EDIT.getPath(ledgerId, record.id),
-                { state: createLedgerRecordDetailState(record, ledgerId) },
+                {
+                  state: createLedgerRecordDetailState({
+                    ...record,
+                    amount: record.originalAmount ?? record.amount,
+                  }, ledgerId),
+                },
               ),
             }]
           : []),
@@ -152,13 +160,22 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
         { ...(record.remark ? { copyValue: record.remark } : {}), label: t('records.remark'), value: record.remark },
       ]}
       showNavigation={false}
-      supplementaryContent={(record.attachments?.length || showFamilyPolicy)
+      supplementaryContent={(record.attachments?.length || showFamilyPolicy || record.type === 'sub')
         ? (
             <>
               {record.attachments?.length
                 ? <RecordAttachmentSection attachments={record.attachments} />
                 : undefined}
               {showFamilyPolicy ? <FamilyPolicyEntry recordId={record.id} recordTime={record.time} /> : undefined}
+              {record.type === 'sub' && (
+                <RecordAdjustmentSection
+                  assetOptions={assetQuery.data.map(asset => ({ amount: asset.amount, id: asset.id, name: asset.name }))}
+                  canManage={canUpdate}
+                  ledgerId={ledgerId}
+                  record={record}
+                  supportsAssetLink={showFamilyPolicy}
+                />
+              )}
             </>
           )
         : undefined}

@@ -161,9 +161,14 @@ export function toHouseholdRecordOverviewGroups(
               }
             : {}),
           hasAttachment: indicators.hasAttachment,
-          overviewSecondary: indicators.tagSummary
-            ? `${indicators.tagSummary} @${displayName}`
-            : `@${displayName}`,
+          originalAmount: record.originalAmount
+            ? `${record.type === 'add' ? '' : '-'}${toMoney(record.originalAmount)}`
+            : undefined,
+          overviewSecondary: [
+            indicators.adjustmentSummary,
+            indicators.tagSummary,
+            `@${displayName}`,
+          ].filter(Boolean).join(' · '),
           primary: record.remark || record.category?.name || '—',
           secondary: `${options.memberLabel(displayName)}${record.tags.length > 0 ? ` · ${record.tags.map(tag => `#${tag.name}`).join(' ')}` : ''} · ${getPolicyLabel(record, options)}`,
         };

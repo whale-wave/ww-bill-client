@@ -1,5 +1,8 @@
 export interface RecordEntry {
   amount: string;
+  originalAmount?: string;
+  adjustmentSummary?: RecordAdjustmentSummary;
+  adjustments?: RecordAdjustment[];
   category: {
     createdAt: string;
     icon: string;
@@ -53,6 +56,40 @@ export interface RecordEntry {
     width: number;
     height: number;
   }>;
+}
+
+export type RecordAdjustmentType = 'refund' | 'cashback' | 'supplement';
+
+export interface RecordAdjustmentSummary {
+  adjustedAmount: string;
+  cashbackAmount: string;
+  count: number;
+  originalAmount: string;
+  refundAmount: string;
+  supplementAmount: string;
+}
+
+export interface RecordAdjustment {
+  adjustedAmount: string;
+  amount: string;
+  canManage?: boolean;
+  createdAt: string;
+  createdBy: {
+    avatar?: string;
+    id: number;
+    name?: string;
+    username?: string;
+  };
+  id: string;
+  linkedAsset?: RecordEntry['linkedAsset'];
+  occurredAt: string;
+  originalAmount: string;
+  recordId: number;
+  recordVersion: number;
+  remark: string;
+  type: RecordAdjustmentType;
+  updatedAt: string;
+  version: number;
 }
 
 export interface LedgerRecordDetailLocationState {

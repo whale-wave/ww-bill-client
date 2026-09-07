@@ -98,6 +98,7 @@ vi.mock('@/entities/ledger-data', async importOriginal => ({
 }));
 
 vi.mock('@/shared/i18n', () => ({
+  i18n: { t: (key: string) => key },
   useTranslation: () => ({
     i18n: { resolvedLanguage: 'zh-CN' },
     t: (key: string) => key,

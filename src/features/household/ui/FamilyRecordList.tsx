@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { FamilyRecord, HouseholdCalendarDay } from '@/entities/household';
 import { CategoryIcon } from '@/entities/category';
 import { FamilyRecordPolicy } from '@/entities/household';
-import { RecordOverviewList } from '@/entities/record';
+import { getRecordListIndicators, RecordOverviewList } from '@/entities/record';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { cn } from '@/shared/lib';
 import {
@@ -61,6 +61,7 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
 
   const labels = { countedLabel, inheritedLabel, privateLabel, uncountedLabel };
   const renderRecord = (record: FamilyRecord, index: number) => {
+    const indicators = getRecordListIndicators(record);
     const content = (
       <>
         <span
@@ -85,10 +86,23 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
           <span className="mt-1 inline-block rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-font-gray">
             {getPolicyLabel(record, labels)}
           </span>
+          {indicators.adjustmentSummary && (
+            <span className="ml-1 mt-1 inline-block rounded-full bg-primary-light/45 px-2 py-0.5 text-[10px] text-primary-deep">
+              {indicators.adjustmentSummary}
+            </span>
+          )}
         </span>
-        <span className={record.type === 'add' ? 'text-emerald-600' : 'text-rose-500'}>
-          {record.type === 'add' ? '+' : '-'}
-          {toMoney(record.amount)}
+        <span className={`flex flex-col items-end ${record.type === 'add' ? 'text-emerald-600' : 'text-rose-500'}`}>
+          <span>
+            {record.type === 'add' ? '+' : '-'}
+            {toMoney(record.amount)}
+          </span>
+          {record.originalAmount && (
+            <del className="text-[10px] text-font-gray">
+              -
+              {toMoney(record.originalAmount)}
+            </del>
+          )}
         </span>
       </>
     );

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/shared/i18n';
 import { math } from '@/shared/lib';
 import { RecordOverviewList } from './RecordOverviewList';
+import { getRecordListIndicators } from './recordPresentationMappers';
 
 interface RecordItemGroupProps {
   data: {
@@ -56,15 +57,20 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
       groups={[{
         dateLabel: dayjs(data.time).format('YYYY年MM月DD日'),
         key: String(data.time),
-        records: data.data.map(record => ({
-          amount: `${record.type === 'sub' ? '-' : ''}${record.amount}`,
-          amountTone: record.type === 'add' ? 'income' : 'expense',
-          categoryName: record.category.name,
-          iconName: record.category.icon,
-          id: record.id,
-          onClick: handleRecordItemClick(record),
-          primary: record.remark,
-        })),
+        records: data.data.map((record) => {
+          const indicators = getRecordListIndicators(record);
+          return {
+            amount: `${record.type === 'sub' ? '-' : ''}${record.amount}`,
+            amountTone: record.type === 'add' ? 'income' : 'expense',
+            categoryName: record.category.name,
+            iconName: record.category.icon,
+            id: record.id,
+            onClick: handleRecordItemClick(record),
+            originalAmount: record.originalAmount ? `-${record.originalAmount}` : undefined,
+            overviewSecondary: indicators.adjustmentSummary,
+            primary: record.remark,
+          };
+        }),
         summaries: amountInfo.map(item => ({
           key: item.type,
           label: item.name,

@@ -27,7 +27,9 @@ import { chartKeys } from '@/entities/chart';
 import { assertSuccessApi, isSuccessApi } from '@/shared/api';
 import { i18n } from '@/shared/i18n';
 import {
+  deleteLedgerRecordAdjustmentApi,
   deleteLedgerRecordApi,
+  deleteRecordAdjustmentApi,
   deleteRecordApi,
   getHouseholdMonthBillDetailApi,
   getHouseholdRecordBillApi,
@@ -43,10 +45,14 @@ import {
   getRecordByIdApi,
   getRecordFilterOptionsApi,
   getRecordRemarkHistoryApi,
+  postLedgerRecordAdjustmentApi,
   postLedgerRecordApi,
+  postRecordAdjustmentApi,
   postRecordApi,
   postTemporaryRecordAttachmentApi,
+  putLedgerRecordAdjustmentApi,
   putLedgerRecordApi,
+  putRecordAdjustmentApi,
   putRecordApi,
 } from './api';
 import { recordKeys } from './keys';
@@ -398,6 +404,97 @@ export function useDeleteLedgerRecordMutation() {
     invalidatesRecordCountOnConflict: true,
     invalidatesRecordCountOnSuccess: true,
   });
+}
+
+async function invalidateAdjustmentCaches(
+  queryClient: QueryClient,
+  options: { ledgerId?: string; recordId: string },
+) {
+  if (options.ledgerId) {
+    await invalidateLedgerRecordSuccessCaches(queryClient, options.ledgerId, false);
+  }
+  else {
+    await invalidatePersonalRecordCaches(queryClient, options.recordId);
+  }
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: ['asset'] }),
+    queryClient.invalidateQueries({ queryKey: ['household'] }),
+  ]);
+}
+
+export function useCreateRecordAdjustmentMutation() {
+  const queryClient = useQueryClient();
+  const { mutateAsync, ...rest } = useMutation({
+    mutationFn: (options: {
+      data: Parameters<typeof postRecordAdjustmentApi>[1];
+      ledgerId?: string;
+      recordId: string;
+    }) => (
+      options.ledgerId
+        ? postLedgerRecordAdjustmentApi(options.ledgerId, options.recordId, options.data)
+        : postRecordAdjustmentApi(options.recordId, options.data)
+    ).then(assertSuccessApi),
+    onSuccess: async (_response, variables) => invalidateAdjustmentCaches(queryClient, variables),
+    onError: async (error, variables) => {
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
+        await invalidateAdjustmentCaches(queryClient, variables);
+    },
+  });
+  return [mutateAsync, rest] as const;
+}
+
+export function useUpdateRecordAdjustmentMutation() {
+  const queryClient = useQueryClient();
+  const { mutateAsync, ...rest } = useMutation({
+    mutationFn: (options: {
+      adjustmentId: string;
+      data: Parameters<typeof putRecordAdjustmentApi>[2];
+      ledgerId?: string;
+      recordId: string;
+    }) => (
+      options.ledgerId
+        ? putLedgerRecordAdjustmentApi(
+            options.ledgerId,
+            options.recordId,
+            options.adjustmentId,
+            options.data,
+          )
+        : putRecordAdjustmentApi(options.recordId, options.adjustmentId, options.data)
+    ).then(assertSuccessApi),
+    onSuccess: async (_response, variables) => invalidateAdjustmentCaches(queryClient, variables),
+    onError: async (error, variables) => {
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
+        await invalidateAdjustmentCaches(queryClient, variables);
+    },
+  });
+  return [mutateAsync, rest] as const;
+}
+
+export function useDeleteRecordAdjustmentMutation() {
+  const queryClient = useQueryClient();
+  const { mutateAsync, ...rest } = useMutation({
+    mutationFn: (options: {
+      adjustmentId: string;
+      ledgerId?: string;
+      recordId: string;
+      version: number;
+    }) => (
+      options.ledgerId
+        ? deleteLedgerRecordAdjustmentApi(
+            options.ledgerId,
+            options.recordId,
+            options.adjustmentId,
+            options.version,
+          )
+        : deleteRecordAdjustmentApi(options.recordId, options.adjustmentId, options.version)
+    ).then(assertSuccessApi),
+    onSuccess: async (_response, variables) => invalidateAdjustmentCaches(queryClient, variables),
+    onError: async (error, variables) => {
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
+        await invalidateAdjustmentCaches(queryClient, variables);
+    },
+  });
+  return [mutateAsync, rest] as const;
 }
 
 export function useGetRecordByIdQuery(options?: {

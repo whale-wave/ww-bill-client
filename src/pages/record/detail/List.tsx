@@ -54,7 +54,8 @@ const List: FC<ListProps> = memo(({ selectTime, change }) => {
         iconName: item.category.icon,
         id: item.id,
         onClick: () => handleRecord(item),
-        overviewSecondary: indicators.tagSummary,
+        originalAmount: item.originalAmount ? `-${item.originalAmount}` : undefined,
+        overviewSecondary: [indicators.adjustmentSummary, indicators.tagSummary].filter(Boolean).join(' · ') || undefined,
         primary: item.remark,
       };
     }),

@@ -8,6 +8,7 @@ import { Icon } from '@/shared/ui';
 export interface RecordOverviewListItem {
   amount: ReactNode;
   amountTone?: 'expense' | 'income' | 'neutral';
+  originalAmount?: ReactNode;
   categoryName?: string;
   iconName: string;
   memberColorKey?: keyof typeof MEMBER_COLOR_PALETTE;
@@ -175,12 +176,17 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                         </span>
                         <span
                           className={cn(
-                            'max-w-[42%] shrink-0 truncate font-number text-[15px] font-bold leading-[22.5px]',
+                            'flex max-w-[42%] shrink-0 flex-col items-end font-number text-[15px] font-bold leading-[22.5px]',
                             getAmountClassName(record.amountTone),
                           )}
                           data-record-amount
                         >
-                          {record.amount}
+                          <span className="truncate">{record.amount}</span>
+                          {record.originalAmount && (
+                            <del className="font-number text-[10px] font-semibold leading-3 text-ww-soft" data-record-original-amount>
+                              {record.originalAmount}
+                            </del>
+                          )}
                         </span>
                       </div>
                       {index !== group.records.length - 1 && (
@@ -243,11 +249,16 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                       </span>
                       <span
                         className={cn(
-                          isOverview ? 'ml-3 max-w-[42%] shrink-0 truncate font-number text-[16px] font-bold leading-6' : 'ml-4',
+                          isOverview ? 'ml-3 flex max-w-[42%] shrink-0 flex-col items-end font-number text-[16px] font-bold leading-6' : 'ml-4',
                           getAmountClassName(record.amountTone),
                         )}
                       >
-                        {record.amount}
+                        <span className="truncate">{record.amount}</span>
+                        {record.originalAmount && (
+                          <del className="font-number text-[10px] font-semibold leading-3 text-ww-soft" data-record-original-amount>
+                            {record.originalAmount}
+                          </del>
+                        )}
                       </span>
                     </span>
                   </>

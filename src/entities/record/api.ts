@@ -1,5 +1,5 @@
 import type { MonthBillDetailWireResponse } from './month-bill-detail';
-import type { RecordEntry } from './types';
+import type { RecordAdjustment, RecordAdjustmentType, RecordEntry } from './types';
 import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
 
@@ -269,6 +269,85 @@ export function deleteLedgerRecordApi(
 ) {
   return request.delete<unknown, SuccessResponse<undefined>>(
     `/ledgers/${encodeURIComponent(ledgerId)}/records/${encodeURIComponent(recordId)}`,
+    { params: { version } },
+  );
+}
+
+export interface PostRecordAdjustmentApiData {
+  amount: string;
+  linkedAssetId?: string | null;
+  occurredAt: string;
+  remark?: string;
+  type: RecordAdjustmentType;
+}
+
+export interface PutRecordAdjustmentApiData extends Partial<PostRecordAdjustmentApiData> {
+  version: number;
+}
+
+export function postRecordAdjustmentApi(
+  recordId: string,
+  data: PostRecordAdjustmentApiData,
+) {
+  return request.post<unknown, SuccessResponse<RecordAdjustment>>(
+    `/record/${encodeURIComponent(recordId)}/adjustments`,
+    data,
+  );
+}
+
+export function postLedgerRecordAdjustmentApi(
+  ledgerId: string,
+  recordId: string,
+  data: PostRecordAdjustmentApiData,
+) {
+  return request.post<unknown, SuccessResponse<RecordAdjustment>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/records/${encodeURIComponent(recordId)}/adjustments`,
+    data,
+  );
+}
+
+export function putRecordAdjustmentApi(
+  recordId: string,
+  adjustmentId: string,
+  data: PutRecordAdjustmentApiData,
+) {
+  return request.put<unknown, SuccessResponse<RecordAdjustment>>(
+    `/record/${encodeURIComponent(recordId)}/adjustments/${encodeURIComponent(adjustmentId)}`,
+    data,
+  );
+}
+
+export function putLedgerRecordAdjustmentApi(
+  ledgerId: string,
+  recordId: string,
+  adjustmentId: string,
+  data: PutRecordAdjustmentApiData,
+) {
+  return request.put<unknown, SuccessResponse<RecordAdjustment>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/records/${encodeURIComponent(recordId)}/adjustments/${encodeURIComponent(adjustmentId)}`,
+    data,
+  );
+}
+
+export function deleteRecordAdjustmentApi(
+  recordId: string,
+  adjustmentId: string,
+  version: number,
+) {
+  return request.delete<unknown, SuccessResponse<RecordAdjustment>>(
+    `/record/${encodeURIComponent(recordId)}/adjustments/${encodeURIComponent(adjustmentId)}`,
+    { params: { version } },
+  );
+}
+
+export function deleteLedgerRecordAdjustmentApi(
+  ledgerId: string,
+  recordId: string,
+  adjustmentId: string,
+  version: number,
+) {
+  return request.delete<unknown, SuccessResponse<RecordAdjustment>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/records/${encodeURIComponent(recordId)}/adjustments/${encodeURIComponent(adjustmentId)}`,
     { params: { version } },
   );
 }

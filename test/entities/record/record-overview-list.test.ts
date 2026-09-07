@@ -19,6 +19,7 @@ function render(variant?: 'overview' | 'search', onDelete?: () => void, onRecord
       key: '2026-07-21',
       records: [{
         amount: '-20.00',
+        originalAmount: '-100.00',
         hasAttachment: true,
         iconName: 'food',
         id: 7,
@@ -111,6 +112,7 @@ describe('record overview list', () => {
     expect(amount?.classList).toContain('leading-[22.5px]');
     expect(row?.textContent).toContain('#聚餐');
     expect(row?.querySelector('[aria-label="含图片"]')).not.toBeNull();
+    expect(row?.querySelector('del')?.textContent).toContain('100.00');
   });
 
   it('wraps configured actions in a swipe control without turning the action into row navigation', () => {

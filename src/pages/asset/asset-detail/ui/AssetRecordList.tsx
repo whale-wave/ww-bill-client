@@ -64,7 +64,7 @@ export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
   }, [selectMonth, t]);
 
   const handleRecord = useCallback(async (record: AssetRecord) => {
-    if (record.sourceType === 'BOOKKEEPING' && record.linkedRecordId) {
+    if ((record.sourceType === 'BOOKKEEPING' || record.sourceType === 'RECORD_ADJUSTMENT') && record.linkedRecordId) {
       navigate(`/editing/${record.linkedRecordId}`);
       return;
     }
