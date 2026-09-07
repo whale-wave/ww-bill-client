@@ -139,6 +139,7 @@ const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) =
       onMonthChange={handleMonthChange}
       onRetry={() => void Promise.all([calendarQuery.refetch(), recordsQuery.refetch()])}
       onToday={handleToToday}
+      recordCountLabel={count => t('record:calendar.recordCount', { count })}
       retryLabel={t('common.retry')}
       renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
       selectedDayLabel={t('record:calendar.selectedDay')}

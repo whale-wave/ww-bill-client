@@ -61,6 +61,7 @@ function RecordCalendar() {
       onMonthChange={onMonthChange}
       onRetry={() => void refetch()}
       onToday={onToToday}
+      recordCountLabel={count => t('calendar.recordCount', { count })}
       retryLabel={t('common:retry')}
       renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
       selectedDayLabel={t('calendar.selectedDay')}

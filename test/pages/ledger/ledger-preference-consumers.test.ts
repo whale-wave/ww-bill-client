@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Dialog } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -19,6 +20,7 @@ import LedgerChartsPage from '@/pages/ledger-charts/LedgerChartsPage';
 import LedgerRecordsPage from '@/pages/ledger-records/LedgerRecordsPage';
 
 const hooks = vi.hoisted(() => ({
+  deleteLedgerRecord: vi.fn(),
   patchLedgerPreferencesApi: vi.fn(),
   useGetUserAppConfigQuery: vi.fn(),
   useLedgerChartQuery: vi.fn(),
@@ -26,6 +28,7 @@ const hooks = vi.hoisted(() => ({
   useLedgerPreferencesQuery: vi.fn(),
   useLedgerQuery: vi.fn(),
   useLedgerRecordsQuery: vi.fn(),
+  useDeleteLedgerRecordMutation: vi.fn(),
 }));
 
 vi.mock('@/entities/ledger', async importOriginal => ({
@@ -48,6 +51,7 @@ vi.mock('@/entities/chart', async importOriginal => ({
 
 vi.mock('@/entities/record', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/record')>()),
+  useDeleteLedgerRecordMutation: hooks.useDeleteLedgerRecordMutation,
   useLedgerRecordsQuery: hooks.useLedgerRecordsQuery,
 }));
 
@@ -136,6 +140,8 @@ beforeEach(() => {
   });
   hooks.useLedgerPreferencesQuery.mockReturnValue({ data: preference, isError: false, isLoading: false });
   hooks.patchLedgerPreferencesApi.mockResolvedValue({});
+  hooks.deleteLedgerRecord.mockResolvedValue({ statusCode: 200 });
+  hooks.useDeleteLedgerRecordMutation.mockReturnValue([hooks.deleteLedgerRecord, { isLoading: false }]);
   hooks.useLedgerRecordsQuery.mockReturnValue({
     data: { data: [], expend: 5, income: 10, total: 0 },
     isError: false,
@@ -191,6 +197,48 @@ describe('ledger preference consumers', () => {
       version: 4,
     });
     expect(refetchPreference).toHaveBeenCalled();
+  });
+
+  it('only enables swipe deletion when the ledger grants record deletion', async () => {
+    hooks.useLedgerQuery.mockReturnValue({
+      data: { ...ledger, capabilities: [...ledger.capabilities, LedgerCapability.RECORD_DELETE] },
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+    const refetchRecords = vi.fn().mockResolvedValue(undefined);
+    hooks.useLedgerRecordsQuery.mockReturnValue({
+      data: {
+        data: [{
+          amount: '5.00',
+          category: { icon: 'catering', id: 2, name: 'Dining' },
+          createdAt: '2026-07-21T09:00:00.000Z',
+          id: 2,
+          remark: 'Expense',
+          time: '2026-07-21T09:00:00.000Z',
+          type: 'sub',
+          updatedAt: '2026-07-21T09:00:00.000Z',
+          version: 4,
+        }],
+        expend: 5,
+        income: 0,
+        total: 1,
+      },
+      isError: false,
+      isFetching: false,
+      isLoading: false,
+      refetch: refetchRecords,
+    });
+    vi.spyOn(Dialog, 'confirm').mockResolvedValue(true);
+
+    const container = renderPage(createElement(LedgerRecordsPage));
+    const deleteAction = Array.from(container.querySelectorAll<HTMLButtonElement>('button'))
+      .find(button => button.textContent === 'records.delete');
+
+    expect(container.querySelector('.adm-swipe-action')).not.toBeNull();
+    await act(async () => deleteAction?.click());
+
+    expect(hooks.deleteLedgerRecord).toHaveBeenCalledWith({ ledgerId: 'ledger/a', recordId: '2', version: 4 });
   });
 
   it('shows the selected day summary only when enabled', () => {

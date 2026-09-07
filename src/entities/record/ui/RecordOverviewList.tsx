@@ -1,4 +1,5 @@
-import type { FC, ReactNode } from 'react';
+import type { FC, MouseEvent, ReactNode } from 'react';
+import { SwipeAction } from 'antd-mobile';
 import { Image as ImageIcon } from 'lucide-react';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { cn } from '@/shared/lib';
@@ -15,6 +16,12 @@ export interface RecordOverviewListItem {
   onClick?: () => void;
   overviewSecondary?: ReactNode;
   primary: ReactNode;
+  rightActions?: Array<{
+    color?: 'danger' | 'light' | 'primary' | 'success' | 'warning' | string;
+    key: string | number;
+    onClick?: (event: MouseEvent) => void;
+    text: ReactNode;
+  }>;
   secondary?: ReactNode;
 }
 
@@ -115,7 +122,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
               {group.records.map((record, index) => {
                 if (isOverview) {
                   const hasOverviewSecondary = Boolean(record.overviewSecondary) || record.hasAttachment;
-                  return (
+                  const recordRow = (
                     <div
                       className={cn(
                         'relative flex w-full items-center',
@@ -181,6 +188,9 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                       )}
                     </div>
                   );
+                  return record.rightActions?.length
+                    ? <SwipeAction className="ww-record-swipe-action" key={record.id} rightActions={record.rightActions}>{recordRow}</SwipeAction>
+                    : recordRow;
                 }
 
                 const content = (
@@ -242,7 +252,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                     </span>
                   </>
                 );
-                return (
+                const recordRow = (
                   <div
                     className={isOverview
                       ? cn('flex w-full items-center', group.records.length === 1 ? 'h-[62px]' : 'h-[60px]')
@@ -254,6 +264,9 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                     {content}
                   </div>
                 );
+                return record.rightActions?.length
+                  ? <SwipeAction className="ww-record-swipe-action" key={record.id} rightActions={record.rightActions}>{recordRow}</SwipeAction>
+                  : recordRow;
               })}
             </div>
           </div>

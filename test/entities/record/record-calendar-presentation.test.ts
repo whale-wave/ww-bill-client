@@ -30,6 +30,7 @@ describe('record calendar presentation', () => {
       onDateChange: vi.fn(),
       onMonthClick: vi.fn(),
       onToday: vi.fn(),
+      recordCountLabel: count => `共 ${count} 笔`,
       selectedDate: dayjs('2026-07-30'),
       state: 'ready',
       todayLabel: 'Today',
@@ -39,8 +40,13 @@ describe('record calendar presentation', () => {
     const page = container.querySelector('[data-record-calendar-presentation]');
     expect(page?.className).toContain('[&_.adm-calendar-picker-view-title]:hidden');
     expect(page?.className).toContain('[&_.adm-calendar-picker-view-cell]:min-h-0');
+    expect(page?.className).toContain('[&_.adm-calendar-picker-view-cell-selected]:!border-primary-mid');
+    expect(page?.className).toContain('[&_.adm-calendar-picker-view-cell-selected]:!bg-transparent');
     expect(container.querySelector('[data-record-calendar-scroll]')?.className).toContain('overflow-y-auto');
     expect(container.querySelector('[data-date="2026-07-30"]')).not.toBeNull();
+    expect(container.querySelector('[data-date="2026-07-30"]')?.className).toContain('-translate-y-px');
+    expect(container.querySelector('[data-date="2026-07-30"]')?.className).toContain('justify-center');
+    expect(container.querySelector('[data-date="2026-07-30"] [data-calendar-day-number]')?.className).not.toContain('rounded-full');
     const list = container.querySelector('[data-testid="record-overview-list"]');
     const listContainer = container.querySelector('[data-record-calendar-list]');
     const recordCard = container.querySelector('[data-record-id="1"]')?.parentElement;
@@ -49,6 +55,8 @@ describe('record calendar presentation', () => {
     expect(recordCard?.classList).toContain('rounded-[20px]');
     expect(container.querySelector('[data-record-calendar-create]')).not.toBeNull();
     expect(container.querySelector('[data-record-calendar-today]')).not.toBeNull();
+    expect(container.textContent).not.toContain('2026.07.30');
+    expect(container.textContent).toContain('共 1 笔');
   });
 
   it('hides the today action when today is already selected', () => {

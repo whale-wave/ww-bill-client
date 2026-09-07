@@ -1,8 +1,10 @@
+import type { ReactNode } from 'react';
 import type { Ledger } from '@/entities/ledger';
 import type { RecordEntry, RecordOverviewListGroup } from '@/entities/record';
+import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { CalendarDays, ReceiptText, Search, Settings, Target } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import {
@@ -16,6 +18,7 @@ import {
   getRecordListIndicators,
   RecordMonthPicker,
   RecordOverviewPresentation,
+  useDeleteLedgerRecordMutation,
   useLedgerRecordsQuery,
 } from '@/entities/record';
 import {
@@ -28,7 +31,7 @@ import { getQueryViewState } from '@/shared/api';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedMonthDay, formatLocalizedYear } from '@/shared/lib';
-import { DesignIcon } from '@/shared/ui';
+import { confirmDangerousAction, DesignIcon } from '@/shared/ui';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 
 interface LedgerShortcut {
@@ -81,6 +84,7 @@ function groupRecords(
   locale: string,
   t: (key: string) => string,
   onRecordClick: (record: RecordEntry) => void,
+  onRecordDelete?: (record: RecordEntry) => void,
 ): RecordOverviewListGroup[] {
   const groups = new Map<string, RecordEntry[]>();
 
@@ -120,6 +124,19 @@ function groupRecords(
           onClick: () => onRecordClick(record),
           overviewSecondary: indicators.tagSummary,
           primary: record.remark || record.category.name,
+          ...(onRecordDelete
+            ? {
+                rightActions: [{
+                  color: 'danger' as const,
+                  key: 'delete',
+                  onClick: (event) => {
+                    event.stopPropagation();
+                    onRecordDelete(record);
+                  },
+                  text: t('records.delete'),
+                }],
+              }
+            : {}),
           secondary: `${record.category.name}${record.creator ? ` · @${record.creator.nickname || record.creator.name || record.creator.username || '成员'}` : ''}`,
         };
       }),
@@ -137,27 +154,34 @@ function groupRecords(
   });
 }
 
-function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string }) {
+interface LedgerRecordsViewProps {
+  ledger: Ledger;
+  ledgerId: string;
+  month: string;
+  onRecordDelete?: (record: RecordEntry) => void;
+  onToggleAmountVisibility: () => void;
+  preferenceQuery: ReturnType<typeof useLedgerPreferencesQuery>;
+  recordsQuery: ReturnType<typeof useLedgerRecordsQuery>;
+  setMonth: (month: string) => void;
+}
+
+function LedgerRecordsView({
+  ledger,
+  ledgerId,
+  month,
+  onRecordDelete,
+  onToggleAmountVisibility,
+  preferenceQuery,
+  recordsQuery,
+  setMonth,
+}: LedgerRecordsViewProps) {
   const { i18n, t } = useTranslation('ledger');
   const navigate = useNavigate();
   const locale = i18n?.resolvedLanguage ?? i18n?.language ?? 'zh-CN';
-  const [month, setMonth] = useState(() => formatMonthStart(new Date()));
-  const filters = useMemo(() => buildMonthRecordRange(month), [month]);
-  const query = useLedgerRecordsQuery({ params: { filters, ledgerId } });
-  const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
   const isAmountHidden = preferenceQuery.data?.hideTotalAmount === true;
-  const handleToggleAmountVisibility = useCallback(() => {
-    const preference = preferenceQuery.data;
-    if (!preference)
-      return;
-    void patchLedgerPreferencesApi(ledgerId, {
-      hideTotalAmount: !preference.hideTotalAmount,
-      version: preference.version,
-    }).then(() => preferenceQuery.refetch());
-  }, [ledgerId, preferenceQuery]);
   const groups = useMemo(
     () => groupRecords(
-      query.data.data,
+      recordsQuery.data.data,
       preferenceQuery.data?.showDailySummary !== false,
       locale,
       t,
@@ -165,21 +189,23 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
         ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, record.id),
         { state: createLedgerRecordDetailState(record, ledgerId) },
       ),
+      onRecordDelete,
     ),
     [
       ledgerId,
       locale,
       navigate,
+      onRecordDelete,
       preferenceQuery.data?.showDailySummary,
-      query.data.data,
+      recordsQuery.data.data,
       t,
     ],
   );
   const viewState = getQueryViewState({
-    hasData: Boolean(query.response),
-    isError: query.isError,
-    isFetching: query.isFetching,
-    isLoading: query.isLoading,
+    hasData: Boolean(recordsQuery.response),
+    isError: recordsQuery.isError,
+    isFetching: recordsQuery.isFetching,
+    isLoading: recordsQuery.isLoading,
   });
   return (
     <RecordOverviewPresentation
@@ -192,7 +218,7 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
         amountToggle: preferenceQuery.data
           ? {
               content: <DesignIcon name={isAmountHidden ? 'amount-hidden' : 'amount-visible'} size={16} />,
-              onClick: handleToggleAmountVisibility,
+              onClick: onToggleAmountVisibility,
             }
           : undefined,
         metrics: [
@@ -200,13 +226,13 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
             key: 'income',
             label: t('home.income'),
             testId: 'ledger-monthly-income',
-            value: formatAmount(query.data.income, isAmountHidden),
+            value: formatAmount(recordsQuery.data.income, isAmountHidden),
           },
           {
             key: 'expense',
             label: t('home.expense'),
             testId: 'ledger-monthly-expense',
-            value: formatAmount(query.data.expend, isAmountHidden),
+            value: formatAmount(recordsQuery.data.expend, isAmountHidden),
           },
         ],
         period: {
@@ -248,7 +274,7 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
         titleIconContainerClassName: 'rounded-[12px] border border-white/80 bg-white/75 !bg-none text-primary-deep shadow-ww-xs',
         titleAlignment: 'start',
       }}
-      onRetry={() => void query.refetch()}
+      onRetry={() => void recordsQuery.refetch()}
       retryLabel={t('common.retry')}
       renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
       state={viewState.isInitialLoading ? 'loading' : viewState.isBlockingError ? 'error' : 'ready'}
@@ -256,10 +282,85 @@ function RecordsContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string
   );
 }
 
+function LedgerRecordDeleteActions({
+  children,
+  ledgerId,
+  recordsQuery,
+}: {
+  children: (onRecordDelete: (record: RecordEntry) => void) => ReactNode;
+  ledgerId: string;
+  recordsQuery: ReturnType<typeof useLedgerRecordsQuery>;
+}) {
+  const { t } = useTranslation('ledger');
+  const [deleteRecord, deleteState] = useDeleteLedgerRecordMutation();
+  const deletingRecordIdRef = useRef<number>();
+  const handleDelete = useCallback(async (record: RecordEntry) => {
+    if (deleteState.isLoading || deletingRecordIdRef.current !== undefined)
+      return;
+    const confirmed = await confirmDangerousAction({
+      cancelText: t('common:nav.cancel'),
+      confirmText: t('records.delete'),
+      description: t('record:detail.deleteWarning'),
+      title: t('common:confirm.delete'),
+    });
+    if (!confirmed)
+      return;
+    deletingRecordIdRef.current = record.id;
+    try {
+      await deleteRecord({ ledgerId, recordId: String(record.id), version: record.version });
+      Toast.show({ content: t('common:confirm.deleteSuccess'), icon: 'success' });
+    }
+    catch (error) {
+      await recordsQuery.refetch();
+      const isConflict = typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
+      Toast.show({ content: t(isConflict ? 'records.conflict' : 'records.deleteFailed'), icon: 'fail' });
+    }
+    finally {
+      deletingRecordIdRef.current = undefined;
+    }
+  }, [deleteRecord, deleteState.isLoading, ledgerId, recordsQuery, t]);
+
+  return <>{children(handleDelete)}</>;
+}
+
+function RecordsContent({ canDelete, ledger, ledgerId }: { canDelete: boolean; ledger: Ledger; ledgerId: string }) {
+  const [month, setMonth] = useState(() => formatMonthStart(new Date()));
+  const filters = useMemo(() => buildMonthRecordRange(month), [month]);
+  const recordsQuery = useLedgerRecordsQuery({ params: { filters, ledgerId } });
+  const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
+  const handleToggleAmountVisibility = useCallback(() => {
+    const preference = preferenceQuery.data;
+    if (!preference)
+      return;
+    void patchLedgerPreferencesApi(ledgerId, {
+      hideTotalAmount: !preference.hideTotalAmount,
+      version: preference.version,
+    }).then(() => preferenceQuery.refetch());
+  }, [ledgerId, preferenceQuery]);
+  const viewProps = {
+    ledger,
+    ledgerId,
+    month,
+    onToggleAmountVisibility: handleToggleAmountVisibility,
+    preferenceQuery,
+    recordsQuery,
+    setMonth,
+  };
+
+  if (!canDelete)
+    return <LedgerRecordsView {...viewProps} />;
+
+  return (
+    <LedgerRecordDeleteActions ledgerId={ledgerId} recordsQuery={recordsQuery}>
+      {onRecordDelete => <LedgerRecordsView {...viewProps} onRecordDelete={onRecordDelete} />}
+    </LedgerRecordDeleteActions>
+  );
+}
+
 function LedgerRecordsWorkspace({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string }) {
   return (
     <>
-      <RecordsContent ledger={ledger} ledgerId={ledgerId} />
+      <RecordsContent canDelete={ledger.capabilities.includes(LedgerCapability.RECORD_DELETE)} ledger={ledger} ledgerId={ledgerId} />
       <LedgerWorkspaceTabBar
         activeKey="records"
         capabilities={ledger.capabilities}

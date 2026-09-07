@@ -52,6 +52,7 @@
     "noRecord": "暂无记录",
     "emptyDescription": "这一天还没有收支，记下一笔后会显示在这里",
     "selectedDay": "当日明细",
+    "recordCount": "共 {{count}} 笔",
     "dailyBudget": "日均预算"
   },
   "periodPicker": {

@@ -3,7 +3,7 @@ import type { FamilyRecord, Household } from '@/entities/household';
 import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { CalendarDays, List, Search, Settings, Target } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import {
@@ -16,10 +16,13 @@ import { LedgerKind, LedgerVisualIcon } from '@/entities/ledger';
 import {
   RecordMonthPicker,
   RecordOverviewPresentation,
+  useDeleteRecordMutation,
 } from '@/entities/record';
+import { useGetUserUserInfoQuery } from '@/entities/user';
 import {
   buildMonthRecordRange,
   formatMonthStart,
+  getApiErrorStatus,
   HouseholdBottomNav,
   HouseholdScopeBoundary,
   toHouseholdRecordOverviewGroups,
@@ -29,6 +32,7 @@ import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import {
+  confirmDangerousAction,
   DesignIcon,
   showAppActionSheet,
   showAppInfoDialog,
@@ -65,11 +69,40 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
     queryOptions: { enabled: Boolean(household.id) },
   });
   const { i18n, t } = useTranslation('household');
+  const userQuery = useGetUserUserInfoQuery();
+  const [deleteRecord, deleteState] = useDeleteRecordMutation();
+  const deletingRecordIdRef = useRef<number>();
   const isAmountHidden = preferenceQuery.data?.hideTotalAmount === true;
 
   const handleRecord = useCallback((record: FamilyRecord) => {
     navigate(ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(household.id, record.id));
   }, [household.id, navigate]);
+
+  const handleDelete = useCallback(async (record: FamilyRecord) => {
+    if (deleteState.isLoading || deletingRecordIdRef.current !== undefined)
+      return;
+    const confirmed = await confirmDangerousAction({
+      cancelText: t('common:nav.cancel'),
+      confirmText: t('record:detail.delete'),
+      description: t('record:detail.deleteWarning'),
+      title: t('common:confirm.delete'),
+    });
+    if (!confirmed)
+      return;
+    deletingRecordIdRef.current = record.id;
+    try {
+      const response = await deleteRecord({ id: String(record.id), version: record.version });
+      await Promise.allSettled([recordsQuery.refetch(), calendarQuery.refetch()]);
+      Toast.show({ content: response.message || t('common:confirm.deleteSuccess'), icon: 'success' });
+    }
+    catch (error) {
+      await Promise.allSettled([recordsQuery.refetch(), calendarQuery.refetch()]);
+      Toast.show({ content: t(getApiErrorStatus(error) === 409 ? 'common.conflict' : 'common:api.requestFailed'), icon: 'fail' });
+    }
+    finally {
+      deletingRecordIdRef.current = undefined;
+    }
+  }, [calendarQuery, deleteRecord, deleteState.isLoading, recordsQuery, t]);
 
   const handleExit = useCallback(() => {
     navigate(ROUTES_PATH.DETAIL.getPath(), { replace: true });
@@ -122,14 +155,17 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
       dailyExpenseLabel: t('records.dailyExpense'),
       dailyIncomeLabel: t('records.dailyIncome'),
       dailyTotals: calendarQuery.days,
+      canDeleteRecord: record => record.creator.id === userQuery.data?.id,
+      deleteLabel: t('record:detail.delete'),
       inheritedLabel: t('records.inherited'),
       locale: i18n.resolvedLanguage ?? i18n.language,
       memberLabel: name => t('records.memberAttribution', { name }),
       onSelect: handleRecord,
+      onDelete: handleDelete,
       privateLabel: t('records.private'),
       uncountedLabel: t('records.uncounted'),
     },
-  ), [calendarQuery.days, handleRecord, i18n.language, i18n.resolvedLanguage, recordsQuery.records, t]);
+  ), [calendarQuery.days, handleDelete, handleRecord, i18n.language, i18n.resolvedLanguage, recordsQuery.records, t, userQuery.data?.id]);
 
   return (
     <>

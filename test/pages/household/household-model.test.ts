@@ -1,3 +1,4 @@
+import type { FamilyRecord } from '@/entities/household';
 import { describe, expect, it } from 'vitest';
 import { FamilyRecordPolicy } from '@/entities/household';
 import {
@@ -7,6 +8,7 @@ import {
   getDisplayName,
   getFamilyRecordPolicyBehavior,
   shiftMonth,
+  toHouseholdRecordOverviewGroups,
 } from '@/features/household/model';
 
 describe('household date model', () => {
@@ -46,5 +48,55 @@ describe('household display name model', () => {
     expect(getDisplayName({ name: 'Avan', username: 'avanboy' })).toBe('Avan');
     expect(getDisplayName({ username: 'avanboy' })).toBe('avanboy');
     expect(getDisplayName({})).toBe('—');
+  });
+});
+
+describe('household record overview actions', () => {
+  it('only exposes swipe deletion for records permitted by the supplied ownership rule', () => {
+    const records: FamilyRecord[] = [
+      {
+        amount: '20.00',
+        category: { icon: 'food', id: 1, name: '餐饮' },
+        counted: true,
+        creator: { id: 1, name: 'Avan' },
+        effectivePolicy: FamilyRecordPolicy.SHARED_COUNTED,
+        id: 1,
+        policy: FamilyRecordPolicy.INHERIT,
+        remark: '午餐',
+        tags: [],
+        time: '2026-07-21T12:00:00.000Z',
+        type: 'sub',
+        version: 2,
+      },
+      {
+        amount: '30.00',
+        category: { icon: 'transport', id: 2, name: '交通' },
+        counted: true,
+        creator: { id: 2, name: 'Partner' },
+        effectivePolicy: FamilyRecordPolicy.SHARED_COUNTED,
+        id: 2,
+        policy: FamilyRecordPolicy.INHERIT,
+        remark: '打车',
+        tags: [],
+        time: '2026-07-21T13:00:00.000Z',
+        type: 'sub',
+        version: 3,
+      },
+    ];
+
+    const [group] = toHouseholdRecordOverviewGroups(records, {
+      canDeleteRecord: record => record.creator.id === 1,
+      countedLabel: '计入',
+      deleteLabel: '删除',
+      inheritedLabel: '继承',
+      locale: 'zh-CN',
+      memberLabel: name => `@${name}`,
+      onDelete: () => undefined,
+      privateLabel: '私密',
+      uncountedLabel: '不计入',
+    });
+
+    expect(group?.records[0]?.rightActions?.[0]).toMatchObject({ color: 'danger', key: 'delete', text: '删除' });
+    expect(group?.records[1]?.rightActions).toBeUndefined();
   });
 });

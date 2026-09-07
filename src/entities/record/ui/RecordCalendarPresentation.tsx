@@ -38,6 +38,7 @@ interface RecordCalendarPresentationProps {
   onMonthClick?: () => void;
   onRetry?: () => void;
   onToday: () => void;
+  recordCountLabel?: (count: number) => ReactNode;
   renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName'>) => ReactNode;
   retryLabel?: ReactNode;
   selectedDayLabel?: ReactNode;
@@ -62,7 +63,7 @@ const calendarRootClassName = [
   '[&_.adm-calendar-picker-view-mark]:font-bold',
   '[&_.adm-calendar-picker-view-mark]:text-ww-soft',
   '[&_.adm-calendar-picker-view-body]:h-[unset]',
-  '[&_.adm-calendar-picker-view-cell]:h-[clamp(40px,6.4dvh,48px)]',
+  '[&_.adm-calendar-picker-view-cell]:h-[clamp(46px,6.6dvh,50px)]',
   '[&_.adm-calendar-picker-view-cell]:min-h-0',
   '[&_.adm-calendar-picker-view-cell]:mb-[3px]',
   '[&_.adm-calendar-picker-view-cell]:w-[calc(100%/7-24px/7)]',
@@ -73,10 +74,10 @@ const calendarRootClassName = [
   '[&_.adm-calendar-picker-view-cell]:p-0',
   '[&_.adm-calendar-picker-view-cell]:text-inherit',
   '[&_.adm-calendar-picker-view-cell:not(:nth-child(7n))]:mr-[4px]',
-  '[&_.adm-calendar-picker-view-cell-selected]:border-primary/45',
-  '[&_.adm-calendar-picker-view-cell-selected]:bg-white',
-  '[&_.adm-calendar-picker-view-cell-selected]:text-primary-dark',
-  '[&_.adm-calendar-picker-view-cell-selected]:shadow-ww-xs',
+  '[&_.adm-calendar-picker-view-cell-selected]:!border-primary-mid',
+  '[&_.adm-calendar-picker-view-cell-selected]:!bg-transparent',
+  '[&_.adm-calendar-picker-view-cell-selected]:!text-inherit',
+  '[&_.adm-calendar-picker-view-cell-selected]:!shadow-none',
   '[&_.adm-calendar-picker-view-cell-date]:flex',
   '[&_.adm-calendar-picker-view-cell-date]:h-full',
   '[&_.adm-calendar-picker-view-cell-date]:w-full',
@@ -100,6 +101,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
   onMonthClick,
   onRetry,
   onToday,
+  recordCountLabel,
   renderCategoryIcon,
   retryLabel,
   selectedDayLabel,
@@ -113,6 +115,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
     min: month.startOf('month').toDate(),
   };
   const isTodaySelected = selectedDate.isSame(dayjs(), 'day');
+  const recordCount = groups.reduce((total, group) => total + group.records.length, 0);
 
   return (
     <div
@@ -196,16 +199,19 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
                       return (
                         <div
                           className={cn(
-                            'flex flex-grow flex-col rounded-[11px] py-0.5',
-                            isToday && !isSelected && 'bg-primary-light/45 text-primary-dark',
+                            'flex flex-grow -translate-y-px flex-col items-center justify-center rounded-[11px]',
+                            isToday && !isSelected && 'text-primary-deep',
                           )}
                           data-date={dateValue.format('YYYY-MM-DD')}
                         >
-                          <div className="mt-0.5 flex h-5 items-center justify-center text-[13px] font-bold">
+                          <div
+                            className="flex h-5 w-6 items-center justify-center text-[13px] font-bold"
+                            data-calendar-day-number
+                          >
                             {dateValue.date()}
                           </div>
-                          <div className="flex flex-grow flex-col text-[9px] font-semibold leading-[9px]">
-                            <div className="flex h-[9px] justify-center text-finance-income">
+                          <div className="mt-px flex flex-col items-center gap-px text-[9px] font-semibold leading-[9px]">
+                            <div className="flex min-h-[9px] justify-center text-finance-income">
                               {day?.income
                                 ? (
                                     <>
@@ -215,7 +221,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
                                   )
                                 : null}
                             </div>
-                            <div className="flex h-[9px] justify-center text-finance-expense">
+                            <div className="flex min-h-[9px] justify-center text-finance-expense">
                               {day?.expense
                                 ? (
                                     <>
@@ -236,13 +242,10 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
                   />
                 </section>
                 <div className="flex shrink-0 items-center justify-between px-[22px] pb-2 pt-4">
-                  <div>
-                    <p className="text-[15px] font-extrabold text-ww-ink">{selectedDayLabel ?? emptyLabel}</p>
-                    <p className="mt-0.5 text-[11px] font-semibold text-ww-soft">{selectedDate.format('YYYY.MM.DD')}</p>
-                  </div>
-                  {groups.length > 0 && (
+                  <p className="text-[15px] font-extrabold text-ww-ink">{selectedDayLabel ?? emptyLabel}</p>
+                  {recordCount > 0 && (
                     <span className="rounded-full bg-primary-light/60 px-3 py-1 text-[11px] font-bold text-primary-dark">
-                      {groups.reduce((total, group) => total + group.records.length, 0)}
+                      {recordCountLabel?.(recordCount) ?? `共 ${recordCount} 笔`}
                     </span>
                   )}
                 </div>

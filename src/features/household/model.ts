@@ -77,9 +77,12 @@ interface HouseholdRecordOverviewOptions {
   dailyExpenseLabel?: string;
   dailyIncomeLabel?: string;
   dailyTotals?: HouseholdCalendarDay[];
+  canDeleteRecord?: (record: FamilyRecord) => boolean;
+  deleteLabel?: string;
   inheritedLabel: string;
   locale: string;
   memberLabel: (name: string) => string;
+  onDelete?: (record: FamilyRecord) => void;
   onSelect?: (record: FamilyRecord) => void;
   privateLabel: string;
   uncountedLabel: string;
@@ -144,6 +147,19 @@ export function toHouseholdRecordOverviewGroups(
           memberColorKey: record.creator.colorKey,
           id: record.id,
           onClick: options.onSelect ? () => options.onSelect?.(record) : undefined,
+          ...(options.onDelete && options.canDeleteRecord?.(record) !== false && options.deleteLabel
+            ? {
+                rightActions: [{
+                  color: 'danger' as const,
+                  key: 'delete',
+                  onClick: (event) => {
+                    event.stopPropagation();
+                    options.onDelete?.(record);
+                  },
+                  text: options.deleteLabel,
+                }],
+              }
+            : {}),
           hasAttachment: indicators.hasAttachment,
           overviewSecondary: indicators.tagSummary
             ? `${indicators.tagSummary} @${displayName}`

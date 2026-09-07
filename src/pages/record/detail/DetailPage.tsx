@@ -1,16 +1,22 @@
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import type { recordChildren, RecordOverviewListGroup } from '@/entities/record';
+import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
-import { getRecordListIndicators, RecordOverviewPresentation } from '@/entities/record';
+import {
+  getRecordListIndicators,
+  RecordOverviewPresentation,
+  useDeleteRecordMutation,
+} from '@/entities/record';
 import { useRecordOverviewHeader } from '@/pages/record/detail/Top';
 import { getQueryViewState } from '@/shared/api';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
+import { confirmDangerousAction } from '@/shared/ui';
 import { TabBar } from '@/widgets/layout';
 import { useRecordList } from '../model/useRecordList';
 
@@ -22,8 +28,10 @@ const Detail: FC = () => {
     return stored ? dayjs(stored) : dayjs();
   });
   const navigate = useNavigate();
-  const { t } = useTranslation('record');
+  const { t } = useTranslation(['record', 'common']);
   const query = useRecordList(selectTime);
+  const [deleteRecord, deleteState] = useDeleteRecordMutation();
+  const deletingRecordIdRef = useRef<number>();
   const header = useRecordOverviewHeader({
     numExpendIncome: query.amounts,
     selectTime,
@@ -34,6 +42,32 @@ const Detail: FC = () => {
     playSound.turnPage();
     navigate(`/editing/${item.id}`, { state: item });
   }, [navigate]);
+
+  const handleDelete = useCallback(async (item: recordChildren) => {
+    if (deleteState.isLoading || deletingRecordIdRef.current !== undefined)
+      return;
+    const confirmed = await confirmDangerousAction({
+      cancelText: t('common:nav.cancel'),
+      confirmText: t('detail.delete'),
+      description: t('detail.deleteWarning'),
+      title: t('common:confirm.delete'),
+    });
+    if (!confirmed)
+      return;
+    deletingRecordIdRef.current = item.id;
+    try {
+      const response = await deleteRecord({ id: String(item.id), version: item.version });
+      Toast.show({ content: response.message || t('common:confirm.deleteSuccess'), icon: 'success' });
+    }
+    catch (error) {
+      await query.refetch();
+      const isConflict = typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
+      Toast.show({ content: t(isConflict ? 'bookkeeping.conflict' : 'common:api.requestFailed'), icon: 'fail' });
+    }
+    finally {
+      deletingRecordIdRef.current = undefined;
+    }
+  }, [deleteRecord, deleteState.isLoading, query, t]);
 
   const groups = useMemo<RecordOverviewListGroup[]>(() => query.record.map(group => ({
     dateLabel: `${group[0]} ${group[1]}`,
@@ -50,6 +84,15 @@ const Detail: FC = () => {
         onClick: () => handleRecord(item),
         overviewSecondary: indicators.tagSummary,
         primary: item.remark,
+        rightActions: [{
+          color: 'danger',
+          key: 'delete',
+          onClick: (event) => {
+            event.stopPropagation();
+            void handleDelete(item);
+          },
+          text: t('detail.delete'),
+        }],
       };
     }),
     summaries: [
@@ -58,7 +101,7 @@ const Detail: FC = () => {
         : []),
       { key: 'expense', label: t('common:amount.expend'), value: group[4] },
     ],
-  })), [handleRecord, query.record, t]);
+  })), [handleDelete, handleRecord, query.record, t]);
   const viewState = getQueryViewState({
     hasData: query.hasData,
     isError: query.isError,

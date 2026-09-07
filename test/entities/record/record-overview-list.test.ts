@@ -1,6 +1,6 @@
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RecordOverviewList, toRecordSearchGroups } from '@/entities/record';
 
 let cleanup: (() => void) | undefined;
@@ -10,7 +10,7 @@ afterEach(() => {
   cleanup = undefined;
 });
 
-function render(variant?: 'overview' | 'search') {
+function render(variant?: 'overview' | 'search', onDelete?: () => void, onRecordClick?: () => void) {
   const container = document.createElement('div');
   const root = createRoot(container);
   act(() => root.render(createElement(RecordOverviewList, {
@@ -22,8 +22,12 @@ function render(variant?: 'overview' | 'search') {
         hasAttachment: true,
         iconName: 'food',
         id: 7,
+        onClick: onRecordClick,
         overviewSecondary: '#聚餐',
         primary: 'Dinner',
+        rightActions: onDelete
+          ? [{ color: 'danger', key: 'delete', onClick: onDelete, text: 'Delete' }]
+          : undefined,
         secondary: 'Avan · Shared',
       }],
       summaries: [{ key: 'expense', label: 'Expense', value: '20.00' }],
@@ -107,5 +111,20 @@ describe('record overview list', () => {
     expect(amount?.classList).toContain('leading-[22.5px]');
     expect(row?.textContent).toContain('#聚餐');
     expect(row?.querySelector('[aria-label="含图片"]')).not.toBeNull();
+  });
+
+  it('wraps configured actions in a swipe control without turning the action into row navigation', () => {
+    const onDelete = vi.fn();
+    const onRecordClick = vi.fn();
+    const container = render('overview', onDelete, onRecordClick);
+
+    const action = Array.from(container.querySelectorAll('button')).find(button => button.textContent === 'Delete');
+    expect(container.querySelector('.adm-swipe-action')).not.toBeNull();
+    expect(container.querySelector('.ww-record-swipe-action')).not.toBeNull();
+    expect(action).toBeDefined();
+
+    act(() => action?.click());
+    expect(onDelete).toHaveBeenCalledOnce();
+    expect(onRecordClick).not.toHaveBeenCalled();
   });
 });
