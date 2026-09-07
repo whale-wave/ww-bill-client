@@ -274,5 +274,5 @@ function MotionPrototypeContent() {
  * Three development-only variants, switchable by ?motion-prototype=record|archive|asset.
  */
 export function BalanceCardMotionPrototype() {
-  return <MotionProvider enabled><MotionPrototypeContent /></MotionProvider>;
+  return <MotionProvider><MotionPrototypeContent /></MotionProvider>;
 }

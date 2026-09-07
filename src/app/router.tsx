@@ -56,6 +56,9 @@ const router = createHashRouter([
         ? [{
             path: 'design-system',
             lazy: lazyPage(() => import('@/pages/design-system/DesignSystemPage')),
+          }, {
+            path: 'agent',
+            lazy: lazyGuardedPage(() => import('@/pages/agent-chat/AgentChatPage')),
           }]
         : []),
       {
@@ -76,10 +79,6 @@ const router = createHashRouter([
             lazy: lazyGuardedPage(() => import('@/pages/create-budget-category/CreateBudgetCategoryPage')),
           },
         ],
-      },
-      {
-        path: 'agent',
-        lazy: lazyGuardedPage(() => import('@/pages/agent-chat/AgentChatPage')),
       },
       {
         path: 'record-calendar',

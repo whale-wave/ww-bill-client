@@ -54,10 +54,9 @@
     "effectDesc": "Still shown in list when disabled"
   },
   "soundAndHaptics": {
-    "title": "Sound, Haptics & Motion",
+    "title": "Sound & Haptics",
     "sound": "Sound",
     "haptics": "Haptics",
-    "motion": "Motion effects",
     "saveFailed": "Unable to save settings. Please try again."
   },
   "amount": {

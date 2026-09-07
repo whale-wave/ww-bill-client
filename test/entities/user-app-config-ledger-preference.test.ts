@@ -25,7 +25,7 @@ describe('user app config ledger quick-switch preference', () => {
     expectTypeOf<PatchUserAppConfigBody>()
       .not
       .toHaveProperty('ledgerQuickSwitchVersion');
-    expectTypeOf<PatchUserAppConfigBody>().toHaveProperty('isOpenMotionEffect');
+    expectTypeOf<PatchUserAppConfigBody>().not.toHaveProperty('isOpenMotionEffect');
     expectTypeOf<UserAppConfig>().toHaveProperty('userId');
     expectTypeOf<UserAppConfig>().toHaveProperty('appearanceTemplate');
     expectTypeOf<UserAppConfig>().toHaveProperty('appearanceAccent');

@@ -33,15 +33,13 @@ export const MotionPreferenceContext = createContext<MotionPreference>({
 });
 
 export function resolveMotionPreference({
-  enabled,
   isSeniorMode,
   prefersReducedMotion,
 }: {
-  enabled: boolean;
   isSeniorMode: boolean;
   prefersReducedMotion: boolean;
 }): MotionPreference {
-  const shouldReduceMotion = !enabled || isSeniorMode || prefersReducedMotion;
+  const shouldReduceMotion = isSeniorMode || prefersReducedMotion;
   return {
     isMotionEnabled: !shouldReduceMotion,
     shouldReduceMotion,

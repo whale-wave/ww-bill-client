@@ -62,15 +62,17 @@ export function useRecordOverviewHeader({
   return {
     actions: (
       <>
-        <button
-          aria-label="智能记账"
-          className="border-0 bg-transparent p-0"
-          data-testid="record-agent-action"
-          onClick={() => navigate(ROUTES_PATH.AGENT.getPath())}
-          type="button"
-        >
-          <MessageCircleMore size={17} strokeWidth={2.1} />
-        </button>
+        {import.meta.env.DEV && (
+          <button
+            aria-label="智能记账"
+            className="border-0 bg-transparent p-0"
+            data-testid="record-agent-action"
+            onClick={() => navigate(ROUTES_PATH.AGENT.getPath())}
+            type="button"
+          >
+            <MessageCircleMore size={17} strokeWidth={2.1} />
+          </button>
+        )}
         <button
           aria-label={t('search.title')}
           className="border-0 bg-transparent p-0"

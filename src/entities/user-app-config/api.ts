@@ -33,7 +33,7 @@ export function getUserAppConfigApi() {
 
 export interface PatchUserAppConfigBody extends Partial<Omit<
   UserAppConfig,
-  'id' | 'userId' | 'isLedgerQuickSwitchEnabled' | 'ledgerQuickSwitchVersion' | 'appearanceAccent'
+  'id' | 'userId' | 'isLedgerQuickSwitchEnabled' | 'ledgerQuickSwitchVersion' | 'appearanceAccent' | 'isOpenMotionEffect'
 >> {}
 
 export function patchUserAppConfigApi(body: PatchUserAppConfigBody) {

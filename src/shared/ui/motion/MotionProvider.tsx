@@ -13,17 +13,15 @@ import {
 
 export interface MotionProviderProps {
   children: ReactNode;
-  enabled: boolean;
   isSeniorMode?: boolean;
 }
 
-export const MotionProvider: FC<MotionProviderProps> = ({ children, enabled, isSeniorMode = false }) => {
+export const MotionProvider: FC<MotionProviderProps> = ({ children, isSeniorMode = false }) => {
   const prefersReducedMotion = Boolean(useReducedMotion());
   const preference = useMemo(() => resolveMotionPreference({
-    enabled,
     isSeniorMode,
     prefersReducedMotion,
-  }), [enabled, isSeniorMode, prefersReducedMotion]);
+  }), [isSeniorMode, prefersReducedMotion]);
 
   return (
     <MotionPreferenceContext.Provider value={preference}>
