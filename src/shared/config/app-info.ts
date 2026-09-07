@@ -3,7 +3,8 @@ import config from './index';
 
 export const APP_INFO = {
   appName: config.appName,
-  version: pkg.version,
+  buildId: import.meta.env.VITE_APP_BUILD_ID || 'local',
+  version: import.meta.env.VITE_APP_VERSION || pkg.version,
   githubProfileUrl: 'https://github.com/layouwen',
   githubReleasesUrl: 'https://github.com/whale-wave/ww-bill-client/releases',
   qqGroupNumber: '1108214948',

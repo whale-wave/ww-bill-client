@@ -1,4 +1,5 @@
 import type { FC, ReactNode } from 'react';
+import type { BuildInfo } from '@/shared/config/build-info';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { Toast } from 'antd-mobile';
@@ -14,6 +15,7 @@ import androidLogo from '@/assets/brand/android-logo.png';
 import { isAndroidUpdateAvailable, useAndroidLatestReleaseQuery } from '@/entities/app-release';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { APP_INFO } from '@/shared/config/app-info';
+import { fetchBuildInfo, isNewerBuild } from '@/shared/config/build-info';
 import { useTranslation } from '@/shared/i18n';
 import { openExternalUrl } from '@/shared/lib';
 import { AppButton, PageHeader } from '@/shared/ui';
@@ -87,8 +89,10 @@ const AboutSupportPage: FC = () => {
   const { t } = useTranslation('settings');
   const onBack = useWorkspaceBack({ type: 'personal' });
   const isAndroid = Capacitor.getPlatform() === 'android';
+  const isWeb = Capacitor.getPlatform() === 'web';
   const { data: latestRelease, isFetching, isError, refetch } = useAndroidLatestReleaseQuery({ enabled: isAndroid });
   const [installedVersion, setInstalledVersion] = useState<{ versionCode: number; versionName: string } | null>(null);
+  const [latestWebBuild, setLatestWebBuild] = useState<BuildInfo | null>(null);
 
   useEffect(() => {
     if (!isAndroid)
@@ -99,6 +103,12 @@ const AboutSupportPage: FC = () => {
         setInstalledVersion({ versionCode, versionName: info.version });
     }).catch(() => undefined);
   }, [isAndroid]);
+
+  useEffect(() => {
+    if (!isWeb)
+      return;
+    void fetchBuildInfo().then(setLatestWebBuild).catch(() => undefined);
+  }, [isWeb]);
 
   const handleCopy = (text: string) => {
     if (copy(text)) {
@@ -159,6 +169,28 @@ const AboutSupportPage: FC = () => {
                     </AppButton>
                   )}
                 </div>
+              </div>
+            </SupportSection>
+          )}
+
+          {isWeb && (
+            <SupportSection title={t('aboutSupport.versionCheck')}>
+              <div className="space-y-3 px-4 py-4">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-ww-mid">{t('aboutSupport.currentVersion')}</span>
+                  <span className="font-semibold text-ww-ink">{APP_INFO.version}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-ww-mid">{t('aboutSupport.latestWebVersion')}</span>
+                  <span className="font-semibold text-ww-ink">{latestWebBuild?.version ?? '—'}</span>
+                </div>
+                <p className="text-[11px] leading-5 text-ww-soft">
+                  {latestWebBuild && isNewerBuild(APP_INFO.buildId, latestWebBuild)
+                    ? t('aboutSupport.webUpdateDescription', { version: latestWebBuild.version })
+                    : latestWebBuild
+                      ? t('aboutSupport.upToDate')
+                      : t('aboutSupport.checkFailed')}
+                </p>
               </div>
             </SupportSection>
           )}

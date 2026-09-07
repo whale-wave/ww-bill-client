@@ -7,6 +7,8 @@ import { clearLedgerInvitationCache } from '@/entities/ledger';
 import { applyAppearancePreference, readAppearancePreferenceMirror, resetAppearancePreference } from '@/features/appearance';
 import { rehydrateAuthStore, useAuthStore } from '@/features/auth';
 import { setAuthDeps } from '@/shared/api/auth-injection';
+import { APP_INFO } from '@/shared/config/app-info';
+import { refreshBeforeAppStart } from '@/shared/config/build-info';
 import '@/shared/i18n';
 import '@/assets/styles/index.scss';
 
@@ -30,9 +32,22 @@ if (isDesignStudio) {
     root.render(<React.StrictMode><DesignSystemPage /></React.StrictMode>);
   });
 }
-
-if (!isDesignStudio) {
+else {
   void (async () => {
+    if (import.meta.env.PROD) {
+      try {
+        const refreshed = await refreshBeforeAppStart({
+          currentBuildId: APP_INFO.buildId,
+          location: window.location,
+        });
+        if (refreshed)
+          return;
+      }
+      catch {
+        // Version checks are best-effort. Authentication and bookkeeping must still start offline.
+      }
+    }
+
     await rehydrateAuthStore();
     const authState = useAuthStore.getState();
     if (authState.token && authState.userId)
