@@ -6,6 +6,8 @@ export type RecordSearchMatch = RecordKeywordTarget;
 export type RecordSearchType = 'all' | 'add' | 'sub';
 export type FamilyCountingFilter = 'all' | 'counted' | 'uncounted';
 
+export const RECORD_SEARCH_PAGE_SIZE = 30;
+
 export interface RecordSearchFilters {
   categoryIds: number[];
   endDate: string;

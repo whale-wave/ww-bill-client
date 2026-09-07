@@ -4,7 +4,7 @@ import type {
   RecordSearchValidation,
 } from '../model/record-search-state';
 import type { RecordOverviewListGroup } from '@/entities/record';
-import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
+import { Button, ErrorBlock, InfiniteScroll, SpinLoading } from 'antd-mobile';
 import { ChevronDown, Search, SlidersHorizontal } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { RecordOverviewList } from '@/entities/record';
@@ -40,13 +40,12 @@ interface RecordSearchPresentationProps {
   filterOptions?: RecordSearchFilterOptions;
   filters: RecordSearchFilters;
   groups: RecordOverviewListGroup[];
+  hasMore?: boolean;
   isFilterActive: boolean;
-  isLoadingMore?: boolean;
-  loadMoreLabel?: ReactNode;
   onBack: () => void;
   onFiltersConfirm: (filters: RecordSearchFilters) => void;
   onKeywordChange: (value: string) => void;
-  onLoadMore?: () => void;
+  onLoadMore?: () => Promise<unknown>;
   onRetry?: () => void;
   placeholder: string;
   retryLabel?: ReactNode;
@@ -124,9 +123,8 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
   filterOptions = {},
   filters,
   groups,
+  hasMore = false,
   isFilterActive,
-  isLoadingMore = false,
-  loadMoreLabel,
   onBack,
   onFiltersConfirm,
   onKeywordChange,
@@ -163,6 +161,9 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
       return;
     onFiltersConfirm(draft);
     handleCloseFilters();
+  };
+  const handleLoadMore = async () => {
+    await onLoadMore?.();
   };
 
   return (
@@ -221,10 +222,8 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
             <div className="shrink-0 overflow-hidden rounded-[22px] border border-solid border-white/75 bg-white/68 shadow-ww backdrop-blur-md">
               <RecordOverviewList groups={groups} variant="search" />
             </div>
-            {onLoadMore && (
-              <Button className="mx-3 mt-3" loading={isLoadingMore} onClick={onLoadMore}>
-                {loadMoreLabel}
-              </Button>
+            {hasMore && onLoadMore && (
+              <InfiniteScroll loadMore={handleLoadMore} hasMore threshold={160} />
             )}
           </>
         )}

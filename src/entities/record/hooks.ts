@@ -1,4 +1,8 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query';
+import type {
+  QueryClient,
+  UseInfiniteQueryOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query';
 import type { ToastHandler } from 'antd-mobile/es/components/toast';
 import type {
   GetRecordApiParams,
@@ -10,7 +14,12 @@ import type {
 } from './api';
 import type { RecordEntry } from './types';
 import type { SuccessResponse } from '@/shared/api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { Toast } from 'antd-mobile';
 import { useEffect, useMemo, useRef } from 'react';
 import { agentKeys } from '@/entities/agent';
@@ -156,6 +165,96 @@ export function useLedgerRecordsQuery(options: {
     response,
     data: isSuccessApi(response) ? response.data : emptyRecordInfo,
     ...rest,
+  };
+}
+
+type RecordPagesResponse = SuccessResponse<GetRecordApiResponseData>;
+
+export function getNextRecordOffset(
+  page: Pick<GetRecordApiResponseData, 'data' | 'offset' | 'total'>,
+) {
+  const nextOffset = (page.offset ?? 0) + page.data.length;
+  return page.data.length > 0 && nextOffset < page.total
+    ? nextOffset
+    : undefined;
+}
+
+export function flattenRecordPages(pages: RecordPagesResponse[] = []) {
+  const records = new Map<number, RecordEntry>();
+  pages.forEach(page => page.data.data.forEach(record => records.set(record.id, record)));
+  return [...records.values()];
+}
+
+export function useInfiniteRecordsQuery(options: {
+  params?: GetRecordApiParams;
+  queryOptions?: Omit<
+    UseInfiniteQueryOptions<
+      RecordPagesResponse,
+      unknown,
+      RecordPagesResponse,
+      RecordPagesResponse,
+      ReturnType<typeof recordKeys.pages>
+    >,
+    'getNextPageParam' | 'queryFn' | 'queryKey'
+  >;
+} = {}) {
+  const { offset: initialOffset = 0, ...baseParams } = options.params ?? {};
+  const query = useInfiniteQuery({
+    queryKey: recordKeys.pages(baseParams),
+    queryFn: async ({ pageParam = initialOffset }) =>
+      assertSuccessApi(await getRecordApi({
+        ...baseParams,
+        offset: pageParam as number,
+      })),
+    getNextPageParam: lastPage => getNextRecordOffset(lastPage.data),
+    ...options.queryOptions,
+  });
+  const response = query.data?.pages[0];
+  const records = flattenRecordPages(query.data?.pages);
+  return {
+    ...query,
+    response,
+    data: response
+      ? { ...response.data, data: records }
+      : emptyRecordInfo,
+    records,
+  };
+}
+
+export function useInfiniteLedgerRecordsQuery(options: {
+  params: { ledgerId: string; filters?: GetRecordApiParams };
+  queryOptions?: Omit<
+    UseInfiniteQueryOptions<
+      RecordPagesResponse,
+      unknown,
+      RecordPagesResponse,
+      RecordPagesResponse,
+      ReturnType<typeof recordKeys.ledgerPages>
+    >,
+    'getNextPageParam' | 'queryFn' | 'queryKey'
+  >;
+}) {
+  const { ledgerId, filters = {} } = options.params;
+  const { offset: initialOffset = 0, ...baseFilters } = filters;
+  const query = useInfiniteQuery({
+    queryKey: recordKeys.ledgerPages(ledgerId, baseFilters),
+    queryFn: async ({ pageParam = initialOffset }) =>
+      assertSuccessApi(await getLedgerRecordsApi(ledgerId, {
+        ...baseFilters,
+        offset: pageParam as number,
+      })),
+    getNextPageParam: lastPage => getNextRecordOffset(lastPage.data),
+    ...options.queryOptions,
+  });
+  const response = query.data?.pages[0];
+  const records = flattenRecordPages(query.data?.pages);
+  return {
+    ...query,
+    response,
+    data: response
+      ? { ...response.data, data: records }
+      : emptyRecordInfo,
+    records,
   };
 }
 

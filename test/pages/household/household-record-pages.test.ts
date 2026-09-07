@@ -720,7 +720,7 @@ describe('household records', () => {
           endDate: '2026-07-31',
           keyword: '餐',
           keywordTarget: 'all',
-          limit: 50,
+          limit: 30,
           maxAmount: '90',
           memberUserId: 2,
           minAmount: '10',

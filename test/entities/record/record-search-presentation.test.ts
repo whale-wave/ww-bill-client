@@ -12,7 +12,10 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function render(state: 'error' | 'idle' | 'loading' | 'ready') {
+function render(
+  state: 'error' | 'idle' | 'loading' | 'ready',
+  options: { onLoadMore?: () => Promise<void> } = {},
+) {
   const container = document.createElement('div');
   const root = createRoot(container);
   act(() => root.render(createElement(
@@ -38,10 +41,12 @@ function render(state: 'error' | 'idle' | 'loading' | 'ready') {
             records: [{ amount: '-20.00', iconName: 'food', id: 1, primary: 'Dinner' }],
           }]
         : [],
+      hasMore: Boolean(options.onLoadMore),
       isFilterActive: false,
       onBack: vi.fn(),
       onFiltersConfirm: vi.fn(),
       onKeywordChange: vi.fn(),
+      onLoadMore: options.onLoadMore,
       placeholder: 'Search',
       state,
       title: 'Search',
@@ -64,6 +69,13 @@ describe('record search presentation', () => {
     const container = render('ready');
     expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(container.querySelector('[data-record-list-variant="search"]')).not.toBeNull();
+  });
+
+  it('uses an automatic infinite-scroll sentinel when another page exists', () => {
+    const container = render('ready', { onLoadMore: vi.fn().mockResolvedValue(undefined) });
+
+    expect(container.querySelector('.adm-infinite-scroll')).not.toBeNull();
+    expect([...container.querySelectorAll('button')].some(button => button.textContent === '加载更多')).toBe(false);
   });
 
   it('keeps search results in an independently scrollable flex region', () => {

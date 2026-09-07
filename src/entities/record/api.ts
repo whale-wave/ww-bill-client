@@ -82,6 +82,8 @@ export interface GetRecordApiResponseData {
   data: RecordEntry[];
   expend: number;
   income: number;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetRecordApiParams {
@@ -91,6 +93,8 @@ export interface GetRecordApiParams {
   keywordTarget?: RecordKeywordTarget;
   type?: 'add' | 'sub';
   dateMode?: RecordDateMode;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetRecordRemarkHistoryApiParams {

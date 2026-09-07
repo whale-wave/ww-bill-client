@@ -4,13 +4,14 @@ import { LedgerCapability } from '@/entities/ledger';
 import {
   createLedgerRecordDetailState,
   toRecordSearchGroups,
-  useLedgerRecordsQuery,
+  useInfiniteLedgerRecordsQuery,
   useRecordFilterOptionsQuery,
 } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import {
   isCommonRecordSearchActive,
   isRecordFilterActive,
+  RECORD_SEARCH_PAGE_SIZE,
   RecordSearchPresentation,
   toCommonRecordSearchFilters,
   toRecordApiParams,
@@ -63,9 +64,13 @@ function ScopedLedgerSearch({
   const debouncedState = { ...search.debouncedState, filters };
   const isActive = isCommonRecordSearchActive(state);
   const validation = validateRecordSearchState(debouncedState);
-  const query = useLedgerRecordsQuery({
+  const query = useInfiniteLedgerRecordsQuery({
     params: {
-      filters: toRecordApiParams(debouncedState),
+      filters: {
+        ...toRecordApiParams(debouncedState),
+        limit: RECORD_SEARCH_PAGE_SIZE,
+        offset: 0,
+      },
       ledgerId,
     },
     queryOptions: {
@@ -106,10 +111,12 @@ function ScopedLedgerSearch({
       }}
       filters={filters}
       groups={groups}
+      hasMore={Boolean(query.hasNextPage)}
       isFilterActive={isRecordFilterActive(filters)}
       onBack={onBack}
       onFiltersConfirm={search.commitFilters}
       onKeywordChange={search.setValue}
+      onLoadMore={query.fetchNextPage}
       onRetry={() => void query.refetch()}
       placeholder={placeholder}
       retryLabel={t('common.retry')}

@@ -11,6 +11,7 @@ import {
 import { toHouseholdRecordOverviewGroups } from '@/features/household';
 import {
   isRecordFilterActive,
+  RECORD_SEARCH_PAGE_SIZE,
   RecordSearchPresentation,
   toHouseholdRecordApiParams,
   useRecordSearchController,
@@ -43,7 +44,7 @@ const SearchContent: FC<{ householdId: string }> = ({ householdId }) => {
     params: {
       filters: {
         ...toHouseholdRecordApiParams(search.debouncedState),
-        limit: 50,
+        limit: RECORD_SEARCH_PAGE_SIZE,
         offset: 0,
       },
       householdId,
@@ -121,15 +122,12 @@ const SearchContent: FC<{ householdId: string }> = ({ householdId }) => {
       }}
       filters={search.filters}
       groups={groups}
+      hasMore={Boolean(query.hasNextPage)}
       isFilterActive={isRecordFilterActive(search.filters)}
-      isLoadingMore={query.isFetchingNextPage}
-      loadMoreLabel={t('records.loadMore')}
       onBack={onBack}
       onFiltersConfirm={search.commitFilters}
       onKeywordChange={search.setValue}
-      onLoadMore={query.hasNextPage
-        ? () => void query.fetchNextPage()
-        : undefined}
+      onLoadMore={query.fetchNextPage}
       onRetry={() => void (isScopeReady ? query.refetch() : scopeQuery.refetch())}
       placeholder={t('records.keywordPlaceholder')}
       retryLabel={t('common.retry')}

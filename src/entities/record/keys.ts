@@ -4,6 +4,7 @@ export const recordKeys = {
   all: ['record'] as const,
   lists: () => [...recordKeys.all, 'list'] as const,
   list: (params?: GetRecordApiParams) => [...recordKeys.lists(), params] as const,
+  pages: (params?: GetRecordApiParams) => [...recordKeys.lists(), 'pages', params] as const,
   remarkHistories: () => [...recordKeys.all, 'remark-history'] as const,
   remarkHistory: (categoryId: number) => [...recordKeys.remarkHistories(), categoryId] as const,
   filterOptions: () => [...recordKeys.all, 'filter-options'] as const,
@@ -11,6 +12,11 @@ export const recordKeys = {
   ledgerListRoot: (ledgerId: string) => [...recordKeys.ledgerRoot(ledgerId), 'list'] as const,
   ledgerList: (ledgerId: string, params?: GetRecordApiParams) => [
     ...recordKeys.ledgerListRoot(ledgerId),
+    params,
+  ] as const,
+  ledgerPages: (ledgerId: string, params?: GetRecordApiParams) => [
+    ...recordKeys.ledgerListRoot(ledgerId),
+    'pages',
     params,
   ] as const,
   ledgerRemarkHistories: (ledgerId: string) => [...recordKeys.ledgerRoot(ledgerId), 'remark-history'] as const,

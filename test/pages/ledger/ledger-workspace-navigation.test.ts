@@ -47,6 +47,7 @@ const hooks = vi.hoisted(() => ({
   useLedgerPreferencesQuery: vi.fn(),
   useLedgerQuery: vi.fn(),
   useLedgerRecordBillQuery: vi.fn(),
+  useInfiniteLedgerRecordsQuery: vi.fn(),
   useLedgerRecordsQuery: vi.fn(),
   useRecordFilterOptionsQuery: vi.fn(),
   useLedgerTagsQuery: vi.fn(),
@@ -78,6 +79,7 @@ vi.mock('@/entities/household', async importOriginal => ({
 vi.mock('@/entities/record', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/record')>()),
   useGetRecordBillQuery: hooks.useGetRecordBillQuery,
+  useInfiniteLedgerRecordsQuery: hooks.useInfiniteLedgerRecordsQuery,
   useLedgerRecordBillQuery: hooks.useLedgerRecordBillQuery,
   useLedgerRecordsQuery: hooks.useLedgerRecordsQuery,
   useRecordFilterOptionsQuery: hooks.useRecordFilterOptionsQuery,
@@ -292,6 +294,14 @@ beforeEach(() => {
     refetch: vi.fn(),
   });
   hooks.useLedgerPreferencesQuery.mockReturnValue({ data: undefined, isError: false, isLoading: false });
+  hooks.useInfiniteLedgerRecordsQuery.mockReturnValue({
+    data: { data: [], expend: 0, income: 0, total: 0 },
+    fetchNextPage: vi.fn(),
+    hasNextPage: false,
+    isError: false,
+    isLoading: false,
+    response: undefined,
+  });
   hooks.useLedgerRecordsQuery.mockReturnValue({ data: { data: [], expend: 2, income: 5, total: 0 }, isError: false, isLoading: false });
   hooks.useRecordFilterOptionsQuery.mockReturnValue({
     data: {
@@ -422,7 +432,7 @@ describe('personal ledger workspace integration', () => {
 
 describe('custom ledger workspace integration', () => {
   it('uses the personal search shell and canonicalizes the legacy keyword parameter', async () => {
-    hooks.useLedgerRecordsQuery.mockReturnValue({
+    hooks.useInfiniteLedgerRecordsQuery.mockReturnValue({
       data: {
         data: [{
           amount: '20.00',
@@ -447,6 +457,7 @@ describe('custom ledger workspace integration', () => {
       },
       isError: false,
       isLoading: false,
+      response: { data: {} },
     });
     const { container, router } = renderPage(
       '/ledgers/ledger%2Fa/records/search?keyword=%E6%99%9A%E9%A4%90',
@@ -457,8 +468,8 @@ describe('custom ledger workspace integration', () => {
     expect(container.querySelector('[data-record-search-page-shell]')).not.toBeNull();
     expect(container.querySelector('[data-record-list-variant="search"]')).not.toBeNull();
     expect(container.querySelector('[data-record-id="7"]')?.classList).toContain('h-[59px]');
-    expect(hooks.useLedgerRecordsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
-      params: { filters: { keyword: '晚餐', keywordTarget: 'all' }, ledgerId: 'ledger/a' },
+    expect(hooks.useInfiniteLedgerRecordsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
+      params: { filters: { keyword: '晚餐', keywordTarget: 'all', limit: 30, offset: 0 }, ledgerId: 'ledger/a' },
     }));
 
     const input = container.querySelector<HTMLInputElement>('[data-record-search-input] input');
@@ -568,10 +579,11 @@ describe('custom ledger workspace integration', () => {
   });
 
   it('keeps the search shell while showing a record-query error', () => {
-    hooks.useLedgerRecordsQuery.mockReturnValue({
+    hooks.useInfiniteLedgerRecordsQuery.mockReturnValue({
       data: { data: [], expend: 0, income: 0, total: 0 },
       isError: true,
       isLoading: false,
+      response: undefined,
     });
     const { container } = renderPage(
       '/ledgers/ledger%2Fa/records/search?keyword=%E6%99%9A%E9%A4%90',
