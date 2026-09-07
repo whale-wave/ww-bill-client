@@ -3,6 +3,7 @@ import type { CategoryEntity } from '@/entities/category';
 import type { RecordDraft } from '@/features/record-editor';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   RecordEditorPresentation,
@@ -121,6 +122,23 @@ afterEach(() => {
 });
 
 describe('record editor controller', () => {
+  it('renders an existing amount on the first frame without a zero placeholder', () => {
+    function InitialAmountProbe() {
+      const controller = useRecordEditorController({
+        onSubmit: submit,
+        seed: {
+          amount: '70.00',
+          category,
+          recordType: 'sub',
+          time: '2026-09-06T12:00:00.000Z',
+        },
+      });
+      return createElement('span', null, controller.calculator.totals);
+    }
+
+    expect(renderToString(createElement(InitialAmountProbe))).toContain('70.00');
+  });
+
   it('submits a positive amount and falls back to the selected category name', async () => {
     const container = renderEditor();
     clickButton(container, '1');

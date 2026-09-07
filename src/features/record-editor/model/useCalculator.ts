@@ -8,6 +8,11 @@ export interface CalculatorState {
   completeText: string;
 }
 
+interface CalculatorOptions {
+  initialAmount?: string;
+  initialState?: CalculatorState;
+}
+
 function isSubmittableAmount(value: string | number): boolean {
   const amount = Number(value);
   return Number.isFinite(amount) && amount > 0;
@@ -22,9 +27,9 @@ function toMinorUnits(value: string): number {
   return isNegative ? -minorUnits : minorUnits;
 }
 
-export function useCalculator(initialState?: CalculatorState) {
-  const [totals, setTotals] = useState(initialState?.totals ?? '0.00');
-  const [num, setNum] = useState(initialState?.num ?? '');
+export function useCalculator({ initialAmount, initialState }: CalculatorOptions = {}) {
+  const [totals, setTotals] = useState(initialState?.totals ?? initialAmount ?? '0.00');
+  const [num, setNum] = useState(initialState?.num ?? initialAmount ?? '');
   const [addNum, setAddNum] = useState(initialState?.addNum ?? '');
   const [addition, setAddition] = useState(initialState?.addition ?? '');
   const [completeText, setCompleteText] = useState(initialState?.completeText ?? '完成');

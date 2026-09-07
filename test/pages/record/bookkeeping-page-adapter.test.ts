@@ -422,6 +422,47 @@ describe('personal record editor adapter', () => {
     expect(router.state.location.pathname).toBe('/editing/7');
   });
 
+  it('keeps a personal detail amount after the editor effects settle', async () => {
+    const record = {
+      amount: '70.00',
+      category: {
+        createdAt: '',
+        icon: 'phone',
+        id: 1,
+        name: '通讯',
+        updatedAt: '',
+      },
+      createdAt: '',
+      id: 7,
+      remark: '通讯',
+      time: '2026-09-06T12:00:00.000Z',
+      type: 'sub' as const,
+      updatedAt: '',
+      version: 3,
+    };
+    const router = createMemoryRouter([
+      { path: '/bookkeeping', element: createElement(BookkeepingPage) },
+    ], {
+      initialEntries: [{
+        pathname: '/bookkeeping',
+        state: {
+          recordEditor: {
+            initialRecord: record,
+            returnContext: { kind: 'personal-detail', recordId: record.id },
+          },
+        },
+      }],
+    });
+    const container = renderRouter(router);
+
+    expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('70.00');
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('70.00');
+  });
+
   it('ignores malformed editor state and falls back to normal history cancellation', async () => {
     const router = createMemoryRouter([
       { path: '/origin', element: createElement('div', null, 'origin') },

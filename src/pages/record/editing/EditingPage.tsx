@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import type { RecordEntry } from '@/entities/record';
+import type { RecordEditorLocationState } from '@/features/record-editor';
 import { Toast } from 'antd-mobile';
 import { CircleAlert } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -108,9 +109,18 @@ const Editing: FC = () => {
   };
 
   const handleEdit = () => {
+    const recordEditorState: RecordEditorLocationState = {
+      recordEditor: {
+        initialRecord: state,
+        returnContext: { kind: 'personal-detail', recordId: state.id },
+      },
+    };
     navigate('/bookkeeping', {
       replace: true,
-      state: { ...state, ...personalRecordDetailNavigation },
+      state: {
+        ...recordEditorState,
+        ...personalRecordDetailNavigation,
+      },
     });
   };
 

@@ -258,6 +258,10 @@ describe('record editing page', () => {
       replace: true,
       state: expect.objectContaining({
         personalRecordDetail: { returnTo: 'personal-home' },
+        recordEditor: {
+          initialRecord: queryResult.data,
+          returnContext: { kind: 'personal-detail', recordId: 7 },
+        },
       }),
     });
   });

@@ -41,7 +41,7 @@ export function useRecordSearchController({
   }, [legacyKey, searchParams, setSearchParams]);
 
   const commitFilters = useCallback((filters: RecordSearchFilters) => {
-    setSearchParams(createRecordSearchParams(searchParams, filters));
+    setSearchParams(createRecordSearchParams(searchParams, filters), { replace: true });
   }, [searchParams, setSearchParams]);
 
   return {

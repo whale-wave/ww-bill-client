@@ -28,8 +28,10 @@ export function useRecordEditorController({
   isEditing = false,
   onUploadImage,
 }: RecordEditorControllerOptions) {
-  const calculator = useCalculator(seed.calculator);
-  const { setNum: setCalculatorNum, setTotals: setCalculatorTotals } = calculator;
+  const calculator = useCalculator({
+    initialAmount: seed.amount,
+    initialState: seed.calculator,
+  });
   const [recordType, setRecordType] = useState<CategoryAmountType>(seed.recordType);
   const [selectedCategory, setSelectedCategory] = useState(seed.category);
   const [remark, setRemark] = useState(seed.remark ?? '');
@@ -55,13 +57,6 @@ export function useRecordEditorController({
   const submittingRef = useRef(false);
   const imageSelectionRef = useRef(0);
   const hasAppliedInitialCategoryRef = useRef(Boolean(seed.category));
-
-  useEffect(() => {
-    if (seed.calculator || !seed.amount)
-      return;
-    setCalculatorNum(seed.amount);
-    setCalculatorTotals(seed.amount);
-  }, [seed.amount, seed.calculator, setCalculatorNum, setCalculatorTotals]);
 
   useEffect(() => {
     const handleContextMenu = (event: Event) => event.preventDefault();

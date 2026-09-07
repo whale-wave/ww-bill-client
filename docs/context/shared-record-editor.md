@@ -23,7 +23,9 @@ The default, custom-ledger, and household-originated record flows use one
 - Household calendars still read the legacy `month=YYYY-MM-01` parameter and
   replace it with `selectTime` on the next date change.
 - Personal editing still accepts the legacy raw `RecordEntry` router state.
-  New household navigation uses `RecordEditorLocationState`.
+  New personal-detail and household navigation use `RecordEditorLocationState`.
+- Existing records seed the calculator synchronously so the first rendered
+  amount is the persisted amount rather than a temporary zero placeholder.
 - Return targets are a closed `RecordEditorReturnContext` union. Do not replace
   it with an arbitrary return URL.
 
