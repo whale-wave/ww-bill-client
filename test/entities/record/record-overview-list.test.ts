@@ -1,7 +1,7 @@
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it } from 'vitest';
-import { RecordOverviewList } from '@/entities/record';
+import { RecordOverviewList, toRecordSearchGroups } from '@/entities/record';
 
 let cleanup: (() => void) | undefined;
 
@@ -35,6 +35,48 @@ function render(variant?: 'overview' | 'search') {
 }
 
 describe('record overview list', () => {
+  it('maps calendar metadata for both search and overview list styles', () => {
+    const [group] = toRecordSearchGroups([{
+      amount: '20.00',
+      attachments: [{
+        byteSize: 100,
+        contentHash: 'hash',
+        createdAt: '2026-07-21T12:00:00.000Z',
+        height: 100,
+        id: 'attachment-1',
+        mimeType: 'image/webp',
+        sortOrder: 0,
+        type: 'IMAGE',
+        width: 100,
+      }],
+      category: {
+        createdAt: '2026-07-01T00:00:00.000Z',
+        icon: 'food',
+        id: 1,
+        name: '餐饮',
+        updatedAt: '2026-07-01T00:00:00.000Z',
+      },
+      createdAt: '2026-07-21T12:00:00.000Z',
+      id: 7,
+      remark: 'Dinner',
+      tags: [{ id: 'tag-1', name: '聚餐' }],
+      time: '2026-07-21T12:00:00.000Z',
+      type: 'sub',
+      updatedAt: '2026-07-21T12:00:00.000Z',
+      version: 1,
+    }], {
+      expenseLabel: 'Expense',
+      incomeLabel: 'Income',
+      showCategoryAsSecondary: true,
+    });
+
+    expect(group?.records[0]).toMatchObject({
+      hasAttachment: true,
+      overviewSecondary: '餐饮 · #聚餐',
+      secondary: '餐饮 · #聚餐',
+    });
+  });
+
   it('uses the original record search geometry by default', () => {
     const container = render();
     const list = container.querySelector('[data-testid="record-overview-list"]');

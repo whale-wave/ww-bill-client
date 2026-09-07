@@ -246,9 +246,15 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
                     </span>
                   )}
                 </div>
-                <div className="mx-[18px] min-h-[220px] flex-grow shrink-0 overflow-hidden rounded-[22px] border border-solid border-white/75 bg-white/58 pb-3 shadow-ww-xs backdrop-blur-md">
+                <div
+                  className={cn(
+                    'mx-[18px] min-h-[220px] flex-grow shrink-0',
+                    groups.length === 0 && 'overflow-hidden rounded-[22px] border border-solid border-white/75 bg-white/58 pb-3 shadow-ww-xs backdrop-blur-md',
+                  )}
+                  data-record-calendar-list
+                >
                   {groups.length > 0
-                    ? <RecordOverviewList groups={groups} renderCategoryIcon={renderCategoryIcon} variant="search" />
+                    ? <RecordOverviewList groups={groups} renderCategoryIcon={renderCategoryIcon} variant="overview" />
                     : (
                         <IllustratedEmptyState
                           className="min-h-[210px] py-5 [&>div]:mb-3 [&>div]:scale-75"

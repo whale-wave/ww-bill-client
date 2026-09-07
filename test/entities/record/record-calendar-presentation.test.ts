@@ -41,7 +41,12 @@ describe('record calendar presentation', () => {
     expect(page?.className).toContain('[&_.adm-calendar-picker-view-cell]:min-h-0');
     expect(container.querySelector('[data-record-calendar-scroll]')?.className).toContain('overflow-y-auto');
     expect(container.querySelector('[data-date="2026-07-30"]')).not.toBeNull();
-    expect(container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
+    const list = container.querySelector('[data-testid="record-overview-list"]');
+    const listContainer = container.querySelector('[data-record-calendar-list]');
+    const recordCard = container.querySelector('[data-record-id="1"]')?.parentElement;
+    expect(list?.getAttribute('data-record-list-variant')).toBe('overview');
+    expect(listContainer?.classList).not.toContain('bg-white/58');
+    expect(recordCard?.classList).toContain('rounded-[20px]');
     expect(container.querySelector('[data-record-calendar-create]')).not.toBeNull();
     expect(container.querySelector('[data-record-calendar-today]')).not.toBeNull();
   });
@@ -68,5 +73,6 @@ describe('record calendar presentation', () => {
 
     expect(container.querySelector('[data-record-calendar-today]')).toBeNull();
     expect(container.querySelector('[data-record-calendar-today-placeholder]')).not.toBeNull();
+    expect(container.querySelector('[data-record-calendar-list]')?.classList).toContain('bg-white/58');
   });
 });

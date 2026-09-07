@@ -55,25 +55,30 @@ export function toRecordSearchGroups(
       dateLabel: dayjs(dateKey).format('YYYY年MM月DD日'),
       dateTime: dateKey,
       key: dateKey,
-      records: groupedRecords.map(record => ({
-        ...getRecordListIndicators(record),
-        amount: `${record.type === 'sub' ? '-' : ''}${record.amount}`,
-        amountTone: record.type === 'add' ? 'income' : 'expense',
-        categoryName: record.category.name,
-        iconName: record.category.icon,
-        memberColorKey: record.creator?.colorKey,
-        id: record.id,
-        onClick: options.onRecordClick
-          ? () => options.onRecordClick?.(record)
-          : undefined,
-        primary: record.remark || record.category.name,
-        secondary: [
+      records: groupedRecords.map((record) => {
+        const indicators = getRecordListIndicators(record);
+        const secondary = [
           options.showCategoryAsSecondary
             ? `${record.category.name}${record.creator ? ` · @${record.creator.nickname || record.creator.name || record.creator.username || '成员'}` : ''}`
             : undefined,
-          getRecordListIndicators(record).tagSummary,
-        ].filter(Boolean).join(' · ') || undefined,
-      })),
+          indicators.tagSummary,
+        ].filter(Boolean).join(' · ') || undefined;
+        return {
+          amount: `${record.type === 'sub' ? '-' : ''}${record.amount}`,
+          amountTone: record.type === 'add' ? 'income' : 'expense',
+          categoryName: record.category.name,
+          hasAttachment: indicators.hasAttachment,
+          iconName: record.category.icon,
+          memberColorKey: record.creator?.colorKey,
+          id: record.id,
+          onClick: options.onRecordClick
+            ? () => options.onRecordClick?.(record)
+            : undefined,
+          overviewSecondary: secondary,
+          primary: record.remark || record.category.name,
+          secondary,
+        };
+      }),
       summaries: [
         ...(income
           ? [{ key: 'income', label: options.incomeLabel, value: income }]
