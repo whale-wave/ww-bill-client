@@ -281,7 +281,7 @@ describe('record editor presentation', () => {
     expect(onCancel).toHaveBeenCalledOnce();
   });
 
-  it('shows current-category history only while the note is focused and fills a selected note', () => {
+  it('shows all current-category history for empty input and filters it by entered content', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
     act(() => root.render(createElement(TestEditor, { remarkHistory: ['便利店', '午餐'] })));
@@ -293,6 +293,21 @@ describe('record editor presentation', () => {
 
     act(() => input.dispatchEvent(new FocusEvent('focusin', { bubbles: true })));
     expect(container.querySelector('[data-record-editor-remark-history]')?.textContent).toContain('便利店');
+    expect(container.querySelector('[data-record-editor-remark-history]')?.textContent).toContain('午餐');
+
+    const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    act(() => {
+      setValue?.call(input, '便利');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    expect(container.querySelector('[data-record-editor-remark-history]')?.textContent).toContain('便利店');
+    expect(container.querySelector('[data-record-editor-remark-history]')?.textContent).not.toContain('午餐');
+
+    act(() => {
+      setValue?.call(input, '午');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-remark-history-item="午餐"]')?.click());
     expect(input.value).toBe('午餐');

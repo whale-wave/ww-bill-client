@@ -6,7 +6,7 @@ import type { CategoryEntity } from '@/entities/category';
 import { Button, DatePicker, ErrorBlock, Popup, SpinLoading } from 'antd-mobile';
 import { Delete as BackspaceIcon, Banknote, Check, CheckCircle2, ChevronDown, ImagePlus, Settings2, Tags, Trash2, X } from 'lucide-react';
 import { m } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { getAssetAccountTypeLabel } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
@@ -84,6 +84,12 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const { isMotionEnabled } = useMotionPreference();
   const attachmentId = controller.initialAttachment?.id;
   const linkedAsset = assetAccounts?.find(asset => asset.id === controller.linkedAssetId);
+  const filteredRemarkHistory = useMemo(() => {
+    const keyword = controller.remark.trim().toLocaleLowerCase();
+    if (!keyword)
+      return remarkHistory;
+    return remarkHistory.filter(remark => remark.toLocaleLowerCase().includes(keyword));
+  }, [controller.remark, remarkHistory]);
 
   useEffect(() => {
     if (!shouldReconcileTags || tags === undefined || hasReconciledTagsRef.current)
@@ -432,7 +438,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   <ImagePlus size={18} />
                 </button>
               </label>
-              {controller.isNoteFocused && remarkHistory.length > 0 && (
+              {controller.isNoteFocused && filteredRemarkHistory.length > 0 && (
                 <section
                   aria-label={t('record:bookkeeping.remarkHistory')}
                   className="mx-[22px] mt-2 max-h-48 shrink-0 overflow-y-auto rounded-[14px] border border-border-primary bg-white/[0.96] p-2 shadow-ww-xs"
@@ -442,7 +448,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     {t('record:bookkeeping.remarkHistory')}
                   </h2>
                   <div className="flex flex-col gap-1">
-                    {remarkHistory.map(remark => (
+                    {filteredRemarkHistory.map(remark => (
                       <button
                         aria-label={t('record:bookkeeping.selectRemarkHistory', { remark })}
                         className="min-h-11 truncate rounded-[10px] px-2 text-left text-[14px] leading-5 text-ww-ink active:bg-primary-light"
