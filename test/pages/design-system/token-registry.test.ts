@@ -27,6 +27,11 @@ describe('design studio token registry', () => {
 
   it('registers visual tokens and synchronizes compatible RGB semantic variables', () => {
     expect(STUDIO_TOKENS.length).toBeGreaterThanOrEqual(40);
+    expect(STUDIO_TOKENS.map(token => token.name)).toEqual(expect.arrayContaining([
+      '--ww-component-sheet-padding-x',
+      '--ww-component-sheet-section-gap',
+      '--ww-component-sheet-control-height',
+    ]));
     expect(colorToChannels('#3f9fbe')).toBe('63 159 190');
     expect(channelsToColor('63 159 190')).toBe('#3f9fbe');
     expect(getDependentOverrides('--ww-theme-color', '#3f9fbe')).toEqual({ '--ww-color-action-primary': '63 159 190' });

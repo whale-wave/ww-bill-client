@@ -123,6 +123,7 @@ describe('asset transfer popup', () => {
 
     act(() => targetOption?.click());
     expect(targetTrigger?.textContent).toContain('中信银行');
+    expect(targetTrigger?.textContent).toContain('储蓄卡');
     expect(targetTrigger?.getAttribute('aria-expanded')).toBe('false');
 
     const amountInput = container.querySelector<HTMLInputElement>('#asset-transfer-amount');

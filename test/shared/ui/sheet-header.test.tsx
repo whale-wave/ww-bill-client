@@ -36,7 +36,8 @@ describe('sheetHeader', () => {
 
     expect(container.querySelector('h2')?.textContent).toBe('Basic settings');
     expect(container.textContent).toContain('Edit the ledger appearance');
-    expect(container.querySelector('[data-testid="sheet-header-icon"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="sheet-header-icon"]')?.parentElement?.classList).toContain('ww-sheet-header__icon');
+    expect(container.querySelector('button')?.classList).toContain('ww-sheet-header__close');
     expect(container.querySelector('button')?.getAttribute('aria-label')).toBe('Close settings');
   });
 

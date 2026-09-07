@@ -4,6 +4,37 @@
   -webkit-backdrop-filter: var(--ww-material-overlay-blur);
 }
 
+.ww-sheet-header {
+  border-bottom: 1px solid var(--ww-component-sheet-header-border);
+  background: var(--ww-component-sheet-header-background);
+  backdrop-filter: var(--ww-component-sheet-header-blur);
+  -webkit-backdrop-filter: var(--ww-component-sheet-header-blur);
+}
+
+.ww-sheet-header__icon,
+.ww-sheet-header__close {
+  border-radius: var(--ww-radius-control);
+  background: var(--ww-component-sheet-icon-background);
+}
+
+.ww-sheet-header__close {
+  transition:
+    color 150ms ease-out,
+    background-color 150ms ease-out,
+    transform 150ms ease-out;
+
+  &:active {
+    color: var(--ww-theme-color-deep);
+    background: var(--ww-component-sheet-selected-background);
+    transform: scale(0.96);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--ww-component-sheet-focus-ring);
+    outline-offset: 1px;
+  }
+}
+
 .adm-center-popup:has(.ww-app-dialog) {
   --adm-center-popup-max-width: none;
   --adm-center-popup-min-width: 0;
@@ -180,7 +211,7 @@
 .ww-app-bottom-sheet.adm-popup-body {
   overflow: hidden;
   border: 1px solid var(--ww-material-overlay-border);
-  border-radius: 28px 28px 0 0;
+  border-radius: calc(var(--ww-radius-panel) + 4px) calc(var(--ww-radius-panel) + 4px) 0 0;
   background: var(--ww-material-overlay-background);
   box-shadow: var(--ww-material-overlay-shadow);
   backdrop-filter: var(--ww-material-floating-blur);
@@ -247,6 +278,12 @@
     border-radius: 17px;
     font-size: 14px;
     font-weight: 900;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ww-sheet-header__close {
+    transition: none;
   }
 }
 

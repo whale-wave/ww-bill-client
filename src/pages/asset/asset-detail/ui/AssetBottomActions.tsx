@@ -71,9 +71,11 @@ export const AssetBottomActions: FC<{ asset: Asset }> = ({ asset }) => {
           {t('deleteAsset')}
         </button>
       </footer>
-      {isTransferVisible && (
-        <AssetTransferPopup asset={asset} onClose={() => setIsTransferVisible(false)} visible />
-      )}
+      <AssetTransferPopup
+        asset={asset}
+        onClose={() => setIsTransferVisible(false)}
+        visible={isTransferVisible}
+      />
     </>
   );
 };

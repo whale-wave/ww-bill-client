@@ -32,6 +32,25 @@
   --ww-component-dock-active: rgb(255 255 255 / 0.52);
   --ww-component-dock-create-icon-foreground: var(--ww-primary-foreground);
   --ww-component-overview-icon-foreground: var(--ww-theme-text-color);
+  /* Form sheets share one density and material recipe. Appearance templates
+   * only select token values; product sheets keep the same interaction shape. */
+  --ww-component-sheet-padding-x: 18px;
+  --ww-component-sheet-section-gap: 14px;
+  --ww-component-sheet-control-height: 54px;
+  --ww-component-sheet-header-background: rgb(255 255 255 / 0.56);
+  --ww-component-sheet-header-border: rgb(255 255 255 / 0.64);
+  --ww-component-sheet-header-blur: blur(18px) saturate(1.12);
+  --ww-component-sheet-icon-background: rgb(255 255 255 / 0.58);
+  --ww-component-sheet-control-background: rgb(255 255 255 / 0.7);
+  --ww-component-sheet-control-border: rgb(255 255 255 / 0.72);
+  --ww-component-sheet-control-shadow: 0 2px 8px rgb(20 20 24 / 0.06);
+  --ww-component-sheet-subtle-background: color-mix(in srgb, var(--ww-theme-color-light) 34%, transparent);
+  --ww-component-sheet-selected-background: color-mix(in srgb, var(--ww-theme-color-light) 44%, transparent);
+  --ww-component-sheet-divider: color-mix(in srgb, var(--ww-border-color) 72%, transparent);
+  --ww-component-sheet-focus-ring: color-mix(in srgb, var(--ww-theme-color) 18%, transparent);
+  --ww-component-sheet-placeholder: color-mix(in srgb, var(--ww-text-color-mid) 88%, var(--ww-theme-text-color));
+  --ww-component-sheet-action-background: var(--ww-action-primary-background);
+  --ww-component-sheet-action-shadow: var(--ww-action-primary-shadow);
   /* Compact summary composition shared by personal, household and custom ledgers. */
   --ww-component-summary-padding-x: 18px;
   --ww-component-summary-padding-y: 12px;
@@ -92,6 +111,35 @@ html[data-appearance-template='minimal'] {
   --ww-component-dock-active: var(--ww-theme-color-light);
   --ww-component-chart-switch-background: var(--ww-surface-raised-color);
   --ww-component-chart-switch-active: var(--ww-theme-color-light);
+  --ww-component-sheet-header-blur: none;
+}
+
+html[data-appearance-template='fresh'] {
+  --ww-component-sheet-header-background: rgb(255 255 255 / 0.94);
+  --ww-component-sheet-header-border: var(--ww-border-color);
+  --ww-component-sheet-icon-background: var(--ww-control-icon-background);
+  --ww-component-sheet-control-background: var(--ww-surface-raised-color);
+  --ww-component-sheet-control-border: var(--ww-border-color);
+  --ww-component-sheet-control-shadow: var(--ww-card-shadow-xs);
+  --ww-component-sheet-subtle-background: var(--ww-group-header-background);
+  --ww-component-sheet-selected-background: color-mix(in srgb, var(--ww-theme-color-light) 56%, white);
+  --ww-component-sheet-divider: var(--ww-divider-color);
+  --ww-component-sheet-action-background: var(--ww-action-primary-background);
+  --ww-component-sheet-action-shadow: var(--ww-card-shadow);
+}
+
+html[data-appearance-template='minimal'] {
+  --ww-component-sheet-header-background: var(--ww-surface-raised-color);
+  --ww-component-sheet-header-border: var(--ww-border-color);
+  --ww-component-sheet-icon-background: var(--ww-surface-tint-color);
+  --ww-component-sheet-control-background: var(--ww-surface-raised-color);
+  --ww-component-sheet-control-border: var(--ww-border-color);
+  --ww-component-sheet-control-shadow: none;
+  --ww-component-sheet-subtle-background: var(--ww-surface-tint-color);
+  --ww-component-sheet-selected-background: color-mix(in srgb, var(--ww-theme-color-light) 58%, white);
+  --ww-component-sheet-divider: var(--ww-divider-color);
+  --ww-component-sheet-action-background: var(--ww-theme-color);
+  --ww-component-sheet-action-shadow: none;
 }
 
 .ww-surface {

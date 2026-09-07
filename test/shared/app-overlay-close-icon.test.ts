@@ -30,6 +30,7 @@ describe('appBottomSheet close icon', () => {
   it('keeps the default close icon', () => {
     renderSheet();
     expect(document.body.querySelector('.ww-app-bottom-sheet')).not.toBeNull();
+    expect(document.body.querySelector('.ww-app-overlay-mask')).not.toBeNull();
     expect(document.body.querySelector('.adm-popup-close-icon')).not.toBeNull();
   });
 });
