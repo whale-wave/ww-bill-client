@@ -1,11 +1,13 @@
 import type { UserInfo } from '@/entities/user';
-import type { SuccessResponse } from '@/shared/api';
-import { request } from '@/shared/api';
+import type { AuthRequestAuth, SuccessResponse } from '@/shared/api';
+import { captureRequestAuth, request } from '@/shared/api';
 
 interface LoginRes {
   token: string;
   userInfo: UserInfo;
 }
+
+let presenceRequestQueue: Promise<void> = Promise.resolve();
 
 export function login(body:
   | { username: string; password: string }
@@ -15,10 +17,18 @@ export function login(body:
   });
 }
 
-export function reportPresence() {
-  return request.post<never, SuccessResponse<unknown>>('/auth/presence', undefined, {
-    silent: true,
-  });
+export function reportPresence(
+  state: 'offline' | 'online' = 'online',
+  authContext: AuthRequestAuth = captureRequestAuth(),
+) {
+  const presenceRequest = presenceRequestQueue.then(() => (
+    request.post<never, SuccessResponse<unknown>>('/auth/presence', { state }, {
+      authContext,
+      silent: true,
+    })
+  ));
+  presenceRequestQueue = presenceRequest.then(() => undefined, () => undefined);
+  return presenceRequest;
 }
 
 export function sign(body: {

@@ -18,9 +18,9 @@ const request = axios.create({
 });
 
 request.interceptors.request.use((config) => {
-  const auth = captureRequestAuth();
+  const auth = config.authContext ?? captureRequestAuth();
   const token = auth.token;
-  (config as typeof config & { authIdentity?: typeof auth.identity }).authIdentity = auth.identity;
+  config.authIdentity = auth.identity;
   if (token) {
     (
       config.headers as { Authorization: string }
@@ -68,7 +68,7 @@ request.interceptors.response.use(
     }
 
     const responseData = normalizeErrorResponse(response);
-    const identity = (config as typeof config & { authIdentity?: { sessionEpoch: number; credentialRevision: number } })?.authIdentity;
+    const identity = config?.authIdentity;
     const current = !identity || isTransitionCurrent(identity);
     baseResponseProcess(responseData.statusCode, identity);
     if (config?.loading && ((responseData.statusCode !== 401 && responseData.statusCode !== 402) || current))

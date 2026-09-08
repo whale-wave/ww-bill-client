@@ -3,6 +3,7 @@ import { Toast } from 'antd-mobile';
 import { Camera, ChevronRight, Hash, LockKeyhole, LogOut, Mail, UserRound } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { reportPresence } from '@/entities/auth';
 import { useGetUserUserInfoQuery, usePutUserUserInfoMutation } from '@/entities/user';
 import { useAuthStore } from '@/features/auth';
 import { uploadFile } from '@/shared/api';
@@ -39,6 +40,7 @@ const UserInfo: FC = () => {
     });
     if (!confirmed)
       return;
+    await reportPresence('offline').catch(() => undefined);
     logOut();
     navigate('/login');
   };
