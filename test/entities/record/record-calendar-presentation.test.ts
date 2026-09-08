@@ -103,24 +103,27 @@ describe('record calendar presentation', () => {
     const root = createRoot(container);
     const onDateChange = vi.fn();
     const onMonthChange = vi.fn();
-    act(() => root.render(createElement(RecordCalendarPresentation, {
+    const render = (month: dayjs.Dayjs) => createElement(RecordCalendarPresentation, {
       backLabel: 'Back',
       days: [],
       emptyLabel: 'Empty',
       groups: [],
-      month: dayjs('2026-07-01'),
+      month,
       onBack: vi.fn(),
       onDateChange,
       onMonthChange,
       onToday: vi.fn(),
-      selectedDate: dayjs('2026-07-01'),
+      selectedDate: month,
       state: 'ready',
       todayLabel: 'Today',
-    })));
+    });
+    act(() => root.render(render(dayjs('2026-07-01'))));
     cleanup = () => act(() => root.unmount());
 
-    const calendar = container.querySelector('[data-record-calendar-swipe]');
+    let calendar = container.querySelector('[data-record-calendar-swipe]');
     expect(calendar?.className).toContain('touch-pan-y');
+    expect(container.querySelector('[data-record-calendar-month="2026-07"]')).not.toBeNull();
+    expect(container.querySelector('[data-record-calendar-month-details="2026-07"]')).not.toBeNull();
 
     act(() => {
       dispatchPointer(calendar!, 'pointerdown', 260, 100);
@@ -134,11 +137,18 @@ describe('record calendar presentation', () => {
     act(() => date?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })));
     expect(onDateChange).toHaveBeenCalledOnce();
 
+    act(() => root.render(render(dayjs('2026-08-01'))));
+    const animatedMonth = container.querySelector('[data-record-calendar-month="2026-08"]');
+    expect(animatedMonth?.getAttribute('data-month-transition-direction')).toBe('forward');
+    calendar = container.querySelector('[data-record-calendar-swipe]');
     act(() => {
       dispatchPointer(calendar!, 'pointerdown', 120, 100);
       dispatchPointer(calendar!, 'pointerup', 230, 92);
     });
-    expect(onMonthChange.mock.calls[1]?.[0].format('YYYY-MM')).toBe('2026-06');
+    expect(onMonthChange.mock.calls[1]?.[0].format('YYYY-MM')).toBe('2026-07');
+    act(() => root.render(render(dayjs('2026-07-01'))));
+    expect(container.querySelector('[data-record-calendar-month="2026-07"]')
+      ?.getAttribute('data-month-transition-direction')).toBe('backward');
   });
 
   it('ignores vertical, short and future-month swipes', () => {
