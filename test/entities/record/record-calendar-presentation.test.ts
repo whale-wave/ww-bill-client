@@ -12,6 +12,20 @@ afterEach(() => {
 });
 
 describe('record calendar presentation', () => {
+  function dispatchPointer(
+    element: Element,
+    type: 'pointerdown' | 'pointerup',
+    clientX: number,
+    clientY: number,
+  ) {
+    element.dispatchEvent(new MouseEvent(type, {
+      bubbles: true,
+      button: 0,
+      clientX,
+      clientY,
+    }));
+  }
+
   it('owns the default calendar, selected-day list and Tailwind descendant styles', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
@@ -82,5 +96,87 @@ describe('record calendar presentation', () => {
     expect(container.querySelector('[data-record-calendar-today]')).toBeNull();
     expect(container.querySelector('[data-record-calendar-today-placeholder]')).not.toBeNull();
     expect(container.querySelector('[data-record-calendar-list]')?.classList).toContain('bg-white/58');
+  });
+
+  it('switches months with intentional horizontal swipes on the calendar', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    const onDateChange = vi.fn();
+    const onMonthChange = vi.fn();
+    act(() => root.render(createElement(RecordCalendarPresentation, {
+      backLabel: 'Back',
+      days: [],
+      emptyLabel: 'Empty',
+      groups: [],
+      month: dayjs('2026-07-01'),
+      onBack: vi.fn(),
+      onDateChange,
+      onMonthChange,
+      onToday: vi.fn(),
+      selectedDate: dayjs('2026-07-01'),
+      state: 'ready',
+      todayLabel: 'Today',
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    const calendar = container.querySelector('[data-record-calendar-swipe]');
+    expect(calendar?.className).toContain('touch-pan-y');
+
+    act(() => {
+      dispatchPointer(calendar!, 'pointerdown', 260, 100);
+      dispatchPointer(calendar!, 'pointerup', 150, 108);
+    });
+    expect(onMonthChange.mock.calls[0]?.[0].format('YYYY-MM')).toBe('2026-08');
+
+    const date = container.querySelector('[data-date="2026-07-02"]');
+    act(() => date?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })));
+    expect(onDateChange).not.toHaveBeenCalled();
+    act(() => date?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })));
+    expect(onDateChange).toHaveBeenCalledOnce();
+
+    act(() => {
+      dispatchPointer(calendar!, 'pointerdown', 120, 100);
+      dispatchPointer(calendar!, 'pointerup', 230, 92);
+    });
+    expect(onMonthChange.mock.calls[1]?.[0].format('YYYY-MM')).toBe('2026-06');
+  });
+
+  it('ignores vertical, short and future-month swipes', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    const onMonthChange = vi.fn();
+    const render = (month: dayjs.Dayjs) => createElement(RecordCalendarPresentation, {
+      backLabel: 'Back',
+      days: [],
+      emptyLabel: 'Empty',
+      groups: [],
+      month,
+      onBack: vi.fn(),
+      onDateChange: vi.fn(),
+      onMonthChange,
+      onToday: vi.fn(),
+      selectedDate: month,
+      state: 'ready' as const,
+      todayLabel: 'Today',
+    });
+    act(() => root.render(render(dayjs('2026-07-01'))));
+    cleanup = () => act(() => root.unmount());
+
+    let calendar = container.querySelector('[data-record-calendar-swipe]');
+    act(() => {
+      dispatchPointer(calendar!, 'pointerdown', 200, 80);
+      dispatchPointer(calendar!, 'pointerup', 140, 190);
+      dispatchPointer(calendar!, 'pointerdown', 200, 80);
+      dispatchPointer(calendar!, 'pointerup', 165, 82);
+    });
+    expect(onMonthChange).not.toHaveBeenCalled();
+
+    act(() => root.render(render(dayjs().startOf('month'))));
+    calendar = container.querySelector('[data-record-calendar-swipe]');
+    act(() => {
+      dispatchPointer(calendar!, 'pointerdown', 260, 100);
+      dispatchPointer(calendar!, 'pointerup', 150, 100);
+    });
+    expect(onMonthChange).not.toHaveBeenCalled();
   });
 });

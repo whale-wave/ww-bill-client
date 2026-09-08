@@ -1,5 +1,5 @@
 import type { Dayjs } from 'dayjs';
-import type { FC, ReactNode } from 'react';
+import type { FC, ReactNode, PointerEvent as ReactPointerEvent } from 'react';
 import type { RecordOverviewListGroup, RecordOverviewListItem } from './RecordOverviewList';
 import {
   Button,
@@ -9,6 +9,7 @@ import {
 } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { ArrowLeft, CalendarDays, Plus } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { cn } from '@/shared/lib';
 import { IllustratedEmptyState } from '@/shared/ui';
 import { RecordMonthPicker } from './RecordMonthPicker';
@@ -21,6 +22,10 @@ export interface RecordCalendarDay {
 }
 
 export type RecordCalendarState = 'error' | 'loading' | 'ready';
+
+const CALENDAR_SWIPE_MIN_DISTANCE = 48;
+const CALENDAR_SWIPE_DIRECTION_RATIO = 1.25;
+const CALENDAR_SWIPE_CLICK_GUARD_MS = 250;
 
 interface RecordCalendarPresentationProps {
   backLabel: string;
@@ -109,6 +114,13 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
   state,
   todayLabel,
 }) => {
+  const swipeOriginRef = useRef<{ pointerId: number; x: number; y: number }>();
+  const shouldSuppressClickRef = useRef(false);
+  const clickGuardTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => {
+    if (clickGuardTimerRef.current)
+      clearTimeout(clickGuardTimerRef.current);
+  }, []);
   const dayMap = new Map(days.map(day => [day.date, day]));
   const calendarRange = {
     max: month.endOf('month').toDate(),
@@ -116,6 +128,77 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
   };
   const isTodaySelected = selectedDate.isSame(dayjs(), 'day');
   const recordCount = groups.reduce((total, group) => total + group.records.length, 0);
+
+  const clearClickGuard = () => {
+    if (clickGuardTimerRef.current)
+      clearTimeout(clickGuardTimerRef.current);
+    clickGuardTimerRef.current = undefined;
+  };
+
+  const releasePointerCapture = (event: ReactPointerEvent<HTMLElement>) => {
+    if (
+      event.currentTarget.hasPointerCapture
+      && event.currentTarget.hasPointerCapture(event.pointerId)
+    ) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
+
+  const handleSwipeStart = (event: ReactPointerEvent<HTMLElement>) => {
+    if (!onMonthChange || event.button !== 0 || event.isPrimary === false)
+      return;
+    swipeOriginRef.current = {
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+    };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+
+  const handleSwipeCancel = (event: ReactPointerEvent<HTMLElement>) => {
+    swipeOriginRef.current = undefined;
+    releasePointerCapture(event);
+  };
+
+  const handleSwipeEnd = (event: ReactPointerEvent<HTMLElement>) => {
+    const origin = swipeOriginRef.current;
+    swipeOriginRef.current = undefined;
+    releasePointerCapture(event);
+    if (!origin || origin.pointerId !== event.pointerId || !onMonthChange)
+      return;
+
+    const horizontalDistance = event.clientX - origin.x;
+    const verticalDistance = event.clientY - origin.y;
+    if (
+      Math.abs(horizontalDistance) < CALENDAR_SWIPE_MIN_DISTANCE
+      || Math.abs(horizontalDistance) < Math.abs(verticalDistance) * CALENDAR_SWIPE_DIRECTION_RATIO
+    ) {
+      return;
+    }
+
+    const nextMonth = month
+      .add(horizontalDistance < 0 ? 1 : -1, 'month')
+      .startOf('month');
+    if (nextMonth.isAfter(dayjs(), 'month'))
+      return;
+
+    shouldSuppressClickRef.current = true;
+    clearClickGuard();
+    clickGuardTimerRef.current = setTimeout(() => {
+      shouldSuppressClickRef.current = false;
+      clickGuardTimerRef.current = undefined;
+    }, CALENDAR_SWIPE_CLICK_GUARD_MS);
+    onMonthChange(nextMonth);
+  };
+
+  const handleCalendarClickCapture = (event: React.MouseEvent<HTMLElement>) => {
+    if (!shouldSuppressClickRef.current)
+      return;
+    shouldSuppressClickRef.current = false;
+    clearClickGuard();
+    event.preventDefault();
+    event.stopPropagation();
+  };
 
   return (
     <div
@@ -183,7 +266,14 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
                 className="flex min-h-0 flex-grow flex-col overflow-y-auto overscroll-y-contain pb-[max(84px,env(safe-area-inset-bottom))]"
                 data-record-calendar-scroll
               >
-                <section className="mx-[18px] shrink-0 rounded-[24px] border border-solid border-white/80 bg-white/70 px-2 pb-2 pt-1 shadow-ww backdrop-blur-md">
+                <section
+                  className="mx-[18px] shrink-0 touch-pan-y rounded-[24px] border border-solid border-white/80 bg-white/70 px-2 pb-2 pt-1 shadow-ww backdrop-blur-md"
+                  data-record-calendar-swipe
+                  onClickCapture={handleCalendarClickCapture}
+                  onPointerCancel={handleSwipeCancel}
+                  onPointerDown={handleSwipeStart}
+                  onPointerUp={handleSwipeEnd}
+                >
                   <CalendarPickerView
                     {...calendarRange}
                     allowClear={false}
