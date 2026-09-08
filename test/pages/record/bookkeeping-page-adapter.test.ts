@@ -15,6 +15,7 @@ const hooks = vi.hoisted(() => ({
   ledgerCapabilities: [] as string[],
   postRecord: vi.fn(),
   putRecord: vi.fn(),
+  uploadImage: vi.fn(),
   useGetAssetGroupQuery: vi.fn(),
   useGetAssetQuery: vi.fn(),
   useGetCategoryQuery: vi.fn(),
@@ -36,6 +37,7 @@ vi.mock('@/entities/record', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/record')>()),
   usePostRecordMutation: () => [hooks.postRecord, { isLoading: false }],
   usePutRecordMutation: () => [hooks.putRecord, { isLoading: false }],
+  useUploadTemporaryRecordAttachmentMutation: () => [hooks.uploadImage, { isLoading: false }],
 }));
 
 vi.mock('@/entities/ledger', async importOriginal => ({
@@ -90,6 +92,7 @@ function renderRouter(router: ReturnType<typeof createMemoryRouter>) {
 beforeEach(() => {
   hooks.postRecord.mockReset();
   hooks.putRecord.mockReset();
+  hooks.uploadImage.mockReset();
   hooks.confirmShortcutDraft.mockReset();
   hooks.discardShortcutDraft.mockReset();
   hooks.useGetCategoryQuery.mockReset();
@@ -100,6 +103,7 @@ beforeEach(() => {
   hooks.postRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
   hooks.putRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
   hooks.confirmShortcutDraft.mockResolvedValue({ ledgerId: 'default-ledger', recordId: 11 });
+  hooks.uploadImage.mockResolvedValue({ data: { assetId: '00000000-0000-4000-8000-000000000501' } });
   hooks.useGetAssetQuery.mockReturnValue({ data: [] });
   hooks.useGetAssetGroupQuery.mockReturnValue({ data: [] });
   hooks.useGetCategoryQuery.mockReturnValue({
@@ -154,6 +158,9 @@ describe('personal record editor adapter', () => {
 
   it('opens the original editor with shortcut candidates and confirms through the draft endpoint', async () => {
     const tagId = '00000000-0000-4000-8000-000000000001';
+    const imageAssetId = '00000000-0000-4000-8000-000000000501';
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:shortcut-image') });
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
     hooks.ledgerCapabilities = ['tag:read'];
     hooks.useGetCategoryQuery.mockReturnValue({
       data: [{
@@ -212,6 +219,14 @@ describe('personal record editor adapter', () => {
     expect(container.querySelector('[data-record-editor-category-trigger]')?.textContent).toBe('交通');
     expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('18.60');
 
+    const imageInput = container.querySelector<HTMLInputElement>('input[type="file"]')!;
+    const image = new File(['receipt'], 'receipt.webp', { type: 'image/webp' });
+    Object.defineProperty(imageInput, 'files', { configurable: true, value: [image] });
+    await act(async () => {
+      imageInput.dispatchEvent(new Event('change', { bubbles: true }));
+      await Promise.resolve();
+    });
+
     await act(async () => {
       container.querySelector<HTMLButtonElement>('[data-record-editor-tag-trigger]')?.click();
       await Promise.resolve();
@@ -231,6 +246,7 @@ describe('personal record editor adapter', () => {
       categoryId: 1,
       code: 'review-code-00001',
       draftId: 'shortcut-draft-1',
+      imageAssetId,
       ledgerId: 'default-ledger',
       remark: '滴滴出行',
       tagIds: [tagId],

@@ -202,6 +202,7 @@ function BookkeepingPage() {
           categoryId: draft.categoryId,
           code: shortcutBookkeeping.reviewCode,
           draftId: shortcutBookkeeping.id,
+          ...(typeof draft.imageAssetId === 'string' ? { imageAssetId: draft.imageAssetId } : {}),
           ledgerId: defaultLedger.id,
           remark: draft.remark,
           tagIds: draft.tagIds,

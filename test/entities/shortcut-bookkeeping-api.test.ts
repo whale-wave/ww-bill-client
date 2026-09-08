@@ -47,6 +47,35 @@ describe('shortcut bookkeeping api', () => {
   });
 
   it('confirms only explicit record fields with the exchanged review code', () => {
+    const imageAssetId = '00000000-0000-4000-8000-000000000501';
+    confirmShortcutDraftApi({
+      amount: '18.6',
+      categoryId: 4,
+      code: 'handoff-secret',
+      draftId: 'draft/a b',
+      imageAssetId,
+      ledgerId: 'ledger-1',
+      remark: '鲸鱼便利店',
+      time: '2026-08-29T10:00:00.000Z',
+      type: 'sub',
+    });
+
+    expect(request.post).toHaveBeenCalledWith(
+      '/shortcut-drafts/draft%2Fa%20b/confirm',
+      {
+        amount: '18.6',
+        categoryId: 4,
+        code: 'handoff-secret',
+        imageAssetId,
+        ledgerId: 'ledger-1',
+        remark: '鲸鱼便利店',
+        time: '2026-08-29T10:00:00.000Z',
+        type: 'sub',
+      },
+    );
+  });
+
+  it('keeps image-less shortcut confirmations backward compatible', () => {
     confirmShortcutDraftApi({
       amount: '18.6',
       categoryId: 4,
@@ -60,15 +89,7 @@ describe('shortcut bookkeeping api', () => {
 
     expect(request.post).toHaveBeenCalledWith(
       '/shortcut-drafts/draft%2Fa%20b/confirm',
-      {
-        amount: '18.6',
-        categoryId: 4,
-        code: 'handoff-secret',
-        ledgerId: 'ledger-1',
-        remark: '鲸鱼便利店',
-        time: '2026-08-29T10:00:00.000Z',
-        type: 'sub',
-      },
+      expect.not.objectContaining({ imageAssetId: expect.anything() }),
     );
   });
 });

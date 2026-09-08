@@ -36,6 +36,7 @@ export interface ConfirmShortcutDraftInput {
   categoryId: number;
   code: string;
   draftId: string;
+  imageAssetId?: string;
   ledgerId: string;
   remark: string;
   tagIds?: string[];
