@@ -17,6 +17,7 @@ import {
 } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { money } from '@/shared/lib';
 
 function getInitialDate(selectTime: string | null, legacyMonth: string | null) {
   const parsedSelectTime = selectTime ? dayjs(Number(selectTime)) : undefined;
@@ -120,8 +121,12 @@ const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) =
   ), [household.id, i18n.language, i18n.resolvedLanguage, navigate, recordsQuery.records, t]);
   const days = useMemo(() => calendarQuery.days.map(day => ({
     date: day.date,
-    expense: Number(day.visibleExpense) ? Number(day.visibleExpense) : undefined,
-    income: Number(day.visibleIncome) ? Number(day.visibleIncome) : undefined,
+    expense: money.compare(day.visibleExpense, 0) > 0
+      ? money.formatNatural(day.visibleExpense)
+      : undefined,
+    income: money.compare(day.visibleIncome, 0) > 0
+      ? money.formatNatural(day.visibleIncome)
+      : undefined,
   })), [calendarQuery.days]);
 
   return (

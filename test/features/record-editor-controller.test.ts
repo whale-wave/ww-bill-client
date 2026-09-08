@@ -179,6 +179,14 @@ describe('record editor controller', () => {
     expect(submit).toHaveBeenCalledWith(expect.objectContaining({ amount: '2.7' }));
   });
 
+  it('repairs a persisted floating-point tail when an existing record is saved', async () => {
+    const container = renderEditor({ amount: '2.7000000000000006', editing: true });
+
+    await complete(container);
+
+    expect(submit).toHaveBeenCalledWith(expect.objectContaining({ amount: '2.7' }));
+  });
+
   it('resets the selected category when the record type changes', () => {
     const container = renderEditor();
 

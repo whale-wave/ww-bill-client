@@ -1,5 +1,41 @@
-export function formatAmount(amount: number) {
-  return amount.toFixed(2);
+import { add, bignumber, compareNatural } from 'mathjs';
+
+export type MoneyInput = number | string;
+
+function toMoneyNumber(value: MoneyInput) {
+  return bignumber(value);
+}
+
+function trimTrailingZeros(value: string) {
+  return value.replace(/\.?0+$/, '');
+}
+
+/**
+ * The application-facing boundary for monetary arithmetic and presentation.
+ * Keep the concrete decimal library private so it can be replaced without
+ * changing business or UI code.
+ */
+export const money = {
+  add(left: MoneyInput, right: MoneyInput) {
+    return add(toMoneyNumber(left), toMoneyNumber(right)).toString();
+  },
+  compare(left: MoneyInput, right: MoneyInput) {
+    return compareNatural(toMoneyNumber(left), toMoneyNumber(right));
+  },
+  format(value: MoneyInput) {
+    return toMoneyNumber(value).toFixed(2);
+  },
+  formatNatural(value: MoneyInput) {
+    return trimTrailingZeros(toMoneyNumber(value).toFixed(2));
+  },
+} as const;
+
+export function formatAmount(amount: MoneyInput) {
+  return money.format(amount);
+}
+
+export function formatAmountWithoutTrailingZeros(amount: MoneyInput) {
+  return money.formatNatural(amount);
 }
 
 /**

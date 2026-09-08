@@ -8,6 +8,7 @@ import {
 } from '@/entities/record';
 import { getQueryViewState } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
+import { money } from '@/shared/lib';
 import { playSound } from '@/shared/lib/play-sound';
 import { useRecordCalendar } from '../model/useRecordCalendar';
 
@@ -34,8 +35,12 @@ function RecordCalendar() {
 
   const days = useMemo(() => Array.from(dateMap, ([timestamp, value]) => ({
     date: dayjs(timestamp).format('YYYY-MM-DD'),
-    expense: value.expend || undefined,
-    income: value.income || undefined,
+    expense: value.expend
+      ? money.formatNatural(value.expend)
+      : undefined,
+    income: value.income
+      ? money.formatNatural(value.income)
+      : undefined,
   })), [dateMap]);
   const groups = useMemo(() => toRecordSearchGroups(list.data, {
     expenseLabel: t('common:amount.expend'),

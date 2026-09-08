@@ -2,7 +2,7 @@ import type { RecordEntry } from '../types';
 import type { RecordOverviewListGroup } from './RecordOverviewList';
 import dayjs from 'dayjs';
 import { i18n } from '@/shared/i18n';
-import { math } from '@/shared/lib';
+import { money } from '@/shared/lib';
 
 interface RecordSearchGroupOptions {
   expenseLabel: string;
@@ -21,13 +21,13 @@ export function getRecordListIndicators(record: RecordListIndicatorSource) {
   const summary = record.adjustmentSummary;
   const adjustmentSummary = summary
     ? [
-        Number(summary.refundAmount) > 0
+        money.compare(summary.refundAmount, 0) > 0
           ? i18n.t('adjustment.refundWithAmount', { amount: summary.refundAmount, ns: 'record' })
           : undefined,
-        Number(summary.cashbackAmount) > 0
+        money.compare(summary.cashbackAmount, 0) > 0
           ? i18n.t('adjustment.cashbackWithAmount', { amount: summary.cashbackAmount, ns: 'record' })
           : undefined,
-        Number(summary.supplementAmount) > 0
+        money.compare(summary.supplementAmount, 0) > 0
           ? i18n.t('adjustment.supplementWithAmount', { amount: summary.supplementAmount, ns: 'record' })
           : undefined,
       ].filter(Boolean).join(' · ')
@@ -57,15 +57,15 @@ export function toRecordSearchGroups(
   return Array.from(groups, ([dateKey, groupedRecords]) => {
     const income = groupedRecords.reduce(
       (total, record) => record.type === 'add'
-        ? math.add(total, record.amount).toNumber()
+        ? money.add(total, record.amount)
         : total,
-      0,
+      '0',
     );
     const expense = groupedRecords.reduce(
       (total, record) => record.type === 'sub'
-        ? math.add(total, record.amount).toNumber()
+        ? money.add(total, record.amount)
         : total,
-      0,
+      '0',
     );
 
     return {
@@ -82,7 +82,7 @@ export function toRecordSearchGroups(
           indicators.adjustmentSummary,
         ].filter(Boolean).join(' · ') || undefined;
         return {
-          amount: `${record.type === 'sub' ? '-' : ''}${record.amount}`,
+          amount: `${record.type === 'sub' ? '-' : ''}${money.formatNatural(record.amount)}`,
           amountTone: record.type === 'add' ? 'income' : 'expense',
           categoryName: record.category.name,
           hasAttachment: indicators.hasAttachment,
@@ -94,18 +94,18 @@ export function toRecordSearchGroups(
             : undefined,
           overviewSecondary: secondary,
           originalAmount: record.originalAmount
-            ? `${record.type === 'sub' ? '-' : ''}${record.originalAmount}`
+            ? `${record.type === 'sub' ? '-' : ''}${money.formatNatural(record.originalAmount)}`
             : undefined,
           primary: record.remark || record.category.name,
           secondary,
         };
       }),
       summaries: [
-        ...(income
-          ? [{ key: 'income', label: options.incomeLabel, value: income }]
+        ...(money.compare(income, 0) > 0
+          ? [{ key: 'income', label: options.incomeLabel, value: money.formatNatural(income) }]
           : []),
-        ...(expense
-          ? [{ key: 'expense', label: options.expenseLabel, value: expense }]
+        ...(money.compare(expense, 0) > 0
+          ? [{ key: 'expense', label: options.expenseLabel, value: money.formatNatural(expense) }]
           : []),
       ],
     };

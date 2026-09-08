@@ -7,6 +7,7 @@ import type {
 import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { money } from '@/shared/lib';
 import { useCalculator } from './useCalculator';
 
 interface RecordEditorControllerOptions {
@@ -217,7 +218,7 @@ export function useRecordEditorController({
     }
 
     const draft: RecordDraft = {
-      amount: String(Number(amount)),
+      amount: money.formatNatural(amount),
       categoryId: selectedCategory.id,
       remark: remark.trim() || selectedCategory.name,
       time: dayjs(date).toISOString(),

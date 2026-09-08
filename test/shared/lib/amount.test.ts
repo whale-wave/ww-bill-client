@@ -1,10 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { formatAmount, formatCompactAmount, normalizeAmount } from '@/shared/lib/amount';
+import {
+  formatAmount,
+  formatAmountWithoutTrailingZeros,
+  formatCompactAmount,
+  money,
+  normalizeAmount,
+} from '@/shared/lib/amount';
 
 describe('amount helpers', () => {
+  it('keeps arithmetic and output behind one money facade', () => {
+    expect(money.add('0.1', '0.2')).toBe('0.3');
+    expect(money.compare('5848.19', '5848.18')).toBeGreaterThan(0);
+    expect(money.format('5848.1900000000000006')).toBe('5848.19');
+    expect(money.formatNatural('100.00')).toBe('100');
+  });
+
   it('formats amounts to two decimal places', () => {
     expect(formatAmount(12)).toBe('12.00');
     expect(formatAmount(12.345)).toBe('12.35');
+  });
+
+  it('formats persisted floating-point tails as a natural currency amount', () => {
+    expect(formatAmountWithoutTrailingZeros('2.7000000000000006')).toBe('2.7');
+    expect(formatAmountWithoutTrailingZeros('196.95000000000002')).toBe('196.95');
+    expect(formatAmountWithoutTrailingZeros('223.00000000000001')).toBe('223');
   });
 
   it('uses a compact 万 unit for large metric-card values', () => {

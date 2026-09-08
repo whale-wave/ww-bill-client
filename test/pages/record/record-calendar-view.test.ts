@@ -22,7 +22,7 @@ afterEach(() => {
 });
 
 describe('personal record calendar', () => {
-  it('shows income and expense amounts inside a date cell', () => {
+  it('formats income and expense amounts inside a date cell', () => {
     const selectedDate = dayjs('2026-07-15');
     hooks.useRecordCalendar.mockReturnValue({
       calendarRange: {
@@ -30,7 +30,11 @@ describe('personal record calendar', () => {
         min: selectedDate.startOf('month').toDate(),
       },
       dateMap: new Map([
-        [selectedDate.startOf('day').valueOf(), { expend: 23, income: 100, list: [] }],
+        [selectedDate.startOf('day').valueOf(), {
+          expend: '5848.1900000000000006',
+          income: '100.00',
+          list: [],
+        }],
       ]),
       getDateText: (date: Date) => dayjs(date).date(),
       isToday: () => false,
@@ -59,6 +63,7 @@ describe('personal record calendar', () => {
 
     const cell = container.querySelector('[data-date="2026-07-15"]');
     expect(cell?.textContent).toContain('+100');
-    expect(cell?.textContent).toContain('-23');
+    expect(cell?.textContent).toContain('-5848.19');
+    expect(cell?.textContent).not.toContain('5848.1900000000000006');
   });
 });

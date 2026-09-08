@@ -2,6 +2,7 @@ import type { FamilyRecord, HouseholdCalendarDay } from '@/entities/household';
 import type { RecordOverviewListGroup } from '@/entities/record';
 import { FamilyRecordPolicy } from '@/entities/household';
 import { getRecordListIndicators } from '@/entities/record';
+import { money } from '@/shared/lib';
 
 function pad(value: number) {
   return String(value).padStart(2, '0');
@@ -64,8 +65,12 @@ export function getFamilyRecordPolicyBehavior(policy: FamilyRecordPolicy) {
 }
 
 export function toMoney(value: string | number | undefined) {
-  const parsed = Number(value ?? 0);
-  return Number.isFinite(parsed) ? parsed.toFixed(2) : '0.00';
+  try {
+    return money.format(value ?? 0);
+  }
+  catch {
+    return '0.00';
+  }
 }
 
 export function getDisplayName(user: { name?: string; username?: string; nickname?: string }) {

@@ -82,6 +82,34 @@ describe('record overview list', () => {
     });
   });
 
+  it('does not expose persisted floating-point tails in record amounts or daily totals', () => {
+    const [group] = toRecordSearchGroups([{
+      amount: '2.7000000000000006',
+      category: {
+        createdAt: '2026-07-01T00:00:00.000Z',
+        icon: 'car',
+        id: 1,
+        name: '交通',
+        updatedAt: '2026-07-01T00:00:00.000Z',
+      },
+      createdAt: '2026-07-21T12:00:00.000Z',
+      id: 8,
+      remark: '充电',
+      time: '2026-07-21T12:00:00.000Z',
+      type: 'sub',
+      updatedAt: '2026-07-21T12:00:00.000Z',
+      version: 1,
+    }], {
+      expenseLabel: 'Expense',
+      incomeLabel: 'Income',
+    });
+
+    expect(group?.records[0]?.amount).toBe('-2.7');
+    expect(group?.summaries).toEqual([
+      { key: 'expense', label: 'Expense', value: '2.7' },
+    ]);
+  });
+
   it('uses the original record search geometry by default', () => {
     const container = render();
     const list = container.querySelector('[data-testid="record-overview-list"]');

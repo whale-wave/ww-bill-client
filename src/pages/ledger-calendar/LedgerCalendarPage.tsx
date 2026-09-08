@@ -15,6 +15,7 @@ import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { getQueryViewState } from '@/shared/api';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { money } from '@/shared/lib';
 
 function getInitialDate(value: string | null) {
   const parsed = value ? dayjs(Number(value)) : dayjs();
@@ -44,23 +45,23 @@ function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: strin
   const days = useMemo(() => {
     if (!showDailySummary)
       return [];
-    const map = new Map<string, { expense: number; income: number }>();
+    const map = new Map<string, { expense: string; income: string }>();
     query.data.data.forEach((record) => {
       const date = dayjs(record.time).format('YYYY-MM-DD');
-      const total = map.get(date) ?? { expense: 0, income: 0 };
+      const total = map.get(date) ?? { expense: '0', income: '0' };
       if (record.type === 'add')
-        total.income += Number(record.amount);
+        total.income = money.add(total.income, record.amount);
       else
-        total.expense += Number(record.amount);
+        total.expense = money.add(total.expense, record.amount);
       map.set(date, total);
     });
     return Array.from(map, ([date, total]) => ({
       date,
-      expense: total.expense
-        ? isAmountHidden ? '••••' : total.expense.toFixed(2)
+      expense: money.compare(total.expense, 0) > 0
+        ? isAmountHidden ? '••••' : money.format(total.expense)
         : undefined,
-      income: total.income
-        ? isAmountHidden ? '••••' : total.income.toFixed(2)
+      income: money.compare(total.income, 0) > 0
+        ? isAmountHidden ? '••••' : money.format(total.income)
         : undefined,
     }));
   }, [isAmountHidden, query.data.data, showDailySummary]);

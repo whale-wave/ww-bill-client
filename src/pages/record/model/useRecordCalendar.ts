@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetRecordQuery } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
-import { math } from '@/shared/lib';
+import { money } from '@/shared/lib';
 
 export function useRecordCalendar() {
   const { t } = useTranslation('record');
@@ -44,8 +44,8 @@ export function useRecordCalendar() {
   const dateMap = useMemo(() => {
     const map = new Map<number, {
       list: RecordEntry[];
-      expend: number;
-      income: number;
+      expend?: string;
+      income?: string;
     }>();
 
     if (!recordList)
@@ -58,8 +58,6 @@ export function useRecordCalendar() {
       if (!data) {
         data = {
           list: [record],
-          expend: 0,
-          income: 0,
         };
 
         map.set(date, data);
@@ -69,10 +67,10 @@ export function useRecordCalendar() {
       }
 
       if (record.type === 'sub') {
-        data.expend = math.add(data.expend, record.amount).toNumber();
+        data.expend = money.add(data.expend ?? '0', record.amount);
       }
       else {
-        data.income = math.add(data.income, record.amount).toNumber();
+        data.income = money.add(data.income ?? '0', record.amount);
       }
     });
 

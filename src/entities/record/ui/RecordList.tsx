@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import React, { memo, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/shared/i18n';
-import { math } from '@/shared/lib';
+import { money } from '@/shared/lib';
 import { RecordOverviewList } from './RecordOverviewList';
 import { getRecordListIndicators } from './recordPresentationMappers';
 
@@ -25,23 +25,23 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
       {
         type: 'add',
         name: t('type.income'),
-        amount: 0,
+        amount: '0',
       },
       {
         type: 'sub',
         name: t('type.expense'),
-        amount: 0,
+        amount: '0',
       },
     ];
 
     data.data.forEach((record) => {
       if (record.type === 'add')
-        info[0].amount = math.add(info[0].amount, record.amount).toNumber();
+        info[0].amount = money.add(info[0].amount, record.amount);
       else
-        info[1].amount = math.add(info[1].amount, record.amount).toNumber();
+        info[1].amount = money.add(info[1].amount, record.amount);
     });
 
-    return info.filter(i => i.amount !== 0);
+    return info.filter(item => money.compare(item.amount, 0) > 0);
   }, [data, t]);
 
   const handleRecordItemClick = useCallback((record: RecordEntry) => () => {
@@ -60,13 +60,15 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
         records: data.data.map((record) => {
           const indicators = getRecordListIndicators(record);
           return {
-            amount: `${record.type === 'sub' ? '-' : ''}${record.amount}`,
+            amount: `${record.type === 'sub' ? '-' : ''}${money.formatNatural(record.amount)}`,
             amountTone: record.type === 'add' ? 'income' : 'expense',
             categoryName: record.category.name,
             iconName: record.category.icon,
             id: record.id,
             onClick: handleRecordItemClick(record),
-            originalAmount: record.originalAmount ? `-${record.originalAmount}` : undefined,
+            originalAmount: record.originalAmount
+              ? `-${money.formatNatural(record.originalAmount)}`
+              : undefined,
             overviewSecondary: indicators.adjustmentSummary,
             primary: record.remark,
           };
@@ -74,7 +76,7 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
         summaries: amountInfo.map(item => ({
           key: item.type,
           label: item.name,
-          value: item.amount,
+          value: money.formatNatural(item.amount),
         })),
       }]}
     />
