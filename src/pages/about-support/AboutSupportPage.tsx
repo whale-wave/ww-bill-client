@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { FC, ReactNode, Ref } from 'react';
 import type { BuildInfo } from '@/shared/config/build-info';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
@@ -8,9 +8,10 @@ import {
   ChevronRight,
   Clipboard,
   Globe2,
+  Heart,
   MessageCircle,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import androidLogo from '@/assets/brand/android-logo.png';
 import { isAndroidUpdateAvailable, useAndroidLatestReleaseQuery } from '@/entities/app-release';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
@@ -19,8 +20,10 @@ import { fetchBuildInfo, isNewerBuild } from '@/shared/config/build-info';
 import { useTranslation } from '@/shared/i18n';
 import { openExternalUrl } from '@/shared/lib';
 import { AppButton, PageHeader } from '@/shared/ui';
+import { SponsorSupportModal } from './ui/SponsorSupportModal';
 
 interface SupportRowProps {
+  buttonRef?: Ref<HTMLButtonElement>;
   description?: ReactNode;
   href?: string;
   icon: ReactNode;
@@ -31,6 +34,7 @@ interface SupportRowProps {
 }
 
 const SupportRow: FC<SupportRowProps> = ({
+  buttonRef,
   description,
   href,
   icon,
@@ -70,7 +74,7 @@ const SupportRow: FC<SupportRowProps> = ({
   }
 
   return (
-    <button className={className} data-about-row={id} onClick={onClick} type="button">
+    <button className={className} data-about-row={id} onClick={onClick} ref={buttonRef} type="button">
       {content}
     </button>
   );
@@ -93,6 +97,8 @@ const AboutSupportPage: FC = () => {
   const { data: latestRelease, isFetching, isError, refetch } = useAndroidLatestReleaseQuery({ enabled: isAndroid });
   const [installedVersion, setInstalledVersion] = useState<{ versionCode: number; versionName: string } | null>(null);
   const [latestWebBuild, setLatestWebBuild] = useState<BuildInfo | null>(null);
+  const [isSponsorModalVisible, setIsSponsorModalVisible] = useState(false);
+  const sponsorTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!isAndroid)
@@ -117,6 +123,9 @@ const AboutSupportPage: FC = () => {
     }
     Toast.show({ content: t('aboutSupport.openFailed'), icon: 'fail' });
   };
+
+  const handleOpenSponsor = () => setIsSponsorModalVisible(true);
+  const handleCloseSponsor = () => setIsSponsorModalVisible(false);
 
   return (
     <div className="page-new relative overflow-hidden">
@@ -195,6 +204,17 @@ const AboutSupportPage: FC = () => {
             </SupportSection>
           )}
 
+          <SupportSection title={t('aboutSupport.supportProject')}>
+            <SupportRow
+              buttonRef={sponsorTriggerRef}
+              description={t('aboutSupport.sponsorDesc')}
+              icon={<Heart size={18} strokeWidth={1.8} />}
+              id="sponsor"
+              label={t('aboutSupport.sponsor')}
+              onClick={handleOpenSponsor}
+            />
+          </SupportSection>
+
           <SupportSection title={t('aboutSupport.officialChannels')}>
             <SupportRow
               description={t('aboutSupport.githubDesc')}
@@ -226,6 +246,12 @@ const AboutSupportPage: FC = () => {
           <p className="px-2 pb-2 text-center text-[11px] leading-5 text-ww-soft">{t('aboutSupport.officialHint')}</p>
         </div>
       </main>
+
+      <SponsorSupportModal
+        onClose={handleCloseSponsor}
+        returnFocusRef={sponsorTriggerRef}
+        visible={isSponsorModalVisible}
+      />
     </div>
   );
 };
