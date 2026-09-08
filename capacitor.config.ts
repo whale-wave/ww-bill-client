@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 import process from 'node:process';
 
 const isTestBuild = process.env.CAPACITOR_BUILD_ENV === 'test';
-const productionAppId = 'top.avan.bill';
+const productionAppId = 'top.whalewave.bill';
 const testAppId = `${productionAppId}.test`;
 
 function assertProductionHost(host?: string) {

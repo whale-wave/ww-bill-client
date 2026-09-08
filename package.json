@@ -3,7 +3,7 @@
   "type": "module",
   "version": "1.0.9",
   "appRelease": {
-    "androidVersionCode": 2
+    "androidVersionCode": 9
   },
   "private": true,
   "packageManager": "pnpm@10.34.3",
