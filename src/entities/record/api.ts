@@ -86,6 +86,8 @@ export interface GetRecordApiResponseData {
   offset?: number;
 }
 
+export const RECORD_OVERVIEW_PAGE_SIZE = 50;
+
 export interface GetRecordApiParams {
   startDate?: string | number;
   endDate?: string;

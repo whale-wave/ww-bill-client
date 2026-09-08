@@ -500,7 +500,7 @@ describe('custom ledger workspace integration', () => {
   });
 
   it('uses the current ledger name without a redundant capsule and preserves ledger-scoped tabs', () => {
-    hooks.useLedgerRecordsQuery.mockReturnValue({
+    hooks.useInfiniteLedgerRecordsQuery.mockReturnValue({
       data: {
         data: [{
           amount: '20.00',
@@ -523,8 +523,12 @@ describe('custom ledger workspace integration', () => {
         income: 0,
         total: 1,
       },
+      fetchNextPage: vi.fn(),
+      hasNextPage: true,
       isError: false,
+      isFetchingNextPage: false,
       isLoading: false,
+      response: { data: {} },
     });
     const first = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
 
@@ -539,6 +543,7 @@ describe('custom ledger workspace integration', () => {
     expect(first.container.querySelector('[data-testid="record-overview-list"]')).not.toBeNull();
     expect(first.container.querySelector('[data-record-list-variant="overview"]')).not.toBeNull();
     expect(first.container.querySelector('[data-date-group="2026-07-21"]')).not.toBeNull();
+    expect(first.container.querySelector('[data-date-group="2026-07-21"] > header > span:last-child')?.textContent).toBe('');
     expect(first.container.querySelector('[data-category-icon="catering"] svg')?.classList).toContain('lucide-utensils');
     expect(['bill', 'budget', 'settings']
       .every(shortcut => first.container.querySelector(`[data-testid="ledger-${shortcut}"]`))).toBe(true);
@@ -548,10 +553,13 @@ describe('custom ledger workspace integration', () => {
     expect(first.container.querySelector('.record-overview-title')?.textContent).toContain('家庭旅行账本');
     expect(first.container.querySelector('.record-overview-title')?.tagName).toBe('H1');
     expect(first.container.querySelector('[data-workspace-capsule]')).not.toBeNull();
-    expect(hooks.useLedgerRecordsQuery).toHaveBeenCalledWith(expect.objectContaining({
+    expect(first.container.querySelector('[data-record-overview-infinite-scroll]')).not.toBeNull();
+    expect(hooks.useInfiniteLedgerRecordsQuery).toHaveBeenCalledWith(expect.objectContaining({
       params: {
         filters: {
           endDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+          limit: 50,
+          offset: 0,
           startDate: expect.stringMatching(/^\d{4}-\d{2}-01$/),
         },
         ledgerId: 'ledger/a',

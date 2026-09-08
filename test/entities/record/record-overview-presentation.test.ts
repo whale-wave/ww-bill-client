@@ -166,7 +166,7 @@ describe('record overview presentation', () => {
     expect(onLoadMore).not.toHaveBeenCalled();
   });
 
-  it('keeps the load-more action disabled when no further page exists', () => {
+  it('removes the load-more action when no further page exists', () => {
     const container = render(createElement(RecordOverviewPresentation, {
       groups: [{
         dateLabel: 'July 30',
@@ -186,10 +186,31 @@ describe('record overview presentation', () => {
     }));
     const button = container.querySelector<HTMLButtonElement>('[data-testid="record-overview-load-more"]');
 
-    expect(button).not.toBeNull();
-    expect(button?.disabled).toBe(true);
-    expect(button?.getAttribute('aria-busy')).toBeNull();
-    expect(button?.textContent).toBe('Load more');
+    expect(button).toBeNull();
+  });
+
+  it('uses scroll-triggered pagination without rendering a manual button', () => {
+    const onLoadMore = vi.fn().mockResolvedValue(undefined);
+    const container = render(createElement(RecordOverviewPresentation, {
+      groups: [{
+        dateLabel: 'July 30',
+        key: '2026-07-30',
+        records: [{
+          amount: '-8.00',
+          iconName: 'food',
+          id: 1,
+          primary: 'Lunch',
+        }],
+      }],
+      hasMore: true,
+      header: headerProps,
+      loadMoreMode: 'scroll',
+      onLoadMore,
+      state: 'ready',
+    }));
+
+    expect(container.querySelector('[data-record-overview-infinite-scroll]')).not.toBeNull();
+    expect(container.querySelector('[data-record-overview-load-more]')).toBeNull();
   });
 
   it('uses the shared illustrated error state and forwards retry', () => {

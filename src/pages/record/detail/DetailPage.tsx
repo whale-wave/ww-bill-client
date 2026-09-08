@@ -69,7 +69,7 @@ const Detail: FC = () => {
     }
   }, [deleteRecord, deleteState.isLoading, query, t]);
 
-  const groups = useMemo<RecordOverviewListGroup[]>(() => query.record.map(group => ({
+  const groups = useMemo<RecordOverviewListGroup[]>(() => query.record.map((group, groupIndex) => ({
     dateLabel: `${group[0]} ${group[1]}`,
     key: `${group[0]}-${group[1]}`,
     records: group[3].map((item) => {
@@ -96,13 +96,15 @@ const Detail: FC = () => {
         }],
       };
     }),
-    summaries: [
-      ...(group[5] > 0
-        ? [{ key: 'income', label: t('common:amount.income'), value: group[5] }]
-        : []),
-      { key: 'expense', label: t('common:amount.expend'), value: group[4] },
-    ],
-  })), [handleDelete, handleRecord, query.record, t]);
+    summaries: query.hasMore && groupIndex === query.record.length - 1
+      ? []
+      : [
+          ...(group[5] > 0
+            ? [{ key: 'income', label: t('common:amount.income'), value: group[5] }]
+            : []),
+          { key: 'expense', label: t('common:amount.expend'), value: group[4] },
+        ],
+  })), [handleDelete, handleRecord, query.hasMore, query.record, t]);
   const viewState = getQueryViewState({
     hasData: query.hasData,
     isError: query.isError,
@@ -119,7 +121,14 @@ const Detail: FC = () => {
         errorDescription={t('detail.errorDescription')}
         errorTitle={t('detail.errorTitle')}
         groups={groups}
+        hasMore={query.hasMore}
         header={header}
+        isLoadingMore={query.isFetchingNextPage}
+        loadMoreMode="scroll"
+        loadMoreResetKey={selectTime.format('YYYY-MM-DD')}
+        onLoadMore={query.hasMore
+          ? () => query.fetchNextPage({ throwOnError: true })
+          : undefined}
         onEmptyAction={() => navigate(ROUTES_PATH.BOOKKEEPING.getPath())}
         onRetry={() => void query.refetch()}
         retryLabel={t('detail.errorAction')}

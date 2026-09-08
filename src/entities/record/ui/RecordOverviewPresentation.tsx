@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import type { RecordOverviewHeaderProps } from './RecordOverviewHeader';
 import type { RecordOverviewListGroup } from './RecordOverviewList';
+import { InfiniteScroll } from 'antd-mobile';
 import { CircleAlert, Plus, RefreshCw } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
 import { AppButton, DesignIcon, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
@@ -20,8 +21,10 @@ export interface RecordOverviewPresentationProps {
   header: RecordOverviewHeaderProps;
   isLoadingMore?: boolean;
   loadMoreLabel?: ReactNode;
+  loadMoreMode?: 'button' | 'scroll';
+  loadMoreResetKey?: string | number;
   loadMoreTestId?: string;
-  onLoadMore?: () => void;
+  onLoadMore?: () => Promise<unknown> | void;
   onEmptyAction?: () => void;
   onRetry?: () => void;
   retryLabel?: ReactNode;
@@ -40,6 +43,8 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
   header,
   isLoadingMore = false,
   loadMoreLabel,
+  loadMoreMode = 'button',
+  loadMoreResetKey,
   loadMoreTestId,
   onLoadMore,
   onEmptyAction,
@@ -53,7 +58,15 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
   // A completed paginated list needs neither a disabled control nor its
   // surrounding whitespace. Keep the affordance only while another page can
   // actually be requested.
-  const shouldShowLoadMore = loadMoreLabel !== undefined && canLoadMore;
+  const shouldShowLoadMore = loadMoreMode === 'button'
+    && loadMoreLabel !== undefined
+    && canLoadMore;
+  const shouldShowInfiniteScroll = loadMoreMode === 'scroll'
+    && canLoadMore
+    && onLoadMore !== undefined;
+  const handleLoadMore = async () => {
+    await onLoadMore?.();
+  };
   return (
     <>
       <RecordOverviewHeader {...header} />
@@ -119,6 +132,15 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
                 >
                   {loadMoreLabel}
                 </AppButton>
+              </div>
+            )}
+            {shouldShowInfiniteScroll && (
+              <div data-record-overview-infinite-scroll key={loadMoreResetKey}>
+                <InfiniteScroll
+                  hasMore
+                  loadMore={handleLoadMore}
+                  threshold={160}
+                />
               </div>
             )}
             <div

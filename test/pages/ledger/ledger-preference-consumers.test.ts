@@ -27,6 +27,7 @@ const hooks = vi.hoisted(() => ({
   useLedgerNavigationQuery: vi.fn(),
   useLedgerPreferencesQuery: vi.fn(),
   useLedgerQuery: vi.fn(),
+  useInfiniteLedgerRecordsQuery: vi.fn(),
   useLedgerRecordsQuery: vi.fn(),
   useDeleteLedgerRecordMutation: vi.fn(),
 }));
@@ -52,6 +53,7 @@ vi.mock('@/entities/chart', async importOriginal => ({
 vi.mock('@/entities/record', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/record')>()),
   useDeleteLedgerRecordMutation: hooks.useDeleteLedgerRecordMutation,
+  useInfiniteLedgerRecordsQuery: hooks.useInfiniteLedgerRecordsQuery,
   useLedgerRecordsQuery: hooks.useLedgerRecordsQuery,
 }));
 
@@ -147,6 +149,15 @@ beforeEach(() => {
     isError: false,
     isLoading: false,
   });
+  hooks.useInfiniteLedgerRecordsQuery.mockReturnValue({
+    data: { data: [], expend: 5, income: 10, total: 0 },
+    fetchNextPage: vi.fn(),
+    hasNextPage: false,
+    isError: false,
+    isFetchingNextPage: false,
+    isLoading: false,
+    response: { data: {} },
+  });
   hooks.useLedgerChartQuery.mockReturnValue({ data: [], isLoading: false });
 });
 
@@ -207,7 +218,7 @@ describe('ledger preference consumers', () => {
       refetch: vi.fn(),
     });
     const refetchRecords = vi.fn().mockResolvedValue(undefined);
-    hooks.useLedgerRecordsQuery.mockReturnValue({
+    hooks.useInfiniteLedgerRecordsQuery.mockReturnValue({
       data: {
         data: [{
           amount: '5.00',
@@ -224,10 +235,14 @@ describe('ledger preference consumers', () => {
         income: 0,
         total: 1,
       },
+      fetchNextPage: vi.fn(),
+      hasNextPage: false,
       isError: false,
       isFetching: false,
+      isFetchingNextPage: false,
       isLoading: false,
       refetch: refetchRecords,
+      response: { data: {} },
     });
     vi.spyOn(Dialog, 'confirm').mockResolvedValue(true);
 

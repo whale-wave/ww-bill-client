@@ -29,7 +29,7 @@ const hooks = vi.hoisted(() => ({
   useLedgerPreferencesQuery: vi.fn(),
   useLedgerQuery: vi.fn(),
   useLedgerRecordQuery: vi.fn(),
-  useLedgerRecordsQuery: vi.fn(),
+  useInfiniteLedgerRecordsQuery: vi.fn(),
   useMyHouseholdQuery: vi.fn(),
 }));
 
@@ -42,8 +42,8 @@ vi.mock('@/entities/ledger', async importOriginal => ({
 vi.mock('@/entities/record', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/record')>()),
   useDeleteLedgerRecordMutation: hooks.useDeleteLedgerRecordMutation,
+  useInfiniteLedgerRecordsQuery: hooks.useInfiniteLedgerRecordsQuery,
   useLedgerRecordQuery: hooks.useLedgerRecordQuery,
-  useLedgerRecordsQuery: hooks.useLedgerRecordsQuery,
 }));
 
 vi.mock('@/features/record-adjustment', () => ({
@@ -148,11 +148,15 @@ beforeEach(() => {
     isLoading: false,
   });
   hooks.useLedgerRecordQuery.mockReturnValue({ data: record, isLoading: false, refetch: hooks.refetchRecord });
-  hooks.useLedgerRecordsQuery.mockReturnValue({
+  hooks.useInfiniteLedgerRecordsQuery.mockReturnValue({
     data: { data: [record], expend: 20, income: 0, total: 1 },
+    fetchNextPage: vi.fn(),
+    hasNextPage: false,
     isError: false,
+    isFetchingNextPage: false,
     isLoading: false,
     refetch: vi.fn(),
+    response: { data: {} },
   });
   hooks.useDeleteLedgerRecordMutation.mockReturnValue([hooks.deleteRecord, { isLoading: false }]);
   hooks.useMyHouseholdQuery.mockReturnValue({ data: household, isLoading: false });

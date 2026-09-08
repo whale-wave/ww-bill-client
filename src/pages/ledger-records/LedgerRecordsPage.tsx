@@ -16,10 +16,11 @@ import {
 import {
   createLedgerRecordDetailState,
   getRecordListIndicators,
+  RECORD_OVERVIEW_PAGE_SIZE,
   RecordMonthPicker,
   RecordOverviewPresentation,
   useDeleteLedgerRecordMutation,
-  useLedgerRecordsQuery,
+  useInfiniteLedgerRecordsQuery,
 } from '@/entities/record';
 import {
   buildMonthRecordRange,
@@ -162,7 +163,7 @@ interface LedgerRecordsViewProps {
   onRecordDelete?: (record: RecordEntry) => void;
   onToggleAmountVisibility: () => void;
   preferenceQuery: ReturnType<typeof useLedgerPreferencesQuery>;
-  recordsQuery: ReturnType<typeof useLedgerRecordsQuery>;
+  recordsQuery: ReturnType<typeof useInfiniteLedgerRecordsQuery>;
   setMonth: (month: string) => void;
 }
 
@@ -180,8 +181,8 @@ function LedgerRecordsView({
   const navigate = useNavigate();
   const locale = i18n?.resolvedLanguage ?? i18n?.language ?? 'zh-CN';
   const isAmountHidden = preferenceQuery.data?.hideTotalAmount === true;
-  const groups = useMemo(
-    () => groupRecords(
+  const groups = useMemo(() => {
+    const groupedRecords = groupRecords(
       recordsQuery.data.data,
       preferenceQuery.data?.showDailySummary !== false,
       locale,
@@ -191,17 +192,23 @@ function LedgerRecordsView({
         { state: createLedgerRecordDetailState(record, ledgerId) },
       ),
       onRecordDelete,
-    ),
-    [
-      ledgerId,
-      locale,
-      navigate,
-      onRecordDelete,
-      preferenceQuery.data?.showDailySummary,
-      recordsQuery.data.data,
-      t,
-    ],
-  );
+    );
+    if (!recordsQuery.hasNextPage || groupedRecords.length === 0)
+      return groupedRecords;
+    const lastIndex = groupedRecords.length - 1;
+    return groupedRecords.map((group, index) => (
+      index === lastIndex ? { ...group, summaries: [] } : group
+    ));
+  }, [
+    ledgerId,
+    locale,
+    navigate,
+    onRecordDelete,
+    preferenceQuery.data?.showDailySummary,
+    recordsQuery.data.data,
+    recordsQuery.hasNextPage,
+    t,
+  ]);
   const viewState = getQueryViewState({
     hasData: Boolean(recordsQuery.response),
     isError: recordsQuery.isError,
@@ -276,6 +283,13 @@ function LedgerRecordsView({
         titleAlignment: 'start',
       }}
       onRetry={() => void recordsQuery.refetch()}
+      hasMore={recordsQuery.hasNextPage === true}
+      isLoadingMore={recordsQuery.isFetchingNextPage}
+      loadMoreMode="scroll"
+      loadMoreResetKey={month}
+      onLoadMore={recordsQuery.hasNextPage
+        ? () => recordsQuery.fetchNextPage({ throwOnError: true })
+        : undefined}
       retryLabel={t('common.retry')}
       renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
       state={viewState.isInitialLoading ? 'loading' : viewState.isBlockingError ? 'error' : 'ready'}
@@ -290,7 +304,7 @@ function LedgerRecordDeleteActions({
 }: {
   children: (onRecordDelete: (record: RecordEntry) => void) => ReactNode;
   ledgerId: string;
-  recordsQuery: ReturnType<typeof useLedgerRecordsQuery>;
+  recordsQuery: ReturnType<typeof useInfiniteLedgerRecordsQuery>;
 }) {
   const { t } = useTranslation('ledger');
   const [deleteRecord, deleteState] = useDeleteLedgerRecordMutation();
@@ -326,8 +340,12 @@ function LedgerRecordDeleteActions({
 
 function RecordsContent({ canDelete, ledger, ledgerId }: { canDelete: boolean; ledger: Ledger; ledgerId: string }) {
   const [month, setMonth] = useState(() => formatMonthStart(new Date()));
-  const filters = useMemo(() => buildMonthRecordRange(month), [month]);
-  const recordsQuery = useLedgerRecordsQuery({ params: { filters, ledgerId } });
+  const filters = useMemo(() => ({
+    ...buildMonthRecordRange(month),
+    limit: RECORD_OVERVIEW_PAGE_SIZE,
+    offset: 0,
+  }), [month]);
+  const recordsQuery = useInfiniteLedgerRecordsQuery({ params: { filters, ledgerId } });
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
   const handleToggleAmountVisibility = useCallback(() => {
     const preference = preferenceQuery.data;

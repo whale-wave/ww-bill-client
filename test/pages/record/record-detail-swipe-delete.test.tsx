@@ -7,6 +7,7 @@ import DetailPage from '@/pages/record/detail/DetailPage';
 const mocks = vi.hoisted(() => ({
   confirmDangerousAction: vi.fn(),
   deleteRecord: vi.fn(),
+  fetchNextPage: vi.fn(),
   refetch: vi.fn(),
   useDeleteRecordMutation: vi.fn(),
   useRecordList: vi.fn(),
@@ -14,6 +15,11 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('antd-mobile', async importOriginal => ({
   ...(await importOriginal<typeof import('antd-mobile')>()),
+  InfiniteScroll: ({ loadMore }: { loadMore: () => Promise<void> }) => createElement(
+    'button',
+    { 'data-testid': 'infinite-load-more', 'onClick': () => void loadMore() },
+    'load more',
+  ),
   Toast: { show: vi.fn() },
 }));
 
@@ -69,6 +75,9 @@ beforeEach(() => {
     isError: false,
     isFetching: false,
     isLoading: false,
+    fetchNextPage: mocks.fetchNextPage,
+    hasMore: true,
+    isFetchingNextPage: false,
     record: [[
       '07月21日',
       '星期一',
@@ -97,6 +106,15 @@ afterEach(() => {
 });
 
 describe('personal record detail swipe delete', () => {
+  it('loads later record pages from the overview scroll container', async () => {
+    const container = renderPage();
+
+    expect(container.querySelector('[data-record-overview-infinite-scroll]')).not.toBeNull();
+    expect(container.querySelector('[data-date-group] > header > span:last-child')?.textContent).toBe('');
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="infinite-load-more"]')?.click());
+    expect(mocks.fetchNextPage).toHaveBeenCalledWith({ throwOnError: true });
+  });
+
   it('does not delete when the confirmation is dismissed', async () => {
     mocks.confirmDangerousAction.mockResolvedValue(false);
     const container = renderPage();

@@ -1,7 +1,10 @@
 import type { Dayjs } from 'dayjs';
 import type { recordChildren } from '@/entities/record';
 import { useMemo } from 'react';
-import { useGetRecordQuery } from '@/entities/record';
+import {
+  RECORD_OVERVIEW_PAGE_SIZE,
+  useInfiniteRecordsQuery,
+} from '@/entities/record';
 import { math } from '@/shared/lib';
 import { getTimeValueFn, getWeekByDay } from '@/shared/lib/date-time';
 
@@ -22,9 +25,13 @@ function toAmountParts(value: number) {
 }
 
 export function useRecordList(selectTime: Dayjs | undefined) {
-  const query = useGetRecordQuery({
-    params: { startDate: selectTime?.format('YYYY-MM-DD') },
-    options: {
+  const query = useInfiniteRecordsQuery({
+    params: {
+      limit: RECORD_OVERVIEW_PAGE_SIZE,
+      offset: 0,
+      startDate: selectTime?.format('YYYY-MM-DD'),
+    },
+    queryOptions: {
       enabled: !!selectTime,
     },
   });
@@ -108,9 +115,12 @@ export function useRecordList(selectTime: Dayjs | undefined) {
 
   return {
     amounts,
+    fetchNextPage: query.fetchNextPage,
     hasData: Boolean(query.response),
+    hasMore: Boolean(query.hasNextPage),
     isError: query.isError,
     isFetching: query.isFetching,
+    isFetchingNextPage: query.isFetchingNextPage,
     isLoading: query.isLoading,
     record,
     refetch: query.refetch,
