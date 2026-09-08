@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { resolveMotionPreference } from '@/shared/ui/motion';
+import { loadMotionFeatures, resolveMotionPreference } from '@/shared/ui';
 
 describe('motion preference', () => {
+  it('loads pan and drag features for follow-finger interactions', async () => {
+    const features = await loadMotionFeatures();
+
+    expect(features).toHaveProperty('pan');
+    expect(features).toHaveProperty('drag');
+  });
+
   it('keeps motion enabled by default', () => {
     expect(resolveMotionPreference({
       isSeniorMode: false,

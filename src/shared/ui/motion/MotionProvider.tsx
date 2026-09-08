@@ -1,11 +1,11 @@
 import type { FC, ReactNode } from 'react';
 import {
-  domAnimation,
   LazyMotion,
   MotionConfig,
   useReducedMotion,
 } from 'motion/react';
 import { useMemo } from 'react';
+import { loadMotionFeatures } from './load-motion-features';
 import {
   MotionPreferenceContext,
   resolveMotionPreference,
@@ -25,7 +25,7 @@ export const MotionProvider: FC<MotionProviderProps> = ({ children, isSeniorMode
 
   return (
     <MotionPreferenceContext.Provider value={preference}>
-      <LazyMotion features={domAnimation} strict>
+      <LazyMotion features={loadMotionFeatures} strict>
         <MotionConfig
           reducedMotion={preference.shouldReduceMotion ? 'always' : 'user'}
           transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}

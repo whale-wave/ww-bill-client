@@ -1,3 +1,4 @@
+export { loadMotionFeatures } from './load-motion-features';
 export {
   MOTION_PRESETS,
   type MotionPreference,
