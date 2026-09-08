@@ -1,4 +1,5 @@
 import type { Dayjs } from 'dayjs';
+import type { PanInfo } from 'motion/react';
 import type { FC, ReactNode, PointerEvent as ReactPointerEvent } from 'react';
 import type { RecordOverviewListGroup, RecordOverviewListItem } from './RecordOverviewList';
 import {
@@ -13,6 +14,11 @@ import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useRef } from 'react';
 import { cn } from '@/shared/lib';
 import { IllustratedEmptyState, MOTION_PRESETS, useMotionPreference } from '@/shared/ui';
+import {
+  CALENDAR_SWIPE_DIRECTION_RATIO,
+  CALENDAR_SWIPE_MIN_DISTANCE,
+  getCalendarDragDirection,
+} from './record-calendar-motion';
 import { RecordMonthPicker } from './RecordMonthPicker';
 import { RecordOverviewList } from './RecordOverviewList';
 
@@ -24,9 +30,8 @@ export interface RecordCalendarDay {
 
 export type RecordCalendarState = 'error' | 'loading' | 'ready';
 
-const CALENDAR_SWIPE_MIN_DISTANCE = 48;
-const CALENDAR_SWIPE_DIRECTION_RATIO = 1.25;
 const CALENDAR_SWIPE_CLICK_GUARD_MS = 250;
+const CALENDAR_DRAG_MAX_DISTANCE = 88;
 const CALENDAR_MONTH_TRANSITION_DISTANCE = 28;
 
 type CalendarMonthTransitionDirection = -1 | 0 | 1;
@@ -39,7 +44,7 @@ const calendarMonthTransitionVariants = {
   }),
   exit: (direction: CalendarMonthTransitionDirection) => ({
     opacity: 0,
-    x: direction * -CALENDAR_MONTH_TRANSITION_DISTANCE,
+    x: direction * -CALENDAR_DRAG_MAX_DISTANCE,
   }),
 };
 
@@ -145,6 +150,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
     min: month.startOf('month').toDate(),
   };
   const isTodaySelected = selectedDate.isSame(dayjs(), 'day');
+  const isCurrentMonth = month.isSame(dayjs(), 'month');
   const recordCount = groups.reduce((total, group) => total + group.records.length, 0);
   const monthKey = month.format('YYYY-MM');
   const monthTransitionDirection = monthTransitionDirectionRef.current;
@@ -158,6 +164,19 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
     clickGuardTimerRef.current = undefined;
   };
 
+  const startClickGuard = () => {
+    clearClickGuard();
+    shouldSuppressClickRef.current = true;
+  };
+
+  const armClickGuard = () => {
+    startClickGuard();
+    clickGuardTimerRef.current = setTimeout(() => {
+      shouldSuppressClickRef.current = false;
+      clickGuardTimerRef.current = undefined;
+    }, CALENDAR_SWIPE_CLICK_GUARD_MS);
+  };
+
   const releasePointerCapture = (event: ReactPointerEvent<HTMLElement>) => {
     if (
       event.currentTarget.hasPointerCapture
@@ -168,7 +187,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
   };
 
   const handleSwipeStart = (event: ReactPointerEvent<HTMLElement>) => {
-    if (!onMonthChange || event.button !== 0 || event.isPrimary === false)
+    if (isMotionEnabled || !onMonthChange || event.button !== 0 || event.isPrimary === false)
       return;
     swipeOriginRef.current = {
       pointerId: event.pointerId,
@@ -198,6 +217,35 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
     onMonthChange(normalizedMonth);
   };
 
+  const handleMonthSwipe = (direction: -1 | 0 | 1, shouldArmClickGuard = true) => {
+    if (!direction || !onMonthChange)
+      return;
+    const nextMonth = month.add(direction, 'month').startOf('month');
+    if (nextMonth.isAfter(dayjs(), 'month'))
+      return;
+    if (shouldArmClickGuard)
+      armClickGuard();
+    handleMonthChangeRequest(nextMonth);
+  };
+
+  const handleCalendarDragStart = () => {
+    startClickGuard();
+  };
+
+  const handleCalendarDragEnd = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
+    armClickGuard();
+    const direction = getCalendarDragDirection({
+      offsetX: info.offset.x,
+      offsetY: info.offset.y,
+      velocityX: info.velocity.x,
+      velocityY: info.velocity.y,
+    });
+    handleMonthSwipe(direction, false);
+  };
+
   const handleSwipeEnd = (event: ReactPointerEvent<HTMLElement>) => {
     const origin = swipeOriginRef.current;
     swipeOriginRef.current = undefined;
@@ -214,19 +262,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
       return;
     }
 
-    const nextMonth = month
-      .add(horizontalDistance < 0 ? 1 : -1, 'month')
-      .startOf('month');
-    if (nextMonth.isAfter(dayjs(), 'month'))
-      return;
-
-    shouldSuppressClickRef.current = true;
-    clearClickGuard();
-    clickGuardTimerRef.current = setTimeout(() => {
-      shouldSuppressClickRef.current = false;
-      clickGuardTimerRef.current = undefined;
-    }, CALENDAR_SWIPE_CLICK_GUARD_MS);
-    handleMonthChangeRequest(nextMonth);
+    handleMonthSwipe(horizontalDistance < 0 ? 1 : -1);
   };
 
   const handleCalendarClickCapture = (event: React.MouseEvent<HTMLElement>) => {
@@ -320,13 +356,24 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
                   <AnimatePresence custom={monthTransitionDirection} initial={false} mode="popLayout">
                     <m.div
                       animate="center"
-                      className="w-full"
+                      className="w-full touch-pan-y"
                       custom={monthTransitionDirection}
+                      data-calendar-drag-enabled={isMotionEnabled ? 'true' : 'false'}
                       data-month-transition-direction={monthTransitionDirectionLabel}
                       data-record-calendar-month={monthKey}
+                      drag={isMotionEnabled ? 'x' : false}
+                      dragConstraints={{
+                        left: isCurrentMonth ? 0 : -CALENDAR_DRAG_MAX_DISTANCE,
+                        right: CALENDAR_DRAG_MAX_DISTANCE,
+                      }}
+                      dragElastic={0.18}
+                      dragMomentum={false}
+                      dragSnapToOrigin
                       exit={isMotionEnabled ? 'exit' : undefined}
                       initial={isMotionEnabled ? 'enter' : false}
                       key={monthKey}
+                      onDragEnd={handleCalendarDragEnd}
+                      onDragStart={handleCalendarDragStart}
                       transition={MOTION_PRESETS.contentSwap.transition}
                       variants={calendarMonthTransitionVariants}
                     >

@@ -1,3 +1,4 @@
+export * from './record-calendar-motion';
 export * from './RecordAttachmentSection';
 export * from './RecordCalendarPresentation';
 export * from './RecordDetailPresentation';

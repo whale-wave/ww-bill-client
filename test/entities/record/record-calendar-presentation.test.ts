@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { RecordCalendarPresentation } from '@/entities/record';
+import { getCalendarDragDirection, RecordCalendarPresentation } from '@/entities/record';
 
 let cleanup: (() => void) | undefined;
 
@@ -188,5 +188,25 @@ describe('record calendar presentation', () => {
       dispatchPointer(calendar!, 'pointerup', 150, 100);
     });
     expect(onMonthChange).not.toHaveBeenCalled();
+  });
+});
+
+describe('calendar drag direction', () => {
+  it('changes month for deliberate distance or velocity and otherwise springs back', () => {
+    expect(getCalendarDragDirection({ offsetX: -60, offsetY: 0, velocityX: 0, velocityY: 0 })).toBe(1);
+    expect(getCalendarDragDirection({ offsetX: 60, offsetY: 0, velocityX: 0, velocityY: 0 })).toBe(-1);
+    expect(getCalendarDragDirection({ offsetX: -20, offsetY: 0, velocityX: -600, velocityY: 0 })).toBe(1);
+    expect(getCalendarDragDirection({ offsetX: 20, offsetY: 0, velocityX: 600, velocityY: 0 })).toBe(-1);
+    expect(getCalendarDragDirection({ offsetX: 30, offsetY: 0, velocityX: 300, velocityY: 0 })).toBe(0);
+  });
+
+  it('keeps vertical scroll gestures from changing the month', () => {
+    expect(getCalendarDragDirection({ offsetX: -60, offsetY: 100, velocityX: 0, velocityY: 0 })).toBe(0);
+    expect(getCalendarDragDirection({
+      offsetX: -20,
+      offsetY: 100,
+      velocityX: -600,
+      velocityY: -900,
+    })).toBe(0);
   });
 });
