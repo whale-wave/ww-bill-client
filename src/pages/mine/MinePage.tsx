@@ -1,9 +1,9 @@
 import type { FC } from 'react';
 import type { DesignIconName } from '@/shared/ui';
 import { Toast } from 'antd-mobile';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGetUserUserInfoQuery, usePostCheckInMutation, UserSummaryCard } from '@/entities/user';
+import { useGetUserUserInfoQuery, UserSummaryCard } from '@/entities/user';
 import { BottomList } from '@/pages/mine/ui';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
@@ -14,8 +14,9 @@ const Mine: FC = () => {
   const { t } = useTranslation('user');
   const navigate = useNavigate();
 
-  const { data: userInfo } = useGetUserUserInfoQuery();
-  const [postCheckInMutate, { isLoading: isCheckInPending }] = usePostCheckInMutation();
+  const { data: userInfo } = useGetUserUserInfoQuery({
+    queryOptions: { refetchOnMount: 'always' },
+  });
 
   const checkIn = useMemo(() => {
     return !!userInfo?.checkIn;
@@ -39,12 +40,6 @@ const Mine: FC = () => {
       recordCount: recordCount ?? 0,
     };
   }, [userInfo]);
-
-  const handleCheckIn = useCallback(async () => {
-    if (checkIn)
-      return;
-    await postCheckInMutate();
-  }, [checkIn, postCheckInMutate]);
 
   const tabs = useMemo(() => [
     {
@@ -101,9 +96,7 @@ const Mine: FC = () => {
           name={userInfo?.name}
           avatar={userInfo?.avatar}
           checkIn={checkIn}
-          isCheckInPending={isCheckInPending}
           numberInfo={numberInfo}
-          onCheckIn={handleCheckIn}
           onProfileClick={() => navigate('/user-info')}
         />
 

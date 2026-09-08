@@ -197,10 +197,9 @@ function BookkeepingPreview({ onExit }: { onExit: () => void }) {
 }
 
 function MinePreview() {
-  const [checkedIn, setCheckedIn] = useState(false);
   return (
     <div className="page-new space-y-4 px-[18px] pb-24 pt-6">
-      <UserSummaryCard checkIn={checkedIn} name="小鲸鱼" numberInfo={{ checkInAll: 3, checkInKeep: 1, recordCount: 1095 }} onCheckIn={() => setCheckedIn(true)} onProfileClick={() => undefined} />
+      <UserSummaryCard checkIn name="小鲸鱼" numberInfo={{ checkInAll: 3, checkInKeep: 1, recordCount: 1095 }} onProfileClick={() => undefined} />
       <ActionMenuCard
         columns={5}
         items={[

@@ -7,13 +7,11 @@ export interface UserSummaryCardProps {
   avatar?: string;
   name?: string;
   checkIn: boolean;
-  isCheckInPending?: boolean;
   numberInfo: {
     checkInAll?: number | null;
     checkInKeep?: number | null;
     recordCount?: number | null;
   };
-  onCheckIn: () => void;
   onProfileClick: () => void;
 }
 
@@ -21,8 +19,6 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
   name,
   avatar,
   checkIn,
-  isCheckInPending = false,
-  onCheckIn,
   numberInfo,
   onProfileClick,
 }) => {
@@ -53,17 +49,12 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
           <div className="min-w-0 flex-1">
             <div className="truncate text-[20px] font-extrabold leading-[30px] text-ww-ink">{name || t('notLoggedIn')}</div>
             {name && (
-              <button
-                className="mt-2 flex h-11 items-center border-0 bg-transparent p-0 text-[12px] font-bold leading-[18px] transition-opacity active:opacity-75 disabled:opacity-55"
-                disabled={checkIn || isCheckInPending}
-                onClick={onCheckIn}
-                type="button"
-              >
+              <div className="mt-2 flex h-11 items-center text-[12px] font-bold leading-[18px]">
                 <span className="ww-profile-check-in flex items-center px-[13px]">
                   <CalendarCheck2 className="mr-1" size={14} strokeWidth={2} />
-                  {checkIn ? t('checkIn.alreadyCheckedIn') : t('checkIn.button')}
+                  {checkIn ? t('checkIn.automaticCompleted') : t('checkIn.automaticHint')}
                 </span>
-              </button>
+              </div>
             )}
           </div>
         </div>

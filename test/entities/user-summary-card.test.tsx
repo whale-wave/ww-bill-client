@@ -23,7 +23,6 @@ describe('userSummaryCard', () => {
       checkIn: false,
       name: 'Tester',
       numberInfo: {},
-      onCheckIn: vi.fn(),
       onProfileClick: vi.fn(),
     })));
     cleanup = () => act(() => root.unmount());
@@ -32,20 +31,19 @@ describe('userSummaryCard', () => {
     expect(metricValues.map(value => value.textContent)).toEqual(['0', '0', '0']);
   });
 
-  it('disables the check-in button while the request is pending', () => {
+  it('renders automatic check-in guidance without a manual action', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
 
     act(() => root.render(createElement(UserSummaryCard, {
       checkIn: false,
-      isCheckInPending: true,
       name: 'Tester',
       numberInfo: { checkInAll: 2, checkInKeep: 1, recordCount: 3 },
-      onCheckIn: vi.fn(),
       onProfileClick: vi.fn(),
     })));
     cleanup = () => act(() => root.unmount());
 
-    expect(container.querySelector('button[disabled]')?.textContent).toContain('checkIn.button');
+    expect(container.textContent).toContain('checkIn.automaticHint');
+    expect(Array.from(container.querySelectorAll('button')).some(button => button.textContent?.includes('checkIn.automaticHint'))).toBe(false);
   });
 });

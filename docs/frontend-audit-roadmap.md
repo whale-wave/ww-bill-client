@@ -47,7 +47,7 @@
 | 固定支出 | `/fixed-expenses`, `/fixed-expenses/create`, `/fixed-expenses/:id`, `/fixed-expenses/:id/edit` | 新实现较完整，表单与缓存失效较规范 |
 | 发现与社区 | `/discovery`, `/community`, `/community/personal/:id`, `/post-topic`, `/topic-detail/:id` | 社区基础浏览/发帖/评论存在，但数据层与分享交互未收敛 |
 | 消息 | `/message`, `/message/new-follow`, `/message/comment-list`, `/message/system-notify` | 首页已有三个入口；子页服务端阻塞已修复并完成认证端到端验证，仍缺未读/摘要数据接口 |
-| 我的与设置 | `/mine`, `/settings`, `/user-info`, `/password`, `/settings/email/change/*`, `/category` | 基础用户信息、签到、设置存在；类别设置已支持查看收入/支出分类，管理动作暂不暴露 |
+| 我的与设置 | `/mine`, `/settings`, `/user-info`, `/password`, `/settings/email/change/*`, `/category` | 基础用户信息、记账自动打卡、设置存在；类别设置已支持查看收入/支出分类，管理动作暂不暴露 |
 | 认证 | `/login`, `/sign`, `/forget-password/*` | 登录、注册、找回密码基础流程存在 |
 
 ## 未完成和占位功能

@@ -47,8 +47,8 @@
     "allDays": "记账总天数",
     "recordCount": "记账总笔数",
     "recordUnit": "笔",
-    "alreadyCheckedIn": "已打卡",
-    "button": "打卡"
+    "automaticCompleted": "今日已自动打卡",
+    "automaticHint": "记一笔，自动打卡"
   },
   "notLoggedIn": "未登录",
   "vipNotSupported": "暂不支持 VIP 功能",

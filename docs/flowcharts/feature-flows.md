@@ -330,9 +330,9 @@ flowchart TD
 ```mermaid
 flowchart TD
   Mine["/mine"] --> UserInfoApi["useGetUserUserInfoQuery -> GET /user/userInfo"]
-  Mine --> CheckIn["点击签到"]
-  CheckIn --> CheckInApi["POST /check_in"]
-  CheckInApi --> RefreshUser["刷新用户信息或提示结果"]
+  Bookkeeping["新增记账成功"] --> AutoCheckIn["服务端自动补当天打卡"]
+  AutoCheckIn --> Mine
+  UserInfoApi --> CheckInStatus["展示今日自动打卡状态与累计统计"]
   Mine --> UserInfo["/user-info"]
   UserInfo --> EditName["修改昵称"]
   EditName --> PutUser["PUT /user/userInfo"]
