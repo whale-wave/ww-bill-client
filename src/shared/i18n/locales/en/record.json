@@ -79,11 +79,14 @@
     "empty": "No adjustments yet"
   },
   "calendar": {
+    "collapse": "Collapse calendar",
     "title": "Calendar",
     "selectMonth": "Select month",
     "noRecord": "No records",
     "emptyDescription": "No transactions for this day yet. New entries will appear here.",
+    "expand": "Expand month",
     "selectedDay": "Day details",
+    "recordCount": "{{count}} records",
     "dailyBudget": "Daily Budget"
   },
   "periodPicker": {

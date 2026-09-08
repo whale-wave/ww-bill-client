@@ -1,24 +1,22 @@
 import type { Dayjs } from 'dayjs';
-import type { PanInfo } from 'motion/react';
 import type { FC, ReactNode, PointerEvent as ReactPointerEvent } from 'react';
 import type { RecordOverviewListGroup, RecordOverviewListItem } from './RecordOverviewList';
 import {
   Button,
-  CalendarPickerView,
   ErrorBlock,
   SpinLoading,
 } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { ArrowLeft, CalendarDays, Plus } from 'lucide-react';
-import { AnimatePresence, m } from 'motion/react';
-import { useEffect, useRef } from 'react';
-import { cn } from '@/shared/lib';
+import { m } from 'motion/react';
+import { useEffect, useRef, useState } from 'react';
 import { IllustratedEmptyState, MOTION_PRESETS, Surface, useMotionPreference } from '@/shared/ui';
 import {
   CALENDAR_SWIPE_DIRECTION_RATIO,
   CALENDAR_SWIPE_MIN_DISTANCE,
-  getCalendarDragDirection,
+  getCalendarWeekStart,
 } from './record-calendar-motion';
+import { RecordCalendarCarousel } from './RecordCalendarCarousel';
 import { RecordMonthPicker } from './RecordMonthPicker';
 import { RecordOverviewList } from './RecordOverviewList';
 
@@ -31,30 +29,16 @@ export interface RecordCalendarDay {
 export type RecordCalendarState = 'error' | 'loading' | 'ready';
 
 const CALENDAR_SWIPE_CLICK_GUARD_MS = 250;
-const CALENDAR_DRAG_MAX_DISTANCE = 88;
-const CALENDAR_MONTH_TRANSITION_DISTANCE = 28;
-
-type CalendarMonthTransitionDirection = -1 | 0 | 1;
-
-const calendarMonthTransitionVariants = {
-  center: { opacity: 1, x: 0 },
-  enter: (direction: CalendarMonthTransitionDirection) => ({
-    opacity: 0.68,
-    x: direction * CALENDAR_MONTH_TRANSITION_DISTANCE,
-  }),
-  exit: (direction: CalendarMonthTransitionDirection) => ({
-    opacity: 0,
-    x: direction * -CALENDAR_DRAG_MAX_DISTANCE,
-  }),
-};
 
 interface RecordCalendarPresentationProps {
   backLabel: string;
   canCreate?: boolean;
+  collapseCalendarLabel: string;
   days: RecordCalendarDay[];
   emptyDescription?: ReactNode;
   emptyLabel: ReactNode;
   errorDescription?: ReactNode;
+  expandCalendarLabel: string;
   groups: RecordOverviewListGroup[];
   month: Dayjs;
   onBack: () => void;
@@ -73,51 +57,17 @@ interface RecordCalendarPresentationProps {
   todayLabel: string;
 }
 
-const calendarRootClassName = [
-  'page-new',
-  'h-full',
-  'max-h-[100dvh]',
-  'min-h-0',
-  'overflow-hidden',
-  '[&_.adm-calendar-picker-view-title]:hidden',
-  '[&_.adm-calendar-picker-view-header]:hidden',
-  '[&_.adm-calendar-picker-view-cell-top]:hidden',
-  '[&_.adm-calendar-picker-view-cell-bottom]:hidden',
-  '[&_.adm-calendar-picker-view-mark]:border-b-0',
-  '[&_.adm-calendar-picker-view-mark]:mb-1',
-  '[&_.adm-calendar-picker-view-mark]:text-[11px]',
-  '[&_.adm-calendar-picker-view-mark]:font-bold',
-  '[&_.adm-calendar-picker-view-mark]:text-ww-soft',
-  '[&_.adm-calendar-picker-view-body]:h-[unset]',
-  '[&_.adm-calendar-picker-view-cell]:h-[clamp(46px,6.6dvh,50px)]',
-  '[&_.adm-calendar-picker-view-cell]:min-h-0',
-  '[&_.adm-calendar-picker-view-cell]:mb-[3px]',
-  '[&_.adm-calendar-picker-view-cell]:w-[calc(100%/7-24px/7)]',
-  '[&_.adm-calendar-picker-view-cell]:rounded-[13px]',
-  '[&_.adm-calendar-picker-view-cell]:border',
-  '[&_.adm-calendar-picker-view-cell]:border-solid',
-  '[&_.adm-calendar-picker-view-cell]:border-transparent',
-  '[&_.adm-calendar-picker-view-cell]:p-0',
-  '[&_.adm-calendar-picker-view-cell]:text-inherit',
-  '[&_.adm-calendar-picker-view-cell:not(:nth-child(7n))]:mr-[4px]',
-  '[&_.adm-calendar-picker-view-cell-selected]:!border-primary-mid',
-  '[&_.adm-calendar-picker-view-cell-selected]:!bg-transparent',
-  '[&_.adm-calendar-picker-view-cell-selected]:!text-inherit',
-  '[&_.adm-calendar-picker-view-cell-selected]:!shadow-none',
-  '[&_.adm-calendar-picker-view-cell-date]:flex',
-  '[&_.adm-calendar-picker-view-cell-date]:h-full',
-  '[&_.adm-calendar-picker-view-cell-date]:w-full',
-  '[&_.adm-calendar-picker-view-cell-date]:flex-grow',
-  '[&_.adm-calendar-picker-view-cell-date]:text-base',
-].join(' ');
+const calendarRootClassName = 'page-new h-full max-h-[100dvh] min-h-0 overflow-hidden';
 
 export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = ({
   backLabel,
   canCreate = true,
+  collapseCalendarLabel,
   days,
   emptyDescription,
   emptyLabel,
   errorDescription,
+  expandCalendarLabel,
   groups,
   month,
   onBack,
@@ -138,25 +88,15 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
   const swipeOriginRef = useRef<{ pointerId: number; x: number; y: number }>();
   const shouldSuppressClickRef = useRef(false);
   const clickGuardTimerRef = useRef<ReturnType<typeof setTimeout>>();
-  const monthTransitionDirectionRef = useRef<CalendarMonthTransitionDirection>(0);
+  const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(false);
   const { isMotionEnabled } = useMotionPreference();
   useEffect(() => () => {
     if (clickGuardTimerRef.current)
       clearTimeout(clickGuardTimerRef.current);
   }, []);
-  const dayMap = new Map(days.map(day => [day.date, day]));
-  const calendarRange = {
-    max: month.endOf('month').toDate(),
-    min: month.startOf('month').toDate(),
-  };
   const isTodaySelected = selectedDate.isSame(dayjs(), 'day');
-  const isCurrentMonth = month.isSame(dayjs(), 'month');
   const recordCount = groups.reduce((total, group) => total + group.records.length, 0);
   const monthKey = month.format('YYYY-MM');
-  const monthTransitionDirection = monthTransitionDirectionRef.current;
-  const monthTransitionDirectionLabel = monthTransitionDirection > 0
-    ? 'forward'
-    : monthTransitionDirection < 0 ? 'backward' : 'idle';
 
   const clearClickGuard = () => {
     if (clickGuardTimerRef.current)
@@ -202,48 +142,41 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
     releasePointerCapture(event);
   };
 
-  const setMonthTransitionDirection = (nextMonth: Dayjs) => {
-    const normalizedMonth = nextMonth.startOf('month');
-    monthTransitionDirectionRef.current = normalizedMonth.isSame(month, 'month')
-      ? 0
-      : normalizedMonth.isAfter(month, 'month') ? 1 : -1;
-    return normalizedMonth;
-  };
-
   const handleMonthChangeRequest = (nextMonth: Dayjs) => {
     if (!onMonthChange)
       return;
-    const normalizedMonth = setMonthTransitionDirection(nextMonth);
-    onMonthChange(normalizedMonth);
+    onMonthChange(nextMonth.startOf('month'));
   };
 
-  const handleMonthSwipe = (direction: -1 | 0 | 1, shouldArmClickGuard = true) => {
+  const handleMonthSwipe = (direction: -1 | 0 | 1) => {
     if (!direction || !onMonthChange)
       return;
     const nextMonth = month.add(direction, 'month').startOf('month');
     if (nextMonth.isAfter(dayjs(), 'month'))
       return;
-    if (shouldArmClickGuard)
-      armClickGuard();
+    armClickGuard();
     handleMonthChangeRequest(nextMonth);
+  };
+
+  const handleCalendarPeriodSwipe = (direction: -1 | 0 | 1) => {
+    if (!direction)
+      return;
+    if (!isCalendarCollapsed) {
+      handleMonthSwipe(direction);
+      return;
+    }
+
+    const nextDate = selectedDate.add(direction, 'week');
+    if (getCalendarWeekStart(nextDate).isAfter(getCalendarWeekStart(dayjs()), 'day'))
+      return;
+    armClickGuard();
+    if (!nextDate.isSame(month, 'month'))
+      handleMonthChangeRequest(nextDate.startOf('month'));
+    onDateChange(nextDate);
   };
 
   const handleCalendarDragStart = () => {
     startClickGuard();
-  };
-
-  const handleCalendarDragEnd = (
-    _event: MouseEvent | TouchEvent | PointerEvent,
-    info: PanInfo,
-  ) => {
-    armClickGuard();
-    const direction = getCalendarDragDirection({
-      offsetX: info.offset.x,
-      offsetY: info.offset.y,
-      velocityX: info.velocity.x,
-      velocityY: info.velocity.y,
-    });
-    handleMonthSwipe(direction, false);
   };
 
   const handleSwipeEnd = (event: ReactPointerEvent<HTMLElement>) => {
@@ -262,7 +195,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
       return;
     }
 
-    handleMonthSwipe(horizontalDistance < 0 ? 1 : -1);
+    handleCalendarPeriodSwipe(horizontalDistance < 0 ? 1 : -1);
   };
 
   const handleCalendarClickCapture = (event: React.MouseEvent<HTMLElement>) => {
@@ -275,7 +208,6 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
   };
 
   const handleToday = () => {
-    setMonthTransitionDirection(dayjs());
     onToday();
   };
 
@@ -353,95 +285,27 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
                   onPointerDown={handleSwipeStart}
                   onPointerUp={handleSwipeEnd}
                 >
-                  <AnimatePresence custom={monthTransitionDirection} initial={false} mode="popLayout">
-                    <m.div
-                      animate="center"
-                      className="w-full touch-pan-y"
-                      custom={monthTransitionDirection}
-                      data-calendar-drag-enabled={isMotionEnabled ? 'true' : 'false'}
-                      data-month-transition-direction={monthTransitionDirectionLabel}
-                      data-record-calendar-month={monthKey}
-                      drag={isMotionEnabled ? 'x' : false}
-                      dragConstraints={{
-                        left: isCurrentMonth ? 0 : -CALENDAR_DRAG_MAX_DISTANCE,
-                        right: CALENDAR_DRAG_MAX_DISTANCE,
-                      }}
-                      dragElastic={0.18}
-                      dragMomentum={false}
-                      dragSnapToOrigin
-                      exit={isMotionEnabled ? 'exit' : undefined}
-                      initial={isMotionEnabled ? 'enter' : false}
-                      key={monthKey}
-                      onDragEnd={handleCalendarDragEnd}
-                      onDragStart={handleCalendarDragStart}
-                      transition={MOTION_PRESETS.contentSwap.transition}
-                      variants={calendarMonthTransitionVariants}
-                    >
-                      <CalendarPickerView
-                        {...calendarRange}
-                        allowClear={false}
-                        onChange={(date) => {
-                          if (date)
-                            onDateChange(dayjs(date));
-                        }}
-                        renderDate={(date) => {
-                          const dateValue = dayjs(date);
-                          const day = dayMap.get(dateValue.format('YYYY-MM-DD'));
-                          const isToday = dayjs().isSame(dateValue, 'day');
-                          const isSelected = selectedDate.isSame(dateValue, 'day');
-                          return (
-                            <div
-                              className={cn(
-                                'flex flex-grow -translate-y-px flex-col items-center justify-center rounded-[11px]',
-                                isToday && !isSelected && 'text-primary-deep',
-                              )}
-                              data-date={dateValue.format('YYYY-MM-DD')}
-                            >
-                              <div
-                                className="flex h-5 w-6 items-center justify-center text-[13px] font-bold"
-                                data-calendar-day-number
-                              >
-                                {dateValue.date()}
-                              </div>
-                              <div className="mt-px flex flex-col items-center gap-px text-[9px] font-semibold leading-[9px]">
-                                <div className="flex min-h-[9px] justify-center text-finance-income">
-                                  {day?.income
-                                    ? (
-                                        <>
-                                          +
-                                          {day.income}
-                                        </>
-                                      )
-                                    : null}
-                                </div>
-                                <div className="flex min-h-[9px] justify-center text-finance-expense">
-                                  {day?.expense
-                                    ? (
-                                        <>
-                                          -
-                                          {day.expense}
-                                        </>
-                                      )
-                                    : null}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        }}
-                        selectionMode="single"
-                        title={false}
-                        value={selectedDate.toDate()}
-                        weekStartsOn="Monday"
-                      />
-                    </m.div>
-                  </AnimatePresence>
+                  <RecordCalendarCarousel
+                    canNavigate={Boolean(onMonthChange)}
+                    collapsed={isCalendarCollapsed}
+                    collapseLabel={collapseCalendarLabel}
+                    days={days}
+                    expandLabel={expandCalendarLabel}
+                    isMotionEnabled={isMotionEnabled}
+                    month={month}
+                    onCollapsedChange={setIsCalendarCollapsed}
+                    onDateChange={onDateChange}
+                    onDragEnd={armClickGuard}
+                    onDragStart={handleCalendarDragStart}
+                    onMonthChange={handleMonthChangeRequest}
+                    selectedDate={selectedDate}
+                  />
                 </section>
                 <m.div
                   animate={isMotionEnabled ? MOTION_PRESETS.contentSwap.animate : undefined}
                   className="flex min-h-0 flex-grow shrink-0 flex-col"
                   data-record-calendar-month-details={monthKey}
                   initial={isMotionEnabled ? MOTION_PRESETS.contentSwap.initial : false}
-                  key={`details-${monthKey}`}
                   transition={MOTION_PRESETS.contentSwap.transition}
                 >
                   <div className="flex shrink-0 items-center justify-between px-[22px] pb-2 pt-4">

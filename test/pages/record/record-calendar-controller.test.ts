@@ -67,6 +67,15 @@ describe('record calendar controller', () => {
     expect(useGetRecordQuery).toHaveBeenCalledWith({
       params: { startDate: '2026-06-15' },
     });
+    expect(useGetRecordQuery).toHaveBeenCalledWith({
+      params: { startDate: '2026-05-15' },
+      queryOptions: { staleTime: 30_000 },
+    });
+    expect(useGetRecordQuery).toHaveBeenCalledWith({
+      options: { enabled: true },
+      params: { startDate: '2026-07-15' },
+      queryOptions: { staleTime: 30_000 },
+    });
   });
 
   it('keeps daily totals in decimal strings without converting them to Number', async () => {

@@ -54,10 +54,12 @@ function RecordCalendar() {
   return (
     <RecordCalendarPresentation
       backLabel={t('common:nav.back')}
+      collapseCalendarLabel={t('calendar.collapse')}
       days={days}
       emptyDescription={t('calendar.emptyDescription')}
       emptyLabel={t('common:empty')}
       errorDescription={t('common:error.loadFail')}
+      expandCalendarLabel={t('calendar.expand')}
       groups={groups}
       month={selectMonthValue}
       onBack={onBack}

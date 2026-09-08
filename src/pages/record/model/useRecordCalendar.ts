@@ -7,6 +7,8 @@ import { useGetRecordQuery } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { money } from '@/shared/lib';
 
+const CALENDAR_ADJACENT_STALE_TIME = 30_000;
+
 export function useRecordCalendar() {
   const { t } = useTranslation('record');
   const navigate = useNavigate();
@@ -24,6 +26,22 @@ export function useRecordCalendar() {
 
   const recordQuery = useGetRecordQuery({ params });
   const recordList = recordQuery.data;
+  const previousMonthQuery = useGetRecordQuery({
+    params: { startDate: selectMonthValue.subtract(1, 'month').format('YYYY-MM-DD') },
+    queryOptions: { staleTime: CALENDAR_ADJACENT_STALE_TIME },
+  });
+  const nextMonth = selectMonthValue.add(1, 'month');
+  const nextMonthQuery = useGetRecordQuery({
+    options: { enabled: !nextMonth.isAfter(dayjs(), 'month') },
+    params: { startDate: nextMonth.format('YYYY-MM-DD') },
+    queryOptions: { staleTime: CALENDAR_ADJACENT_STALE_TIME },
+  });
+  const calendarRecords = useMemo(() => {
+    const records = new Map<number, RecordEntry>();
+    [previousMonthQuery.data, recordList, nextMonthQuery.data]
+      .forEach(result => result.data.forEach(record => records.set(record.id, record)));
+    return [...records.values()];
+  }, [nextMonthQuery.data, previousMonthQuery.data, recordList]);
 
   useEffect(() => {
     if (!legacySelectTime || searchParams.has('selectTime'))
@@ -48,10 +66,7 @@ export function useRecordCalendar() {
       income?: string;
     }>();
 
-    if (!recordList)
-      return map;
-
-    recordList.data.forEach((record) => {
+    calendarRecords.forEach((record) => {
       const date = dayjs(record.time).startOf('day').valueOf();
 
       let data = map.get(date);
@@ -75,7 +90,7 @@ export function useRecordCalendar() {
     });
 
     return map;
-  }, [recordList]);
+  }, [calendarRecords]);
 
   const list = useMemo(() => {
     const data = dateMap.get(dayjs(selectDateValue).startOf('day').valueOf());

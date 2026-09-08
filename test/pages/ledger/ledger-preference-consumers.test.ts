@@ -283,6 +283,28 @@ describe('ledger preference consumers', () => {
 
     expect(container.querySelector(`[data-date="${today}"]`)?.textContent).toContain('+10.00');
     expect(container.querySelector(`[data-date="${today}"]`)?.textContent).toContain('-5.00');
+    const previousMonth = dayjs().subtract(1, 'month');
+    expect(hooks.useLedgerRecordsQuery).toHaveBeenCalledWith({
+      params: {
+        filters: {
+          endDate: previousMonth.endOf('month').format('YYYY-MM-DD'),
+          startDate: previousMonth.startOf('month').format('YYYY-MM-DD'),
+        },
+        ledgerId: 'ledger/a',
+      },
+      queryOptions: { staleTime: 30_000 },
+    });
+    const nextMonth = dayjs().add(1, 'month');
+    expect(hooks.useLedgerRecordsQuery).toHaveBeenCalledWith({
+      params: {
+        filters: {
+          endDate: nextMonth.endOf('month').format('YYYY-MM-DD'),
+          startDate: nextMonth.startOf('month').format('YYYY-MM-DD'),
+        },
+        ledgerId: 'ledger/a',
+      },
+      queryOptions: { enabled: false, staleTime: 30_000 },
+    });
   });
 
   it('uses chart period, metric, and display preferences as initial controls', () => {

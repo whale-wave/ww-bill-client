@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { FamilyRecord, Household, HouseholdRecordsPage as HouseholdRecordsResult } from '@/entities/household';
 import { Dialog } from 'antd-mobile';
+import dayjs from 'dayjs';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -832,11 +833,19 @@ describe('household calendar', () => {
     );
 
     expect(container.querySelector('[data-testid="household-calendar-page"] [data-record-calendar-presentation]')).not.toBeNull();
-    expect(container.querySelector('.adm-calendar-picker-view')).not.toBeNull();
+    expect(container.querySelector('[data-record-calendar-carousel]')).not.toBeNull();
     expect(container.querySelector('[data-date="2026-07-21"]')?.textContent).toContain('-20');
     expect(hooks.useHouseholdCalendarQuery).toHaveBeenCalledWith({
       params: { householdId: 'household/a', month: '2026-07-01' },
       queryOptions: { enabled: true },
+    });
+    expect(hooks.useHouseholdCalendarQuery).toHaveBeenCalledWith({
+      params: { householdId: 'household/a', month: '2026-06-01' },
+      queryOptions: { enabled: true, staleTime: 30_000 },
+    });
+    expect(hooks.useHouseholdCalendarQuery).toHaveBeenCalledWith({
+      params: { householdId: 'household/a', month: '2026-08-01' },
+      queryOptions: { enabled: true, staleTime: 30_000 },
     });
   });
 
@@ -857,6 +866,37 @@ describe('household calendar', () => {
     });
     expect(router.state.location.search).toMatch(/^\?selectTime=\d+$/);
     expect(router.state.location.search).not.toContain('month=');
+  });
+
+  it('selects a dimmed adjacent date and switches the active calendar month', async () => {
+    hooks.useHouseholdCalendarQuery.mockImplementation(({ params }) => {
+      const days = params.month === '2026-06-01'
+        ? [{ countedExpense: '0.00', countedIncome: '6.00', date: '2026-06-30', recordCount: 1, visibleExpense: '0.00', visibleIncome: '6.00' }]
+        : [{ countedExpense: '20.00', countedIncome: '0.00', date: '2026-07-21', recordCount: 1, visibleExpense: '20.00', visibleIncome: '0.00' }];
+      return {
+        data: { days, month: params.month },
+        days,
+        isError: false,
+        isLoading: false,
+        refetch: vi.fn(),
+      };
+    });
+    const { container, router } = renderPage(
+      '/households/household%2Fa/calendar?month=2026-07-01',
+      '/households/:householdId/calendar',
+      createElement(HouseholdCalendarPage),
+    );
+    const adjacentDate = container.querySelector<HTMLButtonElement>(
+      '[data-record-calendar-current="true"] [data-date="2026-06-30"]',
+    );
+    expect(adjacentDate?.textContent).toContain('+6');
+
+    await act(async () => adjacentDate?.click());
+
+    expect(container.querySelector('[data-record-calendar-current="true"]')
+      ?.getAttribute('data-record-calendar-month')).toBe('2026-06');
+    expect(container.querySelector('[data-testid="record-calendar-month-picker"]')?.textContent).toContain('06');
+    expect(router.state.location.search).toBe(`?selectTime=${dayjs('2026-06-30').valueOf()}`);
   });
 
   it('opens the personal editor with a safe household return context', async () => {
