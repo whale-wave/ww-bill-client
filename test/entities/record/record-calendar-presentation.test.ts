@@ -80,7 +80,13 @@ describe('record calendar presentation', () => {
     expect(listContainer?.classList).not.toContain('bg-white/58');
     expect(recordCard?.classList).toContain('rounded-[20px]');
     expect(container.querySelector('[data-record-calendar-create]')).not.toBeNull();
-    expect(container.querySelector('[data-record-calendar-today]')).not.toBeNull();
+    const todayAction = container.querySelector('[data-record-calendar-today]');
+    expect(todayAction).not.toBeNull();
+    expect(todayAction?.classList).toContain('h-11');
+    expect(todayAction?.classList).toContain('w-11');
+    expect(todayAction?.classList).toContain('justify-self-end');
+    expect(todayAction?.classList).toContain('border-white/70');
+    expect(todayAction?.classList).toContain('bg-white/75');
     expect(container.textContent).not.toContain('2026.07.30');
     expect(container.textContent).toContain('共 1 笔');
   });

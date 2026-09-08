@@ -32,7 +32,7 @@ import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedDateTime } from '@/shared/lib';
 import {
   ActionField,
-  AppBottomSheet,
+  AppSheet,
   confirmAppAction,
   ContentStack,
   FormField,
@@ -383,7 +383,7 @@ const LedgerMemberDetailPage: FC = () => {
         </div>
       </main>
 
-      <AppBottomSheet
+      <AppSheet
         destroyOnClose
         onClose={() => setRoleSheetOpen(false)}
         onMaskClick={() => setRoleSheetOpen(false)}
@@ -420,7 +420,7 @@ const LedgerMemberDetailPage: FC = () => {
             ))}
           </div>
         </section>
-      </AppBottomSheet>
+      </AppSheet>
     </div>
   );
 };

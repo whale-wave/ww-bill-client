@@ -1,4 +1,21 @@
 :root {
+  --ww-ref-space-1: 4px;
+  --ww-ref-space-2: 8px;
+  --ww-ref-space-3: 12px;
+  --ww-ref-space-4: 16px;
+  --ww-ref-space-5: 20px;
+  --ww-ref-space-6: 24px;
+  --ww-ref-control-hit-target-min: 44px;
+  --ww-ref-control-height-compact: 32px;
+  --ww-ref-control-height-medium: 48px;
+  --ww-ref-control-height-large: 52px;
+  --ww-ref-control-padding-compact: var(--ww-ref-space-3);
+  --ww-ref-control-padding-medium: var(--ww-ref-space-4);
+  --ww-ref-control-padding-large: var(--ww-ref-space-5);
+  --ww-ref-control-gap-compact: var(--ww-ref-space-1);
+  --ww-ref-control-gap-default: var(--ww-ref-space-2);
+  --ww-ref-control-font-compact: 11px;
+  --ww-ref-control-font-default: 14px;
   --ww-ref-radius-sm: 12px;
   --ww-ref-radius-md: 18px;
   --ww-ref-radius-lg: 20px;

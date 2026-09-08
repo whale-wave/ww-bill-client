@@ -1,7 +1,8 @@
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
-import { DatePicker, Space } from 'antd-mobile';
+import { Space } from 'antd-mobile';
 import dayjs from 'dayjs';
+import { AppDatePicker } from '@/shared/ui';
 
 interface CustomRender {
   visible1: boolean;
@@ -16,7 +17,7 @@ const Precision: FC<CustomRender> = ({ visible1, change, changeTime, selectTime 
 
   return (
     <Space wrap>
-      <DatePicker
+      <AppDatePicker
         visible={visible1}
         onClose={() => {
           change();

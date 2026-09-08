@@ -21,7 +21,7 @@ import {
 } from '@/features/ledger-collaboration';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { AppBottomSheet, ContentStack, PageHeader, SectionStack, Surface } from '@/shared/ui';
+import { AppSheet, ContentStack, PageHeader, SectionStack, Surface } from '@/shared/ui';
 import {
   getJoinRequestPermissionGroups,
   getJoinRequestRoleDescriptionKey,
@@ -255,7 +255,7 @@ const LedgerJoinRequestDetailPage: FC = () => {
         </div>
       </main>
 
-      <AppBottomSheet
+      <AppSheet
         destroyOnClose
         onClose={() => setRolePickerOpen(false)}
         onMaskClick={() => setRolePickerOpen(false)}
@@ -292,7 +292,7 @@ const LedgerJoinRequestDetailPage: FC = () => {
             ))}
           </div>
         </section>
-      </AppBottomSheet>
+      </AppSheet>
     </div>
   );
 };

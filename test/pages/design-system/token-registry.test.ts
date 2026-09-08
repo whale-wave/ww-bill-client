@@ -31,6 +31,19 @@ describe('design studio token registry', () => {
       '--ww-component-sheet-padding-x',
       '--ww-component-sheet-section-gap',
       '--ww-component-sheet-control-height',
+      '--ww-material-overlay-background',
+      '--ww-material-overlay-border',
+      '--ww-material-overlay-radius',
+      '--ww-material-overlay-shadow',
+      '--ww-material-overlay-blur',
+      '--ww-material-scrim-background',
+      '--ww-component-sheet-radius',
+      '--ww-component-sheet-handle-width',
+      '--ww-component-overlay-width',
+      '--ww-component-overlay-primary-background',
+      '--ww-component-action-sheet-row-height',
+      '--ww-component-date-picker-height',
+      '--ww-component-date-picker-selection-background',
     ]));
     expect(colorToChannels('#3f9fbe')).toBe('63 159 190');
     expect(channelsToColor('63 159 190')).toBe('#3f9fbe');

@@ -1,14 +1,10 @@
 import type { BudgetInfo } from '@/entities/budget';
 import type { Ledger } from '@/entities/ledger';
-import { ActionSheet, Dialog, Modal, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { CircleAlert } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import {
-  BUDGET_ACTION_SHEET_CLASS_NAME,
-  BUDGET_CENTER_POPUP_CLASS_NAME,
-  BUDGET_DIALOG_BODY_CLASS_NAME,
-  BUDGET_OVERLAY_MASK_CLASS_NAME,
   BudgetEditorPresentation,
   BudgetEntityLevel,
   BudgetEntityType,
@@ -27,7 +23,7 @@ import { LedgerCapability } from '@/entities/ledger';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useCurrentWorkspaceBack, useWorkspaceBack } from '@/features/workspace-navigation';
 import { useTranslation } from '@/shared/i18n';
-import { IllustratedEmptyState, PageLoadingState, Surface } from '@/shared/ui';
+import { confirmAppAction, IllustratedEmptyState, PageLoadingState, showAppActionSheet, showAppInfoDialog, Surface } from '@/shared/ui';
 
 interface BudgetEditor {
   item?: BudgetInfo;
@@ -111,9 +107,10 @@ function BudgetContent({
       closeEditor();
       if (response.statusCode === 4017) {
         setTimeout(() => {
-          void Dialog.alert({
-            content: t('warning.categoryBudgetExceedsTotal'),
+          void showAppInfoDialog({
             confirmText: t('actions.save'),
+            description: t('warning.categoryBudgetExceedsTotal'),
+            title: t('warning.title'),
           });
         }, 250);
       }
@@ -125,9 +122,7 @@ function BudgetContent({
 
   const showActions = (item: BudgetInfo, level: BudgetEntityLevel) => {
     const isSummary = level === BudgetEntityLevel.SUMMARY;
-    const actionSheet = ActionSheet.show({
-      popupClassName: BUDGET_ACTION_SHEET_CLASS_NAME,
-      styles: { mask: { backdropFilter: 'blur(2px)', background: 'rgba(38, 54, 74, 0.35)' } },
+    const actionSheet = showAppActionSheet({
       actions: [
         {
           key: 'edit',
@@ -147,12 +142,12 @@ function BudgetContent({
             actionSheet.close();
             try {
               if (isSummary) {
-                const confirm = await Modal.confirm({
-                  bodyClassName: BUDGET_DIALOG_BODY_CLASS_NAME,
-                  className: BUDGET_CENTER_POPUP_CLASS_NAME,
-                  content: t('clearSummaryBudgetWarning'),
-                  maskClassName: BUDGET_OVERLAY_MASK_CLASS_NAME,
+                const confirm = await confirmAppAction({
+                  cancelText: t('actions.cancel'),
+                  confirmText: t('actions.clear'),
+                  description: t('clearSummaryBudgetWarning'),
                   title: t('warning.title'),
+                  tone: 'warning',
                 });
                 if (!confirm)
                   return;

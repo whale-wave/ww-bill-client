@@ -19,12 +19,12 @@
   --ww-material-floating-radius: var(--ww-radius-panel);
   --ww-material-floating-shadow: 0 12px 28px rgb(20 20 24 / 0.12);
   --ww-material-floating-blur: blur(18px) saturate(1.16);
-  --ww-material-overlay-background: rgb(248 250 252 / 0.88);
-  --ww-material-overlay-border: rgb(255 255 255 / 0.76);
-  --ww-material-overlay-radius: var(--ww-radius-panel);
-  --ww-material-overlay-shadow: 0 18px 36px rgb(20 20 24 / 0.16);
-  --ww-material-overlay-blur: blur(10px) saturate(1.08);
-  --ww-material-scrim-background: rgb(20 20 24 / 0.36);
+  --ww-material-overlay-background: rgb(255 255 255 / 0.98);
+  --ww-material-overlay-border: rgb(36 82 106 / 0.1);
+  --ww-material-overlay-radius: 18px;
+  --ww-material-overlay-shadow: 0 8px 14px rgb(27 54 70 / 0.14);
+  --ww-material-overlay-blur: blur(3px);
+  --ww-material-scrim-background: rgb(25 42 54 / 0.32);
   --ww-component-dock-background: var(--ww-material-floating-background);
   --ww-component-dock-border: var(--ww-material-floating-border);
   --ww-component-dock-shadow: var(--ww-material-floating-shadow);
@@ -32,25 +32,66 @@
   --ww-component-dock-active: rgb(255 255 255 / 0.52);
   --ww-component-dock-create-icon-foreground: var(--ww-primary-foreground);
   --ww-component-overview-icon-foreground: var(--ww-theme-text-color);
+  /* Button sizes are fixed component recipes. Compact buttons keep a 44px
+   * hit target around a visually smaller control. */
+  --ww-component-button-hit-target-min: var(--ww-ref-control-hit-target-min);
+  --ww-component-button-height-compact: var(--ww-ref-control-height-compact);
+  --ww-component-button-height-medium: var(--ww-ref-control-height-medium);
+  --ww-component-button-height-large: var(--ww-ref-control-height-large);
+  --ww-component-button-padding-x-compact: var(--ww-ref-control-padding-compact);
+  --ww-component-button-padding-x-medium: var(--ww-ref-control-padding-medium);
+  --ww-component-button-padding-x-large: var(--ww-ref-control-padding-large);
+  --ww-component-button-gap-compact: var(--ww-ref-control-gap-compact);
+  --ww-component-button-gap-default: var(--ww-ref-control-gap-default);
+  --ww-component-button-font-size-compact: var(--ww-ref-control-font-compact);
+  --ww-component-button-font-size-medium: var(--ww-ref-control-font-default);
+  --ww-component-button-font-size-large: var(--ww-ref-control-font-default);
+  --ww-component-button-radius-compact: 999px;
+  --ww-component-button-radius-medium: var(--ww-radius-control);
+  --ww-component-button-radius-large: var(--ww-ref-radius-md);
   /* Form sheets share one density and material recipe. Appearance templates
    * only select token values; product sheets keep the same interaction shape. */
   --ww-component-sheet-padding-x: 18px;
   --ww-component-sheet-section-gap: 14px;
   --ww-component-sheet-control-height: 54px;
-  --ww-component-sheet-header-background: rgb(255 255 255 / 0.56);
-  --ww-component-sheet-header-border: rgb(255 255 255 / 0.64);
-  --ww-component-sheet-header-blur: blur(18px) saturate(1.12);
-  --ww-component-sheet-icon-background: rgb(255 255 255 / 0.58);
-  --ww-component-sheet-control-background: rgb(255 255 255 / 0.7);
-  --ww-component-sheet-control-border: rgb(255 255 255 / 0.72);
-  --ww-component-sheet-control-shadow: 0 2px 8px rgb(20 20 24 / 0.06);
-  --ww-component-sheet-subtle-background: color-mix(in srgb, var(--ww-theme-color-light) 34%, transparent);
-  --ww-component-sheet-selected-background: color-mix(in srgb, var(--ww-theme-color-light) 44%, transparent);
-  --ww-component-sheet-divider: color-mix(in srgb, var(--ww-border-color) 72%, transparent);
-  --ww-component-sheet-focus-ring: color-mix(in srgb, var(--ww-theme-color) 18%, transparent);
+  --ww-component-sheet-radius: 24px;
+  --ww-component-sheet-close-size: 44px;
+  --ww-component-sheet-close-radius: 12px;
+  --ww-component-sheet-heading-size: 17px;
+  --ww-component-sheet-header-background: transparent;
+  --ww-component-sheet-header-border: var(--ww-divider-color);
+  --ww-component-sheet-header-blur: none;
+  --ww-component-sheet-icon-background: var(--ww-surface-tint-color);
+  --ww-component-sheet-control-background: var(--ww-surface-raised-color);
+  --ww-component-sheet-control-border: var(--ww-border-color);
+  --ww-component-sheet-control-shadow: none;
+  --ww-component-sheet-subtle-background: var(--ww-surface-tint-color);
+  --ww-component-sheet-selected-background: color-mix(in srgb, var(--ww-theme-color-light) 68%, white);
+  --ww-component-sheet-divider: var(--ww-divider-color);
+  --ww-component-sheet-focus-ring: color-mix(in srgb, var(--ww-theme-color) 28%, transparent);
   --ww-component-sheet-placeholder: color-mix(in srgb, var(--ww-text-color-mid) 88%, var(--ww-theme-text-color));
   --ww-component-sheet-action-background: var(--ww-action-primary-background);
-  --ww-component-sheet-action-shadow: var(--ww-action-primary-shadow);
+  --ww-component-sheet-action-shadow: none;
+  --ww-component-sheet-handle-width: 36px;
+  --ww-component-sheet-handle-color: color-mix(in srgb, var(--ww-text-color-ghost) 72%, transparent);
+  --ww-component-sheet-handle-space: 16px;
+  --ww-component-overlay-width: 320px;
+  --ww-component-overlay-padding-x: 20px;
+  --ww-component-overlay-control-height: 48px;
+  --ww-component-overlay-control-radius: 12px;
+  --ww-component-overlay-title-size: 17px;
+  --ww-component-overlay-body-size: 14px;
+  --ww-component-overlay-icon-size: 40px;
+  --ww-component-overlay-icon-radius: 12px;
+  --ww-component-overlay-secondary-background: var(--ww-surface-tint-color);
+  --ww-component-overlay-secondary-foreground: var(--ww-text-color-mid);
+  --ww-component-overlay-primary-background: color-mix(in srgb, var(--ww-theme-color-deep) 82%, black);
+  --ww-component-overlay-primary-foreground: var(--ww-primary-foreground);
+  --ww-component-action-sheet-row-height: 54px;
+  --ww-component-date-picker-height: 300px;
+  --ww-component-date-picker-header-height: 56px;
+  --ww-component-date-picker-item-height: 44px;
+  --ww-component-date-picker-selection-background: color-mix(in srgb, var(--ww-theme-color-light) 46%, transparent);
   /* Compact summary composition shared by personal, household and custom ledgers. */
   --ww-component-summary-padding-x: 18px;
   --ww-component-summary-padding-y: 12px;
@@ -209,13 +250,20 @@ html[data-appearance-template='minimal'] {
   content: '';
 }
 
-/* The indicator is dormant outside studio candidates. Keeping its structure
- * in the primitive lets a candidate theme animate selection without changing
- * tab semantics or event handling. */
 .ww-floating-dock__active-indicator {
   position: absolute;
+  top: 12px;
+  left: 5px;
+  z-index: calc(var(--ww-ref-z-content) - 1);
+  height: 44px;
+  width: calc((100% - 10px) / var(--ww-tab-count, 5));
   pointer-events: none;
-  opacity: 0;
+  border-radius: 18px;
+  opacity: 1;
+  background: var(--ww-component-dock-active);
+  transform: translateX(0);
+  transform-origin: center;
+  will-change: transform;
 }
 
 .ww-floating-dock__button {
@@ -224,7 +272,7 @@ html[data-appearance-template='minimal'] {
 
 .ww-floating-dock__button--active:not(.ww-floating-dock__button--prominent) {
   color: var(--ww-theme-color-deep);
-  background: var(--ww-component-dock-active);
+  background: transparent;
 }
 
 .ww-floating-dock__create {

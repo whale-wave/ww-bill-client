@@ -42,7 +42,7 @@ import {
   useUploadLedgerCategoryIconMutation,
 } from '@/entities/category';
 import { useTranslation } from '@/shared/i18n';
-import { AppBottomSheet, PageLoadingState } from '@/shared/ui';
+import { AppSheet, PageLoadingState } from '@/shared/ui';
 
 type EditorState = { category?: CategoryEntity; mode: 'create' | 'edit' } | null;
 
@@ -288,7 +288,7 @@ function CategoryEditorSheet({
   };
 
   return (
-    <AppBottomSheet
+    <AppSheet
       bodyStyle={{ height: 'min(86dvh, 720px)', overflow: 'hidden' }}
       destroyOnClose
       onMaskClick={onClose}
@@ -428,7 +428,7 @@ function CategoryEditorSheet({
           </div>
         </div>
       </div>
-    </AppBottomSheet>
+    </AppSheet>
   );
 }
 

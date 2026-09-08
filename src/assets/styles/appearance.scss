@@ -693,7 +693,8 @@ html[data-design-studio-template='mono'] .ww-floating-dock__active-indicator {
   left: 5px;
   z-index: calc(var(--ww-ref-z-content) - 1);
   display: block;
-  width: calc((100% - 10px) / 5);
+  height: auto;
+  width: calc((100% - 10px) / var(--ww-tab-count, 5));
   border-radius: 28px;
   opacity: 0.9;
   background: color-mix(in srgb, var(--ww-component-dock-active) 92%, transparent);

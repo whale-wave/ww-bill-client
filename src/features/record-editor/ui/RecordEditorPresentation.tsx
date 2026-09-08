@@ -3,7 +3,7 @@ import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { Asset, AssetGroup } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
-import { Button, DatePicker, ErrorBlock, Popup, SpinLoading } from 'antd-mobile';
+import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
 import { Delete as BackspaceIcon, Banknote, Check, CheckCircle2, ChevronDown, ImagePlus, Settings2, Tags, Trash2, X } from 'lucide-react';
 import { m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -14,7 +14,8 @@ import { getRecordAttachmentContentApi } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import {
-  AppBottomSheet,
+  AppDatePicker,
+  AppSheet,
   confirmDangerousAction,
   DesignIcon,
   IllustratedEmptyState,
@@ -599,7 +600,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         </m.div>
       )}
 
-      <DatePicker
+      <AppDatePicker
         onClose={() => controller.setIsDatePickerVisible(false)}
         onConfirm={(value) => {
           controller.setDate(value);
@@ -611,8 +612,8 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         visible={controller.isDatePickerVisible}
       />
 
-      <AppBottomSheet
-        bodyClassName="flex max-h-[62vh] flex-col overflow-hidden rounded-t-[24px] bg-white/95 backdrop-blur-xl"
+      <AppSheet
+        bodyClassName="flex max-h-[62vh] flex-col overflow-hidden"
         destroyOnClose
         onMaskClick={() => setIsAssetPickerVisible(false)}
         onClose={() => setIsAssetPickerVisible(false)}
@@ -684,10 +685,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </button>
           ))}
         </div>
-      </AppBottomSheet>
+      </AppSheet>
 
-      <Popup
-        bodyClassName="max-h-[55vh] overflow-auto rounded-t-[28px] bg-white/95 px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4 backdrop-blur-xl"
+      <AppSheet
+        bodyClassName="max-h-[55vh] overflow-auto px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4"
         destroyOnClose
         onMaskClick={() => controller.setIsTagPickerVisible(false)}
         onClose={() => controller.setIsTagPickerVisible(false)}
@@ -805,7 +806,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </button>
           </form>
         )}
-      </Popup>
+      </AppSheet>
       {isImagePreviewOpen && typeof document !== 'undefined' && createPortal(
         <button
           aria-label="关闭图片预览"

@@ -1,14 +1,9 @@
 import type { BudgetInfo } from '@/entities/budget';
 import type { CategoryEntity } from '@/entities/category';
 import type { BudgetModelModelType } from '@/pages/budget/ui';
-import { ActionSheet, Dialog } from 'antd-mobile';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  BUDGET_ACTION_SHEET_CLASS_NAME,
-  BUDGET_CENTER_POPUP_CLASS_NAME,
-  BUDGET_DIALOG_BODY_CLASS_NAME,
-  BUDGET_OVERLAY_MASK_CLASS_NAME,
   BudgetEntityLevel,
   BudgetEntityType,
   BudgetPageShell,
@@ -20,6 +15,7 @@ import {
 import { BudgetPageContext } from '@/pages/budget/model/budgetPageContext.ts';
 import { BudgetModel, BudgetModelModelTypeMap, BudgetTop } from '@/pages/budget/ui';
 import { useTranslation } from '@/shared/i18n';
+import { confirmAppAction, showAppActionSheet } from '@/shared/ui';
 
 interface BudgetProps {
 }
@@ -48,9 +44,7 @@ const Budget: React.FC<BudgetProps> = () => {
     const isSummaryBudget = level === BudgetEntityLevel.SUMMARY;
     const text = budgetPageContentValue.budgetEntityType === BudgetEntityType.MONTH ? t('common:time.month') : t('common:time.year');
 
-    const actionSheet = ActionSheet.show({
-      popupClassName: BUDGET_ACTION_SHEET_CLASS_NAME,
-      styles: { mask: { backdropFilter: 'blur(2px)', background: 'var(--ww-material-scrim-background)' } },
+    const actionSheet = showAppActionSheet({
       cancelText: t('common:nav.cancel'),
       actions: [
         {
@@ -70,18 +64,19 @@ const Budget: React.FC<BudgetProps> = () => {
           },
         },
         {
+          danger: true,
           text: isSummaryBudget ? t('clearSummaryBudget', { period: text }) : t('deleteCategoryBudget', { category: budgetInfo.category!.name }),
           key: 'clear',
           onClick: async () => {
             actionSheet.close();
 
             if (isSummaryBudget) {
-              const confirm = await Dialog.confirm({
-                bodyClassName: BUDGET_DIALOG_BODY_CLASS_NAME,
-                className: BUDGET_CENTER_POPUP_CLASS_NAME,
+              const confirm = await confirmAppAction({
+                cancelText: t('actions.cancel'),
+                confirmText: t('actions.clear'),
+                description: t('clearSummaryBudgetWarning'),
                 title: t('warning.title'),
-                content: t('clearSummaryBudgetWarning'),
-                maskClassName: BUDGET_OVERLAY_MASK_CLASS_NAME,
+                tone: 'warning',
               });
               if (!confirm)
                 return;

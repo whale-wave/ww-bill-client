@@ -74,6 +74,8 @@ describe('record month picker', () => {
     const popup = document.body.querySelector<HTMLElement>('.adm-popup');
     expect(popup).not.toBeNull();
     expect(popup?.style.display).not.toBe('none');
+    expect(document.body.querySelector('.ww-app-overlay-mask')).not.toBeNull();
+    expect(document.body.querySelector('.ww-app-sheet.ww-app-sheet--bottom')).not.toBeNull();
 
     confirmMonth();
 

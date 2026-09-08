@@ -26,7 +26,7 @@ vi.mock('@/entities/asset', async (importOriginal) => {
 });
 
 vi.mock('@/shared/ui', () => ({
-  AppBottomSheet: ({ children, visible }: { children: ReactNode; visible?: boolean }) => visible
+  AppSheet: ({ children, visible }: { children: ReactNode; visible?: boolean }) => visible
     ? createElement('section', { 'data-testid': 'bottom-sheet' }, children)
     : null,
   SheetHeader: ({ onClose, title }: { onClose: () => void; title: string }) => createElement(

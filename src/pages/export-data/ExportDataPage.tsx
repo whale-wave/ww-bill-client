@@ -1,4 +1,4 @@
-import { DatePicker, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { ArrowRight, CalendarDays, FileSpreadsheet } from 'lucide-react';
 import { useState } from 'react';
@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { getRecordApi } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { exportData } from '@/shared/lib/export-data';
-import { PageHeader, Surface } from '@/shared/ui';
+import { PageHeader, promptAppDatePicker, Surface } from '@/shared/ui';
 
 enum ChangeType {
   START,
@@ -50,9 +50,8 @@ function ExportData() {
   const handleChangeTime = async (type: ChangeType) => {
     const max = new Date();
     const { startTime, endTime } = exportTimeRange;
-    const selectTime = await DatePicker.prompt({
+    const selectTime = await promptAppDatePicker({
       cancelText: t('common:nav.cancel'),
-      className: 'ww-app-date-picker',
       confirmText: t('common:nav.confirm'),
       max,
       defaultValue: new Date(type === ChangeType.START ? startTime : endTime),

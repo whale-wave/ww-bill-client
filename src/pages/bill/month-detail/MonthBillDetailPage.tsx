@@ -16,7 +16,7 @@ import {
   shareSavedImage,
   waitForImageExportReady,
 } from '@/shared/lib';
-import { AppBottomSheet, DesignIcon, IllustratedEmptyState, PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
+import { AppSheet, DesignIcon, IllustratedEmptyState, PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
 import { formatMonthTitle } from './model/monthBillDetail';
 import { MonthBillDetailRenderer } from './ui/MonthBillDetailRenderer';
 
@@ -339,7 +339,7 @@ export default function MonthBillDetailPage() {
       <div className="ww-month-detail-footer absolute bottom-0 left-0 right-0 z-20 flex shrink-0 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-5">
         <WwButton className="ww-theme-primary-action !h-12 !w-full !rounded-[16px] !font-bold" onClick={() => void handleExport()} size="full">{exportStatus === 'idle' ? t('saveImage') : t('savingImage')}</WwButton>
       </div>
-      <AppBottomSheet destroyOnClose onClose={closeSavedImagePreview} onMaskClick={closeSavedImagePreview} position="bottom" showCloseButton visible={Boolean(savedImagePreview)}>
+      <AppSheet destroyOnClose onClose={closeSavedImagePreview} onMaskClick={closeSavedImagePreview} position="bottom" showCloseButton visible={Boolean(savedImagePreview)}>
         {savedImagePreview && (
           <div className="px-5 pb-[calc(20px+env(safe-area-inset-bottom))] pt-12">
             <h2 className="text-center text-[17px] font-black text-ww-ink">{t('exportPreviewTitle')}</h2>
@@ -355,7 +355,7 @@ export default function MonthBillDetailPage() {
             </WwButton>
           </div>
         )}
-      </AppBottomSheet>
+      </AppSheet>
       {exportMounted && snapshotRef.current && qrCode && <div aria-hidden="true" className="pointer-events-none fixed left-[-10000px] top-0" ref={exportRef}><MonthBillDetailRenderer chartsEnabled={chartsEnabled} data={snapshotRef.current.bill} exportCopy={snapshotRef.current.copy} exportSessionId={snapshotRef.current.sessionId} exportUser={snapshotRef.current.user} mode="export" onAvatarReady={handleAvatarReady} onChartError={handleChartError} onChartReady={handleChartReady} qrCode={qrCode} /></div>}
     </div>
   );

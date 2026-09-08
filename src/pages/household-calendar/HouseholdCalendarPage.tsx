@@ -188,7 +188,7 @@ const HouseholdCalendarPage: FC = () => {
   const { householdId = '' } = useParams<{ householdId: string }>();
 
   return (
-    <div data-testid="household-calendar-page">
+    <div className="h-full min-h-0 overflow-hidden" data-testid="household-calendar-page">
       <HouseholdScopeBoundary householdId={householdId}>
         {household => <HouseholdCalendarContent household={household} />}
       </HouseholdScopeBoundary>

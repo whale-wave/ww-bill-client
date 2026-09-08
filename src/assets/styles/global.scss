@@ -1,5 +1,12 @@
 #root {
-  @apply h-full;
+  @apply h-full w-full overflow-hidden;
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .page {
@@ -113,6 +120,19 @@ html.senior {
 // final row scroll fully above the 66px bar and its 12px bottom offset.
 .ww-tab-bar-scroll-padding {
   padding-bottom: calc(110px + env(safe-area-inset-bottom));
+}
+
+// Keep native scrolling, but do not flash scroll indicators while adjacent
+// personal-tab pages move through the shared swipe viewport on iOS.
+[data-personal-tab-swipe-navigation],
+[data-personal-tab-swipe-navigation] * {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 }
 
 :root:root {

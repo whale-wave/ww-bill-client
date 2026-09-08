@@ -5,6 +5,8 @@
 }
 
 .ww-sheet-header {
+  min-height: 64px;
+  padding-inline: var(--ww-component-sheet-padding-x);
   border-bottom: 1px solid var(--ww-component-sheet-header-border);
   background: var(--ww-component-sheet-header-background);
   backdrop-filter: var(--ww-component-sheet-header-blur);
@@ -13,15 +15,15 @@
 
 .ww-sheet-header__icon,
 .ww-sheet-header__close {
-  border-radius: var(--ww-radius-control);
+  border-radius: var(--ww-component-sheet-close-radius);
   background: var(--ww-component-sheet-icon-background);
 }
 
 .ww-sheet-header__close {
   transition:
-    color 150ms ease-out,
-    background-color 150ms ease-out,
-    transform 150ms ease-out;
+    color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
 
   &:active {
     color: var(--ww-theme-color-deep);
@@ -40,24 +42,56 @@
   --adm-center-popup-min-width: 0;
 }
 
+.ww-app-modal-shell.adm-center-popup {
+  --adm-center-popup-max-width: min(390px, calc(100vw - 32px));
+  --adm-center-popup-min-width: min(390px, calc(100vw - 32px));
+}
+
+.ww-app-modal,
 .ww-app-dialog {
-  width: min(330px, calc(100vw - 44px));
-  padding-top: 22px;
   overflow: hidden;
   border: 1px solid var(--ww-material-overlay-border);
-  border-radius: 24px;
   background: var(--ww-material-overlay-background);
   box-shadow: var(--ww-material-overlay-shadow);
-  backdrop-filter: var(--ww-material-floating-blur);
-  -webkit-backdrop-filter: var(--ww-material-floating-blur);
+}
+
+.ww-app-modal {
+  width: 100%;
+  border-radius: var(--ww-material-overlay-radius);
+
+  .ww-theme-primary-action {
+    color: var(--ww-component-overlay-primary-foreground);
+    background: var(--ww-component-overlay-primary-background);
+  }
+}
+
+.ww-app-dialog {
+  width: min(var(--ww-component-overlay-width), calc(100vw - 40px));
+  border-radius: var(--ww-material-overlay-radius);
+  color: var(--ww-theme-text-color);
+
+  &.adm-dialog-body:not(.adm-dialog-with-image) {
+    padding-top: var(--ww-component-overlay-padding-x);
+  }
 
   .adm-dialog-header {
     margin: 0;
-    padding: 0 22px;
+    padding: 0 var(--ww-component-overlay-padding-x);
+  }
+
+  .adm-dialog-header .adm-auto-center-content {
+    width: 100%;
+  }
+
+  .adm-dialog-title {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: left;
   }
 
   .adm-dialog-content {
-    padding: 0 24px 22px;
+    padding: 0 var(--ww-component-overlay-padding-x) var(--ww-component-overlay-padding-x);
   }
 
   .adm-dialog-footer {
@@ -65,24 +99,37 @@
   }
 
   .adm-dialog-action-row {
-    gap: 8px;
+    gap: var(--ww-space-sm);
     border: 0;
   }
 
-  .adm-dialog-button {
-    min-height: 44px;
-    padding: 9px 14px;
+  .adm-dialog-footer .adm-dialog-action-row > .adm-dialog-button {
+    min-height: var(--ww-component-overlay-control-height);
+    padding: 10px 14px;
     border: 0;
-    border-radius: 15px;
-    color: var(--ww-text-color-mid);
-    background: var(--ww-surface-tint-color);
-    font-size: 13px;
-    font-weight: 800;
+    border-radius: var(--ww-component-overlay-control-radius);
+    color: var(--ww-component-overlay-secondary-foreground);
+    background: var(--ww-component-overlay-secondary-background);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 20px;
+    transition:
+      filter 160ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
 
     &:last-child {
-      color: var(--ww-primary-foreground);
-      background: var(--ww-theme-color);
-      box-shadow: var(--ww-card-shadow);
+      color: var(--ww-component-overlay-primary-foreground);
+      background: var(--ww-component-overlay-primary-background);
+    }
+
+    &:active {
+      filter: brightness(0.96);
+      transform: scale(0.985);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--ww-component-sheet-focus-ring);
+      outline-offset: 1px;
     }
   }
 }
@@ -90,160 +137,236 @@
 .ww-app-dialog--danger {
   .ww-app-dialog__icon {
     color: rgb(var(--ww-color-feedback-danger));
-    background: rgb(var(--ww-color-feedback-danger-surface) / 0.72);
+    background: rgb(var(--ww-color-feedback-danger-surface) / 0.76);
   }
 
-  .adm-dialog-button:last-child {
-    color: rgb(var(--ww-color-feedback-danger));
-    background: rgb(var(--ww-color-feedback-danger-surface) / 0.72);
-    box-shadow: none;
+  .adm-dialog-footer .adm-dialog-action-row > .adm-dialog-button:last-child {
+    color: rgb(var(--ww-color-action-primary-foreground));
+    background: rgb(var(--ww-color-feedback-danger));
   }
 }
 
 .ww-app-dialog--warning {
-  .ww-app-dialog__icon {
+  .ww-app-dialog__icon,
+  .adm-dialog-footer .adm-dialog-action-row > .adm-dialog-button:last-child {
     color: rgb(var(--ww-color-feedback-warning));
-    background: rgba(255, 233, 190, 0.72);
-  }
-
-  .adm-dialog-button:last-child {
-    color: rgb(var(--ww-color-feedback-warning));
-    background: rgba(255, 233, 190, 0.72);
-    box-shadow: none;
+    background: rgb(var(--ww-color-feedback-warning-surface));
   }
 }
 
 .ww-app-dialog__heading {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 11px;
+  gap: var(--ww-space-md);
   color: var(--ww-theme-text-color);
-  font-size: 17px;
+  font-size: var(--ww-component-overlay-title-size);
+  line-height: 24px;
+  text-align: left;
 
   strong {
-    font-weight: 900;
+    min-width: 0;
+    font-weight: 800;
+    text-wrap: balance;
   }
 }
 
 .ww-app-dialog__icon {
   display: flex;
-  width: 48px;
-  height: 48px;
+  width: var(--ww-component-overlay-icon-size);
+  height: var(--ww-component-overlay-icon-size);
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  border-radius: 17px;
+  border-radius: var(--ww-component-overlay-icon-radius);
   color: var(--ww-theme-color-deep);
-  background: var(--ww-surface-tint-color);
+  background: var(--ww-component-sheet-subtle-background);
 }
 
 .ww-app-dialog__description {
-  margin: 10px auto 0;
-  max-width: 240px;
-  color: var(--ww-text-color-soft);
-  font-size: 12px;
-  line-height: 19px;
-  text-align: center;
+  margin: var(--ww-space-md) 0 0;
+  color: var(--ww-text-color-mid);
+  font-size: var(--ww-component-overlay-body-size);
+  line-height: 1.55;
+  text-align: left;
+  text-wrap: pretty;
+}
+
+.ww-app-action-sheet > .adm-popup-body,
+.adm-picker-popup:has(.ww-app-date-picker) .adm-popup-body,
+.ww-app-sheet.adm-popup-body {
+  border: 1px solid var(--ww-material-overlay-border);
+  background: var(--ww-material-overlay-background);
+  box-shadow: var(--ww-material-overlay-shadow);
+}
+
+.ww-app-action-sheet > .adm-popup-body,
+.adm-picker-popup:has(.ww-app-date-picker) .adm-popup-body,
+.ww-app-sheet--bottom.adm-popup-body {
+  padding-top: var(--ww-component-sheet-handle-space);
+  overflow: hidden;
+  border-radius: var(--ww-component-sheet-radius) var(--ww-component-sheet-radius) 0 0;
+
+  &::before {
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    width: var(--ww-component-sheet-handle-width);
+    height: 4px;
+    border-radius: 999px;
+    background: var(--ww-component-sheet-handle-color);
+    content: '';
+    transform: translateX(-50%);
+  }
 }
 
 .ww-app-action-sheet > .adm-popup-body {
-  overflow: hidden;
-  border: 1px solid var(--ww-material-overlay-border);
-  border-radius: 28px 28px 0 0;
-  background: var(--ww-material-overlay-background);
-  box-shadow: var(--ww-material-overlay-shadow);
-  backdrop-filter: var(--ww-material-floating-blur);
-  -webkit-backdrop-filter: var(--ww-material-floating-blur);
-
   .adm-action-sheet-extra {
-    padding: 22px 22px 14px;
+    justify-content: flex-start;
+    padding: 10px var(--ww-component-sheet-padding-x) 14px;
     border: 0;
   }
 
   .adm-action-sheet-button-list {
-    margin: 0 18px;
+    margin: 0 var(--ww-component-sheet-padding-x);
     padding: 0;
     overflow: hidden;
-    border-top: 1px solid var(--ww-border-color);
-    border-bottom: 1px solid var(--ww-border-color);
+    border: 1px solid var(--ww-component-sheet-divider);
+    border-radius: var(--ww-component-overlay-control-radius);
+    background: var(--ww-component-sheet-control-background);
+
+    &:first-child {
+      margin-top: var(--ww-space-sm);
+    }
   }
 
   .adm-action-sheet-button-item-wrapper {
     border: 0;
 
     &:not(:last-child) {
-      border-bottom: 1px solid var(--ww-border-color);
+      border-bottom: 1px solid var(--ww-component-sheet-divider);
     }
   }
 
   .adm-action-sheet-button-item {
-    min-height: 56px;
+    display: flex;
+    min-height: var(--ww-component-action-sheet-row-height);
     margin: 0;
+    padding: 0 var(--ww-space-lg);
+    align-items: center;
+    justify-content: center;
     border-radius: 0;
     color: var(--ww-theme-text-color);
     background: transparent;
-    font-size: 14px;
-    font-weight: 800;
-    box-shadow: none;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 21px;
+    text-align: center;
+    transition: background-color 160ms cubic-bezier(0.22, 1, 0.36, 1);
+
+    &:active {
+      background: var(--ww-component-sheet-selected-background);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--ww-component-sheet-focus-ring);
+      outline-offset: -3px;
+    }
+  }
+
+  .adm-action-sheet-button-item-description {
+    color: var(--ww-text-color-mid);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  .adm-action-sheet-button-item-danger .adm-action-sheet-button-item-name {
+    color: rgb(var(--ww-color-feedback-danger));
   }
 
   .adm-action-sheet-cancel {
-    margin: 12px 18px max(12px, env(safe-area-inset-bottom));
-    border: 1px solid var(--ww-border-color);
-    border-radius: 18px;
-    color: var(--ww-text-color-mid);
-    background: var(--ww-surface-tint-color);
-    font-size: 13px;
-    font-weight: 800;
+    margin: 10px var(--ww-component-sheet-padding-x) max(var(--ww-space-md), env(safe-area-inset-bottom));
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: var(--ww-component-overlay-control-radius);
+    background: var(--ww-component-overlay-secondary-background);
+
+    .adm-action-sheet-button-item {
+      min-height: var(--ww-component-overlay-control-height);
+      color: var(--ww-component-overlay-secondary-foreground);
+    }
   }
 }
 
-.ww-app-top-sheet.adm-popup-body {
-  overflow: hidden;
-  border: 1px solid var(--ww-material-overlay-border);
-  border-radius: 0 0 24px 24px;
-  background: var(--ww-material-overlay-background);
-  box-shadow: var(--ww-material-overlay-shadow);
-  backdrop-filter: var(--ww-material-floating-blur);
-  -webkit-backdrop-filter: var(--ww-material-floating-blur);
+.ww-app-action-sheet__heading {
+  width: 100%;
+  text-align: center;
+
+  strong {
+    display: block;
+    color: var(--ww-theme-text-color);
+    font-size: var(--ww-component-sheet-heading-size);
+    font-weight: 800;
+    line-height: 24px;
+  }
+
+  p {
+    margin: 3px auto 0;
+    max-width: 32em;
+    color: var(--ww-text-color-mid);
+    font-size: 13px;
+    line-height: 19px;
+    text-align: center;
+    text-wrap: pretty;
+  }
 }
 
-.ww-app-bottom-sheet.adm-popup-body {
+.ww-app-sheet.adm-popup-body {
   overflow: hidden;
-  border: 1px solid var(--ww-material-overlay-border);
-  border-radius: calc(var(--ww-radius-panel) + 4px) calc(var(--ww-radius-panel) + 4px) 0 0;
-  background: var(--ww-material-overlay-background);
-  box-shadow: var(--ww-material-overlay-shadow);
-  backdrop-filter: var(--ww-material-floating-blur);
-  -webkit-backdrop-filter: var(--ww-material-floating-blur);
 
   .adm-popup-close-icon {
-    top: 16px;
-    right: 18px;
+    top: 12px;
+    right: var(--ww-component-sheet-padding-x);
     display: flex;
-    width: 34px;
-    height: 34px;
+    width: var(--ww-component-sheet-close-size);
+    height: var(--ww-component-sheet-close-size);
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: var(--ww-component-sheet-close-radius);
     color: var(--ww-text-color-mid);
-    background: var(--ww-surface-tint-color);
+    background: var(--ww-component-sheet-icon-background);
+    transition:
+      color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+
+    &:active {
+      color: var(--ww-theme-color-deep);
+      background: var(--ww-component-sheet-selected-background);
+      transform: scale(0.96);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--ww-component-sheet-focus-ring);
+      outline-offset: 1px;
+    }
   }
 
   h2 {
     color: var(--ww-theme-text-color);
-    font-size: 17px;
-    font-weight: 900;
+    font-size: var(--ww-component-sheet-heading-size);
+    font-weight: 800;
   }
 
   input:not([type='checkbox']),
   select,
   textarea {
-    border-color: var(--ww-border-color);
-    border-radius: 15px;
+    border-color: var(--ww-component-sheet-control-border);
+    border-radius: var(--ww-radius-control);
     color: var(--ww-theme-text-color);
-    background: var(--ww-surface-color);
-    box-shadow: var(--ww-card-shadow-xs);
+    background: var(--ww-component-sheet-control-background);
+    box-shadow: var(--ww-component-sheet-control-shadow);
     outline: none;
   }
 
@@ -251,7 +374,7 @@
   select:focus,
   textarea:focus {
     border-color: var(--ww-theme-color);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ww-theme-color) 16%, transparent);
+    box-shadow: 0 0 0 3px var(--ww-component-sheet-focus-ring);
   }
 
   .ww-category-name-field {
@@ -275,88 +398,108 @@
   .adm-button {
     min-height: 50px;
     border: 0;
-    border-radius: 17px;
+    border-radius: var(--ww-radius-control);
     font-size: 14px;
-    font-weight: 900;
+    font-weight: 800;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .ww-sheet-header__close {
-    transition: none;
+.ww-app-sheet--bottom.adm-popup-body {
+  .adm-popup-close-icon {
+    top: calc(var(--ww-component-sheet-handle-space) + 8px);
   }
 }
 
-.ww-app-action-sheet__heading {
-  text-align: center;
-
-  strong {
-    color: var(--ww-theme-text-color);
-    font-size: 16px;
-    font-weight: 900;
-  }
-
-  p {
-    margin: 6px auto 0;
-    max-width: 280px;
-    color: var(--ww-text-color-soft);
-    font-size: 11px;
-    line-height: 17px;
-  }
+.ww-app-sheet--top.adm-popup-body {
+  border-radius: 0 0 var(--ww-material-overlay-radius) var(--ww-material-overlay-radius);
 }
 
 .adm-picker-popup:has(.ww-app-date-picker) {
   .adm-mask {
     background: var(--ww-material-scrim-background);
-    backdrop-filter: blur(5px);
-  }
-
-  .adm-popup-body {
-    overflow: hidden;
-    border-radius: 28px 28px 0 0;
-    background: var(--ww-material-overlay-background);
-    box-shadow: var(--ww-material-overlay-shadow);
-    backdrop-filter: var(--ww-material-floating-blur);
-    -webkit-backdrop-filter: var(--ww-material-floating-blur);
+    backdrop-filter: var(--ww-material-overlay-blur);
+    -webkit-backdrop-filter: var(--ww-material-overlay-blur);
   }
 }
 
 .ww-app-date-picker {
-  --header-button-font-size: 13px;
-  --item-font-size: 15px;
-  --item-height: 42px;
+  --header-button-font-size: 14px;
+  --item-font-size: 16px;
+  --item-height: var(--ww-component-date-picker-item-height);
   --title-font-size: 16px;
 
-  height: 326px;
+  height: var(--ww-component-date-picker-height);
   background: transparent;
 
   .adm-picker-header {
-    min-height: 66px;
-    margin: 0 18px;
-    padding: 12px 0;
-    border-bottom-color: var(--ww-border-color);
+    min-height: var(--ww-component-date-picker-header-height);
+    margin: 0 var(--ww-component-sheet-padding-x);
+    padding: 0;
+    border-bottom-color: var(--ww-component-sheet-divider);
   }
 
   .adm-picker-header-title {
     color: var(--ww-theme-text-color);
-    font-weight: 900;
+    font-weight: 800;
   }
 
   .adm-picker-header-button {
     display: flex;
     min-width: 64px;
-    height: 38px;
+    min-height: 44px;
     align-items: center;
     justify-content: center;
-    border-radius: 13px;
+    border-radius: var(--ww-component-overlay-control-radius);
     color: var(--ww-text-color-mid);
-    background: var(--ww-surface-tint-color);
-    font-weight: 800;
+    background: transparent;
+    font-weight: 700;
+    transition: background-color 160ms cubic-bezier(0.22, 1, 0.36, 1);
 
     &:last-child {
-      color: var(--ww-primary-foreground);
-      background: var(--ww-theme-color);
-      box-shadow: var(--ww-card-shadow-xs);
+      color: var(--ww-theme-color-deep);
+      font-weight: 800;
     }
+
+    &:active {
+      background: var(--ww-component-sheet-selected-background);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--ww-component-sheet-focus-ring);
+      outline-offset: -2px;
+    }
+  }
+
+  .adm-picker-view {
+    background: transparent;
+  }
+
+  .adm-picker-view-column-item {
+    color: var(--ww-text-color-mid);
+    font-family: Nunito, 'Noto Sans SC', sans-serif;
+    font-weight: 700;
+  }
+
+  .adm-picker-view-mask-top,
+  .adm-picker-view-mask-bottom {
+    background: var(--ww-material-overlay-background);
+  }
+
+  .adm-picker-view-mask-middle {
+    width: auto;
+    margin: 0 var(--ww-component-sheet-padding-x);
+    border: 0;
+    border-radius: var(--ww-component-overlay-control-radius);
+    background: var(--ww-component-date-picker-selection-background);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ww-sheet-header__close,
+  .ww-app-dialog .adm-dialog-button,
+  .ww-app-action-sheet .adm-action-sheet-button-item,
+  .ww-app-sheet .adm-popup-close-icon,
+  .ww-app-date-picker .adm-picker-header-button {
+    transition: none;
   }
 }

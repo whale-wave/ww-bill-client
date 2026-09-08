@@ -39,6 +39,7 @@ vi.mock('@/shared/i18n', () => ({
 }));
 
 vi.mock('@/shared/ui', () => ({
+  confirmAppAction: dialogConfirm,
   PageHeader: ({ title, right }: { title: ReactNode; right?: ReactNode }) => createElement(
     'header',
     null,

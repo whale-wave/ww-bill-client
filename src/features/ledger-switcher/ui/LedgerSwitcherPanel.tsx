@@ -1,4 +1,4 @@
-import { ErrorBlock, Popup, SafeArea, SpinLoading } from 'antd-mobile';
+import { ErrorBlock, SafeArea, SpinLoading } from 'antd-mobile';
 import { CheckOutline } from 'antd-mobile-icons';
 import { Plus, Settings2, Sparkles } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef } from 'react';
@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { LedgerVisualIcon, useLedgerNavigationQuery } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { AppSheet } from '@/shared/ui';
 import {
   getLedgerSurface,
   getLedgerWorkspaceScope,
@@ -99,11 +100,11 @@ export function LedgerSwitcherPanel({ onClose, visible }: LedgerSwitcherPanelPro
   };
 
   return (
-    <Popup
-      bodyClassName="ww-app-top-sheet ledger-switcher-panel"
+    <AppSheet
+      bodyClassName="ledger-switcher-panel"
       closeOnMaskClick
       destroyOnClose
-      maskClassName="ww-app-overlay-mask ledger-switcher-panel__mask"
+      maskClassName="ledger-switcher-panel__mask"
       onClose={onClose}
       position="top"
       visible={visible}
@@ -243,6 +244,6 @@ export function LedgerSwitcherPanel({ onClose, visible }: LedgerSwitcherPanelPro
         </div>
         <SafeArea position="bottom" />
       </section>
-    </Popup>
+    </AppSheet>
   );
 }

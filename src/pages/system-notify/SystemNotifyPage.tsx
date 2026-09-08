@@ -6,7 +6,6 @@ import type {
 } from '@/entities/notification';
 import {
   Button,
-  Dialog,
   Toast,
 } from 'antd-mobile';
 import { Bell, ChevronDown } from 'lucide-react';
@@ -22,7 +21,7 @@ import {
 } from '@/entities/notification';
 import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
-import { IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
+import { confirmAppAction, IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
 import { getNotificationTarget } from './model';
 
 const PAGE_SIZE = 20;
@@ -210,11 +209,12 @@ function SystemNotifyPage() {
 
   const handleArchive = (notification: UserNotification) => {
     void runOnce(`archive:${notification.id}`, async () => {
-      const confirmed = await Dialog.confirm({
-        title: t('message.notificationCenter.deleteConfirmTitle'),
-        content: t('message.notificationCenter.deleteConfirmContent'),
-        confirmText: t('message.notificationCenter.delete'),
+      const confirmed = await confirmAppAction({
         cancelText: t('nav.cancel'),
+        confirmText: t('message.notificationCenter.delete'),
+        description: t('message.notificationCenter.deleteConfirmContent'),
+        title: t('message.notificationCenter.deleteConfirmTitle'),
+        tone: 'danger',
       });
       if (!confirmed)
         return;

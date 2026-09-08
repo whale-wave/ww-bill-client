@@ -1,13 +1,13 @@
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
-import { DatePicker, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { ArrowLeftRight, Banknote, CalendarDays, Check, ChevronDown } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { getAssetAccountTypeLabel, useGetAssetGroupQuery, useGetAssetQuery, usePostAssetTransferMutation } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { cn, normalizeAmount } from '@/shared/lib';
-import { AppBottomSheet, SheetHeader } from '@/shared/ui';
+import { AppSheet, promptAppDatePicker, SheetHeader } from '@/shared/ui';
 import './AssetTransferPopup.scss';
 
 interface AssetTransferPopupProps {
@@ -133,7 +133,7 @@ const AssetTransferContent: FC<AssetTransferPopupProps> = ({ asset, onClose, vis
           <button
             className="asset-transfer-sheet__date"
             onClick={async () => {
-              const value = await DatePicker.prompt({ defaultValue: occurredAt, precision: 'minute', title: t('transfer.date') });
+              const value = await promptAppDatePicker({ defaultValue: occurredAt, precision: 'minute', title: t('transfer.date') });
               if (value)
                 setOccurredAt(value);
             }}
@@ -154,7 +154,7 @@ const AssetTransferContent: FC<AssetTransferPopupProps> = ({ asset, onClose, vis
         </div>
       </div>
 
-      <AppBottomSheet
+      <AppSheet
         bodyClassName="asset-transfer-picker flex max-h-[62vh] flex-col overflow-hidden"
         destroyOnClose
         onClose={() => setIsTargetPickerVisible(false)}
@@ -208,7 +208,7 @@ const AssetTransferContent: FC<AssetTransferPopupProps> = ({ asset, onClose, vis
             })}
           </div>
         </div>
-      </AppBottomSheet>
+      </AppSheet>
     </>
   );
 };
@@ -217,7 +217,7 @@ export const AssetTransferPopup: FC<AssetTransferPopupProps> = ({ asset, onClose
   const [hasOpened, setHasOpened] = useState(visible);
 
   return (
-    <AppBottomSheet
+    <AppSheet
       afterClose={() => setHasOpened(false)}
       afterShow={() => setHasOpened(true)}
       bodyClassName="asset-transfer-sheet flex max-h-[86vh] flex-col overflow-hidden"
@@ -229,6 +229,6 @@ export const AssetTransferPopup: FC<AssetTransferPopupProps> = ({ asset, onClose
       {(visible || hasOpened) && (
         <AssetTransferContent asset={asset} onClose={onClose} visible={visible} />
       )}
-    </AppBottomSheet>
+    </AppSheet>
   );
 };

@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePatchAssetAdjustMutation } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, normalizeAmount } from '@/shared/lib';
-import { AppBottomSheet } from '@/shared/ui';
+import { AppSheet } from '@/shared/ui';
 
 export interface AssetAdjustPopupProps extends PopupProps {
   onClose: () => void;
@@ -49,7 +49,7 @@ export const AssetAdjustPopup: FC<AssetAdjustPopupProps> = (props) => {
   }, [amount, asset.id, mutation.isLoading, onClose, patchAssetAdjustMutate, t]);
 
   return (
-    <AppBottomSheet
+    <AppSheet
       destroyOnClose
       visible={visible}
       onMaskClick={onClose}
@@ -95,6 +95,6 @@ export const AssetAdjustPopup: FC<AssetAdjustPopupProps> = (props) => {
           {mutation.isLoading ? t('adjust.submitting') : t('adjust.submit')}
         </button>
       </div>
-    </AppBottomSheet>
+    </AppSheet>
   );
 };

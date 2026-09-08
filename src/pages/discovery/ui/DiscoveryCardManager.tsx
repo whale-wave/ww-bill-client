@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { DiscoveryCardId } from '@/entities/user-app-config';
 import { Switch } from 'antd-mobile';
 import { Eye, EyeOff, LayoutPanelTop } from 'lucide-react';
-import { AppBottomSheet, SheetHeader } from '@/shared/ui';
+import { AppSheet, SheetHeader } from '@/shared/ui';
 
 export interface DiscoveryCardManagerCopy {
   close: string;
@@ -35,7 +35,7 @@ export const DiscoveryCardManager: FC<DiscoveryCardManagerProps> = ({
   const isOnlyVisibleCard = visibleCards.length === 1;
 
   return (
-    <AppBottomSheet
+    <AppSheet
       destroyOnClose
       position="bottom"
       visible={visible}
@@ -78,6 +78,6 @@ export const DiscoveryCardManager: FC<DiscoveryCardManagerProps> = ({
           </div>
         </div>
       </div>
-    </AppBottomSheet>
+    </AppSheet>
   );
 };

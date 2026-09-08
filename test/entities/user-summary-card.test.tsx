@@ -31,19 +31,19 @@ describe('userSummaryCard', () => {
     expect(metricValues.map(value => value.textContent)).toEqual(['0', '0', '0']);
   });
 
-  it('renders automatic check-in guidance without a manual action', () => {
+  it('renders one completed label without a manual action', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
 
     act(() => root.render(createElement(UserSummaryCard, {
-      checkIn: false,
+      checkIn: true,
       name: 'Tester',
       numberInfo: { checkInAll: 2, checkInKeep: 1, recordCount: 3 },
       onProfileClick: vi.fn(),
     })));
     cleanup = () => act(() => root.unmount());
 
-    expect(container.textContent).toContain('checkIn.automaticHint');
-    expect(Array.from(container.querySelectorAll('button')).some(button => button.textContent?.includes('checkIn.automaticHint'))).toBe(false);
+    expect(container.textContent).toContain('checkIn.completed');
+    expect(Array.from(container.querySelectorAll('button')).some(button => button.textContent?.includes('checkIn.completed'))).toBe(false);
   });
 });

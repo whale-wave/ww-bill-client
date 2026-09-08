@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Asset } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
 import { act, createElement } from 'react';
+import { createPortal } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getRecordAttachmentContentApi } from '@/entities/record';
@@ -17,8 +18,9 @@ vi.mock('@/shared/i18n', () => ({
 }));
 
 vi.mock('@/shared/ui', () => ({
-  AppBottomSheet: ({ children, visible }: { children: ReactNode; visible?: boolean }) => visible
-    ? createElement('section', { 'data-testid': 'bottom-sheet' }, children)
+  AppDatePicker: () => null,
+  AppSheet: ({ children, visible }: { children: ReactNode; visible?: boolean }) => visible
+    ? createPortal(createElement('section', { 'data-testid': 'bottom-sheet' }, children), document.body)
     : null,
   confirmDangerousAction: vi.fn(),
   DesignIcon: ({ name }: { name: string }) => createElement('span', { 'data-design-icon': name }),
@@ -392,15 +394,15 @@ describe('record editor presentation', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
 
-    const noAccountOption = container.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="none"]');
+    const noAccountOption = document.body.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="none"]');
     expect(noAccountOption?.classList).toContain('border-primary');
     expect(noAccountOption?.classList).not.toContain('bg-primary-light/45');
     expect(noAccountOption?.querySelector('svg.lucide-check')).not.toBeNull();
 
-    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="asset-account"]')?.click());
+    act(() => document.body.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="asset-account"]')?.click());
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
 
-    const assetOption = container.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="asset-account"]');
+    const assetOption = document.body.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="asset-account"]');
     expect(assetOption?.getAttribute('aria-pressed')).toBe('true');
     expect(assetOption?.classList).toContain('border-primary');
     expect(assetOption?.querySelector('svg.lucide-check')).not.toBeNull();

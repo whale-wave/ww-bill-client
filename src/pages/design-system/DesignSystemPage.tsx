@@ -2,9 +2,9 @@
 
 import type { StudioInspectorSelection } from './PreviewElementInspector';
 import type { StudioDebugRecord, StudioTemplate, StudioToken, StudioTokenOverrides } from './token-registry';
-import { Input, Popup, Toast } from 'antd-mobile';
+import { Input, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
-import { BarChart3, BookmarkPlus, CalendarDays, ChevronLeft, Compass, Copy, CreditCard, Crosshair, House, Layers3, LayoutGrid, MessageCircleMore, Plus, ReceiptText, RotateCcw, Search, Settings2, Sparkles } from 'lucide-react';
+import { BarChart3, BookmarkPlus, CalendarDays, ChevronLeft, ChevronRight, Compass, Copy, CreditCard, Crosshair, House, Layers3, LayoutGrid, MessageCircleMore, Plus, ReceiptText, RotateCcw, Search, Settings2, Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { AssetSummaryCardPresentation } from '@/entities/asset';
@@ -15,7 +15,7 @@ import { RecordMonthPicker, RecordOverviewPresentation } from '@/entities/record
 import { UserSummaryCard } from '@/entities/user';
 import { applyAppearancePreference } from '@/features/appearance';
 import { ChartOverviewContext, ChartOverviewPresentation } from '@/features/chart-overview';
-import { ActionMenuCard, AppButton, BottomTabBarPresentation, DesignIcon, FormField, SettingsListCard, Surface } from '@/shared/ui';
+import { ActionMenuCard, AppButton, AppDatePicker, AppSheet, BottomTabBarPresentation, confirmAppAction, DesignIcon, FormField, SettingsListCard, SheetHeader, showAppActionSheet, Surface } from '@/shared/ui';
 import { BalanceCardMotionPrototype } from './BalanceCardMotionPrototype';
 import { PreviewElementInspector } from './PreviewElementInspector';
 import { channelsToColor, colorToChannels, createStudioDebugRecord, createThemeCss, createThemeExport, filterValidStudioOverrides, getDependentOverrides, getStudioTemplateTokens, isValidTokenValue, readStudioDebugRecords, resolveStudioAppearanceTemplate, STUDIO_TEMPLATES, STUDIO_TOKENS, writeStudioDebugRecords } from './token-registry';
@@ -255,6 +255,8 @@ function StudioPreview() {
   const [overrides, setOverrides] = useState<StudioTokenOverrides>({});
   const [activeTab, setActiveTab] = useState<PreviewTabKey>(readPreviewTab);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
+  const [previewDate] = useState(() => new Date());
   const [isInspectorEnabled, setIsInspectorEnabled] = useState(false);
   const [summaryMonth, setSummaryMonth] = useState(() => dayjs('2026-09-01'));
   const [isSummaryVisible, setIsSummaryVisible] = useState(true);
@@ -292,6 +294,22 @@ function StudioPreview() {
   }, []);
   const selectPreviewTab = (tab: PreviewTabKey) => {
     window.location.hash = `#/design-system/preview?tab=${tab}`;
+  };
+  const previewConfirmDialog = () => {
+    setIsPopupVisible(false);
+    window.setTimeout(() => {
+      void confirmAppAction({ cancelText: '取消', confirmText: '确认', description: '确认框与其他产品浮层使用同一套材质 token。', title: '确认弹窗' });
+    }, 180);
+  };
+  const previewActionSheet = () => {
+    setIsPopupVisible(false);
+    window.setTimeout(() => {
+      showAppActionSheet({ actions: [{ key: 'edit', text: '编辑' }, { danger: true, key: 'delete', text: '删除' }], cancelText: '取消', description: '操作菜单沿用同一遮罩与表面', title: '操作菜单' });
+    }, 180);
+  };
+  const previewDatePicker = () => {
+    setIsPopupVisible(false);
+    setIsDatePickerVisible(true);
   };
   const handleInspectorSelection = useCallback((selection: StudioInspectorSelection) => {
     window.parent.postMessage({ type: 'ww-design-studio:inspect-selection', selection } satisfies InspectorSelectionMessage, window.location.origin);
@@ -335,15 +353,37 @@ function StudioPreview() {
       {!isMotionPrototype && activeTab === 'mine' && <MinePreview />}
       {!isMotionPrototype && activeTab !== 'create' && <BottomTabBarPresentation activeKey={activeTab} ariaLabel="演示底部导航" items={[{ key: 'detail', label: '明细', icon: <ReceiptText />, onSelect: () => selectPreviewTab('detail') }, { key: 'chart', label: '图表', icon: <BarChart3 />, onSelect: () => selectPreviewTab('chart') }, { key: 'create', label: '记账', icon: <Plus />, prominent: true, onSelect: () => selectPreviewTab('create') }, { key: 'discovery', label: '发现', icon: <Compass />, onSelect: () => selectPreviewTab('discovery') }, { key: 'mine', label: '我的', icon: <House />, onSelect: () => selectPreviewTab('mine') }]} />}
       {!isMotionPrototype && (
-        <Popup bodyClassName="ww-app-bottom-sheet" destroyOnClose position="bottom" visible={isPopupVisible} onMaskClick={() => setIsPopupVisible(false)}>
-          <div className="p-5">
-            <div className="mx-auto h-1 w-10 rounded-full bg-ww-soft/40" />
-            <h2 className="mt-4 text-[18px] font-black text-ww-ink">提醒与浮层</h2>
-            <p className="mt-1 text-[13px] leading-5 text-ww-mid">这里的弹层与底栏都在隔离预览里，能直接观察 token 的影响。</p>
+        <AppSheet destroyOnClose position="bottom" visible={isPopupVisible} onMaskClick={() => setIsPopupVisible(false)}>
+          <SheetHeader
+            closeLabel="关闭浮层预览"
+            description="共享浮层样式"
+            icon={<Layers3 size={20} strokeWidth={1.8} />}
+            onClose={() => setIsPopupVisible(false)}
+            title="提醒与浮层"
+          />
+          <div className="px-[var(--ww-component-sheet-padding-x)] pb-5 pt-4">
+            <p className="text-[13px] leading-5 text-ww-mid">打开下面的组件，直接观察材质、间距和交互 token 的效果。</p>
+            <div className="mt-4 space-y-2">
+              {[
+                { description: '主次操作与语义状态', icon: <MessageCircleMore size={18} />, label: '确认框', onClick: previewConfirmDialog },
+                { description: '单层列表与危险操作', icon: <LayoutGrid size={18} />, label: '操作菜单', onClick: previewActionSheet },
+                { description: '滚轮选中态与顶部操作', icon: <CalendarDays size={18} />, label: '日期选择', onClick: previewDatePicker },
+              ].map(item => (
+                <button className="flex min-h-14 w-full items-center gap-3 rounded-[var(--ww-radius-control)] border-0 bg-[var(--ww-component-sheet-subtle-background)] px-3 text-left text-primary-deep active:bg-[var(--ww-component-sheet-selected-background)]" key={item.label} onClick={item.onClick} type="button">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--ww-component-sheet-close-radius)] bg-ww-surface-raised">{item.icon}</span>
+                  <span className="min-w-0 flex-1">
+                    <strong className="block text-[14px] font-extrabold text-ww-ink">{item.label}</strong>
+                    <span className="mt-0.5 block text-[12px] text-ww-mid">{item.description}</span>
+                  </span>
+                  <ChevronRight className="shrink-0 text-ww-soft" size={17} />
+                </button>
+              ))}
+            </div>
             <AppButton className="mt-5" fullWidth onClick={() => setIsPopupVisible(false)}>知道了</AppButton>
           </div>
-        </Popup>
+        </AppSheet>
       )}
+      <AppDatePicker defaultValue={previewDate} onClose={() => setIsDatePickerVisible(false)} onConfirm={() => setIsDatePickerVisible(false)} precision="month" title="选择月份" visible={isDatePickerVisible} />
     </div>
   );
 }

@@ -16,7 +16,7 @@ const {
   postPasswordReset,
   verifyForgetPasswordCode,
 } = vi.hoisted(() => ({
-  confirmDialog: vi.fn<(options: { onConfirm?: () => unknown }) => Promise<boolean>>(),
+  confirmDialog: vi.fn<() => Promise<boolean>>(),
   getForgetPasswordEmail: vi.fn(),
   postPasswordReset: vi.fn(),
   verifyForgetPasswordCode: vi.fn(),
@@ -106,6 +106,7 @@ vi.mock('@/shared/lib/play-sound', () => ({
 }));
 
 vi.mock('@/shared/ui', () => ({
+  confirmAppAction: confirmDialog,
   FormField: ({
     disabled,
     onChange,
@@ -182,10 +183,7 @@ beforeEach(() => {
   getForgetPasswordEmail.mockReset();
   postPasswordReset.mockReset();
   verifyForgetPasswordCode.mockReset();
-  confirmDialog.mockImplementation(async ({ onConfirm }) => {
-    await onConfirm?.();
-    return true;
-  });
+  confirmDialog.mockResolvedValue(true);
 });
 
 afterEach(() => {

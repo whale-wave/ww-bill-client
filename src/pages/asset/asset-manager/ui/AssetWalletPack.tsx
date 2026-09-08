@@ -22,7 +22,7 @@ function getWalletCardTone(asset: Asset, index: number): WalletCardTone {
   if (asset.assetGroup.type === 'sub') {
     return {
       amountClassName: 'text-finance-expense',
-      className: 'bg-ww-ink text-white',
+      className: 'border border-white/25 bg-primary-deep text-white ring-1 ring-inset ring-black/5',
       detailClassName: 'text-white/60',
     };
   }

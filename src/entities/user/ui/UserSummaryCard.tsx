@@ -48,11 +48,11 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
           </button>
           <div className="min-w-0 flex-1">
             <div className="truncate text-[20px] font-extrabold leading-[30px] text-ww-ink">{name || t('notLoggedIn')}</div>
-            {name && (
+            {name && checkIn && (
               <div className="mt-2 flex h-11 items-center text-[12px] font-bold leading-[18px]">
                 <span className="ww-profile-check-in flex items-center px-[13px]">
                   <CalendarCheck2 className="mr-1" size={14} strokeWidth={2} />
-                  {checkIn ? t('checkIn.automaticCompleted') : t('checkIn.automaticHint')}
+                  {t('checkIn.completed')}
                 </span>
               </div>
             )}

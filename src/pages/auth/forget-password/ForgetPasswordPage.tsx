@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { Dialog, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import { Mail } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { buildVerifyCodePath } from '@/pages/auth/forget-password/model/params';
 import { useTranslation } from '@/shared/i18n';
 import { isEmail } from '@/shared/lib';
 import { playSound } from '@/shared/lib/play-sound';
-import { FormField } from '@/shared/ui';
+import { confirmAppAction, FormField } from '@/shared/ui';
 
 const ForgetPassword: FC = () => {
   const { t } = useTranslation('auth');
@@ -26,26 +26,28 @@ const ForgetPassword: FC = () => {
       Toast.show({ position: 'top', content: t('forgetPassword.emailFormatError') });
       return;
     }
-    void Dialog.confirm({
-      cancelText: t('common:nav.cancel'),
-      confirmText: t('common:nav.confirm'),
-      content: (
-        <div className="flex flex-col items-center font-bold">
-          <div>{t('forgetPassword.confirmEmail')}</div>
-          <div className="mt-2 font-number text-primary-deep">{email}</div>
-        </div>
-      ),
-      onConfirm: async () => {
-        const response = await getToolsForgetPasswordEmailApi(email, true);
-        if (response.statusCode === 200) {
-          setTimeout(() => {
-            playSound.turnPage();
-            navigate(buildVerifyCodePath(email));
-          }, 200);
-        }
-      },
-      title: t('forgetPassword.confirmEmailTitle'),
-    });
+    void (async () => {
+      const confirmed = await confirmAppAction({
+        cancelText: t('common:nav.cancel'),
+        confirmText: t('common:nav.confirm'),
+        description: (
+          <div className="flex flex-col items-center font-bold">
+            <div>{t('forgetPassword.confirmEmail')}</div>
+            <div className="mt-2 font-number text-primary-deep">{email}</div>
+          </div>
+        ),
+        title: t('forgetPassword.confirmEmailTitle'),
+      });
+      if (!confirmed)
+        return;
+      const response = await getToolsForgetPasswordEmailApi(email, true);
+      if (response.statusCode === 200) {
+        setTimeout(() => {
+          playSound.turnPage();
+          navigate(buildVerifyCodePath(email));
+        }, 200);
+      }
+    })();
   }, [email, navigate, t]);
 
   return (

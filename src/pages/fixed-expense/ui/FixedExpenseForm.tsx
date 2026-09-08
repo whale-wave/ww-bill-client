@@ -1,6 +1,5 @@
 import {
   Button,
-  DatePicker,
   Form,
   Input,
   Selector,
@@ -14,7 +13,7 @@ import React, { useMemo, useState } from 'react';
 import { FixedExpenseCycle } from '@/entities/fixed-expense';
 import { useTranslation } from '@/shared/i18n';
 import { cn, normalizeAmount } from '@/shared/lib';
-import { Surface } from '@/shared/ui';
+import { AppDatePicker, Surface } from '@/shared/ui';
 import {
   getCurrencyOptions,
   getCycleOptions,
@@ -127,8 +126,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = (props) => {
           </button>
         )}
       </div>
-      <DatePicker
-        className="ww-app-date-picker"
+      <AppDatePicker
         visible={visible}
         value={value}
         min={min}

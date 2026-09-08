@@ -1,14 +1,4 @@
-.ww-app-bottom-sheet.record-adjustment-sheet.adm-popup-body {
-  background: var(--ww-background-color);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-
-  .ww-sheet-header {
-    background: var(--ww-background-color);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-
+.ww-app-sheet.record-adjustment-sheet.adm-popup-body {
   input.record-adjustment-sheet__amount-input,
   input.record-adjustment-sheet__amount-input:focus {
     appearance: none;

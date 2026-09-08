@@ -63,8 +63,8 @@ Figma Design 文件 `Whale Wave Bill New UI` 是新版界面的唯一视觉基�
 - 顶部优先参与正常文档流，只有确需固定时才让内容区显式避让。
 - 主 TabBar 不参与文档流，内容可从半透明底栏后方滚动；对应滚动容器使用 `.ww-tab-bar-scroll-padding`，预留 `126px + safe-area-inset-bottom`（66px 底栏、12px 底部偏移和 48px 末尾留白）。
 - 375px 基准下，页面模块左右留白通常为 `18px`，标题栏为 `22px`，记账网格为 `14px`。
-- 模块之间的垂直间距以 `8px`、`10px`、`12px`、`14px`、`16px` 为主。
-- 同一卡片内的纵向内容默认使用 `12px` 间距；相邻 section 之间默认使用 `16px` 间距。
+- 通用间距使用 `--ww-space-xs/sm/md/lg/xl/2xl`，依次对应 `4px / 8px / 12px / 16px / 20px / 24px`；业务布局中的标准 margin、padding 和 gap 不直接重复写尺寸。
+- 同一卡片内的纵向内容默认使用 `--ww-space-md`（`12px`）；相邻 section 之间默认使用 `--ww-space-lg`（`16px`）。
 - 信息列表优先使用白底行项目和细分割线，而不是把每一行做成厚重卡片。
 
 顶部数据区可以使用主色背景承载月份、收入、支出、结余等核心信息；中部列表保持白色可读；底部导航保持稳定，不因页面内容变化跳动。
@@ -104,10 +104,11 @@ Version 10 使用柔和的大圆角卡片和两级浅阴影，但不使用厚重
 
 表单、弹窗、Toast、List、Tabs、Dropdown、SearchBar 优先使用 Ant Design Mobile。输入行保持清晰标签、足够触控区域和稳定分割线。表单及页面级操作统一使用原生 `button` 的按钮规范，不再使用 Ant Design Mobile `Button` 作为主操作：
 
-- **主按钮**：`h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45`；提交中同时切换 `disabled` 与 loading 文案。
-- **次按钮**：`h-[52px] w-full rounded-[18px] border border-solid border-border-primary bg-white/85 text-[14px] font-extrabold text-primary-deep shadow-ww`。
+- **按钮尺寸**：业务文字按钮优先使用 `AppButton` 的固定 `size` 接口，不在调用处覆写高度、横向内边距、字号和圆角。`compact` 为 `32px` 可见高度并保留 `44px` 触控高度，适合卡片内辅助操作；`medium` 为默认 `48px`；`large` 为 `52px` 页面主操作。相关值统一由 `--ww-component-button-*` token 管理。
+- **主按钮**：使用 `AppButton variant="primary"`；页面提交操作使用 `size="large"` + `fullWidth`，提交中同时切换 `disabled` 与 loading 文案。
+- **次按钮**：使用 `AppButton variant="secondary"`，尺寸按所在层级选择，不在业务组件重复拼描边、背景和阴影。
 - **幽灵按钮**：`h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-primary-deep`，danger 文案使用 `text-[#b24f71]`，需要时补充 `disabled:opacity-45`。
-- **小按钮**：`h-12 w-full rounded-[16px] text-[13px] font-extrabold`；主变体 `border-0 bg-primary text-white shadow-ww-xs`，次变体 `border border-solid border-border-primary bg-white/85 text-primary-deep shadow-ww-xs`。
+- **紧凑按钮**：使用 `AppButton size="compact"`；不得直接把交互高度压到 `44px` 以下，视觉本体与透明触控区由组件内部处理。
 
 非提交按钮必须显式 `type="button"`，避免原生 `button` 的默认 submit 语义。`IllustratedEmptyState` 等封装组件的组件级 CTA 保留组件自身 pill 样式，不在上述规范约束范围内。
 

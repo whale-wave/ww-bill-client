@@ -55,7 +55,20 @@ describe('appButton', () => {
     const button = renderButton({ children: '复制凭证' });
     const content = button.querySelector('button > span:last-child')!;
 
+    expect(button.className).toContain('--ww-component-button-height-medium');
     expect(content.className).toContain('inline-flex');
     expect(content.className).toContain('items-center');
+  });
+
+  it('keeps compact visuals inside the minimum touch target', () => {
+    const button = renderButton({ children: '新增调整', size: 'compact', variant: 'secondary' });
+    const content = button.querySelector('button > span:last-child')!;
+
+    expect(button.className).toContain('--ww-component-button-hit-target-min');
+    expect(button.className).not.toContain('bg-ww-surface-raised');
+    expect(content.className).toContain('--ww-component-button-height-compact');
+    expect(content.className).toContain('--ww-component-button-padding-x-compact');
+    expect(content.className).toContain('bg-ww-surface-raised');
+    expect(content.className).toContain('shadow-ww-xs');
   });
 });

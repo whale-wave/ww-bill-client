@@ -55,6 +55,74 @@ const shadowOptions = [
   { label: '浮起', value: '0 16px 32px rgba(20, 20, 24, 0.08)' },
 ] as const;
 
+const overlaySurfaceOptions = [
+  { label: '洁净浮层', value: 'rgb(255 255 255 / 0.98)' },
+  { label: '纯白浮层', value: 'rgb(255 255 255)' },
+  { label: '轻透浮层', value: 'rgba(255, 255, 255, 0.88)' },
+  { label: '玻璃浮层', value: 'rgb(248 250 252 / 0.88)' },
+  { label: '跟随抬升表面', value: 'var(--ww-surface-raised-color)' },
+] as const;
+
+const overlayBorderOptions = [
+  { label: '克制蓝灰', value: 'rgb(36 82 106 / 0.1)' },
+  { label: '无描边', value: 'transparent' },
+  { label: '玻璃亮边', value: 'rgb(255 255 255 / 0.76)' },
+  { label: '跟随全局描边', value: 'var(--ww-border-color)' },
+  ...borderOptions,
+] as const;
+
+const overlayShadowOptions = [
+  { label: '无阴影', value: 'none' },
+  { label: '克制浮层', value: '0 8px 14px rgb(27 54 70 / 0.14)' },
+  { label: '标准浮层', value: '0 18px 36px rgb(20 20 24 / 0.16)' },
+  { label: '跟随浮层阴影', value: 'var(--ww-card-shadow-floating)' },
+  ...shadowOptions.slice(1),
+] as const;
+
+const overlayBlurOptions = [
+  { label: '关闭虚化', value: 'none' },
+  { label: '微量虚化', value: 'blur(3px)' },
+  { label: '轻度虚化', value: 'blur(6px) saturate(1.04)' },
+  { label: '标准虚化', value: 'blur(10px) saturate(1.08)' },
+  { label: '强虚化', value: 'blur(16px) saturate(1.12)' },
+] as const;
+
+const scrimOptions = [
+  { label: '轻遮罩', value: 'rgb(20 20 24 / 0.24)' },
+  { label: '蓝灰遮罩', value: 'rgb(25 42 54 / 0.32)' },
+  { label: '标准遮罩', value: 'rgb(20 20 24 / 0.36)' },
+  { label: '深遮罩', value: 'rgb(20 20 24 / 0.48)' },
+] as const;
+
+const sheetSurfaceOptions = [
+  { label: '无填充', value: 'transparent' },
+  { label: '玻璃表面', value: 'rgb(255 255 255 / 0.56)' },
+  { label: '控件玻璃', value: 'rgb(255 255 255 / 0.7)' },
+  { label: '跟随抬升表面', value: 'var(--ww-surface-raised-color)' },
+  { label: '跟随浅色表面', value: 'var(--ww-surface-tint-color)' },
+  { label: '主题浅选中', value: 'color-mix(in srgb, var(--ww-theme-color-light) 68%, white)' },
+  { label: '日期浅选中', value: 'color-mix(in srgb, var(--ww-theme-color-light) 46%, transparent)' },
+] as const;
+
+const overlayForegroundOptions = [
+  { label: '主要文字', value: 'var(--ww-theme-text-color)' },
+  { label: '次要文字', value: 'var(--ww-text-color-mid)' },
+  { label: '反白文字', value: 'var(--ww-primary-foreground)' },
+] as const;
+
+const overlayActionOptions = [
+  { label: '品牌深色操作', value: 'color-mix(in srgb, var(--ww-theme-color-deep) 82%, black)' },
+  { label: '跟随主操作', value: 'var(--ww-action-primary-background)' },
+  { label: '跟随主题色', value: 'var(--ww-theme-color)' },
+  { label: '跟随浅色表面', value: 'var(--ww-surface-tint-color)' },
+] as const;
+
+const sheetBorderOptions = [
+  { label: '玻璃亮边', value: 'rgb(255 255 255 / 0.64)' },
+  { label: '控件亮边', value: 'rgb(255 255 255 / 0.72)' },
+  { label: '跟随全局描边', value: 'var(--ww-border-color)' },
+] as const;
+
 const gradientOptions = [
   { label: '纯色背景', value: 'var(--ww-background-color)' },
   { label: '清新渐变', value: 'linear-gradient(155deg, rgb(231 247 255) 0%, rgb(246 252 255) 48%, rgb(255 244 248) 100%)' },
@@ -87,6 +155,11 @@ export const STUDIO_TOKENS: readonly StudioToken[] = [
   { name: '--ww-card-shadow-lg', title: '大阴影', description: '大卡片与覆盖层', group: 'material', kind: 'select', options: shadowOptions },
   { name: '--ww-card-shadow-floating', title: '浮层阴影', description: '弹层与浮动内容', group: 'material', kind: 'select', options: shadowOptions },
   { name: '--ww-control-shadow', title: '控件阴影', description: '页头操作和筛选控件', group: 'material', kind: 'select', options: shadowOptions },
+  { name: '--ww-material-overlay-background', title: '浮层 · 表面', description: '弹窗、操作菜单、日期选择器与上下 Sheet 共用表面', group: 'material', kind: 'select', options: overlaySurfaceOptions },
+  { name: '--ww-material-overlay-border', title: '浮层 · 描边', description: '所有产品浮层共用边界', group: 'material', kind: 'select', options: overlayBorderOptions },
+  { name: '--ww-material-overlay-shadow', title: '浮层 · 阴影', description: '所有产品浮层共用抬升层次', group: 'material', kind: 'select', options: overlayShadowOptions },
+  { name: '--ww-material-overlay-blur', title: '浮层 · 背景虚化', description: '遮罩和浮层表面共用的背景虚化强度', group: 'material', kind: 'select', options: overlayBlurOptions },
+  { name: '--ww-material-scrim-background', title: '浮层 · 背景遮罩', description: '弹窗、菜单、日期选择器与 Sheet 共用遮罩', group: 'material', kind: 'select', options: scrimOptions },
   { name: '--ww-page-gutter', title: '页面边距', description: '移动页面左右留白', group: 'shape', kind: 'slider', min: 8, max: 28, step: 1, unit: 'px' },
   { name: '--ww-section-gap', title: '区块间距', description: '页面区块之间的垂直间距', group: 'shape', kind: 'slider', min: 4, max: 28, step: 1, unit: 'px' },
   { name: '--ww-card-padding', title: '卡片内边距', description: '业务卡片内容留白', group: 'shape', kind: 'slider', min: 8, max: 28, step: 1, unit: 'px' },
@@ -94,6 +167,7 @@ export const STUDIO_TOKENS: readonly StudioToken[] = [
   { name: '--ww-list-row-height', title: '列表行高', description: '列表单行最小高度', group: 'shape', kind: 'slider', min: 40, max: 68, step: 2, unit: 'px' },
   { name: '--ww-radius-card', title: '卡片圆角', description: '常规业务卡片', group: 'shape', kind: 'slider', min: 8, max: 28, step: 1, unit: 'px' },
   { name: '--ww-radius-panel', title: '面板圆角', description: '弹层与大面板', group: 'shape', kind: 'slider', min: 10, max: 32, step: 1, unit: 'px' },
+  { name: '--ww-material-overlay-radius', title: '浮层 · 弹窗圆角', description: '居中确认框与顶部 Sheet 的圆角', group: 'shape', kind: 'slider', min: 12, max: 32, step: 1, unit: 'px' },
   { name: '--ww-radius-control', title: '控件圆角', description: '输入、按钮和小控件', group: 'shape', kind: 'slider', min: 6, max: 24, step: 1, unit: 'px' },
   { name: '--ww-card-blur', title: '玻璃模糊', description: 'Chrome 和浮层模糊半径', group: 'shape', kind: 'slider', min: 0, max: 24, step: 1, unit: 'px' },
   { name: '--ww-color-finance-income', title: '收入语义色', description: '收入金额和收入图表，独立于主色', group: 'semantic', kind: 'channel-color' },
@@ -104,6 +178,44 @@ export const STUDIO_TOKENS: readonly StudioToken[] = [
   { name: '--ww-component-sheet-padding-x', title: '表单弹层 · 横向内边距', description: '表单类 Bottom Sheet 的内容边距', group: 'shape', kind: 'slider', min: 14, max: 24, step: 1, unit: 'px' },
   { name: '--ww-component-sheet-section-gap', title: '表单弹层 · 区块间距', description: '标签、账户和输入区之间的纵向节奏', group: 'shape', kind: 'slider', min: 10, max: 20, step: 1, unit: 'px' },
   { name: '--ww-component-sheet-control-height', title: '表单弹层 · 控件高度', description: '账户选择与金额输入控件的最小高度', group: 'shape', kind: 'slider', min: 48, max: 60, step: 2, unit: 'px' },
+  { name: '--ww-component-sheet-radius', title: '表单弹层 · 顶部圆角', description: '底部 Sheet、操作菜单和日期选择器共用圆角', group: 'shape', kind: 'slider', min: 16, max: 36, step: 1, unit: 'px' },
+  { name: '--ww-component-sheet-close-size', title: '表单弹层 · 关闭按钮尺寸', description: 'Sheet 右上角关闭按钮的点击表面尺寸', group: 'shape', kind: 'slider', min: 30, max: 44, step: 1, unit: 'px' },
+  { name: '--ww-component-sheet-close-radius', title: '表单弹层 · 关闭按钮圆角', description: 'Sheet 右上角关闭按钮的圆角', group: 'shape', kind: 'slider', min: 8, max: 22, step: 1, unit: 'px' },
+  { name: '--ww-component-sheet-heading-size', title: '表单弹层 · 标题字号', description: '所有 Sheet 标题的字号', group: 'shape', kind: 'slider', min: 15, max: 22, step: 1, unit: 'px' },
+  { name: '--ww-component-sheet-header-background', title: '表单弹层 · 顶栏表面', description: 'SheetHeader 的背景材质', group: 'material', kind: 'select', options: sheetSurfaceOptions },
+  { name: '--ww-component-sheet-header-border', title: '表单弹层 · 顶栏描边', description: 'SheetHeader 的分隔边界', group: 'material', kind: 'select', options: sheetBorderOptions },
+  { name: '--ww-component-sheet-header-blur', title: '表单弹层 · 顶栏虚化', description: 'SheetHeader 的背景虚化强度', group: 'material', kind: 'select', options: overlayBlurOptions },
+  { name: '--ww-component-sheet-icon-background', title: '表单弹层 · 图标表面', description: '标题图标和关闭按钮背景', group: 'material', kind: 'select', options: sheetSurfaceOptions },
+  { name: '--ww-component-sheet-control-background', title: '表单弹层 · 控件表面', description: 'Sheet 内输入和选择控件背景', group: 'material', kind: 'select', options: sheetSurfaceOptions },
+  { name: '--ww-component-sheet-control-border', title: '表单弹层 · 控件描边', description: 'Sheet 内输入和选择控件边界', group: 'material', kind: 'select', options: sheetBorderOptions },
+  { name: '--ww-component-sheet-control-shadow', title: '表单弹层 · 控件阴影', description: 'Sheet 内输入和选择控件层次', group: 'material', kind: 'select', options: shadowOptions },
+  { name: '--ww-component-sheet-subtle-background', title: '表单弹层 · 弱表面', description: 'Sheet 内弱强调区域', group: 'material', kind: 'select', options: sheetSurfaceOptions },
+  { name: '--ww-component-sheet-selected-background', title: '表单弹层 · 选中表面', description: 'Sheet 内选中状态背景', group: 'material', kind: 'select', options: sheetSurfaceOptions },
+  { name: '--ww-component-sheet-divider', title: '表单弹层 · 分隔线', description: 'Sheet 内分组边界', group: 'material', kind: 'select', options: sheetBorderOptions },
+  { name: '--ww-component-sheet-focus-ring', title: '表单弹层 · 聚焦环', description: 'Sheet 内键盘聚焦与输入聚焦轮廓', group: 'material', kind: 'select', options: borderOptions },
+  { name: '--ww-component-sheet-placeholder', title: '表单弹层 · 占位文字', description: 'Sheet 内输入提示文字', group: 'color', kind: 'color', dependsOn: ['--ww-text-color-mid'] },
+  { name: '--ww-component-sheet-action-background', title: '表单弹层 · 主操作背景', description: 'Sheet 底部主操作按钮背景', group: 'material', kind: 'select', options: [{ label: '跟随主操作', value: 'var(--ww-action-primary-background)' }, { label: '跟随主题色', value: 'var(--ww-theme-color)' }] },
+  { name: '--ww-component-sheet-action-shadow', title: '表单弹层 · 主操作阴影', description: 'Sheet 底部主操作按钮阴影', group: 'material', kind: 'select', options: overlayShadowOptions },
+  { name: '--ww-component-sheet-handle-width', title: '表单弹层 · 拖动条宽度', description: '底部 Sheet、操作菜单和日期选择器共用拖动条', group: 'shape', kind: 'slider', min: 24, max: 52, step: 1, unit: 'px' },
+  { name: '--ww-component-sheet-handle-color', title: '表单弹层 · 拖动条颜色', description: '所有底部浮层共用的弱提示颜色', group: 'material', kind: 'select', options: [{ label: '跟随弱文字', value: 'color-mix(in srgb, var(--ww-text-color-ghost) 72%, transparent)' }, { label: '跟随分隔线', value: 'var(--ww-divider-color)' }, { label: '跟随主题浅色', value: 'var(--ww-theme-color-light)' }] },
+  { name: '--ww-component-sheet-handle-space', title: '表单弹层 · 拖动条留白', description: '拖动条与 Sheet 内容之间的顶部空间', group: 'shape', kind: 'slider', min: 12, max: 24, step: 1, unit: 'px' },
+  { name: '--ww-component-overlay-width', title: '确认弹窗 · 面板宽度', description: '居中确认框在手机上的最大宽度', group: 'shape', kind: 'slider', min: 280, max: 360, step: 2, unit: 'px' },
+  { name: '--ww-component-overlay-padding-x', title: '确认弹窗 · 内容边距', description: '居中确认框的横向与顶部留白', group: 'shape', kind: 'slider', min: 16, max: 30, step: 1, unit: 'px' },
+  { name: '--ww-component-overlay-control-height', title: '确认弹窗 · 按钮高度', description: '确认和取消按钮的最小高度', group: 'shape', kind: 'slider', min: 40, max: 56, step: 1, unit: 'px' },
+  { name: '--ww-component-overlay-control-radius', title: '确认弹窗 · 按钮圆角', description: '确认和取消按钮圆角', group: 'shape', kind: 'slider', min: 8, max: 24, step: 1, unit: 'px' },
+  { name: '--ww-component-overlay-title-size', title: '确认弹窗 · 标题字号', description: '确认框标题字号', group: 'shape', kind: 'slider', min: 15, max: 22, step: 1, unit: 'px' },
+  { name: '--ww-component-overlay-body-size', title: '确认弹窗 · 正文字号', description: '确认框说明文字字号', group: 'shape', kind: 'slider', min: 11, max: 16, step: 1, unit: 'px' },
+  { name: '--ww-component-overlay-icon-size', title: '确认弹窗 · 图标尺寸', description: '确认框顶部图标表面尺寸', group: 'shape', kind: 'slider', min: 40, max: 60, step: 1, unit: 'px' },
+  { name: '--ww-component-overlay-icon-radius', title: '确认弹窗 · 图标圆角', description: '确认框顶部图标表面圆角', group: 'shape', kind: 'slider', min: 10, max: 28, step: 1, unit: 'px' },
+  { name: '--ww-component-overlay-secondary-background', title: '确认弹窗 · 次操作背景', description: '取消按钮与操作菜单取消区的背景', group: 'material', kind: 'select', options: sheetSurfaceOptions },
+  { name: '--ww-component-overlay-secondary-foreground', title: '确认弹窗 · 次操作文字', description: '取消按钮与操作菜单取消区的文字颜色', group: 'color', kind: 'select', options: overlayForegroundOptions },
+  { name: '--ww-component-overlay-primary-background', title: '确认弹窗 · 主操作背景', description: '普通确认操作的强调背景', group: 'material', kind: 'select', options: overlayActionOptions },
+  { name: '--ww-component-overlay-primary-foreground', title: '确认弹窗 · 主操作文字', description: '普通确认操作的文字颜色', group: 'color', kind: 'select', options: overlayForegroundOptions },
+  { name: '--ww-component-action-sheet-row-height', title: '操作菜单 · 行高', description: '操作菜单每一项的触控与阅读高度', group: 'shape', kind: 'slider', min: 48, max: 64, step: 2, unit: 'px' },
+  { name: '--ww-component-date-picker-height', title: '日期选择器 · 总高度', description: '月历顶部时间选择器与其他日期选择器共用高度', group: 'shape', kind: 'slider', min: 280, max: 400, step: 2, unit: 'px' },
+  { name: '--ww-component-date-picker-header-height', title: '日期选择器 · 顶栏高度', description: '日期选择器取消、标题和确认区域高度', group: 'shape', kind: 'slider', min: 52, max: 80, step: 2, unit: 'px' },
+  { name: '--ww-component-date-picker-item-height', title: '日期选择器 · 选项行高', description: '日期滚轮每一项的高度', group: 'shape', kind: 'slider', min: 36, max: 52, step: 1, unit: 'px' },
+  { name: '--ww-component-date-picker-selection-background', title: '日期选择器 · 选中背景', description: '滚轮中间当前日期的强调表面', group: 'material', kind: 'select', options: sheetSurfaceOptions },
   { name: '--ww-component-summary-padding-x', title: '汇总卡 · 横向内边距', description: '个人、家庭与自定义账本共用的顶部汇总卡', group: 'shape', kind: 'slider', min: 8, max: 24, step: 1, unit: 'px' },
   { name: '--ww-component-summary-padding-y', title: '汇总卡 · 纵向内边距', description: '个人、家庭与自定义账本共用的顶部汇总卡', group: 'shape', kind: 'slider', min: 8, max: 24, step: 1, unit: 'px' },
   { name: '--ww-component-summary-gap', title: '汇总卡 · 区块间距', description: '个人、家庭与自定义账本共用的顶部汇总卡', group: 'shape', kind: 'slider', min: 4, max: 20, step: 1, unit: 'px' },

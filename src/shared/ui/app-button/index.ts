@@ -1,2 +1,2 @@
 export { AppButton } from './AppButton';
-export type { AppButtonProps, AppButtonVariant } from './AppButton';
+export type { AppButtonProps, AppButtonSize, AppButtonVariant } from './AppButton';

@@ -832,7 +832,11 @@ describe('household calendar', () => {
       createElement(HouseholdCalendarPage),
     );
 
-    expect(container.querySelector('[data-testid="household-calendar-page"] [data-record-calendar-presentation]')).not.toBeNull();
+    const householdCalendarPage = container.querySelector('[data-testid="household-calendar-page"]');
+    expect(householdCalendarPage?.classList).toContain('h-full');
+    expect(householdCalendarPage?.classList).toContain('min-h-0');
+    expect(householdCalendarPage?.classList).toContain('overflow-hidden');
+    expect(householdCalendarPage?.querySelector('[data-record-calendar-presentation]')).not.toBeNull();
     expect(container.querySelector('[data-record-calendar-carousel]')).not.toBeNull();
     expect(container.querySelector('[data-date="2026-07-21"]')?.textContent).toContain('-20');
     expect(hooks.useHouseholdCalendarQuery).toHaveBeenCalledWith({

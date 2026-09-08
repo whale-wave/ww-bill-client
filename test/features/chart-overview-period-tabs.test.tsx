@@ -15,6 +15,7 @@ import { i18n } from '@/shared/i18n';
 const noop = () => undefined;
 const renderCleanups: Array<() => void> = [];
 const scrollIntoViewDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
+const scrollToDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollTo');
 
 function overviewTab(key: string, name: string): ChartOverviewTab {
   return {
@@ -132,6 +133,10 @@ afterEach(() => {
     Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', scrollIntoViewDescriptor);
   else
     delete (HTMLElement.prototype as Partial<HTMLElement>).scrollIntoView;
+  if (scrollToDescriptor)
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', scrollToDescriptor);
+  else
+    delete (HTMLElement.prototype as Partial<HTMLElement>).scrollTo;
   vi.useRealTimers();
 });
 
@@ -175,9 +180,14 @@ describe('chart overview period tabs', () => {
   it('reveals the selected period after tabs load asynchronously', () => {
     const animationFrames = installAnimationFrameQueue();
     const scrollIntoView = vi.fn();
+    const scrollTo = vi.fn();
     Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
       configurable: true,
       value: scrollIntoView,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+      configurable: true,
+      value: scrollTo,
     });
     const tabs = [
       overviewTab('2026-33', '第33周'),
@@ -202,25 +212,31 @@ describe('chart overview period tabs', () => {
     expect(selectedRange?.getAttribute('aria-pressed')).toBe('true');
     expect(selectedPeriod?.classList).toContain('snap-center');
     expect(selectedPeriod?.parentElement?.classList).toContain('snap-proximity');
+    Object.defineProperties(selectedPeriod!, {
+      offsetLeft: { configurable: true, value: 240 },
+      offsetWidth: { configurable: true, value: 70 },
+    });
+    Object.defineProperty(selectedPeriod!.parentElement!, 'clientWidth', { configurable: true, value: 300 });
     expect(scrollIntoView).not.toHaveBeenCalled();
+    expect(scrollTo).not.toHaveBeenCalled();
 
     animationFrames.flush();
 
-    expect(scrollIntoView).toHaveBeenCalledOnce();
-    expect(scrollIntoView.mock.contexts[0]).toBe(selectedPeriod);
-    expect(scrollIntoView).toHaveBeenCalledWith({
+    expect(scrollIntoView).not.toHaveBeenCalled();
+    expect(scrollTo).toHaveBeenCalledOnce();
+    expect(scrollTo.mock.contexts[0]).toBe(selectedPeriod?.parentElement);
+    expect(scrollTo).toHaveBeenCalledWith({
       behavior: 'auto',
-      block: 'nearest',
-      inline: 'center',
+      left: 125,
     });
   });
 
   it('repositions the active period when range, amount, or metric context changes', () => {
     const animationFrames = installAnimationFrameQueue();
-    const scrollIntoView = vi.fn();
-    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+    const scrollTo = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
       configurable: true,
-      value: scrollIntoView,
+      value: scrollTo,
     });
     const activeTab = overviewTab('2026-1', '当前周期');
     const tabs = [activeTab];
@@ -268,15 +284,15 @@ describe('chart overview period tabs', () => {
     expect(ranges.find(button => button.textContent === i18n.t('chart:tabs.year'))?.getAttribute('aria-pressed')).toBe('true');
     expect(ranges.filter(button => button.getAttribute('aria-pressed') === 'true')).toHaveLength(1);
     expect(animationFrames.requestAnimationFrame).toHaveBeenCalledTimes(5);
-    expect(scrollIntoView).toHaveBeenCalledTimes(5);
+    expect(scrollTo).toHaveBeenCalledTimes(5);
   });
 
   it('cancels a stale frame and relocates when the available tab keys change', () => {
     const animationFrames = installAnimationFrameQueue();
-    const scrollIntoView = vi.fn();
-    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+    const scrollTo = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
       configurable: true,
-      value: scrollIntoView,
+      value: scrollTo,
     });
     const activeTab = overviewTab('2026-34', '上周');
     const { rerender } = renderOverview(overviewContext({
@@ -294,7 +310,7 @@ describe('chart overview period tabs', () => {
 
     animationFrames.flush();
 
-    expect(scrollIntoView).toHaveBeenCalledOnce();
-    expect((scrollIntoView.mock.contexts[0] as HTMLElement).textContent).toBe('上周');
+    expect(scrollTo).toHaveBeenCalledOnce();
+    expect((scrollTo.mock.contexts[0] as HTMLElement).dataset.chartPeriodOptions).toBe('true');
   });
 });

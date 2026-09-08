@@ -109,6 +109,14 @@ describe('record adjustment detail section', () => {
     expect(container.textContent).toContain('adjustment.add');
   });
 
+  it('uses the shared spacing scale around the nested adjustment card', () => {
+    const container = render({ amount: '100.00', id: 9 });
+    const section = container.querySelector<HTMLElement>('[data-record-adjustments]');
+
+    expect(section?.className).toContain('mt-[var(--ww-space-lg)]');
+    expect(section?.className).toContain('mb-[var(--ww-space-md)]');
+  });
+
   it('shows semantic selected colors without an inner amount-input border', () => {
     const container = render({ amount: '100.00', id: 9 }, true);
     const addButton = Array.from(container.querySelectorAll('button'))
@@ -117,19 +125,28 @@ describe('record adjustment detail section', () => {
 
     const refundButton = Array.from(document.body.querySelectorAll<HTMLButtonElement>('button'))
       .find(button => button.textContent?.includes('adjustment.refund'));
+    const cashbackButton = Array.from(document.body.querySelectorAll<HTMLButtonElement>('button'))
+      .find(button => button.textContent?.includes('adjustment.cashback'));
     const supplementButton = Array.from(document.body.querySelectorAll<HTMLButtonElement>('button'))
       .find(button => button.textContent?.includes('adjustment.supplement'));
     const amountInput = document.body.querySelector<HTMLInputElement>('#record-adjustment-amount');
+    const amountLabel = document.body.querySelector<HTMLLabelElement>('label[for="record-adjustment-amount"]');
 
     expect(refundButton?.getAttribute('aria-pressed')).toBe('true');
     expect(refundButton?.className).toContain('border-finance-income/40');
+    expect(amountLabel?.textContent).toBe('adjustment.refundAmount');
     expect(amountInput?.classList.contains('ww-sheet-plain-input')).toBe(true);
     expect(amountInput?.classList.contains('record-adjustment-sheet__amount-input')).toBe(true);
     expect(document.body.querySelector('.record-adjustment-sheet')).not.toBeNull();
 
+    act(() => cashbackButton?.click());
+    expect(cashbackButton?.getAttribute('aria-pressed')).toBe('true');
+    expect(amountLabel?.textContent).toBe('adjustment.cashbackAmount');
+
     act(() => supplementButton?.click());
     expect(supplementButton?.getAttribute('aria-pressed')).toBe('true');
     expect(supplementButton?.className).toContain('border-finance-expense/40');
+    expect(amountLabel?.textContent).toBe('adjustment.supplementAmount');
   });
 
   it('omits linkedAssetId so the service can inherit the original record asset', async () => {

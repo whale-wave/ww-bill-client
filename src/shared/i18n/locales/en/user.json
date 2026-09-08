@@ -47,8 +47,7 @@
     "allDays": "Total Days",
     "recordCount": "Total Records",
     "recordUnit": "",
-    "automaticCompleted": "Checked in automatically today",
-    "automaticHint": "Add a record to check in"
+    "completed": "Checked in"
   },
   "notLoggedIn": "Not logged in",
   "vipNotSupported": "VIP not yet supported",

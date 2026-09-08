@@ -1,16 +1,13 @@
 import type { CategoryEntity } from '@/entities/category';
-import { Dialog } from 'antd-mobile';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  BUDGET_CENTER_POPUP_CLASS_NAME,
-  BUDGET_DIALOG_BODY_CLASS_NAME,
-  BUDGET_OVERLAY_MASK_CLASS_NAME,
   BudgetEditorPresentation,
   BudgetEntityLevel,
   BudgetEntityType,
 } from '@/entities/budget';
 import { useTranslation } from '@/shared/i18n';
+import { showAppInfoDialog } from '@/shared/ui';
 import { useBudgetSubmit } from '../model/useBudgetSubmit';
 import { ERROR_MAP, normalizeAmount, validateAmount } from '../model/validateAmount';
 
@@ -56,11 +53,8 @@ export const BudgetModel: React.FC<BudgetModelProps> = ({
   const handleConfirm = async () => {
     const error = validateAmount(amount);
     if (error) {
-      return Dialog.alert({
-        bodyClassName: BUDGET_DIALOG_BODY_CLASS_NAME,
-        className: BUDGET_CENTER_POPUP_CLASS_NAME,
-        content: ERROR_MAP[error],
-        maskClassName: BUDGET_OVERLAY_MASK_CLASS_NAME,
+      return showAppInfoDialog({
+        description: ERROR_MAP[error],
       });
     }
 
@@ -82,12 +76,9 @@ export const BudgetModel: React.FC<BudgetModelProps> = ({
 
     if (warning) {
       setTimeout(() => {
-        Dialog.alert({
-          bodyClassName: BUDGET_DIALOG_BODY_CLASS_NAME,
-          className: BUDGET_CENTER_POPUP_CLASS_NAME,
+        showAppInfoDialog({
           confirmText: t('actions.save'),
-          content: warning,
-          maskClassName: BUDGET_OVERLAY_MASK_CLASS_NAME,
+          description: warning,
         });
       }, 250);
     }

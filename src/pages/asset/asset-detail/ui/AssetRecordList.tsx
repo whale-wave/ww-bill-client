@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { AssetRecord } from '@/entities/asset';
-import { DatePicker, Skeleton, Toast } from 'antd-mobile';
+import { Skeleton, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { CalendarDays, ChevronDown, ReceiptText, RefreshCcw } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGetAssetRecordQuery, useVoidAssetTransferMutation } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, formatLocalizedMonthDay } from '@/shared/lib';
-import { confirmAppAction, IllustratedEmptyState, showAppInfoDialog, Surface } from '@/shared/ui';
+import { confirmAppAction, IllustratedEmptyState, promptAppDatePicker, showAppInfoDialog, Surface } from '@/shared/ui';
 
 interface RecordGroup {
   date: string;
@@ -53,8 +53,7 @@ export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
   }).format(selectMonth.toDate()), [locale, selectMonth]);
 
   const handleSelectMonth = useCallback(async () => {
-    const value = await DatePicker.prompt({
-      className: 'ww-app-date-picker',
+    const value = await promptAppDatePicker({
       defaultValue: selectMonth.toDate(),
       precision: 'month',
       title: t('detail.selectMonth'),

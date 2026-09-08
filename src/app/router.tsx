@@ -30,15 +30,17 @@ function lazyGuardedPage(loader: () => Promise<{ default: ComponentType }>) {
   return () => loader().then(m => ({ Component: withGuard(m.default) }));
 }
 
+const personalTabRouteLayoutLoader = () => import('./personal-tab-route-layout');
+
 const tabRouteLoaders = {
   'ledger-charts': () => import('@/pages/ledger-charts/LedgerChartsPage'),
   'ledger-create': () => import('@/pages/ledger-record-create/LedgerRecordCreatePage'),
   'ledger-records': () => import('@/pages/ledger-records/LedgerRecordsPage'),
   'personal-bookkeeping': () => import('@/pages/record/bookkeeping/BookkeepingPage'),
-  'personal-chart': () => import('@/pages/chart/chart-home/ChartHomePage'),
-  'personal-detail': () => import('@/pages/record/detail/DetailPage'),
-  'personal-discovery': () => import('@/pages/discovery/DiscoveryPage'),
-  'personal-mine': () => import('@/pages/mine/MinePage'),
+  'personal-chart': personalTabRouteLayoutLoader,
+  'personal-detail': personalTabRouteLayoutLoader,
+  'personal-discovery': personalTabRouteLayoutLoader,
+  'personal-mine': personalTabRouteLayoutLoader,
 };
 
 registerRoutePrefetchers(tabRouteLoaders);
@@ -118,8 +120,13 @@ const router = createHashRouter([
         lazy: lazyGuardedPage(() => import('@/pages/shortcut-bookkeeping-confirm/ShortcutBookkeepingConfirmPage')),
       },
       {
-        path: 'discovery',
-        lazy: lazyGuardedPage(tabRouteLoaders['personal-discovery']),
+        children: [
+          { element: <></>, path: 'detail' },
+          { element: <></>, path: 'chart' },
+          { element: <></>, path: 'discovery' },
+          { element: <></>, path: 'mine' },
+        ],
+        lazy: lazyPage(personalTabRouteLayoutLoader),
       },
       {
         path: 'community',
@@ -182,21 +189,8 @@ const router = createHashRouter([
         lazy: lazyPage(() => import('@/pages/auth/sign/SignPage')),
       },
       {
-        path: 'chart',
-        children: [
-          {
-            index: true,
-            lazy: lazyGuardedPage(tabRouteLoaders['personal-chart']),
-          },
-          {
-            path: 'category',
-            lazy: lazyGuardedPage(() => import('@/pages/chart/chart-category/ChartCategoryPage')),
-          },
-        ],
-      },
-      {
-        path: 'mine',
-        lazy: lazyGuardedPage(tabRouteLoaders['personal-mine']),
+        path: 'chart/category',
+        lazy: lazyGuardedPage(() => import('@/pages/chart/chart-category/ChartCategoryPage')),
       },
       {
         path: 'post-topic',
@@ -209,10 +203,6 @@ const router = createHashRouter([
       {
         path: 'login',
         lazy: lazyPage(() => import('@/pages/auth/login/LoginPage')),
-      },
-      {
-        path: 'detail',
-        lazy: lazyGuardedPage(tabRouteLoaders['personal-detail']),
       },
       {
         path: 'message',

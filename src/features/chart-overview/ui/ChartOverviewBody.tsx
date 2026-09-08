@@ -36,15 +36,15 @@ export const ChartOverviewBody: FC<ChartOverviewPresentationProps> = ({ pieChart
       if (
         scrollContainerRef.current !== scrollContainer
         || activeTabRef.current !== activeTab
-        || typeof activeTab.scrollIntoView !== 'function'
+        || typeof scrollContainer.scrollTo !== 'function'
       ) {
         return;
       }
 
-      activeTab.scrollIntoView({
+      const left = activeTab.offsetLeft - (scrollContainer.clientWidth - activeTab.offsetWidth) / 2;
+      scrollContainer.scrollTo({
         behavior: 'auto',
-        block: 'nearest',
-        inline: 'center',
+        left: Math.max(0, left),
       });
     });
 
@@ -60,6 +60,7 @@ export const ChartOverviewBody: FC<ChartOverviewPresentationProps> = ({ pieChart
       <div
         ref={scrollContainerRef}
         className="flex h-[46px] shrink-0 snap-x snap-proximity gap-[7px] overflow-x-auto px-[18px] pb-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        data-tab-swipe-ignore
         data-chart-period-options
         style={{
           WebkitMaskImage: 'linear-gradient(to right, transparent, black 18px, black calc(100% - 18px), transparent)',

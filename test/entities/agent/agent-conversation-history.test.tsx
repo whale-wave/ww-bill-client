@@ -67,7 +67,7 @@ vi.mock('@/shared/i18n', () => ({
 }));
 
 vi.mock('@/shared/ui', () => ({
-  AppBottomSheet: ({ children, visible }: { children: React.ReactNode; visible: boolean }) => visible ? <div>{children}</div> : null,
+  AppSheet: ({ children, visible }: { children: React.ReactNode; visible: boolean }) => visible ? <div>{children}</div> : null,
   PageHeader: ({ right, title }: { right: React.ReactNode; title: React.ReactNode }) => (
     <header>
       <h1>{title}</h1>

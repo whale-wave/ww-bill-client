@@ -60,6 +60,18 @@ const asset: Asset = {
   updatedAt: '2026-08-01T00:00:00.000Z',
 };
 
+const liabilityAsset: Asset = {
+  ...asset,
+  assetGroup: {
+    ...childGroup,
+    id: 'credit-card-group',
+    name: '信用卡',
+    type: 'sub',
+  },
+  id: 'liability-asset',
+  name: '日常信用卡',
+};
+
 let cleanup: (() => void) | undefined;
 
 function renderPage() {
@@ -140,5 +152,26 @@ describe('asset manager page', () => {
     await act(async () => container.querySelector<HTMLButtonElement>('[data-tab-key="chart"]')?.click());
 
     expect(router.state.location.pathname).toBe('/asset/chart');
+  });
+
+  it('keeps dark account cards visually distinct from the wallet shell', async () => {
+    hooks.useGetAssetQuery.mockReturnValue({
+      data: [liabilityAsset],
+      isError: false,
+      isLoading: false,
+      refetch: hooks.refetchList,
+    });
+    const { container } = renderPage();
+
+    const walletViewButton = [...container.querySelectorAll('button')]
+      .find(button => button.textContent?.includes('卡包'));
+    await act(async () => walletViewButton?.click());
+
+    const liabilityCard = [...container.querySelectorAll('button')]
+      .find(button => button.textContent?.includes('日常信用卡'));
+
+    expect(liabilityCard?.classList.contains('bg-primary-deep')).toBe(true);
+    expect(liabilityCard?.classList.contains('border-white/25')).toBe(true);
+    expect(liabilityCard?.classList.contains('bg-ww-ink')).toBe(false);
   });
 });

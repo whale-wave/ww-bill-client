@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { HouseholdInvitation } from '@/entities/household';
-import { Dialog, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import { Copy, Share2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -19,7 +19,7 @@ import {
   usePendingHouseholdActivation,
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
-import { PageHeader, Surface } from '@/shared/ui';
+import { confirmAppAction, PageHeader, Surface } from '@/shared/ui';
 
 function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `household-invite-${Date.now()}`;
@@ -138,7 +138,13 @@ const HouseholdInvitationPage: FC = () => {
   const handleRevoke = async () => {
     if (!invitation)
       return;
-    const confirmed = await Dialog.confirm({ content: t('invitation.confirmRevoke') });
+    const confirmed = await confirmAppAction({
+      cancelText: t('common.cancel'),
+      confirmText: t('invitation.revoke'),
+      description: t('invitation.confirmRevoke'),
+      title: t('invitation.revoke'),
+      tone: 'warning',
+    });
     if (!confirmed)
       return;
     try {

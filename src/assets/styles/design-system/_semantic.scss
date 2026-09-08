@@ -1,4 +1,10 @@
 :root {
+  --ww-space-xs: var(--ww-ref-space-1);
+  --ww-space-sm: var(--ww-ref-space-2);
+  --ww-space-md: var(--ww-ref-space-3);
+  --ww-space-lg: var(--ww-ref-space-4);
+  --ww-space-xl: var(--ww-ref-space-5);
+  --ww-space-2xl: var(--ww-ref-space-6);
   /* RGB channels keep Tailwind alpha utilities token-backed. */
   --ww-color-fg: 32 32 36;
   --ww-color-fg-muted: 119 119 126;

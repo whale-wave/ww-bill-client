@@ -2,7 +2,7 @@ import type { WorkspaceScope } from '../model/workspace-scope';
 import type {
   LedgerTemplateKey,
 } from '@/entities/ledger';
-import { Popup, SafeArea, SpinLoading } from 'antd-mobile';
+import { SafeArea, SpinLoading } from 'antd-mobile';
 import { CheckOutline } from 'antd-mobile-icons';
 import { Plus, Settings2, Users } from 'lucide-react';
 import { useMemo } from 'react';
@@ -18,6 +18,7 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
+import { AppSheet } from '@/shared/ui';
 import { getWorkspaceHomePath } from '../model/workspace-scope';
 import '@/features/ledger-switcher/ui/ledger-switcher.scss';
 
@@ -178,7 +179,7 @@ export function WorkspaceSwitcherPanel({
   });
 
   return (
-    <Popup
+    <AppSheet
       bodyClassName="ledger-switcher-panel"
       closeOnMaskClick
       destroyOnClose
@@ -260,6 +261,6 @@ export function WorkspaceSwitcherPanel({
         </div>
         <SafeArea position="bottom" />
       </section>
-    </Popup>
+    </AppSheet>
   );
 }

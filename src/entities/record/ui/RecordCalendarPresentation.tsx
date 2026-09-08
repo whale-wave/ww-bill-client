@@ -244,11 +244,11 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
               </button>
             )}
         {isTodaySelected
-          ? <span aria-hidden="true" className="h-11 w-12" data-record-calendar-today-placeholder />
+          ? <span aria-hidden="true" className="h-11 w-11 justify-self-end" data-record-calendar-today-placeholder />
           : (
               <button
                 aria-label={todayLabel}
-                className="flex h-11 w-12 items-center justify-center rounded-full border border-solid border-primary/15 bg-white/65 px-0 text-[12px] font-extrabold text-primary-dark shadow-ww-xs backdrop-blur-md transition active:scale-95 active:bg-primary-light/70"
+                className="flex h-11 w-11 justify-self-end items-center justify-center rounded-full border border-solid border-white/70 bg-white/75 px-0 text-[12px] font-extrabold text-primary-dark shadow-ww-xs backdrop-blur-md transition active:scale-95"
                 data-record-calendar-today
                 onClick={handleToday}
                 title={todayLabel}

@@ -1,17 +1,9 @@
 import type { FC } from 'react';
 import type { Household, HouseholdBudget } from '@/entities/household';
-import {
-  ActionSheet,
-  Dialog,
-  Toast,
-} from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import { useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-  BUDGET_ACTION_SHEET_CLASS_NAME,
-  BUDGET_CENTER_POPUP_CLASS_NAME,
-  BUDGET_DIALOG_BODY_CLASS_NAME,
-  BUDGET_OVERLAY_MASK_CLASS_NAME,
   BudgetEditorPresentation,
   BudgetEntityType,
   BudgetPageShell,
@@ -32,6 +24,7 @@ import {
   HouseholdScopeBoundary,
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
+import { confirmAppAction, showAppActionSheet } from '@/shared/ui';
 
 interface BudgetEditor {
   budget?: HouseholdBudget;
@@ -177,14 +170,14 @@ const BudgetContent: FC<BudgetContentProps> = ({
   };
 
   const handleDelete = async (budget: HouseholdBudget, kind: BudgetEditor['kind']) => {
-    const confirm = await Dialog.confirm({
-      bodyClassName: BUDGET_DIALOG_BODY_CLASS_NAME,
-      className: BUDGET_CENTER_POPUP_CLASS_NAME,
-      content: kind === 'summary'
+    const confirm = await confirmAppAction({
+      cancelText: t('common.cancel'),
+      confirmText: t('common.delete'),
+      description: kind === 'summary'
         ? t('budget.confirmDeleteSummary')
         : t('budget.confirmDelete'),
       title: t('budget.deleteTitle'),
-      maskClassName: BUDGET_OVERLAY_MASK_CLASS_NAME,
+      tone: 'danger',
     });
     if (!confirm)
       return;
@@ -203,9 +196,7 @@ const BudgetContent: FC<BudgetContentProps> = ({
   };
 
   const showActions = (budget: HouseholdBudget, kind: BudgetEditor['kind']) => {
-    const actionSheet = ActionSheet.show({
-      popupClassName: BUDGET_ACTION_SHEET_CLASS_NAME,
-      styles: { mask: { backdropFilter: 'blur(2px)', background: 'rgba(20, 20, 24, 0.28)' } },
+    const actionSheet = showAppActionSheet({
       actions: [
         {
           disabled: upsertState.isLoading || removeState.isLoading,

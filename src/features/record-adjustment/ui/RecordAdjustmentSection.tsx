@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { RecordAdjustment, RecordAdjustmentType, RecordEntry } from '@/entities/record';
-import { DatePicker, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { Banknote, CalendarDays, Check, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { useState } from 'react';
@@ -11,7 +11,7 @@ import {
 } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { cn, normalizeAmount } from '@/shared/lib';
-import { AppBottomSheet, confirmDangerousAction, SheetHeader } from '@/shared/ui';
+import { AppButton, AppSheet, confirmDangerousAction, promptAppDatePicker, SheetHeader } from '@/shared/ui';
 import './record-adjustment-section.scss';
 
 export interface RecordAdjustmentAssetOption {
@@ -72,6 +72,7 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
   const [remark, setRemark] = useState('');
   const [assetId, setAssetId] = useState<string | null>();
   const adjustments = record.adjustments ?? [];
+  const hasAdjustmentContent = Boolean(record.adjustmentSummary || adjustments.length);
   const originalAmount = record.originalAmount
     ?? record.adjustmentSummary?.originalAmount
     ?? record.amount;
@@ -174,25 +175,37 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
   };
 
   return (
-    <section className="mt-4" data-record-adjustments>
-      <div className="mb-2 flex items-end justify-between gap-3 px-1">
-        <span className="min-w-0">
-          <h2 className="text-[14px] font-extrabold text-ww-ink">{t('adjustment.title')}</h2>
-          <p className="mt-0.5 text-[10px] leading-4 text-ww-soft">{t('adjustment.description')}</p>
-        </span>
-        {canManage && (
-          <button
-            className="flex h-11 shrink-0 items-center gap-1 rounded-full border border-solid border-border-primary bg-white/85 px-3 text-[11px] font-extrabold text-primary-deep shadow-ww-xs"
-            onClick={openCreate}
-            type="button"
-          >
-            <Plus size={14} strokeWidth={2.2} />
-            {t('adjustment.add')}
-          </button>
-        )}
+    <section
+      className="mb-[var(--ww-space-md)] mt-[var(--ww-space-lg)]"
+      data-record-adjustments
+    >
+      <div className="mb-[var(--ww-space-sm)] px-[var(--ww-space-xs)]">
+        <div className="flex items-center justify-between gap-[var(--ww-space-md)]">
+          <h2 className="min-w-0 text-[14px] font-extrabold leading-5 text-ww-ink">{t('adjustment.title')}</h2>
+          {canManage && (
+            <AppButton
+              className="shrink-0"
+              onClick={openCreate}
+              size="compact"
+              variant="secondary"
+            >
+              <Plus aria-hidden="true" size={14} strokeWidth={2.2} />
+              {t('adjustment.add')}
+            </AppButton>
+          )}
+        </div>
+        <p className="mt-[var(--ww-space-xs)] pr-[var(--ww-space-xs)] text-[11px] leading-[17px] text-ww-soft">
+          {t('adjustment.description')}
+        </p>
       </div>
 
-      <div className="overflow-hidden rounded-[20px] border border-solid border-border-primary bg-ww-surface-raised">
+      <div className={cn(
+        'overflow-hidden',
+        hasAdjustmentContent
+          ? 'rounded-[20px] border border-solid border-border-primary bg-ww-surface-raised'
+          : 'rounded-[16px] bg-ww-surface-muted',
+      )}
+      >
         {record.adjustmentSummary && (
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 border-0 border-b border-solid border-border-primary px-4 py-3">
             <span>
@@ -215,7 +228,7 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
         {adjustments.length
           ? adjustments.map(adjustment => (
               <button
-                className="flex min-h-[68px] w-full items-center gap-3 border-0 border-t border-solid border-border-primary bg-transparent px-4 py-3 text-left first:border-0 disabled:cursor-default"
+                className="flex min-h-[68px] w-full items-center gap-3 border-0 border-t border-solid border-border-primary bg-transparent px-4 py-3 text-left transition-colors first:border-0 active:bg-primary-light/20 disabled:cursor-default"
                 key={adjustment.id}
                 onClick={() => openEdit(adjustment)}
                 type="button"
@@ -251,10 +264,17 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
                 </span>
               </button>
             ))
-          : <div className="px-4 py-5 text-center text-[11px] font-semibold text-ww-soft">{t('adjustment.empty')}</div>}
+          : (
+              <div className="flex min-h-[52px] items-center justify-center gap-2 px-4 py-3 text-[11px] font-semibold text-ww-soft">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[10px] bg-primary-light/55 text-primary-deep">
+                  <RotateCcw aria-hidden="true" size={14} strokeWidth={1.9} />
+                </span>
+                <span>{t('adjustment.empty')}</span>
+              </div>
+            )}
       </div>
 
-      <AppBottomSheet
+      <AppSheet
         bodyClassName="record-adjustment-sheet flex max-h-[88vh] flex-col overflow-hidden"
         destroyOnClose
         onClose={closeSheet}
@@ -309,7 +329,9 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
             </div>
           )}
 
-          <label className="mt-4 block text-[11px] font-bold text-ww-mid" htmlFor="record-adjustment-amount">{t('adjustment.amount')}</label>
+          <label className="mt-4 block text-[11px] font-bold text-ww-mid" htmlFor="record-adjustment-amount">
+            {t(`adjustment.${type}Amount`)}
+          </label>
           <div className="mt-1.5 flex h-[54px] items-center gap-2 rounded-[16px] border border-solid border-border-primary bg-ww-surface-raised px-4 shadow-ww-xs transition-[border-color,box-shadow] focus-within:border-primary-mid focus-within:ring-2 focus-within:ring-primary-light/60">
             <span className="font-number text-[20px] font-black text-primary-deep">¥</span>
             <input
@@ -331,7 +353,7 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
             onClick={async () => {
               if (isReadOnly)
                 return;
-              const value = await DatePicker.prompt({
+              const value = await promptAppDatePicker({
                 defaultValue: occurredAt,
                 precision: 'minute',
                 title: t('adjustment.occurredAt'),
@@ -432,7 +454,7 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
             </button>
           )}
         </div>
-      </AppBottomSheet>
+      </AppSheet>
     </section>
   );
 };

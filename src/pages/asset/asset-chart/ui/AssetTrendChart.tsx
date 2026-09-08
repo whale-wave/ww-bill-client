@@ -2,7 +2,7 @@ import type { Dayjs } from 'dayjs';
 import type { LineSeriesOption } from 'echarts/charts';
 import type { GridComponentOption, MarkLineComponentOption, TooltipComponentOption } from 'echarts/components';
 import type { FC } from 'react';
-import { DatePicker, SpinLoading } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { LineChart } from 'echarts/charts';
 import { GridComponent, MarkLineComponent, TooltipComponent } from 'echarts/components';
@@ -17,7 +17,7 @@ import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedYear } from '@/shared/lib';
 import { readAppearanceChartColors, readAppearanceToken, useAppearanceRevision, withAlpha } from '@/shared/lib/appearance-tokens';
 import { useChart } from '@/shared/lib/use-chart';
-import { Surface } from '@/shared/ui';
+import { promptAppDatePicker, Surface } from '@/shared/ui';
 import { ChartRetryButton } from './ChartRetryButton';
 
 echarts.use([GridComponent, LineChart, CanvasRenderer, UniversalTransition, TooltipComponent, MarkLineComponent]);
@@ -63,8 +63,7 @@ export const AssetTrendChart: FC<{ type: AssetStatisticalRecordType }> = ({ type
   const { chartDomRef, myChart } = useChart();
 
   const handleSelectYear = useCallback(async () => {
-    const result = await DatePicker.prompt({
-      className: 'ww-app-date-picker',
+    const result = await promptAppDatePicker({
       defaultValue: selectYear.toDate(),
       precision: 'year',
       title: chartTitle,

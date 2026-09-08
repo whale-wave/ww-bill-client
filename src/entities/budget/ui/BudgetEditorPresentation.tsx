@@ -1,10 +1,7 @@
 import type { FC, ReactNode } from 'react';
-import { Input, Modal, Selector } from 'antd-mobile';
+import { Input, Selector } from 'antd-mobile';
 import { CircleDollarSign, WalletCards } from 'lucide-react';
-import {
-  BUDGET_CENTER_POPUP_CLASS_NAME,
-  BUDGET_OVERLAY_MASK_CLASS_NAME,
-} from './budget-overlay-styles';
+import { AppButton, AppModal } from '@/shared/ui';
 
 export interface BudgetEditorCategoryOption {
   label: ReactNode;
@@ -50,22 +47,21 @@ export const BudgetEditorPresentation: FC<BudgetEditorPresentationProps> = ({
   title,
   visible,
 }) => (
-  <Modal
+  <AppModal
     actions={[]}
     afterClose={onAfterClose}
-    bodyClassName="!box-border !max-h-[calc(100dvh-32px)] !w-full !max-w-full !overflow-hidden !rounded-[26px] !border !border-solid !border-white/80 !bg-white/95 !p-0 !shadow-ww-floating [&_.adm-modal-content]:!p-0 [&_.adm-modal-footer]:!hidden"
-    className={BUDGET_CENTER_POPUP_CLASS_NAME}
+    bodyClassName="!box-border !max-h-[calc(100dvh-32px)] !max-w-full !p-0 [&_.adm-modal-content]:!p-0 [&_.adm-modal-footer]:!hidden"
     closeOnMaskClick={!isSaving}
     content={(
       <div data-budget-editor>
-        <div className="ww-budget-editor-header px-5 pb-5 pt-6">
+        <div className="ww-budget-editor-header border-0 border-b border-solid border-[var(--ww-component-sheet-divider)] px-5 pb-4 pt-5">
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] border border-white/80 bg-white/75 text-primary-deep shadow-ww-xs">
-              <WalletCards size={22} strokeWidth={1.7} />
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--ww-component-overlay-icon-radius)] bg-[var(--ww-component-sheet-icon-background)] text-primary-deep">
+              <WalletCards size={20} strokeWidth={1.8} />
             </span>
             <div>
-              <h2 className="text-[18px] font-extrabold leading-6 text-ww-ink">{title}</h2>
-              <p className="mt-0.5 text-[11px] text-ww-mid">{amountPlaceholder}</p>
+              <h2 className="text-[17px] font-extrabold leading-6 text-ww-ink">{title}</h2>
+              <p className="mt-0.5 text-[13px] leading-5 text-ww-mid">{amountPlaceholder}</p>
             </div>
           </div>
         </div>
@@ -74,7 +70,7 @@ export const BudgetEditorPresentation: FC<BudgetEditorPresentationProps> = ({
             categoryOptions.length > 0
               ? (
                   <Selector
-                    className="[&_.adm-selector-item]:!rounded-[13px] [&_.adm-selector-item]:!border [&_.adm-selector-item]:!border-solid [&_.adm-selector-item]:!border-border-primary [&_.adm-selector-item]:!bg-white [&_.adm-selector-item]:!px-3 [&_.adm-selector-item]:!py-2.5 [&_.adm-selector-item-active]:!border-primary [&_.adm-selector-item-active]:!bg-primary-light/45 [&_.adm-selector-item-active]:!text-primary-deep"
+                    className="[&_.adm-selector-item]:!rounded-[var(--ww-radius-control)] [&_.adm-selector-item]:!border [&_.adm-selector-item]:!border-solid [&_.adm-selector-item]:!border-[var(--ww-component-sheet-control-border)] [&_.adm-selector-item]:!bg-[var(--ww-component-sheet-control-background)] [&_.adm-selector-item]:!px-3 [&_.adm-selector-item]:!py-3 [&_.adm-selector-item-active]:!border-primary [&_.adm-selector-item-active]:!bg-[var(--ww-component-sheet-selected-background)] [&_.adm-selector-item-active]:!text-primary-deep"
                     columns={1}
                     disabled={categoryDisabled}
                     onChange={values => onCategoryChange?.(String(values[0] ?? ''))}
@@ -82,11 +78,11 @@ export const BudgetEditorPresentation: FC<BudgetEditorPresentationProps> = ({
                     value={categoryValue ? [categoryValue] : []}
                   />
                 )
-              : <p className="rounded-[14px] bg-ww-surface-tint px-4 py-3 text-[13px] text-ww-mid">{categoryEmptyContent}</p>
+              : <p className="rounded-[var(--ww-radius-control)] bg-[var(--ww-component-sheet-subtle-background)] px-4 py-3 text-[13px] leading-5 text-ww-mid">{categoryEmptyContent}</p>
           )}
           <label className="block">
             <span className="mb-2 block text-[12px] font-bold text-ww-mid">{amountPlaceholder}</span>
-            <div className="flex h-14 items-center gap-2 rounded-[16px] border border-solid border-border-primary bg-white px-4 shadow-ww-xs transition-within focus-within:border-primary">
+            <div className="flex h-14 items-center gap-2 rounded-[var(--ww-radius-control)] border border-solid border-[var(--ww-component-sheet-control-border)] bg-[var(--ww-component-sheet-control-background)] px-4 transition-within focus-within:border-primary focus-within:ring-2 focus-within:ring-[var(--ww-component-sheet-focus-ring)]">
               <CircleDollarSign className="shrink-0 text-primary-deep" size={20} strokeWidth={1.7} />
               <span className="text-[20px] font-extrabold text-ww-ink">¥</span>
               <Input
@@ -99,28 +95,29 @@ export const BudgetEditorPresentation: FC<BudgetEditorPresentationProps> = ({
               />
             </div>
           </label>
-          <div className="grid grid-cols-[0.82fr_1.18fr] gap-3 pt-1">
-            <button
-              className="h-12 rounded-[15px] border-0 bg-ww-surface-tint text-[13px] font-bold text-ww-mid disabled:opacity-50"
+          <div className="grid grid-cols-[0.9fr_1.1fr] gap-2 pt-1">
+            <AppButton
+              className="!border-0 !bg-[var(--ww-component-overlay-secondary-background)] !text-[var(--ww-component-overlay-secondary-foreground)] !shadow-none"
               disabled={isSaving}
+              fullWidth
               onClick={onCancel}
-              type="button"
+              variant="secondary"
             >
               {cancelLabel}
-            </button>
-            <button
-              className="ww-theme-primary-action h-12 rounded-[15px] border-0 text-[13px] font-bold disabled:opacity-50"
+            </AppButton>
+            <AppButton
+              className="ww-theme-primary-action !shadow-none"
               disabled={isSaving || (categoryOptions !== undefined && categoryOptions.length === 0)}
+              fullWidth
+              loading={isSaving}
               onClick={() => void onSave()}
-              type="button"
             >
               {saveLabel}
-            </button>
+            </AppButton>
           </div>
         </div>
       </div>
     )}
-    maskClassName={BUDGET_OVERLAY_MASK_CLASS_NAME}
     onClose={onCancel}
     visible={visible}
   />

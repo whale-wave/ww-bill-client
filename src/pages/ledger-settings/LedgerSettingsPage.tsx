@@ -43,8 +43,8 @@ import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import {
-  AppBottomSheet,
   AppButton,
+  AppSheet,
   confirmAppAction,
   IllustratedEmptyState,
   PageHeader,
@@ -585,7 +585,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
           <SettingsOverviewPresentation sections={sections} />
         </div>
       </main>
-      <AppBottomSheet
+      <AppSheet
         bodyClassName="h-[82dvh] max-h-[720px] overflow-hidden"
         destroyOnClose
         onMaskClick={() => setEditor(null)}
@@ -676,7 +676,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
             </div>
           </section>
         )}
-      </AppBottomSheet>
+      </AppSheet>
     </div>
   );
 }

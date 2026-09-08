@@ -1,6 +1,6 @@
 import type { FC, FormEvent } from 'react';
 import type { Household } from '@/entities/household';
-import { Button, DatePicker, Toast } from 'antd-mobile';
+import { Button, Toast } from 'antd-mobile';
 import { CalendarDays } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -26,7 +26,7 @@ import { SettingsOverviewPresentation } from '@/features/workspace-settings';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { AppBottomSheet, PageHeader } from '@/shared/ui';
+import { AppDatePicker, AppSheet, PageHeader } from '@/shared/ui';
 
 type Editor = 'dissolve' | 'sharedStart' | null;
 
@@ -306,7 +306,7 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
           },
         ]}
       />
-      <AppBottomSheet
+      <AppSheet
         destroyOnClose
         onMaskClick={() => setEditor(null)}
         position="bottom"
@@ -327,8 +327,7 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
               {formatMonthStart(draftMonth).slice(0, 7)}
               <CalendarDays className="text-primary-deep" size={18} strokeWidth={1.8} />
             </button>
-            <DatePicker
-              className="ww-app-date-picker"
+            <AppDatePicker
               max={today}
               min={monthStartDate(household.sharedStartMonth)}
               onClose={() => setMonthPickerVisible(false)}
@@ -359,7 +358,7 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
             </Button>
           </form>
         )}
-      </AppBottomSheet>
+      </AppSheet>
     </HouseholdPageState>
   );
 };

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Ledger, LedgerListItem, LedgerTemplate } from '@/entities/ledger';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ActionSheet, Dialog, Modal } from 'antd-mobile';
+import { ActionSheet, Dialog } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -404,6 +404,22 @@ describe('personal ledger workspace integration', () => {
     expect(router.state.location.pathname).toBe('/origin');
   });
 
+  it('keeps every bill period and its three metrics in one compact row', async () => {
+    const { container } = renderPage('/bill', '/bill', createElement(BillPage));
+    await click(container.querySelectorAll('.bill-period-tabs > button')[1]);
+    const row = container.querySelector<HTMLElement>('[data-testid="bill-period-row"]');
+    const metrics = row?.querySelector<HTMLElement>('[data-testid="bill-period-metrics"]');
+
+    expect(row?.className).toContain('min-h-[72px]');
+    const period = row?.querySelector<HTMLElement>('.whitespace-nowrap');
+    expect(period?.textContent).toMatch(/^7[月年]$/);
+    expect(period?.className).toContain('w-[68px]');
+    expect(period?.className).toContain('pr-3');
+    expect(metrics?.className).toContain('grid-cols-3');
+    expect(metrics?.children).toHaveLength(3);
+    expect(metrics?.querySelector('.col-span-2')).toBeNull();
+  });
+
   it('changes personal chart amount and range filters through the restored controls', async () => {
     const { container, router } = renderPage('/chart', '/chart', createElement(ChartHomePage));
     const ranges = container.querySelectorAll('.chart-period-tabs > button');
@@ -694,7 +710,7 @@ describe('custom ledger workspace integration', () => {
       isLoading: false,
     });
     const actionSheet = vi.spyOn(ActionSheet, 'show').mockReturnValue({ close: vi.fn() });
-    const confirm = vi.spyOn(Modal, 'confirm').mockResolvedValue(false);
+    const confirm = vi.spyOn(Dialog, 'confirm').mockResolvedValue(false);
     const { container } = renderPage(
       '/ledgers/ledger%2Fa/budget',
       '/ledgers/:ledgerId/budget',
@@ -707,8 +723,8 @@ describe('custom ledger workspace integration', () => {
       await clearAction?.onClick?.();
     });
     expect(confirm).toHaveBeenCalledWith(expect.objectContaining({
-      content: 'clearSummaryBudgetWarning',
-      title: 'warning.title',
+      bodyClassName: 'ww-app-dialog ww-app-dialog--warning',
+      maskClassName: 'ww-app-overlay-mask',
     }));
     expect(hooks.clearLedgerBudget).not.toHaveBeenCalled();
 
@@ -766,10 +782,11 @@ describe('custom ledger workspace integration', () => {
       data: expect.objectContaining({ amount: '500' }),
       ledgerId: 'ledger/a',
     }));
-    expect(warning).toHaveBeenCalledWith({
+    expect(warning).toHaveBeenCalledWith(expect.objectContaining({
+      bodyClassName: 'ww-app-dialog ww-app-dialog--primary',
       confirmText: 'actions.save',
-      content: 'warning.categoryBudgetExceedsTotal',
-    });
+      maskClassName: 'ww-app-overlay-mask',
+    }));
   });
 
   it('keeps a failed custom budget request distinct from an empty budget', () => {

@@ -1,6 +1,6 @@
 import type { FC, FormEvent } from 'react';
 import type { Household } from '@/entities/household';
-import { Button, Dialog, Toast } from 'antd-mobile';
+import { Button, Toast } from 'antd-mobile';
 import { CircleAlert } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -23,7 +23,7 @@ import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { MemberCardsPresentation } from '@/features/workspace-settings';
 import { assertSuccessApi } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
-import { AppBottomSheet, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
+import { AppSheet, confirmAppAction, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 
 const MembersContent: FC<{ household: Household }> = ({ household }) => {
   const { t } = useTranslation('household');
@@ -124,7 +124,7 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
                     block
                     color="danger"
                     onClick={async () => {
-                      if (await Dialog.confirm({ content: t('members.confirmLeave') })) {
+                      if (await confirmAppAction({ cancelText: t('common.cancel'), confirmText: t('members.leave'), description: t('members.confirmLeave'), title: t('members.leave'), tone: 'danger' })) {
                         try {
                           await assertSuccessApi(await deleteMyHouseholdMemberApi(household.id));
                           window.history.back();
@@ -145,7 +145,7 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
                     fill="none"
                     key={member.id}
                     onClick={async () => {
-                      if (await Dialog.confirm({ content: t('members.confirmRemove', { name: getDisplayName(member.user) }) })) {
+                      if (await confirmAppAction({ cancelText: t('common.cancel'), confirmText: t('members.remove', { name: getDisplayName(member.user) }), description: t('members.confirmRemove', { name: getDisplayName(member.user) }), title: t('members.remove', { name: getDisplayName(member.user) }), tone: 'danger' })) {
                         try {
                           await assertSuccessApi(await deleteHouseholdMemberApi(household.id, member.id, member.version));
                           await query.refetch();
@@ -160,7 +160,7 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
                   </Button>
                 ))}
               </div>
-              <AppBottomSheet
+              <AppSheet
                 destroyOnClose
                 onMaskClick={() => setIsEditing(false)}
                 position="bottom"
@@ -182,7 +182,7 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
                     {t('common.save')}
                   </Button>
                 </form>
-              </AppBottomSheet>
+              </AppSheet>
             </>
           )}
     </HouseholdPageState>

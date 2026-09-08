@@ -1,12 +1,11 @@
 import type { Dayjs } from 'dayjs';
 import type { FC, ReactNode } from 'react';
-import { Popup } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { CalendarDays, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
-import { AppButton, DesignIcon } from '@/shared/ui';
+import { AppButton, AppSheet, DesignIcon } from '@/shared/ui';
 
 interface RecordMonthPickerProps {
   month: Dayjs;
@@ -100,18 +99,13 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
               )}
         {variant !== 'calendar' && <DesignIcon name="period-chevron" size={variant === 'compact' ? 12 : 14} />}
       </button>
-      <Popup
-        bodyClassName="rounded-t-[24px] bg-[rgba(248,252,255,0.98)] pb-[calc(48px+env(safe-area-inset-bottom))] shadow-[0_-8px_32px_rgba(40,100,150,0.16)]"
-        maskStyle={{ background: 'rgba(30, 50, 70, 0.35)' }}
+      <AppSheet
+        bodyClassName="pb-[calc(48px+env(safe-area-inset-bottom))]"
         onMaskClick={() => setIsVisible(false)}
-        position="bottom"
         visible={isVisible}
       >
         <div data-testid={testId ? `${testId}-sheet` : undefined}>
-          <div className="flex justify-center pb-1 pt-3">
-            <span className="h-1 w-9 rounded-sm bg-ww-ghost" />
-          </div>
-          <div className="flex items-center justify-between px-[22px] pb-4 pt-2">
+          <div className="flex items-center justify-between px-[22px] pb-4 pt-3">
             <strong className="text-[15px] font-bold leading-[22.5px] text-ww-ink">
               {isYearOnly ? t('record:periodPicker.selectYear') : t('record:periodPicker.selectMonth')}
             </strong>
@@ -194,7 +188,7 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
             </div>
           )}
         </div>
-      </Popup>
+      </AppSheet>
     </>
   );
 };

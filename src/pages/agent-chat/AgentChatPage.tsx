@@ -18,7 +18,7 @@ import {
 } from '@/entities/agent';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { AppBottomSheet, confirmDangerousAction, PageHeader, PageLoadingState } from '@/shared/ui';
+import { AppSheet, confirmDangerousAction, PageHeader, PageLoadingState } from '@/shared/ui';
 import { AgentCardView } from './ui/AgentCardView';
 
 interface PendingTurn {
@@ -305,7 +305,7 @@ function AgentChatPage() {
         </div>
       </form>
 
-      <AppBottomSheet bodyClassName="max-h-[72vh] rounded-t-[24px]" onMaskClick={() => setHistoryVisible(false)} visible={historyVisible}>
+      <AppSheet bodyClassName="max-h-[72vh]" onMaskClick={() => setHistoryVisible(false)} visible={historyVisible}>
         <div className="px-5 pb-[max(24px,env(safe-area-inset-bottom))] pt-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="m-0 text-[18px] font-black text-ww-ink">{t('history')}</h2>
@@ -345,7 +345,7 @@ function AgentChatPage() {
             )}
           </div>
         </div>
-      </AppBottomSheet>
+      </AppSheet>
     </div>
   );
 }
