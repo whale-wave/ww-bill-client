@@ -13,7 +13,7 @@ import { ArrowLeft, CalendarDays, Plus } from 'lucide-react';
 import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useRef } from 'react';
 import { cn } from '@/shared/lib';
-import { IllustratedEmptyState, MOTION_PRESETS, useMotionPreference } from '@/shared/ui';
+import { IllustratedEmptyState, MOTION_PRESETS, Surface, useMotionPreference } from '@/shared/ui';
 import {
   CALENDAR_SWIPE_DIRECTION_RATIO,
   CALENDAR_SWIPE_MIN_DISTANCE,
@@ -452,24 +452,27 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
                       </span>
                     )}
                   </div>
-                  <div
-                    className={cn(
-                      'mx-[18px] min-h-[220px] flex-grow shrink-0',
-                      groups.length === 0 && 'overflow-hidden rounded-[22px] border border-solid border-white/75 bg-white/58 pb-3 shadow-ww-xs backdrop-blur-md',
-                    )}
-                    data-record-calendar-list
-                  >
-                    {groups.length > 0
-                      ? <RecordOverviewList groups={groups} renderCategoryIcon={renderCategoryIcon} variant="overview" />
-                      : (
+                  {groups.length > 0
+                    ? (
+                        <div className="mx-[18px] min-h-[220px] flex-grow shrink-0" data-record-calendar-list>
+                          <RecordOverviewList groups={groups} renderCategoryIcon={renderCategoryIcon} variant="overview" />
+                        </div>
+                      )
+                    : (
+                        <Surface
+                          className="mx-[18px] min-h-[220px] flex-grow shrink-0 overflow-hidden"
+                          data-record-calendar-list
+                          material="content"
+                        >
                           <IllustratedEmptyState
-                            className="min-h-[210px] py-5 [&>div]:mb-3 [&>div]:scale-75"
+                            className="min-h-[210px] py-4"
                             description={emptyDescription}
-                            icon={<CalendarDays className="text-primary-dark" size={36} strokeWidth={1.8} />}
+                            icon={<CalendarDays className="text-primary-deep" size={32} strokeWidth={1.8} />}
                             title={emptyLabel}
+                            variant="quiet"
                           />
-                        )}
-                  </div>
+                        </Surface>
+                      )}
                 </m.div>
               </div>
             )}

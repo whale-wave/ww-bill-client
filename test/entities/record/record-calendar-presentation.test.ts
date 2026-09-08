@@ -95,7 +95,8 @@ describe('record calendar presentation', () => {
 
     expect(container.querySelector('[data-record-calendar-today]')).toBeNull();
     expect(container.querySelector('[data-record-calendar-today-placeholder]')).not.toBeNull();
-    expect(container.querySelector('[data-record-calendar-list]')?.classList).toContain('bg-white/58');
+    expect(container.querySelector('[data-record-calendar-list]')?.classList).toContain('ww-surface--content');
+    expect(container.querySelector('[data-empty-state-variant="quiet"]')).not.toBeNull();
   });
 
   it('switches months with intentional horizontal swipes on the calendar', () => {

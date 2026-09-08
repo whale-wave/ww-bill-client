@@ -109,6 +109,29 @@ describe('record adjustment detail section', () => {
     expect(container.textContent).toContain('adjustment.add');
   });
 
+  it('shows semantic selected colors without an inner amount-input border', () => {
+    const container = render({ amount: '100.00', id: 9 }, true);
+    const addButton = Array.from(container.querySelectorAll('button'))
+      .find(button => button.textContent?.includes('adjustment.add'));
+    act(() => addButton?.click());
+
+    const refundButton = Array.from(document.body.querySelectorAll<HTMLButtonElement>('button'))
+      .find(button => button.textContent?.includes('adjustment.refund'));
+    const supplementButton = Array.from(document.body.querySelectorAll<HTMLButtonElement>('button'))
+      .find(button => button.textContent?.includes('adjustment.supplement'));
+    const amountInput = document.body.querySelector<HTMLInputElement>('#record-adjustment-amount');
+
+    expect(refundButton?.getAttribute('aria-pressed')).toBe('true');
+    expect(refundButton?.className).toContain('border-finance-income/40');
+    expect(amountInput?.classList.contains('ww-sheet-plain-input')).toBe(true);
+    expect(amountInput?.classList.contains('record-adjustment-sheet__amount-input')).toBe(true);
+    expect(document.body.querySelector('.record-adjustment-sheet')).not.toBeNull();
+
+    act(() => supplementButton?.click());
+    expect(supplementButton?.getAttribute('aria-pressed')).toBe('true');
+    expect(supplementButton?.className).toContain('border-finance-expense/40');
+  });
+
   it('omits linkedAssetId so the service can inherit the original record asset', async () => {
     const container = render({ amount: '100.00', id: 9 }, true, true);
     const addButton = Array.from(container.querySelectorAll('button'))

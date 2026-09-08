@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { RecordAdjustment, RecordAdjustmentType, RecordEntry } from '@/entities/record';
 import { DatePicker, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
-import { Banknote, CalendarDays, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import { Banknote, CalendarDays, Check, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import {
   useCreateRecordAdjustmentMutation,
@@ -12,6 +12,7 @@ import {
 import { useTranslation } from '@/shared/i18n';
 import { cn, normalizeAmount } from '@/shared/lib';
 import { AppBottomSheet, confirmDangerousAction, SheetHeader } from '@/shared/ui';
+import './record-adjustment-section.scss';
 
 export interface RecordAdjustmentAssetOption {
   amount: string;
@@ -254,7 +255,7 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
       </div>
 
       <AppBottomSheet
-        bodyClassName="flex max-h-[88vh] flex-col overflow-hidden"
+        bodyClassName="record-adjustment-sheet flex max-h-[88vh] flex-col overflow-hidden"
         destroyOnClose
         onClose={closeSheet}
         onMaskClick={closeSheet}
@@ -271,24 +272,32 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
             : t('adjustment.add')}
         />
         <div className="min-h-0 flex-1 overflow-auto px-[18px] pb-[max(18px,env(safe-area-inset-bottom))] pt-4">
-          <div className="grid grid-cols-3 gap-2">
-            {adjustmentTypes.map(option => (
-              <button
-                aria-pressed={type === option}
-                className={cn(
-                  'h-11 rounded-[14px] border border-solid text-[12px] font-extrabold',
-                  type === option
-                    ? 'border-primary bg-primary-light/55 text-primary-deep'
-                    : 'border-border-primary bg-white/80 text-ww-mid',
-                )}
-                key={option}
-                disabled={isReadOnly}
-                onClick={() => setType(option)}
-                type="button"
-              >
-                {t(`adjustment.${option}`)}
-              </button>
-            ))}
+          <div className="grid grid-cols-3 gap-1 rounded-[17px] bg-ww-surface-tint p-1">
+            {adjustmentTypes.map((option) => {
+              const isSelected = type === option;
+              const selectedClassName = option === 'supplement'
+                ? 'border-finance-expense/40 bg-finance-expense/10 text-finance-expense shadow-ww-xs'
+                : 'border-finance-income/40 bg-finance-income/10 text-finance-income shadow-ww-xs';
+
+              return (
+                <button
+                  aria-pressed={isSelected}
+                  className={cn(
+                    'flex h-11 items-center justify-center gap-1 rounded-[13px] border border-solid text-[12px] font-extrabold transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98] disabled:cursor-default disabled:opacity-70',
+                    isSelected
+                      ? selectedClassName
+                      : 'border-transparent bg-transparent text-ww-mid',
+                  )}
+                  key={option}
+                  disabled={isReadOnly}
+                  onClick={() => setType(option)}
+                  type="button"
+                >
+                  {isSelected && <Check aria-hidden="true" size={13} strokeWidth={2.6} />}
+                  {t(`adjustment.${option}`)}
+                </button>
+              );
+            })}
           </div>
 
           {editing && (
@@ -301,10 +310,10 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
           )}
 
           <label className="mt-4 block text-[11px] font-bold text-ww-mid" htmlFor="record-adjustment-amount">{t('adjustment.amount')}</label>
-          <div className="mt-1.5 flex h-[54px] items-center gap-2 rounded-[16px] border border-solid border-border-primary bg-white px-4">
+          <div className="mt-1.5 flex h-[54px] items-center gap-2 rounded-[16px] border border-solid border-border-primary bg-ww-surface-raised px-4 shadow-ww-xs transition-[border-color,box-shadow] focus-within:border-primary-mid focus-within:ring-2 focus-within:ring-primary-light/60">
             <span className="font-number text-[20px] font-black text-primary-deep">¥</span>
             <input
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 font-number text-[24px] font-black text-ww-ink outline-none"
+              className="record-adjustment-sheet__amount-input ww-sheet-plain-input min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 font-number text-[24px] font-black text-ww-ink outline-none"
               id="record-adjustment-amount"
               inputMode="decimal"
               readOnly={isReadOnly}
@@ -343,25 +352,35 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
               <div className="mt-1.5 overflow-hidden rounded-[16px] border border-solid border-border-primary bg-white">
                 <button
                   aria-pressed={assetId === null}
-                  className="flex min-h-11 w-full items-center gap-3 border-0 bg-transparent px-4 text-left"
+                  className={cn(
+                    'flex min-h-11 w-full items-center gap-3 border-0 px-4 text-left transition-colors',
+                    assetId === null ? 'bg-action-primary/10' : 'bg-transparent',
+                  )}
                   disabled={isReadOnly}
                   onClick={() => setAssetId(null)}
                   type="button"
                 >
-                  <Banknote className="text-ww-soft" size={16} />
+                  <Banknote className={assetId === null ? 'text-action-primary' : 'text-ww-soft'} size={16} />
                   <span className="flex-1 text-[12px] font-bold text-ww-mid">{t('adjustment.noAsset')}</span>
-                  {assetId === null && <span className="text-primary-deep">✓</span>}
+                  {assetId === null && (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-action-primary text-action-primary-foreground">
+                      <Check aria-hidden="true" size={12} strokeWidth={2.8} />
+                    </span>
+                  )}
                 </button>
                 {assetOptions.map(option => (
                   <button
                     aria-pressed={assetId === option.id}
-                    className="flex min-h-12 w-full items-center gap-3 border-0 border-t border-solid border-border-primary bg-transparent px-4 text-left"
+                    className={cn(
+                      'flex min-h-12 w-full items-center gap-3 border-0 border-t border-solid border-border-primary px-4 text-left transition-colors',
+                      assetId === option.id ? 'bg-action-primary/10' : 'bg-transparent',
+                    )}
                     key={option.id}
                     disabled={isReadOnly}
                     onClick={() => setAssetId(option.id)}
                     type="button"
                   >
-                    <Banknote className="text-primary-deep" size={16} />
+                    <Banknote className={assetId === option.id ? 'text-action-primary' : 'text-ww-soft'} size={16} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[12px] font-extrabold text-ww-ink">{option.name}</span>
                       <span className="font-number text-[10px] font-semibold text-ww-soft">
@@ -369,7 +388,11 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
                         {option.amount}
                       </span>
                     </span>
-                    {assetId === option.id && <span className="text-primary-deep">✓</span>}
+                    {assetId === option.id && (
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-action-primary text-action-primary-foreground">
+                        <Check aria-hidden="true" size={12} strokeWidth={2.8} />
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>

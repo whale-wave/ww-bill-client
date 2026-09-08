@@ -29,4 +29,18 @@ describe('illustratedEmptyState', () => {
     act(() => container.querySelector('button')?.click());
     expect(onAction).toHaveBeenCalledOnce();
   });
+
+  it('renders a restrained quiet treatment without decorative accent dots', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(IllustratedEmptyState, {
+      icon: createElement('span', null, 'icon'),
+      title: 'Nothing here',
+      variant: 'quiet',
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    expect(container.querySelector('[data-empty-state-variant="quiet"]')).not.toBeNull();
+    expect(container.querySelector('[data-empty-state-decoration]')).toBeNull();
+  });
 });
