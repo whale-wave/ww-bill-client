@@ -28,7 +28,7 @@ const hooks = vi.hoisted(() => ({
   useDissolveHouseholdMutation: vi.fn(),
   useHouseholdBudgetsQuery: vi.fn(),
   useHouseholdChartsQuery: vi.fn(),
-  useHouseholdChartPeriodsQuery: vi.fn(),
+  useHouseholdChartPeriodOptionsQuery: vi.fn(),
   useHouseholdMembersQuery: vi.fn(),
   useHouseholdPreferencesQuery: vi.fn(),
   useMyHouseholdQuery: vi.fn(),
@@ -46,7 +46,7 @@ vi.mock('@/entities/household', async importOriginal => ({
   useHouseholdBudgetsQuery: hooks.useHouseholdBudgetsQuery,
   useHouseholdChartsQuery: hooks.useHouseholdChartsQuery,
   useHouseholdTagRankingQuery: () => ({ data: undefined, isError: false, isLoading: false }),
-  useHouseholdChartPeriodsQuery: hooks.useHouseholdChartPeriodsQuery,
+  useHouseholdChartPeriodOptionsQuery: hooks.useHouseholdChartPeriodOptionsQuery,
   useHouseholdMembersQuery: hooks.useHouseholdMembersQuery,
   useHouseholdPreferencesQuery: hooks.useHouseholdPreferencesQuery,
   useMyHouseholdQuery: hooks.useMyHouseholdQuery,
@@ -125,7 +125,20 @@ const chart: HouseholdChartResult = {
 let cleanup: (() => void) | undefined;
 
 function query<T>(data: T) {
-  return { data, isError: false, isLoading: false, refetch: vi.fn() };
+  return { data, isError: false, isLoading: false, prefetch: vi.fn(), refetch: vi.fn() };
+}
+
+function periodOptionsQuery(options: unknown[]) {
+  return {
+    ...query(undefined),
+    fetchNextPage: vi.fn(),
+    fetchPreviousPage: vi.fn(),
+    hasNextPage: false,
+    hasPreviousPage: false,
+    isFetchingNextPage: false,
+    isFetchingPreviousPage: false,
+    options,
+  };
 }
 
 function renderPage(pathname: string, routePath: string, element: ReactNode, previousPath?: string) {
@@ -205,7 +218,7 @@ beforeEach(() => {
   }));
   hooks.useHouseholdBudgetsQuery.mockReturnValue(query(budget));
   hooks.useHouseholdChartsQuery.mockReturnValue(query(chart));
-  hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([{
+  hooks.useHouseholdChartPeriodOptionsQuery.mockReturnValue(periodOptionsQuery([{
     anchorDate: '2026-07-01',
     key: '2026-07',
     month: 7,
@@ -809,7 +822,7 @@ describe('household budget and charts', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-08-25T12:00:00.000Z'));
     try {
-      hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([
+      hooks.useHouseholdChartPeriodOptionsQuery.mockReturnValue(periodOptionsQuery([
         { anchorDate: '2025-12-22', isoWeek: 52, isoWeekYear: 2025, key: '2025-W52', period: 'week' },
         { anchorDate: '2026-08-10', isoWeek: 33, isoWeekYear: 2026, key: '2026-W33', period: 'week' },
         { anchorDate: '2026-08-17', isoWeek: 34, isoWeekYear: 2026, key: '2026-W34', period: 'week' },
@@ -849,7 +862,7 @@ describe('household budget and charts', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-08-25T12:00:00.000Z'));
     try {
-      hooks.useHouseholdChartPeriodsQuery.mockReturnValue(query([
+      hooks.useHouseholdChartPeriodOptionsQuery.mockReturnValue(periodOptionsQuery([
         { anchorDate: '2025-12-01', key: '2025-12', month: 12, period: 'month', year: 2025 },
         { anchorDate: '2026-07-01', key: '2026-07', month: 7, period: 'month', year: 2026 },
         { anchorDate: '2026-08-01', key: '2026-08', month: 8, period: 'month', year: 2026 },

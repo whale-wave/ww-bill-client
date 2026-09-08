@@ -97,6 +97,77 @@ export interface GetTagRankingParams {
 
 export type GetChartApiResponse = GetChartApiResponseWeekData[] | GetChartApiResponseMonthData[] | GetChartApiResponseYearData[];
 
+export type ChartMetric = 'expense' | 'income' | 'net';
+
+export interface ChartWeekPeriodOption {
+  period: 'week';
+  key: string;
+  anchorDate: string;
+  isoWeekYear: number;
+  isoWeek: number;
+}
+
+export interface ChartMonthPeriodOption {
+  period: 'month';
+  key: string;
+  anchorDate: string;
+  year: number;
+  month: number;
+}
+
+export interface ChartYearPeriodOption {
+  period: 'year';
+  key: string;
+  anchorDate: string;
+  year: number;
+}
+
+export type ChartPeriodOption = ChartWeekPeriodOption | ChartMonthPeriodOption | ChartYearPeriodOption;
+
+export interface ChartPeriodOptionsPage {
+  current: number;
+  data: ChartPeriodOption[];
+  pageSize: number;
+  total: number;
+}
+
+export interface GetChartPeriodOptionsApiParams {
+  period: GetChartApiParamsCategory;
+  metric: ChartMetric;
+  anchorDate?: string;
+  current?: number;
+  pageSize?: number;
+}
+
+export interface GetChartPeriodApiParams {
+  period: GetChartApiParamsCategory;
+  metric: ChartMetric;
+  anchorDate: string;
+  categoryId?: number;
+}
+
+export interface ChartPeriodResult {
+  anchorDate: string;
+  endDate: string;
+  metric: ChartMetric;
+  period: GetChartApiParamsCategory;
+  startDate: string;
+  tab: {
+    amount: number;
+    average: string;
+    data: Array<{
+      amount: number;
+      data: RecordEntry[];
+      displayLabel: string;
+      tooltipMode?: 'aggregate';
+      type: 'day' | 'month';
+      value: string;
+    }>;
+    key: string;
+    ranking: GetChartApiResponseRankingData[];
+  };
+}
+
 export function getChartApi(params: GetChartApiParams) {
   return request.get<unknown, SuccessResponse<GetChartApiResponse>>('/chart', {
     params,
@@ -109,6 +180,31 @@ export function getLedgerChartApi(
 ) {
   return request.get<unknown, SuccessResponse<GetChartApiResponse>>(
     `/ledgers/${encodeURIComponent(ledgerId)}/charts`,
+    { params },
+  );
+}
+
+export function getChartPeriodOptionsApi(params: GetChartPeriodOptionsApiParams) {
+  return request.get<unknown, SuccessResponse<ChartPeriodOptionsPage>>('/chart/period-options', { params });
+}
+
+export function getLedgerChartPeriodOptionsApi(
+  ledgerId: string,
+  params: GetChartPeriodOptionsApiParams,
+) {
+  return request.get<unknown, SuccessResponse<ChartPeriodOptionsPage>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/charts/period-options`,
+    { params },
+  );
+}
+
+export function getChartPeriodApi(params: GetChartPeriodApiParams) {
+  return request.get<unknown, SuccessResponse<ChartPeriodResult>>('/chart/period', { params });
+}
+
+export function getLedgerChartPeriodApi(ledgerId: string, params: GetChartPeriodApiParams) {
+  return request.get<unknown, SuccessResponse<ChartPeriodResult>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/charts/period`,
     { params },
   );
 }

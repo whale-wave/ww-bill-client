@@ -1,5 +1,6 @@
 import type {
   GetHouseholdBudgetsApiParams,
+  GetHouseholdChartPeriodOptionsApiParams,
   GetHouseholdChartPeriodsApiParams,
   GetHouseholdChartsApiParams,
   GetHouseholdRecordsApiParams,
@@ -81,6 +82,14 @@ export const householdKeys = {
   chartPeriods: (householdId: string, params: GetHouseholdChartPeriodsApiParams) => [
     ...householdKeys.chartsRoot(householdId),
     'periods',
+    params,
+  ] as const,
+  chartPeriodOptions: (
+    householdId: string,
+    params: Omit<GetHouseholdChartPeriodOptionsApiParams, 'current'>,
+  ) => [
+    ...householdKeys.chartsRoot(householdId),
+    'period-options',
     params,
   ] as const,
   calendarRoot: () => [...householdKeys.all, 'calendar'] as const,

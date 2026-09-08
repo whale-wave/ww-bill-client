@@ -14,7 +14,7 @@ const hooks = vi.hoisted(() => ({
 
 vi.mock('@/entities/chart', async importOriginal => ({
   ...await importOriginal<typeof import('@/entities/chart')>(),
-  useGetChartQuery: hooks.getChart,
+  useChartPeriodQuery: hooks.getChart,
   useTagRankingQuery: hooks.tagRanking,
 }));
 
@@ -76,7 +76,24 @@ describe('category detail chart layout', () => {
   });
 
   it('keeps the default category detail line-only and ordered', () => {
-    hooks.getChart.mockReturnValue({ data: [], isError: false, isFetching: false });
+    hooks.getChart.mockReturnValue({
+      data: {
+        anchorDate: '2026-08-17',
+        endDate: '2026-08-23',
+        metric: 'expense',
+        period: 'week',
+        startDate: '2026-08-17',
+        tab: {
+          amount: 90,
+          average: '90.00',
+          data: [{ amount: 90, data: [record], displayLabel: '08-24', type: 'day', value: '2026-08-24' }],
+          key: '2026-W34',
+          ranking: [{ amount: 90, category: record.category, percentage: '100', type: 'sub' }],
+        },
+      },
+      isError: false,
+      isFetching: false,
+    });
     hooks.tagRanking.mockReturnValue({ data: tagRanking, isError: false, isLoading: false });
     const { container, root } = render(
       <MemoryRouter

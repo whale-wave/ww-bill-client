@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import type { ChartCategoryLocationState } from './model/chartCategoryUtils';
+import { format, setISOWeek, setISOWeekYear, startOfISOWeek } from 'date-fns';
 import {
   BarChart3,
   ChevronLeft,
@@ -9,19 +10,39 @@ import {
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
-import { useGetChartQuery, useTagRankingQuery } from '@/entities/chart';
+import { useChartPeriodQuery, useTagRankingQuery } from '@/entities/chart';
 import { CategoryTrendChart, TagRankingSection } from '@/features/chart-overview';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
 import { IllustratedEmptyState, MetricGrid, ProgressBar, Surface } from '@/shared/ui';
 import {
+  flattenRecords,
   getMatchedRouteState,
-  getPeriodFromState,
-  getPeriodsFromData,
   getRecordsAmount,
   isAmountType,
   isTimeRangeCategory,
 } from './model/chartCategoryUtils';
+
+function tabKeyToAnchorDate(tabKey: string | null, period: 'week' | 'month' | 'year') {
+  if (!tabKey)
+    return undefined;
+  if (period === 'year' && /^\d{4}$/.test(tabKey))
+    return `${tabKey}-01-01`;
+  const match = tabKey.match(/^(\d{4})-W?(\d{1,2})$/);
+  if (!match)
+    return undefined;
+  const year = Number(match[1]);
+  const value = Number(match[2]);
+  if (period === 'month' && value >= 1 && value <= 12)
+    return `${year}-${String(value).padStart(2, '0')}-01`;
+  if (period === 'week' && value >= 1 && value <= 53) {
+    return format(
+      startOfISOWeek(setISOWeek(setISOWeekYear(new Date(year, 0, 4), year), value)),
+      'yyyy-MM-dd',
+    );
+  }
+  return undefined;
+}
 
 function displayAmount(value: number | string | undefined) {
   if (value === undefined || Number.isNaN(Number(value)))
@@ -54,7 +75,7 @@ const ChartCategory: FC = () => {
   const type = searchParams.get('type');
   const category = searchParams.get('category');
   const tabKey = searchParams.get('tabKey');
-  const hasRequiredParams = !!categoryId && isAmountType(type) && isTimeRangeCategory(category);
+  const parsedCategoryId = categoryId && /^\d+$/.test(categoryId) ? Number(categoryId) : undefined;
 
   const matchedRouteState = useMemo(() => {
     if (!categoryId || !isAmountType(type) || !isTimeRangeCategory(category))
@@ -62,33 +83,42 @@ const ChartCategory: FC = () => {
     return getMatchedRouteState(routeState, { categoryId, type, category, tabKey });
   }, [category, categoryId, routeState, tabKey, type]);
 
-  const { data, isError, isFetching } = useGetChartQuery({
+  const anchorDate = searchParams.get('anchorDate')
+    ?? matchedRouteState?.curTab?.anchorDate
+    ?? (isTimeRangeCategory(category)
+      ? tabKeyToAnchorDate(tabKey ?? matchedRouteState?.tabKey ?? matchedRouteState?.curTab?.key ?? null, category)
+      : undefined);
+  const hasRequiredParams = parsedCategoryId !== undefined
+    && isAmountType(type)
+    && isTimeRangeCategory(category)
+    && Boolean(anchorDate);
+  const periodQuery = useChartPeriodQuery({
     params: {
-      type: isAmountType(type) ? type : 'sub',
-      category: isTimeRangeCategory(category) ? category : 'week',
-      categoryId: categoryId || undefined,
+      anchorDate: anchorDate ?? '',
+      categoryId: parsedCategoryId,
+      metric: type === 'add' ? 'income' : 'expense',
+      period: isTimeRangeCategory(category) ? category : 'week',
     },
-    options: { enabled: hasRequiredParams },
+    queryOptions: { enabled: hasRequiredParams },
   });
-
-  const periodsFromData = useMemo(() => {
-    if (!isTimeRangeCategory(category))
-      return [];
-    return getPeriodsFromData(data, category);
-  }, [category, data]);
-
-  const periodFromState = useMemo(() => getPeriodFromState(matchedRouteState || null), [matchedRouteState]);
-  const selectedPeriod = useMemo(() =>
-    periodFromState || periodsFromData.find(item => item.key === tabKey) || periodsFromData.at(-1), [periodFromState, periodsFromData, tabKey]);
-
   const rankingItem = useMemo(() =>
-    matchedRouteState?.rankingItem || selectedPeriod?.ranking?.find(item => String(item.category.id) === categoryId), [categoryId, matchedRouteState?.rankingItem, selectedPeriod]);
+    matchedRouteState?.rankingItem
+    || periodQuery.data?.tab.ranking.find(item => String(item.category.id) === categoryId), [categoryId, matchedRouteState?.rankingItem, periodQuery.data?.tab.ranking]);
 
-  const records = (selectedPeriod?.records || []).filter(record => String(record.category.id) === categoryId);
+  const records = useMemo(
+    () => flattenRecords(periodQuery.data?.tab.data ?? []),
+    [periodQuery.data?.tab.data],
+  );
   const tagRange = useMemo(() => {
-    const times = records.map(record => new Date(record.time).getTime()).filter(Number.isFinite).sort();
-    return times.length ? { endDate: new Date(times.at(-1)! + 24 * 60 * 60 * 1000).toISOString(), startDate: new Date(times[0]!).toISOString() } : undefined;
-  }, [records]);
+    if (!periodQuery.data)
+      return undefined;
+    const endExclusive = new Date(`${periodQuery.data.endDate}T00:00:00+08:00`);
+    endExclusive.setUTCDate(endExclusive.getUTCDate() + 1);
+    return {
+      endDate: endExclusive.toISOString(),
+      startDate: new Date(`${periodQuery.data.startDate}T00:00:00+08:00`).toISOString(),
+    };
+  }, [periodQuery.data]);
   const tagRanking = useTagRankingQuery({
     params: { categoryId: categoryId ?? '', type: isAmountType(type) ? type : 'sub', ...tagRange },
     enabled: Boolean(categoryId && tagRange),
@@ -103,10 +133,12 @@ const ChartCategory: FC = () => {
     () => sortedRecords.reduce((sum, record) => sum + Number(record.amount), 0),
     [sortedRecords],
   );
-  const totalAmount = rankingItem?.amount ?? (records.length ? getRecordsAmount(records) : undefined);
+  const totalAmount = rankingItem?.amount
+    ?? periodQuery.data?.tab.amount
+    ?? (records.length ? getRecordsAmount(records) : undefined);
   const percentage = rankingItem?.percentage;
   const categoryInfo = rankingItem?.category || records[0]?.category;
-  const periodName = matchedRouteState?.tabName || selectedPeriod?.name;
+  const periodName = matchedRouteState?.tabName || periodQuery.data?.tab.key;
   const currentType = isAmountType(type) ? type : matchedRouteState?.amountType;
   const hasMatchedDisplayData = !!rankingItem || records.length > 0;
 
@@ -138,7 +170,7 @@ const ChartCategory: FC = () => {
   if (!hasRequiredParams)
     return renderPageState('missing');
 
-  if (isError && !hasMatchedDisplayData)
+  if (periodQuery.isError && !hasMatchedDisplayData)
     return renderPageState('error');
 
   return (
@@ -234,9 +266,9 @@ const ChartCategory: FC = () => {
                 );
               })}
 
-              {isFetching && <RecordRankingLoadingPlaceholder rows={sortedRecords.length ? 1 : 3} />}
+              {periodQuery.isFetching && <RecordRankingLoadingPlaceholder rows={sortedRecords.length ? 1 : 3} />}
 
-              {!records.length && !isFetching && (
+              {!records.length && !periodQuery.isFetching && (
                 <IllustratedEmptyState
                   className="min-h-[270px]"
                   description={t('noRecordsHint')}

@@ -23,6 +23,7 @@ export interface ChartOverviewPoint {
 }
 
 export interface ChartOverviewTab {
+  anchorDate?: string;
   amount: number | string;
   average: string;
   data: ChartOverviewPoint[];
@@ -71,6 +72,12 @@ export interface ChartOverviewContextValue {
   tabs: ChartOverviewPeriodTab[];
   curTab?: ChartOverviewTab;
   isContentLoading?: boolean;
+  hasNewerPeriods?: boolean;
+  hasOlderPeriods?: boolean;
+  isLoadingNewerPeriods?: boolean;
+  isLoadingOlderPeriods?: boolean;
+  loadNewerPeriods?: () => void;
+  loadOlderPeriods?: () => void;
   setTabActive: (key: string) => void;
   setCurrentTimeRangeCategory: (range: TimeRangeCategory) => void;
   setCurrentAmountType: (type: AmountType) => void;

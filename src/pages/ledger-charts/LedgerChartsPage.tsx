@@ -6,10 +6,14 @@ import type {
   ChartOverviewMetric,
   ChartOverviewTab,
 } from '@/features/chart-overview';
+import { format, setISOWeek, setISOWeekYear, startOfISOWeek } from 'date-fns';
 import { CircleAlert } from 'lucide-react';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useLedgerChartQuery } from '@/entities/chart';
+import {
+  useLedgerChartPeriodOptionsQuery,
+  useLedgerChartPeriodQuery,
+} from '@/entities/chart';
 import {
   LedgerCapability,
   LedgerChartDisplay,
@@ -20,14 +24,13 @@ import {
 import {
   ChartOverviewContext,
   ChartOverviewPresentation,
-  deriveChartTabs,
+  getChartPeriodName,
 } from '@/features/chart-overview';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { IllustratedEmptyState, PageLoadingState, Surface } from '@/shared/ui';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
-import { combineLedgerNetTabs } from './model';
 
 function isMetric(value: string | null): value is LedgerChartMetric {
   return Object.values(LedgerChartMetric).includes(value as LedgerChartMetric);
@@ -57,8 +60,34 @@ function toLedgerMetric(metric: ChartOverviewMetric): LedgerChartMetric {
   return metric === 'add' ? LedgerChartMetric.INCOME : LedgerChartMetric.EXPENSE;
 }
 
+function toApiMetric(metric: LedgerChartMetric) {
+  if (metric === LedgerChartMetric.NET)
+    return 'net' as const;
+  return metric === LedgerChartMetric.INCOME ? 'income' as const : 'expense' as const;
+}
+
+function legacyTabToAnchorDate(tab: string, period: LedgerChartPeriod) {
+  if (!tab)
+    return undefined;
+  if (period === LedgerChartPeriod.YEAR && /^\d{4}$/.test(tab))
+    return `${tab}-01-01`;
+  const match = tab.match(/^(\d{4})-W?(\d{1,2})$/);
+  if (!match)
+    return undefined;
+  const year = Number(match[1]);
+  const value = Number(match[2]);
+  if (period === LedgerChartPeriod.MONTH && value >= 1 && value <= 12)
+    return `${year}-${String(value).padStart(2, '0')}-01`;
+  if (period === LedgerChartPeriod.WEEK && value >= 1 && value <= 53) {
+    const date = startOfISOWeek(setISOWeek(setISOWeekYear(new Date(year, 0, 4), year), value));
+    return format(date, 'yyyy-MM-dd');
+  }
+  return undefined;
+}
+
 function ChartContent({ ledgerId }: { ledgerId: string }) {
   const { t } = useTranslation('ledger');
+  const { t: chartT } = useTranslation('chart');
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
@@ -74,47 +103,90 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
   const display: ChartOverviewDisplay = metric === LedgerChartMetric.NET
     ? 'line'
     : requestedDisplay;
-  const income = useLedgerChartQuery({
-    params: { filters: { category: period, type: 'add' }, ledgerId },
-    queryOptions: {
-      enabled: metric === LedgerChartMetric.INCOME || metric === LedgerChartMetric.NET,
-    },
-  });
-  const expense = useLedgerChartQuery({
-    params: { filters: { category: period, type: 'sub' }, ledgerId },
-    queryOptions: {
-      enabled: metric === LedgerChartMetric.EXPENSE || metric === LedgerChartMetric.NET,
-    },
-  });
-  const incomeTabs = useMemo(() => deriveChartTabs(income.data), [income.data]);
-  const expenseTabs = useMemo(() => deriveChartTabs(expense.data), [expense.data]);
-  const tabs = useMemo<ChartOverviewTab[]>(() => {
-    if (metric === LedgerChartMetric.NET)
-      return combineLedgerNetTabs(incomeTabs, expenseTabs);
-    return metric === LedgerChartMetric.INCOME ? incomeTabs : expenseTabs;
-  }, [expenseTabs, incomeTabs, metric]);
+  const apiMetric = toApiMetric(metric);
+  const requestedDate = searchParams.get('date');
   const urlTab = searchParams.get('tab') ?? '';
-  const curTab = tabs.find(tab => tab.key === urlTab) ?? tabs.at(-1);
-  const chartDateRange = useMemo(() => {
-    const dates = curTab?.data.map(point => point.value).filter(value => /^\d{4}-\d{2}-\d{2}$/.test(value)) ?? [];
-    return dates.length ? { endDate: [...dates].sort().at(-1)!, startDate: [...dates].sort()[0] } : undefined;
-  }, [curTab]);
-  const isLoading = metric === LedgerChartMetric.INCOME
-    ? income.isLoading
-    : metric === LedgerChartMetric.EXPENSE
-      ? expense.isLoading
-      : income.isLoading || expense.isLoading;
-  const isError = metric === LedgerChartMetric.INCOME
-    ? income.isError
-    : metric === LedgerChartMetric.EXPENSE
-      ? expense.isError
-      : income.isError || expense.isError;
+  const requestedAnchor = requestedDate ?? legacyTabToAnchorDate(urlTab, period);
+  const periodScope = `${ledgerId}:${apiMetric}:${period}`;
+  const bootstrapAnchorRef = useRef<{ anchor?: string; scope: string }>({ scope: '' });
+  if (bootstrapAnchorRef.current.scope !== periodScope) {
+    bootstrapAnchorRef.current = { anchor: requestedAnchor, scope: periodScope };
+  }
+  const periodsQuery = useLedgerChartPeriodOptionsQuery({
+    params: {
+      filters: {
+        ...(bootstrapAnchorRef.current.anchor ? { anchorDate: bootstrapAnchorRef.current.anchor } : {}),
+        metric: apiMetric,
+        pageSize: 6,
+        period,
+      },
+      ledgerId,
+    },
+  });
+  const selectedOption = periodsQuery.options.find(option => option.anchorDate === requestedAnchor)
+    ?? periodsQuery.options.at(-1);
+  const detailQuery = useLedgerChartPeriodQuery({
+    params: {
+      filters: {
+        anchorDate: selectedOption?.anchorDate ?? '',
+        metric: apiMetric,
+        period,
+      },
+      ledgerId,
+    },
+    queryOptions: { enabled: Boolean(selectedOption) },
+  });
+  const prefetchPeriod = detailQuery.prefetch;
+  const tabs = useMemo(
+    () => periodsQuery.options.map(option => ({ key: option.key, name: getChartPeriodName(option, chartT) })),
+    [chartT, periodsQuery.options],
+  );
+  const curTab = useMemo<ChartOverviewTab | undefined>(() => {
+    if (!detailQuery.data || !selectedOption)
+      return undefined;
+    return {
+      ...detailQuery.data.tab,
+      anchorDate: detailQuery.data.anchorDate,
+      name: getChartPeriodName(selectedOption, chartT),
+    };
+  }, [chartT, detailQuery.data, selectedOption]);
+  const chartDateRange = useMemo(() => detailQuery.data
+    ? { endDate: detailQuery.data.endDate, startDate: detailQuery.data.startDate }
+    : undefined, [detailQuery.data]);
+
+  useEffect(() => {
+    if (!selectedOption || (!requestedDate && !urlTab))
+      return;
+    if (requestedDate === selectedOption.anchorDate && !urlTab)
+      return;
+    setSearchParams((previous) => {
+      previous.set('date', selectedOption.anchorDate);
+      previous.delete('tab');
+      return previous;
+    }, { replace: true });
+  }, [requestedDate, selectedOption, setSearchParams, urlTab]);
+
+  useEffect(() => {
+    if (!detailQuery.data || !selectedOption || !prefetchPeriod)
+      return;
+    periodsQuery.options.forEach((option) => {
+      if (option.anchorDate === selectedOption.anchorDate)
+        return;
+      void prefetchPeriod({
+        anchorDate: option.anchorDate,
+        metric: apiMetric,
+        period,
+      });
+    });
+  }, [apiMetric, detailQuery.data, period, periodsQuery.options, prefetchPeriod, selectedOption]);
 
   const setSearchValue = useCallback((key: string, value: string, resetTab = false) => {
     setSearchParams((previous) => {
       previous.set(key, value);
       if (resetTab)
         previous.delete('tab');
+      if (resetTab)
+        previous.delete('date');
       return previous;
     }, { replace: true });
   }, [setSearchParams]);
@@ -132,6 +204,13 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
     curTab,
     displayMode: display,
     isAmountHidden: preferenceQuery.data?.hideTotalAmount === true,
+    hasNewerPeriods: periodsQuery.hasPreviousPage,
+    hasOlderPeriods: periodsQuery.hasNextPage,
+    isContentLoading: Boolean(selectedOption) && detailQuery.isLoading && !detailQuery.response,
+    isLoadingNewerPeriods: periodsQuery.isFetchingPreviousPage,
+    isLoadingOlderPeriods: periodsQuery.isFetchingNextPage,
+    loadNewerPeriods: () => void periodsQuery.fetchPreviousPage(),
+    loadOlderPeriods: () => void periodsQuery.fetchNextPage(),
     metricOptions: [
       {
         icon: 'huankuanzhichu-copy',
@@ -171,8 +250,17 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
     setCurrentAmountType: value =>
       setSearchValue('metric', toLedgerMetric(value), true),
     setCurrentTimeRangeCategory: value => setSearchValue('range', value, true),
-    setTabActive: value => setSearchValue('tab', value),
-    tabActive: curTab?.key ?? '',
+    setTabActive: (value) => {
+      const option = periodsQuery.options.find(item => item.key === value);
+      if (!option)
+        return;
+      setSearchParams((previous) => {
+        previous.set('date', option.anchorDate);
+        previous.delete('tab');
+        return previous;
+      }, { replace: true });
+    },
+    tabActive: selectedOption?.key ?? '',
     tabs,
     totalLabel: metric === LedgerChartMetric.NET
       ? t('charts.total')
@@ -180,6 +268,7 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
     totalTestId: 'ledger-chart-total',
   }), [
     curTab,
+    detailQuery,
     display,
     handleDisplayModeChange,
     metric,
@@ -191,16 +280,15 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
     setSearchValue,
     t,
     tabs,
+    periodsQuery,
+    selectedOption,
+    setSearchParams,
   ]);
 
-  const hasChartData = metric === LedgerChartMetric.INCOME
-    ? Boolean(income.response)
-    : metric === LedgerChartMetric.EXPENSE
-      ? Boolean(expense.response)
-      : Boolean(income.response) || Boolean(expense.response);
+  const hasChartData = Boolean(periodsQuery.response);
   const hasPreferenceData = Boolean(preferenceQuery.response);
-  const isInitialLoading = (isLoading && !hasChartData) || (preferenceQuery.isLoading && !hasPreferenceData);
-  const isBlockingError = (isError && !hasChartData) || (preferenceQuery.isError && !hasPreferenceData);
+  const isInitialLoading = (periodsQuery.isLoading && !hasChartData) || (preferenceQuery.isLoading && !hasPreferenceData);
+  const isBlockingError = (periodsQuery.isError && !hasChartData) || (preferenceQuery.isError && !hasPreferenceData);
 
   if (isInitialLoading) {
     return <PageLoadingState label={t('common:nav.loading')} testId="ledger-charts-loading" />;
@@ -214,8 +302,8 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
             description={t('common.loadErrorDescription')}
             icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
             onAction={() => {
-              void expense.refetch();
-              void income.refetch();
+              void periodsQuery.refetch();
+              void detailQuery.refetch();
               void preferenceQuery.refetch();
             }}
             title={t('common.loadError')}

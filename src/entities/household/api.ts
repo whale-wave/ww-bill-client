@@ -338,12 +338,35 @@ export interface GetHouseholdChartPeriodsApiParams {
   metric: HouseholdChartMetric;
 }
 
+export interface GetHouseholdChartPeriodOptionsApiParams extends GetHouseholdChartPeriodsApiParams {
+  anchorDate?: string;
+  current?: number;
+  pageSize?: number;
+}
+
+export interface HouseholdChartPeriodOptionsPage {
+  current: number;
+  data: HouseholdChartPeriodOption[];
+  pageSize: number;
+  total: number;
+}
+
 export function getHouseholdChartPeriodsApi(
   householdId: string,
   params: GetHouseholdChartPeriodsApiParams,
 ) {
   return request.get<unknown, SuccessResponse<HouseholdChartPeriodOption[]>>(
     `/households/${encodeURIComponent(householdId)}/charts/periods`,
+    { params },
+  );
+}
+
+export function getHouseholdChartPeriodOptionsApi(
+  householdId: string,
+  params: GetHouseholdChartPeriodOptionsApiParams,
+) {
+  return request.get<unknown, SuccessResponse<HouseholdChartPeriodOptionsPage>>(
+    `/households/${encodeURIComponent(householdId)}/charts/period-options`,
     { params },
   );
 }

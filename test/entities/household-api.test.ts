@@ -4,6 +4,7 @@ import {
   getFamilyRecordPolicyApi,
   getHouseholdBudgetsApi,
   getHouseholdCalendarApi,
+  getHouseholdChartPeriodOptionsApi,
   getHouseholdChartPeriodsApi,
   getHouseholdChartsApi,
   getHouseholdInvitationPreviewApi,
@@ -157,6 +158,13 @@ describe('household api', () => {
       metric: 'expense',
       period: 'week',
     });
+    getHouseholdChartPeriodOptionsApi('household/a', {
+      anchorDate: '2026-07-21',
+      current: 2,
+      metric: 'expense',
+      pageSize: 6,
+      period: 'week',
+    });
     getHouseholdCalendarApi('household/a', { month: '2026-07-01' });
 
     expect(request.get).toHaveBeenCalledWith('/households/household%2Fa/budgets', {
@@ -177,6 +185,15 @@ describe('household api', () => {
     });
     expect(request.get).toHaveBeenCalledWith('/households/household%2Fa/charts/periods', {
       params: { metric: 'expense', period: 'week' },
+    });
+    expect(request.get).toHaveBeenCalledWith('/households/household%2Fa/charts/period-options', {
+      params: {
+        anchorDate: '2026-07-21',
+        current: 2,
+        metric: 'expense',
+        pageSize: 6,
+        period: 'week',
+      },
     });
     expect(request.get).toHaveBeenCalledWith('/households/household%2Fa/calendar', {
       params: { month: '2026-07-01' },

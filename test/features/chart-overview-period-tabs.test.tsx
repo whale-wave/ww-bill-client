@@ -177,6 +177,34 @@ describe('chart overview period metadata', () => {
 });
 
 describe('chart overview period tabs', () => {
+  it('loads another period page only after a user scroll reaches the edge', () => {
+    const loadOlderPeriods = vi.fn();
+    const { container } = renderOverview(overviewContext({
+      hasOlderPeriods: true,
+      loadOlderPeriods,
+      tabs: [
+        overviewTab('2026-33', '第33周'),
+        overviewTab('2026-34', '上周'),
+        overviewTab('2026-35', '本周'),
+      ],
+    }));
+    const periodOptions = container.querySelector<HTMLElement>('[data-chart-period-options]')!;
+    Object.defineProperties(periodOptions, {
+      clientWidth: { configurable: true, value: 300 },
+      scrollLeft: { configurable: true, value: 0, writable: true },
+      scrollWidth: { configurable: true, value: 600 },
+    });
+
+    act(() => periodOptions.dispatchEvent(new Event('scroll', { bubbles: true })));
+    expect(loadOlderPeriods).not.toHaveBeenCalled();
+
+    act(() => {
+      periodOptions.dispatchEvent(new WheelEvent('wheel', { bubbles: true, deltaX: -20 }));
+      periodOptions.dispatchEvent(new Event('scroll', { bubbles: true }));
+    });
+    expect(loadOlderPeriods).toHaveBeenCalledOnce();
+  });
+
   it('reveals the selected period after tabs load asynchronously', () => {
     const animationFrames = installAnimationFrameQueue();
     const scrollIntoView = vi.fn();

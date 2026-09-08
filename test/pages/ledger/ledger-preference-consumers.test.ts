@@ -24,6 +24,8 @@ const hooks = vi.hoisted(() => ({
   patchLedgerPreferencesApi: vi.fn(),
   useGetUserAppConfigQuery: vi.fn(),
   useLedgerChartQuery: vi.fn(),
+  useLedgerChartPeriodOptionsQuery: vi.fn(),
+  useLedgerChartPeriodQuery: vi.fn(),
   useLedgerNavigationQuery: vi.fn(),
   useLedgerPreferencesQuery: vi.fn(),
   useLedgerQuery: vi.fn(),
@@ -47,6 +49,8 @@ vi.mock('@/entities/user-app-config', () => ({
 vi.mock('@/entities/chart', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/chart')>()),
   useLedgerChartQuery: hooks.useLedgerChartQuery,
+  useLedgerChartPeriodOptionsQuery: hooks.useLedgerChartPeriodOptionsQuery,
+  useLedgerChartPeriodQuery: hooks.useLedgerChartPeriodQuery,
   useLedgerTagRankingQuery: () => ({ data: undefined, isError: false, isLoading: false }),
 }));
 
@@ -159,6 +163,38 @@ beforeEach(() => {
     response: { data: {} },
   });
   hooks.useLedgerChartQuery.mockReturnValue({ data: [], isLoading: false });
+  hooks.useLedgerChartPeriodOptionsQuery.mockReturnValue({
+    fetchNextPage: vi.fn(),
+    fetchPreviousPage: vi.fn(),
+    hasNextPage: false,
+    hasPreviousPage: false,
+    isError: false,
+    isFetchingNextPage: false,
+    isFetchingPreviousPage: false,
+    isLoading: false,
+    options: [{ anchorDate: '2026-07-01', key: '2026-07', month: 7, period: 'month', year: 2026 }],
+    response: {},
+  });
+  hooks.useLedgerChartPeriodQuery.mockReturnValue({
+    data: {
+      anchorDate: '2026-07-01',
+      endDate: '2026-07-31',
+      metric: 'expense',
+      period: 'month',
+      startDate: '2026-07-01',
+      tab: {
+        amount: 1,
+        average: '1',
+        data: [{ amount: 1, data: [], displayLabel: '07-01', type: 'day', value: '2026-07-01' }],
+        key: '2026-07',
+        ranking: [],
+      },
+    },
+    isError: false,
+    isLoading: false,
+    prefetch: vi.fn(),
+    response: {},
+  });
 });
 
 afterEach(() => {
@@ -336,75 +372,38 @@ describe('ledger preference consumers', () => {
 
     const container = renderPage(createElement(LedgerChartsPage));
 
-    expect(hooks.useLedgerChartQuery).toHaveBeenCalledWith(expect.objectContaining({
+    expect(hooks.useLedgerChartPeriodOptionsQuery).toHaveBeenCalledWith(expect.objectContaining({
       params: {
-        filters: { category: LedgerChartPeriod.YEAR, type: 'add' },
+        filters: { metric: 'income', pageSize: 6, period: LedgerChartPeriod.YEAR },
         ledgerId: 'ledger/a',
       },
-      queryOptions: { enabled: true },
     }));
     expect(container.querySelector('[data-chart-display="line"]')?.classList)
       .toContain('ww-tab-bar-scroll-padding');
   });
 
   it('lets URL state override preferences and falls net plus pie back to the line slot', () => {
-    hooks.useLedgerChartQuery.mockReturnValue({
-      data: [{
-        amount: 10,
-        average: '10',
-        data: [{ amount: 10, data: [], type: 'month', value: '2026-07-01' }],
-        ranking: [],
-        type: 'year',
-        value: 2026,
-      }],
-      isError: false,
-      isLoading: false,
-    });
-
     const container = renderPage(
       createElement(LedgerChartsPage),
       '/ledgers/ledger%2Fa/page?metric=net&range=year&display=pie',
     );
 
-    expect(hooks.useLedgerChartQuery).toHaveBeenCalledWith(expect.objectContaining({
+    expect(hooks.useLedgerChartPeriodOptionsQuery).toHaveBeenCalledWith(expect.objectContaining({
       params: {
-        filters: { category: LedgerChartPeriod.YEAR, type: 'add' },
+        filters: { metric: 'net', pageSize: 6, period: LedgerChartPeriod.YEAR },
         ledgerId: 'ledger/a',
       },
-      queryOptions: { enabled: true },
-    }));
-    expect(hooks.useLedgerChartQuery).toHaveBeenCalledWith(expect.objectContaining({
-      params: {
-        filters: { category: LedgerChartPeriod.YEAR, type: 'sub' },
-        ledgerId: 'ledger/a',
-      },
-      queryOptions: { enabled: true },
     }));
     expect(container.querySelector('[data-chart-display="line"]')).not.toBeNull();
     expect(container.textContent).toContain('charts.netNoRanking');
   });
 
-  it('does not show a loader for an inactive chart query', () => {
+  it('renders the selected chart period without an obsolete parallel-query loader', () => {
     hooks.useLedgerPreferencesQuery.mockReturnValue({
       data: { ...preference, defaultChartDisplay: LedgerChartDisplay.LINE },
       isError: false,
       isLoading: false,
     });
-    hooks.useLedgerChartQuery
-      .mockReturnValueOnce({ data: [], isLoading: true })
-      .mockReturnValueOnce({
-        data: [{
-          amount: 1,
-          average: '1',
-          data: [{ amount: 1, data: [], type: 'month', value: '2026-07-01' }],
-          ranking: [],
-          type: 'year',
-          value: 2026,
-        }],
-        isError: false,
-        isLoading: false,
-      });
-
     const container = renderPage(createElement(LedgerChartsPage));
 
     expect(container.querySelector('.adm-spin-loading')).toBeNull();

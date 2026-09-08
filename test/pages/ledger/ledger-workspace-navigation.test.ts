@@ -38,11 +38,15 @@ const hooks = vi.hoisted(() => ({
   useDeleteBudgetCategoryByBudgetIdMutation: vi.fn(),
   useGetBudgetInfoQuery: vi.fn(),
   useGetChartQuery: vi.fn(),
+  useChartPeriodOptionsQuery: vi.fn(),
+  useChartPeriodQuery: vi.fn(),
   useGetRecordBillQuery: vi.fn(),
   useGetUserAppConfigQuery: vi.fn(),
   useLedgerBudgetInfoQuery: vi.fn(),
   useLedgerCategoriesQuery: vi.fn(),
   useLedgerChartQuery: vi.fn(),
+  useLedgerChartPeriodOptionsQuery: vi.fn(),
+  useLedgerChartPeriodQuery: vi.fn(),
   useLedgerNavigationQuery: vi.fn(),
   useLedgerPreferencesQuery: vi.fn(),
   useLedgerQuery: vi.fn(),
@@ -89,7 +93,11 @@ vi.mock('@/entities/record', async importOriginal => ({
 vi.mock('@/entities/chart', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/chart')>()),
   useGetChartQuery: hooks.useGetChartQuery,
+  useChartPeriodOptionsQuery: hooks.useChartPeriodOptionsQuery,
+  useChartPeriodQuery: hooks.useChartPeriodQuery,
   useLedgerChartQuery: hooks.useLedgerChartQuery,
+  useLedgerChartPeriodOptionsQuery: hooks.useLedgerChartPeriodOptionsQuery,
+  useLedgerChartPeriodQuery: hooks.useLedgerChartPeriodQuery,
   useLedgerTagRankingQuery: () => ({ data: undefined, isError: false, isLoading: false }),
 }));
 
@@ -315,7 +323,31 @@ beforeEach(() => {
   hooks.useGetRecordBillQuery.mockReturnValue({ data: billData, isError: false, isLoading: false });
   hooks.useLedgerRecordBillQuery.mockReturnValue({ data: billData, isError: false, isLoading: false });
   hooks.useGetChartQuery.mockReturnValue({ data: [], isError: false, isLoading: false });
+  hooks.useChartPeriodOptionsQuery.mockReturnValue({
+    fetchNextPage: vi.fn(),
+    fetchPreviousPage: vi.fn(),
+    hasNextPage: false,
+    hasPreviousPage: false,
+    isError: false,
+    isFetchingNextPage: false,
+    isFetchingPreviousPage: false,
+    isLoading: false,
+    options: [],
+  });
+  hooks.useChartPeriodQuery.mockReturnValue({ data: undefined, isLoading: false, prefetch: vi.fn() });
   hooks.useLedgerChartQuery.mockReturnValue({ data: [], isError: false, isLoading: false });
+  hooks.useLedgerChartPeriodOptionsQuery.mockReturnValue({
+    fetchNextPage: vi.fn(),
+    fetchPreviousPage: vi.fn(),
+    hasNextPage: false,
+    hasPreviousPage: false,
+    isError: false,
+    isFetchingNextPage: false,
+    isFetchingPreviousPage: false,
+    isLoading: false,
+    options: [],
+  });
+  hooks.useLedgerChartPeriodQuery.mockReturnValue({ data: undefined, isLoading: false, prefetch: vi.fn() });
   hooks.useGetBudgetInfoQuery.mockReturnValue({ data: { categoryBudgets: [] }, isError: false, isLoading: false });
   hooks.useLedgerBudgetInfoQuery.mockReturnValue({ data: { categoryBudgets: [] }, isError: false, isLoading: false });
   hooks.useLedgerCategoriesQuery.mockReturnValue({ data: [], isError: false, isLoading: false, refetch: vi.fn() });
@@ -430,8 +462,8 @@ describe('personal ledger workspace integration', () => {
 
     await click(container.querySelector('[data-chart-amount-type="add"]'));
     expect(router.state.location.search).toContain('amount=add');
-    expect(hooks.useGetChartQuery).toHaveBeenLastCalledWith({
-      params: { category: 'year', type: 'add' },
+    expect(hooks.useChartPeriodOptionsQuery).toHaveBeenLastCalledWith({
+      params: { metric: 'income', pageSize: 6, period: 'year' },
     });
   });
 

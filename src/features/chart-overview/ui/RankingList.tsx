@@ -39,6 +39,8 @@ export const RankingList: FC<{ betweenSections?: ReactNode }> = ({ betweenSectio
 
     if (curTab?.key)
       searchParams.set('tabKey', curTab.key);
+    if (curTab?.anchorDate)
+      searchParams.set('anchorDate', curTab.anchorDate);
 
     navigate(`/chart/category?${searchParams.toString()}`, {
       state: {

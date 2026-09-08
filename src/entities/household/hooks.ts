@@ -6,9 +6,11 @@ import type {
 import type {
   GetHouseholdBudgetsApiParams,
   GetHouseholdCalendarApiParams,
+  GetHouseholdChartPeriodOptionsApiParams,
   GetHouseholdChartPeriodsApiParams,
   GetHouseholdChartsApiParams,
   GetHouseholdRecordsApiParams,
+  HouseholdChartPeriodOptionsPage,
   HouseholdRecordFilterOptions,
   PatchHouseholdApiData,
   PatchHouseholdPreferencesApiData,
@@ -44,6 +46,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { assertSuccessApi } from '@/shared/api';
 import { captureSessionScope, isSessionScopeCurrent } from '@/shared/api/auth-injection';
 import {
@@ -55,6 +58,7 @@ import {
   getFamilyRecordPolicyApi,
   getHouseholdBudgetsApi,
   getHouseholdCalendarApi,
+  getHouseholdChartPeriodOptionsApi,
   getHouseholdChartPeriodsApi,
   getHouseholdChartsApi,
   getHouseholdExportTaskApi,
@@ -143,6 +147,13 @@ export async function getHouseholdChartPeriodsQueryFn(
   params: GetHouseholdChartPeriodsApiParams,
 ) {
   return assertSuccessApi(await getHouseholdChartPeriodsApi(householdId, params));
+}
+
+export async function getHouseholdChartPeriodOptionsQueryFn(
+  householdId: string,
+  params: GetHouseholdChartPeriodOptionsApiParams,
+) {
+  return assertSuccessApi(await getHouseholdChartPeriodOptionsApi(householdId, params));
 }
 
 export async function getHouseholdCalendarQueryFn(
@@ -543,13 +554,34 @@ export function useHouseholdChartsQuery(options: {
     'queryFn' | 'queryKey'
   >;
 }) {
+  const queryClient = useQueryClient();
   const { householdId, filters } = options.params;
   const { data: response, ...rest } = useQuery({
-    queryFn: () => getHouseholdChartsQueryFn(householdId, filters),
-    queryKey: householdKeys.charts(householdId, filters),
+    ...householdChartQueryOptions(householdId, filters),
     ...options.queryOptions,
   });
-  return { response, data: response?.data, ...rest };
+  const prefetch = useCallback(
+    (params: GetHouseholdChartsApiParams) =>
+      queryClient.prefetchQuery(householdChartQueryOptions(householdId, params)),
+    [householdId, queryClient],
+  );
+  return {
+    response,
+    data: response?.data,
+    prefetch,
+    ...rest,
+  };
+}
+
+export function householdChartQueryOptions(
+  householdId: string,
+  filters: GetHouseholdChartsApiParams,
+) {
+  return {
+    queryFn: () => getHouseholdChartsQueryFn(householdId, filters),
+    queryKey: householdKeys.charts(householdId, filters),
+    staleTime: 30_000,
+  };
 }
 
 export function useHouseholdTagRankingQuery(options: {
@@ -584,6 +616,59 @@ export function useHouseholdChartPeriodsQuery(options: {
     ...options.queryOptions,
   });
   return { response, data: response?.data ?? [], ...rest };
+}
+
+type HouseholdChartPeriodOptionsResponse = SuccessResponse<HouseholdChartPeriodOptionsPage>;
+
+function getOlderHouseholdPeriodPage(page: HouseholdChartPeriodOptionsResponse) {
+  const totalPages = Math.ceil(page.data.total / page.data.pageSize);
+  return page.data.current < totalPages ? page.data.current + 1 : undefined;
+}
+
+function getNewerHouseholdPeriodPage(page: HouseholdChartPeriodOptionsResponse) {
+  return page.data.current > 1 ? page.data.current - 1 : undefined;
+}
+
+export function flattenHouseholdChartPeriodOptions(
+  pages: HouseholdChartPeriodOptionsResponse[] = [],
+) {
+  const options = new Map<string, HouseholdChartPeriodOption>();
+  pages.forEach(page => page.data.data.forEach(option => options.set(option.key, option)));
+  return [...options.values()].sort((left, right) => left.anchorDate.localeCompare(right.anchorDate));
+}
+
+export function useHouseholdChartPeriodOptionsQuery(options: {
+  params: {
+    householdId: string;
+    filters: Omit<GetHouseholdChartPeriodOptionsApiParams, 'current'>;
+  };
+  queryOptions?: Omit<
+    UseInfiniteQueryOptions<
+      HouseholdChartPeriodOptionsResponse,
+      unknown,
+      HouseholdChartPeriodOptionsResponse,
+      HouseholdChartPeriodOptionsResponse,
+      ReturnType<typeof householdKeys.chartPeriodOptions>
+    >,
+    'getNextPageParam' | 'getPreviousPageParam' | 'queryFn' | 'queryKey'
+  >;
+}) {
+  const { filters, householdId } = options.params;
+  const query = useInfiniteQuery({
+    queryKey: householdKeys.chartPeriodOptions(householdId, filters),
+    queryFn: ({ pageParam }) => getHouseholdChartPeriodOptionsQueryFn(householdId, {
+      ...filters,
+      ...(pageParam === undefined ? {} : { current: pageParam as number }),
+    }),
+    getNextPageParam: getOlderHouseholdPeriodPage,
+    getPreviousPageParam: getNewerHouseholdPeriodPage,
+    ...options.queryOptions,
+  });
+  return {
+    ...query,
+    options: flattenHouseholdChartPeriodOptions(query.data?.pages),
+    response: query.data?.pages[0],
+  };
 }
 
 export function useHouseholdCalendarQuery(options: {

@@ -13,7 +13,7 @@ export interface ChartCategoryLocationState {
   tabName?: string;
   amountType?: AmountType;
   timeRangeCategory?: TimeRangeCategory;
-  curTab?: TabItem;
+  curTab?: TabItem & { anchorDate?: string };
 }
 
 export interface PeriodInfo {
