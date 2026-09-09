@@ -7,7 +7,6 @@ import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
 import { Delete as BackspaceIcon, Banknote, Check, CheckCircle2, ChevronDown, ImagePlus, Settings2, Tags, Trash2, X } from 'lucide-react';
 import { m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { getAssetAccountTypeLabel } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
 import { getRecordAttachmentContentApi } from '@/entities/record';
@@ -19,6 +18,7 @@ import {
   confirmDangerousAction,
   DesignIcon,
   IllustratedEmptyState,
+  ImagePreview,
   MOTION_PRESETS,
   SheetHeader,
   useMotionPreference,
@@ -807,19 +807,12 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           </form>
         )}
       </AppSheet>
-      {isImagePreviewOpen && typeof document !== 'undefined' && createPortal(
-        <button
-          aria-label="关闭图片预览"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-5"
-          onClick={closeImagePreview}
-          type="button"
-        >
-          {controller.imagePreviewUrl || contentUrl
-            ? <img alt="凭证图片预览" className="max-h-full max-w-full rounded-xl object-contain" src={controller.imagePreviewUrl ?? contentUrl} />
-            : isImagePreviewLoading && <SpinLoading color="white" />}
-        </button>,
-        document.body,
-      )}
+      <ImagePreview
+        image={controller.imagePreviewUrl ?? contentUrl}
+        onClose={closeImagePreview}
+        placeholder={isImagePreviewLoading ? <SpinLoading color="white" /> : null}
+        visible={isImagePreviewOpen}
+      />
     </div>
   );
 };

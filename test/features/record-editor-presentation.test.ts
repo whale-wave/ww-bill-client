@@ -25,6 +25,14 @@ vi.mock('@/shared/ui', () => ({
   confirmDangerousAction: vi.fn(),
   DesignIcon: ({ name }: { name: string }) => createElement('span', { 'data-design-icon': name }),
   IllustratedEmptyState: ({ testId, title }: { testId: string; title: string }) => createElement('div', { 'data-testid': testId }, title),
+  ImagePreview: ({ image, onClose, visible }: { image?: string; onClose?: () => void; visible?: boolean }) => visible
+    ? createPortal(createElement(
+        'section',
+        { 'data-testid': 'interactive-image-preview' },
+        createElement('img', { src: image }),
+        createElement('button', { 'aria-label': '关闭图片预览', 'onClick': onClose, 'type': 'button' }),
+      ), document.body)
+    : null,
   MOTION_PRESETS: {
     contentSwap: {},
     press: {},
@@ -369,7 +377,7 @@ describe('record editor presentation', () => {
     await act(async () => container.querySelector<HTMLButtonElement>('[data-record-editor-image-preview]')?.click());
 
     expect(getRecordAttachmentContentApi).toHaveBeenLastCalledWith('attachment-1', 'content');
-    expect(document.body.querySelector('[aria-label="关闭图片预览"] img')?.getAttribute('src')).toBe('blob:content');
+    expect(document.body.querySelector('[data-testid="interactive-image-preview"] img')?.getAttribute('src')).toBe('blob:content');
   });
 
   it('allows the amount panel to shrink before clipping the keypad', () => {

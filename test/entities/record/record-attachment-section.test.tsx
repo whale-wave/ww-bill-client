@@ -77,4 +77,51 @@ describe('record attachment section', () => {
     expect(secondContainer.querySelector<HTMLImageElement>('img')?.getAttribute('src')).toBe('blob:thumbnail');
     expect(getRecordAttachmentContentApi).toHaveBeenCalledTimes(1);
   });
+
+  it('opens the full image in the touch gesture viewer', async () => {
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: vi.fn()
+        .mockReturnValueOnce('blob:thumbnail')
+        .mockReturnValueOnce('blob:content'),
+    });
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
+    let resolveThumbnail: ((value: Blob) => void) | undefined;
+    let resolveContent: ((value: Blob) => void) | undefined;
+    vi.mocked(getRecordAttachmentContentApi)
+      .mockReturnValueOnce(new Promise((resolve) => {
+        resolveThumbnail = resolve;
+      }))
+      .mockReturnValueOnce(new Promise((resolve) => {
+        resolveContent = resolve;
+      }));
+    const client = new QueryClient();
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(createElement(QueryClientProvider, { client }, createElement(RecordAttachmentSection, { attachments: [attachment] })));
+      await Promise.resolve();
+    });
+    cleanup = () => act(() => root.unmount());
+
+    await vi.waitFor(() => expect(resolveThumbnail).toBeTypeOf('function'));
+    await act(async () => {
+      resolveThumbnail?.(new Blob(['thumbnail']));
+      await new Promise(resolve => setTimeout(resolve, 10));
+    });
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('button')?.click();
+      await Promise.resolve();
+    });
+
+    expect(getRecordAttachmentContentApi).toHaveBeenLastCalledWith('attachment-1', 'content', undefined);
+    await vi.waitFor(() => expect(resolveContent).toBeTypeOf('function'));
+    await act(async () => {
+      resolveContent?.(new Blob(['content']));
+      await new Promise(resolve => setTimeout(resolve, 10));
+    });
+    await vi.waitFor(() => expect(document.body.querySelector<HTMLImageElement>('.adm-image-viewer-control img')?.src).toBe('blob:content'));
+  });
 });

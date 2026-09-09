@@ -1,7 +1,7 @@
 import type { RecordEntry } from '../types';
 import { ImageOff } from 'lucide-react';
 import { useLayoutEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { ImagePreview } from '@/shared/ui';
 import { useRecordAttachmentContentQuery } from '../hooks';
 
 interface RecordAttachmentSectionProps {
@@ -66,16 +66,17 @@ export function RecordAttachmentSection({ attachments = [], householdId }: Recor
     <section className="mt-3 pt-1" data-record-attachment-section>
       <p className="mb-2 text-[12px] font-semibold text-ww-soft">图片</p>
       <RecordAttachmentThumbnail attachment={attachment} householdId={householdId} key={attachment.id} onOpen={() => void open()} />
-      {opened && typeof document !== 'undefined' && createPortal(
-        <button aria-label="关闭图片预览" className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-5" onClick={close} type="button">
-          {contentUrl
-            ? <img alt="记账凭证大图" className="max-h-full max-w-full rounded-xl object-contain" src={contentUrl} />
-            : contentQuery.isError
-              ? <span className="flex h-24 w-24 items-center justify-center rounded-xl bg-white/15 text-white"><ImageOff size={26} /></span>
-              : <span aria-label="正在加载凭证图片" className="h-24 w-24 animate-pulse rounded-xl bg-white/25" role="status" />}
-        </button>,
-        document.body,
-      )}
+      <ImagePreview
+        image={contentUrl}
+        onClose={close}
+        placeholder={(
+          contentQuery.isError
+            ? <span className="flex h-24 w-24 items-center justify-center rounded-xl bg-white/15 text-white"><ImageOff size={26} /></span>
+            : <span aria-label="正在加载凭证图片" className="h-24 w-24 animate-pulse rounded-xl bg-white/25" role="status" />
+        )}
+        statusLabel={contentQuery.isError ? '凭证图片加载失败' : '正在加载凭证图片'}
+        visible={opened}
+      />
     </section>
   );
 }
