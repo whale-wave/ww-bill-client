@@ -86,6 +86,9 @@ export const ROUTES_PATH = {
   INVOICE: {
     getPath: () => '/invoice',
   },
+  INVITE_FRIENDS: {
+    getPath: () => '/invite-friends',
+  },
   HOUSEHOLD: {
     getPath: () => '/household',
   },

@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetUserUserInfoQuery, UserSummaryCard } from '@/entities/user';
 import { BottomList } from '@/pages/mine/ui';
+import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { ActionMenuCard, DesignIcon } from '@/shared/ui';
@@ -72,10 +73,10 @@ const Mine: FC = () => {
     {
       icon: 'mine-invite' as DesignIconName,
       name: t('tabs.inviteFriends'),
+      path: ROUTES_PATH.INVITE_FRIENDS.getPath(),
       onClick() {
-        Toast.show({
-          content: t('tabs.comingSoon'),
-        });
+        playSound.turnPage();
+        navigate(ROUTES_PATH.INVITE_FRIENDS.getPath());
       },
     },
     {

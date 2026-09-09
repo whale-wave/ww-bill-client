@@ -164,6 +164,10 @@ const router = createHashRouter([
         lazy: lazyGuardedPage(() => import('@/pages/user/user-info/UserInfoPage')),
       },
       {
+        path: 'invite-friends',
+        lazy: lazyGuardedPage(() => import('@/pages/invite-friends/InviteFriendsPage')),
+      },
+      {
         path: 'password',
         lazy: lazyGuardedPage(() => import('@/pages/user/password/PasswordPage')),
       },

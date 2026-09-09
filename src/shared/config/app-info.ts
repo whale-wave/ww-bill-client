@@ -7,6 +7,7 @@ export const APP_INFO = {
   version: import.meta.env.VITE_APP_VERSION || pkg.version,
   githubProfileUrl: 'https://github.com/layouwen',
   githubReleasesUrl: 'https://github.com/whale-wave/ww-bill-client/releases',
+  officialWebsiteUrl: 'https://whalewave.top',
   qqGroupNumber: '1108214948',
   qqGroupJoinUrl: 'https://qm.qq.com/cgi-bin/qm/qr?k=NDDFwRAY2urXTscrVrfuBI9M8CMahEzK&jump_from=webapi&authKey=PdNUzd2cFuoQxrA8iG3JtdavHwFOEG7a7Tk2eEVcvb8e+dJmdmM/Clq4AqKUIqc1',
 } as const;

@@ -1,0 +1,149 @@
+.poster {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 610px;
+  overflow: hidden;
+  color: var(--ww-theme-text-color);
+  background:
+    radial-gradient(circle at 84% 14%, rgb(255 216 230 / 82%) 0 12%, transparent 31%),
+    radial-gradient(circle at 6% 44%, rgb(200 234 246 / 88%) 0 14%, transparent 32%), var(--ww-page-gradient);
+}
+
+.screen {
+  border-radius: 20px;
+  box-shadow: var(--ww-card-shadow);
+}
+
+.export {
+  width: 375px;
+  min-height: 667px;
+}
+
+.bubble,
+.bubbleSmall {
+  position: absolute;
+  z-index: -1;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 54%);
+}
+
+.bubble {
+  top: 116px;
+  right: -38px;
+  width: 116px;
+  height: 116px;
+}
+
+.bubbleSmall {
+  top: 228px;
+  left: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.brandMark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 7px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 72%);
+  color: var(--ww-theme-color-deep);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.headline {
+  max-width: 310px;
+  margin: 18px auto 0;
+  color: var(--ww-theme-text-color);
+  font-size: 27px;
+  font-weight: 900;
+  line-height: 1.28;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.description {
+  max-width: 292px;
+  margin: 9px auto 0;
+  color: var(--ww-text-color-mid);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.65;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.mascot {
+  display: block;
+  width: 224px;
+  height: 224px;
+  margin: -2px auto -3px;
+  object-fit: contain;
+}
+
+.benefits {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 20px;
+}
+
+.benefit {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 75%);
+  color: var(--ww-theme-color-deep);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 18px 18px 0;
+  padding: 15px;
+  border-radius: 16px;
+  background: rgb(255 255 255 / 88%);
+}
+
+.qr {
+  width: 82px;
+  height: 82px;
+  flex: 0 0 auto;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--ww-card-color);
+}
+
+.scan {
+  color: var(--ww-theme-text-color);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.scanHint {
+  margin-top: 4px;
+  color: var(--ww-text-color-mid);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.tagline {
+  margin-top: 13px;
+  color: var(--ww-text-color-mid);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+}
