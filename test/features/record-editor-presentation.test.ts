@@ -19,11 +19,25 @@ vi.mock('@/shared/i18n', () => ({
 }));
 
 vi.mock('@/shared/ui', () => ({
-  AppDatePicker: ({ precision, value }: { precision?: string; value?: Date }) => createElement('div', {
+  AppDatePicker: ({ precision, renderLabel, value }: {
+    precision?: string;
+    renderLabel?: (type: string, value: number) => ReactNode;
+    value?: Date;
+  }) => createElement('div', {
     'data-testid': 'record-editor-date-picker',
     'data-precision': precision,
     'data-value': value?.toISOString(),
-  }),
+  }, [
+    ['year', 2026],
+    ['month', 8],
+    ['day', 9],
+    ['hour', 7],
+    ['minute', 8],
+    ['second', 9],
+  ].map(([type, part]) => createElement('span', {
+    'data-date-picker-label': type,
+    'key': type,
+  }, renderLabel?.(String(type), Number(part))))),
   AppSheet: ({ children, visible }: { children: ReactNode; visible?: boolean }) => visible
     ? createPortal(createElement('section', { 'data-testid': 'bottom-sheet' }, children), document.body)
     : null,
@@ -210,6 +224,14 @@ describe('record editor presentation', () => {
     const trigger = container.querySelector<HTMLButtonElement>('[data-record-editor-date-trigger]');
     expect(trigger?.textContent).toContain(dayjs('2026-07-21T12:00:00.000Z').format('YYYY/MM/DD HH:mm:ss'));
     expect(container.querySelector('[data-testid="record-editor-date-picker"]')?.getAttribute('data-precision')).toBe('second');
+    expect([...container.querySelectorAll('[data-date-picker-label]')].map(label => label.textContent)).toEqual([
+      '2026',
+      '08',
+      '09',
+      '07',
+      '08',
+      '09',
+    ]);
   });
 
   it('shows a semantic success confirmation after a completed save', () => {

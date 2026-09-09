@@ -163,16 +163,8 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
     }
   }, [attachmentId, contentUrl, controller.imagePreviewUrl]);
   const renderDateLabel = useCallback((type: string, value: number) => {
-    const labelKeys: Record<string, string> = {
-      day: 'common:time.day',
-      hour: 'common:time.hour',
-      minute: 'common:time.minute',
-      month: 'common:time.month',
-      second: 'common:time.second',
-      year: 'common:time.year',
-    };
-    return labelKeys[type] ? `${value}${t(labelKeys[type]!)}` : value;
-  }, [t]);
+    return type === 'year' ? String(value) : String(value).padStart(2, '0');
+  }, []);
   const handleArchiveTag = useCallback(async (tagId: string, name: string) => {
     if (!onArchiveTag)
       return;

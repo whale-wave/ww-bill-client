@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -27,6 +29,14 @@ afterEach(() => {
 });
 
 describe('app overlay adapters', () => {
+  it('renders the date-picker selection band behind a high-contrast active row', () => {
+    const styles = readFileSync(resolve(process.cwd(), 'src/shared/ui/app-overlay/app-overlay.scss'), 'utf8');
+
+    expect(styles).toContain('&::before {');
+    expect(styles).toContain('.adm-picker-view-column-item-active');
+    expect(styles).toMatch(/\.adm-picker-view-mask-middle\s*\{[^}]*background:\s*transparent;/);
+  });
+
   it('keeps the default close icon', () => {
     renderSheet();
     expect(document.body.querySelector('.ww-app-sheet.ww-app-sheet--bottom')).not.toBeNull();
