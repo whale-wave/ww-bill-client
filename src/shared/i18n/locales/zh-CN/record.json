@@ -145,6 +145,7 @@
     "type": "类型",
     "amount": "金额",
     "date": "日期",
+    "time": "时间",
     "remark": "备注",
     "share": "分享"
   },

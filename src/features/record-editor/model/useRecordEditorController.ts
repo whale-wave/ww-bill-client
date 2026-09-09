@@ -256,6 +256,7 @@ export function useRecordEditorController({
   ]);
 
   const formattedDate = useMemo(() => dayjs(date).format('YYYY/MM/DD'), [date]);
+  const formattedTime = useMemo(() => dayjs(date).format('HH:mm:ss'), [date]);
   const isToday = useMemo(() => dayjs().isSame(date, 'day'), [date]);
   const getDraftSnapshot = useCallback((): RecordEditorSeed => ({
     amount: calculator.totals,
@@ -287,6 +288,7 @@ export function useRecordEditorController({
     calculator,
     date,
     formattedDate,
+    formattedTime,
     getDraftSnapshot,
     handleKeyClick,
     handleKeyTouchMove,

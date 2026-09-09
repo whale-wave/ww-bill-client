@@ -15,7 +15,7 @@ import {
 import { RecordAttachmentSection } from '@/entities/record/ui/RecordAttachmentSection';
 import { RecordAdjustmentSection } from '@/features/record-adjustment';
 import { useTranslation } from '@/shared/i18n';
-import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
+import { getTimedate, getTimeDateYear, getTimeOfDay, getWeekByDay } from '@/shared/lib/date-time';
 import { playSound } from '@/shared/lib/play-sound';
 import { confirmDangerousAction, IllustratedEmptyState, PageHeader, PageLoadingState, Surface } from '@/shared/ui';
 
@@ -151,6 +151,7 @@ const Editing: FC = () => {
 
   const date = new Date(state.time);
   const timeDate = getTimeDateYear(date);
+  const timeOfDay = getTimeOfDay(date);
   const weekByDay = getWeekByDay(getTimedate(date));
 
   return (
@@ -173,6 +174,7 @@ const Editing: FC = () => {
       rows={[
         { label: t('record:edit.type'), value: state.type === 'sub' ? t('record:type.expense') : t('record:type.income') },
         { copyValue: `${timeDate}  ${weekByDay}`, label: t('record:edit.date'), value: `${timeDate}  ${weekByDay}` },
+        { copyValue: timeOfDay, label: t('record:edit.time'), value: timeOfDay },
         { ...(state.remark ? { copyValue: state.remark } : {}), label: t('record:edit.remark'), value: state.remark },
       ]}
       supplementaryContent={(

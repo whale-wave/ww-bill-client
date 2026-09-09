@@ -569,6 +569,8 @@ describe('household records', () => {
     expect(container.querySelector('[data-record-detail-footer]')?.textContent).toContain('record:detail.delete');
     expect(container.querySelector('[data-record-detail-footer]')?.textContent).not.toContain('recordDetail.share');
     expect(container.querySelector('[data-record-detail-footer]')?.textContent).not.toContain('recordDetail.policy');
+    expect(container.textContent).toContain('record:edit.time');
+    expect(container.textContent).toContain(dayjs(record.time).format('HH:mm:ss'));
     expect(container.textContent).toContain('晚餐');
     expect(container.textContent).toContain('recordDetail.member');
     expect(container.textContent).toContain('recordDetail.counted');

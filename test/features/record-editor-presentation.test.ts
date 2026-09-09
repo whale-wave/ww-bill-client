@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Asset } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
+import dayjs from 'dayjs';
 import { act, createElement } from 'react';
 import { createPortal } from 'react-dom';
 import { createRoot } from 'react-dom/client';
@@ -18,7 +19,11 @@ vi.mock('@/shared/i18n', () => ({
 }));
 
 vi.mock('@/shared/ui', () => ({
-  AppDatePicker: () => null,
+  AppDatePicker: ({ precision, value }: { precision?: string; value?: Date }) => createElement('div', {
+    'data-testid': 'record-editor-date-picker',
+    'data-precision': precision,
+    'data-value': value?.toISOString(),
+  }),
   AppSheet: ({ children, visible }: { children: ReactNode; visible?: boolean }) => visible
     ? createPortal(createElement('section', { 'data-testid': 'bottom-sheet' }, children), document.body)
     : null,
@@ -192,6 +197,19 @@ describe('record editor presentation', () => {
     const backspace = container.querySelector<HTMLButtonElement>('[aria-label="record:bookkeeping.backspace"]');
     expect(backspace?.textContent).toContain('record:bookkeeping.backspace');
     expect(backspace?.querySelector('svg')).not.toBeNull();
+  });
+
+  it('shows the selected time and configures the picker through seconds', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor)));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+
+    const trigger = container.querySelector<HTMLButtonElement>('[data-record-editor-date-trigger]');
+    expect(trigger?.textContent).toContain(dayjs('2026-07-21T12:00:00.000Z').format('YYYY/MM/DD HH:mm:ss'));
+    expect(container.querySelector('[data-testid="record-editor-date-picker"]')?.getAttribute('data-precision')).toBe('second');
   });
 
   it('shows a semantic success confirmation after a completed save', () => {

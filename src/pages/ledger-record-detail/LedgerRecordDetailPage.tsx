@@ -25,7 +25,7 @@ import { RecordAdjustmentSection } from '@/features/record-adjustment';
 import { useCurrentWorkspaceBack } from '@/features/workspace-navigation';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
+import { getTimedate, getTimeDateYear, getTimeOfDay, getWeekByDay } from '@/shared/lib/date-time';
 import { confirmDangerousAction, IllustratedEmptyState, PageHeader, PageLoadingState, Surface } from '@/shared/ui';
 
 function FamilyPolicyEntry({ recordId, recordTime }: { recordId: number; recordTime: string }) {
@@ -93,6 +93,7 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
   }
   const date = new Date(record.time);
   const timeDate = getTimeDateYear(date);
+  const timeOfDay = getTimeOfDay(date);
   const weekByDay = getWeekByDay(getTimedate(date));
   const handleDelete = async () => {
     if (deletingRef.current)
@@ -157,6 +158,7 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
       rows={[
         { label: t('record:edit.type'), value: t(`records.type.${record.type}`) },
         { copyValue: `${timeDate}  ${weekByDay}`, label: t('records.date'), value: `${timeDate}  ${weekByDay}` },
+        { copyValue: timeOfDay, label: t('record:edit.time'), value: timeOfDay },
         { ...(record.remark ? { copyValue: record.remark } : {}), label: t('records.remark'), value: record.remark },
       ]}
       showNavigation={false}

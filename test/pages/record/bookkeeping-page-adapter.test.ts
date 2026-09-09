@@ -127,9 +127,31 @@ beforeEach(() => {
 afterEach(() => {
   cleanup?.();
   cleanup = undefined;
+  vi.useRealTimers();
 });
 
 describe('personal record editor adapter', () => {
+  it('defaults a new record to the current time', async () => {
+    vi.useFakeTimers();
+    const now = new Date('2026-09-09T10:11:12.000Z');
+    vi.setSystemTime(now);
+    const router = createMemoryRouter([
+      { path: '/bookkeeping', element: createElement(BookkeepingPage) },
+    ], { initialEntries: ['/bookkeeping'] });
+    const container = renderRouter(router);
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+    act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
+    await act(async () => {
+      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      await Promise.resolve();
+    });
+
+    expect(hooks.postRecord).toHaveBeenCalledWith(expect.objectContaining({
+      time: now.toISOString(),
+    }));
+  });
+
   it('uses selectTime for the draft and returns to the same calendar date after saving', async () => {
     const selectTime = new Date('2026-07-21T12:00:00.000Z').valueOf();
     const router = createMemoryRouter([

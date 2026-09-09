@@ -26,6 +26,12 @@ export function getTimeDateYear(val: Date) {
   return Y + M + D;
 }
 
+export function getTimeOfDay(val: Date) {
+  return [val.getHours(), val.getMinutes(), val.getSeconds()]
+    .map(value => String(value).padStart(2, '0'))
+    .join(':');
+}
+
 export function getShowTime(val: Date) {
   const Y = `${val.getFullYear()}/`;
   const M

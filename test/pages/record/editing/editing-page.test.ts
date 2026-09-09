@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { RecordEntry } from '@/entities/record';
+import dayjs from 'dayjs';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -150,6 +151,7 @@ describe('record editing page', () => {
     const detail = container.querySelector('[data-testid="record-detail"]');
     expect(detail?.textContent).toContain('餐饮');
     expect(detail?.textContent).toContain('edit.type:record:type.expense');
+    expect(detail?.textContent).toContain(`edit.time:${dayjs(record.time).format('HH:mm:ss')}`);
     expect(detail?.textContent).not.toContain('edit.share');
     expect(detail?.textContent).toContain('record:detail.edit');
     expect(detail?.textContent).toContain('record:detail.delete');

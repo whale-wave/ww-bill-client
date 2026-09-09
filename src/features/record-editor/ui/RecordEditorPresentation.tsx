@@ -533,11 +533,14 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 <div className="grid grid-cols-[1fr_1fr] gap-[10px]">
                   <button
                     className="flex h-[50px] items-center justify-center rounded-[16px] border border-border-primary bg-white/80 px-2 text-[14px] font-bold leading-[21px] text-ww-mid active:bg-primary-light"
+                    data-record-editor-date-trigger
                     onClick={() => controller.setIsDatePickerVisible(true)}
                     type="button"
                   >
                     <DesignIcon className="mr-1" name="editor-date" size={16} />
                     {controller.isToday ? t('common:time.today') : controller.formattedDate}
+                    {' '}
+                    {controller.formattedTime}
                   </button>
                   <m.button
                     className="ww-theme-primary-action h-[50px] rounded-[16px] px-4 text-[15px] font-extrabold leading-[22.5px] disabled:opacity-50"
@@ -607,6 +610,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           controller.setIsDatePickerVisible(false);
         }}
         renderLabel={renderDateLabel}
+        precision="second"
         title={t('record:bookkeeping.selectTime')}
         value={controller.date}
         visible={controller.isDatePickerVisible}

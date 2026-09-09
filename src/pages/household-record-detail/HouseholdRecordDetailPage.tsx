@@ -14,7 +14,7 @@ import { getDisplayName, HouseholdPageState, HouseholdScopeBoundary } from '@/fe
 import { RecordAdjustmentSection } from '@/features/record-adjustment';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { getTimedate, getTimeDateYear, getWeekByDay } from '@/shared/lib/date-time';
+import { getTimedate, getTimeDateYear, getTimeOfDay, getWeekByDay } from '@/shared/lib/date-time';
 import { confirmDangerousAction, PageHeader } from '@/shared/ui';
 
 const RecordDetail: FC<{
@@ -29,6 +29,7 @@ const RecordDetail: FC<{
   const tags = record.tags.map(tag => `#${tag.name}`).join(' ');
   const date = new Date(record.time);
   const timeDate = getTimeDateYear(date);
+  const timeOfDay = getTimeOfDay(date);
   const weekByDay = getWeekByDay(getTimedate(date));
   const [deleteRecord, deleteState] = useDeleteRecordMutation();
   const editableRecord: RecordEntry | undefined = record.category
@@ -123,6 +124,7 @@ const RecordDetail: FC<{
       rows={[
         { label: t('recordDetail.type'), value: record.type === 'sub' ? t('recordDetail.expense') : t('recordDetail.income') },
         { copyValue: `${timeDate}  ${weekByDay}`, label: t('recordDetail.date'), value: `${timeDate}  ${weekByDay}` },
+        { copyValue: timeOfDay, label: t('record:edit.time'), value: timeOfDay },
         { ...(record.remark ? { copyValue: record.remark } : {}), label: t('recordDetail.remark'), value: record.remark || t('recordDetail.none') },
       ]}
       supplementaryRows={[

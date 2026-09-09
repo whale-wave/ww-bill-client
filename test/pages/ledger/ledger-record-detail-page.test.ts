@@ -3,6 +3,7 @@ import type { Household } from '@/entities/household';
 import type { Ledger } from '@/entities/ledger';
 import type { RecordEntry } from '@/entities/record';
 import { Dialog } from 'antd-mobile';
+import dayjs from 'dayjs';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -234,6 +235,8 @@ describe('ledger record detail family policy and concurrency', () => {
     expect(container.querySelector('[data-record-detail-presentation]')).not.toBeNull();
     expect(container.querySelector('[data-record-detail-amount]')?.textContent).toContain('20.00');
     expect(container.querySelector('[data-record-detail-footer]')).not.toBeNull();
+    expect(container.textContent).toContain('record:edit.time');
+    expect(container.textContent).toContain(dayjs(record.time).format('HH:mm:ss'));
     expect(container.querySelector('.rounded-xl')).toBeNull();
     expect(container.textContent).toContain('records.familyPolicyStates.PRIVATE');
 
