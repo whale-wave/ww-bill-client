@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import androidLogo from '@/assets/brand/android-logo.png';
-import { isAndroidUpdateAvailable, useAndroidLatestReleaseQuery } from '@/entities/app-release';
+import { isAndroidClientUpdateAvailable, useClientLatestReleaseQuery } from '@/entities/app-release';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { APP_INFO } from '@/shared/config/app-info';
 import { fetchBuildInfo, isNewerBuild } from '@/shared/config/build-info';
@@ -94,7 +94,9 @@ const AboutSupportPage: FC = () => {
   const onBack = useWorkspaceBack({ type: 'personal' });
   const isAndroid = Capacitor.getPlatform() === 'android';
   const isWeb = Capacitor.getPlatform() === 'web';
-  const { data: latestRelease, isFetching, isError, refetch } = useAndroidLatestReleaseQuery({ enabled: isAndroid });
+  const { data: latestRelease, isFetching, isError, refetch } = useClientLatestReleaseQuery({
+    queryOptions: { enabled: isAndroid || isWeb },
+  });
   const [installedVersion, setInstalledVersion] = useState<{ versionCode: number; versionName: string } | null>(null);
   const [latestWebBuild, setLatestWebBuild] = useState<BuildInfo | null>(null);
   const [isSponsorModalVisible, setIsSponsorModalVisible] = useState(false);
@@ -162,18 +164,18 @@ const AboutSupportPage: FC = () => {
                     ? t('aboutSupport.checkFailed')
                     : isFetching
                       ? t('aboutSupport.checking')
-                      : latestRelease && installedVersion && isAndroidUpdateAvailable(installedVersion, latestRelease)
+                      : latestRelease && installedVersion && isAndroidClientUpdateAvailable(installedVersion, latestRelease)
                         ? t('aboutSupport.updateAvailable')
-                        : latestRelease?.enabled === false
-                          ? t('aboutSupport.notAvailable')
-                          : t('aboutSupport.upToDate')}
+                        : !latestRelease?.enabled || !latestRelease.android.enabled
+                            ? t('aboutSupport.notAvailable')
+                            : t('aboutSupport.upToDate')}
                 </p>
                 <div className="flex gap-2">
                   <AppButton className="h-11 flex-1 rounded-[14px] px-3 text-xs" disabled={isFetching} onClick={() => void refetch()} variant="secondary">
                     {t('aboutSupport.checkNow')}
                   </AppButton>
-                  {latestRelease && installedVersion && isAndroidUpdateAvailable(installedVersion, latestRelease) && (
-                    <AppButton className="h-11 flex-1 rounded-[14px] px-3 text-xs" onClick={() => void openExternalUrl(latestRelease.downloadUrl)}>
+                  {latestRelease && installedVersion && isAndroidClientUpdateAvailable(installedVersion, latestRelease) && (
+                    <AppButton className="h-11 flex-1 rounded-[14px] px-3 text-xs" onClick={() => void openExternalUrl(latestRelease.android.downloadUrl)}>
                       {t('aboutSupport.downloadUpdate')}
                     </AppButton>
                   )}
@@ -191,7 +193,7 @@ const AboutSupportPage: FC = () => {
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-ww-mid">{t('aboutSupport.latestWebVersion')}</span>
-                  <span className="font-semibold text-ww-ink">{latestWebBuild?.version ?? '—'}</span>
+                  <span className="font-semibold text-ww-ink">{latestRelease?.web.enabled ? latestRelease.versionName : latestWebBuild?.version ?? '—'}</span>
                 </div>
                 <p className="text-[11px] leading-5 text-ww-soft">
                   {latestWebBuild && isNewerBuild(APP_INFO.buildId, latestWebBuild)

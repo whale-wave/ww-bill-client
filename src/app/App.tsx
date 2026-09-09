@@ -3,7 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { Router } from '@/app/router';
-import { AndroidUpdateController, WebUpdateController } from '@/features/app-update';
+import { ClientUpdateController } from '@/features/app-update';
 import { AppearanceProvider } from '@/features/appearance';
 import { useAuthStore } from '@/features/auth';
 import { MotionEffectsProvider } from '@/features/motion';
@@ -29,8 +29,7 @@ export const App: FC = () => {
         <QueryRefreshController>
           <AppearanceProvider>
             <PresenceReporter />
-            <AndroidUpdateController />
-            <WebUpdateController />
+            <ClientUpdateController />
             <SeniorModeProvider>
               <MotionEffectsProvider>
                 {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
@@ -57,8 +56,7 @@ export const App: FC = () => {
       <QueryRefreshController persister={persister}>
         <AppearanceProvider>
           <PresenceReporter />
-          <AndroidUpdateController />
-          <WebUpdateController />
+          <ClientUpdateController />
           <SeniorModeProvider>
             <MotionEffectsProvider>
               {isQueryDevtoolsEnabled && <ReactQueryDevtools />}

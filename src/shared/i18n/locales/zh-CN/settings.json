@@ -105,6 +105,8 @@
     "downloadUpdate": "前往更新",
     "webUpdateNow": "立即刷新",
     "webUpdateDescription": "已发布 v{{version}}，刷新后即可使用最新内容。",
+    "updatedTitle": "已更新至 v{{version}}",
+    "gotIt": "我知道了",
     "later": "稍后",
     "notAvailable": "暂未发布可用更新",
     "github": "GitHub 主页",

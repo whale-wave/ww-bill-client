@@ -105,6 +105,8 @@
     "downloadUpdate": "Update",
     "webUpdateNow": "Refresh now",
     "webUpdateDescription": "Version v{{version}} is ready. Refresh to use the latest content.",
+    "updatedTitle": "Updated to v{{version}}",
+    "gotIt": "Got it",
     "later": "Later",
     "notAvailable": "No update is currently published",
     "github": "GitHub profile",

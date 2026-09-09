@@ -22,8 +22,8 @@ vi.mock('antd-mobile', () => ({
 }));
 
 vi.mock('@/entities/app-release', () => ({
-  isAndroidUpdateAvailable: vi.fn(),
-  useAndroidLatestReleaseQuery: () => ({
+  isAndroidClientUpdateAvailable: vi.fn(),
+  useClientLatestReleaseQuery: () => ({
     data: undefined,
     isError: false,
     isFetching: false,
