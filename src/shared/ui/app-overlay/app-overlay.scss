@@ -478,10 +478,10 @@
       position: absolute;
       z-index: 0;
       top: 50%;
-      right: var(--ww-component-sheet-padding-x);
-      left: var(--ww-component-sheet-padding-x);
+      right: 8px;
+      left: 8px;
       height: var(--ww-component-date-picker-item-height);
-      border-radius: var(--ww-component-overlay-control-radius);
+      border-radius: 8px;
       background: var(--ww-component-date-picker-selection-background);
       content: '';
       transform: translateY(-50%);

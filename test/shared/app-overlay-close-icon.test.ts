@@ -34,6 +34,8 @@ describe('app overlay adapters', () => {
 
     expect(styles).toContain('&::before {');
     expect(styles).toContain('.adm-picker-view-column-item-active');
+    expect(styles).toMatch(/&::before\s*\{[^}]*right:\s*8px;[^}]*left:\s*8px;/);
+    expect(styles).toMatch(/&::before\s*\{[^}]*border-radius:\s*8px;/);
     expect(styles).toMatch(/\.adm-picker-view-mask-middle\s*\{[^}]*background:\s*transparent;/);
   });
 
