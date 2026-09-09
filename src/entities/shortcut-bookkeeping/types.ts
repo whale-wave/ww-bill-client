@@ -1,6 +1,14 @@
 export type ShortcutDraftSource = 'ALIPAY' | 'UNKNOWN' | 'WECHAT';
 export type ShortcutDraftStatus = 'CLAIMED' | 'DISCARDED' | 'EXPIRED' | 'NEEDS_REVIEW' | 'SAVED';
 
+export interface ShortcutRecordLocationSnapshot {
+  accuracy: number;
+  capturedAt: string;
+  latitude: number;
+  longitude: number;
+  name?: string;
+}
+
 export interface ShortcutAccessTokenSummary {
   confirmationBaseUrl: string;
   createdAt: string;
@@ -38,6 +46,7 @@ export interface ConfirmShortcutDraftInput {
   draftId: string;
   imageAssetId?: string;
   ledgerId: string;
+  location?: ShortcutRecordLocationSnapshot | null;
   remark: string;
   tagIds?: string[];
   time: string;

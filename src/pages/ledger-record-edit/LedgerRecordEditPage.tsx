@@ -61,6 +61,7 @@ function LedgerRecordEditEditor({
     tagIds: supportsTags ? initialRecord.tags?.map(tag => tag.id) ?? [] : undefined,
     attachment: initialRecord.attachments?.[0],
     hasImage: Boolean(initialRecord.attachments?.length),
+    location: initialRecord.location,
     time: initialRecord.time,
   }), [initialRecord, restoredDraft, supportsTags]);
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
@@ -77,6 +78,7 @@ function LedgerRecordEditEditor({
         state: createLedgerRecordDetailState({
           ...initialRecord,
           amount: draft.amount,
+          location: draft.location === undefined ? initialRecord.location : draft.location,
           remark: draft.remark,
           time: draft.time,
           type: draft.type,

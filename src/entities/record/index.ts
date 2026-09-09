@@ -1,6 +1,7 @@
 export * from './api';
 export * from './hooks';
 export * from './keys';
+export * from './location';
 export * from './month-bill-detail';
 export * from './types';
 export * from './ui';

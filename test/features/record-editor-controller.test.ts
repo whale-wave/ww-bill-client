@@ -1,5 +1,6 @@
 import type { Asset } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
+import type { RecordLocation } from '@/entities/record';
 import type { RecordDraft } from '@/features/record-editor';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -7,6 +8,7 @@ import { renderToString } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   RecordEditorPresentation,
+  RecordLocationRequestError,
   useRecordEditorController,
 } from '@/features/record-editor';
 
@@ -55,15 +57,18 @@ const assetAccount: Asset = {
   updatedAt: '',
 };
 const submit = vi.fn<(draft: RecordDraft) => Promise<void>>();
+const locate = vi.fn<() => Promise<RecordLocation>>();
 let cleanup: (() => void) | undefined;
 
-function Editor({ amount, assets = false, editing = false, remark, tags = false }: { amount?: string; assets?: boolean; editing?: boolean; remark?: string; tags?: boolean }) {
+function Editor({ amount, assets = false, editing = false, location, remark, tags = false }: { amount?: string; assets?: boolean; editing?: boolean; location?: RecordLocation; remark?: string; tags?: boolean }) {
   const controller = useRecordEditorController({
+    locate,
     onSubmit: submit,
     seed: {
       amount,
       category,
       linkedAssetId: editing && assets ? '00000000-0000-4000-8000-000000000401' : null,
+      location,
       recordType: 'sub',
       remark,
       tagIds: editing ? ['00000000-0000-4000-8000-000000000301', '00000000-0000-4000-8000-000000000302'] : undefined,
@@ -83,7 +88,7 @@ function Editor({ amount, assets = false, editing = false, remark, tags = false 
   });
 }
 
-function renderEditor(props: { amount?: string; assets?: boolean; editing?: boolean; remark?: string; tags?: boolean } = {}) {
+function renderEditor(props: { amount?: string; assets?: boolean; editing?: boolean; location?: RecordLocation; remark?: string; tags?: boolean } = {}) {
   const container = document.createElement('div');
   document.body.appendChild(container);
   const root = createRoot(container);
@@ -112,6 +117,13 @@ async function complete(container: HTMLElement) {
 }
 
 beforeEach(() => {
+  locate.mockReset();
+  locate.mockResolvedValue({
+    accuracy: 18.4,
+    capturedAt: '2026-09-09T10:11:12.000Z',
+    latitude: 22.817,
+    longitude: 108.366,
+  });
   submit.mockReset();
   submit.mockResolvedValue();
 });
@@ -296,6 +308,100 @@ describe('record editor controller', () => {
     await complete(container);
 
     expect(submit).toHaveBeenCalledWith(expect.objectContaining({ linkedAssetId: null }));
+  });
+
+  it('adds a confirmed current location and lets the user name it before saving', async () => {
+    const container = renderEditor({ amount: '20' });
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-location-trigger]')?.click());
+    await act(async () => {
+      [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'location.useCurrent')
+        ?.click();
+      await Promise.resolve();
+    });
+    const nameInput = document.body.querySelector<HTMLInputElement>('[data-record-location-name-input]');
+    act(() => {
+      if (nameInput) {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(nameInput, '万象城');
+        nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+    act(() => {
+      [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'location.confirm')
+        ?.click();
+    });
+    await complete(container);
+
+    expect(submit).toHaveBeenCalledWith(expect.objectContaining({
+      location: {
+        accuracy: 18.4,
+        capturedAt: '2026-09-09T10:11:12.000Z',
+        latitude: 22.817,
+        longitude: 108.366,
+        name: '万象城',
+      },
+    }));
+  });
+
+  it('preserves an existing location until the user explicitly clears it', async () => {
+    const existingLocation: RecordLocation = {
+      accuracy: 18.4,
+      capturedAt: '2026-09-09T10:11:12.000Z',
+      latitude: 22.817,
+      longitude: 108.366,
+      name: '万象城',
+    };
+    const container = renderEditor({ amount: '20', editing: true, location: existingLocation });
+    await complete(container);
+    expect(submit).toHaveBeenCalledWith(expect.not.objectContaining({ location: expect.anything() }));
+
+    submit.mockClear();
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-location-trigger]')?.click());
+    act(() => {
+      [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'location.doNotRecord')
+        ?.click();
+    });
+    act(() => {
+      [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'location.confirm')
+        ?.click();
+    });
+    await complete(container);
+
+    expect(submit).toHaveBeenCalledWith(expect.objectContaining({ location: null }));
+  });
+
+  it('keeps the picker recoverable after a denied permission and retries authorization', async () => {
+    locate.mockRejectedValueOnce(new RecordLocationRequestError('permission-denied'));
+    const container = renderEditor({ amount: '20' });
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-location-trigger]')?.click());
+    await act(async () => {
+      [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'location.useCurrent')
+        ?.click();
+      await Promise.resolve();
+    });
+
+    expect(document.body.querySelector('[data-record-location-error="permission-denied"]')).not.toBeNull();
+    expect(document.body.textContent).toContain('location.webPermissionGuide');
+
+    locate.mockResolvedValueOnce({
+      accuracy: 25,
+      capturedAt: '2026-09-09T10:12:00.000Z',
+      latitude: 22.818,
+      longitude: 108.367,
+    });
+    await act(async () => {
+      [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'location.retry')
+        ?.click();
+      await Promise.resolve();
+    });
+
+    expect(document.body.querySelector('[data-record-location-selected]')).not.toBeNull();
+    expect(document.body.querySelector('[data-record-location-error]')).toBeNull();
   });
 
   it('removes the context-menu guard when the editor unmounts', () => {

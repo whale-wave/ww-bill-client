@@ -1,3 +1,11 @@
+export interface RecordLocation {
+  accuracy: number;
+  capturedAt: string;
+  latitude: number;
+  longitude: number;
+  name?: string;
+}
+
 export interface RecordEntry {
   amount: string;
   originalAmount?: string;
@@ -13,6 +21,7 @@ export interface RecordEntry {
   createdAt: string;
   id: number;
   remark: string;
+  location?: RecordLocation | null;
   status?: boolean;
   time: string;
   type: 'sub' | 'add';

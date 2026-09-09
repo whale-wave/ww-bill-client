@@ -1,5 +1,6 @@
 export * from './model/constants';
 export * from './model/invalidateRecordEditorCaches';
+export * from './model/record-location';
 export * from './model/shortcut-bookkeeping';
 export * from './model/types';
 export * from './model/useCalculator';

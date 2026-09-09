@@ -19,6 +19,10 @@ vi.mock('@/shared/i18n', () => ({
 }));
 
 vi.mock('@/shared/ui', () => ({
+  AppButton: ({ children, onClick, ...props }: {
+    children?: ReactNode;
+    onClick?: () => void;
+  }) => createElement('button', { ...props, onClick, type: 'button' }, children),
   AppDatePicker: ({ precision, renderLabel, value }: {
     precision?: string;
     renderLabel?: (type: string, value: number) => ReactNode;
@@ -207,6 +211,7 @@ describe('record editor presentation', () => {
     expect(container.querySelector('[data-record-editor-categories]')).toBeNull();
     expect(container.querySelector('[data-record-editor-header]')?.classList).toContain('px-[22px]');
     expect(container.querySelector('[data-record-editor-note]')?.classList).toContain('mx-[22px]');
+    expect(container.querySelector('[data-record-editor-location-trigger]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-total]')?.classList).toContain('text-[54px]');
     const backspace = container.querySelector<HTMLButtonElement>('[aria-label="record:bookkeeping.backspace"]');
     expect(backspace?.textContent).toContain('record:bookkeeping.backspace');

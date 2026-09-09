@@ -7,6 +7,8 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useGetAssetQuery } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
 import {
+  formatRecordLocationCoordinates,
+  formatRecordLocationLabel,
   readPersonalRecordDetailNavigationState,
   RecordDetailPresentation,
   useDeleteRecordMutation,
@@ -176,6 +178,13 @@ const Editing: FC = () => {
         { copyValue: `${timeDate}  ${weekByDay}`, label: t('record:edit.date'), value: `${timeDate}  ${weekByDay}` },
         { copyValue: timeOfDay, label: t('record:edit.time'), value: timeOfDay },
         { ...(state.remark ? { copyValue: state.remark } : {}), label: t('record:edit.remark'), value: state.remark },
+        ...(state.location
+          ? [{
+              copyValue: `${formatRecordLocationLabel(state.location)} · ${formatRecordLocationCoordinates(state.location)}`,
+              label: t('record:edit.location'),
+              value: formatRecordLocationLabel(state.location),
+            }]
+          : []),
       ]}
       supplementaryContent={(
         <>

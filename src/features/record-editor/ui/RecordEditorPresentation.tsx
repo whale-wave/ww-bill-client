@@ -4,15 +4,16 @@ import type { RecordEditorController } from '../model/useRecordEditorController'
 import type { Asset, AssetGroup } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
 import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
-import { Delete as BackspaceIcon, Banknote, Check, CheckCircle2, ChevronDown, ImagePlus, Settings2, Tags, Trash2, X } from 'lucide-react';
+import { Delete as BackspaceIcon, Banknote, Check, CheckCircle2, ChevronDown, ImagePlus, MapPin, Settings2, Tags, Trash2, X } from 'lucide-react';
 import { m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getAssetAccountTypeLabel } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
-import { getRecordAttachmentContentApi } from '@/entities/record';
+import { formatRecordLocationLabel, getRecordAttachmentContentApi } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import {
+  AppButton,
   AppDatePicker,
   AppSheet,
   confirmDangerousAction,
@@ -24,6 +25,7 @@ import {
   useMotionPreference,
 } from '@/shared/ui';
 import { KEYPAD_LAYOUT } from '../model/constants';
+import { RecordLocationPicker } from './RecordLocationPicker';
 
 export type RecordEditorCategoryState = 'error' | 'loading' | 'ready';
 
@@ -431,6 +433,22 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   <ImagePlus size={18} />
                 </button>
               </label>
+              <div className="mx-[22px] mt-1 flex min-h-11 items-center" data-record-editor-location>
+                <AppButton
+                  aria-label={controller.location ? t('record:location.change') : t('record:location.add')}
+                  data-record-editor-location-trigger
+                  onClick={() => controller.setIsLocationPickerVisible(true)}
+                  size="compact"
+                  variant={controller.location ? 'primary' : 'secondary'}
+                >
+                  <MapPin aria-hidden="true" size={15} strokeWidth={2} />
+                  <span className="max-w-[240px] truncate">
+                    {controller.location
+                      ? formatRecordLocationLabel(controller.location)
+                      : t('record:location.add')}
+                  </span>
+                </AppButton>
+              </div>
               {controller.isNoteFocused && filteredRemarkHistory.length > 0 && (
                 <section
                   aria-label={t('record:bookkeeping.remarkHistory')}
@@ -607,6 +625,16 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         value={controller.date}
         visible={controller.isDatePickerVisible}
       />
+
+      {controller.isLocationPickerVisible && (
+        <RecordLocationPicker
+          locate={controller.locate}
+          onClose={() => controller.setIsLocationPickerVisible(false)}
+          onConfirm={controller.handleSelectLocation}
+          selectedLocation={controller.location}
+          visible
+        />
+      )}
 
       <AppSheet
         bodyClassName="flex max-h-[62vh] flex-col overflow-hidden"

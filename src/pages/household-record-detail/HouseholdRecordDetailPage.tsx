@@ -7,7 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useGetAssetQuery } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
 import { useHouseholdRecordQuery } from '@/entities/household';
-import { RecordDetailPresentation, useDeleteRecordMutation } from '@/entities/record';
+import { formatRecordLocationCoordinates, formatRecordLocationLabel, RecordDetailPresentation, useDeleteRecordMutation } from '@/entities/record';
 import { RecordAttachmentSection } from '@/entities/record/ui/RecordAttachmentSection';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { getDisplayName, HouseholdPageState, HouseholdScopeBoundary } from '@/features/household';
@@ -47,6 +47,7 @@ const RecordDetail: FC<{
         },
         createdAt: record.time,
         id: record.id,
+        location: record.location,
         remark: record.remark,
         attachments: record.attachments,
         tags: record.tags,
@@ -126,6 +127,13 @@ const RecordDetail: FC<{
         { copyValue: `${timeDate}  ${weekByDay}`, label: t('recordDetail.date'), value: `${timeDate}  ${weekByDay}` },
         { copyValue: timeOfDay, label: t('record:edit.time'), value: timeOfDay },
         { ...(record.remark ? { copyValue: record.remark } : {}), label: t('recordDetail.remark'), value: record.remark || t('recordDetail.none') },
+        ...(record.location
+          ? [{
+              copyValue: `${formatRecordLocationLabel(record.location)} · ${formatRecordLocationCoordinates(record.location)}`,
+              label: t('record:edit.location'),
+              value: formatRecordLocationLabel(record.location),
+            }]
+          : []),
       ]}
       supplementaryRows={[
         { label: t('recordDetail.member'), value: getDisplayName(record.creator) },

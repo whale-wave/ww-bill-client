@@ -5,9 +5,11 @@ import type {
   RecordEditorValidationError,
 } from './types';
 import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
+import type { RecordLocation } from '@/entities/record';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { money } from '@/shared/lib';
+import { requestCurrentRecordLocation } from './record-location';
 import { useCalculator } from './useCalculator';
 
 interface RecordEditorControllerOptions {
@@ -18,6 +20,7 @@ interface RecordEditorControllerOptions {
   supportsTags?: boolean;
   isEditing?: boolean;
   onUploadImage?: (file: File) => Promise<string>;
+  locate?: () => Promise<RecordLocation>;
 }
 
 export function useRecordEditorController({
@@ -28,6 +31,7 @@ export function useRecordEditorController({
   supportsTags = false,
   isEditing = false,
   onUploadImage,
+  locate = requestCurrentRecordLocation,
 }: RecordEditorControllerOptions) {
   const calculator = useCalculator({
     initialAmount: seed.amount,
@@ -43,6 +47,9 @@ export function useRecordEditorController({
   const [selectedTagIds, setSelectedTagIds] = useState(seed.tagIds ?? []);
   const [tagSelectionDirty, setTagSelectionDirty] = useState(false);
   const [linkedAssetId, setLinkedAssetId] = useState<string | null>(seed.linkedAssetId ?? null);
+  const [location, setLocation] = useState<RecordLocation | null>(seed.location ?? null);
+  const [locationSelectionDirty, setLocationSelectionDirty] = useState(Boolean(seed.locationSelectionDirty));
+  const [isLocationPickerVisible, setIsLocationPickerVisible] = useState(false);
   const [assetSelectionDirty, setAssetSelectionDirty] = useState(false);
   const [imageAssetId, setImageAssetId] = useState<string | null | undefined>(seed.imageAssetId);
   const [imagePreviewFile, setImagePreviewFile] = useState<File>();
@@ -150,6 +157,12 @@ export function useRecordEditorController({
     setAssetSelectionDirty(true);
   }, []);
 
+  const handleSelectLocation = useCallback((nextLocation: RecordLocation | null) => {
+    setLocation(nextLocation);
+    setLocationSelectionDirty(true);
+    setIsLocationPickerVisible(false);
+  }, []);
+
   const handleRemoveTag = useCallback((tagId: string) => {
     setTagSelectionDirty(true);
     setSelectedTagIds(current => current.filter(id => id !== tagId));
@@ -225,6 +238,7 @@ export function useRecordEditorController({
       type: selectedCategory.type,
       ...(supportsTags && (!isEditing || tagSelectionDirty) ? { tagIds: selectedTagIds } : {}),
       ...(supportsAssetLink && (!isEditing || assetSelectionDirty) ? { linkedAssetId } : {}),
+      ...((!isEditing && location) || locationSelectionDirty ? { location } : {}),
       ...(imageAssetId !== undefined ? { imageAssetId } : {}),
     };
 
@@ -252,6 +266,8 @@ export function useRecordEditorController({
     isImageUploading,
     linkedAssetId,
     assetSelectionDirty,
+    location,
+    locationSelectionDirty,
     supportsAssetLink,
   ]);
 
@@ -273,13 +289,15 @@ export function useRecordEditorController({
     imageAssetId,
     imagePreviewFile,
     linkedAssetId,
+    location,
+    locationSelectionDirty,
     isTagPickerVisible: true,
     recordType,
     remark,
     tagIds: selectedTagIds,
     time: dayjs(date).toISOString(),
     shouldReconcileTags: true,
-  }), [calculator, date, imageAssetId, imagePreviewFile, linkedAssetId, recordType, remark, seed.attachment, seed.hasImage, selectedCategory, selectedTagIds]);
+  }), [calculator, date, imageAssetId, imagePreviewFile, linkedAssetId, location, locationSelectionDirty, recordType, remark, seed.attachment, seed.hasImage, selectedCategory, selectedTagIds]);
 
   return {
     activeKeyIndex,
@@ -304,16 +322,20 @@ export function useRecordEditorController({
     handleRemoveImage,
     handleSelectImage,
     handleSelectLinkedAsset,
+    handleSelectLocation,
     isDatePickerVisible,
     isNoteFocused,
     isSubmitting,
     isImageUploading,
     imagePreviewUrl,
     imageUploadError,
+    locate,
     linkedAssetId,
+    location,
     initialAttachment: seed.attachment,
     hasInitialImage: Boolean(seed.attachment ?? seed.hasImage) && imageAssetId !== null,
     isTagPickerVisible,
+    isLocationPickerVisible,
     isToday,
     recordType,
     remark,
@@ -327,6 +349,7 @@ export function useRecordEditorController({
     setIsDatePickerVisible,
     setIsNoteFocused,
     setIsTagPickerVisible,
+    setIsLocationPickerVisible,
     setRemark,
   };
 }

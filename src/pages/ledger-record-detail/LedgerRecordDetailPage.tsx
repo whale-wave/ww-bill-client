@@ -14,6 +14,8 @@ import {
 import { LedgerCapability, LedgerKind } from '@/entities/ledger';
 import {
   createLedgerRecordDetailState,
+  formatRecordLocationCoordinates,
+  formatRecordLocationLabel,
   readLedgerRecordDetailState,
   RecordDetailPresentation,
   useDeleteLedgerRecordMutation,
@@ -160,6 +162,13 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
         { copyValue: `${timeDate}  ${weekByDay}`, label: t('records.date'), value: `${timeDate}  ${weekByDay}` },
         { copyValue: timeOfDay, label: t('record:edit.time'), value: timeOfDay },
         { ...(record.remark ? { copyValue: record.remark } : {}), label: t('records.remark'), value: record.remark },
+        ...(record.location
+          ? [{
+              copyValue: `${formatRecordLocationLabel(record.location)} · ${formatRecordLocationCoordinates(record.location)}`,
+              label: t('record:edit.location'),
+              value: formatRecordLocationLabel(record.location),
+            }]
+          : []),
       ]}
       showNavigation={false}
       supplementaryContent={(record.attachments?.length || showFamilyPolicy || record.type === 'sub')

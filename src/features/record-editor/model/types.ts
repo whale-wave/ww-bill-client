@@ -11,6 +11,8 @@ export interface RecordEditorSeed {
   imageAssetId?: string | null;
   imagePreviewFile?: File;
   linkedAssetId?: string | null;
+  location?: RecordEntry['location'];
+  locationSelectionDirty?: boolean;
   isTagPickerVisible?: boolean;
   shouldReconcileTags?: boolean;
   recordType: CategoryAmountType;

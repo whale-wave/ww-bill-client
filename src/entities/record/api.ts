@@ -1,5 +1,5 @@
 import type { MonthBillDetailWireResponse } from './month-bill-detail';
-import type { RecordAdjustment, RecordAdjustmentType, RecordEntry } from './types';
+import type { RecordAdjustment, RecordAdjustmentType, RecordEntry, RecordLocation } from './types';
 import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
 
@@ -187,6 +187,7 @@ export interface PostRecordApiData {
   tagIds?: string[];
   imageAssetId?: string;
   linkedAssetId?: string | null;
+  location?: RecordLocation | null;
 }
 
 // 创建记录

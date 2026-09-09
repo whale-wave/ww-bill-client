@@ -46,6 +46,47 @@
   "editing": {
     "title": "Edit Record"
   },
+  "location": {
+    "title": "Choose location",
+    "subtitle": "The location is saved only with this record; it is never tracked continuously",
+    "add": "Add location",
+    "change": "Change location",
+    "close": "Close location picker",
+    "useCurrent": "Use current location",
+    "relocate": "Locate again",
+    "locating": "Locating…",
+    "currentPosition": "Current location",
+    "accuracy": "About {{meters}} m accuracy",
+    "nameLabel": "Location name",
+    "namePlaceholder": "Optional, such as Office or Mall",
+    "doNotRecord": "Do not save a location",
+    "confirm": "Confirm location",
+    "retry": "Authorize and retry",
+    "openSettings": "Open system settings",
+    "webPermissionGuide": "If no prompt appears, allow location access for this Home Screen app or Safari website in iPhone Settings, then return and retry.",
+    "errors": {
+      "permission-denied": {
+        "title": "Location permission is off",
+        "description": "Try authorizing again, or enable access in system settings if it was previously denied."
+      },
+      "services-disabled": {
+        "title": "Location services are off",
+        "description": "Turn on device location services, then return and try again."
+      },
+      "timeout": {
+        "title": "Location timed out",
+        "description": "Move to an open area or check the network, then try again."
+      },
+      "unavailable": {
+        "title": "Location is unavailable",
+        "description": "The iPhone Home Screen entry must use HTTPS and the device must support location."
+      },
+      "unknown": {
+        "title": "Unable to get location",
+        "description": "Your current selection was not changed. You can try again later."
+      }
+    }
+  },
   "adjustment": {
     "title": "Refunds, cashback & extras",
     "description": "Multiple adjustments stay grouped with the original record and affect its original bookkeeping month.",
@@ -146,6 +187,7 @@
     "amount": "Amount",
     "date": "Date",
     "time": "Time",
+    "location": "Location",
     "remark": "Note",
     "share": "Share"
   },

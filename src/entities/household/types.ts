@@ -145,6 +145,13 @@ export interface FamilyRecord {
   time: string;
   type: 'add' | 'sub';
   amount: string;
+  location?: {
+    accuracy: number;
+    capturedAt: string;
+    latitude: number;
+    longitude: number;
+    name?: string;
+  } | null;
   originalAmount?: string;
   adjustmentSummary?: {
     adjustedAmount: string;

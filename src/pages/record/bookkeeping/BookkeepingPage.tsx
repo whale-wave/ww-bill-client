@@ -136,6 +136,7 @@ function BookkeepingPage() {
           attachment: initialRecord?.attachments?.[0],
           hasImage: Boolean(initialRecord?.attachments?.length),
           linkedAssetId: initialRecord?.linkedAsset?.id ?? null,
+          location: initialRecord?.location,
           time: initialRecord?.time
             ?? (selectTime ? dayjs(selectTime).toISOString() : dayjs().toISOString()),
         }), [agentRecordDraft, initialRecord, restoredDraft, selectTime, shortcutBookkeeping, shortcutRecordType]);
@@ -204,6 +205,7 @@ function BookkeepingPage() {
           draftId: shortcutBookkeeping.id,
           ...(typeof draft.imageAssetId === 'string' ? { imageAssetId: draft.imageAssetId } : {}),
           ledgerId: defaultLedger.id,
+          ...(draft.location === undefined ? {} : { location: draft.location }),
           remark: draft.remark,
           tagIds: draft.tagIds,
           time: draft.time,

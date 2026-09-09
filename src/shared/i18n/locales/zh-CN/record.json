@@ -46,6 +46,47 @@
   "editing": {
     "title": "编辑记录"
   },
+  "location": {
+    "title": "选择位置",
+    "subtitle": "位置只会随这笔记录保存，不会持续追踪",
+    "add": "添加位置",
+    "change": "修改位置",
+    "close": "关闭位置选择",
+    "useCurrent": "使用当前位置",
+    "relocate": "重新定位",
+    "locating": "正在定位…",
+    "currentPosition": "当前位置",
+    "accuracy": "精度约 {{meters}} 米",
+    "nameLabel": "地点名称",
+    "namePlaceholder": "可选，例如万象城、公司",
+    "doNotRecord": "不记录位置",
+    "confirm": "确认位置",
+    "retry": "重新授权并定位",
+    "openSettings": "打开系统设置",
+    "webPermissionGuide": "如果系统没有再次询问，请在 iPhone 设置中允许这个主屏幕 App 或 Safari 网站使用定位，然后返回这里重试。",
+    "errors": {
+      "permission-denied": {
+        "title": "还没有定位权限",
+        "description": "可以再次授权；如果之前选择了不允许，请到系统设置中开启。"
+      },
+      "services-disabled": {
+        "title": "系统定位服务未开启",
+        "description": "请先开启手机定位服务，再返回重新定位。"
+      },
+      "timeout": {
+        "title": "暂时没有定位到",
+        "description": "请到开阔位置或检查网络后重试。"
+      },
+      "unavailable": {
+        "title": "当前环境不能定位",
+        "description": "iPhone 桌面入口需要通过 HTTPS 打开；设备也需要支持定位。"
+      },
+      "unknown": {
+        "title": "定位失败",
+        "description": "没有修改当前选择，可以稍后重试。"
+      }
+    }
+  },
   "adjustment": {
     "title": "退款 / 返现 / 补款",
     "description": "多次调整会合并到原记录，并按原记账月份抵扣或补计。",
@@ -146,6 +187,7 @@
     "amount": "金额",
     "date": "日期",
     "time": "时间",
+    "location": "位置",
     "remark": "备注",
     "share": "分享"
   },
