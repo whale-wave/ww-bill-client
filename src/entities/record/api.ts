@@ -1,14 +1,49 @@
 import type { MonthBillDetailWireResponse } from './month-bill-detail';
-import type { RecordAdjustment, RecordAdjustmentType, RecordEntry, RecordLocation } from './types';
+import type {
+  RecordAdjustment,
+  RecordAdjustmentType,
+  RecordEntry,
+  RecordLocation,
+} from './types';
 import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
+
+export interface RecordLocationCandidate {
+  id: string;
+  name: string;
+  address?: string;
+  distanceMeters?: number;
+}
+
+export interface RecordLocationCandidatesResult {
+  candidates: RecordLocationCandidate[];
+  recommendedAddress?: string;
+}
+
+export async function postRecordLocationCandidatesApi(
+  location: Pick<RecordLocation, 'latitude' | 'longitude'>,
+): Promise<RecordLocationCandidatesResult> {
+  const response = await request.post<
+    unknown,
+    SuccessResponse<RecordLocationCandidatesResult>
+  >(
+    '/record/location/candidates',
+    { latitude: location.latitude, longitude: location.longitude },
+    { loading: false, silent: true },
+  );
+  return response.data;
+}
 
 export interface GetRecordByIdApiParams {
   id: string;
 }
 
-export function getRecordByIdApi(getRecordByIdApiParams: GetRecordByIdApiParams) {
-  return request.get<unknown, SuccessResponse<RecordEntry>>(`/record/${getRecordByIdApiParams.id}`);
+export function getRecordByIdApi(
+  getRecordByIdApiParams: GetRecordByIdApiParams,
+) {
+  return request.get<unknown, SuccessResponse<RecordEntry>>(
+    `/record/${getRecordByIdApiParams.id}`,
+  );
 }
 
 export interface MonthBillCategoryAmount {
@@ -70,7 +105,10 @@ export function getLedgerMonthBillDetailApi(ledgerId: string, month: string) {
   );
 }
 
-export function getHouseholdMonthBillDetailApi(householdId: string, month: string) {
+export function getHouseholdMonthBillDetailApi(
+  householdId: string,
+  month: string,
+) {
   return request.get<unknown, SuccessResponse<MonthBillDetailWireResponse>>(
     `/households/${encodeURIComponent(householdId)}/records/bill/month-detail`,
     { params: { month } },
@@ -103,7 +141,12 @@ export interface GetRecordRemarkHistoryApiParams {
   categoryId: number;
 }
 
-export type RecordKeywordTarget = 'all' | 'category' | 'tag' | 'remark' | 'amount';
+export type RecordKeywordTarget
+  = | 'all'
+    | 'category'
+    | 'tag'
+    | 'remark'
+    | 'amount';
 export type RecordDateMode = 'range';
 
 export interface RecordFilterCategory {
@@ -151,8 +194,13 @@ export function getLedgerRecordsApi(
   );
 }
 
-export function getRecordRemarkHistoryApi(params: GetRecordRemarkHistoryApiParams) {
-  return request.get<unknown, SuccessResponse<string[]>>('/record/remark-history', { params });
+export function getRecordRemarkHistoryApi(
+  params: GetRecordRemarkHistoryApiParams,
+) {
+  return request.get<unknown, SuccessResponse<string[]>>(
+    '/record/remark-history',
+    { params },
+  );
 }
 
 export function getLedgerRecordRemarkHistoryApi(
@@ -202,7 +250,10 @@ export function postLedgerRecordApi(ledgerId: string, data: PostRecordApiData) {
   );
 }
 
-export interface PutRecordApiData extends Omit<Partial<PostRecordApiData>, 'imageAssetId'> {
+export interface PutRecordApiData extends Omit<
+  Partial<PostRecordApiData>,
+  'imageAssetId'
+> {
   version: number;
   imageAssetId?: string | null;
 }
@@ -217,7 +268,10 @@ export interface TemporaryRecordAttachment {
   expiresAt: string;
 }
 
-export function postTemporaryRecordAttachmentApi(file: File, ledgerId?: string) {
+export function postTemporaryRecordAttachmentApi(
+  file: File,
+  ledgerId?: string,
+) {
   const form = new FormData();
   form.append('file', file);
   if (ledgerId)

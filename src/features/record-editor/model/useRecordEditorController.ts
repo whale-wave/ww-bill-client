@@ -5,7 +5,10 @@ import type {
   RecordEditorValidationError,
 } from './types';
 import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
-import type { RecordLocation } from '@/entities/record';
+import type {
+  RecordLocation,
+  RecordLocationCandidatesResult,
+} from '@/entities/record';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { money } from '@/shared/lib';
@@ -21,6 +24,9 @@ interface RecordEditorControllerOptions {
   isEditing?: boolean;
   onUploadImage?: (file: File) => Promise<string>;
   locate?: () => Promise<RecordLocation>;
+  resolveLocationCandidates?: (
+    location: RecordLocation,
+  ) => Promise<RecordLocationCandidatesResult>;
 }
 
 export function useRecordEditorController({
@@ -32,12 +38,15 @@ export function useRecordEditorController({
   isEditing = false,
   onUploadImage,
   locate = requestCurrentRecordLocation,
+  resolveLocationCandidates,
 }: RecordEditorControllerOptions) {
   const calculator = useCalculator({
     initialAmount: seed.amount,
     initialState: seed.calculator,
   });
-  const [recordType, setRecordType] = useState<CategoryAmountType>(seed.recordType);
+  const [recordType, setRecordType] = useState<CategoryAmountType>(
+    seed.recordType,
+  );
   const [selectedCategory, setSelectedCategory] = useState(seed.category);
   const [remark, setRemark] = useState(seed.remark ?? '');
   const [date, setDate] = useState(() => {
@@ -46,19 +55,34 @@ export function useRecordEditorController({
   });
   const [selectedTagIds, setSelectedTagIds] = useState(seed.tagIds ?? []);
   const [tagSelectionDirty, setTagSelectionDirty] = useState(false);
-  const [linkedAssetId, setLinkedAssetId] = useState<string | null>(seed.linkedAssetId ?? null);
-  const [location, setLocation] = useState<RecordLocation | null>(seed.location ?? null);
-  const [locationSelectionDirty, setLocationSelectionDirty] = useState(Boolean(seed.locationSelectionDirty));
+  const [linkedAssetId, setLinkedAssetId] = useState<string | null>(
+    seed.linkedAssetId ?? null,
+  );
+  const [location, setLocation] = useState<RecordLocation | null>(
+    seed.location ?? null,
+  );
+  const [locationSelectionDirty, setLocationSelectionDirty] = useState(
+    Boolean(seed.locationSelectionDirty),
+  );
   const [isLocationPickerVisible, setIsLocationPickerVisible] = useState(false);
   const [assetSelectionDirty, setAssetSelectionDirty] = useState(false);
-  const [imageAssetId, setImageAssetId] = useState<string | null | undefined>(seed.imageAssetId);
+  const [imageAssetId, setImageAssetId] = useState<string | null | undefined>(
+    seed.imageAssetId,
+  );
   const [imagePreviewFile, setImagePreviewFile] = useState<File>();
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | undefined>(() => seed.imagePreviewFile ? URL.createObjectURL(seed.imagePreviewFile) : undefined);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | undefined>(
+    () =>
+      seed.imagePreviewFile
+        ? URL.createObjectURL(seed.imagePreviewFile)
+        : undefined,
+  );
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [imageUploadError, setImageUploadError] = useState(false);
   const [isNoteFocused, setIsNoteFocused] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
-  const [isTagPickerVisible, setIsTagPickerVisible] = useState(Boolean(seed.isTagPickerVisible));
+  const [isTagPickerVisible, setIsTagPickerVisible] = useState(
+    Boolean(seed.isTagPickerVisible),
+  );
   const [activeKeyIndex, setActiveKeyIndex] = useState(-1);
   const [activeSideIndex, setActiveSideIndex] = useState(-1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -72,36 +96,48 @@ export function useRecordEditorController({
     return () => document.removeEventListener('contextmenu', handleContextMenu);
   }, []);
 
-  useEffect(() => () => {
-    if (imagePreviewUrl)
-      URL.revokeObjectURL(imagePreviewUrl);
-  }, [imagePreviewUrl]);
+  useEffect(
+    () => () => {
+      if (imagePreviewUrl)
+        URL.revokeObjectURL(imagePreviewUrl);
+    },
+    [imagePreviewUrl],
+  );
 
-  const handleRecordTypeChange = useCallback((nextType: CategoryAmountType) => {
-    if (nextType === recordType)
-      return;
-    setRecordType(nextType);
-    setSelectedCategory(undefined);
-    setSelectedTagIds([]);
-    setTagSelectionDirty(true);
-    setIsTagPickerVisible(false);
-  }, [recordType]);
-
-  const handleSelectCategory = useCallback((category: CategoryEntity) => {
-    if (selectedCategory?.id !== category.id) {
+  const handleRecordTypeChange = useCallback(
+    (nextType: CategoryAmountType) => {
+      if (nextType === recordType)
+        return;
+      setRecordType(nextType);
+      setSelectedCategory(undefined);
       setSelectedTagIds([]);
       setTagSelectionDirty(true);
       setIsTagPickerVisible(false);
-    }
-    setSelectedCategory(category);
-  }, [selectedCategory?.id]);
+    },
+    [recordType],
+  );
 
-  const applyInitialCategory = useCallback((category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'>) => {
-    if (!category || selectedCategory || hasAppliedInitialCategoryRef.current)
-      return;
-    hasAppliedInitialCategoryRef.current = true;
-    setSelectedCategory(category);
-  }, [selectedCategory]);
+  const handleSelectCategory = useCallback(
+    (category: CategoryEntity) => {
+      if (selectedCategory?.id !== category.id) {
+        setSelectedTagIds([]);
+        setTagSelectionDirty(true);
+        setIsTagPickerVisible(false);
+      }
+      setSelectedCategory(category);
+    },
+    [selectedCategory?.id],
+  );
+
+  const applyInitialCategory = useCallback(
+    (category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'>) => {
+      if (!category || selectedCategory || hasAppliedInitialCategoryRef.current)
+        return;
+      hasAppliedInitialCategoryRef.current = true;
+      setSelectedCategory(category);
+    },
+    [selectedCategory],
+  );
 
   const handleKeyTouchStart = useCallback((index: number) => {
     setActiveKeyIndex(index);
@@ -119,26 +155,32 @@ export function useRecordEditorController({
     }
   }, []);
 
-  const handleKeyClick = useCallback((key: number | string) => {
-    setActiveKeyIndex(-1);
-    if (activeKeyIndex === -2)
-      return;
-    if (typeof key === 'number')
-      calculator.inputDigit(key);
-    else if (key === '.')
-      calculator.inputDecimal();
-    else if (key === 'x')
-      calculator.inputDelete();
-  }, [activeKeyIndex, calculator]);
-
-  const handleOperatorClick = useCallback((operator: string) => {
-    setActiveSideIndex(-1);
-    if (activeKeyIndex === -2) {
+  const handleKeyClick = useCallback(
+    (key: number | string) => {
       setActiveKeyIndex(-1);
-      return;
-    }
-    calculator.inputOperator(operator);
-  }, [activeKeyIndex, calculator]);
+      if (activeKeyIndex === -2)
+        return;
+      if (typeof key === 'number')
+        calculator.inputDigit(key);
+      else if (key === '.')
+        calculator.inputDecimal();
+      else if (key === 'x')
+        calculator.inputDelete();
+    },
+    [activeKeyIndex, calculator],
+  );
+
+  const handleOperatorClick = useCallback(
+    (operator: string) => {
+      setActiveSideIndex(-1);
+      if (activeKeyIndex === -2) {
+        setActiveKeyIndex(-1);
+        return;
+      }
+      calculator.inputOperator(operator);
+    },
+    [activeKeyIndex, calculator],
+  );
 
   const handleToggleTag = useCallback((tagId: string) => {
     setTagSelectionDirty(true);
@@ -157,53 +199,64 @@ export function useRecordEditorController({
     setAssetSelectionDirty(true);
   }, []);
 
-  const handleSelectLocation = useCallback((nextLocation: RecordLocation | null) => {
-    setLocation(nextLocation);
-    setLocationSelectionDirty(true);
-    setIsLocationPickerVisible(false);
-  }, []);
+  const handleSelectLocation = useCallback(
+    (nextLocation: RecordLocation | null) => {
+      setLocation(nextLocation);
+      setLocationSelectionDirty(true);
+      setIsLocationPickerVisible(false);
+    },
+    [],
+  );
 
   const handleRemoveTag = useCallback((tagId: string) => {
     setTagSelectionDirty(true);
     setSelectedTagIds(current => current.filter(id => id !== tagId));
   }, []);
 
-  const handleReconcileTags = useCallback((availableTagIds: readonly string[]) => {
-    const availableIds = new Set(availableTagIds);
-    const nextTagIds = selectedTagIds.filter(tagId => availableIds.has(tagId));
-    if (nextTagIds.length === selectedTagIds.length)
-      return;
-    setSelectedTagIds(nextTagIds);
-    setTagSelectionDirty(true);
-  }, [selectedTagIds]);
+  const handleReconcileTags = useCallback(
+    (availableTagIds: readonly string[]) => {
+      const availableIds = new Set(availableTagIds);
+      const nextTagIds = selectedTagIds.filter(tagId =>
+        availableIds.has(tagId),
+      );
+      if (nextTagIds.length === selectedTagIds.length)
+        return;
+      setSelectedTagIds(nextTagIds);
+      setTagSelectionDirty(true);
+    },
+    [selectedTagIds],
+  );
 
-  const handleSelectImage = useCallback(async (file: File) => {
-    if (!onUploadImage)
-      return;
-    const selection = ++imageSelectionRef.current;
-    const preview = URL.createObjectURL(file);
-    setImagePreviewUrl((current) => {
-      if (current)
-        URL.revokeObjectURL(current);
-      return preview;
-    });
-    setImagePreviewFile(file);
-    setImageUploadError(false);
-    setIsImageUploading(true);
-    try {
-      const assetId = await onUploadImage(file);
-      if (selection === imageSelectionRef.current)
-        setImageAssetId(assetId);
-    }
-    catch {
-      if (selection === imageSelectionRef.current)
-        setImageUploadError(true);
-    }
-    finally {
-      if (selection === imageSelectionRef.current)
-        setIsImageUploading(false);
-    }
-  }, [onUploadImage]);
+  const handleSelectImage = useCallback(
+    async (file: File) => {
+      if (!onUploadImage)
+        return;
+      const selection = ++imageSelectionRef.current;
+      const preview = URL.createObjectURL(file);
+      setImagePreviewUrl((current) => {
+        if (current)
+          URL.revokeObjectURL(current);
+        return preview;
+      });
+      setImagePreviewFile(file);
+      setImageUploadError(false);
+      setIsImageUploading(true);
+      try {
+        const assetId = await onUploadImage(file);
+        if (selection === imageSelectionRef.current)
+          setImageAssetId(assetId);
+      }
+      catch {
+        if (selection === imageSelectionRef.current)
+          setImageUploadError(true);
+      }
+      finally {
+        if (selection === imageSelectionRef.current)
+          setIsImageUploading(false);
+      }
+    },
+    [onUploadImage],
+  );
 
   const handleRemoveImage = useCallback(() => {
     imageSelectionRef.current += 1;
@@ -236,9 +289,15 @@ export function useRecordEditorController({
       remark: remark.trim() || selectedCategory.name,
       time: dayjs(date).toISOString(),
       type: selectedCategory.type,
-      ...(supportsTags && (!isEditing || tagSelectionDirty) ? { tagIds: selectedTagIds } : {}),
-      ...(supportsAssetLink && (!isEditing || assetSelectionDirty) ? { linkedAssetId } : {}),
-      ...((!isEditing && location) || locationSelectionDirty ? { location } : {}),
+      ...(supportsTags && (!isEditing || tagSelectionDirty)
+        ? { tagIds: selectedTagIds }
+        : {}),
+      ...(supportsAssetLink && (!isEditing || assetSelectionDirty)
+        ? { linkedAssetId }
+        : {}),
+      ...((!isEditing && location) || locationSelectionDirty
+        ? { location }
+        : {}),
       ...(imageAssetId !== undefined ? { imageAssetId } : {}),
     };
 
@@ -274,30 +333,49 @@ export function useRecordEditorController({
   const formattedDate = useMemo(() => dayjs(date).format('YYYY/MM/DD'), [date]);
   const formattedTime = useMemo(() => dayjs(date).format('HH:mm:ss'), [date]);
   const isToday = useMemo(() => dayjs().isSame(date, 'day'), [date]);
-  const getDraftSnapshot = useCallback((): RecordEditorSeed => ({
-    amount: calculator.totals,
-    attachment: seed.attachment,
-    calculator: {
-      addNum: calculator.addNum,
-      addition: calculator.addition,
-      completeText: calculator.completeText,
-      num: calculator.num,
-      totals: calculator.totals,
-    },
-    category: selectedCategory,
-    hasImage: Boolean(seed.attachment ?? seed.hasImage) || (imageAssetId !== null && Boolean(imageAssetId ?? imagePreviewFile)),
-    imageAssetId,
-    imagePreviewFile,
-    linkedAssetId,
-    location,
-    locationSelectionDirty,
-    isTagPickerVisible: true,
-    recordType,
-    remark,
-    tagIds: selectedTagIds,
-    time: dayjs(date).toISOString(),
-    shouldReconcileTags: true,
-  }), [calculator, date, imageAssetId, imagePreviewFile, linkedAssetId, location, locationSelectionDirty, recordType, remark, seed.attachment, seed.hasImage, selectedCategory, selectedTagIds]);
+  const getDraftSnapshot = useCallback(
+    (): RecordEditorSeed => ({
+      amount: calculator.totals,
+      attachment: seed.attachment,
+      calculator: {
+        addNum: calculator.addNum,
+        addition: calculator.addition,
+        completeText: calculator.completeText,
+        num: calculator.num,
+        totals: calculator.totals,
+      },
+      category: selectedCategory,
+      hasImage:
+        Boolean(seed.attachment ?? seed.hasImage)
+        || (imageAssetId !== null && Boolean(imageAssetId ?? imagePreviewFile)),
+      imageAssetId,
+      imagePreviewFile,
+      linkedAssetId,
+      location,
+      locationSelectionDirty,
+      isTagPickerVisible: true,
+      recordType,
+      remark,
+      tagIds: selectedTagIds,
+      time: dayjs(date).toISOString(),
+      shouldReconcileTags: true,
+    }),
+    [
+      calculator,
+      date,
+      imageAssetId,
+      imagePreviewFile,
+      linkedAssetId,
+      location,
+      locationSelectionDirty,
+      recordType,
+      remark,
+      seed.attachment,
+      seed.hasImage,
+      selectedCategory,
+      selectedTagIds,
+    ],
+  );
 
   return {
     activeKeyIndex,
@@ -330,10 +408,12 @@ export function useRecordEditorController({
     imagePreviewUrl,
     imageUploadError,
     locate,
+    resolveLocationCandidates,
     linkedAssetId,
     location,
     initialAttachment: seed.attachment,
-    hasInitialImage: Boolean(seed.attachment ?? seed.hasImage) && imageAssetId !== null,
+    hasInitialImage:
+      Boolean(seed.attachment ?? seed.hasImage) && imageAssetId !== null,
     isTagPickerVisible,
     isLocationPickerVisible,
     isToday,
@@ -354,4 +434,6 @@ export function useRecordEditorController({
   };
 }
 
-export type RecordEditorController = ReturnType<typeof useRecordEditorController>;
+export type RecordEditorController = ReturnType<
+  typeof useRecordEditorController
+>;
