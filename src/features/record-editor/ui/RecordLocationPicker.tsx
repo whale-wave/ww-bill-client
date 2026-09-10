@@ -4,16 +4,8 @@ import type {
   RecordLocationCandidate,
   RecordLocationCandidatesResult,
 } from '@/entities/record';
-import {
-  Check,
-  LocateFixed,
-  MapPin,
-  Navigation,
-  ShieldAlert,
-  X,
-} from 'lucide-react';
+import { Check, LocateFixed, MapPin, ShieldAlert, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { formatRecordLocationCoordinates } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { AppButton, AppSheet, SheetHeader } from '@/shared/ui';
 import {
@@ -52,7 +44,6 @@ export function RecordLocationPicker({
   const [locationCandidates, setLocationCandidates] = useState<
     RecordLocationCandidate[]
   >([]);
-  const [recommendedAddress, setRecommendedAddress] = useState<string>();
   const [selectedCandidateId, setSelectedCandidateId] = useState<string>();
   const requestSequenceRef = useRef(0);
   const userChoiceSequenceRef = useRef(0);
@@ -78,7 +69,6 @@ export function RecordLocationPicker({
         return;
       setDraftLocation(nextLocation);
       setLocationCandidates([]);
-      setRecommendedAddress(undefined);
       setSelectedCandidateId(undefined);
       setIsLocating(false);
       setIsResolvingLocation(true);
@@ -87,20 +77,12 @@ export function RecordLocationPicker({
         if (requestSequence !== requestSequenceRef.current)
           return;
         setLocationCandidates(result.candidates);
-        setRecommendedAddress(result.recommendedAddress);
         const nearest = result.candidates[0];
         if (choiceSequence === userChoiceSequenceRef.current) {
           if (nearest) {
             setSelectedCandidateId(nearest.id);
             setDraftLocation(current =>
               current ? { ...current, name: nearest.name } : current,
-            );
-          }
-          else if (result.recommendedAddress) {
-            setDraftLocation(current =>
-              current
-                ? { ...current, name: result.recommendedAddress }
-                : current,
             );
           }
         }
@@ -139,7 +121,6 @@ export function RecordLocationPicker({
     requestSequenceRef.current += 1;
     setDraftLocation(null);
     setLocationCandidates([]);
-    setRecommendedAddress(undefined);
     setSelectedCandidateId(undefined);
     setLocationResolveError(false);
     setIsResolvingLocation(false);
@@ -149,6 +130,8 @@ export function RecordLocationPicker({
       errorReason === 'services-disabled' ? 'services' : 'app',
     ).catch(() => undefined);
   }, [errorReason]);
+  const canConfirm
+    = draftLocation === null || Boolean(draftLocation?.name?.trim());
 
   return (
     <AppSheet
@@ -225,18 +208,14 @@ export function RecordLocationPicker({
           >
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-primary-light text-primary-deep">
-                <Navigation aria-hidden="true" size={19} strokeWidth={1.9} />
+                <MapPin aria-hidden="true" size={19} strokeWidth={1.9} />
               </span>
               <div className="min-w-0 flex-1">
                 <div className="text-[14px] font-extrabold text-ww-ink">
-                  {t('location.currentPosition')}
+                  {draftLocation.name || t('location.waitingForPlace')}
                 </div>
-                <div className="mt-0.5 truncate font-number text-[11px] font-semibold text-ww-soft">
-                  {formatRecordLocationCoordinates(draftLocation)}
-                  {' · '}
-                  {t('location.accuracy', {
-                    meters: Math.round(draftLocation.accuracy),
-                  })}
+                <div className="mt-0.5 truncate text-[11px] font-semibold text-ww-soft">
+                  {t('location.selectionHint')}
                 </div>
               </div>
               <Check
@@ -315,42 +294,8 @@ export function RecordLocationPicker({
                     {t('location.noNearby')}
                   </div>
                 )}
-                {!isResolvingLocation
-                  && !locationResolveError
-                  && !locationCandidates.length
-                  && recommendedAddress && (
-                  <div className="mt-2 rounded-[10px] bg-surface-subtle px-2.5 py-2 text-[11px] font-semibold text-ww-soft">
-                    <span className="font-extrabold">
-                      {t('location.recommendedAddress')}
-                      ：
-                    </span>
-                    {recommendedAddress}
-                  </div>
-                )}
               </div>
             )}
-            <label className="mt-3 block">
-              <span className="mb-1.5 block text-[12px] font-bold text-ww-soft">
-                {t('location.nameLabel')}
-              </span>
-              <input
-                className="h-11 w-full rounded-[13px] border border-solid border-border-primary bg-surface-subtle px-3 text-[14px] font-semibold text-ww-ink outline-none focus:border-primary"
-                data-record-location-name-input
-                maxLength={120}
-                onChange={(event) => {
-                  userChoiceSequenceRef.current += 1;
-                  setSelectedCandidateId(undefined);
-                  setDraftLocation(current =>
-                    current
-                      ? { ...current, name: event.target.value }
-                      : current,
-                  );
-                }}
-                placeholder={t('location.namePlaceholder')}
-                type="text"
-                value={draftLocation.name ?? ''}
-              />
-            </label>
           </section>
         )}
         <button
@@ -375,6 +320,7 @@ export function RecordLocationPicker({
         <AppButton
           className="mt-4"
           fullWidth
+          disabled={!canConfirm}
           onClick={() => {
             const normalized = draftLocation?.name?.trim();
             onConfirm(
