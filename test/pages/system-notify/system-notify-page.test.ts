@@ -137,6 +137,7 @@ describe('system notification center page', () => {
     expect(hooks.useNotificationsQuery).toHaveBeenCalledWith({
       params: {
         limit: 20,
+        platform: 'web',
         status: UserNotificationStatus.UNREAD,
         type: UserNotificationType.LEDGER_JOIN_REQUEST,
       },

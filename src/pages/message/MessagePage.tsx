@@ -1,5 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import type { UserNotification } from '@/entities/notification';
+import { Capacitor } from '@capacitor/core';
 import { Button, ErrorBlock } from 'antd-mobile';
 import { Bell } from 'lucide-react';
 import { useRef } from 'react';
@@ -14,7 +15,7 @@ import {
 import { getNotificationTarget } from '@/pages/system-notify/model';
 import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
-import { IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, PageLoadingState, showAppActionSheet } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const PAGE_SIZE = 20;
@@ -61,12 +62,14 @@ const Message: FC = () => {
   const { t } = useTranslation('common');
   const navigate = useNavigate();
   const pendingActionsRef = useRef(new Set<string>());
-  const notificationQuery = useNotificationsQuery({ params: { limit: PAGE_SIZE } });
+  const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
+  const notificationQuery = useNotificationsQuery({ params: { limit: PAGE_SIZE, platform } });
   const markReadMutation = useMarkNotificationReadMutation();
 
   const handleOpen = async (notification: UserNotification) => {
     const target = getNotificationTarget(notification.payload);
-    if (!target || pendingActionsRef.current.has(`open:${notification.id}`))
+    const isRelease = notification.type === UserNotificationType.CLIENT_RELEASE;
+    if ((!target && !isRelease) || pendingActionsRef.current.has(`open:${notification.id}`))
       return;
     pendingActionsRef.current.add(`open:${notification.id}`);
     if (notification.status === UserNotificationStatus.UNREAD) {
@@ -80,7 +83,16 @@ const Message: FC = () => {
         // Reading is best effort and must not block the notification's primary action.
       }
     }
-    navigate(target);
+    if (target) {
+      navigate(target);
+    }
+    else {
+      showAppActionSheet({
+        actions: [{ key: 'acknowledge', text: t('message.notificationCenter.markRead') }],
+        description: notification.content,
+        title: notification.title,
+      });
+    }
     pendingActionsRef.current.delete(`open:${notification.id}`);
   };
 
@@ -125,6 +137,7 @@ const Message: FC = () => {
             {notificationQuery.data.map((notification) => {
               const target = getNotificationTarget(notification.payload);
               const isJoinRequest = notification.type === UserNotificationType.LEDGER_JOIN_REQUEST;
+              const isRelease = notification.type === UserNotificationType.CLIENT_RELEASE;
               const action = target && isJoinRequest
                 ? (
                     <span className={styles.handle}>
@@ -139,7 +152,7 @@ const Message: FC = () => {
                   data-testid={`message-notification-${notification.id}`}
                   key={notification.id}
                 >
-                  {target && isJoinRequest
+                  {(target && isJoinRequest) || isRelease
                     ? (
                         <button
                           aria-label={`${notification.title} ${t('message.notificationCenter.handle')}`}

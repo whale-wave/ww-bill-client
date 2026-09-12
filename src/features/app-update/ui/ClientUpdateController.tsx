@@ -10,6 +10,7 @@ import {
   getInstalledAndroidVersion,
   isAndroidClientUpdateAvailable,
 } from '@/entities/app-release';
+import { markNotificationReadApi } from '@/entities/notification';
 import { APP_INFO } from '@/shared/config/app-info';
 import { fetchBuildInfo, refreshForBuild } from '@/shared/config/build-info';
 import { useTranslation } from '@/shared/i18n';
@@ -84,6 +85,8 @@ export const ClientUpdateController: FC = () => {
         description,
         title: t('aboutSupport.updatedTitle', { version: release.versionName }),
       });
+      if (release.noticeId)
+        void markNotificationReadApi(`system:${release.noticeId}`, 1).catch(() => undefined);
       return;
     }
 
@@ -104,6 +107,8 @@ export const ClientUpdateController: FC = () => {
         description,
         title: t('aboutSupport.updateAvailable'),
       });
+      if (release.noticeId)
+        void markNotificationReadApi(`system:${release.noticeId}`, 1).catch(() => undefined);
     }
   }, [t]);
 
@@ -125,6 +130,8 @@ export const ClientUpdateController: FC = () => {
       description: formatClientReleaseDescription(release, t('aboutSupport.updateAvailable')),
       title: t('aboutSupport.updateAvailable'),
     });
+    if (release.noticeId)
+      void markNotificationReadApi(`system:${release.noticeId}`, 1).catch(() => undefined);
   }, [t]);
 
   const check = useCallback(async (force = false) => {

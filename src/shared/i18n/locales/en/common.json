@@ -128,6 +128,8 @@
         "ARCHIVED": "Archived"
       },
       "types": {
+        "SYSTEM_ANNOUNCEMENT": "System announcement",
+        "CLIENT_RELEASE": "Version update",
         "HOUSEHOLD_STATUS_CHANGED": "Household status",
         "LEDGER_JOIN_REQUEST": "Join request",
         "LEDGER_JOIN_APPROVED": "Request approved",

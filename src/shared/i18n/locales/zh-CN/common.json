@@ -209,6 +209,8 @@
         "ARCHIVED": "已归档"
       },
       "types": {
+        "SYSTEM_ANNOUNCEMENT": "系统公告",
+        "CLIENT_RELEASE": "版本更新",
         "HOUSEHOLD_STATUS_CHANGED": "家庭状态",
         "LEDGER_JOIN_REQUEST": "加入申请",
         "LEDGER_JOIN_APPROVED": "申请通过",

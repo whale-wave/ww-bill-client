@@ -4,10 +4,8 @@ import type {
   UserNotificationStatus as UserNotificationStatusValue,
   UserNotificationType as UserNotificationTypeValue,
 } from '@/entities/notification';
-import {
-  Button,
-  Toast,
-} from 'antd-mobile';
+import { Capacitor } from '@capacitor/core';
+import { Button } from 'antd-mobile';
 import { Bell, ChevronDown } from 'lucide-react';
 import { useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -22,6 +20,7 @@ import {
 import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
 import { confirmAppAction, IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { getNotificationTarget } from './model';
 
 const PAGE_SIZE = 20;
@@ -143,6 +142,7 @@ function SystemNotifyPage() {
   const type = parseType(searchParams.get('type'));
   const filters = useMemo(() => ({
     limit: PAGE_SIZE,
+    platform: Capacitor.getPlatform() === 'android' ? 'android' as const : 'web' as const,
     ...(status ? { status } : {}),
     ...(type ? { type } : {}),
   }), [status, type]);
@@ -172,7 +172,7 @@ function SystemNotifyPage() {
     catch (error) {
       const errorStatus = getErrorStatus(error);
       if (errorStatus !== 401 && errorStatus !== 403 && errorStatus !== 409) {
-        Toast.show({
+        showAppError({
           content: error instanceof Error && error.message
             ? error.message
             : t('message.notificationCenter.actionFailed'),

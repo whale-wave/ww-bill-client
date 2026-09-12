@@ -5,6 +5,8 @@ export enum UserNotificationStatus {
 }
 
 export enum UserNotificationType {
+  SYSTEM_ANNOUNCEMENT = 'SYSTEM_ANNOUNCEMENT',
+  CLIENT_RELEASE = 'CLIENT_RELEASE',
   HOUSEHOLD_STATUS_CHANGED = 'HOUSEHOLD_STATUS_CHANGED',
   LEDGER_JOIN_REQUEST = 'LEDGER_JOIN_REQUEST',
   LEDGER_JOIN_APPROVED = 'LEDGER_JOIN_APPROVED',
@@ -23,6 +25,11 @@ export interface UserNotificationPayload extends Record<string, unknown> {
   assignedRole?: unknown;
   role?: unknown;
   version?: unknown;
+  platform?: unknown;
+  versionName?: unknown;
+  versionCode?: unknown;
+  downloadUrl?: unknown;
+  notificationId?: unknown;
 }
 
 export interface UserNotification {
