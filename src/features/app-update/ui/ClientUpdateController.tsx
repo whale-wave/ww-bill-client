@@ -10,7 +10,7 @@ import {
   getInstalledAndroidVersion,
   isAndroidClientUpdateAvailable,
 } from '@/entities/app-release';
-import { markNotificationReadApi } from '@/entities/notification';
+import { markNotificationReadApi, useNotificationsQuery, UserNotificationStatus, UserNotificationType } from '@/entities/notification';
 import { APP_INFO } from '@/shared/config/app-info';
 import { fetchBuildInfo, refreshForBuild } from '@/shared/config/build-info';
 import { useTranslation } from '@/shared/i18n';
@@ -67,6 +67,24 @@ export const ClientUpdateController: FC = () => {
   const queryClient = useQueryClient();
   const checkingRef = useRef(false);
   const installedRef = useRef<Awaited<ReturnType<typeof getInstalledAndroidVersion>>>(null);
+  const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
+  const notificationsQuery = useNotificationsQuery({ params: { limit: 20, platform } });
+  const shownGeneralRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const notice = notificationsQuery.data.find(item => item.type === UserNotificationType.SYSTEM_ANNOUNCEMENT
+      && item.status === UserNotificationStatus.UNREAD
+      && item.payload?.promptLevel === 'important'
+      && Boolean(item.payload?.promptEnabled));
+    if (!notice || shownGeneralRef.current === notice.id)
+      return;
+    shownGeneralRef.current = notice.id;
+    showAppActionSheet({
+      actions: [{ key: 'acknowledge', text: t('aboutSupport.gotIt'), onClick: () => void markNotificationReadApi(notice.id, notice.version).catch(() => undefined) }],
+      description: notice.content,
+      title: notice.title,
+    });
+  }, [notificationsQuery.data, t]);
 
   const showWebRelease = useCallback(async (release: ClientReleaseManifest) => {
     const releaseKey = getReleaseKey(release, 'web');

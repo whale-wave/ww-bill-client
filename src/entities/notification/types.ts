@@ -29,6 +29,8 @@ export interface UserNotificationPayload extends Record<string, unknown> {
   versionName?: unknown;
   versionCode?: unknown;
   downloadUrl?: unknown;
+  promptEnabled?: unknown;
+  promptLevel?: unknown;
   notificationId?: unknown;
 }
 
