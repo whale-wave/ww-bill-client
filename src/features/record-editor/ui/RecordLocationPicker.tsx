@@ -162,7 +162,12 @@ export function RecordLocationPicker({
         ? (
             <div className="min-h-0 overflow-y-auto">
               <RecordLocationSearchView
-                bias={currentLocationFix}
+                bias={currentLocationFix
+                  ? {
+                      latitude: currentLocationFix.latitude,
+                      longitude: currentLocationFix.longitude,
+                    }
+                  : undefined}
                 onBack={() => setIsSearchView(false)}
                 onSelect={location => onConfirm(location)}
               />
