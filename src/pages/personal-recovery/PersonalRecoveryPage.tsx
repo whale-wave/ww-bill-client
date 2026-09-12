@@ -1,11 +1,12 @@
-import { Button, Toast } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 import { CircleAlert, Inbox } from 'lucide-react';
-import { useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   usePersonalRecoveryRecordsQuery,
   useRestorePersonalRecordMutation,
 } from '@/entities/ledger-data';
+import { RecoveryList } from '@/pages/ledger-recovery/LedgerRecoveryPage';
 import { useTranslation } from '@/shared/i18n';
 import { IllustratedEmptyState, PageHeader, PageLoadingState, Surface } from '@/shared/ui';
 
@@ -13,13 +14,13 @@ export default function PersonalRecoveryPage() {
   const { t } = useTranslation(['ledger', 'common']);
   const navigate = useNavigate();
   const query = usePersonalRecoveryRecordsQuery({ params: { days: 30 } });
-  const [restore, restoreState] = useRestorePersonalRecordMutation();
-  const restoringRef = useRef<number>();
+  const [restore] = useRestorePersonalRecordMutation();
+  const [restoringId, setRestoringId] = useState<number>();
 
   const handleRestore = async (recordId: number, version: number) => {
-    if (restoringRef.current)
+    if (restoringId !== undefined)
       return;
-    restoringRef.current = recordId;
+    setRestoringId(recordId);
     try {
       await restore({ recordId, data: { version } });
       Toast.show({ icon: 'success', content: t('ledger:recovery.restored', { defaultValue: '记录已恢复' }) });
@@ -29,7 +30,7 @@ export default function PersonalRecoveryPage() {
       Toast.show({ icon: 'fail', content: t('ledger:recovery.failed') });
     }
     finally {
-      restoringRef.current = undefined;
+      setRestoringId(undefined);
     }
   };
 
@@ -55,16 +56,7 @@ export default function PersonalRecoveryPage() {
       )}
       {!query.isLoading && !query.isError && query.data.length > 0 && (
         <main className="mx-auto w-full max-w-[520px]">
-          <p className="px-4 py-3 text-xs text-ww-mid">{t('settings:recovery.description')}</p>
-          {query.data.map(record => (
-            <div className="flex min-h-[68px] items-center justify-between gap-3 border-0 border-b border-solid border-border-primary bg-white px-4" key={record.id}>
-              <div className="min-w-0">
-                <div className="truncate text-sm font-semibold">{record.category?.name ?? t('ledger:recovery.unknownCategory', { defaultValue: '原分类已失效' })}</div>
-                <div className="truncate text-xs text-ww-mid">{record.remark || t('ledger:recovery.noRemark', { defaultValue: '无备注' })}</div>
-              </div>
-              <Button disabled={restoreState.isLoading && restoringRef.current === record.id} onClick={() => void handleRestore(record.id, record.version)} size="small">{t('ledger:recovery.restore')}</Button>
-            </div>
-          ))}
+          <RecoveryList records={query.data} onRestore={record => handleRestore(record.id, record.version)} restoringId={restoringId} />
         </main>
       )}
     </div>

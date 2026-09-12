@@ -557,7 +557,7 @@
     }
   },
   "tags": { "title": "Tags", "category": "Category", "name": "Tag Name", "create": "Add", "creating": "Adding…", "archive": "Archive", "delete": "Delete", "deleteTitle": "Delete tag", "deleteDescription": "Delete “{{name}}”? Existing records will keep this tag.", "empty": "No tags yet", "emptyDescription": "Create tags to add extra markers to ledger records.", "saveFailed": "Unable to save tag" },
-  "recovery": { "title": "Recently Deleted", "restore": "Restore", "failed": "Restore failed; the data may have changed", "empty": "No recently deleted records", "restored": "Record restored", "unknownCategory": "Original category unavailable", "noRemark": "No remark" },
+  "recovery": { "title": "Recently Deleted", "restore": "Restore", "failed": "Restore failed; the data may have changed", "empty": "No recently deleted records", "restored": "Record restored", "unknownCategory": "Original category unavailable", "noRemark": "No remark", "retention": "Deleted records are kept for 30 days and return to the original ledger when restored.", "deletedAt": "Deleted {{time}}", "deletedBy": "Deleted by {{name}}", "confirmTitle": "Restore this record?", "confirmDescription": "The record will return to your bill. Linked asset balances will also be adjusted when applicable." },
   "transfer": {
     "title": "Move Between Ledgers",
     "source": "Source Ledger",
