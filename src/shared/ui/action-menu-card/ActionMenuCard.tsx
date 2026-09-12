@@ -12,6 +12,7 @@ export interface ActionMenuItem {
   disabled?: boolean;
   tone?: ActionMenuTone;
   testId?: string;
+  badge?: ReactNode;
 }
 
 export interface ActionMenuCardProps {
@@ -90,6 +91,9 @@ export function ActionMenuCard({
             onClick={item.onClick}
             type="button"
           >
+            <span className="relative">
+              {item.badge}
+            </span>
             <span
               className={cn(
                 'flex items-center justify-center',

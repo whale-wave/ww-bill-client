@@ -1,14 +1,17 @@
 import type { FC } from 'react';
 import type { DesignIconName } from '@/shared/ui';
-import { Toast } from 'antd-mobile';
+import { Capacitor } from '@capacitor/core';
 import { useMemo } from 'react';
+
 import { useNavigate } from 'react-router-dom';
+import { useNotificationsQuery, UserNotificationStatus } from '@/entities/notification';
 import { useGetUserUserInfoQuery, UserSummaryCard } from '@/entities/user';
 import { BottomList } from '@/pages/mine/ui';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { ActionMenuCard, DesignIcon } from '@/shared/ui';
+import { showAppNotice } from '@/shared/ui/app-feedback';
 import { TabBar } from '@/widgets/layout';
 
 const Mine: FC = () => {
@@ -18,6 +21,9 @@ const Mine: FC = () => {
   const { data: userInfo } = useGetUserUserInfoQuery({
     queryOptions: { refetchOnMount: 'always' },
   });
+  const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
+  const { data: notifications } = useNotificationsQuery({ params: { limit: 50, platform } });
+  const unreadCount = notifications.filter(item => item.status === UserNotificationStatus.UNREAD).length;
 
   const checkIn = useMemo(() => {
     return !!userInfo?.checkIn;
@@ -56,7 +62,7 @@ const Mine: FC = () => {
       icon: 'mine-badge' as DesignIconName,
       name: t('tabs.myBadges'),
       onClick() {
-        Toast.show({
+        showAppNotice({
           content: t('tabs.comingSoon'),
         });
       },
@@ -65,7 +71,7 @@ const Mine: FC = () => {
       icon: 'mine-points' as DesignIconName,
       name: t('tabs.myPoints'),
       onClick() {
-        Toast.show({
+        showAppNotice({
           content: t('tabs.comingSoon'),
         });
       },
@@ -105,7 +111,12 @@ const Mine: FC = () => {
           <ActionMenuCard
             columns={5}
             items={tabs.map(tab => ({
-              icon: <DesignIcon name={tab.icon} size={20} />,
+              icon: (
+                <span className="relative">
+                  <DesignIcon name={tab.icon} size={20} />
+                  {tab.path === '/message' && unreadCount > 0 && <span className="absolute -right-3 -top-3 inline-flex min-w-4 items-center justify-center rounded-full bg-ww-pink px-1 text-[10px] font-bold leading-4 text-white" data-testid="mine-message-unread-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>}
+                </span>
+              ),
               key: tab.name,
               label: tab.name,
               onClick: tab.onClick.bind(tab),
