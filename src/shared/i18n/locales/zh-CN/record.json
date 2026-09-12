@@ -73,6 +73,7 @@
     "backToNearby": "返回附近位置",
     "searchPlaceholder": "搜索地点、商场、小区或地址",
     "searchPlaceholderWithoutLocation": "输入城市和地点，例如上海虹桥站",
+    "search": "搜索",
     "searchResults": "搜索结果",
     "searching": "搜索中…",
     "searchEmpty": "没有找到相关地点，请尝试加入城市或更完整的地址",

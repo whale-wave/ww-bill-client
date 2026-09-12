@@ -73,6 +73,7 @@
     "backToNearby": "Back to nearby locations",
     "searchPlaceholder": "Search a place, mall, neighborhood, or address",
     "searchPlaceholderWithoutLocation": "Enter a city and place, e.g. Shanghai Hongqiao",
+    "search": "Search",
     "searchResults": "Search results",
     "searching": "Searching…",
     "searchEmpty": "No matching places. Try adding a city or more address details.",

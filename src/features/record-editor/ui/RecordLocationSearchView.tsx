@@ -1,3 +1,4 @@
+import type { FormEvent } from 'react';
 import type { CurrentLocationFix, RecordLocation, RecordLocationCandidate } from '@/entities/record';
 import { ArrowLeft, Search } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -13,7 +14,7 @@ interface RecordLocationSearchViewProps {
 export function RecordLocationSearchView({ bias, onBack, onSelect }: RecordLocationSearchViewProps) {
   const { t } = useTranslation('record');
   const [keyword, setKeyword] = useState('');
-  const [debouncedKeyword, setDebouncedKeyword] = useState('');
+  const [submittedKeyword, setSubmittedKeyword] = useState('');
   const [results, setResults] = useState<RecordLocationCandidate[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -21,12 +22,7 @@ export function RecordLocationSearchView({ bias, onBack, onSelect }: RecordLocat
   const requestSequenceRef = useRef(0);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setDebouncedKeyword(keyword.trim()), 350);
-    return () => window.clearTimeout(timer);
-  }, [keyword]);
-
-  useEffect(() => {
-    const query = debouncedKeyword;
+    const query = submittedKeyword;
     if (query.length < 2) {
       setResults([]);
       setHasError(false);
@@ -57,7 +53,17 @@ export function RecordLocationSearchView({ bias, onBack, onSelect }: RecordLocat
       if (sequence === requestSequenceRef.current)
         requestSequenceRef.current += 1;
     };
-  }, [bias, debouncedKeyword, retryCount]);
+  }, [bias, retryCount, submittedKeyword]);
+
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const query = keyword.trim();
+    if (isLoading || query.length < 2 || (query === submittedKeyword && !hasError))
+      return;
+    setResults([]);
+    setHasError(false);
+    setSubmittedKeyword(query);
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-2">
@@ -65,18 +71,28 @@ export function RecordLocationSearchView({ bias, onBack, onSelect }: RecordLocat
         <ArrowLeft aria-hidden="true" size={17} />
         {t('location.backToNearby')}
       </button>
-      <label className="flex h-12 shrink-0 items-center gap-2 rounded-[15px] border border-border-primary bg-surface-subtle px-3 transition-colors focus-within:border-primary">
-        <Search aria-hidden="true" className="text-ww-soft" size={17} />
-        <input
-          autoFocus
-          className="ww-sheet-plain-input min-w-0 flex-1 border-0 bg-transparent text-[14px] font-semibold text-ww-ink outline-none"
-          maxLength={96}
-          onChange={event => setKeyword(event.target.value)}
-          placeholder={bias ? t('location.searchPlaceholder') : t('location.searchPlaceholderWithoutLocation')}
-          type="search"
-          value={keyword}
-        />
-      </label>
+      <form className="flex shrink-0 gap-2" onSubmit={handleSearch}>
+        <label className="flex h-12 min-w-0 flex-1 items-center gap-2 rounded-[15px] border border-border-primary bg-surface-subtle px-3 transition-colors focus-within:border-primary">
+          <Search aria-hidden="true" className="text-ww-soft" size={17} />
+          <input
+            autoFocus
+            className="ww-sheet-plain-input min-w-0 flex-1 border-0 bg-transparent text-[14px] font-semibold text-ww-ink outline-none"
+            maxLength={96}
+            onChange={event => setKeyword(event.target.value)}
+            placeholder={bias ? t('location.searchPlaceholder') : t('location.searchPlaceholderWithoutLocation')}
+            type="search"
+            value={keyword}
+          />
+        </label>
+        <button
+          className="flex h-12 shrink-0 items-center gap-1.5 rounded-[15px] bg-primary px-4 text-[13px] font-extrabold text-white shadow-ww-xs transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-45"
+          disabled={isLoading || keyword.trim().length < 2}
+          type="submit"
+        >
+          <Search aria-hidden="true" size={16} strokeWidth={2.2} />
+          {t('location.search')}
+        </button>
+      </form>
       <div className="mt-5 shrink-0 text-[12px] font-bold text-ww-soft">{t('location.searchResults')}</div>
       {isLoading && <div className="mt-3 text-[12px] font-semibold text-ww-soft">{t('location.searching')}</div>}
       {!isLoading && hasError && (
@@ -85,7 +101,7 @@ export function RecordLocationSearchView({ bias, onBack, onSelect }: RecordLocat
           <button className="font-extrabold text-primary-deep" onClick={() => setRetryCount(value => value + 1)} type="button">{t('location.retry')}</button>
         </div>
       )}
-      {!isLoading && !hasError && debouncedKeyword.length >= 2 && results.length === 0 && (
+      {!isLoading && !hasError && submittedKeyword.length >= 2 && results.length === 0 && (
         <div className="mt-3 text-[12px] font-semibold text-ww-soft">{t('location.searchEmpty')}</div>
       )}
       <div className="mt-2 min-h-0 flex-1 overflow-y-auto divide-y divide-border-primary">
