@@ -7,6 +7,7 @@ import { CategoryIcon } from '@/entities/category';
 import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
 import { readAppearanceChartColors, readAppearanceToken, useAppearanceRevision, withAlpha } from '@/shared/lib/appearance-tokens';
+import { resolvePublicMediaUrl } from '@/shared/lib/public-media-url';
 import { BrandAvatar, Surface } from '@/shared/ui';
 import { getAvatarInitial, getMonthBillRingSegments, MONTH_BILL_CHART_COLORS, toMonthBillDetailModel } from '../model/monthBillDetail';
 import { MonthBillChart } from './MonthBillChart';
@@ -330,7 +331,7 @@ function ExportMasthead({ categories, copy, onAvatarReady, sessionId, user }: { 
 }
 
 function ExportAvatar({ displayName, onReady, sessionId, src }: { displayName: string; onReady?: (sessionId: number, state: AvatarReadyState) => void; sessionId: number; src?: string }) {
-  const normalizedSrc = src?.trim();
+  const normalizedSrc = resolvePublicMediaUrl(src) ?? undefined;
   const [status, setStatus] = useState<'loading' | AvatarReadyState>(normalizedSrc ? 'loading' : 'fallback-ready');
   const onReadyRef = useRef(onReady);
   const loadAttemptRef = useRef(0);

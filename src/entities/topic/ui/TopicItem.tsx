@@ -3,7 +3,7 @@ import type { Topic } from '../api';
 import classNames from 'classnames';
 import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
-import { Icon } from '@/shared/ui';
+import { Icon, UserAvatar } from '@/shared/ui';
 import styles from './TopicItem.module.scss';
 
 interface TopicItemProps {
@@ -33,12 +33,12 @@ export const TopicItem: FC<TopicItemProps> = ({
         {onAvatar
           ? (
               <button className={classNames(styles.img, 'rounded-full overflow-hidden')} onClick={() => onAvatar(data.user.id)} type="button">
-                <img className="object-cover" src={data.user.avatar} alt={data.user.name || t('userInfo.defaultName')} />
+                <UserAvatar alt={data.user.name || t('userInfo.defaultName')} name={data.user.name} size={42} src={data.user.avatar} />
               </button>
             )
           : (
               <div className={classNames(styles.img, 'rounded-full overflow-hidden')}>
-                <img className="object-cover" src={data.user.avatar} alt={data.user.name || t('userInfo.defaultName')} />
+                <UserAvatar alt={data.user.name || t('userInfo.defaultName')} name={data.user.name} size={42} src={data.user.avatar} />
               </div>
             )}
         {onClick

@@ -7,11 +7,12 @@ import {
 } from '@/entities/follow';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { useTranslation } from '@/shared/i18n';
+import { UserAvatar } from '@/shared/ui';
 import styles from './UserInfo.module.scss';
 
 interface UserInfoProps {
   data?: {
-    avatar: string;
+    avatar: string | null;
     id: number;
     name: string;
   };
@@ -47,7 +48,7 @@ const UserInfo: FC<UserInfoProps> = ({
   return (
     <div className={styles.wrapper}>
       <div className={classNames(styles.avatar, 'rounded-full')}>
-        <img src={data?.avatar} alt="" />
+        <UserAvatar alt={data?.name} fallback="icon" name={data?.name} size={76} src={data?.avatar} />
       </div>
       <div className={styles.middle}>
         <span className={styles.name}>{data?.name || t('userInfo.defaultName')}</span>

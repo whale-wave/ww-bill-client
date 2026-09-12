@@ -242,7 +242,8 @@ describe('household creation and join', () => {
     );
     const avatar = container.querySelector<HTMLImageElement>('img[src="https://example.com/inviter.png"]');
 
-    expect(avatar?.closest('.adm-avatar')?.classList).toContain('rounded-full');
+    expect(avatar?.getAttribute('data-user-avatar')).toBe('image');
+    expect(avatar?.classList).toContain('rounded-full');
   });
 
   it('disables join submission only for blank invite codes', () => {
