@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Resolve application build metadata
         id: app_metadata
@@ -74,9 +76,17 @@ jobs:
             VITE_IOS_SHORTCUT_URL=${{ vars.VITE_IOS_SHORTCUT_URL }}
             APP_VERSION=${{ steps.app_metadata.outputs.version }}
             APP_BUILD_ID=${{ steps.app_metadata.outputs.build_id }}
+            VITE_SENTRY_DSN=${{ vars.VITE_SENTRY_DSN }}
+            VITE_SENTRY_ENVIRONMENT=production
+            VITE_SENTRY_TRACES_SAMPLE_RATE=0.05
+            SENTRY_UPLOAD_ENABLED=true
+            SENTRY_ORG=${{ vars.SENTRY_ORG }}
+            SENTRY_PROJECT=ww-bill-client
           context: .
           file: ./Dockerfile
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          secrets: |
+            sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}

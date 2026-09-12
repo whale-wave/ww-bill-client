@@ -9,6 +9,8 @@ import { rehydrateAuthStore, useAuthStore } from '@/features/auth';
 import { setAuthDeps } from '@/shared/api/auth-injection';
 import { APP_INFO } from '@/shared/config/app-info';
 import { refreshBeforeAppStart } from '@/shared/config/build-info';
+import { clearMonitoringUser, ErrorBoundary, SentryErrorFallback, setMonitoringUser } from '@/shared/monitoring';
+import '@/shared/monitoring/sentry';
 import '@/shared/i18n';
 import '@/assets/styles/index.scss';
 
@@ -54,6 +56,14 @@ else {
       applyAppearancePreference(readAppearancePreferenceMirror(authState.userId));
     else
       resetAppearancePreference();
+    if (authState.userId)
+      setMonitoringUser(authState.userId);
+    else
+      clearMonitoringUser();
+    useAuthStore.subscribe((state, previousState) => {
+      if (state.userId !== previousState.userId)
+        state.userId ? setMonitoringUser(state.userId) : clearMonitoringUser();
+    });
     setAuthDeps({
       captureRequestAuth: () => {
         const state = useAuthStore.getState();
@@ -82,6 +92,12 @@ else {
         clearLedgerInvitationCache();
       },
     });
-    root.render(<React.StrictMode><App /></React.StrictMode>);
+    root.render(
+      <React.StrictMode>
+        <ErrorBoundary fallback={<SentryErrorFallback />}>
+          <App />
+        </ErrorBoundary>
+      </React.StrictMode>,
+    );
   })();
 }

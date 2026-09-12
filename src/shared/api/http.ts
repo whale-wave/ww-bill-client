@@ -1,12 +1,23 @@
 import type { SuccessResponse } from './types';
+import { addBreadcrumb } from '@sentry/capacitor';
 import { Toast } from 'antd-mobile';
 import axios from 'axios';
 import { i18n } from '@/shared/i18n';
+import { captureTransportError } from '@/shared/monitoring';
 import { captureRequestAuth, isTransitionCurrent } from './auth-injection';
 import {
   baseResponseProcess,
   errorResponseProcess,
 } from './request-process';
+
+function requestPath(config: { url?: string; baseURL?: string }) {
+  try {
+    return new URL(config.url ?? '', config.baseURL ?? window.location.origin).pathname;
+  }
+  catch {
+    return '/unknown';
+  }
+}
 
 let host = '';
 if (typeof import.meta.env.VITE_HOST === 'string')
@@ -33,6 +44,7 @@ request.interceptors.request.use((config) => {
 
 request.interceptors.response.use(
   (response) => {
+    addBreadcrumb({ category: 'http', message: `${response.config.method?.toUpperCase() ?? 'GET'} ${requestPath(response.config)}`, data: { method: response.config.method, status_code: response.status, url: requestPath(response.config) }, level: 'info' });
     if (response.config.loading)
       errorResponseProcess(response.data);
     return response.data;
@@ -41,6 +53,8 @@ request.interceptors.response.use(
     const { code, config, message, response } = error;
 
     if (code === 'ECONNABORTED' || message?.includes('timeout')) {
+      if (navigator.onLine !== false)
+        captureTransportError(error, { method: config?.method, url: config?.url, statusCode: 408 });
       if (!config?.silent) {
         Toast.clear();
         Toast.show({ content: i18n.t('common:api.requestTimeout'), icon: 'fail', duration: 1000 });
@@ -55,6 +69,8 @@ request.interceptors.response.use(
     }
 
     if (!response) {
+      if (navigator.onLine !== false)
+        captureTransportError(error, { method: config?.method, url: config?.url, statusCode: 0 });
       if (!config?.silent) {
         Toast.clear();
         Toast.show({ content: i18n.t('common:api.networkError'), icon: 'fail', duration: 1000 });
@@ -68,6 +84,7 @@ request.interceptors.response.use(
     }
 
     const responseData = normalizeErrorResponse(response);
+    addBreadcrumb({ category: 'http', message: `${config?.method?.toUpperCase() ?? 'GET'} ${requestPath(config ?? {})}`, data: { method: config?.method, status_code: response.status, url: requestPath(config ?? {}) }, level: response.status >= 500 ? 'error' : 'warning' });
     const identity = config?.authIdentity;
     const current = !identity || isTransitionCurrent(identity);
     baseResponseProcess(responseData.statusCode, identity);
