@@ -23,7 +23,34 @@ export interface RecoverableLedgerRecord extends RecordEntry {
   ledgerId: string;
   deletedAt: string;
   deletedByUserId?: number;
+  deletedBy?: {
+    id: number;
+    name?: string;
+    username?: string;
+    avatar?: string;
+  };
   version: number;
+  restoreRequirements?: {
+    category: 'READY' | 'REPLACEMENT_REQUIRED';
+    assets: Array<{
+      adjustmentId?: string;
+      kind: 'RECORD' | 'ADJUSTMENT';
+      originalAsset: { assetId: string; assetName: string };
+      status: 'READY' | 'REQUIRES_RESOLUTION';
+    }>;
+    snapshotComplete: boolean;
+  };
+}
+
+export type RestoreAssetResolution
+  = | { action: 'REPLACE'; kind: 'RECORD'; replacementAssetId: string }
+    | { action: 'REPLACE'; adjustmentId: string; kind: 'ADJUSTMENT'; replacementAssetId: string }
+    | { action: 'SKIP'; kind: 'RECORD' }
+    | { action: 'SKIP'; adjustmentId: string; kind: 'ADJUSTMENT' };
+
+export interface RestoreLedgerRecordResult {
+  record: RecoverableLedgerRecord;
+  warnings: Array<{ code: string; kind: 'RECORD' | 'ADJUSTMENT'; adjustmentId?: string; message: string }>;
 }
 
 export type LedgerTransferTagStrategy = 'drop' | 'map';

@@ -69,6 +69,7 @@
     "title": "功能设置"
   },
   "dataSecurity": "数据安全",
+  "recovery": { "title": "最近删除", "description": "可恢复 30 天内删除的记录" },
   "export": "导出数据",
   "about": "关于鲸浪记账",
   "invite": "邀请好友",

@@ -59,6 +59,9 @@ export const ROUTES_PATH = {
   SETTINGS_APPEARANCE: {
     getPath: () => '/settings/appearance',
   },
+  SETTINGS_RECOVERY: {
+    getPath: () => '/settings/recovery',
+  },
   COMMUNITY: {
     getPath: () => '/community',
   },

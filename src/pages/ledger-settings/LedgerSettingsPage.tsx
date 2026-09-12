@@ -481,6 +481,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                 }]
               : []),
             ...(ledger.capabilities.includes(LedgerCapability.DATA_RECOVERY)
+              || ledger.capabilities.includes(LedgerCapability.RECORD_RECOVER_OWN)
               ? [{
                   disabled: !ledgerWritable,
                   icon: 'archive' as const,

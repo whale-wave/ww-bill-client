@@ -187,6 +187,14 @@ const Settings: FC = () => {
                 id: 'data',
                 rows: [
                   {
+                    description: t('recovery.description'),
+                    icon: 'archive',
+                    id: 'recovery',
+                    kind: 'link',
+                    label: t('recovery.title'),
+                    onClick: () => goTo(ROUTES_PATH.SETTINGS_RECOVERY.getPath()),
+                  },
+                  {
                     icon: 'export',
                     id: 'export',
                     kind: 'link',

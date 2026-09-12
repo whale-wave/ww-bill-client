@@ -69,6 +69,7 @@
     "title": "Functions"
   },
   "dataSecurity": "Data & Security",
+  "recovery": { "title": "Recently Deleted", "description": "Restore records deleted within 30 days" },
   "export": "Export Data",
   "about": "About WhaleWave",
   "invite": "Invite Friends",

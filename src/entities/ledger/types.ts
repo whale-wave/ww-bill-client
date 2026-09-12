@@ -66,6 +66,7 @@ export enum LedgerCapability {
   BUDGET_MANAGE = 'budget:manage',
   CHART_READ = 'chart:read',
   DATA_EXPORT = 'data:export',
+  RECORD_RECOVER_OWN = 'record:recover:own',
   DATA_RECOVERY = 'data:recovery',
   DATA_TRANSFER = 'data:transfer',
   OWNERSHIP_TRANSFER = 'ownership:transfer',

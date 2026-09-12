@@ -253,6 +253,10 @@ const router = createHashRouter([
             lazy: lazyGuardedPage(() => import('@/pages/shortcut-bookkeeping-settings/ShortcutBookkeepingSettingsPage')),
           },
           {
+            path: 'recovery',
+            lazy: lazyGuardedPage(() => import('@/pages/personal-recovery/PersonalRecoveryPage')),
+          },
+          {
             path: 'about',
             lazy: lazyGuardedPage(() => import('@/pages/about-support/AboutSupportPage')),
           },

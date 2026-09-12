@@ -2,7 +2,6 @@ import { Button, Toast } from 'antd-mobile';
 import { CircleAlert, Inbox } from 'lucide-react';
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LedgerCapability } from '@/entities/ledger';
 import { useLedgerRecoveryRecordsQuery, useRestoreLedgerRecordMutation } from '@/entities/ledger-data';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useTranslation } from '@/shared/i18n';
@@ -46,7 +45,7 @@ function RecoveryContent({ ledgerId }: { ledgerId: string }) {
         <div className="flex min-h-[59px] items-center justify-between border-0 border-b border-solid border-border-primary bg-white px-4" key={record.id}>
           <span>{record.remark}</span>
           <Button
-            disabled={restoreState.isLoading}
+            disabled={restoreState.isLoading && restoringRef.current === record.id}
             onClick={async () => {
               if (restoringRef.current)
                 return;
@@ -78,7 +77,7 @@ export default function LedgerRecoveryPage() {
   return (
     <div className="page-new bg-bg-gray">
       <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('recovery.title')} />
-      <LedgerScopeBoundary capability={LedgerCapability.DATA_RECOVERY}>{({ ledgerId }) => <RecoveryContent ledgerId={ledgerId} />}</LedgerScopeBoundary>
+      <LedgerScopeBoundary>{({ ledgerId }) => <RecoveryContent ledgerId={ledgerId} />}</LedgerScopeBoundary>
     </div>
   );
 }

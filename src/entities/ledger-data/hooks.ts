@@ -24,12 +24,14 @@ import {
   getLedgerExportTaskApi,
   getLedgerRecoveryRecordsApi,
   getLedgerTagsApi,
+  getPersonalRecoveryRecordsApi,
   patchLedgerTagApi,
   postLedgerExportApi,
   postLedgerRestoreRecordApi,
   postLedgerTagApi,
   postLedgerTransferExecuteApi,
   postLedgerTransferPreviewApi,
+  postPersonalRestoreRecordApi,
 } from './api';
 import { ledgerDataKeys } from './keys';
 
@@ -89,6 +91,10 @@ export async function getLedgerRecoveryRecordsQueryFn(
   return assertSuccessApi(await getLedgerRecoveryRecordsApi(ledgerId, params));
 }
 
+export async function getPersonalRecoveryRecordsQueryFn(params?: GetLedgerRecoveryRecordsApiParams) {
+  return assertSuccessApi(await getPersonalRecoveryRecordsApi(params));
+}
+
 export async function getLedgerExportTaskQueryFn(ledgerId: string, taskId: string) {
   return assertSuccessApi(await getLedgerExportTaskApi(ledgerId, taskId));
 }
@@ -128,6 +134,13 @@ export async function restoreLedgerRecordMutationFn(options: {
   return assertSuccessApi(
     await postLedgerRestoreRecordApi(options.ledgerId, options.recordId, options.data),
   );
+}
+
+export async function restorePersonalRecordMutationFn(options: {
+  recordId: number;
+  data: PostLedgerRestoreRecordApiData;
+}) {
+  return assertSuccessApi(await postPersonalRestoreRecordApi(options.recordId, options.data));
 }
 
 export async function previewLedgerTransferMutationFn(data: LedgerTransferRequest) {
@@ -192,6 +205,19 @@ export function useLedgerRecoveryRecordsQuery(options: {
   return { response, data: response?.data ?? [], ...rest };
 }
 
+export function usePersonalRecoveryRecordsQuery(options: {
+  params?: { days?: number };
+  queryOptions?: Omit<UseQueryOptions<SuccessResponse<RecoverableLedgerRecord[]>>, 'queryFn' | 'queryKey'>;
+} = {}) {
+  const days = options.params?.days ?? 30;
+  const { data: response, ...rest } = useQuery<SuccessResponse<RecoverableLedgerRecord[]>>({
+    queryFn: () => getPersonalRecoveryRecordsQueryFn({ days }),
+    queryKey: [...ledgerDataKeys.recoveryRoot(), 'personal', days],
+    ...options.queryOptions,
+  });
+  return { response, data: response?.data ?? [], ...rest };
+}
+
 export function useLedgerExportTaskQuery(options: {
   params: { ledgerId: string; taskId: string };
   queryOptions?: Omit<UseQueryOptions<SuccessResponse<LedgerExportTask>>, 'queryFn' | 'queryKey'>;
@@ -248,6 +274,27 @@ export function useRestoreLedgerRecordMutation() {
     },
   });
   return [mutateAsync, rest] as const;
+}
+
+export function useRestorePersonalRecordMutation() {
+  const queryClient = useQueryClient();
+  const { mutateAsync, ...rest } = useMutation({
+    mutationFn: restorePersonalRecordMutationFn,
+    onSuccess: async () => invalidatePersonalRestoreCaches(queryClient),
+    onError: async (error) => {
+      if (typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409)
+        await invalidatePersonalRestoreCaches(queryClient);
+    },
+  });
+  return [mutateAsync, rest] as const;
+}
+
+async function invalidatePersonalRestoreCaches(queryClient: QueryClient) {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: [...ledgerDataKeys.recoveryRoot(), 'personal'] }),
+    queryClient.invalidateQueries({ queryKey: recordRootKey }),
+    queryClient.invalidateQueries({ queryKey: ['asset'] }),
+  ]);
 }
 
 export function usePreviewLedgerTransferMutation() {

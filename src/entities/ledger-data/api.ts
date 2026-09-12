@@ -8,6 +8,8 @@ import type {
   LedgerTransferRequest,
   LedgerTransferResult,
   RecoverableLedgerRecord,
+  RestoreAssetResolution,
+  RestoreLedgerRecordResult,
 } from './types';
 import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
@@ -84,6 +86,7 @@ export function getLedgerRecoveryRecordsApi(
 export interface PostLedgerRestoreRecordApiData {
   version: number;
   replacementCategoryId?: number;
+  assetResolutions?: RestoreAssetResolution[];
 }
 
 export function postLedgerRestoreRecordApi(
@@ -91,8 +94,19 @@ export function postLedgerRestoreRecordApi(
   recordId: number,
   data: PostLedgerRestoreRecordApiData,
 ) {
-  return request.post<unknown, SuccessResponse<RecoverableLedgerRecord>>(
+  return request.post<unknown, SuccessResponse<RestoreLedgerRecordResult>>(
     `/ledgers/${encodeURIComponent(ledgerId)}/recovery/records/${encodeURIComponent(recordId)}`,
+    data,
+  );
+}
+
+export function getPersonalRecoveryRecordsApi(params: GetLedgerRecoveryRecordsApiParams = { days: 30 }) {
+  return request.get<unknown, SuccessResponse<RecoverableLedgerRecord[]>>('/recovery/records', { params });
+}
+
+export function postPersonalRestoreRecordApi(recordId: number, data: PostLedgerRestoreRecordApiData) {
+  return request.post<unknown, SuccessResponse<RestoreLedgerRecordResult>>(
+    `/recovery/records/${encodeURIComponent(recordId)}`,
     data,
   );
 }
