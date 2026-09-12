@@ -203,6 +203,13 @@
       "actionFailed": "操作失败，请重试",
       "deleteConfirmTitle": "删除通知",
       "deleteConfirmContent": "删除后通知将移入已归档列表。",
+      "selectionActions": "消息选择操作",
+      "selectNotification": "选择{{title}}",
+      "selectAll": "全选",
+      "deleteSelected": "删除（{{count}}）",
+      "deleteSelectedConfirmTitle": "删除已选通知",
+      "deleteSelectedConfirmContent": "选中的 {{count}} 条通知将移入已归档列表。",
+      "deleteSelectedFailed": "部分通知删除失败，请重试。",
       "statuses": {
         "UNREAD": "未读",
         "READ": "已读",

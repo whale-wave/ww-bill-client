@@ -55,6 +55,13 @@
   }
 }
 
+.selectionControl {
+  &[data-selected='true'] {
+    border-color: var(--ww-theme-color);
+    background: var(--ww-theme-color);
+  }
+}
+
 .avatarWrap {
   width: 44px;
   height: 44px;
@@ -145,10 +152,4 @@
 
 .emptyState {
   min-height: 400px;
-}
-
-.loadMore {
-  display: flex;
-  justify-content: center;
-  padding: 12px 0 calc(18px + env(safe-area-inset-bottom));
 }

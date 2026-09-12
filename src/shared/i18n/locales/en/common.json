@@ -122,6 +122,13 @@
       "actionFailed": "Action failed. Please try again.",
       "deleteConfirmTitle": "Delete notification",
       "deleteConfirmContent": "The notification will move to the archived list.",
+      "selectionActions": "Message selection actions",
+      "selectNotification": "Select {{title}}",
+      "selectAll": "Select all",
+      "deleteSelected": "Delete ({{count}})",
+      "deleteSelectedConfirmTitle": "Delete selected notifications",
+      "deleteSelectedConfirmContent": "{{count}} selected notifications will move to the archived list.",
+      "deleteSelectedFailed": "Some notifications could not be deleted. Please try again.",
       "statuses": {
         "UNREAD": "Unread",
         "READ": "Read",

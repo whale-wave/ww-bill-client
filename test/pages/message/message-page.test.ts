@@ -10,19 +10,37 @@ import {
 import MessagePage from '@/pages/message/MessagePage';
 
 const hooks = vi.hoisted(() => ({
+  archive: vi.fn(),
   fetchNextPage: vi.fn(),
   markRead: vi.fn(),
   refetch: vi.fn(),
+  useArchiveNotificationsMutation: vi.fn(),
   useMarkNotificationReadMutation: vi.fn(),
   useNotificationsQuery: vi.fn(),
 }));
 
-const toastShow = vi.hoisted(() => vi.fn());
+const dialogConfirm = vi.hoisted(() => vi.fn(async () => true));
+const showAppError = vi.hoisted(() => vi.fn());
+
+let intersectionCallback: IntersectionObserverCallback | undefined;
+
+class FakeIntersectionObserver {
+  constructor(callback: IntersectionObserverCallback) {
+    intersectionCallback = callback;
+  }
+
+  disconnect() {}
+
+  observe() {}
+
+  unobserve() {}
+}
 
 vi.mock('@/entities/notification', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/entities/notification')>();
   return {
     ...actual,
+    useArchiveNotificationsMutation: hooks.useArchiveNotificationsMutation,
     useMarkNotificationReadMutation: hooks.useMarkNotificationReadMutation,
     useNotificationsQuery: hooks.useNotificationsQuery,
   };
@@ -36,11 +54,16 @@ vi.mock('@/shared/lib/time', () => ({
   showDate: () => '4分钟前',
 }));
 
+vi.mock('@/shared/ui/app-feedback', () => ({ showAppError }));
+
 vi.mock('@/shared/ui', () => ({
-  PageHeader: ({ title }: { title: ReactNode }) => createElement(
+  AppButton: ({ children, ...props }: { children: ReactNode }) => createElement('button', props, children),
+  confirmAppAction: dialogConfirm,
+  PageHeader: ({ right, title }: { right?: ReactNode; title: ReactNode }) => createElement(
     'header',
     null,
     title,
+    right,
   ),
   IllustratedEmptyState: ({ title }: { title: ReactNode }) => createElement('div', null, title),
   PageLoadingState: ({ label, testId }: { label: ReactNode; testId?: string }) => createElement(
@@ -53,7 +76,6 @@ vi.mock('@/shared/ui', () => ({
 vi.mock('antd-mobile', () => ({
   Button: ({ children, ...props }: { children: ReactNode }) => createElement('button', props, children),
   ErrorBlock: ({ title }: { title?: ReactNode }) => createElement('div', null, title),
-  Toast: { show: toastShow },
 }));
 
 const actionableNotification = {
@@ -84,6 +106,7 @@ const passiveNotification = {
   version: 1,
 };
 
+let renderedNotifications = [actionableNotification, passiveNotification];
 let cleanup: (() => void) | undefined;
 
 function renderPage() {
@@ -96,26 +119,36 @@ function renderPage() {
       element: createElement('div', null, 'request-target'),
     },
   ], { initialEntries: ['/message'] });
-  act(() => root.render(createElement(RouterProvider, { router })));
+  const rerender = () => act(() => root.render(createElement(RouterProvider, { router })));
+  rerender();
   cleanup = () => act(() => root.unmount());
-  return { container, router };
+  return { container, rerender, router };
 }
 
 beforeEach(() => {
   Object.values(hooks).forEach(mock => mock.mockReset());
-  toastShow.mockReset();
-  hooks.useNotificationsQuery.mockReturnValue({
-    data: [actionableNotification, passiveNotification],
+  dialogConfirm.mockReset();
+  dialogConfirm.mockResolvedValue(true);
+  showAppError.mockReset();
+  intersectionCallback = undefined;
+  renderedNotifications = [actionableNotification, passiveNotification];
+  vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver);
+  hooks.useNotificationsQuery.mockImplementation(() => ({
+    data: renderedNotifications,
     fetchNextPage: hooks.fetchNextPage,
     hasNextPage: true,
     isError: false,
     isFetchingNextPage: false,
     isLoading: false,
     refetch: hooks.refetch,
-  });
+  }));
   hooks.useMarkNotificationReadMutation.mockReturnValue({
     isLoading: false,
     mutateAsync: hooks.markRead,
+  });
+  hooks.useArchiveNotificationsMutation.mockReturnValue({
+    isLoading: false,
+    mutateAsync: hooks.archive,
   });
 });
 
@@ -172,15 +205,120 @@ describe('message page', () => {
       .toBe('/ledgers/ledger%2Fa/join-requests/request%2Fa');
   });
 
-  it('loads the next page without adding management controls to the reference header', async () => {
-    hooks.fetchNextPage.mockResolvedValue({});
+  it('loads the next page automatically when the bottom sentinel becomes visible', async () => {
+    let resolveFetch: (() => void) | undefined;
+    hooks.fetchNextPage.mockReturnValue(new Promise<void>((resolve) => {
+      resolveFetch = resolve;
+    }));
     const { container } = renderPage();
 
     await act(async () => {
-      container.querySelector<HTMLButtonElement>('[data-testid="message-load-more"]')?.click();
+      intersectionCallback?.([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
+      intersectionCallback?.([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
       await Promise.resolve();
     });
     expect(hooks.fetchNextPage).toHaveBeenCalledOnce();
+    await act(async () => resolveFetch?.());
+    expect(container.querySelector('[data-testid="message-load-more"]')).toBeNull();
     expect(container.querySelector('[data-testid="message-read-all"]')).toBeNull();
+  });
+
+  it('only toggles selection for an actionable notification in edit mode', async () => {
+    const { container, router } = renderPage();
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="message-edit"]')?.click();
+    });
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="message-select-notification-1"]')?.click();
+    });
+
+    expect(hooks.markRead).not.toHaveBeenCalled();
+    expect(router.state.location.pathname).toBe('/message');
+    expect(container.querySelector('[data-testid="message-select-notification-1"]')?.getAttribute('aria-pressed'))
+      .toBe('true');
+  });
+
+  it('does not select notifications loaded after selecting all current items', async () => {
+    const laterNotification = { ...passiveNotification, id: 'notification-3', title: '后加载通知' };
+    const { container, rerender } = renderPage();
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="message-edit"]')?.click();
+    });
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="message-select-all"]')?.click();
+    });
+    renderedNotifications = [...renderedNotifications, laterNotification];
+    rerender();
+
+    expect(container.querySelector('[data-testid="message-select-notification-3"]')?.getAttribute('aria-pressed'))
+      .toBe('false');
+  });
+
+  it('selects loaded notifications in edit mode and soft-archives the selected versions after confirmation', async () => {
+    hooks.archive.mockResolvedValue({ failedIds: [], succeededIds: ['notification-1', 'notification-2'] });
+    const { container } = renderPage();
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="message-edit"]')?.click();
+    });
+    expect(container.querySelector('[data-testid="message-select-notification-1"]')).not.toBeNull();
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="message-select-all"]')?.click();
+    });
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="message-delete-selected"]')?.click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(dialogConfirm).toHaveBeenCalledOnce();
+    expect(hooks.archive).toHaveBeenCalledWith([
+      { id: 'notification-1', version: 2 },
+      { id: 'notification-2', version: 1 },
+    ]);
+  });
+
+  it('does not archive selected notifications when the confirmation is cancelled', async () => {
+    dialogConfirm.mockResolvedValue(false);
+    const { container } = renderPage();
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="message-edit"]')?.click();
+      container.querySelector<HTMLButtonElement>('[data-testid="message-select-notification-1"]')?.click();
+      container.querySelector<HTMLButtonElement>('[data-testid="message-delete-selected"]')?.click();
+      await Promise.resolve();
+    });
+
+    expect(hooks.archive).not.toHaveBeenCalled();
+  });
+
+  it('refreshes the list, exits edit mode, and reports when only some archives fail', async () => {
+    hooks.archive.mockResolvedValue({ failedIds: ['notification-2'], succeededIds: ['notification-1'] });
+    hooks.refetch.mockImplementation(async () => {
+      renderedNotifications = [passiveNotification];
+      return {};
+    });
+    const { container } = renderPage();
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="message-edit"]')?.click();
+    });
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="message-select-all"]')?.click();
+    });
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[data-testid="message-delete-selected"]')?.click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(hooks.refetch).toHaveBeenCalledOnce();
+    expect(showAppError).toHaveBeenCalledOnce();
+    expect(container.querySelector('[data-testid="message-select-notification-2"]')).toBeNull();
+    expect(container.querySelector('[data-testid="message-notification-notification-2"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="message-notification-notification-1"]')).toBeNull();
   });
 });

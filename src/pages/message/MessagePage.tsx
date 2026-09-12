@@ -2,11 +2,12 @@ import type { FC, ReactNode } from 'react';
 import type { UserNotification } from '@/entities/notification';
 import { Capacitor } from '@capacitor/core';
 import { Button, ErrorBlock } from 'antd-mobile';
-import { Bell } from 'lucide-react';
-import { useRef } from 'react';
+import { Bell, Check } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import appAvatar from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
 import {
+  useArchiveNotificationsMutation,
   useMarkNotificationReadMutation,
   useNotificationsQuery,
   UserNotificationStatus,
@@ -15,7 +16,15 @@ import {
 import { getNotificationTarget } from '@/pages/system-notify/model';
 import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
-import { IllustratedEmptyState, PageHeader, PageLoadingState, showAppActionSheet } from '@/shared/ui';
+import {
+  AppButton,
+  confirmAppAction,
+  IllustratedEmptyState,
+  PageHeader,
+  PageLoadingState,
+  showAppActionSheet,
+} from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import styles from './index.module.scss';
 
 const PAGE_SIZE = 20;
@@ -58,13 +67,71 @@ function NotificationContent({
   );
 }
 
+function SelectionControl({ isSelected }: { isSelected: boolean }) {
+  return (
+    <span
+      className={`${styles.selectionControl} inline-flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full border-[1.5px] border-solid border-border-primary text-white`}
+      data-selected={isSelected}
+    >
+      {isSelected && <Check aria-hidden="true" size={15} strokeWidth={3} />}
+    </span>
+  );
+}
+
 const Message: FC = () => {
   const { t } = useTranslation('common');
   const navigate = useNavigate();
+  const contentRef = useRef<HTMLElement>(null);
+  const loadTriggerRef = useRef<HTMLDivElement>(null);
   const pendingActionsRef = useRef(new Set<string>());
+  const isFetchingNextPageRef = useRef(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
   const notificationQuery = useNotificationsQuery({ params: { limit: PAGE_SIZE, platform } });
   const markReadMutation = useMarkNotificationReadMutation();
+  const archiveNotificationsMutation = useArchiveNotificationsMutation();
+  const {
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = notificationQuery;
+
+  const selectedNotifications = useMemo(
+    () => notificationQuery.data.filter(notification => selectedIds.has(notification.id)),
+    [notificationQuery.data, selectedIds],
+  );
+  const isAllLoadedSelected = notificationQuery.data.length > 0
+    && selectedNotifications.length === notificationQuery.data.length;
+
+  useEffect(() => {
+    isFetchingNextPageRef.current = isFetchingNextPage;
+  }, [isFetchingNextPage]);
+
+  useEffect(() => {
+    const content = contentRef.current;
+    const trigger = loadTriggerRef.current;
+    if (!content || !trigger || !hasNextPage || isFetchingNextPage)
+      return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting || isFetchingNextPageRef.current)
+          return;
+        isFetchingNextPageRef.current = true;
+        void fetchNextPage().finally(() => {
+          isFetchingNextPageRef.current = false;
+        });
+      },
+      { root: content, rootMargin: '0px 0px 160px' },
+    );
+    observer.observe(trigger);
+    return () => observer.disconnect();
+  }, [
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  ]);
 
   const handleOpen = async (notification: UserNotification) => {
     const target = getNotificationTarget(notification.payload);
@@ -96,14 +163,87 @@ const Message: FC = () => {
     pendingActionsRef.current.delete(`open:${notification.id}`);
   };
 
+  const handleToggleEditing = () => {
+    setIsEditing(previous => !previous);
+    setSelectedIds(new Set());
+  };
+
+  const handleToggleNotification = (notificationId: string) => {
+    setSelectedIds((previous) => {
+      const next = new Set(previous);
+      if (next.has(notificationId))
+        next.delete(notificationId);
+      else
+        next.add(notificationId);
+      return next;
+    });
+  };
+
+  const handleToggleSelectAll = () => {
+    setSelectedIds(() => isAllLoadedSelected
+      ? new Set()
+      : new Set(notificationQuery.data.map(notification => notification.id)));
+  };
+
+  const handleArchiveSelected = async () => {
+    const actionKey = 'archive-selected';
+    if (!selectedNotifications.length
+      || archiveNotificationsMutation.isLoading
+      || pendingActionsRef.current.has(actionKey)) {
+      return;
+    }
+    pendingActionsRef.current.add(actionKey);
+    try {
+      const confirmed = await confirmAppAction({
+        cancelText: t('nav.cancel'),
+        confirmText: t('message.notificationCenter.delete'),
+        description: t('message.notificationCenter.deleteSelectedConfirmContent', {
+          count: selectedNotifications.length,
+        }),
+        title: t('message.notificationCenter.deleteSelectedConfirmTitle', {
+          count: selectedNotifications.length,
+        }),
+        tone: 'danger',
+      });
+      if (!confirmed)
+        return;
+
+      const result = await archiveNotificationsMutation.mutateAsync(
+        selectedNotifications.map(({ id, version }) => ({ id, version })),
+      );
+      await notificationQuery.refetch();
+      setSelectedIds(new Set());
+      setIsEditing(false);
+      if (result.failedIds.length) {
+        showAppError({
+          content: t('message.notificationCenter.deleteSelectedFailed'),
+          icon: 'fail',
+        });
+      }
+    }
+    finally {
+      pendingActionsRef.current.delete(actionKey);
+    }
+  };
+
   return (
     <div className="page-new relative overflow-hidden" data-message-page>
       <PageHeader
         backLabel={t('nav.back')}
         onBack={() => navigate(-1)}
+        right={(
+          <button
+            className="min-h-11 min-w-11 border-0 bg-transparent px-2 text-sm font-bold text-[var(--ww-theme-text-color)]"
+            data-testid="message-edit"
+            onClick={handleToggleEditing}
+            type="button"
+          >
+            {isEditing ? t('nav.cancel') : t('action.edit')}
+          </button>
+        )}
         title={t('message.title')}
       />
-      <main className={styles.content}>
+      <main className={styles.content} ref={contentRef}>
         {notificationQuery.isLoading && (
           <PageLoadingState label={t('nav.loading')} testId="message-loading" />
         )}
@@ -152,45 +292,83 @@ const Message: FC = () => {
                   data-testid={`message-notification-${notification.id}`}
                   key={notification.id}
                 >
-                  {(target && isJoinRequest) || isRelease
+                  {isEditing
                     ? (
                         <button
-                          aria-label={`${notification.title} ${t('message.notificationCenter.handle')}`}
-                          className={styles.itemButton}
-                          data-testid={`message-notification-action-${notification.id}`}
-                          onClick={() => void handleOpen(notification)}
+                          aria-label={t('message.notificationCenter.selectNotification', {
+                            title: notification.title,
+                          })}
+                          aria-pressed={selectedIds.has(notification.id)}
+                          className={`${styles.itemButton} gap-3`}
+                          data-testid={`message-select-${notification.id}`}
+                          onClick={() => handleToggleNotification(notification.id)}
                           type="button"
                         >
-                          <NotificationContent action={action} notification={notification} />
+                          <SelectionControl isSelected={selectedIds.has(notification.id)} />
+                          <NotificationContent notification={notification} />
                         </button>
                       )
-                    : (
-                        <div className={styles.itemStatic}>
-                          <NotificationContent notification={notification} />
-                        </div>
-                      )}
+                    : (target && isJoinRequest) || isRelease
+                        ? (
+                            <button
+                              aria-label={`${notification.title} ${t('message.notificationCenter.handle')}`}
+                              className={styles.itemButton}
+                              data-testid={`message-notification-action-${notification.id}`}
+                              onClick={() => void handleOpen(notification)}
+                              type="button"
+                            >
+                              <NotificationContent action={action} notification={notification} />
+                            </button>
+                          )
+                        : (
+                            <div className={styles.itemStatic}>
+                              <NotificationContent notification={notification} />
+                            </div>
+                          )}
                 </article>
               );
             })}
             {notificationQuery.hasNextPage && (
-              <div className={styles.loadMore}>
-                <Button
-                  data-testid="message-load-more"
-                  disabled={notificationQuery.isFetchingNextPage}
-                  fill="none"
-                  loading={notificationQuery.isFetchingNextPage}
-                  onClick={() => void notificationQuery.fetchNextPage()}
-                  size="small"
-                >
-                  {notificationQuery.isFetchingNextPage
-                    ? t('message.notificationCenter.loadingMore')
-                    : t('message.notificationCenter.loadMore')}
-                </Button>
+              <div
+                aria-live="polite"
+                className="flex min-h-7 items-center justify-center text-xs leading-5 text-ww-soft"
+                data-testid="message-load-trigger"
+                ref={loadTriggerRef}
+              >
+                {notificationQuery.isFetchingNextPage && t('message.notificationCenter.loadingMore')}
               </div>
             )}
           </section>
         )}
       </main>
+      {isEditing && notificationQuery.data.length > 0 && (
+        <aside
+          aria-label={t('message.notificationCenter.selectionActions')}
+          className="flex shrink-0 items-center justify-between gap-[var(--ww-space-md)] border-t border-solid border-border-primary bg-ww-surface-raised px-[var(--ww-page-gutter)] py-[var(--ww-space-sm)] pb-[max(var(--ww-space-sm),env(safe-area-inset-bottom))] shadow-ww-xs"
+        >
+          <AppButton
+            aria-pressed={isAllLoadedSelected}
+            className="shrink-0"
+            data-testid="message-select-all"
+            onClick={handleToggleSelectAll}
+            size="compact"
+            variant="ghost"
+          >
+            <SelectionControl isSelected={isAllLoadedSelected} />
+            <span>{t('message.notificationCenter.selectAll')}</span>
+          </AppButton>
+          <AppButton
+            className="min-w-[108px] shrink-0"
+            data-testid="message-delete-selected"
+            disabled={!selectedNotifications.length || archiveNotificationsMutation.isLoading}
+            onClick={() => void handleArchiveSelected()}
+            size="compact"
+            variant="danger"
+          >
+            {t('message.notificationCenter.deleteSelected', { count: selectedNotifications.length })}
+          </AppButton>
+        </aside>
+      )}
     </div>
   );
 };

@@ -54,6 +54,40 @@ export async function archiveNotificationMutationFn(options: {
   );
 }
 
+export interface ArchiveNotificationsInput {
+  id: string;
+  version: number;
+}
+
+export interface ArchiveNotificationsResult {
+  failedIds: string[];
+  succeededIds: string[];
+}
+
+export async function archiveNotificationsMutationFn(
+  notifications: ArchiveNotificationsInput[],
+): Promise<ArchiveNotificationsResult> {
+  const results = await Promise.all(
+    notifications.map(async (notification) => {
+      try {
+        await archiveNotificationMutationFn(notification);
+        return { id: notification.id, succeeded: true };
+      }
+      catch {
+        return { id: notification.id, succeeded: false };
+      }
+    }),
+  );
+
+  return results.reduce<ArchiveNotificationsResult>((summary, result) => {
+    if (result.succeeded)
+      summary.succeededIds.push(result.id);
+    else
+      summary.failedIds.push(result.id);
+    return summary;
+  }, { failedIds: [], succeededIds: [] });
+}
+
 export function flattenNotificationPages(
   pages: Array<Pick<NotificationListResponse, 'data'>> = [],
 ) {
@@ -164,5 +198,13 @@ export function useArchiveNotificationMutation() {
     mutationFn: archiveNotificationMutationFn,
     onSuccess: invalidateLists,
     onError: error => invalidateNotificationListsOnConflict(queryClient, error),
+  });
+}
+
+export function useArchiveNotificationsMutation() {
+  const { invalidateLists } = useNotificationInvalidation();
+  return useMutation({
+    mutationFn: archiveNotificationsMutationFn,
+    onSettled: invalidateLists,
   });
 }

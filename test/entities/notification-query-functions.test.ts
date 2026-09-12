@@ -2,6 +2,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   archiveNotificationMutationFn,
+  archiveNotificationsMutationFn,
   flattenNotificationPages,
   getNotificationsQueryFn,
   invalidateNotificationListsOnConflict,
@@ -102,6 +103,20 @@ describe('notification React Query functions', () => {
       firstNotification,
       secondNotification,
     ]);
+  });
+
+  it('archives every selected notification and reports only the failed IDs', async () => {
+    api.archiveNotificationApi
+      .mockResolvedValueOnce({ data: firstNotification, message: '成功', statusCode: 200 })
+      .mockResolvedValueOnce(failedEnvelope);
+
+    await expect(archiveNotificationsMutationFn([
+      { id: 'notification-1', version: 1 },
+      { id: 'notification-2', version: 2 },
+    ])).resolves.toEqual({
+      failedIds: ['notification-2'],
+      succeededIds: ['notification-1'],
+    });
   });
 
   it('invalidates every filtered notification list after a 409 conflict', async () => {
