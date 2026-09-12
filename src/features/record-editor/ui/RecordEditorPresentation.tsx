@@ -686,8 +686,6 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     {controller.isToday
                       ? t('common:time.today')
                       : controller.formattedDate}
-                    {' '}
-                    {controller.formattedTime}
                   </button>
                   <m.button
                     className="ww-theme-primary-action h-[50px] rounded-[16px] px-4 text-[15px] font-extrabold leading-[22.5px] disabled:opacity-50"

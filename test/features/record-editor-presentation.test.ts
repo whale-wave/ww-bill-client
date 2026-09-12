@@ -218,7 +218,7 @@ describe('record editor presentation', () => {
     expect(backspace?.querySelector('svg')).not.toBeNull();
   });
 
-  it('shows the selected time and configures the picker through seconds', () => {
+  it('shows only the selected date while keeping second-level time selection', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
     act(() => root.render(createElement(TestEditor)));
@@ -227,7 +227,8 @@ describe('record editor presentation', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
 
     const trigger = container.querySelector<HTMLButtonElement>('[data-record-editor-date-trigger]');
-    expect(trigger?.textContent).toContain(dayjs('2026-07-21T12:00:00.000Z').format('YYYY/MM/DD HH:mm:ss'));
+    expect(trigger?.textContent).toContain(dayjs('2026-07-21T12:00:00.000Z').format('YYYY/MM/DD'));
+    expect(trigger?.textContent).not.toContain('12:00:00');
     expect(container.querySelector('[data-testid="record-editor-date-picker"]')?.getAttribute('data-precision')).toBe('second');
     expect([...container.querySelectorAll('[data-date-picker-label]')].map(label => label.textContent)).toEqual([
       '2026',
