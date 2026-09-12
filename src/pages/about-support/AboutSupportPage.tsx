@@ -2,7 +2,6 @@ import type { FC, ReactNode, Ref } from 'react';
 import type { BuildInfo } from '@/shared/config/build-info';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
-import { Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import {
   ChevronRight,
@@ -20,6 +19,7 @@ import { fetchBuildInfo, isNewerBuild } from '@/shared/config/build-info';
 import { useTranslation } from '@/shared/i18n';
 import { openExternalUrl } from '@/shared/lib';
 import { AppButton, PageHeader } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { SponsorSupportModal } from './ui/SponsorSupportModal';
 
 interface SupportRowProps {
@@ -95,6 +95,7 @@ const AboutSupportPage: FC = () => {
   const isAndroid = Capacitor.getPlatform() === 'android';
   const isWeb = Capacitor.getPlatform() === 'web';
   const { data: latestRelease, isFetching, isError, refetch } = useClientLatestReleaseQuery({
+    platform: isAndroid ? 'android' : 'web',
     queryOptions: { enabled: isAndroid || isWeb },
   });
   const [installedVersion, setInstalledVersion] = useState<{ versionCode: number; versionName: string } | null>(null);
@@ -120,10 +121,9 @@ const AboutSupportPage: FC = () => {
 
   const handleCopy = (text: string) => {
     if (copy(text)) {
-      Toast.show({ content: t('aboutSupport.copied'), icon: 'success' });
       return;
     }
-    Toast.show({ content: t('aboutSupport.openFailed'), icon: 'fail' });
+    showAppError({ content: t('aboutSupport.openFailed'), icon: 'fail' });
   };
 
   const handleOpenSponsor = () => setIsSponsorModalVisible(true);

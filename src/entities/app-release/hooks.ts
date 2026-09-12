@@ -2,16 +2,16 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 import type { ClientReleaseManifest } from './types';
 import type { SuccessResponse } from '@/shared/api';
 import { useQuery } from '@tanstack/react-query';
-import { getAndroidLatestReleaseApi, getClientLatestReleaseApi } from './api';
+import { getAndroidLatestReleaseApi, getPlatformLatestReleaseApi } from './api';
 import { appReleaseKeys } from './keys';
 
 export const ANDROID_RELEASE_CHECK_INTERVAL = 6 * 60 * 60 * 1000;
 export const CLIENT_RELEASE_CHECK_INTERVAL = 15 * 60 * 1000;
 
-export function clientLatestReleaseQueryOptions(force = false) {
+export function clientLatestReleaseQueryOptions(force = false, platform: 'web' | 'android' = 'web') {
   return {
-    queryKey: appReleaseKeys.latest(),
-    queryFn: getClientLatestReleaseApi,
+    queryKey: appReleaseKeys.latest(platform),
+    queryFn: () => getPlatformLatestReleaseApi(platform),
     staleTime: force ? 0 : CLIENT_RELEASE_CHECK_INTERVAL,
     cacheTime: CLIENT_RELEASE_CHECK_INTERVAL,
     retry: false,
@@ -24,9 +24,9 @@ type ClientLatestReleaseQueryOptions = Omit<
   'queryFn' | 'queryKey'
 >;
 
-export function useClientLatestReleaseQuery(options: { queryOptions?: ClientLatestReleaseQueryOptions } = {}) {
+export function useClientLatestReleaseQuery(options: { platform?: 'web' | 'android'; queryOptions?: ClientLatestReleaseQueryOptions } = {}) {
   const { data: response, ...rest } = useQuery<SuccessResponse<ClientReleaseManifest>>({
-    ...clientLatestReleaseQueryOptions(),
+    ...clientLatestReleaseQueryOptions(false, options.platform ?? 'web'),
     ...options.queryOptions,
   });
   return { data: response?.data, response, ...rest };

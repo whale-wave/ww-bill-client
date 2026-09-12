@@ -9,8 +9,6 @@ import {
   formatClientReleaseDescription,
   getInstalledAndroidVersion,
   isAndroidClientUpdateAvailable,
-  isCurrentWebRelease,
-  isWebClientUpdateAvailable,
 } from '@/entities/app-release';
 import { APP_INFO } from '@/shared/config/app-info';
 import { fetchBuildInfo, refreshForBuild } from '@/shared/config/build-info';
@@ -23,8 +21,7 @@ const SEEN_KEY = 'client-release-seen';
 const REMINDER_INTERVAL = 24 * 60 * 60 * 1000;
 
 function getReleaseKey(release: ClientReleaseManifest, platform: 'android' | 'web') {
-  const targetVersion = platform === 'android' ? release.android.versionCode : release.web.buildId;
-  return `${platform}:${release.publishedAt ?? release.versionName}:${targetVersion}`;
+  return `${platform}:${release.noticeId ?? release.publishedAt ?? release.versionName}`;
 }
 
 function readStoredValue(key: string) {
@@ -73,7 +70,12 @@ export const ClientUpdateController: FC = () => {
   const showWebRelease = useCallback(async (release: ClientReleaseManifest) => {
     const releaseKey = getReleaseKey(release, 'web');
     const description = formatClientReleaseDescription(release, t('aboutSupport.webUpdateDescription', { version: release.versionName }));
-    if (isCurrentWebRelease(APP_INFO.buildId, release)) {
+    if (!release.enabled || !release.web.enabled)
+      return;
+    const deployedBuild = await fetchBuildInfo();
+    if (deployedBuild.version !== release.versionName)
+      return;
+    if (APP_INFO.buildId === deployedBuild.buildId) {
       if (readStoredValue(SEEN_KEY) === releaseKey)
         return;
       rememberSeen(releaseKey);
@@ -85,8 +87,7 @@ export const ClientUpdateController: FC = () => {
       return;
     }
 
-    const deployedBuild = await fetchBuildInfo();
-    if (isWebClientUpdateAvailable(APP_INFO.buildId, deployedBuild.buildId, release)) {
+    if (APP_INFO.buildId !== deployedBuild.buildId) {
       if (wasRecentlyReminded(releaseKey))
         return;
       rememberReminder(releaseKey);
@@ -95,7 +96,7 @@ export const ClientUpdateController: FC = () => {
           {
             key: 'update',
             text: t('aboutSupport.webUpdateNow'),
-            onClick: () => refreshForBuild(window.location, release.web.buildId),
+            onClick: () => refreshForBuild(window.location, deployedBuild.buildId),
           },
           { key: 'later', text: t('aboutSupport.later') },
         ],
@@ -132,7 +133,7 @@ export const ClientUpdateController: FC = () => {
       return;
     checkingRef.current = true;
     try {
-      const response = await queryClient.fetchQuery(clientLatestReleaseQueryOptions(force));
+      const response = await queryClient.fetchQuery(clientLatestReleaseQueryOptions(force, platform as 'web' | 'android'));
       if (platform === 'android')
         await showAndroidRelease(response.data);
       else

@@ -11,6 +11,7 @@ export interface AndroidReleaseManifest {
 }
 
 export interface ClientReleaseManifest {
+  noticeId?: string | null;
   enabled: boolean;
   versionName: string;
   summary: string;
@@ -19,13 +20,44 @@ export interface ClientReleaseManifest {
   web: {
     enabled: boolean;
     buildId: string;
+    noticeId?: string | null;
   };
   android: {
     enabled: boolean;
     versionCode: number;
     downloadUrl: string;
+    noticeId?: string | null;
   };
   publishedAt: string | null;
+}
+
+export interface WebReleaseManifest extends ClientReleaseHighlightBase {
+  platform: 'web';
+  noticeId?: string | null;
+  title?: string;
+  content?: string;
+  enabled: boolean;
+  versionName: string;
+  buildId: string;
+  publishedAt: string | null;
+}
+
+export interface AndroidPlatformReleaseManifest extends ClientReleaseHighlightBase {
+  platform: 'android';
+  noticeId?: string | null;
+  title?: string;
+  content?: string;
+  enabled: boolean;
+  versionName: string;
+  versionCode: number;
+  downloadUrl: string;
+  publishedAt: string | null;
+}
+
+interface ClientReleaseHighlightBase {
+  summary: string;
+  releaseNotes: string;
+  highlights: ClientReleaseHighlight[];
 }
 
 export interface ClientReleaseHighlight {
