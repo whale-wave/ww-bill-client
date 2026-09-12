@@ -11,6 +11,7 @@ import BookkeepingPage from '@/pages/record/bookkeeping/BookkeepingPage';
 
 const hooks = vi.hoisted(() => ({
   confirmShortcutDraft: vi.fn(),
+  confirmAgentAction: vi.fn(),
   discardShortcutDraft: vi.fn(),
   ledgerCapabilities: [] as string[],
   postRecord: vi.fn(),
@@ -31,6 +32,14 @@ vi.mock('@/entities/asset', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/asset')>()),
   useGetAssetGroupQuery: hooks.useGetAssetGroupQuery,
   useGetAssetQuery: hooks.useGetAssetQuery,
+}));
+
+vi.mock('@/entities/agent', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/entities/agent')>()),
+  useConfirmAgentActionMutation: () => ({
+    isLoading: false,
+    mutateAsync: hooks.confirmAgentAction,
+  }),
 }));
 
 vi.mock('@/entities/record', async importOriginal => ({
@@ -94,6 +103,7 @@ beforeEach(() => {
   hooks.putRecord.mockReset();
   hooks.uploadImage.mockReset();
   hooks.confirmShortcutDraft.mockReset();
+  hooks.confirmAgentAction.mockReset();
   hooks.discardShortcutDraft.mockReset();
   hooks.useGetCategoryQuery.mockReset();
   hooks.useGetAssetGroupQuery.mockReset();
@@ -103,6 +113,7 @@ beforeEach(() => {
   hooks.postRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
   hooks.putRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
   hooks.confirmShortcutDraft.mockResolvedValue({ ledgerId: 'default-ledger', recordId: 11 });
+  hooks.confirmAgentAction.mockResolvedValue({});
   hooks.uploadImage.mockResolvedValue({ data: { assetId: '00000000-0000-4000-8000-000000000501' } });
   hooks.useGetAssetQuery.mockReturnValue({ data: [] });
   hooks.useGetAssetGroupQuery.mockReturnValue({ data: [] });
@@ -153,6 +164,7 @@ describe('personal record editor adapter', () => {
   });
 
   it('uses selectTime for the draft and returns to the same calendar date after saving', async () => {
+    const toast = vi.spyOn(Toast, 'show');
     const selectTime = new Date('2026-07-21T12:00:00.000Z').valueOf();
     const router = createMemoryRouter([
       { path: '/bookkeeping', element: createElement(BookkeepingPage) },
@@ -166,6 +178,8 @@ describe('personal record editor adapter', () => {
       [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
       await Promise.resolve();
     });
+    expect(container.querySelector('[role="status"]')).toBeNull();
+    expect(toast.mock.calls.some(([options]) => typeof options === 'object' && options !== null && 'icon' in options && options.icon === 'success')).toBe(false);
 
     expect(hooks.postRecord).toHaveBeenCalledWith(expect.objectContaining({
       amount: '1',
@@ -176,9 +190,11 @@ describe('personal record editor adapter', () => {
     }));
     expect(router.state.location.pathname).toBe('/record-calendar');
     expect(router.state.location.search).toBe(`?selectTime=${selectTime}`);
+    toast.mockRestore();
   });
 
   it('opens the original editor with shortcut candidates and confirms through the draft endpoint', async () => {
+    const toast = vi.spyOn(Toast, 'show');
     const tagId = '00000000-0000-4000-8000-000000000001';
     const imageAssetId = '00000000-0000-4000-8000-000000000501';
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:shortcut-image') });
@@ -262,6 +278,7 @@ describe('personal record editor adapter', () => {
       [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
       await Promise.resolve();
     });
+    expect(container.querySelector('[role="status"]')).toBeNull();
 
     expect(hooks.confirmShortcutDraft).toHaveBeenCalledWith(expect.objectContaining({
       amount: '18.6',
@@ -279,6 +296,8 @@ describe('personal record editor adapter', () => {
     expect(router.state.location.state).toEqual({
       personalRecordDetail: { returnTo: 'personal-home' },
     });
+    expect(toast.mock.calls.some(([options]) => typeof options === 'object' && options !== null && 'icon' in options && options.icon === 'success')).toBe(false);
+    toast.mockRestore();
   });
 
   it('opens the amount editor with trusted shortcut fields even when no category can be inferred', async () => {
@@ -308,6 +327,49 @@ describe('personal record editor adapter', () => {
     expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
     expect(container.querySelector<HTMLInputElement>('[data-record-editor-note] input')?.value).toBe('未知商户');
     expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('18.60');
+  });
+
+  it('confirms an Agent record with the success presentation only', async () => {
+    const toast = vi.spyOn(Toast, 'show');
+    const router = createMemoryRouter([
+      { path: '/bookkeeping', element: createElement(BookkeepingPage) },
+      { path: '/agent', element: createElement('div', null, 'agent') },
+    ], {
+      initialEntries: [{
+        pathname: '/bookkeeping',
+        state: {
+          agentRecordDraft: {
+            actionId: 'action-1',
+            category: { icon: 'food', id: 1, name: '餐饮', type: 'sub' },
+            conversationId: 'conversation-1',
+            record: {
+              amount: '12.5',
+              categoryId: 1,
+              remark: '午餐',
+              time: '2026-09-12T04:00:00.000Z',
+              type: 'sub',
+            },
+          },
+        },
+      }],
+    });
+    const container = renderRouter(router);
+
+    await act(async () => {
+      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      await Promise.resolve();
+    });
+
+    expect(hooks.confirmAgentAction).toHaveBeenCalledWith({
+      actionId: 'action-1',
+      record: expect.objectContaining({ amount: '12.5', categoryId: 1, type: 'sub' }),
+    });
+    expect(container.querySelector('[role="status"]')).toBeNull();
+    expect(toast.mock.calls.some(([options]) => typeof options === 'object' && options !== null && 'icon' in options && options.icon === 'success')).toBe(false);
+
+    expect(router.state.location.pathname).toBe('/agent');
+    expect(router.state.location.search).toBe('?conversationId=conversation-1');
+    toast.mockRestore();
   });
 
   it('returns from shortcut bookkeeping without waiting for draft cleanup', async () => {
@@ -382,6 +444,7 @@ describe('personal record editor adapter', () => {
   });
 
   it('returns a household-originated draft to the same household calendar', async () => {
+    const toast = vi.spyOn(Toast, 'show');
     const selectTime = new Date('2026-07-21T12:00:00.000Z').valueOf();
     const router = createMemoryRouter([
       { path: '/bookkeeping', element: createElement(BookkeepingPage) },
@@ -416,13 +479,17 @@ describe('personal record editor adapter', () => {
       [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
       await Promise.resolve();
     });
+    expect(container.querySelector('[role="status"]')).toBeNull();
+    expect(toast.mock.calls.some(([options]) => typeof options === 'object' && options !== null && 'icon' in options && options.icon === 'success')).toBe(false);
 
     expect(hooks.postRecord).toHaveBeenCalledTimes(1);
     expect(router.state.location.pathname).toBe('/households/household%2Fa/calendar');
     expect(router.state.location.search).toBe(`?selectTime=${selectTime}`);
+    toast.mockRestore();
   });
 
   it('accepts the legacy raw record state and preserves its optimistic version', async () => {
+    const toast = vi.spyOn(Toast, 'show');
     const legacyRecord = {
       amount: '20.00',
       category: {
@@ -452,12 +519,15 @@ describe('personal record editor adapter', () => {
       [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
       await Promise.resolve();
     });
+    expect(container.querySelector('[role="status"]')).toBeNull();
+    expect(toast.mock.calls.some(([options]) => typeof options === 'object' && options !== null && 'icon' in options && options.icon === 'success')).toBe(false);
 
     expect(hooks.putRecord).toHaveBeenCalledWith({
       data: expect.objectContaining({ amount: '20', version: 3 }),
       id: '7',
     });
     expect(router.state.location.pathname).toBe('/editing/7');
+    toast.mockRestore();
   });
 
   it('keeps a personal detail amount after the editor effects settle', async () => {
