@@ -2,11 +2,22 @@ export type ShortcutDraftSource = 'ALIPAY' | 'UNKNOWN' | 'WECHAT';
 export type ShortcutDraftStatus = 'CLAIMED' | 'DISCARDED' | 'EXPIRED' | 'NEEDS_REVIEW' | 'SAVED';
 
 export interface ShortcutRecordLocationSnapshot {
-  accuracy: number;
-  capturedAt: string;
+  source?: 'device' | 'poi';
+  coordinateSystem?: 'wgs84' | 'gcj02';
+  accuracy?: number;
+  capturedAt?: string;
   latitude: number;
   longitude: number;
   name?: string;
+  provider?: 'tencent';
+  poiId?: string;
+  address?: string;
+  adcode?: number;
+  province?: string;
+  city?: string;
+  district?: string;
+  category?: string;
+  selectedAt?: string;
 }
 
 export interface ShortcutAccessTokenSummary {

@@ -6,13 +6,14 @@ import type {
 } from './types';
 import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
 import type {
+  CurrentLocationFix,
   RecordLocation,
   RecordLocationCandidatesResult,
 } from '@/entities/record';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { money } from '@/shared/lib';
-import { requestCurrentRecordLocation } from './record-location';
+import { requestCurrentLocationFix } from './record-location';
 import { useCalculator } from './useCalculator';
 
 interface RecordEditorControllerOptions {
@@ -23,9 +24,9 @@ interface RecordEditorControllerOptions {
   supportsTags?: boolean;
   isEditing?: boolean;
   onUploadImage?: (file: File) => Promise<string>;
-  locate?: () => Promise<RecordLocation>;
+  locate?: () => Promise<CurrentLocationFix | RecordLocation>;
   resolveLocationCandidates?: (
-    location: RecordLocation,
+    location: Pick<CurrentLocationFix, 'latitude' | 'longitude'>,
   ) => Promise<RecordLocationCandidatesResult>;
 }
 
@@ -37,7 +38,7 @@ export function useRecordEditorController({
   supportsTags = false,
   isEditing = false,
   onUploadImage,
-  locate = requestCurrentRecordLocation,
+  locate = requestCurrentLocationFix,
   resolveLocationCandidates,
 }: RecordEditorControllerOptions) {
   const calculator = useCalculator({

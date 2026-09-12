@@ -47,7 +47,7 @@ const RecordDetail: FC<{
         },
         createdAt: record.time,
         id: record.id,
-        location: record.location,
+        location: record.location as RecordEntry['location'],
         remark: record.remark,
         attachments: record.attachments,
         tags: record.tags,
@@ -129,9 +129,9 @@ const RecordDetail: FC<{
         { ...(record.remark ? { copyValue: record.remark } : {}), label: t('recordDetail.remark'), value: record.remark || t('recordDetail.none') },
         ...(record.location
           ? [{
-              copyValue: `${formatRecordLocationLabel(record.location)} · ${formatRecordLocationCoordinates(record.location)}`,
+              copyValue: `${formatRecordLocationLabel(record.location as NonNullable<RecordEntry['location']>)} · ${formatRecordLocationCoordinates(record.location)}`,
               label: t('record:edit.location'),
-              value: formatRecordLocationLabel(record.location),
+              value: formatRecordLocationLabel(record.location as NonNullable<RecordEntry['location']>),
             }]
           : []),
       ]}

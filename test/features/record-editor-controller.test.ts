@@ -121,6 +121,7 @@ beforeEach(() => {
   locate.mockResolvedValue({
     accuracy: 18.4,
     capturedAt: '2026-09-09T10:11:12.000Z',
+    coordinateSystem: 'wgs84',
     latitude: 22.817,
     longitude: 108.366,
   });
@@ -310,7 +311,7 @@ describe('record editor controller', () => {
     expect(submit).toHaveBeenCalledWith(expect.objectContaining({ linkedAssetId: null }));
   });
 
-  it('adds a confirmed current location and lets the user name it before saving', async () => {
+  it('adds a confirmed device location when no nearby POI is available', async () => {
     const container = renderEditor({ amount: '20' });
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-location-trigger]')?.click());
     await act(async () => {
@@ -319,12 +320,8 @@ describe('record editor controller', () => {
         ?.click();
       await Promise.resolve();
     });
-    const nameInput = document.body.querySelector<HTMLInputElement>('[data-record-location-name-input]');
-    act(() => {
-      if (nameInput) {
-        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(nameInput, '万象城');
-        nameInput.dispatchEvent(new Event('input', { bubbles: true }));
-      }
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 20));
     });
     act(() => {
       [...document.body.querySelectorAll<HTMLButtonElement>('button')]
@@ -335,11 +332,12 @@ describe('record editor controller', () => {
 
     expect(submit).toHaveBeenCalledWith(expect.objectContaining({
       location: {
+        source: 'device',
+        coordinateSystem: 'wgs84',
         accuracy: 18.4,
         capturedAt: '2026-09-09T10:11:12.000Z',
         latitude: 22.817,
         longitude: 108.366,
-        name: '万象城',
       },
     }));
   });
@@ -390,6 +388,7 @@ describe('record editor controller', () => {
     locate.mockResolvedValueOnce({
       accuracy: 25,
       capturedAt: '2026-09-09T10:12:00.000Z',
+      coordinateSystem: 'wgs84',
       latitude: 22.818,
       longitude: 108.367,
     });

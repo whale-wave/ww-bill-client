@@ -1,10 +1,42 @@
-export interface RecordLocation {
+export interface LegacyDeviceRecordLocation {
   accuracy: number;
   capturedAt: string;
   latitude: number;
   longitude: number;
   name?: string;
 }
+
+export interface DeviceRecordLocation extends LegacyDeviceRecordLocation {
+  source: 'device';
+  coordinateSystem: 'wgs84';
+}
+
+export interface PoiRecordLocation {
+  source: 'poi';
+  provider: 'tencent';
+  coordinateSystem: 'gcj02';
+  poiId: string;
+  name: string;
+  address?: string;
+  adcode?: number;
+  province?: string;
+  city?: string;
+  district?: string;
+  category?: string;
+  latitude: number;
+  longitude: number;
+  selectedAt: string;
+}
+
+export interface CurrentLocationFix {
+  accuracy: number;
+  capturedAt: string;
+  coordinateSystem: 'wgs84';
+  latitude: number;
+  longitude: number;
+}
+
+export type RecordLocation = LegacyDeviceRecordLocation | DeviceRecordLocation | PoiRecordLocation;
 
 export interface RecordEntry {
   amount: string;

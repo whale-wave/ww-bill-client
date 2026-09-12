@@ -10,8 +10,17 @@ import { request } from '@/shared/api';
 
 export interface RecordLocationCandidate {
   id: string;
+  provider: 'tencent';
+  coordinateSystem: 'gcj02';
   name: string;
   address?: string;
+  adcode?: number;
+  province?: string;
+  city?: string;
+  district?: string;
+  category?: string;
+  latitude: number;
+  longitude: number;
   distanceMeters?: number;
 }
 
@@ -32,6 +41,23 @@ export async function postRecordLocationCandidatesApi(
     { loading: false, silent: true },
   );
   return response.data;
+}
+
+export interface SearchRecordLocationsParams {
+  keyword: string;
+  bias?: Pick<RecordLocation, 'latitude' | 'longitude'>;
+}
+
+export async function searchRecordLocationsApi(
+  params: SearchRecordLocationsParams,
+  options?: { signal?: AbortSignal },
+): Promise<RecordLocationCandidate[]> {
+  const response = await request.post<unknown, SuccessResponse<{ results: RecordLocationCandidate[] }>>(
+    '/record/location/search',
+    params,
+    { loading: false, silent: true, signal: options?.signal },
+  );
+  return response.data.results;
 }
 
 export interface GetRecordByIdApiParams {

@@ -146,11 +146,22 @@ export interface FamilyRecord {
   type: 'add' | 'sub';
   amount: string;
   location?: {
-    accuracy: number;
-    capturedAt: string;
+    source?: 'device' | 'poi';
+    coordinateSystem?: 'wgs84' | 'gcj02';
+    accuracy?: number;
+    capturedAt?: string;
     latitude: number;
     longitude: number;
     name?: string;
+    provider?: 'tencent';
+    poiId?: string;
+    address?: string;
+    adcode?: number;
+    province?: string;
+    city?: string;
+    district?: string;
+    category?: string;
+    selectedAt?: string;
   } | null;
   originalAmount?: string;
   adjustmentSummary?: {

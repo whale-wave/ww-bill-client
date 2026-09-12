@@ -1,4 +1,4 @@
-import type { RecordLocation } from '@/entities/record';
+import type { CurrentLocationFix } from '@/entities/record';
 import { Capacitor, registerPlugin } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 
@@ -61,7 +61,7 @@ function mapLocationError(error: unknown): RecordLocationRequestError {
   return new RecordLocationRequestError('unknown');
 }
 
-export async function requestCurrentRecordLocation(): Promise<RecordLocation> {
+export async function requestCurrentLocationFix(): Promise<CurrentLocationFix> {
   try {
     if (!Capacitor.isNativePlatform() && typeof window !== 'undefined' && !window.isSecureContext)
       throw new RecordLocationRequestError('unavailable');
@@ -84,6 +84,7 @@ export async function requestCurrentRecordLocation(): Promise<RecordLocation> {
     return {
       accuracy: Math.max(0, position.coords.accuracy),
       capturedAt: new Date(position.timestamp || Date.now()).toISOString(),
+      coordinateSystem: 'wgs84',
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
     };
@@ -92,6 +93,8 @@ export async function requestCurrentRecordLocation(): Promise<RecordLocation> {
     throw mapLocationError(error);
   }
 }
+
+export const requestCurrentRecordLocation = requestCurrentLocationFix;
 
 export function getRecordLocationErrorReason(error: unknown): RecordLocationErrorReason {
   return mapLocationError(error).reason;
