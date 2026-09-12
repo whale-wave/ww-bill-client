@@ -101,15 +101,21 @@ export function getRecordLocationErrorReason(error: unknown): RecordLocationErro
 }
 
 export function canOpenNativeLocationSettings() {
-  return Capacitor.getPlatform() === 'android';
+  return Capacitor.isNativePlatform();
 }
 
 export async function openNativeLocationSettings(kind: 'app' | 'services') {
   if (!canOpenNativeLocationSettings())
     return false;
-  if (kind === 'services')
-    await NativeAppSettings.openLocationSettings();
-  else
-    await NativeAppSettings.openAppSettings();
+  if (Capacitor.getPlatform() === 'android') {
+    if (kind === 'services')
+      await NativeAppSettings.openLocationSettings();
+    else
+      await NativeAppSettings.openAppSettings();
+  }
+  else if (typeof window !== 'undefined') {
+    // iOS exposes the app's permission page through this system URL scheme.
+    window.location.href = 'app-settings:';
+  }
   return true;
 }

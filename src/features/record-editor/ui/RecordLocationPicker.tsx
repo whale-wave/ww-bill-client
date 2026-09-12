@@ -134,15 +134,17 @@ export function RecordLocationPicker({
     setIsResolvingLocation(false);
   }, []);
   const handleOpenSettings = useCallback(async () => {
-    await openNativeLocationSettings(
+    const opened = await openNativeLocationSettings(
       errorReason === 'services-disabled' ? 'services' : 'app',
     ).catch(() => undefined);
+    if (!opened)
+      setErrorReason('permission-denied');
   }, [errorReason]);
   const canConfirm = draftLocation === null || Boolean(draftLocation);
 
   return (
     <AppSheet
-      bodyClassName="flex max-h-[78vh] flex-col overflow-hidden"
+      bodyClassName="ww-app-sheet--fullscreen flex h-[100dvh] max-h-none flex-col overflow-hidden"
       destroyOnClose
       onClose={onClose}
       onMaskClick={onClose}

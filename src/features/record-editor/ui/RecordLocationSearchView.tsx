@@ -60,16 +60,16 @@ export function RecordLocationSearchView({ bias, onBack, onSelect }: RecordLocat
   }, [bias, debouncedKeyword, retryCount]);
 
   return (
-    <div className="px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-2">
-      <button className="mb-3 flex min-h-10 items-center gap-2 border-0 bg-transparent px-0 text-[13px] font-bold text-primary-deep" onClick={onBack} type="button">
+    <div className="flex min-h-0 flex-1 flex-col px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-2">
+      <button className="mb-3 flex min-h-10 shrink-0 items-center gap-2 border-0 bg-transparent px-0 text-[13px] font-bold text-primary-deep" onClick={onBack} type="button">
         <ArrowLeft aria-hidden="true" size={17} />
         {t('location.backToNearby')}
       </button>
-      <label className="flex h-11 items-center gap-2 rounded-[13px] border border-border-primary bg-surface-subtle px-3 focus-within:border-primary">
+      <label className="flex h-12 shrink-0 items-center gap-2 rounded-[15px] border border-border-primary bg-surface-subtle px-3 transition-colors focus-within:border-primary">
         <Search aria-hidden="true" className="text-ww-soft" size={17} />
         <input
           autoFocus
-          className="min-w-0 flex-1 border-0 bg-transparent text-[14px] font-semibold text-ww-ink outline-none"
+          className="ww-sheet-plain-input min-w-0 flex-1 border-0 bg-transparent text-[14px] font-semibold text-ww-ink outline-none"
           maxLength={96}
           onChange={event => setKeyword(event.target.value)}
           placeholder={bias ? t('location.searchPlaceholder') : t('location.searchPlaceholderWithoutLocation')}
@@ -77,7 +77,7 @@ export function RecordLocationSearchView({ bias, onBack, onSelect }: RecordLocat
           value={keyword}
         />
       </label>
-      <div className="mt-4 text-[12px] font-bold text-ww-soft">{t('location.searchResults')}</div>
+      <div className="mt-5 shrink-0 text-[12px] font-bold text-ww-soft">{t('location.searchResults')}</div>
       {isLoading && <div className="mt-3 text-[12px] font-semibold text-ww-soft">{t('location.searching')}</div>}
       {!isLoading && hasError && (
         <div className="mt-3 flex items-center justify-between text-[12px] font-semibold text-ww-soft">
@@ -88,7 +88,7 @@ export function RecordLocationSearchView({ bias, onBack, onSelect }: RecordLocat
       {!isLoading && !hasError && debouncedKeyword.length >= 2 && results.length === 0 && (
         <div className="mt-3 text-[12px] font-semibold text-ww-soft">{t('location.searchEmpty')}</div>
       )}
-      <div className="mt-2 divide-y divide-border-primary">
+      <div className="mt-2 min-h-0 flex-1 overflow-y-auto divide-y divide-border-primary">
         {!isLoading && !hasError && results.map(result => (
           <button className="flex w-full items-start gap-3 py-3 text-left" key={`${result.provider}:${result.id}`} onClick={() => onSelect(createPoiRecordLocation(result))} type="button">
             <Search aria-hidden="true" className="mt-0.5 shrink-0 text-primary-deep" size={16} />
