@@ -55,18 +55,23 @@ const Login: FC = () => {
   ], [t]);
 
   const handleLogin = useCallback(async () => {
-    const { statusCode, data } = await login(
-      loginType === 'username' ? userNameForm : emailForm,
-    );
-    if (statusCode === 200) {
-      const runtime = startSession(data.token, data.userInfo.userId || String(data.userInfo.id));
-      (runtime?.queryClient ?? queryClient).setQueryData(userKeys.info(), {
-        statusCode: 200,
-        message: '',
-        data: data.userInfo,
-      });
-      const redirectLocation = getSafeRedirectLocation(location.state?.from);
-      setTimeout(navigate, 1000, redirectLocation, { replace: true });
+    try {
+      const { statusCode, data } = await login(
+        loginType === 'username' ? userNameForm : emailForm,
+      );
+      if (statusCode === 200) {
+        const runtime = startSession(data.token, data.userInfo.userId || String(data.userInfo.id));
+        (runtime?.queryClient ?? queryClient).setQueryData(userKeys.info(), {
+          statusCode: 200,
+          message: '',
+          data: data.userInfo,
+        });
+        const redirectLocation = getSafeRedirectLocation(location.state?.from);
+        setTimeout(navigate, 1000, redirectLocation, { replace: true });
+      }
+    }
+    catch {
+      // HTTP interceptor displays error prompt automatically
     }
   }, [emailForm, location.state, loginType, navigate, queryClient, startSession, userNameForm]);
 

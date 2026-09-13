@@ -34,21 +34,26 @@ const ForgetPasswordReset: FC = () => {
     }
     setValidationError(undefined);
 
-    const response = await postAuthPasswordForgetResetApi({
-      email,
-      captcha,
-      password,
-      confirmPassword,
-    });
+    try {
+      const response = await postAuthPasswordForgetResetApi({
+        email,
+        captcha,
+        password,
+        confirmPassword,
+      });
 
-    if (response.statusCode === 4005) {
-      navigate('/forget-password', { replace: true });
+      if (response.statusCode === 4005) {
+        navigate('/forget-password', { replace: true });
+      }
+      else if (response.statusCode === 200) {
+        navigate('/login', { replace: true });
+      }
+      else {
+        showAppError(undefined, { message: response.message, fallbackMessage: t('forgetPassword.resetFailed') });
+      }
     }
-    else if (response.statusCode === 200) {
-      navigate('/login', { replace: true });
-    }
-    else {
-      showAppError(undefined, { message: response.message, fallbackMessage: t('forgetPassword.resetFailed') });
+    catch {
+      // HTTP interceptor displays error prompt automatically
     }
   }, [captcha, confirmPassword, email, navigate, password, t]);
 

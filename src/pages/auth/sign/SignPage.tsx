@@ -18,15 +18,20 @@ const Sign: FC = () => {
   const queryClient = useQueryClient();
 
   const handleSign = async () => {
-    const { statusCode, data } = await sign(form);
-    if (statusCode === 200) {
-      const runtime = startSession(data.token, data.userInfo.userId || String(data.userInfo.id));
-      (runtime?.queryClient ?? queryClient).setQueryData(userKeys.info(), {
-        statusCode: 200,
-        message: '',
-        data: data.userInfo,
-      });
-      setTimeout(navigate, 1000, '/');
+    try {
+      const { statusCode, data } = await sign(form);
+      if (statusCode === 200) {
+        const runtime = startSession(data.token, data.userInfo.userId || String(data.userInfo.id));
+        (runtime?.queryClient ?? queryClient).setQueryData(userKeys.info(), {
+          statusCode: 200,
+          message: '',
+          data: data.userInfo,
+        });
+        setTimeout(navigate, 1000, '/');
+      }
+    }
+    catch {
+      // HTTP interceptor displays error prompt automatically
     }
   };
 

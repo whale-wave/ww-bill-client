@@ -32,11 +32,16 @@ const ForgetPasswordVerifyCode: FC = () => {
   }, [email]);
 
   const handleSubmit = useCallback(async () => {
-    const response = await getToolsForgetPasswordEmailVerifyCodeApi({ email, captcha });
-    if (response.statusCode === 200) {
-      setTimeout(() => {
-        navigate(buildResetPath({ captcha, email }), { replace: true });
-      }, 400);
+    try {
+      const response = await getToolsForgetPasswordEmailVerifyCodeApi({ email, captcha });
+      if (response.statusCode === 200) {
+        setTimeout(() => {
+          navigate(buildResetPath({ captcha, email }), { replace: true });
+        }, 400);
+      }
+    }
+    catch {
+      // HTTP interceptor displays error prompt automatically
     }
   }, [captcha, email, navigate]);
 

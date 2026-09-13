@@ -242,6 +242,8 @@
   line-height: 1.55;
   text-align: left;
   text-wrap: pretty;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .ww-app-action-sheet > .adm-popup-body,

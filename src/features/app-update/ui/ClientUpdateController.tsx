@@ -1,18 +1,19 @@
 import type { FC } from 'react';
 import type { ClientReleaseManifest } from '@/entities/app-release';
+import type { UserNotification } from '@/entities/notification';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
 import { appReleaseKeys, clientLatestReleaseQueryOptions, formatClientReleaseDescription, getInstalledAndroidVersion, isAndroidClientUpdateAvailable } from '@/entities/app-release';
-import { markNotificationReadApi, notificationKeys, useNotificationsQuery, UserNotificationStatus, UserNotificationType } from '@/entities/notification';
+import { markNotificationReadApi, NotificationDetailContent, notificationKeys, useNotificationsQuery, UserNotificationStatus, UserNotificationType } from '@/entities/notification';
 import { useAuthStore } from '@/features/auth';
 import { getAppSocket } from '@/shared/api/socket';
 import { APP_INFO } from '@/shared/config/app-info';
 import { fetchBuildInfo, refreshForBuild } from '@/shared/config/build-info';
 import { useTranslation } from '@/shared/i18n';
 import { openExternalUrl } from '@/shared/lib';
-import { showAppActionSheet, showAppInfoDialog } from '@/shared/ui';
+import { confirmAppAction, showAppInfoDialog } from '@/shared/ui';
 
 const REMINDER_KEY = 'client-release-reminder';
 const SEEN_KEY = 'client-release-seen';
@@ -71,27 +72,62 @@ export const ClientUpdateController: FC = () => {
     queryOptions: { enabled: Boolean(token) },
   });
   const shownGeneralRef = useRef<string | null>(null);
+  const realtimeNoticeIdRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    const notice = notificationsQuery.data.find(item => item.type === UserNotificationType.SYSTEM_ANNOUNCEMENT
-      && item.status === UserNotificationStatus.UNREAD
-      && (Boolean(item.payload?.promptEnabled) || item.payload?.promptLevel === 'important'));
-    if (!notice || shownGeneralRef.current === notice.id)
+  const triggerNoticeDialog = useCallback((notice: UserNotification) => {
+    const noticeKey = `${notice.id}:${notice.version}`;
+    if (shownGeneralRef.current === noticeKey)
       return;
-    shownGeneralRef.current = notice.id;
-
-    void markNotificationReadApi(notice.id, notice.version)
-      .then(() => {
-        void queryClient.invalidateQueries(notificationKeys.all);
-      })
-      .catch(() => undefined);
+    shownGeneralRef.current = noticeKey;
 
     showAppInfoDialog({
       confirmText: t('aboutSupport.gotIt'),
-      description: notice.content,
+      description: (
+        <NotificationDetailContent
+          content={notice.content}
+          createdAt={notice.createdAt}
+          payload={notice.payload}
+          type={t(`message.notificationCenter.types.${notice.type}`, { defaultValue: notice.type })}
+        />
+      ),
       title: notice.title,
+    }).then(() => {
+      void markNotificationReadApi(notice.id, notice.version)
+        .then(() => {
+          void queryClient.invalidateQueries(notificationKeys.all);
+        })
+        .catch(() => undefined);
     });
-  }, [notificationsQuery.data, queryClient, t]);
+  }, [queryClient, t]);
+
+  useEffect(() => {
+    if (!token || !notificationsQuery.data)
+      return;
+
+    const unreadNotices = notificationsQuery.data.filter(item =>
+      (item.type === UserNotificationType.SYSTEM_ANNOUNCEMENT || item.type === UserNotificationType.CLIENT_RELEASE)
+      && item.status === UserNotificationStatus.UNREAD,
+    );
+
+    // 1. Mandatory Important Notifications: Always prompt on launch/resume until acknowledged
+    const importantNotice = unreadNotices.find(item => item.payload?.promptLevel === 'important');
+    if (importantNotice) {
+      triggerNoticeDialog(importantNotice);
+      return;
+    }
+
+    // 2. Real-time Online Push Notification: Prompt right when received while online
+    if (realtimeNoticeIdRef.current) {
+      const targetId = realtimeNoticeIdRef.current;
+      realtimeNoticeIdRef.current = null;
+      const pushNotice = unreadNotices.find(item =>
+        item.id === targetId && Boolean(item.payload?.promptEnabled),
+      );
+      if (pushNotice) {
+        triggerNoticeDialog(pushNotice);
+      }
+    }
+  }, [notificationsQuery.data, token, triggerNoticeDialog]);
 
   const showWebRelease = useCallback(async (release: ClientReleaseManifest) => {
     const releaseKey = getReleaseKey(release, 'web');
@@ -108,13 +144,11 @@ export const ClientUpdateController: FC = () => {
       if (readStoredValue(SEEN_KEY) === releaseKey)
         return;
       rememberSeen(releaseKey);
-      showAppActionSheet({
-        actions: [{ key: 'acknowledge', text: t('aboutSupport.gotIt') }],
+      showAppInfoDialog({
+        confirmText: t('aboutSupport.gotIt'),
         description,
         title: t('aboutSupport.updatedTitle', { version: release.versionName }),
       });
-      if (release.noticeId)
-        void markNotificationReadApi(`system:${release.noticeId}`, 1).catch(() => undefined);
       return;
     }
 
@@ -122,21 +156,15 @@ export const ClientUpdateController: FC = () => {
       if (wasRecentlyReminded(releaseKey))
         return;
       rememberReminder(releaseKey);
-      showAppActionSheet({
-        actions: [
-          {
-            key: 'update',
-            text: t('aboutSupport.webUpdateNow'),
-            onClick: () => refreshForBuild(window.location, deployedBuild.buildId),
-          },
-          { key: 'later', text: t('aboutSupport.later') },
-        ],
-        cancelText: t('common:actions.cancel'),
+      const confirmed = await confirmAppAction({
+        cancelText: t('aboutSupport.later'),
+        confirmText: t('aboutSupport.webUpdateNow'),
         description,
         title: t('aboutSupport.updateAvailable'),
       });
-      if (release.noticeId)
-        void markNotificationReadApi(`system:${release.noticeId}`, 1).catch(() => undefined);
+      if (confirmed) {
+        refreshForBuild(window.location, deployedBuild.buildId);
+      }
     }
   }, [t]);
 
@@ -149,20 +177,20 @@ export const ClientUpdateController: FC = () => {
     if (wasRecentlyReminded(releaseKey))
       return;
     rememberReminder(releaseKey);
-    showAppActionSheet({
-      actions: [
-        { key: 'update', text: t('aboutSupport.downloadUpdate'), onClick: () => void openExternalUrl(release.android.downloadUrl) },
-        { key: 'later', text: t('aboutSupport.later') },
-      ],
-      cancelText: t('common:actions.cancel'),
+    const confirmed = await confirmAppAction({
+      cancelText: t('aboutSupport.later'),
+      confirmText: t('aboutSupport.downloadUpdate'),
       description: formatClientReleaseDescription(release, t('aboutSupport.updateAvailable')),
       title: t('aboutSupport.updateAvailable'),
     });
-    if (release.noticeId)
-      void markNotificationReadApi(`system:${release.noticeId}`, 1).catch(() => undefined);
+    if (confirmed) {
+      void openExternalUrl(release.android.downloadUrl);
+    }
   }, [t]);
 
   const check = useCallback(async (force = false) => {
+    if (!token)
+      return;
     const platform = Capacitor.getPlatform();
     if (!['android', 'web'].includes(platform) || checkingRef.current)
       return;
@@ -180,25 +208,45 @@ export const ClientUpdateController: FC = () => {
     finally {
       checkingRef.current = false;
     }
-  }, [queryClient, showAndroidRelease, showWebRelease]);
+  }, [queryClient, showAndroidRelease, showWebRelease, token]);
+
+  const lastRefreshTimeRef = useRef<number>(0);
+
+  const refreshAll = useCallback(async (force = false) => {
+    if (!token)
+      return;
+    const now = Date.now();
+    if (!force && now - lastRefreshTimeRef.current < 3000)
+      return;
+    lastRefreshTimeRef.current = now;
+
+    void queryClient.invalidateQueries(notificationKeys.all);
+    void queryClient.invalidateQueries(appReleaseKeys.all);
+    void check(force);
+  }, [check, queryClient, token]);
 
   useEffect(() => {
-    void check();
-    const handleOnline = () => void check(true);
+    if (!token)
+      return;
+
+    void refreshAll();
+    const handleOnline = () => void refreshAll();
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible')
-        void check(true);
+        void refreshAll();
     };
-    const handlePageShow = () => void check(true);
+    const handlePageShow = () => void refreshAll();
 
     const socket = getAppSocket();
-    const handleSocketNotification = () => {
-      void queryClient.invalidateQueries(notificationKeys.all);
-      void queryClient.invalidateQueries(appReleaseKeys.all);
-      void notificationsQuery.refetch();
-      void check(true);
+    const handleSocketNotification = (data?: { id?: number }) => {
+      if (data?.id) {
+        realtimeNoticeIdRef.current = `system:${data.id}`;
+      }
+      void refreshAll(true);
     };
+    const handleSocketConnect = () => void refreshAll();
 
+    socket?.on('connect', handleSocketConnect);
     socket?.on('notification:published', handleSocketNotification);
     socket?.on('notification:updated', handleSocketNotification);
     socket?.on('notification:deleted', handleSocketNotification);
@@ -209,9 +257,10 @@ export const ClientUpdateController: FC = () => {
     let removeAppListener: (() => void) | undefined;
     void App.addListener('appStateChange', ({ isActive }) => {
       if (isActive)
-        void check(true);
+        void refreshAll();
     }).then((listener) => { removeAppListener = () => listener.remove(); });
     return () => {
+      socket?.off('connect', handleSocketConnect);
       socket?.off('notification:published', handleSocketNotification);
       socket?.off('notification:updated', handleSocketNotification);
       socket?.off('notification:deleted', handleSocketNotification);
@@ -220,7 +269,7 @@ export const ClientUpdateController: FC = () => {
       window.removeEventListener('pageshow', handlePageShow);
       removeAppListener?.();
     };
-  }, [check, notificationsQuery, queryClient]);
+  }, [refreshAll, token]);
 
   return null;
 };

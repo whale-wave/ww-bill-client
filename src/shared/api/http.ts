@@ -93,10 +93,10 @@ request.interceptors.response.use(
     const current = !identity || isTransitionCurrent(identity);
     const requestError = createRequestError(responseData, 'http');
     const authMessage = processAuthFailure(responseData.statusCode, identity);
-    if (!config?.silent && current && authMessage) {
+    if (!config?.silent && current) {
       showAppError(requestError, {
-        dedupeKey: `auth:${responseData.statusCode}`,
-        message: authMessage,
+        dedupeKey: `http:${responseData.statusCode}:${requestError.message}`,
+        message: authMessage ?? requestError.message,
       });
     }
     return Promise.reject(requestError);

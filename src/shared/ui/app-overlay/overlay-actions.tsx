@@ -23,6 +23,7 @@ interface AppActionSheetOptions {
 }
 
 interface AppInfoOptions {
+  closeOnMaskClick?: boolean;
   confirmText?: ReactNode;
   description?: ReactNode;
   icon?: ReactNode;
@@ -95,6 +96,7 @@ export function showAppActionSheet({
 }
 
 export function showAppInfoDialog({
+  closeOnMaskClick = false,
   confirmText,
   description,
   icon = <CircleHelp size={22} strokeWidth={1.8} />,
@@ -102,7 +104,7 @@ export function showAppInfoDialog({
 }: AppInfoOptions) {
   return Dialog.alert({
     bodyClassName: 'ww-app-dialog ww-app-dialog--primary',
-    closeOnMaskClick: true,
+    closeOnMaskClick,
     confirmText,
     content: typeof description === 'string'
       ? <p className="ww-app-dialog__description">{description}</p>

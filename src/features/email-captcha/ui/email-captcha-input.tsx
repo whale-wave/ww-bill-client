@@ -81,7 +81,9 @@ export const EmailCaptchaInput: FC<EmailCaptchaInputProps> = ({
         });
       }
     }
-    catch {}
+    catch (error) {
+      showAppError(error);
+    }
     finally {
       setIsSending(false);
     }

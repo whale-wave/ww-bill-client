@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import appAvatar from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
 import {
+  NotificationDetailContent,
   useArchiveNotificationsMutation,
   useMarkNotificationReadMutation,
   useNotificationsQuery,
@@ -153,28 +154,15 @@ const Message: FC = () => {
       navigate(target);
     }
     else {
-      const coverUrl = typeof notification.payload?.cover === 'string' ? notification.payload.cover : undefined;
       showAppInfoDialog({
         confirmText: t('nav.confirm'),
         description: (
-          <div className="space-y-3 pt-1 text-left">
-            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-ww-soft">
-              <span className="rounded-full bg-ww-surface-tint px-2.5 py-0.5 font-medium text-ww-mid">
-                {t(`message.notificationCenter.types.${notification.type}`, { defaultValue: notification.type })}
-              </span>
-              <time dateTime={notification.createdAt}>{showDate(notification.createdAt)}</time>
-            </div>
-            {coverUrl && (
-              <img
-                alt=""
-                className="max-h-48 w-full rounded-lg object-cover shadow-ww-xs"
-                src={coverUrl}
-              />
-            )}
-            <div className="whitespace-pre-wrap break-words text-sm leading-relaxed text-ww-ink">
-              {notification.content}
-            </div>
-          </div>
+          <NotificationDetailContent
+            content={notification.content}
+            createdAt={showDate(notification.createdAt)}
+            payload={notification.payload}
+            type={t(`message.notificationCenter.types.${notification.type}`, { defaultValue: notification.type })}
+          />
         ),
         title: notification.title,
       });

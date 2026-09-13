@@ -178,4 +178,12 @@ describe('login redirect', () => {
     expect(router.state.location.pathname).toBe('/');
     expect(router.state.historyAction).toBe('REPLACE');
   });
+
+  it('handles login rejections without throwing unhandled promise rejection', async () => {
+    login.mockRejectedValue(new Error('密码错误'));
+    const { container, router } = renderAt('/login');
+
+    await expect(submitLogin(container)).resolves.not.toThrow();
+    expect(router.state.location.pathname).toBe('/login');
+  });
 });
