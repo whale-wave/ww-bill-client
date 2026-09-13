@@ -171,6 +171,6 @@ describe('custom ledger tab bar', () => {
     expect(hooks.prefetched).not.toContain('ledger-create');
     await click(createItem);
     expect(router.state.location.pathname).toBe('/ledgers/ledger-a/records');
-    expect(hooks.toast).toHaveBeenCalledWith('当前账本没有记账权限');
+    expect(hooks.toast).toHaveBeenCalledWith(expect.objectContaining({ content: '当前账本没有记账权限' }));
   });
 });

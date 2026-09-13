@@ -6,6 +6,7 @@ export interface CreateFeedbackInput {
   contact?: string;
   content: string;
   pageUrl?: string;
+  attachments?: string[];
 }
 
 export interface CreateFeedbackResult {

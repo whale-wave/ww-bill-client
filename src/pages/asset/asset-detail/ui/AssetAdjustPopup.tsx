@@ -1,13 +1,14 @@
 import type { PopupProps } from 'antd-mobile';
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
-import { Toast } from 'antd-mobile';
 import { CircleDollarSign } from 'lucide-react';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePatchAssetAdjustMutation } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, normalizeAmount } from '@/shared/lib';
 import { AppSheet } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 export interface AssetAdjustPopupProps extends PopupProps {
   onClose: () => void;
@@ -41,10 +42,9 @@ export const AssetAdjustPopup: FC<AssetAdjustPopupProps> = (props) => {
       });
       setAmount('');
       onClose();
-      Toast.show({ icon: 'success', content: t('adjust.success') });
     }
     catch {
-      Toast.show({ icon: 'fail', content: t('adjust.failed') });
+      showAppError({ icon: 'fail', content: t('adjust.failed') });
     }
   }, [amount, asset.id, mutation.isLoading, onClose, patchAssetAdjustMutate, t]);
 

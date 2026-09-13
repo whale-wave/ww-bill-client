@@ -1,4 +1,4 @@
-import { Button, Skeleton, Toast } from 'antd-mobile';
+import { Button, Skeleton } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import { Building2, Copy, FileWarning } from 'lucide-react';
 import React, { useCallback } from 'react';
@@ -10,6 +10,7 @@ import InvoiceInfo, {
 } from '@/pages/invoice/ui/InvoiceInfo';
 import { useTranslation } from '@/shared/i18n';
 import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
+import { showAppNotice } from '@/shared/ui/app-feedback';
 
 interface InvoiceDetailProps {}
 
@@ -29,7 +30,7 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = () => {
 
   const onCopyInvoiceInfo = useCallback(() => {
     if (!invoice) {
-      void Toast.show({
+      void showAppNotice({
         content: t('invoiceNotFetched'),
       });
       return;
@@ -40,7 +41,7 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = () => {
 
     copy(text);
 
-    void Toast.show({
+    void showAppNotice({
       content: t('common:confirm.copySuccess'),
     });
   }, [invoice, t]);

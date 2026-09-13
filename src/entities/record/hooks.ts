@@ -3,7 +3,6 @@ import type {
   UseInfiniteQueryOptions,
   UseQueryOptions,
 } from '@tanstack/react-query';
-import type { ToastHandler } from 'antd-mobile/es/components/toast';
 import type {
   GetRecordApiParams,
   GetRecordApiResponseData,
@@ -20,12 +19,10 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { Toast } from 'antd-mobile';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { agentKeys } from '@/entities/agent';
 import { chartKeys } from '@/entities/chart';
 import { assertSuccessApi, isSuccessApi } from '@/shared/api';
-import { i18n } from '@/shared/i18n';
 import {
   deleteLedgerRecordAdjustmentApi,
   deleteLedgerRecordApi,
@@ -546,24 +543,6 @@ export function useGetRecordBillQuery(options?: {
       return emptyBill;
     return response.data;
   }, [response]);
-
-  const loadingToastHandleRef = useRef<ToastHandler | null>(null);
-
-  useEffect(() => {
-    if (!isNotDataLoading && !loadingToastHandleRef.current)
-      return;
-
-    if (loadingToastHandleRef.current) {
-      loadingToastHandleRef.current.close();
-      loadingToastHandleRef.current = null;
-      return;
-    }
-    loadingToastHandleRef.current = Toast.show({
-      content: i18n.t('common:api.loading'),
-      duration: 0,
-      position: 'top',
-    });
-  }, [isNotDataLoading]);
 
   return {
     response,

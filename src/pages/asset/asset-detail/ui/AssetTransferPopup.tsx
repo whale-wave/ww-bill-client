@@ -1,13 +1,14 @@
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
-import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
+
 import { ArrowLeftRight, Banknote, CalendarDays, Check, ChevronDown } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { getAssetAccountTypeLabel, useGetAssetGroupQuery, useGetAssetQuery, usePostAssetTransferMutation } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { cn, normalizeAmount } from '@/shared/lib';
 import { AppSheet, promptAppDatePicker, SheetHeader } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import './AssetTransferPopup.scss';
 
 interface AssetTransferPopupProps {
@@ -52,10 +53,9 @@ const AssetTransferContent: FC<AssetTransferPopupProps> = ({ asset, onClose, vis
       setAmount('');
       setTargetAssetId('');
       handleClose();
-      Toast.show({ content: t('transfer.success'), icon: 'success' });
     }
     catch {
-      Toast.show({ content: t('transfer.failed'), icon: 'fail' });
+      showAppError({ content: t('transfer.failed'), icon: 'fail' });
     }
   };
 

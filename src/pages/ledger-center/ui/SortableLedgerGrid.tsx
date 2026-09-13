@@ -1,15 +1,7 @@
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import type { CSSProperties } from 'react';
 import type { LedgerListItem } from '@/entities/ledger';
-import {
-  closestCenter,
-  DndContext,
-  DragOverlay,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import { closestCenter, DndContext, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import {
   arrayMove,
   rectSortingStrategy,

@@ -2,9 +2,10 @@ import type { FC } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from '@/shared/i18n';
 import { stopPropagation } from '@/shared/lib';
+import { UserAvatar } from '@/shared/ui';
 
 interface UserFollowItemProps {
-  avatar?: string;
+  avatar?: string | null;
   username: string;
   followTime: string;
   isFollow?: boolean;
@@ -32,7 +33,7 @@ export const UserFollowItem: FC<UserFollowItemProps> = (p) => {
         onClick={props.onAvatar ?? props.onClick}
         type="button"
       >
-        <img src={props.avatar || ''} alt="" />
+        <UserAvatar alt={props.username} name={props.username} size={42} src={props.avatar} />
       </button>
       <button className={`${classPrefix}-box`} onClick={props.onClick} type="button">
         <span className={`${classPrefix}-box-username`}>{props.username}</span>

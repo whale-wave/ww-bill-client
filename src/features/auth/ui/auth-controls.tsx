@@ -4,20 +4,24 @@ import { cn } from '@/shared/lib';
 interface AuthPrimaryButtonProps {
   children: ReactNode;
   disabled?: boolean;
+  loading?: boolean;
+  loadingLabel?: ReactNode;
   onClick: () => void;
   testId?: string;
 }
 
-export function AuthPrimaryButton({ children, disabled, onClick, testId }: AuthPrimaryButtonProps) {
+export function AuthPrimaryButton({ children, disabled, loading, loadingLabel, onClick, testId }: AuthPrimaryButtonProps) {
   return (
     <button
       className="ww-theme-primary-action mt-6 flex h-[52px] w-full items-center justify-center rounded-[16px] border-0 text-[15px] font-bold transition active:opacity-85 disabled:cursor-not-allowed disabled:opacity-45"
       data-testid={testId}
-      disabled={disabled}
+      aria-busy={loading || undefined}
+      disabled={disabled || loading}
       onClick={onClick}
       type="button"
     >
-      {children}
+      {loading && <span aria-hidden="true" className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
+      {loading ? (loadingLabel ?? children) : children}
     </button>
   );
 }

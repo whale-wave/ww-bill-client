@@ -1,5 +1,6 @@
 export * from './action-menu-card';
 export * from './app-button';
+export * from './app-feedback';
 export * from './app-overlay';
 export { BottomAction, type BottomActionActionItem } from './bottom-action';
 export * from './bottom-tab-bar';
@@ -30,4 +31,5 @@ export * from './settings-list-card';
 export { default as Share } from './share';
 export * from './surface';
 export { TabList } from './tab-list';
+export * from './user-avatar';
 export { default as WwButton } from './ww-button/ww-button';

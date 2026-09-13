@@ -1,13 +1,7 @@
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import type { CSSProperties, FC, ReactNode } from 'react';
 import type { DiscoveryCardId } from '@/entities/user-app-config';
-import {
-  closestCenter,
-  DndContext,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import { closestCenter, DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import {
   arrayMove,
   SortableContext,
@@ -15,7 +9,6 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Toast } from 'antd-mobile';
 import { EyeOff, GripVertical, LayoutPanelTop } from 'lucide-react';
 import { m } from 'motion/react';
 import { useMemo, useState } from 'react';
@@ -31,6 +24,7 @@ import { useTranslation } from '@/shared/i18n';
 import { hapticFeedback } from '@/shared/lib/haptic-feedback';
 import { playSound } from '@/shared/lib/play-sound';
 import { useMotionPreference } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { TabBar } from '@/widgets/layout';
 
 interface DiscoveryCardPreference {
@@ -152,7 +146,7 @@ const Discovery: FC = () => {
     }
     catch {
       setLocalPreference(undefined);
-      Toast.show({ content: t('discoveryCards.saveFailed'), icon: 'fail' });
+      showAppError({ content: t('discoveryCards.saveFailed'), icon: 'fail' });
     }
   };
 

@@ -1,5 +1,3 @@
-import { Toast } from 'antd-mobile';
-import copy from 'copy-to-clipboard';
 import html2canvas from 'html2canvas-pro';
 import { Link2, Save, Share2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -7,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { APP_INFO } from '@/shared/config/app-info';
 import { useTranslation } from '@/shared/i18n';
+import { useCopyAction } from '@/shared/lib';
 import {
   canvasToPngBlob,
   getImageExportCaptureOptions,
@@ -15,6 +14,7 @@ import {
   waitForImageExportReady,
 } from '@/shared/lib/image-export';
 import { AppButton, AppSheet, PageHeader } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { InvitePoster } from './ui/InvitePoster';
 
 interface SavedPosterPreview {
@@ -40,6 +40,7 @@ function InviteFriendsPage() {
   const [qrCode, setQrCode] = useState<string>();
   const [isSaving, setIsSaving] = useState(false);
   const [savedPosterPreview, setSavedPosterPreview] = useState<SavedPosterPreview>();
+  const { copiedKey, copyText } = useCopyAction();
   const displayName = useMemo(
     () => userQuery.data?.name?.trim() || userQuery.data?.username?.trim() || t('inviteFriends.defaultName'),
     [t, userQuery.data?.name, userQuery.data?.username],
@@ -66,7 +67,7 @@ function InviteFriendsPage() {
       .catch((error) => {
         console.error('[invite-friends] QR generation failed', { error });
         if (active)
-          Toast.show({ content: qrGenerationErrorMessage, icon: 'fail' });
+          showAppError({ content: qrGenerationErrorMessage, icon: 'fail' });
       });
     return () => {
       active = false;
@@ -86,13 +87,10 @@ function InviteFriendsPage() {
       URL.revokeObjectURL(savedPosterPreview.url);
   }, [savedPosterPreview]);
 
-  const copyInvite = useCallback(() => {
+  const copyInvite = useCallback(async () => {
     const content = `${shareText}\n${APP_INFO.officialWebsiteUrl}`;
-    if (copy(content))
-      Toast.show({ content: t('inviteFriends.linkCopied'), icon: 'success' });
-    else
-      Toast.show({ content: t('inviteFriends.copyFailed'), icon: 'fail' });
-  }, [shareText, t]);
+    await copyText({ key: 'invite-link', text: content, failureMessage: t('inviteFriends.copyFailed') });
+  }, [copyText, shareText, t]);
 
   const handleShareLink = useCallback(async () => {
     try {
@@ -104,11 +102,11 @@ function InviteFriendsPage() {
         });
         return;
       }
-      copyInvite();
+      await copyInvite();
     }
     catch (error) {
       if (!isShareCancelError(error))
-        copyInvite();
+        await copyInvite();
     }
   }, [copyInvite, shareText, t]);
 
@@ -132,13 +130,10 @@ function InviteFriendsPage() {
       if (result.destination === 'gallery') {
         setSavedPosterPreview({ uri: result.uri, url: URL.createObjectURL(blob) });
       }
-      else {
-        Toast.show({ content: t('inviteFriends.posterDownloaded'), icon: 'success' });
-      }
     }
     catch (error) {
       console.error('[invite-friends] poster export failed', { error });
-      Toast.show({ content: t('inviteFriends.saveFailed'), icon: 'fail' });
+      showAppError({ content: t('inviteFriends.saveFailed'), icon: 'fail' });
     }
     finally {
       setIsSaving(false);
@@ -153,7 +148,7 @@ function InviteFriendsPage() {
     }
     catch (error) {
       console.error('[invite-friends] poster share failed', { error });
-      Toast.show({ content: t('inviteFriends.shareFailed'), icon: 'fail' });
+      showAppError({ content: t('inviteFriends.shareFailed'), icon: 'fail' });
     }
   }, [savedPosterPreview, t]);
 
@@ -174,7 +169,7 @@ function InviteFriendsPage() {
       <div className="absolute bottom-0 left-0 right-0 z-20 flex gap-3 bg-ww-surface-raised px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-3">
         <AppButton aria-label={t('inviteFriends.shareLink')} className="flex-1" onClick={() => void handleShareLink()} size="large" variant="secondary">
           <Link2 size={18} />
-          {t('inviteFriends.shareLink')}
+          <span aria-live="polite">{copiedKey === 'invite-link' ? '✓ 已复制' : t('inviteFriends.shareLink')}</span>
         </AppButton>
         <AppButton className="flex-1" disabled={!qrCode} loading={isSaving} loadingLabel={t('inviteFriends.savingPoster')} onClick={() => void handleSavePoster()} size="large">
           <Save size={18} />

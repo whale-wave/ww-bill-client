@@ -1,6 +1,6 @@
 import type { FC } from 'react';
-import { Toast } from 'antd-mobile';
 import { useState } from 'react';
+
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { SettingsOverviewPresentation } from '@/features/workspace-settings';
@@ -11,6 +11,7 @@ import {
   playSound,
 } from '@/shared/lib';
 import { PageHeader } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 const SoundAndHapticsPage: FC = () => {
   const { t } = useTranslation('settings');
@@ -46,7 +47,7 @@ const SoundAndHapticsPage: FC = () => {
         audioWeb.open();
       else
         audioWeb.close();
-      Toast.show({ content: t('soundAndHaptics.saveFailed'), icon: 'fail' });
+      showAppError({ content: t('soundAndHaptics.saveFailed'), icon: 'fail' });
     }
     finally {
       setSoundOverride(undefined);
@@ -74,7 +75,7 @@ const SoundAndHapticsPage: FC = () => {
         hapticFeedback.open();
       else
         hapticFeedback.close();
-      Toast.show({ content: t('soundAndHaptics.saveFailed'), icon: 'fail' });
+      showAppError({ content: t('soundAndHaptics.saveFailed'), icon: 'fail' });
     }
     finally {
       setHapticOverride(undefined);

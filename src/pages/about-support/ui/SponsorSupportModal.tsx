@@ -1,11 +1,12 @@
 import type { FC, KeyboardEvent, RefObject } from 'react';
-import { Toast } from 'antd-mobile';
 import { Download, Heart, X } from 'lucide-react';
+
 import { useEffect, useRef, useState } from 'react';
 import sponsorQr from '@/assets/support/sponsor-alipay.png';
 import { useTranslation } from '@/shared/i18n';
 import { saveImageToGallery } from '@/shared/lib';
 import { AppButton, AppModal, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 interface SponsorSupportModalProps {
   onClose: () => void;
@@ -37,10 +38,9 @@ export const SponsorSupportModal: FC<SponsorSupportModalProps> = ({
       if (!response.ok)
         throw new Error('Sponsor QR code could not be loaded');
       await saveImageToGallery(await response.blob(), '鲸浪记账-支付宝赞助二维码.png');
-      Toast.show({ content: t('aboutSupport.sponsorQrSaved'), icon: 'success' });
     }
     catch {
-      Toast.show({ content: t('aboutSupport.sponsorQrSaveFailed'), icon: 'fail' });
+      showAppError({ content: t('aboutSupport.sponsorQrSaveFailed'), icon: 'fail' });
     }
     finally {
       setIsSaving(false);

@@ -5,7 +5,7 @@ export interface Topic {
   id: number;
   user: {
     id: number;
-    avatar: string;
+    avatar: string | null;
     name: string;
   };
   content: string;
@@ -27,14 +27,14 @@ export interface TopicDetail extends Topic {
     user: {
       id: number;
       name: string;
-      avatar: string;
+      avatar: string | null;
     };
   }[];
 }
 
 export interface TopicUserInfoData {
   userInfo: {
-    avatar: string;
+    avatar: string | null;
     id: number;
     name: string;
   };
@@ -119,7 +119,7 @@ export interface Comment {
   };
   user: {
     id: string;
-    avatar: string;
+    avatar: string | null;
     name: string;
     createdAt: string;
     updatedAt: string;

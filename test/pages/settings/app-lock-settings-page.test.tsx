@@ -469,7 +469,7 @@ describe('app lock settings page', () => {
     });
     await act(async () => buttonByText(container, 'appLock.submit')?.click());
 
-    expect(mocks.login).toHaveBeenCalledWith({ username: 'test-user', password: 'correct-password' }, false);
+    expect(mocks.login).toHaveBeenCalledWith({ username: 'test-user', password: 'correct-password' });
     expect(mocks.patchConfig).toHaveBeenCalledWith({ gestureLockEnabled: false });
     expect(mocks.removeCredential).toHaveBeenCalledWith(7);
     expect(mocks.removeLockState).toHaveBeenCalledWith(7);

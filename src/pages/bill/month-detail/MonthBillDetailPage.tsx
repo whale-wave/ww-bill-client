@@ -1,7 +1,7 @@
 import type { AvatarReadyState, ExportCopySnapshot, ExportUserSnapshot } from './model/monthBillDetail';
 import type { MonthBillDetailResponse } from '@/entities/record';
-import { Toast } from 'antd-mobile';
 import html2canvas from 'html2canvas-pro';
+
 import { Share2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -17,6 +17,7 @@ import {
   waitForImageExportReady,
 } from '@/shared/lib';
 import { AppSheet, DesignIcon, IllustratedEmptyState, PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { formatMonthTitle } from './model/monthBillDetail';
 import { MonthBillDetailRenderer } from './ui/MonthBillDetailRenderer';
 
@@ -141,10 +142,8 @@ export default function MonthBillDetailPage() {
     setQrCode(undefined);
     setAvatarBarrier(undefined);
     setExportStatus('idle');
-    if (terminal === 'success' && successMessage)
-      Toast.show({ content: successMessage, icon: 'success' });
-    else if (terminal === 'failure' || terminal === 'timeout')
-      Toast.show({ content: successMessage || t('exportSaveFailed'), icon: 'fail' });
+    if (terminal === 'failure' || terminal === 'timeout')
+      showAppError({ content: successMessage || t('exportSaveFailed'), icon: 'fail' });
   }, [t]);
 
   useEffect(() => () => {
@@ -315,7 +314,7 @@ export default function MonthBillDetailPage() {
     }
     catch (error) {
       console.error('[month-bill-export] image share failed', { error });
-      Toast.show({ content: t('exportShareFailed'), icon: 'fail' });
+      showAppError({ content: t('exportShareFailed'), icon: 'fail' });
     }
   }, [savedImagePreview, t]);
 

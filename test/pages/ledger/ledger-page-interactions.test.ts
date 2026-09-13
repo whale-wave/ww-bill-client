@@ -898,7 +898,7 @@ describe('ledger create page', () => {
       await Promise.resolve();
     });
 
-    expect(toastShow).toHaveBeenCalledWith(expect.objectContaining({ icon: 'success' }));
+    expect(toastShow).not.toHaveBeenCalled();
     expect(router.state.location.pathname).toBe('/ledgers/created%2Fledger/records');
     expect(router.state.historyAction).toBe('REPLACE');
   });

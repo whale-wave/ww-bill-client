@@ -1,6 +1,6 @@
 import type { RecoverableLedgerRecord } from '@/entities/ledger-data';
-import { Toast } from 'antd-mobile';
 import { CircleAlert, Inbox } from 'lucide-react';
+
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
@@ -9,6 +9,7 @@ import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedDateTime } from '@/shared/lib';
 import { AppButton, confirmAppAction, IllustratedEmptyState, PageHeader, PageLoadingState, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 interface RecoveryListProps {
   records: RecoverableLedgerRecord[];
@@ -108,11 +109,10 @@ function RecoveryContent({ ledgerId }: { ledgerId: string }) {
         restoringRef.current = record.id;
         try {
           await restore({ data: { version: record.version }, ledgerId, recordId: record.id });
-          Toast.show({ icon: 'success', content: t('recovery.restored') });
         }
         catch {
           await query.refetch();
-          Toast.show({ icon: 'fail', content: t('recovery.failed') });
+          showAppError({ icon: 'fail', content: t('recovery.failed') });
         }
         finally {
           restoringRef.current = undefined;

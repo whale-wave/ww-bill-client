@@ -1,6 +1,6 @@
 import type { FC, FormEvent } from 'react';
-import { Toast } from 'antd-mobile';
 import { Check, ChevronRight, Crown, Trash2 } from 'lucide-react';
+
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -39,6 +39,7 @@ import {
   PageHeader,
   Surface,
 } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 function isConflict(error: unknown) {
   return typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
@@ -158,12 +159,11 @@ const LedgerMemberDetailPage: FC = () => {
       await updateMember({ data, ledgerId, memberId });
       setNicknameOverride(undefined);
       setRoleOverride(undefined);
-      Toast.show({ content: t('memberDetail.saved'), icon: 'success' });
     }
     catch (error) {
       const message = getErrorMessage(error, t('memberDetail.saveFailed'));
       setErrorMessage(message);
-      Toast.show({ content: message });
+      showAppError(error, { message });
     }
     finally {
       submittingRef.current = false;
@@ -186,13 +186,12 @@ const LedgerMemberDetailPage: FC = () => {
     submittingRef.current = true;
     try {
       await removeMember({ ledgerId, memberId, version: member.version });
-      Toast.show({ content: t('memberDetail.removed'), icon: 'success' });
       navigate(ROUTES_PATH.LEDGER_MEMBERS.getPath(ledgerId), { replace: true });
     }
     catch (error) {
       if (isConflict(error))
         await membersQuery.refetch();
-      Toast.show({ content: t('memberDetail.removeFailed'), icon: 'fail' });
+      showAppError({ content: t('memberDetail.removeFailed'), icon: 'fail' });
     }
     finally {
       submittingRef.current = false;
@@ -222,14 +221,13 @@ const LedgerMemberDetailPage: FC = () => {
         },
         ledgerId,
       });
-      Toast.show({ content: t('memberDetail.transferred'), icon: 'success' });
       navigate(ROUTES_PATH.LEDGER_MEMBERS.getPath(ledgerId), { replace: true });
     }
     catch (error) {
       if (isConflict(error)) {
         await Promise.all([ledgerQuery.refetch(), membersQuery.refetch()]);
       }
-      Toast.show({ content: t('memberDetail.transferFailed'), icon: 'fail' });
+      showAppError({ content: t('memberDetail.transferFailed'), icon: 'fail' });
     }
     finally {
       submittingRef.current = false;

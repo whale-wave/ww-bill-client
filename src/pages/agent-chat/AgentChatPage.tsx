@@ -1,6 +1,5 @@
 import type { AgentConversation, AgentMessage, AgentRecordDraftCard, AgentStatisticCard } from '@/entities/agent';
 import { useQueryClient } from '@tanstack/react-query';
-import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { History, MessageCircleMore, Plus, SendHorizontal, Sparkles, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -19,6 +18,7 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { AppSheet, confirmDangerousAction, PageHeader, PageLoadingState } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { AgentCardView } from './ui/AgentCardView';
 
 interface PendingTurn {
@@ -72,7 +72,7 @@ function AgentChatPage() {
       selectConversation(conversation.id);
     }
     catch {
-      Toast.show({ content: t('loadFailed'), icon: 'fail' });
+      showAppError({ content: t('loadFailed'), icon: 'fail' });
     }
   }, [createConversation, selectConversation, t]);
 
@@ -89,7 +89,6 @@ function AgentChatPage() {
       return;
     try {
       await deleteConversation.mutateAsync(conversation.id);
-      Toast.show({ content: t('conversationDeleted'), icon: 'success' });
       if (conversation.id !== activeConversationId)
         return;
       const nextConversation = conversationsQuery.data.find(item => item.id !== conversation.id);
@@ -101,7 +100,7 @@ function AgentChatPage() {
       await handleNewConversation();
     }
     catch {
-      Toast.show({ content: t('deleteConversationFailed'), icon: 'fail' });
+      showAppError({ content: t('deleteConversationFailed'), icon: 'fail' });
     }
   }, [activeConversationId, conversationsQuery.data, deleteConversation, handleNewConversation, selectConversation, t]);
 
@@ -168,7 +167,7 @@ function AgentChatPage() {
     catch {
       setPendingTurn(undefined);
       setInput(content);
-      Toast.show({ content: t('sendFailed'), icon: 'fail' });
+      showAppError({ content: t('sendFailed'), icon: 'fail' });
     }
     finally {
       if (streamAbortControllerRef.current === abortController)
@@ -179,15 +178,14 @@ function AgentChatPage() {
   const handleConfirm = useCallback(async (card: AgentRecordDraftCard) => {
     try {
       await confirmAction.mutateAsync({ actionId: card.actionId });
-      Toast.show({ content: t('confirmed'), icon: 'success' });
     }
     catch {
-      Toast.show({ content: t('confirmFailed'), icon: 'fail' });
+      showAppError({ content: t('confirmFailed'), icon: 'fail' });
     }
   }, [confirmAction, t]);
 
   const handleCancel = useCallback(async (card: AgentRecordDraftCard) => {
-    await cancelAction.mutateAsync(card.actionId).catch(() => Toast.show({ content: t('confirmFailed'), icon: 'fail' }));
+    await cancelAction.mutateAsync(card.actionId).catch(() => showAppError({ content: t('confirmFailed'), icon: 'fail' }));
   }, [cancelAction, t]);
 
   const handleViewRecords = useCallback((card: AgentStatisticCard) => {

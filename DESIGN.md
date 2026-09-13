@@ -106,6 +106,15 @@ Version 10 使用柔和的大圆角卡片和两级浅阴影，但不使用厚重
 
 - **按钮尺寸**：业务文字按钮优先使用 `AppButton` 的固定 `size` 接口，不在调用处覆写高度、横向内边距、字号和圆角。`compact` 为 `32px` 可见高度并保留 `44px` 触控高度，适合卡片内辅助操作；`medium` 为默认 `48px`；`large` 为 `52px` 页面主操作。相关值统一由 `--ww-component-button-*` token 管理。
 - **主按钮**：使用 `AppButton variant="primary"`；页面提交操作使用 `size="large"` + `fullWidth`，提交中同时切换 `disabled` 与 loading 文案。
+
+### Feedback
+
+- 成功操作优先通过页面、列表、按钮或导航变化表达，不使用全局成功 Toast。
+- 没有可见结果的成功操作使用控件内短暂状态；复制成功显示局部“已复制”状态。
+- Loading 使用按钮、Skeleton、页面或局部状态，不使用 Toast。
+- Toast 仅用于真正的 Error 和无法继续操作的 Notice；业务代码不得直接导入 `antd-mobile` 的 `Toast`。
+- 表单校验优先显示在字段或表单操作区；用户主动取消和系统分享取消保持静默。
+- 同一失败最多显示一次；认证状态处理与视觉反馈分离。
 - **次按钮**：使用 `AppButton variant="secondary"`，尺寸按所在层级选择，不在业务组件重复拼描边、背景和阴影。
 - **幽灵按钮**：`h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-primary-deep`，danger 文案使用 `text-[#b24f71]`，需要时补充 `disabled:opacity-45`。
 - **紧凑按钮**：使用 `AppButton size="compact"`；不得直接把交互高度压到 `44px` 以下，视觉本体与透明触控区由组件内部处理。

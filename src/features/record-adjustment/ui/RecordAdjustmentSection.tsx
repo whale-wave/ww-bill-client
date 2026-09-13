@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { RecordAdjustment, RecordAdjustmentType, RecordEntry } from '@/entities/record';
-import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
+
 import { Banknote, CalendarDays, Check, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import {
@@ -12,6 +12,7 @@ import {
 import { useTranslation } from '@/shared/i18n';
 import { cn, normalizeAmount } from '@/shared/lib';
 import { AppButton, AppSheet, confirmDangerousAction, promptAppDatePicker, SheetHeader } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import './record-adjustment-section.scss';
 
 export interface RecordAdjustmentAssetOption {
@@ -140,10 +141,9 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
       }
       setIsVisible(false);
       setEditing(undefined);
-      Toast.show({ content: t('adjustment.saved'), icon: 'success' });
     }
     catch {
-      Toast.show({ content: t('adjustment.failed'), icon: 'fail' });
+      showAppError({ content: t('adjustment.failed'), icon: 'fail' });
     }
   };
 
@@ -167,10 +167,9 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
       });
       setIsVisible(false);
       setEditing(undefined);
-      Toast.show({ content: t('adjustment.deleted'), icon: 'success' });
     }
     catch {
-      Toast.show({ content: t('adjustment.failed'), icon: 'fail' });
+      showAppError({ content: t('adjustment.failed'), icon: 'fail' });
     }
   };
 

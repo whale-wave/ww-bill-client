@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { Toast } from 'antd-mobile';
 import { LockKeyhole } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -8,13 +7,14 @@ import { AuthPageShell, AuthPrimaryButton } from '@/features/auth';
 import { readPasswordRecoveryParams } from '@/pages/auth/forget-password/model/params';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
-import { FormField } from '@/shared/ui';
+import { FormField, showAppError } from '@/shared/ui';
 
 const ForgetPasswordReset: FC = () => {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [validationError, setValidationError] = useState<string>();
   const [urlSearchParams] = useSearchParams();
   const { captcha, email } = readPasswordRecoveryParams(urlSearchParams);
 
@@ -25,27 +25,30 @@ const ForgetPasswordReset: FC = () => {
 
   const handleSubmit = useCallback(async () => {
     if (!password || !confirmPassword) {
-      Toast.show({ content: t('forgetPassword.pleaseEnterPassword'), position: 'top' });
+      setValidationError(t('forgetPassword.pleaseEnterPassword'));
       return;
     }
     if (password !== confirmPassword) {
-      Toast.show({ content: t('forgetPassword.passwordMismatch'), position: 'top' });
+      setValidationError(t('forgetPassword.passwordMismatch'));
       return;
     }
+    setValidationError(undefined);
 
     const response = await postAuthPasswordForgetResetApi({
       email,
       captcha,
       password,
       confirmPassword,
-    }, true);
+    });
 
     if (response.statusCode === 4005) {
-      setTimeout(navigate, 400, '/forget-password', { replace: true });
+      navigate('/forget-password', { replace: true });
     }
     else if (response.statusCode === 200) {
-      Toast.show({ content: t('forgetPassword.resetSuccess') });
-      setTimeout(navigate, 400, '/login', { replace: true });
+      navigate('/login', { replace: true });
+    }
+    else {
+      showAppError(undefined, { message: response.message, fallbackMessage: t('forgetPassword.resetFailed') });
     }
   }, [captcha, confirmPassword, email, navigate, password, t]);
 
@@ -70,6 +73,7 @@ const ForgetPasswordReset: FC = () => {
           prefix={<LockKeyhole size={18} strokeWidth={1.8} />}
           type="password"
           value={password}
+          errorMessage={validationError && !confirmPassword ? validationError : undefined}
         />
         <FormField
           autoComplete="new-password"
@@ -80,6 +84,7 @@ const ForgetPasswordReset: FC = () => {
           prefix={<LockKeyhole size={18} strokeWidth={1.8} />}
           type="password"
           value={confirmPassword}
+          errorMessage={validationError}
         />
       </div>
       <p className="mt-3 text-[11px] leading-4 text-ww-soft">{t('sign.passwordRule')}</p>

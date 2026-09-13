@@ -1,8 +1,6 @@
 import type { LedgerListItem } from '@/entities/ledger';
-import {
-  Toast,
-} from 'antd-mobile';
 import { BookOpen, CircleAlert, Settings2 } from 'lucide-react';
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useBeforeUnload, useBlocker, useNavigate } from 'react-router-dom';
 import {
@@ -17,6 +15,7 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { confirmAppAction, IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 import { LedgerManagementFooter } from './ui/LedgerManagementFooter';
 import { LedgerManagementGrid } from './ui/LedgerManagementGrid';
 import { SortableLedgerGrid } from './ui/SortableLedgerGrid';
@@ -67,7 +66,7 @@ function LedgerCenterPage() {
   const refreshAfterConflict = async () => {
     resetDraft();
     await managementQuery.refetch();
-    Toast.show({
+    showAppError({
       content: t('center.listUpdated'),
       icon: 'fail',
     });
@@ -128,20 +127,19 @@ function LedgerCenterPage() {
         })),
       });
       setSorting(false);
-      Toast.show({ content: t('center.sortSaved'), icon: 'success' });
     }
     catch (error) {
       if (isConflict(error)) {
         await refreshAfterConflict();
         return;
       }
-      Toast.show({ content: t('center.sortSaveFailed'), icon: 'fail' });
+      showAppError({ content: t('center.sortSaveFailed'), icon: 'fail' });
     }
   };
 
   const handleRemove = async (ledger: LedgerListItem) => {
     if (ledger.status === LedgerStatus.SUSPENDED) {
-      Toast.show({ content: t('center.suspended') });
+      showAppNotice({ content: t('center.suspended') });
       return;
     }
     if (isMutating)
@@ -176,17 +174,13 @@ function LedgerCenterPage() {
         });
       }
       setDraft(current => current.filter(item => item.id !== ledger.id));
-      Toast.show({
-        content: t(isOwner ? 'center.archiveSuccess' : 'center.leaveSuccess', { name: ledger.name }),
-        icon: 'success',
-      });
     }
     catch (error) {
       if (isConflict(error)) {
         await refreshAfterConflict();
         return;
       }
-      Toast.show({
+      showAppError({
         content: t(isOwner ? 'center.archiveFailed' : 'center.leaveFailed'),
         icon: 'fail',
       });

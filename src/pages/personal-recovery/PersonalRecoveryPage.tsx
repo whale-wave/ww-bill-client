@@ -1,5 +1,5 @@
-import { Toast } from 'antd-mobile';
 import { CircleAlert, Inbox } from 'lucide-react';
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -9,6 +9,7 @@ import {
 import { RecoveryList } from '@/pages/ledger-recovery/LedgerRecoveryPage';
 import { useTranslation } from '@/shared/i18n';
 import { IllustratedEmptyState, PageHeader, PageLoadingState, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 export default function PersonalRecoveryPage() {
   const { t } = useTranslation(['ledger', 'common']);
@@ -23,11 +24,10 @@ export default function PersonalRecoveryPage() {
     setRestoringId(recordId);
     try {
       await restore({ recordId, data: { version } });
-      Toast.show({ icon: 'success', content: t('ledger:recovery.restored', { defaultValue: '记录已恢复' }) });
     }
     catch {
       await query.refetch();
-      Toast.show({ icon: 'fail', content: t('ledger:recovery.failed') });
+      showAppError({ icon: 'fail', content: t('ledger:recovery.failed') });
     }
     finally {
       setRestoringId(undefined);

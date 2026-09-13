@@ -1,7 +1,8 @@
 import type { FC, ReactNode } from 'react';
-import { Toast } from 'antd-mobile';
 import { cn } from '@/shared/lib';
+
 import { ActionMenuCard, MetricGrid, Surface } from '@/shared/ui';
+import { showAppNotice } from '@/shared/ui/app-feedback';
 
 export interface RecordOverviewMetric {
   key: string;
@@ -140,7 +141,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
               label: shortcut.label,
               onClick: () => {
                 if (shortcut.disabled) {
-                  Toast.show(shortcut.disabledMessage ?? '暂无权限');
+                  showAppNotice(shortcut.disabledMessage ?? '暂无权限');
                   return;
                 }
                 shortcut.onClick();

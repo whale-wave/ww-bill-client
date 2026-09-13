@@ -4,7 +4,7 @@ import { request } from '@/shared/api';
 export interface UserEntity {
   id: number;
   name: string;
-  avatar: string;
+  avatar: string | null;
   email: string;
   createdAt: string;
   updatedAt: string;
@@ -15,7 +15,7 @@ export interface UserInfo {
   userId: string;
   name: string;
   username: string;
-  avatar: string;
+  avatar: string | null;
   checkIn: boolean;
   checkInKeep: number;
   checkInAll: number;
@@ -41,24 +41,18 @@ export function getUserUserInfoApi() {
 }
 
 export interface usePutUserUserInfoData {
-  avatar: string;
+  avatar?: string | null;
   name: string;
 }
 
-export function putUserUserInfoApi(data: usePutUserUserInfoData, loading = false) {
-  return request.put<unknown, SuccessResponse<unknown>>('/user/userInfo', data, {
-    loading,
-  });
+export function putUserUserInfoApi(data: usePutUserUserInfoData) {
+  return request.put<unknown, SuccessResponse<unknown>>('/user/userInfo', data);
 }
 
-export function changePassword(data: UpdatePassword, loading = true) {
-  return request.put<unknown, SuccessResponse<unknown>>('/user/password', data, {
-    loading,
-  });
+export function changePassword(data: UpdatePassword) {
+  return request.put<unknown, SuccessResponse<unknown>>('/user/password', data);
 }
 
-export function postCheckInApi(loading = true) {
-  return request.post<unknown, SuccessResponse<unknown>>('/check_in', null, {
-    loading,
-  });
+export function postCheckInApi() {
+  return request.post<unknown, SuccessResponse<unknown>>('/check_in', null);
 }

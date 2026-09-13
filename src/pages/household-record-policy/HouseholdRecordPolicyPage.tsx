@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { Household } from '@/entities/household';
-import { Button, Toast } from 'antd-mobile';
+import { Button } from 'antd-mobile';
 import { Check, CircleAlert, Eye, EyeOff, ShieldCheck, UsersRound } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -17,6 +17,7 @@ import {
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
 import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 const POLICY_OPTIONS = Object.values(FamilyRecordPolicy);
 const POLICY_ICONS = {
@@ -53,16 +54,15 @@ const PolicyContent: FC<{ household: Household; recordId: number }> = ({ househo
         householdId: household.id,
         recordId,
       });
-      void Toast.show({ content: t('policy.saved'), icon: 'success' });
       navigate(-1);
     }
     catch (error) {
       if (getApiErrorStatus(error) === 409) {
         await policyQuery.refetch();
-        void Toast.show({ content: t('common.conflict'), icon: 'fail' });
+        void showAppError({ content: t('common.conflict'), icon: 'fail' });
       }
       else {
-        void Toast.show({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
+        void showAppError({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
       }
     }
     finally {

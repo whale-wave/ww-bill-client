@@ -1,7 +1,6 @@
 import type { ClaimedShortcutDraft } from '@/entities/shortcut-bookkeeping';
 import type { RecordDraft, RecordEditorReturnContext } from '@/features/record-editor';
 import { useQueryClient } from '@tanstack/react-query';
-import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -38,6 +37,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { hapticFeedback } from '@/shared/lib';
 import { playSound } from '@/shared/lib/play-sound';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 function getValidSelectTime(value: string | null) {
   if (!value) {
@@ -226,7 +226,7 @@ function BookkeepingPage() {
         && error !== null
         && 'statusCode' in error
         && error.statusCode === 409;
-      Toast.show({
+      showAppError({
         content: t(isConflict ? 'bookkeeping.conflict' : 'bookkeeping.saveFailed'),
         icon: 'fail',
       });
@@ -251,7 +251,7 @@ function BookkeepingPage() {
     onSubmit: handleSubmit,
     onValidationError: (error) => {
       if (error === 'category')
-        Toast.show({ content: t('bookkeeping.chooseCategory') });
+        showAppNotice({ content: t('bookkeeping.chooseCategory') });
     },
     seed,
     supportsTags: canReadTags,

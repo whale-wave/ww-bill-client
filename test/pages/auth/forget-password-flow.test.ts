@@ -202,7 +202,7 @@ describe('password recovery pages', () => {
     await act(async () => getNextButton(container).click());
     await act(async () => vi.advanceTimersByTimeAsync(200));
 
-    expect(getForgetPasswordEmail).toHaveBeenCalledWith(email, true);
+    expect(getForgetPasswordEmail).toHaveBeenCalledWith(email);
     expect(router.state.location.pathname).toBe('/forget-password/verify-code');
     expect(new URLSearchParams(router.state.location.search).get('email')).toBe(email);
     expect(router.state.historyAction).toBe('PUSH');
@@ -220,7 +220,7 @@ describe('password recovery pages', () => {
     await act(async () => getNextButton(container).click());
     await act(async () => vi.advanceTimersByTimeAsync(400));
 
-    expect(verifyForgetPasswordCode).toHaveBeenCalledWith({ captcha, email }, true);
+    expect(verifyForgetPasswordCode).toHaveBeenCalledWith({ captcha, email });
     expect(router.state.location.pathname).toBe('/forget-password/reset');
     expect(Object.fromEntries(new URLSearchParams(router.state.location.search))).toEqual({
       captcha,
@@ -245,7 +245,7 @@ describe('password recovery pages', () => {
       confirmPassword: 'new-password',
       email,
       password: 'new-password',
-    }, true);
+    });
   });
 
   it('replaces verify-code with email entry when email is missing', () => {

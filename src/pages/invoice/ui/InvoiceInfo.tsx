@@ -1,10 +1,11 @@
 import type { InvoiceEntity } from '@/entities/invoice';
-import { Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
+
 import { Copy } from 'lucide-react';
 import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { Surface } from '@/shared/ui';
+import { showAppNotice } from '@/shared/ui/app-feedback';
 
 interface InvoiceInfoProps {
   invoice: InvoiceEntity;
@@ -68,7 +69,7 @@ const InvoiceInfo: React.FC<InvoiceInfoProps> = memo((props) => {
 
       copy(value);
 
-      void Toast.show({
+      void showAppNotice({
         content: t('common:confirm.copySuccess'),
       });
     },

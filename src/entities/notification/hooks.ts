@@ -17,7 +17,7 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { assertSuccessApi } from '@/shared/api';
+import { assertSuccessApi, getAuthToken } from '@/shared/api';
 import {
   archiveNotificationApi,
   getNotificationsApi,
@@ -123,6 +123,7 @@ interface UseNotificationsQueryOptions {
 export function useNotificationsQuery(
   options: UseNotificationsQueryOptions = {},
 ) {
+  const token = getAuthToken();
   const filters = options.params ?? {};
   const query = useInfiniteQuery({
     queryKey: notificationKeys.list(filters),
@@ -133,6 +134,7 @@ export function useNotificationsQuery(
     getNextPageParam: lastPage => lastPage.data.nextCursor,
     staleTime: 30_000,
     ...options.queryOptions,
+    enabled: Boolean(token) && (options.queryOptions?.enabled ?? true),
   });
 
   return {

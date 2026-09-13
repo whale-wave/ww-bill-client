@@ -1,5 +1,5 @@
-import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
+
 import { CircleAlert } from 'lucide-react';
 import { useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -29,6 +29,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getTimeOfDay, getWeekByDay } from '@/shared/lib/date-time';
 import { confirmDangerousAction, IllustratedEmptyState, PageHeader, PageLoadingState, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 function FamilyPolicyEntry({ recordId, recordTime }: { recordId: number; recordTime: string }) {
   const { t } = useTranslation('ledger');
@@ -116,7 +117,7 @@ function DetailContent({ ledgerId, canDelete, canUpdate, showFamilyPolicy }: { l
     catch (error) {
       await query.refetch();
       const conflict = typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
-      Toast.show({ icon: 'fail', content: t(conflict ? 'records.conflict' : 'records.deleteFailed') });
+      showAppError({ icon: 'fail', content: t(conflict ? 'records.conflict' : 'records.deleteFailed') });
     }
     finally {
       deletingRef.current = false;

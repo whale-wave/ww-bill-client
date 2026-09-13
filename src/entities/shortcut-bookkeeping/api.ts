@@ -8,6 +8,10 @@ import type {
 import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
 
+export function getShortcutInstallUrlApi() {
+  return request.get<unknown, SuccessResponse<{ iosShortcutInstallUrl: string }>>('/client/releases/shortcut-install', { silent: true });
+}
+
 export function issueShortcutAccessTokenApi(data: {
   confirmationBaseUrl: string;
   name: string;

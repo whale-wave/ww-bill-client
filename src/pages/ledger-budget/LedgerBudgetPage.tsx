@@ -1,7 +1,7 @@
 import type { BudgetInfo } from '@/entities/budget';
 import type { Ledger } from '@/entities/ledger';
-import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
+
 import { CircleAlert } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import {
@@ -24,6 +24,7 @@ import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useCurrentWorkspaceBack, useWorkspaceBack } from '@/features/workspace-navigation';
 import { useTranslation } from '@/shared/i18n';
 import { confirmAppAction, IllustratedEmptyState, PageLoadingState, showAppActionSheet, showAppInfoDialog, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 interface BudgetEditor {
   item?: BudgetInfo;
@@ -84,7 +85,7 @@ function BudgetContent({
     const normalizedAmount = amount.trim();
     if (!(Number(normalizedAmount) > 0)
       || (editor?.level === BudgetEntityLevel.CATEGORY && !editor.item && !categoryId)) {
-      Toast.show({ icon: 'fail', content: t('validation.invalidAmount') });
+      showAppError({ icon: 'fail', content: t('validation.invalidAmount') });
       return;
     }
 
@@ -116,7 +117,7 @@ function BudgetContent({
       }
     }
     catch {
-      Toast.show({ icon: 'fail', content: tLedger('budget.saveFailed') });
+      showAppError({ icon: 'fail', content: tLedger('budget.saveFailed') });
     }
   };
 
@@ -158,7 +159,7 @@ function BudgetContent({
               }
             }
             catch {
-              Toast.show({ icon: 'fail', content: tLedger('budget.saveFailed') });
+              showAppError({ icon: 'fail', content: tLedger('budget.saveFailed') });
             }
           },
           text: isSummary

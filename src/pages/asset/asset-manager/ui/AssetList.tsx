@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { Asset, AssetGroup } from '@/entities/asset';
-import { SwipeAction, Toast } from 'antd-mobile';
+import { SwipeAction } from 'antd-mobile';
 import { ChevronRight, FileWarning, Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import { useDeleteAssetByIdMutation, useGetAssetGroupQuery, useGetAssetQuery } f
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { formatAmount, math } from '@/shared/lib';
 import { confirmAppAction, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { IconBlock } from '../../ui';
 import { AssetEmptyState } from './AssetEmptyState';
 
@@ -82,14 +83,10 @@ export const AssetList: FC = () => {
     if (!confirmed)
       return;
     try {
-      Toast.show({ duration: 0, icon: 'loading', content: t('manager.deleting') });
       await deleteAssetByIdMutate(item.id);
-      Toast.clear();
-      Toast.show({ icon: 'success', content: t('manager.deleteSuccess') });
     }
     catch {
-      Toast.clear();
-      Toast.show({ icon: 'fail', content: t('manager.deleteFailed') });
+      showAppError({ icon: 'fail', content: t('manager.deleteFailed') });
     }
   }, [deleteAssetByIdMutate, deleteState.isLoading, t]);
 

@@ -1,8 +1,8 @@
 import type { FC, KeyboardEvent } from 'react';
 import type { AppearancePreference, DevelopmentAppearanceTemplate } from '@/features/appearance';
-import { Toast } from 'antd-mobile';
 import { Check, Sparkles } from 'lucide-react';
 import { useMemo, useState } from 'react';
+
 import {
   useGetUserAppConfigQuery,
   usePatchUserAppConfigMutation,
@@ -19,6 +19,7 @@ import { useAuthStore } from '@/features/auth';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { useTranslation } from '@/shared/i18n';
 import { PageHeader } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 function moveRadioSelection<T extends string>(
   event: KeyboardEvent<HTMLButtonElement>,
@@ -83,7 +84,7 @@ const AppearanceSettingsPage: FC = () => {
       setPendingPreference(previousPreference);
       if (useAuthStore.getState().userId === userId)
         applyAppearancePreference(previousPreference);
-      Toast.show(t('appearance.saveFailed'));
+      showAppError(t('appearance.saveFailed'));
     }
   };
 

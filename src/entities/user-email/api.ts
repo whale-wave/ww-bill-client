@@ -1,17 +1,10 @@
 import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
 
-export function getUserEmailChangeEmailCaptchaApi(
-  options: {
-    loading?: boolean;
-  } = {},
-) {
-  const { loading = true } = options;
+export function getUserEmailChangeEmailCaptchaApi() {
   return request.get<unknown, SuccessResponse<unknown>>(
     '/user-email/change-email/captcha',
-    {
-      loading,
-    },
+    {},
   );
 }
 
@@ -21,13 +14,11 @@ export interface PostUserEmailChangeEmailCaptchaVerifyApiParams {
 
 export function getUserEmailChangeEmailCaptchaVerifyApi(
   params: PostUserEmailChangeEmailCaptchaVerifyApiParams,
-  loading = true,
 ) {
   return request.get<unknown, SuccessResponse<unknown>>(
     '/user-email/change-email/verify',
     {
       params,
-      loading,
     },
   );
 }
@@ -37,13 +28,11 @@ export function getUserEmailChangeEmailCaptchaNewEmailApi(
     newEmail: string;
     captcha: string;
   },
-  loading = false,
 ) {
   return request.get<unknown, SuccessResponse<unknown>>(
     '/user-email/change-email/captcha/new-email',
     {
       params,
-      loading,
     },
   );
 }
@@ -56,13 +45,11 @@ export interface PostUserEmailChangeEmailApiData {
 
 export function postUserEmailChangeEmailApi(
   data: PostUserEmailChangeEmailApiData,
-  loading = true,
 ) {
   return request.post<unknown, SuccessResponse<unknown>>(
     '/user-email/change-email',
     data,
     {
-      loading,
     },
   );
 }

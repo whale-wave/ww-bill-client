@@ -9,6 +9,7 @@ export interface FormFieldProps {
   autoComplete?: InputHTMLAttributes<HTMLInputElement>['autoComplete'];
   className?: string;
   disabled?: boolean;
+  errorMessage?: ReactNode;
   id?: string;
   inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode'];
   label: ReactNode;
@@ -27,6 +28,7 @@ export function FormField({
   autoComplete,
   className,
   disabled,
+  errorMessage,
   id,
   inputMode,
   label,
@@ -48,7 +50,7 @@ export function FormField({
   return (
     <label className={cn('block min-w-0', className)} htmlFor={inputId}>
       <span className="mb-2 block text-[12px] font-bold leading-[18px] text-ww-mid">{label}</span>
-      <FieldFrame disabled={disabled}>
+      <FieldFrame disabled={disabled} error={Boolean(errorMessage)}>
         {prefix && <span className="flex h-5 w-5 shrink-0 items-center justify-center text-primary-deep">{prefix}</span>}
         <Input
           autoComplete={autoComplete}
@@ -63,6 +65,8 @@ export function FormField({
           readOnly={readOnly}
           type={inputType}
           value={value}
+          aria-describedby={errorMessage ? `${inputId}-error` : undefined}
+          aria-invalid={errorMessage ? true : undefined}
         />
         {type === 'password' && !disabled && (
           <button
@@ -76,6 +80,11 @@ export function FormField({
         )}
         {suffix && <span className="shrink-0">{suffix}</span>}
       </FieldFrame>
+      {errorMessage && (
+        <span className="mt-1 block text-[12px] font-semibold text-feedback-danger" id={`${inputId}-error`} role="alert">
+          {errorMessage}
+        </span>
+      )}
     </label>
   );
 }

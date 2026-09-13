@@ -112,6 +112,6 @@ describe('aboutSupportPage sponsor entry', () => {
 
     expect(fetch).toHaveBeenCalledOnce();
     expect(mocks.saveImageToGallery).toHaveBeenCalledWith(expect.any(Blob), '鲸浪记账-支付宝赞助二维码.png');
-    expect(mocks.toastShow).toHaveBeenCalledWith({ content: 'aboutSupport.sponsorQrSaved', icon: 'success' });
+    expect(mocks.toastShow).not.toHaveBeenCalled();
   });
 });

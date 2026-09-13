@@ -3,7 +3,6 @@ import type {
   FC,
   MouseEvent,
 } from 'react';
-import { Toast } from 'antd-mobile';
 import classNames from 'classnames';
 import {
   useCallback,
@@ -15,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePostTopicMutation } from '@/entities/topic';
 import { uploadFile } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
-import { AppButton, Icon, PageHeader } from '@/shared/ui';
+import { AppButton, Icon, PageHeader, showAppError, showAppNotice } from '@/shared/ui';
 import styles from './index.module.scss';
 
 const PostTopic: FC = () => {
@@ -41,17 +40,14 @@ const PostTopic: FC = () => {
     try {
       const { statusCode, message } = await postTopic({ content, images: imgs });
       if (statusCode === 200) {
-        Toast.show({ content: t('post.success'), duration: 600 });
-        setTimeout(() => {
-          navigator('/community');
-        }, 600);
+        navigator('/community');
       }
       else {
-        Toast.show({ content: message?.[0] });
+        showAppError(undefined, { message: message?.[0], fallbackMessage: t('post.failed') });
       }
     }
-    catch (error: any) {
-      console.error(error);
+    catch (error) {
+      showAppError(error, { fallbackMessage: t('post.failed') });
     }
   };
 
@@ -68,15 +64,9 @@ const PostTopic: FC = () => {
       return;
     if (imgs.length + files.length > 9) {
       clearFiles();
-      return Toast.show({ content: t('post.maxImages') });
+      showAppNotice(t('post.maxImages'));
+      return;
     }
-
-    Toast.show({
-      icon: 'loading',
-      content: t('post.uploading'),
-      duration: 0,
-      maskClickable: false,
-    });
 
     const uploadFileCb = (data: FormData) => {
       return () => uploadFile(data);
@@ -95,7 +85,9 @@ const PostTopic: FC = () => {
         if (res)
           data.push(res.data.url);
       }
-      Toast.clear();
+    }
+    catch (error) {
+      showAppError(error, { fallbackMessage: t('post.uploadFailed') });
     }
     finally {
       clearFiles();

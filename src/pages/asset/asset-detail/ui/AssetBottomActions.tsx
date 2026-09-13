@@ -1,13 +1,14 @@
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
-import { Toast } from 'antd-mobile';
 import { ArrowLeftRight, Pencil, Trash2 } from 'lucide-react';
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDeleteAssetByIdMutation } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { confirmAppAction } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { AssetTransferPopup } from './AssetTransferPopup';
 
 export const AssetBottomActions: FC<{ asset: Asset }> = ({ asset }) => {
@@ -33,11 +34,10 @@ export const AssetBottomActions: FC<{ asset: Asset }> = ({ asset }) => {
       return;
     try {
       await deleteAssetByIdMutate(id);
-      Toast.show({ icon: 'success', content: t('detail.deleteSuccess') });
       navigate(-1);
     }
     catch {
-      Toast.show({ icon: 'fail', content: t('detail.deleteFailed') });
+      showAppError({ icon: 'fail', content: t('detail.deleteFailed') });
     }
   };
 

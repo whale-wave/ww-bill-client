@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import type { HouseholdMember } from '@/entities/household';
 import type { LedgerMember } from '@/entities/ledger';
 import type { MemberColorKey } from '@/shared/config/member-colors';
-import { Toast } from 'antd-mobile';
 import { useMemo, useState } from 'react';
+
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   useHouseholdMembersQuery,
@@ -19,6 +19,7 @@ import { useGetUserUserInfoQuery } from '@/entities/user';
 import { getApiErrorStatus } from '@/features/household';
 import { MEMBER_COLOR_KEYS, MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { AppButton, PageHeader, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 type Scope = 'household' | 'ledger';
 
@@ -79,17 +80,16 @@ const MemberColorPage: FC<Props> = ({ scope }) => {
           data: { colorKey: selected, version: currentMember.version },
         });
       }
-      Toast.show({ content: '成员颜色已更新', icon: 'success' });
       navigate(-1);
     }
     catch (error) {
       if (getApiErrorStatus(error) === 409) {
         await (scope === 'household' ? householdMembers.refetch() : ledgerMembers.refetch());
         setDraft(undefined);
-        Toast.show({ content: '颜色已被其他成员使用，请重新选择', icon: 'fail' });
+        showAppError({ content: '颜色已被其他成员使用，请重新选择', icon: 'fail' });
       }
       else {
-        Toast.show({ content: '保存失败，请稍后重试', icon: 'fail' });
+        showAppError({ content: '保存失败，请稍后重试', icon: 'fail' });
       }
     }
   };

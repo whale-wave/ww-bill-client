@@ -1,5 +1,5 @@
 import type { CreateFixedExpenseApiData } from '@/entities/fixed-expense';
-import { Form, Toast } from 'antd-mobile';
+import { Form } from 'antd-mobile';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -13,6 +13,7 @@ import {
   usePostFixedExpenseMutation,
 } from '@/entities/fixed-expense';
 import { useTranslation } from '@/shared/i18n';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 interface FormValues {
   name: string;
@@ -119,7 +120,7 @@ export function useFixedExpenseForm(id?: string) {
 
   const onFinishFailed = useCallback((errorInfo: any) => {
     const first = errorInfo?.errorFields?.[0]?.errors?.[0];
-    void Toast.show({ icon: 'fail', content: first || t('form.pleaseComplete') });
+    void showAppError({ icon: 'fail', content: first || t('form.pleaseComplete') });
   }, [t]);
 
   const onFinish = useCallback(async (values: FormValues) => {
@@ -153,17 +154,15 @@ export function useFixedExpenseForm(id?: string) {
     try {
       if (id) {
         await patchMutate({ id, params: payload });
-        Toast.show({ icon: 'success', content: t('form.saveSuccess') });
       }
       else {
         await postMutate(payload);
-        Toast.show({ icon: 'success', content: t('form.createSuccess') });
       }
 
       navigate(-1);
     }
     catch {
-      Toast.show({ icon: 'fail', content: t('form.saveFailed') });
+      showAppError({ icon: 'fail', content: t('form.saveFailed') });
     }
   }, [id, isDisabled, patchMutate, postMutate, navigate, t]);
 

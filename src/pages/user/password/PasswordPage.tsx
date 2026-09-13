@@ -1,11 +1,12 @@
 import type { FC } from 'react';
-import { Toast } from 'antd-mobile';
 import { LockKeyhole, ShieldCheck } from 'lucide-react';
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { changePassword } from '@/entities/user';
 import { useTranslation } from '@/shared/i18n';
 import { FormField, PageHeader, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 const Password: FC = () => {
   const { t } = useTranslation('user');
@@ -18,14 +19,13 @@ const Password: FC = () => {
 
   const handleChangePassword = async () => {
     if (newPassword !== rePassword) {
-      Toast.show({ content: t('password.passwordMismatch'), icon: 'fail' });
+      showAppError({ content: t('password.passwordMismatch'), icon: 'fail' });
       return;
     }
     setIsSubmitting(true);
     try {
       const { statusCode } = await changePassword({ newPassword, password: oldPassword });
       if (statusCode === 200) {
-        Toast.show({ content: t('password.saveSuccess'), icon: 'success' });
         setTimeout(navigate, 600, -1);
       }
     }

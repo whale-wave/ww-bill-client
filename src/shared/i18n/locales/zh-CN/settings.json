@@ -69,7 +69,10 @@
     "title": "功能设置"
   },
   "dataSecurity": "数据安全",
-  "recovery": { "title": "最近删除", "description": "可恢复 30 天内删除的记录" },
+  "recovery": {
+    "title": "最近删除",
+    "description": "可恢复 30 天内删除的记录"
+  },
   "export": "导出数据",
   "about": "关于鲸浪记账",
   "invite": "邀请好友",
@@ -128,43 +131,144 @@
     "openFailed": "无法打开链接，请稍后重试"
   },
   "shortcutBookkeeping": {
-    "title": "iPhone 快捷记账",
-    "entryDescription": "背部轻点截图识别，确认后再入账",
-    "introTitle": "截图只生成待确认草稿",
-    "introDescription": "iPhone 在本机识别截图文字，打开鲸浪后由你选择账本、核对金额和类别，点击完成才会记账。",
-    "credentialTitle": "快捷指令凭证",
-    "credentialDescription": "凭证只能提交待确认文字，不能读取账本或直接记账。每台设备建议单独创建。",
-    "deviceName": "凭证名称",
-    "deviceNamePlaceholder": "例如：我的 iPhone",
-    "createCredential": "创建凭证",
-    "createAndInstall": "创建并安装快捷指令",
-    "creatingCredential": "创建中…",
-    "newCredential": "请立即复制这枚凭证",
-    "newCredentialHint": "为安全起见，离开本页后不会再次显示完整凭证。",
-    "copyCredential": "复制凭证",
-    "copyAndInstall": "复制并打开安装页",
-    "copyEndpoint": "复制请求地址",
-    "copied": "已复制",
-    "activeCredentials": "已启用凭证",
-    "noCredentials": "还没有快捷指令凭证",
-    "neverUsed": "尚未使用",
-    "lastUsed": "最近使用：{{time}}",
-    "expires": "到期：{{time}}",
-    "revoke": "撤销",
-    "revokeTitle": "撤销这个快捷指令凭证？",
-    "revokeDescription": "已安装的快捷指令会立即无法提交新草稿。",
-    "revokeSuccess": "凭证已撤销",
+    "title": "快捷记账",
+    "entryDescription": "用 iPhone 快捷指令快速记账",
+    "defaultName": "iPhone 快捷记账",
+    "copyFailed": "无法复制连接密钥，请重试",
     "saveFailed": "操作失败，请稍后重试",
-    "manualSetup": "手动配置 / 排障",
-    "setupTitle": "在 iOS 快捷指令中设置",
-    "step1": "添加“截屏”，再添加“计算哈希”（SHA-256）和“从图像中提取文本”。",
-    "step2": "添加“获取 URL 内容”，方法选 POST，请求体选 JSON。",
-    "step3": "请求地址使用下方地址；请求头 Authorization 填 Bearer 空格加上方凭证。",
-    "step4": "JSON 传 rawText（识别文字）、clientRequestId（截图的 SHA-256 Hash）和 capturedAt（当前日期）。",
-    "step5": "从响应 data 中取得 confirmationUrl，再用“打开 URL”打开确认页。",
-    "backTapTitle": "最后开启背部轻点",
-    "backTapDescription": "系统设置 → 辅助功能 → 触控 → 轻点背面 → 轻点两下，然后选择刚创建的快捷指令。",
-    "browserLoginHint": "iOS 的“打开 URL”通常会进入 Safari，不能保证直接进入已安装的主屏幕 PWA。Safari 与 PWA 登录状态可能彼此独立，首次打开时按提示登录即可继续确认。",
+    "unavailable": "快捷指令暂不可用\n当前没有可安装的快捷指令版本，请稍后再试。",
+    "leaveTitle": "要离开设置吗？",
+    "leaveDescription": "离开后这枚连接密钥将无法再次完整显示，需要停用后重新设置。",
+    "leaveConfirm": "确认离开",
+    "intro": {
+      "title": "快捷记账",
+      "headline": "1 分钟，把记账装进 iPhone",
+      "description": "添加一次快捷指令，以后随时快速记账。",
+      "start": "开始设置",
+      "fast": {
+        "title": "截屏识别",
+        "description": "快捷指令会读取截屏中的消费信息"
+      },
+      "anywhere": {
+        "title": "背部双击启动",
+        "description": "在 iPhone 上设置轻点背面即可快速调用"
+      },
+      "safe": { "title": "安全可靠", "description": "只会创建待确认的记账草稿" }
+    },
+    "createKey": {
+      "title": "创建连接密钥",
+      "description": "用于让快捷指令安全连接你的鲸浪记账。",
+      "security": "这枚密钥只能用于创建记账草稿，不能读取密码，也不能修改其他数据。",
+      "submit": "创建连接密钥",
+      "creating": "创建中…"
+    },
+    "keyCreated": {
+      "title": "连接密钥已创建",
+      "description": "这枚密钥只会完整显示这一次，请不要分享给其他人。",
+      "warning": "下一步需要把这枚密钥粘贴到快捷指令中。点击下方按钮后，我们会先告诉你粘贴的位置，再带你前往 Apple 快捷指令。",
+      "continue": "复制密钥并添加快捷指令",
+      "show": "显示连接密钥",
+      "hide": "隐藏连接密钥",
+      "copy": "复制连接密钥"
+    },
+    "installGuide": {
+      "title": "在快捷指令中粘贴密钥",
+      "description": "接下来将打开 Apple 快捷指令，请按照下面的图示完成设置。",
+      "imageAlt": "在 Apple 快捷指令中粘贴连接密钥的示意图",
+      "steps": {
+        "paste": "在输入框中长按，选择“粘贴”",
+        "confirm": "点击“好”完成添加",
+        "run": "添加完成后运行一次快捷指令"
+      },
+      "countdown": "{{seconds}} 秒后自动打开 Apple 快捷指令",
+      "opening": "正在打开 Apple 快捷指令…",
+      "openNow": "立即打开快捷指令"
+    },
+    "overview": {
+      "connectedTitle": "已设置快捷记账",
+      "connectedDescription": "你现在可以通过快捷指令快速创建待确认的记账草稿。",
+      "usage": "使用说明",
+      "usageDescription": "查看如何使用快捷记账",
+      "connections": "连接管理",
+      "connectionsDescription": "管理已创建的连接密钥",
+      "faq": "常见问题",
+      "faqDescription": "了解识别偏差与反馈方式"
+    },
+    "usage": {
+      "title": "使用说明",
+      "eyebrow": "快速上手",
+      "description": "按顺序完成一次设置，之后截屏并运行快捷指令即可生成待确认草稿。",
+      "sections": {
+        "find": {
+          "shortTitle": "获取快捷指令",
+          "title": "1. 获取快捷指令",
+          "description": "从 iCloud 页面开始安装“鲸浪记账 截屏自动记账”。",
+          "imageAlt": "获取鲸浪记账截屏自动记账快捷指令的操作截图",
+          "captions": [
+            "在 iCloud 快捷指令页面确认名称，点击“获取捷径”。",
+            "在快捷指令详情页点击“设置快捷指令”，进入配置。"
+          ]
+        },
+        "configure": {
+          "shortTitle": "粘贴连接密钥",
+          "title": "2. 配置并添加快捷指令",
+          "description": "将本页复制的连接密钥填入配置页，再完成添加。",
+          "imageAlt": "在快捷指令配置页粘贴连接密钥的操作截图",
+          "captions": [
+            "点击 token 输入框，粘贴本页复制的连接密钥。",
+            "确认密钥已填入，点击“添加快捷指令”。",
+            "看到添加完成后返回本页，准备设置快捷启动。"
+          ]
+        },
+        "backTap": {
+          "shortTitle": "设置轻点背面",
+          "title": "3. 设置轻点背面（可选）",
+          "description": "按顺序打开设置，将快捷指令绑定到 iPhone 背部轻点。",
+          "imageAlt": "在 iPhone 设置中配置轻点背面的操作截图",
+          "captions": [
+            "打开 iPhone 的“设置”。",
+            "在设置列表中点击“辅助功能”。",
+            "进入“触控”设置。",
+            "点击“轻点背面”。",
+            "选择“轻点两下”。",
+            "选择“鲸浪记账 截屏自动记账”完成绑定。"
+          ]
+        }
+      },
+      "confirm": {
+        "title": "运行后会打开网页确认",
+        "description": "截取包含消费信息的画面，运行“鲸浪记账 截屏自动记账”。快捷指令会进行 OCR 识别，生成待确认草稿并打开网页确认页；核对后才会正式保存。"
+      }
+    },
+    "faq": {
+      "eyebrow": "常见问题",
+      "title": "识别结果不准确怎么办？",
+      "description": "快捷记账目前仍在持续适配和优化不同平台的付款页面。遇到问题时，你的反馈会直接帮助我们改进。",
+      "feedbackAction": "反馈识别问题",
+      "items": {
+        "recognition": {
+          "question": "为什么分类或金额有时不对？",
+          "answer": "快捷指令会对截屏中的付款页面进行 OCR 识别。由于目前适配的付款页面还在完善，同一类信息在不同页面中的布局、字体和表达方式可能不同，因此分类或金额偶尔会识别偏差。"
+        },
+        "feedback": {
+          "question": "发现错误后应该怎么做？",
+          "answer": "请先在网页确认页核对并修正草稿，再通过反馈入口告诉我们：原始付款页面、识别出的分类或金额，以及正确结果。信息越完整，越有助于定位问题。"
+        },
+        "improve": {
+          "question": "反馈会带来什么帮助？",
+          "answer": "我们会根据真实页面持续补充适配规则，逐步提升金额和分类识别的准确度。感谢你参与共建，让快捷记账越来越好用。"
+        }
+      }
+    },
+    "connections": {
+      "lastUsed": "最近使用：{{time}}",
+      "expires": "有效期至：{{time}}",
+      "revoke": "停用",
+      "revokeTitle": "停用这个快捷记账？",
+      "revokeDescription": "停用后，使用这枚连接密钥的快捷指令将无法继续创建记账草稿。",
+      "securityHint": "连接密钥相当于快捷指令连接鲸浪记账的凭证，请不要分享给其他人。",
+      "recoveryHint": "如果不再使用这个快捷指令，或者怀疑密钥已经泄露，请及时停用。"
+    },
     "draftTitle": "核对截图内容",
     "draftDescription": "系统不会自动入账，请先选择目标账本并核对识别结果。",
     "chooseType": "选择收支类型",

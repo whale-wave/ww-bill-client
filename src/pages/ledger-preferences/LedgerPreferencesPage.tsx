@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { SafeArea, Switch, Toast } from 'antd-mobile';
+import { SafeArea, Switch } from 'antd-mobile';
 import { BookOpenCheck } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +9,7 @@ import {
 } from '@/entities/user-app-config';
 import { useTranslation } from '@/shared/i18n';
 import { PageHeader, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 interface QuickSwitchPreferenceState {
   enabled: boolean;
@@ -60,10 +61,10 @@ const LedgerPreferencesPage: FC = () => {
       if (isConflictError(error)) {
         setPreferenceOverride(undefined);
         await configQuery.refetch();
-        Toast.show({ content: t('preferences.conflict') });
+        showAppError({ content: t('preferences.conflict') });
       }
       else {
-        Toast.show({ content: t('preferences.updateFailed') });
+        showAppError({ content: t('preferences.updateFailed') });
       }
     }
     finally {

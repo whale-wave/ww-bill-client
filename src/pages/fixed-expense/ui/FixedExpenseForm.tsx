@@ -1,12 +1,4 @@
-import {
-  Button,
-  Form,
-  Input,
-  Selector,
-  Stepper,
-  Switch,
-  TextArea,
-} from 'antd-mobile';
+import { Button, Form, Input, Selector, Stepper, Switch, TextArea } from 'antd-mobile';
 import { DownOutline, RightOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';

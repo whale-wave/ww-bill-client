@@ -1,13 +1,14 @@
 import type { FC } from 'react';
 import type { SuccessResponse } from '@/shared/api';
 import type { FormFieldProps } from '@/shared/ui';
-import { Toast } from 'antd-mobile';
 import { KeyRound, LoaderCircle } from 'lucide-react';
+
 import { useCallback, useEffect, useState } from 'react';
 import { getToolsEmailApi } from '@/entities/tools';
 import { useTranslation } from '@/shared/i18n';
-
 import { FormField } from '@/shared/ui';
+
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 const WAIT_TIME = 60;
 
@@ -55,7 +56,7 @@ export const EmailCaptchaInput: FC<EmailCaptchaInputProps> = ({
       return;
 
     if (!isValidEmail(email)) {
-      Toast.show({
+      showAppNotice({
         content: t('verificationEmailInvalid'),
         position: 'top',
       });
@@ -74,7 +75,7 @@ export const EmailCaptchaInput: FC<EmailCaptchaInputProps> = ({
         setCooldownUntil(Date.now() + WAIT_TIME * 1000);
       }
       else {
-        Toast.show({
+        showAppError({
           content: getSendErrorMessage(statusCode, t),
           position: 'top',
         });

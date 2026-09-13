@@ -1,7 +1,6 @@
 import type { Ledger } from '@/entities/ledger';
 import type { RecordDraft } from '@/features/record-editor';
 import { useQueryClient } from '@tanstack/react-query';
-import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useCallback, useMemo } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -24,6 +23,7 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { PageLoadingState } from '@/shared/ui';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 function getValidSelectTime(value: string | null) {
   if (!value)
@@ -70,23 +70,22 @@ function LedgerRecordCreateEditor({
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
     try {
       const { imageAssetId, ...recordData } = draft;
-      const response = await createRecord({
+      await createRecord({
         data: imageAssetId === null ? recordData : { ...recordData, imageAssetId },
         ledgerId,
       });
       await invalidateLedgerRecordEditorCaches(queryClient, ledgerId);
-      Toast.show({ content: response.message || t('records.saved'), icon: 'success' });
       navigateAfterCreate();
     }
     catch {
-      Toast.show({ content: t('records.saveFailed'), icon: 'fail' });
+      showAppError({ content: t('records.saveFailed'), icon: 'fail' });
     }
   }, [createRecord, ledgerId, navigateAfterCreate, queryClient, t]);
   const controller = useRecordEditorController({
     onSubmit: handleSubmit,
     onValidationError: (error) => {
       if (error === 'category')
-        Toast.show({ content: t('record:bookkeeping.chooseCategory') });
+        showAppNotice({ content: t('record:bookkeeping.chooseCategory') });
     },
     seed,
     supportsTags,

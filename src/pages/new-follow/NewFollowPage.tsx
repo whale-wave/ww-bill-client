@@ -71,7 +71,7 @@ function NewFollow() {
               <UserFollowItem
                 key={i.id}
                 username={i.name}
-                avatar={i.avatar}
+                avatar={i.avatar ?? undefined}
                 isFollow={i.isFollow}
                 followTime={showDate(i.createdAt)}
                 onClick={() => navigate(`/community/personal/${i.userId}`)}

@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { Household, HouseholdBudget } from '@/entities/household';
-import { Toast } from 'antd-mobile';
 import { useMemo, useRef, useState } from 'react';
+
 import { useParams } from 'react-router-dom';
 import {
   BudgetEditorPresentation,
@@ -25,6 +25,7 @@ import {
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
 import { confirmAppAction, showAppActionSheet } from '@/shared/ui';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 interface BudgetEditor {
   budget?: HouseholdBudget;
@@ -108,10 +109,10 @@ const BudgetContent: FC<BudgetContentProps> = ({
   const handleError = async (error: unknown) => {
     if (getApiErrorStatus(error) === 409) {
       await query.refetch();
-      void Toast.show({ content: t('common.conflict'), icon: 'fail' });
+      void showAppError({ content: t('common.conflict'), icon: 'fail' });
       return true;
     }
-    void Toast.show({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
+    void showAppError({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
     return false;
   };
 
@@ -140,7 +141,7 @@ const BudgetContent: FC<BudgetContentProps> = ({
       : categoryOptions.find(category => category.categoryKey === categoryKey);
     if (!(Number(normalizedAmount) > 0)
       || (editor?.kind === 'category' && !selectedCategory)) {
-      void Toast.show({ content: t('budget.invalidAmount') });
+      void showAppNotice({ content: t('budget.invalidAmount') });
       return;
     }
 
@@ -160,7 +161,6 @@ const BudgetContent: FC<BudgetContentProps> = ({
         householdId: household.id,
       });
       closeEditor();
-      void Toast.show({ content: t('budget.saved'), icon: 'success' });
     }
     catch (error) {
       const isConflict = await handleError(error);
@@ -188,7 +188,6 @@ const BudgetContent: FC<BudgetContentProps> = ({
         householdId: household.id,
         version: budget.version,
       });
-      void Toast.show({ content: t('budget.deleted'), icon: 'success' });
     }
     catch (error) {
       await handleError(error);

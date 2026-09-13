@@ -1,11 +1,12 @@
-import { Toast } from 'antd-mobile';
 import { Mail, RefreshCw } from 'lucide-react';
+
 import React, { useCallback, useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { getUserEmailChangeEmailCaptchaNewEmailApi, usePostUserEmailChangeEmailMutation } from '@/entities/user-email';
 import { EmailCaptchaInput } from '@/features/email-captcha';
 import { useTranslation } from '@/shared/i18n';
 import { FormField, PageHeader, Surface } from '@/shared/ui';
+import { showAppNotice } from '@/shared/ui/app-feedback';
 
 interface EmailChangeProps {}
 
@@ -24,7 +25,7 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
 
   const onSendNewCaptcha = useCallback(async () => {
     if (!newEmail.trim()) {
-      Toast.show({
+      showAppNotice({
         content: t('user:emailChange.newEmail.placeholder'),
         position: 'top',
       });
@@ -33,7 +34,7 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
     const response = await getUserEmailChangeEmailCaptchaNewEmailApi({
       newEmail,
       captcha,
-    }, false);
+    });
     switch (response.statusCode) {
       case 4003:
       case 4005:
@@ -52,7 +53,7 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
 
   const onSendChangeEmail = useCallback(async () => {
     if (!newEmail.trim()) {
-      Toast.show({
+      showAppNotice({
         content: t('user:emailChange.newEmail.placeholder'),
         position: 'top',
       });
@@ -60,7 +61,7 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
     }
 
     if (!newCaptcha.trim()) {
-      Toast.show({
+      showAppNotice({
         content: t('user:emailChange.newEmail.captchaPlaceholder'),
         position: 'top',
       });

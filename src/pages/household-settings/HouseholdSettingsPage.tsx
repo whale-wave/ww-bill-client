@@ -1,6 +1,6 @@
 import type { FC, FormEvent } from 'react';
 import type { Household } from '@/entities/household';
-import { Button, Toast } from 'antd-mobile';
+import { Button } from 'antd-mobile';
 import { CalendarDays } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -27,6 +27,7 @@ import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { AppDatePicker, AppSheet, PageHeader } from '@/shared/ui';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 type Editor = 'dissolve' | 'sharedStart' | null;
 
@@ -58,10 +59,10 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
   const handleError = async (error: unknown) => {
     if (getApiErrorStatus(error) === 409) {
       await Promise.all([householdQuery.refetch(), membersQuery.refetch()]);
-      Toast.show({ content: t('common.conflict'), icon: 'fail' });
+      showAppError({ content: t('common.conflict'), icon: 'fail' });
       return;
     }
-    Toast.show({
+    showAppError({
       content: getApiErrorMessage(error, t('common.failed')),
       icon: 'fail',
     });
@@ -80,7 +81,6 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
         },
         householdId: household.id,
       });
-      Toast.show({ content: t('settings.updated'), icon: 'success' });
       setEditor(null);
     }
     catch (error) {
@@ -97,7 +97,7 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
       return;
     const data = new FormData(event.currentTarget);
     if (data.get('confirmDissolve') !== 'on') {
-      Toast.show({ content: t('settings.confirmDissolve') });
+      showAppNotice({ content: t('settings.confirmDissolve') });
       return;
     }
     submittingRef.current = true;
@@ -111,7 +111,6 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
         },
         householdId: household.id,
       });
-      Toast.show({ content: t('settings.dissolved'), icon: 'success' });
       navigate(ROUTES_PATH.HOUSEHOLD.getPath(), {
         replace: true,
         state: { dissolved: true },
@@ -134,14 +133,13 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
         data: { hideTotalAmount, version: preference.version },
         householdId: household.id,
       });
-      Toast.show({ content: t('settings.updated'), icon: 'success' });
     }
     catch (error) {
       await handleError(error);
     }
   };
 
-  const showDeveloping = () => Toast.show(t('settings.comingSoon'));
+  const showDeveloping = () => showAppNotice(t('settings.comingSoon'));
   const isOwner = household.myRole === HouseholdMemberRole.OWNER;
   const currentMember = membersQuery.data.find(member => member.user.id === userQuery.data?.id);
 

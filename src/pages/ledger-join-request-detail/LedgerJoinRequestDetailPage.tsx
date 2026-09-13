@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { AssignableLedgerRole } from '@/entities/ledger';
-import { Toast } from 'antd-mobile';
 import { Check, ChevronRight, UserRoundCheck } from 'lucide-react';
+
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -22,6 +22,7 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { AppSheet, ContentStack, PageHeader, SectionStack, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import {
   getJoinRequestPermissionGroups,
   getJoinRequestRoleDescriptionKey,
@@ -77,13 +78,12 @@ const LedgerJoinRequestDetailPage: FC = () => {
         ledgerId,
         requestId,
       });
-      Toast.show({ content: t('requestDetail.processed'), icon: 'success' });
       navigate(ROUTES_PATH.LEDGER_JOIN_REQUESTS.getPath(ledgerId), { replace: true });
     }
     catch (error) {
       const message = getErrorMessage(error, t('requestDetail.processFailed'));
       setErrorMessage(message);
-      Toast.show({ content: message });
+      showAppError(error, { message });
     }
     finally {
       submittingRef.current = false;

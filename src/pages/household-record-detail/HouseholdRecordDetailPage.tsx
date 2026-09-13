@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import type { FamilyRecord } from '@/entities/household';
 import type { RecordEntry } from '@/entities/record';
 import type { RecordEditorLocationState } from '@/features/record-editor';
-import { Toast } from 'antd-mobile';
 import { useNavigate, useParams } from 'react-router-dom';
+
 import { useGetAssetQuery } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
 import { useHouseholdRecordQuery } from '@/entities/household';
@@ -16,6 +16,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getTimeOfDay, getWeekByDay } from '@/shared/lib/date-time';
 import { confirmDangerousAction, PageHeader } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 const RecordDetail: FC<{
   householdId: string;
@@ -69,12 +70,11 @@ const RecordDetail: FC<{
       return;
 
     try {
-      const response = await deleteRecord({ id: String(record.id), version: record.version });
-      void Toast.show({ content: response.message, icon: 'success' });
+      await deleteRecord({ id: String(record.id), version: record.version });
       navigate(ROUTES_PATH.HOUSEHOLD_HOME.getPath(householdId), { replace: true });
     }
     catch {
-      void Toast.show({ content: t('common:api.requestFailed'), icon: 'fail' });
+      void showAppError({ content: t('common:api.requestFailed'), icon: 'fail' });
     }
   };
 

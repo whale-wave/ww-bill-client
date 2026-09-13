@@ -1,13 +1,14 @@
 import type { FC, ReactNode } from 'react';
 import type { MemberColorKey } from '@/shared/config/member-colors';
-import { Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import { ChevronLeft, ChevronRight, Copy, Pencil, Share2, Trash2 } from 'lucide-react';
+
 import { Fragment, useEffect, useRef } from 'react';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
 import { Icon, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 export interface RecordDetailRow {
   copyValue?: string;
@@ -130,10 +131,8 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
       copied = false;
     }
     copied ||= copy(value);
-    Toast.show({
-      content: t(copied ? 'confirm.copySuccess' : 'api.requestFailed'),
-      icon: copied ? 'success' : 'fail',
-    });
+    if (!copied)
+      showAppError(undefined, { message: t('api.requestFailed') });
   };
 
   useEffect(() => {

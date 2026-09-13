@@ -1,5 +1,5 @@
-import { Toast } from 'antd-mobile';
 import { ChevronDown, PencilLine, Plus, Tag, Trash2 } from 'lucide-react';
+
 import { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CategoryIcon, useLedgerCategoriesQuery } from '@/entities/category';
@@ -9,6 +9,7 @@ import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { omitRecordEditorSettingsNavigationState, readRecordEditorSettingsNavigationState } from '@/features/record-editor';
 import { useTranslation } from '@/shared/i18n';
 import { confirmDangerousAction, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: number; ledgerId: string }) {
   const { t } = useTranslation('ledger');
@@ -106,7 +107,7 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
                 }
                 catch {
                   await query.refetch();
-                  Toast.show({ icon: 'fail', content: t('tags.saveFailed') });
+                  showAppError({ icon: 'fail', content: t('tags.saveFailed') });
                 }
               }}
               title={t('common.save')}

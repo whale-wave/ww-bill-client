@@ -11,10 +11,8 @@ let presenceRequestQueue: Promise<void> = Promise.resolve();
 
 export function login(body:
   | { username: string; password: string }
-  | { email: string; emailCode: string }, loading = true) {
-  return request.post<never, SuccessResponse<LoginRes>>('/auth/login', body, {
-    loading,
-  });
+  | { email: string; emailCode: string }) {
+  return request.post<never, SuccessResponse<LoginRes>>('/auth/login', body);
 }
 
 export function reportPresence(
@@ -37,20 +35,17 @@ export function sign(body: {
   email: string;
   password: string;
   emailCode: string;
-}, loading = true) {
-  return request.post<never, SuccessResponse<LoginRes>>('/auth/sign', body, {
-    loading,
-  });
+}) {
+  return request.post<never, SuccessResponse<LoginRes>>('/auth/sign', body);
 }
 
-export function loginEmailCaptchaApi(email: string, loading = false) {
+export function loginEmailCaptchaApi(email: string) {
   return request.get<never, SuccessResponse<unknown>>(
     '/auth/login/email/captcha',
     {
       params: {
         email,
       },
-      loading,
     },
   );
 }
@@ -64,36 +59,29 @@ interface PostAuthPasswordForgetResetApiData {
 
 export function postAuthPasswordForgetResetApi(
   data: PostAuthPasswordForgetResetApiData,
-  loading = false,
 ) {
   return request.post<never, SuccessResponse<unknown>>(
     '/auth/password/forget/reset',
     data,
-    {
-      loading,
-    },
+    {},
   );
 }
 
-export function getToolsForgetPasswordEmailApi(email: string, loading = false) {
+export function getToolsForgetPasswordEmailApi(email: string) {
   return request.get<unknown, SuccessResponse<unknown>>(
     '/auth/forget-password-email',
-    {
-      params: { email },
-      loading,
-    },
+    { params: { email } },
   );
 }
 
 export function getToolsForgetPasswordEmailVerifyCodeApi(params: {
   email: string;
   captcha: string;
-}, loading = false) {
+}) {
   return request.get<unknown, SuccessResponse<unknown>>(
     '/auth/forget-password-email/verify-code',
     {
       params,
-      loading,
     },
   );
 }

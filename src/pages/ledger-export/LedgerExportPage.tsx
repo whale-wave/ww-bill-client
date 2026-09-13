@@ -1,5 +1,5 @@
-import { Toast } from 'antd-mobile';
 import { Download, FileSpreadsheet } from 'lucide-react';
+
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LedgerCapability } from '@/entities/ledger';
@@ -7,6 +7,7 @@ import { useCreateLedgerExportMutation, useDownloadLedgerExportMutation, useLedg
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useTranslation } from '@/shared/i18n';
 import { PageHeader, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `export-${Date.now()}`;
@@ -47,7 +48,7 @@ function ExportContent({ ledgerId }: { ledgerId: string }) {
                 setTaskId(response.data.id);
               }
               catch {
-                Toast.show({ icon: 'fail', content: t('export.failed') });
+                showAppError({ icon: 'fail', content: t('export.failed') });
               }
               finally {
                 submittingRef.current = false;

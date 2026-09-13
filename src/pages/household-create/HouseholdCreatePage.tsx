@@ -1,6 +1,6 @@
 import type { FC, FormEvent } from 'react';
-import { Toast } from 'antd-mobile';
 import { CalendarDays, Sparkles } from 'lucide-react';
+
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateHouseholdMutation } from '@/entities/household';
@@ -9,6 +9,7 @@ import { formatMonthStart, getApiErrorMessage } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { PageHeader, Surface } from '@/shared/ui';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `household-${Date.now()}`;
@@ -35,7 +36,7 @@ const HouseholdCreatePage: FC = () => {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!consent) {
-      void Toast.show({ content: t('create.consentRequired') });
+      void showAppNotice({ content: t('create.consentRequired') });
       return;
     }
     if (submittingRef.current)
@@ -48,13 +49,12 @@ const HouseholdCreatePage: FC = () => {
         sharedStartMonth: `${month}-01`,
         sharingConsentConfirmed: true,
       });
-      void Toast.show({ content: t('create.success'), icon: 'success' });
       navigate(ROUTES_PATH.HOUSEHOLD_INVITATION.getPath(response.data.household.id), {
         replace: true,
       });
     }
     catch (error) {
-      void Toast.show({
+      void showAppError({
         content: getApiErrorMessage(error, t('create.failed')),
         icon: 'fail',
       });

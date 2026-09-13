@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
-import { Form, Input, Skeleton, Toast } from 'antd-mobile';
+import { Form, Input, Skeleton } from 'antd-mobile';
 import { clone } from 'lodash-es';
 import { BadgeDollarSign, Building2, CreditCard, FileWarning, Landmark, MessageSquareText, WalletCards } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -17,6 +17,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { normalizeAmount } from '@/shared/lib';
 import { AppButton, FieldFrame, IllustratedEmptyState, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { AssetPageFrame } from '../ui';
 
 type AssetFormValues = Pick<Asset, 'amount' | 'cardId' | 'comment' | 'name'>;
@@ -128,7 +129,6 @@ const AssetFormInfo: FC = () => {
       else {
         await postAssetMutate({ ...formData, groupId: assetGroup.id });
       }
-      Toast.show({ icon: 'success', content: t('form.saveSuccess') });
       if (assetId) {
         navigate(-1);
       }
@@ -137,12 +137,12 @@ const AssetFormInfo: FC = () => {
       }
     }
     catch {
-      Toast.show({ icon: 'fail', content: t('form.saveFailed') });
+      showAppError({ icon: 'fail', content: t('form.saveFailed') });
     }
   }, [assetGroup, assetId, isSaving, navigate, patchAssetAdjustMutate, postAssetMutate, t]);
 
   const handleFinishFailed = useCallback((errors: { errorFields: { errors: string[] }[] }) => {
-    Toast.show({ icon: 'fail', content: errors.errorFields[0]?.errors[0] ?? t('form.validationFailed') });
+    showAppError({ icon: 'fail', content: errors.errorFields[0]?.errors[0] ?? t('form.validationFailed') });
   }, [t]);
 
   const title = isEdit ? t('detail.edit') : t('form.addAccountTitle');

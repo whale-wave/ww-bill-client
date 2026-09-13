@@ -1,7 +1,7 @@
 import type { FC } from 'react';
-import { Toast } from 'antd-mobile';
 import { Mail } from 'lucide-react';
 import { useCallback, useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 import { getToolsForgetPasswordEmailApi } from '@/entities/auth';
 import { AuthPageShell, AuthPrimaryButton } from '@/features/auth';
@@ -10,6 +10,7 @@ import { useTranslation } from '@/shared/i18n';
 import { isEmail } from '@/shared/lib';
 import { playSound } from '@/shared/lib/play-sound';
 import { confirmAppAction, FormField } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 const ForgetPassword: FC = () => {
   const { t } = useTranslation('auth');
@@ -23,7 +24,7 @@ const ForgetPassword: FC = () => {
 
   const handleSend = useCallback(() => {
     if (!isEmail(email)) {
-      Toast.show({ position: 'top', content: t('forgetPassword.emailFormatError') });
+      showAppError({ position: 'top', content: t('forgetPassword.emailFormatError') });
       return;
     }
     void (async () => {
@@ -40,7 +41,7 @@ const ForgetPassword: FC = () => {
       });
       if (!confirmed)
         return;
-      const response = await getToolsForgetPasswordEmailApi(email, true);
+      const response = await getToolsForgetPasswordEmailApi(email);
       if (response.statusCode === 200) {
         setTimeout(() => {
           playSound.turnPage();

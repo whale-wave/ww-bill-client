@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { SupportedLang } from '@/shared/i18n';
-import { Toast } from 'antd-mobile';
 import { Trash2 } from 'lucide-react';
+
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
@@ -24,6 +24,7 @@ import {
   PageHeader,
   showAppActionSheet,
 } from '@/shared/ui';
+import { showAppNotice } from '@/shared/ui/app-feedback';
 
 const Settings: FC = () => {
   const { t } = useTranslation('settings');
@@ -52,7 +53,6 @@ const Settings: FC = () => {
         onClick: async () => {
           await changeLanguage(key);
           setCurrentLang(key);
-          Toast.show(i18n.t('settings:language.changed'));
         },
         text: label,
       })),
@@ -75,10 +75,9 @@ const Settings: FC = () => {
       return;
     clearLocalStorage();
     setLocalStorageSize(getLocalStorageSize());
-    Toast.show(t('storage.cleared'));
   };
 
-  const showDeveloping = () => Toast.show(t('developing'));
+  const showDeveloping = () => showAppNotice(t('developing'));
 
   return (
     <div className="page-new relative overflow-hidden">

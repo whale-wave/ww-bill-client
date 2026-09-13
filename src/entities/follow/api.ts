@@ -11,7 +11,7 @@ export interface GetFollowApiParams {
 }
 
 export interface Follow {
-  avatar: string;
+  avatar: string | null;
   createdAt: string;
   fans: number;
   follow: number;

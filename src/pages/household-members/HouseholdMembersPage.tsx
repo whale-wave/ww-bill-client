@@ -1,6 +1,6 @@
 import type { FC, FormEvent } from 'react';
 import type { Household } from '@/entities/household';
-import { Button, Toast } from 'antd-mobile';
+import { Button } from 'antd-mobile';
 import { CircleAlert } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -24,6 +24,7 @@ import { MemberCardsPresentation } from '@/features/workspace-settings';
 import { assertSuccessApi } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
 import { AppSheet, confirmAppAction, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 const MembersContent: FC<{ household: Household }> = ({ household }) => {
   const { t } = useTranslation('household');
@@ -52,13 +53,12 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
         data: { nickname, version: current.version },
         householdId: household.id,
       });
-      Toast.show({ content: t('settings.updated'), icon: 'success' });
       setIsEditing(false);
     }
     catch (error) {
       if (getApiErrorStatus(error) === 409)
         await query.refetch();
-      Toast.show({
+      showAppError({
         content: getApiErrorMessage(error, t('common.failed')),
         icon: 'fail',
       });
@@ -130,7 +130,7 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
                           window.history.back();
                         }
                         catch (error) {
-                          Toast.show({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
+                          showAppError({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
                         }
                       }
                     }}
@@ -151,7 +151,7 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
                           await query.refetch();
                         }
                         catch (error) {
-                          Toast.show({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
+                          showAppError({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
                         }
                       }
                     }}

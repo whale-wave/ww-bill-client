@@ -11,6 +11,7 @@ import {
   isAndroidClientUpdateAvailable,
 } from '@/entities/app-release';
 import { markNotificationReadApi, useNotificationsQuery, UserNotificationStatus, UserNotificationType } from '@/entities/notification';
+import { useAuthStore } from '@/features/auth';
 import { APP_INFO } from '@/shared/config/app-info';
 import { fetchBuildInfo, refreshForBuild } from '@/shared/config/build-info';
 import { useTranslation } from '@/shared/i18n';
@@ -68,7 +69,11 @@ export const ClientUpdateController: FC = () => {
   const checkingRef = useRef(false);
   const installedRef = useRef<Awaited<ReturnType<typeof getInstalledAndroidVersion>>>(null);
   const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
-  const notificationsQuery = useNotificationsQuery({ params: { limit: 20, platform } });
+  const token = useAuthStore(state => state.token);
+  const notificationsQuery = useNotificationsQuery({
+    params: { limit: 20, platform },
+    queryOptions: { enabled: Boolean(token) },
+  });
   const shownGeneralRef = useRef<string | null>(null);
 
   useEffect(() => {

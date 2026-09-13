@@ -1,10 +1,11 @@
 import type { FC } from 'react';
 import { useTranslation } from '@/shared/i18n';
+import { UserAvatar } from '@/shared/ui';
 
 const classPrefix = 'bwm-comment-list-item';
 
 interface CommentListItemProps {
-  avatar?: string;
+  avatar?: string | null;
   coverPicture?: string;
   content: string;
   name: string;
@@ -24,7 +25,7 @@ export const CommentListItem: FC<CommentListItemProps> = (p) => {
     <article className={classPrefix}>
       <div className={`${classPrefix}-left`}>
         <div className={`${classPrefix}-left-img`}>
-          <img src={props.avatar} alt={t('common:avatar')} />
+          <UserAvatar alt={t('common:avatar')} name={props.name} size={40} src={props.avatar} />
         </div>
       </div>
       <div className={`${classPrefix}-middle`}>

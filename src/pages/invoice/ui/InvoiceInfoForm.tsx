@@ -1,5 +1,5 @@
 import type { InvoiceEntity } from '@/entities/invoice';
-import { Button, Form, Input, Toast } from 'antd-mobile';
+import { Button, Form, Input } from 'antd-mobile';
 import { Building2, CreditCard, Hash, Landmark, MapPin, Phone } from 'lucide-react';
 import React, { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,7 @@ import {
 } from '@/entities/invoice';
 import { useTranslation } from '@/shared/i18n';
 import { Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 interface InvoiceInfoFormProps {
   id?: string;
@@ -93,7 +94,7 @@ const InvoiceInfoForm: React.FC<InvoiceInfoFormProps> = (props) => {
         navigate(-1);
       }
       catch {
-        Toast.show({ icon: 'fail', content: t('saveFailed') });
+        showAppError({ icon: 'fail', content: t('saveFailed') });
       }
     },
     [id, isDisabled, isSaving, navigate, patchInvoiceMutate, postInvoiceMutate, t],

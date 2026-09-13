@@ -1,11 +1,12 @@
-import { Toast } from 'antd-mobile';
 import { Pencil, Trash2 } from 'lucide-react';
+
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDeleteFixedExpenseMutation } from '@/entities/fixed-expense';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { confirmAppAction } from '@/shared/ui';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 interface EditAndDeleteButtonProps {
   fixedExpenseId?: string;
@@ -21,7 +22,7 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
   const ensureId = useCallback((id?: string): id is string => {
     if (id)
       return true;
-    void Toast.show({ content: t('detail.noFixedExpenseInfo') });
+    void showAppNotice({ content: t('detail.noFixedExpenseInfo') });
     return false;
   }, [t]);
 
@@ -46,11 +47,10 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
       return;
     try {
       await deleteMutate(fixedExpenseId);
-      Toast.show({ icon: 'success', content: t('detail.deleteSuccess') });
       navigate(-1);
     }
     catch {
-      Toast.show({ icon: 'fail', content: t('deleteFailed') });
+      showAppError({ icon: 'fail', content: t('deleteFailed') });
     }
   };
 

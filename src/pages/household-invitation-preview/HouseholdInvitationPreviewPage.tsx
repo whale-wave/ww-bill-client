@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { Avatar, Toast } from 'antd-mobile';
 import { CalendarDays, CircleAlert, UserRound } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -15,7 +14,8 @@ import {
 } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, Surface, UserAvatar } from '@/shared/ui';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 const HouseholdInvitationPreviewPage: FC = () => {
   const { t } = useTranslation('household');
@@ -32,7 +32,7 @@ const HouseholdInvitationPreviewPage: FC = () => {
 
   const handleAccept = async () => {
     if (!consent) {
-      void Toast.show({ content: t('invitation.consentRequired') });
+      void showAppNotice({ content: t('invitation.consentRequired') });
       return;
     }
     if (!code || !query.data || submittingRef.current)
@@ -49,17 +49,16 @@ const HouseholdInvitationPreviewPage: FC = () => {
           sharingConsentConfirmed: true,
         },
       });
-      void Toast.show({ content: t('invitation.accepted'), icon: 'success' });
       navigate(ROUTES_PATH.HOUSEHOLD_HOME.getPath(response.data.id), { replace: true });
     }
     catch (error) {
       if (getApiErrorStatus(error) === 409) {
         setConsent(false);
         await query.refetch();
-        void Toast.show({ content: t('invitation.previewChanged'), icon: 'fail' });
+        void showAppError({ content: t('invitation.previewChanged'), icon: 'fail' });
         return;
       }
-      void Toast.show({
+      void showAppError({
         content: getApiErrorMessage(error, t('invitation.acceptFailed')),
         icon: 'fail',
       });
@@ -103,10 +102,7 @@ const HouseholdInvitationPreviewPage: FC = () => {
                     <>
                       <Surface className="mt-2 px-5 py-5" material="raised">
                         <div className="flex items-center gap-3">
-                          <Avatar
-                            className="rounded-full [--border-radius:9999px] [--size:52px]"
-                            src={query.data.creator.avatar || ''}
-                          />
+                          <UserAvatar alt={getDisplayName(query.data.creator)} name={getDisplayName(query.data.creator)} size={52} src={query.data.creator.avatar} />
                           <div className="min-w-0">
                             <span className="block text-[11px] font-bold text-ww-soft">{t('invitation.inviter')}</span>
                             <strong className="mt-0.5 block truncate text-[16px] font-extrabold text-ww-ink">{getDisplayName(query.data.creator)}</strong>

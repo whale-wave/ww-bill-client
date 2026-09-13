@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import type { Ledger } from '@/entities/ledger';
 import type { RecordEntry, RecordOverviewListGroup } from '@/entities/record';
-import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
+
 import { CalendarDays, ReceiptText, Search, Settings, Target } from 'lucide-react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +33,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedMonthDay, formatLocalizedYear } from '@/shared/lib';
 import { confirmDangerousAction, DesignIcon } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 
 interface LedgerShortcut {
@@ -323,12 +324,11 @@ function LedgerRecordDeleteActions({
     deletingRecordIdRef.current = record.id;
     try {
       await deleteRecord({ ledgerId, recordId: String(record.id), version: record.version });
-      Toast.show({ content: t('common:confirm.deleteSuccess'), icon: 'success' });
     }
     catch (error) {
       await recordsQuery.refetch();
       const isConflict = typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
-      Toast.show({ content: t(isConflict ? 'records.conflict' : 'records.deleteFailed'), icon: 'fail' });
+      showAppError({ content: t(isConflict ? 'records.conflict' : 'records.deleteFailed'), icon: 'fail' });
     }
     finally {
       deletingRecordIdRef.current = undefined;

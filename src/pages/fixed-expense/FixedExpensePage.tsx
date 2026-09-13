@@ -1,6 +1,6 @@
 import type { StatusTabOption } from './constants';
 import type { FixedExpenseEntity } from '@/entities/fixed-expense';
-import { Skeleton, SwipeAction, Toast } from 'antd-mobile';
+import { Skeleton, SwipeAction } from 'antd-mobile';
 import { CalendarClock, Plus, Trash2 } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { FixedExpenseStatus, useDeleteFixedExpenseMutation, useGetFixedExpenseQu
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { confirmAppAction, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import {
   AddFixedExpenseButton,
   FilterTabs,
@@ -75,10 +76,9 @@ const FixedExpenses: React.FC = () => {
       return;
     try {
       await deleteMutate(item.id);
-      Toast.show({ icon: 'success', content: t('common:confirm.deleteSuccess') });
     }
     catch {
-      Toast.show({ icon: 'fail', content: t('deleteFailed') });
+      showAppError({ icon: 'fail', content: t('deleteFailed') });
     }
   }, [deleteMutate, deleteState.isLoading, t]);
 

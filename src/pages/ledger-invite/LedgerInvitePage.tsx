@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { LedgerInvitation } from '@/entities/ledger';
-import { Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
+
 import { Copy, Share2, Users } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -26,6 +26,7 @@ import {
 import { captureSessionScope, isSessionScopeCurrent } from '@/shared/api/auth-injection';
 import { useTranslation } from '@/shared/i18n';
 import { confirmAppAction, PageHeader, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 function isShareCancelError(error: unknown) {
   if (typeof error !== 'object' || error === null)
@@ -99,11 +100,10 @@ const LedgerInvitePage: FC = () => {
       writeLedgerInvitation(ledgerId, response.data);
       setNow(Date.now());
       setConsented(false);
-      Toast.show({ content: t('invite.generated'), icon: 'success' });
     }
     catch (error) {
       if (isSessionScopeCurrent(scope))
-        Toast.show({ content: getErrorMessage(error, t('invite.generateFailed')) });
+        showAppError({ content: getErrorMessage(error, t('invite.generateFailed')) });
     }
     finally {
       submittingRef.current = false;
@@ -132,41 +132,35 @@ const LedgerInvitePage: FC = () => {
       setInvitation(undefined);
       removeLedgerInvitation(ledgerId);
       setConsented(false);
-      Toast.show({ content: t('invite.revoked'), icon: 'success' });
     }
     catch (error) {
       if (isSessionScopeCurrent(scope))
-        Toast.show({ content: getErrorMessage(error, t('invite.revokeFailed')) });
+        showAppError({ content: getErrorMessage(error, t('invite.revokeFailed')) });
     }
     finally {
       submittingRef.current = false;
     }
   };
 
-  const copyText = async (text: string, successKey: string) => {
+  const copyText = async (text: string) => {
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
-        Toast.show({ content: t(successKey), icon: 'success' });
         return;
       }
-      if (copy(text))
-        Toast.show({ content: t(successKey), icon: 'success' });
-      else
-        Toast.show({ content: t('invite.copyFailed'), icon: 'fail' });
+      if (!copy(text))
+        showAppError({ content: t('invite.copyFailed'), icon: 'fail' });
     }
     catch {
-      if (copy(text))
-        Toast.show({ content: t(successKey), icon: 'success' });
-      else
-        Toast.show({ content: t('invite.copyFailed'), icon: 'fail' });
+      if (!copy(text))
+        showAppError({ content: t('invite.copyFailed'), icon: 'fail' });
     }
   };
 
   const handleCopy = async () => {
     if (!invitation)
       return;
-    await copyText(invitation.code, 'invite.copied');
+    await copyText(invitation.code);
   };
 
   const handleShare = async () => {
@@ -181,12 +175,12 @@ const LedgerInvitePage: FC = () => {
         await navigator.share({ text, title: t('invite.title') });
         return;
       }
-      await copyText(text, 'invite.shareCopied');
+      await copyText(text);
     }
     catch (error) {
       if (isShareCancelError(error))
         return;
-      await copyText(text, 'invite.shareCopied');
+      await copyText(text);
     }
   };
 

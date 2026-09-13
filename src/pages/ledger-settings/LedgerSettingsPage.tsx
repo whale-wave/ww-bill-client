@@ -1,5 +1,4 @@
 import type { SettingsOverviewSection } from '@/features/workspace-settings';
-import { Toast } from 'antd-mobile';
 import {
   Archive,
   CircleAlert,
@@ -7,6 +6,7 @@ import {
   Palette,
   Settings2,
 } from 'lucide-react';
+
 import { useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import {
@@ -51,6 +51,7 @@ import {
   SheetHeader,
   Surface,
 } from '@/shared/ui';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 function isConflict(error: unknown) {
   return typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
@@ -208,7 +209,6 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
           version: ledger.version,
         },
       });
-      Toast.show({ icon: 'success', content: t('settings.saved') });
       setEditor(null);
     }
     catch (error) {
@@ -219,10 +219,10 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
         setMonthStartDay(draft.monthStartDay);
         setIconKey(draft.iconKey);
         setThemeKey(draft.themeKey);
-        Toast.show({ icon: 'fail', content: t('common.conflict') });
+        showAppError({ icon: 'fail', content: t('common.conflict') });
         return;
       }
-      Toast.show({ icon: 'fail', content: t('settings.saveFailed') });
+      showAppError({ icon: 'fail', content: t('settings.saveFailed') });
     }
     finally {
       submittingRef.current = false;
@@ -247,7 +247,6 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
           version: preference.version,
         },
       });
-      Toast.show({ icon: 'success', content: t('settings.saved') });
       setEditor(null);
     }
     catch (error) {
@@ -267,10 +266,10 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
         setDefaultRecordType(draft.defaultRecordType);
         setHideTotalAmount(draft.hideTotalAmount);
         setShowDailySummary(draft.showDailySummary);
-        Toast.show({ icon: 'fail', content: t('common.conflict') });
+        showAppError({ icon: 'fail', content: t('common.conflict') });
         return;
       }
-      Toast.show({ icon: 'fail', content: t('settings.saveFailed') });
+      showAppError({ icon: 'fail', content: t('settings.saveFailed') });
     }
     finally {
       submittingRef.current = false;
@@ -298,7 +297,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
     catch (error) {
       if (isConflict(error))
         await membersQuery.refetch();
-      Toast.show({ icon: 'fail', content: t('settings.leaveFailed') });
+      showAppError({ icon: 'fail', content: t('settings.leaveFailed') });
     }
     finally {
       submittingRef.current = false;
@@ -327,7 +326,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
     catch (error) {
       if (isConflict(error))
         await ledgerQuery.refetch();
-      Toast.show({ icon: 'fail', content: t('settings.archiveFailed') });
+      showAppError({ icon: 'fail', content: t('settings.archiveFailed') });
     }
     finally {
       submittingRef.current = false;
@@ -359,7 +358,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
   if (ledgerQuery.data?.status === LedgerStatus.ARCHIVED)
     return <Navigate replace to={ROUTES_PATH.DETAIL.getPath()} />;
 
-  const showDeveloping = () => Toast.show(t('settings.developing'));
+  const showDeveloping = () => showAppNotice(t('settings.developing'));
   const canUpdateLedger = Boolean(
     ledgerWritable
     && ledger?.capabilities.includes(LedgerCapability.LEDGER_UPDATE),

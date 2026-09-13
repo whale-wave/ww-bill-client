@@ -11,3 +11,4 @@ export * from './play-sound';
 export * from './regular';
 export * from './route-prefetch';
 export * from './system';
+export * from './use-copy-action';

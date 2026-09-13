@@ -1,8 +1,8 @@
+import type { StudioInspectorSelection } from './PreviewElementInspector';
 /* eslint-disable style/max-statements-per-line */
 
-import type { StudioInspectorSelection } from './PreviewElementInspector';
 import type { StudioDebugRecord, StudioTemplate, StudioToken, StudioTokenOverrides } from './token-registry';
-import { Input, Toast } from 'antd-mobile';
+import { Input } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { BarChart3, BookmarkPlus, CalendarDays, ChevronLeft, ChevronRight, Compass, Copy, CreditCard, Crosshair, House, Layers3, LayoutGrid, MessageCircleMore, Plus, ReceiptText, RotateCcw, Search, Settings2, Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -16,6 +16,7 @@ import { UserSummaryCard } from '@/entities/user';
 import { applyAppearancePreference } from '@/features/appearance';
 import { ChartOverviewContext, ChartOverviewPresentation } from '@/features/chart-overview';
 import { ActionMenuCard, AppButton, AppDatePicker, AppSheet, BottomTabBarPresentation, confirmAppAction, DesignIcon, FormField, SettingsListCard, SheetHeader, showAppActionSheet, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { BalanceCardMotionPrototype } from './BalanceCardMotionPrototype';
 import { PreviewElementInspector } from './PreviewElementInspector';
 import { channelsToColor, colorToChannels, createStudioDebugRecord, createThemeCss, createThemeExport, filterValidStudioOverrides, getDependentOverrides, getStudioTemplateTokens, isValidTokenValue, readStudioDebugRecords, resolveStudioAppearanceTemplate, STUDIO_TEMPLATES, STUDIO_TOKENS, writeStudioDebugRecords } from './token-registry';
@@ -49,8 +50,8 @@ function sendInspectorMode(target: Window | null, enabled: boolean) {
 
 function copyText(value: string) {
   void navigator.clipboard?.writeText(value).then(
-    () => Toast.show({ content: '已复制到剪贴板' }),
-    () => Toast.show({ content: '复制失败，请手动选择文本' }),
+    () => undefined,
+    () => showAppError(undefined, { message: '复制失败，请手动选择文本' }),
   );
 }
 
@@ -438,12 +439,11 @@ function StudioConsole() {
   const saveDebugRecord = () => {
     const nextRecords = [createStudioDebugRecord(template, overrides), ...records].slice(0, 20);
     if (!writeStudioDebugRecords(nextRecords)) {
-      Toast.show({ content: '无法保存调试记录' });
+      showAppError(undefined, { message: '无法保存调试记录' });
       return;
     }
     setRecords(nextRecords);
     setSelectedRecordId(nextRecords[0].id);
-    Toast.show({ content: '已保存为本机调试记录' });
   };
   const loadDebugRecord = (recordId: string) => {
     setSelectedRecordId(recordId);

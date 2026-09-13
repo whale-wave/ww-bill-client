@@ -1,12 +1,13 @@
 import type { LedgerCapability } from '@/entities/ledger';
 import type { DesignIconName } from '@/shared/ui';
-import { Toast } from 'antd-mobile';
 import { useNavigate } from 'react-router-dom';
+
 import { LedgerCapability as Capability } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound, prefetchRoute } from '@/shared/lib';
 import { BottomTabBarPresentation, DesignIcon } from '@/shared/ui';
+import { showAppNotice } from '@/shared/ui/app-feedback';
 
 export type LedgerWorkspaceTabKey = 'records' | 'create' | 'charts';
 
@@ -54,7 +55,7 @@ export function LedgerWorkspaceTabBar({
 
   const handleChange = (key: LedgerWorkspaceTabKey) => {
     if (key === 'create' && !canCreate) {
-      Toast.show(tLedger('workspace.createDenied'));
+      showAppNotice(tLedger('workspace.createDenied'));
       return;
     }
     playSound.turnPage();

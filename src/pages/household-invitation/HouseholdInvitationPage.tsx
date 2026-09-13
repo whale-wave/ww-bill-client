@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { HouseholdInvitation } from '@/entities/household';
-import { Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
+
 import { Copy, Share2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -20,6 +20,7 @@ import {
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
 import { confirmAppAction, PageHeader, Surface } from '@/shared/ui';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `household-invite-${Date.now()}`;
@@ -64,7 +65,7 @@ const HouseholdInvitationPage: FC = () => {
 
   const handleGenerate = async () => {
     if (!consent) {
-      void Toast.show({ content: t('invitation.consentRequired') });
+      void showAppNotice({ content: t('invitation.consentRequired') });
       return;
     }
     if (!householdId || submittingRef.current)
@@ -81,40 +82,34 @@ const HouseholdInvitationPage: FC = () => {
       });
       setInvitation(response.data);
       setNow(Date.now());
-      void Toast.show({ content: t('invitation.generated'), icon: 'success' });
     }
     catch (error) {
-      void Toast.show({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
+      void showAppError({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
     }
     finally {
       submittingRef.current = false;
     }
   };
 
-  const copyText = async (text: string, successKey: string) => {
+  const copyText = async (text: string) => {
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
-        void Toast.show({ content: t(successKey), icon: 'success' });
         return;
       }
-      if (copy(text))
-        void Toast.show({ content: t(successKey), icon: 'success' });
-      else
-        void Toast.show({ content: t('invitation.copyFailed'), icon: 'fail' });
+      if (!copy(text))
+        void showAppError({ content: t('invitation.copyFailed'), icon: 'fail' });
     }
     catch {
-      if (copy(text))
-        void Toast.show({ content: t(successKey), icon: 'success' });
-      else
-        void Toast.show({ content: t('invitation.copyFailed'), icon: 'fail' });
+      if (!copy(text))
+        void showAppError({ content: t('invitation.copyFailed'), icon: 'fail' });
     }
   };
 
   const handleCopy = async () => {
     if (!invitation)
       return;
-    await copyText(invitation.code, 'invitation.copied');
+    await copyText(invitation.code);
   };
 
   const handleShare = async () => {
@@ -126,12 +121,12 @@ const HouseholdInvitationPage: FC = () => {
         await navigator.share({ text, title: t('invitation.title') });
         return;
       }
-      await copyText(text, 'invitation.shareCopied');
+      await copyText(text);
     }
     catch (error) {
       if (isShareCancelError(error))
         return;
-      await copyText(text, 'invitation.shareCopied');
+      await copyText(text);
     }
   };
 
@@ -150,10 +145,9 @@ const HouseholdInvitationPage: FC = () => {
     try {
       await revokeInvitation({ householdId, invitationId: invitation.id });
       setInvitation(undefined);
-      void Toast.show({ content: t('invitation.revoked'), icon: 'success' });
     }
     catch (error) {
-      void Toast.show({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
+      void showAppError({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
     }
   };
 

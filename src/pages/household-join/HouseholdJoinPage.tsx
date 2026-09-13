@@ -1,11 +1,12 @@
 import type { FC, FormEvent } from 'react';
-import { Toast } from 'antd-mobile';
 import { TicketCheck } from 'lucide-react';
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
+import { showAppNotice } from '@/shared/ui/app-feedback';
 
 function normalizeInviteCode(value: string) {
   return value.toUpperCase().replace(/\s+/g, '');
@@ -26,7 +27,7 @@ const HouseholdJoinPage: FC = () => {
     const value = normalizeInviteCode(inputValue);
     setTouched(true);
     if (value.length < 4) {
-      void Toast.show({ content: t('join.invalidCode') });
+      void showAppNotice({ content: t('join.invalidCode') });
       return;
     }
     navigate(ROUTES_PATH.HOUSEHOLD_INVITATION_PREVIEW.getPath(value));

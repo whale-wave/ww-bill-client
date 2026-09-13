@@ -1,10 +1,10 @@
 import type { FC } from 'react';
 import { CalendarCheck2 } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
-import { DesignIcon, MetricGrid, Surface } from '@/shared/ui';
+import { DesignIcon, MetricGrid, Surface, UserAvatar } from '@/shared/ui';
 
 export interface UserSummaryCardProps {
-  avatar?: string;
+  avatar?: string | null;
   name?: string;
   checkIn: boolean;
   numberInfo: {
@@ -33,15 +33,7 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
             onClick={onProfileClick}
             type="button"
           >
-            {avatar
-              ? (
-                  <img
-                    alt={name || t('notLoggedIn')}
-                    className="h-full w-full rounded-full object-cover"
-                    src={avatar}
-                  />
-                )
-              : <DesignIcon name="avatar-user" size={32} />}
+            <UserAvatar alt={name || t('notLoggedIn')} fallback="icon" name={name} size={68} src={avatar} />
             <span className="ww-user-summary-edit absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white">
               <DesignIcon name="avatar-edit" size={11} />
             </span>

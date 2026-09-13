@@ -1,4 +1,3 @@
-import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { ArrowRight, CalendarDays, FileSpreadsheet } from 'lucide-react';
 import { useState } from 'react';
@@ -6,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { getRecordApi } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { exportData } from '@/shared/lib/export-data';
-import { PageHeader, promptAppDatePicker, Surface } from '@/shared/ui';
+import { PageHeader, promptAppDatePicker, showAppError, Surface } from '@/shared/ui';
 
 enum ChangeType {
   START,
@@ -34,13 +33,14 @@ function ExportData() {
       });
 
       if (res.statusCode !== 200) {
-        Toast.show(res.message);
+        showAppError(undefined, { message: res.message, fallbackMessage: t('common:export.exportFailed') });
         return;
       }
 
       exportData(res.data.data);
-
-      Toast.show(t('common:export.exportSuccess'));
+    }
+    catch (error) {
+      showAppError(error, { fallbackMessage: t('common:export.exportFailed') });
     }
     finally {
       setIsExporting(false);

@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 import type { RecordEntry } from '@/entities/record';
 import type { RecordEditorLocationState } from '@/features/record-editor';
-import { Toast } from 'antd-mobile';
 import { CircleAlert } from 'lucide-react';
+
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useGetAssetQuery } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
@@ -20,6 +20,7 @@ import { useTranslation } from '@/shared/i18n';
 import { getTimedate, getTimeDateYear, getTimeOfDay, getWeekByDay } from '@/shared/lib/date-time';
 import { playSound } from '@/shared/lib/play-sound';
 import { confirmDangerousAction, IllustratedEmptyState, PageHeader, PageLoadingState, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 function isRecordCategory(value: unknown): value is RecordEntry['category'] {
   return typeof value === 'object'
@@ -142,12 +143,11 @@ const Editing: FC = () => {
     if (!confirmed)
       return;
     try {
-      const res = await deleteRecordMutate({ id: `${state.id}`, version: state.version });
-      Toast.show({ content: res.message || t('common:confirm.deleteSuccess'), icon: 'success' });
+      await deleteRecordMutate({ id: `${state.id}`, version: state.version });
       navigate('/detail', { replace: true });
     }
     catch {
-      Toast.show({ content: t('common:api.requestFailed'), icon: 'fail' });
+      showAppError({ content: t('common:api.requestFailed'), icon: 'fail' });
     }
   };
 

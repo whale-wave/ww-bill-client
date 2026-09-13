@@ -5,10 +5,16 @@ import {
   confirmShortcutDraftApi,
   discardShortcutDraftApi,
   getShortcutAccessTokensApi,
+  getShortcutInstallUrlApi,
   issueShortcutAccessTokenApi,
   revokeShortcutAccessTokenApi,
 } from './api';
 import { shortcutBookkeepingKeys } from './keys';
+
+export function useShortcutInstallUrlQuery() {
+  const { data: response, ...rest } = useQuery({ queryFn: async () => assertSuccessApi(await getShortcutInstallUrlApi()), queryKey: [...shortcutBookkeepingKeys.all, 'install-url'], retry: false, staleTime: 5 * 60 * 1000 });
+  return { data: response?.data.iosShortcutInstallUrl || undefined, response, ...rest };
+}
 
 export function useShortcutAccessTokensQuery() {
   const { data: response, ...rest } = useQuery({

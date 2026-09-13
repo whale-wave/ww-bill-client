@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { Form, Input, TextArea, Toast } from 'antd-mobile';
+import { Form, Input, TextArea } from 'antd-mobile';
 import { CircleCheck, KeyRound, MessageSquareText } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,7 @@ import {
   PageHeader,
   Surface,
 } from '@/shared/ui';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 import './ledger-join.scss';
 
 const LedgerJoinPage: FC = () => {
@@ -40,7 +41,7 @@ const LedgerJoinPage: FC = () => {
       const key = error instanceof Error ? error.message : 'invalid';
       const message = t(`join.validation.${key}`);
       setErrorMessage(message);
-      Toast.show({ content: message });
+      showAppNotice(message);
       return;
     }
 
@@ -60,7 +61,7 @@ const LedgerJoinPage: FC = () => {
     catch (error) {
       const message = getErrorMessage(error, t('join.submitFailed'));
       setErrorMessage(message);
-      Toast.show({ content: message });
+      showAppError(error, { message });
     }
     finally {
       submittingRef.current = false;

@@ -1,6 +1,6 @@
 import type { FC } from 'react';
-import { Toast } from 'antd-mobile';
 import { Camera, ChevronRight, Hash, LockKeyhole, LogOut, Mail, UserRound } from 'lucide-react';
+
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reportPresence } from '@/entities/auth';
@@ -16,7 +16,9 @@ import {
   PageLoadingState,
   showAppActionSheet,
   Surface,
+  UserAvatar,
 } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 const UserInfo: FC = () => {
   const { t } = useTranslation('user');
@@ -54,10 +56,9 @@ const UserInfo: FC = () => {
   const onChangeName = async () => {
     if (!userInfo || !name.trim())
       return;
-    const { statusCode } = await putUserUserInfoMutate({ name: name.trim(), avatar: userInfo.avatar });
+    const { statusCode } = await putUserUserInfoMutate({ name: name.trim() });
     if (statusCode === 200) {
       setModalVisible(false);
-      Toast.show({ content: t('info.updateSuccess'), icon: 'success' });
     }
   };
 
@@ -71,7 +72,7 @@ const UserInfo: FC = () => {
     formData.append('file', files[0]);
     const { statusCode, data } = await uploadFile(formData);
     if (statusCode !== 200) {
-      Toast.show({ content: t('info.updateFailed'), icon: 'fail' });
+      showAppError({ content: t('info.updateFailed'), icon: 'fail' });
       return;
     }
     await putUserUserInfoMutate({ name: userInfo.name, avatar: data.url });
@@ -119,9 +120,7 @@ const UserInfo: FC = () => {
           <Surface className="flex flex-col items-center px-5 py-6 text-center" material="raised">
             <button className="relative border-0 bg-transparent" onClick={() => void handleChangeAvatar()} type="button">
               <span className="flex h-[82px] w-[82px] items-center justify-center overflow-hidden rounded-full border-[3px] border-solid border-white bg-white shadow-ww-lg">
-                {userInfo.avatar
-                  ? <img alt={userInfo.name} className="h-full w-full object-cover" src={userInfo.avatar} />
-                  : <UserRound className="text-primary-deep" size={34} />}
+                <UserAvatar alt={userInfo.name} fallback="icon" name={userInfo.name} size={76} src={userInfo.avatar} />
               </span>
               <span className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-solid border-white bg-primary text-white shadow-ww-xs">
                 <Camera size={14} />

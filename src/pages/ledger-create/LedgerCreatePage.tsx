@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { LedgerCreateFormValues } from './model/ledger-create-form';
-import { Button, SpinLoading, Toast } from 'antd-mobile';
+import { Button, SpinLoading } from 'antd-mobile';
 import { BookOpen, CircleAlert, Sparkles } from 'lucide-react';
 import { useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -17,6 +17,7 @@ import {
   PageHeader,
   Surface,
 } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { buildLedgerCreatePayload } from './model/ledger-create-form';
 import { LedgerCreateForm } from './ui/LedgerCreateForm';
 
@@ -51,11 +52,10 @@ const LedgerCreatePage: FC = () => {
     isSubmittingRef.current = true;
     try {
       const response = await createLedger(buildLedgerCreatePayload(values, templateKey));
-      void Toast.show({ content: t('create.success'), icon: 'success' });
       navigate(ROUTES_PATH.LEDGER_RECORDS.getPath(response.data.id), { replace: true });
     }
     catch (error) {
-      void Toast.show({
+      void showAppError({
         content: getErrorMessage(error, t('create.failed')),
         icon: 'fail',
       });

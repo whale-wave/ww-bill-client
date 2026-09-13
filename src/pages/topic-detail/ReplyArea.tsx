@@ -3,6 +3,7 @@ import type { TopicDetail } from '@/entities/topic';
 import classNames from 'classnames';
 import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
+import { UserAvatar } from '@/shared/ui';
 import styles from './ReplyArea.module.scss';
 
 interface ReplyProps {
@@ -42,11 +43,7 @@ const ReplyArea: FC<ReplyProps> = ({ comments }) => {
                       'rounded-full overflow-hidden',
                     )}
                   >
-                    <img
-                      className="w-full h-full object-cover"
-                      src={item.user.avatar}
-                      alt={item.user.name}
-                    />
+                    <UserAvatar alt={item.user.name} name={item.user.name} size={36} src={item.user.avatar} />
                   </div>
                   <div className={classNames(styles.right, 'flex-grow')}>
                     <div>{item.user.name}</div>

@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { AssetRecord } from '@/entities/asset';
-import { Skeleton, Toast } from 'antd-mobile';
+import { Skeleton } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { CalendarDays, ChevronDown, ReceiptText, RefreshCcw } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
@@ -9,6 +9,7 @@ import { useGetAssetRecordQuery, useVoidAssetTransferMutation } from '@/entities
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, formatLocalizedMonthDay } from '@/shared/lib';
 import { confirmAppAction, IllustratedEmptyState, promptAppDatePicker, showAppInfoDialog, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 interface RecordGroup {
   date: string;
@@ -89,10 +90,9 @@ export const AssetRecordList: FC<{ assetId: string }> = ({ assetId }) => {
         return;
       try {
         await voidTransfer({ id: record.transfer.id, version: record.transfer.version });
-        Toast.show({ content: t('transfer.voidSuccess'), icon: 'success' });
       }
       catch {
-        Toast.show({ content: t('transfer.voidFailed'), icon: 'fail' });
+        showAppError({ content: t('transfer.voidFailed'), icon: 'fail' });
       }
       return;
     }

@@ -1,10 +1,11 @@
-import { Toast } from 'antd-mobile';
 import { Pencil, Trash2 } from 'lucide-react';
+
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDeleteInvoiceMutation } from '@/entities/invoice';
 import { useTranslation } from '@/shared/i18n';
 import { confirmAppAction } from '@/shared/ui';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 interface EditAndDeleteButtonProps {
   invoiceId?: string;
@@ -21,7 +22,7 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
     if (invoiceId)
       return true;
 
-    void Toast.show({
+    void showAppNotice({
       content: t('invoiceNotFetched'),
     });
 
@@ -52,7 +53,7 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
       navigate(-1);
     }
     catch {
-      Toast.show({ icon: 'fail', content: t('deleteFailed') });
+      showAppError({ icon: 'fail', content: t('deleteFailed') });
     }
   };
 

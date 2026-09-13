@@ -69,7 +69,10 @@
     "title": "Functions"
   },
   "dataSecurity": "Data & Security",
-  "recovery": { "title": "Recently Deleted", "description": "Restore records deleted within 30 days" },
+  "recovery": {
+    "title": "Recently Deleted",
+    "description": "Restore records deleted within 30 days"
+  },
   "export": "Export Data",
   "about": "About WhaleWave",
   "invite": "Invite Friends",
@@ -128,43 +131,147 @@
     "openFailed": "Unable to open the link. Please try again later."
   },
   "shortcutBookkeeping": {
-    "title": "iPhone Shortcut Bookkeeping",
-    "entryDescription": "Back Tap, OCR a screenshot, then confirm before saving",
-    "introTitle": "Screenshots only create review drafts",
-    "introDescription": "Your iPhone extracts text locally. In Whale Wave, you choose a ledger, verify the amount and category, and only then save the record.",
-    "credentialTitle": "Shortcut credentials",
-    "credentialDescription": "A credential can only submit text for review. It cannot read ledgers or create records. Use a separate one per device.",
-    "deviceName": "Credential name",
-    "deviceNamePlaceholder": "For example: My iPhone",
-    "createCredential": "Create credential",
-    "createAndInstall": "Create and install Shortcut",
-    "creatingCredential": "Creating…",
-    "newCredential": "Copy this credential now",
-    "newCredentialHint": "For security, the full credential is only shown once.",
-    "copyCredential": "Copy credential",
-    "copyAndInstall": "Copy and open installer",
-    "copyEndpoint": "Copy request URL",
-    "copied": "Copied",
-    "activeCredentials": "Active credentials",
-    "noCredentials": "No Shortcut credentials yet",
-    "neverUsed": "Never used",
-    "lastUsed": "Last used: {{time}}",
-    "expires": "Expires: {{time}}",
-    "revoke": "Revoke",
-    "revokeTitle": "Revoke this Shortcut credential?",
-    "revokeDescription": "Installed shortcuts will immediately stop creating new drafts.",
-    "revokeSuccess": "Credential revoked",
+    "title": "Shortcut Bookkeeping",
+    "entryDescription": "Quickly record expenses with an iPhone Shortcut",
+    "defaultName": "iPhone Shortcut Bookkeeping",
+    "copyFailed": "Unable to copy the connection key. Try again.",
     "saveFailed": "Unable to complete the action. Try again later.",
-    "manualSetup": "Manual setup / troubleshooting",
-    "setupTitle": "Set up in iOS Shortcuts",
-    "step1": "Add Take Screenshot, then Calculate Hash (SHA-256) and Extract Text from Image.",
-    "step2": "Add Get Contents of URL, choose POST, and use a JSON request body.",
-    "step3": "Use the request URL below. Set Authorization to Bearer, a space, then the credential above.",
-    "step4": "Send rawText, the screenshot SHA-256 hash as clientRequestId, and the current date as capturedAt.",
-    "step5": "Get data.confirmationUrl from the response, then open it with Open URLs.",
-    "backTapTitle": "Turn on Back Tap last",
-    "backTapDescription": "Settings → Accessibility → Touch → Back Tap → Double Tap, then select your shortcut.",
-    "browserLoginHint": "Open URLs normally uses Safari and cannot reliably enter an installed Home Screen PWA. Safari and the PWA may have separate sign-in state, so sign in when prompted on first use.",
+    "unavailable": "Shortcuts are temporarily unavailable\nNo installable Shortcut version is configured. Try again later.",
+    "leaveTitle": "Leave setup?",
+    "leaveDescription": "The full connection key cannot be shown again after leaving. You will need to disable it and start over.",
+    "leaveConfirm": "Leave setup",
+    "intro": {
+      "title": "Shortcut Bookkeeping",
+      "headline": "Set up on your iPhone in 1 minute",
+      "description": "Add the Shortcut once, then record expenses whenever you need.",
+      "start": "Start setup",
+      "fast": {
+        "title": "Screenshot OCR",
+        "description": "The Shortcut reads expense details from your screenshot"
+      },
+      "anywhere": {
+        "title": "Start with Back Tap",
+        "description": "Set up Back Tap on your iPhone to call the Shortcut"
+      },
+      "safe": {
+        "title": "Safe by design",
+        "description": "It only creates drafts for your confirmation"
+      }
+    },
+    "createKey": {
+      "title": "Create a connection key",
+      "description": "This lets the Shortcut connect securely to Whale Wave Bill.",
+      "security": "The key can only create bookkeeping drafts. It cannot read your password or change other data.",
+      "submit": "Create connection key",
+      "creating": "Creating…"
+    },
+    "keyCreated": {
+      "title": "Connection key created",
+      "description": "This key is shown in full only once. Never share it with anyone.",
+      "warning": "Next, paste this key into the Shortcut. Tap the button below to see where it goes before opening Apple Shortcuts.",
+      "continue": "Copy key and add Shortcut",
+      "show": "Show connection key",
+      "hide": "Hide connection key",
+      "copy": "Copy connection key"
+    },
+    "installGuide": {
+      "title": "Paste the key in Shortcuts",
+      "description": "Apple Shortcuts will open next. Follow the illustration to finish setup.",
+      "imageAlt": "Illustration showing where to paste the connection key in Apple Shortcuts",
+      "steps": {
+        "paste": "Long-press the input field and choose Paste",
+        "confirm": "Tap OK to finish adding it",
+        "run": "Run the Shortcut once after adding it"
+      },
+      "countdown": "Apple Shortcuts will open in {{seconds}} seconds",
+      "opening": "Opening Apple Shortcuts…",
+      "openNow": "Open Shortcuts now"
+    },
+    "overview": {
+      "connectedTitle": "Shortcut Bookkeeping is ready",
+      "connectedDescription": "You can now create reviewable bookkeeping drafts with the Shortcut.",
+      "usage": "How to use",
+      "usageDescription": "Learn how to record with the Shortcut",
+      "connections": "Connections",
+      "connectionsDescription": "Manage your connection keys",
+      "faq": "Common questions",
+      "faqDescription": "Recognition issues and how to report them"
+    },
+    "usage": {
+      "title": "How to use",
+      "eyebrow": "QUICK GUIDE",
+      "description": "Complete the setup once. After that, capture a screen and run the Shortcut to create a reviewable draft.",
+      "sections": {
+        "find": {
+          "shortTitle": "Get the Shortcut",
+          "title": "1. Get the Shortcut",
+          "description": "Start installing “鲸浪记账 截屏自动记账” from its iCloud page.",
+          "imageAlt": "Screenshots showing how to get the Whale Wave screenshot bookkeeping Shortcut",
+          "captions": [
+            "On the iCloud Shortcut page, confirm the name and tap “Get Shortcut”.",
+            "On the Shortcut details page, tap “Set Up Shortcut” to begin."
+          ]
+        },
+        "configure": {
+          "shortTitle": "Paste the key",
+          "title": "2. Configure and add the Shortcut",
+          "description": "Enter the connection key from this page, then finish adding the Shortcut.",
+          "imageAlt": "Screenshots showing how to paste the connection key in Shortcuts",
+          "captions": [
+            "Tap the token field and paste the connection key copied from this page.",
+            "Confirm the key is filled in, then tap “Add Shortcut”.",
+            "After it is added, return here to set up a quick way to run it."
+          ]
+        },
+        "backTap": {
+          "shortTitle": "Set up Back Tap",
+          "title": "3. Set up Back Tap (optional)",
+          "description": "Follow the settings path and bind the Shortcut to a double-tap on your iPhone.",
+          "imageAlt": "Screenshots showing how to configure Back Tap on iPhone",
+          "captions": [
+            "Open Settings on your iPhone.",
+            "In Settings, tap “Accessibility”.",
+            "Open “Touch”.",
+            "Tap “Back Tap”.",
+            "Choose “Double Tap”.",
+            "Select “鲸浪记账 截屏自动记账” to finish."
+          ]
+        }
+      },
+      "confirm": {
+        "title": "Running it opens a web confirmation",
+        "description": "Capture a screen containing the expense, then run “鲸浪记账 截屏自动记账”. The Shortcut uses OCR to create a draft and opens a web confirmation page; the record is saved only after you review it."
+      }
+    },
+    "faq": {
+      "eyebrow": "COMMON QUESTIONS",
+      "title": "What if the result is wrong?",
+      "description": "Shortcut Bookkeeping is still being adapted and improved for payment pages. Your reports help us make it better.",
+      "feedbackAction": "Report a recognition issue",
+      "items": {
+        "recognition": {
+          "question": "Why can the category or amount be wrong?",
+          "answer": "The Shortcut uses OCR on the payment page in your screenshot. We are still adding support for more payment pages, whose layouts, fonts, and labels can differ. This can occasionally cause the category or amount to be misread."
+        },
+        "feedback": {
+          "question": "What should I do when I find an error?",
+          "answer": "Review and correct the draft on the web confirmation page first, then use the feedback channel to share the payment page, the detected category or amount, and the correct result. More context helps us investigate."
+        },
+        "improve": {
+          "question": "How does feedback help?",
+          "answer": "We use real payment pages to improve our adaptation rules and gradually make amount and category recognition more accurate. Thanks for helping build a better Shortcut Bookkeeping experience."
+        }
+      }
+    },
+    "connections": {
+      "lastUsed": "Last used: {{time}}",
+      "expires": "Valid until: {{time}}",
+      "revoke": "Disable",
+      "revokeTitle": "Disable this Shortcut connection?",
+      "revokeDescription": "The Shortcut using this key will no longer be able to create bookkeeping drafts.",
+      "securityHint": "Your connection key is the credential that links Shortcuts to Whale Wave Bill. Never share it.",
+      "recoveryHint": "Disable a key when you no longer use its Shortcut or think it may have been exposed."
+    },
     "draftTitle": "Review screenshot details",
     "draftDescription": "Nothing is saved automatically. Choose a ledger and verify the extracted details first.",
     "chooseType": "Choose income or expense",

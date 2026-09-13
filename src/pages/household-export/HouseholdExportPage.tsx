@@ -1,7 +1,7 @@
 import type { FC, FormEvent } from 'react';
 import type { Household, HouseholdExportFilters } from '@/entities/household';
-import { Toast } from 'antd-mobile';
 import { FileSpreadsheet } from 'lucide-react';
+
 import { useRef } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
@@ -16,6 +16,7 @@ import {
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
 import { PageHeader, Surface } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 const ExportContent: FC<{ household: Household }> = ({ household }) => {
   const { t } = useTranslation('household');
@@ -60,10 +61,9 @@ const ExportContent: FC<{ household: Household }> = ({ household }) => {
         householdId: household.id,
       });
       setSearchParams({ taskId: response.data.id }, { replace: true });
-      void Toast.show({ content: t('export.created'), icon: 'success' });
     }
     catch (error) {
-      void Toast.show({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
+      void showAppError({ content: getApiErrorMessage(error, t('common.failed')), icon: 'fail' });
     }
     finally {
       submittingRef.current = false;
@@ -83,7 +83,7 @@ const ExportContent: FC<{ household: Household }> = ({ household }) => {
       URL.revokeObjectURL(objectUrl);
     }
     catch (error) {
-      void Toast.show({ content: getApiErrorMessage(error, t('export.downloadFailed')), icon: 'fail' });
+      void showAppError({ content: getApiErrorMessage(error, t('export.downloadFailed')), icon: 'fail' });
     }
   };
 

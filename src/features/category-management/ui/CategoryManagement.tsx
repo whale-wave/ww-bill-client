@@ -5,14 +5,7 @@ import type {
   CategoryEntity,
   CategoryIconCatalogItem,
 } from '@/entities/category';
-import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import {
   arrayMove,
   SortableContext,
@@ -21,7 +14,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button, Input, Toast } from 'antd-mobile';
+import { Button, Input } from 'antd-mobile';
 import {
   ChevronDown,
   GripVertical,
@@ -43,6 +36,7 @@ import {
 } from '@/entities/category';
 import { useTranslation } from '@/shared/i18n';
 import { AppSheet, PageLoadingState } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 type EditorState = { category?: CategoryEntity; mode: 'create' | 'edit' } | null;
 
@@ -271,12 +265,11 @@ function CategoryEditorSheet({
           });
         }
       }
-      Toast.show({ content: t('categories.saved'), icon: 'success' });
       onClose();
     }
     catch (error) {
       setUploadProgress(0);
-      Toast.show({
+      showAppError({
         content: getCategoryErrorMessage(error, t, t('categories.saveFailed')),
         icon: 'fail',
       });
@@ -405,7 +398,7 @@ function CategoryEditorSheet({
                   if (!source)
                     return;
                   if (source.size > 5 * 1024 * 1024) {
-                    Toast.show({
+                    showAppError({
                       content: t('categories.errors.iconTooLarge'),
                       icon: 'fail',
                     });
@@ -489,17 +482,11 @@ export function CategoryManagement({
       setCategories(current => status === 'ACTIVE'
         ? [updated, ...current.filter(item => item.id !== updated.id)]
         : current.map(item => item.id === updated.id ? updated : item));
-      Toast.show({
-        content: status === 'ARCHIVED'
-          ? t('categories.movedToMore')
-          : t('categories.restored'),
-        icon: 'success',
-      });
     }
     catch (error) {
       setCategories(previous);
       await query.refetch();
-      Toast.show({
+      showAppError({
         content: getCategoryErrorMessage(error, t, t('categories.saveFailed')),
         icon: 'fail',
       });
@@ -536,7 +523,7 @@ export function CategoryManagement({
     catch {
       setCategories(previous);
       await query.refetch();
-      Toast.show({ content: t('categories.orderFailed'), icon: 'fail' });
+      showAppError({ content: t('categories.orderFailed'), icon: 'fail' });
     }
     finally {
       writesRef.current.delete('order');

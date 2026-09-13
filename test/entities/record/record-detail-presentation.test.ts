@@ -114,7 +114,7 @@ describe('record detail presentation', () => {
     await act(async () => copyable[1]?.click());
 
     expect(writeText).toHaveBeenCalledWith('2026-09-02 Tuesday');
-    expect(mocks.toastShow).toHaveBeenCalledWith(expect.objectContaining({ icon: 'success' }));
+    expect(mocks.toastShow).not.toHaveBeenCalled();
     expect(container.querySelector('[data-record-detail-row]:not(button)')?.textContent).toContain('Expense');
   });
 });

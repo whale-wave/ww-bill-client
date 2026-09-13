@@ -44,7 +44,7 @@ function CommentList() {
               <CommentListItem
                 key={item.id}
                 coverPicture={item.topic.images?.[0]}
-                avatar={item.user.avatar}
+                avatar={item.user.avatar ?? undefined}
                 content={item.content}
                 name={item.user.name}
                 time={showDate(item.createdAt)}

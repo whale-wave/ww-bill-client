@@ -28,11 +28,11 @@ const ForgetPasswordVerifyCode: FC = () => {
   }, [navigate]);
 
   const handleResend = useCallback(async () => {
-    return getToolsForgetPasswordEmailApi(email, false);
+    return getToolsForgetPasswordEmailApi(email);
   }, [email]);
 
   const handleSubmit = useCallback(async () => {
-    const response = await getToolsForgetPasswordEmailVerifyCodeApi({ email, captcha }, true);
+    const response = await getToolsForgetPasswordEmailVerifyCodeApi({ email, captcha });
     if (response.statusCode === 200) {
       setTimeout(() => {
         navigate(buildResetPath({ captcha, email }), { replace: true });

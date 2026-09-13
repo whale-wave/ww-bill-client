@@ -2,7 +2,6 @@ import type { Ledger } from '@/entities/ledger';
 import type { RecordEntry } from '@/entities/record';
 import type { RecordDraft } from '@/features/record-editor';
 import { useQueryClient } from '@tanstack/react-query';
-import { Toast } from 'antd-mobile';
 import { CircleAlert } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -28,6 +27,7 @@ import {
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { IllustratedEmptyState, PageLoadingState, Surface } from '@/shared/ui';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 interface LedgerRecordEditEditorProps {
   initialRecord: RecordEntry;
@@ -66,13 +66,12 @@ function LedgerRecordEditEditor({
   }), [initialRecord, restoredDraft, supportsTags]);
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
     try {
-      const response = await updateRecord({
+      await updateRecord({
         data: { ...draft, version: initialRecord.version },
         ledgerId,
         recordId,
       });
       await invalidateLedgerRecordEditorCaches(queryClient, ledgerId);
-      Toast.show({ content: response.message || t('records.saved'), icon: 'success' });
       navigate(ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId), {
         replace: true,
         state: createLedgerRecordDetailState({
@@ -91,7 +90,7 @@ function LedgerRecordEditEditor({
         && error !== null
         && 'statusCode' in error
         && error.statusCode === 409;
-      Toast.show({
+      showAppError({
         content: t(isConflict ? 'records.conflict' : 'records.saveFailed'),
         icon: 'fail',
       });
@@ -101,7 +100,7 @@ function LedgerRecordEditEditor({
     onSubmit: handleSubmit,
     onValidationError: (error) => {
       if (error === 'category')
-        Toast.show({ content: t('record:bookkeeping.chooseCategory') });
+        showAppNotice({ content: t('record:bookkeeping.chooseCategory') });
     },
     seed,
     supportsTags,

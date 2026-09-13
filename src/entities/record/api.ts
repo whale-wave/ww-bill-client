@@ -38,7 +38,7 @@ export async function postRecordLocationCandidatesApi(
   >(
     '/record/location/candidates',
     { latitude: location.latitude, longitude: location.longitude },
-    { loading: false, silent: true },
+    { silent: true },
   );
   return response.data;
 }
@@ -55,7 +55,7 @@ export async function searchRecordLocationsApi(
   const response = await request.post<unknown, SuccessResponse<{ results: RecordLocationCandidate[] }>>(
     '/record/location/search',
     params,
-    { loading: false, silent: true, signal: options?.signal },
+    { silent: true, signal: options?.signal },
   );
   return response.data.results;
 }

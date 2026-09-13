@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { AppLockEntryMode } from '@/features/app-lock';
-import { Toast } from 'antd-mobile';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   APP_LOCK_MIN_POINTS,
@@ -162,7 +162,6 @@ const AppLockSettingsPage: FC = () => {
         localAppLockStorage.removeCredential(userId);
         localAppLockStorage.removeLockState(userId);
       }
-      Toast.show(t('appLock.disabled'));
       handleBack();
     }
     catch {
@@ -240,7 +239,6 @@ const AppLockSettingsPage: FC = () => {
       const response = await patchConfig({ gestureLockEnabled: true });
       if (!isSuccessStatusCode(response?.statusCode))
         throw response;
-      Toast.show(t('appLock.enabled'));
       completeSetup();
       setPendingNavigation(isRequiredSetup ? 'detail' : 'back');
     }
@@ -259,7 +257,6 @@ const AppLockSettingsPage: FC = () => {
       try {
         const refreshed = await refetchConfig();
         if (refreshed.data?.data?.gestureLockEnabled) {
-          Toast.show(t('appLock.enabled'));
           completeSetup();
           setPendingNavigation(isRequiredSetup ? 'detail' : 'back');
           return;
@@ -294,7 +291,7 @@ const AppLockSettingsPage: FC = () => {
     try {
       let loginResponse;
       try {
-        loginResponse = await login({ username: userInfo.username, password }, false);
+        loginResponse = await login({ username: userInfo.username, password });
       }
       catch (error) {
         setError(isInvalidRecoveryPassword(getErrorStatusCode(error))
@@ -324,7 +321,6 @@ const AppLockSettingsPage: FC = () => {
 
       localAppLockStorage.removeCredential(userId);
       localAppLockStorage.removeLockState(userId);
-      Toast.show(t('appLock.disabled'));
       handleBack();
     }
     finally {

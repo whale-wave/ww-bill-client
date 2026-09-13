@@ -1,5 +1,5 @@
 import type { FC, FormEvent } from 'react';
-import { Button, Toast } from 'antd-mobile';
+import { Button } from 'antd-mobile';
 import { CheckCircleFill } from 'antd-mobile-icons';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -18,6 +18,7 @@ import {
 import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedDateTime } from '@/shared/lib';
 import { PageHeader } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 
 const LedgerInvitationPreviewPage: FC = () => {
   const { i18n, t } = useTranslation('ledger');
@@ -63,7 +64,7 @@ const LedgerInvitationPreviewPage: FC = () => {
     catch (error) {
       const message = getErrorMessage(error, t('join.submitFailed'));
       setErrorMessage(message);
-      Toast.show({ content: message });
+      showAppError(error, { message });
     }
     finally {
       submittingRef.current = false;

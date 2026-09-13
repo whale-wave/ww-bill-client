@@ -83,8 +83,13 @@ else {
       },
       handleAuthFailure: (identity) => {
         const state = useAuthStore.getState();
-        if (state.runtime.sessionEpoch === identity.sessionEpoch && state.runtime.credentialRevision === identity.credentialRevision)
-          return state.logOut();
+        if (!state.token)
+          return false;
+        if (state.runtime.sessionEpoch === identity.sessionEpoch && state.runtime.credentialRevision === identity.credentialRevision) {
+          state.logOut();
+          return true;
+        }
+        return false;
       },
       logoutHandler: () => { useAuthStore.getState().logOut(); },
       clearSessionScopedCaches: () => {

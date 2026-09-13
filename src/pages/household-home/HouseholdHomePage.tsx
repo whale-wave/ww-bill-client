@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { FamilyRecord, Household } from '@/entities/household';
-import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
+
 import { CalendarDays, List, Search, Settings, Target } from 'lucide-react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -37,6 +37,7 @@ import {
   showAppActionSheet,
   showAppInfoDialog,
 } from '@/shared/ui';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 type ShortcutKey = 'records' | 'settings' | 'budget' | 'search' | 'calendar';
 
@@ -91,13 +92,12 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
       return;
     deletingRecordIdRef.current = record.id;
     try {
-      const response = await deleteRecord({ id: String(record.id), version: record.version });
+      await deleteRecord({ id: String(record.id), version: record.version });
       await Promise.allSettled([recordsQuery.refetch(), calendarQuery.refetch()]);
-      Toast.show({ content: response.message || t('common:confirm.deleteSuccess'), icon: 'success' });
     }
     catch (error) {
       await Promise.allSettled([recordsQuery.refetch(), calendarQuery.refetch()]);
-      Toast.show({ content: t(getApiErrorStatus(error) === 409 ? 'common.conflict' : 'common:api.requestFailed'), icon: 'fail' });
+      showAppError({ content: t(getApiErrorStatus(error) === 409 ? 'common.conflict' : 'common:api.requestFailed'), icon: 'fail' });
     }
     finally {
       deletingRecordIdRef.current = undefined;
@@ -123,7 +123,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
       actions: [
         {
           key: 'forward',
-          onClick: () => Toast.show(t('home.forwardHint')),
+          onClick: () => showAppNotice(t('home.forwardHint')),
           text: t('home.forward'),
         },
         {
@@ -139,7 +139,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
         },
         {
           key: 'desktop',
-          onClick: () => Toast.show(t('settings.comingSoon')),
+          onClick: () => showAppNotice(t('settings.comingSoon')),
           text: t('settings.desktop'),
         },
       ],

@@ -371,7 +371,7 @@ describe('household invitation', () => {
     await act(async () => copyButton?.click());
 
     expect(writeText).toHaveBeenCalledWith('ABC123');
-    expect(toastShow).toHaveBeenCalledWith(expect.objectContaining({ content: 'invitation.copied' }));
+    expect(toastShow).not.toHaveBeenCalled();
   });
 
   it('falls back to copy-to-clipboard and reports a failure when both paths fail', async () => {
@@ -418,7 +418,7 @@ describe('household invitation', () => {
     await act(async () => shareButton?.click());
 
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('ABC123'));
-    expect(toastShow).toHaveBeenCalledWith(expect.objectContaining({ content: 'invitation.shareCopied' }));
+    expect(toastShow).not.toHaveBeenCalled();
   });
 
   it('stays silent when the user cancels the system share sheet', async () => {
@@ -454,7 +454,7 @@ describe('household invitation', () => {
 
     expect(router.state.location.pathname).toBe('/households/household%2Fa');
     expect(localStorage.getItem('wh:invitation:household/a')).toBeNull();
-    expect(toastShow).toHaveBeenCalledWith(expect.objectContaining({ content: 'invitation.partnerJoined' }));
+    expect(toastShow).not.toHaveBeenCalled();
   });
 
   it('accepts only after explicit mutual consent and routes to canonical home', async () => {

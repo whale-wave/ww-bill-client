@@ -1,7 +1,7 @@
 import type { LedgerTransferPreview } from '@/entities/ledger-data';
 import type { RecordEntry } from '@/entities/record';
-import { Toast } from 'antd-mobile';
 import { useMemo, useRef, useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 import { useLedgerCategoriesQuery } from '@/entities/category';
 import { LedgerCapability, useLedgersQuery } from '@/entities/ledger';
@@ -20,6 +20,7 @@ import {
   SelectField,
   Surface,
 } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import {
   buildLedgerTransferRequest,
   buildSourceLedgerOptions,
@@ -288,7 +289,7 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
             setPreview(response.data);
           }
           catch {
-            Toast.show({ icon: 'fail', content: t('transfer.previewFailed') });
+            showAppError({ icon: 'fail', content: t('transfer.previewFailed') });
           }
           finally {
             submittingRef.current = false;
@@ -331,10 +332,9 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
             setSelectedIds([]);
             setCategoryMappings({});
             setTagMappings({});
-            Toast.show({ icon: 'success', content: t('transfer.done') });
           }
           catch {
-            Toast.show({ icon: 'fail', content: t('transfer.failed') });
+            showAppError({ icon: 'fail', content: t('transfer.failed') });
           }
           finally {
             submittingRef.current = false;

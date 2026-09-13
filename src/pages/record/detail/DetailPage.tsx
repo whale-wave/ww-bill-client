@@ -1,8 +1,8 @@
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
 import type { recordChildren, RecordOverviewListGroup } from '@/entities/record';
-import { Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
+
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
@@ -17,6 +17,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { confirmDangerousAction } from '@/shared/ui';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { TabBar } from '@/widgets/layout';
 import { useRecordList } from '../model/useRecordList';
 
@@ -56,13 +57,12 @@ const Detail: FC = () => {
       return;
     deletingRecordIdRef.current = item.id;
     try {
-      const response = await deleteRecord({ id: String(item.id), version: item.version });
-      Toast.show({ content: response.message || t('common:confirm.deleteSuccess'), icon: 'success' });
+      await deleteRecord({ id: String(item.id), version: item.version });
     }
     catch (error) {
       await query.refetch();
       const isConflict = typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
-      Toast.show({ content: t(isConflict ? 'bookkeeping.conflict' : 'common:api.requestFailed'), icon: 'fail' });
+      showAppError({ content: t(isConflict ? 'bookkeeping.conflict' : 'common:api.requestFailed'), icon: 'fail' });
     }
     finally {
       deletingRecordIdRef.current = undefined;

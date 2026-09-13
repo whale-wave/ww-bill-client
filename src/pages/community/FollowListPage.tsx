@@ -4,7 +4,7 @@ import { UsersRound } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FollowTypeEnum, useGetFollowQuery } from '@/entities/follow';
 import { useTranslation } from '@/shared/i18n';
-import { IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
+import { IllustratedEmptyState, PageHeader, PageLoadingState, UserAvatar } from '@/shared/ui';
 import styles from './FollowList.module.scss';
 
 interface ItemProps {
@@ -15,7 +15,7 @@ interface ItemProps {
 const Item: FC<ItemProps> = ({ data, t }) => {
   return (
     <div className={styles.item}>
-      <img className="rounded-full overflow-hidden" src={data.avatar} alt="" />
+      <UserAvatar className="rounded-full overflow-hidden" name={data.name} size={42} src={data.avatar} />
       <div className={styles.box}>
         <div className={styles.name}>{data.name}</div>
         <div className={styles.desc}>
