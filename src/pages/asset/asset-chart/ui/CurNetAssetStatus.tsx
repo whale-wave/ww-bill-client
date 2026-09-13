@@ -21,7 +21,7 @@ export const CurNetAssetStatus: FC = () => {
     const assetShare = Math.max(0, Math.min(1, rawAssetShare));
     const liabilityShare = 1 - assetShare;
     const ratio = Number(info.addAsset) === 0
-      ? 0
+      ? (Number(info.subAsset) > 0 ? 100 : 0)
       : Number(math.multiply(math.divide(info.subAsset, info.addAsset), 100).toString());
 
     return {

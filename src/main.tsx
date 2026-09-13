@@ -65,6 +65,7 @@ else {
         state.userId ? setMonitoringUser(state.userId) : clearMonitoringUser();
     });
     setAuthDeps({
+      tokenGetter: () => useAuthStore.getState().token,
       captureRequestAuth: () => {
         const state = useAuthStore.getState();
         return { token: state.token, identity: { sessionEpoch: state.runtime.sessionEpoch, credentialRevision: state.runtime.credentialRevision } };

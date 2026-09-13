@@ -29,6 +29,7 @@ export interface Asset {
   name: string;
   comment?: string;
   cardId?: string;
+  creditLimit?: string;
   amount: string;
   createdAt: string;
   updatedAt: string;

@@ -71,6 +71,8 @@ vi.mock('@/shared/ui', () => ({
     { 'data-testid': testId, 'role': 'status' },
     label,
   ),
+  showAppActionSheet: vi.fn(),
+  showAppInfoDialog: vi.fn(),
 }));
 
 vi.mock('antd-mobile', () => ({
@@ -166,7 +168,7 @@ describe('message page', () => {
     expect(container.textContent).toContain('4分钟前');
     expect(container.textContent).toContain('分账本“报销账本”有一个新的加入申请');
     expect(container.querySelector('[data-testid="message-notification-action-notification-1"]')).not.toBeNull();
-    expect(container.querySelector('[data-testid="message-notification-action-notification-2"]')).toBeNull();
+    expect(container.querySelector('[data-testid="message-notification-action-notification-2"]')).not.toBeNull();
     expect(container.querySelector('[data-unread="true"]')).not.toBeNull();
     expect(container.textContent).not.toContain('message.newFollow.title');
     expect(container.textContent).not.toContain('message.comment.title');
@@ -203,6 +205,25 @@ describe('message page', () => {
 
     expect(router.state.location.pathname)
       .toBe('/ledgers/ledger%2Fa/join-requests/request%2Fa');
+  });
+
+  it('marks a general unread notification as read when clicked', async () => {
+    hooks.markRead.mockResolvedValue({ data: {} });
+    renderedNotifications = [{
+      ...passiveNotification,
+      id: 'notification-unread-general',
+      status: UserNotificationStatus.UNREAD,
+    }];
+    const { container } = renderPage();
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>(
+        '[data-testid="message-notification-action-notification-unread-general"]',
+      )?.click();
+      await Promise.resolve();
+    });
+
+    expect(hooks.markRead).toHaveBeenCalledWith({ id: 'notification-unread-general', version: 1 });
   });
 
   it('loads the next page automatically when the bottom sentinel becomes visible', async () => {

@@ -44,6 +44,11 @@ export default defineConfig(() => {
           target: config.defaultHost,
           changeOrigin: true,
         },
+        '/socket.io': {
+          target: config.defaultHost,
+          changeOrigin: true,
+          ws: true,
+        },
       },
     },
     resolve: {

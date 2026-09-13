@@ -139,6 +139,7 @@ export function useNotificationsQuery(
 
   return {
     ...query,
+    isLoading: Boolean(token) && query.isLoading,
     response: query.data,
     data: flattenNotificationPages(query.data?.pages),
   };

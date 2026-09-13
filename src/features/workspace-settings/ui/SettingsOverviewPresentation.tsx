@@ -21,6 +21,7 @@ import {
   Smartphone,
   Tags,
   Trash2,
+  Upload,
   UserRound,
   UsersRound,
 } from 'lucide-react';
@@ -37,6 +38,7 @@ const iconMap: Record<SettingsIconKey, typeof Archive> = {
   desktop: MonitorDown,
   export: Download,
   help: CircleHelp,
+  import: Upload,
   language: Languages,
   lock: LockKeyhole,
   member: UsersRound,

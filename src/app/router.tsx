@@ -281,6 +281,10 @@ const router = createHashRouter([
         ],
       },
       {
+        path: 'import-data',
+        lazy: lazyGuardedPage(() => import('@/pages/import-data/ImportDataPage')),
+      },
+      {
         path: 'export-data',
         lazy: lazyGuardedPage(() => import('@/pages/export-data/ExportDataPage')),
       },

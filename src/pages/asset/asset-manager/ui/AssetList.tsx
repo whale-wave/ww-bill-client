@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDeleteAssetByIdMutation, useGetAssetGroupQuery, useGetAssetQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
-import { formatAmount, math } from '@/shared/lib';
+import { formatAssetAmount, math } from '@/shared/lib';
 import { confirmAppAction, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 import { IconBlock } from '../../ui';
@@ -91,7 +91,7 @@ export const AssetList: FC = () => {
   }, [deleteAssetByIdMutate, deleteState.isLoading, t]);
 
   const parseAmount = useCallback((amount: string | number, type: 'add' | 'sub') => {
-    return `${type === 'add' ? '' : '-'}¥${formatAmount(Number(amount))}`;
+    return formatAssetAmount(amount, type);
   }, []);
 
   if (isListLoading || isGroupLoading) {
@@ -187,11 +187,20 @@ export const AssetList: FC = () => {
                             </span>
                           </span>
                           <span className="flex shrink-0 items-center gap-1.5">
-                            <span className={asset.assetGroup.type === 'add'
-                              ? 'font-number text-[15px] font-extrabold text-ww-ink'
-                              : 'font-number text-[15px] font-extrabold text-finance-expense'}
-                            >
-                              {parseAmount(asset.amount, asset.assetGroup.type)}
+                            <span className="flex flex-col items-end justify-center">
+                              <span className={asset.assetGroup.type === 'add'
+                                ? 'font-number text-[15px] font-extrabold text-ww-ink'
+                                : 'font-number text-[15px] font-extrabold text-finance-expense'}
+                              >
+                                {parseAmount(asset.amount, asset.assetGroup.type)}
+                              </span>
+                              {asset.assetGroup.type === 'sub' && asset.creditLimit && (
+                                <span className="font-number mt-0.5 text-[10px] leading-[10px] text-ww-soft">
+                                  {t('manager.availableLimit', '可用')}
+                                  {' '}
+                                  {formatAssetAmount(math.subtract(asset.creditLimit, asset.amount).toNumber(), 'add')}
+                                </span>
+                              )}
                             </span>
                             <ChevronRight className="text-ww-ghost" size={15} strokeWidth={2} />
                           </span>

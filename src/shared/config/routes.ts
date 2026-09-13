@@ -68,6 +68,9 @@ export const ROUTES_PATH = {
   DISCOVERY: {
     getPath: () => '/discovery',
   },
+  IMPORT_DATA: {
+    getPath: () => '/import-data',
+  },
   EXPORT_DATA: {
     getPath: () => '/export-data',
   },

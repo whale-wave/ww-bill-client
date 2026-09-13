@@ -22,7 +22,7 @@ import {
   IllustratedEmptyState,
   PageHeader,
   PageLoadingState,
-  showAppActionSheet,
+  showAppInfoDialog,
 } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 import styles from './index.module.scss';
@@ -135,8 +135,7 @@ const Message: FC = () => {
 
   const handleOpen = async (notification: UserNotification) => {
     const target = getNotificationTarget(notification.payload);
-    const isRelease = notification.type === UserNotificationType.CLIENT_RELEASE;
-    if ((!target && !isRelease) || pendingActionsRef.current.has(`open:${notification.id}`))
+    if (pendingActionsRef.current.has(`open:${notification.id}`))
       return;
     pendingActionsRef.current.add(`open:${notification.id}`);
     if (notification.status === UserNotificationStatus.UNREAD) {
@@ -154,9 +153,29 @@ const Message: FC = () => {
       navigate(target);
     }
     else {
-      showAppActionSheet({
-        actions: [{ key: 'acknowledge', text: t('message.notificationCenter.markRead') }],
-        description: notification.content,
+      const coverUrl = typeof notification.payload?.cover === 'string' ? notification.payload.cover : undefined;
+      showAppInfoDialog({
+        confirmText: t('nav.confirm'),
+        description: (
+          <div className="space-y-3 pt-1 text-left">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-ww-soft">
+              <span className="rounded-full bg-ww-surface-tint px-2.5 py-0.5 font-medium text-ww-mid">
+                {t(`message.notificationCenter.types.${notification.type}`, { defaultValue: notification.type })}
+              </span>
+              <time dateTime={notification.createdAt}>{showDate(notification.createdAt)}</time>
+            </div>
+            {coverUrl && (
+              <img
+                alt=""
+                className="max-h-48 w-full rounded-lg object-cover shadow-ww-xs"
+                src={coverUrl}
+              />
+            )}
+            <div className="whitespace-pre-wrap break-words text-sm leading-relaxed text-ww-ink">
+              {notification.content}
+            </div>
+          </div>
+        ),
         title: notification.title,
       });
     }
@@ -277,7 +296,6 @@ const Message: FC = () => {
             {notificationQuery.data.map((notification) => {
               const target = getNotificationTarget(notification.payload);
               const isJoinRequest = notification.type === UserNotificationType.LEDGER_JOIN_REQUEST;
-              const isRelease = notification.type === UserNotificationType.CLIENT_RELEASE;
               const action = target && isJoinRequest
                 ? (
                     <span className={styles.handle}>
@@ -308,23 +326,17 @@ const Message: FC = () => {
                           <NotificationContent notification={notification} />
                         </button>
                       )
-                    : (target && isJoinRequest) || isRelease
-                        ? (
-                            <button
-                              aria-label={`${notification.title} ${t('message.notificationCenter.handle')}`}
-                              className={styles.itemButton}
-                              data-testid={`message-notification-action-${notification.id}`}
-                              onClick={() => void handleOpen(notification)}
-                              type="button"
-                            >
-                              <NotificationContent action={action} notification={notification} />
-                            </button>
-                          )
-                        : (
-                            <div className={styles.itemStatic}>
-                              <NotificationContent notification={notification} />
-                            </div>
-                          )}
+                    : (
+                        <button
+                          aria-label={notification.title}
+                          className={styles.itemButton}
+                          data-testid={`message-notification-action-${notification.id}`}
+                          onClick={() => void handleOpen(notification)}
+                          type="button"
+                        >
+                          <NotificationContent action={action} notification={notification} />
+                        </button>
+                      )}
                 </article>
               );
             })}

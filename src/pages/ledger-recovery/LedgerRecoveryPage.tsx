@@ -32,7 +32,7 @@ export function RecoveryList({ records, restoringId, onRestore, showDeletedBy = 
   };
 
   return (
-    <main className="mx-auto w-full max-w-[520px] px-[18px] pb-6">
+    <div className="mx-auto w-full max-w-[520px] px-[18px] pb-6">
       <div className="mb-3 rounded-[20px] bg-primary-light/55 px-4 py-3 text-[12px] font-semibold leading-5 text-primary-deep">
         {t('recovery.retention')}
       </div>
@@ -65,7 +65,7 @@ export function RecoveryList({ records, restoringId, onRestore, showDeletedBy = 
           </div>
         ))}
       </Surface>
-    </main>
+    </div>
   );
 }
 
@@ -129,7 +129,9 @@ export default function LedgerRecoveryPage() {
   return (
     <div className="page-new bg-bg-gray">
       <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('recovery.title')} />
-      <LedgerScopeBoundary>{({ ledgerId }) => <RecoveryContent ledgerId={ledgerId} />}</LedgerScopeBoundary>
+      <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto pb-[max(28px,env(safe-area-inset-bottom))]">
+        <LedgerScopeBoundary>{({ ledgerId }) => <RecoveryContent ledgerId={ledgerId} />}</LedgerScopeBoundary>
+      </main>
     </div>
   );
 }

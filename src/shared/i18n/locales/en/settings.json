@@ -73,7 +73,32 @@
     "title": "Recently Deleted",
     "description": "Restore records deleted within 30 days"
   },
+  "import": "Import Data",
   "export": "Export Data",
+  "importData": {
+    "title": "Import Data",
+    "subtitle": "Actively developing seamless data import for major apps",
+    "supportedApps": "Supported Applications",
+    "noticeTitle": "Data Import Feature Under Active Development",
+    "noticeDescription": "Our development team is working hard to adapt data import for all major accounting apps! If you would like us to prioritize support for your preferred accounting app, feel free to contact the author with format templates, and we will accelerate development and release support for it as soon as possible!",
+    "sendTemplate": "Contact Author to Provide Template (Accelerate Adaptation)",
+    "goToFeedback": "Contact Author / Provide Template",
+    "copiedContact": "Author email copied",
+    "apps": {
+      "shark": "Shark Bill (鲨鱼记账)",
+      "sharkDesc": "Adapting · Provide template to accelerate release",
+      "icost": "iCost",
+      "icostDesc": "Adapting · Provide template to accelerate release",
+      "yimu": "Yimu Bill (一木记账)",
+      "yimuDesc": "Adapting · Provide template to accelerate release",
+      "qianji": "Qianji (钱迹)",
+      "qianjiDesc": "Adapting · Provide template to accelerate release",
+      "wechatAlipay": "WeChat / Alipay Statement",
+      "wechatAlipayDesc": "Adapting · Provide template to accelerate release",
+      "other": "Other Apps",
+      "otherDesc": "Adapting · Provide template to accelerate release"
+    }
+  },
   "about": "About WhaleWave",
   "invite": "Invite Friends",
   "system": "System",

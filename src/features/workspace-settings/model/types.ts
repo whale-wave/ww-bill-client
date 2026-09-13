@@ -11,6 +11,7 @@ export type SettingsIconKey
     | 'desktop'
     | 'export'
     | 'help'
+    | 'import'
     | 'language'
     | 'lock'
     | 'member'

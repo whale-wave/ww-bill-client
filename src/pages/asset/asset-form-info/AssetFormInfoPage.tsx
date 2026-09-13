@@ -20,7 +20,7 @@ import { AppButton, FieldFrame, IllustratedEmptyState, Surface } from '@/shared/
 import { showAppError } from '@/shared/ui/app-feedback';
 import { AssetPageFrame } from '../ui';
 
-type AssetFormValues = Pick<Asset, 'amount' | 'cardId' | 'comment' | 'name'>;
+type AssetFormValues = Pick<Asset, 'amount' | 'cardId' | 'comment' | 'name' | 'creditLimit'>;
 
 interface AssetFormField {
   disabled?: boolean;
@@ -72,6 +72,7 @@ const AssetFormInfo: FC = () => {
         cardId: assetQuery.data.cardId,
         comment: assetQuery.data.comment,
         name: assetQuery.data.name,
+        creditLimit: assetQuery.data.creditLimit,
       });
       return;
     }
@@ -97,6 +98,16 @@ const AssetFormInfo: FC = () => {
       required: true,
       rules: [{ required: true, message: t('form.amountRequired') }],
     },
+    ...(assetGroup?.type === 'sub'
+      ? [{
+          icon: WalletCards,
+          inputMode: 'decimal' as const,
+          label: t('form.creditLimit', '信用额度'),
+          name: 'creditLimit' as const,
+          normalize: normalizeAmount,
+          placeholder: t('form.creditLimitPlaceholder', '选填'),
+        }]
+      : []),
     ...(isCardType
       ? [{
           icon: CreditCard,

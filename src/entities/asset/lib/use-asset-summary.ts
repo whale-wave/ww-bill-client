@@ -48,14 +48,11 @@ export function useAssetSummaryInfo() {
       totalAsset,
     };
 
-    const formatInfo = Object.keys(info).reduce((acc, key) => {
-      acc[key as keyof typeof info] = formatAmount(info[key as keyof typeof info]);
-      return acc;
-    }, {} as {
-      addAsset: string;
-      subAsset: string;
-      totalAsset: string;
-    });
+    const formatInfo = {
+      addAsset: formatAmount(addAsset),
+      subAsset: formatAmount(subAsset),
+      totalAsset: formatAmount(totalAsset),
+    };
 
     return {
       info,

@@ -38,6 +38,21 @@ export function formatAmountWithoutTrailingZeros(amount: MoneyInput) {
   return money.formatNatural(amount);
 }
 
+export function formatAssetAmount(amount: MoneyInput, type: 'add' | 'sub') {
+  const num = Number(amount);
+  const formattedAbs = formatAmount(Math.abs(num));
+  if (type === 'add') {
+    return num < 0 ? `-¥${formattedAbs}` : `¥${formattedAbs}`;
+  }
+  if (num > 0) {
+    return `-¥${formattedAbs}`;
+  }
+  if (num < 0) {
+    return `+¥${formattedAbs}`;
+  }
+  return `¥${formattedAbs}`;
+}
+
 /**
  * Keeps dense metric cards legible without discarding the magnitude of a
  * balance. Full precision remains available on detail pages.

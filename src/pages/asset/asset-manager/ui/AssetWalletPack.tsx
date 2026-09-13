@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAssetSummaryInfo, useGetAssetQuery } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
-import { formatAmount } from '@/shared/lib';
+import { formatAssetAmount, math } from '@/shared/lib';
 import { IllustratedEmptyState, PageLoadingState, useMotionPreference } from '@/shared/ui';
 import { IconBlock } from '../../ui';
 import { AssetEmptyState } from './AssetEmptyState';
@@ -170,10 +170,17 @@ export const AssetWalletPack: FC = () => {
                   <span className={`mt-0.5 block truncate text-[10px] font-bold ${tone.detailClassName}`}>{asset.comment || asset.assetGroup.name}</span>
                 </span>
                 <span className="mb-0.5 flex shrink-0 items-center gap-1.5">
-                  <span className={`font-number text-[17px] font-black tracking-[-0.03em] ${tone.amountClassName}`}>
-                    {asset.assetGroup.type === 'sub' ? '-' : ''}
-                    ¥
-                    {formatAmount(Number(asset.amount))}
+                  <span className="flex flex-col items-end justify-center">
+                    <span className={`font-number text-[17px] font-black tracking-[-0.03em] ${tone.amountClassName}`}>
+                      {formatAssetAmount(asset.amount, asset.assetGroup.type)}
+                    </span>
+                    {asset.assetGroup.type === 'sub' && asset.creditLimit && (
+                      <span className={`font-number mt-0.5 text-[9px] leading-[9px] ${tone.detailClassName}`}>
+                        {t('manager.availableLimit', '可用')}
+                        {' '}
+                        {formatAssetAmount(math.subtract(asset.creditLimit, asset.amount).toNumber(), 'add')}
+                      </span>
+                    )}
                   </span>
                   {isExpanded && <ChevronRight size={16} strokeWidth={2.25} />}
                 </span>

@@ -37,28 +37,28 @@ export default function PersonalRecoveryPage() {
   return (
     <div className="page-new bg-bg-gray">
       <PageHeader backLabel={t('common:nav.back')} onBack={() => navigate(-1)} title={t('ledger:recovery.title')} />
-      {query.isLoading && <PageLoadingState label={t('common:nav.loading')} testId="personal-recovery-loading" />}
-      {query.isError && (
-        <div className="mx-auto w-full max-w-[520px] px-[var(--ww-page-gutter)] py-6">
-          <Surface className="overflow-hidden" material="content">
-            <IllustratedEmptyState
-              actionLabel={t('common:nav.retry')}
-              description={t('common:error.networkError')}
-              icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
-              onAction={() => void query.refetch()}
-              title={t('common:error.loadFail')}
-            />
-          </Surface>
-        </div>
-      )}
-      {!query.isLoading && !query.isError && query.data.length === 0 && (
-        <IllustratedEmptyState className="px-4" description={t('ledger:recovery.empty')} icon={<Inbox className="text-primary-deep" size={38} strokeWidth={1.7} />} title={t('ledger:recovery.title')} />
-      )}
-      {!query.isLoading && !query.isError && query.data.length > 0 && (
-        <main className="mx-auto w-full max-w-[520px]">
+      <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto pb-[max(28px,env(safe-area-inset-bottom))]">
+        {query.isLoading && <PageLoadingState label={t('common:nav.loading')} testId="personal-recovery-loading" />}
+        {query.isError && (
+          <div className="mx-auto w-full max-w-[520px] px-[var(--ww-page-gutter)] py-6">
+            <Surface className="overflow-hidden" material="content">
+              <IllustratedEmptyState
+                actionLabel={t('common:nav.retry')}
+                description={t('common:error.networkError')}
+                icon={<CircleAlert className="text-primary-deep" size={38} strokeWidth={1.8} />}
+                onAction={() => void query.refetch()}
+                title={t('common:error.loadFail')}
+              />
+            </Surface>
+          </div>
+        )}
+        {!query.isLoading && !query.isError && query.data.length === 0 && (
+          <IllustratedEmptyState className="px-4" description={t('ledger:recovery.empty')} icon={<Inbox className="text-primary-deep" size={38} strokeWidth={1.7} />} title={t('ledger:recovery.title')} />
+        )}
+        {!query.isLoading && !query.isError && query.data.length > 0 && (
           <RecoveryList records={query.data} onRestore={record => handleRestore(record.id, record.version)} restoringId={restoringId} />
-        </main>
-      )}
+        )}
+      </main>
     </div>
   );
 }

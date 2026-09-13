@@ -119,12 +119,16 @@
 }
 
 .description {
-  display: block;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
   margin-top: 5px;
   color: var(--ww-text-color-mid);
   font-size: 14px;
   line-height: 21px;
-  white-space: pre-wrap;
   word-break: break-word;
 }
 

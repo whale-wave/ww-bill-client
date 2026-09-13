@@ -53,6 +53,8 @@
   border: 1px solid var(--ww-material-overlay-border);
   background: var(--ww-material-overlay-background);
   box-shadow: var(--ww-material-overlay-shadow);
+  backdrop-filter: var(--ww-material-overlay-blur);
+  -webkit-backdrop-filter: var(--ww-material-overlay-blur);
 }
 
 .ww-app-modal {
@@ -66,7 +68,10 @@
 }
 
 .ww-app-dialog {
-  width: min(var(--ww-component-overlay-width), calc(100vw - 40px));
+  display: flex;
+  flex-direction: column;
+  width: min(var(--ww-component-overlay-width), calc(100vw - 32px));
+  max-height: min(85dvh, 600px);
   border-radius: var(--ww-material-overlay-radius);
   color: var(--ww-theme-text-color);
 
@@ -75,6 +80,7 @@
   }
 
   .adm-dialog-header {
+    flex: 0 0 auto;
     margin: 0;
     padding: 0 var(--ww-component-overlay-padding-x);
   }
@@ -91,11 +97,18 @@
   }
 
   .adm-dialog-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     padding: 0 var(--ww-component-overlay-padding-x) var(--ww-component-overlay-padding-x);
   }
 
   .adm-dialog-footer {
-    padding: 0 14px 14px;
+    flex: 0 0 auto;
+    padding: 10px 14px 14px;
+    background: transparent;
   }
 
   .adm-dialog-action-row {
@@ -104,26 +117,48 @@
   }
 
   .adm-dialog-footer .adm-dialog-action-row > .adm-dialog-button {
+    --color: var(--ww-component-overlay-secondary-foreground);
+    --background-color: var(--ww-component-overlay-secondary-background);
     min-height: var(--ww-component-overlay-control-height);
     padding: 10px 14px;
-    border: 0;
+    border: 1px solid var(--ww-border-color) !important;
     border-radius: var(--ww-component-overlay-control-radius);
-    color: var(--ww-component-overlay-secondary-foreground);
-    background: var(--ww-component-overlay-secondary-background);
-    font-size: 14px;
+    color: var(--ww-component-overlay-secondary-foreground) !important;
+    background-color: var(--ww-component-overlay-secondary-background) !important;
+    font-size: 15px;
     font-weight: 700;
     line-height: 20px;
     transition:
       filter 160ms cubic-bezier(0.22, 1, 0.36, 1),
       transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
 
+    &,
+    span,
+    p,
+    div,
+    .adm-button-text {
+      color: var(--ww-component-overlay-secondary-foreground) !important;
+    }
+
     &:last-child {
-      color: var(--ww-component-overlay-primary-foreground);
-      background: var(--ww-component-overlay-primary-background);
+      --color: var(--ww-component-overlay-primary-foreground);
+      --background-color: var(--ww-component-overlay-primary-background);
+      border: 0 !important;
+      color: var(--ww-component-overlay-primary-foreground) !important;
+      background-color: var(--ww-component-overlay-primary-background) !important;
+      box-shadow: 0 4px 14px color-mix(in srgb, var(--ww-theme-color) 35%, transparent);
+
+      &,
+      span,
+      p,
+      div,
+      .adm-button-text {
+        color: var(--ww-component-overlay-primary-foreground) !important;
+      }
     }
 
     &:active {
-      filter: brightness(0.96);
+      filter: brightness(0.94);
       transform: scale(0.985);
     }
 
@@ -143,14 +178,30 @@
   .adm-dialog-footer .adm-dialog-action-row > .adm-dialog-button:last-child {
     color: rgb(var(--ww-color-action-primary-foreground));
     background: rgb(var(--ww-color-feedback-danger));
+
+    &,
+    span,
+    .adm-button-text {
+      color: rgb(var(--ww-color-action-primary-foreground));
+    }
   }
 }
 
 .ww-app-dialog--warning {
-  .ww-app-dialog__icon,
-  .adm-dialog-footer .adm-dialog-action-row > .adm-dialog-button:last-child {
-    color: rgb(var(--ww-color-feedback-warning));
+  .ww-app-dialog__icon {
+    color: #b45309;
     background: rgb(var(--ww-color-feedback-warning-surface));
+  }
+
+  .adm-dialog-footer .adm-dialog-action-row > .adm-dialog-button:last-child {
+    color: #ffffff;
+    background: #d97706;
+
+    &,
+    span,
+    .adm-button-text {
+      color: #ffffff;
+    }
   }
 }
 
@@ -165,6 +216,7 @@
 
   strong {
     min-width: 0;
+    color: var(--ww-theme-text-color);
     font-weight: 800;
     text-wrap: balance;
   }
@@ -184,7 +236,8 @@
 
 .ww-app-dialog__description {
   margin: var(--ww-space-md) 0 0;
-  color: var(--ww-text-color-mid);
+  color: var(--ww-theme-text-color);
+  opacity: 0.88;
   font-size: var(--ww-component-overlay-body-size);
   line-height: 1.55;
   text-align: left;

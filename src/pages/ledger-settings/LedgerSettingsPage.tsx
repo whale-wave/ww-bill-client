@@ -505,15 +505,24 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                 }]
               : []),
             ...(ledger.capabilities.includes(LedgerCapability.DATA_EXPORT)
-              ? [{
-                  icon: 'export' as const,
-                  id: 'export',
-                  kind: 'link' as const,
-                  label: t('settings.export'),
-                  onClick: () => navigate(
-                    ROUTES_PATH.LEDGER_EXPORT.getPath(ledgerId),
-                  ),
-                }]
+              ? [
+                  {
+                    icon: 'import' as const,
+                    id: 'import',
+                    kind: 'link' as const,
+                    label: '导入数据',
+                    onClick: () => navigate(ROUTES_PATH.IMPORT_DATA.getPath()),
+                  },
+                  {
+                    icon: 'export' as const,
+                    id: 'export',
+                    kind: 'link' as const,
+                    label: t('settings.export'),
+                    onClick: () => navigate(
+                      ROUTES_PATH.LEDGER_EXPORT.getPath(ledgerId),
+                    ),
+                  },
+                ]
               : []),
           ],
           title: t('settings.management'),

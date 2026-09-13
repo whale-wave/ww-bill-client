@@ -32,7 +32,7 @@ export function AgentCardView({
   if (card.kind === 'STATISTIC') {
     const metricLabel = t(card.metric);
     return (
-      <Surface className="mt-3 overflow-hidden rounded-[22px] p-4" material="raised">
+      <Surface className="mt-3 overflow-hidden" material="raised">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="m-0 text-[12px] font-bold text-ww-mid">{metricLabel}</p>
@@ -58,7 +58,7 @@ export function AgentCardView({
   const isDraft = card.kind === 'RECORD_DRAFT';
   const inactive = isDraft && card.status !== 'PENDING';
   return (
-    <Surface className="mt-3 overflow-hidden rounded-[22px] p-4" material="raised">
+    <Surface className="mt-3 overflow-hidden" material="raised">
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary-deep">
           <CategoryIcon categoryName={card.category.name} iconKey={card.category.icon} size={21} />

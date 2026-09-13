@@ -4,19 +4,15 @@ import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
-import {
-  clientLatestReleaseQueryOptions,
-  formatClientReleaseDescription,
-  getInstalledAndroidVersion,
-  isAndroidClientUpdateAvailable,
-} from '@/entities/app-release';
-import { markNotificationReadApi, useNotificationsQuery, UserNotificationStatus, UserNotificationType } from '@/entities/notification';
+import { appReleaseKeys, clientLatestReleaseQueryOptions, formatClientReleaseDescription, getInstalledAndroidVersion, isAndroidClientUpdateAvailable } from '@/entities/app-release';
+import { markNotificationReadApi, notificationKeys, useNotificationsQuery, UserNotificationStatus, UserNotificationType } from '@/entities/notification';
 import { useAuthStore } from '@/features/auth';
+import { getAppSocket } from '@/shared/api/socket';
 import { APP_INFO } from '@/shared/config/app-info';
 import { fetchBuildInfo, refreshForBuild } from '@/shared/config/build-info';
 import { useTranslation } from '@/shared/i18n';
 import { openExternalUrl } from '@/shared/lib';
-import { showAppActionSheet } from '@/shared/ui';
+import { showAppActionSheet, showAppInfoDialog } from '@/shared/ui';
 
 const REMINDER_KEY = 'client-release-reminder';
 const SEEN_KEY = 'client-release-seen';
@@ -79,27 +75,36 @@ export const ClientUpdateController: FC = () => {
   useEffect(() => {
     const notice = notificationsQuery.data.find(item => item.type === UserNotificationType.SYSTEM_ANNOUNCEMENT
       && item.status === UserNotificationStatus.UNREAD
-      && item.payload?.promptLevel === 'important'
-      && Boolean(item.payload?.promptEnabled));
+      && (Boolean(item.payload?.promptEnabled) || item.payload?.promptLevel === 'important'));
     if (!notice || shownGeneralRef.current === notice.id)
       return;
     shownGeneralRef.current = notice.id;
-    showAppActionSheet({
-      actions: [{ key: 'acknowledge', text: t('aboutSupport.gotIt'), onClick: () => void markNotificationReadApi(notice.id, notice.version).catch(() => undefined) }],
+
+    void markNotificationReadApi(notice.id, notice.version)
+      .then(() => {
+        void queryClient.invalidateQueries(notificationKeys.all);
+      })
+      .catch(() => undefined);
+
+    showAppInfoDialog({
+      confirmText: t('aboutSupport.gotIt'),
       description: notice.content,
       title: notice.title,
     });
-  }, [notificationsQuery.data, t]);
+  }, [notificationsQuery.data, queryClient, t]);
 
   const showWebRelease = useCallback(async (release: ClientReleaseManifest) => {
     const releaseKey = getReleaseKey(release, 'web');
     const description = formatClientReleaseDescription(release, t('aboutSupport.webUpdateDescription', { version: release.versionName }));
     if (!release.enabled || !release.web.enabled)
       return;
-    const deployedBuild = await fetchBuildInfo();
-    if (deployedBuild.version !== release.versionName)
+    const deployedBuild = await fetchBuildInfo().catch(() => ({
+      buildId: APP_INFO.buildId,
+      version: release.versionName,
+    }));
+    if (deployedBuild.version !== release.versionName && !import.meta.env.DEV)
       return;
-    if (APP_INFO.buildId === deployedBuild.buildId) {
+    if (APP_INFO.buildId === deployedBuild.buildId || import.meta.env.DEV) {
       if (readStoredValue(SEEN_KEY) === releaseKey)
         return;
       rememberSeen(releaseKey);
@@ -159,7 +164,7 @@ export const ClientUpdateController: FC = () => {
 
   const check = useCallback(async (force = false) => {
     const platform = Capacitor.getPlatform();
-    if (!['android', 'web'].includes(platform) || (platform === 'web' && import.meta.env.DEV) || checkingRef.current)
+    if (!['android', 'web'].includes(platform) || checkingRef.current)
       return;
     checkingRef.current = true;
     try {
@@ -186,6 +191,18 @@ export const ClientUpdateController: FC = () => {
     };
     const handlePageShow = () => void check(true);
 
+    const socket = getAppSocket();
+    const handleSocketNotification = () => {
+      void queryClient.invalidateQueries(notificationKeys.all);
+      void queryClient.invalidateQueries(appReleaseKeys.all);
+      void notificationsQuery.refetch();
+      void check(true);
+    };
+
+    socket?.on('notification:published', handleSocketNotification);
+    socket?.on('notification:updated', handleSocketNotification);
+    socket?.on('notification:deleted', handleSocketNotification);
+
     window.addEventListener('online', handleOnline);
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('pageshow', handlePageShow);
@@ -195,12 +212,15 @@ export const ClientUpdateController: FC = () => {
         void check(true);
     }).then((listener) => { removeAppListener = () => listener.remove(); });
     return () => {
+      socket?.off('notification:published', handleSocketNotification);
+      socket?.off('notification:updated', handleSocketNotification);
+      socket?.off('notification:deleted', handleSocketNotification);
       window.removeEventListener('online', handleOnline);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('pageshow', handlePageShow);
       removeAppListener?.();
     };
-  }, [check]);
+  }, [check, notificationsQuery, queryClient]);
 
   return null;
 };

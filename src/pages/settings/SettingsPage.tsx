@@ -194,6 +194,13 @@ const Settings: FC = () => {
                     onClick: () => goTo(ROUTES_PATH.SETTINGS_RECOVERY.getPath()),
                   },
                   {
+                    icon: 'import',
+                    id: 'import',
+                    kind: 'link',
+                    label: t('import'),
+                    onClick: () => goTo(ROUTES_PATH.IMPORT_DATA.getPath()),
+                  },
+                  {
                     icon: 'export',
                     id: 'export',
                     kind: 'link',

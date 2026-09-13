@@ -40,8 +40,11 @@ export function confirmAppAction({
   return Dialog.confirm({
     bodyClassName: `ww-app-dialog ww-app-dialog--${tone}`,
     cancelText,
+    closeOnMaskClick: true,
     confirmText,
-    content: <p className="ww-app-dialog__description">{description}</p>,
+    content: typeof description === 'string'
+      ? <p className="ww-app-dialog__description">{description}</p>
+      : description,
     header: title
       ? (
           <div className="ww-app-dialog__heading">
@@ -99,10 +102,11 @@ export function showAppInfoDialog({
 }: AppInfoOptions) {
   return Dialog.alert({
     bodyClassName: 'ww-app-dialog ww-app-dialog--primary',
+    closeOnMaskClick: true,
     confirmText,
-    content: description
+    content: typeof description === 'string'
       ? <p className="ww-app-dialog__description">{description}</p>
-      : null,
+      : description,
     header: title
       ? (
           <div className="ww-app-dialog__heading">

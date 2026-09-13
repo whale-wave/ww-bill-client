@@ -249,6 +249,13 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
                 onChange: handleHideTotalAmountChange,
               },
               {
+                icon: 'import',
+                id: 'import',
+                kind: 'link',
+                label: '导入数据',
+                onClick: () => navigate(ROUTES_PATH.IMPORT_DATA.getPath()),
+              },
+              {
                 description: t('settings.exportDescription'),
                 icon: 'export',
                 id: 'export',

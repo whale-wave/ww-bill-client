@@ -3,7 +3,7 @@ import type { Asset } from '@/entities/asset';
 import { SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '@/shared/i18n';
-import { formatAmount } from '@/shared/lib';
+import { formatAmount, math } from '@/shared/lib';
 import { Surface } from '@/shared/ui';
 import { IconBlock } from '../../ui';
 import { AssetAdjustPopup } from './AssetAdjustPopup';
@@ -41,6 +41,14 @@ export const AssetInfoCard: FC<{ asset: Asset }> = ({ asset }) => {
               <span className="mr-1 text-[13px] font-extrabold text-ww-mid">¥</span>
               <span className="truncate text-[30px] font-black leading-9">{formatAmount(Number(asset.amount))}</span>
             </p>
+            {asset.assetGroup.type === 'sub' && asset.creditLimit && (
+              <p className="mt-1 text-[11px] font-number font-semibold text-ww-soft">
+                {t('manager.availableLimit', '剩余可用额度')}
+                {' '}
+                ¥
+                {formatAmount(math.subtract(asset.creditLimit, asset.amount).toNumber())}
+              </p>
+            )}
           </div>
           <button
             className="mb-1 flex h-11 shrink-0 items-center gap-1.5 rounded-[14px] border border-solid border-white/85 bg-white/72 px-3 text-[11px] font-black text-primary-deep shadow-ww-xs"
