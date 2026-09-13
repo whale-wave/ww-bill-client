@@ -79,14 +79,14 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
         )}
         {state === 'error' && (
           <div
-            className="flex min-h-[320px] flex-grow items-center justify-center py-3"
+            className="flex w-full items-start justify-center pb-3 pt-0"
             data-record-overview-state="error"
           >
             <div className="w-full rounded-[var(--ww-radius-card)] border border-solid border-border-primary bg-ww-surface-raised">
               <IllustratedEmptyState
                 accentIcon={<RefreshCw size={18} strokeWidth={2.2} />}
                 actionLabel={retryLabel ?? t('error.loadFail')}
-                className="min-h-[320px]"
+                className="min-h-[260px] sm:min-h-[300px]"
                 description={errorDescription ?? t('error.networkError')}
                 icon={<CircleAlert className="text-ww-pink" size={46} strokeWidth={1.8} />}
                 onAction={onRetry}
@@ -98,14 +98,14 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
         )}
         {state === 'ready' && groups.length === 0 && (
           <div
-            className="flex min-h-[320px] flex-grow items-center justify-center py-3"
+            className="flex w-full items-start justify-center pb-3 pt-0"
             data-record-overview-state="empty"
           >
             <div className="w-full rounded-[var(--ww-radius-card)] border border-solid border-border-primary bg-ww-surface-raised">
               <IllustratedEmptyState
                 accentIcon={onEmptyAction ? <Plus size={19} strokeWidth={2.2} /> : undefined}
                 actionLabel={emptyActionLabel}
-                className="min-h-[330px]"
+                className="min-h-[260px] sm:min-h-[300px]"
                 description={emptyDescription}
                 icon={<DesignIcon name="tab-detail-active" size={46} />}
                 onAction={onEmptyAction}
@@ -143,13 +143,13 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
                 />
               </div>
             )}
-            <div
-              aria-hidden="true"
-              className="h-[calc(126px+env(safe-area-inset-bottom))] shrink-0"
-              data-record-overview-tab-bar-spacer
-            />
           </>
         )}
+        <div
+          aria-hidden="true"
+          className="h-[calc(126px+env(safe-area-inset-bottom))] shrink-0"
+          data-record-overview-tab-bar-spacer
+        />
       </main>
     </>
   );
