@@ -8,9 +8,11 @@ import { appReleaseKeys } from '@/entities/app-release';
 import { markNotificationReadApi, NotificationDetailModal, notificationKeys, useNotificationsQuery, UserNotificationStatus, UserNotificationType } from '@/entities/notification';
 import { useAuthStore } from '@/features/auth';
 import { getAppSocket } from '@/shared/api/socket';
+import { APP_INFO } from '@/shared/config/app-info';
 import { useTranslation } from '@/shared/i18n';
 import { openExternalUrl } from '@/shared/lib';
 import { showDate } from '@/shared/lib/time';
+import { selectClientReleasePrompt } from '../model/release-prompt';
 
 export const ClientUpdateController: FC = () => {
   const { t: commonT } = useTranslation('common');
@@ -22,9 +24,16 @@ export const ClientUpdateController: FC = () => {
     params: { limit: 20, platform },
     queryOptions: { enabled: Boolean(token) },
   });
+  const releaseNotificationsQuery = useNotificationsQuery({
+    // Fetch release history separately so ordinary announcements cannot push the
+    // newest release outside the popup selection window.
+    params: { limit: 100, platform, type: UserNotificationType.CLIENT_RELEASE },
+    queryOptions: { enabled: Boolean(token) },
+  });
   const shownGeneralRef = useRef<string | null>(null);
   const realtimeNoticeIdRef = useRef<string | null>(null);
   const [promptNotification, setPromptNotification] = useState<UserNotification | null>(null);
+  const [androidVersionCode, setAndroidVersionCode] = useState<number | null>(null);
 
   const triggerNoticeDialog = useCallback((notice: UserNotification) => {
     const noticeKey = `${notice.id}:${notice.version}`;
@@ -61,11 +70,27 @@ export const ClientUpdateController: FC = () => {
   }, [closeNoticeDialog, platform, promptNotification]);
 
   useEffect(() => {
+    if (platform !== 'android')
+      return;
+    let active = true;
+    void App.getInfo()
+      .then((info) => {
+        const versionCode = Number.parseInt(info.build, 10);
+        if (active && Number.isSafeInteger(versionCode) && versionCode > 0)
+          setAndroidVersionCode(versionCode);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [platform]);
+
+  useEffect(() => {
     if (!token || !notificationsQuery.data)
       return;
 
     const unreadNotices = notificationsQuery.data.filter(item =>
-      (item.type === UserNotificationType.SYSTEM_ANNOUNCEMENT || item.type === UserNotificationType.CLIENT_RELEASE)
+      item.type === UserNotificationType.SYSTEM_ANNOUNCEMENT
       && item.status === UserNotificationStatus.UNREAD,
     );
 
@@ -73,6 +98,16 @@ export const ClientUpdateController: FC = () => {
     const importantNotice = unreadNotices.find(item => item.payload?.promptLevel === 'important');
     if (importantNotice) {
       triggerNoticeDialog(importantNotice);
+      return;
+    }
+
+    const releasePrompt = selectClientReleasePrompt(
+      releaseNotificationsQuery.data,
+      platform,
+      platform === 'android' ? { versionCode: androidVersionCode } : { versionName: APP_INFO.version },
+    );
+    if (releasePrompt) {
+      triggerNoticeDialog(releasePrompt);
       return;
     }
 
@@ -87,7 +122,7 @@ export const ClientUpdateController: FC = () => {
         triggerNoticeDialog(pushNotice);
       }
     }
-  }, [notificationsQuery.data, token, triggerNoticeDialog]);
+  }, [androidVersionCode, notificationsQuery.data, platform, releaseNotificationsQuery.data, token, triggerNoticeDialog]);
 
   const lastRefreshTimeRef = useRef<number>(0);
 
