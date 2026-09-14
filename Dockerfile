@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.10
 FROM node:24.15.0-alpine AS builder
 ARG APP_VERSION
 ARG APP_BUILD_ID
