@@ -17,9 +17,11 @@ export enum UserNotificationType {
 
 export interface UserNotificationPayload extends Record<string, unknown> {
   action?: unknown;
+  coverPicture?: unknown;
   householdId?: unknown;
   ledgerId?: unknown;
   joinRequestId?: unknown;
+  images?: unknown;
   memberId?: unknown;
   status?: unknown;
   assignedRole?: unknown;

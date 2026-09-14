@@ -210,6 +210,9 @@
       "deleteSelectedConfirmTitle": "删除已选通知",
       "deleteSelectedConfirmContent": "选中的 {{count}} 条通知将移入已归档列表。",
       "deleteSelectedFailed": "部分通知删除失败，请重试。",
+      "closeDetail": "关闭消息详情",
+      "imageCount": "共 {{count}} 张图片，轻触可放大",
+      "previewImage": "查看第 {{index}} 张图片",
       "statuses": {
         "UNREAD": "未读",
         "READ": "已读",

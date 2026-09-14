@@ -47,7 +47,11 @@ vi.mock('@/entities/notification', async (importOriginal) => {
 });
 
 vi.mock('@/shared/i18n', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string, values?: { count?: number }) => key === 'message.notificationCenter.imageCount'
+      ? `共 ${values?.count} 张图片，轻触可放大`
+      : key,
+  }),
 }));
 
 vi.mock('@/shared/lib/time', () => ({
@@ -58,7 +62,11 @@ vi.mock('@/shared/ui/app-feedback', () => ({ showAppError }));
 
 vi.mock('@/shared/ui', () => ({
   AppButton: ({ children, ...props }: { children: ReactNode }) => createElement('button', props, children),
+  AppModal: ({ content, visible }: { content?: ReactNode; visible?: boolean }) => visible
+    ? createElement('div', null, content)
+    : null,
   confirmAppAction: dialogConfirm,
+  ImagePreview: () => null,
   PageHeader: ({ right, title }: { right?: ReactNode; title: ReactNode }) => createElement(
     'header',
     null,
@@ -102,7 +110,13 @@ const passiveNotification = {
   ...actionableNotification,
   content: '账本成员信息已更新',
   id: 'notification-2',
-  payload: {},
+  payload: {
+    coverPicture: 'https://cdn.example.com/cover.webp',
+    images: [
+      'https://cdn.example.com/detail-1.webp',
+      'https://cdn.example.com/detail-2.webp',
+    ],
+  },
   status: UserNotificationStatus.READ,
   type: UserNotificationType.LEDGER_MEMBER_CHANGED,
   version: 1,
@@ -224,6 +238,28 @@ describe('message page', () => {
     });
 
     expect(hooks.markRead).toHaveBeenCalledWith({ id: 'notification-unread-general', version: 1 });
+  });
+
+  it('opens a structured detail modal with metadata, content, and an image gallery', async () => {
+    const { container } = renderPage();
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>(
+        '[data-testid="message-notification-action-notification-2"]',
+      )?.click();
+    });
+
+    const modal = container.querySelector('[data-testid="notification-detail-modal"]');
+    expect(modal).not.toBeNull();
+    expect(modal?.textContent).toContain('账本成员信息已更新');
+    expect(modal?.textContent).toContain('message.notificationCenter.types.LEDGER_MEMBER_CHANGED');
+    expect(modal?.textContent).toContain('共 3 张图片，轻触可放大');
+    expect(modal?.querySelectorAll('[data-notification-image]')).toHaveLength(3);
+
+    await act(async () => {
+      modal?.querySelector<HTMLButtonElement>('[data-testid="notification-detail-confirm"]')?.click();
+    });
+    expect(container.querySelector('[data-testid="notification-detail-modal"]')).toBeNull();
   });
 
   it('loads the next page automatically when the bottom sentinel becomes visible', async () => {

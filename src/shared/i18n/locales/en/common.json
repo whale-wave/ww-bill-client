@@ -129,6 +129,9 @@
       "deleteSelectedConfirmTitle": "Delete selected notifications",
       "deleteSelectedConfirmContent": "{{count}} selected notifications will move to the archived list.",
       "deleteSelectedFailed": "Some notifications could not be deleted. Please try again.",
+      "closeDetail": "Close message details",
+      "imageCount": "{{count}} images · Tap to enlarge",
+      "previewImage": "View image {{index}}",
       "statuses": {
         "UNREAD": "Unread",
         "READ": "Read",

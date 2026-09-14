@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import appAvatar from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
 import {
-  NotificationDetailContent,
+  NotificationDetailModal,
   useArchiveNotificationsMutation,
   useMarkNotificationReadMutation,
   useNotificationsQuery,
@@ -23,7 +23,6 @@ import {
   IllustratedEmptyState,
   PageHeader,
   PageLoadingState,
-  showAppInfoDialog,
 } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 import styles from './index.module.scss';
@@ -86,6 +85,7 @@ const Message: FC = () => {
   const loadTriggerRef = useRef<HTMLDivElement>(null);
   const pendingActionsRef = useRef(new Set<string>());
   const isFetchingNextPageRef = useRef(false);
+  const [detailNotification, setDetailNotification] = useState<UserNotification | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
@@ -139,36 +139,29 @@ const Message: FC = () => {
     if (pendingActionsRef.current.has(`open:${notification.id}`))
       return;
     pendingActionsRef.current.add(`open:${notification.id}`);
-    if (notification.status === UserNotificationStatus.UNREAD) {
-      try {
-        await markReadMutation.mutateAsync({
-          id: notification.id,
-          version: notification.version,
-        });
+    try {
+      if (notification.status === UserNotificationStatus.UNREAD) {
+        try {
+          await markReadMutation.mutateAsync({
+            id: notification.id,
+            version: notification.version,
+          });
+        }
+        catch {
+          // Reading is best effort and must not block the notification's primary action.
+        }
       }
-      catch {
-        // Reading is best effort and must not block the notification's primary action.
-      }
+      if (target)
+        navigate(target);
+      else
+        setDetailNotification(notification);
     }
-    if (target) {
-      navigate(target);
+    finally {
+      pendingActionsRef.current.delete(`open:${notification.id}`);
     }
-    else {
-      showAppInfoDialog({
-        confirmText: t('nav.confirm'),
-        description: (
-          <NotificationDetailContent
-            content={notification.content}
-            createdAt={showDate(notification.createdAt)}
-            payload={notification.payload}
-            type={t(`message.notificationCenter.types.${notification.type}`, { defaultValue: notification.type })}
-          />
-        ),
-        title: notification.title,
-      });
-    }
-    pendingActionsRef.current.delete(`open:${notification.id}`);
   };
+
+  const handleCloseDetail = () => setDetailNotification(null);
 
   const handleToggleEditing = () => {
     setIsEditing(previous => !previous);
@@ -369,6 +362,14 @@ const Message: FC = () => {
           </AppButton>
         </aside>
       )}
+      <NotificationDetailModal
+        notification={detailNotification}
+        timeLabel={detailNotification ? showDate(detailNotification.createdAt) : ''}
+        typeLabel={detailNotification
+          ? t(`message.notificationCenter.types.${detailNotification.type}`, { defaultValue: detailNotification.type })
+          : ''}
+        onClose={handleCloseDetail}
+      />
     </div>
   );
 };

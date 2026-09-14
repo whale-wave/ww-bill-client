@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useTranslation } from '@/shared/i18n';
 import { openExternalUrl } from '@/shared/lib';
+import { ImagePreview } from '@/shared/ui';
 
 export interface NotificationDetailContentProps {
   title?: string;
@@ -16,30 +18,35 @@ export function AutoLinkText({ text }: { text: string }) {
     return null;
 
   const URL_REGEX = /(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g;
-  const parts = text.split(URL_REGEX);
+  let characterOffset = 0;
+  const parts = text.split(URL_REGEX).map((part) => {
+    const item = { id: `${characterOffset}:${part.length}`, text: part };
+    characterOffset += part.length;
+    return item;
+  });
 
   return (
-    <div className="whitespace-pre-wrap break-words text-sm leading-relaxed text-ww-ink">
-      {parts.map((part, index) => {
-        if (/^https?:\/\//i.test(part)) {
+    <div className="whitespace-pre-wrap break-words text-[15px] leading-7 text-ww-ink">
+      {parts.map((part) => {
+        if (/^https?:\/\//i.test(part.text)) {
           return (
             <a
-              key={index}
-              href={part}
+              key={part.id}
+              href={part.text}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                void openExternalUrl(part);
+                void openExternalUrl(part.text);
               }}
               className="text-ww-primary font-medium underline underline-offset-2 break-all hover:opacity-80 active:opacity-60 transition-opacity"
             >
-              {part}
+              {part.text}
             </a>
           );
         }
-        return <span key={index}>{part}</span>;
+        return <span key={part.id}>{part.text}</span>;
       })}
     </div>
   );
@@ -53,34 +60,42 @@ export function NotificationDetailContent({
   coverPicture,
   images: extraImages,
 }: NotificationDetailContentProps) {
+  const { t } = useTranslation('common');
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  const imageList: string[] = [];
-  const rawCover = coverPicture || payload?.coverPicture || payload?.cover || payload?.coverUrl;
-  if (typeof rawCover === 'string' && rawCover.trim()) {
-    imageList.push(rawCover.trim());
-  }
+  const imageList = useMemo(() => {
+    const images: string[] = [];
+    const rawCover = coverPicture || payload?.coverPicture || payload?.cover || payload?.coverUrl;
+    if (typeof rawCover === 'string' && rawCover.trim()) {
+      images.push(rawCover.trim());
+    }
 
-  const rawImages = extraImages || payload?.images;
-  if (Array.isArray(rawImages)) {
-    rawImages.forEach((img) => {
-      if (typeof img === 'string' && img.trim() && !imageList.includes(img.trim())) {
-        imageList.push(img.trim());
-      }
-    });
-  }
-  else if (typeof rawImages === 'string' && rawImages.trim() && !imageList.includes(rawImages.trim())) {
-    imageList.push(rawImages.trim());
-  }
+    const rawImages = extraImages || payload?.images;
+    if (Array.isArray(rawImages)) {
+      rawImages.forEach((image) => {
+        if (typeof image === 'string' && image.trim() && !images.includes(image.trim())) {
+          images.push(image.trim());
+        }
+      });
+    }
+    else if (typeof rawImages === 'string' && rawImages.trim() && !images.includes(rawImages.trim())) {
+      images.push(rawImages.trim());
+    }
+    return images;
+  }, [coverPicture, extraImages, payload]);
+
+  const galleryColumns = imageList.length === 2 || imageList.length === 4
+    ? 'grid-cols-2'
+    : 'grid-cols-3';
 
   const formattedDate = createdAt
     ? (typeof createdAt === 'string' ? createdAt : createdAt.toLocaleString('zh-CN', { hour12: false }))
     : undefined;
 
   return (
-    <div className="space-y-3.5 pt-1 text-left">
+    <div className="text-left">
       {(type || formattedDate) && (
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-ww-soft">
+        <div className="mb-[var(--ww-space-md)] flex flex-wrap items-center justify-between gap-2 text-xs text-ww-soft">
           {type && (
             <span className="rounded-full bg-ww-surface-tint px-2.5 py-0.5 font-medium text-ww-mid">
               {type}
@@ -94,52 +109,56 @@ export function NotificationDetailContent({
         </div>
       )}
 
-      {/* Single / Multi Image Gallery */}
+      <AutoLinkText text={content} />
+
       {imageList.length === 1 && (
-        <div className="overflow-hidden rounded-xl border border-ww-border/40 shadow-ww-xs">
+        <button
+          aria-label={t('message.notificationCenter.previewImage', { index: 1 })}
+          className="mt-[var(--ww-space-lg)] block aspect-[16/9] w-full overflow-hidden rounded-[var(--ww-radius-control)] border-0 bg-transparent p-0"
+          onClick={() => setPreviewImage(imageList[0])}
+          type="button"
+        >
           <img
+            alt=""
+            className="h-full w-full object-cover"
+            data-notification-image
             src={imageList[0]}
-            alt="notice cover"
-            onClick={() => setPreviewImage(imageList[0])}
-            className="max-h-60 w-full cursor-zoom-in object-cover transition-transform duration-200 hover:scale-[1.02]"
           />
-        </div>
+        </button>
       )}
 
       {imageList.length > 1 && (
-        <div className={`grid gap-2 ${imageList.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
-          {imageList.map((img, index) => (
-            <div key={index} className="aspect-square overflow-hidden rounded-lg border border-ww-border/40 shadow-ww-xs">
+        <div className={`mt-[var(--ww-space-lg)] grid gap-1.5 ${galleryColumns}`}>
+          {imageList.map((image, index) => (
+            <button
+              aria-label={t('message.notificationCenter.previewImage', { index: index + 1 })}
+              className="aspect-square overflow-hidden rounded-[calc(var(--ww-radius-control)-2px)] border-0 bg-transparent p-0"
+              key={image}
+              onClick={() => setPreviewImage(image)}
+              type="button"
+            >
               <img
-                src={img}
-                alt={`notice image ${index + 1}`}
-                onClick={() => setPreviewImage(img)}
-                className="h-full w-full cursor-zoom-in object-cover transition-transform duration-200 hover:scale-105"
+                alt=""
+                className="h-full w-full object-cover"
+                data-notification-image
+                src={image}
               />
-            </div>
+            </button>
           ))}
         </div>
       )}
 
-      {/* Text with Link Highlighting */}
-      <AutoLinkText text={content} />
-
-      {/* Enlarged Image Lightbox Preview */}
-      {previewImage && (
-        <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm animate-in fade-in duration-200"
-          onClick={(e) => {
-            e.stopPropagation();
-            setPreviewImage(null);
-          }}
-        >
-          <img
-            src={previewImage}
-            alt="enlarged preview"
-            className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
-          />
-        </div>
+      {imageList.length > 1 && (
+        <p className="mt-[var(--ww-space-sm)] text-center text-[12px] leading-5 text-ww-soft">
+          {t('message.notificationCenter.imageCount', { count: imageList.length })}
+        </p>
       )}
+
+      <ImagePreview
+        image={previewImage ?? undefined}
+        onClose={() => setPreviewImage(null)}
+        visible={Boolean(previewImage)}
+      />
     </div>
   );
 }
