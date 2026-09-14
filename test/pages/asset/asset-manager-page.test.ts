@@ -123,6 +123,7 @@ describe('asset manager page', () => {
     expect(container.textContent).toContain('现金账户');
     expect(container.textContent).toContain('随身钱包');
     expect(container.textContent).toContain('¥1280.50');
+    expect(container.querySelector('.ww-asset-swipe-action')).not.toBeNull();
 
     const accountButton = [...container.querySelectorAll('button')]
       .find(button => button.textContent?.includes('随身钱包'));

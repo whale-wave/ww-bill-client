@@ -6,6 +6,7 @@ import { act, createElement } from 'react';
 import { createPortal } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { AssetGroupAssetType } from '@/entities/asset';
 import { getRecordAttachmentContentApi } from '@/entities/record';
 import {
   RecordEditorPresentation,
@@ -14,8 +15,10 @@ import {
 import { confirmDangerousAction } from '@/shared/ui';
 
 vi.mock('@/shared/i18n', () => ({
-  i18n: { t: (key: string) => key },
-  useTranslation: () => ({ t: (key: string) => key }),
+  i18n: { t: (key: string, values?: Record<string, unknown>) => values ? `${key} ${Object.values(values).join(' ')}` : key },
+  useTranslation: () => ({
+    t: (key: string, values?: Record<string, unknown>) => values ? `${key} ${Object.values(values).join(' ')}` : key,
+  }),
 }));
 
 vi.mock('@/shared/ui', () => ({
@@ -106,9 +109,23 @@ const assetAccount: Asset = {
     updatedAt: '',
   },
   createdAt: '',
+  comment: '日常支出卡',
+  creditLimit: '120000',
   id: 'asset-account',
   name: '中信银行',
   updatedAt: '',
+};
+
+const creditAssetAccount: Asset = {
+  ...assetAccount,
+  assetGroup: {
+    ...assetAccount.assetGroup,
+    assetType: AssetGroupAssetType.CREDIT,
+    name: '信用卡',
+    parentId: '',
+    type: 'sub',
+  },
+  name: '中信信用卡',
 };
 
 let cleanup: (() => void) | undefined;
@@ -124,6 +141,7 @@ afterEach(() => {
 });
 
 function TestEditor({
+  assetAccounts,
   onArchiveTag,
   onCancel = vi.fn(),
   onManageCategories,
@@ -132,6 +150,7 @@ function TestEditor({
   withAssetAccount = false,
   withTags = false,
 }: {
+  assetAccounts?: Asset[];
   onArchiveTag?: (tagId: string) => Promise<void>;
   onCancel?: () => void;
   onManageCategories?: () => void;
@@ -140,6 +159,7 @@ function TestEditor({
   withAssetAccount?: boolean;
   withTags?: boolean;
 }) {
+  const resolvedAssetAccounts = assetAccounts ?? [assetAccount];
   const controller = useRecordEditorController({
     onSubmit: vi.fn(),
     seed: {
@@ -151,9 +171,11 @@ function TestEditor({
   });
 
   return createElement(RecordEditorPresentation, {
-    assetAccounts: withAssetAccount ? [assetAccount] : undefined,
+    assetAccounts: withAssetAccount ? resolvedAssetAccounts : undefined,
     assetGroups: withAssetAccount
-      ? [{ ...assetAccount.assetGroup, id: 'savings-group', level: 0, name: '储蓄卡', parentId: '' }]
+      ? resolvedAssetAccounts.map(asset => asset.assetGroup.parentId
+          ? { ...asset.assetGroup, id: asset.assetGroup.parentId, level: 0, name: '储蓄卡', parentId: '' }
+          : asset.assetGroup)
       : undefined,
     categories: [category],
     categoryState: 'ready',
@@ -461,5 +483,28 @@ describe('record editor presentation', () => {
     expect(assetOption?.classList).toContain('border-primary');
     expect(assetOption?.querySelector('svg.lucide-check')).not.toBeNull();
     expect(assetOption?.textContent).toContain('储蓄卡');
+    expect(assetOption?.textContent).toContain('日常支出卡');
+    expect(assetOption?.textContent).toContain('120000');
+    expect(container.querySelector('[data-record-editor-asset-trigger]')?.textContent).toContain('日常支出卡');
+    expect(container.querySelector('[data-record-editor-asset-trigger]')?.textContent).toContain('record:bookkeeping.linkedAssetBalance 50000');
+  });
+
+  it('shows available credit and debt instead of a current balance for credit cards', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor, {
+      assetAccounts: [creditAssetAccount],
+      withAssetAccount: true,
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
+    act(() => document.body.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="asset-account"]')?.click());
+
+    const trigger = container.querySelector('[data-record-editor-asset-trigger]');
+    expect(trigger?.textContent).toContain('record:bookkeeping.linkedAssetAvailableCreditLimit 70000');
+    expect(trigger?.textContent).toContain('record:bookkeeping.linkedAssetDebt 50000');
+    expect(trigger?.textContent).not.toContain('record:bookkeeping.linkedAssetBalance');
   });
 });

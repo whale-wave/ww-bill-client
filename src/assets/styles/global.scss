@@ -42,7 +42,8 @@ body {
 
 // SwipeAction sets each action's semantic color through --background-color.
 // Keep that component-local value from being overridden by the app-wide button surface.
-.ww-record-swipe-action .adm-swipe-action-action-button.adm-button {
+.ww-record-swipe-action .adm-swipe-action-action-button.adm-button,
+.ww-asset-swipe-action .adm-swipe-action-action-button.adm-button {
   background-color: var(--background-color) !important;
 }
 

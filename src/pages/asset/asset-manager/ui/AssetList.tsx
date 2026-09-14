@@ -156,6 +156,7 @@ export const AssetList: FC = () => {
                   <div>
                     {group.list.map((asset, index) => (
                       <SwipeAction
+                        className="ww-asset-swipe-action"
                         key={asset.id}
                         rightActions={[{
                           key: 'delete',

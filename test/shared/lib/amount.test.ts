@@ -10,6 +10,7 @@ import {
 describe('amount helpers', () => {
   it('keeps arithmetic and output behind one money facade', () => {
     expect(money.add('0.1', '0.2')).toBe('0.3');
+    expect(money.subtract('120000', '50000')).toBe('70000');
     expect(money.compare('5848.19', '5848.18')).toBeGreaterThan(0);
     expect(money.format('5848.1900000000000006')).toBe('5848.19');
     expect(money.formatNatural('100.00')).toBe('100');

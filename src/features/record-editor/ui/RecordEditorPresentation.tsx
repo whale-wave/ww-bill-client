@@ -27,7 +27,7 @@ import {
   postRecordLocationCandidatesApi,
 } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
-import { cn } from '@/shared/lib';
+import { cn, money } from '@/shared/lib';
 import {
   AppButton,
   AppDatePicker,
@@ -105,6 +105,27 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const linkedAsset = assetAccounts?.find(
     asset => asset.id === controller.linkedAssetId,
   );
+  const isLinkedCreditAsset = linkedAsset?.assetGroup.assetType === 'credit';
+  const linkedAssetSummary = linkedAsset && [
+    linkedAsset.comment?.trim(),
+    ...(!isLinkedCreditAsset
+      ? [t('record:bookkeeping.linkedAssetBalance', {
+          amount: linkedAsset.amount,
+        })]
+      : []),
+  ].filter(Boolean).join(' · ');
+  const linkedCreditSummary = linkedAsset && isLinkedCreditAsset
+    ? [
+        ...(linkedAsset.creditLimit
+          ? [t('record:bookkeeping.linkedAssetAvailableCreditLimit', {
+              amount: money.formatNatural(money.subtract(linkedAsset.creditLimit, linkedAsset.amount)),
+            })]
+          : []),
+        t('record:bookkeeping.linkedAssetDebt', {
+          amount: money.formatNatural(linkedAsset.amount),
+        }),
+      ]
+    : [];
   const filteredRemarkHistory = useMemo(() => {
     const keyword = controller.remark.trim().toLocaleLowerCase();
     if (!keyword)
@@ -461,12 +482,15 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     </span>
                     <span className="block truncate text-[10px] font-semibold text-ww-soft">
                       {linkedAsset
-                        ? t('record:bookkeeping.linkedAssetBalance', {
-                            amount: linkedAsset.amount,
-                          })
+                        ? linkedAssetSummary || linkedAsset.assetGroup.name
                         : t('record:bookkeeping.linkedAssetHint')}
                     </span>
                   </span>
+                  {isLinkedCreditAsset && (
+                    <span className="flex shrink-0 flex-col items-end whitespace-nowrap font-number text-[10px] font-semibold leading-4 text-ww-soft">
+                      {linkedCreditSummary.map(item => <span key={item}>{item}</span>)}
+                    </span>
+                  )}
                   <ChevronDown className="text-ww-soft" size={17} strokeWidth={2} />
                 </button>
               )}
@@ -862,12 +886,23 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   {asset.name}
                 </span>
                 <span className="block truncate text-[11px] font-semibold text-ww-soft">
-                  {getAssetAccountTypeLabel(asset, assetGroups)}
+                  {[getAssetAccountTypeLabel(asset, assetGroups), asset.comment?.trim()]
+                    .filter(Boolean)
+                    .join(' · ')}
                 </span>
               </span>
-              <span className="shrink-0 font-number text-[13px] font-bold text-ww-mid">
-                ¥
-                {asset.amount}
+              <span className="shrink-0 text-right">
+                <span className="block font-number text-[13px] font-bold text-ww-mid">
+                  ¥
+                  {asset.amount}
+                </span>
+                {asset.creditLimit && (
+                  <span className="block font-number text-[10px] font-semibold text-ww-soft">
+                    {t('record:bookkeeping.linkedAssetCreditLimit', {
+                      amount: asset.creditLimit,
+                    })}
+                  </span>
+                )}
               </span>
               {controller.linkedAssetId === asset.id && (
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-deep">

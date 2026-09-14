@@ -1,4 +1,4 @@
-import { add, bignumber, compareNatural } from 'mathjs';
+import { add, bignumber, compareNatural, subtract } from 'mathjs';
 
 export type MoneyInput = number | string;
 
@@ -18,6 +18,9 @@ function trimTrailingZeros(value: string) {
 export const money = {
   add(left: MoneyInput, right: MoneyInput) {
     return add(toMoneyNumber(left), toMoneyNumber(right)).toString();
+  },
+  subtract(left: MoneyInput, right: MoneyInput) {
+    return subtract(toMoneyNumber(left), toMoneyNumber(right)).toString();
   },
   compare(left: MoneyInput, right: MoneyInput) {
     return compareNatural(toMoneyNumber(left), toMoneyNumber(right));
