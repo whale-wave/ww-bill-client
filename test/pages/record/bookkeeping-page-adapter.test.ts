@@ -20,6 +20,7 @@ const hooks = vi.hoisted(() => ({
   useGetAssetGroupQuery: vi.fn(),
   useGetAssetQuery: vi.fn(),
   useGetCategoryQuery: vi.fn(),
+  useGetUserAppConfigQuery: vi.fn(),
   useLedgerTagsQuery: vi.fn(),
 }));
 
@@ -32,6 +33,11 @@ vi.mock('@/entities/asset', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/asset')>()),
   useGetAssetGroupQuery: hooks.useGetAssetGroupQuery,
   useGetAssetQuery: hooks.useGetAssetQuery,
+}));
+
+vi.mock('@/entities/user-app-config', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/entities/user-app-config')>()),
+  useGetUserAppConfigQuery: hooks.useGetUserAppConfigQuery,
 }));
 
 vi.mock('@/entities/agent', async importOriginal => ({
@@ -108,6 +114,7 @@ beforeEach(() => {
   hooks.useGetCategoryQuery.mockReset();
   hooks.useGetAssetGroupQuery.mockReset();
   hooks.useGetAssetQuery.mockReset();
+  hooks.useGetUserAppConfigQuery.mockReset();
   hooks.useLedgerTagsQuery.mockReset();
   hooks.ledgerCapabilities = [];
   hooks.postRecord.mockResolvedValue({ message: 'ok', statusCode: 200 });
@@ -116,6 +123,7 @@ beforeEach(() => {
   hooks.confirmAgentAction.mockResolvedValue({});
   hooks.uploadImage.mockResolvedValue({ data: { assetId: '00000000-0000-4000-8000-000000000501' } });
   hooks.useGetAssetQuery.mockReturnValue({ data: [] });
+  hooks.useGetUserAppConfigQuery.mockReturnValue({ data: { defaultAssetId: null } });
   hooks.useGetAssetGroupQuery.mockReturnValue({ data: [] });
   hooks.useGetCategoryQuery.mockReturnValue({
     data: [{
@@ -142,6 +150,48 @@ afterEach(() => {
 });
 
 describe('personal record editor adapter', () => {
+  it('uses the configured default asset for a new personal record', async () => {
+    const defaultAssetId = '00000000-0000-4000-8000-000000000401';
+    hooks.useGetUserAppConfigQuery.mockReturnValue({ data: { defaultAssetId } });
+    hooks.useGetAssetQuery.mockReturnValue({
+      data: [{
+        amount: '328.60',
+        assetGroup: {
+          assetType: 'credit',
+          createdAt: '',
+          description: '',
+          fixedName: true,
+          icon: 'credit',
+          id: '00000000-0000-4000-8000-000000000400',
+          level: 1,
+          name: '信用账户',
+          parentId: '',
+          type: 'sub',
+          updatedAt: '',
+        },
+        createdAt: '',
+        id: defaultAssetId,
+        name: '花呗支付',
+        updatedAt: '',
+      }],
+    });
+    const router = createMemoryRouter([
+      { path: '/bookkeeping', element: createElement(BookkeepingPage) },
+    ], { initialEntries: ['/bookkeeping'] });
+    const container = renderRouter(router);
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+    act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
+    await act(async () => {
+      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      await Promise.resolve();
+    });
+
+    expect(hooks.postRecord).toHaveBeenCalledWith(expect.objectContaining({
+      linkedAssetId: defaultAssetId,
+    }));
+  });
+
   it('defaults a new record to the current time', async () => {
     vi.useFakeTimers();
     const now = new Date('2026-09-09T10:11:12.000Z');

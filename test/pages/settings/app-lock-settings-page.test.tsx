@@ -14,6 +14,7 @@ import AppLockSettingsPage from '@/pages/app-lock-settings/AppLockSettingsPage';
 
 const mocks = vi.hoisted(() => ({
   config: {
+    defaultAssetId: null,
     gestureLockEnabled: false,
     id: 'config-1',
     isDisplayAmount: false,

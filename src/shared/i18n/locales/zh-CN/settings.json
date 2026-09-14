@@ -11,6 +11,19 @@
   "category": {
     "title": "类别设置"
   },
+  "defaultAsset": {
+    "title": "默认资产账号",
+    "description": "新建个人记账时自动关联，可随时改为不关联",
+    "pickerDescription": "选择后，新建记账会自动使用这个资产账号",
+    "none": "不默认关联",
+    "noneDescription": "每次记账时手动选择资产账号",
+    "balance": "余额 ¥{{amount}}",
+    "debt": "欠款 ¥{{amount}}",
+    "loading": "正在加载资产账号…",
+    "empty": "还没有资产账号，请先在资产配置中创建",
+    "loadFailed": "资产账号加载失败，请稍后重试",
+    "saveFailed": "默认资产账号保存失败，请稍后重试"
+  },
   "appLock": {
     "title": "应用锁",
     "description": "保护你的账本隐私",

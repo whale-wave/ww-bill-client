@@ -11,6 +11,19 @@
   "category": {
     "title": "Category Settings"
   },
+  "defaultAsset": {
+    "title": "Default Asset Account",
+    "description": "Automatically link new personal records; you can unlink anytime",
+    "pickerDescription": "New personal records will automatically use this asset account",
+    "none": "No Default Asset",
+    "noneDescription": "Choose an asset account manually for each record",
+    "balance": "Balance ¥{{amount}}",
+    "debt": "Debt ¥{{amount}}",
+    "loading": "Loading asset accounts…",
+    "empty": "No asset accounts yet. Create one in Asset Settings first.",
+    "loadFailed": "Unable to load asset accounts. Please try again.",
+    "saveFailed": "Unable to save the default asset account. Please try again."
+  },
   "appLock": {
     "title": "App Lock",
     "description": "Protect your ledger privacy",

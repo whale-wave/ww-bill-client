@@ -23,6 +23,7 @@ export interface UserAppConfig {
   ledgerQuickSwitchVersion: number;
   appearanceTemplate: AppearanceTemplate;
   appearanceAccent: AppearanceAccent;
+  defaultAssetId: string | null;
   discoveryCardOrder: DiscoveryCardId[];
   visibleDiscoveryCards: DiscoveryCardId[];
 }

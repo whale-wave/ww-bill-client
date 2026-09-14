@@ -21,6 +21,7 @@ import {
   useConfirmShortcutDraftMutation,
   useDiscardShortcutDraftMutation,
 } from '@/entities/shortcut-bookkeeping';
+import { useGetUserAppConfigQuery } from '@/entities/user-app-config';
 import {
   createShortcutRecordSeed,
   inferShortcutCategory,
@@ -111,6 +112,7 @@ function BookkeepingPage() {
   const supportsAssetLink = isPersonalAssetLinkContext && !shortcutBookkeeping && !agentRecordDraft;
   const assetQuery = useGetAssetQuery({ queryOptions: { enabled: supportsAssetLink } });
   const assetGroupQuery = useGetAssetGroupQuery({ queryOptions: { enabled: supportsAssetLink } });
+  const userAppConfigQuery = useGetUserAppConfigQuery();
   const seed = useMemo(() => restoredDraft ?? (agentRecordDraft
     ? {
         amount: agentRecordDraft.record.amount,
@@ -259,6 +261,16 @@ function BookkeepingPage() {
     isEditing: Boolean(initialRecord),
     onUploadImage: async file => (await uploadImage({ file, ledgerId: defaultLedger?.id })).data.assetId,
   });
+  const configuredDefaultAssetId = userAppConfigQuery.data?.defaultAssetId;
+  const availableDefaultAssetId = !initialRecord
+    && !restoredDraft
+    && supportsAssetLink
+    && assetQuery.data.some(asset => asset.id === configuredDefaultAssetId)
+    ? configuredDefaultAssetId ?? undefined
+    : undefined;
+  useEffect(() => {
+    controller.applyInitialLinkedAsset(availableDefaultAssetId);
+  }, [availableDefaultAssetId, controller]);
   const openRecordEditorSettings = useRecordEditorSettingsNavigation(
     controller.getDraftSnapshot,
   );

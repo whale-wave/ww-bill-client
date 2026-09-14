@@ -200,6 +200,19 @@ export function useRecordEditorController({
     setAssetSelectionDirty(true);
   }, []);
 
+  const applyInitialLinkedAsset = useCallback((assetId?: string) => {
+    if (
+      !supportsAssetLink
+      || isEditing
+      || assetSelectionDirty
+      || linkedAssetId !== null
+      || !assetId
+    ) {
+      return;
+    }
+    setLinkedAssetId(assetId);
+  }, [assetSelectionDirty, isEditing, linkedAssetId, supportsAssetLink]);
+
   const handleSelectLocation = useCallback(
     (nextLocation: RecordLocation | null) => {
       setLocation(nextLocation);
@@ -382,6 +395,7 @@ export function useRecordEditorController({
     activeKeyIndex,
     activeSideIndex,
     applyInitialCategory,
+    applyInitialLinkedAsset,
     calculator,
     date,
     formattedDate,

@@ -4,6 +4,7 @@ import { Trash2 } from 'lucide-react';
 
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useGetAssetGroupQuery, useGetAssetQuery } from '@/entities/asset';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import {
@@ -24,20 +25,24 @@ import {
   PageHeader,
   showAppActionSheet,
 } from '@/shared/ui';
-import { showAppNotice } from '@/shared/ui/app-feedback';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
+import { DefaultAssetPickerSheet } from './ui/DefaultAssetPickerSheet';
 
 const Settings: FC = () => {
   const { t } = useTranslation('settings');
   const navigate = useNavigate();
   const onBack = useWorkspaceBack({ type: 'personal' });
   const { data: userAppConfig } = useGetUserAppConfigQuery();
+  const assetQuery = useGetAssetQuery();
+  const assetGroupQuery = useGetAssetGroupQuery();
   const visibleAmountSwitch = userAppConfig?.isDisplayAmountSwitch ?? false;
   const { isSeniorMode, toggleSeniorMode } = useSeniorMode();
-  const [patchUserAppConfig] = usePatchUserAppConfigMutation();
+  const [patchUserAppConfig, patchUserAppConfigState] = usePatchUserAppConfigMutation();
   const [localStorageSize, setLocalStorageSize] = useState(() => getLocalStorageSize());
   const [currentLang, setCurrentLang] = useState<SupportedLang>(
     () => i18n.language as SupportedLang,
   );
+  const [isDefaultAssetPickerOpen, setIsDefaultAssetPickerOpen] = useState(false);
 
   const goTo = (path: string) => {
     playSound.turnPage();
@@ -78,6 +83,16 @@ const Settings: FC = () => {
   };
 
   const showDeveloping = () => showAppNotice(t('developing'));
+  const defaultAsset = assetQuery.data.find(asset => asset.id === userAppConfig?.defaultAssetId);
+  const handleSelectDefaultAsset = async (defaultAssetId: string | null) => {
+    try {
+      await patchUserAppConfig({ defaultAssetId });
+      setIsDefaultAssetPickerOpen(false);
+    }
+    catch {
+      showAppError({ content: t('defaultAsset.saveFailed'), icon: 'fail' });
+    }
+  };
 
   return (
     <div className="page-new relative overflow-hidden">
@@ -106,6 +121,15 @@ const Settings: FC = () => {
                     kind: 'link',
                     label: t('category.title'),
                     onClick: () => goTo(ROUTES_PATH.CATEGORY_SETTINGS.getPath()),
+                  },
+                  {
+                    description: t('defaultAsset.description'),
+                    icon: 'record',
+                    id: 'default-asset',
+                    kind: 'link',
+                    label: t('defaultAsset.title'),
+                    onClick: () => setIsDefaultAssetPickerOpen(true),
+                    value: defaultAsset?.name ?? t('defaultAsset.none'),
                   },
                   {
                     description: t('shortcutBookkeeping.entryDescription'),
@@ -243,6 +267,17 @@ const Settings: FC = () => {
           />
         </div>
       </main>
+      <DefaultAssetPickerSheet
+        assetGroups={assetGroupQuery.data}
+        assets={assetQuery.data}
+        isError={assetQuery.isError || assetGroupQuery.isError}
+        isLoading={assetQuery.isLoading || assetGroupQuery.isLoading}
+        isSaving={patchUserAppConfigState.isLoading}
+        onClose={() => setIsDefaultAssetPickerOpen(false)}
+        onSelect={assetId => void handleSelectDefaultAsset(assetId)}
+        selectedAssetId={userAppConfig?.defaultAssetId ?? null}
+        visible={isDefaultAssetPickerOpen}
+      />
     </div>
   );
 };
