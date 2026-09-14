@@ -8,6 +8,7 @@ export * from './locale-date';
 export * from './math';
 export * from './open-external-url';
 export * from './play-sound';
+export * from './public-media-url';
 export * from './regular';
 export * from './route-prefetch';
 export * from './system';

@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from '@/shared/i18n';
-import { openExternalUrl } from '@/shared/lib';
+import { openExternalUrl, resolvePublicMediaUrl } from '@/shared/lib';
 import { ImagePreview } from '@/shared/ui';
+import { usePublicMediaObjectUrl } from '@/shared/ui/public-media-image';
 
 export interface NotificationDetailContentProps {
   title?: string;
@@ -52,6 +53,26 @@ export function AutoLinkText({ text }: { text: string }) {
   );
 }
 
+function NotificationImage({ contain = false, image, onOpen }: { contain?: boolean; image: string; onOpen: (url: string) => void }) {
+  const mediaState = usePublicMediaObjectUrl(image);
+  const imageSrc = mediaState.url;
+  return (
+    <button
+      aria-label="预览通知图片"
+      className={`${contain ? 'h-full w-full' : 'aspect-square'} overflow-hidden rounded-[calc(var(--ww-radius-control)-2px)] border-0 bg-transparent p-0`}
+      disabled={!imageSrc}
+      onClick={() => imageSrc && onOpen(imageSrc)}
+      type="button"
+    >
+      {mediaState.loading
+        ? <span aria-label="正在加载通知图片" className="block h-full w-full animate-pulse bg-ww-surface-tint" role="status" />
+        : imageSrc
+          ? <img alt="" className={`h-full w-full ${contain ? 'object-contain object-center' : 'object-cover'}`} data-notification-image src={imageSrc} />
+          : <span className="block h-full w-full bg-ww-surface-tint" />}
+    </button>
+  );
+}
+
 export function NotificationDetailContent({
   type,
   createdAt,
@@ -67,19 +88,25 @@ export function NotificationDetailContent({
     const images: string[] = [];
     const rawCover = coverPicture || payload?.coverPicture || payload?.cover || payload?.coverUrl;
     if (typeof rawCover === 'string' && rawCover.trim()) {
-      images.push(rawCover.trim());
+      const resolvedCover = resolvePublicMediaUrl(rawCover);
+      if (resolvedCover)
+        images.push(resolvedCover);
     }
 
     const rawImages = extraImages || payload?.images;
     if (Array.isArray(rawImages)) {
       rawImages.forEach((image) => {
-        if (typeof image === 'string' && image.trim() && !images.includes(image.trim())) {
-          images.push(image.trim());
-        }
+        if (typeof image !== 'string' || !image.trim())
+          return;
+        const resolvedImage = resolvePublicMediaUrl(image);
+        if (resolvedImage && !images.includes(resolvedImage))
+          images.push(resolvedImage);
       });
     }
-    else if (typeof rawImages === 'string' && rawImages.trim() && !images.includes(rawImages.trim())) {
-      images.push(rawImages.trim());
+    else if (typeof rawImages === 'string' && rawImages.trim()) {
+      const resolvedImage = resolvePublicMediaUrl(rawImages);
+      if (resolvedImage && !images.includes(resolvedImage))
+        images.push(resolvedImage);
     }
     return images;
   }, [coverPicture, extraImages, payload]);
@@ -112,38 +139,15 @@ export function NotificationDetailContent({
       <AutoLinkText text={content} />
 
       {imageList.length === 1 && (
-        <button
-          aria-label={t('message.notificationCenter.previewImage', { index: 1 })}
-          className="mt-[var(--ww-space-lg)] block aspect-[16/9] w-full overflow-hidden rounded-[var(--ww-radius-control)] border-0 bg-transparent p-0"
-          onClick={() => setPreviewImage(imageList[0])}
-          type="button"
-        >
-          <img
-            alt=""
-            className="h-full w-full object-cover"
-            data-notification-image
-            src={imageList[0]}
-          />
-        </button>
+        <div className="mt-[var(--ww-space-lg)] block aspect-[16/9] w-full overflow-hidden rounded-[var(--ww-radius-control)]">
+          <NotificationImage contain image={imageList[0]} onOpen={setPreviewImage} />
+        </div>
       )}
 
       {imageList.length > 1 && (
         <div className={`mt-[var(--ww-space-lg)] grid gap-1.5 ${galleryColumns}`}>
-          {imageList.map((image, index) => (
-            <button
-              aria-label={t('message.notificationCenter.previewImage', { index: index + 1 })}
-              className="aspect-square overflow-hidden rounded-[calc(var(--ww-radius-control)-2px)] border-0 bg-transparent p-0"
-              key={image}
-              onClick={() => setPreviewImage(image)}
-              type="button"
-            >
-              <img
-                alt=""
-                className="h-full w-full object-cover"
-                data-notification-image
-                src={image}
-              />
-            </button>
+          {imageList.map(image => (
+            <NotificationImage image={image} key={image} onOpen={setPreviewImage} />
           ))}
         </div>
       )}

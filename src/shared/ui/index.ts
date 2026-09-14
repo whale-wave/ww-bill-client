@@ -26,6 +26,7 @@ export { default as NavBar } from './nav-bar';
 export * from './page-header';
 export * from './page-loading-state';
 export * from './progress-bar';
+export * from './public-media-image';
 export * from './record-search-header';
 export * from './settings-list-card';
 export { default as Share } from './share';

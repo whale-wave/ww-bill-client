@@ -110,7 +110,6 @@ const assetAccount: Asset = {
   },
   createdAt: '',
   comment: '日常支出卡',
-  creditLimit: '120000',
   id: 'asset-account',
   name: '中信银行',
   updatedAt: '',
@@ -126,6 +125,16 @@ const creditAssetAccount: Asset = {
     type: 'sub',
   },
   name: '中信信用卡',
+  creditLimit: '120000',
+};
+
+const creditAssetWithoutType: Asset = {
+  ...creditAssetAccount,
+  assetGroup: {
+    ...creditAssetAccount.assetGroup,
+    assetType: undefined as unknown as Asset['assetGroup']['assetType'],
+  },
+  name: '蚂蚁花呗',
 };
 
 let cleanup: (() => void) | undefined;
@@ -494,6 +503,25 @@ describe('record editor presentation', () => {
     const root = createRoot(container);
     act(() => root.render(createElement(TestEditor, {
       assetAccounts: [creditAssetAccount],
+      withAssetAccount: true,
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
+    act(() => document.body.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="asset-account"]')?.click());
+
+    const trigger = container.querySelector('[data-record-editor-asset-trigger]');
+    expect(trigger?.textContent).toContain('record:bookkeeping.linkedAssetAvailableCreditLimit 70000');
+    expect(trigger?.textContent).toContain('record:bookkeeping.linkedAssetDebt 50000');
+    expect(trigger?.textContent).not.toContain('record:bookkeeping.linkedAssetBalance');
+  });
+
+  it('uses the credit limit when a credit asset group omits its asset type', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor, {
+      assetAccounts: [creditAssetWithoutType],
       withAssetAccount: true,
     })));
     cleanup = () => act(() => root.unmount());

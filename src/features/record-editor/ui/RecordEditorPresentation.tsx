@@ -105,7 +105,8 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const linkedAsset = assetAccounts?.find(
     asset => asset.id === controller.linkedAssetId,
   );
-  const isLinkedCreditAsset = linkedAsset?.assetGroup.assetType === 'credit';
+  const isLinkedCreditAsset = Boolean(linkedAsset?.creditLimit?.trim())
+    || linkedAsset?.assetGroup.assetType === 'credit';
   const linkedAssetSummary = linkedAsset && [
     linkedAsset.comment?.trim(),
     ...(!isLinkedCreditAsset
@@ -862,7 +863,8 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             )}
           </button>
           {(assetAccounts ?? []).map((asset) => {
-            const isCreditAsset = asset.assetGroup.assetType === 'credit';
+            const isCreditAsset = Boolean(asset.creditLimit?.trim())
+              || asset.assetGroup.assetType === 'credit';
             const assetDebt = money.formatNatural(asset.amount);
             const availableCreditLimit = asset.creditLimit
               ? money.formatNatural(money.subtract(asset.creditLimit, asset.amount))

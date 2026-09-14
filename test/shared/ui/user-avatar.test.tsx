@@ -1,8 +1,12 @@
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { resolvePublicMediaUrl } from '@/shared/lib/public-media-url';
 import { UserAvatar } from '@/shared/ui/user-avatar';
+
+vi.mock('@/shared/ui/public-media-image', () => ({
+  usePublicMediaObjectUrl: (source?: string | null) => ({ error: false, loading: false, url: source ?? undefined }),
+}));
 
 let cleanup: (() => void) | undefined;
 
@@ -32,6 +36,13 @@ describe('resolvePublicMediaUrl', () => {
     expect(resolvePublicMediaUrl('https://cdn.example.com/avatar.png')).toBe('https://cdn.example.com/avatar.png');
     expect(resolvePublicMediaUrl(null)).toBeNull();
   });
+
+  it('resolves an internal media reference with the requested variant', () => {
+    expect(resolvePublicMediaUrl('media:550e8400-e29b-41d4-a716-446655440000', 'avatar-v1'))
+      .toBe('http://localhost/api/media/public/550e8400-e29b-41d4-a716-446655440000/avatar-v1');
+    expect(resolvePublicMediaUrl('media:550e8400-e29b-41d4-a716-446655440000'))
+      .toBe('http://localhost/api/media/public/550e8400-e29b-41d4-a716-446655440000/main-v1');
+  });
 });
 
 describe('userAvatar', () => {
@@ -60,6 +71,15 @@ describe('userAvatar', () => {
     act(() => image?.dispatchEvent(new Event('error')));
     expect(container.querySelector('[data-user-avatar="fallback"]')?.textContent).toBe('张');
     expect(container.querySelector('img')).toBeNull();
+  });
+
+  it('uses the avatar media variant for an internal media reference', () => {
+    const { container } = render(createElement(UserAvatar, {
+      name: '张三',
+      src: 'media:550e8400-e29b-41d4-a716-446655440000',
+    }));
+    expect(container.querySelector<HTMLImageElement>('img')?.src)
+      .toBe('http://localhost/api/media/public/550e8400-e29b-41d4-a716-446655440000/avatar-v1');
   });
 
   it('recovers when the source changes after a failed image', () => {

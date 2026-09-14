@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { cn } from '@/shared/lib';
 import { resolvePublicMediaUrl } from '@/shared/lib/public-media-url';
 import { DesignIcon } from '../design-icon';
+import { usePublicMediaObjectUrl } from '../public-media-image';
 
 export interface UserAvatarProps {
   alt?: string;
@@ -27,8 +28,10 @@ export const UserAvatar: FC<UserAvatarProps> = ({
 }) => {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const normalizedSrc = src?.trim() || null;
-  const resolvedSrc = resolvePublicMediaUrl(normalizedSrc);
-  const shouldFallback = !resolvedSrc || failedSrc === resolvedSrc;
+  const resolvedSrc = resolvePublicMediaUrl(normalizedSrc, 'avatar-v1');
+  const mediaState = usePublicMediaObjectUrl(resolvedSrc);
+  const imageSrc = mediaState.url;
+  const shouldFallback = !resolvedSrc || !imageSrc || failedSrc === resolvedSrc || mediaState.error;
   const initial = (name?.trim() || '?').slice(0, 1);
   const dimensionStyle: CSSProperties = {
     aspectRatio: '1 / 1',
@@ -52,7 +55,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
         data-testid={testId}
         height={size}
         onError={() => setFailedSrc(resolvedSrc)}
-        src={resolvedSrc}
+        src={imageSrc}
         style={dimensionStyle}
         width={size}
       />

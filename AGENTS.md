@@ -222,6 +222,7 @@ src/
 
 - 纵向内容堆叠优先复用 `ContentStack` / `SectionStack`，避免在相邻子项上散落间距类。
 - 人物头像优先走项目共享头像组件；具体视觉遵循 `DESIGN.md`，不要与分类或账本图标混用语义。
+- 服务端返回的通知媒体地址统一经过 `resolvePublicMediaUrl()` 处理；社区模块暂不纳入这套媒体处理范围。
 - 页面级或独立区块 loading 复用 `PageLoadingState`，禁止裸放 `SpinLoading`；内嵌按钮、图表和其他小控件除外。
 - 长滚动 Bottom Sheet 使用统一的 header/content 结构，内容区独立滚动；短 Sheet 保留组件默认关闭入口和自动高度。
 
