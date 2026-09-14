@@ -23,7 +23,7 @@ export function NotificationDetailModal({ notification, onClose, timeLabel, type
         ? (
             <article
               aria-labelledby="notification-detail-title"
-              className="flex max-h-[min(86dvh,680px)] flex-col overflow-hidden"
+              className="flex max-h-[min(86dvh,680px)] flex-col overflow-hidden bg-white"
               data-testid="notification-detail-modal"
             >
               <header className="shrink-0 bg-white px-5 pb-4 pt-5">
@@ -51,7 +51,7 @@ export function NotificationDetailModal({ notification, onClose, timeLabel, type
                 </div>
               </header>
 
-              <section className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-y border-solid border-[var(--ww-divider-color)] bg-[var(--ww-background-color)] px-5 py-[18px]">
+              <section className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-y border-solid border-[var(--ww-divider-color)] bg-white px-5 py-[18px]">
                 <NotificationDetailContent content={notification.content} payload={notification.payload} />
               </section>
 
