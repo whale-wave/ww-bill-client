@@ -476,6 +476,10 @@
   padding-top: 0;
   border: 0;
   border-radius: 0;
+  /* A fullscreen task view is a page, not a translucent overlay. The shared
+   * overlay material is intentionally translucent for short sheets, but it
+   * makes location-picker content compete with the bookkeeping screen below. */
+  background: var(--ww-background-color);
   animation: ww-location-picker-enter 220ms cubic-bezier(0.22, 1, 0.36, 1);
 
   &::before {
