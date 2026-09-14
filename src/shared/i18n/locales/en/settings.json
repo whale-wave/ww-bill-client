@@ -117,6 +117,51 @@
   "system": "System",
   "help": "Help",
   "desktopEntry": "Add to Home Screen",
+  "iosHomeScreenGuide": {
+    "kicker": "iPhone / iPad browser",
+    "title": "Add to Home Screen",
+    "description": "Add WhaleWave Bill to your Home Screen and open it like an app anytime.",
+    "previewHint": "7 screenshots in total. Tap any image to view it full-screen and zoom with two fingers.",
+    "previewImage": "View step {{step}} image full-screen",
+    "close": "Close Add to Home Screen guide",
+    "steps": {
+      "1": {
+        "title": "Open Safari or another browser",
+        "description": "On your iPhone or iPad, open a browser and get ready to visit WhaleWave Bill on the web.",
+        "imageAlt": "Open WhaleWave Bill in a browser"
+      },
+      "2": {
+        "title": "Enter the WhaleWave Bill address",
+        "description": "Type bill.whalewave.top in the address bar to open the web app.",
+        "imageAlt": "Enter the WhaleWave Bill address in the browser"
+      },
+      "3": {
+        "title": "Open the browser's More menu",
+        "description": "Find the “…” button at the bottom of the page and open more actions.",
+        "imageAlt": "Open the browser More menu"
+      },
+      "4": {
+        "title": "Tap Share",
+        "description": "Tap the Share button in the More menu to open sharing options.",
+        "imageAlt": "Tap Share in the browser menu"
+      },
+      "5": {
+        "title": "Show more actions",
+        "description": "Scroll down the share sheet to find “Add to Home Screen.”",
+        "imageAlt": "Find Add to Home Screen in the share sheet"
+      },
+      "6": {
+        "title": "Add to Home Screen",
+        "description": "Confirm the name and tap Add in the upper-right corner for quick app-like access.",
+        "imageAlt": "Confirm adding WhaleWave Bill to the Home Screen"
+      },
+      "7": {
+        "title": "Done — open it anytime",
+        "description": "Once the WhaleWave Bill icon appears on your Home Screen, it is one tap away.",
+        "imageAlt": "WhaleWave Bill appears on the Home Screen"
+      }
+    }
+  },
   "aboutSupport": {
     "title": "About & Support",
     "version": "v{{version}}",

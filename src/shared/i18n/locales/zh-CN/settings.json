@@ -117,6 +117,51 @@
   "system": "系统设置",
   "help": "使用帮助",
   "desktopEntry": "添加桌面入口",
+  "iosHomeScreenGuide": {
+    "kicker": "iPhone / iPad 浏览器",
+    "title": "添加到主屏幕",
+    "description": "把鲸浪记账添加到主屏幕，之后可像 App 一样一键打开。",
+    "previewHint": "共 7 张步骤图；点击任意图片可全屏查看、双指缩放。",
+    "previewImage": "全屏查看第 {{step}} 步图片",
+    "close": "关闭添加桌面入口教程",
+    "steps": {
+      "1": {
+        "title": "先打开 Safari 或其他浏览器",
+        "description": "在 iPhone 或 iPad 上进入浏览器，准备访问鲸浪记账网页版。",
+        "imageAlt": "在浏览器中打开鲸浪记账"
+      },
+      "2": {
+        "title": "输入鲸浪记账网址",
+        "description": "在地址栏输入 bill.whalewave.top，进入网页版。",
+        "imageAlt": "在地址栏输入鲸浪记账网址"
+      },
+      "3": {
+        "title": "点击浏览器的更多菜单",
+        "description": "在页面底部找到“…”按钮，打开更多操作。",
+        "imageAlt": "打开浏览器更多菜单"
+      },
+      "4": {
+        "title": "点击分享按钮",
+        "description": "在更多菜单中点击分享按钮，打开分享选项。",
+        "imageAlt": "在浏览器菜单中点击分享"
+      },
+      "5": {
+        "title": "展开更多操作",
+        "description": "向下滑动分享面板，找到“添加到主屏幕”。",
+        "imageAlt": "在分享面板找到添加到主屏幕"
+      },
+      "6": {
+        "title": "添加到主屏幕",
+        "description": "确认名称后点击右上角“添加”，就能像 App 一样快速打开。",
+        "imageAlt": "确认添加鲸浪记账到主屏幕"
+      },
+      "7": {
+        "title": "完成添加，随时打开",
+        "description": "桌面出现鲸浪记账图标后，之后即可一键进入。",
+        "imageAlt": "鲸浪记账已出现在桌面"
+      }
+    }
+  },
   "aboutSupport": {
     "title": "关于与支持",
     "version": "v{{version}}",

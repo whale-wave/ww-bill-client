@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import type { SupportedLang } from '@/shared/i18n';
+import { Capacitor } from '@capacitor/core';
 import { Trash2 } from 'lucide-react';
 
 import { useCallback, useState } from 'react';
@@ -26,7 +27,9 @@ import {
   showAppActionSheet,
 } from '@/shared/ui';
 import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
+import { getBrowserPlatformInfo, isIosBrowser } from './model/ios-home-screen-guide';
 import { DefaultAssetPickerSheet } from './ui/DefaultAssetPickerSheet';
+import { IosHomeScreenGuideModal } from './ui/IosHomeScreenGuideModal';
 
 const Settings: FC = () => {
   const { t } = useTranslation('settings');
@@ -42,7 +45,11 @@ const Settings: FC = () => {
   const [currentLang, setCurrentLang] = useState<SupportedLang>(
     () => i18n.language as SupportedLang,
   );
+  const [isIosHomeScreenGuideOpen, setIsIosHomeScreenGuideOpen] = useState(false);
   const [isDefaultAssetPickerOpen, setIsDefaultAssetPickerOpen] = useState(false);
+  const canShowIosHomeScreenGuide = isIosBrowser(
+    getBrowserPlatformInfo(Capacitor.isNativePlatform()),
+  );
 
   const goTo = (path: string) => {
     playSound.turnPage();
@@ -253,13 +260,15 @@ const Settings: FC = () => {
                     label: t('help'),
                     onClick: showDeveloping,
                   },
-                  {
-                    icon: 'desktop',
-                    id: 'desktop',
-                    kind: 'placeholder',
-                    label: t('desktopEntry'),
-                    onClick: showDeveloping,
-                  },
+                  ...(canShowIosHomeScreenGuide
+                    ? [{
+                        icon: 'desktop' as const,
+                        id: 'desktop',
+                        kind: 'link' as const,
+                        label: t('desktopEntry'),
+                        onClick: () => setIsIosHomeScreenGuideOpen(true),
+                      }]
+                    : []),
                 ],
                 title: t('system'),
               },
@@ -267,6 +276,10 @@ const Settings: FC = () => {
           />
         </div>
       </main>
+      <IosHomeScreenGuideModal
+        onClose={() => setIsIosHomeScreenGuideOpen(false)}
+        visible={isIosHomeScreenGuideOpen}
+      />
       <DefaultAssetPickerSheet
         assetGroups={assetGroupQuery.data}
         assets={assetQuery.data}
