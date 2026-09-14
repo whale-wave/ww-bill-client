@@ -26,7 +26,7 @@ export function AutoLinkText({ text }: { text: string }) {
   });
 
   return (
-    <div className="whitespace-pre-wrap break-words text-[15px] leading-7 text-ww-ink">
+    <div className="whitespace-pre-wrap break-words text-[15px] leading-6 text-ww-ink">
       {parts.map((part) => {
         if (/^https?:\/\//i.test(part.text)) {
           return (
