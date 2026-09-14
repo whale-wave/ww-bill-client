@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import mascotUrl from '@/assets/brand/whale-mascot-invite-v1.png';
+import mascotUrl from '@/assets/brand/whale-mascot-invite-v2.png';
 import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
 import { BrandAvatar } from '@/shared/ui';
