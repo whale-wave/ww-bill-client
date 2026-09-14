@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import type { Household, HouseholdBudgetOverview, HouseholdChartResult, HouseholdMember } from '@/entities/household';
-import { ActionSheet, Dialog, Toast } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -15,6 +14,7 @@ import HouseholdBudgetsPage from '@/pages/household-budgets/HouseholdBudgetsPage
 import HouseholdChartsPage from '@/pages/household-charts/HouseholdChartsPage';
 import HouseholdMembersPage from '@/pages/household-members/HouseholdMembersPage';
 import HouseholdSettingsPage from '@/pages/household-settings/HouseholdSettingsPage';
+import { ActionSheet, Dialog, Toast } from '@/shared/ui/konsta-compat';
 
 const hooks = vi.hoisted(() => ({
   chartSetOption: vi.fn(),

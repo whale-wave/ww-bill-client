@@ -1,6 +1,5 @@
 import type { RecordEntry } from '@/entities/record';
 import { useDebounce } from 'ahooks';
-import { ErrorBlock } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import React, { useMemo } from 'react';
@@ -8,6 +7,7 @@ import { useSearchParams } from 'react-router-dom';
 import { RecordList, useGetRecordQuery } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { PageLoadingState } from '@/shared/ui';
+import { ErrorBlock } from '@/shared/ui/konsta-compat';
 
 interface RecordListProps {
 }

@@ -75,7 +75,7 @@ vi.mock('@/shared/i18n', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('antd-mobile', () => ({
+vi.mock('@/shared/ui/konsta-compat', () => ({
   ErrorBlock: ({ title }: { title: string }) => createElement('div', { 'data-testid': 'error' }, title),
 }));
 

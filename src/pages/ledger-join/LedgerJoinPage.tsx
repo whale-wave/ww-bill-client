@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { Form, Input, TextArea } from 'antd-mobile';
 import { CircleCheck, KeyRound, MessageSquareText } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +16,7 @@ import {
   Surface,
 } from '@/shared/ui';
 import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
+import { Form, Input, TextArea } from '@/shared/ui/konsta-compat';
 import './ledger-join.scss';
 
 const LedgerJoinPage: FC = () => {

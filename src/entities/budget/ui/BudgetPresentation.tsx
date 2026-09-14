@@ -1,10 +1,10 @@
 import type { BudgetEntityType } from '../api';
 import type { BudgetPresentationItem } from './BudgetItem';
-import { Skeleton } from 'antd-mobile';
 import { Plus, Tags, WalletCards } from 'lucide-react';
 import { useLayoutEffect, useRef } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { IllustratedEmptyState, Surface } from '@/shared/ui';
+import { Skeleton } from '@/shared/ui/konsta-compat';
 import { BudgetEntityLevel } from '../api';
 import BudgetItem from './BudgetItem';
 

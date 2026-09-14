@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { App as KonstaApp } from 'konsta/react';
 import { Router } from '@/app/router';
 import { ClientUpdateController } from '@/features/app-update';
 import { AppearanceProvider } from '@/features/appearance';
@@ -28,14 +29,16 @@ export const App: FC = () => {
       <QueryClientProvider key={providerKey} client={queryClient}>
         <QueryRefreshController>
           <AppearanceProvider>
-            <PresenceReporter />
-            <ClientUpdateController />
-            <SeniorModeProvider>
-              <MotionEffectsProvider>
-                {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
-                <Router />
-              </MotionEffectsProvider>
-            </SeniorModeProvider>
+            <KonstaApp className="h-full bg-transparent font-sans text-ww-ink" dark={false} safeAreas={false} theme="ios">
+              <PresenceReporter />
+              <ClientUpdateController />
+              <SeniorModeProvider>
+                <MotionEffectsProvider>
+                  {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
+                  <Router />
+                </MotionEffectsProvider>
+              </SeniorModeProvider>
+            </KonstaApp>
           </AppearanceProvider>
         </QueryRefreshController>
       </QueryClientProvider>
@@ -55,14 +58,16 @@ export const App: FC = () => {
     >
       <QueryRefreshController persister={persister}>
         <AppearanceProvider>
-          <PresenceReporter />
-          <ClientUpdateController />
-          <SeniorModeProvider>
-            <MotionEffectsProvider>
-              {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
-              <Router />
-            </MotionEffectsProvider>
-          </SeniorModeProvider>
+          <KonstaApp className="h-full bg-transparent font-sans text-ww-ink" dark={false} safeAreas={false} theme="ios">
+            <PresenceReporter />
+            <ClientUpdateController />
+            <SeniorModeProvider>
+              <MotionEffectsProvider>
+                {isQueryDevtoolsEnabled && <ReactQueryDevtools />}
+                <Router />
+              </MotionEffectsProvider>
+            </SeniorModeProvider>
+          </KonstaApp>
         </AppearanceProvider>
       </QueryRefreshController>
     </PersistQueryClientProvider>

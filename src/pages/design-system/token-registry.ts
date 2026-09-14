@@ -2,7 +2,7 @@ import type { AppearanceTemplate } from '@/entities/user-app-config';
 import { MONO_DEVELOPMENT_TOKENS } from '@/features/appearance/model/development-appearance';
 
 /** Studio templates stay local to the isolated preview until explicitly promoted. */
-export const STUDIO_TEMPLATES = ['glass', 'fresh', 'minimal', 'mono'] as const;
+export const STUDIO_TEMPLATES = ['native', 'glass', 'fresh', 'minimal', 'mono'] as const;
 export type StudioTemplate = typeof STUDIO_TEMPLATES[number];
 
 export type StudioTokenKind = 'channel-color' | 'color' | 'select' | 'slider';

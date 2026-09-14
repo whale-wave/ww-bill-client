@@ -1,9 +1,9 @@
 import type { FC, MouseEvent, ReactNode } from 'react';
-import { SwipeAction } from 'antd-mobile';
 import { Image as ImageIcon } from 'lucide-react';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { cn } from '@/shared/lib';
 import { Icon } from '@/shared/ui';
+import { SwipeAction } from '@/shared/ui/konsta-compat';
 
 export interface RecordOverviewListItem {
   amount: ReactNode;

@@ -1,8 +1,8 @@
-import { Toast } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EmailCaptchaInput } from '@/features/email-captcha';
+import { Toast } from '@/shared/ui/konsta-compat';
 
 let cleanup: (() => void) | undefined;
 

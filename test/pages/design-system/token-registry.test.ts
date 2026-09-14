@@ -64,6 +64,12 @@ describe('design studio token registry', () => {
     expect(createThemeCss('mono', monoTokens)).toContain('html[data-design-studio-template=\'mono\']');
   });
 
+  it('exposes Konsta native as a production studio base template', () => {
+    expect(STUDIO_TEMPLATES).toContain('native');
+    expect(resolveStudioAppearanceTemplate('native')).toBe('native');
+    expect(createThemeCss('native', {})).toContain('html[data-appearance-template=\'native\']');
+  });
+
   it('creates a sanitised debug record only when explicitly requested', () => {
     const record = createStudioDebugRecord('mono', {
       '--ww-theme-color': '#765cff',

@@ -1,5 +1,4 @@
 import type { FeedbackCategory } from '@/entities/feedback';
-import { Input, TextArea } from 'antd-mobile';
 import {
   Bug,
   Check,
@@ -16,6 +15,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { PageHeader, Surface } from '@/shared/ui';
 import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
+import { Input, TextArea } from '@/shared/ui/konsta-compat';
 import pkg from '../../../package.json';
 
 const CATEGORIES = [

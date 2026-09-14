@@ -1,4 +1,3 @@
-import { Button, Form, Input, Selector, Stepper, Switch, TextArea } from 'antd-mobile';
 import { DownOutline, RightOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
@@ -6,6 +5,7 @@ import { FixedExpenseCycle } from '@/entities/fixed-expense';
 import { useTranslation } from '@/shared/i18n';
 import { cn, normalizeAmount } from '@/shared/lib';
 import { AppDatePicker, Surface } from '@/shared/ui';
+import { Button, Form, Input, Selector, Stepper, Switch, TextArea } from '@/shared/ui/konsta-compat';
 import {
   getCurrencyOptions,
   getCycleOptions,

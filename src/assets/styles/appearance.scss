@@ -78,6 +78,78 @@
   --ww-chart-6: #d4d8dc;
 }
 
+/* Konsta's native option deliberately leaves Konsta component classes alone.
+ * These tokens only bring WW-specific charts and domain surfaces into the same
+ * iOS visual language for components that Konsta does not provide. */
+html[data-appearance-template='native'] {
+  --ww-theme-color: #007aff;
+  --ww-theme-color-light: #d9ecff;
+  --ww-theme-color-mid: #0a84ff;
+  --ww-theme-color-deep: #0062cc;
+  --ww-primary-foreground: #ffffff;
+  --ww-pink-color: #ff2d55;
+  --ww-pink-color-light: #ffe0e6;
+  --ww-theme-text-color: #000000;
+  --ww-text-color-mid: #6d6d72;
+  --ww-text-color-soft: #8e8e93;
+  --ww-text-color-ghost: #c7c7cc;
+  --ww-background-color: #efeff4;
+  --ww-page-gradient: #efeff4;
+  --ww-card-color: #ffffff;
+  --ww-surface-color: #ffffff;
+  --ww-surface-raised-color: #ffffff;
+  --ww-surface-tint-color: #f2f2f7;
+  --ww-surface-accent-color: #fff0f3;
+  --ww-surface-secondary-color: #f2f2f7;
+  --ww-border-color: rgba(60, 60, 67, 0.18);
+  --ww-card-shadow: none;
+  --ww-card-shadow-xs: none;
+  --ww-card-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+  --ww-card-shadow-floating: 0 10px 30px rgba(0, 0, 0, 0.16);
+  --ww-action-primary-background: var(--ww-theme-color);
+  --ww-action-primary-shadow: none;
+  --ww-tab-create-background: var(--ww-theme-color);
+  --ww-progress-primary-background: var(--ww-theme-color);
+  --ww-icon-surface-background: var(--ww-surface-tint-color);
+  --ww-highlight-avatar-background: var(--ww-theme-color-light);
+  --ww-highlight-edit-background: var(--ww-theme-color);
+  --ww-highlight-metrics-background: var(--ww-surface-raised-color);
+  --ww-category-icon-background: var(--ww-surface-tint-color);
+  --ww-category-icon-foreground: var(--ww-theme-color);
+  --ww-category-icon-emphasis-background: var(--ww-theme-color-light);
+  --ww-category-icon-emphasis-foreground: var(--ww-theme-color-deep);
+  --ww-category-choice-background: var(--ww-theme-color-light);
+  --ww-category-choice-foreground: var(--ww-theme-color-deep);
+  --ww-group-header-background: var(--ww-background-color);
+  --ww-control-icon-background: var(--ww-surface-tint-color);
+  --ww-control-primary-background: var(--ww-theme-color);
+  --ww-page-ornament-display: none;
+  --ww-radius-card: 10px;
+  --ww-radius-panel: 14px;
+  --ww-radius-control: 10px;
+  --ww-card-blur: 0px;
+  --ww-shortcut-blue-bg: #e8f3ff;
+  --ww-shortcut-blue-fg: #007aff;
+  --ww-shortcut-pink-bg: #fff0f3;
+  --ww-shortcut-pink-fg: #ff2d55;
+  --ww-shortcut-purple-bg: #f1ebff;
+  --ww-shortcut-purple-fg: #5856d6;
+  --ww-shortcut-green-bg: #e9f8ee;
+  --ww-shortcut-green-fg: #248a3d;
+  --ww-shortcut-amber-bg: #fff4dc;
+  --ww-shortcut-amber-fg: #a05a00;
+  --ww-shortcut-shadow: none;
+  --ww-control-surface: #ffffff;
+  --ww-control-shadow: none;
+  --ww-divider-color: rgba(60, 60, 67, 0.29);
+  --ww-chart-1: #007aff;
+  --ww-chart-2: #ff2d55;
+  --ww-chart-3: #5856d6;
+  --ww-chart-4: #34c759;
+  --ww-chart-5: #ff9500;
+  --ww-chart-6: #5ac8fa;
+}
+
 html[data-appearance-template='fresh'] {
   --ww-theme-color: #6fc2dc;
   --ww-theme-color-light: #c8eaf6;

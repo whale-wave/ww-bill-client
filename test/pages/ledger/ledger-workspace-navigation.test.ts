@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Ledger, LedgerListItem, LedgerTemplate } from '@/entities/ledger';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ActionSheet, Dialog } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -23,6 +22,7 @@ import LedgerRecordCreatePage from '@/pages/ledger-record-create/LedgerRecordCre
 import LedgerRecordSearchPage from '@/pages/ledger-record-search/LedgerRecordSearchPage';
 import LedgerRecordsPage from '@/pages/ledger-records/LedgerRecordsPage';
 import DetailPage from '@/pages/record/detail/DetailPage';
+import { ActionSheet, Dialog } from '@/shared/ui/konsta-compat';
 
 const hooks = vi.hoisted(() => ({
   clearLedgerBudget: vi.fn(),

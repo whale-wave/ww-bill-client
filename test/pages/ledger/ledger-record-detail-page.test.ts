@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import type { Household } from '@/entities/household';
 import type { Ledger } from '@/entities/ledger';
 import type { RecordEntry } from '@/entities/record';
-import { Dialog } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -21,6 +20,7 @@ import {
 } from '@/entities/ledger';
 import LedgerRecordDetailPage from '@/pages/ledger-record-detail/LedgerRecordDetailPage';
 import LedgerRecordsPage from '@/pages/ledger-records/LedgerRecordsPage';
+import { Dialog } from '@/shared/ui/konsta-compat';
 
 const hooks = vi.hoisted(() => ({
   deleteRecord: vi.fn(),

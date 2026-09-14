@@ -1,9 +1,9 @@
 import type { CSSProperties, HTMLAttributes, KeyboardEvent, PointerEvent } from 'react';
 import type { LedgerListItem } from '../types';
-import { Tag } from 'antd-mobile';
 import { PayCircleOutline } from 'antd-mobile-icons';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from '@/shared/i18n';
+import { Tag } from '@/shared/ui/konsta-compat';
 import { LedgerStatus } from '../types';
 
 const LONG_PRESS_DELAY = 420;

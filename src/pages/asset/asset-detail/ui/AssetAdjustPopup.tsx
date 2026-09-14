@@ -1,6 +1,6 @@
-import type { PopupProps } from 'antd-mobile';
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
+import type { AppSheetProps } from '@/shared/ui';
 import { CircleDollarSign } from 'lucide-react';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -10,7 +10,7 @@ import { formatAmount, normalizeAmount } from '@/shared/lib';
 import { AppSheet } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 
-export interface AssetAdjustPopupProps extends PopupProps {
+export interface AssetAdjustPopupProps extends AppSheetProps {
   onClose: () => void;
   asset: Asset;
 }

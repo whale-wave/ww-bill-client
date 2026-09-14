@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { Dialog } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -18,6 +17,7 @@ import {
 import LedgerCalendarPage from '@/pages/ledger-calendar/LedgerCalendarPage';
 import LedgerChartsPage from '@/pages/ledger-charts/LedgerChartsPage';
 import LedgerRecordsPage from '@/pages/ledger-records/LedgerRecordsPage';
+import { Dialog } from '@/shared/ui/konsta-compat';
 
 const hooks = vi.hoisted(() => ({
   deleteLedgerRecord: vi.fn(),

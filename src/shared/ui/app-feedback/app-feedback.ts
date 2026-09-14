@@ -1,5 +1,5 @@
-import { Toast } from 'antd-mobile';
 import { i18n } from '@/shared/i18n';
+import { Toast } from '@/shared/ui/konsta-compat';
 
 const ERROR_DEDUPE_WINDOW_MS = 1000;
 const ERROR_DURATION_MS = 1800;
@@ -9,9 +9,9 @@ const handledErrors = new WeakSet<object>();
 const recentKeys = new Map<string, number>();
 
 export interface AppErrorOptions {
-  message?: string;
-  fallbackMessage?: string;
   dedupeKey?: string;
+  fallbackMessage?: string;
+  message?: string;
 }
 
 function isObject(value: unknown): value is object {
@@ -51,18 +51,6 @@ function canShowKey(key: string) {
   return true;
 }
 
-function show(content: string, duration: number, icon?: 'fail') {
-  (Toast.clear as (() => void) | undefined)?.();
-  Toast.show({
-    content,
-    duration,
-    icon,
-    maskStyle: { pointerEvents: 'none' },
-    position: 'top',
-    stopPropagation: [],
-  });
-}
-
 export function showAppError(error: unknown, options: AppErrorOptions = {}) {
   if (isObject(error)) {
     if (handledErrors.has(error))
@@ -71,12 +59,17 @@ export function showAppError(error: unknown, options: AppErrorOptions = {}) {
   }
   if (options.dedupeKey && !canShowKey(options.dedupeKey))
     return;
-  show(getMessage(error, options), ERROR_DURATION_MS, 'fail');
+  Toast.show({
+    content: getMessage(error, options),
+    duration: ERROR_DURATION_MS,
+    icon: 'fail',
+    maskClickable: true,
+  });
 }
 
 export function showAppNotice(message: string | { content?: unknown; [key: string]: unknown }) {
   const content = typeof message === 'string' ? message : message.content;
   if (typeof content !== 'string' || !content.trim())
     return;
-  show(content, NOTICE_DURATION_MS);
+  Toast.show({ content, duration: NOTICE_DURATION_MS, icon: undefined, maskStyle: { pointerEvents: 'none' } });
 }

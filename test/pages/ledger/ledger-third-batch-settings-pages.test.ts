@@ -71,10 +71,21 @@ vi.mock('@/entities/user', () => ({
 const dialogConfirm = vi.hoisted(() => vi.fn());
 const toastShow = vi.hoisted(() => vi.fn());
 
-vi.mock('antd-mobile', async importOriginal => ({
-  ...(await importOriginal<typeof import('antd-mobile')>()),
+vi.mock('@/shared/ui/konsta-compat', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/shared/ui/konsta-compat')>()),
   Dialog: { confirm: dialogConfirm },
-  Toast: { show: toastShow },
+}));
+
+vi.mock('@/shared/ui/app-feedback', () => ({
+  showAppError: (error: unknown, options?: { message?: string }) => toastShow({
+    content: options?.message
+      ?? (typeof error === 'object' && error !== null && 'content' in error ? error.content : undefined)
+      ?? (error instanceof Error ? error.message : String(error)),
+    icon: 'fail',
+  }),
+  showAppNotice: (message: string | { content?: unknown }) => toastShow({
+    content: typeof message === 'string' ? message : message.content,
+  }),
 }));
 
 vi.mock('@/entities/category', async importOriginal => ({

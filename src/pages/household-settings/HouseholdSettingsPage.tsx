@@ -1,6 +1,5 @@
 import type { FC, FormEvent } from 'react';
 import type { Household } from '@/entities/household';
-import { Button } from 'antd-mobile';
 import { CalendarDays } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -28,6 +27,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { AppDatePicker, AppSheet, PageHeader } from '@/shared/ui';
 import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
+import { Button } from '@/shared/ui/konsta-compat';
 
 type Editor = 'dissolve' | 'sharedStart' | null;
 

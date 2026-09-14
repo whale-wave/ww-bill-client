@@ -17,10 +17,10 @@ describe('appearance preference mirror', () => {
   });
 
   it('keeps each account preference in a separate local mirror', () => {
-    writeAppearancePreferenceMirror('42', { template: 'minimal' });
+    writeAppearancePreferenceMirror('42', { template: 'native' });
     writeAppearancePreferenceMirror('43', { template: 'fresh' });
 
-    expect(readAppearancePreferenceMirror('42')).toEqual({ template: 'minimal' });
+    expect(readAppearancePreferenceMirror('42')).toEqual({ template: 'native' });
     expect(readAppearancePreferenceMirror('43')).toEqual({ template: 'fresh' });
   });
 });

@@ -1,12 +1,12 @@
 import type { FC, ReactNode } from 'react';
 import type { Household } from '@/entities/household';
-import { ErrorBlock } from 'antd-mobile';
 import { CircleAlert, CircleCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { HouseholdStatus, useMyHouseholdQuery } from '@/entities/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { IllustratedEmptyState, Surface } from '@/shared/ui';
+import { ErrorBlock } from '@/shared/ui/konsta-compat';
 import { HouseholdPageState } from './HouseholdPageState';
 
 interface HouseholdScopeBoundaryProps {

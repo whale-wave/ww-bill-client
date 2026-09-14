@@ -1,5 +1,5 @@
-import { Button } from 'antd-mobile';
 import React from 'react';
+import { Button } from '@/shared/ui/konsta-compat';
 
 interface WwButtonProps {
   onClick: () => void;

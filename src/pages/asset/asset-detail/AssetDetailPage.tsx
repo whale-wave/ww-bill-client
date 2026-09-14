@@ -1,11 +1,11 @@
 import type { FC } from 'react';
-import { Skeleton } from 'antd-mobile';
 import { FileWarning } from 'lucide-react';
 import { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetAssetByIdQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { IllustratedEmptyState, Surface } from '@/shared/ui';
+import { Skeleton } from '@/shared/ui/konsta-compat';
 import { AssetPageFrame } from '../ui';
 import { AssetBottomActions, AssetInfoCard, AssetRecordList } from './ui';
 

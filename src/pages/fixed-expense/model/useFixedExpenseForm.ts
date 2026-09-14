@@ -1,5 +1,4 @@
 import type { CreateFixedExpenseApiData } from '@/entities/fixed-expense';
-import { Form } from 'antd-mobile';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -14,6 +13,7 @@ import {
 } from '@/entities/fixed-expense';
 import { useTranslation } from '@/shared/i18n';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Form } from '@/shared/ui/konsta-compat';
 
 interface FormValues {
   name: string;
@@ -68,7 +68,7 @@ export function useFixedExpenseForm(id?: string) {
   const [postMutate, postState] = usePostFixedExpenseMutation();
   const [patchMutate, patchState] = usePatchFixedExpenseMutation();
 
-  const [formAction] = Form.useForm();
+  const [formAction] = Form.useForm<FormValues>();
   const [cycleValue, setCycleValue] = useState<FixedExpenseCycle>(FixedExpenseCycle.MONTHLY);
   const [reminderEnabled, setReminderEnabled] = useState(false);
 

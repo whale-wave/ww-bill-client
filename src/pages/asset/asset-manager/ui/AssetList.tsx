@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 import type { Asset, AssetGroup } from '@/entities/asset';
-import { SwipeAction } from 'antd-mobile';
 import { ChevronRight, FileWarning, Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +9,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { formatAssetAmount, math } from '@/shared/lib';
 import { confirmAppAction, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { SwipeAction } from '@/shared/ui/konsta-compat';
 import { IconBlock } from '../../ui';
 import { AssetEmptyState } from './AssetEmptyState';
 

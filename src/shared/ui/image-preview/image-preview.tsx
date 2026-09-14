@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from 'react';
-import { ImageViewer, Mask } from 'antd-mobile';
+import { Popup as KonstaPopup } from 'konsta/react';
 import { X } from 'lucide-react';
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 const getImagePreviewContainer = () => document.body;
@@ -20,6 +20,7 @@ export const ImagePreview: FC<ImagePreviewProps> = ({ image, onClose, placeholde
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
   const descriptionId = useId();
+  const [zoom, setZoom] = useState(1);
   onCloseRef.current = onClose;
 
   useEffect(() => {
@@ -62,53 +63,63 @@ export const ImagePreview: FC<ImagePreviewProps> = ({ image, onClose, placeholde
     };
   }, [visible]);
 
-  return (
-    <>
-      <ImageViewer
-        classNames={{ body: 'h-[100dvh]' }}
-        getContainer={getImagePreviewContainer}
-        image={image}
-        maxZoom={4}
-        onClose={onClose}
-        renderFooter={() => (
-          <p aria-hidden className="pointer-events-none mb-5 text-center text-xs text-white/70">双指缩放 · 拖动查看</p>
-        )}
-        visible={Boolean(image && visible)}
-      />
-      <Mask
-        destroyOnClose
-        getContainer={getImagePreviewContainer}
-        opacity="thick"
-        visible={Boolean(visible && !image)}
+  useEffect(() => {
+    if (!visible) {
+      // Every preview session starts at the canonical 1x scale.
+      // eslint-disable-next-line react/set-state-in-effect
+      setZoom(1);
+    }
+  }, [visible]);
+
+  if (typeof document === 'undefined' || !visible)
+    return null;
+
+  return createPortal(
+    <KonstaPopup
+      className="ww-image-preview-popup !z-[var(--ww-layer-overlay)] !flex !h-[100dvh] !w-screen !items-center !justify-center !bg-black/95"
+      onBackdropClick={onClose}
+      opened
+    >
+      <div className="adm-image-viewer-control absolute inset-0 overflow-auto overscroll-contain p-5 [touch-action:pinch-zoom]">
+        {image
+          ? (
+              <div className="flex min-h-full min-w-full items-center justify-center">
+                <img
+                  alt="预览图片"
+                  className="max-h-[calc(100dvh-96px)] max-w-full select-none object-contain transition-transform duration-200"
+                  onDoubleClick={() => setZoom(current => current === 1 ? 2 : 1)}
+                  src={image}
+                  style={{ transform: `scale(${zoom})` }}
+                />
+              </div>
+            )
+          : <div className="flex min-h-full items-center justify-center">{placeholder}</div>}
+      </div>
+      <p aria-hidden className="pointer-events-none fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-0 right-0 text-center text-xs text-white/70">
+        双指缩放 · 双击放大
+      </p>
+      <div
+        aria-describedby={descriptionId}
+        aria-label="图片预览"
+        aria-modal="true"
+        className="ww-image-preview-dialog-layer pointer-events-none fixed inset-0"
+        ref={dialogRef}
+        role="dialog"
       >
-        <div className="fixed inset-0 flex items-center justify-center p-5">
-          {placeholder}
-        </div>
-      </Mask>
-      {typeof document !== 'undefined' && visible && createPortal(
-        <div
-          aria-describedby={descriptionId}
-          aria-label="图片预览"
-          aria-modal="true"
-          className="ww-image-preview-dialog-layer pointer-events-none fixed inset-0"
-          ref={dialogRef}
-          role="dialog"
+        <p aria-live="polite" className="sr-only" id={descriptionId}>
+          {image ? '支持双指缩放和拖动查看' : statusLabel ?? '图片加载中'}
+        </p>
+        <button
+          aria-label="关闭图片预览"
+          className="pointer-events-auto fixed right-4 top-[max(var(--ww-space-lg),env(safe-area-inset-top))] flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border-0 bg-white/15 p-0 text-white backdrop-blur"
+          onClick={onClose}
+          ref={closeButtonRef}
+          type="button"
         >
-          <p aria-live="polite" className="sr-only" id={descriptionId}>
-            {image ? '支持双指缩放和拖动查看' : statusLabel ?? '图片加载中'}
-          </p>
-          <button
-            aria-label="关闭图片预览"
-            className="pointer-events-auto fixed right-4 top-[max(var(--ww-space-lg),env(safe-area-inset-top))] flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border-0 bg-black/50 p-0 text-white"
-            onClick={onClose}
-            ref={closeButtonRef}
-            type="button"
-          >
-            <X aria-hidden size={24} strokeWidth={2} />
-          </button>
-        </div>,
-        document.body,
-      )}
-    </>
+          <X aria-hidden size={24} strokeWidth={2} />
+        </button>
+      </div>
+    </KonstaPopup>,
+    getImagePreviewContainer(),
   );
 };

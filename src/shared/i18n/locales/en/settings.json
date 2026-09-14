@@ -404,6 +404,8 @@
     "recommended": "Recommended",
     "saveFailed": "Unable to save the theme. Your previous setting was restored.",
     "templates": {
+      "native": "Konsta native",
+      "nativeDescription": "Use Konsta UI's original iOS palette, surfaces, controls, and interaction language.",
       "fresh": "Fresh color",
       "freshDescription": "Keep the soft blue-and-pink mood in a cleaner rhythm.",
       "minimal": "Focused minimal",

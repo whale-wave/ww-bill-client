@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 import type { Household } from '@/entities/household';
-import { Button } from 'antd-mobile';
 import { Check, CircleAlert, Eye, EyeOff, ShieldCheck, UsersRound } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -18,6 +17,7 @@ import {
 import { useTranslation } from '@/shared/i18n';
 import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Button } from '@/shared/ui/konsta-compat';
 
 const POLICY_OPTIONS = Object.values(FamilyRecordPolicy);
 const POLICY_ICONS = {

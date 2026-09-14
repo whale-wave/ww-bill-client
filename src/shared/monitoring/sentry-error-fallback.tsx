@@ -1,4 +1,4 @@
-import { Button, ErrorBlock } from 'antd-mobile';
+import { Button, ErrorBlock } from '@/shared/ui/konsta-compat';
 
 export function SentryErrorFallback() {
   return (

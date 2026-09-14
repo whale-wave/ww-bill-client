@@ -33,6 +33,7 @@ describe('appearance preference', () => {
   });
 
   it('only accepts registered visual templates', () => {
+    expect(isAppearanceTemplate('native')).toBe(true);
     expect(isAppearanceTemplate('minimal')).toBe(true);
     expect(isAppearanceTemplate('cartoon')).toBe(false);
   });
@@ -51,6 +52,12 @@ describe('appearance preference', () => {
   });
 
   it('keeps MONO out of the production-visible template set', () => {
+    expect(getVisibleAppearanceTemplateOptions(false).map(option => option.value)).toEqual([
+      'native',
+      'glass',
+      'fresh',
+      'minimal',
+    ]);
     expect(getVisibleAppearanceTemplateOptions(false).map(option => option.value)).not.toContain('mono');
     expect(getVisibleAppearanceTemplateOptions(true).map(option => option.value)).toContain('mono');
   });

@@ -3,7 +3,6 @@ import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { Asset, AssetGroup } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
-import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
 import {
   Delete as BackspaceIcon,
   Banknote,
@@ -40,6 +39,7 @@ import {
   SheetHeader,
   useMotionPreference,
 } from '@/shared/ui';
+import { Button, ErrorBlock, SpinLoading } from '@/shared/ui/konsta-compat';
 import { KEYPAD_LAYOUT } from '../model/constants';
 import { RecordLocationPicker } from './RecordLocationPicker';
 

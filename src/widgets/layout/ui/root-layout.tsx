@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { Page } from 'konsta/react';
 import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useGetUserUserInfoQuery } from '@/entities/user';
@@ -53,7 +54,9 @@ export const RootLayout: FC = () => {
         isLoading={Boolean(token) && isLoading && !isError}
         token={token}
       >
-        <Outlet />
+        <Page className="relative !overflow-hidden !bg-transparent">
+          <Outlet />
+        </Page>
       </AppLockGuard>
     </>
   );

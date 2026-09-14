@@ -1,5 +1,4 @@
 import type { FC, FormEvent } from 'react';
-import { Button } from 'antd-mobile';
 import { CheckCircleFill } from 'antd-mobile-icons';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -19,6 +18,7 @@ import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedDateTime } from '@/shared/lib';
 import { PageHeader } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Button } from '@/shared/ui/konsta-compat';
 
 const LedgerInvitationPreviewPage: FC = () => {
   const { i18n, t } = useTranslation('ledger');

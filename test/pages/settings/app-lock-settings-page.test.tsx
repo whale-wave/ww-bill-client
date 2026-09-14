@@ -48,7 +48,7 @@ const mocks = vi.hoisted(() => ({
   verifyPattern: vi.fn(async () => true),
 }));
 
-vi.mock('antd-mobile', () => ({
+vi.mock('@/shared/ui/konsta-compat', () => ({
   Toast: { show: vi.fn() },
 }));
 

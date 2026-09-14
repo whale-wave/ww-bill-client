@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { SafeArea, Switch } from 'antd-mobile';
 import { BookOpenCheck } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +9,7 @@ import {
 import { useTranslation } from '@/shared/i18n';
 import { PageHeader, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { SafeArea, Switch } from '@/shared/ui/konsta-compat';
 
 interface QuickSwitchPreferenceState {
   enabled: boolean;

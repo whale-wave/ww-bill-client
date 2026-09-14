@@ -59,8 +59,8 @@ vi.mock('@/entities/user', () => ({
   useGetUserUserInfoQuery: () => ({ data: { id: 1 } }),
 }));
 
-vi.mock('antd-mobile', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('antd-mobile')>();
+vi.mock('@/shared/ui/konsta-compat', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/shared/ui/konsta-compat')>();
   return { ...actual, Dialog: { confirm: dialogConfirm }, Toast: { show: toastShow } };
 });
 

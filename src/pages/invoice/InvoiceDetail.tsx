@@ -1,4 +1,3 @@
-import { Button, Skeleton } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import { Building2, Copy, FileWarning } from 'lucide-react';
 import React, { useCallback } from 'react';
@@ -11,6 +10,7 @@ import InvoiceInfo, {
 import { useTranslation } from '@/shared/i18n';
 import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 import { showAppNotice } from '@/shared/ui/app-feedback';
+import { Button, Skeleton } from '@/shared/ui/konsta-compat';
 
 interface InvoiceDetailProps {}
 

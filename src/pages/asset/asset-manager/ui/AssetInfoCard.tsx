@@ -1,9 +1,9 @@
 import type { FC } from 'react';
-import { Skeleton } from 'antd-mobile';
 import { RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAssetSummaryInfo } from '@/entities/asset';
 import { MetricGrid, Surface } from '@/shared/ui';
+import { Skeleton } from '@/shared/ui/konsta-compat';
 
 export const AssetInfoCard: FC = () => {
   const { t } = useTranslation('asset');

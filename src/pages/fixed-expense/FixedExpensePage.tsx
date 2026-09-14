@@ -1,6 +1,5 @@
 import type { StatusTabOption } from './constants';
 import type { FixedExpenseEntity } from '@/entities/fixed-expense';
-import { Skeleton, SwipeAction } from 'antd-mobile';
 import { CalendarClock, Plus, Trash2 } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +8,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { confirmAppAction, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Skeleton, SwipeAction } from '@/shared/ui/konsta-compat';
 import {
   AddFixedExpenseButton,
   FilterTabs,

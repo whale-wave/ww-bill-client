@@ -1,5 +1,4 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toast } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
@@ -8,6 +7,7 @@ import {
 } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import BookkeepingPage from '@/pages/record/bookkeeping/BookkeepingPage';
+import { Toast } from '@/shared/ui/konsta-compat';
 
 const hooks = vi.hoisted(() => ({
   confirmShortcutDraft: vi.fn(),

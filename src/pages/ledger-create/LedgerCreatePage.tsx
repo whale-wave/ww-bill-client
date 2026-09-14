@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 import type { LedgerCreateFormValues } from './model/ledger-create-form';
-import { Button, SpinLoading } from 'antd-mobile';
 import { BookOpen, CircleAlert, Sparkles } from 'lucide-react';
 import { useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -18,6 +17,7 @@ import {
   Surface,
 } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Button, SpinLoading } from '@/shared/ui/konsta-compat';
 import { buildLedgerCreatePayload } from './model/ledger-create-form';
 import { LedgerCreateForm } from './ui/LedgerCreateForm';
 

@@ -1,8 +1,8 @@
 import type { FC } from 'react';
-import { Input } from 'antd-mobile';
 import { EyeInvisibleOutline, EyeOutline } from 'antd-mobile-icons';
 import classNames from 'classnames';
 import { useCallback, useState } from 'react';
+import { Input } from '@/shared/ui/konsta-compat';
 
 const WwInput: FC<{
   className?: string;

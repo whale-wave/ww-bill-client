@@ -1,10 +1,10 @@
 import type { FC, ReactNode } from 'react';
 import type { RecordOverviewHeaderProps } from './RecordOverviewHeader';
 import type { RecordOverviewListGroup } from './RecordOverviewList';
-import { InfiniteScroll } from 'antd-mobile';
 import { CircleAlert, Plus, RefreshCw } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
 import { AppButton, DesignIcon, IllustratedEmptyState, PageLoadingState } from '@/shared/ui';
+import { InfiniteScroll } from '@/shared/ui/konsta-compat';
 import { RecordOverviewHeader } from './RecordOverviewHeader';
 import { RecordOverviewList } from './RecordOverviewList';
 

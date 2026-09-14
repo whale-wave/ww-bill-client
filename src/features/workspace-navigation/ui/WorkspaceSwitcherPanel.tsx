@@ -2,7 +2,6 @@ import type { WorkspaceScope } from '../model/workspace-scope';
 import type {
   LedgerTemplateKey,
 } from '@/entities/ledger';
-import { SafeArea, SpinLoading } from 'antd-mobile';
 import { CheckOutline } from 'antd-mobile-icons';
 import { Plus, Settings2, Users } from 'lucide-react';
 import { useMemo } from 'react';
@@ -19,6 +18,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import { AppSheet } from '@/shared/ui';
+import { SafeArea, SpinLoading } from '@/shared/ui/konsta-compat';
 import { getWorkspaceHomePath } from '../model/workspace-scope';
 import '@/features/ledger-switcher/ui/ledger-switcher.scss';
 

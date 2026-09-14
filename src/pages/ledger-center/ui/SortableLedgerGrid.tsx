@@ -10,7 +10,6 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Grid } from 'antd-mobile';
 import { useMemo, useState } from 'react';
 import {
   LedgerCoverCard,
@@ -18,6 +17,7 @@ import {
   LedgerStatus,
 } from '@/entities/ledger';
 import { useTranslation } from '@/shared/i18n';
+import { Grid } from '@/shared/ui/konsta-compat';
 import { RemoveLedgerBadge } from './RemoveLedgerBadge';
 
 interface SortableLedgerGridProps {

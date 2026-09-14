@@ -54,7 +54,7 @@ vi.mock('@/shared/ui', () => ({
   ),
 }));
 
-vi.mock('antd-mobile', () => ({
+vi.mock('@/shared/ui/konsta-compat', () => ({
   Button: ({ children, ...props }: { children: ReactNode }) => createElement('button', props, children),
   Dialog: { confirm: dialogConfirm },
   Toast: { show: toastShow },

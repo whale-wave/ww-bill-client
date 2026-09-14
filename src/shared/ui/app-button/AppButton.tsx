@@ -1,4 +1,5 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, ComponentProps, ForwardRefExoticComponent, ReactNode, RefAttributes } from 'react';
+import { Button as KonstaButton } from 'konsta/react';
 import { forwardRef } from 'react';
 import { cn } from '@/shared/lib';
 
@@ -27,6 +28,14 @@ const sizeClassNames: Record<AppButtonSize, string> = {
   medium: 'h-[var(--ww-component-button-height-medium)] gap-[var(--ww-component-button-gap-default)] rounded-[var(--ww-component-button-radius-medium)] px-[var(--ww-component-button-padding-x-medium)] text-[length:var(--ww-component-button-font-size-medium)]',
 };
 
+interface KonstaButtonHandle {
+  el: HTMLButtonElement | null;
+}
+
+const KonstaButtonWithRef = KonstaButton as unknown as ForwardRefExoticComponent<
+  ComponentProps<typeof KonstaButton> & RefAttributes<KonstaButtonHandle>
+>;
+
 export const AppButton = forwardRef<HTMLButtonElement, AppButtonProps>(({
   children,
   className,
@@ -41,13 +50,15 @@ export const AppButton = forwardRef<HTMLButtonElement, AppButtonProps>(({
 }, ref) => {
   const isDisabled = disabled || loading;
   const content = loading ? (loadingLabel ?? children) : children;
+  const htmlButtonProps = { ...buttonProps, type } as ComponentProps<typeof KonstaButton>;
 
   return (
-    <button
-      {...buttonProps}
+    <KonstaButtonWithRef
+      {...htmlButtonProps}
       aria-busy={loading || undefined}
+      clear={variant === 'ghost'}
       className={cn(
-        'inline-flex items-center justify-center border-0 font-extrabold transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-45',
+        'ww-app-button inline-flex items-center justify-center border-0 font-extrabold transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-45',
         sizeClassNames[size],
         size !== 'compact' && variantClassNames[variant],
         fullWidth && 'w-full',
@@ -55,8 +66,13 @@ export const AppButton = forwardRef<HTMLButtonElement, AppButtonProps>(({
         className,
       )}
       disabled={isDisabled}
-      ref={ref}
-      type={type}
+      outline={variant === 'secondary'}
+      ref={(handle) => {
+        if (typeof ref === 'function')
+          ref(handle?.el ?? null);
+        else if (ref)
+          ref.current = handle?.el ?? null;
+      }}
     >
       <span className={cn(
         'inline-flex items-center justify-center',
@@ -70,6 +86,6 @@ export const AppButton = forwardRef<HTMLButtonElement, AppButtonProps>(({
         {loading && <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
         {content}
       </span>
-    </button>
+    </KonstaButtonWithRef>
   );
 });

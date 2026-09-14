@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
   toastShow: vi.fn(),
 }));
 
-vi.mock('antd-mobile', () => ({ Toast: { show: mocks.toastShow } }));
+vi.mock('@/shared/ui/konsta-compat', () => ({ Toast: { show: mocks.toastShow } }));
 vi.mock('copy-to-clipboard', () => ({ default: mocks.copy }));
 
 let cleanup: (() => void) | undefined;

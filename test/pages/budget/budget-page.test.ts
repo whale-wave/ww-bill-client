@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ActionSheet } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { BudgetEntityType } from '@/entities/budget';
 import BudgetPage from '@/pages/budget/BudgetPage';
+import { ActionSheet } from '@/shared/ui/konsta-compat';
 
 const hooks = vi.hoisted(() => ({
   deleteCategory: vi.fn(),
@@ -137,6 +137,6 @@ describe('personal budget page presentation', () => {
     expect(container.textContent).toContain('emptyBudget');
     expect(container.querySelector('[data-budget-add-category]')).toBeNull();
     act(() => container.querySelector<HTMLElement>('[data-testid="budget-empty-state"] button')?.click());
-    expect(container.querySelector('.adm-modal')).not.toBeNull();
+    expect(document.body.querySelector('.adm-modal')).not.toBeNull();
   });
 });

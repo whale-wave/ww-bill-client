@@ -1,8 +1,8 @@
 import type { Dayjs } from 'dayjs';
 import type { FC } from 'react';
-import { Space } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { AppDatePicker } from '@/shared/ui';
+import { Space } from '@/shared/ui/konsta-compat';
 
 interface CustomRender {
   visible1: boolean;

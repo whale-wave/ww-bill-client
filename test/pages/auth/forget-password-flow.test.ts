@@ -28,7 +28,7 @@ vi.mock('@/entities/auth', () => ({
   postAuthPasswordForgetResetApi: postPasswordReset,
 }));
 
-vi.mock('antd-mobile', () => ({
+vi.mock('@/shared/ui/konsta-compat', () => ({
   Button: ({
     children,
     disabled,

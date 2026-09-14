@@ -1,12 +1,12 @@
 import type { Dayjs } from 'dayjs';
 import type { FC, ReactNode, PointerEvent as ReactPointerEvent } from 'react';
 import type { RecordOverviewListGroup, RecordOverviewListItem } from './RecordOverviewList';
-import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { ArrowLeft, CalendarDays, Plus } from 'lucide-react';
 import { m } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { IllustratedEmptyState, MOTION_PRESETS, Surface, useMotionPreference } from '@/shared/ui';
+import { Button, ErrorBlock, SpinLoading } from '@/shared/ui/konsta-compat';
 import {
   CALENDAR_SWIPE_DIRECTION_RATIO,
   CALENDAR_SWIPE_MIN_DISTANCE,

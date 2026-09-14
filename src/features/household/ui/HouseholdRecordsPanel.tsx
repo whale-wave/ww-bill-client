@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 import type { FamilyRecord, GetHouseholdRecordsApiParams, HouseholdCalendarDay } from '@/entities/household';
-import { Button, ErrorBlock } from 'antd-mobile';
 import { useInfiniteHouseholdRecordsQuery } from '@/entities/household';
 import { useTranslation } from '@/shared/i18n';
+import { Button, ErrorBlock } from '@/shared/ui/konsta-compat';
 import { FamilyRecordList } from './FamilyRecordList';
 import { HouseholdPageState } from './HouseholdPageState';
 import { HouseholdSummaryCard } from './HouseholdSummaryCard';

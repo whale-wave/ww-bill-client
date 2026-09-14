@@ -1,4 +1,3 @@
-import { Skeleton } from 'antd-mobile';
 import { CalendarClock, FileWarning } from 'lucide-react';
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -6,6 +5,7 @@ import { FixedExpenseCycle, useGetFixedExpenseByIdQuery } from '@/entities/fixed
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
+import { Skeleton } from '@/shared/ui/konsta-compat';
 import {
   getCurrencyLabelMap,
   getCycleLabelMap,

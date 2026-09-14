@@ -131,6 +131,47 @@
   --ww-component-profile-action-radius: 999px;
 }
 
+html[data-appearance-template='native'] {
+  --ww-material-content-background: var(--ww-surface-raised-color);
+  --ww-material-content-border: var(--ww-border-color);
+  --ww-material-content-shadow: none;
+  --ww-material-raised-background: var(--ww-surface-raised-color);
+  --ww-material-raised-border: var(--ww-border-color);
+  --ww-material-raised-shadow: none;
+  --ww-material-chrome-background: rgb(249 249 249 / 0.94);
+  --ww-material-chrome-border: var(--ww-border-color);
+  --ww-material-chrome-shadow: none;
+  --ww-material-chrome-blur: blur(18px) saturate(1.8);
+  --ww-material-floating-background: rgb(249 249 249 / 0.94);
+  --ww-material-floating-border: var(--ww-border-color);
+  --ww-material-floating-shadow: none;
+  --ww-material-floating-blur: blur(18px) saturate(1.8);
+  --ww-material-overlay-background: #ffffff;
+  --ww-material-overlay-border: var(--ww-border-color);
+  --ww-material-overlay-shadow: 0 10px 30px rgb(0 0 0 / 0.16);
+  --ww-material-overlay-blur: none;
+  --ww-material-scrim-background: rgb(0 0 0 / 0.4);
+  --ww-component-dock-background: rgb(249 249 249 / 0.94);
+  --ww-component-dock-border: var(--ww-border-color);
+  --ww-component-dock-shadow: none;
+  --ww-component-dock-blur: blur(18px) saturate(1.8);
+  --ww-component-dock-active: rgb(0 122 255 / 0.12);
+  --ww-component-chart-switch-background: #e9e9eb;
+  --ww-component-chart-switch-active: #ffffff;
+  --ww-component-sheet-header-background: rgb(249 249 249 / 0.94);
+  --ww-component-sheet-header-border: var(--ww-border-color);
+  --ww-component-sheet-header-blur: blur(18px) saturate(1.8);
+  --ww-component-sheet-icon-background: var(--ww-surface-tint-color);
+  --ww-component-sheet-control-background: var(--ww-surface-raised-color);
+  --ww-component-sheet-control-border: var(--ww-border-color);
+  --ww-component-sheet-control-shadow: none;
+  --ww-component-sheet-subtle-background: var(--ww-background-color);
+  --ww-component-sheet-selected-background: rgb(0 122 255 / 0.12);
+  --ww-component-sheet-divider: var(--ww-divider-color);
+  --ww-component-sheet-action-background: var(--ww-theme-color);
+  --ww-component-sheet-action-shadow: none;
+}
+
 html[data-appearance-template='fresh'],
 html[data-appearance-template='minimal'] {
   --ww-material-chrome-background: var(--ww-control-surface);

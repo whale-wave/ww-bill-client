@@ -2,7 +2,6 @@ import type { StudioInspectorSelection } from './PreviewElementInspector';
 /* eslint-disable style/max-statements-per-line */
 
 import type { StudioDebugRecord, StudioTemplate, StudioToken, StudioTokenOverrides } from './token-registry';
-import { Input } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { BarChart3, BookmarkPlus, CalendarDays, ChevronLeft, ChevronRight, Compass, Copy, CreditCard, Crosshair, House, Layers3, LayoutGrid, MessageCircleMore, Plus, ReceiptText, RotateCcw, Search, Settings2, Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -17,13 +16,14 @@ import { applyAppearancePreference } from '@/features/appearance';
 import { ChartOverviewContext, ChartOverviewPresentation } from '@/features/chart-overview';
 import { ActionMenuCard, AppButton, AppDatePicker, AppSheet, BottomTabBarPresentation, confirmAppAction, DesignIcon, FormField, SettingsListCard, SheetHeader, showAppActionSheet, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Input } from '@/shared/ui/konsta-compat';
 import { BalanceCardMotionPrototype } from './BalanceCardMotionPrototype';
 import { PreviewElementInspector } from './PreviewElementInspector';
 import { channelsToColor, colorToChannels, createStudioDebugRecord, createThemeCss, createThemeExport, filterValidStudioOverrides, getDependentOverrides, getStudioTemplateTokens, isValidTokenValue, readStudioDebugRecords, resolveStudioAppearanceTemplate, STUDIO_TEMPLATES, STUDIO_TOKENS, writeStudioDebugRecords } from './token-registry';
 import './design-system.scss';
 
 const templates = STUDIO_TEMPLATES;
-const labels: Record<StudioTemplate, string> = { glass: '玻璃鲸浪', fresh: '清新海风', minimal: '极简沉静', mono: 'MONO · 软黑紫' };
+const labels: Record<StudioTemplate, string> = { native: 'Konsta 原生', glass: '玻璃鲸浪', fresh: '清新海风', minimal: '极简沉静', mono: 'MONO · 软黑紫' };
 const previewUrl = `${window.location.pathname}#/design-system/preview?tab=detail`;
 const previewTabKeys = ['detail', 'chart', 'create', 'discovery', 'mine'] as const;
 type PreviewTabKey = typeof previewTabKeys[number];

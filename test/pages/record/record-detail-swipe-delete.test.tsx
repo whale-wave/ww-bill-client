@@ -13,8 +13,8 @@ const mocks = vi.hoisted(() => ({
   useRecordList: vi.fn(),
 }));
 
-vi.mock('antd-mobile', async importOriginal => ({
-  ...(await importOriginal<typeof import('antd-mobile')>()),
+vi.mock('@/shared/ui/konsta-compat', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/shared/ui/konsta-compat')>()),
   InfiniteScroll: ({ loadMore }: { loadMore: () => Promise<void> }) => createElement(
     'button',
     { 'data-testid': 'infinite-load-more', 'onClick': () => void loadMore() },

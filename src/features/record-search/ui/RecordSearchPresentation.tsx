@@ -4,13 +4,13 @@ import type {
   RecordSearchValidation,
 } from '../model/record-search-state';
 import type { RecordOverviewListGroup } from '@/entities/record';
-import { Button, ErrorBlock, InfiniteScroll, SpinLoading } from 'antd-mobile';
 import { ChevronDown, Search, SlidersHorizontal } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { RecordOverviewList } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
 import { IllustratedEmptyState, RecordSearchHeader } from '@/shared/ui';
+import { Button, ErrorBlock, InfiniteScroll, SpinLoading } from '@/shared/ui/konsta-compat';
 
 export type RecordSearchPageState = 'error' | 'idle' | 'loading' | 'ready';
 

@@ -1,6 +1,6 @@
-import { SafeArea } from 'antd-mobile';
 import { AddOutline } from 'antd-mobile-icons';
 import { useTranslation } from '@/shared/i18n';
+import { SafeArea } from '@/shared/ui/konsta-compat';
 
 interface LedgerManagementFooterProps {
   isSaving?: boolean;

@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from 'react';
-import { Input, Selector } from 'antd-mobile';
 import { CircleDollarSign, WalletCards } from 'lucide-react';
 import { AppButton, AppModal } from '@/shared/ui';
+import { Input, Selector } from '@/shared/ui/konsta-compat';
 
 export interface BudgetEditorCategoryOption {
   label: ReactNode;

@@ -14,7 +14,6 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button, Input } from 'antd-mobile';
 import {
   ChevronDown,
   GripVertical,
@@ -37,6 +36,7 @@ import {
 import { useTranslation } from '@/shared/i18n';
 import { AppSheet, PageLoadingState } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Button, Input } from '@/shared/ui/konsta-compat';
 
 type EditorState = { category?: CategoryEntity; mode: 'create' | 'edit' } | null;
 

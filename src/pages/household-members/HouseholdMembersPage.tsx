@@ -1,6 +1,5 @@
 import type { FC, FormEvent } from 'react';
 import type { Household } from '@/entities/household';
-import { Button } from 'antd-mobile';
 import { CircleAlert } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -25,6 +24,7 @@ import { assertSuccessApi } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
 import { AppSheet, confirmAppAction, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Button } from '@/shared/ui/konsta-compat';
 
 const MembersContent: FC<{ household: Household }> = ({ household }) => {
   const { t } = useTranslation('household');

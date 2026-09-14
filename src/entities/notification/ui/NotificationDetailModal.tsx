@@ -38,7 +38,7 @@ export function NotificationDetailModal({ confirmText, notification, onClose, on
                   </h2>
                   <button
                     aria-label={t('message.notificationCenter.closeDetail')}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-[#f3f4f6] p-0 text-ww-mid transition-transform active:scale-95"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-[var(--ww-component-overlay-secondary-background)] p-0 text-ww-mid transition-transform active:scale-95"
                     onClick={onClose}
                     type="button"
                   >
@@ -46,7 +46,7 @@ export function NotificationDetailModal({ confirmText, notification, onClose, on
                   </button>
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-3">
-                  <span className="max-w-[70%] truncate rounded-full bg-[#f2f3f5] px-3 py-1 text-[12px] font-bold leading-4 text-ww-mid">
+                  <span className="max-w-[70%] truncate rounded-full bg-[var(--ww-component-overlay-secondary-background)] px-3 py-1 text-[12px] font-bold leading-4 text-ww-mid">
                     {typeLabel}
                   </span>
                   <time className="shrink-0 text-[12px] leading-5 text-ww-soft" dateTime={notification.createdAt}>{timeLabel}</time>

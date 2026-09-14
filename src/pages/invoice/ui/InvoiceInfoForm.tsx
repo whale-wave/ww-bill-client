@@ -1,5 +1,4 @@
 import type { InvoiceEntity } from '@/entities/invoice';
-import { Button, Form, Input } from 'antd-mobile';
 import { Building2, CreditCard, Hash, Landmark, MapPin, Phone } from 'lucide-react';
 import React, { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +10,7 @@ import {
 import { useTranslation } from '@/shared/i18n';
 import { Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Button, Form, Input } from '@/shared/ui/konsta-compat';
 
 interface InvoiceInfoFormProps {
   id?: string;
@@ -30,7 +30,7 @@ const InvoiceInfoForm: React.FC<InvoiceInfoFormProps> = (props) => {
   });
 
   const isDisabled = isEdit && isLoading;
-  const [formAction] = Form.useForm();
+  const [formAction] = Form.useForm<Omit<InvoiceEntity, 'id'>>();
 
   const { t } = useTranslation('invoice');
 

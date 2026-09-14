@@ -1,7 +1,14 @@
 /** @type {import('tailwindcss').Config} */
+const konstaConfig = require('konsta/config');
+
 const tokenColor = name => ({ opacityValue }) => `rgb(var(${name}) / ${opacityValue ?? 1})`;
 
-module.exports = {
+module.exports = konstaConfig({
+  konsta: {
+    colors: {
+      primary: '#6FC2DC',
+    },
+  },
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
   safelist: ['bg-action-primary/20', 'text-fg/60', 'border-stroke/50'],
   theme: {
@@ -109,4 +116,4 @@ module.exports = {
       });
     },
   ],
-};
+});

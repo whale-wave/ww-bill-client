@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 import type { AssetRecord } from '@/entities/asset';
-import { Skeleton } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { CalendarDays, ChevronDown, ReceiptText, RefreshCcw } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
@@ -10,6 +9,7 @@ import { useTranslation } from '@/shared/i18n';
 import { formatAmount, formatLocalizedMonthDay } from '@/shared/lib';
 import { confirmAppAction, IllustratedEmptyState, promptAppDatePicker, showAppInfoDialog, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Skeleton } from '@/shared/ui/konsta-compat';
 
 interface RecordGroup {
   date: string;

@@ -1,11 +1,11 @@
 import type { FC } from 'react';
-import { SpinLoading } from 'antd-mobile';
 import { CreditCard, Scale, TriangleAlert, WalletCards } from 'lucide-react';
 import { useMemo } from 'react';
 import { useAssetSummaryInfo, useGetAssetQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, math } from '@/shared/lib';
 import { Surface } from '@/shared/ui';
+import { SpinLoading } from '@/shared/ui/konsta-compat';
 import { ChartRetryButton } from './ChartRetryButton';
 
 export const CurNetAssetStatus: FC = () => {

@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
 import type { Ledger, LedgerCapability } from '@/entities/ledger';
-import { Button, ErrorBlock } from 'antd-mobile';
 import { Navigate, useParams } from 'react-router-dom';
 import { LedgerStatus, useLedgerQuery } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { PageLoadingState } from '@/shared/ui';
+import { Button, ErrorBlock } from '@/shared/ui/konsta-compat';
 
 export interface LedgerScope {
   ledger: Ledger;

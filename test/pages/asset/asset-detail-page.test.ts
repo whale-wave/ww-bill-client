@@ -1,5 +1,4 @@
 import type { Asset, AssetRecord } from '@/entities/asset';
-import { Dialog } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -7,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AssetGroupAssetType } from '@/entities/asset';
 import AssetDetailPage from '@/pages/asset/asset-detail/AssetDetailPage';
 import { changeLanguage } from '@/shared/i18n';
+import { Dialog } from '@/shared/ui/konsta-compat';
 
 const hooks = vi.hoisted(() => ({
   deleteAsset: vi.fn(),
@@ -21,8 +21,8 @@ const hooks = vi.hoisted(() => ({
   useVoidAssetTransferMutation: vi.fn(),
 }));
 
-vi.mock('antd-mobile', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('antd-mobile')>();
+vi.mock('@/shared/ui/konsta-compat', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/shared/ui/konsta-compat')>();
   const { createElement } = await import('react');
 
   return {

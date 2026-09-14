@@ -5,7 +5,6 @@ import type {
   UserNotificationType as UserNotificationTypeValue,
 } from '@/entities/notification';
 import { Capacitor } from '@capacitor/core';
-import { Button } from 'antd-mobile';
 import { Bell, ChevronDown } from 'lucide-react';
 import { useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -21,6 +20,7 @@ import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
 import { confirmAppAction, IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Button } from '@/shared/ui/konsta-compat';
 import { getNotificationTarget } from './model';
 
 const PAGE_SIZE = 20;

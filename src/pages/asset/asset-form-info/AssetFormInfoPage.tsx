@@ -1,7 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
-import { Form, Input, Skeleton } from 'antd-mobile';
 import { clone } from 'lodash-es';
 import { BadgeDollarSign, Building2, CreditCard, FileWarning, Landmark, MessageSquareText, WalletCards } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -18,6 +17,7 @@ import { useTranslation } from '@/shared/i18n';
 import { normalizeAmount } from '@/shared/lib';
 import { AppButton, FieldFrame, IllustratedEmptyState, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Form, Input, Skeleton } from '@/shared/ui/konsta-compat';
 import { AssetPageFrame } from '../ui';
 
 type AssetFormValues = Pick<Asset, 'amount' | 'cardId' | 'comment' | 'name' | 'creditLimit'>;

@@ -20,8 +20,8 @@ vi.mock('@/entities/user-app-config', () => ({
   usePatchLedgerQuickSwitchMutation: hooks.usePatchLedgerQuickSwitchMutation,
 }));
 
-vi.mock('antd-mobile', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('antd-mobile')>();
+vi.mock('@/shared/ui/konsta-compat', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/shared/ui/konsta-compat')>();
   return { ...actual, Toast: { show: toastShow } };
 });
 

@@ -26,8 +26,6 @@ window.getComputedStyle = ((element, pseudoElement) => {
   });
 }) as typeof window.getComputedStyle;
 
-await import('antd-mobile/es/global');
-
 await import('@/shared/i18n');
 
 Object.defineProperty(window, 'AudioContext', {

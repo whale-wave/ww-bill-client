@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { Button, SpinLoading } from 'antd-mobile';
 import { CircleAlert, Layers3 } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +14,7 @@ import {
   PageHeader,
   Surface,
 } from '@/shared/ui';
+import { Button, SpinLoading } from '@/shared/ui/konsta-compat';
 
 const LedgerTemplatesPage: FC = () => {
   const { t } = useTranslation('ledger');

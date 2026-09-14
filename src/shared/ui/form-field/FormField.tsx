@@ -1,8 +1,8 @@
 import type { InputHTMLAttributes, ReactNode } from 'react';
-import { Input } from 'antd-mobile';
 import { Eye, EyeOff } from 'lucide-react';
 import { useId, useState } from 'react';
 import { cn } from '@/shared/lib';
+import { Input } from '@/shared/ui/konsta-compat';
 import { FieldFrame } from './FieldFrame';
 
 export interface FormFieldProps {

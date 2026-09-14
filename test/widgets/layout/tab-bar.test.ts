@@ -12,9 +12,20 @@ const hooks = vi.hoisted(() => ({
   toast: vi.fn(),
 }));
 
-vi.mock('antd-mobile', async importOriginal => ({
-  ...(await importOriginal<typeof import('antd-mobile')>()),
-  Toast: { show: hooks.toast },
+vi.mock('@/shared/ui/konsta-compat', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/shared/ui/konsta-compat')>()),
+}));
+
+vi.mock('@/shared/ui/app-feedback', () => ({
+  showAppError: (error: unknown, options?: { message?: string }) => hooks.toast({
+    content: options?.message
+      ?? (typeof error === 'object' && error !== null && 'content' in error ? error.content : undefined)
+      ?? (error instanceof Error ? error.message : String(error)),
+    icon: 'fail',
+  }),
+  showAppNotice: (message: string | { content?: unknown }) => hooks.toast({
+    content: typeof message === 'string' ? message : message.content,
+  }),
 }));
 
 vi.mock('@/shared/i18n', () => ({

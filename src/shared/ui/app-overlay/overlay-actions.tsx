@@ -1,7 +1,6 @@
-import type { ActionSheetProps } from 'antd-mobile';
 import type { ReactNode } from 'react';
-import { ActionSheet, Dialog } from 'antd-mobile';
 import { CircleHelp, Trash2 } from 'lucide-react';
+import { ActionSheet, Dialog } from '@/shared/ui/konsta-compat';
 import './app-overlay.scss';
 
 interface AppConfirmOptions {
@@ -15,8 +14,17 @@ interface AppConfirmOptions {
 
 type DangerConfirmOptions = Omit<AppConfirmOptions, 'icon' | 'tone'>;
 
+export interface AppActionSheetAction {
+  bold?: boolean;
+  danger?: boolean;
+  disabled?: boolean;
+  key: number | string;
+  onClick?: () => unknown;
+  text: ReactNode;
+}
+
 interface AppActionSheetOptions {
-  actions: ActionSheetProps['actions'];
+  actions: AppActionSheetAction[];
   cancelText?: ReactNode;
   description?: ReactNode;
   title?: ReactNode;
@@ -30,9 +38,18 @@ interface AppInfoOptions {
   title?: ReactNode;
 }
 
+function createHeading(title: ReactNode, icon: ReactNode) {
+  return (
+    <div className="ww-app-dialog__heading">
+      <span className="ww-app-dialog__icon">{icon}</span>
+      <strong>{title}</strong>
+    </div>
+  );
+}
+
 export function confirmAppAction({
-  cancelText,
-  confirmText,
+  cancelText = '取消',
+  confirmText = '确定',
   description,
   icon = <CircleHelp size={22} strokeWidth={1.8} />,
   title,
@@ -41,24 +58,15 @@ export function confirmAppAction({
   return Dialog.confirm({
     bodyClassName: `ww-app-dialog ww-app-dialog--${tone}`,
     cancelText,
-    closeOnMaskClick: true,
     confirmText,
     content: typeof description === 'string'
       ? <p className="ww-app-dialog__description">{description}</p>
       : description,
-    header: title
-      ? (
-          <div className="ww-app-dialog__heading">
-            <span className="ww-app-dialog__icon">{icon}</span>
-            <strong>{title}</strong>
-          </div>
-        )
-      : null,
+    header: title ? createHeading(title, icon) : undefined,
     maskClassName: 'ww-app-overlay-mask',
   });
 }
 
-/** Compatibility entry point. Danger confirmations share the same dialog implementation and tokens. */
 export function confirmDangerousAction(options: DangerConfirmOptions) {
   return confirmAppAction({
     ...options,
@@ -69,35 +77,28 @@ export function confirmDangerousAction(options: DangerConfirmOptions) {
 
 export function showAppActionSheet({
   actions,
-  cancelText,
+  cancelText = '取消',
   description,
   title,
 }: AppActionSheetOptions) {
   return ActionSheet.show({
     actions,
     cancelText,
-    closeOnAction: true,
-    extra: title || description
+    extra: (title || description)
       ? (
-          <div className="ww-app-action-sheet__heading">
+          <div className="adm-action-sheet-extra ww-app-action-sheet__heading">
             {title && <strong>{title}</strong>}
             {description && <p>{description}</p>}
           </div>
         )
       : undefined,
     popupClassName: 'ww-app-action-sheet',
-    styles: {
-      mask: {
-        backdropFilter: 'var(--ww-material-overlay-blur)',
-        background: 'var(--ww-material-scrim-background)',
-      },
-    },
   });
 }
 
 export function showAppInfoDialog({
   closeOnMaskClick = false,
-  confirmText,
+  confirmText = '知道了',
   description,
   icon = <CircleHelp size={22} strokeWidth={1.8} />,
   title,
@@ -109,14 +110,7 @@ export function showAppInfoDialog({
     content: typeof description === 'string'
       ? <p className="ww-app-dialog__description">{description}</p>
       : description,
-    header: title
-      ? (
-          <div className="ww-app-dialog__heading">
-            <span className="ww-app-dialog__icon">{icon}</span>
-            <strong>{title}</strong>
-          </div>
-        )
-      : null,
+    header: title ? createHeading(title, icon) : undefined,
     maskClassName: 'ww-app-overlay-mask',
   });
 }

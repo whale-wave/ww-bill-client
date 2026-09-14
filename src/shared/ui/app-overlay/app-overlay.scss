@@ -4,6 +4,21 @@
   -webkit-backdrop-filter: var(--ww-material-overlay-blur);
 }
 
+.ww-app-sheet-shell:not(.ww-app-sheet-shell--open) .ww-app-overlay-mask {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ww-app-sheet.adm-popup-body {
+  z-index: var(--ww-layer-overlay);
+  width: 100%;
+  max-height: 92dvh;
+}
+
+.ww-app-sheet--top.adm-popup-body {
+  border-radius: 0 0 var(--ww-component-sheet-radius) var(--ww-component-sheet-radius);
+}
+
 .ww-sheet-header {
   min-height: 64px;
   padding-inline: var(--ww-component-sheet-padding-x);
@@ -11,6 +26,74 @@
   background: var(--ww-component-sheet-header-background);
   backdrop-filter: var(--ww-component-sheet-header-blur);
   -webkit-backdrop-filter: var(--ww-component-sheet-header-blur);
+}
+
+.ww-app-date-picker__header {
+  display: grid;
+  min-height: var(--ww-component-date-picker-header-height);
+  padding: 0 var(--ww-space-sm);
+  grid-template-columns: minmax(64px, auto) 1fr minmax(64px, auto);
+  align-items: center;
+  border-bottom: 1px solid var(--ww-component-sheet-divider);
+}
+
+.ww-app-date-picker__header .adm-picker-header-button {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  color: var(--ww-theme-color-deep);
+  background: transparent;
+  font-size: 14px;
+}
+
+.ww-app-date-picker__header .adm-picker-header-title {
+  justify-content: center;
+  color: var(--ww-theme-text-color);
+  font-size: var(--ww-component-sheet-heading-size);
+  font-weight: 800;
+}
+
+.ww-app-date-picker__columns {
+  display: grid;
+  min-height: 228px;
+  padding: 18px var(--ww-space-md) max(24px, env(safe-area-inset-bottom));
+  gap: var(--ww-space-sm);
+  background:
+    linear-gradient(
+      to bottom,
+      var(--ww-material-overlay-background),
+      transparent 38%,
+      transparent 62%,
+      var(--ww-material-overlay-background)
+    ),
+    var(--ww-material-overlay-background);
+}
+
+.ww-app-date-picker__column {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.ww-app-date-picker__select {
+  width: 100%;
+  min-height: 52px;
+  appearance: none;
+  border: 1px solid var(--ww-component-sheet-control-border);
+  border-radius: var(--ww-component-overlay-control-radius);
+  color: var(--ww-theme-text-color);
+  background: var(--ww-component-date-picker-selection-background);
+  font-family: 'Nunito Variable', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  text-align: center;
+  text-align-last: center;
+  outline: none;
+}
+
+.ww-app-date-picker__select:focus-visible {
+  border-color: var(--ww-theme-color);
+  box-shadow: 0 0 0 3px var(--ww-component-sheet-focus-ring);
 }
 
 .ww-sheet-header__icon,

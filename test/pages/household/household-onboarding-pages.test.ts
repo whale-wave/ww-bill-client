@@ -52,9 +52,20 @@ vi.mock('@/entities/record', async importOriginal => ({
   useGetRecordBillQuery: hooks.useGetRecordBillQuery,
 }));
 
-vi.mock('antd-mobile', async importOriginal => ({
-  ...(await importOriginal<typeof import('antd-mobile')>()),
-  Toast: { show: toastShow },
+vi.mock('@/shared/ui/konsta-compat', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/shared/ui/konsta-compat')>()),
+}));
+
+vi.mock('@/shared/ui/app-feedback', () => ({
+  showAppError: (error: unknown, options?: { message?: string }) => toastShow({
+    content: options?.message
+      ?? (typeof error === 'object' && error !== null && 'content' in error ? error.content : undefined)
+      ?? (error instanceof Error ? error.message : String(error)),
+    icon: 'fail',
+  }),
+  showAppNotice: (message: string | { content?: unknown }) => toastShow({
+    content: typeof message === 'string' ? message : message.content,
+  }),
 }));
 
 vi.mock('@/shared/i18n', () => ({

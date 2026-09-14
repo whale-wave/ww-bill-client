@@ -35,7 +35,7 @@ interface FormContextValue {
 
 const FormContext = createContext<FormContextValue | undefined>(undefined);
 
-vi.mock('antd-mobile', () => {
+vi.mock('@/shared/ui/konsta-compat', () => {
   function MockForm({
     children,
     disabled,

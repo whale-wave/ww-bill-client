@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import SoundAndHapticsPage from '@/pages/sound-and-haptics/SoundAndHapticsPage';
 
-vi.mock('antd-mobile', () => ({
+vi.mock('@/shared/ui/konsta-compat', () => ({
   Toast: { show: vi.fn() },
 }));
 

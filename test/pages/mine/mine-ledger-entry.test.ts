@@ -9,7 +9,7 @@ vi.mock('@/shared/i18n', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('antd-mobile', () => {
+vi.mock('@/shared/ui/konsta-compat', () => {
   const List = ({ children }: { children: ReactNode }) => createElement('div', null, children);
   List.Item = ({
     children,

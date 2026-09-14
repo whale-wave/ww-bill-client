@@ -2,7 +2,6 @@ import type { Dayjs } from 'dayjs';
 import type { LineSeriesOption } from 'echarts/charts';
 import type { GridComponentOption, MarkLineComponentOption, TooltipComponentOption } from 'echarts/components';
 import type { FC } from 'react';
-import { SpinLoading } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { LineChart } from 'echarts/charts';
 import { GridComponent, MarkLineComponent, TooltipComponent } from 'echarts/components';
@@ -18,6 +17,7 @@ import { formatLocalizedYear } from '@/shared/lib';
 import { readAppearanceChartColors, readAppearanceToken, useAppearanceRevision, withAlpha } from '@/shared/lib/appearance-tokens';
 import { useChart } from '@/shared/lib/use-chart';
 import { promptAppDatePicker, Surface } from '@/shared/ui';
+import { SpinLoading } from '@/shared/ui/konsta-compat';
 import { ChartRetryButton } from './ChartRetryButton';
 
 echarts.use([GridComponent, LineChart, CanvasRenderer, UniversalTransition, TooltipComponent, MarkLineComponent]);

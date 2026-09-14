@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 import type { Asset } from '@/entities/asset';
-import { SpinLoading } from 'antd-mobile';
 import { ChevronRight, TriangleAlert, Trophy } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +9,7 @@ import { useTranslation } from '@/shared/i18n';
 import { formatAmount, math } from '@/shared/lib';
 import { readAppearanceChartColors, useAppearanceRevision } from '@/shared/lib/appearance-tokens';
 import { ProgressBar, Surface } from '@/shared/ui';
+import { SpinLoading } from '@/shared/ui/konsta-compat';
 import { IconBlock } from '../../ui';
 import { ChartRetryButton } from './ChartRetryButton';
 

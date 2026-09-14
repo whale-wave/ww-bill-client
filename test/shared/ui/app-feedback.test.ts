@@ -7,7 +7,7 @@ const { toastShow, toastClear } = vi.hoisted(() => ({
   toastShow: vi.fn(),
 }));
 
-vi.mock('antd-mobile', () => ({
+vi.mock('@/shared/ui/konsta-compat', () => ({
   Toast: { clear: toastClear, show: toastShow },
 }));
 

@@ -1,11 +1,11 @@
 import type { FC } from 'react';
-import { Button, Skeleton } from 'antd-mobile';
 import { ChevronRight, Layers3, WalletCards } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetAssetGroupQuery } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { IllustratedEmptyState, Surface } from '@/shared/ui';
+import { Button, Skeleton } from '@/shared/ui/konsta-compat';
 import { AssetPageFrame, IconBlock } from '../ui';
 import { getAssetGroupNavigationPath, getAssetGroupParentId } from './model/asset-group-navigation';
 

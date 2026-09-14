@@ -30,6 +30,17 @@
   --ww-layer-scrim: var(--ww-ref-z-scrim);
 }
 
+html[data-appearance-template='native'] {
+  --ww-color-fg: 0 0 0;
+  --ww-color-fg-muted: 109 109 114;
+  --ww-color-fg-subtle: 142 142 147;
+  --ww-color-stroke: 60 60 67;
+  --ww-color-action-primary: 0 122 255;
+  --ww-color-finance-income: 36 138 61;
+  --ww-color-finance-expense: 255 45 85;
+  --ww-color-chart-1: 0 122 255;
+}
+
 html[data-appearance-template='fresh'] {
   --ww-color-fg: 38 51 64;
   --ww-color-fg-muted: 92 112 128;

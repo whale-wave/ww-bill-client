@@ -1,7 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import type { UserNotification } from '@/entities/notification';
 import { Capacitor } from '@capacitor/core';
-import { Button, ErrorBlock } from 'antd-mobile';
 import { Bell, Check } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -25,6 +24,7 @@ import {
   PageLoadingState,
 } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Button, ErrorBlock } from '@/shared/ui/konsta-compat';
 import styles from './index.module.scss';
 
 const PAGE_SIZE = 20;

@@ -1,4 +1,3 @@
-import { ErrorBlock, SafeArea, SpinLoading } from 'antd-mobile';
 import { CheckOutline } from 'antd-mobile-icons';
 import { Plus, Settings2, Sparkles } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef } from 'react';
@@ -7,6 +6,7 @@ import { LedgerVisualIcon, useLedgerNavigationQuery } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { AppSheet } from '@/shared/ui';
+import { ErrorBlock, SafeArea, SpinLoading } from '@/shared/ui/konsta-compat';
 import {
   getLedgerSurface,
   getLedgerWorkspaceScope,

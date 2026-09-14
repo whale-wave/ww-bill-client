@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 import type { DiscoveryCardId } from '@/entities/user-app-config';
-import { Switch } from 'antd-mobile';
 import { Eye, EyeOff, LayoutPanelTop } from 'lucide-react';
 import { AppSheet, SheetHeader } from '@/shared/ui';
+import { Switch } from '@/shared/ui/konsta-compat';
 
 export interface DiscoveryCardManagerCopy {
   close: string;

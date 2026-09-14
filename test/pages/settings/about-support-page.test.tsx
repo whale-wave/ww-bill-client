@@ -17,7 +17,7 @@ vi.mock('@capacitor/core', () => ({
   Capacitor: { getPlatform: () => 'ios' },
 }));
 
-vi.mock('antd-mobile', () => ({
+vi.mock('@/shared/ui/konsta-compat', () => ({
   Toast: { show: mocks.toastShow },
 }));
 

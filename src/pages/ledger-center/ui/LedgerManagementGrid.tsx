@@ -1,7 +1,7 @@
 import type { LedgerListItem } from '@/entities/ledger';
-import { Grid } from 'antd-mobile';
 import { LedgerCoverCard } from '@/entities/ledger';
 import { useTranslation } from '@/shared/i18n';
+import { Grid } from '@/shared/ui/konsta-compat';
 
 interface LedgerManagementGridProps {
   ledgers: readonly LedgerListItem[];

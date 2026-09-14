@@ -18,6 +18,7 @@ export interface AppearanceTemplateOption {
 }
 
 export const appearanceTemplateOptions: AppearanceTemplateOption[] = [
+  { descriptionKey: 'appearance.templates.nativeDescription', labelKey: 'appearance.templates.native', value: 'native' },
   { descriptionKey: 'appearance.templates.glassDescription', labelKey: 'appearance.templates.glass', value: 'glass' },
   { descriptionKey: 'appearance.templates.freshDescription', labelKey: 'appearance.templates.fresh', value: 'fresh' },
   { descriptionKey: 'appearance.templates.minimalDescription', labelKey: 'appearance.templates.minimal', value: 'minimal' },

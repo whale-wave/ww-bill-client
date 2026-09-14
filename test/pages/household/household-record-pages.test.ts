@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import type { FamilyRecord, Household, HouseholdRecordsPage as HouseholdRecordsResult } from '@/entities/household';
-import { Dialog } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -16,6 +15,7 @@ import HouseholdHomePage from '@/pages/household-home/HouseholdHomePage';
 import HouseholdRecordDetailPage from '@/pages/household-record-detail/HouseholdRecordDetailPage';
 import HouseholdRecordPolicyPage from '@/pages/household-record-policy/HouseholdRecordPolicyPage';
 import HouseholdRecordSearchPage from '@/pages/household-record-search/HouseholdRecordSearchPage';
+import { Dialog } from '@/shared/ui/konsta-compat';
 
 const HouseholdRecordsPage = HouseholdHomePage;
 

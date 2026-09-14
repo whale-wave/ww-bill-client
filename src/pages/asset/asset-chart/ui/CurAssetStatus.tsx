@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { SpinLoading } from 'antd-mobile';
 import { PieChart as PieChartIcon, TriangleAlert } from 'lucide-react';
 import { useMemo } from 'react';
 import { AssetStatisticalRecordType, useAssetSummaryInfo, useGetAssetQuery } from '@/entities/asset';
@@ -7,6 +6,7 @@ import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
 import { readAppearanceChartColors, useAppearanceRevision } from '@/shared/lib/appearance-tokens';
 import { Surface } from '@/shared/ui';
+import { SpinLoading } from '@/shared/ui/konsta-compat';
 import { ChartRetryButton } from './ChartRetryButton';
 
 export const CurAssetStatus: FC<{ type: AssetStatisticalRecordType }> = ({ type }) => {

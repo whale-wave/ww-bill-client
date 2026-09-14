@@ -1,7 +1,7 @@
 import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
 
-export const APPEARANCE_TEMPLATES = ['fresh', 'minimal', 'glass'] as const;
+export const APPEARANCE_TEMPLATES = ['native', 'fresh', 'minimal', 'glass'] as const;
 export type AppearanceTemplate = typeof APPEARANCE_TEMPLATES[number];
 
 export const APPEARANCE_ACCENTS = ['sky', 'coral', 'lavender', 'mint'] as const;
