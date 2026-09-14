@@ -4,15 +4,16 @@ import type { UserNotification } from '@/entities/notification';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef } from 'react';
-import { appReleaseKeys, clientLatestReleaseQueryOptions, formatClientReleaseDescription, getInstalledAndroidVersion, isAndroidClientUpdateAvailable } from '@/entities/app-release';
-import { markNotificationReadApi, NotificationDetailContent, notificationKeys, useNotificationsQuery, UserNotificationStatus, UserNotificationType } from '@/entities/notification';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { appReleaseKeys, clientLatestReleaseQueryOptions, formatClientReleaseDescription } from '@/entities/app-release';
+import { markNotificationReadApi, NotificationDetailModal, notificationKeys, useNotificationsQuery, UserNotificationStatus, UserNotificationType } from '@/entities/notification';
 import { useAuthStore } from '@/features/auth';
 import { getAppSocket } from '@/shared/api/socket';
 import { APP_INFO } from '@/shared/config/app-info';
 import { fetchBuildInfo, refreshForBuild } from '@/shared/config/build-info';
 import { useTranslation } from '@/shared/i18n';
 import { openExternalUrl } from '@/shared/lib';
+import { showDate } from '@/shared/lib/time';
 import { confirmAppAction, showAppInfoDialog } from '@/shared/ui';
 
 const REMINDER_KEY = 'client-release-reminder';
@@ -64,7 +65,6 @@ export const ClientUpdateController: FC = () => {
   const { t } = useTranslation('settings');
   const queryClient = useQueryClient();
   const checkingRef = useRef(false);
-  const installedRef = useRef<Awaited<ReturnType<typeof getInstalledAndroidVersion>>>(null);
   const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
   const token = useAuthStore(state => state.token);
   const notificationsQuery = useNotificationsQuery({
@@ -73,6 +73,7 @@ export const ClientUpdateController: FC = () => {
   });
   const shownGeneralRef = useRef<string | null>(null);
   const realtimeNoticeIdRef = useRef<string | null>(null);
+  const [promptNotification, setPromptNotification] = useState<UserNotification | null>(null);
 
   const triggerNoticeDialog = useCallback((notice: UserNotification) => {
     const noticeKey = `${notice.id}:${notice.version}`;
@@ -80,25 +81,33 @@ export const ClientUpdateController: FC = () => {
       return;
     shownGeneralRef.current = noticeKey;
 
-    showAppInfoDialog({
-      confirmText: t('aboutSupport.gotIt'),
-      description: (
-        <NotificationDetailContent
-          content={notice.content}
-          createdAt={notice.createdAt}
-          payload={notice.payload}
-          type={t(`message.notificationCenter.types.${notice.type}`, { defaultValue: notice.type })}
-        />
-      ),
-      title: notice.title,
-    }).then(() => {
-      void markNotificationReadApi(notice.id, notice.version)
-        .then(() => {
-          void queryClient.invalidateQueries(notificationKeys.all);
-        })
-        .catch(() => undefined);
-    });
-  }, [queryClient, t]);
+    setPromptNotification(notice);
+  }, []);
+
+  const closeNoticeDialog = useCallback(() => {
+    const notice = promptNotification;
+    setPromptNotification(null);
+    if (!notice)
+      return;
+
+    void markNotificationReadApi(notice.id, notice.version)
+      .then(() => {
+        void queryClient.invalidateQueries(notificationKeys.all);
+      })
+      .catch(() => undefined);
+  }, [promptNotification, queryClient]);
+
+  const confirmNoticeDialog = useCallback(() => {
+    const notice = promptNotification;
+    closeNoticeDialog();
+    if (!notice || notice.type !== UserNotificationType.CLIENT_RELEASE)
+      return;
+
+    const downloadUrl = notice.payload?.downloadUrl;
+    if (platform === 'android' && typeof downloadUrl === 'string' && downloadUrl) {
+      void openExternalUrl(downloadUrl);
+    }
+  }, [closeNoticeDialog, platform, promptNotification]);
 
   useEffect(() => {
     if (!token || !notificationsQuery.data)
@@ -168,26 +177,6 @@ export const ClientUpdateController: FC = () => {
     }
   }, [t]);
 
-  const showAndroidRelease = useCallback(async (release: ClientReleaseManifest) => {
-    const installed = installedRef.current ?? await getInstalledAndroidVersion();
-    installedRef.current = installed;
-    if (!installed || !isAndroidClientUpdateAvailable(installed, release))
-      return;
-    const releaseKey = getReleaseKey(release, 'android');
-    if (wasRecentlyReminded(releaseKey))
-      return;
-    rememberReminder(releaseKey);
-    const confirmed = await confirmAppAction({
-      cancelText: t('aboutSupport.later'),
-      confirmText: t('aboutSupport.downloadUpdate'),
-      description: formatClientReleaseDescription(release, t('aboutSupport.updateAvailable')),
-      title: t('aboutSupport.updateAvailable'),
-    });
-    if (confirmed) {
-      void openExternalUrl(release.android.downloadUrl);
-    }
-  }, [t]);
-
   const check = useCallback(async (force = false) => {
     if (!token)
       return;
@@ -197,9 +186,11 @@ export const ClientUpdateController: FC = () => {
     checkingRef.current = true;
     try {
       const response = await queryClient.fetchQuery(clientLatestReleaseQueryOptions(force, platform as 'web' | 'android'));
-      if (platform === 'android')
-        await showAndroidRelease(response.data);
-      else
+      // A published release is normally paired with a client-release notification.
+      // That notification is the single global prompt source so iOS home-screen
+      // PWAs do not also receive the legacy update dialog in a different style.
+      // Keep the old web-only flow as a fallback for legacy releases without one.
+      if (platform === 'web' && !response.data.noticeId)
         await showWebRelease(response.data);
     }
     catch {
@@ -208,7 +199,7 @@ export const ClientUpdateController: FC = () => {
     finally {
       checkingRef.current = false;
     }
-  }, [queryClient, showAndroidRelease, showWebRelease, token]);
+  }, [queryClient, showWebRelease, token]);
 
   const lastRefreshTimeRef = useRef<number>(0);
 
@@ -271,5 +262,18 @@ export const ClientUpdateController: FC = () => {
     };
   }, [refreshAll, token]);
 
-  return null;
+  return (
+    <NotificationDetailModal
+      confirmText={promptNotification?.type === UserNotificationType.CLIENT_RELEASE && platform === 'android'
+        ? t('aboutSupport.downloadUpdate')
+        : undefined}
+      notification={promptNotification}
+      onClose={closeNoticeDialog}
+      onConfirm={confirmNoticeDialog}
+      timeLabel={promptNotification ? showDate(promptNotification.createdAt) : ''}
+      typeLabel={promptNotification
+        ? t(`message.notificationCenter.types.${promptNotification.type}`, { defaultValue: promptNotification.type })
+        : ''}
+    />
+  );
 };

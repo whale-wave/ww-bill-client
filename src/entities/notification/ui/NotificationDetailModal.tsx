@@ -5,13 +5,15 @@ import { AppButton, AppModal } from '@/shared/ui';
 import { NotificationDetailContent } from './NotificationDetailContent';
 
 export interface NotificationDetailModalProps {
+  confirmText?: string;
   notification: UserNotification | null;
   typeLabel: string;
   timeLabel: string;
   onClose: () => void;
+  onConfirm?: () => void;
 }
 
-export function NotificationDetailModal({ notification, onClose, timeLabel, typeLabel }: NotificationDetailModalProps) {
+export function NotificationDetailModal({ confirmText, notification, onClose, onConfirm, timeLabel, typeLabel }: NotificationDetailModalProps) {
   const { t } = useTranslation('common');
 
   return (
@@ -56,8 +58,8 @@ export function NotificationDetailModal({ notification, onClose, timeLabel, type
               </section>
 
               <footer className="shrink-0 bg-white px-5 py-4">
-                <AppButton className="!shadow-none" data-testid="notification-detail-confirm" fullWidth onClick={onClose} size="large">
-                  {t('nav.confirm')}
+                <AppButton className="!shadow-none" data-testid="notification-detail-confirm" fullWidth onClick={onConfirm ?? onClose} size="large">
+                  {confirmText ?? t('nav.confirm')}
                 </AppButton>
               </footer>
             </article>
