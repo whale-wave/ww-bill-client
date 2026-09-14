@@ -861,56 +861,75 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               </span>
             )}
           </button>
-          {(assetAccounts ?? []).map(asset => (
-            <button
-              aria-pressed={controller.linkedAssetId === asset.id}
-              className={cn(
-                'flex min-h-[64px] w-full items-center gap-3 rounded-[16px] border bg-white px-3 text-left transition-colors active:bg-primary-light/25 focus-visible:border-primary',
-                controller.linkedAssetId === asset.id
-                  ? 'border-primary'
-                  : 'border-transparent',
-              )}
-              data-record-editor-asset-option={asset.id}
-              key={asset.id}
-              onClick={() => {
-                controller.handleSelectLinkedAsset(asset.id);
-                setIsAssetPickerVisible(false);
-              }}
-              type="button"
-            >
-              <span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-primary-light text-primary-deep">
-                <Banknote size={18} />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-[14px] font-extrabold text-ww-ink">
-                  {asset.name}
+          {(assetAccounts ?? []).map((asset) => {
+            const isCreditAsset = asset.assetGroup.assetType === 'credit';
+            const assetDebt = money.formatNatural(asset.amount);
+            const availableCreditLimit = asset.creditLimit
+              ? money.formatNatural(money.subtract(asset.creditLimit, asset.amount))
+              : undefined;
+
+            return (
+              <button
+                aria-pressed={controller.linkedAssetId === asset.id}
+                className={cn(
+                  'flex min-h-[64px] w-full items-center gap-3 rounded-[16px] border bg-white px-3 text-left transition-colors active:bg-primary-light/25 focus-visible:border-primary',
+                  controller.linkedAssetId === asset.id
+                    ? 'border-primary'
+                    : 'border-transparent',
+                )}
+                data-record-editor-asset-option={asset.id}
+                key={asset.id}
+                onClick={() => {
+                  controller.handleSelectLinkedAsset(asset.id);
+                  setIsAssetPickerVisible(false);
+                }}
+                type="button"
+              >
+                <span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-primary-light text-primary-deep">
+                  <Banknote size={18} />
                 </span>
-                <span className="block truncate text-[11px] font-semibold text-ww-soft">
-                  {[getAssetAccountTypeLabel(asset, assetGroups), asset.comment?.trim()]
-                    .filter(Boolean)
-                    .join(' · ')}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[14px] font-extrabold text-ww-ink">
+                    {asset.name}
+                  </span>
+                  <span className="block truncate text-[11px] font-semibold text-ww-soft">
+                    {[getAssetAccountTypeLabel(asset, assetGroups), asset.comment?.trim()]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </span>
                 </span>
-              </span>
-              <span className="shrink-0 text-right">
-                <span className="block font-number text-[13px] font-bold text-ww-mid">
-                  ¥
-                  {asset.amount}
+                <span className="shrink-0 text-right font-number">
+                  {isCreditAsset
+                    ? (
+                        <>
+                          {availableCreditLimit && (
+                            <span className="block text-[10px] font-semibold text-ww-soft">
+                              {t('record:bookkeeping.linkedAssetAvailableCreditLimit', {
+                                amount: availableCreditLimit,
+                              })}
+                            </span>
+                          )}
+                          <span className="block text-[13px] font-bold text-ww-mid">
+                            {t('record:bookkeeping.linkedAssetDebt', { amount: assetDebt })}
+                          </span>
+                        </>
+                      )
+                    : (
+                        <span className="block text-[13px] font-bold text-ww-mid">
+                          {t('record:bookkeeping.linkedAssetBalance', {
+                            amount: assetDebt,
+                          })}
+                        </span>
+                      )}
                 </span>
-                {asset.creditLimit && (
-                  <span className="block font-number text-[10px] font-semibold text-ww-soft">
-                    {t('record:bookkeeping.linkedAssetCreditLimit', {
-                      amount: asset.creditLimit,
-                    })}
+                {controller.linkedAssetId === asset.id && (
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-deep">
+                    <Check aria-hidden="true" size={14} strokeWidth={2.5} />
                   </span>
                 )}
-              </span>
-              {controller.linkedAssetId === asset.id && (
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-deep">
-                  <Check aria-hidden="true" size={14} strokeWidth={2.5} />
-                </span>
-              )}
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </AppSheet>
 

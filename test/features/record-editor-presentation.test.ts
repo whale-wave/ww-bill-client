@@ -484,7 +484,7 @@ describe('record editor presentation', () => {
     expect(assetOption?.querySelector('svg.lucide-check')).not.toBeNull();
     expect(assetOption?.textContent).toContain('储蓄卡');
     expect(assetOption?.textContent).toContain('日常支出卡');
-    expect(assetOption?.textContent).toContain('120000');
+    expect(assetOption?.textContent).toContain('record:bookkeeping.linkedAssetBalance 50000');
     expect(container.querySelector('[data-record-editor-asset-trigger]')?.textContent).toContain('日常支出卡');
     expect(container.querySelector('[data-record-editor-asset-trigger]')?.textContent).toContain('record:bookkeeping.linkedAssetBalance 50000');
   });
