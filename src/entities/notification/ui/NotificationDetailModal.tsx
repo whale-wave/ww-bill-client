@@ -51,7 +51,7 @@ export function NotificationDetailModal({ notification, onClose, timeLabel, type
                 </div>
               </header>
 
-              <section className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-y border-solid border-[var(--ww-divider-color)] bg-white px-5 py-[18px]">
+              <section className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white px-5 py-[18px]">
                 <NotificationDetailContent content={notification.content} payload={notification.payload} />
               </section>
 
