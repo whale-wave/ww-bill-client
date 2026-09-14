@@ -16,7 +16,7 @@ import {
   shareSavedImage,
   waitForImageExportReady,
 } from '@/shared/lib';
-import { AppSheet, DesignIcon, IllustratedEmptyState, PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
+import { AppButton, AppSheet, DesignIcon, IllustratedEmptyState, PageHeader, PageLoadingState, Button as WwButton } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 import { formatMonthTitle } from './model/monthBillDetail';
 import { MonthBillDetailRenderer } from './ui/MonthBillDetailRenderer';
@@ -329,7 +329,7 @@ export default function MonthBillDetailPage() {
         {query.isError && !hasData && (
           <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 text-center">
             <div className="text-[15px] font-bold text-ww-ink">{t('detailLoadFailed')}</div>
-            <button className="h-11 rounded-[16px] border border-border-primary bg-white/85 px-5 text-[13px] font-extrabold text-primary-deep shadow-ww-xs" onClick={() => void query.refetch()} type="button">{t('common:retry')}</button>
+            <AppButton onClick={() => void query.refetch()} variant="secondary">{t('common:retry')}</AppButton>
           </div>
         )}
         {query.data && query.data.summary.recordCount === 0 && <IllustratedEmptyState accentIcon={<DesignIcon name="tab-add" size={20} />} actionLabel={t('emptyAction')} className="min-h-[320px]" description={t('emptyDescription')} icon={<DesignIcon name="shortcut-bill" size={46} />} onAction={() => navigate('/bookkeeping')} title={t('emptyTitle')} />}

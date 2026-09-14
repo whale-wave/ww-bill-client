@@ -16,10 +16,10 @@ export interface AppButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElem
 }
 
 const variantClassNames: Record<AppButtonVariant, string> = {
-  danger: 'bg-feedback-danger text-white shadow-ww',
+  danger: 'bg-feedback-danger text-white shadow-ww active:!bg-feedback-danger',
   ghost: 'bg-transparent text-primary-deep',
-  primary: 'bg-primary text-white shadow-ww',
-  secondary: 'border border-solid border-border-primary bg-ww-surface-raised text-primary-deep shadow-ww',
+  primary: 'bg-primary text-white shadow-ww active:!bg-primary-deep',
+  secondary: 'border border-solid border-border-primary bg-ww-surface-raised text-primary-deep shadow-ww active:!bg-ww-surface-tint',
 };
 
 const sizeClassNames: Record<AppButtonSize, string> = {

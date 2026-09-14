@@ -151,11 +151,11 @@ describe('custom ledger tab bar', () => {
       ['create', '/ledgers/ledger%20%2F%20a/records/new'],
       ['charts', '/ledgers/ledger%20%2F%20a/charts'],
     ]);
-    expect(container.querySelector('[data-tab-key="records"]')?.getAttribute('aria-selected'))
-      .toBe('true');
-    expect(container.querySelectorAll('[role="tab"]')).toHaveLength(3);
+    expect(container.querySelector('[data-tab-key="records"]')?.getAttribute('aria-current'))
+      .toBe('page');
+    expect(container.querySelectorAll('button[data-tab-key]')).toHaveLength(3);
     expect(container.querySelector('.ww-tab-bar-spacer')).toBeNull();
-    expect(container.querySelector('[role="tablist"]')?.classList).toContain('fixed');
+    expect(container.querySelector('nav[aria-label]')?.classList).toContain('fixed');
 
     await prefetch(container.querySelector('[data-tab-key="records"]'));
     await vi.waitFor(() => expect(hooks.prefetched).toContain('ledger-records'));

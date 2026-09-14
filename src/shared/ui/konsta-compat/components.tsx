@@ -8,11 +8,13 @@ import type {
   MouseEvent,
   PointerEvent,
   ReactNode,
+  SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react';
 import {
   Block as KonstaBlock,
   Button as KonstaButton,
+  Checkbox as KonstaCheckbox,
   Chip as KonstaChip,
   ListInput as KonstaListInput,
   Preloader as KonstaPreloader,
@@ -23,7 +25,9 @@ import {
 } from 'konsta/react';
 import { AlertCircle, Inbox, SearchX, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
+import { useFormFieldBinding } from './form';
 
 type KonstaButtonBridgeProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   clear?: boolean;
@@ -116,50 +120,131 @@ export function ErrorBlock({ className, description, status = 'default', title, 
   );
 }
 
+export interface CheckboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange'> {
+  checked?: boolean;
+  defaultChecked?: boolean;
+  disabled?: boolean;
+  name?: string;
+  onChange?: (checked: boolean) => void;
+  value?: string;
+}
+
+export function Checkbox(checkboxProps: CheckboxProps) {
+  const { checked, children, className, defaultChecked, disabled, name, onChange, value = 'on', ...props } = checkboxProps;
+  const [internalChecked, setInternalChecked] = useState(defaultChecked ?? false);
+  const isControlled = Object.hasOwn(checkboxProps, 'checked');
+  const resolvedChecked = isControlled ? checked : internalChecked;
+  return (
+    <KonstaCheckbox
+      {...props}
+      checked={resolvedChecked}
+      className={cn('adm-checkbox ww-k-checkbox', className)}
+      disabled={disabled}
+      name={name}
+      onChange={(event) => {
+        if (!isControlled)
+          setInternalChecked(event.currentTarget.checked);
+        onChange?.(event.currentTarget.checked);
+      }}
+      value={value}
+    >
+      {children}
+    </KonstaCheckbox>
+  );
+}
+
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size'> {
+  clearLabel?: string;
   clearable?: boolean;
   onlyShowClearWhenFocus?: boolean;
   onChange?: (value: string) => void;
   onEnterPress?: (event: KeyboardEvent<HTMLInputElement>) => void;
 }
 
-export function Input({
-  'aria-describedby': ariaDescribedBy,
-  'aria-invalid': ariaInvalid,
-  'aria-label': ariaLabel,
-  className,
-  clearable,
-  onChange,
-  onEnterPress,
-  onlyShowClearWhenFocus: _onlyShowClearWhenFocus,
-  value,
-  ...props
-}: InputProps) {
+export function Input(inputProps: InputProps) {
+  const { t } = useTranslation('common');
+  const field = useFormFieldBinding();
+  const {
+    'aria-describedby': ariaDescribedBy,
+    'aria-invalid': ariaInvalid,
+    'aria-label': ariaLabel,
+    className,
+    clearLabel,
+    clearable,
+    onChange,
+    onEnterPress,
+    onlyShowClearWhenFocus: _onlyShowClearWhenFocus,
+    value,
+    ...props
+  } = inputProps;
+  const isControlled = Object.hasOwn(inputProps, 'value');
+  const hasOwnOnChange = Object.hasOwn(inputProps, 'onChange');
+  const resolvedValue = isControlled ? value : field?.value as InputProps['value'];
+  const resolvedDisabled = props.disabled ?? field?.disabled;
+  const resolvedClearLabel = clearLabel ?? t('action.clearInput');
+  const commitValue = (nextValue: string) => {
+    onChange?.(nextValue);
+    if (!hasOwnOnChange)
+      field?.onChange(nextValue);
+  };
   const input = (
     <input
       {...props}
-      aria-describedby={ariaDescribedBy}
-      aria-invalid={ariaInvalid}
+      aria-describedby={ariaDescribedBy ?? field?.describedBy}
+      aria-invalid={ariaInvalid ?? field?.invalid}
       aria-label={ariaLabel}
       className={cn('adm-input-element ww-k-input__control', className)}
-      onChange={event => onChange?.(event.target.value)}
+      disabled={resolvedDisabled}
+      onChange={event => commitValue(event.target.value)}
       onKeyDown={(event) => {
         props.onKeyDown?.(event);
         if (event.key === 'Enter')
           onEnterPress?.(event);
       }}
-      value={value ?? ''}
+      value={resolvedValue}
     />
   );
+  const canClear = Boolean(clearable && resolvedValue && !resolvedDisabled && !props.readOnly);
   return (
-    <div aria-label={ariaLabel} className="adm-input ww-k-input">
+    <div aria-label={ariaLabel} className="adm-input ww-k-input relative">
       <KonstaListInput
-        clearButton={Boolean(clearable && value)}
         component="div"
         input={input}
-        onClear={() => onChange?.('')}
         outlineIos
       />
+      {canClear && (
+        <button
+          aria-label={ariaLabel ? `${ariaLabel}: ${resolvedClearLabel}` : resolvedClearLabel}
+          className="absolute right-1 top-1/2 z-[2] flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-transparent text-ww-soft"
+          onClick={() => commitValue('')}
+          type="button"
+        >
+          <X aria-hidden size={17} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'size'> {
+  onChange?: (value: string) => void;
+}
+
+export function Select({ 'aria-label': ariaLabel, children, className, onChange, value, ...props }: SelectProps) {
+  const select = (
+    <select
+      {...props}
+      aria-label={ariaLabel}
+      className={cn('adm-select-element ww-k-select__control', className)}
+      onChange={event => onChange?.(event.target.value)}
+      value={value}
+    >
+      {children}
+    </select>
+  );
+  return (
+    <div className="adm-select ww-k-select">
+      <KonstaListInput component="div" dropdown input={select} outlineIos />
     </div>
   );
 }
@@ -232,6 +317,7 @@ export function Selector<T = string>({ className, columns, disabled, onChange, o
             role="option"
             rounded
             strong
+            type="button"
           >
             <span>{option.label}</span>
             {option.description && <small className="block opacity-70">{option.description}</small>}
@@ -270,39 +356,54 @@ export function Switch({ checked, className, disabled, loading, onChange, value,
 export interface StepperProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange'> {
   allowEmpty?: boolean;
   defaultValue?: number;
+  disabled?: boolean;
   max?: number;
   min?: number;
   onChange?: (value?: number) => void;
   value?: number;
 }
 
-export function Stepper({ allowEmpty, className, defaultValue, max, min, onChange, value, ...props }: StepperProps) {
+export function Stepper(stepperProps: StepperProps) {
+  const { allowEmpty, className, defaultValue, disabled, max, min, onChange, value, ...props } = stepperProps;
   const [internalValue, setInternalValue] = useState(defaultValue ?? min ?? 0);
-  const currentValue = value ?? internalValue;
+  const isControlled = Object.hasOwn(stepperProps, 'value');
+  const currentValue = isControlled ? value : internalValue;
   const updateValue = (next: number) => {
+    if (disabled)
+      return;
     const bounded = Math.min(max ?? Number.POSITIVE_INFINITY, Math.max(min ?? Number.NEGATIVE_INFINITY, next));
-    if (value === undefined)
+    if (!isControlled)
       setInternalValue(bounded);
     onChange?.(bounded);
   };
+  const numericValue = currentValue ?? min ?? 0;
   return (
     <KonstaStepper
       {...props}
-      className={cn('adm-stepper ww-k-stepper', className)}
+      aria-disabled={disabled}
+      className={cn('adm-stepper ww-k-stepper', disabled && 'pointer-events-none opacity-45', className)}
       input
+      inputDisabled={disabled}
       inputPlaceholder={allowEmpty ? '—' : undefined}
       onChange={(event) => {
-        const next = Number(event.currentTarget.value);
+        if (disabled)
+          return;
+        const rawValue = event.currentTarget.value;
+        if (allowEmpty && rawValue === '') {
+          onChange?.(undefined);
+          return;
+        }
+        const next = Number(rawValue);
         if (Number.isFinite(next))
           updateValue(next);
         else if (allowEmpty)
           onChange?.(undefined);
       }}
-      onMinus={() => updateValue(currentValue - 1)}
-      onPlus={() => updateValue(currentValue + 1)}
+      onMinus={disabled ? undefined : () => updateValue(numericValue - 1)}
+      onPlus={disabled ? undefined : () => updateValue(numericValue + 1)}
       outline
       rounded
-      value={currentValue}
+      value={(currentValue ?? '') as number}
     />
   );
 }

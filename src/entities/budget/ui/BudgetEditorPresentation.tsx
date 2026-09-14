@@ -48,6 +48,7 @@ export const BudgetEditorPresentation: FC<BudgetEditorPresentationProps> = ({
   visible,
 }) => (
   <AppModal
+    aria-label={typeof title === 'string' ? title : undefined}
     actions={[]}
     afterClose={onAfterClose}
     bodyClassName="!box-border !max-h-[calc(100dvh-32px)] !max-w-full !p-0 [&_.adm-modal-content]:!p-0 [&_.adm-modal-footer]:!hidden"

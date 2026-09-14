@@ -23,7 +23,7 @@ import { CommonFunctionCard, DiscoveryCardManager } from '@/pages/discovery/ui';
 import { useTranslation } from '@/shared/i18n';
 import { hapticFeedback } from '@/shared/lib/haptic-feedback';
 import { playSound } from '@/shared/lib/play-sound';
-import { useMotionPreference } from '@/shared/ui';
+import { AppButton, useMotionPreference } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 import { TabBar } from '@/widgets/layout';
 
@@ -190,7 +190,7 @@ const Discovery: FC = () => {
     <div className="page-new relative w-full">
       <header className="flex h-[60px] shrink-0 items-center justify-between gap-3 px-[22px] pb-4 pt-[max(8px,env(safe-area-inset-top))]">
         <h1 className="text-[20px] font-extrabold leading-[30px] text-ww-ink">{t('commonFunctions.discovery')}</h1>
-        {isEditing && <button className="h-9 rounded-[13px] border-0 bg-primary-light/70 px-3 text-[13px] font-extrabold text-primary-deep transition active:scale-95" onClick={() => setIsEditing(false)} type="button">{t('discoveryCards.done')}</button>}
+        {isEditing && <AppButton onClick={() => setIsEditing(false)} size="compact" variant="secondary">{t('discoveryCards.done')}</AppButton>}
       </header>
       <div className="ww-tab-bar-scroll-padding relative flex-grow overflow-auto">
         <div className="space-y-[14px] px-[18px]">
@@ -198,7 +198,7 @@ const Discovery: FC = () => {
             <m.div animate={isMotionEnabled ? { opacity: 1, y: 0 } : undefined} className="flex items-center gap-3 rounded-[18px] border border-solid border-border-primary bg-ww-surface px-4 py-3 shadow-ww-xs" initial={isMotionEnabled ? { opacity: 0, y: -8 } : false}>
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] bg-primary-light text-primary-deep"><LayoutPanelTop size={18} /></span>
               <p className="min-w-0 flex-1 text-[12px] font-semibold leading-5 text-ww-mid">{t('discoveryCards.dragHint')}</p>
-              <button className="h-10 shrink-0 rounded-[13px] border-0 bg-primary px-3 text-[12px] font-extrabold text-white shadow-ww-xs transition active:scale-95" onClick={() => setIsManagerVisible(true)} type="button">{t('discoveryCards.manage')}</button>
+              <AppButton className="shrink-0" onClick={() => setIsManagerVisible(true)} size="compact">{t('discoveryCards.manage')}</AppButton>
             </m.div>
           )}
           <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd} onDragStart={handleDragStart} sensors={sensors}>

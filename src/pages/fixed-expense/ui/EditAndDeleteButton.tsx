@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDeleteFixedExpenseMutation } from '@/entities/fixed-expense';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { confirmAppAction } from '@/shared/ui';
+import { AppButton, confirmAppAction } from '@/shared/ui';
 import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 interface EditAndDeleteButtonProps {
@@ -56,14 +56,14 @@ const EditAndDeleteButton: React.FC<EditAndDeleteButtonProps> = (props) => {
 
   return (
     <footer className="relative z-20 grid shrink-0 grid-cols-2 gap-3 px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
-      <button className="flex h-[48px] items-center justify-center gap-2 rounded-[16px] border border-solid border-border-primary bg-white/85 text-[13px] font-extrabold text-primary-deep shadow-ww-xs" disabled={!fixedExpenseId} onClick={handleEdit} type="button">
+      <AppButton disabled={!fixedExpenseId} fullWidth onClick={handleEdit} variant="secondary">
         <Pencil size={17} strokeWidth={1.9} />
         {t('detail.edit')}
-      </button>
-      <button className="flex h-[48px] items-center justify-center gap-2 rounded-[16px] border border-solid border-feedback-danger bg-feedback-danger-surface/90 text-[13px] font-extrabold text-feedback-danger shadow-ww-xs disabled:opacity-45" disabled={!fixedExpenseId || deleteState.isLoading} onClick={() => void handleDelete()} type="button">
+      </AppButton>
+      <AppButton disabled={!fixedExpenseId || deleteState.isLoading} fullWidth loading={deleteState.isLoading} onClick={() => void handleDelete()} variant="danger">
         <Trash2 size={17} strokeWidth={1.9} />
         {t('detail.delete')}
-      </button>
+      </AppButton>
     </footer>
   );
 };

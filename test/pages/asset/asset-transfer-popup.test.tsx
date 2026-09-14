@@ -25,7 +25,8 @@ vi.mock('@/entities/asset', async (importOriginal) => {
   };
 });
 
-vi.mock('@/shared/ui', () => ({
+vi.mock('@/shared/ui', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/shared/ui')>()),
   AppSheet: ({ children, visible }: { children: ReactNode; visible?: boolean }) => visible
     ? createElement('section', { 'data-testid': 'bottom-sheet' }, children)
     : null,

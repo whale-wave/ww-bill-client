@@ -27,14 +27,14 @@ describe('bottom tab bar presentation', () => {
     })));
     cleanup = () => act(() => root.unmount());
 
-    const tabList = container.querySelector('[role="tablist"]');
+    const tabList = container.querySelector('nav[aria-label="Navigation"]');
     expect(tabList?.classList).toContain('fixed');
     expect(tabList?.classList).toContain('ww-floating-dock');
     expect(tabList?.classList).toContain('h-[68px]');
     expect(tabList?.classList).toContain('rounded-[34px]');
     expect(tabList?.classList).toContain('left-[14px]');
     expect(tabList?.classList).toContain('right-[14px]');
-    expect(tabList?.querySelectorAll('[role="tab"]')).toHaveLength(count);
+    expect(tabList?.querySelectorAll('button[data-tab-key]')).toHaveLength(count);
     expect(tabList?.querySelector('.ww-floating-dock__button--active')).not.toBeNull();
     expect(tabList?.getAttribute('data-active-index')).toBe('0');
     expect(tabList?.querySelector('.ww-floating-dock__active-indicator')).not.toBeNull();

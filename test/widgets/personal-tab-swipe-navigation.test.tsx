@@ -76,8 +76,8 @@ describe('personal tab swipe navigation', () => {
     const swipeArea = container.querySelector('[data-personal-tab-swipe-navigation]');
 
     expect(swipeArea).not.toBeNull();
-    expect(container.querySelectorAll('[role="tablist"]')).toHaveLength(1);
-    expect(container.querySelector('[role="tablist"]')?.getAttribute('data-motion-enabled')).toBe('true');
+    expect(container.querySelectorAll('nav[aria-label]')).toHaveLength(1);
+    expect(container.querySelector('nav[aria-label]')?.getAttribute('data-motion-enabled')).toBe('true');
     expect(container.querySelector('[data-personal-tab-track]')?.classList).toContain('inset-0');
     const pageSlots = Array.from(container.querySelectorAll<HTMLElement>('[data-personal-tab-page]'));
     expect(pageSlots).toHaveLength(4);
@@ -93,7 +93,7 @@ describe('personal tab swipe navigation', () => {
     expect(container.querySelector('[data-personal-tab-page="chart"]')?.getAttribute('aria-hidden')).toBe('true');
     Object.defineProperty(swipeArea, 'clientWidth', { configurable: true, value: 400 });
     swipeArea!.scrollLeft = 120;
-    const tabList = container.querySelector('[role="tablist"]')!;
+    const tabList = container.querySelector('nav[aria-label]')!;
     Object.defineProperty(tabList, 'clientWidth', { configurable: true, value: 510 });
     act(() => window.dispatchEvent(new Event('resize')));
     expect(swipeArea?.scrollLeft).toBe(0);
@@ -109,8 +109,8 @@ describe('personal tab swipe navigation', () => {
     });
     expect(router.state.location.pathname).toBe('/chart');
     expect(swipeArea?.scrollLeft).toBe(0);
-    expect(container.querySelectorAll('[role="tablist"]')).toHaveLength(1);
-    expect(container.querySelector('[data-tab-key="chart"]')?.getAttribute('aria-selected')).toBe('true');
+    expect(container.querySelectorAll('nav[aria-label]')).toHaveLength(1);
+    expect(container.querySelector('[data-tab-key="chart"]')?.getAttribute('aria-current')).toBe('page');
     expect(container.querySelector('[data-personal-tab-page="chart"]')?.getAttribute('aria-hidden')).toBe('false');
 
     const nextSwipeArea = container.querySelector('[data-personal-tab-swipe-navigation]');

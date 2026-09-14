@@ -57,6 +57,11 @@ vi.mock('@/shared/ui', () => ({
 vi.mock('@/shared/ui/konsta-compat', () => ({
   Button: ({ children, ...props }: { children: ReactNode }) => createElement('button', props, children),
   Dialog: { confirm: dialogConfirm },
+  Select: ({ children, onChange, ...props }: { children: ReactNode; onChange?: (value: string) => void }) => createElement(
+    'select',
+    { ...props, onChange: (event: { target: { value: string } }) => onChange?.(event.target.value) },
+    children,
+  ),
   Toast: { show: toastShow },
 }));
 

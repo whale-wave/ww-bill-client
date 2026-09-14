@@ -51,6 +51,38 @@ describe('image preview', () => {
     expect(document.activeElement).toBe(returnFocusButton);
   });
 
+  it('supports two-pointer zoom and drag transforms', async () => {
+    const container = document.createElement('div');
+    document.body.append(container);
+    const root = createRoot(container);
+    act(() => root.render(createElement(ImagePreview, { image: 'blob:receipt', visible: true })));
+    cleanup = () => {
+      act(() => root.unmount());
+      container.remove();
+    };
+
+    await vi.waitFor(() => expect(document.body.querySelector('.adm-image-viewer-control')).not.toBeNull());
+    const viewport = document.body.querySelector<HTMLElement>('.adm-image-viewer-control');
+    const image = viewport?.querySelector<HTMLImageElement>('img');
+    const pointer = (type: string, pointerId: number, clientX: number, clientY: number) => {
+      const event = new Event(type, { bubbles: true });
+      Object.defineProperties(event, {
+        clientX: { value: clientX },
+        clientY: { value: clientY },
+        pointerId: { value: pointerId },
+      });
+      return event;
+    };
+
+    act(() => {
+      viewport?.dispatchEvent(pointer('pointerdown', 1, 0, 0));
+      viewport?.dispatchEvent(pointer('pointerdown', 2, 0, 100));
+      viewport?.dispatchEvent(pointer('pointermove', 2, 0, 200));
+    });
+
+    expect(image?.style.transform).toContain('scale(2)');
+  });
+
   it('announces a full-image loading failure outside the hidden visual mask', async () => {
     const container = document.createElement('div');
     document.body.append(container);

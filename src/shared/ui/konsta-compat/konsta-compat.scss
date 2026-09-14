@@ -9,6 +9,10 @@
     transform: scale(0.985);
   }
 
+  &--primary:active {
+    background: var(--ww-theme-color-deep);
+  }
+
   &--danger {
     color: white;
     background: rgb(var(--ww-color-feedback-danger));
@@ -30,7 +34,8 @@
 }
 
 .ww-k-input,
-.ww-k-textarea {
+.ww-k-textarea,
+.ww-k-select {
   min-width: 0;
   margin: 0;
 
@@ -52,6 +57,16 @@
       color: var(--ww-text-color-soft);
     }
   }
+}
+
+.ww-k-select__control {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ww-theme-text-color);
+  font: inherit;
+  outline: none;
 }
 
 .ww-k-textarea__control {

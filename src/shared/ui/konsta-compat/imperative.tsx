@@ -10,6 +10,7 @@ import {
 } from 'konsta/react';
 import { CircleAlert } from 'lucide-react';
 import { createRoot } from 'react-dom/client';
+import { DialogFocusBoundary } from '@/shared/ui/app-overlay/DialogFocusBoundary';
 
 interface ImperativeAction {
   bold?: boolean;
@@ -116,20 +117,22 @@ function showDialog(options: DialogOptions, confirmOnly: boolean) {
     };
     overlay.render(
       <KonstaApp className="contents" dark={false} safeAreas={false} theme="ios">
-        <KonstaDialog
-          buttons={(
-            <>
-              {!confirmOnly && <KonstaDialogButton className="adm-dialog-button" onClick={() => finish(false)}>{options.cancelText ?? '取消'}</KonstaDialogButton>}
-              <KonstaDialogButton className="adm-dialog-button" onClick={() => finish(true)} strong>{options.confirmText ?? '确定'}</KonstaDialogButton>
-            </>
-          )}
-          className={options.bodyClassName}
-          content={options.content}
-          onBackdropClick={options.closeOnMaskClick ? () => finish(false) : undefined}
-          opened
-          title={options.header}
-          translucent
-        />
+        <DialogFocusBoundary label={typeof options.header === 'string' ? options.header : undefined} onEscape={() => finish(false)}>
+          <KonstaDialog
+            buttons={(
+              <>
+                {!confirmOnly && <KonstaDialogButton className="adm-dialog-button" onClick={() => finish(false)}>{options.cancelText ?? '取消'}</KonstaDialogButton>}
+                <KonstaDialogButton className="adm-dialog-button" onClick={() => finish(true)} strong>{options.confirmText ?? '确定'}</KonstaDialogButton>
+              </>
+            )}
+            className={options.bodyClassName}
+            content={options.content}
+            onBackdropClick={options.closeOnMaskClick ? () => finish(false) : undefined}
+            opened
+            title={options.header}
+            translucent
+          />
+        </DialogFocusBoundary>
       </KonstaApp>,
     );
   });

@@ -46,8 +46,13 @@ vi.mock('@/shared/lib', () => ({
 
 vi.mock('@/shared/ui', () => ({
   AppButton: ({ children, fullWidth: _fullWidth, loading: _loading, loadingLabel: _loadingLabel, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { fullWidth?: boolean; loading?: boolean; loadingLabel?: ReactNode }) => createElement('button', props, children),
-  AppModal: ({ content, visible }: { content: ReactNode; visible: boolean }) => visible
-    ? content
+  AppModal: ({ 'aria-labelledby': ariaLabelledBy, content, onClose, visible }: { 'aria-labelledby'?: string; 'content': ReactNode; 'onClose'?: () => void; 'visible': boolean }) => visible
+    ? createElement('div', {
+        'aria-labelledby': ariaLabelledBy,
+        'aria-modal': 'true',
+        'onKeyDown': (event: KeyboardEvent) => event.key === 'Escape' && onClose?.(),
+        'role': 'dialog',
+      }, content)
     : null,
   PageHeader: ({ title }: { title: ReactNode }) => createElement('header', null, title),
   Surface: ({ children, material: _material, ...props }: { children: ReactNode; material: string }) => createElement('div', props, children),
@@ -93,7 +98,7 @@ describe('aboutSupportPage sponsor entry', () => {
 
     const dialog = container.querySelector<HTMLElement>('[role="dialog"]');
     expect(dialog?.getAttribute('aria-labelledby')).toBe('sponsor-modal-title');
-    expect(document.activeElement).toBe(dialog);
+    expect(dialog?.contains(document.activeElement)).toBe(true);
     expect(container.querySelector('[role="dialog"] img')?.getAttribute('alt')).toBe('aboutSupport.sponsorQrAlt');
 
     await act(async () => dialog?.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' })));

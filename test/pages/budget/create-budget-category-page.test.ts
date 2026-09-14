@@ -57,7 +57,7 @@ describe('create budget category page', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-budget-category="1"]')?.click());
     expect(container.querySelector('[data-budget-model-visible="true"]')?.textContent).toBe('餐饮');
 
-    await act(async () => container.querySelector<HTMLButtonElement>('header button')?.click());
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="nav.back"]')?.click());
     expect(router.state.location.pathname).toBe('/budget');
     expect(router.state.location.search).toBe('?type=1');
   });

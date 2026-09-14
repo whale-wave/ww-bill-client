@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
+import { AppButton } from '@/shared/ui';
 
 export const AddAssetAccountButton: FC = () => {
   const { t } = useTranslation('asset');
@@ -14,14 +15,14 @@ export const AddAssetAccountButton: FC = () => {
   }, [navigate]);
 
   return (
-    <button
-      className="ww-theme-primary-action flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border-0 text-[15px] font-bold active:opacity-85"
+    <AppButton
+      className="ww-theme-primary-action"
       data-testid="asset-add-account"
+      fullWidth
       onClick={handleAddAssetAccount}
-      type="button"
     >
       <Plus size={18} strokeWidth={2.2} />
       <span>{t('addAccount')}</span>
-    </button>
+    </AppButton>
   );
 };

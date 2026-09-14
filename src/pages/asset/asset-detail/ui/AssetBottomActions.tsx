@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDeleteAssetByIdMutation } from '@/entities/asset';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { confirmAppAction } from '@/shared/ui';
+import { AppButton, confirmAppAction } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 import { AssetTransferPopup } from './AssetTransferPopup';
 
@@ -44,32 +44,33 @@ export const AssetBottomActions: FC<{ asset: Asset }> = ({ asset }) => {
   return (
     <>
       <footer className="relative z-20 grid shrink-0 grid-cols-3 gap-2 border-0 border-t border-solid border-white/70 bg-white/72 px-[12px] pb-[max(12px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
-        <button
-          className="flex h-[48px] items-center justify-center gap-1.5 rounded-[16px] border border-solid border-primary-light bg-primary-light/55 text-[13px] font-extrabold text-primary-deep shadow-ww-xs"
+        <AppButton
+          fullWidth
           onClick={() => setIsTransferVisible(true)}
-          type="button"
+          variant="secondary"
         >
           <ArrowLeftRight size={17} strokeWidth={1.9} />
           {t('transfer.action')}
-        </button>
-        <button
-          className="flex h-[48px] items-center justify-center gap-2 rounded-[16px] border border-solid border-border-primary bg-white/85 text-[13px] font-extrabold text-primary-deep shadow-ww-xs disabled:opacity-45"
+        </AppButton>
+        <AppButton
           disabled={!id}
+          fullWidth
           onClick={() => id && navigate(ROUTES_PATH.ASSET_ADD_FORM.getPath(id))}
-          type="button"
+          variant="secondary"
         >
           <Pencil size={17} strokeWidth={1.9} />
           {t('detail.edit')}
-        </button>
-        <button
-          className="flex h-[48px] items-center justify-center gap-2 rounded-[16px] border border-solid border-feedback-danger bg-feedback-danger-surface/90 text-[13px] font-extrabold text-feedback-danger shadow-ww-xs disabled:opacity-45"
+        </AppButton>
+        <AppButton
           disabled={!id || deleteState.isLoading}
+          fullWidth
+          loading={deleteState.isLoading}
           onClick={() => void handleDelete()}
-          type="button"
+          variant="danger"
         >
           <Trash2 size={17} strokeWidth={1.9} />
           {t('deleteAsset')}
-        </button>
+        </AppButton>
       </footer>
       <AssetTransferPopup
         asset={asset}

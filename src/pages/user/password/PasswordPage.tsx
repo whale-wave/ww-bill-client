@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { changePassword } from '@/entities/user';
 import { useTranslation } from '@/shared/i18n';
-import { FormField, PageHeader, Surface } from '@/shared/ui';
+import { AppButton, FormField, PageHeader, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 
 const Password: FC = () => {
@@ -51,7 +51,7 @@ const Password: FC = () => {
             <FormField autoComplete="current-password" label={t('password.oldPassword')} onChange={setOldPassword} placeholder={t('password.oldPasswordPlaceholder')} prefix={<LockKeyhole size={18} />} type="password" value={oldPassword} />
             <FormField autoComplete="new-password" label={t('password.newPassword')} onChange={setNewPassword} placeholder={t('password.newPasswordPlaceholder')} prefix={<LockKeyhole size={18} />} type="password" value={newPassword} />
             <FormField autoComplete="new-password" label={t('password.confirmPassword')} onChange={setRePassword} placeholder={t('password.confirmPasswordPlaceholder')} prefix={<LockKeyhole size={18} />} type="password" value={rePassword} />
-            <button className="mt-2 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45" disabled={disabled} onClick={() => void handleChangePassword()} type="button">{isSubmitting ? t('common:nav.loading') : t('password.save')}</button>
+            <AppButton className="mt-2" disabled={disabled} fullWidth loading={isSubmitting} onClick={() => void handleChangePassword()}>{t('password.save')}</AppButton>
           </Surface>
         </div>
       </main>

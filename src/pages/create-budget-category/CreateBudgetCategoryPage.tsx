@@ -1,13 +1,14 @@
 import type { BudgetEntityType } from '@/entities/budget';
 import type { CategoryEntity } from '@/entities/category';
 import classNames from 'classnames';
-import { ArrowLeft, Tags } from 'lucide-react';
+import { Tags } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BudgetEntityLevel, BudgetEntityType as BudgetType } from '@/entities/budget';
 import { CategoryIcon, useGetCategoryQuery } from '@/entities/category';
 import { BudgetModel } from '@/pages/budget/ui';
 import { useTranslation } from '@/shared/i18n';
+import { PageHeader, Surface } from '@/shared/ui';
 
 interface CreateBudgetCategoryProps {
 }
@@ -41,19 +42,9 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
 
   return (
     <div className="page-new h-[100dvh] min-h-[100svh] overflow-hidden" data-create-budget-category-page>
-      <header className="relative z-10 shrink-0 px-[18px] pb-4 pt-[max(10px,env(safe-area-inset-top))]">
-        <div className="relative flex h-11 items-center justify-center">
-          <button
-            aria-label={t('nav.back')}
-            className="absolute left-0 flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
-            onClick={onBack}
-            type="button"
-          >
-            <ArrowLeft size={17} strokeWidth={2} />
-          </button>
-          <h1 className="text-[20px] font-extrabold text-ww-ink">{t('budget:createCategory')}</h1>
-        </div>
-        <div className="mt-3 flex items-center gap-3 rounded-[18px] border border-solid border-border-primary bg-white/65 px-4 py-3 shadow-ww-xs backdrop-blur-xl">
+      <PageHeader backLabel={t('nav.back')} onBack={onBack} title={t('budget:createCategory')} />
+      <header className="relative z-10 shrink-0 px-[18px] pb-4">
+        <Surface className="flex items-center gap-3 px-4 py-3" material="content">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-primary-light/60 text-primary-deep">
             <Tags size={20} strokeWidth={1.8} />
           </span>
@@ -61,7 +52,7 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
             <p className="text-[13px] font-bold text-ww-ink">{t('budget:selectCategoryTitle')}</p>
             <p className="mt-0.5 text-[11px] text-ww-mid">{t('budget:selectCategoryDescription', { period: periodLabel })}</p>
           </div>
-        </div>
+        </Surface>
       </header>
 
       <main className="min-h-0 flex-grow overflow-y-auto overscroll-contain px-[14px] pb-[calc(20px+env(safe-area-inset-bottom))]" data-budget-category-list>

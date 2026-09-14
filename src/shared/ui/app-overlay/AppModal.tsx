@@ -3,6 +3,7 @@ import { Dialog as KonstaDialog, DialogButton as KonstaDialogButton } from 'kons
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/shared/lib';
+import { DialogFocusBoundary } from './DialogFocusBoundary';
 
 export interface AppModalAction {
   danger?: boolean;
@@ -57,16 +58,22 @@ export function AppModal({
     : undefined;
 
   return createPortal(
-    <KonstaDialog
-      {...props}
-      buttons={buttons}
-      className={cn('adm-modal adm-center-popup ww-app-modal-shell adm-modal-body ww-app-modal', bodyClassName, className)}
-      content={<div className="adm-modal-content">{content}</div>}
-      onBackdropClick={closeOnMaskClick ? onClose : undefined}
-      opened={visible}
-      sizeIos="w-[min(390px,calc(100vw-32px))]"
-      translucent
-    />,
+    <DialogFocusBoundary
+      label={typeof props['aria-label'] === 'string' ? props['aria-label'] : undefined}
+      labelledBy={typeof props['aria-labelledby'] === 'string' ? props['aria-labelledby'] : undefined}
+      onEscape={onClose}
+    >
+      <KonstaDialog
+        {...props}
+        buttons={buttons}
+        className={cn('adm-modal adm-center-popup ww-app-modal-shell adm-modal-body ww-app-modal', bodyClassName, className)}
+        content={<div className="adm-modal-content">{content}</div>}
+        onBackdropClick={closeOnMaskClick ? onClose : undefined}
+        opened={visible}
+        sizeIos="w-[min(390px,calc(100vw-32px))]"
+        translucent
+      />
+    </DialogFocusBoundary>,
     document.body,
   );
 }

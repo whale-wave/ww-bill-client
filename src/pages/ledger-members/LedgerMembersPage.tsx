@@ -17,7 +17,7 @@ import {
 import { MemberCardsPresentation } from '@/features/workspace-settings';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { PageHeader, Surface } from '@/shared/ui';
+import { AppButton, PageHeader, Surface } from '@/shared/ui';
 
 const LedgerMembersPage: FC = () => {
   const { t } = useTranslation('ledger');
@@ -160,15 +160,14 @@ const LedgerMembersPage: FC = () => {
       {ledgerQuery.data && canInvite && (
         <div className="ww-page-fade-footer relative z-[2] shrink-0 px-[18px] pb-[max(16px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-sm">
           <div className="mx-auto w-full max-w-[520px]">
-            <button
-              className="flex h-[52px] w-full items-center justify-center gap-2 rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
+            <AppButton
               data-testid="ledger-members-invite"
+              fullWidth
               onClick={() => navigate(ROUTES_PATH.LEDGER_INVITES.getPath(ledgerId))}
-              type="button"
             >
               <UserPlus size={18} />
               {t('members.invite')}
-            </button>
+            </AppButton>
           </div>
         </div>
       )}

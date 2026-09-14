@@ -10,6 +10,8 @@ import { uploadFile } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
 import choseFile from '@/shared/lib/chose-file';
 import {
+  AppButton,
+  AppModal,
   confirmAppAction,
   FormField,
   PageHeader,
@@ -128,9 +130,9 @@ const UserInfo: FC = () => {
             </button>
             <h2 className="mt-4 text-[20px] font-black text-ww-ink">{userInfo.name}</h2>
             <p className="mt-1 text-[11px] font-semibold text-ww-mid">{userInfo.email}</p>
-            <button className="mt-4 min-h-11 rounded-full border border-solid border-white/90 bg-white/65 px-4 text-[11px] font-extrabold text-primary-deep shadow-ww-xs" onClick={() => void handleChangeAvatar()} type="button">
+            <AppButton className="mt-4" onClick={() => void handleChangeAvatar()} size="compact" variant="secondary">
               {t('info.changeAvatar')}
-            </button>
+            </AppButton>
           </Surface>
 
           <Surface className="overflow-hidden px-4 py-1" material="content">
@@ -152,27 +154,29 @@ const UserInfo: FC = () => {
             ))}
           </Surface>
 
-          <button className="flex h-[52px] w-full items-center justify-center gap-2 rounded-[18px] border border-solid border-feedback-danger bg-white/75 text-[13px] font-extrabold text-feedback-danger shadow-ww-xs" onClick={() => void onLogout()} type="button">
+          <AppButton fullWidth onClick={() => void onLogout()} variant="danger">
             <LogOut size={17} />
             {t('common:action.logout')}
-          </button>
+          </AppButton>
         </div>
       </main>
 
-      {modalVisible && (
-        <div aria-labelledby="nickname-dialog-title" aria-modal="true" className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/20 px-6 backdrop-blur-[3px]" onClick={() => setModalVisible(false)} role="dialog">
-          <Surface className="w-full max-w-[340px] px-5 py-5" material="floating">
-            <div onClick={event => event.stopPropagation()}>
-              <h2 className="text-center text-[17px] font-extrabold text-ww-ink" id="nickname-dialog-title">{t('info.changeNickname')}</h2>
-              <FormField className="mt-5" label={t('info.nickname')} onChange={setName} placeholder={t('info.namePlaceholder')} value={name} />
-              <div className="mt-5 grid grid-cols-2 gap-2">
-                <button className="h-11 rounded-[15px] border-0 bg-bg-gray text-[13px] font-bold text-ww-mid" onClick={() => setModalVisible(false)} type="button">{t('common:nav.cancel')}</button>
-                <button className="h-11 rounded-[15px] border-0 bg-primary text-[13px] font-extrabold text-white" onClick={() => void onChangeName()} type="button">{t('common:nav.confirm')}</button>
-              </div>
-            </div>
-          </Surface>
-        </div>
-      )}
+      <AppModal
+        aria-labelledby="nickname-dialog-title"
+        actions={[
+          { key: 'cancel', onClick: () => setModalVisible(false), text: t('common:nav.cancel') },
+          { key: 'confirm', onClick: () => void onChangeName(), text: t('common:nav.confirm') },
+        ]}
+        closeOnMaskClick
+        content={(
+          <div aria-labelledby="nickname-dialog-title">
+            <h2 className="text-center text-[17px] font-extrabold text-ww-ink" id="nickname-dialog-title">{t('info.changeNickname')}</h2>
+            <FormField className="mt-5" label={t('info.nickname')} onChange={setName} placeholder={t('info.namePlaceholder')} value={name} />
+          </div>
+        )}
+        onClose={() => setModalVisible(false)}
+        visible={modalVisible}
+      />
     </div>
   );
 };

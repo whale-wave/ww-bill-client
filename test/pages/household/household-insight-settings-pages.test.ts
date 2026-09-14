@@ -1078,7 +1078,7 @@ describe('household settings and members', () => {
 
     await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="dissolve"]')?.click());
     const confirm = document.body.querySelector<HTMLInputElement>('input[name="confirmDissolve"]');
-    confirm?.click();
+    await act(async () => confirm?.click());
     const form = confirm?.closest('form');
     await act(async () => form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
 

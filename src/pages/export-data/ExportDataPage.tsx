@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { getRecordApi } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { exportData } from '@/shared/lib/export-data';
-import { PageHeader, promptAppDatePicker, showAppError, Surface } from '@/shared/ui';
+import { AppButton, PageHeader, promptAppDatePicker, showAppError, Surface } from '@/shared/ui';
 
 enum ChangeType {
   START,
@@ -116,9 +116,9 @@ function ExportData() {
           </Surface>
 
           <p className="mb-6 mt-3 px-1 text-[10px] leading-4 text-ww-soft">{t('common:export.fileHint')}</p>
-          <button className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45" disabled={isExporting} onClick={() => void handleExportData()} type="button">
-            {isExporting ? t('common:nav.loading') : t('common:action.export')}
-          </button>
+          <AppButton fullWidth loading={isExporting} loadingLabel={t('common:nav.loading')} onClick={() => void handleExportData()}>
+            {t('common:action.export')}
+          </AppButton>
         </div>
       </main>
     </div>

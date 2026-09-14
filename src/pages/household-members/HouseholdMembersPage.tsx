@@ -24,7 +24,7 @@ import { assertSuccessApi } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
 import { AppSheet, confirmAppAction, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
-import { Button } from '@/shared/ui/konsta-compat';
+import { Button, Input } from '@/shared/ui/konsta-compat';
 
 const MembersContent: FC<{ household: Household }> = ({ household }) => {
   const { t } = useTranslation('household');
@@ -171,7 +171,7 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
                 <form className="px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-14" onSubmit={handleNickname}>
                   <h2>{t('settings.nicknameTitle')}</h2>
                   <p className="mt-2 text-[12px] font-semibold text-ww-mid">{t('settings.nicknamePlaceholder')}</p>
-                  <input
+                  <Input
                     className="mt-5 h-[52px] w-full border border-solid px-4 text-[15px] font-bold"
                     defaultValue={current.nickname}
                     maxLength={30}

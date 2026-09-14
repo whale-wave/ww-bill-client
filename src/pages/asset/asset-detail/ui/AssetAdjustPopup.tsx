@@ -7,8 +7,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePatchAssetAdjustMutation } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount, normalizeAmount } from '@/shared/lib';
-import { AppSheet } from '@/shared/ui';
+import { AppButton, AppSheet } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Input } from '@/shared/ui/konsta-compat';
 
 export interface AssetAdjustPopupProps extends AppSheetProps {
   onClose: () => void;
@@ -77,23 +78,25 @@ export const AssetAdjustPopup: FC<AssetAdjustPopupProps> = (props) => {
         </label>
         <div className="mt-2 flex h-[54px] items-center gap-2 rounded-[15px] border border-solid border-border-primary bg-white/80 px-4 shadow-ww-xs focus-within:border-primary-mid focus-within:ring-2 focus-within:ring-primary-light/60">
           <span className="font-number text-[16px] font-black text-primary-deep">¥</span>
-          <input
+          <Input
             className="ww-sheet-plain-input min-w-0 flex-1 border-0 bg-transparent p-0 font-number text-[17px] font-black text-ww-ink outline-none placeholder:font-number placeholder:text-[14px] placeholder:font-semibold placeholder:text-ww-soft"
             id="asset-adjust-amount"
             inputMode="decimal"
-            onChange={event => handleAmountChange(event.target.value)}
+            onChange={handleAmountChange}
             placeholder={t('adjust.amountPlaceholder')}
             value={amount}
           />
         </div>
-        <button
-          className="mt-5 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
+        <AppButton
+          className="mt-5"
           disabled={!amount || mutation.isLoading}
+          fullWidth
+          loading={mutation.isLoading}
+          loadingLabel={t('adjust.submitting')}
           onClick={() => void handleAdjust()}
-          type="button"
         >
-          {mutation.isLoading ? t('adjust.submitting') : t('adjust.submit')}
-        </button>
+          {t('adjust.submit')}
+        </AppButton>
       </div>
     </AppSheet>
   );

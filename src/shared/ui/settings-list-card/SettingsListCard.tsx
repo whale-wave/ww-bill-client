@@ -37,6 +37,7 @@ export function SettingsListCard({ items, className = '', density = 'standard' }
           className={`!m-0 ${
             index > 0 ? 'border-t border-border-primary' : ''
           }`}
+          chevron={false}
           component="div"
           contentClassName="!p-0"
           innerClassName="!min-h-0 !p-0"

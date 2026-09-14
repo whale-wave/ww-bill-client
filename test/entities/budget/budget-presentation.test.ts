@@ -145,7 +145,7 @@ describe('budget presentation', () => {
     const handleAmountChange = vi.fn();
     const handleCategoryChange = vi.fn();
     const handleSave = vi.fn();
-    const container = render(createElement(BudgetEditorPresentation, {
+    render(createElement(BudgetEditorPresentation, {
       amount: '120',
       amountPlaceholder: 'Amount',
       cancelLabel: 'Cancel',
@@ -160,9 +160,9 @@ describe('budget presentation', () => {
       visible: true,
     }));
 
-    expect(container.querySelector('[data-budget-editor]')).not.toBeNull();
-    expect(container.textContent).toContain('Monthly category');
-    expect(container.textContent).toContain('Dining');
-    expect(container.querySelector<HTMLInputElement>('input')?.value).toBe('120');
+    expect(document.body.querySelector('[data-budget-editor]')).not.toBeNull();
+    expect(document.body.textContent).toContain('Monthly category');
+    expect(document.body.textContent).toContain('Dining');
+    expect(document.body.querySelector<HTMLInputElement>('input')?.value).toBe('120');
   });
 });

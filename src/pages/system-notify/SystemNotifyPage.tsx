@@ -1,11 +1,10 @@
-import type { ChangeEvent } from 'react';
 import type {
   UserNotification,
   UserNotificationStatus as UserNotificationStatusValue,
   UserNotificationType as UserNotificationTypeValue,
 } from '@/entities/notification';
 import { Capacitor } from '@capacitor/core';
-import { Bell, ChevronDown } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -20,7 +19,7 @@ import { useTranslation } from '@/shared/i18n';
 import { showDate } from '@/shared/lib/time';
 import { confirmAppAction, IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
-import { Button } from '@/shared/ui/konsta-compat';
+import { Button, Select } from '@/shared/ui/konsta-compat';
 import { getNotificationTarget } from './model';
 
 const PAGE_SIZE = 20;
@@ -186,11 +185,11 @@ function SystemNotifyPage() {
 
   const handleFilterChange = (
     name: 'status' | 'type',
-    event: ChangeEvent<HTMLSelectElement>,
+    value: string,
   ) => {
     const nextSearchParams = new URLSearchParams(searchParams);
-    if (event.target.value)
-      nextSearchParams.set(name, event.target.value);
+    if (value)
+      nextSearchParams.set(name, value);
     else
       nextSearchParams.delete(name);
     setSearchParams(nextSearchParams, { replace: true });
@@ -238,28 +237,27 @@ function SystemNotifyPage() {
         onBack={() => navigate(-1)}
         title={t('message.systemNotify.title')}
         right={(
-          <button
-            type="button"
-            className="min-h-9 rounded-full border border-solid border-border-primary bg-ww-surface px-3 text-xs font-bold text-ww-ink shadow-ww-xs backdrop-blur-[var(--ww-card-blur)] disabled:text-ww-ghost"
+          <Button
+            className="min-h-9 px-3"
             disabled={isMutating}
             data-testid="notification-read-all"
             onClick={handleMarkAllRead}
+            size="mini"
           >
             {t('message.notificationCenter.markAllRead')}
-          </button>
+          </Button>
         )}
       />
 
       <main className="relative z-10 min-h-0 flex-1 overflow-y-auto px-[var(--ww-page-gutter)] pb-[max(24px,env(safe-area-inset-bottom))] pt-1">
         <div className="sticky top-0 z-10 -mx-1 pb-3 pt-1">
           <div className="flex gap-2 rounded-[var(--ww-control-radius)] border border-solid border-border-primary bg-ww-surface-raised p-2 shadow-ww-xs backdrop-blur-[var(--ww-card-blur)]">
-            <label className="relative min-w-0 flex-1">
+            <label className="min-w-0 flex-1">
               <span className="sr-only">{t('message.notificationCenter.statusFilter')}</span>
-              <select
-                className="h-10 w-full appearance-none rounded-[calc(var(--ww-control-radius)-4px)] border border-border-primary bg-ww-surface px-3 pr-8 text-sm font-medium text-ww-ink outline-none transition focus:border-primary-mid"
+              <Select
                 aria-label={t('message.notificationCenter.statusFilter')}
                 value={status ?? ''}
-                onChange={event => handleFilterChange('status', event)}
+                onChange={value => handleFilterChange('status', value)}
               >
                 <option value="">{t('message.notificationCenter.allStatuses')}</option>
                 {Object.values(UserNotificationStatus).map(value => (
@@ -267,16 +265,14 @@ function SystemNotifyPage() {
                     {t(`message.notificationCenter.statuses.${value}`)}
                   </option>
                 ))}
-              </select>
-              <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-ww-soft" size={15} strokeWidth={2.25} />
+              </Select>
             </label>
-            <label className="relative min-w-0 flex-1">
+            <label className="min-w-0 flex-1">
               <span className="sr-only">{t('message.notificationCenter.typeFilter')}</span>
-              <select
-                className="h-10 w-full appearance-none rounded-[calc(var(--ww-control-radius)-4px)] border border-border-primary bg-ww-surface px-3 pr-8 text-sm font-medium text-ww-ink outline-none transition focus:border-primary-mid"
+              <Select
                 aria-label={t('message.notificationCenter.typeFilter')}
                 value={type ?? ''}
-                onChange={event => handleFilterChange('type', event)}
+                onChange={value => handleFilterChange('type', value)}
               >
                 <option value="">{t('message.notificationCenter.allTypes')}</option>
                 {Object.values(UserNotificationType).map(value => (
@@ -284,8 +280,7 @@ function SystemNotifyPage() {
                     {t(`message.notificationCenter.types.${value}`)}
                   </option>
                 ))}
-              </select>
-              <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-ww-soft" size={15} strokeWidth={2.25} />
+              </Select>
             </label>
           </div>
         </div>

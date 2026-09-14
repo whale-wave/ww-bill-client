@@ -6,7 +6,9 @@ const tokenColor = name => ({ opacityValue }) => `rgb(var(${name}) / ${opacityVa
 module.exports = konstaConfig({
   konsta: {
     colors: {
-      primary: '#6FC2DC',
+      // Konsta is the visual base. Keep its generated iOS interaction colors
+      // native; product appearances override the semantic primary token below.
+      primary: '#007aff',
     },
   },
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],

@@ -19,7 +19,8 @@
     "export": "导出",
     "logout": "退出登录",
     "saveChange": "保存修改",
-    "create": "创建"
+    "create": "创建",
+    "clearInput": "清除输入内容"
   },
   "tabBar": {
     "navigation": "主导航",

@@ -52,6 +52,7 @@ import {
   Surface,
 } from '@/shared/ui';
 import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
+import { Input, Selector, Switch } from '@/shared/ui/konsta-compat';
 
 function isConflict(error: unknown) {
   return typeof error === 'object' && error !== null && 'statusCode' in error && error.statusCode === 409;
@@ -69,19 +70,15 @@ function PreferenceSwitch({
   testId?: string;
 }) {
   return (
-    <label className="flex min-h-[58px] items-center justify-between rounded-[17px] border border-solid border-border-primary bg-white/75 px-4 shadow-ww-xs">
+    <div className="flex min-h-[58px] items-center justify-between rounded-[17px] border border-solid border-border-primary bg-white/75 px-4 shadow-ww-xs">
       <span className="text-[13px] font-bold text-ww-ink">{label}</span>
-      <input
+      <Switch
+        aria-label={label}
         checked={checked}
-        className="peer sr-only"
         data-testid={testId}
-        onChange={event => onChange(event.target.checked)}
-        type="checkbox"
+        onChange={onChange}
       />
-      <span className="relative h-7 w-12 rounded-full bg-ww-surface-tint transition peer-checked:bg-primary">
-        <span className="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow-ww-xs transition-transform peer-checked:translate-x-5" />
-      </span>
-    </label>
+    </div>
   );
 }
 
@@ -111,19 +108,13 @@ function ChoiceGroup({
       >
         {options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
       </select>
-      <div className={`grid gap-1.5 rounded-[16px] border border-solid border-border-primary bg-white/75 p-1.5 shadow-ww-xs ${options.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
-        {options.map(option => (
-          <button
-            aria-pressed={option.value === value}
-            className={`min-h-11 rounded-[13px] px-2 text-[12px] font-bold transition ${option.value === value ? 'bg-primary text-white shadow-ww-xs' : 'bg-white/40 text-ww-mid'}`}
-            key={option.value}
-            onClick={() => onChange(option.value)}
-            type="button"
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
+      <Selector
+        className={options.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}
+        columns={options.length}
+        onChange={next => next[0] && onChange(next[0])}
+        options={options}
+        value={[value]}
+      />
     </div>
   );
 }
@@ -615,11 +606,11 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
             <div className="min-h-0 flex-1 overflow-y-auto px-[18px] pb-[calc(24px+env(safe-area-inset-bottom))] pt-5">
               <label className="block">
                 <span className="text-[11px] font-bold text-ww-mid">{t('settings.name')}</span>
-                <input className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/80 px-4 text-[14px] font-semibold text-ww-ink outline-none shadow-ww-xs transition focus:border-primary" maxLength={30} onChange={event => setName(event.target.value)} value={name} />
+                <div className="mt-2"><Input maxLength={30} onChange={setName} value={name} /></div>
               </label>
               <label className="mt-4 block">
                 <span className="text-[11px] font-bold text-ww-mid">{t('settings.monthStartDay')}</span>
-                <input className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/80 px-4 text-[14px] font-semibold text-ww-ink outline-none shadow-ww-xs transition focus:border-primary" max="28" min="1" onChange={event => setMonthStartDay(Number(event.target.value))} type="number" value={monthStartDay} />
+                <div className="mt-2"><Input max="28" min="1" onChange={value => setMonthStartDay(Number(value))} type="number" value={monthStartDay} /></div>
               </label>
               <div className="mt-5">
                 <span className="block text-[11px] font-bold text-ww-mid">{t('settings.icon')}</span>

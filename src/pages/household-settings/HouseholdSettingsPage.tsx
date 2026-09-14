@@ -27,7 +27,7 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { AppDatePicker, AppSheet, PageHeader } from '@/shared/ui';
 import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
-import { Button } from '@/shared/ui/konsta-compat';
+import { Button, Checkbox, TextArea } from '@/shared/ui/konsta-compat';
 
 type Editor = 'dissolve' | 'sharedStart' | null;
 
@@ -353,11 +353,10 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
           <form className="px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-14" onSubmit={handleDissolve}>
             <h2 className="!text-feedback-danger">{t('settings.dissolveTitle')}</h2>
             <p className="mt-2 text-[12px] font-semibold leading-5 text-ww-mid">{t('settings.dissolveDescription')}</p>
-            <textarea className="mt-5 min-h-[96px] w-full border border-solid p-4 text-sm" maxLength={500} name="reason" placeholder={t('settings.dissolveReasonPlaceholder')} />
-            <label className="mt-4 flex items-start gap-2.5 rounded-[15px] bg-ww-pink-light/45 px-3.5 py-3 text-[12px] font-bold leading-5 text-ww-ink">
-              <input className="mt-1 accent-red-500" name="confirmDissolve" type="checkbox" />
+            <TextArea autoSize={{ minRows: 4 }} className="mt-5" maxLength={500} name="reason" placeholder={t('settings.dissolveReasonPlaceholder')} showCount />
+            <Checkbox className="mt-4 flex items-start gap-2.5 rounded-[15px] bg-ww-pink-light/45 px-3.5 py-3 text-[12px] font-bold leading-5 text-ww-ink" name="confirmDissolve">
               <span>{t('settings.confirmDissolve')}</span>
-            </label>
+            </Checkbox>
             <Button block className="mt-5 !bg-feedback-danger text-white" loading={dissolveState.isLoading} type="submit">
               {t('settings.dissolveAction')}
             </Button>

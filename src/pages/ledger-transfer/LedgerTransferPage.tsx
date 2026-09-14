@@ -14,6 +14,7 @@ import { useLedgerRecordsQuery } from '@/entities/record';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useTranslation } from '@/shared/i18n';
 import {
+  AppButton,
   ContentStack,
   PageHeader,
   SectionStack,
@@ -21,6 +22,7 @@ import {
   Surface,
 } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Checkbox, Selector } from '@/shared/ui/konsta-compat';
 import {
   buildLedgerTransferRequest,
   buildSourceLedgerOptions,
@@ -63,17 +65,13 @@ function TransferRecordSelector({
           </p>
         )}
         {records.map(record => (
-          <label
+          <Checkbox
+            checked={selectedIds.includes(record.id)}
             className="flex items-center gap-3 border-0 border-b border-solid border-border-primary px-3 py-3 last:border-b-0"
+            disabled={!selectedIds.includes(record.id) && selectedIds.length >= 100}
             key={record.id}
+            onChange={selected => onChange(record.id, selected)}
           >
-            <input
-              checked={selectedIds.includes(record.id)}
-              className="h-4 w-4 shrink-0 accent-[var(--adm-color-primary)]"
-              disabled={!selectedIds.includes(record.id) && selectedIds.length >= 100}
-              onChange={event => onChange(record.id, event.target.checked)}
-              type="checkbox"
-            />
             <span className="min-w-0 flex-grow">
               <strong className="block truncate text-[14px] font-semibold text-ww-ink">
                 {record.remark || record.category.name}
@@ -88,7 +86,7 @@ function TransferRecordSelector({
               {record.type === 'sub' ? '-' : '+'}
               {record.amount}
             </span>
-          </label>
+          </Checkbox>
         ))}
       </div>
       {selectedIds.length >= 100 && (
@@ -239,21 +237,20 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
         <Surface className="px-4 py-4" material="content">
           <ContentStack>
             <h2 className="text-[13px] font-bold text-ww-ink">{t('transfer.tagHandling')}</h2>
-            <div className="grid grid-cols-2 gap-1.5 rounded-[16px] border border-solid border-border-primary bg-white/70 p-1.5 shadow-ww-xs">
-              {(['drop', 'map'] as const).map(strategy => (
-                <button
-                  className={`min-h-10 rounded-[13px] px-2 text-[12px] font-bold transition ${tagStrategy === strategy ? 'bg-primary text-white shadow-ww-xs' : 'bg-white/40 text-ww-mid'}`}
-                  key={strategy}
-                  onClick={() => {
-                    setTagStrategy(strategy);
-                    handleRequestChange();
-                  }}
-                  type="button"
-                >
-                  {t(`transfer.tagStrategy.${strategy}`)}
-                </button>
-              ))}
-            </div>
+            <Selector
+              columns={2}
+              onChange={([strategy]) => {
+                if (!strategy)
+                  return;
+                setTagStrategy(strategy);
+                handleRequestChange();
+              }}
+              options={(['drop', 'map'] as const).map(strategy => ({
+                label: t(`transfer.tagStrategy.${strategy}`),
+                value: strategy,
+              }))}
+              value={[tagStrategy]}
+            />
             {tagStrategy === 'map' && (
               <ContentStack>
                 {sourceTags.map(source => (
@@ -277,9 +274,11 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
         </Surface>
       )}
 
-      <button
-        className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
+      <AppButton
         disabled={!canPreview || previewState.isLoading}
+        fullWidth
+        loading={previewState.isLoading}
+        loadingLabel={t('transfer.previewing')}
         onClick={async () => {
           if (submittingRef.current || !canPreview)
             return;
@@ -295,10 +294,9 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
             submittingRef.current = false;
           }
         }}
-        type="button"
       >
-        {previewState.isLoading ? t('transfer.previewing') : t('transfer.preview')}
-      </button>
+        {t('transfer.preview')}
+      </AppButton>
 
       {preview && (
         <Surface className="px-4 py-4" material="raised">
@@ -318,9 +316,11 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
         </Surface>
       )}
 
-      <button
-        className="h-[52px] w-full rounded-[18px] border border-solid border-border-primary bg-white/85 text-[14px] font-extrabold text-primary-deep shadow-ww disabled:opacity-45"
+      <AppButton
         disabled={!preview || preview.conflictCount > 0 || preview.readyCount !== selectedIds.length || executeState.isLoading}
+        fullWidth
+        loading={executeState.isLoading}
+        loadingLabel={t('transfer.executing')}
         onClick={async () => {
           if (submittingRef.current || !preview)
             return;
@@ -340,10 +340,10 @@ function TransferContent({ ledgerId }: { ledgerId: string }) {
             submittingRef.current = false;
           }
         }}
-        type="button"
+        variant="secondary"
       >
-        {executeState.isLoading ? t('transfer.executing') : t('transfer.execute')}
-      </button>
+        {t('transfer.execute')}
+      </AppButton>
     </SectionStack>
   );
 }

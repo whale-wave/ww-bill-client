@@ -15,8 +15,9 @@ import {
   HouseholdScopeBoundary,
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
-import { PageHeader, Surface } from '@/shared/ui';
+import { AppButton, PageHeader, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Input, Select } from '@/shared/ui/konsta-compat';
 
 const ExportContent: FC<{ household: Household }> = ({ household }) => {
   const { t } = useTranslation('household');
@@ -102,48 +103,46 @@ const ExportContent: FC<{ household: Household }> = ({ household }) => {
           </div>
           <label className="block min-w-0 text-[12px] font-bold text-ww-mid">
             {t('export.startDate')}
-            <span className="mt-2 flex h-12 min-w-0 items-center rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww">
-              <input className="min-w-0 flex-1 border-0 bg-transparent p-0 text-[14px] font-semibold text-ww-ink outline-none" name="startDate" type="date" />
-            </span>
+            <Input className="mt-2" name="startDate" type="date" />
           </label>
           <label className="mt-3 block min-w-0 text-[12px] font-bold text-ww-mid">
             {t('export.endDate')}
-            <span className="mt-2 flex h-12 min-w-0 items-center rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww">
-              <input className="min-w-0 flex-1 border-0 bg-transparent p-0 text-[14px] font-semibold text-ww-ink outline-none" name="endDate" type="date" />
-            </span>
+            <Input className="mt-2" name="endDate" type="date" />
           </label>
           <div className="mt-3 grid grid-cols-2 gap-3">
             <label className="min-w-0 text-[12px] font-bold text-ww-mid">
               {t('export.type')}
-              <select className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 text-[14px] font-semibold text-ww-ink shadow-ww-xs outline-none" defaultValue="" name="type">
+              <Select className="mt-2" defaultValue="" name="type">
                 <option value="">{t('export.all')}</option>
                 <option value="sub">{t('export.expense')}</option>
                 <option value="add">{t('export.income')}</option>
-              </select>
+              </Select>
             </label>
             <label className="min-w-0 text-[12px] font-bold text-ww-mid">
               {t('export.counted')}
-              <select className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 text-[14px] font-semibold text-ww-ink shadow-ww-xs outline-none" defaultValue="" name="counted">
+              <Select className="mt-2" defaultValue="" name="counted">
                 <option value="">{t('export.all')}</option>
                 <option value="true">{t('export.countedOnly')}</option>
                 <option value="false">{t('export.uncountedOnly')}</option>
-              </select>
+              </Select>
             </label>
           </div>
           <label className="mt-3 block min-w-0 text-[12px] font-bold text-ww-mid">
             {t('export.format')}
-            <select className="mt-2 h-12 w-full rounded-[16px] border border-solid border-border-primary bg-white/90 px-3 text-[14px] font-semibold text-ww-ink shadow-ww-xs outline-none" defaultValue="xlsx" name="format">
+            <Select className="mt-2" defaultValue="xlsx" name="format">
               <option value="xlsx">XLSX</option>
               <option value="csv">CSV</option>
-            </select>
+            </Select>
           </label>
-          <button
-            className="mt-6 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
-            disabled={createState.isLoading}
+          <AppButton
+            className="mt-6"
+            fullWidth
+            loading={createState.isLoading}
+            loadingLabel={t('export.creating')}
             type="submit"
           >
-            {createState.isLoading ? t('export.creating') : t('export.create')}
-          </button>
+            {t('export.create')}
+          </AppButton>
         </Surface>
       </form>
 
@@ -177,15 +176,16 @@ const ExportContent: FC<{ household: Household }> = ({ household }) => {
                 <p className="mt-2 text-[13px] font-semibold text-ww-mid">{t('export.processing')}</p>
               )}
               {taskQuery.data.status === 'COMPLETED' && (
-                <button
-                  className="mt-5 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
+                <AppButton
+                  className="mt-5"
                   data-testid="household-export-download"
-                  disabled={downloadState.isLoading}
+                  fullWidth
+                  loading={downloadState.isLoading}
+                  loadingLabel={t('export.downloading')}
                   onClick={handleDownload}
-                  type="button"
                 >
-                  {downloadState.isLoading ? t('export.downloading') : t('export.download')}
-                </button>
+                  {t('export.download')}
+                </AppButton>
               )}
             </Surface>
           )}

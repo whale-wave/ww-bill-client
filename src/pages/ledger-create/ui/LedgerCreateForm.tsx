@@ -3,10 +3,11 @@ import type {
   LedgerCreateFormErrorCode,
   LedgerCreateFormValues,
 } from '../model/ledger-create-form';
-import { Minus, PencilLine, Plus } from 'lucide-react';
+import { PencilLine } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '@/shared/i18n';
-import { Surface } from '@/shared/ui';
+import { AppButton, Surface } from '@/shared/ui';
+import { Input, Stepper } from '@/shared/ui/konsta-compat';
 import { validateLedgerCreateForm } from '../model/ledger-create-form';
 
 interface LedgerCreateFormProps {
@@ -56,10 +57,6 @@ export const LedgerCreateForm: FC<LedgerCreateFormProps> = ({
       setErrors(current => ({ ...current, monthStartDay: undefined }));
   };
 
-  const adjustMonthStartDay = (difference: number) => {
-    handleMonthStartDayChange(Math.min(28, Math.max(1, monthStartDay + difference)));
-  };
-
   return (
     <form className="space-y-4" data-ledger-create-form onSubmit={handleSubmit}>
       <Surface className="px-5 py-5" material="content">
@@ -71,12 +68,12 @@ export const LedgerCreateForm: FC<LedgerCreateFormProps> = ({
             </label>
           </div>
           <div className={`flex h-[52px] items-center rounded-[17px] border border-solid bg-white/80 px-4 shadow-ww-xs transition ${errors.name ? 'border-feedback-danger' : 'border-border-primary focus-within:border-primary'}`}>
-            <input
+            <Input
               aria-invalid={Boolean(errors.name)}
               className="min-w-0 flex-1 border-0 bg-transparent text-[14px] font-bold text-ww-ink outline-none placeholder:text-ww-ghost"
               id="ledger-name"
               maxLength={30}
-              onChange={event => handleNameChange(event.target.value)}
+              onChange={handleNameChange}
               placeholder={t('create.namePlaceholder')}
               value={name}
             />
@@ -102,11 +99,14 @@ export const LedgerCreateForm: FC<LedgerCreateFormProps> = ({
                 {t('create.monthStartDayDescription')}
               </div>
             </div>
-            <div aria-label={t('create.monthStartDay')} className="flex shrink-0 items-center gap-1 rounded-[16px] border border-solid border-border-primary bg-white/80 p-1 shadow-ww-xs" role="group">
-              <button aria-label={t('create.decreaseDay')} className="flex h-11 w-11 items-center justify-center rounded-[12px] border-0 bg-primary-light/45 text-primary-deep disabled:opacity-35" disabled={monthStartDay <= 1} onClick={() => adjustMonthStartDay(-1)} type="button"><Minus size={16} strokeWidth={2.2} /></button>
-              <output className="min-w-[38px] text-center text-[17px] font-black tabular-nums text-ww-ink">{monthStartDay}</output>
-              <button aria-label={t('create.increaseDay')} className="flex h-11 w-11 items-center justify-center rounded-[12px] border-0 bg-primary text-white shadow-ww-xs disabled:opacity-35" disabled={monthStartDay >= 28} onClick={() => adjustMonthStartDay(1)} type="button"><Plus size={16} strokeWidth={2.2} /></button>
-            </div>
+            <Stepper
+              aria-label={t('create.monthStartDay')}
+              className="shrink-0"
+              max={28}
+              min={1}
+              onChange={value => value !== undefined && handleMonthStartDayChange(value)}
+              value={monthStartDay}
+            />
           </div>
           <div className="mt-3 inline-flex rounded-full bg-primary-light/35 px-3 py-1.5 text-[10px] font-bold text-primary-deep">
             {t('create.monthStartDayValue', { day: monthStartDay })}
@@ -118,13 +118,15 @@ export const LedgerCreateForm: FC<LedgerCreateFormProps> = ({
           )}
         </div>
       </Surface>
-      <button
-        className="h-[54px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww transition active:scale-[0.99] disabled:opacity-45"
-        disabled={isSubmitting}
+      <AppButton
+        fullWidth
+        loading={isSubmitting}
+        loadingLabel={t('create.submitting')}
+        size="large"
         type="submit"
       >
-        {isSubmitting ? t('create.submitting') : t('create.submit')}
-      </button>
+        {t('create.submit')}
+      </AppButton>
     </form>
   );
 };

@@ -6,8 +6,9 @@ import { LedgerCapability } from '@/entities/ledger';
 import { useCreateLedgerExportMutation, useDownloadLedgerExportMutation, useLedgerExportTaskQuery } from '@/entities/ledger-data';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useTranslation } from '@/shared/i18n';
-import { PageHeader, Surface } from '@/shared/ui';
+import { AppButton, PageHeader, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Select } from '@/shared/ui/konsta-compat';
 
 function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `export-${Date.now()}`;
@@ -31,14 +32,15 @@ function ExportContent({ ledgerId }: { ledgerId: string }) {
           </div>
           <label className="block text-[11px] font-bold text-ww-soft">
             {t('export.format')}
-            <select className="mt-2 h-12 w-full rounded-[15px] border border-solid border-border-primary bg-white/85 px-3 text-[13px] font-bold text-ww-ink" onChange={event => setFormat(event.target.value as 'csv' | 'xlsx')} value={format}>
+            <Select className="text-[13px] font-bold" onChange={value => setFormat(value as 'csv' | 'xlsx')} value={format}>
               <option value="csv">CSV</option>
               <option value="xlsx">XLSX</option>
-            </select>
+            </Select>
           </label>
-          <button
-            className="mt-4 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
+          <AppButton
+            className="mt-4"
             disabled={createState.isLoading}
+            fullWidth
             onClick={async () => {
               if (submittingRef.current)
                 return;
@@ -54,16 +56,15 @@ function ExportContent({ ledgerId }: { ledgerId: string }) {
                 submittingRef.current = false;
               }
             }}
-            type="button"
           >
             {createState.isLoading ? t('export.creating') : t('export.create')}
-          </button>
+          </AppButton>
           {task.data && (
             <div className="mt-4 rounded-[15px] border border-solid border-white/80 bg-white/65 px-3 py-3">
               <p className="text-[12px] font-bold text-ww-mid">{t(`export.status.${task.data.status}`)}</p>
               {task.data.status === 'COMPLETED' && (
-                <button
-                  className="mt-3 flex h-12 items-center justify-center gap-2 rounded-[16px] border border-solid border-border-primary bg-white/85 px-4 text-[13px] font-extrabold text-primary-deep shadow-ww-xs disabled:opacity-45"
+                <AppButton
+                  className="mt-3"
                   disabled={downloadState.isLoading}
                   onClick={async () => {
                     const blob = await download({ ledgerId, taskId: task.data!.id });
@@ -74,11 +75,11 @@ function ExportContent({ ledgerId }: { ledgerId: string }) {
                     anchor.click();
                     URL.revokeObjectURL(url);
                   }}
-                  type="button"
+                  variant="secondary"
                 >
                   <Download size={15} />
                   {downloadState.isLoading ? t('export.downloading') : t('export.download')}
-                </button>
+                </AppButton>
               )}
             </div>
           )}

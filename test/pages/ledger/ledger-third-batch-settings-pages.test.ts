@@ -295,7 +295,7 @@ describe('ledger settings', () => {
         chartDisplay.dispatchEvent(new Event('change', { bubbles: true }));
       }
     });
-    await act(async () => document.body.querySelector<HTMLInputElement>('[data-testid="ledger-hide-total"]')?.click());
+    await act(async () => document.body.querySelector<HTMLElement>('[data-testid="ledger-hide-total"]')?.click());
     await act(async () => document.body.querySelector<HTMLButtonElement>('[data-testid="ledger-preferences-save"]')?.click());
 
     expect(hooks.patchLedger).toHaveBeenCalledWith({

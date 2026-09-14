@@ -13,7 +13,7 @@ export interface FormRule {
 }
 
 interface FieldRegistration {
-  rules?: FormRule[];
+  getRules: () => FormRule[] | undefined;
 }
 
 export interface FormInstance<Values extends object = FormValues> {
@@ -24,12 +24,15 @@ export interface FormInstance<Values extends object = FormValues> {
 
 class FormStore implements FormInstance<FormValues> {
   private fields = new Map<string, FieldRegistration>();
+  private errors = new Map<string, ReactNode[]>();
   private listeners = new Set<() => void>();
   private values: FormValues = {};
 
   getFieldsValue = () => ({ ...this.values });
 
   getFieldValue = (name: string) => this.values[name];
+
+  getFieldErrors = (name: string) => this.errors.get(name) ?? [];
 
   registerField = (name: string, registration: FieldRegistration) => {
     this.fields.set(name, registration);
@@ -40,11 +43,13 @@ class FormStore implements FormInstance<FormValues> {
 
   setFieldValue = (name: string, value: unknown) => {
     this.values = { ...this.values, [name]: value };
+    this.errors.delete(name);
     this.emit();
   };
 
   setFieldsValue = (values: FormValues) => {
     this.values = { ...this.values, ...values };
+    Object.keys(values).forEach(name => this.errors.delete(name));
     this.emit();
   };
 
@@ -60,7 +65,7 @@ class FormStore implements FormInstance<FormValues> {
     for (const [name, registration] of this.fields) {
       const value = this.values[name];
       const errors: ReactNode[] = [];
-      for (const rule of registration.rules ?? []) {
+      for (const rule of registration.getRules() ?? []) {
         const isEmpty = value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0);
         if (rule.required && isEmpty) {
           errors.push(rule.message ?? 'Required');
@@ -78,6 +83,8 @@ class FormStore implements FormInstance<FormValues> {
       if (errors.length)
         errorFields.push({ errors, name: [name] });
     }
+    this.errors = new Map(errorFields.map(field => [field.name[0], field.errors]));
+    this.emit();
     return { errorFields, values: this.getFieldsValue() };
   };
 
@@ -93,6 +100,20 @@ interface FormContextValue {
 }
 
 const FormContext = createContext<FormContextValue | null>(null);
+
+interface FormFieldBinding {
+  describedBy?: string;
+  disabled?: boolean;
+  invalid: boolean;
+  onChange: (value: unknown) => void;
+  value: unknown;
+}
+
+const FormFieldBindingContext = createContext<FormFieldBinding | null>(null);
+
+export function useFormFieldBinding() {
+  return useContext(FormFieldBindingContext);
+}
 
 export interface FormProps<Values extends object = FormValues> extends PropsWithChildren {
   className?: string;
@@ -140,16 +161,34 @@ function FormItem({
   const context = useContext(FormContext);
   const [_revision, setRevision] = useState(0);
   const errorId = name ? `ww-k-form-error-${name}` : undefined;
+  const rulesRef = useRef(rules);
+  rulesRef.current = rules;
 
   useEffect(() => context?.form.subscribe(() => setRevision(revision => revision + 1)), [context?.form]);
   useEffect(() => {
     if (!context || !name)
       return;
-    return context.form.registerField(name, { rules });
-  }, [context, name, rules]);
+    return context.form.registerField(name, { getRules: () => rulesRef.current });
+  }, [context, name]);
+
+  const errors = context && name ? context.form.getFieldErrors(name) : [];
+  const updateFieldValue = (nextValue: unknown) => {
+    if (!context || !name)
+      return;
+    const extractedValue = typeof nextValue === 'object' && nextValue !== null && 'target' in nextValue
+      ? ((nextValue as { target?: { checked?: boolean; value?: unknown } }).target?.checked
+        ?? (nextValue as { target?: { value?: unknown } }).target?.value)
+      : nextValue;
+    const previousValue = context.form.getFieldValue(name);
+    const normalizedValue = normalize
+      ? normalize(extractedValue as FieldValue, previousValue as FieldValue, context.form.getFieldsValue())
+      : extractedValue;
+    context.form.setFieldValue(name, normalizedValue);
+    context.onValuesChange?.({ [name]: normalizedValue }, context.form.getFieldsValue());
+  };
 
   let content = children;
-  if (context && name && isValidElement(children)) {
+  if (context && name && isValidElement(children) && (typeof children.type !== 'string' || ['input', 'select', 'textarea'].includes(children.type))) {
     const child = children as ReactElement<Record<string, unknown>>;
     const value = context.form.getFieldValue(name);
     const originalOnChange = child.props.onChange;
@@ -157,26 +196,35 @@ function FormItem({
     // from the old field store without coupling Konsta controls to it.
     // eslint-disable-next-line react/no-clone-element
     content = cloneElement(child, {
-      disabled: child.props.disabled ?? context.disabled,
-      value,
-      onChange: (nextValue: unknown) => {
-        const extractedValue = typeof nextValue === 'object' && nextValue !== null && 'target' in nextValue
-          ? ((nextValue as { target?: { checked?: boolean; value?: unknown } }).target?.checked
-            ?? (nextValue as { target?: { value?: unknown } }).target?.value)
-          : nextValue;
-        const normalizedValue = normalize
-          ? normalize(extractedValue as FieldValue, value as FieldValue, context.form.getFieldsValue())
-          : extractedValue;
-        context.form.setFieldValue(name, normalizedValue);
-        context.onValuesChange?.({ [name]: normalizedValue }, context.form.getFieldsValue());
+      'aria-describedby': [child.props['aria-describedby'], errors.length ? errorId : undefined].filter(Boolean).join(' ') || undefined,
+      'aria-invalid': errors.length ? true : child.props['aria-invalid'],
+      'disabled': child.props.disabled ?? context.disabled,
+      'value': value,
+      'onChange': (nextValue: unknown) => {
+        updateFieldValue(nextValue);
         if (typeof originalOnChange === 'function')
-          originalOnChange(normalizedValue);
+          originalOnChange(nextValue);
       },
     });
   }
 
+  const boundContent = context && name
+    ? (
+        <FormFieldBindingContext.Provider value={{
+          describedBy: errors.length ? errorId : undefined,
+          disabled: context.disabled,
+          invalid: errors.length > 0,
+          onChange: updateFieldValue,
+          value: context.form.getFieldValue(name),
+        }}
+        >
+          {content}
+        </FormFieldBindingContext.Provider>
+      )
+    : content;
+
   if (noStyle)
-    return content;
+    return boundContent;
 
   return (
     <div
@@ -188,10 +236,14 @@ function FormItem({
     >
       {label && <div className="adm-form-item-label mb-2 text-[12px] font-bold text-ww-mid">{label}</div>}
       <div className={cn('adm-form-item-child-inner min-w-0', childElementPosition === 'right' && 'flex items-center justify-between gap-4')}>
-        {content}
+        {boundContent}
       </div>
       {description && <div className="adm-form-item-description mt-1 text-[11px] leading-4 text-ww-soft">{description}</div>}
-      {errorId && <div className="sr-only" id={errorId} />}
+      {errorId && errors.length > 0 && (
+        <div className="mt-1 text-[11px] font-semibold leading-4 text-feedback-danger" id={errorId} role="alert">
+          {errors[0]}
+        </div>
+      )}
     </div>
   );
 }

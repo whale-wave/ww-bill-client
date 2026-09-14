@@ -1,5 +1,5 @@
 import type { MotionValue } from 'motion/react';
-import type { CSSProperties, FC, KeyboardEvent, ReactNode } from 'react';
+import type { CSSProperties, FC, ReactNode } from 'react';
 import { Tabbar, TabbarLink } from 'konsta/react';
 import { animate, AnimatePresence, m, useMotionValue, useMotionValueEvent } from 'motion/react';
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
@@ -24,27 +24,6 @@ interface BottomTabBarPresentationProps {
   indicatorProgress?: MotionValue<number>;
   indicatorStretch?: MotionValue<number>;
   items: readonly BottomTabBarItem[];
-}
-
-function handleArrowKey(event: KeyboardEvent<HTMLElement>) {
-  if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key))
-    return;
-  const tabList = event.currentTarget.closest<HTMLElement>('[role="tablist"]');
-  const tabs = Array.from(tabList?.querySelectorAll<HTMLElement>('[role="tab"]') ?? []);
-  const index = tabs.indexOf(event.currentTarget);
-  if (index < 0 || tabs.length === 0)
-    return;
-  event.preventDefault();
-  if (event.key === 'Home') {
-    tabs[0]?.focus();
-    return;
-  }
-  if (event.key === 'End') {
-    tabs.at(-1)?.focus();
-    return;
-  }
-  const offset = event.key === 'ArrowRight' ? 1 : -1;
-  tabs[(index + offset + tabs.length) % tabs.length]?.focus();
 }
 
 export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
@@ -113,7 +92,6 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
       data-active-index={activeIndex >= 0 ? activeIndex : undefined}
       data-motion-enabled={isMotionEnabled}
       ref={tabListRef}
-      role="tablist"
       style={{ '--ww-tab-count': items.length } as CSSProperties}
     >
       <Tabbar {...{ innerClassName: 'bwm-tab-bar' }} className="contents" icons labels>
@@ -127,34 +105,20 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
           const isActive = item.key === activeKey;
           return (
             <div
-              aria-disabled={item.disabled}
-              aria-selected={isActive}
               className={cn(
-                'item ww-tab-bar__button ww-floating-dock__button relative flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-[2px] rounded-[18px] border-0 bg-transparent px-1 text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
-                isMotionEnabled && 'transition-[background,color,transform] duration-200 ease-out active:scale-[0.97]',
-                isActive && 'ww-floating-dock__button--active',
-                item.prominent && 'ww-floating-dock__button--prominent',
-                item.prominent && 'ww-floating-dock__create',
-                item.disabled && 'opacity-45',
+                'item relative flex h-11 min-w-0 flex-1',
               )}
-              data-prefetch-key={item.key}
-              data-route={item.route}
-              data-tab-key={item.key}
               key={item.key}
-              onClick={() => {
-                if (!isActive)
-                  item.onSelect();
-              }}
-              onFocus={item.disabled ? undefined : item.onPrefetch}
-              onKeyDown={handleArrowKey}
-              onMouseEnter={item.disabled ? undefined : item.onPrefetch}
-              onTouchStart={item.disabled ? undefined : item.onPrefetch}
-              role="tab"
-              tabIndex={isActive ? 0 : -1}
             >
               <TabbarLink
                 active={isActive}
-                className="!h-full !w-full"
+                className={cn(
+                  'ww-tab-bar__button ww-floating-dock__button !relative !flex !h-11 !min-w-0 !flex-1 !flex-col !items-center !justify-center !gap-[2px] !rounded-[18px] !border-0 !bg-transparent !px-1 !text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
+                  isMotionEnabled && 'transition-[background,color,transform] duration-200 ease-out active:scale-[0.97]',
+                  isActive && 'ww-floating-dock__button--active',
+                  item.prominent && 'ww-floating-dock__button--prominent ww-floating-dock__create',
+                  item.disabled && 'opacity-45',
+                )}
                 icon={(
                   <span
                     className={cn(
@@ -188,7 +152,22 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
                     {item.label}
                   </span>
                 )}
-                linkProps={{ component: 'button', disabled: item.disabled, type: 'button' }}
+                linkProps={{
+                  'aria-current': isActive ? 'page' : undefined,
+                  'aria-disabled': item.disabled || undefined,
+                  'component': 'button',
+                  'data-prefetch-key': item.key,
+                  'data-route': item.route,
+                  'data-tab-key': item.key,
+                  'onClick': () => {
+                    if (!isActive)
+                      item.onSelect();
+                  },
+                  'onFocus': item.disabled ? undefined : item.onPrefetch,
+                  'onMouseEnter': item.disabled ? undefined : item.onPrefetch,
+                  'onTouchStart': item.disabled ? undefined : item.onPrefetch,
+                  'type': 'button',
+                }}
               />
             </div>
           );

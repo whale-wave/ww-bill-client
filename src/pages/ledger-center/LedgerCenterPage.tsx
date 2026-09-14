@@ -14,7 +14,7 @@ import {
 } from '@/entities/ledger';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { confirmAppAction, IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
+import { AppButton, confirmAppAction, IllustratedEmptyState, PageHeader, PageLoadingState } from '@/shared/ui';
 import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 import { LedgerManagementFooter } from './ui/LedgerManagementFooter';
 import { LedgerManagementGrid } from './ui/LedgerManagementGrid';
@@ -202,14 +202,13 @@ function LedgerCenterPage() {
             icon={<CircleAlert className="text-primary-deep" size={38} />}
             title={t('center.loadError')}
           />
-          <button
-            className="h-12 rounded-[16px] border border-solid border-border-primary bg-white/85 px-6 text-[13px] font-extrabold text-primary-deep shadow-ww-xs"
+          <AppButton
             data-testid="ledger-center-retry"
             onClick={() => void managementQuery.refetch()}
-            type="button"
+            variant="secondary"
           >
             {t('center.retry')}
-          </button>
+          </AppButton>
         </div>
       );
     }
@@ -223,22 +222,19 @@ function LedgerCenterPage() {
             title={t('center.customEmpty')}
           />
           <div className="ledger-center-empty__actions">
-            <button
-              className="h-12 rounded-[16px] border-0 bg-primary px-6 text-[13px] font-extrabold text-white shadow-ww-xs"
+            <AppButton
               data-testid="ledger-empty-create"
               onClick={() => navigate(ROUTES_PATH.LEDGER_TEMPLATES.getPath())}
-              type="button"
             >
               {t('center.create')}
-            </button>
-            <button
-              className="h-12 rounded-[16px] border border-solid border-border-primary bg-white/85 px-6 text-[13px] font-extrabold text-primary-deep shadow-ww-xs"
+            </AppButton>
+            <AppButton
               data-testid="ledger-empty-join"
               onClick={() => navigate(ROUTES_PATH.LEDGER_JOIN.getPath())}
-              type="button"
+              variant="secondary"
             >
               {t('center.join')}
-            </button>
+            </AppButton>
           </div>
         </div>
       );

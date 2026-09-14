@@ -25,8 +25,9 @@ import {
 } from '@/features/workspace-navigation';
 import { captureSessionScope, isSessionScopeCurrent } from '@/shared/api/auth-injection';
 import { useTranslation } from '@/shared/i18n';
-import { confirmAppAction, PageHeader, Surface } from '@/shared/ui';
+import { AppButton, confirmAppAction, PageHeader, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Checkbox } from '@/shared/ui/konsta-compat';
 
 function isShareCancelError(error: unknown) {
   if (typeof error !== 'object' || error === null)
@@ -247,35 +248,36 @@ const LedgerInvitePage: FC = () => {
                           </p>
                         </div>
                         <div className="mt-5 grid grid-cols-2 gap-3">
-                          <button
-                            className="flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border-0 bg-primary text-[13px] font-extrabold text-white shadow-ww-xs"
+                          <AppButton
                             data-testid="ledger-invite-copy"
+                            fullWidth
                             onClick={() => void handleCopy()}
-                            type="button"
                           >
                             <Copy size={16} />
                             {t('invite.copy')}
-                          </button>
-                          <button
-                            className="flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border border-solid border-border-primary bg-white/85 text-[13px] font-extrabold text-primary-deep shadow-ww-xs"
+                          </AppButton>
+                          <AppButton
                             data-testid="ledger-invite-share"
+                            fullWidth
                             onClick={() => void handleShare()}
-                            type="button"
+                            variant="secondary"
                           >
                             <Share2 size={16} />
                             {t('invite.share')}
-                          </button>
+                          </AppButton>
                         </div>
                         <p className="mt-4 text-[12px] font-semibold text-ww-mid">{t('invite.waiting')}</p>
-                        <button
-                          className="mt-3 h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-feedback-danger disabled:opacity-45"
+                        <AppButton
+                          className="mt-3"
                           data-testid="ledger-invite-revoke"
-                          disabled={revokeState.isLoading}
+                          fullWidth
+                          loading={revokeState.isLoading}
+                          loadingLabel={t('invite.revoking')}
                           onClick={() => void handleRevoke()}
-                          type="button"
+                          variant="danger"
                         >
-                          {revokeState.isLoading ? t('invite.revoking') : t('invite.revoke')}
-                        </button>
+                          {t('invite.revoke')}
+                        </AppButton>
                       </div>
                     )
                   : (
@@ -288,31 +290,25 @@ const LedgerInvitePage: FC = () => {
                             </p>
                           </div>
                         )}
-                        <label
+                        <Checkbox
+                          checked={consented}
                           className="flex items-start gap-3 rounded-[15px] bg-primary-light/25 px-3.5 py-3 text-left text-[12px] font-bold leading-5 text-ww-ink"
                           data-testid="invite-consent"
+                          onChange={setConsented}
                         >
-                          <input
-                            checked={consented}
-                            className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--adm-color-primary)]"
-                            onChange={event => setConsented(event.target.checked)}
-                            type="checkbox"
-                          />
                           <span>{t('invite.consent')}</span>
-                        </label>
-                        <button
-                          className="mt-5 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
+                        </Checkbox>
+                        <AppButton
+                          className="mt-5"
                           data-testid="generate-invitation"
                           disabled={!consented || createState.isLoading}
+                          fullWidth
+                          loading={createState.isLoading}
+                          loadingLabel={t('invite.submitting')}
                           onClick={() => void handleGenerate()}
-                          type="button"
                         >
-                          {createState.isLoading
-                            ? t('invite.submitting')
-                            : invitation
-                              ? t('invite.regenerate')
-                              : t('invite.generate')}
-                        </button>
+                          {invitation ? t('invite.regenerate') : t('invite.generate')}
+                        </AppButton>
                         <p className="mt-4 text-[11px] font-semibold text-ww-soft">{t('invite.validFor')}</p>
                       </div>
                     )}

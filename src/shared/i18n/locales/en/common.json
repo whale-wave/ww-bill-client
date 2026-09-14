@@ -19,7 +19,8 @@
     "export": "Export",
     "logout": "Logout",
     "saveChange": "Save Changes",
-    "create": "Create"
+    "create": "Create",
+    "clearInput": "Clear input"
   },
   "tabBar": {
     "navigation": "Primary navigation",

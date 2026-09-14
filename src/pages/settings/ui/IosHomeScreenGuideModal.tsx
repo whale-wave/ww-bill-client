@@ -32,6 +32,7 @@ export const IosHomeScreenGuideModal: FC<IosHomeScreenGuideModalProps> = ({ onCl
   return (
     <>
       <AppModal
+        aria-labelledby="ios-home-screen-guide-title"
         actions={[]}
         bodyClassName="!box-border !max-h-[calc(100dvh-24px)] !max-w-[min(100vw-24px,480px)] !p-0 [&_.adm-modal-content]:!p-0 [&_.adm-modal-footer]:!hidden"
         content={(

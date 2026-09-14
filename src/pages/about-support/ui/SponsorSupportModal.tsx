@@ -79,17 +79,16 @@ export const SponsorSupportModal: FC<SponsorSupportModalProps> = ({
 
   return (
     <AppModal
+      aria-labelledby="sponsor-modal-title"
       actions={[]}
       bodyClassName="!box-border !max-h-[calc(100dvh-32px)] !max-w-full !p-0 [&_.adm-modal-content]:!p-0 [&_.adm-modal-footer]:!hidden"
       closeOnMaskClick={!isSaving}
       content={(
         <div
           aria-labelledby="sponsor-modal-title"
-          aria-modal="true"
           className="px-5 pb-5 pt-4"
           onKeyDown={handleKeyDown}
           ref={dialogRef}
-          role="dialog"
           tabIndex={-1}
         >
           <div className="flex items-start justify-between gap-3">

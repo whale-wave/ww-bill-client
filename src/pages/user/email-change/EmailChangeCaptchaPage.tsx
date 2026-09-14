@@ -7,7 +7,7 @@ import {
 } from '@/entities/user-email';
 import { EmailCaptchaInput } from '@/features/email-captcha';
 import { useTranslation } from '@/shared/i18n';
-import { FormField, PageHeader, Surface } from '@/shared/ui';
+import { AppButton, FormField, PageHeader, Surface } from '@/shared/ui';
 
 interface EmailChangeProps {}
 
@@ -60,7 +60,7 @@ const EmailChangeCaptcha: React.FC<EmailChangeProps> = () => {
               onChange={setCaptcha}
               onSend={onSendCaptcha}
             />
-            <button className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45" disabled={!captcha.trim()} onClick={() => void onCaptchaVerify()} type="button">{t('emailChange.captcha.verify')}</button>
+            <AppButton disabled={!captcha.trim()} fullWidth onClick={() => void onCaptchaVerify()}>{t('emailChange.captcha.verify')}</AppButton>
           </Surface>
         </div>
       </main>

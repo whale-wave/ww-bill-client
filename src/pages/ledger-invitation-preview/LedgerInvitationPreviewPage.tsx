@@ -18,7 +18,7 @@ import { useTranslation } from '@/shared/i18n';
 import { formatLocalizedDateTime } from '@/shared/lib';
 import { PageHeader } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
-import { Button } from '@/shared/ui/konsta-compat';
+import { Button, TextArea } from '@/shared/ui/konsta-compat';
 
 const LedgerInvitationPreviewPage: FC = () => {
   const { i18n, t } = useTranslation('ledger');
@@ -119,11 +119,12 @@ const LedgerInvitationPreviewPage: FC = () => {
               <label className="mt-5 block text-base text-font-black" htmlFor="preview-remark">
                 {t('join.remark')}
               </label>
-              <textarea
+              <TextArea
+                autoSize={{ minRows: 5 }}
                 className="mt-3 min-h-[120px] w-full resize-none box-border rounded border-0 bg-bg-gray p-3 text-base leading-6 outline-none"
                 id="preview-remark"
                 maxLength={30}
-                onChange={event => setRemark(event.target.value)}
+                onChange={setRemark}
                 placeholder={t('join.remarkPlaceholder')}
                 value={remark}
               />

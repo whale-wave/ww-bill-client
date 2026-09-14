@@ -14,8 +14,9 @@ import {
 } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { IllustratedEmptyState, PageHeader, Surface, UserAvatar } from '@/shared/ui';
+import { AppButton, IllustratedEmptyState, PageHeader, Surface, UserAvatar } from '@/shared/ui';
 import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
+import { Checkbox, Input } from '@/shared/ui/konsta-compat';
 
 const HouseholdInvitationPreviewPage: FC = () => {
   const { t } = useTranslation('household');
@@ -120,35 +121,34 @@ const HouseholdInvitationPreviewPage: FC = () => {
                       <Surface className="mt-4 px-5 py-5" material="content">
                         <label className="block min-w-0">
                           <span className="mb-2 block text-[12px] font-bold leading-[18px] text-ww-mid">{t('invitation.nickname')}</span>
-                          <span className="flex min-h-[54px] items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww">
+                          <div className="flex min-h-[54px] items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww">
                             <UserRound className="text-primary-deep" size={20} strokeWidth={1.8} />
-                            <input
+                            <Input
                               className="min-w-0 flex-1 border-0 bg-transparent p-0 text-[15px] text-ww-ink outline-none placeholder:text-ww-soft"
                               maxLength={30}
-                              onChange={event => setNickname(event.target.value)}
+                              onChange={setNickname}
                               placeholder={t('invitation.nicknamePlaceholder')}
                               value={nickname}
                             />
-                          </span>
+                          </div>
                         </label>
-                        <label className="mt-5 flex items-start gap-3 rounded-[15px] bg-primary-light/25 px-3.5 py-3 text-[12px] font-bold leading-5 text-ww-ink">
-                          <input
-                            checked={consent}
-                            className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--adm-color-primary)]"
-                            onChange={event => setConsent(event.target.checked)}
-                            type="checkbox"
-                          />
-                          <span>{t('invitation.acceptConsent')}</span>
-                        </label>
-                        <button
-                          className="mt-6 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
-                          data-testid="household-accept"
-                          disabled={mutation.isLoading}
-                          onClick={() => void handleAccept()}
-                          type="button"
+                        <Checkbox
+                          className="mt-5 flex items-start gap-3 rounded-[15px] bg-primary-light/25 px-3.5 py-3 text-[12px] font-bold leading-5 text-ww-ink"
+                          checked={consent}
+                          onChange={setConsent}
                         >
-                          {mutation.isLoading ? t('invitation.accepting') : t('invitation.accept')}
-                        </button>
+                          <span>{t('invitation.acceptConsent')}</span>
+                        </Checkbox>
+                        <AppButton
+                          className="mt-6"
+                          data-testid="household-accept"
+                          fullWidth
+                          loading={mutation.isLoading}
+                          loadingLabel={t('invitation.accepting')}
+                          onClick={() => void handleAccept()}
+                        >
+                          {t('invitation.accept')}
+                        </AppButton>
                       </Surface>
                     </>
                   )}

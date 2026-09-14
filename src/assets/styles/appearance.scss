@@ -596,6 +596,31 @@ html[data-appearance-template='minimal'] {
   background: var(--ww-theme-color);
 }
 
+.appearance-template-option[data-template-preview='native'] .appearance-template-option__preview {
+  border-color: rgba(60, 60, 67, 0.18);
+  background: #efeff4;
+}
+
+.appearance-template-option[data-template-preview='native'] .appearance-template-option__preview-orb {
+  display: none;
+}
+
+.appearance-template-option[data-template-preview='native'] .appearance-template-option__preview-card {
+  border-color: rgba(60, 60, 67, 0.18);
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.appearance-template-option[data-template-preview='native'] .appearance-template-option__preview-card span {
+  background: #d9ecff;
+}
+
+.appearance-template-option[data-template-preview='native'] .appearance-template-option__preview-card span:last-child,
+.appearance-template-option[data-template-preview='native'] .appearance-template-option__preview-line {
+  background: #007aff;
+}
+
 .appearance-template-option[data-template-preview='minimal'] .appearance-template-option__preview {
   background: #f7f8fa;
 }

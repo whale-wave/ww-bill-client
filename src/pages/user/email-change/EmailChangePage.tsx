@@ -5,7 +5,7 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { getUserEmailChangeEmailCaptchaNewEmailApi, usePostUserEmailChangeEmailMutation } from '@/entities/user-email';
 import { EmailCaptchaInput } from '@/features/email-captcha';
 import { useTranslation } from '@/shared/i18n';
-import { FormField, PageHeader, Surface } from '@/shared/ui';
+import { AppButton, FormField, PageHeader, Surface } from '@/shared/ui';
 import { showAppNotice } from '@/shared/ui/app-feedback';
 
 interface EmailChangeProps {}
@@ -120,7 +120,7 @@ const EmailChange: React.FC<EmailChangeProps> = () => {
               onChange={setNewCaptcha}
               onSend={onSendNewCaptcha}
             />
-            <button className="h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45" disabled={!newEmail.trim() || !newCaptcha.trim()} onClick={() => void onSendChangeEmail()} type="button">{t('user:emailChange.submit')}</button>
+            <AppButton disabled={!newEmail.trim() || !newCaptcha.trim()} fullWidth onClick={() => void onSendChangeEmail()}>{t('user:emailChange.submit')}</AppButton>
           </Surface>
         </div>
       </main>

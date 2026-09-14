@@ -5,8 +5,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
+import { AppButton, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 import { showAppNotice } from '@/shared/ui/app-feedback';
+import { Input } from '@/shared/ui/konsta-compat';
 
 function normalizeInviteCode(value: string) {
   return value.toUpperCase().replace(/\s+/g, '');
@@ -48,31 +49,32 @@ const HouseholdJoinPage: FC = () => {
               title={t('join.code')}
             />
             <label className="block min-w-0">
-              <span className="flex min-h-[60px] items-center rounded-[16px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww">
-                <input
+              <div className="flex min-h-[60px] items-center rounded-[16px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww">
+                <Input
                   autoCapitalize="characters"
                   autoComplete="off"
                   className="min-w-0 flex-1 border-0 bg-transparent p-0 text-center font-number text-[22px] font-extrabold tracking-[0.18em] text-ww-ink outline-none placeholder:font-number placeholder:text-[14px] placeholder:font-semibold placeholder:tracking-normal placeholder:text-ww-soft"
                   maxLength={32}
                   name="code"
                   onBlur={() => setTouched(true)}
-                  onChange={event => setCode(event.target.value)}
+                  onChange={setCode}
                   placeholder={t('join.codePlaceholder')}
                   value={code}
                 />
-              </span>
+              </div>
             </label>
             {isInvalid && (
               <p className="mt-2 text-center text-[12px] font-bold text-feedback-danger">{t('join.invalidCode')}</p>
             )}
-            <button
-              className="mt-6 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
+            <AppButton
+              className="mt-6"
               data-testid="household-join-preview"
               disabled={!code.trim()}
+              fullWidth
               type="submit"
             >
               {t('join.preview')}
-            </button>
+            </AppButton>
           </Surface>
         </form>
       </main>

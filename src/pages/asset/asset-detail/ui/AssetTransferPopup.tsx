@@ -7,8 +7,9 @@ import { useMemo, useState } from 'react';
 import { getAssetAccountTypeLabel, useGetAssetGroupQuery, useGetAssetQuery, usePostAssetTransferMutation } from '@/entities/asset';
 import { useTranslation } from '@/shared/i18n';
 import { cn, normalizeAmount } from '@/shared/lib';
-import { AppSheet, promptAppDatePicker, SheetHeader } from '@/shared/ui';
+import { AppButton, AppSheet, promptAppDatePicker, SheetHeader } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Input } from '@/shared/ui/konsta-compat';
 import './AssetTransferPopup.scss';
 
 interface AssetTransferPopupProps {
@@ -120,11 +121,11 @@ const AssetTransferContent: FC<AssetTransferPopupProps> = ({ asset, onClose, vis
           <label className="asset-transfer-sheet__label" htmlFor="asset-transfer-amount">{t('transfer.amount')}</label>
           <div className="asset-transfer-sheet__control asset-transfer-sheet__control--amount">
             <span className="font-number text-primary-deep">¥</span>
-            <input
+            <Input
               className="ww-sheet-plain-input min-w-0 flex-1 border-0 bg-transparent p-0 font-number text-[20px] font-black text-ww-ink outline-none"
               id="asset-transfer-amount"
               inputMode="decimal"
-              onChange={event => setAmount(current => normalizeAmount(event.target.value, current))}
+              onChange={value => setAmount(current => normalizeAmount(value, current))}
               placeholder="0.00"
               value={amount}
             />
@@ -143,14 +144,16 @@ const AssetTransferContent: FC<AssetTransferPopupProps> = ({ asset, onClose, vis
             <span className="font-number">{dayjs(occurredAt).format('YYYY/MM/DD HH:mm')}</span>
           </button>
 
-          <button
+          <AppButton
             className="asset-transfer-sheet__submit"
             disabled={!target || !amount || Number(amount) <= 0 || mutation.isLoading}
+            fullWidth
+            loading={mutation.isLoading}
+            loadingLabel={t('transfer.submitting')}
             onClick={() => void handleSubmit()}
-            type="button"
           >
-            {mutation.isLoading ? t('transfer.submitting') : t('transfer.submit')}
-          </button>
+            {t('transfer.submit')}
+          </AppButton>
         </div>
       </div>
 

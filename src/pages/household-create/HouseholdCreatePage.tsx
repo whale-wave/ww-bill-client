@@ -8,8 +8,9 @@ import { useGetRecordBillQuery } from '@/entities/record';
 import { formatMonthStart, getApiErrorMessage } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { PageHeader, Surface } from '@/shared/ui';
+import { AppButton, PageHeader, Surface } from '@/shared/ui';
 import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
+import { Input, Switch } from '@/shared/ui/konsta-compat';
 
 function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `household-${Date.now()}`;
@@ -88,10 +89,10 @@ const HouseholdCreatePage: FC = () => {
               <span className="mb-2 block text-[12px] font-bold leading-[18px] text-ww-mid">{t('create.month')}</span>
               <span className="flex min-h-[54px] items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition focus-within:border-primary-mid focus-within:shadow-ww">
                 <CalendarDays className="text-primary-deep" size={20} strokeWidth={1.8} />
-                <input
+                <Input
                   className="min-w-0 flex-1 border-0 bg-transparent p-0 font-number text-[15px] text-ww-ink outline-none"
                   min={earliestMonth ?? undefined}
-                  onChange={event => setSelectedMonth(event.target.value)}
+                  onChange={setSelectedMonth}
                   required
                   type="month"
                   value={month}
@@ -103,22 +104,24 @@ const HouseholdCreatePage: FC = () => {
                 {t('create.earliestMonthHelper', { month: earliestMonth })}
               </p>
             )}
-            <label className="mt-5 flex items-start gap-3 rounded-[15px] bg-primary-light/25 px-3.5 py-3 text-[12px] font-bold leading-5 text-ww-ink">
-              <input
+            <div className="mt-5 flex items-start gap-3 rounded-[15px] bg-primary-light/25 px-3.5 py-3 text-[12px] font-bold leading-5 text-ww-ink">
+              <Switch
+                aria-label={t('create.consent')}
                 checked={consent}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--adm-color-primary)]"
-                onChange={event => setConsent(event.target.checked)}
-                type="checkbox"
+                className="mt-0.5 shrink-0"
+                onChange={setConsent}
               />
               <span>{t('create.consent')}</span>
-            </label>
-            <button
-              className="mt-6 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
-              disabled={mutation.isLoading}
+            </div>
+            <AppButton
+              className="mt-6"
+              fullWidth
+              loading={mutation.isLoading}
+              loadingLabel={t('create.submitting')}
               type="submit"
             >
-              {mutation.isLoading ? t('create.submitting') : t('create.submit')}
-            </button>
+              {t('create.submit')}
+            </AppButton>
           </Surface>
         </form>
       </main>

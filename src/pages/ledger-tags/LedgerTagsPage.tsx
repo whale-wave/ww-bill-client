@@ -1,4 +1,4 @@
-import { ChevronDown, PencilLine, Plus, Tag, Trash2 } from 'lucide-react';
+import { PencilLine, Plus, Tag, Trash2 } from 'lucide-react';
 
 import { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -8,8 +8,9 @@ import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQ
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { omitRecordEditorSettingsNavigationState, readRecordEditorSettingsNavigationState } from '@/features/record-editor';
 import { useTranslation } from '@/shared/i18n';
-import { confirmDangerousAction, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
+import { AppButton, confirmDangerousAction, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { Input, Select } from '@/shared/ui/konsta-compat';
 
 function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: number; ledgerId: string }) {
   const { t } = useTranslation('ledger');
@@ -30,26 +31,25 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
       <div className="mx-auto w-full max-w-[520px]">
         <Surface className="px-4 py-4" material="raised">
           <p className="mb-2 text-[12px] font-bold text-ww-mid">{t('tags.category')}</p>
-          <label className="relative mb-4 flex h-12 items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-white/80 px-3 shadow-ww-xs">
+          <div className="mb-4 flex items-center gap-3">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[11px] bg-primary-light/50 text-primary-deep">
               {effectiveCategory && <CategoryIcon categoryName={effectiveCategory.name} iconKey={effectiveCategory.icon} size={18} />}
             </span>
-            <select aria-label={t('tags.category')} className="h-full min-w-0 flex-1 appearance-none border-0 bg-transparent pr-6 text-[14px] font-extrabold text-ww-ink outline-none" onChange={event => setCategoryId(Number(event.target.value))} value={effectiveCategoryId}>
+            <Select aria-label={t('tags.category')} className="text-[14px] font-extrabold" onChange={value => setCategoryId(Number(value))} value={effectiveCategoryId}>
               {categoriesQuery.data.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
-            </select>
-            <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-3 text-primary-deep" size={16} strokeWidth={2.2} />
-          </label>
+            </Select>
+          </div>
           <p className="mb-2 text-[12px] font-bold text-ww-mid">{t('tags.create')}</p>
           <div className="flex gap-2">
-            <input
-              className="h-12 min-w-0 flex-1 rounded-[16px] border border-solid border-border-primary bg-white/85 px-3 text-[14px] font-semibold text-ww-ink outline-none shadow-ww-xs transition placeholder:text-ww-soft focus:border-primary-mid"
+            <Input
+              className="text-[14px] font-semibold"
               data-testid="ledger-tag-create-input"
-              onChange={event => setNewName(event.target.value)}
+              onChange={setNewName}
               placeholder={t('tags.name')}
               value={newName}
             />
-            <button
-              className="flex h-12 shrink-0 items-center gap-1.5 rounded-[16px] border-0 bg-primary px-4 text-[13px] font-extrabold text-white shadow-ww-xs disabled:opacity-45"
+            <AppButton
+              className="shrink-0"
               data-testid="ledger-tag-create"
               disabled={!newName.trim() || createState.isLoading}
               onClick={async () => {
@@ -66,11 +66,10 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
                   creatingRef.current = false;
                 }
               }}
-              type="button"
             >
               <Plus aria-hidden="true" size={15} strokeWidth={2.3} />
               {createState.isLoading ? t('tags.creating') : t('tags.create')}
-            </button>
+            </AppButton>
           </div>
         </Surface>
 
@@ -89,15 +88,15 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
         {query.data.map(tag => (
           <Surface className="mt-2 flex items-center gap-2 px-3 py-3" key={tag.id} material="content">
             <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-primary-light/45 text-primary-deep"><Tag size={16} strokeWidth={2} /></span>
-            <input
+            <Input
               aria-label={t('tags.name')}
-              className="h-10 min-w-0 flex-1 rounded-[13px] border border-solid border-border-primary bg-white/75 px-3 text-[14px] font-semibold text-ww-ink outline-none transition focus:border-primary-mid"
+              className="text-[14px] font-semibold"
               defaultValue={tag.name}
               id={`ledger-tag-${tag.id}`}
             />
-            <button
+            <AppButton
               aria-label={t('common.save')}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px] border border-solid border-primary-light bg-white/70 text-primary-deep shadow-ww-xs disabled:opacity-45"
+              className="h-11 w-11 shrink-0"
               data-testid={`ledger-tag-save-${tag.id}`}
               disabled={updateState.isLoading}
               onClick={async () => {
@@ -111,13 +110,14 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
                 }
               }}
               title={t('common.save')}
-              type="button"
+              size="compact"
+              variant="secondary"
             >
               <PencilLine aria-hidden="true" size={16} strokeWidth={2} />
-            </button>
-            <button
+            </AppButton>
+            <AppButton
               aria-label={t('tags.delete')}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px] border border-solid border-feedback-danger/30 bg-feedback-danger/10 text-feedback-danger shadow-ww-xs disabled:opacity-45"
+              className="h-11 w-11 shrink-0"
               data-testid={`ledger-tag-archive-${tag.id}`}
               disabled={archiveState.isLoading}
               onClick={async () => {
@@ -137,10 +137,11 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
                 }
               }}
               title={t('tags.delete')}
-              type="button"
+              size="compact"
+              variant="danger"
             >
               <Trash2 aria-hidden="true" size={16} strokeWidth={1.9} />
-            </button>
+            </AppButton>
           </Surface>
         ))}
       </div>

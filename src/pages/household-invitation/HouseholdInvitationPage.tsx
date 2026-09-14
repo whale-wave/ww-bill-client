@@ -19,8 +19,9 @@ import {
   usePendingHouseholdActivation,
 } from '@/features/household';
 import { useTranslation } from '@/shared/i18n';
-import { confirmAppAction, PageHeader, Surface } from '@/shared/ui';
+import { AppButton, confirmAppAction, PageHeader, Surface } from '@/shared/ui';
 import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
+import { Switch } from '@/shared/ui/konsta-compat';
 
 function createIdempotencyKey() {
   return globalThis.crypto?.randomUUID?.() ?? `household-invite-${Date.now()}`;
@@ -177,59 +178,57 @@ const HouseholdInvitationPage: FC = () => {
                           </p>
                         </div>
                         <div className="mt-5 grid grid-cols-2 gap-3">
-                          <button
-                            className="flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border-0 bg-primary text-[13px] font-extrabold text-white shadow-ww-xs"
+                          <AppButton
+                            fullWidth
                             onClick={() => void handleCopy()}
-                            type="button"
                           >
                             <Copy size={16} />
                             {t('invitation.copy')}
-                          </button>
-                          <button
-                            className="flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border border-solid border-border-primary bg-white/85 text-[13px] font-extrabold text-primary-deep shadow-ww-xs"
+                          </AppButton>
+                          <AppButton
+                            fullWidth
                             onClick={() => void handleShare()}
-                            type="button"
+                            variant="secondary"
                           >
                             <Share2 size={16} />
                             {t('invitation.share')}
-                          </button>
+                          </AppButton>
                         </div>
                         <p className="mt-4 text-[12px] font-semibold text-ww-mid">{t('invitation.waiting')}</p>
-                        <button
-                          className="mt-3 h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-feedback-danger disabled:opacity-45"
+                        <AppButton
+                          className="mt-3 !text-feedback-danger"
                           disabled={revokeState.isLoading}
                           onClick={() => void handleRevoke()}
-                          type="button"
+                          variant="ghost"
                         >
                           {revokeState.isLoading ? t('invitation.revoking') : t('invitation.revoke')}
-                        </button>
+                        </AppButton>
                       </div>
                     )
                   : (
                       <div className="mt-6">
                         {invitation && <p className="mb-4 text-[13px] font-bold text-feedback-danger">{t('invitation.expired')}</p>}
-                        <label className="flex items-start gap-3 rounded-[15px] bg-primary-light/25 px-3.5 py-3 text-left text-[12px] font-bold leading-5 text-ww-ink">
-                          <input
+                        <div className="flex items-start gap-3 rounded-[15px] bg-primary-light/25 px-3.5 py-3 text-left text-[12px] font-bold leading-5 text-ww-ink">
+                          <Switch
                             checked={consent}
-                            className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--adm-color-primary)]"
-                            onChange={event => setConsent(event.target.checked)}
-                            type="checkbox"
+                            className="mt-0.5 shrink-0"
+                            onChange={setConsent}
                           />
                           <span>{t('invitation.consent')}</span>
-                        </label>
-                        <button
-                          className="mt-5 h-[52px] w-full rounded-[18px] border-0 bg-primary text-[14px] font-extrabold text-white shadow-ww disabled:opacity-45"
+                        </div>
+                        <AppButton
+                          className="mt-5"
                           data-testid="household-generate-invite"
                           disabled={createState.isLoading || (household.memberCount ?? household.members.length) >= (household.memberLimit ?? 12)}
+                          fullWidth
+                          loading={createState.isLoading}
+                          loadingLabel={t('invitation.submitting')}
                           onClick={() => void handleGenerate()}
-                          type="button"
                         >
-                          {createState.isLoading
-                            ? t('invitation.submitting')
-                            : invitation
-                              ? t('invitation.regenerate')
-                              : t('invitation.generate')}
-                        </button>
+                          {invitation
+                            ? t('invitation.regenerate')
+                            : t('invitation.generate')}
+                        </AppButton>
                       </div>
                     )}
               </Surface>

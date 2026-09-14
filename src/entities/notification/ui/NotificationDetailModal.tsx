@@ -18,6 +18,7 @@ export function NotificationDetailModal({ confirmText, notification, onClose, on
 
   return (
     <AppModal
+      aria-labelledby="notification-detail-title"
       actions={[]}
       bodyClassName="!box-border !max-h-[calc(100dvh-32px)] !max-w-full !border-[var(--ww-border-color)] !bg-white !p-0 !shadow-[0_18px_44px_rgb(15_23_42/0.18)] !backdrop-blur-none [&_.adm-modal-content]:!p-0 [&_.adm-modal-footer]:!hidden"
       closeOnMaskClick
