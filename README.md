@@ -114,3 +114,6 @@ pnpm app:open:android
 ## 许可证
 
 本项目采用 [MIT License](./LICENSE)。你可以在保留版权与许可声明的前提下使用、修改、分发和商用本项目；软件按“原样”提供，不附带任何担保。
+# Android production release builds
+
+`pnpm app:build:prod` only builds a production APK from a clean Git worktree whose current `HEAD` already has the exact `v{package.json.version}` tag. The build embeds the full commit SHA and package version in `assets/public/build-info.json`; the admin release center validates these values against the APK manifest and Gitee tag.
