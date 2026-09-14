@@ -4,7 +4,7 @@ export type MonthBillDetailWireResponse = Omit<MonthBillDetailResponse, 'monthBi
   monthBillExportQrUrl?: string;
 };
 
-export const DEFAULT_MONTH_BILL_EXPORT_QR_URL = 'https://github.com/whale-wave/ww-bill-client';
+export const DEFAULT_MONTH_BILL_EXPORT_QR_URL = 'https://whalewave.top';
 
 export function normalizeMonthBillDetail(value: MonthBillDetailWireResponse): MonthBillDetailResponse {
   const raw = value.monthBillExportQrUrl;

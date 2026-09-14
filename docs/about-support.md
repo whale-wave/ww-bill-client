@@ -2,7 +2,7 @@
 
 “我的”页面提供直达“关于与支持”的入口，页面内置长期稳定的官方渠道和项目支持方式：
 
-- GitHub 主页：<https://github.com/layouwen>
+- 官方网站：<https://whalewave.top>
 - GitHub Releases：<https://github.com/whale-wave/ww-bill-client/releases>
 - QQ 群：鲸浪记账交流群（1108214948）
 - 项目支持：展示与官网相同的支付宝赞助二维码，并支持保存到相册或下载

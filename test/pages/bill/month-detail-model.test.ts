@@ -13,7 +13,7 @@ function category(categoryId: number, amount: string) {
 }
 
 const detail: MonthBillDetailResponse = {
-  monthBillExportQrUrl: 'https://github.com/whale-wave/ww-bill-client',
+  monthBillExportQrUrl: 'https://whalewave.top',
   achievement: { streakDays: 2, totalRecordCount: 4, totalRecordDays: 3 },
   expense: {
     averageDaily: '10.00',

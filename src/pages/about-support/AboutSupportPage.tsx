@@ -219,11 +219,11 @@ const AboutSupportPage: FC = () => {
 
           <SupportSection title={t('aboutSupport.officialChannels')}>
             <SupportRow
-              description={t('aboutSupport.githubDesc')}
-              href={APP_INFO.githubProfileUrl}
+              description={t('aboutSupport.websiteDesc')}
+              href={APP_INFO.officialWebsiteUrl}
               icon={<Globe2 size={18} strokeWidth={1.8} />}
-              id="github"
-              label={t('aboutSupport.github')}
+              id="website"
+              label={t('aboutSupport.website')}
             />
           </SupportSection>
 
