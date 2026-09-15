@@ -66,6 +66,11 @@ android {
             signingConfig signingConfigs.release
         }
     }
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            output.outputFileName = "鲸浪记账v${appVersionName}.apk"
+        }
+    }
 }
 
 repositories {
