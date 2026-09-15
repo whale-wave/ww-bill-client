@@ -27,6 +27,7 @@
     "app:sync:test": "VITE_HOST=\"${VITE_HOST:-http://localhost:3001}\" CAPACITOR_BUILD_ENV=test pnpm build && VITE_HOST=\"${VITE_HOST:-http://localhost:3001}\" CAPACITOR_BUILD_ENV=test pnpm exec cap sync",
     "app:sync:prod": "VITE_HOST=\"${VITE_HOST:?VITE_HOST is required for a production app build}\" CAPACITOR_BUILD_ENV=production pnpm build && VITE_HOST=\"${VITE_HOST:?VITE_HOST is required for a production app build}\" CAPACITOR_BUILD_ENV=production pnpm exec cap sync",
     "app:build:test": "pnpm app:sync:test && (cd android && ./gradlew assembleDebug)",
+    "app:build:prod:debug": "node scripts/build-android-release.mjs --debug",
     "app:build:prod": "node scripts/build-android-release.mjs",
     "app:open:android": "pnpm exec cap open android",
     "app:open:ios": "pnpm exec cap open ios",

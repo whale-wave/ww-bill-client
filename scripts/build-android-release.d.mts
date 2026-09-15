@@ -14,4 +14,9 @@ export interface AndroidReleaseBuildMetadata {
 }
 
 export function resolveAndroidReleaseBuildMetadata(input: AndroidReleaseBuildMetadataInput): AndroidReleaseBuildMetadata;
-export function runAndroidReleaseBuild(): void;
+export function createAndroidReleaseBuildEnvironment(
+  metadata: AndroidReleaseBuildMetadata,
+  baseEnvironment?: NodeJS.ProcessEnv,
+): NodeJS.ProcessEnv;
+export function resolveAndroidGradleTask(args: string[]): 'assembleDebug' | 'assembleRelease';
+export function runAndroidReleaseBuild(args?: string[]): void;
