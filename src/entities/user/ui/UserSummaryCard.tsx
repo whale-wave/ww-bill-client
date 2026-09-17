@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { CalendarCheck2 } from 'lucide-react';
+import { CalendarCheck2, Medal } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
 import { DesignIcon, MetricGrid, Surface, UserAvatar } from '@/shared/ui';
 
@@ -42,7 +42,10 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
           </button>
           <div className="min-w-0 flex-1">
             <div className="truncate text-[20px] font-extrabold leading-[30px] text-ww-ink">{name || t('notLoggedIn')}</div>
-            {achievementTitle && <div className="mt-1 inline-flex rounded-full bg-primary-light/70 px-2 py-0.5 text-[11px] font-bold text-primary-deep">{achievementTitle}</div>}
+            <div className="mt-1 inline-flex max-w-full items-center gap-1 rounded-full border border-primary/20 bg-primary-light/55 px-2 py-0.5 text-[11px] font-bold text-primary-deep">
+              <Medal className="shrink-0" size={12} strokeWidth={2} />
+              <span className="truncate">{achievementTitle ?? '航程称号 · 开启你的航程'}</span>
+            </div>
             {name && checkIn && (
               <div className="mt-2 flex h-11 items-center text-[12px] font-bold leading-[18px]">
                 <span className="ww-profile-check-in flex items-center px-[13px]">
