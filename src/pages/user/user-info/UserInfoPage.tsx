@@ -1,10 +1,10 @@
 import type { FC } from 'react';
-import { Camera, ChevronRight, Hash, LockKeyhole, LogOut, Mail, UserRound } from 'lucide-react';
+import { Camera, ChevronRight, Hash, LockKeyhole, LogOut, Mail, ShieldAlert, UserRound } from 'lucide-react';
 
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reportPresence } from '@/entities/auth';
-import { useGetUserUserInfoQuery, usePutUserUserInfoMutation } from '@/entities/user';
+import { useGetAccountDeletionStatusQuery, useGetUserUserInfoQuery, usePostAccountDeletionEmailCodeMutation, usePostAccountDeletionMutation, usePutUserUserInfoMutation } from '@/entities/user';
 import { useAuthStore } from '@/features/auth';
 import { uploadFile } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
@@ -24,8 +24,14 @@ const UserInfo: FC = () => {
   const { t } = useTranslation('user');
   const navigate = useNavigate();
   const [modalVisible, setModalVisible] = useState(false);
+  const [deletionModalVisible, setDeletionModalVisible] = useState(false);
+  const [deletionCode, setDeletionCode] = useState('');
+  const [hasReadDeletionNotice, setHasReadDeletionNotice] = useState(false);
   const { data: userInfo } = useGetUserUserInfoQuery();
+  const { data: deletionStatusResponse, refetch: refetchDeletionStatus } = useGetAccountDeletionStatusQuery(deletionModalVisible);
   const [putUserUserInfoMutate] = usePutUserUserInfoMutation();
+  const deletionCodeMutation = usePostAccountDeletionEmailCodeMutation();
+  const deletionMutation = usePostAccountDeletionMutation();
   const { logOut } = useAuthStore(({ logOut }) => ({ logOut }));
   const [name, setName] = useState('');
 
@@ -51,6 +57,38 @@ const UserInfo: FC = () => {
     if (userInfo)
       setName(userInfo.name);
     setModalVisible(true);
+  };
+
+  const onOpenDeletion = async () => {
+    setDeletionCode('');
+    setHasReadDeletionNotice(false);
+    setDeletionModalVisible(true);
+    await refetchDeletionStatus();
+  };
+
+  const onSendDeletionCode = async () => {
+    try {
+      await deletionCodeMutation.mutateAsync();
+      showAppError({ content: t('deletion.codeSent'), icon: 'success' });
+    }
+    catch (error) {
+      showAppError(error, { fallbackMessage: t('deletion.codeSendFailed') });
+    }
+  };
+
+  const onRequestDeletion = async () => {
+    if (!hasReadDeletionNotice || !deletionCode.trim())
+      return;
+    try {
+      const response = await deletionMutation.mutateAsync(deletionCode.trim());
+      if (response.statusCode !== 200)
+        return;
+      logOut();
+      navigate('/login', { state: { accountDeletionScheduledAt: response.data.deletionScheduledAt } });
+    }
+    catch (error) {
+      showAppError(error, { fallbackMessage: t('deletion.requestFailed') });
+    }
   };
 
   const onChangeName = async () => {
@@ -156,6 +194,10 @@ const UserInfo: FC = () => {
             <LogOut size={17} />
             {t('common:action.logout')}
           </button>
+          <button className="flex h-[48px] w-full items-center justify-center gap-2 rounded-[18px] border border-solid border-feedback-danger/50 bg-transparent text-[12px] font-bold text-feedback-danger" onClick={() => void onOpenDeletion()} type="button">
+            <ShieldAlert size={16} />
+            {t('deletion.open')}
+          </button>
         </div>
       </main>
 
@@ -168,6 +210,37 @@ const UserInfo: FC = () => {
               <div className="mt-5 grid grid-cols-2 gap-2">
                 <button className="h-11 rounded-[15px] border-0 bg-bg-gray text-[13px] font-bold text-ww-mid" onClick={() => setModalVisible(false)} type="button">{t('common:nav.cancel')}</button>
                 <button className="h-11 rounded-[15px] border-0 bg-primary text-[13px] font-extrabold text-white" onClick={() => void onChangeName()} type="button">{t('common:nav.confirm')}</button>
+              </div>
+            </div>
+          </Surface>
+        </div>
+      )}
+      {deletionModalVisible && (
+        <div aria-labelledby="account-deletion-dialog-title" aria-modal="true" className="fixed inset-0 z-[1001] flex items-end bg-black/25 px-3 pt-12 backdrop-blur-[3px] sm:items-center sm:justify-center" role="dialog">
+          <Surface className="max-h-full w-full max-w-[520px] overflow-hidden rounded-b-none px-5 py-5 sm:rounded-[24px]" material="floating">
+            <div className="flex max-h-[calc(100vh-5rem)] flex-col">
+              <h2 className="text-[18px] font-extrabold text-ww-ink" id="account-deletion-dialog-title">{t('deletion.title')}</h2>
+              <div className="mt-3 min-h-0 space-y-3 overflow-y-auto pr-1 text-[13px] leading-6 text-ww-mid">
+                <p>{t('deletion.intro')}</p>
+                <ul className="m-0 space-y-2 pl-5">
+                  <li>{t('deletion.item1')}</li>
+                  <li>{t('deletion.item2')}</li>
+                  <li>{t('deletion.item3')}</li>
+                  <li>{t('deletion.item4')}</li>
+                  <li>{t('deletion.item5')}</li>
+                  <li>{t('deletion.item6')}</li>
+                </ul>
+                {deletionStatusResponse?.data && !deletionStatusResponse.data.canRequest && <p className="rounded-xl bg-feedback-danger/10 px-3 py-2 font-bold text-feedback-danger">{t('deletion.blocked', deletionStatusResponse.data.blockers)}</p>}
+              </div>
+              <label className="mt-4 flex items-start gap-2 text-[12px] font-semibold leading-5 text-ww-ink">
+                <input checked={hasReadDeletionNotice} className="mt-1" onChange={event => setHasReadDeletionNotice(event.target.checked)} type="checkbox" />
+                {t('deletion.acknowledge')}
+              </label>
+              <FormField className="mt-4" inputMode="numeric" label={t('deletion.code')} maxLength={6} onChange={setDeletionCode} placeholder={t('deletion.codePlaceholder')} value={deletionCode} />
+              <button className="mt-3 h-11 rounded-[15px] border border-solid border-primary bg-white text-[13px] font-bold text-primary-deep disabled:opacity-50" disabled={deletionCodeMutation.isLoading} onClick={() => void onSendDeletionCode()} type="button">{t('deletion.sendCode')}</button>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <button className="h-11 rounded-[15px] border-0 bg-bg-gray text-[13px] font-bold text-ww-mid" onClick={() => setDeletionModalVisible(false)} type="button">{t('common:nav.cancel')}</button>
+                <button className="h-11 rounded-[15px] border-0 bg-feedback-danger text-[13px] font-extrabold text-white disabled:opacity-50" disabled={!hasReadDeletionNotice || !deletionCode.trim() || !deletionStatusResponse?.data?.canRequest || deletionMutation.isLoading} onClick={() => void onRequestDeletion()} type="button">{t('deletion.submit')}</button>
               </div>
             </div>
           </Surface>

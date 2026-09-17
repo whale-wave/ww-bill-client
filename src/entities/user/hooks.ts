@@ -4,7 +4,7 @@ import type { SuccessResponse } from '@/shared/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { isSuccessApi } from '@/shared/api';
-import { getUserUserInfoApi, postCheckInApi, putUserUserInfoApi } from './api';
+import { getAccountDeletionStatusApi, getUserUserInfoApi, postAccountDeletionApi, postAccountDeletionEmailCodeApi, postCheckInApi, putUserUserInfoApi } from './api';
 import { userKeys } from './keys';
 
 interface CheckInMutationContext {
@@ -98,4 +98,20 @@ export function usePostCheckInMutation() {
       ...rest,
     },
   ] as const;
+}
+
+export function useGetAccountDeletionStatusQuery(enabled = true) {
+  return useQuery({
+    enabled,
+    queryFn: getAccountDeletionStatusApi,
+    queryKey: [...userKeys.all, 'deletion'] as const,
+  });
+}
+
+export function usePostAccountDeletionEmailCodeMutation() {
+  return useMutation({ mutationFn: postAccountDeletionEmailCodeApi });
+}
+
+export function usePostAccountDeletionMutation() {
+  return useMutation({ mutationFn: postAccountDeletionApi });
 }

@@ -19,6 +19,12 @@ vi.mock('@/entities/user', () => ({
       username: 'avan',
     },
   }),
+  useGetAccountDeletionStatusQuery: () => ({
+    data: { data: { blockers: { customLedgerCount: 0, householdCount: 0 }, canRequest: true } },
+    refetch: vi.fn(),
+  }),
+  usePostAccountDeletionEmailCodeMutation: () => ({ isLoading: false, mutateAsync: vi.fn() }),
+  usePostAccountDeletionMutation: () => ({ isLoading: false, mutateAsync: vi.fn() }),
   usePutUserUserInfoMutation: () => [mocks.updateUser, { isLoading: false }],
 }));
 
@@ -62,5 +68,16 @@ describe('user info page', () => {
     const avatar = container.querySelector<HTMLImageElement>('img[alt="Avan"]');
 
     expect(avatar?.parentElement?.classList).toContain('rounded-full');
+  });
+
+  it('requires acknowledgement and an email code before account deletion can be requested', () => {
+    const container = renderPage(createElement(UserInfoPage));
+    const openButton = [...container.querySelectorAll('button')].find(button => button.textContent?.includes('deletion.open'));
+
+    act(() => openButton?.click());
+
+    const submitButton = [...container.querySelectorAll('button')].find(button => button.textContent?.includes('deletion.submit'));
+    expect(submitButton).toBeDefined();
+    expect(submitButton).toHaveProperty('disabled', true);
   });
 });

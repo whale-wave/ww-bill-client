@@ -41,6 +41,26 @@
     "change": "Change",
     "success": "Email changed successfully"
   },
+  "deletion": {
+    "open": "Delete account",
+    "title": "Read before deleting your account",
+    "intro": "Your account will be deleted after a 3-day (72-hour) waiting period.",
+    "item1": "You will be signed out immediately and cannot use the account during the waiting period.",
+    "item2": "A successful sign-in before the deadline automatically cancels deletion.",
+    "item3": "After deletion, your account, personal data, and community content no longer appear in product searches.",
+    "item4": "Deletion is soft deletion; underlying records and backups are not immediately purged.",
+    "item5": "Shared-ledger history remains and your identity is shown as a deleted user.",
+    "item6": "Your email can create a new account, but it inherits no data; your numeric account ID is never reused.",
+    "acknowledge": "I understand the consequences of deleting my account",
+    "code": "Email verification code",
+    "codePlaceholder": "Enter the 6-digit code sent to your current email",
+    "sendCode": "Send code",
+    "codeSent": "A verification code was sent to your current email",
+    "codeSendFailed": "Could not send the verification code. Try again later.",
+    "blocked": "Resolve {{customLedgerCount}} shared ledgers and {{householdCount}} households first.",
+    "submit": "Request deletion; active in 3 days",
+    "requestFailed": "Could not request account deletion. Try again later."
+  },
   "checkIn": {
     "dayUnit": "",
     "keep": "Streak",

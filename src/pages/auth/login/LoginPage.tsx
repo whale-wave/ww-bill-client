@@ -9,7 +9,7 @@ import { AuthPageShell, AuthPrimaryButton, AuthSegmentedControl, isAuthRequiredR
 import { EmailCaptchaInput } from '@/features/email-captcha';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
-import { FormField } from '@/shared/ui';
+import { FormField, showAppNotice } from '@/shared/ui';
 
 interface RedirectLocation {
   pathname: string;
@@ -66,6 +66,8 @@ const Login: FC = () => {
           message: '',
           data: data.userInfo,
         });
+        if (data.deletionCancelled)
+          showAppNotice({ content: t('login.deletionCancelled'), icon: 'success' });
         const redirectLocation = getSafeRedirectLocation(location.state?.from);
         setTimeout(navigate, 1000, redirectLocation, { replace: true });
       }
@@ -94,6 +96,7 @@ const Login: FC = () => {
       onBack={isAuthRequired ? undefined : () => navigate(-1)}
       title={t('login.title')}
     >
+      {location.state?.accountDeletionScheduledAt && <p className="m-0 rounded-xl bg-feedback-warning/10 px-3 py-2 text-[12px] font-semibold leading-5 text-feedback-warning">{t('login.deletionWaitingHint')}</p>}
       <AuthSegmentedControl
         ariaLabel={t('login.method')}
         onChange={setLoginType}

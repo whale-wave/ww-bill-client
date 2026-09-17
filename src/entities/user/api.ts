@@ -53,6 +53,28 @@ export function changePassword(data: UpdatePassword) {
   return request.put<unknown, SuccessResponse<unknown>>('/user/password', data);
 }
 
+export interface AccountDeletionStatus {
+  canRequest: boolean;
+  deletionRequestedAt: string | null;
+  deletionScheduledAt: string | null;
+  blockers: { customLedgerCount: number; householdCount: number };
+}
+
+export function getAccountDeletionStatusApi() {
+  return request.get<unknown, SuccessResponse<AccountDeletionStatus>>('/user/deletion');
+}
+
+export function postAccountDeletionEmailCodeApi() {
+  return request.post<unknown, SuccessResponse<unknown>>('/user/deletion/email-code');
+}
+
+export function postAccountDeletionApi(emailCode: string) {
+  return request.post<unknown, SuccessResponse<{ deletionRequestedAt: string; deletionScheduledAt: string }>>('/user/deletion', {
+    confirmed: true,
+    emailCode,
+  });
+}
+
 export function postCheckInApi() {
   return request.post<unknown, SuccessResponse<unknown>>('/check_in', null);
 }
