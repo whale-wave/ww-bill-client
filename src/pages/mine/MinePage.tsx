@@ -4,6 +4,7 @@ import { Capacitor } from '@capacitor/core';
 import { useMemo } from 'react';
 
 import { useNavigate } from 'react-router-dom';
+import { useAchievementSummaryQuery } from '@/entities/achievement';
 import { useNotificationsQuery, UserNotificationStatus } from '@/entities/notification';
 import { useGetUserUserInfoQuery, UserSummaryCard } from '@/entities/user';
 import { BottomList } from '@/pages/mine/ui';
@@ -21,6 +22,7 @@ const Mine: FC = () => {
   const { data: userInfo } = useGetUserUserInfoQuery({
     queryOptions: { refetchOnMount: 'always' },
   });
+  const { data: achievementSummary } = useAchievementSummaryQuery();
   const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
   const { data: notifications } = useNotificationsQuery({ params: { includeClientReleases: platform !== 'android', limit: 50, platform } });
   const unreadCount = notifications.filter(item => item.status === UserNotificationStatus.UNREAD).length;
@@ -63,8 +65,9 @@ const Mine: FC = () => {
       name: t('tabs.myBadges'),
       onClick() {
         showAppNotice({
-          content: t('tabs.comingSoon'),
+          content: '正在打开我的徽章',
         });
+        navigate(ROUTES_PATH.ACHIEVEMENTS.getPath());
       },
     },
     {
@@ -100,6 +103,7 @@ const Mine: FC = () => {
     <div className="page-new relative overflow-hidden">
       <main className="ww-tab-bar-scroll-padding grow overflow-auto px-[18px] pt-[max(0px,env(safe-area-inset-top)+18px)]">
         <UserSummaryCard
+          achievementTitle={achievementSummary?.currentTitle?.name}
           name={userInfo?.name}
           avatar={userInfo?.avatar}
           checkIn={checkIn}

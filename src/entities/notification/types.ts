@@ -5,6 +5,8 @@ export enum UserNotificationStatus {
 }
 
 export enum UserNotificationType {
+  ACHIEVEMENT_BACKFILLED = 'ACHIEVEMENT_BACKFILLED',
+  ACHIEVEMENT_UNLOCKED = 'ACHIEVEMENT_UNLOCKED',
   SYSTEM_ANNOUNCEMENT = 'SYSTEM_ANNOUNCEMENT',
   CLIENT_RELEASE = 'CLIENT_RELEASE',
   HOUSEHOLD_STATUS_CHANGED = 'HOUSEHOLD_STATUS_CHANGED',
@@ -16,6 +18,7 @@ export enum UserNotificationType {
 }
 
 export interface UserNotificationPayload extends Record<string, unknown> {
+  achievementCodes?: unknown;
   action?: unknown;
   coverPicture?: unknown;
   householdId?: unknown;

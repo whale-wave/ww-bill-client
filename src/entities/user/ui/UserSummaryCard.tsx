@@ -4,6 +4,7 @@ import { useTranslation } from '@/shared/i18n';
 import { DesignIcon, MetricGrid, Surface, UserAvatar } from '@/shared/ui';
 
 export interface UserSummaryCardProps {
+  achievementTitle?: string | null;
   avatar?: string | null;
   name?: string;
   checkIn: boolean;
@@ -18,6 +19,7 @@ export interface UserSummaryCardProps {
 export const UserSummaryCard: FC<UserSummaryCardProps> = ({
   name,
   avatar,
+  achievementTitle,
   checkIn,
   numberInfo,
   onProfileClick,
@@ -40,6 +42,7 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
           </button>
           <div className="min-w-0 flex-1">
             <div className="truncate text-[20px] font-extrabold leading-[30px] text-ww-ink">{name || t('notLoggedIn')}</div>
+            {achievementTitle && <div className="mt-1 inline-flex rounded-full bg-primary-light/70 px-2 py-0.5 text-[11px] font-bold text-primary-deep">{achievementTitle}</div>}
             {name && checkIn && (
               <div className="mt-2 flex h-11 items-center text-[12px] font-bold leading-[18px]">
                 <span className="ww-profile-check-in flex items-center px-[13px]">

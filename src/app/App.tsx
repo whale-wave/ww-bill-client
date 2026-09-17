@@ -3,6 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { Router } from '@/app/router';
+import { AchievementFeedbackController } from '@/features/achievement-feedback';
 import { ClientUpdateController } from '@/features/app-update';
 import { AppearanceProvider } from '@/features/appearance';
 import { useAuthStore } from '@/features/auth';
@@ -28,6 +29,7 @@ export const App: FC = () => {
       <QueryClientProvider key={providerKey} client={queryClient}>
         <QueryRefreshController>
           <AppearanceProvider>
+            <AchievementFeedbackController sessionKey={useAuthStore.getState().token} />
             <PresenceReporter />
             <ClientUpdateController />
             <SeniorModeProvider>
@@ -55,6 +57,7 @@ export const App: FC = () => {
     >
       <QueryRefreshController persister={persister}>
         <AppearanceProvider>
+          <AchievementFeedbackController sessionKey={useAuthStore.getState().token} />
           <PresenceReporter />
           <ClientUpdateController />
           <SeniorModeProvider>

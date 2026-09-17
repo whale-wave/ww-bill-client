@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useHouseholdMonthBillDetailQuery, useLedgerMonthBillDetailQuery, useMonthBillDetailQuery } from '@/entities/record';
 import { useGetUserUserInfoQuery } from '@/entities/user';
+import { useMonthReview } from '@/features/achievement-feedback';
 import { useTranslation } from '@/shared/i18n';
 import {
   canvasToPngBlob,
@@ -96,6 +97,8 @@ export default function MonthBillDetailPage() {
   const personalQuery = useMonthBillDetailQuery({ month: month ?? '', queryOptions: { enabled: isMonthValid && !ledgerId && !householdId } });
   const ledgerQuery = useLedgerMonthBillDetailQuery({ ledgerId: ledgerId ?? '', month: month ?? '', queryOptions: { enabled: isMonthValid && Boolean(ledgerId) } });
   const householdQuery = useHouseholdMonthBillDetailQuery({ householdId: householdId ?? '', month: month ?? '', queryOptions: { enabled: isMonthValid && Boolean(householdId) } });
+  const monthReviewQuery = householdId ? householdQuery : ledgerId ? ledgerQuery : personalQuery;
+  useMonthReview({ enabled: Boolean(monthReviewQuery.data?.summary.recordCount), householdId, ledgerId, month });
   const query = ledgerId ? ledgerQuery : householdId ? householdQuery : personalQuery;
   const backPath = ledgerId
     ? `/ledgers/${encodeURIComponent(ledgerId)}/bill`

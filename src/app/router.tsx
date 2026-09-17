@@ -87,6 +87,10 @@ const router = createHashRouter([
         lazy: lazyGuardedPage(() => import('@/pages/record/record-calendar/RecordCalendarPage')),
       },
       {
+        path: 'achievements',
+        lazy: lazyGuardedPage(() => import('@/pages/achievements/AchievementsPage')),
+      },
+      {
         path: 'search-record',
         lazy: lazyGuardedPage(() => import('@/pages/record/search-record/SearchRecordPage')),
       },

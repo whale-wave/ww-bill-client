@@ -22,6 +22,7 @@ import {
   useDiscardShortcutDraftMutation,
 } from '@/entities/shortcut-bookkeeping';
 import { useGetUserAppConfigQuery } from '@/entities/user-app-config';
+import { requestAchievementFeedback } from '@/features/achievement-feedback';
 import {
   createShortcutRecordSeed,
   inferShortcutCategory,
@@ -181,6 +182,7 @@ function BookkeepingPage() {
           record,
         });
         await invalidatePersonalRecordEditorCaches(queryClient);
+        requestAchievementFeedback();
         hapticFeedback.success();
         navigate(`${ROUTES_PATH.AGENT.getPath()}?conversationId=${encodeURIComponent(agentRecordDraft.conversationId)}`, { replace: true });
         return;
@@ -202,6 +204,7 @@ function BookkeepingPage() {
           type: draft.type,
         });
         await invalidatePersonalRecordEditorCaches(queryClient);
+        requestAchievementFeedback();
         hapticFeedback.success();
         navigate(`/editing/${result.recordId}`, {
           replace: true,
@@ -220,6 +223,8 @@ function BookkeepingPage() {
         throw response;
       await invalidatePersonalRecordEditorCaches(queryClient);
       await invalidateAssetQueries(queryClient);
+      if (!initialRecord)
+        requestAchievementFeedback();
       hapticFeedback.success();
       navigateToReturnContext(returnContext, draft);
     }

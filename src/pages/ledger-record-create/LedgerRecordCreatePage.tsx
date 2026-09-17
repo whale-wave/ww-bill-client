@@ -12,6 +12,7 @@ import {
 } from '@/entities/ledger';
 import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
 import { useCreateLedgerRecordMutation, useRecordRemarkHistoryQuery, useUploadTemporaryRecordAttachmentMutation } from '@/entities/record';
+import { requestAchievementFeedback } from '@/features/achievement-feedback';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import {
   invalidateLedgerRecordEditorCaches,
@@ -75,6 +76,7 @@ function LedgerRecordCreateEditor({
         ledgerId,
       });
       await invalidateLedgerRecordEditorCaches(queryClient, ledgerId);
+      requestAchievementFeedback();
       navigateAfterCreate();
     }
     catch {
