@@ -3,6 +3,7 @@ import type { AmountType, TimeRangeCategory } from '@/entities/chart';
 import type { Household, HouseholdChartPeriodOption, HouseholdChartResult } from '@/entities/household';
 import type {
   ChartOverviewContextValue,
+  ChartOverviewCustomRange,
   ChartOverviewDisplay,
   ChartOverviewPeriodTab,
   ChartOverviewRankingItem,
@@ -31,6 +32,12 @@ function isAmountType(value: string | null): value is AmountType {
 
 function isTimeRangeCategory(value: string | null): value is TimeRangeCategory {
   return value === 'week' || value === 'month' || value === 'year';
+}
+
+function readCustomRange(searchParams: URLSearchParams): ChartOverviewCustomRange | undefined {
+  const startDate = searchParams.get('startDate');
+  const endDate = searchParams.get('endDate');
+  return startDate && endDate ? { endDate, startDate } : undefined;
 }
 
 function toPercentage(value: number) {
@@ -117,10 +124,12 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
   const currentTimeRangeCategory = isTimeRangeCategory(searchParams.get('range'))
     ? searchParams.get('range') as TimeRangeCategory
     : 'month';
+  const customRange = readCustomRange(searchParams);
+  const isCustomRange = searchParams.get('range') === 'custom' && Boolean(customRange);
   const displayMode: ChartOverviewDisplay = searchParams.get('display') === 'pie' ? 'pie' : 'line';
   const metric = currentAmountType === 'sub' ? 'expense' : 'income';
   const requestedDate = searchParams.get('date');
-  const periodScope = `${household.id}:${metric}:${currentTimeRangeCategory}`;
+  const periodScope = `${household.id}:${metric}:${currentTimeRangeCategory}:${customRange?.startDate ?? ''}:${customRange?.endDate ?? ''}`;
   const bootstrapAnchorRef = useRef<{ anchor?: string; scope: string }>({ scope: '' });
   if (bootstrapAnchorRef.current.scope !== periodScope) {
     bootstrapAnchorRef.current = { anchor: requestedDate ?? undefined, scope: periodScope };
@@ -135,17 +144,26 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
         period: currentTimeRangeCategory,
       },
     },
-    queryOptions: { enabled: true },
+    queryOptions: { enabled: !isCustomRange },
   });
   const selectedOption = useMemo(() => {
+    if (isCustomRange && customRange) {
+      return {
+        anchorDate: customRange.startDate.slice(0, 10),
+        key: `${customRange.startDate}:${customRange.endDate}`,
+        month: Number(customRange.startDate.slice(5, 7)),
+        period: 'month' as const,
+        year: Number(customRange.startDate.slice(0, 4)),
+      };
+    }
     if (!periodsQuery.options.length)
       return undefined;
     return periodsQuery.options.find(option => option.anchorDate === requestedDate)
       ?? periodsQuery.options[periodsQuery.options.length - 1];
-  }, [periodsQuery.options, requestedDate]);
+  }, [customRange, isCustomRange, periodsQuery.options, requestedDate]);
   const periodTabs = useMemo<ChartOverviewPeriodTab[]>(
-    () => periodsQuery.options.map(option => ({ key: option.key, name: getChartPeriodName(option, chartT) })),
-    [chartT, periodsQuery.options],
+    () => isCustomRange ? [] : periodsQuery.options.map(option => ({ key: option.key, name: getChartPeriodName(option, chartT) })),
+    [chartT, isCustomRange, periodsQuery.options],
   );
   useEffect(() => {
     if (!requestedDate || !selectedOption || selectedOption.anchorDate === requestedDate)
@@ -158,10 +176,11 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
   const query = useHouseholdChartsQuery({
     params: {
       filters: {
-        anchorDate: selectedOption?.anchorDate ?? '',
+        anchorDate: customRange?.startDate.slice(0, 10) ?? selectedOption?.anchorDate ?? '',
         display: displayMode,
         metric,
         period: currentTimeRangeCategory,
+        ...(customRange ? { endDate: `${customRange.endDate}+08:00`, startDate: `${customRange.startDate}+08:00` } : {}),
       },
       householdId: household.id,
     },
@@ -177,15 +196,17 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
           query.data.anchorDate === selectedOption.anchorDate
             ? selectedOption
             : (periodsQuery.options.find(item => item.anchorDate === query.data?.anchorDate) ?? selectedOption),
-          getChartPeriodName(
-            query.data.anchorDate === selectedOption.anchorDate
-              ? selectedOption
-              : (periodsQuery.options.find(item => item.anchorDate === query.data?.anchorDate) ?? selectedOption),
-            chartT,
-          ),
+          isCustomRange && customRange
+            ? `${customRange.startDate.replace('T', ' ')} — ${customRange.endDate.replace('T', ' ')}`
+            : getChartPeriodName(
+                query.data.anchorDate === selectedOption.anchorDate
+                  ? selectedOption
+                  : (periodsQuery.options.find(item => item.anchorDate === query.data?.anchorDate) ?? selectedOption),
+                chartT,
+              ),
         )
       : undefined,
-    [chartT, currentAmountType, periodsQuery.options, query.data, selectedOption],
+    [chartT, currentAmountType, customRange, isCustomRange, periodsQuery.options, query.data, selectedOption],
   );
   const memberRanking = useMemo(
     () => query.data ? mapMemberRanking(query.data, currentAmountType) : [],
@@ -210,6 +231,18 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
   const setCurrentTimeRangeCategory = useCallback((range: TimeRangeCategory) => {
     setSearchParams((previous) => {
       previous.set('range', range);
+      previous.delete('startDate');
+      previous.delete('endDate');
+      previous.delete('date');
+      return previous;
+    }, { replace: true });
+  }, [setSearchParams]);
+
+  const handleCustomRangeChange = useCallback((range: ChartOverviewCustomRange) => {
+    setSearchParams((previous) => {
+      previous.set('range', 'custom');
+      previous.set('startDate', range.startDate);
+      previous.set('endDate', range.endDate);
       previous.delete('date');
       return previous;
     }, { replace: true });
@@ -255,16 +288,18 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
         }]
       : [],
     currentAmountType,
-    currentTimeRangeCategory,
+    currentTimeRangeCategory: isCustomRange ? 'custom' : currentTimeRangeCategory,
     curTab: currentTab,
+    customRange,
     displayMode,
     isContentLoading: Boolean(selectedOption) && query.isLoading && !query.response,
-    hasNewerPeriods: periodsQuery.hasPreviousPage,
-    hasOlderPeriods: periodsQuery.hasNextPage,
+    hasNewerPeriods: isCustomRange ? false : periodsQuery.hasPreviousPage,
+    hasOlderPeriods: isCustomRange ? false : periodsQuery.hasNextPage,
     isLoadingNewerPeriods: periodsQuery.isFetchingPreviousPage,
     isLoadingOlderPeriods: periodsQuery.isFetchingNextPage,
     loadNewerPeriods: () => void periodsQuery.fetchPreviousPage(),
     loadOlderPeriods: () => void periodsQuery.fetchNextPage(),
+    onCustomRangeChange: handleCustomRangeChange,
     onDisplayModeChange: handleDisplayModeChange,
     onRankingItemClick: (item) => {
       if (!query.data)
@@ -285,17 +320,20 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
     setCurrentAmountType,
     setCurrentTimeRangeCategory,
     setTabActive,
-    tabActive: selectedOption?.key ?? '',
+    tabActive: isCustomRange ? '' : selectedOption?.key ?? '',
     tabs: periodTabs,
   }), [
     currentAmountType,
     currentTab,
     currentTimeRangeCategory,
+    customRange,
     household.id,
     memberRanking,
     navigate,
     displayMode,
     handleDisplayModeChange,
+    handleCustomRangeChange,
+    isCustomRange,
     setCurrentAmountType,
     setCurrentTimeRangeCategory,
     setTabActive,

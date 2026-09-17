@@ -50,7 +50,8 @@
   "tabs": {
     "week": "周",
     "month": "月",
-    "year": "年"
+    "year": "年",
+    "custom": "自定义"
   },
   "tab": {
     "thisWeek": "本周",

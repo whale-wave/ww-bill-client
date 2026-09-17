@@ -143,6 +143,9 @@ export interface GetChartPeriodApiParams {
   period: GetChartApiParamsCategory;
   metric: ChartMetric;
   anchorDate: string;
+  /** Complete Asia/Shanghai timestamps for a custom chart range. */
+  startDate?: string;
+  endDate?: string;
   categoryId?: number;
 }
 
@@ -160,7 +163,7 @@ export interface ChartPeriodResult {
       data: RecordEntry[];
       displayLabel: string;
       tooltipMode?: 'aggregate';
-      type: 'day' | 'month';
+      type: 'day' | 'week' | 'month';
       value: string;
     }>;
     key: string;

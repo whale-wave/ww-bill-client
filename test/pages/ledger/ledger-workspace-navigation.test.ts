@@ -456,7 +456,7 @@ describe('personal ledger workspace integration', () => {
     const { container, router } = renderPage('/chart', '/chart', createElement(ChartHomePage));
     const ranges = container.querySelectorAll('.chart-period-tabs > button');
 
-    expect(ranges).toHaveLength(3);
+    expect(ranges).toHaveLength(4);
     await click(ranges[2]);
     expect(router.state.location.search).toContain('range=year');
 
@@ -464,6 +464,7 @@ describe('personal ledger workspace integration', () => {
     expect(router.state.location.search).toContain('amount=add');
     expect(hooks.useChartPeriodOptionsQuery).toHaveBeenLastCalledWith({
       params: { metric: 'income', pageSize: 6, period: 'year' },
+      queryOptions: { enabled: true },
     });
   });
 

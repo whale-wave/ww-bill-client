@@ -46,6 +46,13 @@ export interface ChartOverviewRankingSection {
 
 export type ChartOverviewMetric = AmountType | 'net';
 export type ChartOverviewDisplay = 'line' | 'pie';
+export type ChartOverviewRange = TimeRangeCategory | 'custom';
+
+export interface ChartOverviewCustomRange {
+  /** Asia/Shanghai local timestamp, formatted as yyyy-MM-ddTHH:mm:ss. */
+  endDate: string;
+  startDate: string;
+}
 
 export interface ChartOverviewMetricOption {
   icon: string;
@@ -57,7 +64,9 @@ export interface ChartOverviewContextValue {
   additionalRankingSections?: ChartOverviewRankingSection[];
   currentAmountType: AmountType;
   currentMetric?: ChartOverviewMetric;
-  currentTimeRangeCategory: TimeRangeCategory;
+  currentTimeRangeCategory: ChartOverviewRange;
+  customRange?: ChartOverviewCustomRange;
+  onCustomRangeChange?: (range: ChartOverviewCustomRange) => void;
   displayMode?: ChartOverviewDisplay;
   onDisplayModeChange?: (mode: ChartOverviewDisplay) => void;
   isAmountHidden?: boolean;

@@ -732,7 +732,7 @@ describe('household budget and charts', () => {
     const ranges = container.querySelectorAll('.chart-period-tabs > button');
 
     expect(container.querySelector('[data-chart-amount-type="sub"]')).not.toBeNull();
-    expect(ranges).toHaveLength(3);
+    expect(ranges).toHaveLength(4);
     expect(container.querySelector('.bwm-nav-bar')).toBeNull();
     expect(container.querySelectorAll('select')).toHaveLength(0);
 

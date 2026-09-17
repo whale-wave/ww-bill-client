@@ -40,17 +40,17 @@ export const ChartContent: FC<ChartContentProps> = ({ pieChart, tagRanking }) =>
                 <div className={cn('flex flex-col gap-[14px] pb-4')}>
                   <Surface
                     className={cn(
-                      onDisplayModeChange ? 'h-[300px] pt-5' : 'h-[212.5px] pt-5',
-                      'relative flex-shrink-0 overflow-hidden px-5 pb-4',
+                      onDisplayModeChange ? 'h-[208px] pt-3' : 'h-[192px] pt-3',
+                      'relative flex-shrink-0 overflow-hidden px-4 pb-3',
                     )}
                     material="raised"
                   >
                     {onDisplayModeChange && (
-                      <div className="absolute right-4 top-3 z-10" data-chart-display-toolbar>
+                      <div className="absolute right-3 top-2 z-10" data-chart-display-toolbar>
                         <ChartDisplaySwitch compact value={displayMode} onChange={onDisplayModeChange} />
                       </div>
                     )}
-                    <div className={onDisplayModeChange ? 'pt-9' : undefined}>
+                    <div className={onDisplayModeChange ? 'pt-7' : undefined}>
                       <MetricGrid
                         columns={2}
                         items={[

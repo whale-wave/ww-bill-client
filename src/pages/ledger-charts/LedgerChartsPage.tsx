@@ -2,6 +2,7 @@ import type { AmountType, TimeRangeCategory } from '@/entities/chart';
 import type { Ledger } from '@/entities/ledger';
 import type {
   ChartOverviewContextValue,
+  ChartOverviewCustomRange,
   ChartOverviewDisplay,
   ChartOverviewMetric,
   ChartOverviewTab,
@@ -42,6 +43,12 @@ function isPeriod(value: string | null): value is LedgerChartPeriod {
 
 function isDisplay(value: string | null): value is LedgerChartDisplay {
   return Object.values(LedgerChartDisplay).includes(value as LedgerChartDisplay);
+}
+
+function readCustomRange(searchParams: URLSearchParams): ChartOverviewCustomRange | undefined {
+  const startDate = searchParams.get('startDate');
+  const endDate = searchParams.get('endDate');
+  return startDate && endDate ? { endDate, startDate } : undefined;
 }
 
 function toAmountType(metric: LedgerChartMetric): AmountType {
@@ -97,6 +104,8 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
   const period = isPeriod(searchParams.get('range'))
     ? searchParams.get('range') as LedgerChartPeriod
     : preferenceQuery.data?.defaultChartPeriod ?? LedgerChartPeriod.MONTH;
+  const customRange = readCustomRange(searchParams);
+  const isCustomRange = searchParams.get('range') === 'custom' && Boolean(customRange);
   const requestedDisplay = isDisplay(searchParams.get('display'))
     ? searchParams.get('display') as LedgerChartDisplay
     : preferenceQuery.data?.defaultChartDisplay ?? LedgerChartDisplay.LINE;
@@ -107,7 +116,7 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
   const requestedDate = searchParams.get('date');
   const urlTab = searchParams.get('tab') ?? '';
   const requestedAnchor = requestedDate ?? legacyTabToAnchorDate(urlTab, period);
-  const periodScope = `${ledgerId}:${apiMetric}:${period}`;
+  const periodScope = `${ledgerId}:${apiMetric}:${period}:${customRange?.startDate ?? ''}:${customRange?.endDate ?? ''}`;
   const bootstrapAnchorRef = useRef<{ anchor?: string; scope: string }>({ scope: '' });
   if (bootstrapAnchorRef.current.scope !== periodScope) {
     bootstrapAnchorRef.current = { anchor: requestedAnchor, scope: periodScope };
@@ -122,34 +131,38 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
       },
       ledgerId,
     },
+    queryOptions: { enabled: !isCustomRange },
   });
   const selectedOption = periodsQuery.options.find(option => option.anchorDate === requestedAnchor)
     ?? periodsQuery.options.at(-1);
   const detailQuery = useLedgerChartPeriodQuery({
     params: {
       filters: {
-        anchorDate: selectedOption?.anchorDate ?? '',
+        anchorDate: customRange?.startDate.slice(0, 10) ?? selectedOption?.anchorDate ?? '',
         metric: apiMetric,
         period,
+        ...(customRange ? { endDate: `${customRange.endDate}+08:00`, startDate: `${customRange.startDate}+08:00` } : {}),
       },
       ledgerId,
     },
-    queryOptions: { enabled: Boolean(selectedOption) },
+    queryOptions: { enabled: isCustomRange || Boolean(selectedOption) },
   });
   const prefetchPeriod = detailQuery.prefetch;
   const tabs = useMemo(
-    () => periodsQuery.options.map(option => ({ key: option.key, name: getChartPeriodName(option, chartT) })),
-    [chartT, periodsQuery.options],
+    () => isCustomRange ? [] : periodsQuery.options.map(option => ({ key: option.key, name: getChartPeriodName(option, chartT) })),
+    [chartT, isCustomRange, periodsQuery.options],
   );
   const curTab = useMemo<ChartOverviewTab | undefined>(() => {
-    if (!detailQuery.data || !selectedOption)
+    if (!detailQuery.data || (!selectedOption && !isCustomRange))
       return undefined;
     return {
       ...detailQuery.data.tab,
       anchorDate: detailQuery.data.anchorDate,
-      name: getChartPeriodName(selectedOption, chartT),
+      name: isCustomRange && customRange
+        ? `${customRange.startDate.replace('T', ' ')} — ${customRange.endDate.replace('T', ' ')}`
+        : getChartPeriodName(selectedOption!, chartT),
     };
-  }, [chartT, detailQuery.data, selectedOption]);
+  }, [chartT, customRange, detailQuery.data, isCustomRange, selectedOption]);
   const chartDateRange = useMemo(() => detailQuery.data
     ? { endDate: detailQuery.data.endDate, startDate: detailQuery.data.startDate }
     : undefined, [detailQuery.data]);
@@ -191,6 +204,17 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
     }, { replace: true });
   }, [setSearchParams]);
 
+  const handleCustomRangeChange = useCallback((range: ChartOverviewCustomRange) => {
+    setSearchParams((previous) => {
+      previous.set('range', 'custom');
+      previous.set('startDate', range.startDate);
+      previous.set('endDate', range.endDate);
+      previous.delete('date');
+      previous.delete('tab');
+      return previous;
+    }, { replace: true });
+  }, [setSearchParams]);
+
   const handleDisplayModeChange = useCallback((mode: ChartOverviewDisplay) => {
     if (metric === LedgerChartMetric.NET)
       return;
@@ -200,13 +224,14 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
   const contextValue = useMemo<ChartOverviewContextValue>(() => ({
     currentAmountType: toAmountType(metric),
     currentMetric: toChartMetric(metric),
-    currentTimeRangeCategory: period as TimeRangeCategory,
+    currentTimeRangeCategory: isCustomRange ? 'custom' : period as TimeRangeCategory,
     curTab,
+    customRange,
     displayMode: display,
     isAmountHidden: preferenceQuery.data?.hideTotalAmount === true,
-    hasNewerPeriods: periodsQuery.hasPreviousPage,
-    hasOlderPeriods: periodsQuery.hasNextPage,
-    isContentLoading: Boolean(selectedOption) && detailQuery.isLoading && !detailQuery.response,
+    hasNewerPeriods: isCustomRange ? false : periodsQuery.hasPreviousPage,
+    hasOlderPeriods: isCustomRange ? false : periodsQuery.hasNextPage,
+    isContentLoading: (isCustomRange || Boolean(selectedOption)) && detailQuery.isLoading && !detailQuery.response,
     isLoadingNewerPeriods: periodsQuery.isFetchingPreviousPage,
     isLoadingOlderPeriods: periodsQuery.isFetchingNextPage,
     loadNewerPeriods: () => void periodsQuery.fetchPreviousPage(),
@@ -228,6 +253,7 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
         value: 'net',
       },
     ],
+    onCustomRangeChange: handleCustomRangeChange,
     onDisplayModeChange: metric === LedgerChartMetric.NET ? undefined : handleDisplayModeChange,
     onMetricChange: value => setSearchValue('metric', toLedgerMetric(value), true),
     onRankingItemClick: (item) => {
@@ -249,7 +275,16 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
       : undefined,
     setCurrentAmountType: value =>
       setSearchValue('metric', toLedgerMetric(value), true),
-    setCurrentTimeRangeCategory: value => setSearchValue('range', value, true),
+    setCurrentTimeRangeCategory: (value) => {
+      setSearchParams((previous) => {
+        previous.set('range', value);
+        previous.delete('startDate');
+        previous.delete('endDate');
+        previous.delete('date');
+        previous.delete('tab');
+        return previous;
+      }, { replace: true });
+    },
     setTabActive: (value) => {
       const option = periodsQuery.options.find(item => item.key === value);
       if (!option)
@@ -260,7 +295,7 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
         return previous;
       }, { replace: true });
     },
-    tabActive: selectedOption?.key ?? '',
+    tabActive: isCustomRange ? '' : selectedOption?.key ?? '',
     tabs,
     totalLabel: metric === LedgerChartMetric.NET
       ? t('charts.total')
@@ -275,6 +310,9 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
     period,
     preferenceQuery.data?.hideTotalAmount,
     chartDateRange,
+    customRange,
+    handleCustomRangeChange,
+    isCustomRange,
     ledgerId,
     navigate,
     setSearchValue,

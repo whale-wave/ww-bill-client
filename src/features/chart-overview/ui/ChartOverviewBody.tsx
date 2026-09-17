@@ -104,46 +104,48 @@ export const ChartOverviewBody: FC<ChartOverviewPresentationProps> = ({ pieChart
   return (
     <div className="flex min-h-0 flex-grow flex-col overflow-hidden" data-chart-overview>
       <Top />
-      <div
-        ref={scrollContainerRef}
-        className="flex h-[46px] shrink-0 snap-x snap-proximity gap-[7px] overflow-x-auto px-[18px] pb-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        data-tab-swipe-ignore
-        data-chart-period-options
-        onPointerMove={(event) => {
-          if (event.buttons)
+      {currentTimeRangeCategory !== 'custom' && (
+        <div
+          ref={scrollContainerRef}
+          className="flex h-[46px] shrink-0 snap-x snap-proximity gap-[7px] overflow-x-auto px-[18px] pb-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          data-tab-swipe-ignore
+          data-chart-period-options
+          onPointerMove={(event) => {
+            if (event.buttons)
+              userScrolledRef.current = true;
+          }}
+          onScroll={handleScroll}
+          onTouchMove={() => {
             userScrolledRef.current = true;
-        }}
-        onScroll={handleScroll}
-        onTouchMove={() => {
-          userScrolledRef.current = true;
-        }}
-        onWheel={() => {
-          userScrolledRef.current = true;
-        }}
-        style={{
-          WebkitMaskImage: 'linear-gradient(to right, transparent, black 18px, black calc(100% - 18px), transparent)',
-          maskImage: 'linear-gradient(to right, transparent, black 18px, black calc(100% - 18px), transparent)',
-        }}
-      >
-        {isLoadingOlderPeriods && (
-          <span aria-hidden className="my-auto size-4 shrink-0 animate-spin rounded-full border-2 border-primary-light border-t-primary" />
-        )}
-        {tabs.map(tabItem => (
-          <button
-            ref={tabItem.key === tabActive ? activeTabRef : undefined}
-            aria-pressed={tabItem.key === tabActive}
-            className={`shrink-0 snap-center rounded-full border border-solid px-[13px] py-1.5 text-[12px] leading-[18px] ${tabItem.key === tabActive ? 'border-primary bg-primary-light font-bold text-primary-deep shadow-[0_2px_5px_rgba(60,140,180,0.09)]' : 'border-border-primary bg-white/70 font-medium text-ww-soft'}`}
-            key={tabItem.key}
-            onClick={() => handleTabChange(tabItem.key)}
-            type="button"
-          >
-            {tabItem.name}
-          </button>
-        ))}
-        {isLoadingNewerPeriods && (
-          <span aria-hidden className="my-auto size-4 shrink-0 animate-spin rounded-full border-2 border-primary-light border-t-primary" />
-        )}
-      </div>
+          }}
+          onWheel={() => {
+            userScrolledRef.current = true;
+          }}
+          style={{
+            WebkitMaskImage: 'linear-gradient(to right, transparent, black 18px, black calc(100% - 18px), transparent)',
+            maskImage: 'linear-gradient(to right, transparent, black 18px, black calc(100% - 18px), transparent)',
+          }}
+        >
+          {isLoadingOlderPeriods && (
+            <span aria-hidden className="my-auto size-4 shrink-0 animate-spin rounded-full border-2 border-primary-light border-t-primary" />
+          )}
+          {tabs.map(tabItem => (
+            <button
+              ref={tabItem.key === tabActive ? activeTabRef : undefined}
+              aria-pressed={tabItem.key === tabActive}
+              className={`shrink-0 snap-center rounded-full border border-solid px-[13px] py-1.5 text-[12px] leading-[18px] ${tabItem.key === tabActive ? 'border-primary bg-primary-light font-bold text-primary-deep shadow-[0_2px_5px_rgba(60,140,180,0.09)]' : 'border-border-primary bg-white/70 font-medium text-ww-soft'}`}
+              key={tabItem.key}
+              onClick={() => handleTabChange(tabItem.key)}
+              type="button"
+            >
+              {tabItem.name}
+            </button>
+          ))}
+          {isLoadingNewerPeriods && (
+            <span aria-hidden className="my-auto size-4 shrink-0 animate-spin rounded-full border-2 border-primary-light border-t-primary" />
+          )}
+        </div>
+      )}
       <ChartContent pieChart={pieChart} tagRanking={tagRanking} />
     </div>
   );

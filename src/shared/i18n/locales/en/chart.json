@@ -44,7 +44,8 @@
   "tabs": {
     "week": "Week",
     "month": "Month",
-    "year": "Year"
+    "year": "Year",
+    "custom": "Custom"
   },
   "amount": {
     "income": "Income",
