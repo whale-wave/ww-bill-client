@@ -7,6 +7,7 @@ import { ClientUpdateController } from '@/features/app-update';
 const hooks = vi.hoisted(() => ({
   invalidateQueries: vi.fn(),
   markRead: vi.fn(),
+  useClientLatestReleaseQuery: vi.fn(),
   useNotificationsQuery: vi.fn(),
 }));
 
@@ -28,7 +29,7 @@ vi.mock('@tanstack/react-query', async importOriginal => ({
 }));
 
 vi.mock('@/entities/app-release', () => ({
-  appReleaseKeys: { all: ['app-release'] },
+  useClientLatestReleaseQuery: hooks.useClientLatestReleaseQuery,
 }));
 
 vi.mock('@/entities/notification', async (importOriginal) => {
@@ -66,6 +67,7 @@ let cleanup: (() => void) | undefined;
 beforeEach(() => {
   hooks.invalidateQueries.mockReset();
   hooks.markRead.mockReset();
+  hooks.useClientLatestReleaseQuery.mockReturnValue({ data: undefined, refetch: vi.fn() });
   hooks.useNotificationsQuery.mockReturnValue({
     data: [{
       content: '修复了同步体验。',
@@ -101,7 +103,7 @@ describe('client update controller', () => {
     expect(container.textContent).not.toContain('CLIENT_RELEASE');
   });
 
-  it('shows only the highest unread, enabled release that is newer than the installed web version', async () => {
+  it('shows the newest unread Web release without comparing it to the running Web version', async () => {
     hooks.useNotificationsQuery
       .mockReturnValueOnce({ data: [] })
       .mockReturnValueOnce({

@@ -6,6 +6,7 @@ export interface AndroidReleaseManifest {
   downloadUrl: string;
   releaseNotes: string;
   summary?: string;
+  images?: string[];
   highlights?: ClientReleaseHighlight[];
   updatedAt: string | null;
 }
@@ -16,6 +17,7 @@ export interface ClientReleaseManifest {
   versionName: string;
   summary: string;
   releaseNotes: string;
+  images?: string[];
   highlights: ClientReleaseHighlight[];
   web: {
     enabled: boolean;
@@ -36,6 +38,7 @@ export interface WebReleaseManifest extends ClientReleaseHighlightBase {
   noticeId?: string | null;
   title?: string;
   content?: string;
+  images?: string[];
   enabled: boolean;
   versionName: string;
   buildId: string;
@@ -47,6 +50,7 @@ export interface AndroidPlatformReleaseManifest extends ClientReleaseHighlightBa
   noticeId?: string | null;
   title?: string;
   content?: string;
+  images?: string[];
   enabled: boolean;
   versionName: string;
   versionCode: number;

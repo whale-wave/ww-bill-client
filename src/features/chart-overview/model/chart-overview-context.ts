@@ -7,6 +7,7 @@ export interface ChartOverviewRankingItem {
   amount: number | string;
   category: {
     icon: string;
+    iconType?: 'BUILTIN' | 'IMAGE';
     id: number | string;
     name: string;
   };

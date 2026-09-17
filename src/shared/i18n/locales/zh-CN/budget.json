@@ -17,8 +17,10 @@
   },
   "model": {
     "title": {
+      "dailySummary": "日总预算",
       "monthlySummary": "月度总预算",
       "yearlySummary": "年度总预算",
+      "dailyCategory": "{{category}}日预算",
       "monthlyCategory": "{{category}}月预算",
       "yearlyCategory": "{{category}}年预算"
     },
@@ -43,6 +45,7 @@
   "clearSummaryBudget": "清除{{period}}度总预算",
   "deleteCategoryBudget": "删除{{category}}预算",
   "dropdown": {
+    "dailyBudget": "日预算",
     "monthlyBudget": "月预算",
     "yearlyBudget": "年预算"
   },
@@ -68,6 +71,7 @@
   "item": {
     "edit": "编辑",
     "summary": {
+      "day": "{{month}}月{{day}}日总预算",
       "month": "{{month}}月总预算",
       "year": "{{year}}年总预算"
     }

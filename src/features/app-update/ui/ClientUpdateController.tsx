@@ -3,16 +3,42 @@ import type { UserNotification } from '@/entities/notification';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { appReleaseKeys } from '@/entities/app-release';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { useClientLatestReleaseQuery } from '@/entities/app-release';
 import { markNotificationReadApi, NotificationDetailModal, notificationKeys, useNotificationsQuery, UserNotificationStatus, UserNotificationType } from '@/entities/notification';
 import { useAuthStore } from '@/features/auth';
 import { getAppSocket } from '@/shared/api/socket';
-import { APP_INFO } from '@/shared/config/app-info';
 import { useTranslation } from '@/shared/i18n';
 import { openExternalUrl } from '@/shared/lib';
 import { showDate } from '@/shared/lib/time';
-import { selectClientReleasePrompt } from '../model/release-prompt';
+import { androidReleaseNotification, isAndroidUpdateAvailable, selectWebReleasePrompt } from '../model/release-prompt';
+
+const ANDROID_REMINDER_INTERVAL = 24 * 60 * 60 * 1000;
+
+function androidReminderKey(versionCode: number) {
+  return `ww-bill:android-update-reminder:${versionCode}`;
+}
+
+function wasAndroidReminderRecentlyShown(versionCode: number) {
+  try {
+    const shownAt = Number(window.localStorage.getItem(androidReminderKey(versionCode)));
+    return Number.isFinite(shownAt) && Date.now() - shownAt < ANDROID_REMINDER_INTERVAL;
+  }
+  catch {
+    return false;
+  }
+}
+
+function rememberAndroidReminder(versionCode: unknown) {
+  if (typeof versionCode !== 'number' || !Number.isSafeInteger(versionCode) || versionCode < 1)
+    return;
+  try {
+    window.localStorage.setItem(androidReminderKey(versionCode), String(Date.now()));
+  }
+  catch {
+    // Update reminders remain useful when local storage is unavailable.
+  }
+}
 
 export const ClientUpdateController: FC = () => {
   const { t: commonT } = useTranslation('common');
@@ -21,53 +47,62 @@ export const ClientUpdateController: FC = () => {
   const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
   const token = useAuthStore(state => state.token);
   const notificationsQuery = useNotificationsQuery({
-    params: { limit: 20, platform },
+    params: { includeClientReleases: false, limit: 20, platform },
     queryOptions: { enabled: Boolean(token) },
   });
-  const releaseNotificationsQuery = useNotificationsQuery({
-    // Fetch release history separately so ordinary announcements cannot push the
-    // newest release outside the popup selection window.
-    params: { limit: 100, platform, type: UserNotificationType.CLIENT_RELEASE },
-    queryOptions: { enabled: Boolean(token) },
+  const webReleaseNotificationsQuery = useNotificationsQuery({
+    params: { limit: 100, platform: 'web', type: UserNotificationType.CLIENT_RELEASE },
+    queryOptions: { enabled: Boolean(token) && platform === 'web' },
   });
+  const androidReleaseQuery = useClientLatestReleaseQuery({
+    platform: 'android',
+    queryOptions: { enabled: platform === 'android' },
+  });
+  const refetchAndroidRelease = androidReleaseQuery.refetch;
   const shownGeneralRef = useRef<string | null>(null);
+  const dialogReservedRef = useRef(false);
   const realtimeNoticeIdRef = useRef<string | null>(null);
-  const [promptNotification, setPromptNotification] = useState<UserNotification | null>(null);
+  const lastAndroidCheckRef = useRef(0);
+  const [promptNotification, dispatchPromptNotification] = useReducer(
+    (_current: UserNotification | null, next: UserNotification | null) => next,
+    null,
+  );
   const [androidVersionCode, setAndroidVersionCode] = useState<number | null>(null);
+  const [androidCheckSequence, setAndroidCheckSequence] = useState(1);
 
   const triggerNoticeDialog = useCallback((notice: UserNotification) => {
     const noticeKey = `${notice.id}:${notice.version}`;
-    if (shownGeneralRef.current === noticeKey)
+    if (shownGeneralRef.current === noticeKey || dialogReservedRef.current)
       return;
     shownGeneralRef.current = noticeKey;
-
-    setPromptNotification(notice);
+    dialogReservedRef.current = true;
+    queueMicrotask(() => {
+      dispatchPromptNotification(notice);
+    });
   }, []);
 
   const closeNoticeDialog = useCallback(() => {
     const notice = promptNotification;
-    setPromptNotification(null);
+    dispatchPromptNotification(null);
+    dialogReservedRef.current = false;
     if (!notice)
       return;
-
+    if (notice.id.startsWith('client-release:')) {
+      rememberAndroidReminder(notice.payload?.versionCode);
+      return;
+    }
     void markNotificationReadApi(notice.id, notice.version)
-      .then(() => {
-        void queryClient.invalidateQueries(notificationKeys.all);
-      })
+      .then(() => queryClient.invalidateQueries(notificationKeys.all))
       .catch(() => undefined);
   }, [promptNotification, queryClient]);
 
   const confirmNoticeDialog = useCallback(() => {
     const notice = promptNotification;
     closeNoticeDialog();
-    if (!notice || notice.type !== UserNotificationType.CLIENT_RELEASE)
-      return;
-
-    const downloadUrl = notice.payload?.downloadUrl;
-    if (platform === 'android' && typeof downloadUrl === 'string' && downloadUrl) {
+    const downloadUrl = notice?.payload?.downloadUrl;
+    if (notice?.id.startsWith('client-release:') && typeof downloadUrl === 'string' && downloadUrl)
       void openExternalUrl(downloadUrl);
-    }
-  }, [closeNoticeDialog, platform, promptNotification]);
+  }, [closeNoticeDialog, promptNotification]);
 
   useEffect(() => {
     if (platform !== 'android')
@@ -86,109 +121,90 @@ export const ClientUpdateController: FC = () => {
   }, [platform]);
 
   useEffect(() => {
-    if (!token || !notificationsQuery.data)
+    if (!token)
       return;
-
-    const unreadNotices = notificationsQuery.data.filter(item =>
+    const unreadNotices = (notificationsQuery.data ?? []).filter(item =>
       item.type === UserNotificationType.SYSTEM_ANNOUNCEMENT
       && item.status === UserNotificationStatus.UNREAD,
     );
-
-    // 1. Mandatory Important Notifications: Always prompt on launch/resume until acknowledged
     const importantNotice = unreadNotices.find(item => item.payload?.promptLevel === 'important');
-    if (importantNotice) {
+    if (importantNotice && !promptNotification) {
       triggerNoticeDialog(importantNotice);
       return;
     }
-
-    const releasePrompt = selectClientReleasePrompt(
-      releaseNotificationsQuery.data,
-      platform,
-      platform === 'android' ? { versionCode: androidVersionCode } : { versionName: APP_INFO.version },
-    );
-    if (releasePrompt) {
-      triggerNoticeDialog(releasePrompt);
-      return;
-    }
-
-    // 2. Real-time Online Push Notification: Prompt right when received while online
-    if (realtimeNoticeIdRef.current) {
-      const targetId = realtimeNoticeIdRef.current;
-      realtimeNoticeIdRef.current = null;
-      const pushNotice = unreadNotices.find(item =>
-        item.id === targetId && Boolean(item.payload?.promptEnabled),
-      );
-      if (pushNotice) {
-        triggerNoticeDialog(pushNotice);
+    if (platform === 'web' && !promptNotification) {
+      const releasePrompt = selectWebReleasePrompt(webReleaseNotificationsQuery.data);
+      if (releasePrompt) {
+        triggerNoticeDialog(releasePrompt);
+        return;
       }
     }
-  }, [androidVersionCode, notificationsQuery.data, platform, releaseNotificationsQuery.data, token, triggerNoticeDialog]);
+    if (realtimeNoticeIdRef.current && !promptNotification) {
+      const targetId = realtimeNoticeIdRef.current;
+      realtimeNoticeIdRef.current = null;
+      const pushNotice = unreadNotices.find(item => item.id === targetId && Boolean(item.payload?.promptEnabled));
+      if (pushNotice)
+        triggerNoticeDialog(pushNotice);
+    }
+  }, [notificationsQuery.data, platform, promptNotification, token, triggerNoticeDialog, webReleaseNotificationsQuery.data]);
 
-  const lastRefreshTimeRef = useRef<number>(0);
-
-  const refreshAll = useCallback(async (force = false) => {
-    if (!token)
+  useEffect(() => {
+    const release = androidReleaseQuery.data;
+    if (platform !== 'android'
+      || lastAndroidCheckRef.current === androidCheckSequence
+      || !isAndroidUpdateAvailable(release, { versionCode: androidVersionCode })
+      || !release
+      || wasAndroidReminderRecentlyShown(release.android.versionCode)
+      || promptNotification) {
       return;
-    const now = Date.now();
-    if (!force && now - lastRefreshTimeRef.current < 3000)
-      return;
-    lastRefreshTimeRef.current = now;
+    }
+    lastAndroidCheckRef.current = androidCheckSequence;
+    triggerNoticeDialog(androidReleaseNotification(release));
+  }, [androidCheckSequence, androidReleaseQuery.data, androidVersionCode, platform, promptNotification, triggerNoticeDialog]);
 
-    void queryClient.invalidateQueries(notificationKeys.all);
-    void queryClient.invalidateQueries(appReleaseKeys.all);
+  const refreshNotifications = useCallback(async () => {
+    if (token)
+      await queryClient.invalidateQueries({ queryKey: notificationKeys.all });
   }, [queryClient, token]);
 
   useEffect(() => {
-    if (!token)
-      return;
-
-    void refreshAll();
-    const handleOnline = () => void refreshAll();
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible')
-        void refreshAll();
-    };
-    const handlePageShow = () => void refreshAll();
-
     const socket = getAppSocket();
     const handleSocketNotification = (data?: { id?: number }) => {
-      if (data?.id) {
+      if (data?.id)
         realtimeNoticeIdRef.current = `system:${data.id}`;
-      }
-      void refreshAll(true);
+      void refreshNotifications();
     };
-    const handleSocketConnect = () => void refreshAll();
-
+    const handleSocketConnect = () => void refreshNotifications();
+    const handleAppStateChange = ({ isActive }: { isActive: boolean }) => {
+      if (!isActive)
+        return;
+      if (platform === 'android') {
+        lastAndroidCheckRef.current = 0;
+        setAndroidCheckSequence(sequence => sequence + 1);
+        void refetchAndroidRelease();
+      }
+      void refreshNotifications();
+    };
     socket?.on('connect', handleSocketConnect);
     socket?.on('notification:published', handleSocketNotification);
     socket?.on('notification:updated', handleSocketNotification);
     socket?.on('notification:deleted', handleSocketNotification);
-
-    window.addEventListener('online', handleOnline);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('pageshow', handlePageShow);
     let removeAppListener: (() => void) | undefined;
-    void App.addListener('appStateChange', ({ isActive }) => {
-      if (isActive)
-        void refreshAll();
-    }).then((listener) => { removeAppListener = () => listener.remove(); });
+    void App.addListener('appStateChange', handleAppStateChange).then((listener) => {
+      removeAppListener = () => listener.remove();
+    });
     return () => {
       socket?.off('connect', handleSocketConnect);
       socket?.off('notification:published', handleSocketNotification);
       socket?.off('notification:updated', handleSocketNotification);
       socket?.off('notification:deleted', handleSocketNotification);
-      window.removeEventListener('online', handleOnline);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('pageshow', handlePageShow);
       removeAppListener?.();
     };
-  }, [refreshAll, token]);
+  }, [platform, refetchAndroidRelease, refreshNotifications]);
 
   return (
     <NotificationDetailModal
-      confirmText={promptNotification?.type === UserNotificationType.CLIENT_RELEASE && platform === 'android'
-        ? settingsT('aboutSupport.downloadUpdate')
-        : undefined}
+      confirmText={promptNotification?.id.startsWith('client-release:') ? settingsT('aboutSupport.downloadUpdate') : undefined}
       notification={promptNotification}
       onClose={closeNoticeDialog}
       onConfirm={confirmNoticeDialog}

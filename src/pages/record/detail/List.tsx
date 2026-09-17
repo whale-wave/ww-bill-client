@@ -52,6 +52,7 @@ const List: FC<ListProps> = memo(({ selectTime, change }) => {
         categoryName: item.category.name,
         hasAttachment: indicators.hasAttachment,
         iconName: item.category.icon,
+        iconType: item.category.iconType,
         id: item.id,
         onClick: () => handleRecord(item),
         originalAmount: item.originalAmount ? `-${item.originalAmount}` : undefined,
@@ -76,7 +77,7 @@ const List: FC<ListProps> = memo(({ selectTime, change }) => {
               <>
                 <RecordOverviewList
                   groups={groups}
-                  renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
+                  renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} size={18} />}
                   variant="overview"
                 />
                 <div className="h-[30px] flex-shrink-0"></div>

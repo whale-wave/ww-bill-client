@@ -8,6 +8,7 @@ import {
   BudgetEntityType,
   BudgetPageShell,
   BudgetPresentation,
+  getBudgetPeriodMeta,
   useDeleteBudgetCategoryByBudgetIdMutation,
   useGetBudgetInfoQuery,
   usePostBudgetClearMutation,
@@ -24,7 +25,11 @@ const Budget: React.FC<BudgetProps> = () => {
   const { t } = useTranslation('budget');
   const [searchParams] = useSearchParams();
   const typeByUrl = searchParams.get('type');
-  const [budgetEntityType, setBudgetEntityType] = useState<BudgetEntityType>(typeByUrl ? Number(typeByUrl) : BudgetEntityType.MONTH);
+  const typeFromUrl = Number(typeByUrl);
+  const initialType = Object.values(BudgetEntityType).includes(typeFromUrl)
+    ? typeFromUrl as BudgetEntityType
+    : BudgetEntityType.MONTH;
+  const [budgetEntityType, setBudgetEntityType] = useState<BudgetEntityType>(initialType);
   const budgetPageContentValue = useMemo(() => ({ budgetEntityType, setBudgetEntityType }), [budgetEntityType, setBudgetEntityType]);
 
   const navigate = useNavigate();
@@ -42,7 +47,7 @@ const Budget: React.FC<BudgetProps> = () => {
 
   const onBudgetClick = useCallback((budgetInfo: BudgetInfo, level: BudgetEntityLevel) => () => {
     const isSummaryBudget = level === BudgetEntityLevel.SUMMARY;
-    const text = budgetPageContentValue.budgetEntityType === BudgetEntityType.MONTH ? t('common:time.month') : t('common:time.year');
+    const text = t(getBudgetPeriodMeta(budgetPageContentValue.budgetEntityType).timeKey);
 
     const actionSheet = showAppActionSheet({
       cancelText: t('common:nav.cancel'),

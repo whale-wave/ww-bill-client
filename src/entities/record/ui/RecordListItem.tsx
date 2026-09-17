@@ -1,7 +1,7 @@
 import type { RecordEntry } from '../types';
 import classNames from 'classnames';
 import React, { memo } from 'react';
-import { Icon } from '@/shared/ui';
+import { CategoryIcon } from '@/entities/category';
 
 interface RecordListItemProps {
   className?: string;
@@ -16,7 +16,7 @@ const RecordListItem: React.FC<RecordListItemProps> = memo((props) => {
   const content = (
     <>
       <div className="mx-4 py-3">
-        <div className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-ww-surface-tint"><Icon className="text-xl" name={record.category.icon} /></div>
+        <div className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-ww-surface-tint"><CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} iconType={record.category.iconType} size={20} /></div>
       </div>
       <div className={classNames({
         'border-0 border-b-[1px] border-border-primary border-solid': index !== lastIndex,

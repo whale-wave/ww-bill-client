@@ -19,7 +19,7 @@ import { IllustratedEmptyState, MetricGrid, ProgressBar, Surface } from '@/share
 
 interface ChartDetailState {
   amount: number | string;
-  category: { id: string | number; icon: string; name: string };
+  category: { id: string | number; icon: string; iconType?: 'BUILTIN' | 'IMAGE'; name: string };
   endDate: string;
   percentage: string;
   periodName: string;
@@ -92,7 +92,7 @@ export function CategoryDetail({ isRecordsLoading, records, state, tagRanking, t
                       const percentage = recordsAmount ? Number(record.amount) / recordsAmount : 0;
                       return (
                         <button className="flex h-[56px] w-full items-center gap-[11px] border-0 border-t border-solid border-border-primary bg-transparent py-[10px] text-left first:border-0" key={record.id} onClick={() => navigate(toRecord(record.id))} type="button">
-                          <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(111,194,220,0.16)] text-primary-deep"><CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} size={16} /></span>
+                          <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(111,194,220,0.16)] text-primary-deep"><CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} iconType={record.category?.iconType} size={16} /></span>
                           <span className="min-w-0 flex-1">
                             <span className="flex items-center justify-between">
                               <span className="truncate text-[13px] font-semibold leading-[19.5px] text-ww-ink">{record.remark || record.category?.name}</span>

@@ -87,6 +87,7 @@ export function toRecordSearchGroups(
           categoryName: record.category.name,
           hasAttachment: indicators.hasAttachment,
           iconName: record.category.icon,
+          iconType: record.category.iconType,
           memberColorKey: record.creator?.colorKey,
           id: record.id,
           onClick: options.onRecordClick

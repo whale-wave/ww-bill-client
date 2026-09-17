@@ -157,7 +157,7 @@ function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: strin
       }}
       recordCountLabel={count => t('record:calendar.recordCount', { count })}
       retryLabel={t('common.retry')}
-      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
+      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} size={18} />}
       selectedDayLabel={t('record:calendar.selectedDay')}
       selectedDate={selectedDate}
       state={viewState.isInitialLoading ? 'loading' : viewState.isBlockingError ? 'error' : 'ready'}

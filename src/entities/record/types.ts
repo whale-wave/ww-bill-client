@@ -46,6 +46,7 @@ export interface RecordEntry {
   category: {
     createdAt: string;
     icon: string;
+    iconType?: 'BUILTIN' | 'IMAGE';
     id: number;
     name: string;
     updatedAt: string;

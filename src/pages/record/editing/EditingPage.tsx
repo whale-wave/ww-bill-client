@@ -162,7 +162,7 @@ const Editing: FC = () => {
       amountType={state.type}
       backLabel={t('common:nav.back')}
       category={state.category}
-      categoryIcon={<CategoryIcon categoryName={state.category.name} iconKey={state.category.icon} size={36} />}
+      categoryIcon={<CategoryIcon categoryName={state.category.name} iconKey={state.category.icon} iconType={state.category.iconType} size={36} />}
       footerActions={[
         { label: t('record:detail.edit'), onClick: handleEdit },
         {

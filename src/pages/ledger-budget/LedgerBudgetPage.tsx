@@ -11,6 +11,7 @@ import {
   BudgetPageShell,
   BudgetPeriodDropdown,
   BudgetPresentation,
+  getBudgetPeriodMeta,
   useClearLedgerBudgetMutation,
   useCreateLedgerBudgetCategoryMutation,
   useCreateLedgerBudgetSummaryMutation,
@@ -132,7 +133,7 @@ function BudgetContent({
             openEditor(level, item);
           },
           text: isSummary
-            ? t('editSummaryBudget', { period: budgetEntityType === BudgetEntityType.MONTH ? t('common:time.month') : t('common:time.year') })
+            ? t('editSummaryBudget', { period: t(getBudgetPeriodMeta(budgetEntityType).timeKey) })
             : t('editCategoryBudget', { category: item.category?.name }),
         },
         {
@@ -163,7 +164,7 @@ function BudgetContent({
             }
           },
           text: isSummary
-            ? t('clearSummaryBudget', { period: budgetEntityType === BudgetEntityType.MONTH ? t('common:time.month') : t('common:time.year') })
+            ? t('clearSummaryBudget', { period: t(getBudgetPeriodMeta(budgetEntityType).timeKey) })
             : t('deleteCategoryBudget', { category: item.category?.name }),
         },
       ],
@@ -210,14 +211,10 @@ function BudgetContent({
         onSave={handleSave}
         saveLabel={t('actions.save')}
         title={editor?.level === BudgetEntityLevel.CATEGORY
-          ? t(budgetEntityType === BudgetEntityType.MONTH
-              ? 'model.title.monthlyCategory'
-              : 'model.title.yearlyCategory', {
+          ? t(getBudgetPeriodMeta(budgetEntityType).categoryTitleKey, {
               category: editor.item?.category?.name ?? '',
             })
-          : t(budgetEntityType === BudgetEntityType.MONTH
-              ? 'model.title.monthlySummary'
-              : 'model.title.yearlySummary')}
+          : t(getBudgetPeriodMeta(budgetEntityType).summaryTitleKey)}
         visible={Boolean(editor)}
       />
       <BudgetPresentation
@@ -257,7 +254,7 @@ function ScopedLedgerBudgetPage({
   const dropDownWrapperRef = useRef<HTMLDivElement>(null);
   const [budgetEntityType, setBudgetEntityType] = useState(BudgetEntityType.MONTH);
   const periodStart = useMemo(() => dayjs()
-    .startOf(budgetEntityType === BudgetEntityType.MONTH ? 'month' : 'year')
+    .startOf(getBudgetPeriodMeta(budgetEntityType).unit)
     .format('YYYY-MM-DD'), [budgetEntityType]);
 
   return (

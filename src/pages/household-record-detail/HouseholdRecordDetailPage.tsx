@@ -87,7 +87,7 @@ const RecordDetail: FC<{
         icon: record.category?.icon ?? 'bill',
         name: record.category?.name ?? t('recordDetail.uncategorized'),
       }}
-      categoryIcon={<CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} size={36} />}
+      categoryIcon={<CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} iconType={record.category?.iconType} size={36} />}
       memberColorKey={record.creator.colorKey}
       footerActions={isOwner
         ? [

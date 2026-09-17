@@ -17,8 +17,10 @@
   },
   "model": {
     "title": {
+      "dailySummary": "Daily Total Budget",
       "monthlySummary": "Monthly Total Budget",
       "yearlySummary": "Yearly Total Budget",
+      "dailyCategory": "{{category}} Daily Budget",
       "monthlyCategory": "{{category}} Monthly Budget",
       "yearlyCategory": "{{category}} Yearly Budget"
     },
@@ -27,6 +29,7 @@
     "amountPlaceholder": "Enter budget amount"
   },
   "dropdown": {
+    "dailyBudget": "Daily Budget",
     "monthlyBudget": "Monthly Budget",
     "yearlyBudget": "Yearly Budget"
   },
@@ -52,6 +55,7 @@
   "item": {
     "edit": "Edit",
     "summary": {
+      "day": "{{month}}/{{day}} Daily Budget",
       "month": "{{month}} Summary Budget",
       "year": "{{year}} Summary Budget"
     }

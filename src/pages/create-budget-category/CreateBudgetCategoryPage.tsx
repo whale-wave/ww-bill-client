@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { ArrowLeft, Tags } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { BudgetEntityLevel, BudgetEntityType as BudgetType } from '@/entities/budget';
+import { BudgetEntityLevel, getBudgetPeriodMeta } from '@/entities/budget';
 import { CategoryIcon, useGetCategoryQuery } from '@/entities/category';
 import { BudgetModel } from '@/pages/budget/ui';
 import { useTranslation } from '@/shared/i18n';
@@ -35,9 +35,7 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
     setSelectCategory(undefined);
   }, []);
 
-  const periodLabel = type === BudgetType.YEAR
-    ? t('budget:dropdown.yearlyBudget')
-    : t('budget:dropdown.monthlyBudget');
+  const periodLabel = t(`budget:${getBudgetPeriodMeta(type).dropdownKey}`);
 
   return (
     <div className="page-new h-[100dvh] min-h-[100svh] overflow-hidden" data-create-budget-category-page>
@@ -79,7 +77,7 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
                 'ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full',
               )}
               >
-                <CategoryIcon categoryName={category.name} iconKey={category.icon} size={24} />
+                <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} size={24} />
               </span>
               <span className="w-full truncate text-[11px] font-semibold leading-[16.5px] text-ww-mid">{category.name}</span>
             </button>

@@ -13,6 +13,7 @@ export interface BudgetPresentationItem {
   title?: string;
   category?: {
     icon?: string;
+    iconType?: 'BUILTIN' | 'IMAGE';
     name: string;
   };
   budgetAmount: number | string;
@@ -35,6 +36,11 @@ export interface BudgetItemProps {
 const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = BudgetEntityLevel.SUMMARY, className, data, editable = true, onClick }) => {
   const { t } = useTranslation('budget');
   const isSummaryBudget = type === BudgetEntityLevel.SUMMARY;
+  const summaryTitle = budgetEntityType === BudgetEntityType.DAY
+    ? t('item.summary.day', { day: dayjs().format('DD'), month: dayjs().format('MM') })
+    : budgetEntityType === BudgetEntityType.MONTH
+      ? t('item.summary.month', { month: dayjs().format('MM') })
+      : t('item.summary.year', { year: dayjs().format('YYYY') });
 
   return (
     <Surface
@@ -54,9 +60,7 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
             { isSummaryBudget
               ? (
                   <div className="text-[15px] font-extrabold text-ww-ink">
-                    {data.title ?? (budgetEntityType === BudgetEntityType.MONTH
-                      ? t('item.summary.month', { month: dayjs().format('MM') })
-                      : t('item.summary.year', { year: dayjs().format('YYYY') }))}
+                    {data.title ?? summaryTitle}
                   </div>
                 )
               : (
@@ -69,6 +73,7 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
                       <CategoryIcon
                         categoryName={data.category?.name}
                         iconKey={data.category?.icon}
+                        iconType={data.category?.iconType}
                         size={24}
                       />
                     </span>

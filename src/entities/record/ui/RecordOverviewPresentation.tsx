@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import type { RecordOverviewHeaderProps } from './RecordOverviewHeader';
-import type { RecordOverviewListGroup } from './RecordOverviewList';
+import type { RecordOverviewListGroup, RecordOverviewListItem } from './RecordOverviewList';
 import { InfiniteScroll } from 'antd-mobile';
 import { CircleAlert, Plus, RefreshCw } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
@@ -28,7 +28,7 @@ export interface RecordOverviewPresentationProps {
   onEmptyAction?: () => void;
   onRetry?: () => void;
   retryLabel?: ReactNode;
-  renderCategoryIcon?: (item: { categoryName?: string; iconName: string }) => ReactNode;
+  renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName' | 'iconType'>) => ReactNode;
   state: RecordOverviewState;
 }
 

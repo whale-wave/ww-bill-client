@@ -80,7 +80,7 @@ export const TooltipContent: FC<{ data: ChartOverviewPoint; currentAmountType: A
         {list.map(item => (
           <div className="flex min-w-0 items-center gap-2 rounded-[12px] bg-ww-surface-tint px-2 py-1.5" key={item.id}>
             <span className="ww-chart-tooltip-category flex h-7 w-7 shrink-0 items-center justify-center rounded-full">
-              <CategoryIcon categoryName={item.category.name} iconKey={item.category.icon} size={15} />
+              <CategoryIcon categoryName={item.category.name} iconKey={item.category.icon} iconType={item.category.iconType} size={15} />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[11px] font-bold text-ww-ink">{item.remark || item.category.name}</span>

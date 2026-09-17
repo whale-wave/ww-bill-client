@@ -64,6 +64,7 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
             amountTone: record.type === 'add' ? 'income' : 'expense',
             categoryName: record.category.name,
             iconName: record.category.icon,
+            iconType: record.category.iconType,
             id: record.id,
             onClick: handleRecordItemClick(record),
             originalAmount: record.originalAmount

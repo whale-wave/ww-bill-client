@@ -141,6 +141,7 @@ function SystemNotifyPage() {
   const status = parseStatus(searchParams.get('status'));
   const type = parseType(searchParams.get('type'));
   const filters = useMemo(() => ({
+    includeClientReleases: Capacitor.getPlatform() !== 'android',
     limit: PAGE_SIZE,
     platform: Capacitor.getPlatform() === 'android' ? 'android' as const : 'web' as const,
     ...(status ? { status } : {}),

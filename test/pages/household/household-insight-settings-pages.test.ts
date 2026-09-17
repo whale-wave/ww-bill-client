@@ -262,8 +262,9 @@ describe('household budget and charts', () => {
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
     expect(container.querySelector('[data-budget-page-shell]')).not.toBeNull();
+    expect(container.querySelector(`[data-budget-type="${BudgetEntityType.DAY}"]`)).not.toBeNull();
     expect(container.querySelector(`[data-budget-type="${BudgetEntityType.MONTH}"]`)).not.toBeNull();
-    expect(container.querySelectorAll('[data-budget-type]')).toHaveLength(2);
+    expect(container.querySelectorAll('[data-budget-type]')).toHaveLength(3);
     expect(container.querySelector('[data-budget-id="budget-1"]')).not.toBeNull();
     expect(container.querySelector('[data-budget-id="category-budget-1"]')?.textContent).toContain('Dining');
     expect(container.querySelector('[data-budget-add-category]')).not.toBeNull();
@@ -341,17 +342,33 @@ describe('household budget and charts', () => {
     expect(router.state.location.pathname).toBe('/household');
   });
 
-  it('uses the same two-option month/year selector as the personal budget page', async () => {
+  it('uses the same day/month/year selector as the personal budget page', async () => {
     const { container } = renderPage('/households/household%2Fa/budgets', '/households/:householdId/budgets', createElement(HouseholdBudgetsPage));
 
+    const dayOption = container.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.DAY}"]`)
+      ?? document.body.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.DAY}"]`);
     const monthOption = container.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.MONTH}"]`)
       ?? document.body.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.MONTH}"]`);
     const yearOption = container.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.YEAR}"]`)
       ?? document.body.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.YEAR}"]`);
+    expect(dayOption).not.toBeNull();
     expect(monthOption).not.toBeNull();
     expect(yearOption).not.toBeNull();
-    expect(container.querySelectorAll('[data-budget-type]')).toHaveLength(2);
+    expect(container.querySelectorAll('[data-budget-type]')).toHaveLength(3);
     expect(container.querySelector('[data-budget-period-start]')).toBeNull();
+
+    await act(async () => dayOption?.click());
+
+    expect(hooks.useHouseholdBudgetsQuery).toHaveBeenLastCalledWith({
+      params: {
+        filters: {
+          periodStart: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+          periodType: HouseholdBudgetPeriodType.DAY,
+        },
+        householdId: 'household/a',
+      },
+      queryOptions: { enabled: true },
+    });
 
     await act(async () => yearOption?.click());
 

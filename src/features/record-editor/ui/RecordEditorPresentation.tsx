@@ -425,6 +425,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                         <CategoryIcon
                           categoryName={category.name}
                           iconKey={category.icon}
+                          iconType={category.iconType}
                           size={24}
                         />
                       </span>

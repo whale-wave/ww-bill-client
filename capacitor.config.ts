@@ -20,6 +20,11 @@ const config: CapacitorConfig = {
   appId: isTestBuild ? testAppId : productionAppId,
   appName: '鲸浪记账',
   webDir: 'dist',
+  plugins: {
+    SystemBars: {
+      style: 'LIGHT',
+    },
+  },
   ...(isTestBuild
     ? {
         android: {

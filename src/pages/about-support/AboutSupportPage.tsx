@@ -175,7 +175,7 @@ const AboutSupportPage: FC = () => {
                     {t('aboutSupport.checkNow')}
                   </AppButton>
                   {latestRelease && installedVersion && isAndroidClientUpdateAvailable(installedVersion, latestRelease) && (
-                    <AppButton className="h-11 flex-1 rounded-[14px] px-3 text-xs" onClick={() => void openExternalUrl(latestRelease.android.downloadUrl)}>
+                    <AppButton className="h-11 flex-1 rounded-[14px] px-3 text-xs" onClick={() => void openExternalUrl(`${APP_INFO.officialWebsiteUrl}/#download`)}>
                       {t('aboutSupport.downloadUpdate')}
                     </AppButton>
                   )}

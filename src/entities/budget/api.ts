@@ -11,6 +11,7 @@ export enum BudgetEntityLevel {
 export enum BudgetEntityType {
   MONTH = 0,
   YEAR = 1,
+  DAY = 2,
 }
 
 export interface GetBudgetInfoApiParams {

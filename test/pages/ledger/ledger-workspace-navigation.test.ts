@@ -708,7 +708,8 @@ describe('custom ledger workspace integration', () => {
 
     expect(container.querySelector('[data-budget-page-shell]')).not.toBeNull();
     expect(container.querySelector('[data-budget-id="ledger-summary"]')).not.toBeNull();
-    expect(container.querySelectorAll('[data-budget-type]')).toHaveLength(2);
+    expect(container.querySelectorAll('[data-budget-type]')).toHaveLength(3);
+    expect(container.querySelector(`[data-budget-type="${BudgetEntityType.DAY}"]`)?.textContent).toContain('dropdown.dailyBudget');
     expect(container.querySelector(`[data-budget-type="${BudgetEntityType.MONTH}"]`)?.textContent).toContain('月预算');
   });
 

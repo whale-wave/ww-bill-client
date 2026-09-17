@@ -249,7 +249,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
           ? () => void recordsQuery.fetchNextPage()
           : undefined}
         retryLabel={t('common.retry')}
-        renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
+        renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} size={18} />}
         state={recordsQuery.isLoading && !recordsQuery.data
           ? 'loading'
           : recordsQuery.isError && !recordsQuery.data

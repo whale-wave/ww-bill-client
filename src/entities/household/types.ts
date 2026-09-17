@@ -37,6 +37,7 @@ export enum FamilyRecordPolicy {
 }
 
 export enum HouseholdBudgetPeriodType {
+  DAY = 'DAY',
   MONTH = 'MONTH',
   YEAR = 'YEAR',
 }
@@ -116,6 +117,7 @@ export interface FamilyRecordCategory {
   key?: string;
   name: string;
   icon: string;
+  iconType?: 'BUILTIN' | 'IMAGE';
   templateKey?: string;
 }
 

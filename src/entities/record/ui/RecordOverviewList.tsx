@@ -1,9 +1,9 @@
 import type { FC, MouseEvent, ReactNode } from 'react';
 import { SwipeAction } from 'antd-mobile';
 import { Image as ImageIcon } from 'lucide-react';
+import { CategoryIcon } from '@/entities/category';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { cn } from '@/shared/lib';
-import { Icon } from '@/shared/ui';
 
 export interface RecordOverviewListItem {
   amount: ReactNode;
@@ -11,6 +11,7 @@ export interface RecordOverviewListItem {
   originalAmount?: ReactNode;
   categoryName?: string;
   iconName: string;
+  iconType?: 'BUILTIN' | 'IMAGE';
   memberColorKey?: keyof typeof MEMBER_COLOR_PALETTE;
   id: number | string;
   hasAttachment?: boolean;
@@ -42,7 +43,7 @@ export interface RecordOverviewListGroup {
 
 interface RecordOverviewListProps {
   groups: RecordOverviewListGroup[];
-  renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName'>) => ReactNode;
+  renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName' | 'iconType'>) => ReactNode;
   variant?: 'compact' | 'default' | 'overview' | 'search';
 }
 
@@ -161,7 +162,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                             : undefined}
                           data-category-icon={record.iconName}
                         >
-                          {renderCategoryIcon?.(record) ?? <Icon className="text-[18px]" name={record.iconName || 'bill'} />}
+                          {renderCategoryIcon?.(record) ?? <CategoryIcon categoryName={record.categoryName} iconKey={record.iconName} iconType={record.iconType} size={18} />}
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block overflow-hidden text-ellipsis whitespace-nowrap text-[14px] font-semibold leading-[21px] text-ww-ink">
@@ -227,7 +228,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                             }
                           : undefined}
                       >
-                        {renderCategoryIcon?.(record) ?? <Icon className="text-[18px]" name={record.iconName || 'bill'} />}
+                        {renderCategoryIcon?.(record) ?? <CategoryIcon categoryName={record.categoryName} iconKey={record.iconName} iconType={record.iconType} size={18} />}
                       </span>
                     </span>
                     <span

@@ -149,6 +149,7 @@ export function toHouseholdRecordOverviewGroups(
           amountTone: record.type === 'add' ? 'income' : 'expense',
           categoryName: record.category?.name,
           iconName: record.category?.icon ?? 'bill',
+          iconType: record.category?.iconType,
           memberColorKey: record.creator.colorKey,
           id: record.id,
           onClick: options.onSelect ? () => options.onSelect?.(record) : undefined,

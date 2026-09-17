@@ -17,6 +17,7 @@ import {
   useUpsertHouseholdBudgetMutation,
 } from '@/entities/household';
 import {
+  formatCalendarDate,
   formatMonthStart,
   getApiErrorMessage,
   getApiErrorStatus,
@@ -86,12 +87,18 @@ const BudgetContent: FC<BudgetContentProps> = ({
         id: query.data.summary.budget.id,
         remaining: query.data.summary.remaining,
         remainingPercentage: String((query.data.summary.remainingPercent ?? 0) * 100),
-        title: periodType === HouseholdBudgetPeriodType.MONTH
-          ? t('common.monthLabel', {
+        title: periodType === HouseholdBudgetPeriodType.DAY
+          ? t('common.dayLabel', {
+              day: Number(periodStart.slice(8, 10)),
               month: Number(periodStart.slice(5, 7)),
               year: periodStart.slice(0, 4),
             })
-          : t('common.yearLabel', { year: periodStart.slice(0, 4) }),
+          : periodType === HouseholdBudgetPeriodType.MONTH
+            ? t('common.monthLabel', {
+                month: Number(periodStart.slice(5, 7)),
+                year: periodStart.slice(0, 4),
+              })
+            : t('common.yearLabel', { year: periodStart.slice(0, 4) }),
       }
     : undefined, [periodStart, periodType, query.data?.summary, t]);
   const categories = useMemo(() => (query.data?.categories ?? []).map(category => ({
@@ -289,18 +296,24 @@ const HouseholdBudgetsPage: FC = () => {
   const dropDownWrapperRef = useRef<HTMLDivElement>(null);
   const [periodType, setPeriodType] = useState(HouseholdBudgetPeriodType.MONTH);
   const [periodStart, setPeriodStart] = useState(() => formatMonthStart(new Date()));
-  const budgetEntityType = periodType === HouseholdBudgetPeriodType.MONTH
-    ? BudgetEntityType.MONTH
-    : BudgetEntityType.YEAR;
+  const budgetEntityType = periodType === HouseholdBudgetPeriodType.DAY
+    ? BudgetEntityType.DAY
+    : periodType === HouseholdBudgetPeriodType.MONTH
+      ? BudgetEntityType.MONTH
+      : BudgetEntityType.YEAR;
 
   const handleBudgetEntityTypeChange = (nextType: BudgetEntityType) => {
-    const nextPeriodType = nextType === BudgetEntityType.MONTH
-      ? HouseholdBudgetPeriodType.MONTH
-      : HouseholdBudgetPeriodType.YEAR;
+    const nextPeriodType = nextType === BudgetEntityType.DAY
+      ? HouseholdBudgetPeriodType.DAY
+      : nextType === BudgetEntityType.MONTH
+        ? HouseholdBudgetPeriodType.MONTH
+        : HouseholdBudgetPeriodType.YEAR;
     setPeriodType(nextPeriodType);
-    setPeriodStart(nextPeriodType === HouseholdBudgetPeriodType.MONTH
-      ? formatMonthStart(new Date())
-      : `${new Date().getFullYear()}-01-01`);
+    setPeriodStart(nextPeriodType === HouseholdBudgetPeriodType.DAY
+      ? formatCalendarDate(new Date())
+      : nextPeriodType === HouseholdBudgetPeriodType.MONTH
+        ? formatMonthStart(new Date())
+        : `${new Date().getFullYear()}-01-01`);
   };
 
   return (

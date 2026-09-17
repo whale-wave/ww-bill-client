@@ -22,7 +22,7 @@ const Mine: FC = () => {
     queryOptions: { refetchOnMount: 'always' },
   });
   const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
-  const { data: notifications } = useNotificationsQuery({ params: { limit: 50, platform } });
+  const { data: notifications } = useNotificationsQuery({ params: { includeClientReleases: platform !== 'android', limit: 50, platform } });
   const unreadCount = notifications.filter(item => item.status === UserNotificationStatus.UNREAD).length;
 
   const checkIn = useMemo(() => {

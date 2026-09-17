@@ -19,6 +19,7 @@
     "previousMonth": "Previous month",
     "nextMonth": "Next month",
     "monthLabel": "{{month}}/{{year}}",
+    "dayLabel": "{{month}}/{{day}}/{{year}}",
     "yearLabel": "{{year}}",
     "income": "Income",
     "expense": "Expense",
@@ -211,6 +212,7 @@
   },
   "budget": {
     "title": "Household budget",
+    "day": "Daily",
     "month": "Monthly",
     "year": "Yearly",
     "total": "Total budget",

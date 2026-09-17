@@ -1,8 +1,9 @@
 import type { ReactNode, RefObject } from 'react';
+import type { BudgetEntityType } from '../api';
 import { ArrowLeft, CalendarRange } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/shared/i18n';
-import { BudgetEntityType } from '../api';
+import { BUDGET_PERIODS, getBudgetPeriodMeta } from '../period';
 
 export interface BudgetPeriodDropdownProps {
   budgetEntityType: BudgetEntityType;
@@ -21,16 +22,10 @@ export const BudgetPeriodDropdown: React.FC<BudgetPeriodDropdownProps> = ({
 }) => {
   const navigate = useNavigate();
   const { t } = useTranslation('budget');
-  const actions = [
-    {
-      title: t('dropdown.monthlyBudget'),
-      key: BudgetEntityType.MONTH,
-    },
-    {
-      title: t('dropdown.yearlyBudget'),
-      key: BudgetEntityType.YEAR,
-    },
-  ];
+  const actions = BUDGET_PERIODS.map(key => ({
+    key,
+    title: t(getBudgetPeriodMeta(key).dropdownKey),
+  }));
 
   return (
     <header className="relative z-10 shrink-0 px-[18px] pb-3 pt-[max(10px,env(safe-area-inset-top))]">
@@ -49,7 +44,7 @@ export const BudgetPeriodDropdown: React.FC<BudgetPeriodDropdownProps> = ({
         </div>
         {right && <div className="absolute right-0">{right}</div>}
       </div>
-      <div className="mx-auto mt-3 grid max-w-[360px] grid-cols-2 rounded-[16px] border border-solid border-border-primary bg-white/60 p-1 shadow-ww-xs backdrop-blur-xl">
+      <div className="mx-auto mt-3 grid max-w-[360px] grid-cols-3 rounded-[16px] border border-solid border-border-primary bg-white/60 p-1 shadow-ww-xs backdrop-blur-xl">
         {actions.map(item => (
           <button
             className={`h-11 rounded-[13px] border-0 text-[13px] font-bold transition-all ${budgetEntityType === item.key ? 'bg-white text-primary-deep shadow-ww-xs' : 'bg-transparent text-ww-mid'}`}

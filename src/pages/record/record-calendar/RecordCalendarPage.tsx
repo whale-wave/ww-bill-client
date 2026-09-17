@@ -70,7 +70,7 @@ function RecordCalendar() {
       onToday={onToToday}
       recordCountLabel={count => t('calendar.recordCount', { count })}
       retryLabel={t('common:retry')}
-      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
+      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} size={18} />}
       selectedDayLabel={t('calendar.selectedDay')}
       selectedDate={selectDateValue}
       state={viewState.isInitialLoading ? 'loading' : viewState.isBlockingError ? 'error' : 'ready'}

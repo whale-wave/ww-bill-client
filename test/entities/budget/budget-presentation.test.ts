@@ -48,6 +48,9 @@ describe('budget presentation', () => {
     }));
 
     expect(container.textContent).toContain('dropdown.monthlyBudget');
+    expect(container.textContent).toContain('dropdown.dailyBudget');
+    act(() => container.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.DAY}"]`)?.click());
+    expect(handlePeriodChange).toHaveBeenCalledWith(BudgetEntityType.DAY);
     act(() => container.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.YEAR}"]`)?.click());
 
     expect(handlePeriodChange).toHaveBeenCalledWith(BudgetEntityType.YEAR);

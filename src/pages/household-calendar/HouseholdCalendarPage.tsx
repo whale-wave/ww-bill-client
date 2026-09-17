@@ -171,7 +171,7 @@ const HouseholdCalendarContent: FC<{ household: Household }> = ({ household }) =
       onToday={handleToToday}
       recordCountLabel={count => t('record:calendar.recordCount', { count })}
       retryLabel={t('common.retry')}
-      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
+      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} size={18} />}
       selectedDayLabel={t('record:calendar.selectedDay')}
       selectedDate={selectDateValue}
       state={(calendarQuery.isLoading && !calendarQuery.response) || (recordsQuery.isLoading && !recordsQuery.data)

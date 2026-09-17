@@ -5,9 +5,50 @@ import type {
   AgentPage,
   AgentRecordDraft,
   AgentStreamEvent,
+  AgentTurn,
 } from './types';
 import type { SuccessResponse } from '@/shared/api';
-import { fetchAuthenticatedEventStream, request } from '@/shared/api';
+import { v4 as uuidv4 } from 'uuid';
+import { assertSuccessApi, fetchAuthenticatedEventStream, request } from '@/shared/api';
+
+export interface AgentRuntime {
+  displayModeStandalone: boolean;
+  maxTouchPoints: number;
+  userAgent: string;
+}
+
+interface AgentMessagePayload {
+  clientMessageId: string;
+  content: string;
+  locale: string;
+  timeZone: string;
+}
+
+function getAgentRuntime(): AgentRuntime {
+  const navigatorWithStandalone = navigator as Navigator & { standalone?: boolean };
+  return {
+    displayModeStandalone: navigatorWithStandalone.standalone === true
+      || window.matchMedia?.('(display-mode: standalone)').matches === true,
+    maxTouchPoints: navigator.maxTouchPoints ?? 0,
+    userAgent: navigator.userAgent,
+  };
+}
+
+export function isIosStandaloneAgentRuntime(runtime: AgentRuntime) {
+  if (!runtime.displayModeStandalone)
+    return false;
+  return /iPad|iPhone|iPod/i.test(runtime.userAgent)
+    || (/Macintosh/i.test(runtime.userAgent) && runtime.maxTouchPoints > 1);
+}
+
+function createAgentMessagePayload(content: string): AgentMessagePayload {
+  return {
+    clientMessageId: uuidv4(),
+    content,
+    locale: navigator.language || 'zh-CN',
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Shanghai',
+  };
+}
 
 export function getAgentConversationsApi(cursor?: string) {
   return request.get<unknown, SuccessResponse<AgentPage<AgentConversation>>>('/agent/conversations', {
@@ -29,6 +70,13 @@ export function getAgentMessagesApi(conversationId: string, cursor?: string) {
   return request.get<unknown, SuccessResponse<AgentPage<AgentMessage>>>(
     `/agent/conversations/${encodeURIComponent(conversationId)}/messages`,
     { params: { limit: 100, ...(cursor ? { cursor } : {}) } },
+  );
+}
+
+export function postAgentMessageApi(conversationId: string, data: AgentMessagePayload) {
+  return request.post<AgentMessagePayload, SuccessResponse<AgentTurn>>(
+    `/agent/conversations/${encodeURIComponent(conversationId)}/messages`,
+    data,
   );
 }
 
@@ -65,14 +113,12 @@ export async function streamAgentMessageApi(options: {
   onEvent: (event: AgentStreamEvent) => void;
   signal?: AbortSignal;
 }) {
+  const payload = createAgentMessagePayload(options.content);
   const responseBody = await fetchAuthenticatedEventStream(
     `/agent/conversations/${encodeURIComponent(options.conversationId)}/messages/stream`,
     {
       body: JSON.stringify({
-        clientMessageId: crypto.randomUUID(),
-        content: options.content,
-        locale: navigator.language,
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Shanghai',
+        ...payload,
       }),
       headers: {
         'Content-Type': 'application/json',
@@ -102,4 +148,30 @@ export async function streamAgentMessageApi(options: {
     if (event)
       options.onEvent(event);
   }
+}
+
+export async function sendAgentMessageApi(options: {
+  content: string;
+  conversationId: string;
+  onEvent: (event: AgentStreamEvent) => void;
+  runtime?: AgentRuntime;
+  signal?: AbortSignal;
+}) {
+  if (!isIosStandaloneAgentRuntime(options.runtime ?? getAgentRuntime())) {
+    return streamAgentMessageApi(options);
+  }
+
+  const turn = assertSuccessApi(await postAgentMessageApi(
+    options.conversationId,
+    createAgentMessagePayload(options.content),
+  )).data;
+  options.onEvent({
+    data: { assistantMessageId: turn.assistantMessage.id, userMessage: turn.userMessage },
+    event: 'message.started',
+  });
+  if (turn.assistantMessage.content)
+    options.onEvent({ data: { delta: turn.assistantMessage.content }, event: 'text.delta' });
+  if (turn.assistantMessage.card)
+    options.onEvent({ data: { card: turn.assistantMessage.card }, event: 'card.ready' });
+  options.onEvent({ data: { message: turn.assistantMessage }, event: 'message.completed' });
 }

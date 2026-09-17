@@ -1,52 +1,60 @@
+import type { ClientReleaseManifest } from '@/entities/app-release';
 import type { UserNotification } from '@/entities/notification';
 import { describe, expect, it } from 'vitest';
 import { UserNotificationStatus, UserNotificationType } from '@/entities/notification';
-import { selectClientReleasePrompt } from '@/features/app-update/model/release-prompt';
+import { androidReleaseNotification, isAndroidUpdateAvailable, selectWebReleasePrompt } from '@/features/app-update/model/release-prompt';
 
-function release(id: string, versionName: string, options: Partial<UserNotification> = {}): UserNotification {
+function release(id: string, versionName: string, status = UserNotificationStatus.UNREAD): UserNotification {
   return {
-    content: '',
+    content: '更新内容',
     createdAt: '2026-09-14T00:00:00.000Z',
     id,
-    payload: { promptEnabled: true, versionName },
-    status: UserNotificationStatus.UNREAD,
+    payload: { versionName },
+    status,
     title: versionName,
     type: UserNotificationType.CLIENT_RELEASE,
     updatedAt: '2026-09-14T00:00:00.000Z',
     version: 1,
-    ...options,
   };
 }
 
-describe('selectClientReleasePrompt', () => {
-  it('chooses the newest target version once instead of walking a new account through history', () => {
-    const notices = [
+function androidRelease(overrides: Partial<ClientReleaseManifest> = {}): ClientReleaseManifest {
+  return {
+    android: { downloadUrl: 'https://example.com/bill.apk', enabled: true, versionCode: 11 },
+    enabled: true,
+    highlights: [],
+    images: ['https://example.com/release.webp'],
+    publishedAt: '2026-09-14T00:00:00.000Z',
+    releaseNotes: '修复同步体验。',
+    summary: 'v1.0.11 更新',
+    versionName: '1.0.11',
+    web: { buildId: '', enabled: false },
+    ...overrides,
+  };
+}
+
+describe('release prompts', () => {
+  it('shows only the latest unread Web release and never falls back to history', () => {
+    expect(selectWebReleasePrompt([
       release('system:9', '1.0.9'),
       release('system:10', '1.0.10'),
-      release('system:11', '1.0.11'),
-    ];
-
-    expect(selectClientReleasePrompt(notices, 'web', { versionName: '1.0.8' })?.id).toBe('system:11');
-    expect(selectClientReleasePrompt([
-      ...notices.slice(0, 2),
-      release('system:11', '1.0.11', { status: UserNotificationStatus.READ }),
-    ], 'web', { versionName: '1.0.8' })).toBeNull();
+    ])?.id).toBe('system:10');
+    expect(selectWebReleasePrompt([
+      release('system:9', '1.0.9'),
+      release('system:10', '1.0.10', UserNotificationStatus.READ),
+    ])).toBeNull();
   });
 
-  it('never prompts an already current web/shortcut install, malformed metadata, or a disabled latest notice', () => {
-    expect(selectClientReleasePrompt([release('system:10', '1.0.10')], 'web', { versionName: '1.0.10' })).toBeNull();
-    expect(selectClientReleasePrompt([release('system:broken', 'not-a-version')], 'web', { versionName: '1.0.9' })).toBeNull();
-    expect(selectClientReleasePrompt([
-      release('system:10', '1.0.10'),
-      release('system:11', '1.0.11', { payload: { promptEnabled: false, versionName: '1.0.11' } }),
-    ], 'web', { versionName: '1.0.9' })).toBeNull();
-  });
-
-  it('uses Android versionCode as the authoritative installed-version comparison', () => {
-    const current = { versionCode: 10, versionName: '1.0.10' };
-    expect(selectClientReleasePrompt([
-      release('system:10', '1.0.10', { payload: { promptEnabled: true, versionCode: 10 } }),
-      release('system:11', '1.0.11', { payload: { promptEnabled: true, versionCode: 11 } }),
-    ], 'android', current)?.id).toBe('system:11');
+  it('uses only the public Android latest release, its version code, and its download URL', () => {
+    const current = androidRelease();
+    expect(isAndroidUpdateAvailable(current, { versionCode: 10 })).toBe(true);
+    expect(isAndroidUpdateAvailable(current, { versionCode: 11 })).toBe(false);
+    expect(isAndroidUpdateAvailable(androidRelease({ enabled: false }), { versionCode: 10 })).toBe(false);
+    expect(isAndroidUpdateAvailable(androidRelease({ android: { downloadUrl: '', enabled: true, versionCode: 11 } }), { versionCode: 10 })).toBe(false);
+    expect(androidReleaseNotification(current)).toMatchObject({
+      content: '修复同步体验。',
+      id: 'client-release:11',
+      payload: { downloadUrl: 'https://example.com/bill.apk', images: ['https://example.com/release.webp'], versionCode: 11 },
+    });
   });
 });

@@ -9,12 +9,15 @@ import { rehydrateAuthStore, useAuthStore } from '@/features/auth';
 import { setAuthDeps } from '@/shared/api/auth-injection';
 import { APP_INFO } from '@/shared/config/app-info';
 import { refreshBeforeAppStart } from '@/shared/config/build-info';
+import { startSystemStatusBarSync } from '@/shared/lib/system-status-bar';
 import { clearMonitoringUser, ErrorBoundary, SentryErrorFallback, setMonitoringUser } from '@/shared/monitoring';
 import '@/shared/monitoring/sentry';
 import '@/shared/i18n';
 import '@/assets/styles/index.scss';
 
 initResetStyle();
+const stopSystemStatusBarSync = startSystemStatusBarSync();
+import.meta.hot?.dispose(stopSystemStatusBarSync);
 const designStudioHash = window.location.hash;
 const isDesignStudio = import.meta.env.DEV
   && (designStudioHash === '#/design-system' || designStudioHash.startsWith('#/design-system/preview'));

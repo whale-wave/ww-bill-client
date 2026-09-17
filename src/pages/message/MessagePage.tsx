@@ -89,7 +89,7 @@ const Message: FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
-  const notificationQuery = useNotificationsQuery({ params: { limit: PAGE_SIZE, platform } });
+  const notificationQuery = useNotificationsQuery({ params: { includeClientReleases: platform !== 'android', limit: PAGE_SIZE, platform } });
   const markReadMutation = useMarkNotificationReadMutation();
   const archiveNotificationsMutation = useArchiveNotificationsMutation();
   const {

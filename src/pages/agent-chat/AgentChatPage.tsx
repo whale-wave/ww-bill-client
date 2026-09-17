@@ -7,7 +7,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   agentKeys,
   createAgentRecordEditorState,
-  streamAgentMessageApi,
+  sendAgentMessageApi,
   useAgentConversationsQuery,
   useAgentMessagesQuery,
   useCancelAgentActionMutation,
@@ -131,7 +131,7 @@ function AgentChatPage() {
     const abortController = new AbortController();
     streamAbortControllerRef.current = abortController;
     try {
-      await streamAgentMessageApi({
+      await sendAgentMessageApi({
         content,
         conversationId: activeConversationId,
         onEvent: (event) => {
@@ -224,7 +224,7 @@ function AgentChatPage() {
         title={activeConversation?.title === '新对话' ? t('title') : (activeConversation?.title ?? t('title'))}
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto px-[var(--ww-page-gutter)] pb-5">
+      <main className="min-h-0 flex-1 overflow-y-auto px-[var(--ww-page-gutter)] pb-[var(--ww-space-xl)] pt-[var(--ww-space-xs)]">
         {(conversationsQuery.isLoading || (!activeConversationId && createConversation.isLoading)) && <PageLoadingState label={t('sending')} />}
         {conversationsQuery.isError && <p className="py-20 text-center text-sm font-semibold text-feedback-danger">{t('loadFailed')}</p>}
         {activeConversationId && messagesQuery.isLoading && <PageLoadingState compact label={t('sending')} />}
@@ -242,7 +242,7 @@ function AgentChatPage() {
             </div>
           </div>
         )}
-        <div className="space-y-4 pt-3">
+        <div className="space-y-[var(--ww-space-lg)] pt-[var(--ww-space-md)]">
           {messagesQuery.hasNextPage && (
             <button
               className="mx-auto flex min-h-11 items-center justify-center rounded-full border-0 bg-transparent px-4 text-[12px] font-bold text-primary-deep"
@@ -257,11 +257,11 @@ function AgentChatPage() {
             <div className={message.role === 'USER' ? 'flex justify-end' : 'flex justify-start'} key={message.id}>
               <div className={message.role === 'USER' ? 'max-w-[82%]' : 'w-full max-w-[92%]'}>
                 <div className={message.role === 'USER'
-                  ? 'rounded-[20px] rounded-br-md bg-primary px-4 py-3 text-[14px] font-semibold leading-6 text-white shadow-ww'
-                  : 'flex items-start gap-2'}
+                  ? 'rounded-[var(--ww-radius-card)] rounded-br-[var(--ww-radius-sm)] bg-primary px-[var(--ww-space-md)] py-[var(--ww-space-sm)] text-[14px] font-semibold leading-6 text-white shadow-ww'
+                  : 'flex items-start gap-[var(--ww-space-md)]'}
                 >
-                  {message.role === 'ASSISTANT' && <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary-deep"><MessageCircleMore size={17} /></span>}
-                  <div className={message.role === 'ASSISTANT' ? 'min-w-0 flex-1 pt-1 text-[14px] font-semibold leading-6 text-ww-ink' : ''}>
+                  {message.role === 'ASSISTANT' && <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--ww-radius-control)] bg-ww-surface-tint text-primary-deep"><MessageCircleMore size={17} /></span>}
+                  <div className={message.role === 'ASSISTANT' ? 'min-w-0 flex-1 pt-[var(--ww-space-xs)] text-[14px] font-semibold leading-6 text-ww-ink' : ''}>
                     {message.content || (message.status === 'STREAMING' ? t('sending') : '')}
                     {message.card && (
                       <AgentCardView
@@ -295,7 +295,7 @@ function AgentChatPage() {
           void handleSend();
         }}
       >
-        <div className="flex items-end gap-2 rounded-[22px] border border-solid border-border-primary bg-ww-surface-raised p-2 shadow-ww">
+        <div className="flex items-end gap-2 rounded-[var(--ww-radius-panel)] border border-solid border-border-primary bg-ww-surface-raised p-2 shadow-ww">
           <textarea aria-label={t('inputPlaceholder')} className="max-h-28 min-h-11 flex-1 resize-none border-0 bg-transparent px-2 py-2 text-[14px] font-semibold leading-6 text-ww-ink outline-none placeholder:text-ww-soft" disabled={!activeConversationId || Boolean(pendingTurn)} maxLength={500} onChange={event => setInput(event.target.value)} placeholder={t('inputPlaceholder')} rows={1} value={input} />
           <button aria-label={t('send')} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-0 bg-primary text-white disabled:opacity-40" disabled={!input.trim() || !activeConversationId || Boolean(pendingTurn)} type="submit">
             <SendHorizontal size={18} />
