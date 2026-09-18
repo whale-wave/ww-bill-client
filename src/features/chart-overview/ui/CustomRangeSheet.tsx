@@ -107,18 +107,18 @@ export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, 
           <DayPicker
             className="w-full"
             classNames={{
-              day: 'p-0',
-              day_button: 'relative mx-auto flex size-10 items-center justify-center rounded-full text-[14px] font-semibold',
+              day: 'relative isolate p-0',
+              day_button: 'relative z-10 mx-auto flex size-10 items-center justify-center rounded-full text-[14px] font-semibold',
               disabled: 'opacity-35 grayscale [&_button]:cursor-not-allowed [&_button]:text-ww-soft',
               month: 'w-full',
               month_caption: 'text-center text-[16px] font-extrabold text-ww-ink',
               month_grid: 'w-full',
               nav: 'flex items-center justify-between',
-              range_end: 'rounded-r-full !bg-[color:var(--ww-theme-color-light)] [&_button]:bg-[var(--ww-theme-color-deep)] [&_button]:text-white',
-              range_middle: '!bg-[color:var(--ww-theme-color-light)] [&_button]:!rounded-none [&_button]:!bg-[color:var(--ww-theme-color-light)]',
-              range_start: 'rounded-l-full !bg-[color:var(--ww-theme-color-light)] [&_button]:bg-primary [&_button]:text-white',
+              range_end: 'relative before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:right-1/2 before:z-0 before:bg-[color:var(--ww-theme-color-light)] [&_button]:bg-[var(--ww-theme-color-deep)] [&_button]:text-white',
+              range_middle: 'relative before:pointer-events-none before:absolute before:inset-0 before:z-0 before:bg-[color:var(--ww-theme-color-light)] [&_button]:!rounded-none [&_button]:!bg-[color:var(--ww-theme-color-light)]',
+              range_start: 'relative after:pointer-events-none after:absolute after:inset-y-0 after:left-1/2 after:right-0 after:z-0 after:bg-[color:var(--ww-theme-color-light)] [&_button]:bg-primary [&_button]:text-white',
               root: 'w-full',
-              selected: 'bg-primary-light/70',
+              selected: 'bg-transparent',
               today: 'text-primary-deep',
               weekday: 'h-9 text-[12px] font-bold text-ww-soft',
             }}
@@ -132,12 +132,7 @@ export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, 
             }}
             modifiersClassNames={{
               range_pending_start: 'rounded-full [&_button]:bg-primary [&_button]:text-white',
-              same_day: 'rounded-full bg-primary-light/70 [&_button]:!bg-[var(--ww-theme-color-mid)] [&_button]:!text-white',
-            }}
-            modifiersStyles={{
-              range_end: { backgroundColor: 'var(--ww-theme-color-light)' },
-              range_middle: { backgroundColor: 'var(--ww-theme-color-light)' },
-              range_start: { backgroundColor: 'var(--ww-theme-color-light)' },
+              same_day: '[&_button]:!bg-[var(--ww-theme-color-mid)] [&_button]:!text-white',
             }}
             onSelect={handleRangeSelect}
             resetOnSelect
