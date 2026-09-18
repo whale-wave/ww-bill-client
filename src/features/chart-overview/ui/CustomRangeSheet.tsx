@@ -6,7 +6,7 @@ import { zhCN } from 'date-fns/locale';
 import { X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { DayPicker } from 'react-day-picker';
-import { AppSheet } from '@/shared/ui';
+import { AppDatePicker, AppSheet } from '@/shared/ui';
 
 interface CustomRangeSheetProps {
   onApply: (range: ChartOverviewCustomRange) => void;
@@ -35,6 +35,7 @@ function isValidRange(range: ChartOverviewCustomRange) {
 export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, range, visible }) => {
   const [today] = useState(() => new Date());
   const [draft, setDraft] = useState<ChartOverviewCustomRange>(() => range ?? todayRange(today));
+  const [editingField, setEditingField] = useState<keyof ChartOverviewCustomRange>();
 
   const selected = useMemo<DateRange>(() => ({ from: toDate(draft.startDate), to: toDate(draft.endDate) }), [draft]);
   const isValid = isValidRange(draft);
@@ -71,17 +72,12 @@ export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, 
         </header>
         <div className="grid shrink-0 grid-cols-1 gap-3 py-2">
           {(['startDate', 'endDate'] as const).map(key => (
-            <label className="flex items-center justify-between gap-3 rounded-[14px] border border-border-primary bg-white px-3 py-2" key={key}>
+            <div className="flex items-center justify-between gap-3 rounded-[14px] border border-border-primary bg-white px-3 py-2" key={key}>
               <span className="shrink-0 text-[13px] font-bold text-ww-mid">{key === 'startDate' ? '开始时间' : '结束时间'}</span>
-              <input
-                className="min-w-0 bg-transparent text-right text-[14px] font-semibold text-ww-ink outline-none"
-                max={format(today, 'yyyy-MM-dd\'T\'23:59:59')}
-                onChange={event => setDraft(current => ({ ...current, [key]: event.target.value }))}
-                step="1"
-                type="datetime-local"
-                value={draft[key]}
-              />
-            </label>
+              <button className="min-w-0 rounded-[10px] px-2 py-1 text-right text-[14px] font-semibold text-ww-ink" onClick={() => setEditingField(key)} type="button">
+                {draft[key].replace('T', ' ')}
+              </button>
+            </div>
           ))}
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto py-3">
@@ -116,6 +112,19 @@ export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, 
           <button className="ww-theme-primary-action h-12 flex-[1.6] rounded-[14px] text-[15px] font-extrabold disabled:opacity-45" disabled={!isValid} onClick={() => onApply(draft)} type="button">查看统计</button>
         </footer>
       </section>
+      <AppDatePicker
+        max={today}
+        onClose={() => setEditingField(undefined)}
+        onConfirm={(value) => {
+          if (editingField)
+            setDraft(current => ({ ...current, [editingField]: format(value, 'yyyy-MM-dd\'T\'HH:mm:ss') }));
+          setEditingField(undefined);
+        }}
+        precision="second"
+        title={editingField === 'startDate' ? '选择开始时间' : '选择结束时间'}
+        value={editingField ? new Date(draft[editingField]) : undefined}
+        visible={Boolean(editingField)}
+      />
     </AppSheet>
   );
 };
