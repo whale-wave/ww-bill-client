@@ -114,9 +114,9 @@ export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, 
               month_caption: 'text-center text-[16px] font-extrabold text-ww-ink',
               month_grid: 'w-full',
               nav: 'flex items-center justify-between',
-              range_end: 'rounded-r-full bg-primary-light/70 [&_button]:bg-[var(--ww-theme-color-deep)] [&_button]:text-white',
-              range_middle: 'bg-primary-light/70 [&_button]:rounded-none',
-              range_start: 'rounded-l-full bg-primary-light/70 [&_button]:bg-primary [&_button]:text-white',
+              range_end: 'rounded-r-full !bg-[color:var(--ww-theme-color-light)] [&_button]:bg-[var(--ww-theme-color-deep)] [&_button]:text-white',
+              range_middle: '!bg-[color:var(--ww-theme-color-light)] [&_button]:!rounded-none [&_button]:!bg-[color:var(--ww-theme-color-light)]',
+              range_start: 'rounded-l-full !bg-[color:var(--ww-theme-color-light)] [&_button]:bg-primary [&_button]:text-white',
               root: 'w-full',
               selected: 'bg-primary-light/70',
               today: 'text-primary-deep',
@@ -133,6 +133,11 @@ export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, 
             modifiersClassNames={{
               range_pending_start: 'rounded-full [&_button]:bg-primary [&_button]:text-white',
               same_day: 'rounded-full bg-primary-light/70 [&_button]:!bg-[var(--ww-theme-color-mid)] [&_button]:!text-white',
+            }}
+            modifiersStyles={{
+              range_end: { backgroundColor: 'var(--ww-theme-color-light)' },
+              range_middle: { backgroundColor: 'var(--ww-theme-color-light)' },
+              range_start: { backgroundColor: 'var(--ww-theme-color-light)' },
             }}
             onSelect={handleRangeSelect}
             resetOnSelect
