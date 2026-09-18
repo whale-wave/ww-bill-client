@@ -109,6 +109,7 @@ export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, 
             classNames={{
               day: 'p-0',
               day_button: 'relative mx-auto flex size-10 items-center justify-center rounded-full text-[14px] font-semibold',
+              disabled: 'opacity-35 grayscale [&_button]:cursor-not-allowed [&_button]:text-ww-soft',
               month: 'w-full',
               month_caption: 'text-center text-[16px] font-extrabold text-ww-ink',
               month_grid: 'w-full',
@@ -138,7 +139,7 @@ export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, 
             selected={calendarRange}
             weekStartsOn={1}
           />
-          <div className="mt-4 flex items-center justify-center gap-3 text-[10px] font-bold text-ww-mid">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[10px] font-bold text-ww-mid">
             <span className="inline-flex items-center gap-1">
               <i className="flex size-4 items-center justify-center rounded-full bg-primary text-[8px] not-italic text-white">起</i>
               开始
@@ -150,6 +151,10 @@ export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, 
             <span className="inline-flex items-center gap-1">
               <i className="flex size-4 items-center justify-center rounded-full bg-[var(--ww-theme-color-mid)] text-[8px] not-italic text-white">同</i>
               同日
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <i className="flex size-4 items-center justify-center rounded-full bg-ww-surface-tint text-[8px] not-italic text-ww-soft">灰</i>
+              不可选
             </span>
           </div>
         </div>
