@@ -1,11 +1,11 @@
 import type { FC } from 'react';
-import type { DateRange } from 'react-day-picker';
+import type { DateRange, DayButtonProps } from 'react-day-picker';
 import type { ChartOverviewCustomRange } from '../model/chart-overview-context';
-import { format } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { X } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { DayPicker } from 'react-day-picker';
+import { useState } from 'react';
+import { DayButton, DayPicker } from 'react-day-picker';
 import { AppDatePicker, AppSheet } from '@/shared/ui';
 
 interface CustomRangeSheetProps {
@@ -32,21 +32,40 @@ function isValidRange(range: ChartOverviewCustomRange) {
   return range.startDate <= range.endDate;
 }
 
+function RangeDayButton({ children, modifiers, ...props }: DayButtonProps) {
+  const marker = modifiers.same_day
+    ? '同'
+    : modifiers.range_pending_start || modifiers.range_start
+      ? '起'
+      : modifiers.range_end
+        ? '止'
+        : undefined;
+
+  return (
+    <DayButton modifiers={modifiers} {...props}>
+      {children}
+      {marker && <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 flex size-3.5 items-center justify-center rounded-full bg-white/90 text-[8px] font-black leading-none text-ww-ink shadow-ww-xs">{marker}</span>}
+    </DayButton>
+  );
+}
+
 export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, range, visible }) => {
   const [today] = useState(() => new Date());
   const [draft, setDraft] = useState<ChartOverviewCustomRange>(() => range ?? todayRange(today));
   const [editingField, setEditingField] = useState<keyof ChartOverviewCustomRange>();
+  const [calendarRange, setCalendarRange] = useState<DateRange>(() => {
+    const initialRange = range ?? todayRange(today);
+    return { from: toDate(initialRange.startDate), to: toDate(initialRange.endDate) };
+  });
 
-  const selected = useMemo<DateRange>(() => ({ from: toDate(draft.startDate), to: toDate(draft.endDate) }), [draft]);
+  const isSelectingEndDate = Boolean(calendarRange.from && !calendarRange.to);
   const isValid = isValidRange(draft);
   const handleRangeSelect = (nextRange: DateRange | undefined) => {
     if (!nextRange?.from)
       return;
+    setCalendarRange(nextRange);
     if (!nextRange.to) {
-      setDraft(current => ({
-        endDate: dateWithExistingTime(nextRange.from!, current.endDate),
-        startDate: dateWithExistingTime(nextRange.from!, current.startDate),
-      }));
+      setDraft(current => ({ ...current, startDate: dateWithExistingTime(nextRange.from!, current.startDate) }));
       return;
     }
     setDraft(current => ({
@@ -81,16 +100,20 @@ export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, 
           ))}
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto py-3">
+          <div className="mb-3 flex items-center justify-between rounded-[12px] bg-primary-light/35 px-3 py-2 text-[11px] font-bold text-ww-mid">
+            <span>{isSelectingEndDate ? '已选择开始日期，请继续选择结束日期' : '先选开始日期，再选结束日期'}</span>
+            <span className="text-primary-deep">{isSelectingEndDate ? '选择结束日' : '重新选择'}</span>
+          </div>
           <DayPicker
             className="w-full"
             classNames={{
               day: 'p-0',
-              day_button: 'mx-auto flex size-10 items-center justify-center rounded-full text-[14px] font-semibold',
+              day_button: 'relative mx-auto flex size-10 items-center justify-center rounded-full text-[14px] font-semibold',
               month: 'w-full',
               month_caption: 'text-center text-[16px] font-extrabold text-ww-ink',
               month_grid: 'w-full',
               nav: 'flex items-center justify-between',
-              range_end: 'rounded-r-full bg-primary-light/70 [&_button]:bg-primary [&_button]:text-white',
+              range_end: 'rounded-r-full bg-primary-light/70 [&_button]:bg-[var(--ww-theme-color-deep)] [&_button]:text-white',
               range_middle: 'bg-primary-light/70 [&_button]:rounded-none',
               range_start: 'rounded-l-full bg-primary-light/70 [&_button]:bg-primary [&_button]:text-white',
               root: 'w-full',
@@ -98,13 +121,37 @@ export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, 
               today: 'text-primary-deep',
               weekday: 'h-9 text-[12px] font-bold text-ww-soft',
             }}
+            components={{ DayButton: RangeDayButton }}
             disabled={{ after: today }}
             locale={zhCN}
             mode="range"
+            modifiers={{
+              range_pending_start: date => Boolean(calendarRange.from && !calendarRange.to && isSameDay(date, calendarRange.from)),
+              same_day: date => Boolean(calendarRange.from && calendarRange.to && isSameDay(calendarRange.from, calendarRange.to) && isSameDay(date, calendarRange.from)),
+            }}
+            modifiersClassNames={{
+              range_pending_start: 'rounded-full [&_button]:bg-primary [&_button]:text-white',
+              same_day: 'rounded-full bg-primary-light/70 [&_button]:!bg-[var(--ww-theme-color-mid)] [&_button]:!text-white',
+            }}
             onSelect={handleRangeSelect}
-            selected={selected}
+            resetOnSelect
+            selected={calendarRange}
             weekStartsOn={1}
           />
+          <div className="mt-4 flex items-center justify-center gap-3 text-[10px] font-bold text-ww-mid">
+            <span className="inline-flex items-center gap-1">
+              <i className="flex size-4 items-center justify-center rounded-full bg-primary text-[8px] not-italic text-white">起</i>
+              开始
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <i className="flex size-4 items-center justify-center rounded-full bg-[var(--ww-theme-color-deep)] text-[8px] not-italic text-white">止</i>
+              结束
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <i className="flex size-4 items-center justify-center rounded-full bg-[var(--ww-theme-color-mid)] text-[8px] not-italic text-white">同</i>
+              同日
+            </span>
+          </div>
         </div>
         {!isValid && <p className="shrink-0 pb-2 text-center text-[12px] font-medium text-[#b24f71]">开始时间不能晚于结束时间</p>}
         <footer className="flex shrink-0 gap-3 border-t border-border-primary pt-3">
@@ -116,8 +163,13 @@ export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, 
         max={today}
         onClose={() => setEditingField(undefined)}
         onConfirm={(value) => {
-          if (editingField)
-            setDraft(current => ({ ...current, [editingField]: format(value, 'yyyy-MM-dd\'T\'HH:mm:ss') }));
+          if (editingField) {
+            const nextRange = { ...draft, [editingField]: format(value, 'yyyy-MM-dd\'T\'HH:mm:ss') };
+            const from = toDate(nextRange.startDate);
+            const to = toDate(nextRange.endDate);
+            setDraft(nextRange);
+            setCalendarRange({ from, to: from <= to ? to : undefined });
+          }
           setEditingField(undefined);
         }}
         precision="second"
