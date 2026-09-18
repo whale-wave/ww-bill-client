@@ -728,6 +728,153 @@ html[data-design-studio-template='mono']
     opacity 180ms ease-out;
 }
 
+/* Konsta iOS is a studio-only candidate. It layers a neutral iOS chrome over
+ * the glass template without becoming an account appearance preference. */
+html[data-design-studio-template='konsta-ios'] {
+  --ww-ref-konsta-ios-blue: #6fc2dc;
+  --ww-ref-konsta-ios-blue-mid: #4aaac4;
+  --ww-ref-konsta-ios-blue-light: #c8eaf6;
+  --ww-ref-konsta-ios-blue-deep: #2b8baa;
+  --ww-ref-konsta-ios-white: #ffffff;
+  --ww-ref-konsta-ios-pink: #ef8caf;
+  --ww-ref-konsta-ios-pink-light: #fde7ef;
+  --ww-ref-konsta-ios-ink: #111827;
+  --ww-ref-konsta-ios-mid: #667085;
+  --ww-ref-konsta-ios-soft: #98a2b3;
+  --ww-ref-konsta-ios-canvas: #f2f4f7;
+  --ww-ref-konsta-ios-tint: #eaf2fb;
+  --ww-ref-konsta-ios-accent: #f8edf2;
+  --ww-ref-konsta-ios-secondary: #f8fafc;
+  --ww-ref-konsta-ios-border: rgb(20 20 24 / 0.07);
+  --ww-ref-konsta-ios-control: rgb(255 255 255 / 0.88);
+  --ww-ref-konsta-ios-surface: rgb(255 255 255 / 0.94);
+  --ww-ref-konsta-ios-glass-background: rgb(255 255 255 / 0.75);
+  --ww-ref-konsta-ios-glass-blur: 16px;
+  --ww-material-content-background: rgb(255 255 255 / 0.94);
+  --ww-material-content-border: var(--ww-border-color);
+  --ww-material-content-radius: var(--ww-radius-card);
+  --ww-material-content-shadow: none;
+  --ww-material-raised-background: rgb(255 255 255 / 0.94);
+  --ww-material-raised-border: var(--ww-border-color);
+  --ww-material-raised-radius: var(--ww-radius-card);
+  --ww-material-raised-shadow: var(--ww-card-shadow-xs);
+  --ww-material-chrome-background: rgb(255 255 255 / 0.72);
+  --ww-material-chrome-border: rgb(255 255 255 / 0.76);
+  --ww-material-chrome-radius: var(--ww-radius-control);
+  --ww-material-chrome-shadow: 0 8px 22px rgb(15 23 42 / 0.08), inset 0 1px 0 var(--ww-material-glass-highlight);
+  --ww-material-chrome-blur: blur(var(--ww-card-blur)) saturate(1.12);
+  --ww-material-floating-background: rgb(255 255 255 / 0.75);
+  --ww-material-floating-border: rgb(255 255 255 / 0.76);
+  --ww-material-floating-radius: 28px;
+  --ww-material-floating-shadow: var(--ww-ios-glass-shadow);
+  --ww-material-floating-blur: blur(var(--ww-card-blur)) saturate(1.12);
+  --ww-material-overlay-background: rgb(255 255 255 / 0.82);
+  --ww-material-overlay-border: rgb(255 255 255 / 0.82);
+  --ww-material-overlay-radius: var(--ww-radius-panel);
+  --ww-material-overlay-shadow: 0 18px 40px rgb(15 23 42 / 0.16), inset 0 1px 0 var(--ww-material-glass-highlight);
+  --ww-material-overlay-blur: blur(20px) saturate(1.12);
+  --ww-material-scrim-background: rgb(0 0 0 / 0.5);
+  --ww-ios-overlay-duration: 400ms;
+  --ww-ios-dialog-start-scale: 0.85;
+  --ww-ios-press-scale: 1.12;
+  --ww-ios-neutral-fill: rgb(0 0 0 / 0.1);
+  --ww-ios-neutral-border: rgb(0 0 0 / 0.2);
+  --ww-ref-konsta-ios-glass-shadow:
+    inset -1px -1px 0 -0.5px var(--ww-material-glass-highlight),
+    inset 1px 1px 0 -0.5px var(--ww-material-glass-highlight), inset 3px 3px 10px -3px #ddd,
+    inset -3px -3px 10px -3px #ddd, inset 0 0 5px 1px var(--ww-material-glass-highlight),
+    inset 0 0 0 0.5px rgb(0 0 0 / 0.25), inset 0 0 24px rgb(0 0 0 / 0.1), 0 0 25px rgb(0 0 0 / 0.2);
+  --ww-ref-konsta-ios-thumb-shadow:
+    inset -3px -3px 0 -3.5px var(--ww-material-glass-highlight),
+    inset 3px 3px 0 -3.5px var(--ww-material-glass-highlight), inset 0 0 0 0.5px rgb(255 255 255 / 0.5),
+    inset 3px 3px 10px -2px #eee, inset -3px -3px 10px -2px #eee, inset 0 0 5px 1px var(--ww-material-glass-highlight);
+  --ww-ref-konsta-ios-search-shadow:
+    inset 0 0 0 0.5px rgb(0 0 0 / 0.12), inset 0 1px 0 var(--ww-material-glass-highlight), 0 2px 6px rgb(0 0 0 / 0.06);
+  --ww-ref-konsta-ios-fab-shadow:
+    inset -3px -3px 0 -3.5px var(--ww-material-glass-highlight),
+    inset 3px 3px 0 -3.5px var(--ww-material-glass-highlight), inset 0 0 0 0.5px rgb(255 255 255 / 0.5),
+    inset 3px 3px 10px -2px var(--ww-theme-color), inset -3px -3px 10px -2px var(--ww-theme-color),
+    inset 0 0 5px 1px var(--ww-material-glass-highlight), 0 0 15px 4px rgb(0 0 0 / 0.2);
+  --ww-component-dock-background: var(--ww-material-floating-background);
+  --ww-component-dock-border: var(--ww-material-floating-border);
+  --ww-component-dock-shadow: var(--ww-material-floating-shadow);
+  --ww-component-dock-blur: var(--ww-material-floating-blur);
+  --ww-component-dock-active: rgb(255 255 255 / 0.78);
+  --ww-component-chart-switch-background: rgb(255 255 255 / 0.66);
+  --ww-component-chart-switch-border: rgb(255 255 255 / 0.72);
+  --ww-component-chart-switch-active: rgb(255 255 255 / 0.88);
+  --ww-component-profile-action-background: rgb(255 255 255 / 0.74);
+  --ww-component-profile-action-border: rgb(255 255 255 / 0.72);
+  --ww-component-profile-action-foreground: var(--ww-theme-color-deep);
+}
+
+html[data-design-studio-template='konsta-ios'] .ww-floating-dock {
+  height: 66px;
+  padding: 5px;
+  border-radius: 33px;
+}
+
+html[data-design-studio-template='konsta-ios'] .ww-floating-dock::before {
+  box-shadow:
+    inset 0 1px 0 var(--ww-material-glass-highlight),
+    inset 0 0 0 1px rgb(255 255 255 / 0.18);
+}
+
+html[data-design-studio-template='konsta-ios'] .ww-floating-dock__button {
+  height: 56px;
+  border-radius: 28px;
+  transition:
+    color 180ms ease-out,
+    opacity 180ms ease-out,
+    transform 180ms ease-out;
+}
+
+html[data-design-studio-template='konsta-ios'] .ww-floating-dock__button:active {
+  opacity: 0.72;
+  transform: scale(0.96);
+}
+
+html[data-design-studio-template='konsta-ios'] .ww-floating-dock__active-indicator {
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  height: auto;
+  width: calc((100% - 10px) / var(--ww-tab-count, 5));
+  border: 1px solid rgb(255 255 255 / 0.72);
+  border-radius: 28px;
+  background: var(--ww-component-dock-active);
+  box-shadow:
+    inset 0 1px 0 var(--ww-material-glass-highlight),
+    0 2px 8px rgb(15 23 42 / 0.06);
+}
+
+html[data-design-studio-template='konsta-ios']
+  .ww-floating-dock[data-active-index='1']
+  .ww-floating-dock__active-indicator {
+  transform: translateX(100%);
+}
+html[data-design-studio-template='konsta-ios']
+  .ww-floating-dock[data-active-index='2']
+  .ww-floating-dock__active-indicator {
+  transform: translateX(200%);
+}
+html[data-design-studio-template='konsta-ios']
+  .ww-floating-dock[data-active-index='3']
+  .ww-floating-dock__active-indicator {
+  transform: translateX(300%);
+}
+html[data-design-studio-template='konsta-ios']
+  .ww-floating-dock[data-active-index='4']
+  .ww-floating-dock__active-indicator {
+  transform: translateX(400%);
+}
+
+html[data-design-studio-template='konsta-ios']
+  .ww-floating-dock[data-motion-enabled='true']
+  .ww-floating-dock__active-indicator {
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .appearance-template-option[data-template-preview='mono'] .appearance-template-option__preview {
   border-color: var(--ww-ref-mono-border-soft);
   background: var(--ww-ref-mono-canvas);
@@ -755,7 +902,9 @@ html[data-design-studio-template='mono']
 
 @media (prefers-reduced-motion: reduce) {
   html[data-design-studio-template='mono'] .ww-floating-dock__button,
-  html[data-design-studio-template='mono'] .ww-floating-dock__active-indicator {
+  html[data-design-studio-template='mono'] .ww-floating-dock__active-indicator,
+  html[data-design-studio-template='konsta-ios'] .ww-floating-dock__button,
+  html[data-design-studio-template='konsta-ios'] .ww-floating-dock__active-indicator {
     transition: none;
   }
 }

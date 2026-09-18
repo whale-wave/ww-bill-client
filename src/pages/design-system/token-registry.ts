@@ -2,7 +2,7 @@ import type { AppearanceTemplate } from '@/entities/user-app-config';
 import { MONO_DEVELOPMENT_TOKENS } from '@/features/appearance/model/development-appearance';
 
 /** Studio templates stay local to the isolated preview until explicitly promoted. */
-export const STUDIO_TEMPLATES = ['glass', 'fresh', 'minimal', 'mono'] as const;
+export const STUDIO_TEMPLATES = ['glass', 'fresh', 'minimal', 'mono', 'konsta-ios'] as const;
 export type StudioTemplate = typeof STUDIO_TEMPLATES[number];
 
 export type StudioTokenKind = 'channel-color' | 'color' | 'select' | 'slider';
@@ -23,7 +23,7 @@ export interface StudioToken {
   options?: readonly StudioTokenOption[];
   step?: number;
   title: string;
-  unit?: 'px';
+  unit?: '' | 'ms' | 'px';
 }
 
 export type StudioTokenOverrides = Partial<Record<string, string>>;
@@ -31,9 +31,54 @@ export type StudioTokenOverrides = Partial<Record<string, string>>;
 export interface StudioThemeExport {
   baseTemplate: StudioTemplate;
   name: string;
+  requiresStyleSupport?: string;
   tokens: StudioTokenOverrides;
   version: 1;
 }
+
+const KONSTA_IOS_STUDIO_TOKENS: StudioTokenOverrides = {
+  '--ww-theme-color': 'var(--ww-ref-konsta-ios-blue)',
+  '--ww-theme-color-mid': 'var(--ww-ref-konsta-ios-blue-mid)',
+  '--ww-theme-color-light': 'var(--ww-ref-konsta-ios-blue-light)',
+  '--ww-theme-color-deep': 'var(--ww-ref-konsta-ios-blue-deep)',
+  '--ww-primary-foreground': 'var(--ww-ref-konsta-ios-white)',
+  '--ww-pink-color': 'var(--ww-ref-konsta-ios-pink)',
+  '--ww-pink-color-light': 'var(--ww-ref-konsta-ios-pink-light)',
+  '--ww-theme-text-color': 'var(--ww-ref-konsta-ios-ink)',
+  '--ww-text-color-mid': 'var(--ww-ref-konsta-ios-mid)',
+  '--ww-text-color-soft': 'var(--ww-ref-konsta-ios-soft)',
+  '--ww-background-color': 'var(--ww-ref-konsta-ios-canvas)',
+  '--ww-surface-tint-color': 'var(--ww-ref-konsta-ios-tint)',
+  '--ww-surface-accent-color': 'var(--ww-ref-konsta-ios-accent)',
+  '--ww-surface-secondary-color': 'var(--ww-ref-konsta-ios-secondary)',
+  '--ww-border-color': 'var(--ww-ref-konsta-ios-border)',
+  '--ww-card-color': 'var(--ww-ref-konsta-ios-control)',
+  '--ww-surface-color': 'var(--ww-ref-konsta-ios-surface)',
+  '--ww-surface-raised-color': 'var(--ww-ref-konsta-ios-surface)',
+  '--ww-control-surface': 'var(--ww-ref-konsta-ios-control)',
+  '--ww-page-gradient': 'var(--ww-background-color)',
+  '--ww-card-shadow': '0 3px 10px rgba(20, 20, 24, 0.05)',
+  '--ww-card-shadow-xs': '0 3px 10px rgba(20, 20, 24, 0.05)',
+  '--ww-card-shadow-lg': '0 10px 24px rgba(20, 20, 24, 0.07)',
+  '--ww-card-shadow-floating': '0 16px 32px rgba(20, 20, 24, 0.08)',
+  '--ww-control-shadow': '0 3px 10px rgba(20, 20, 24, 0.05)',
+  '--ww-material-glass-highlight': 'var(--ww-ref-konsta-ios-white)',
+  '--ww-radius-card': '24px',
+  '--ww-radius-panel': '32px',
+  '--ww-material-overlay-radius': '32px',
+  '--ww-component-sheet-radius': '32px',
+  '--ww-component-overlay-width': '300px',
+  '--ww-material-scrim-background': 'rgba(0, 0, 0, 0.5)',
+  '--ww-ios-overlay-duration': '400ms',
+  '--ww-ios-dialog-start-scale': '0.85',
+  '--ww-ios-press-scale': '1.12',
+  '--ww-ios-glass-shadow': 'var(--ww-ref-konsta-ios-glass-shadow)',
+  '--ww-ios-thumb-shadow': 'var(--ww-ref-konsta-ios-thumb-shadow)',
+  '--ww-ios-search-shadow': 'var(--ww-ref-konsta-ios-search-shadow)',
+  '--ww-ios-fab-shadow': 'var(--ww-ref-konsta-ios-fab-shadow)',
+  '--ww-radius-control': '14px',
+  '--ww-card-blur': '18px',
+};
 
 const surfaceOptions = [
   { label: '纯白', value: 'rgb(255 255 255)' },
@@ -130,6 +175,10 @@ const gradientOptions = [
 ] as const;
 
 export const STUDIO_TOKENS: readonly StudioToken[] = [
+  { name: '--ww-ios-overlay-duration', title: 'iOS 候选 · 弹层时长', description: 'Dialog 与 Sheet 共用的进入退出时长', group: 'shape', kind: 'slider', min: 100, max: 700, step: 10, unit: 'ms' },
+  { name: '--ww-ios-dialog-start-scale', title: 'iOS 候选 · 弹窗初始比例', description: '确认框淡入前的缩放比例', group: 'shape', kind: 'slider', min: 0.7, max: 1, step: 0.01, unit: '' },
+  { name: '--ww-ios-press-scale', title: 'iOS 候选 · 按压比例', description: 'Tabbar 玻璃指示块和 Toggle 拇指的放大比例', group: 'shape', kind: 'slider', min: 1, max: 1.2, step: 0.01, unit: '' },
+  ...(['glass', 'thumb', 'search', 'fab'] as const).map(name => ({ name: `--ww-ios-${name}-shadow`, title: `iOS 候选 · ${name} 材质`, description: '源自 Konsta 的玻璃边缘与阴影', group: 'material' as const, kind: 'select' as const, options: [{ label: '候选原版材质', value: `var(--ww-ref-konsta-ios-${name}-shadow)` }, ...shadowOptions] })),
   { name: '--ww-theme-color', title: '主色', description: '主操作、强调与进度，同时同步语义主色', group: 'color', kind: 'color', dependsOn: ['--ww-color-action-primary'] },
   { name: '--ww-theme-color-mid', title: '主色深阶', description: '渐变与按下层级', group: 'color', kind: 'color' },
   { name: '--ww-theme-color-light', title: '主色浅阶', description: '选中态与图标底色', group: 'color', kind: 'color' },
@@ -160,6 +209,7 @@ export const STUDIO_TOKENS: readonly StudioToken[] = [
   { name: '--ww-material-overlay-shadow', title: '浮层 · 阴影', description: '所有产品浮层共用抬升层次', group: 'material', kind: 'select', options: overlayShadowOptions },
   { name: '--ww-material-overlay-blur', title: '浮层 · 背景虚化', description: '遮罩和浮层表面共用的背景虚化强度', group: 'material', kind: 'select', options: overlayBlurOptions },
   { name: '--ww-material-scrim-background', title: '浮层 · 背景遮罩', description: '弹窗、菜单、日期选择器与 Sheet 共用遮罩', group: 'material', kind: 'select', options: scrimOptions },
+  { name: '--ww-material-glass-highlight', title: '玻璃 · 边缘高光', description: 'iOS 候选的玻璃表面内侧亮边', group: 'color', kind: 'color' },
   { name: '--ww-page-gutter', title: '页面边距', description: '移动页面左右留白', group: 'shape', kind: 'slider', min: 8, max: 28, step: 1, unit: 'px' },
   { name: '--ww-section-gap', title: '区块间距', description: '页面区块之间的垂直间距', group: 'shape', kind: 'slider', min: 4, max: 28, step: 1, unit: 'px' },
   { name: '--ww-card-padding', title: '卡片内边距', description: '业务卡片内容留白', group: 'shape', kind: 'slider', min: 8, max: 28, step: 1, unit: 'px' },
@@ -262,23 +312,27 @@ export interface StudioDebugRecord {
 }
 
 export function resolveStudioAppearanceTemplate(template: StudioTemplate): AppearanceTemplate {
-  return template === 'mono' ? 'minimal' : template;
+  return template === 'mono' ? 'minimal' : template === 'konsta-ios' ? 'glass' : template;
 }
 
 export function getStudioTemplateTokens(template: StudioTemplate): StudioTokenOverrides {
-  return template === 'mono' ? { ...MONO_DEVELOPMENT_TOKENS } : {};
+  if (template === 'mono')
+    return { ...MONO_DEVELOPMENT_TOKENS };
+  if (template === 'konsta-ios')
+    return { ...KONSTA_IOS_STUDIO_TOKENS };
+  return {};
 }
 
 export function createThemeExport(template: StudioTemplate, overrides: StudioTokenOverrides): StudioThemeExport {
-  return { version: 1, name: `鲸浪主题 · ${template}`, baseTemplate: template, tokens: filterValidStudioOverrides(overrides) };
+  return { version: 1, name: `鲸浪主题 · ${template}`, baseTemplate: template, tokens: filterValidStudioOverrides(overrides), ...(template === 'konsta-ios' ? { requiresStyleSupport: '鲸浪主题工坊 Konsta iOS 候选样式与交互适配' } : {}) };
 }
 
 export function createThemeCss(template: StudioTemplate, overrides: StudioTokenOverrides): string {
   const lines = Object.entries(filterValidStudioOverrides(overrides)).map(([name, value]) => `  ${name}: ${value};`);
-  const selector = template === 'mono'
-    ? 'html[data-design-studio-template=\'mono\']'
+  const selector = template === 'mono' || template === 'konsta-ios'
+    ? `html[data-design-studio-template='${template}']`
     : `html[data-appearance-template='${template}']`;
-  return `${selector} {\n${lines.join('\n')}\n}`;
+  return `${template === 'konsta-ios' ? '/* Requires Whale Wave studio Konsta iOS candidate styles and interaction adapters. */\n' : ''}${selector} {\n${lines.join('\n')}\n}`;
 }
 
 export function colorToChannels(value: string): string | null {
@@ -310,6 +364,9 @@ export function isValidTokenValue(token: StudioToken, value: string): boolean {
   if (token.kind === 'channel-color')
     return channelsToColor(value) !== null;
   if (token.kind === 'slider') {
+    const unit = token.unit ?? '';
+    if (!(unit ? new RegExp(`^\\d+(?:\\.\\d+)?${unit}$`) : /^\d+(?:\.\d+)?$/).test(value.trim()))
+      return false;
     const numeric = Number.parseFloat(value);
     return Number.isFinite(numeric) && numeric >= (token.min ?? 0) && numeric <= (token.max ?? Number.POSITIVE_INFINITY);
   }

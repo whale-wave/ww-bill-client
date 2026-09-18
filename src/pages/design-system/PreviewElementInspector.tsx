@@ -45,6 +45,9 @@ const visualProperties = new Set([
   'padding-top',
   'stroke',
   'width',
+  'transform',
+  'transition',
+  'transition-duration',
 ]);
 
 const inheritedVisualProperties = new Set(['color', 'fill', 'font-size', 'line-height', 'stroke']);

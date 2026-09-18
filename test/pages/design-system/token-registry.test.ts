@@ -64,6 +64,19 @@ describe('design studio token registry', () => {
     expect(createThemeCss('mono', monoTokens)).toContain('html[data-design-studio-template=\'mono\']');
   });
 
+  it('keeps the Konsta iOS candidate local while providing its glass baseline', () => {
+    const candidateTokens = getStudioTemplateTokens('konsta-ios');
+
+    expect(STUDIO_TEMPLATES).toContain('konsta-ios');
+    expect(resolveStudioAppearanceTemplate('konsta-ios')).toBe('glass');
+    expect(candidateTokens).toMatchObject({
+      '--ww-theme-color': 'var(--ww-ref-konsta-ios-blue)',
+      '--ww-card-blur': '18px',
+      '--ww-material-glass-highlight': 'var(--ww-ref-konsta-ios-white)',
+    });
+    expect(createThemeCss('konsta-ios', candidateTokens)).toContain('html[data-design-studio-template=\'konsta-ios\']');
+  });
+
   it('creates a sanitised debug record only when explicitly requested', () => {
     const record = createStudioDebugRecord('mono', {
       '--ww-theme-color': '#765cff',
@@ -74,5 +87,16 @@ describe('design studio token registry', () => {
       template: 'mono',
       overrides: { '--ww-theme-color': '#765cff' },
     });
+  });
+
+  it('round-trips candidate motion and material parameters and describes its style requirement', () => {
+    const baseline = getStudioTemplateTokens('konsta-ios');
+    expect(filterValidStudioOverrides(baseline)).toEqual(baseline);
+    const overrides = { '--ww-ios-press-scale': '1.08', '--ww-ios-overlay-duration': '350ms', '--ww-ios-thumb-shadow': 'var(--ww-ref-konsta-ios-thumb-shadow)' };
+    const record = createStudioDebugRecord('konsta-ios', overrides);
+    expect(record.overrides).toEqual(overrides);
+    expect(createThemeExport(record.template, record.overrides)).toMatchObject({ baseTemplate: 'konsta-ios', tokens: overrides, requiresStyleSupport: expect.any(String) });
+    expect(createThemeCss(record.template, record.overrides)).toContain('Requires Whale Wave studio');
+    expect(filterValidStudioOverrides({ '--ww-ios-press-scale': '1.4', '--ww-ios-dialog-start-scale': '0.85px', '--ww-ios-overlay-duration': '400px' })).toEqual({});
   });
 });

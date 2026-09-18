@@ -1,6 +1,6 @@
 import type { FC, KeyboardEvent } from 'react';
 import type { AppearancePreference, DevelopmentAppearanceTemplate } from '@/features/appearance';
-import { Check, Sparkles } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import {
@@ -110,11 +110,7 @@ const AppearanceSettingsPage: FC = () => {
         title={t('appearance.title')}
       />
       <main className="min-h-0 flex-grow overflow-auto px-[var(--ww-page-gutter)] pb-[max(20px,env(safe-area-inset-bottom))]">
-        <section className="pt-1" aria-labelledby="appearance-template-title">
-          <div className="mb-1.5 flex items-center gap-2 px-1">
-            <Sparkles className="text-primary-deep" size={17} strokeWidth={1.8} />
-            <h2 className="text-[13px] font-extrabold text-ww-ink" id="appearance-template-title">{t('appearance.templateTitle')}</h2>
-          </div>
+        <section className="pt-1">
           <div aria-label={t('appearance.templateTitle')} className="grid grid-cols-1 gap-2.5" role="radiogroup">
             {templateOptions.map((option) => {
               const isSelected = selectedTemplate === option.value;

@@ -59,6 +59,9 @@ const router = createHashRouter([
             path: 'design-system',
             lazy: lazyPage(() => import('@/pages/design-system/DesignSystemPage')),
           }, {
+            path: 'preview/asset-overview',
+            lazy: lazyPage(() => import('@/pages/asset/asset-chart/AssetOverviewPreviewPage')),
+          }, {
             path: 'agent',
             lazy: lazyGuardedPage(() => import('@/pages/agent-chat/AgentChatPage')),
           }]

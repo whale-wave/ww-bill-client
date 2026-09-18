@@ -74,7 +74,29 @@
     "assetRanking": "Asset Ranking",
     "liabilityRanking": "Liability Ranking",
     "monthSuffix": "",
-    "yearSuffix": ""
+    "yearSuffix": "",
+    "overviewTitle": "Asset overview",
+    "overviewDescription": "See how liabilities and net worth relate to your accounts",
+    "overviewDeficit": "Net worth deficit",
+    "overviewBalance": "Assets and deficit",
+    "overviewAmount": "Amount",
+    "overviewPercent": "Percentage",
+    "overviewHidden": "Hide amounts",
+    "overviewDisplay": "Overview display mode",
+    "overviewSwipe": "Swipe to explore; tap a node for details",
+    "overviewSources": "Liabilities / Net worth",
+    "overviewPool": "Overview",
+    "overviewCategories": "Categories",
+    "overviewAccounts": "Accounts",
+    "overviewEmpty": "No nonzero balances yet. Add an account or update a balance.",
+    "overviewNote": "Band widths represent amounts. Percentages use the diagram total. Connections show composition.",
+    "overviewDeficitNote": "Liabilities exceeding assets are shown as a net worth deficit.",
+    "overviewNegativeNote": "Negative balances appear on the opposite side: negative asset balances as liabilities, and negative liability balances as assets.",
+    "overviewDemo": "Local preview · Demo data, not your actual assets",
+    "overviewDemoScenario": "Preview scenario",
+    "overviewDemo_normal": "Asset overview",
+    "overviewDemo_deficit": "Liabilities exceed assets",
+    "overviewDemo_empty": "No balances"
   },
   "manager": {
     "title": "Asset Manager",
@@ -168,7 +190,8 @@
     "chart": "Chart",
     "asset": "Assets",
     "liability": "Liabilities",
-    "netAsset": "Net Assets"
+    "netAsset": "Net Assets",
+    "overview": "Overview"
   },
   "group": {
     "cash": "Cash",

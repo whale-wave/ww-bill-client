@@ -74,7 +74,29 @@
     "assetRanking": "资产排行榜",
     "liabilityRanking": "负债排行榜",
     "monthSuffix": "月",
-    "yearSuffix": "年"
+    "yearSuffix": "年",
+    "overviewTitle": "资产全景",
+    "overviewDescription": "从负债与净资产，看到账户构成",
+    "overviewDeficit": "净资产缺口",
+    "overviewBalance": "资产与缺口",
+    "overviewAmount": "金额",
+    "overviewPercent": "比例",
+    "overviewHidden": "隐藏金额",
+    "overviewDisplay": "全景显示方式",
+    "overviewSwipe": "左右滑动查看全景，点击节点查看详情",
+    "overviewSources": "负债 / 净资产",
+    "overviewPool": "资产总览",
+    "overviewCategories": "资产分类",
+    "overviewAccounts": "资产账户",
+    "overviewEmpty": "暂无非零余额，添加账户或调整余额后查看全景",
+    "overviewNote": "色带宽度代表金额，比例以全图总量为基准；连接表示资产构成。",
+    "overviewDeficitNote": "负债超过资产的部分显示为净资产缺口。",
+    "overviewNegativeNote": "负余额按相反方向展示：资产负余额计入负债侧，负债负余额计入资产侧。",
+    "overviewDemo": "本地预览 · 演示数据，不代表你的真实资产",
+    "overviewDemoScenario": "预览场景",
+    "overviewDemo_normal": "资产全景",
+    "overviewDemo_deficit": "负债超过资产",
+    "overviewDemo_empty": "暂无余额"
   },
   "manager": {
     "title": "资产管家",
@@ -168,7 +190,8 @@
     "chart": "图表",
     "asset": "资产",
     "liability": "负债",
-    "netAsset": "净资产"
+    "netAsset": "净资产",
+    "overview": "全景"
   },
   "group": {
     "cash": "现金",

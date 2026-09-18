@@ -31,6 +31,7 @@ vi.mock('@/entities/asset', async (importOriginal) => {
 });
 
 vi.mock('@/pages/asset/asset-chart/ui', () => ({
+  AssetSankey: () => createElement('div', { 'data-testid': 'asset-sankey' }),
   AssetRanking: ({ type }: { type: AssetStatisticalRecordType }) => createElement('div', { 'data-testid': 'asset-ranking', 'data-type': type }),
   AssetTrendChart: ({ type }: { type: AssetStatisticalRecordType }) => createElement('div', { 'data-testid': 'asset-trend', 'data-type': type }),
   CurAssetStatus: ({ type }: { type: AssetStatisticalRecordType }) => createElement('div', { 'data-testid': 'asset-status', 'data-type': type }),
@@ -194,6 +195,16 @@ describe('asset information form', () => {
 });
 
 describe('asset chart URL state', () => {
+  it('opens the asset overview by default and restores it from the URL', () => {
+    const { container } = renderRoute('/asset/chart', '/asset/chart', createElement(AssetChartPage));
+    expect(container.querySelector('[data-testid="asset-sankey"]')).not.toBeNull();
+    expect(container.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toContain('全景');
+  });
+
+  it('restores the overview tab from a shared URL', () => {
+    const { container } = renderRoute('/asset/chart?type=overview', '/asset/chart', createElement(AssetChartPage));
+    expect(container.querySelector('[data-testid="asset-sankey"]')).not.toBeNull();
+  });
   it('uses a valid type from the URL', () => {
     const { container } = renderRoute(
       '/asset/chart?type=liability',
