@@ -116,6 +116,18 @@ afterEach(() => {
 });
 
 describe('category management archived categories', () => {
+  it('uses circular wells for active and archived category icons', async () => {
+    const container = renderCategoryManagement();
+
+    expect(container.querySelectorAll('[data-category-management-icon]')).toHaveLength(2);
+    expect([...container.querySelectorAll('[data-category-management-icon]')].every(icon => icon.classList.contains('rounded-full'))).toBe(true);
+
+    await act(async () => getArchivedToggle(container).click());
+
+    expect(container.querySelectorAll('[data-category-management-icon]')).toHaveLength(3);
+    expect([...container.querySelectorAll('[data-category-management-icon]')].every(icon => icon.classList.contains('rounded-full'))).toBe(true);
+  });
+
   it('keeps archived categories collapsed until the summary button is pressed', async () => {
     const container = renderCategoryManagement();
     const toggle = getArchivedToggle(container);

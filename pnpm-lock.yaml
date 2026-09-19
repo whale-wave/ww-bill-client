@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@locator/babel-jsx@0.5.1':
+    hash: 7787d8c0b8b28913e88b8f3f8d342dd6cb0afd1ebefdc450f10faf6b946d1dce
+    path: patches/@locator__babel-jsx@0.5.1.patch
+
 importers:
 
   .:
@@ -173,7 +178,7 @@ importers:
         version: 5.8.11(eslint@9.39.4(jiti@1.21.7))(typescript@6.0.3)
       '@locator/babel-jsx':
         specifier: ^0.5.1
-        version: 0.5.1(@babel/core@7.29.7)(yaml@2.9.0)
+        version: 0.5.1(patch_hash=7787d8c0b8b28913e88b8f3f8d342dd6cb0afd1ebefdc450f10faf6b946d1dce)(@babel/core@7.29.7)(yaml@2.9.0)
       '@locator/runtime':
         specifier: ^0.5.1
         version: 0.5.1(yaml@2.9.0)
@@ -7616,7 +7621,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@locator/babel-jsx@0.5.1(@babel/core@7.29.7)(yaml@2.9.0)':
+  '@locator/babel-jsx@0.5.1(patch_hash=7787d8c0b8b28913e88b8f3f8d342dd6cb0afd1ebefdc450f10faf6b946d1dce)(@babel/core@7.29.7)(yaml@2.9.0)':
     dependencies:
       '@babel/parser': 7.29.7
       '@babel/plugin-syntax-jsx': 7.29.7(@babel/core@7.29.7)

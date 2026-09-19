@@ -59,6 +59,12 @@ export const RingChart: FC<RingChartProps> = memo(({ percentage, isSummaryBudget
         {
           type: 'pie',
           radius: ['78%', '100%'],
+          label: {
+            show: false,
+          },
+          labelLine: {
+            show: false,
+          },
           emphasis: {
             disabled: true,
           },

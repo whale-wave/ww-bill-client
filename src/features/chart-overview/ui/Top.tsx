@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DesignIcon } from '@/shared/ui';
 import { useChartOverview } from '../model/chart-overview-context';
+import { formatChartOverviewCustomRangeSummary } from '../model/custom-range';
 import { CustomRangeSheet } from './CustomRangeSheet';
 
 export const Top: FC = () => {
@@ -103,13 +104,7 @@ export const Top: FC = () => {
             onClick={openCustomRange}
             type="button"
           >
-            <span>
-              {customRange.startDate.replace('T', ' ')}
-              {' '}
-              —
-              {' '}
-              {customRange.endDate.replace('T', ' ')}
-            </span>
+            <span>{formatChartOverviewCustomRangeSummary(customRange)}</span>
             <span className="text-primary-deep">修改</span>
           </button>
         )}

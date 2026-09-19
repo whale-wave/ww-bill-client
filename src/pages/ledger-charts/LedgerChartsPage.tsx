@@ -25,6 +25,7 @@ import {
 import {
   ChartOverviewContext,
   ChartOverviewPresentation,
+  formatChartOverviewCustomRangeSummary,
   getChartPeriodName,
 } from '@/features/chart-overview';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
@@ -159,7 +160,7 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
       ...detailQuery.data.tab,
       anchorDate: detailQuery.data.anchorDate,
       name: isCustomRange && customRange
-        ? `${customRange.startDate.replace('T', ' ')} — ${customRange.endDate.replace('T', ' ')}`
+        ? formatChartOverviewCustomRangeSummary(customRange)
         : getChartPeriodName(selectedOption!, chartT),
     };
   }, [chartT, customRange, detailQuery.data, isCustomRange, selectedOption]);

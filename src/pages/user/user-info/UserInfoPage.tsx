@@ -226,9 +226,6 @@ const UserInfo: FC = () => {
                   <li>{t('deletion.item1')}</li>
                   <li>{t('deletion.item2')}</li>
                   <li>{t('deletion.item3')}</li>
-                  <li>{t('deletion.item4')}</li>
-                  <li>{t('deletion.item5')}</li>
-                  <li>{t('deletion.item6')}</li>
                 </ul>
                 {deletionStatusResponse?.data && !deletionStatusResponse.data.canRequest && <p className="rounded-xl bg-feedback-danger/10 px-3 py-2 font-bold text-feedback-danger">{t('deletion.blocked', deletionStatusResponse.data.blockers)}</p>}
               </div>

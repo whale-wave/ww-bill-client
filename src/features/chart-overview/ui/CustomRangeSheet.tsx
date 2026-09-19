@@ -1,12 +1,13 @@
 import type { FC } from 'react';
 import type { DateRange, DayButtonProps } from 'react-day-picker';
 import type { ChartOverviewCustomRange } from '../model/chart-overview-context';
-import { format, isSameDay } from 'date-fns';
+import { addYears, endOfDay, format, isSameDay, startOfMonth } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { X } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { DayButton, DayPicker } from 'react-day-picker';
-import { AppDatePicker, AppSheet } from '@/shared/ui';
+import { AppButton, AppDatePicker, AppSheet, SheetHeader } from '@/shared/ui';
+import { isCustomRangeWithinLimit } from '../model/custom-range';
 
 interface CustomRangeSheetProps {
   onApply: (range: ChartOverviewCustomRange) => void;
@@ -24,12 +25,8 @@ function toDate(value: string) {
   return new Date(`${value.slice(0, 10)}T12:00:00`);
 }
 
-function dateWithExistingTime(date: Date, value: string) {
-  return `${format(date, 'yyyy-MM-dd')}T${value.slice(11, 19)}`;
-}
-
 function isValidRange(range: ChartOverviewCustomRange) {
-  return range.startDate <= range.endDate;
+  return range.startDate <= range.endDate && isCustomRangeWithinLimit(range);
 }
 
 function RangeDayButton({ children, modifiers, ...props }: DayButtonProps) {
@@ -49,123 +46,209 @@ function RangeDayButton({ children, modifiers, ...props }: DayButtonProps) {
   );
 }
 
+interface CalendarNavigationProps {
+  displayedMonth: Date;
+  isMonthPickerVisible: boolean;
+  onNextMonth: () => void;
+  onPreviousMonth: () => void;
+  onToggleMonthPicker: () => void;
+  today: Date;
+}
+
+function CalendarNavigation({ displayedMonth, isMonthPickerVisible, onNextMonth, onPreviousMonth, onToggleMonthPicker, today }: CalendarNavigationProps) {
+  const isCurrentMonth = displayedMonth.getFullYear() === today.getFullYear() && displayedMonth.getMonth() === today.getMonth();
+
+  if (isMonthPickerVisible)
+    return null;
+
+  return (
+    <div className="flex h-11 items-center justify-between">
+      <button aria-label="上个月" className="flex size-11 items-center justify-center rounded-full text-ww-mid transition active:bg-primary-light/40" onClick={onPreviousMonth} type="button">
+        <ChevronLeft aria-hidden="true" size={20} />
+      </button>
+      <button aria-expanded={isMonthPickerVisible} className="flex min-h-11 items-center justify-center rounded-[10px] px-4 text-[16px] font-extrabold text-ww-ink transition active:bg-primary-light/40" onClick={onToggleMonthPicker} type="button">
+        {format(displayedMonth, 'yyyy年M月')}
+      </button>
+      <button aria-label="下个月" className="flex size-11 items-center justify-center rounded-full text-ww-mid transition active:bg-primary-light/40 disabled:opacity-35" disabled={isCurrentMonth} onClick={onNextMonth} type="button">
+        <ChevronRight aria-hidden="true" size={20} />
+      </button>
+    </div>
+  );
+}
+
+interface MonthPickerPanelProps {
+  monthPickerYear: number;
+  onMonthSelect: (month: number) => void;
+  onNextYear: () => void;
+  onPreviousYear: () => void;
+  onClose: () => void;
+  today: Date;
+}
+
+function MonthPickerPanel({ monthPickerYear, onClose, onMonthSelect, onNextYear, onPreviousYear, today }: MonthPickerPanelProps) {
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth();
+
+  return (
+    <div className="rounded-[14px] border border-border-primary bg-white/70 p-2">
+      <button className="mb-1 min-h-9 px-1 text-[12px] font-bold text-primary-deep" onClick={onClose} type="button">返回日历</button>
+      <div className="flex h-11 items-center justify-between">
+        <button aria-label="上一年" className="flex size-11 items-center justify-center rounded-full text-ww-mid active:bg-primary-light/40" onClick={onPreviousYear} type="button">
+          <ChevronLeft aria-hidden="true" size={20} />
+        </button>
+        <span className="text-[16px] font-extrabold text-ww-ink">
+          {monthPickerYear}
+          年
+        </span>
+        <button aria-label="下一年" className="flex size-11 items-center justify-center rounded-full text-ww-mid active:bg-primary-light/40 disabled:opacity-35" disabled={monthPickerYear >= currentYear} onClick={onNextYear} type="button">
+          <ChevronRight aria-hidden="true" size={20} />
+        </button>
+      </div>
+      <div className="grid grid-cols-4 gap-2">
+        {Array.from({ length: 12 }, (_, month) => {
+          const isFuture = monthPickerYear > currentYear || (monthPickerYear === currentYear && month > currentMonth);
+          return (
+            <button className="h-11 rounded-[10px] border border-border-primary bg-white/80 text-[13px] font-bold text-ww-mid shadow-ww-xs transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-35" disabled={isFuture} key={month} onClick={() => onMonthSelect(month)} type="button">
+              {month + 1}
+              月
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export const CustomRangeSheet: FC<CustomRangeSheetProps> = ({ onApply, onClose, range, visible }) => {
   const [today] = useState(() => new Date());
-  const [draft, setDraft] = useState<ChartOverviewCustomRange>(() => range ?? todayRange(today));
+  const initialRange = range ?? todayRange(today);
+  const [draft, setDraft] = useState<ChartOverviewCustomRange>(initialRange);
   const [editingField, setEditingField] = useState<keyof ChartOverviewCustomRange>();
-  const [calendarRange, setCalendarRange] = useState<DateRange>(() => {
-    const initialRange = range ?? todayRange(today);
-    return { from: toDate(initialRange.startDate), to: toDate(initialRange.endDate) };
-  });
+  const [calendarRange, setCalendarRange] = useState<DateRange | undefined>(() => ({ from: toDate(initialRange.startDate), to: toDate(initialRange.endDate) }));
+  const [displayedMonth, setDisplayedMonth] = useState(() => startOfMonth(toDate(initialRange.startDate)));
+  const [isMonthPickerVisible, setIsMonthPickerVisible] = useState(false);
+  const [monthPickerYear, setMonthPickerYear] = useState(() => displayedMonth.getFullYear());
 
-  const isSelectingEndDate = Boolean(calendarRange.from && !calendarRange.to);
+  const isSelectingEndDate = Boolean(calendarRange?.from && !calendarRange.to);
   const isValid = isValidRange(draft);
+  const disabledDates = useMemo(() => {
+    const matchers: Array<{ after: Date }> = [{ after: today }];
+    if (isSelectingEndDate && calendarRange?.from)
+      matchers.push({ after: addYears(calendarRange.from, 3) });
+    return matchers;
+  }, [calendarRange?.from, isSelectingEndDate, today]);
+
   const handleRangeSelect = (nextRange: DateRange | undefined) => {
     if (!nextRange?.from)
       return;
     setCalendarRange(nextRange);
-    if (!nextRange.to) {
-      setDraft(current => ({ ...current, startDate: dateWithExistingTime(nextRange.from!, current.startDate) }));
+    if (!nextRange.to)
       return;
-    }
-    setDraft(current => ({
-      endDate: dateWithExistingTime(nextRange.to!, current.endDate),
-      startDate: dateWithExistingTime(nextRange.from!, current.startDate),
-    }));
+    setDraft({
+      endDate: `${format(nextRange.to, 'yyyy-MM-dd')}T23:59:59`,
+      startDate: `${format(nextRange.from, 'yyyy-MM-dd')}T00:00:00`,
+    });
+  };
+
+  const handleResetSelection = () => {
+    setCalendarRange(undefined);
+    setIsMonthPickerVisible(false);
+  };
+
+  const handleMonthSelect = (month: number) => {
+    setDisplayedMonth(new Date(monthPickerYear, month, 1));
+    setIsMonthPickerVisible(false);
   };
 
   return (
     <AppSheet
-      bodyClassName="!h-[85dvh] !rounded-t-[24px]"
+      bodyClassName="!h-[80dvh] !max-h-[calc(100dvh-12px)] !rounded-t-[24px]"
+      // Keep a classic viewport fallback for Android WebViews/Chrome versions
+      // that do not parse dynamic viewport units. The class-based dvh values
+      // take over when supported.
+      bodyStyle={{ height: '80vh', maxHeight: 'calc(100vh - 12px)' }}
       closeOnMaskClick
       onClose={onClose}
       visible={visible}
     >
-      <section className="flex h-full min-h-0 flex-col bg-white px-5 pb-[max(16px,env(safe-area-inset-bottom))] pt-3" data-chart-custom-range-sheet>
-        <div className="mx-auto mb-2 h-1 w-10 shrink-0 rounded-full bg-border-primary" />
-        <header className="flex shrink-0 items-center justify-between py-2">
-          <h2 className="text-[18px] font-extrabold text-ww-ink">自定义区间</h2>
-          <button aria-label="关闭" className="flex size-10 items-center justify-center rounded-full text-ww-mid" onClick={onClose} type="button">
-            <X size={21} strokeWidth={2} />
-          </button>
-        </header>
-        <div className="grid shrink-0 grid-cols-1 gap-3 py-2">
-          {(['startDate', 'endDate'] as const).map(key => (
-            <div className="flex items-center justify-between gap-3 rounded-[14px] border border-border-primary bg-white px-3 py-2" key={key}>
-              <span className="shrink-0 text-[13px] font-bold text-ww-mid">{key === 'startDate' ? '开始时间' : '结束时间'}</span>
-              <button className="min-w-0 rounded-[10px] px-2 py-1 text-right text-[14px] font-semibold text-ww-ink" onClick={() => setEditingField(key)} type="button">
-                {draft[key].replace('T', ' ')}
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto py-3">
-          <div className="mb-3 flex items-center justify-between rounded-[12px] bg-primary-light/35 px-3 py-2 text-[11px] font-bold text-ww-mid">
-            <span>{isSelectingEndDate ? '已选择开始日期，请继续选择结束日期' : '先选开始日期，再选结束日期'}</span>
-            <span className="text-primary-deep">{isSelectingEndDate ? '选择结束日' : '重新选择'}</span>
+      <section className="flex h-full min-h-0 flex-col overflow-hidden bg-white" data-chart-custom-range-sheet>
+        <SheetHeader closeLabel="关闭" onClose={onClose} title="自定义区间" />
+        <main className="min-h-0 flex-1 overflow-y-auto px-5 py-3 overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]" data-chart-custom-range-content>
+          <div className="grid grid-cols-1 gap-3 pb-3">
+            {(['startDate', 'endDate'] as const).map(key => (
+              <div className="flex items-center justify-between gap-3 rounded-[14px] border border-border-primary bg-white px-3 py-2" key={key}>
+                <span className="shrink-0 text-[13px] font-bold text-ww-mid">{key === 'startDate' ? '开始时间' : '结束时间'}</span>
+                <button className="min-h-11 min-w-0 rounded-[10px] px-2 py-1 text-right text-[14px] font-semibold text-ww-ink" onClick={() => setEditingField(key)} type="button">
+                  {draft[key].slice(0, 10)}
+                </button>
+              </div>
+            ))}
           </div>
-          <DayPicker
-            className="w-full"
-            classNames={{
-              day: 'relative isolate p-0',
-              day_button: 'relative z-10 mx-auto flex size-10 items-center justify-center rounded-full text-[14px] font-semibold',
-              disabled: 'opacity-35 grayscale [&_button]:cursor-not-allowed [&_button]:text-ww-soft',
-              month: 'w-full',
-              month_caption: 'text-center text-[16px] font-extrabold text-ww-ink',
-              month_grid: 'w-full',
-              nav: 'flex items-center justify-between',
-              range_end: 'relative before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:right-1/2 before:z-0 before:bg-[color:var(--ww-theme-color-light)] [&_button]:bg-[var(--ww-theme-color-deep)] [&_button]:text-white',
-              range_middle: 'relative before:pointer-events-none before:absolute before:inset-0 before:z-0 before:bg-[color:var(--ww-theme-color-light)] [&_button]:!rounded-none [&_button]:!bg-[color:var(--ww-theme-color-light)]',
-              range_start: 'relative after:pointer-events-none after:absolute after:inset-y-0 after:left-1/2 after:right-0 after:z-0 after:bg-[color:var(--ww-theme-color-light)] [&_button]:bg-primary [&_button]:text-white',
-              root: 'w-full',
-              selected: 'bg-transparent',
-              today: 'text-primary-deep',
-              weekday: 'h-9 text-[12px] font-bold text-ww-soft',
+          <div className="mb-2 flex min-h-9 items-center justify-between px-1">
+            <span className="text-[12px] font-medium text-ww-soft">{isSelectingEndDate ? '请选择结束日期' : '选择日期范围'}</span>
+            <button className="min-h-9 px-1 text-[12px] font-extrabold text-primary-deep" onClick={handleResetSelection} type="button">重新选择</button>
+          </div>
+          <CalendarNavigation
+            displayedMonth={displayedMonth}
+            isMonthPickerVisible={isMonthPickerVisible}
+            onNextMonth={() => setDisplayedMonth(month => new Date(month.getFullYear(), month.getMonth() + 1, 1))}
+            onPreviousMonth={() => setDisplayedMonth(month => new Date(month.getFullYear(), month.getMonth() - 1, 1))}
+            onToggleMonthPicker={() => {
+              setMonthPickerYear(displayedMonth.getFullYear());
+              setIsMonthPickerVisible(value => !value);
             }}
-            components={{ DayButton: RangeDayButton }}
-            disabled={{ after: today }}
-            locale={zhCN}
-            mode="range"
-            modifiers={{
-              range_pending_start: date => Boolean(calendarRange.from && !calendarRange.to && isSameDay(date, calendarRange.from)),
-              same_day: date => Boolean(calendarRange.from && calendarRange.to && isSameDay(calendarRange.from, calendarRange.to) && isSameDay(date, calendarRange.from)),
-            }}
-            modifiersClassNames={{
-              range_pending_start: 'rounded-full [&_button]:bg-primary [&_button]:text-white',
-              same_day: '[&_button]:!bg-[var(--ww-theme-color-mid)] [&_button]:!text-white',
-            }}
-            onSelect={handleRangeSelect}
-            resetOnSelect
-            selected={calendarRange}
-            weekStartsOn={1}
+            today={today}
           />
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[10px] font-bold text-ww-mid">
-            <span className="inline-flex items-center gap-1">
-              <i className="flex size-4 items-center justify-center rounded-full bg-primary text-[8px] not-italic text-white">起</i>
-              开始
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <i className="flex size-4 items-center justify-center rounded-full bg-[var(--ww-theme-color-deep)] text-[8px] not-italic text-white">止</i>
-              结束
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <i className="flex size-4 items-center justify-center rounded-full bg-[var(--ww-theme-color-mid)] text-[8px] not-italic text-white">同</i>
-              同日
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <i className="flex size-4 items-center justify-center rounded-full bg-ww-surface-tint text-[8px] not-italic text-ww-soft">灰</i>
-              不可选
-            </span>
-          </div>
-        </div>
-        {!isValid && <p className="shrink-0 pb-2 text-center text-[12px] font-medium text-[#b24f71]">开始时间不能晚于结束时间</p>}
-        <footer className="flex shrink-0 gap-3 border-t border-border-primary pt-3">
-          <button className="h-12 flex-1 rounded-[14px] border border-border-primary bg-white text-[15px] font-bold text-ww-mid" onClick={onClose} type="button">取消</button>
-          <button className="ww-theme-primary-action h-12 flex-[1.6] rounded-[14px] text-[15px] font-extrabold disabled:opacity-45" disabled={!isValid} onClick={() => onApply(draft)} type="button">查看统计</button>
+          {isMonthPickerVisible
+            ? <MonthPickerPanel monthPickerYear={monthPickerYear} onClose={() => setIsMonthPickerVisible(false)} onMonthSelect={handleMonthSelect} onNextYear={() => setMonthPickerYear(year => Math.min(today.getFullYear(), year + 1))} onPreviousYear={() => setMonthPickerYear(year => year - 1)} today={today} />
+            : (
+                <DayPicker
+                  className="w-full"
+                  classNames={{
+                    day: 'relative isolate p-0',
+                    day_button: 'relative z-10 mx-auto flex size-10 items-center justify-center rounded-full text-[14px] font-semibold',
+                    disabled: 'opacity-35 grayscale [&_button]:cursor-not-allowed [&_button]:text-ww-soft',
+                    month: 'w-full',
+                    month_caption: 'hidden',
+                    month_grid: 'w-full',
+                    nav: 'hidden',
+                    range_end: 'relative before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:right-1/2 before:z-0 before:bg-[color:var(--ww-theme-color-light)] [&_button]:bg-[var(--ww-theme-color-deep)] [&_button]:text-white',
+                    range_middle: 'relative before:pointer-events-none before:absolute before:inset-0 before:z-0 before:bg-[color:var(--ww-theme-color-light)] [&_button]:!rounded-none [&_button]:!bg-[color:var(--ww-theme-color-light)]',
+                    range_start: 'relative after:pointer-events-none after:absolute after:inset-y-0 after:left-1/2 after:right-0 after:z-0 after:bg-[color:var(--ww-theme-color-light)] [&_button]:bg-primary [&_button]:text-white',
+                    root: 'w-full',
+                    selected: 'bg-transparent',
+                    today: 'text-primary-deep',
+                    weekday: 'h-9 text-[12px] font-bold text-ww-soft',
+                  }}
+                  components={{ DayButton: RangeDayButton }}
+                  disabled={disabledDates}
+                  locale={zhCN}
+                  mode="range"
+                  modifiers={{
+                    range_pending_start: date => Boolean(calendarRange?.from && !calendarRange.to && isSameDay(date, calendarRange.from)),
+                    same_day: date => Boolean(calendarRange?.from && calendarRange.to && isSameDay(calendarRange.from, calendarRange.to) && isSameDay(date, calendarRange.from)),
+                  }}
+                  modifiersClassNames={{
+                    range_pending_start: 'rounded-full [&_button]:bg-primary [&_button]:text-white',
+                    same_day: '[&_button]:!bg-[var(--ww-theme-color-mid)] [&_button]:!text-white',
+                  }}
+                  month={displayedMonth}
+                  onMonthChange={setDisplayedMonth}
+                  onSelect={handleRangeSelect}
+                  resetOnSelect
+                  selected={calendarRange}
+                  weekStartsOn={1}
+                />
+              )}
+          {!isValid && <p className="px-1 pb-2 text-center text-[12px] font-medium text-feedback-danger">{draft.startDate > draft.endDate ? '开始时间不能晚于结束时间' : '统计范围不能超过三年'}</p>}
+        </main>
+        <footer className="flex shrink-0 gap-[var(--ww-space-sm)] border-t border-border-primary bg-white px-[var(--ww-component-sheet-padding-x)] pb-[max(var(--ww-space-md),env(safe-area-inset-bottom))] pt-[var(--ww-space-sm)]">
+          <AppButton className="min-w-0 flex-1" onClick={onClose} size="medium" variant="secondary">取消</AppButton>
+          <AppButton className="min-w-0 flex-[1.6]" disabled={!isValid} onClick={() => onApply(draft)} size="medium">查看统计</AppButton>
         </footer>
       </section>
       <AppDatePicker
-        max={today}
+        max={endOfDay(today)}
         onClose={() => setEditingField(undefined)}
         onConfirm={(value) => {
           if (editingField) {

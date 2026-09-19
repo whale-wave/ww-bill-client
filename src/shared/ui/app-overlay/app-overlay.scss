@@ -124,7 +124,7 @@
     border: 1px solid var(--ww-border-color) !important;
     border-radius: var(--ww-component-overlay-control-radius);
     color: var(--ww-component-overlay-secondary-foreground) !important;
-    background-color: var(--ww-component-overlay-secondary-background) !important;
+    background: var(--ww-component-overlay-secondary-background) !important;
     font-size: 15px;
     font-weight: 700;
     line-height: 20px;
@@ -145,7 +145,7 @@
       --background-color: var(--ww-component-overlay-primary-background);
       border: 0 !important;
       color: var(--ww-component-overlay-primary-foreground) !important;
-      background-color: var(--ww-component-overlay-primary-background) !important;
+      background: var(--ww-component-overlay-primary-background) !important;
       box-shadow: 0 4px 14px color-mix(in srgb, var(--ww-theme-color) 35%, transparent);
 
       &,
@@ -170,38 +170,22 @@
 }
 
 .ww-app-dialog--danger {
+  --ww-component-overlay-primary-background: rgb(var(--ww-color-feedback-danger));
+  --ww-component-overlay-primary-foreground: rgb(var(--ww-color-action-primary-foreground));
+
   .ww-app-dialog__icon {
     color: rgb(var(--ww-color-feedback-danger));
     background: rgb(var(--ww-color-feedback-danger-surface) / 0.76);
   }
-
-  .adm-dialog-footer .adm-dialog-action-row > .adm-dialog-button:last-child {
-    color: rgb(var(--ww-color-action-primary-foreground));
-    background: rgb(var(--ww-color-feedback-danger));
-
-    &,
-    span,
-    .adm-button-text {
-      color: rgb(var(--ww-color-action-primary-foreground));
-    }
-  }
 }
 
 .ww-app-dialog--warning {
+  --ww-component-overlay-primary-background: rgb(var(--ww-color-feedback-warning));
+  --ww-component-overlay-primary-foreground: rgb(var(--ww-color-action-primary-foreground));
+
   .ww-app-dialog__icon {
-    color: #b45309;
+    color: rgb(var(--ww-color-feedback-warning));
     background: rgb(var(--ww-color-feedback-warning-surface));
-  }
-
-  .adm-dialog-footer .adm-dialog-action-row > .adm-dialog-button:last-child {
-    color: #ffffff;
-    background: #d97706;
-
-    &,
-    span,
-    .adm-button-text {
-      color: #ffffff;
-    }
   }
 }
 
@@ -456,6 +440,27 @@
     border-radius: var(--ww-radius-control);
     font-size: 14px;
     font-weight: 800;
+  }
+}
+
+[data-chart-custom-range-content] {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ww-theme-color-deep) 42%, transparent) transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ww-theme-color-deep) 42%, transparent);
   }
 }
 

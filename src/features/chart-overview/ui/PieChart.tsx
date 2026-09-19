@@ -48,7 +48,7 @@ export const PieChart: FC = () => {
         emphasis: { scaleSize: 4 },
         label: { show: false },
         labelLine: { show: false },
-        radius: ['38%', '68%'],
+        radius: ['65%', '85%'],
         type: 'pie',
       }],
       tooltip: { trigger: 'item' },
@@ -60,15 +60,16 @@ export const PieChart: FC = () => {
     <DonutChart
       amount={formattedAmount.replace(/^¥/, '')}
       amountSize={getDonutAmountSize(formattedAmount)}
+      compact
       chart={(
         <div className="h-full w-full" data-chart-overview-pie ref={chartDomRef} />
       )}
       label={t('categoryAmount')}
       legend={(
-        <div className="space-y-2" data-chart-overview-pie-legend>
+        <div className="space-y-1" data-chart-overview-pie-legend>
           {segments.map(segment => (
-            <div className="flex min-w-0 items-center gap-2 text-[12px] leading-4 text-ww-mid" key={segment.name}>
-              <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: segment.color }} />
+            <div className="flex min-w-0 items-center gap-1.5 text-[11px] leading-[14px] text-ww-mid" key={segment.name}>
+              <span aria-hidden="true" className="h-[7px] w-[7px] shrink-0 rounded-full" style={{ backgroundColor: segment.color }} />
               <span className="min-w-0 flex-1 truncate">{segment.name}</span>
               <span className="shrink-0 font-number">
                 {segment.percentage}

@@ -10,6 +10,7 @@ import {
   Check,
   CheckCircle2,
   ChevronDown,
+  ChevronRight,
   ImagePlus,
   MapPin,
   Settings2,
@@ -326,7 +327,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           : (
               <button
                 aria-label="选择分类"
-                className="flex h-11 items-center rounded-full border-0 bg-primary-light px-[14px] text-[13px] font-bold leading-[19.5px] text-primary-deep"
+                className="flex h-11 max-w-[calc(100%-112px)] items-center gap-2 rounded-full border-0 bg-primary-light py-1 pl-1.5 pr-3 text-[13px] font-bold leading-[19.5px] text-primary-deep shadow-ww-xs"
                 data-record-editor-category-trigger
                 onClick={() => {
                   controller.setIsNoteFocused(false);
@@ -334,7 +335,20 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 }}
                 type="button"
               >
-                {controller.selectedCategory?.name}
+                <span
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/80 text-primary-deep"
+                  data-record-editor-category-icon
+                >
+                  <CategoryIcon
+                    categoryName={controller.selectedCategory?.name}
+                    iconKey={controller.selectedCategory?.icon}
+                    iconType={controller.selectedCategory?.iconType}
+                    size={18}
+                  />
+                </span>
+                <span className="truncate">
+                  {controller.selectedCategory?.name}
+                </span>
               </button>
             )}
         <span className="h-11 w-11" />
@@ -386,58 +400,11 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               )}
               {categoryState === 'ready'
                 && (categories.length > 0 || onManageCategories) && (
-                <div className="grid grid-cols-4 gap-[9px]">
-                  {categories.map(category => (
-                    <m.button
-                      aria-pressed={
-                        controller.selectedCategory?.id === category.id
-                      }
-                      animate={
-                        isMotionEnabled && pendingCategoryId === category.id
-                          ? { scale: [...MOTION_PRESETS.selection.scale] }
-                          : { scale: 1 }
-                      }
-                      aria-busy={pendingCategoryId === category.id || undefined}
-                      className={cn(
-                        'flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-border-primary bg-white/80 px-1 pb-[10px] pt-[13px] shadow-ww-xs',
-                        pendingCategoryId === category.id
-                        && 'border-primary bg-primary-light/45',
-                      )}
-                      data-record-editor-category={category.id}
-                      disabled={Boolean(pendingCategoryId)}
-                      key={category.id}
-                      onClick={() => handleSelectCategory(category)}
-                      transition={
-                        isMotionEnabled
-                          ? MOTION_PRESETS.selection.transition
-                          : { duration: 0 }
-                      }
-                      type="button"
-                      whileTap={
-                        isMotionEnabled ? MOTION_PRESETS.press : undefined
-                      }
-                    >
-                      <span
-                        className={cn(
-                          'ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full',
-                        )}
-                      >
-                        <CategoryIcon
-                          categoryName={category.name}
-                          iconKey={category.icon}
-                          iconType={category.iconType}
-                          size={24}
-                        />
-                      </span>
-                      <span className="w-full truncate text-[11px] font-semibold leading-[16.5px] text-ww-mid">
-                        {category.name}
-                      </span>
-                    </m.button>
-                  ))}
+                <div>
                   {onManageCategories && (
                     <m.button
                       aria-label={t('record:bookkeeping.categorySettings')}
-                      className="flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-dashed border-primary/35 bg-primary-light/25 px-1 pb-[10px] pt-[13px] text-primary-deep shadow-ww-xs"
+                      className="mb-3 flex min-h-[68px] w-full items-center gap-3 rounded-[18px] border border-border-primary bg-white/80 px-4 py-3 text-left shadow-ww-xs"
                       data-record-editor-category-settings
                       onClick={onManageCategories}
                       type="button"
@@ -445,18 +412,69 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                         isMotionEnabled ? MOTION_PRESETS.press : undefined
                       }
                     >
-                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/80">
-                        <Settings2
-                          aria-hidden="true"
-                          size={22}
-                          strokeWidth={1.9}
-                        />
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-primary-light/60 text-primary-deep">
+                        <Settings2 aria-hidden="true" size={20} strokeWidth={1.9} />
                       </span>
-                      <span className="w-full truncate text-[11px] font-semibold leading-[16.5px]">
-                        {t('record:bookkeeping.categorySettings')}
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[13px] font-bold text-ww-ink">
+                          {t('record:bookkeeping.categorySettings')}
+                        </span>
+                        <span className="mt-0.5 block truncate text-[11px] text-ww-mid">
+                          {t('record:bookkeeping.categorySettingsDescription')}
+                        </span>
                       </span>
+                      <ChevronRight aria-hidden="true" className="shrink-0 text-ww-soft" size={18} strokeWidth={2} />
                     </m.button>
                   )}
+                  <div className="grid grid-cols-4 gap-[9px]">
+                    {categories.map(category => (
+                      <m.button
+                        aria-pressed={
+                          controller.selectedCategory?.id === category.id
+                        }
+                        animate={
+                          isMotionEnabled && pendingCategoryId === category.id
+                            ? { scale: [...MOTION_PRESETS.selection.scale] }
+                            : { scale: 1 }
+                        }
+                        aria-busy={pendingCategoryId === category.id || undefined}
+                        className={cn(
+                          'flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-border-primary bg-white/80 px-1 pb-[10px] pt-[13px] shadow-ww-xs',
+                          pendingCategoryId === category.id
+                          && 'border-primary bg-primary-light/45',
+                        )}
+                        data-record-editor-category={category.id}
+                        disabled={Boolean(pendingCategoryId)}
+                        key={category.id}
+                        onClick={() => handleSelectCategory(category)}
+                        transition={
+                          isMotionEnabled
+                            ? MOTION_PRESETS.selection.transition
+                            : { duration: 0 }
+                        }
+                        type="button"
+                        whileTap={
+                          isMotionEnabled ? MOTION_PRESETS.press : undefined
+                        }
+                      >
+                        <span
+                          className={cn(
+                            'ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full',
+                          )}
+                        >
+                          <CategoryIcon
+                            categoryName={category.name}
+                            iconKey={category.icon}
+                            iconType={category.iconType}
+                            size={24}
+                          />
+                        </span>
+                        <span className="w-full truncate text-[11px] font-semibold leading-[16.5px] text-ww-mid">
+                          {category.name}
+                        </span>
+                      </m.button>
+                    ))}
+                  </div>
                 </div>
               )}
             </m.main>

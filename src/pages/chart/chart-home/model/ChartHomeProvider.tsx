@@ -5,7 +5,7 @@ import { format, setISOWeek, setISOWeekYear, startOfISOWeek } from 'date-fns';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useChartPeriodOptionsQuery, useChartPeriodQuery } from '@/entities/chart';
-import { ChartOverviewContext, getChartPeriodName } from '@/features/chart-overview';
+import { ChartOverviewContext, formatChartOverviewCustomRangeSummary, getChartPeriodName } from '@/features/chart-overview';
 import { useTranslation } from '@/shared/i18n';
 
 function isAmountType(value: string | null): value is AmountType {
@@ -66,7 +66,7 @@ export const ChartHomeProvider: FC<{ children: ReactNode }> = ({ children }) => 
   const curTab = useMemo<ChartOverviewTab | undefined>(() => {
     if (!detailQuery.data || (!isCustomRange && !selectedOption))
       return undefined;
-    return { ...detailQuery.data.tab, anchorDate: detailQuery.data.anchorDate, name: isCustomRange && customRange ? `${customRange.startDate.replace('T', ' ')} — ${customRange.endDate.replace('T', ' ')}` : getChartPeriodName(selectedOption!, t) };
+    return { ...detailQuery.data.tab, anchorDate: detailQuery.data.anchorDate, name: isCustomRange && customRange ? formatChartOverviewCustomRangeSummary(customRange) : getChartPeriodName(selectedOption!, t) };
   }, [customRange, detailQuery.data, isCustomRange, selectedOption, t]);
   useEffect(() => {
     if (isCustomRange || !selectedOption || (!requestedDate && !legacyTab) || (requestedDate === selectedOption.anchorDate && !legacyTab))

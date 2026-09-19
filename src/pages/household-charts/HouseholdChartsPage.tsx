@@ -15,7 +15,7 @@ import {
   useHouseholdChartPeriodOptionsQuery,
   useHouseholdChartsQuery,
 } from '@/entities/household';
-import { ChartOverviewContext, ChartOverviewPresentation, getChartPeriodName } from '@/features/chart-overview';
+import { ChartOverviewContext, ChartOverviewPresentation, formatChartOverviewCustomRangeSummary, getChartPeriodName } from '@/features/chart-overview';
 import {
   HouseholdBottomNav,
   HouseholdPageState,
@@ -197,7 +197,7 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
             ? selectedOption
             : (periodsQuery.options.find(item => item.anchorDate === query.data?.anchorDate) ?? selectedOption),
           isCustomRange && customRange
-            ? `${customRange.startDate.replace('T', ' ')} — ${customRange.endDate.replace('T', ' ')}`
+            ? formatChartOverviewCustomRangeSummary(customRange)
             : getChartPeriodName(
                 query.data.anchorDate === selectedOption.anchorDate
                   ? selectedOption
@@ -360,7 +360,7 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
       >
         <ChartOverviewContext.Provider value={contextValue}>
           <ChartOverviewPresentation
-            pieChart={<HouseholdCategoryPieChart ranking={currentTab?.ranking ?? []} />}
+            pieChart={<HouseholdCategoryPieChart compact ranking={currentTab?.ranking ?? []} />}
           />
         </ChartOverviewContext.Provider>
       </HouseholdPageState>

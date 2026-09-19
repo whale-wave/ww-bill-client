@@ -1,0 +1,16 @@
+diff --git a/dist/index.js b/dist/index.js
+index f15d3020de288a98c49a1c65565f916b0c6972a3..baf96121f65977dacd2bd7774f4f82f517996607 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -213,7 +213,10 @@ function transformLocatorJsComponents(babel) {
+                     const insertCode = `(() => {
+             if (typeof window !== "undefined") {
+               window.__LOCATOR_DATA__ = window.__LOCATOR_DATA__ || {};
+-              window.__LOCATOR_DATA__["${createFullPath(fileStorage)}"] = ${dataCode};
++              // window.__LOCATOR_DATA__["${createFullPath(fileStorage)}"] = ${dataCode};
++window.__LOCATOR_DATA__[${JSON.stringify(
++  createFullPath(fileStorage)
++)}] = ${dataCode};
+             }
+           })()`;
+                     // `function __bindLocatorExpression(id) {

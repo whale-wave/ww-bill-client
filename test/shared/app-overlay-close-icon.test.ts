@@ -39,6 +39,14 @@ describe('app overlay adapters', () => {
     expect(styles).toMatch(/\.adm-picker-view-mask-middle\s*\{[^}]*background:\s*transparent;/);
   });
 
+  it('keeps themed confirmation actions visible when the primary theme uses a gradient', () => {
+    const styles = readFileSync(resolve(process.cwd(), 'src/shared/ui/app-overlay/app-overlay.scss'), 'utf8');
+
+    expect(styles).toContain('background: var(--ww-component-overlay-primary-background) !important;');
+    expect(styles).toContain('--ww-component-overlay-primary-background: rgb(var(--ww-color-feedback-warning));');
+    expect(styles).toContain('--ww-component-overlay-primary-background: rgb(var(--ww-color-feedback-danger));');
+  });
+
   it('keeps the default close icon', () => {
     renderSheet();
     expect(document.body.querySelector('.ww-app-sheet.ww-app-sheet--bottom')).not.toBeNull();

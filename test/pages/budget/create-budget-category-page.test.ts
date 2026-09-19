@@ -44,15 +44,22 @@ describe('create budget category page', () => {
     const router = createMemoryRouter([
       { element: createElement(CreateBudgetCategoryPage), path: '/budget/category/:type' },
       { element: createElement('div', null, 'budget-target'), path: '/budget' },
+      { element: createElement('div', null, 'category-settings-target'), path: '/category' },
     ], { initialEntries: ['/budget/category/1'] });
     act(() => root.render(createElement(RouterProvider, { router })));
     cleanup = () => act(() => root.unmount());
 
     expect(container.querySelector('[data-create-budget-category-page]')).not.toBeNull();
     expect(container.querySelector('.bwm-nav-bar')).toBeNull();
-    expect(container.textContent).toContain('budget:selectCategoryTitle');
+    expect(container.textContent).toContain('record:bookkeeping.categorySettings');
+    expect(container.textContent).toContain('budget:categorySettingsDescription');
     expect(container.querySelector('[data-budget-category="1"]')?.classList).toContain('h-[92.5px]');
     expect(container.querySelector('[data-budget-category="1"] .lucide-cooking-pot')).not.toBeNull();
+
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-budget-category-settings]')?.click());
+    expect(router.state.location.pathname).toBe('/category');
+
+    await act(async () => router.navigate('/budget/category/1'));
 
     act(() => container.querySelector<HTMLButtonElement>('[data-budget-category="1"]')?.click());
     expect(container.querySelector('[data-budget-model-visible="true"]')?.textContent).toBe('餐饮');

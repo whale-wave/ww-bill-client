@@ -125,7 +125,7 @@ function SortableCategoryRow({
           <Minus size={17} strokeWidth={2.4} />
         </button>
       )}
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-ww-surface-tint text-primary-deep">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-primary-deep" data-category-management-icon>
         <CategoryIcon
           categoryName={category.name}
           iconKey={category.icon}
@@ -308,7 +308,7 @@ function CategoryEditorSheet({
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5">
           <div className="mx-auto max-w-[520px]">
             <div className="mb-5 flex justify-center">
-              <span className="flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-[22px] bg-ww-surface-tint text-primary-deep shadow-ww">
+              <span className="flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-primary-deep shadow-ww">
                 {preview
                   ? <img alt="" className="h-full w-full object-cover" src={preview} />
                   : (
@@ -637,7 +637,7 @@ export function CategoryManagement({
                           <Plus size={18} strokeWidth={2.5} />
                         </button>
                       )}
-                      <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-[14px] bg-ww-surface-tint text-ww-mid">
+                      <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-ww-mid" data-category-management-icon>
                         <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} size={20} />
                       </span>
                       <span className="min-w-0 flex-1 truncate text-[14px] font-bold text-ww-mid">{category.name}</span>

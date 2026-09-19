@@ -280,7 +280,7 @@ describe('record editor presentation', () => {
     expect(container.querySelector('[role="status"]')?.textContent).toContain('record:bookkeeping.saveSuccess');
   });
 
-  it('renders category settings as the final category item', () => {
+  it('renders category settings above the category grid', () => {
     const onManageCategories = vi.fn();
     const container = document.createElement('div');
     const root = createRoot(container);
@@ -291,8 +291,9 @@ describe('record editor presentation', () => {
     const settings = container.querySelector<HTMLButtonElement>('[data-record-editor-category-settings]');
 
     expect(items).toHaveLength(2);
-    expect(items.item(1)).toBe(settings);
+    expect(items.item(0)).toBe(settings);
     expect(settings?.getAttribute('aria-label')).toBe('record:bookkeeping.categorySettings');
+    expect(settings?.textContent).toContain('record:bookkeeping.categorySettingsDescription');
 
     act(() => settings?.click());
     expect(onManageCategories).toHaveBeenCalledOnce();
@@ -359,6 +360,7 @@ describe('record editor presentation', () => {
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     expect(container.querySelector('[data-record-editor-category-trigger]')?.textContent).toBe('餐饮');
+    expect(container.querySelector('[data-record-editor-category-icon] svg')).not.toBeNull();
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category-trigger]')?.click());
     expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('category');

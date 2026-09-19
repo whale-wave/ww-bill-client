@@ -11,6 +11,7 @@
     "expend": "Expense",
     "category": "Category",
     "categorySettings": "Category settings",
+    "categorySettingsDescription": "Add and organize your custom categories",
     "selectLinkedAsset": "Select linked account",
     "noLinkedAsset": "No linked account",
     "linkedAssetHint": "Optional; bookkeeping remains independent",

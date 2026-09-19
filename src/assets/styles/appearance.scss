@@ -223,6 +223,93 @@ html[data-appearance-template='minimal'] {
   background: var(--ww-icon-surface-background);
 }
 
+.ww-achievements-page {
+  color: var(--ww-theme-text-color);
+  background: var(--ww-page-gradient);
+}
+
+.ww-achievements-title-card,
+.ww-achievements-badge-card {
+  border-color: var(--ww-border-color);
+  background: var(--ww-surface-raised-color);
+  box-shadow: var(--ww-card-shadow);
+}
+
+.ww-achievements-title-orb {
+  background: color-mix(in srgb, var(--ww-theme-color) 14%, transparent);
+}
+
+.ww-achievements-eyebrow,
+.ww-achievements-meta {
+  color: var(--ww-text-color-mid);
+}
+
+.ww-achievements-supporting {
+  color: var(--ww-text-color-soft);
+}
+
+.ww-achievements-title-icon {
+  border-color: color-mix(in srgb, var(--ww-theme-color) 28%, var(--ww-border-color));
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-surface-tint-color);
+}
+
+.ww-achievements-progress-track {
+  background: color-mix(in srgb, var(--ww-theme-color) 18%, var(--ww-surface-tint-color));
+}
+
+.ww-achievements-progress-fill {
+  background: var(--ww-progress-primary-background);
+}
+
+.ww-achievements-check {
+  border-color: var(--ww-surface-raised-color);
+  background: var(--ww-theme-color);
+}
+
+.ww-achievements-check-icon {
+  color: var(--ww-theme-color);
+}
+
+.ww-achievements-emblem-shell:active {
+  background: color-mix(in srgb, var(--ww-theme-color) 10%, transparent);
+}
+
+.ww-achievements-emblem__frame {
+  background: var(--ww-surface-raised-color);
+  box-shadow: var(--ww-card-shadow);
+}
+
+.ww-achievements-emblem__frame--locked {
+  background: var(--ww-text-color-ghost);
+}
+
+.ww-achievements-emblem__inner {
+  background: linear-gradient(
+    135deg,
+    var(--ww-surface-raised-color),
+    var(--ww-surface-tint-color) 52%,
+    var(--ww-surface-secondary-color)
+  );
+}
+
+.ww-achievements-emblem__fill--locked {
+  background: var(--ww-text-color-soft);
+}
+
+.ww-achievements-emblem__shine {
+  border-top: 1px solid color-mix(in srgb, var(--ww-primary-foreground) 80%, transparent);
+  background: color-mix(in srgb, var(--ww-surface-raised-color) 90%, transparent);
+}
+
+.ww-achievements-emblem__icon {
+  color: var(--ww-primary-foreground);
+}
+
+.ww-achievements-emblem__icon--locked {
+  opacity: 0.75;
+}
+
 /* These components previously carried their own blue/pink gradients.  Keep the
  * visual material at the theme boundary so every template stays coherent. */
 .ww-budget-summary-item,

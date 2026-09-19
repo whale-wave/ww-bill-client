@@ -142,6 +142,6 @@ export const LineChart: FC = () => {
   }, [appearanceRevision, seriesData, xAxisData, myChart, currentAmountType]);
 
   return (
-    <div className={cn('mt-[18px] h-[94px] w-[315px] max-w-full')} ref={chartDomRef} />
+    <div className={cn('mt-[10px] h-[80px] w-[315px] max-w-full')} ref={chartDomRef} />
   );
 };

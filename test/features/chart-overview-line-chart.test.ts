@@ -2,7 +2,9 @@ import type { EChartsOption } from 'echarts';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CategoryTrendChart, LineChart, PieChart } from '@/features/chart-overview';
+import { CategoryTrendChart } from '@/features/chart-overview/ui/CategoryTrendChart';
+import { LineChart } from '@/features/chart-overview/ui/LineChart';
+import { PieChart } from '@/features/chart-overview/ui/PieChart';
 
 const mocks = vi.hoisted(() => ({
   resize: vi.fn(),
@@ -40,6 +42,17 @@ afterEach(() => {
 });
 
 describe('chart overview line tooltip', () => {
+  it('uses a compact canvas that fits beneath the chart summary', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(LineChart)));
+    cleanup = () => act(() => root.unmount());
+
+    const chartCanvas = container.firstElementChild;
+    expect(chartCanvas?.classList).toContain('mt-[10px]');
+    expect(chartCanvas?.classList).toContain('h-[80px]');
+  });
+
   it('removes the ECharts tooltip shell behind the custom card', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
@@ -84,9 +97,11 @@ describe('chart overview line tooltip', () => {
 
     const option = mocks.setOption.mock.calls[0]?.[0] as EChartsOption;
     const amount = container.querySelector('[data-donut-chart="overview"] .font-number') as HTMLElement;
+    const donut = container.querySelector('[data-donut-chart="overview"]') as HTMLElement;
 
     expect(amount.textContent).toBe('¥20.00');
-    expect(amount.style.fontSize).toBe('17px');
+    expect(amount.style.fontSize).toBe('11px');
+    expect(donut.classList).toContain('h-[88px]');
     expect(mocks.setOption).toHaveBeenCalledWith(option, { notMerge: true });
   });
 });

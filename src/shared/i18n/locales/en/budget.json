@@ -6,8 +6,7 @@
   "used": "Used",
   "percent": "Percentage",
   "createCategory": "Create Category Budget",
-  "selectCategoryTitle": "Choose a budget category",
-  "selectCategoryDescription": "Choose a category and set its {{period}} limit",
+  "categorySettingsDescription": "Add or manage custom categories",
   "exceedWarning": "Category budgets exceed total",
   "actions": {
     "clear": "Clear",
@@ -63,7 +62,16 @@
   "card": {
     "currentMonthTotalBudget": "Monthly Total Budget",
     "setBudget": "Set Budget",
-    "currentMonthSummary": "{{month}} Budget Summary"
+    "currentMonthSummary": "{{month}} Budget Summary",
+    "currentPeriodSummary": {
+      "day": "{{month}}/{{day}} Budget Summary",
+      "month": "{{month}} Budget Summary",
+      "year": "{{year}} Budget Summary"
+    }
+  },
+  "emptyDiscovery": {
+    "title": "No budget set",
+    "description": "Add a daily, monthly, or yearly budget to give every expense a clearer direction"
   },
   "warning": {
     "title": "Warning",

@@ -10,16 +10,18 @@ import { DonutChart } from '@/shared/ui';
 import { mapHouseholdPieSegments } from '../model/pie-segments';
 
 interface HouseholdCategoryPieChartProps {
+  compact?: boolean;
   ranking: ChartOverviewRankingItem[];
 }
 
 interface HouseholdCategoryPieCanvasProps {
   centerAmount: string;
   centerLabel: string;
+  compact: boolean;
   segments: HouseholdPieSegment[];
 }
 
-const HouseholdCategoryPieCanvas: FC<HouseholdCategoryPieCanvasProps> = ({ centerAmount, centerLabel, segments }) => {
+const HouseholdCategoryPieCanvas: FC<HouseholdCategoryPieCanvasProps> = ({ centerAmount, centerLabel, compact, segments }) => {
   const { chartDomRef, myChart } = useChart();
   const chartData = useMemo(() => segments.map(segment => ({
     id: segment.key,
@@ -47,15 +49,16 @@ const HouseholdCategoryPieCanvas: FC<HouseholdCategoryPieCanvasProps> = ({ cente
     <DonutChart
       amount={centerAmount}
       amountSize={getDonutAmountSize(`¥${centerAmount}`)}
+      compact={compact}
       chart={(
         <div className="h-full w-full" data-household-pie-chart ref={chartDomRef} />
       )}
       label={centerLabel}
       legend={(
-        <div className="space-y-2" data-household-pie-legend>
+        <div className={compact ? 'space-y-1' : 'space-y-2'} data-household-pie-legend>
           {segments.map(segment => (
-            <div className="flex min-w-0 items-center gap-2 text-[12px] leading-4 text-ww-mid" key={segment.key}>
-              <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: segment.color }} />
+            <div className={compact ? 'flex min-w-0 items-center gap-1.5 text-[11px] leading-[14px] text-ww-mid' : 'flex min-w-0 items-center gap-2 text-[12px] leading-4 text-ww-mid'} key={segment.key}>
+              <span aria-hidden="true" className={compact ? 'h-[7px] w-[7px] shrink-0 rounded-full' : 'h-2 w-2 shrink-0 rounded-full'} style={{ backgroundColor: segment.color }} />
               <span className="min-w-0 flex-1 truncate">{segment.name}</span>
               <span className="shrink-0 font-semibold">
                 {segment.percentage}
@@ -70,7 +73,7 @@ const HouseholdCategoryPieCanvas: FC<HouseholdCategoryPieCanvasProps> = ({ cente
   );
 };
 
-export const HouseholdCategoryPieChart: FC<HouseholdCategoryPieChartProps> = ({ ranking }) => {
+export const HouseholdCategoryPieChart: FC<HouseholdCategoryPieChartProps> = ({ compact = false, ranking }) => {
   const { t } = useTranslation('chart');
   const segments = useMemo(
     () => mapHouseholdPieSegments(ranking, { otherLabel: t('other') }),
@@ -86,5 +89,5 @@ export const HouseholdCategoryPieChart: FC<HouseholdCategoryPieChartProps> = ({ 
     );
   }
 
-  return <HouseholdCategoryPieCanvas centerAmount={totalAmount} centerLabel={t('categoryAmount')} segments={segments} />;
+  return <HouseholdCategoryPieCanvas centerAmount={totalAmount} centerLabel={t('categoryAmount')} compact={compact} segments={segments} />;
 };

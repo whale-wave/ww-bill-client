@@ -50,6 +50,10 @@ function displayAmount(value: number | string | undefined) {
   return formatAmount(Number(value));
 }
 
+function toShanghaiTimestamp(value: string) {
+  return /(?:Z|[+-]\d{2}:\d{2})$/.test(value) ? value : `${value}+08:00`;
+}
+
 const RecordRankingLoadingPlaceholder: FC<{ rows: number }> = ({ rows }) => (
   <div aria-label="正在加载明细排行" className="space-y-4 border-t border-border-primary py-3" data-chart-category-record-loading role="status">
     {Array.from({ length: rows }, (_, index) => (
@@ -75,29 +79,37 @@ const ChartCategory: FC = () => {
   const type = searchParams.get('type');
   const category = searchParams.get('category');
   const tabKey = searchParams.get('tabKey');
+  const customStartDate = searchParams.get('startDate');
+  const customEndDate = searchParams.get('endDate');
+  const isCustomRange = category === 'custom';
+  const isSupportedCategory = isCustomRange || isTimeRangeCategory(category);
   const parsedCategoryId = categoryId && /^\d+$/.test(categoryId) ? Number(categoryId) : undefined;
 
   const matchedRouteState = useMemo(() => {
-    if (!categoryId || !isAmountType(type) || !isTimeRangeCategory(category))
+    if (!categoryId || !isAmountType(type) || !isSupportedCategory)
       return undefined;
-    return getMatchedRouteState(routeState, { categoryId, type, category, tabKey });
-  }, [category, categoryId, routeState, tabKey, type]);
+    return getMatchedRouteState(routeState, { categoryId, type, category: category as 'custom' | 'week' | 'month' | 'year', tabKey });
+  }, [category, categoryId, isSupportedCategory, routeState, tabKey, type]);
 
   const anchorDate = searchParams.get('anchorDate')
     ?? matchedRouteState?.curTab?.anchorDate
     ?? (isTimeRangeCategory(category)
       ? tabKeyToAnchorDate(tabKey ?? matchedRouteState?.tabKey ?? matchedRouteState?.curTab?.key ?? null, category)
-      : undefined);
+      : isCustomRange ? customStartDate?.slice(0, 10) : undefined);
   const hasRequiredParams = parsedCategoryId !== undefined
     && isAmountType(type)
-    && isTimeRangeCategory(category)
-    && Boolean(anchorDate);
+    && isSupportedCategory
+    && Boolean(anchorDate)
+    && (!isCustomRange || Boolean(customStartDate && customEndDate));
   const periodQuery = useChartPeriodQuery({
     params: {
       anchorDate: anchorDate ?? '',
       categoryId: parsedCategoryId,
       metric: type === 'add' ? 'income' : 'expense',
-      period: isTimeRangeCategory(category) ? category : 'week',
+      period: isCustomRange ? 'month' : isTimeRangeCategory(category) ? category : 'week',
+      ...(isCustomRange && customStartDate && customEndDate
+        ? { endDate: `${customEndDate}+08:00`, startDate: `${customStartDate}+08:00` }
+        : {}),
     },
     queryOptions: { enabled: hasRequiredParams },
   });
@@ -112,13 +124,20 @@ const ChartCategory: FC = () => {
   const tagRange = useMemo(() => {
     if (!periodQuery.data)
       return undefined;
+    if (isCustomRange && customStartDate && customEndDate) {
+      const customEnd = new Date(toShanghaiTimestamp(customEndDate));
+      return {
+        endDate: new Date(customEnd.getTime() + 1_000).toISOString(),
+        startDate: new Date(toShanghaiTimestamp(customStartDate)).toISOString(),
+      };
+    }
     const endExclusive = new Date(`${periodQuery.data.endDate}T00:00:00+08:00`);
     endExclusive.setUTCDate(endExclusive.getUTCDate() + 1);
     return {
       endDate: endExclusive.toISOString(),
       startDate: new Date(`${periodQuery.data.startDate}T00:00:00+08:00`).toISOString(),
     };
-  }, [periodQuery.data]);
+  }, [customEndDate, customStartDate, isCustomRange, periodQuery.data]);
   const tagRanking = useTagRankingQuery({
     params: { categoryId: categoryId ?? '', type: isAmountType(type) ? type : 'sub', ...tagRange },
     enabled: Boolean(categoryId && tagRange),

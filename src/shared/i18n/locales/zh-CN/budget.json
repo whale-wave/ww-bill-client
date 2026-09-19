@@ -6,8 +6,7 @@
   "used": "已用",
   "percent": "占比",
   "createCategory": "创建分类预算",
-  "selectCategoryTitle": "选择预算分类",
-  "selectCategoryDescription": "选择一个分类，为它设置{{period}}额度",
+  "categorySettingsDescription": "添加或管理自定义分类",
   "exceedWarning": "分类预算之和已超过总预算",
   "actions": {
     "clear": "清空",
@@ -79,7 +78,16 @@
   "card": {
     "currentMonthTotalBudget": "月总预算",
     "setBudget": "设置预算",
-    "currentMonthSummary": "{{month}}月预算总览"
+    "currentMonthSummary": "{{month}}月预算总览",
+    "currentPeriodSummary": {
+      "day": "{{month}}月{{day}}日预算总览",
+      "month": "{{month}}月预算总览",
+      "year": "{{year}}年预算总览"
+    }
+  },
+  "emptyDiscovery": {
+    "title": "还未设置预算",
+    "description": "添加日、月或年预算，让每一笔支出更有方向"
   },
   "error": {
     "operationFailed": "操作失败"

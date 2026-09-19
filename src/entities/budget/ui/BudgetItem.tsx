@@ -50,12 +50,12 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
       material={isSummaryBudget ? 'raised' : 'content'}
     >
       <button
-        className={classNames('block min-w-0 border-0 bg-transparent p-0 text-left', editable && 'pr-16')}
+        className="block min-w-0 border-0 bg-transparent p-0 text-left"
         data-budget-item-action
         onClick={onClick}
         type="button"
       >
-        <div className="flex min-w-0 flex-shrink-0 items-center justify-between">
+        <div className={classNames('flex min-w-0 flex-shrink-0 items-center justify-between', editable && 'pr-16')}>
           <div>
             { isSummaryBudget
               ? (

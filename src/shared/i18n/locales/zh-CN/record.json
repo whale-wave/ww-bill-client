@@ -11,6 +11,7 @@
     "expend": "支出",
     "category": "分类",
     "categorySettings": "分类设置",
+    "categorySettingsDescription": "添加、整理你的自定义分类",
     "selectLinkedAsset": "选择关联账户",
     "noLinkedAsset": "不关联账户",
     "linkedAssetHint": "可选，不影响普通记账",
