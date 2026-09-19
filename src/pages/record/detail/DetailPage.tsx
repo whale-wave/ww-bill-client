@@ -81,6 +81,8 @@ const Detail: FC = () => {
         hasAttachment: indicators.hasAttachment,
         iconName: item.category.icon,
         iconType: item.category.iconType,
+        textIconEnabled: item.category.textIconEnabled,
+        textIconIndex: item.category.textIconIndex,
         id: item.id,
         onClick: () => handleRecord(item),
         originalAmount: item.originalAmount ? `-${item.originalAmount}` : undefined,
@@ -133,7 +135,7 @@ const Detail: FC = () => {
         onEmptyAction={() => navigate(ROUTES_PATH.BOOKKEEPING.getPath())}
         onRetry={() => void query.refetch()}
         retryLabel={t('detail.errorAction')}
-        renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} size={18} />}
+        renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} textIconEnabled={item.textIconEnabled} textIconIndex={item.textIconIndex} size={18} />}
         state={viewState.isInitialLoading ? 'loading' : viewState.isBlockingError ? 'error' : 'ready'}
       />
       <TabBar active={0} />

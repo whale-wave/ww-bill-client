@@ -60,6 +60,7 @@ const CATEGORY_ERROR_KEYS: Record<string, string> = {
   CATEGORY_NAME_CONFLICT: 'nameConflict',
   CATEGORY_ORDER_CONFLICT: 'orderConflict',
   CATEGORY_SYSTEM_IMMUTABLE: 'systemImmutable',
+  CATEGORY_TEXT_ICON_INDEX_INVALID: 'textIconIndexInvalid',
   CATEGORY_TYPE_MISMATCH: 'typeMismatch',
   CATEGORY_VERSION_CONFLICT: 'versionConflict',
 };
@@ -130,6 +131,8 @@ function SortableCategoryRow({
           categoryName={category.name}
           iconKey={category.icon}
           iconType={category.iconType}
+          textIconEnabled={category.textIconEnabled}
+          textIconIndex={category.textIconIndex}
           size={21}
         />
       </span>
@@ -143,7 +146,7 @@ function SortableCategoryRow({
           )}
         </div>
       </div>
-      {canManage && category.isCustom && (
+      {canManage && (
         <button
           aria-label={t('categories.edit')}
           className="flex h-11 w-11 items-center justify-center rounded-xl border-0 bg-transparent text-ww-mid disabled:cursor-not-allowed"
@@ -205,11 +208,15 @@ function CategoryEditorSheet({
         ? availableIcons[0]?.key
         : undefined,
   );
+  const [textIconEnabled, setTextIconEnabled] = useState(editor.category?.textIconEnabled ?? false);
+  const [textIconIndex, setTextIconIndex] = useState(editor.category?.textIconIndex ?? 0);
   const [image, setImage] = useState<File>();
   const [preview, setPreview] = useState<string>();
   const [uploadProgress, setUploadProgress] = useState(0);
   const submittingRef = useRef(false);
   const normalizedName = name.replace(/^[ \t\r\n\u3000]+|[ \t\r\n\u3000]+$/g, '');
+  const nameChars = Array.from(normalizedName);
+  const safeTextIconIndex = Math.min(textIconIndex, Math.max(0, nameChars.length - 1));
   const valid = Array.from(normalizedName).length >= 1
     && Array.from(normalizedName).length <= 12
     && Boolean(image || iconKey || editor.category?.iconType === 'IMAGE');
@@ -233,6 +240,8 @@ function CategoryEditorSheet({
             ...(image ? { file: image } : { iconKey: iconKey! }),
             name: normalizedName,
             type,
+            textIconEnabled,
+            textIconIndex: safeTextIconIndex,
           },
           ledgerId,
           ...(image ? { onProgress: setUploadProgress } : {}),
@@ -242,12 +251,15 @@ function CategoryEditorSheet({
         let version = editor.category.version;
         const builtinChanged = Boolean(iconKey)
           && (editor.category.iconType !== 'BUILTIN' || iconKey !== editor.category.icon);
-        if (normalizedName !== editor.category.name || builtinChanged) {
+        const textChanged = textIconEnabled !== editor.category.textIconEnabled
+          || safeTextIconIndex !== editor.category.textIconIndex;
+        if (normalizedName !== editor.category.name || builtinChanged || textChanged) {
           const updated = await patchCategory({
             categoryId: editor.category.id,
             data: {
               ...(builtinChanged ? { iconKey: iconKey! } : {}),
               ...(normalizedName !== editor.category.name ? { name: normalizedName } : {}),
+              ...(textChanged ? { textIconEnabled, textIconIndex: safeTextIconIndex } : {}),
               version,
             },
             ledgerId,
@@ -316,6 +328,8 @@ function CategoryEditorSheet({
                         categoryName={normalizedName}
                         iconKey={iconKey ?? editor.category?.icon ?? 'receipt'}
                         iconType={iconKey ? 'BUILTIN' : editor.category?.iconType}
+                        textIconEnabled={textIconEnabled}
+                        textIconIndex={safeTextIconIndex}
                         size={31}
                       />
                     )}
@@ -339,6 +353,38 @@ function CategoryEditorSheet({
               {Array.from(normalizedName).length}
               /12
             </div>
+            <section className="mt-5 rounded-[18px] border border-border-primary bg-white/90 p-4 shadow-ww-xs">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-[13px] font-black text-ww-ink">{t('categories.textIcon')}</h3>
+                  <p className="mt-1 text-[10px] font-semibold text-ww-mid">{t('categories.textIconHint')}</p>
+                </div>
+                <button
+                  aria-pressed={textIconEnabled}
+                  className={`relative h-7 w-12 rounded-full border-0 transition ${textIconEnabled ? 'bg-primary' : 'bg-ww-surface-tint'}`}
+                  onClick={() => setTextIconEnabled(value => !value)}
+                  type="button"
+                >
+                  <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${textIconEnabled ? 'left-6' : 'left-1'}`} />
+                </button>
+              </div>
+              {textIconEnabled && nameChars.length > 0 && (
+                <div className="mt-4 grid grid-cols-6 gap-2">
+                  {nameChars.map((char, index) => (
+                    <button
+                      aria-label={`${t('categories.chooseTextIcon')}: ${char}`}
+                      aria-pressed={safeTextIconIndex === index}
+                      className={`flex h-11 items-center justify-center rounded-xl border-0 text-[16px] font-black ${safeTextIconIndex === index ? 'bg-primary text-white shadow-ww' : 'bg-ww-surface-tint text-ww-ink'}`}
+                      key={`${char}-${nameChars.slice(0, index).join('')}`}
+                      onClick={() => setTextIconIndex(index)}
+                      type="button"
+                    >
+                      {char}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </section>
             {image && (isSaving || uploadProgress > 0) && (
               <div className="mt-3" role="progressbar" aria-label={t('categories.uploadProgress')} aria-valuemax={100} aria-valuemin={0} aria-valuenow={Math.round(uploadProgress * 100)}>
                 <div className="h-1.5 overflow-hidden rounded-full bg-ww-surface-tint">
@@ -638,7 +684,7 @@ export function CategoryManagement({
                         </button>
                       )}
                       <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-ww-mid" data-category-management-icon>
-                        <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} size={20} />
+                        <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={20} />
                       </span>
                       <span className="min-w-0 flex-1 truncate text-[14px] font-bold text-ww-mid">{category.name}</span>
                       <span className="rounded-full bg-ww-surface-tint px-2 py-1 text-[9px] font-bold text-ww-soft">{t('categories.inactive')}</span>

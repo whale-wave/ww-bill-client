@@ -138,6 +138,8 @@ export function usePatchLedgerCategoryMutation() {
       variables.data.status !== undefined
       && variables.data.name === undefined
       && variables.data.iconKey === undefined
+      && variables.data.textIconEnabled === undefined
+      && variables.data.textIconIndex === undefined
         ? 'status'
         : 'metadata',
     ),

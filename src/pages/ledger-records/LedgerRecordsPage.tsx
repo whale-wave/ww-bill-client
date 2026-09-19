@@ -122,6 +122,8 @@ function groupRecords(
           hasAttachment: indicators.hasAttachment,
           iconName: record.category.icon,
           iconType: record.category.iconType,
+          textIconEnabled: record.category.textIconEnabled,
+          textIconIndex: record.category.textIconIndex,
           memberColorKey: record.creator?.colorKey,
           id: record.id,
           onClick: () => onRecordClick(record),
@@ -293,7 +295,7 @@ function LedgerRecordsView({
         ? () => recordsQuery.fetchNextPage({ throwOnError: true })
         : undefined}
       retryLabel={t('common.retry')}
-      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} size={18} />}
+      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} textIconEnabled={item.textIconEnabled} textIconIndex={item.textIconIndex} size={18} />}
       state={viewState.isInitialLoading ? 'loading' : viewState.isBlockingError ? 'error' : 'ready'}
     />
   );

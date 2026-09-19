@@ -28,7 +28,7 @@ export interface RecordOverviewPresentationProps {
   onEmptyAction?: () => void;
   onRetry?: () => void;
   retryLabel?: ReactNode;
-  renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName' | 'iconType'>) => ReactNode;
+  renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName' | 'iconType' | 'textIconEnabled' | 'textIconIndex'>) => ReactNode;
   state: RecordOverviewState;
 }
 

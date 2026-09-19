@@ -16,7 +16,7 @@ const RecordListItem: React.FC<RecordListItemProps> = memo((props) => {
   const content = (
     <>
       <div className="mx-4 py-3">
-        <div className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-ww-surface-tint"><CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} iconType={record.category.iconType} size={20} /></div>
+        <div className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-ww-surface-tint"><CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} iconType={record.category.iconType} textIconEnabled={record.category.textIconEnabled} textIconIndex={record.category.textIconIndex} size={20} /></div>
       </div>
       <div className={classNames({
         'border-0 border-b-[1px] border-border-primary border-solid': index !== lastIndex,

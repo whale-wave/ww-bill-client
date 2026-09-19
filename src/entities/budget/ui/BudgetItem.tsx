@@ -15,6 +15,8 @@ export interface BudgetPresentationItem {
     icon?: string;
     iconType?: 'BUILTIN' | 'IMAGE';
     name: string;
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
   };
   budgetAmount: number | string;
   amount: number | string;
@@ -74,6 +76,8 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
                         categoryName={data.category?.name}
                         iconKey={data.category?.icon}
                         iconType={data.category?.iconType}
+                        textIconEnabled={data.category?.textIconEnabled}
+                        textIconIndex={data.category?.textIconIndex}
                         size={24}
                       />
                     </span>

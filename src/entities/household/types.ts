@@ -118,6 +118,8 @@ export interface FamilyRecordCategory {
   name: string;
   icon: string;
   iconType?: 'BUILTIN' | 'IMAGE';
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
   templateKey?: string;
 }
 
@@ -250,6 +252,8 @@ export interface HouseholdBudget {
   icon?: string;
   iconKey?: string;
   iconType?: 'BUILTIN' | 'IMAGE';
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
   amount: string;
   version: number;
   createdAt: string;
@@ -284,6 +288,8 @@ export interface HouseholdBudgetOverview {
     icon?: string;
     iconKey?: string;
     iconType?: 'BUILTIN' | 'IMAGE';
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
     spent: string;
   }>;
   availableCategories: Array<{
@@ -292,6 +298,8 @@ export interface HouseholdBudgetOverview {
     icon?: string;
     iconKey?: string;
     iconType?: 'BUILTIN' | 'IMAGE';
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
     sortOrder?: number;
     status?: 'ACTIVE' | 'ARCHIVED';
   }>;
@@ -348,6 +356,9 @@ export interface HouseholdChartResult {
     key: string;
     name: string;
     icon?: string;
+    iconType?: 'BUILTIN' | 'IMAGE';
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
     amount: string;
     percent: number;
   }>;

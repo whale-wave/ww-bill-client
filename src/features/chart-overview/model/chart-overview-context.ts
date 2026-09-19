@@ -8,6 +8,8 @@ export interface ChartOverviewRankingItem {
   category: {
     icon: string;
     iconType?: 'BUILTIN' | 'IMAGE';
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
     id: number | string;
     name: string;
   };

@@ -7,7 +7,11 @@ export type RecordEditorMode = 'create' | 'edit';
 export interface RecordEditorSeed {
   amount?: string;
   calculator?: CalculatorState;
-  category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'>;
+  category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'> & {
+    iconType?: CategoryEntity['iconType'];
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
+  };
   imageAssetId?: string | null;
   imagePreviewFile?: File;
   linkedAssetId?: string | null;

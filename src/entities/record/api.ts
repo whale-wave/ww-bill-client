@@ -79,6 +79,9 @@ export interface MonthBillCategoryAmount {
   sortOrder: number;
   amount: string;
   percentage: number;
+  iconType?: 'BUILTIN' | 'IMAGE';
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
 }
 
 export interface MonthBillDetailResponse {
@@ -101,6 +104,9 @@ export interface MonthBillDetailResponse {
       categoryId: number;
       name: string;
       icon?: string;
+      iconType?: 'BUILTIN' | 'IMAGE';
+      textIconEnabled?: boolean;
+      textIconIndex?: number;
       sortOrder: number;
       direction: 'increase' | 'decrease';
       amount: string;

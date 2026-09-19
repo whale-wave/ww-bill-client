@@ -3,7 +3,11 @@ import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
 import type { ShortcutDraft } from '@/entities/shortcut-bookkeeping';
 import dayjs from 'dayjs';
 
-type ShortcutCategory = Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'>;
+type ShortcutCategory = Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'> & {
+  iconType?: CategoryEntity['iconType'];
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
+};
 
 const CATEGORY_KEYWORDS: ReadonlyArray<{
   categoryNames: readonly string[];

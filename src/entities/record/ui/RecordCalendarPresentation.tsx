@@ -45,7 +45,7 @@ interface RecordCalendarPresentationProps {
   onRetry?: () => void;
   onToday: () => void;
   recordCountLabel?: (count: number) => ReactNode;
-  renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName' | 'iconType'>) => ReactNode;
+  renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName' | 'iconType' | 'textIconEnabled' | 'textIconIndex'>) => ReactNode;
   retryLabel?: ReactNode;
   selectedDayLabel?: ReactNode;
   selectedDate: Dayjs;

@@ -533,6 +533,9 @@
     "uploadProcessing": "Image uploaded. Processing and saving…",
     "imageCropped": "Center-cropped to a 1:1 preview",
     "imageFailed": "Unable to read the image. Choose another file.",
+    "textIcon": "Text icon",
+    "textIconHint": "Use one character from the category name as its icon",
+    "chooseTextIcon": "Choose character",
     "errors": {
       "archived": "This category is inactive. Restore it first.",
       "iconAnimated": "Animated images are not supported.",
@@ -544,6 +547,7 @@
       "nameConflict": "This category name is already in use.",
       "orderConflict": "The category order changed. Refresh and try again.",
       "systemImmutable": "System categories can only be reordered, hidden, or restored.",
+      "textIconIndexInvalid": "The text icon position is invalid.",
       "typeMismatch": "The category type does not match.",
       "versionConflict": "Another member changed this category. The latest version has been loaded."
     },

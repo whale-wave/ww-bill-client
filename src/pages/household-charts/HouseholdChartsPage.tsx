@@ -53,6 +53,9 @@ function mapCategoryRanking(
     amount: item.amount,
     category: {
       icon: item.icon || 'bill',
+      iconType: item.iconType,
+      textIconEnabled: item.textIconEnabled,
+      textIconIndex: item.textIconIndex,
       id: item.key,
       name: item.name,
     },

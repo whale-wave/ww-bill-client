@@ -5,6 +5,8 @@ export type AgentChartType = 'bar' | 'donut' | 'line' | 'metric';
 export interface AgentCategory {
   icon: string;
   iconType?: 'BUILTIN' | 'IMAGE';
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
   id: number;
   name: string;
   type: AgentRecordType;

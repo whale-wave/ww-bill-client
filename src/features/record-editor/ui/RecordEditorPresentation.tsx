@@ -343,6 +343,8 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     categoryName={controller.selectedCategory?.name}
                     iconKey={controller.selectedCategory?.icon}
                     iconType={controller.selectedCategory?.iconType}
+                    textIconEnabled={controller.selectedCategory?.textIconEnabled}
+                    textIconIndex={controller.selectedCategory?.textIconIndex}
                     size={18}
                   />
                 </span>
@@ -466,6 +468,8 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                             categoryName={category.name}
                             iconKey={category.icon}
                             iconType={category.iconType}
+                            textIconEnabled={category.textIconEnabled}
+                            textIconIndex={category.textIconIndex}
                             size={24}
                           />
                         </span>

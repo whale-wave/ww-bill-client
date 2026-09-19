@@ -90,6 +90,8 @@ export interface CategoryIconProps extends Omit<LucideProps, 'onError' | 'ref'> 
   categoryName?: string;
   iconKey?: string;
   iconType?: CategoryIconType;
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
 }
 
 type CategoryGlyph = ComponentType<LucideProps>;
@@ -238,6 +240,8 @@ export function CategoryIcon({
   categoryName,
   iconKey,
   iconType,
+  textIconEnabled,
+  textIconIndex = 0,
   size = 18,
   strokeWidth = 1.8,
   className,
@@ -248,6 +252,32 @@ export function CategoryIcon({
   const isImage = iconType === 'IMAGE'
     || (!iconType && /^https:\/\//i.test(iconKey ?? ''));
   const imageFailed = Boolean(iconKey && failedImage === iconKey);
+  const chars = Array.from(categoryName?.replace(/^[ \t\r\n\u3000]+|[ \t\r\n\u3000]+$/g, '') ?? '');
+  const textIcon = textIconEnabled && textIconIndex >= 0 && textIconIndex < chars.length
+    ? chars[textIconIndex]
+    : undefined;
+
+  if (textIcon) {
+    return (
+      <span
+        aria-hidden="true"
+        className={className}
+        style={{
+          alignItems: 'center',
+          display: 'inline-flex',
+          fontSize: typeof size === 'number' ? Math.max(12, Math.round(size * 0.82)) : undefined,
+          fontWeight: 800,
+          height: size,
+          justifyContent: 'center',
+          lineHeight: 1,
+          width: size,
+          ...style,
+        }}
+      >
+        {textIcon}
+      </span>
+    );
+  }
 
   if (isImage && !imageFailed) {
     return (

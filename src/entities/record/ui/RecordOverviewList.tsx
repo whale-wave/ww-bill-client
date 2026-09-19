@@ -12,6 +12,8 @@ export interface RecordOverviewListItem {
   categoryName?: string;
   iconName: string;
   iconType?: 'BUILTIN' | 'IMAGE';
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
   memberColorKey?: keyof typeof MEMBER_COLOR_PALETTE;
   id: number | string;
   hasAttachment?: boolean;
@@ -43,7 +45,7 @@ export interface RecordOverviewListGroup {
 
 interface RecordOverviewListProps {
   groups: RecordOverviewListGroup[];
-  renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName' | 'iconType'>) => ReactNode;
+  renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName' | 'iconType' | 'textIconEnabled' | 'textIconIndex'>) => ReactNode;
   variant?: 'compact' | 'default' | 'overview' | 'search';
 }
 
@@ -162,7 +164,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                             : undefined}
                           data-category-icon={record.iconName}
                         >
-                          {renderCategoryIcon?.(record) ?? <CategoryIcon categoryName={record.categoryName} iconKey={record.iconName} iconType={record.iconType} size={18} />}
+                          {renderCategoryIcon?.(record) ?? <CategoryIcon categoryName={record.categoryName} iconKey={record.iconName} iconType={record.iconType} textIconEnabled={record.textIconEnabled} textIconIndex={record.textIconIndex} size={18} />}
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block overflow-hidden text-ellipsis whitespace-nowrap text-[14px] font-semibold leading-[21px] text-ww-ink">
@@ -228,7 +230,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                             }
                           : undefined}
                       >
-                        {renderCategoryIcon?.(record) ?? <CategoryIcon categoryName={record.categoryName} iconKey={record.iconName} iconType={record.iconType} size={18} />}
+                        {renderCategoryIcon?.(record) ?? <CategoryIcon categoryName={record.categoryName} iconKey={record.iconName} iconType={record.iconType} textIconEnabled={record.textIconEnabled} textIconIndex={record.textIconIndex} size={18} />}
                       </span>
                     </span>
                     <span

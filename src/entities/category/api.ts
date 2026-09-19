@@ -15,6 +15,8 @@ export interface CategoryEntity {
   name: string;
   sortOrder: number;
   status: CategoryStatus;
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
   templateKey?: string | null;
   type: CategoryAmountType;
   updatedAt: string;
@@ -63,6 +65,8 @@ export interface PostLedgerCategoryApiData {
   iconKey?: string;
   name: string;
   type: CategoryAmountType;
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
 }
 
 export function postLedgerCategoryApi(
@@ -77,6 +81,10 @@ export function postLedgerCategoryApi(
     formData.append('iconKey', data.iconKey);
   if (data.file)
     formData.append('file', data.file);
+  if (data.textIconEnabled !== undefined)
+    formData.append('textIconEnabled', String(data.textIconEnabled));
+  if (data.textIconIndex !== undefined)
+    formData.append('textIconIndex', String(data.textIconIndex));
   return request.post<unknown, SuccessResponse<CategoryEntity>>(
     `/ledgers/${encodeURIComponent(ledgerId)}/categories`,
     formData,
@@ -95,6 +103,8 @@ export interface PatchLedgerCategoryApiData {
   name?: string;
   status?: CategoryStatus;
   version: number;
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
 }
 
 export function patchLedgerCategoryApi(

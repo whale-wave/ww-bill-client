@@ -533,6 +533,9 @@
     "uploadProcessing": "图片已上传，正在处理并保存…",
     "imageCropped": "已居中裁切为 1:1 预览",
     "imageFailed": "图片读取失败，请重新选择",
+    "textIcon": "文字图标",
+    "textIconHint": "使用分类名称中的一个字作为图标",
+    "chooseTextIcon": "选择文字",
     "errors": {
       "archived": "该分类已停用，请先恢复",
       "iconAnimated": "不支持动画图片",
@@ -544,6 +547,7 @@
       "nameConflict": "分类名称已使用",
       "orderConflict": "分类顺序已变化，请刷新后重试",
       "systemImmutable": "系统分类只能排序、隐藏或恢复",
+      "textIconIndexInvalid": "文字图标位置无效",
       "typeMismatch": "分类收支类型不匹配",
       "versionConflict": "分类已被其他成员修改，已刷新最新内容"
     },

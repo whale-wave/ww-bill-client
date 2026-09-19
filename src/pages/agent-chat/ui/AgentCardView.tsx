@@ -67,7 +67,7 @@ export function AgentCardView({
     <Surface className="mt-[var(--ww-space-md)] overflow-hidden px-[var(--ww-card-padding)] py-[var(--ww-space-md)]" material="raised">
       <div className="flex items-center gap-[var(--ww-space-md)]">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--ww-radius-control)] bg-[var(--ww-category-icon-background)] text-[color:var(--ww-category-icon-foreground)]">
-          <CategoryIcon categoryName={card.category.name} iconKey={card.category.icon} iconType={card.category.iconType} size={20} />
+          <CategoryIcon categoryName={card.category.name} iconKey={card.category.icon} iconType={card.category.iconType} textIconEnabled={card.category.textIconEnabled} textIconIndex={card.category.textIconIndex} size={20} />
         </div>
         <div className="min-w-0 flex-1">
           <p className="m-0 truncate text-[14px] font-extrabold text-ww-ink">

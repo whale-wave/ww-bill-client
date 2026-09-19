@@ -77,6 +77,8 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
             categoryName={record.category?.name}
             iconKey={record.category?.icon}
             iconType={record.category?.iconType}
+            textIconEnabled={record.category?.textIconEnabled}
+            textIconIndex={record.category?.textIconIndex}
             size={20}
           />
         </span>
@@ -150,7 +152,7 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
     return (
       <RecordOverviewList
         groups={overviewGroups}
-        renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} size={18} />}
+        renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} textIconEnabled={item.textIconEnabled} textIconIndex={item.textIconIndex} size={18} />}
         variant={groupedVariant === 'compact' ? 'overview' : 'search'}
       />
     );

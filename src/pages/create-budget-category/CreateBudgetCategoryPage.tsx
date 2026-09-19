@@ -82,7 +82,7 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
                 'ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full',
               )}
               >
-                <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} size={24} />
+                <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={24} />
               </span>
               <span className="w-full truncate text-[11px] font-semibold leading-[16.5px] text-ww-mid">{category.name}</span>
             </button>

@@ -76,6 +76,8 @@ const BudgetContent: FC<BudgetContentProps> = ({
         icon: editor.budget.icon,
         iconKey: editor.budget.iconKey,
         iconType: editor.budget.iconType,
+        textIconEnabled: editor.budget.textIconEnabled,
+        textIconIndex: editor.budget.textIconIndex,
       });
     }
     return [...categories.values()];
@@ -107,6 +109,9 @@ const BudgetContent: FC<BudgetContentProps> = ({
     category: {
       icon: category.budget.icon ?? category.budget.iconKey,
       name: category.budget.categoryName ?? '',
+      iconType: category.budget.iconType,
+      textIconEnabled: category.budget.textIconEnabled,
+      textIconIndex: category.budget.textIconIndex,
     },
     id: category.budget.id,
     remaining: category.remaining,

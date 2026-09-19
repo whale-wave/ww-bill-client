@@ -11,13 +11,15 @@ afterEach(() => {
   cleanup = undefined;
 });
 
-function render(iconKey: string, categoryName?: string, iconType?: 'BUILTIN' | 'IMAGE') {
+function render(iconKey: string, categoryName?: string, iconType?: 'BUILTIN' | 'IMAGE', textIconEnabled?: boolean, textIconIndex?: number) {
   const container = document.createElement('div');
   const root = createRoot(container);
   act(() => root.render(createElement(CategoryIcon, {
     categoryName,
     iconKey,
     iconType,
+    textIconEnabled,
+    textIconIndex,
     size: 18,
   })));
   cleanup = () => act(() => root.unmount());
@@ -141,6 +143,17 @@ describe('category icon', () => {
 
   it('falls back to a receipt glyph for an unknown category', () => {
     expect(render('unknown').querySelector('svg')?.classList).toContain('lucide-receipt-text');
+  });
+
+  it('renders the selected character before the underlying icon', () => {
+    const container = render('catering', '日本手办', 'BUILTIN', true, 1);
+    expect(container.querySelector('span')?.textContent).toBe('本');
+    expect(container.querySelector('svg')).toBeNull();
+  });
+
+  it('falls back to the underlying icon for an invalid character index', () => {
+    expect(render('catering', '日本手办', 'BUILTIN', true, 9).querySelector('svg')?.classList)
+      .toContain('lucide-utensils');
   });
 
   it('loads trusted image icons anonymously and falls back without guessing by name', () => {

@@ -131,7 +131,7 @@ export function useRecordEditorController({
   );
 
   const applyInitialCategory = useCallback(
-    (category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'>) => {
+    (category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'> & { iconType?: CategoryEntity['iconType']; textIconEnabled?: boolean; textIconIndex?: number }) => {
       if (!category || selectedCategory || hasAppliedInitialCategoryRef.current)
         return;
       hasAppliedInitialCategoryRef.current = true;

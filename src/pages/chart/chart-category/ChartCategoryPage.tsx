@@ -263,7 +263,7 @@ const ChartCategory: FC = () => {
                     type="button"
                   >
                     <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-ww-surface-tint text-primary-deep">
-                      <CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} iconType={record.category.iconType} size={16} />
+                      <CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} iconType={record.category.iconType} textIconEnabled={record.category.textIconEnabled} textIconIndex={record.category.textIconIndex} size={16} />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center justify-between">

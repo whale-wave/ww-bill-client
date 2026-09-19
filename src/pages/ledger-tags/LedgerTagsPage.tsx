@@ -32,7 +32,7 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
           <p className="mb-2 text-[12px] font-bold text-ww-mid">{t('tags.category')}</p>
           <label className="relative mb-4 flex h-12 items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-white/80 px-3 shadow-ww-xs">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[11px] bg-primary-light/50 text-primary-deep">
-              {effectiveCategory && <CategoryIcon categoryName={effectiveCategory.name} iconKey={effectiveCategory.icon} iconType={effectiveCategory.iconType} size={18} />}
+              {effectiveCategory && <CategoryIcon categoryName={effectiveCategory.name} iconKey={effectiveCategory.icon} iconType={effectiveCategory.iconType} textIconEnabled={effectiveCategory.textIconEnabled} textIconIndex={effectiveCategory.textIconIndex} size={18} />}
             </span>
             <select aria-label={t('tags.category')} className="h-full min-w-0 flex-1 appearance-none border-0 bg-transparent pr-6 text-[14px] font-extrabold text-ww-ink outline-none" onChange={event => setCategoryId(Number(event.target.value))} value={effectiveCategoryId}>
               {categoriesQuery.data.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}

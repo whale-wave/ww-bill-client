@@ -157,6 +157,9 @@ export interface HouseholdRecordFilterOptions {
   };
   categories: Array<{
     icon: string;
+    iconType?: 'BUILTIN' | 'IMAGE';
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
     id: number;
     name: string;
     type: 'add' | 'sub';
