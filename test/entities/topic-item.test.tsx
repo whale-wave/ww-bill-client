@@ -11,6 +11,7 @@ vi.mock('@/shared/i18n', () => ({
 
 vi.mock('@/shared/ui', () => ({
   Icon: ({ name }: { name: string }) => createElement('span', null, name),
+  UserAvatar: ({ alt }: { alt: string }) => createElement('img', { alt }),
 }));
 
 const topic = {

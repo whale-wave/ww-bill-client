@@ -707,7 +707,7 @@ describe('household records', () => {
       '/households/previous',
     );
 
-    const back = container.querySelector<HTMLElement>('.bwm-nav-bar-back');
+    const back = container.querySelector<HTMLElement>('[data-page-header] button[aria-label="common:nav.back"]');
     expect(container.querySelector(`[data-testid="${stateTestId}"]`)).not.toBeNull();
     expect(back).not.toBeNull();
 
