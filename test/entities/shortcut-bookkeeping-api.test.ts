@@ -27,7 +27,7 @@ describe('shortcut bookkeeping api', () => {
     issueShortcutAccessTokenApi(data);
     revokeShortcutAccessTokenApi('token/a b');
 
-    expect(request.post).toHaveBeenCalledWith('/shortcut-access/tokens', data);
+    expect(request.post).toHaveBeenCalledWith('/shortcut-access/tokens', data, { silent: true });
     expect(request.delete).toHaveBeenCalledWith('/shortcut-access/tokens/token%2Fa%20b');
   });
 

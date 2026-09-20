@@ -1,4 +1,5 @@
 import type { ShortcutAccessTokenSummary } from '@/entities/shortcut-bookkeeping';
+import dayjs from 'dayjs';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
@@ -14,11 +15,13 @@ const mocks = vi.hoisted(() => ({
   issue: vi.fn(),
   openInstaller: vi.fn(),
   revoke: vi.fn(),
+  showError: vi.fn(),
   tokens: [] as ShortcutAccessTokenSummary[],
   writeText: vi.fn(),
 }));
 
 vi.mock('copy-to-clipboard', () => ({ default: mocks.copyFallback }));
+vi.mock('@/shared/ui/app-feedback', () => ({ showAppError: mocks.showError }));
 vi.mock('@/entities/shortcut-bookkeeping', () => ({
   useIssueShortcutAccessTokenMutation: () => ({
     isLoading: false,
@@ -50,7 +53,9 @@ vi.mock(
   }),
 );
 vi.mock('@/shared/i18n', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string, options?: { time?: string }) => options?.time ? `${key}: ${options.time}` : key,
+  }),
 }));
 vi.mock('@/shared/ui', async importOriginal => ({
   ...(await importOriginal<typeof import('@/shared/ui')>()),
@@ -117,6 +122,57 @@ describe('shortcut bookkeeping settings page', () => {
     expect(container.textContent).toContain('wws_te');
     expect(mocks.writeText).not.toHaveBeenCalled();
     expect(mocks.openInstaller).not.toHaveBeenCalled();
+  });
+
+  it('shows the exact local retry time until token creation is available', async () => {
+    const retryAt = new Date(Date.now() + 10 * 60 * 1000 + 500).toISOString();
+    const displayedTime = dayjs(Math.ceil(Date.parse(retryAt) / 1000) * 1000)
+      .format('YYYY/MM/DD HH:mm:ss');
+    const error = Object.assign(new Error('rate limited'), {
+      code: 'SHORTCUT_TOKEN_ISSUE_RATE_LIMITED',
+      data: { retryAt },
+      kind: 'http',
+      statusCode: 429,
+    });
+    mocks.issue.mockRejectedValueOnce(error);
+    const container = renderPage();
+    await act(async () => {
+      buttonByText(container, 'shortcutBookkeeping.intro.start')?.click();
+    });
+    await act(async () => {
+      buttonByText(container, 'shortcutBookkeeping.createKey.submit')?.click();
+    });
+
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain(displayedTime);
+    expect(mocks.showError).toHaveBeenCalledWith(error, expect.objectContaining({
+      message: `shortcutBookkeeping.createRateLimitedUntil: ${displayedTime}`,
+    }));
+
+    await act(async () => {
+      vi.advanceTimersByTime(10 * 60 * 1000 + 2000);
+    });
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+  });
+
+  it('keeps a generic 429 message when an older server has no retry time', async () => {
+    const error = Object.assign(new Error('rate limited'), {
+      data: null,
+      kind: 'http',
+      statusCode: 429,
+    });
+    mocks.issue.mockRejectedValueOnce(error);
+    const container = renderPage();
+    await act(async () => {
+      buttonByText(container, 'shortcutBookkeeping.intro.start')?.click();
+    });
+    await act(async () => {
+      buttonByText(container, 'shortcutBookkeeping.createKey.submit')?.click();
+    });
+
+    expect(mocks.showError).toHaveBeenCalledWith(error, expect.objectContaining({
+      message: 'shortcutBookkeeping.createRateLimited',
+    }));
+    expect(container.querySelector('[role="alert"]')).toBeNull();
   });
 
   it('shows the install guide immediately after copying, then redirects after five seconds', async () => {
