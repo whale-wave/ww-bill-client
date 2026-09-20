@@ -219,6 +219,7 @@
     "defaultName": "iPhone Shortcut Bookkeeping",
     "copyFailed": "Unable to copy the connection key. Try again.",
     "saveFailed": "Unable to complete the action. Try again later.",
+    "createRateLimited": "Too many creation attempts. Please try again later.",
     "unavailable": "Shortcuts are temporarily unavailable\nNo installable Shortcut version is configured. Try again later.",
     "leaveTitle": "Leave setup?",
     "leaveDescription": "The full connection key cannot be shown again after leaving. You will need to disable it and start over.",

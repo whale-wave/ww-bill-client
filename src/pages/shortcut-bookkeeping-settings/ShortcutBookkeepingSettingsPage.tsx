@@ -34,6 +34,7 @@ import {
   useShortcutAccessTokensQuery,
   useShortcutInstallUrlQuery,
 } from '@/entities/shortcut-bookkeeping';
+import { isRequestError } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
 import {
   AppButton,
@@ -191,10 +192,12 @@ export default function ShortcutBookkeepingSettingsPage() {
       setIsTokenVisible(false);
       setView('key-created');
     }
-    catch {
-      showAppError({
-        content: t('shortcutBookkeeping.saveFailed'),
-        icon: 'fail',
+    catch (error) {
+      showAppError(error, {
+        fallbackMessage: t('shortcutBookkeeping.saveFailed'),
+        message: isRequestError(error) && error.statusCode === 429
+          ? t('shortcutBookkeeping.createRateLimited')
+          : undefined,
       });
     }
   };
