@@ -13,9 +13,10 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import androidLogo from '@/assets/brand/android-logo.png';
 import { isAndroidClientUpdateAvailable, useClientLatestReleaseQuery } from '@/entities/app-release';
+import { NotificationDetailContent } from '@/entities/notification';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { APP_INFO } from '@/shared/config/app-info';
-import { fetchBuildInfo, isNewerBuild } from '@/shared/config/build-info';
+import { fetchBuildInfo, isNewerBuild, refreshForBuild } from '@/shared/config/build-info';
 import { useTranslation } from '@/shared/i18n';
 import { openExternalUrl } from '@/shared/lib';
 import { AppButton, PageHeader } from '@/shared/ui';
@@ -166,7 +167,7 @@ const AboutSupportPage: FC = () => {
                       ? t('aboutSupport.checking')
                       : latestRelease && installedVersion && isAndroidClientUpdateAvailable(installedVersion, latestRelease)
                         ? t('aboutSupport.updateAvailable')
-                        : !latestRelease?.enabled || !latestRelease.android.enabled
+                        : !latestRelease?.android.downloadUrl
                             ? t('aboutSupport.notAvailable')
                             : t('aboutSupport.upToDate')}
                 </p>
@@ -174,12 +175,18 @@ const AboutSupportPage: FC = () => {
                   <AppButton className="h-11 flex-1 rounded-[14px] px-3 text-xs" disabled={isFetching} onClick={() => void refetch()} variant="secondary">
                     {t('aboutSupport.checkNow')}
                   </AppButton>
-                  {latestRelease && installedVersion && isAndroidClientUpdateAvailable(installedVersion, latestRelease) && (
-                    <AppButton className="h-11 flex-1 rounded-[14px] px-3 text-xs" onClick={() => void openExternalUrl(`${APP_INFO.officialWebsiteUrl}/#download`)}>
+                  {latestRelease?.android.downloadUrl && /^https:\/\//i.test(latestRelease.android.downloadUrl) && (
+                    <AppButton className="h-11 flex-1 rounded-[14px] px-3 text-xs" onClick={() => void openExternalUrl(latestRelease.android.downloadUrl)}>
                       {t('aboutSupport.downloadUpdate')}
                     </AppButton>
                   )}
                 </div>
+                {latestRelease && Boolean(latestRelease.releaseNotes || latestRelease.images?.length) && (
+                  <details className="border-t border-border-primary pt-3">
+                    <summary className="cursor-pointer text-xs font-bold text-ww-ink">{t('aboutSupport.updateDetails')}</summary>
+                    <div className="pt-3"><NotificationDetailContent content={latestRelease.releaseNotes} images={latestRelease.images} /></div>
+                  </details>
+                )}
               </div>
             </SupportSection>
           )}
@@ -193,7 +200,7 @@ const AboutSupportPage: FC = () => {
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-ww-mid">{t('aboutSupport.latestWebVersion')}</span>
-                  <span className="font-semibold text-ww-ink">{latestRelease?.web.enabled ? latestRelease.versionName : latestWebBuild?.version ?? '—'}</span>
+                  <span className="font-semibold text-ww-ink">{latestWebBuild?.version ?? latestRelease?.versionName ?? '—'}</span>
                 </div>
                 <p className="text-[11px] leading-5 text-ww-soft">
                   {latestWebBuild && isNewerBuild(APP_INFO.buildId, latestWebBuild)
@@ -202,6 +209,17 @@ const AboutSupportPage: FC = () => {
                       ? t('aboutSupport.upToDate')
                       : t('aboutSupport.checkFailed')}
                 </p>
+                {latestWebBuild && isNewerBuild(APP_INFO.buildId, latestWebBuild) && (
+                  <AppButton className="h-11 w-full rounded-[14px] px-3 text-xs" onClick={() => refreshForBuild(window.location, latestWebBuild.buildId)}>
+                    {t('aboutSupport.updateNow')}
+                  </AppButton>
+                )}
+                {latestRelease && latestWebBuild && latestRelease.versionName === latestWebBuild.version && Boolean(latestRelease.releaseNotes || latestRelease.images?.length) && (
+                  <details className="border-t border-border-primary pt-3">
+                    <summary className="cursor-pointer text-xs font-bold text-ww-ink">{t('aboutSupport.updateDetails')}</summary>
+                    <div className="pt-3"><NotificationDetailContent content={latestRelease.releaseNotes} images={latestRelease.images} /></div>
+                  </details>
+                )}
               </div>
             </SupportSection>
           )}

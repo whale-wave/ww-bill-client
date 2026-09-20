@@ -25,7 +25,7 @@ import { getNotificationTarget } from './model';
 
 const PAGE_SIZE = 20;
 const STATUS_VALUES = new Set<string>(Object.values(UserNotificationStatus));
-const TYPE_VALUES = new Set<string>(Object.values(UserNotificationType));
+const TYPE_VALUES = new Set<string>(Object.values(UserNotificationType).filter(type => type !== UserNotificationType.CLIENT_RELEASE));
 
 function parseStatus(value: string | null) {
   return value && STATUS_VALUES.has(value)
@@ -141,7 +141,7 @@ function SystemNotifyPage() {
   const status = parseStatus(searchParams.get('status'));
   const type = parseType(searchParams.get('type'));
   const filters = useMemo(() => ({
-    includeClientReleases: Capacitor.getPlatform() !== 'android',
+    includeClientReleases: false,
     limit: PAGE_SIZE,
     platform: Capacitor.getPlatform() === 'android' ? 'android' as const : 'web' as const,
     ...(status ? { status } : {}),
@@ -280,7 +280,7 @@ function SystemNotifyPage() {
                 onChange={event => handleFilterChange('type', event)}
               >
                 <option value="">{t('message.notificationCenter.allTypes')}</option>
-                {Object.values(UserNotificationType).map(value => (
+                {Object.values(UserNotificationType).filter(value => value !== UserNotificationType.CLIENT_RELEASE).map(value => (
                   <option key={value} value={value}>
                     {t(`message.notificationCenter.types.${value}`)}
                   </option>
