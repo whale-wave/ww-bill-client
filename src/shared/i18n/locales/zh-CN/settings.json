@@ -220,6 +220,7 @@
     "copyFailed": "无法复制连接密钥，请重试",
     "saveFailed": "操作失败，请稍后重试",
     "createRateLimited": "创建过于频繁，请稍后再试",
+    "createRateLimitedUntil": "10 分钟内最多创建 5 次，请于 {{time}} 后再试",
     "unavailable": "快捷指令暂不可用\n当前没有可安装的快捷指令版本，请稍后再试。",
     "leaveTitle": "要离开设置吗？",
     "leaveDescription": "离开后这枚连接密钥将无法再次完整显示，需要停用后重新设置。",
