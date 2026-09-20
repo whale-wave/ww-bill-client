@@ -90,7 +90,7 @@
   "export": "Export Data",
   "importData": {
     "title": "Import Data",
-    "subtitle": "Actively developing seamless data import for major apps",
+    "subtitle": "Preview and verify records before importing them into a ledger",
     "supportedApps": "Supported Applications",
     "noticeTitle": "Data Import Feature Under Active Development",
     "noticeDescription": "Our development team is working hard to adapt data import for all major accounting apps! If you would like us to prioritize support for your preferred accounting app, feel free to contact the author with format templates, and we will accelerate development and release support for it as soon as possible!",
@@ -99,7 +99,7 @@
     "copiedContact": "Author email copied",
     "apps": {
       "shark": "Shark Bill (鲨鱼记账)",
-      "sharkDesc": "Adapting · Provide template to accelerate release",
+      "sharkDesc": "Import Shark Bill CSV files with row-by-row review",
       "icost": "iCost",
       "icostDesc": "Adapting · Provide template to accelerate release",
       "yimu": "Yimu Bill (一木记账)",

@@ -292,6 +292,10 @@ const router = createHashRouter([
         lazy: lazyGuardedPage(() => import('@/pages/import-data/ImportDataPage')),
       },
       {
+        path: 'import-data/shark/:batchId',
+        lazy: lazyGuardedPage(() => import('@/pages/import-data/SharkImportPreviewPage')),
+      },
+      {
         path: 'export-data',
         lazy: lazyGuardedPage(() => import('@/pages/export-data/ExportDataPage')),
       },

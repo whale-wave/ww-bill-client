@@ -11,12 +11,14 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { LedgerCapability, useGetLedgersQuery } from '@/entities/ledger';
+import { uploadSharkImport } from '@/entities/record-import';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { AppSheet, PageHeader, SheetHeader, Surface } from '@/shared/ui';
-import { showAppNotice } from '@/shared/ui/app-feedback';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 
 interface AppImportOption {
   badge?: string;
@@ -33,7 +35,7 @@ const SUPPORTED_APPS: AppImportOption[] = [
     id: 'shark',
     titleKey: 'importData.apps.shark',
     descKey: 'importData.apps.sharkDesc',
-    badge: '热门软件',
+    badge: '已支持导入',
     iconBg: 'bg-amber-500/10 dark:bg-amber-500/20',
     iconColor: 'text-amber-600 dark:text-amber-400',
     bgGradient: 'from-amber-500/5 to-transparent',
@@ -89,7 +91,32 @@ const SUPPORT_EMAIL = 'support@whalewave.com';
 export default function ImportDataPage() {
   const { t } = useTranslation('settings');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const ledgersQuery = useGetLedgersQuery();
+  const availableLedgers = ledgersQuery.data.filter(ledger => ledger.capabilities.includes(LedgerCapability.RECORD_CREATE));
+  const [selectedLedgerId, setSelectedLedgerId] = useState(() => searchParams.get('ledgerId') ?? '');
+  const [isUploading, setIsUploading] = useState(false);
   const [selectedApp, setSelectedApp] = useState<AppImportOption | null>(null);
+  const targetLedgerId = availableLedgers.some(ledger => ledger.id === selectedLedgerId)
+    ? selectedLedgerId
+    : !selectedLedgerId && availableLedgers.length === 1 ? availableLedgers[0].id : '';
+
+  const handleSharkFile = async (file: File | undefined) => {
+    if (!file || !targetLedgerId || isUploading)
+      return;
+    setIsUploading(true);
+    try {
+      const preview = await uploadSharkImport(targetLedgerId, file);
+      setSelectedApp(null);
+      navigate(ROUTES_PATH.SHARK_IMPORT_PREVIEW.getPath(targetLedgerId, preview.id));
+    }
+    catch (error) {
+      showAppError(error);
+    }
+    finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSelectApp = (app: AppImportOption) => {
     playSound.turnPage();
@@ -144,7 +171,7 @@ export default function ImportDataPage() {
             </h3>
             <span className="inline-flex items-center gap-1 rounded-full bg-primary-light/40 px-2 py-0.5 text-[10px] font-bold text-primary-deep">
               <Sparkles size={11} />
-              全力攻坚适配中
+              鲨鱼记账已支持
             </span>
           </div>
 
@@ -191,7 +218,7 @@ export default function ImportDataPage() {
               <div>
                 <h4 className="text-[12px] font-bold text-ww-ink">适配开发与模版征集说明</h4>
                 <p className="mt-1 text-[11px] leading-4 text-ww-soft">
-                  作者团队正在全力开发与攻坚各大记账 App 的一键导入功能。欢迎联系作者提供模版，我们将为您优先加急开发并上线该软件的导入支持！
+                  目前可上传鲨鱼记账导出的 CSV，逐条预览、修改后再确认导入。其他记账软件欢迎提供导出模版。
                 </p>
               </div>
             </div>
@@ -207,7 +234,7 @@ export default function ImportDataPage() {
         onMaskClick={() => setSelectedApp(null)}
         position="bottom"
         showCloseButton={false}
-        visible={selectedApp !== null}
+        visible={selectedApp !== null && selectedApp.id !== 'shark'}
       >
         {selectedApp && (
           <div className="flex flex-col px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-3">
@@ -266,6 +293,50 @@ export default function ImportDataPage() {
             </div>
           </div>
         )}
+      </AppSheet>
+
+      <AppSheet
+        bodyClassName="max-h-[85dvh]"
+        destroyOnClose
+        onClose={() => setSelectedApp(null)}
+        onMaskClick={() => setSelectedApp(null)}
+        position="bottom"
+        showCloseButton={false}
+        visible={selectedApp?.id === 'shark'}
+      >
+        <div className="px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-3">
+          <SheetHeader
+            closeLabel={t('common:nav.close')}
+            description="上传导出的 CSV，检查预览后再确认导入"
+            icon={<FileSpreadsheet className="text-primary-deep" size={22} />}
+            onClose={() => setSelectedApp(null)}
+            title="导入鲨鱼记账"
+          />
+          <label className="mt-5 block text-[13px] font-bold text-ww-ink" htmlFor="shark-target-ledger">导入到哪个账本</label>
+          <select
+            className="mt-2 min-h-12 w-full rounded-[13px] border border-border-primary bg-white px-3 text-[14px] text-ww-ink"
+            id="shark-target-ledger"
+            onChange={event => setSelectedLedgerId(event.target.value)}
+            value={targetLedgerId}
+          >
+            <option value="">请选择账本</option>
+            {availableLedgers.map(ledger => <option key={ledger.id} value={ledger.id}>{ledger.name}</option>)}
+          </select>
+          <p className="mt-2 text-[12px] leading-5 text-ww-mid">支持鲨鱼记账导出的 CSV。上传后会显示所有记录，确认前可以逐条编辑或删除。</p>
+          <label className={`mt-5 flex min-h-[52px] items-center justify-center rounded-[16px] px-4 text-[14px] font-bold ${targetLedgerId && !isUploading ? 'bg-primary text-white' : 'bg-ww-surface-tint text-ww-soft'}`}>
+            {isUploading ? '正在分析文件…' : '选择 CSV 文件并预览'}
+            <input
+              accept=".csv,text/csv"
+              className="sr-only"
+              disabled={!targetLedgerId || isUploading}
+              onChange={(event) => {
+                void handleSharkFile(event.target.files?.[0]);
+                event.target.value = '';
+              }}
+              type="file"
+            />
+          </label>
+        </div>
       </AppSheet>
     </div>
   );

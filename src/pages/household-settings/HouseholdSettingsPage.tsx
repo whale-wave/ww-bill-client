@@ -252,7 +252,7 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
                 icon: 'import',
                 id: 'import',
                 kind: 'link',
-                label: '导入数据',
+                label: '导入到账本',
                 onClick: () => navigate(ROUTES_PATH.IMPORT_DATA.getPath()),
               },
               {
