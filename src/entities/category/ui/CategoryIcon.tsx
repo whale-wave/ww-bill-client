@@ -288,7 +288,7 @@ export function CategoryIcon({
         height={size}
         onError={() => setFailedImage(iconKey)}
         src={iconKey}
-        style={{ borderRadius: '24%', objectFit: 'cover', ...style }}
+        style={{ aspectRatio: '1 / 1', borderRadius: '50%', height: '100%', objectFit: 'cover', width: '100%', ...style }}
         width={size}
       />
     );

@@ -171,7 +171,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
             <div aria-hidden="true" className="absolute -right-7 -top-9 h-32 w-32 rounded-full border-[22px] border-solid border-white/25" />
             <div className="relative flex items-center gap-3" data-record-detail-category>
               <div
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] border border-white/80 text-primary-deep shadow-ww-xs"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/80 text-primary-deep shadow-ww-xs"
                 data-category-icon={category.icon}
                 style={memberColorKey
                   ? {

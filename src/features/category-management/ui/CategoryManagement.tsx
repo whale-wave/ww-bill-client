@@ -18,7 +18,6 @@ import { Button, Input } from 'antd-mobile';
 import {
   ChevronDown,
   GripVertical,
-  ImagePlus,
   Minus,
   Pencil,
   Plus,
@@ -37,6 +36,7 @@ import {
 import { useTranslation } from '@/shared/i18n';
 import { AppSheet, PageLoadingState } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { CategoryImageCropper } from './CategoryImageCropper';
 
 type EditorState = { category?: CategoryEntity; mode: 'create' | 'edit' } | null;
 
@@ -212,20 +212,27 @@ function CategoryEditorSheet({
   const [textIconIndex, setTextIconIndex] = useState(editor.category?.textIconIndex ?? 0);
   const [image, setImage] = useState<File>();
   const [preview, setPreview] = useState<string>();
+  const [cropSourceUrl, setCropSourceUrl] = useState<string>();
   const [uploadProgress, setUploadProgress] = useState(0);
   const submittingRef = useRef(false);
   const normalizedName = name.replace(/^[ \t\r\n\u3000]+|[ \t\r\n\u3000]+$/g, '');
   const nameChars = Array.from(normalizedName);
   const safeTextIconIndex = Math.min(textIconIndex, Math.max(0, nameChars.length - 1));
+  const hasImage = Boolean(image || (!iconKey && editor.category?.iconType === 'IMAGE'));
   const valid = Array.from(normalizedName).length >= 1
     && Array.from(normalizedName).length <= 12
-    && Boolean(image || iconKey || editor.category?.iconType === 'IMAGE');
+    && Boolean(image || iconKey || editor.category?.iconType === 'IMAGE' || textIconEnabled);
   const isSaving = createState.isLoading || patchState.isLoading || uploadState.isLoading;
 
   useEffect(() => () => {
     if (preview)
       URL.revokeObjectURL(preview);
   }, [preview]);
+
+  useEffect(() => () => {
+    if (cropSourceUrl)
+      URL.revokeObjectURL(cropSourceUrl);
+  }, [cropSourceUrl]);
 
   const submit = async () => {
     if (!valid || submittingRef.current)
@@ -237,7 +244,7 @@ function CategoryEditorSheet({
           setUploadProgress(0);
         await createCategory({
           data: {
-            ...(image ? { file: image } : { iconKey: iconKey! }),
+            ...(image ? { file: image } : { iconKey: iconKey ?? 'receipt' }),
             name: normalizedName,
             type,
             textIconEnabled,
@@ -296,176 +303,198 @@ function CategoryEditorSheet({
     <AppSheet
       bodyStyle={{ height: 'min(86dvh, 720px)', overflow: 'hidden' }}
       destroyOnClose
-      onMaskClick={onClose}
+      onMaskClick={cropSourceUrl ? () => setCropSourceUrl(undefined) : onClose}
       showCloseButton={false}
       visible
     >
       <div className="flex h-full flex-col bg-ww-background">
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-solid border-border-primary px-4">
-          <button className="border-0 bg-transparent text-[14px] font-bold text-ww-mid" onClick={onClose} type="button">{t('categories.cancel')}</button>
+          <button className="border-0 bg-transparent text-[14px] font-bold text-ww-mid" onClick={cropSourceUrl ? () => setCropSourceUrl(undefined) : onClose} type="button">{t('categories.cancel')}</button>
           <h2 className="text-[15px] font-black text-ww-ink">
-            {t(editor.mode === 'create' ? 'categories.addTitle' : 'categories.editTitle', {
-              type: t(type === 'sub' ? 'records.type.sub' : 'records.type.add'),
-            })}
+            {cropSourceUrl
+              ? t('categories.cropTitle')
+              : t(editor.mode === 'create' ? 'categories.addTitle' : 'categories.editTitle', {
+                  type: t(type === 'sub' ? 'records.type.sub' : 'records.type.add'),
+                })}
           </h2>
-          <button
-            className="rounded-full border-0 bg-primary px-4 py-2 text-[12px] font-black text-white disabled:opacity-35"
-            disabled={!valid || isSaving}
-            onClick={() => void submit()}
-            type="button"
-          >
-            {isSaving ? t('categories.saving') : t('categories.done')}
-          </button>
-        </header>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5">
-          <div className="mx-auto max-w-[520px]">
-            <div className="mb-5 flex justify-center">
-              <span className="flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-primary-deep shadow-ww">
-                {preview
-                  ? <img alt="" className="h-full w-full object-cover" src={preview} />
-                  : (
-                      <CategoryIcon
-                        categoryName={normalizedName}
-                        iconKey={iconKey ?? editor.category?.icon ?? 'receipt'}
-                        iconType={iconKey ? 'BUILTIN' : editor.category?.iconType}
-                        textIconEnabled={textIconEnabled}
-                        textIconIndex={safeTextIconIndex}
-                        size={31}
-                      />
-                    )}
-              </span>
-            </div>
-            <label
-              className="ww-category-name-field flex min-h-[54px] items-center rounded-[18px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition-[border-color,box-shadow] focus-within:border-primary-mid focus-within:ring-2 focus-within:ring-[var(--ww-theme-color-light)]"
-              data-testid="category-name-field"
-            >
-              <span className="sr-only">{t('categories.name')}</span>
-              <Input
-                aria-label={t('categories.name')}
-                className="min-w-0 flex-1 text-[15px] text-ww-ink [--color:var(--ww-theme-text-color)] [--font-size:15px] [--placeholder-color:var(--ww-text-color-soft)]"
-                maxLength={24}
-                onChange={setName}
-                placeholder={t('categories.namePlaceholder')}
-                value={name}
-              />
-            </label>
-            <div className="mt-2 text-right text-[10px] font-semibold text-ww-mid">
-              {Array.from(normalizedName).length}
-              /12
-            </div>
-            <section className="mt-5 rounded-[18px] border border-border-primary bg-white/90 p-4 shadow-ww-xs">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-[13px] font-black text-ww-ink">{t('categories.textIcon')}</h3>
-                  <p className="mt-1 text-[10px] font-semibold text-ww-mid">{t('categories.textIconHint')}</p>
-                </div>
+          {cropSourceUrl
+            ? <span aria-hidden="true" className="w-[52px]" />
+            : (
                 <button
-                  aria-pressed={textIconEnabled}
-                  className={`relative h-7 w-12 rounded-full border-0 transition ${textIconEnabled ? 'bg-primary' : 'bg-ww-surface-tint'}`}
-                  onClick={() => setTextIconEnabled(value => !value)}
+                  className="rounded-full border-0 bg-primary px-4 py-2 text-[12px] font-black text-white disabled:opacity-35"
+                  disabled={!valid || isSaving}
+                  onClick={() => void submit()}
                   type="button"
                 >
-                  <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${textIconEnabled ? 'left-6' : 'left-1'}`} />
+                  {isSaving ? t('categories.saving') : t('categories.done')}
                 </button>
+              )}
+        </header>
+        {cropSourceUrl && (
+          <CategoryImageCropper
+            onConfirm={(croppedImage) => {
+              setPreview(URL.createObjectURL(croppedImage));
+              setImage(croppedImage);
+              setIconKey(undefined);
+              setTextIconEnabled(false);
+              setUploadProgress(0);
+              setCropSourceUrl(undefined);
+            }}
+            onInvalidImage={() => setCropSourceUrl(undefined)}
+            sourceUrl={cropSourceUrl}
+          />
+        )}
+        {!cropSourceUrl && (
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5">
+            <div className="mx-auto max-w-[520px]">
+              <label className="group mb-5 flex cursor-pointer flex-col items-center gap-2" data-category-image-upload>
+                <span className="flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-primary-deep shadow-ww transition-opacity group-hover:opacity-80 group-focus-within:outline group-focus-within:outline-2 group-focus-within:outline-offset-2 group-focus-within:outline-primary" data-category-image-preview>
+                  {preview && !textIconEnabled
+                    ? <img alt="" className="h-full w-full object-cover" src={preview} />
+                    : (
+                        <CategoryIcon
+                          categoryName={normalizedName}
+                          iconKey={iconKey ?? editor.category?.icon ?? 'receipt'}
+                          iconType={iconKey ? 'BUILTIN' : editor.category?.iconType}
+                          textIconEnabled={textIconEnabled}
+                          textIconIndex={safeTextIconIndex}
+                          size={31}
+                        />
+                      )}
+                </span>
+                <span className="text-center text-[11px] font-semibold leading-4 text-ww-mid">
+                  {hasImage
+                    ? t(textIconEnabled ? 'categories.imageHiddenByText' : 'categories.imageCropped')
+                    : t('categories.uploadHint')}
+                </span>
+                <input
+                  accept="image/jpeg,image/png,image/webp"
+                  aria-label={t('categories.uploadImage')}
+                  className="sr-only"
+                  onChange={(event) => {
+                    const source = event.target.files?.[0];
+                    event.target.value = '';
+                    if (!source)
+                      return;
+                    if (source.size > 5 * 1024 * 1024) {
+                      showAppError({ content: t('categories.errors.iconTooLarge'), icon: 'fail' });
+                      return;
+                    }
+                    if (!['image/jpeg', 'image/png', 'image/webp'].includes(source.type)) {
+                      showAppError({ content: t('categories.errors.iconInvalid'), icon: 'fail' });
+                      return;
+                    }
+                    try {
+                      setCropSourceUrl(URL.createObjectURL(source));
+                    }
+                    catch {
+                      showAppError({ content: t('categories.imageFailed'), icon: 'fail' });
+                    }
+                  }}
+                  type="file"
+                />
+              </label>
+              <label
+                className="ww-category-name-field flex min-h-[54px] items-center rounded-[18px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition-[border-color,box-shadow] focus-within:border-primary-mid focus-within:ring-2 focus-within:ring-[var(--ww-theme-color-light)]"
+                data-testid="category-name-field"
+              >
+                <span className="sr-only">{t('categories.name')}</span>
+                <Input
+                  aria-label={t('categories.name')}
+                  className="min-w-0 flex-1 text-[15px] text-ww-ink [--color:var(--ww-theme-text-color)] [--font-size:15px] [--placeholder-color:var(--ww-text-color-soft)]"
+                  maxLength={24}
+                  onChange={setName}
+                  placeholder={t('categories.namePlaceholder')}
+                  value={name}
+                />
+              </label>
+              <div className="mt-2 text-right text-[10px] font-semibold text-ww-mid">
+                {Array.from(normalizedName).length}
+                /12
               </div>
-              {textIconEnabled && nameChars.length > 0 && (
-                <div className="mt-4 grid grid-cols-6 gap-2">
-                  {nameChars.map((char, index) => (
-                    <button
-                      aria-label={`${t('categories.chooseTextIcon')}: ${char}`}
-                      aria-pressed={safeTextIconIndex === index}
-                      className={`flex h-11 items-center justify-center rounded-xl border-0 text-[16px] font-black ${safeTextIconIndex === index ? 'bg-primary text-white shadow-ww' : 'bg-ww-surface-tint text-ww-ink'}`}
-                      key={`${char}-${nameChars.slice(0, index).join('')}`}
-                      onClick={() => setTextIconIndex(index)}
-                      type="button"
-                    >
-                      {char}
-                    </button>
-                  ))}
+              <section className="mt-5 rounded-[18px] border border-border-primary bg-white/90 p-4 shadow-ww-xs">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-[13px] font-black text-ww-ink">{t('categories.textIcon')}</h3>
+                    <p className="mt-1 text-[10px] font-semibold text-ww-mid">{t('categories.textIconHint')}</p>
+                  </div>
+                  <button
+                    aria-label={t('categories.textIcon')}
+                    aria-pressed={textIconEnabled}
+                    className={`relative h-7 w-12 rounded-full border-0 transition ${textIconEnabled ? 'bg-primary' : 'bg-ww-surface-tint'}`}
+                    onClick={() => setTextIconEnabled(value => !value)}
+                    type="button"
+                  >
+                    <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${textIconEnabled ? 'left-6' : 'left-1'}`} />
+                  </button>
+                </div>
+                {textIconEnabled && nameChars.length > 0 && (
+                  <div className="mt-4 grid grid-cols-6 gap-2">
+                    {nameChars.map((char, index) => (
+                      <button
+                        aria-label={`${t('categories.chooseTextIcon')}: ${char}`}
+                        aria-pressed={safeTextIconIndex === index}
+                        className={`mx-auto flex aspect-square w-full max-w-11 items-center justify-center rounded-full border-0 text-[16px] font-black ${safeTextIconIndex === index ? 'bg-primary text-white shadow-ww' : 'bg-ww-surface-tint text-ww-ink'}`}
+                        key={`${char}-${nameChars.slice(0, index).join('')}`}
+                        onClick={() => setTextIconIndex(index)}
+                        type="button"
+                      >
+                        {char}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </section>
+              {image && (isSaving || uploadProgress > 0) && (
+                <div className="mt-3" role="progressbar" aria-label={t('categories.uploadProgress')} aria-valuemax={100} aria-valuemin={0} aria-valuenow={Math.round(uploadProgress * 100)}>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-ww-surface-tint">
+                    <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${Math.round(uploadProgress * 100)}%` }} />
+                  </div>
+                  <p className="mt-1 text-right text-[10px] font-bold text-primary-deep">
+                    {uploadProgress >= 1
+                      ? t('categories.uploadProcessing')
+                      : t('categories.uploadProgressValue', { value: Math.round(uploadProgress * 100) })}
+                  </p>
                 </div>
               )}
-            </section>
-            {image && (isSaving || uploadProgress > 0) && (
-              <div className="mt-3" role="progressbar" aria-label={t('categories.uploadProgress')} aria-valuemax={100} aria-valuemin={0} aria-valuenow={Math.round(uploadProgress * 100)}>
-                <div className="h-1.5 overflow-hidden rounded-full bg-ww-surface-tint">
-                  <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${Math.round(uploadProgress * 100)}%` }} />
-                </div>
-                <p className="mt-1 text-right text-[10px] font-bold text-primary-deep">
-                  {uploadProgress >= 1
-                    ? t('categories.uploadProcessing')
-                    : t('categories.uploadProgressValue', { value: Math.round(uploadProgress * 100) })}
-                </p>
-              </div>
-            )}
-            {GROUP_ORDER.map((group) => {
-              const icons = availableIcons.filter(item => item.group === group);
-              if (!icons.length)
-                return null;
-              return (
-                <section className="mt-5" key={group}>
-                  <h3 className="mb-3 text-center text-[11px] font-extrabold tracking-[0.18em] text-ww-mid">
-                    {t(`categories.iconGroups.${group}`)}
-                  </h3>
-                  <div className="grid grid-cols-5 gap-x-3 gap-y-4">
-                    {icons.map((item) => {
-                      const selected = !image && iconKey === item.key;
-                      return (
-                        <button
-                          aria-label={i18n.resolvedLanguage?.startsWith('zh') ? item.name.zh : item.name.en}
-                          aria-pressed={selected}
-                          className={`mx-auto flex h-11 w-11 items-center justify-center rounded-full border-0 transition ${selected ? 'bg-primary text-white shadow-ww' : 'bg-ww-surface-tint text-ww-mid'}`}
-                          key={item.key}
-                          onClick={() => {
-                            setImage(undefined);
-                            setPreview(undefined);
-                            setIconKey(item.key);
-                          }}
-                          type="button"
-                        >
-                          <CategoryIcon iconKey={item.key} size={21} strokeWidth={1.8} />
-                        </button>
-                      );
-                    })}
-                  </div>
-                </section>
-              );
-            })}
-            <label className="mt-6 flex min-h-14 cursor-pointer items-center gap-3 rounded-[18px] border border-dashed border-primary/50 bg-primary-light/25 px-4 text-primary-deep">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white"><ImagePlus size={19} /></span>
-              <span className="min-w-0 flex-1">
-                <strong className="block text-[13px] font-black">{t('categories.uploadImage')}</strong>
-                <small className="block truncate text-[10px] font-semibold text-ww-mid">{image ? t('categories.imageCropped') : t('categories.uploadHint')}</small>
-              </span>
-              <input
-                accept="image/jpeg,image/png,image/webp"
-                className="sr-only"
-                onChange={(event) => {
-                  const source = event.target.files?.[0];
-                  if (!source)
-                    return;
-                  if (source.size > 5 * 1024 * 1024) {
-                    showAppError({
-                      content: t('categories.errors.iconTooLarge'),
-                      icon: 'fail',
-                    });
-                    return;
-                  }
-
-                  setImage(source);
-                  setIconKey(undefined);
-                  setUploadProgress(0);
-                  try {
-                    setPreview(URL.createObjectURL(source));
-                  }
-                  catch {
-                    setPreview(undefined);
-                  }
-                }}
-                type="file"
-              />
-            </label>
+              {GROUP_ORDER.map((group) => {
+                const icons = availableIcons.filter(item => item.group === group);
+                if (!icons.length)
+                  return null;
+                return (
+                  <section className="mt-5" key={group}>
+                    <h3 className="mb-3 text-center text-[11px] font-extrabold tracking-[0.18em] text-ww-mid">
+                      {t(`categories.iconGroups.${group}`)}
+                    </h3>
+                    <div className="grid grid-cols-5 gap-x-3 gap-y-4">
+                      {icons.map((item) => {
+                        const selected = !image && iconKey === item.key;
+                        return (
+                          <button
+                            aria-label={i18n.resolvedLanguage?.startsWith('zh') ? item.name.zh : item.name.en}
+                            aria-pressed={selected}
+                            className={`mx-auto flex h-11 w-11 items-center justify-center rounded-full border-0 transition ${selected ? 'bg-primary text-white shadow-ww' : 'bg-ww-surface-tint text-ww-mid'}`}
+                            key={item.key}
+                            onClick={() => {
+                              setImage(undefined);
+                              setPreview(undefined);
+                              setIconKey(item.key);
+                              setTextIconEnabled(false);
+                              setUploadProgress(0);
+                            }}
+                            type="button"
+                          >
+                            <CategoryIcon iconKey={item.key} size={21} strokeWidth={1.8} />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </AppSheet>
   );

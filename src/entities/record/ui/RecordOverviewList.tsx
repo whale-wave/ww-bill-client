@@ -159,7 +159,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                             ? {
                                 backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
                                 color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
-                                padding: 3,
+                                padding: record.iconType === 'IMAGE' ? 0 : 3,
                               }
                             : undefined}
                           data-category-icon={record.iconName}
@@ -226,7 +226,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                           ? {
                               backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
                               color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
-                              padding: 3,
+                              padding: record.iconType === 'IMAGE' ? 0 : 3,
                             }
                           : undefined}
                       >

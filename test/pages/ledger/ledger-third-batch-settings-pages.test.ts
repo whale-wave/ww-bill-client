@@ -97,6 +97,16 @@ vi.mock('@/entities/ledger-data', async importOriginal => ({
   useUpdateLedgerTagMutation: hooks.useUpdateLedgerTagMutation,
 }));
 
+vi.mock('@/features/category-management/ui/CategoryImageCropper', async () => {
+  const { createElement } = await import('react');
+  return {
+    CategoryImageCropper: ({ onConfirm }: { onConfirm: (file: File) => void }) => createElement('button', {
+      onClick: () => onConfirm(new File(['cropped-image'], 'category.webp', { type: 'image/webp' })),
+      type: 'button',
+    }, 'categories.applyCrop'),
+  };
+});
+
 vi.mock('@/shared/i18n', () => ({
   i18n: { t: (key: string) => key },
   useTranslation: () => ({
@@ -504,7 +514,7 @@ describe('ledger category and tag management', () => {
     });
     expect(hooks.updateCategory).toHaveBeenCalledWith({
       categoryId: 1,
-      data: { name: '餐饮新', version: 1 },
+      data: { name: '餐饮新', textIconEnabled: false, textIconIndex: 0, version: 1 },
       ledgerId: 'ledger/a',
     });
   });
@@ -542,7 +552,7 @@ describe('ledger category and tag management', () => {
 
     expect(hooks.updateCategory).toHaveBeenCalledWith({
       categoryId: 1,
-      data: { name: '远行', version: 4 },
+      data: { name: '远行', textIconEnabled: false, textIconIndex: 0, version: 4 },
       ledgerId: 'ledger/a',
     });
     expect(hooks.uploadCategory).not.toHaveBeenCalled();
@@ -629,7 +639,7 @@ describe('ledger category and tag management', () => {
     expect(container.querySelectorAll('[aria-label="categories.edit"]')).toHaveLength(2);
   });
 
-  it('previews and uploads the original image for server-side normalization', async () => {
+  it('previews and uploads the confirmed crop', async () => {
     hooks.useCategoryIconCatalogQuery.mockReturnValue(query([{
       group: 'other',
       key: 'receipt',
@@ -655,6 +665,12 @@ describe('ledger category and tag management', () => {
       Object.defineProperty(fileInput, 'files', { configurable: true, value: [original] });
       fileInput?.dispatchEvent(new Event('change', { bubbles: true }));
     });
+    expect(hooks.createCategory).not.toHaveBeenCalled();
+    await act(async () => {
+      [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'categories.applyCrop')
+        ?.click();
+    });
     expect(document.body.querySelector<HTMLImageElement>('img[src="blob:preview"]')).not.toBeNull();
     await act(async () => {
       [...document.body.querySelectorAll<HTMLButtonElement>('button')]
@@ -663,14 +679,14 @@ describe('ledger category and tag management', () => {
     });
 
     expect(hooks.createCategory).toHaveBeenCalledWith(expect.objectContaining({
-      data: { file: original, name: '旅行', type: 'sub' },
+      data: expect.objectContaining({ file: expect.objectContaining({ name: 'category.webp', type: 'image/webp' }), name: '旅行', type: 'sub' }),
       ledgerId: 'ledger/a',
     }));
     expect(createObjectURL).toHaveBeenCalled();
     expect(revokeObjectURL).toHaveBeenCalled();
   });
 
-  it('keeps the original image submittable when a local preview URL cannot be created', async () => {
+  it('reports a preview failure without submitting an uncropped image', async () => {
     hooks.createCategory.mockResolvedValue({ version: 1 });
     vi.spyOn(URL, 'createObjectURL').mockImplementation(() => {
       throw new Error('preview unavailable');
@@ -697,13 +713,10 @@ describe('ledger category and tag management', () => {
 
     const done = [...document.body.querySelectorAll<HTMLButtonElement>('button')]
       .find(button => button.textContent === 'categories.done');
-    expect(done?.disabled).toBe(false);
+    expect(done?.disabled).toBe(true);
     await act(async () => done?.click());
-
-    expect(hooks.createCategory).toHaveBeenCalledWith(expect.objectContaining({
-      data: { file: original, name: '旅行', type: 'sub' },
-      ledgerId: 'ledger/a',
-    }));
+    expect(hooks.createCategory).not.toHaveBeenCalled();
+    expect(toastShow).toHaveBeenCalledWith(expect.objectContaining({ content: 'categories.imageFailed', icon: 'fail' }));
   });
 
   it('reports server processing after upload and resets progress immediately on storage failure', async () => {
@@ -732,6 +745,12 @@ describe('ledger category and tag management', () => {
       nameInput?.dispatchEvent(new Event('input', { bubbles: true }));
       Object.defineProperty(fileInput, 'files', { configurable: true, value: [original] });
       fileInput?.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    await act(async () => {
+      [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'categories.applyCrop')
+        ?.click();
     });
 
     act(() => {
