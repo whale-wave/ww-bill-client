@@ -24,6 +24,7 @@ WORKDIR /app
 #RUN npm config set registry https://registry.npmmirror.com
 RUN npm i -g pnpm@10
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches ./patches
 RUN pnpm install --frozen-lockfile
 COPY . .
 RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN pnpm build
