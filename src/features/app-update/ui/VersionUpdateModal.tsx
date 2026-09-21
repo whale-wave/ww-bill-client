@@ -10,7 +10,8 @@ export function VersionUpdateModal({ update, onClose, onConfirm }: {
   onConfirm: () => void;
 }) {
   const { t } = useTranslation('settings');
-  const hasDetails = Boolean(update?.title.trim() || update?.content.trim() || update?.images.length);
+  const title = update?.title.trim() ?? '';
+  const hasDetails = Boolean(update?.content.trim() || update?.images.length);
 
   return (
     <AppModal
@@ -25,6 +26,11 @@ export function VersionUpdateModal({ update, onClose, onConfirm }: {
                   v
                   {update.versionName}
                 </h2>
+                {title && (
+                  <p className="mt-2 line-clamp-2 text-sm font-semibold leading-6 text-ww-mid">
+                    {title}
+                  </p>
+                )}
               </header>
               {hasDetails && (
                 <details className="min-h-0 overflow-auto border-t border-border-primary px-5 py-4" key={`${update.platform}:${update.buildId ?? update.versionName}`}>
@@ -33,7 +39,6 @@ export function VersionUpdateModal({ update, onClose, onConfirm }: {
                     <ChevronDown aria-hidden size={16} />
                   </summary>
                   <div className="pt-4">
-                    {update.title.trim() && <p className="mb-3 text-sm font-bold text-ww-ink">{update.title}</p>}
                     <NotificationDetailContent content={update.content} images={update.images} />
                   </div>
                 </details>
