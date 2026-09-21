@@ -10,6 +10,7 @@ import { Bell, ChevronDown } from 'lucide-react';
 import { useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
+  NotificationMarkdown,
   useArchiveNotificationMutation,
   useMarkAllNotificationsReadMutation,
   useMarkNotificationReadMutation,
@@ -86,9 +87,9 @@ function NotificationItem({
           <div className="mt-2 inline-flex rounded-full bg-ww-surface-tint px-2 py-0.5 text-xs text-ww-mid">
             {t(`message.notificationCenter.types.${notification.type}`)}
           </div>
-          <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-5 text-ww-mid">
-            {notification.content}
-          </p>
+          <div className="mt-[var(--ww-space-sm)]">
+            <NotificationMarkdown content={notification.content} />
+          </div>
           <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
             {target && (
               <Button
