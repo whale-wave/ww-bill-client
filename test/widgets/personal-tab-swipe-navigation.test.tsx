@@ -143,6 +143,26 @@ describe('personal tab swipe navigation', () => {
     expect(router.state.location.pathname).toBe('/chart');
   });
 
+  it('keeps the page transition running when a vertical scroll begins immediately after a tab switch', async () => {
+    const { container, router } = renderNavigation('/detail');
+    const swipeArea = container.querySelector<HTMLElement>('[data-personal-tab-swipe-navigation]')!;
+    Object.defineProperty(swipeArea, 'clientWidth', { configurable: true, value: 400 });
+    act(() => window.dispatchEvent(new Event('resize')));
+
+    await act(async () => container.querySelector<HTMLElement>('[data-tab-key="chart"]')?.click());
+    expect(router.state.location.pathname).toBe('/chart');
+
+    await act(async () => {
+      dispatchPointer(swipeArea, 'pointerdown', 200, 250);
+      dispatchPointer(swipeArea, 'pointermove', 201, 180);
+      dispatchPointer(swipeArea, 'pointerup', 202, 120);
+      await new Promise(resolve => setTimeout(resolve, 350));
+    });
+
+    const track = container.querySelector<HTMLElement>('[data-personal-tab-track]');
+    expect(track?.style.transform).toContain('-400px');
+  });
+
   it('does not wrap at an edge or treat bookkeeping as a swipe tab', async () => {
     const mine = renderNavigation('/mine');
     const swipeArea = mine.container.querySelector('[data-personal-tab-swipe-navigation]')!;

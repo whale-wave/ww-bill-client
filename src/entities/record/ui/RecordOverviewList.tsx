@@ -4,6 +4,7 @@ import { Image as ImageIcon } from 'lucide-react';
 import { CategoryIcon } from '@/entities/category';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { cn } from '@/shared/lib';
+import { getRecordDisplayTitle } from '../display-title';
 
 export interface RecordOverviewListItem {
   amount: ReactNode;
@@ -124,6 +125,9 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
               : ''}
             >
               {group.records.map((record, index) => {
+                const primary = typeof record.primary === 'string'
+                  ? getRecordDisplayTitle(record.primary, record.categoryName ?? '')
+                  : record.primary;
                 if (isOverview) {
                   const hasOverviewSecondary = Boolean(record.overviewSecondary) || record.hasAttachment;
                   const recordRow = (
@@ -168,7 +172,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block overflow-hidden text-ellipsis whitespace-nowrap text-[14px] font-semibold leading-[21px] text-ww-ink">
-                            {record.primary}
+                            {primary}
                           </span>
                           {hasOverviewSecondary && (
                             <span className="mt-0.5 flex min-w-0 items-center gap-1 overflow-hidden text-[11px] font-semibold leading-[16.5px] text-ww-mid">
@@ -242,7 +246,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                       )}
                     >
                       <span className="min-w-0 flex-grow">
-                        <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{record.primary}</span>
+                        <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{primary}</span>
                         {(record.secondary || record.hasAttachment) && (
                           <span className="mt-1 flex min-w-0 items-center gap-1 overflow-hidden text-xs text-ww-soft">
                             {record.secondary && <span className="min-w-0 truncate">{record.secondary}</span>}

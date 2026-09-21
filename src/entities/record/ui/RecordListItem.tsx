@@ -2,6 +2,7 @@ import type { RecordEntry } from '../types';
 import classNames from 'classnames';
 import React, { memo } from 'react';
 import { CategoryIcon } from '@/entities/category';
+import { getRecordDisplayTitle } from '../display-title';
 
 interface RecordListItemProps {
   className?: string;
@@ -23,7 +24,7 @@ const RecordListItem: React.FC<RecordListItemProps> = memo((props) => {
       }, 'flex h-[59px] min-w-0 flex-grow items-center py-3 pr-3')}
       >
         <div className="flex-grow overflow-hidden overflow-ellipsis whitespace-nowrap">
-          {record.remark}
+          {getRecordDisplayTitle(record.remark, record.category.name)}
         </div>
         <div className="ml-4">
           {record.type === 'sub' && '-'}

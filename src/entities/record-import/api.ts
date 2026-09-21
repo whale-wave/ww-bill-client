@@ -26,6 +26,7 @@ export interface SharkImportPreview {
   status: 'DRAFT' | 'COMMITTED';
   expiresAt: string;
   rows: SharkImportRow[];
+  assetLinkAllowed: boolean;
   assets: Array<{ id: string; name: string; cardId?: string; groupName?: string }>;
   summary: {
     included: number;

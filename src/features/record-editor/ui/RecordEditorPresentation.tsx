@@ -1083,7 +1083,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             }}
           >
             <input
-              className="min-w-0 flex-1 rounded-xl border border-border-primary px-3 py-2 text-sm outline-none"
+              className="ww-sheet-control min-w-0 flex-1 rounded-xl border border-border-primary px-3 py-2 text-sm outline-none"
               maxLength={32}
               onChange={event => setNewTagName(event.target.value)}
               placeholder="新建标签"

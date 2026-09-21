@@ -29,6 +29,7 @@ function preview(): SharkImportPreview {
     revision: 1,
     status: 'DRAFT',
     expiresAt: '2026-09-22T00:00:00.000Z',
+    assetLinkAllowed: true,
     assets: [],
     rows: [{
       sourceRow: 2,
@@ -62,12 +63,12 @@ function preview(): SharkImportPreview {
 }
 
 let cleanup = () => {};
-function renderPage() {
+function renderPage(data = preview()) {
   const container = document.createElement('div');
   document.body.append(container);
   const root = createRoot(container);
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
-  queryClient.setQueryData(['record-import', 'shark', ledgerId, batchId], preview());
+  queryClient.setQueryData(['record-import', 'shark', ledgerId, batchId], data);
   const router = createMemoryRouter([
     { path: '/import/:batchId', element: <SharkImportPreviewPage /> },
   ], { initialEntries: [`/import/${batchId}?ledgerId=${ledgerId}`] });
@@ -141,5 +142,42 @@ describe('shark import preview page', () => {
     expect(mocks.showError).toHaveBeenCalledWith(failure);
     expect(mocks.get).toHaveBeenCalled();
     expect(container.querySelector('footer')).not.toBeNull();
+  });
+
+  it('filters problem rows without hiding the fixed confirmation state', async () => {
+    const data = preview();
+    data.summary.problems = 1;
+    data.rows.push({
+      ...data.rows[0],
+      sourceRow: 3,
+      categoryName: '待修正',
+      issues: [{ field: 'categoryName', message: '类别名称须为 1 至 12 个字' }],
+    });
+    const container = renderPage(data);
+    await act(async () => {
+      [...container.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent?.includes('待处理 1'))
+        ?.click();
+    });
+    expect(container.querySelector('button[aria-label="编辑第 2 行"]')).toBeNull();
+    expect(container.querySelector('button[aria-label="编辑第 3 行"]')).not.toBeNull();
+    expect(container.querySelector('footer button')?.hasAttribute('disabled')).toBe(true);
+  });
+
+  it('does not ask for asset choices in a non-personal ledger', async () => {
+    const data = preview();
+    data.assetLinkAllowed = false;
+    data.rows[0].sourceAccount = '中信银行(5608)-信用卡';
+    data.rows[0].assetMode = 'NONE';
+    const container = renderPage(data);
+    expect(container.textContent).toContain('导入时自动不关联资产');
+    expect(container.querySelector('table')?.textContent).not.toContain('资产处理');
+    expect(container.querySelector('footer button')?.hasAttribute('disabled')).toBe(false);
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('button[aria-label="编辑第 2 行"]')?.click();
+    });
+    expect(document.body.textContent).toContain('中信银行(5608)-信用卡');
+    expect(document.body.textContent).not.toContain('资产关联');
+    expect(document.body.textContent).not.toContain('明确不关联资产');
   });
 });

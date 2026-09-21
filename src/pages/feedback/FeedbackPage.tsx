@@ -176,7 +176,7 @@ export default function FeedbackPage() {
                             type="button"
                           >
                             <span
-                              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] ${isSelected ? 'bg-white text-primary-deep shadow-ww-xs' : 'bg-ww-surface-tint text-ww-mid'}`}
+                              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${isSelected ? 'bg-white text-primary-deep shadow-ww-xs' : 'bg-ww-surface-tint text-ww-mid'}`}
                             >
                               <CategoryIcon size={18} strokeWidth={1.8} />
                             </span>

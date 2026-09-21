@@ -318,6 +318,7 @@ Mutation hook 内部使用 `useQueryClient()` 获取 client，不要 import 全�
 - 页面根容器优先使用 `.page` 或 `.page-new`。
 - 主色通过 `var(--ww-theme-color)`、`bg-primary` 或 `text-primary` 使用。
 - Ant Design Mobile 变量已在 `global.scss` 中做全局映射，不随意改全局变量。
+- `AppSheet` 不给所有后代输入元素统一叠加表面样式。独立的原生输入、选择和多行控件显式使用 `ww-sheet-control`；放在 `FieldFrame` 等自带外框容器内的控件保持透明、无边框和阴影，焦点样式由外框承载。修改弹层控件样式时检查共享 Storybook 的 `SheetFieldSurfaces` 场景。
 
 `ww-bill-admin`：
 

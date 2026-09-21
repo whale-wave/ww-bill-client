@@ -1,7 +1,7 @@
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { RecordOverviewList, toRecordSearchGroups } from '@/entities/record';
+import { getRecordDisplayTitle, RecordOverviewList, toRecordSearchGroups } from '@/entities/record';
 
 let cleanup: (() => void) | undefined;
 
@@ -61,6 +61,24 @@ function renderImageCategoryList() {
 }
 
 describe('record overview list', () => {
+  it.each(['overview', 'search'] as const)('shows the category for empty remarks in the %s view', (variant) => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(RecordOverviewList, {
+      groups: [{
+        dateLabel: '2026年08月25日',
+        key: '2026-08-25',
+        records: [{ amount: '-66', categoryName: '餐饮', iconName: 'food', id: 66, primary: '' }],
+      }],
+      variant,
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    expect(container.querySelector('[data-record-id="66"]')?.textContent).toContain('餐饮');
+    expect(getRecordDisplayTitle('  ', '餐饮')).toBe('餐饮');
+    expect(getRecordDisplayTitle('中午饭', '餐饮')).toBe('中午饭');
+  });
+
   it('maps calendar metadata for both search and overview list styles', () => {
     const [group] = toRecordSearchGroups([{
       amount: '20.00',

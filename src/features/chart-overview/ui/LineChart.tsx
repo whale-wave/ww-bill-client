@@ -11,7 +11,7 @@ import { useChartOverview } from '../model/chart-overview-context';
 import { TooltipContent } from './TooltipContent';
 
 export const LineChart: FC = () => {
-  const { chartDomRef, myChart } = useChart();
+  const { chartDomRef, myChart } = useChart({ preventTouchMove: 'horizontal' });
   const { currentAmountType, curTab } = useChartOverview();
   const appearanceRevision = useAppearanceRevision();
 
@@ -140,6 +140,18 @@ export const LineChart: FC = () => {
 
     myChart?.setOption(option);
   }, [appearanceRevision, seriesData, xAxisData, myChart, currentAmountType]);
+
+  useEffect(() => {
+    const chartDom = chartDomRef.current;
+    if (!chartDom || !myChart || typeof IntersectionObserver === 'undefined')
+      return;
+    const observer = new IntersectionObserver((entries) => {
+      if ((entries[0]?.intersectionRatio ?? 0) >= 0.95)
+        myChart.resize();
+    }, { threshold: 0.95 });
+    observer.observe(chartDom);
+    return () => observer.disconnect();
+  }, [chartDomRef, myChart]);
 
   return (
     <div className={cn('mt-[10px] h-[80px] w-[315px] max-w-full')} ref={chartDomRef} />

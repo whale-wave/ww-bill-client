@@ -247,9 +247,26 @@ describe('personal record editor adapter', () => {
     const toast = vi.spyOn(Toast, 'show');
     const tagId = '00000000-0000-4000-8000-000000000001';
     const imageAssetId = '00000000-0000-4000-8000-000000000501';
+    const defaultAssetId = '00000000-0000-4000-8000-000000000400';
+    const linkedAssetId = '00000000-0000-4000-8000-000000000401';
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:shortcut-image') });
     Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
     hooks.ledgerCapabilities = ['tag:read'];
+    hooks.useGetUserAppConfigQuery.mockReturnValue({ data: { defaultAssetId } });
+    hooks.useGetAssetQuery.mockReturnValue({ data: [
+      {
+        amount: '200',
+        assetGroup: { assetType: 'cash', id: 'asset-group-1', name: '现金账户', type: 'add' },
+        id: defaultAssetId,
+        name: '默认账户',
+      },
+      {
+        amount: '500',
+        assetGroup: { assetType: 'cash', id: 'asset-group-1', name: '现金账户', type: 'add' },
+        id: linkedAssetId,
+        name: '日常支出卡',
+      },
+    ] });
     hooks.useGetCategoryQuery.mockReturnValue({
       data: [{
         createdAt: '',
@@ -300,12 +317,18 @@ describe('personal record editor adapter', () => {
     const container = renderRouter(router);
 
     await act(async () => Promise.resolve());
-    expect(hooks.useGetAssetQuery).toHaveBeenCalledWith({ queryOptions: { enabled: false } });
-    expect(hooks.useGetAssetGroupQuery).toHaveBeenCalledWith({ queryOptions: { enabled: false } });
+    expect(hooks.useGetAssetQuery).toHaveBeenCalledWith({ queryOptions: { enabled: true } });
+    expect(hooks.useGetAssetGroupQuery).toHaveBeenCalledWith({ queryOptions: { enabled: true } });
+    expect(container.querySelector('[data-record-editor-asset-trigger]')).not.toBeNull();
+    expect(container.querySelector('[data-record-editor-asset-trigger]')?.textContent).toContain('默认账户');
     expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
     expect(container.querySelector<HTMLInputElement>('[data-record-editor-note] input')?.value).toBe('滴滴出行');
     expect(container.querySelector('[data-record-editor-category-trigger]')?.textContent).toBe('交通');
     expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('18.60');
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
+    act(() => document.querySelector<HTMLButtonElement>(`[data-record-editor-asset-option="${linkedAssetId}"]`)?.click());
+    expect(container.querySelector('[data-record-editor-asset-trigger]')?.textContent).toContain('日常支出卡');
 
     const imageInput = container.querySelector<HTMLInputElement>('input[type="file"]')!;
     const image = new File(['receipt'], 'receipt.webp', { type: 'image/webp' });
@@ -337,6 +360,7 @@ describe('personal record editor adapter', () => {
       draftId: 'shortcut-draft-1',
       imageAssetId,
       ledgerId: 'default-ledger',
+      linkedAssetId,
       remark: '滴滴出行',
       tagIds: [tagId],
       type: 'sub',

@@ -110,7 +110,7 @@ function BookkeepingPage() {
   const isPersonalAssetLinkContext = returnContext.kind === 'history'
     || returnContext.kind === 'personal-calendar'
     || returnContext.kind === 'personal-detail';
-  const supportsAssetLink = isPersonalAssetLinkContext && !shortcutBookkeeping && !agentRecordDraft;
+  const supportsAssetLink = isPersonalAssetLinkContext && !agentRecordDraft;
   const assetQuery = useGetAssetQuery({ queryOptions: { enabled: supportsAssetLink } });
   const assetGroupQuery = useGetAssetGroupQuery({ queryOptions: { enabled: supportsAssetLink } });
   const userAppConfigQuery = useGetUserAppConfigQuery();
@@ -197,6 +197,7 @@ function BookkeepingPage() {
           draftId: shortcutBookkeeping.id,
           ...(typeof draft.imageAssetId === 'string' ? { imageAssetId: draft.imageAssetId } : {}),
           ledgerId: defaultLedger.id,
+          ...(draft.linkedAssetId ? { linkedAssetId: draft.linkedAssetId } : {}),
           ...(draft.location === undefined ? {} : { location: draft.location }),
           remark: draft.remark,
           tagIds: draft.tagIds,
@@ -204,6 +205,7 @@ function BookkeepingPage() {
           type: draft.type,
         });
         await invalidatePersonalRecordEditorCaches(queryClient);
+        await invalidateAssetQueries(queryClient);
         requestAchievementFeedback();
         hapticFeedback.success();
         navigate(`/editing/${result.recordId}`, {

@@ -19,7 +19,8 @@ function isBuildInfo(value: unknown): value is BuildInfo {
 }
 
 export async function fetchBuildInfo(fetcher: typeof fetch = fetch, signal?: AbortSignal): Promise<BuildInfo> {
-  const response = await fetcher(`/build-info.json?ww-check=${Date.now()}`, {
+  const response = await fetcher(`/build-info.json`, {
+  // const response = await fetcher(`/build-info.json?ww-check=${Date.now()}`, {
     cache: 'no-store',
     headers: { 'Cache-Control': 'no-cache' },
     signal,

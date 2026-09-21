@@ -23,6 +23,7 @@ vi.mock('react-router-dom', () => ({
 }));
 
 vi.mock('@/entities/record', () => ({
+  getRecordDisplayTitle: (remark: string, categoryName: string) => remark.trim() || categoryName,
   readPersonalRecordDetailNavigationState: (value: unknown) => {
     if (typeof value !== 'object' || value === null || !('personalRecordDetail' in value))
       return undefined;
@@ -102,6 +103,30 @@ function expectNoDetails(container: HTMLElement) {
 }
 
 describe('record editing page', () => {
+  it('shows the category in the remark row when an imported record has no remark', () => {
+    queryResult.data = {
+      amount: '66.00',
+      category: {
+        createdAt: '2026-08-01T00:00:00.000Z',
+        icon: 'food',
+        id: 1,
+        name: '餐饮',
+        updatedAt: '2026-08-01T00:00:00.000Z',
+      },
+      createdAt: '2026-08-25T04:00:00.000Z',
+      id: 66,
+      remark: '',
+      time: '2026-08-25T04:00:00.000Z',
+      type: 'sub',
+      updatedAt: '2026-08-25T04:00:00.000Z',
+      version: 1,
+    };
+    queryResult.isLoading = false;
+
+    const { container } = renderPage();
+    expect(container.querySelector('[data-testid="record-detail"]')?.textContent).toContain('edit.remark:餐饮');
+  });
+
   it('shows loading without rendering record detail children', () => {
     queryResult.data = undefined;
     queryResult.isError = false;

@@ -37,7 +37,7 @@ export const ChartContent: FC<ChartContentProps> = ({ pieChart, tagRanking }) =>
         : !curTab
             ? <ChartEmptyState />
             : (
-                <div className={cn('flex flex-col gap-[14px] pb-4')}>
+                <div className={cn('flex shrink-0 flex-col gap-[14px] pb-4')}>
                   <Surface
                     className={cn(
                       onDisplayModeChange ? 'h-[208px] pt-3' : 'h-[192px] pt-3',
@@ -77,6 +77,8 @@ export const ChartContent: FC<ChartContentProps> = ({ pieChart, tagRanking }) =>
                   <RankingList betweenSections={tagRanking} />
                 </div>
               )}
+      {/* A near-fit ranking still needs room to move above the floating tab bar. */}
+      {curTab && !isContentLoading && <div aria-hidden="true" className="h-16 shrink-0" data-chart-scroll-spacer />}
     </div>
   );
 };

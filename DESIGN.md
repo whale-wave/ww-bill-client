@@ -106,7 +106,9 @@ Version 10 使用柔和的大圆角卡片和两级浅阴影，但不使用厚重
 
 ### 表单
 
-表单、弹窗、Toast、List、Tabs、Dropdown、SearchBar 优先使用 Ant Design Mobile。输入行保持清晰标签、足够触控区域和稳定分割线。表单及页面级操作统一使用原生 `button` 的按钮规范，不再使用 Ant Design Mobile `Button` 作为主操作：
+表单、弹窗、Toast、List、Tabs、Dropdown、SearchBar 优先使用 Ant Design Mobile。输入行保持清晰标签、足够触控区域和稳定分割线。表单及页面级操作统一使用原生 `button` 的按钮规范，不再使用 Ant Design Mobile `Button` 作为主操作。
+
+一个输入区域只呈现一层外框。已有 `FieldFrame` 或其他控件容器时，内部输入元素保持透明、无边框和阴影，焦点反馈落在外层容器；独立输入控件自行呈现外框。
 
 - **按钮尺寸**：业务文字按钮优先使用 `AppButton` 的固定 `size` 接口，不在调用处覆写高度、横向内边距、字号和圆角。`compact` 为 `32px` 可见高度并保留 `44px` 触控高度，适合卡片内辅助操作；`medium` 为默认 `48px`；`large` 为 `52px` 页面主操作。相关值统一由 `--ww-component-button-*` token 管理。
 - **主按钮**：使用 `AppButton variant="primary"`；页面提交操作使用 `size="large"` + `fullWidth`，提交中同时切换 `disabled` 与 loading 文案。
