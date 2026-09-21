@@ -1,7 +1,7 @@
 import type { FC } from 'react';
-import { Camera, ChevronRight, Hash, LockKeyhole, LogOut, Mail, ShieldAlert, UserRound } from 'lucide-react';
+import { Camera, ChevronRight, Hash, LoaderCircle, LockKeyhole, LogOut, Mail, ShieldAlert, UserRound } from 'lucide-react';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reportPresence } from '@/entities/auth';
 import { useGetAccountDeletionStatusQuery, useGetUserUserInfoQuery, usePostAccountDeletionEmailCodeMutation, usePostAccountDeletionMutation, usePutUserUserInfoMutation } from '@/entities/user';
@@ -19,6 +19,9 @@ import {
   UserAvatar,
 } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { AvatarImageCropDialog } from './ui/AvatarImageCropDialog';
+
+type AvatarUpdateState = 'idle' | 'uploading' | 'success' | 'error';
 
 const UserInfo: FC = () => {
   const { t } = useTranslation('user');
@@ -27,6 +30,9 @@ const UserInfo: FC = () => {
   const [deletionModalVisible, setDeletionModalVisible] = useState(false);
   const [deletionCode, setDeletionCode] = useState('');
   const [hasReadDeletionNotice, setHasReadDeletionNotice] = useState(false);
+  const [avatarCropSourceUrl, setAvatarCropSourceUrl] = useState<string>();
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string>();
+  const [avatarUpdateState, setAvatarUpdateState] = useState<AvatarUpdateState>('idle');
   const { data: userInfo } = useGetUserUserInfoQuery();
   const { data: deletionStatusResponse, refetch: refetchDeletionStatus } = useGetAccountDeletionStatusQuery(deletionModalVisible);
   const [putUserUserInfoMutate] = usePutUserUserInfoMutation();
@@ -34,6 +40,24 @@ const UserInfo: FC = () => {
   const deletionMutation = usePostAccountDeletionMutation();
   const { logOut } = useAuthStore(({ logOut }) => ({ logOut }));
   const [name, setName] = useState('');
+  const isAvatarUploading = avatarUpdateState === 'uploading';
+
+  useEffect(() => () => {
+    if (avatarCropSourceUrl)
+      URL.revokeObjectURL(avatarCropSourceUrl);
+  }, [avatarCropSourceUrl]);
+
+  useEffect(() => () => {
+    if (avatarPreviewUrl)
+      URL.revokeObjectURL(avatarPreviewUrl);
+  }, [avatarPreviewUrl]);
+
+  useEffect(() => {
+    if (avatarUpdateState !== 'success')
+      return;
+    const timer = window.setTimeout(setAvatarUpdateState, 2200, 'idle');
+    return () => window.clearTimeout(timer);
+  }, [avatarUpdateState]);
 
   const onGoToPassword = useCallback(() => navigate('/password'), [navigate]);
 
@@ -101,20 +125,55 @@ const UserInfo: FC = () => {
   };
 
   const handleChangeAvatar = async () => {
-    if (!userInfo)
+    if (!userInfo || isAvatarUploading)
       return;
-    const files = await choseFile();
-    if (!files?.[0])
+    const files = await choseFile({ accept: 'image/*' });
+    const file = files?.[0];
+    if (!file)
       return;
-    const formData = new FormData();
-    formData.append('file', files[0]);
-    const { statusCode, data } = await uploadFile(formData);
-    if (statusCode !== 200) {
-      showAppError({ content: t('info.updateFailed'), icon: 'fail' });
+    if (!file.type.startsWith('image/')) {
+      showAppError({ content: t('info.avatarImageOnly'), icon: 'fail' });
       return;
     }
-    await putUserUserInfoMutate({ name: userInfo.name, avatar: data.url });
+    setAvatarUpdateState('idle');
+    setAvatarCropSourceUrl(URL.createObjectURL(file));
   };
+
+  const handleAvatarCropConfirm = async (croppedImage: File) => {
+    if (!userInfo || isAvatarUploading)
+      return;
+    setAvatarUpdateState('uploading');
+    try {
+      const formData = new FormData();
+      formData.append('file', croppedImage);
+      const uploadResponse = await uploadFile(formData);
+      if (uploadResponse.statusCode !== 200 || !uploadResponse.data?.url)
+        throw new Error(t('info.avatarUploadFailed'));
+
+      const updateResponse = await putUserUserInfoMutate({
+        avatar: uploadResponse.data.url,
+        name: userInfo.name,
+      });
+      if (updateResponse.statusCode !== 200)
+        throw new Error(t('info.avatarUploadFailed'));
+
+      setAvatarPreviewUrl(URL.createObjectURL(croppedImage));
+      setAvatarCropSourceUrl(undefined);
+      setAvatarUpdateState('success');
+    }
+    catch (error) {
+      setAvatarUpdateState('error');
+      showAppError(error, { fallbackMessage: t('info.avatarUploadFailed') });
+    }
+  };
+
+  const avatarActionLabel = avatarUpdateState === 'uploading'
+    ? t('info.avatarUploading')
+    : avatarUpdateState === 'success'
+      ? t('info.avatarUpdated')
+      : avatarUpdateState === 'error'
+        ? t('info.avatarUploadFailed')
+        : t('info.changeAvatar');
 
   const onChangeEmailActionSheet = useCallback(() => {
     showAppActionSheet({
@@ -156,18 +215,18 @@ const UserInfo: FC = () => {
       <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[520px] space-y-5">
           <Surface className="flex flex-col items-center px-5 py-6 text-center" material="raised">
-            <button className="relative border-0 bg-transparent" onClick={() => void handleChangeAvatar()} type="button">
+            <button aria-busy={isAvatarUploading || undefined} className="relative border-0 bg-transparent disabled:cursor-wait" disabled={isAvatarUploading} onClick={() => void handleChangeAvatar()} type="button">
               <span className="flex h-[82px] w-[82px] items-center justify-center overflow-hidden rounded-full border-[3px] border-solid border-white bg-white shadow-ww-lg">
-                <UserAvatar alt={userInfo.name} fallback="icon" name={userInfo.name} size={76} src={userInfo.avatar} />
+                <UserAvatar alt={userInfo.name} fallback="icon" name={userInfo.name} size={76} src={avatarPreviewUrl ?? userInfo.avatar} />
               </span>
               <span className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-solid border-white bg-primary text-white shadow-ww-xs">
-                <Camera size={14} />
+                {isAvatarUploading ? <LoaderCircle className="animate-spin" size={14} /> : <Camera size={14} />}
               </span>
             </button>
             <h2 className="mt-4 text-[20px] font-black text-ww-ink">{userInfo.name}</h2>
             <p className="mt-1 text-[11px] font-semibold text-ww-mid">{userInfo.email}</p>
-            <button className="mt-4 min-h-11 rounded-full border border-solid border-white/90 bg-white/65 px-4 text-[11px] font-extrabold text-primary-deep shadow-ww-xs" onClick={() => void handleChangeAvatar()} type="button">
-              {t('info.changeAvatar')}
+            <button aria-busy={isAvatarUploading || undefined} className="mt-4 min-h-11 rounded-full border border-solid border-white/90 bg-white/65 px-4 text-[11px] font-extrabold text-primary-deep shadow-ww-xs disabled:cursor-wait disabled:opacity-60" disabled={isAvatarUploading} onClick={() => void handleChangeAvatar()} type="button">
+              {avatarActionLabel}
             </button>
           </Surface>
 
@@ -214,6 +273,17 @@ const UserInfo: FC = () => {
             </div>
           </Surface>
         </div>
+      )}
+      {avatarCropSourceUrl && (
+        <AvatarImageCropDialog
+          isSubmitting={isAvatarUploading}
+          onCancel={() => {
+            if (!isAvatarUploading)
+              setAvatarCropSourceUrl(undefined);
+          }}
+          onConfirm={handleAvatarCropConfirm}
+          sourceUrl={avatarCropSourceUrl}
+        />
       )}
       {deletionModalVisible && (
         <div aria-labelledby="account-deletion-dialog-title" aria-modal="true" className="fixed inset-0 z-[1001] flex items-end bg-black/25 px-3 pt-12 backdrop-blur-[3px] sm:items-center sm:justify-center" role="dialog">
