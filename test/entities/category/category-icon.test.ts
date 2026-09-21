@@ -160,6 +160,11 @@ describe('category icon', () => {
     const container = render('https://cdn.example.com/icon.webp', '咖啡', 'IMAGE');
     const image = container.querySelector('img');
     expect(image?.crossOrigin).toBe('anonymous');
+    expect(image?.style.borderRadius).toBe('50%');
+    expect(image?.style.aspectRatio).toBe('1 / 1');
+    expect(image?.style.width).toBe('100%');
+    expect(image?.style.height).toBe('100%');
+    expect(image?.getAttribute('width')).toBe(image?.getAttribute('height'));
 
     act(() => image?.dispatchEvent(new Event('error')));
 

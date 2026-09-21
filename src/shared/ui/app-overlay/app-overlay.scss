@@ -398,9 +398,7 @@
     font-weight: 800;
   }
 
-  input:not([type='checkbox']),
-  select,
-  textarea {
+  :is(input, select, textarea).ww-sheet-control {
     border-color: var(--ww-component-sheet-control-border);
     border-radius: var(--ww-radius-control);
     color: var(--ww-theme-text-color);
@@ -409,29 +407,9 @@
     outline: none;
   }
 
-  input:not([type='checkbox']):focus,
-  select:focus,
-  textarea:focus {
+  :is(input, select, textarea).ww-sheet-control:focus {
     border-color: var(--ww-theme-color);
     box-shadow: 0 0 0 3px var(--ww-component-sheet-focus-ring);
-  }
-
-  .ww-category-name-field {
-    .adm-input-element,
-    .adm-input-element:focus {
-      border: 0;
-      border-radius: 0;
-      background: transparent;
-      box-shadow: none;
-    }
-  }
-
-  input.ww-sheet-plain-input,
-  input.ww-sheet-plain-input:focus {
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
   }
 
   .adm-button {

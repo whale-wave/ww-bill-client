@@ -9,6 +9,15 @@ vi.mock('@/entities/user', () => ({
   useGetUserUserInfoQuery: () => ({ data: undefined }),
 }));
 
+vi.mock('@/entities/achievement', () => ({
+  useAchievementSummaryQuery: () => ({ data: undefined }),
+}));
+
+vi.mock('@/entities/notification', () => ({
+  useNotificationsQuery: () => ({ data: [] }),
+  UserNotificationStatus: { UNREAD: 'UNREAD' },
+}));
+
 vi.mock('@/pages/mine/ui', () => ({
   BottomList: () => createElement('div'),
 }));

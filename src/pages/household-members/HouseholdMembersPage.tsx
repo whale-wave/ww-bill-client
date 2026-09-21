@@ -172,7 +172,7 @@ const MembersContent: FC<{ household: Household }> = ({ household }) => {
                   <h2>{t('settings.nicknameTitle')}</h2>
                   <p className="mt-2 text-[12px] font-semibold text-ww-mid">{t('settings.nicknamePlaceholder')}</p>
                   <input
-                    className="mt-5 h-[52px] w-full border border-solid px-4 text-[15px] font-bold"
+                    className="ww-sheet-control mt-5 h-[52px] w-full border border-solid px-4 text-[15px] font-bold"
                     defaultValue={current.nickname}
                     maxLength={30}
                     name="nickname"

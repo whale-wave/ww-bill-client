@@ -1,6 +1,6 @@
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAuthStore } from '@/features/auth';
 import { PresenceReporter } from '@/features/presence';
 
@@ -8,12 +8,11 @@ const capacitorApp = vi.hoisted(() => ({
   appStateListener: undefined as ((state: { isActive: boolean }) => void) | undefined,
   removeListener: vi.fn(),
 }));
-const presenceApi = vi.hoisted(() => ({ reportPresence: vi.fn().mockResolvedValue(undefined) }));
-const authContext = vi.hoisted(() => ({
-  identity: { credentialRevision: 3, sessionEpoch: 7 },
-  token: 'session-token',
+const socketApi = vi.hoisted(() => ({
+  disconnectAppSocket: vi.fn(),
+  getAppSocket: vi.fn(),
+  socket: { connected: false, connect: vi.fn() },
 }));
-const captureRequestAuth = vi.hoisted(() => vi.fn(() => authContext));
 
 vi.mock('@capacitor/app', () => ({
   App: {
@@ -24,69 +23,74 @@ vi.mock('@capacitor/app', () => ({
   },
 }));
 
-vi.mock('@/entities/auth/api', () => presenceApi);
-vi.mock('@/shared/api', async importOriginal => ({
-  ...(await importOriginal<typeof import('@/shared/api')>()),
-  captureRequestAuth,
+vi.mock('@/shared/api/socket', () => ({
+  disconnectAppSocket: socketApi.disconnectAppSocket,
+  getAppSocket: socketApi.getAppSocket,
 }));
 
 describe('presence reporter', () => {
   const cleanups: Array<() => void> = [];
 
+  beforeEach(() => {
+    socketApi.getAppSocket.mockReturnValue(socketApi.socket);
+    socketApi.socket.connected = false;
+  });
+
   afterEach(() => {
     cleanups.splice(0).forEach(cleanup => cleanup());
     capacitorApp.appStateListener = undefined;
     capacitorApp.removeListener.mockReset();
-    presenceApi.reportPresence.mockClear();
-    captureRequestAuth.mockClear();
+    socketApi.disconnectAppSocket.mockReset();
+    socketApi.getAppSocket.mockReset();
+    socketApi.socket.connect.mockReset();
     useAuthStore.setState({ token: '', userId: '' });
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
-    vi.useRealTimers();
   });
 
-  it('reports while authenticated and foregrounded, then stops in the background', async () => {
-    vi.useFakeTimers();
+  it('reconnects the authenticated socket when the page returns to the foreground', async () => {
     useAuthStore.setState({ token: 'session-token' });
     const container = document.createElement('div');
     const root = createRoot(container);
     cleanups.push(() => act(() => root.unmount()));
 
     await act(async () => root.render(createElement(PresenceReporter)));
-    expect(presenceApi.reportPresence).toHaveBeenNthCalledWith(1, 'online', authContext);
+    expect(socketApi.getAppSocket).toHaveBeenCalledTimes(1);
 
-    await act(async () => vi.advanceTimersByTimeAsync(45_000));
-    expect(presenceApi.reportPresence).toHaveBeenNthCalledWith(2, 'online', authContext);
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+    expect(socketApi.socket.connect).toHaveBeenCalledTimes(1);
 
-    act(() => capacitorApp.appStateListener?.({ isActive: false }));
-    expect(presenceApi.reportPresence).toHaveBeenNthCalledWith(3, 'offline', authContext);
-    await act(async () => vi.advanceTimersByTimeAsync(90_000));
-    expect(presenceApi.reportPresence).toHaveBeenCalledTimes(3);
-
+    socketApi.socket.connected = true;
     act(() => capacitorApp.appStateListener?.({ isActive: true }));
-    expect(presenceApi.reportPresence).toHaveBeenNthCalledWith(4, 'online', authContext);
+    expect(socketApi.socket.connect).toHaveBeenCalledTimes(1);
+
+    socketApi.socket.connected = false;
+    act(() => capacitorApp.appStateListener?.({ isActive: false }));
+    expect(socketApi.socket.connect).toHaveBeenCalledTimes(1);
+    act(() => capacitorApp.appStateListener?.({ isActive: true }));
+    expect(socketApi.socket.connect).toHaveBeenCalledTimes(2);
   });
 
-  it('does not report without a login token', async () => {
+  it('disconnects without a login token', async () => {
     const container = document.createElement('div');
     const root = createRoot(container);
     cleanups.push(() => act(() => root.unmount()));
 
     await act(async () => root.render(createElement(PresenceReporter)));
 
-    expect(presenceApi.reportPresence).not.toHaveBeenCalled();
+    expect(socketApi.getAppSocket).not.toHaveBeenCalled();
+    expect(socketApi.disconnectAppSocket).toHaveBeenCalledTimes(1);
   });
 
-  it('uses the effect session when logout cleanup reports offline', async () => {
+  it('removes the foreground listener and disconnects after logout', async () => {
     useAuthStore.setState({ token: 'session-token' });
     const container = document.createElement('div');
     const root = createRoot(container);
     cleanups.push(() => act(() => root.unmount()));
 
     await act(async () => root.render(createElement(PresenceReporter)));
-    useAuthStore.setState({ token: '' });
-    await act(async () => root.render(createElement(PresenceReporter)));
+    await act(async () => useAuthStore.setState({ token: '' }));
 
-    expect(presenceApi.reportPresence).toHaveBeenNthCalledWith(2, 'offline', authContext);
-    expect(captureRequestAuth).toHaveBeenCalledTimes(1);
+    expect(capacitorApp.removeListener).toHaveBeenCalledTimes(1);
+    expect(socketApi.disconnectAppSocket).toHaveBeenCalledTimes(1);
   });
 });

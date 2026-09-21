@@ -511,7 +511,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
                     id: 'import',
                     kind: 'link' as const,
                     label: '导入数据',
-                    onClick: () => navigate(ROUTES_PATH.IMPORT_DATA.getPath()),
+                    onClick: () => navigate(`${ROUTES_PATH.IMPORT_DATA.getPath()}?ledgerId=${encodeURIComponent(ledgerId)}`),
                   },
                   {
                     icon: 'export' as const,

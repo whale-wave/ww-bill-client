@@ -9,7 +9,7 @@ import { DonutChart } from '@/shared/ui';
 import { useChartOverview } from '../model/chart-overview-context';
 
 export const PieChart: FC = () => {
-  const { chartDomRef, myChart } = useChart();
+  const { chartDomRef, myChart } = useChart({ preventTouchMove: 'horizontal' });
   const { t } = useTranslation('chart');
   const { curTab } = useChartOverview();
   useAppearanceRevision();

@@ -9,6 +9,7 @@ import { CategoryIcon } from '@/entities/category';
 import {
   formatRecordLocationCoordinates,
   formatRecordLocationLabel,
+  getRecordDisplayTitle,
   readPersonalRecordDetailNavigationState,
   RecordDetailPresentation,
   useDeleteRecordMutation,
@@ -155,6 +156,7 @@ const Editing: FC = () => {
   const timeDate = getTimeDateYear(date);
   const timeOfDay = getTimeOfDay(date);
   const weekByDay = getWeekByDay(getTimedate(date));
+  const displayRemark = getRecordDisplayTitle(state.remark, state.category.name);
 
   return (
     <RecordDetailPresentation
@@ -177,7 +179,7 @@ const Editing: FC = () => {
         { label: t('record:edit.type'), value: state.type === 'sub' ? t('record:type.expense') : t('record:type.income') },
         { copyValue: `${timeDate}  ${weekByDay}`, label: t('record:edit.date'), value: `${timeDate}  ${weekByDay}` },
         { copyValue: timeOfDay, label: t('record:edit.time'), value: timeOfDay },
-        { ...(state.remark ? { copyValue: state.remark } : {}), label: t('record:edit.remark'), value: state.remark },
+        { copyValue: displayRemark, label: t('record:edit.remark'), value: displayRemark },
         ...(state.location
           ? [{
               copyValue: `${formatRecordLocationLabel(state.location)} · ${formatRecordLocationCoordinates(state.location)}`,

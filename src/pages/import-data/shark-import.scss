@@ -1,0 +1,15 @@
+.shark-import-entry,
+.shark-import-preview-page,
+.shark-import-other-app-sheet,
+.shark-import-editor-sheet {
+  --ww-text-color-mid: color-mix(in srgb, var(--ww-theme-text-color) 72%, var(--ww-background-color));
+  --ww-text-color-soft: color-mix(in srgb, var(--ww-theme-text-color) 65%, var(--ww-background-color));
+}
+
+.shark-import-editor-sheet.ww-app-sheet.adm-popup-body {
+  background: var(--ww-background-color);
+}
+
+.adm-picker-popup:has(.shark-import-date-picker) .adm-popup-body {
+  background: var(--ww-background-color);
+}

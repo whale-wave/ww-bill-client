@@ -99,7 +99,7 @@ export function formatClientReleaseDescription(release: ClientReleaseManifest, f
 }
 
 export function isAndroidClientUpdateAvailable(current: InstalledAndroidVersion, release: ClientReleaseManifest) {
-  return release.enabled && release.android.enabled && current.versionCode < release.android.versionCode;
+  return current.versionCode < release.android.versionCode && /^https:\/\//i.test(release.android.downloadUrl);
 }
 
 export function isWebClientUpdateAvailable(currentBuildId: string, deployedBuildId: string, release: ClientReleaseManifest) {

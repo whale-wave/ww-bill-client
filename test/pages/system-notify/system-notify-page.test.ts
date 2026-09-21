@@ -136,6 +136,7 @@ describe('system notification center page', () => {
 
     expect(hooks.useNotificationsQuery).toHaveBeenCalledWith({
       params: {
+        includeClientReleases: false,
         limit: 20,
         platform: 'web',
         status: UserNotificationStatus.UNREAD,

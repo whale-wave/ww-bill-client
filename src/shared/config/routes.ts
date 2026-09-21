@@ -74,6 +74,9 @@ export const ROUTES_PATH = {
   IMPORT_DATA: {
     getPath: () => '/import-data',
   },
+  SHARK_IMPORT_PREVIEW: {
+    getPath: (ledgerId: string, batchId: string) => `/import-data/shark/${encodeRouteSegment(batchId)}?ledgerId=${encodeURIComponent(ledgerId)}`,
+  },
   EXPORT_DATA: {
     getPath: () => '/export-data',
   },

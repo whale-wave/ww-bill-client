@@ -177,7 +177,7 @@ describe('message page', () => {
   it('renders the real notification feed without the former category hub', () => {
     const { container } = renderPage();
 
-    expect(hooks.useNotificationsQuery).toHaveBeenCalledWith({ params: { limit: 20, platform: 'web' } });
+    expect(hooks.useNotificationsQuery).toHaveBeenCalledWith({ params: { includeClientReleases: false, limit: 20, platform: 'web' } });
     expect(container.textContent).toContain('鲸浪记账');
     expect(container.textContent).toContain('4分钟前');
     expect(container.textContent).toContain('分账本“报销账本”有一个新的加入申请');

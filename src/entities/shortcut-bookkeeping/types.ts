@@ -57,6 +57,7 @@ export interface ConfirmShortcutDraftInput {
   draftId: string;
   imageAssetId?: string;
   ledgerId: string;
+  linkedAssetId?: string;
   location?: ShortcutRecordLocationSnapshot | null;
   remark: string;
   tagIds?: string[];

@@ -422,7 +422,7 @@ export const RecordAdjustmentSection: FC<RecordAdjustmentSectionProps> = ({
 
           <label className="mt-4 block text-[11px] font-bold text-ww-mid" htmlFor="record-adjustment-remark">{t('adjustment.remark')}</label>
           <textarea
-            className="mt-1.5 min-h-[76px] w-full resize-none rounded-[16px] border border-solid border-border-primary bg-white p-3 text-[13px] text-ww-ink outline-none"
+            className="ww-sheet-control mt-1.5 min-h-[76px] w-full resize-none rounded-[16px] border border-solid border-border-primary bg-white p-3 text-[13px] text-ww-ink outline-none"
             id="record-adjustment-remark"
             maxLength={500}
             onChange={event => setRemark(event.target.value)}

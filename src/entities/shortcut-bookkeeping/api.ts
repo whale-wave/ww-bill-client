@@ -19,6 +19,7 @@ export function issueShortcutAccessTokenApi(data: {
   return request.post<unknown, SuccessResponse<IssuedShortcutAccessToken>>(
     '/shortcut-access/tokens',
     data,
+    { silent: true },
   );
 }
 

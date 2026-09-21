@@ -52,6 +52,7 @@ describe('agent record result card', () => {
     cleanup = () => act(() => root.unmount());
 
     expect(container.textContent).toContain('记录已删除');
+    expect(container.querySelector('.lucide-utensils')?.parentElement?.classList).toContain('rounded-full');
     expect(Array.from(container.querySelectorAll('button')).some(button => button.textContent?.includes('编辑记录'))).toBe(false);
   });
 });

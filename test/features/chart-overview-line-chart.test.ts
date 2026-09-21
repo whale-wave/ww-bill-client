@@ -37,6 +37,7 @@ let cleanup: (() => void) | undefined;
 afterEach(() => {
   cleanup?.();
   cleanup = undefined;
+  vi.unstubAllGlobals();
   mocks.setOption.mockReset();
   mocks.resize.mockReset();
 });
@@ -72,6 +73,28 @@ describe('chart overview line tooltip', () => {
     expect(tooltip.padding).toBe(0);
     expect(tooltip.extraCssText).toContain('background: transparent');
     expect(tooltip.extraCssText).toContain('box-shadow: none');
+  });
+
+  it('resizes the chart when its swipe page becomes visible', () => {
+    let notifyVisibility: IntersectionObserverCallback | undefined;
+    vi.stubGlobal('IntersectionObserver', class {
+      constructor(callback: IntersectionObserverCallback) {
+        notifyVisibility = callback;
+      }
+
+      observe() {}
+      disconnect() {}
+    });
+
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(LineChart)));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => notifyVisibility?.([{ intersectionRatio: 0 } as IntersectionObserverEntry], {} as IntersectionObserver));
+    expect(mocks.resize).not.toHaveBeenCalled();
+    act(() => notifyVisibility?.([{ intersectionRatio: 0.98 } as IntersectionObserverEntry], {} as IntersectionObserver));
+    expect(mocks.resize).toHaveBeenCalledOnce();
   });
 
   it('renders the category trend as a line chart with a full option replacement', () => {

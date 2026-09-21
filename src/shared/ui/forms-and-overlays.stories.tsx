@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CalendarDays, CreditCard, Settings2 } from 'lucide-react';
 import { useState } from 'react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { AppButton } from './app-button';
 import { AppModal, AppSheet, SheetHeader } from './app-overlay';
-import { ActionField, FormField, SelectField } from './form-field';
+import { ActionField, FieldFrame, FormField, SelectField } from './form-field';
 import { IllustratedEmptyState } from './illustrated-empty-state';
 import { PageLoadingState } from './page-loading-state';
 
@@ -65,6 +65,50 @@ export const Overlays: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: '打开底部操作' }));
     await expect(within(document.body).getByText('选择操作')).toBeVisible();
+  },
+};
+
+function SheetFieldExample() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [remark, setRemark] = useState('午饭');
+  return (
+    <main className="ww-story-page ww-story-stack">
+      <AppButton onClick={() => setIsOpen(true)}>打开表单弹层</AppButton>
+      <AppSheet onClose={() => setIsOpen(false)} visible={isOpen}>
+        <div className="space-y-4 px-5 pb-8 pt-4">
+          <SheetHeader closeLabel="关闭" onClose={() => setIsOpen(false)} title="输入框边框检查" />
+          <FormField label="账户备注" onChange={setRemark} value={remark} />
+          <label className="block" htmlFor="sheet-standalone-input">独立输入框</label>
+          <input className="ww-sheet-control h-12 w-full border border-solid px-3" id="sheet-standalone-input" />
+          <FieldFrame>
+            <textarea aria-label="多行备注" className="w-full resize-none border-0 bg-transparent" />
+          </FieldFrame>
+        </div>
+      </AppSheet>
+    </main>
+  );
+}
+
+export const SheetFieldSurfaces: Story = {
+  render: () => <SheetFieldExample />,
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole('button', { name: '打开表单弹层' }));
+    const sheet = within(document.body);
+    const nestedInput = sheet.getByLabelText('账户备注');
+    const nestedTextarea = sheet.getByLabelText('多行备注');
+    await waitFor(() => expect(getComputedStyle(nestedInput).pointerEvents).toBe('auto'));
+    await userEvent.click(nestedInput);
+    await expect(getComputedStyle(nestedInput).borderWidth).toBe('0px');
+    await expect(getComputedStyle(nestedInput).backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    await expect(getComputedStyle(nestedInput).boxShadow).toBe('none');
+    await userEvent.click(nestedTextarea);
+    await expect(getComputedStyle(nestedTextarea).borderWidth).toBe('0px');
+    await expect(getComputedStyle(nestedTextarea).backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    await expect(getComputedStyle(nestedTextarea).boxShadow).toBe('none');
+    const standaloneInput = sheet.getByLabelText('独立输入框');
+    await userEvent.click(standaloneInput);
+    await expect(getComputedStyle(standaloneInput).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+    await expect(getComputedStyle(standaloneInput).boxShadow).not.toBe('none');
   },
 };
 
