@@ -1,4 +1,6 @@
 import type { Area } from 'react-easy-crop';
+import { request } from '@/shared/api';
+import { resolvePublicMediaUrl } from '@/shared/lib/public-media-url';
 
 const AVATAR_OUTPUT_SIZE = 512;
 
@@ -42,4 +44,18 @@ export async function createCroppedAvatarImage(
   return new File([blob], isWebp ? 'avatar.webp' : 'avatar.png', {
     type: isWebp ? 'image/webp' : 'image/png',
   });
+}
+
+export async function verifyUploadedAvatar(sourceUrl: string): Promise<void> {
+  const avatarVariantUrl = sourceUrl.replace(/\/main-v1$/i, '/avatar-v1');
+  const resolvedUrl = resolvePublicMediaUrl(avatarVariantUrl, 'avatar-v1');
+  if (!resolvedUrl)
+    throw new Error('Uploaded avatar URL is invalid');
+
+  const blob = await request.get<Blob, Blob>(resolvedUrl, {
+    responseType: 'blob',
+    silent: true,
+  });
+  if (!(blob instanceof Blob) || blob.size <= 0 || !blob.type.startsWith('image/'))
+    throw new Error('Uploaded avatar is not readable');
 }

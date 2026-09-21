@@ -16,12 +16,14 @@ import {
   PageLoadingState,
   showAppActionSheet,
   Surface,
+  useMotionPreference,
   UserAvatar,
 } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { verifyUploadedAvatar } from './model/avatar-image-crop';
 import { AvatarImageCropDialog } from './ui/AvatarImageCropDialog';
 
-type AvatarUpdateState = 'idle' | 'uploading' | 'success' | 'error';
+type AvatarUpdateState = 'idle' | 'uploading' | 'success';
 
 const UserInfo: FC = () => {
   const { t } = useTranslation('user');
@@ -39,6 +41,7 @@ const UserInfo: FC = () => {
   const deletionCodeMutation = usePostAccountDeletionEmailCodeMutation();
   const deletionMutation = usePostAccountDeletionMutation();
   const { logOut } = useAuthStore(({ logOut }) => ({ logOut }));
+  const { isMotionEnabled } = useMotionPreference();
   const [name, setName] = useState('');
   const isAvatarUploading = avatarUpdateState === 'uploading';
 
@@ -149,6 +152,7 @@ const UserInfo: FC = () => {
       const uploadResponse = await uploadFile(formData);
       if (uploadResponse.statusCode !== 200 || !uploadResponse.data?.url)
         throw new Error(t('info.avatarUploadFailed'));
+      await verifyUploadedAvatar(uploadResponse.data.url);
 
       const updateResponse = await putUserUserInfoMutate({
         avatar: uploadResponse.data.url,
@@ -162,7 +166,7 @@ const UserInfo: FC = () => {
       setAvatarUpdateState('success');
     }
     catch (error) {
-      setAvatarUpdateState('error');
+      setAvatarUpdateState('idle');
       showAppError(error, { fallbackMessage: t('info.avatarUploadFailed') });
     }
   };
@@ -171,9 +175,7 @@ const UserInfo: FC = () => {
     ? t('info.avatarUploading')
     : avatarUpdateState === 'success'
       ? t('info.avatarUpdated')
-      : avatarUpdateState === 'error'
-        ? t('info.avatarUploadFailed')
-        : t('info.changeAvatar');
+      : t('info.changeAvatar');
 
   const onChangeEmailActionSheet = useCallback(() => {
     showAppActionSheet({
@@ -220,7 +222,7 @@ const UserInfo: FC = () => {
                 <UserAvatar alt={userInfo.name} fallback="icon" name={userInfo.name} size={76} src={avatarPreviewUrl ?? userInfo.avatar} />
               </span>
               <span className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-solid border-white bg-primary text-white shadow-ww-xs">
-                {isAvatarUploading ? <LoaderCircle className="animate-spin" size={14} /> : <Camera size={14} />}
+                {isAvatarUploading ? <LoaderCircle className={isMotionEnabled ? 'animate-spin' : undefined} size={14} /> : <Camera size={14} />}
               </span>
             </button>
             <h2 className="mt-4 text-[20px] font-black text-ww-ink">{userInfo.name}</h2>

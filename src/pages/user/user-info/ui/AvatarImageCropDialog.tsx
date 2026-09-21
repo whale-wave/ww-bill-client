@@ -1,13 +1,11 @@
 import type { Area, Point } from 'react-easy-crop';
-import { Minus, Plus, X } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Cropper from 'react-easy-crop';
 import { useTranslation } from '@/shared/i18n';
-import { AppButton, Surface } from '@/shared/ui';
+import { AppButton, AppSheet, SheetHeader } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 import { createCroppedAvatarImage } from '../model/avatar-image-crop';
-
-const MAX_SOURCE_PIXELS = 16_000_000;
 
 interface AvatarImageCropDialogProps {
   isSubmitting: boolean;
@@ -17,7 +15,6 @@ interface AvatarImageCropDialogProps {
 }
 
 export function AvatarImageCropDialog({ isSubmitting, onCancel, onConfirm, sourceUrl }: AvatarImageCropDialogProps) {
-  const { t } = useTranslation('user');
   const frameRef = useRef<HTMLDivElement>(null);
   const cropAreaRef = useRef<Area>();
   const isActiveRef = useRef(true);
@@ -26,6 +23,7 @@ export function AvatarImageCropDialog({ isSubmitting, onCancel, onConfirm, sourc
   const [zoom, setZoom] = useState(1);
   const [isReady, setIsReady] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const { t } = useTranslation('user');
   const isBusy = isExporting || isSubmitting;
 
   useEffect(() => {
@@ -64,31 +62,28 @@ export function AvatarImageCropDialog({ isSubmitting, onCancel, onConfirm, sourc
     }
   };
 
-  return (
-    <div
-      aria-labelledby="avatar-crop-dialog-title"
-      aria-modal="true"
-      className="fixed inset-0 z-[1002] flex items-end bg-black/25 px-3 pt-12 backdrop-blur-[3px] sm:items-center sm:justify-center"
-      data-avatar-crop-dialog
-      role="dialog"
-    >
-      <Surface className="flex max-h-full w-full max-w-[520px] flex-col overflow-hidden rounded-b-none px-0 pb-0 pt-0 sm:rounded-[24px]" material="floating">
-        <header className="flex shrink-0 items-center justify-between border-0 border-b border-solid border-border-primary px-5 py-4">
-          <div>
-            <h2 className="text-[17px] font-extrabold text-ww-ink" id="avatar-crop-dialog-title">{t('info.avatarCropTitle')}</h2>
-            <p className="mt-1 text-[11px] font-semibold text-ww-mid">{t('info.avatarCropHint')}</p>
-          </div>
-          <button
-            aria-label={t('common:nav.cancel')}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-bg-gray text-ww-mid disabled:opacity-35"
-            disabled={isBusy}
-            onClick={onCancel}
-            type="button"
-          >
-            <X size={18} />
-          </button>
-        </header>
+  const handleCancel = () => {
+    if (!isBusy)
+      onCancel();
+  };
 
+  return (
+    <AppSheet
+      bodyClassName="flex max-h-[calc(100dvh-3rem)] flex-col overflow-hidden"
+      closeOnMaskClick={!isBusy}
+      destroyOnClose
+      onClose={handleCancel}
+      onMaskClick={handleCancel}
+      showCloseButton={false}
+      visible
+    >
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden" data-avatar-crop-dialog>
+        <SheetHeader
+          closeLabel={t('common:nav.cancel')}
+          description={t('info.avatarCropHint')}
+          onClose={handleCancel}
+          title={t('info.avatarCropTitle')}
+        />
         <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-[calc(20px+env(safe-area-inset-bottom))] pt-5">
           <div
             aria-label={t('info.avatarCropArea')}
@@ -110,11 +105,8 @@ export function AvatarImageCropDialog({ isSubmitting, onCancel, onConfirm, sourc
               }}
               onCropChange={setCrop}
               onMediaLoaded={({ naturalHeight, naturalWidth }) => {
-                if (!naturalWidth || !naturalHeight || naturalWidth * naturalHeight > MAX_SOURCE_PIXELS) {
-                  handleInvalidImage(t(naturalWidth && naturalHeight
-                    ? 'info.avatarImageTooLarge'
-                    : 'info.avatarImageFailed'));
-                }
+                if (!naturalWidth || !naturalHeight)
+                  handleInvalidImage(t('info.avatarImageFailed'));
               }}
               onZoomChange={setZoom}
               showGrid
@@ -129,18 +121,17 @@ export function AvatarImageCropDialog({ isSubmitting, onCancel, onConfirm, sourc
           </div>
 
           <AppButton
+            aria-busy={isBusy || undefined}
             className="mx-auto mt-5 max-w-[320px]"
-            disabled={!isReady}
+            disabled={!isReady || isBusy}
             fullWidth
-            loading={isBusy}
-            loadingLabel={t('info.avatarUploading')}
             onClick={() => void handleConfirm()}
             size="large"
           >
-            {t('info.avatarApplyCrop')}
+            {isBusy ? t('info.avatarUploading') : t('info.avatarApplyCrop')}
           </AppButton>
         </div>
-      </Surface>
-    </div>
+      </div>
+    </AppSheet>
   );
 }

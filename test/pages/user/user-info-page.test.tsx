@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   createObjectURL: vi.fn(),
   logOut: vi.fn(),
   revokeObjectURL: vi.fn(),
+  requestGet: vi.fn(),
   showAppError: vi.fn(),
   uploadFile: vi.fn(),
   updateUser: vi.fn(),
@@ -57,6 +58,7 @@ vi.mock('@/features/auth', () => ({
 }));
 
 vi.mock('@/shared/api', () => ({
+  request: { get: mocks.requestGet },
   uploadFile: mocks.uploadFile,
 }));
 
@@ -76,12 +78,16 @@ let cleanup: (() => void) | undefined;
 
 function renderPage(element: ReactNode) {
   const container = document.createElement('div');
+  document.body.append(container);
   const root = createRoot(container);
   const router = createMemoryRouter([{ element, path: '/settings/user' }], {
     initialEntries: ['/settings/user'],
   });
   act(() => root.render(createElement(RouterProvider, { router })));
-  cleanup = () => act(() => root.unmount());
+  cleanup = () => {
+    act(() => root.unmount());
+    container.remove();
+  };
   return container;
 }
 
@@ -92,6 +98,8 @@ beforeEach(() => {
     .mockReturnValueOnce('blob:avatar-source')
     .mockReturnValueOnce('blob:avatar-preview');
   mocks.revokeObjectURL.mockReset();
+  mocks.requestGet.mockReset();
+  mocks.requestGet.mockResolvedValue(new Blob(['avatar'], { type: 'image/webp' }));
   mocks.showAppError.mockReset();
   mocks.updateUser.mockReset();
   mocks.uploadFile.mockReset();
@@ -115,7 +123,7 @@ async function openReadyAvatarCrop(container: HTMLElement) {
   mocks.choseFile.mockResolvedValue({ 0: file, length: 1 } as unknown as FileList);
 
   await act(async () => findButton(container, 'info.changeAvatar')?.click());
-  const cropper = container.querySelector('[data-aspect]');
+  const cropper = document.body.querySelector('[data-aspect]');
   const image = cropper?.querySelector('img');
   Object.defineProperty(image, 'naturalWidth', { configurable: true, value: 600 });
   Object.defineProperty(image, 'naturalHeight', { configurable: true, value: 400 });
@@ -168,11 +176,13 @@ describe('user info page', () => {
     const container = renderPage(createElement(UserInfoPage));
     await openReadyAvatarCrop(container);
 
-    act(() => findButton(container, 'info.avatarApplyCrop')?.click());
+    act(() => findButton(document.body, 'info.avatarApplyCrop')?.click());
     await act(async () => Promise.resolve());
 
-    expect(findButton(container, 'info.avatarUploading')).toBeDefined();
-    expect(container.querySelector('[data-avatar-crop-dialog] button[aria-busy="true"]')).not.toBeNull();
+    const uploadingButton = findButton(document.body, 'info.avatarUploading');
+    expect(uploadingButton).toBeDefined();
+    expect(uploadingButton).toHaveProperty('disabled', true);
+    expect(uploadingButton?.getAttribute('aria-busy')).toBe('true');
 
     await act(async () => {
       resolveUpload?.({ data: { url: '/api/media/public/avatar-id/main-v1' }, statusCode: 200 });
@@ -185,7 +195,11 @@ describe('user info page', () => {
       avatar: '/api/media/public/avatar-id/main-v1',
       name: 'Avan',
     });
-    expect(container.querySelector('[data-avatar-crop-dialog]')).toBeNull();
+    expect(mocks.requestGet).toHaveBeenCalledWith('/api/media/public/avatar-id/avatar-v1', {
+      responseType: 'blob',
+      silent: true,
+    });
+    expect(document.body.querySelector('[data-avatar-crop-dialog]')).toBeNull();
     expect(container.querySelector<HTMLImageElement>('img[alt="Avan"]')?.src).toBe('blob:avatar-preview');
     expect(findButton(container, 'info.avatarUpdated')).toBeDefined();
   });
@@ -201,14 +215,39 @@ describe('user info page', () => {
     await openReadyAvatarCrop(container);
 
     await act(async () => {
-      findButton(container, 'info.avatarApplyCrop')?.click();
+      findButton(document.body, 'info.avatarApplyCrop')?.click();
       await Promise.resolve();
       await Promise.resolve();
     });
 
     expect(mocks.updateUser).not.toHaveBeenCalled();
     expect(container.querySelector<HTMLImageElement>('img[alt="Avan"]')?.src).toBe('https://example.com/avatar.png');
-    expect(container.querySelector('[data-avatar-crop-dialog]')).not.toBeNull();
+    expect(document.body.querySelector('[data-avatar-crop-dialog]')).not.toBeNull();
     expect(mocks.showAppError).toHaveBeenCalledWith(uploadError, { fallbackMessage: 'info.avatarUploadFailed' });
+  });
+
+  it('does not save or replace the avatar when the uploaded avatar variant is unreadable', async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext')
+      .mockReturnValue({ drawImage: vi.fn() } as unknown as CanvasRenderingContext2D);
+    vi.spyOn(HTMLCanvasElement.prototype, 'toBlob')
+      .mockImplementation(callback => callback(new Blob(['cropped'], { type: 'image/webp' })));
+    mocks.uploadFile.mockResolvedValue({
+      data: { url: '/api/media/public/avatar-id/main-v1' },
+      statusCode: 200,
+    });
+    const verificationError = new Error('avatar unavailable');
+    mocks.requestGet.mockRejectedValue(verificationError);
+    const container = renderPage(createElement(UserInfoPage));
+    await openReadyAvatarCrop(container);
+
+    await act(async () => {
+      findButton(document.body, 'info.avatarApplyCrop')?.click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(mocks.updateUser).not.toHaveBeenCalled();
+    expect(container.querySelector<HTMLImageElement>('img[alt="Avan"]')?.src).toBe('https://example.com/avatar.png');
+    expect(mocks.showAppError).toHaveBeenCalledWith(verificationError, { fallbackMessage: 'info.avatarUploadFailed' });
   });
 });

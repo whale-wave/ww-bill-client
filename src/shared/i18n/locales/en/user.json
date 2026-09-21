@@ -23,7 +23,6 @@
     "avatarCropFailed": "Could not crop the avatar. Choose another image.",
     "avatarImageFailed": "Could not read this image. Choose another one.",
     "avatarImageOnly": "Choose an image file.",
-    "avatarImageTooLarge": "This image is too large. Choose a smaller one.",
     "securityHint": "Keep your account secure with a fresh password",
     "logoutTitle": "Log out of this account?",
     "logoutHint": "You will need to sign in again to continue bookkeeping.",
