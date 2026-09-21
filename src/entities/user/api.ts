@@ -1,5 +1,6 @@
 import type { SuccessResponse } from '@/shared/api';
 import { request } from '@/shared/api';
+import { resolvePublicMediaUrl } from '@/shared/lib/public-media-url';
 
 export interface UserEntity {
   id: number;
@@ -47,6 +48,20 @@ export interface usePutUserUserInfoData {
 
 export function putUserUserInfoApi(data: usePutUserUserInfoData) {
   return request.put<unknown, SuccessResponse<unknown>>('/user/userInfo', data);
+}
+
+export async function verifyUploadedAvatar(sourceUrl: string): Promise<void> {
+  const avatarVariantUrl = sourceUrl.replace(/\/main-v1$/i, '/avatar-v1');
+  const resolvedUrl = resolvePublicMediaUrl(avatarVariantUrl, 'avatar-v1');
+  if (!resolvedUrl)
+    throw new Error('Uploaded avatar URL is invalid');
+
+  const blob = await request.get<Blob, Blob>(resolvedUrl, {
+    responseType: 'blob',
+    silent: true,
+  });
+  if (!(blob instanceof Blob) || blob.size <= 0 || !blob.type.startsWith('image/'))
+    throw new Error('Uploaded avatar is not readable');
 }
 
 export function changePassword(data: UpdatePassword) {

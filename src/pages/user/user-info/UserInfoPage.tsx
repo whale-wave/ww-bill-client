@@ -4,7 +4,7 @@ import { Camera, ChevronRight, Hash, LoaderCircle, LockKeyhole, LogOut, Mail, Sh
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reportPresence } from '@/entities/auth';
-import { useGetAccountDeletionStatusQuery, useGetUserUserInfoQuery, usePostAccountDeletionEmailCodeMutation, usePostAccountDeletionMutation, usePutUserUserInfoMutation } from '@/entities/user';
+import { useGetAccountDeletionStatusQuery, useGetUserUserInfoQuery, usePostAccountDeletionEmailCodeMutation, usePostAccountDeletionMutation, usePutUserUserInfoMutation, verifyUploadedAvatar } from '@/entities/user';
 import { useAuthStore } from '@/features/auth';
 import { uploadFile } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
@@ -20,14 +20,11 @@ import {
   UserAvatar,
 } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
-import { verifyUploadedAvatar } from './model/avatar-image-crop';
 import { AvatarImageCropDialog } from './ui/AvatarImageCropDialog';
 
 type AvatarUpdateState = 'idle' | 'uploading' | 'success';
 
 const UserInfo: FC = () => {
-  const { t } = useTranslation('user');
-  const navigate = useNavigate();
   const [modalVisible, setModalVisible] = useState(false);
   const [deletionModalVisible, setDeletionModalVisible] = useState(false);
   const [deletionCode, setDeletionCode] = useState('');
@@ -35,14 +32,16 @@ const UserInfo: FC = () => {
   const [avatarCropSourceUrl, setAvatarCropSourceUrl] = useState<string>();
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string>();
   const [avatarUpdateState, setAvatarUpdateState] = useState<AvatarUpdateState>('idle');
+  const [name, setName] = useState('');
+  const navigate = useNavigate();
   const { data: userInfo } = useGetUserUserInfoQuery();
   const { data: deletionStatusResponse, refetch: refetchDeletionStatus } = useGetAccountDeletionStatusQuery(deletionModalVisible);
   const [putUserUserInfoMutate] = usePutUserUserInfoMutation();
   const deletionCodeMutation = usePostAccountDeletionEmailCodeMutation();
   const deletionMutation = usePostAccountDeletionMutation();
   const { logOut } = useAuthStore(({ logOut }) => ({ logOut }));
+  const { t } = useTranslation('user');
   const { isMotionEnabled } = useMotionPreference();
-  const [name, setName] = useState('');
   const isAvatarUploading = avatarUpdateState === 'uploading';
 
   useEffect(() => () => {

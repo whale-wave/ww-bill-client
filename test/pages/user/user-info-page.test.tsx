@@ -11,10 +11,10 @@ const mocks = vi.hoisted(() => ({
   createObjectURL: vi.fn(),
   logOut: vi.fn(),
   revokeObjectURL: vi.fn(),
-  requestGet: vi.fn(),
   showAppError: vi.fn(),
   uploadFile: vi.fn(),
   updateUser: vi.fn(),
+  verifyUploadedAvatar: vi.fn(),
 }));
 
 vi.mock('react-easy-crop', () => ({
@@ -51,6 +51,7 @@ vi.mock('@/entities/user', () => ({
   usePostAccountDeletionEmailCodeMutation: () => ({ isLoading: false, mutateAsync: vi.fn() }),
   usePostAccountDeletionMutation: () => ({ isLoading: false, mutateAsync: vi.fn() }),
   usePutUserUserInfoMutation: () => [mocks.updateUser, { isLoading: false }],
+  verifyUploadedAvatar: mocks.verifyUploadedAvatar,
 }));
 
 vi.mock('@/features/auth', () => ({
@@ -58,7 +59,6 @@ vi.mock('@/features/auth', () => ({
 }));
 
 vi.mock('@/shared/api', () => ({
-  request: { get: mocks.requestGet },
   uploadFile: mocks.uploadFile,
 }));
 
@@ -98,11 +98,11 @@ beforeEach(() => {
     .mockReturnValueOnce('blob:avatar-source')
     .mockReturnValueOnce('blob:avatar-preview');
   mocks.revokeObjectURL.mockReset();
-  mocks.requestGet.mockReset();
-  mocks.requestGet.mockResolvedValue(new Blob(['avatar'], { type: 'image/webp' }));
   mocks.showAppError.mockReset();
   mocks.updateUser.mockReset();
   mocks.uploadFile.mockReset();
+  mocks.verifyUploadedAvatar.mockReset();
+  mocks.verifyUploadedAvatar.mockResolvedValue(undefined);
   vi.spyOn(URL, 'createObjectURL').mockImplementation(mocks.createObjectURL);
   vi.spyOn(URL, 'revokeObjectURL').mockImplementation(mocks.revokeObjectURL);
 });
@@ -195,10 +195,7 @@ describe('user info page', () => {
       avatar: '/api/media/public/avatar-id/main-v1',
       name: 'Avan',
     });
-    expect(mocks.requestGet).toHaveBeenCalledWith('/api/media/public/avatar-id/avatar-v1', {
-      responseType: 'blob',
-      silent: true,
-    });
+    expect(mocks.verifyUploadedAvatar).toHaveBeenCalledWith('/api/media/public/avatar-id/main-v1');
     expect(document.body.querySelector('[data-avatar-crop-dialog]')).toBeNull();
     expect(container.querySelector<HTMLImageElement>('img[alt="Avan"]')?.src).toBe('blob:avatar-preview');
     expect(findButton(container, 'info.avatarUpdated')).toBeDefined();
@@ -236,7 +233,7 @@ describe('user info page', () => {
       statusCode: 200,
     });
     const verificationError = new Error('avatar unavailable');
-    mocks.requestGet.mockRejectedValue(verificationError);
+    mocks.verifyUploadedAvatar.mockRejectedValue(verificationError);
     const container = renderPage(createElement(UserInfoPage));
     await openReadyAvatarCrop(container);
 
