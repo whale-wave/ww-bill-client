@@ -33,6 +33,7 @@ export interface RecordDetailPresentationProps {
   category: {
     icon: string;
     name: string;
+    path?: string;
   };
   categoryIcon?: ReactNode;
   memberColorKey?: MemberColorKey;
@@ -154,7 +155,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
           >
             <ChevronLeft size={19} />
           </button>
-          <h1 className="max-w-[220px] truncate text-[17px] font-extrabold text-ww-ink">{category.name}</h1>
+          <h1 className="max-w-[220px] truncate text-[17px] font-extrabold text-ww-ink">{category.path ?? category.name}</h1>
         </header>
       )}
 
@@ -183,7 +184,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
                 {categoryIcon ?? <Icon className="text-[26px]" name={category.icon} />}
               </div>
               <div className="min-w-0 flex-1">
-                <h2 className="truncate text-[18px] font-black leading-7 text-ww-ink">{category.name}</h2>
+                <h2 className="truncate text-[18px] font-black leading-7 text-ww-ink">{category.path ?? category.name}</h2>
               </div>
               {pinnedAction && (
                 <button

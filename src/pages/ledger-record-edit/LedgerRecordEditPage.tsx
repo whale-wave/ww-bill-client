@@ -120,11 +120,11 @@ function LedgerRecordEditEditor({
     });
   }, [initialRecord, ledgerId, navigate, recordId]);
   const tagsQuery = useLedgerTagsQuery({
-    params: { ledgerId, categoryId: controller.selectedCategory?.id },
+    params: { ledgerId },
     queryOptions: { enabled: supportsTags },
   });
   const remarkHistoryQuery = useRecordRemarkHistoryQuery({
-    params: { categoryId: controller.selectedCategory?.id, ledgerId },
+    params: { ledgerId },
     queryOptions: { enabled: controller.isNoteFocused && Boolean(controller.selectedCategory) },
   });
   const handleArchiveTag = useCallback(async (tagId: string) => {
@@ -150,13 +150,13 @@ function LedgerRecordEditEditor({
         { reopenTagPicker: false },
       )}
       onManageTags={canManageTags
-        ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId))
+        ? tagPickerDraftIds => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId), { tagPickerDraftIds })
         : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
       remarkHistory={remarkHistoryQuery.data}
       canManageTags={canManageTags}
-      onCreateTag={controller.selectedCategory ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId })).data : undefined}
-      tags={supportsTags && controller.selectedCategory ? tagsQuery.data : undefined}
+      onCreateTag={controller.selectedCategory ? async name => (await createTag({ data: { name }, ledgerId })).data : undefined}
+      tags={supportsTags && controller.selectedCategory ? [...tagsQuery.data, ...(initialRecord.tags ?? []).filter(tag => !tagsQuery.data.some(active => active.id === tag.id))] : undefined}
     />
   );
 }

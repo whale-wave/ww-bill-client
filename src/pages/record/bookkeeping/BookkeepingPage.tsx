@@ -291,7 +291,7 @@ function BookkeepingPage() {
     controller.applyInitialCategory(inferredShortcutCategory);
   }, [controller, inferredShortcutCategory]);
   const tagsQuery = useLedgerTagsQuery({
-    params: { ledgerId: defaultLedger?.id ?? '', categoryId: controller.selectedCategory?.id },
+    params: { ledgerId: defaultLedger?.id ?? '' },
     queryOptions: { enabled: Boolean(defaultLedger && canReadTags) },
   });
   const remarkHistoryQuery = useRecordRemarkHistoryQuery({
@@ -344,15 +344,15 @@ function BookkeepingPage() {
           )
         : undefined}
       onManageTags={canReadTags && defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE)
-        ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(defaultLedger.id))
+        ? tagPickerDraftIds => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(defaultLedger.id), { tagPickerDraftIds })
         : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
       remarkHistory={remarkHistoryQuery.data}
       canManageTags={Boolean(defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE))}
       onCreateTag={defaultLedger && controller.selectedCategory
-        ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId: defaultLedger.id })).data
+        ? async name => (await createTag({ data: { name }, ledgerId: defaultLedger.id })).data
         : undefined}
-      tags={canReadTags && controller.selectedCategory ? tagsQuery.data : undefined}
+      tags={canReadTags && controller.selectedCategory ? [...tagsQuery.data, ...(initialRecord?.tags ?? []).filter(tag => !tagsQuery.data.some(active => active.id === tag.id))] : undefined}
     />
   );
 }

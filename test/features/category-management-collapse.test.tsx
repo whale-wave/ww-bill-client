@@ -18,6 +18,7 @@ vi.mock('@/entities/category', async importOriginal => ({
   useCategoryIconCatalogQuery: hooks.useCategoryIconCatalogQuery,
   useLedgerCategoriesQuery: hooks.useLedgerCategoriesQuery,
   usePatchLedgerCategoryMutation: hooks.usePatchLedgerCategoryMutation,
+  useMoveLedgerCategoryMutation: () => ({ mutateAsync: vi.fn(), isLoading: false }),
   useReorderLedgerCategoriesMutation: hooks.useReorderLedgerCategoriesMutation,
 }));
 
@@ -79,7 +80,7 @@ function renderCategoryManagement() {
 }
 
 function getArchivedToggle(container: HTMLElement) {
-  const button = container.querySelector<HTMLButtonElement>('button[aria-expanded]');
+  const button = container.querySelector<HTMLButtonElement>('button[aria-controls="archived-category-list"]');
   if (!button)
     throw new Error('Archived category toggle was not rendered');
   return button;

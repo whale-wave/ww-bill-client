@@ -159,6 +159,9 @@ export interface GetRecordApiResponseData {
 export const RECORD_OVERVIEW_PAGE_SIZE = 50;
 
 export interface GetRecordApiParams {
+  categoryIds?: number[];
+  tagIds?: string[];
+  tagMatch?: 'any' | 'all';
   startDate?: string | number;
   endDate?: string;
   keyword?: string;

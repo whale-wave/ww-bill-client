@@ -31,6 +31,7 @@ vi.mock('@/entities/category', async importOriginal => ({
   useCategoryIconCatalogQuery: () => ({ data: [] }),
   useCreateLedgerCategoryMutation: () => [mocks.createCategory, { isLoading: false }],
   useLedgerCategoriesQuery: () => ({ data: mocks.categories, isLoading: false, refetch: vi.fn() }),
+  useMoveLedgerCategoryMutation: () => ({ mutateAsync: vi.fn(), isLoading: false }),
   usePatchLedgerCategoryMutation: () => [mocks.patchCategory, { isLoading: false }],
   useReorderLedgerCategoriesMutation: () => [vi.fn(), { isLoading: false }],
   useUploadLedgerCategoryIconMutation: () => [mocks.uploadIcon, { isLoading: false }],
@@ -38,7 +39,8 @@ vi.mock('@/entities/category', async importOriginal => ({
 vi.mock('@/shared/i18n', () => ({
   useTranslation: () => ({ i18n: { resolvedLanguage: 'zh-CN' }, t: (key: string) => key }),
 }));
-vi.mock('@/shared/ui', () => ({
+vi.mock('@/shared/ui', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/shared/ui')>()),
   AppSheet: ({ children }: PropsWithChildren) => <div>{children}</div>,
   PageLoadingState: () => null,
 }));

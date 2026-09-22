@@ -9,6 +9,8 @@ export interface RecordEditorSeed {
   calculator?: CalculatorState;
   category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'> & {
     iconType?: CategoryEntity['iconType'];
+    path?: string;
+    parentId?: number | null;
     textIconEnabled?: boolean;
     textIconIndex?: number;
   };
@@ -18,6 +20,8 @@ export interface RecordEditorSeed {
   location?: RecordEntry['location'];
   locationSelectionDirty?: boolean;
   isTagPickerVisible?: boolean;
+  tagPickerDraftIds?: string[];
+  tagSelectionDirty?: boolean;
   shouldReconcileTags?: boolean;
   recordType: CategoryAmountType;
   remark?: string;
@@ -91,6 +95,7 @@ export function createRecordEditorSettingsNavigationState(
 export type RecordDraft = Omit<PostRecordApiData, 'imageAssetId'> & { imageAssetId?: string | null };
 
 export interface RecordEditorTag {
+  status?: string;
   id: string;
   name: string;
 }

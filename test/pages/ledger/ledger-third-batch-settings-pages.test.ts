@@ -84,6 +84,7 @@ vi.mock('@/entities/category', async importOriginal => ({
   useDeleteLedgerCategoryMutation: hooks.useDeleteLedgerCategoryMutation,
   useLedgerCategoriesQuery: hooks.useLedgerCategoriesQuery,
   usePatchLedgerCategoryMutation: hooks.usePatchLedgerCategoryMutation,
+  useMoveLedgerCategoryMutation: () => ({ mutateAsync: vi.fn(), isLoading: false }),
   useReorderLedgerCategoriesMutation: hooks.useReorderLedgerCategoriesMutation,
   useUpdateLedgerCategoryMutation: hooks.useUpdateLedgerCategoryMutation,
   useUploadLedgerCategoryIconMutation: hooks.useUploadLedgerCategoryIconMutation,
@@ -833,7 +834,7 @@ describe('ledger category and tag management', () => {
       },
     }, '/ledgers/:ledgerId/settings/tags', createElement(LedgerTagsPage));
 
-    expect(container.querySelector<HTMLSelectElement>('[aria-label="tags.category"]')?.value).toBe('2');
+    expect(container.querySelector('[aria-label="tags.category"]')).toBeNull();
     await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="common:nav.back"]')?.click());
 
     expect(router.state.location.pathname).toBe('/record-editor');

@@ -18,6 +18,7 @@ export interface RecordSearchFilters {
   minAmount: string;
   startDate: string;
   tagIds: string[];
+  tagMatch?: 'any' | 'all';
   type: RecordSearchType;
 }
 
@@ -51,6 +52,7 @@ const filterKeys = [
   'policy',
   'startDate',
   'tagIds',
+  'tagMatch',
   'type',
 ] as const;
 const positiveAmountPattern = /^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/;
@@ -101,6 +103,7 @@ export function readRecordSearchState(searchParams: URLSearchParams): RecordSear
       minAmount: searchParams.get('minAmount') ?? '',
       startDate: searchParams.get('startDate') ?? '',
       tagIds: readStringList(searchParams.get('tagIds')),
+      tagMatch: searchParams.get('tagMatch') === 'all' ? 'all' : 'any',
       type: rawType && validTypes.has(rawType) ? rawType : 'all',
     },
     keyword,
@@ -131,6 +134,8 @@ export function createRecordSearchParams(
     next.set('memberUserId', filters.memberUserId);
   if (filters.categoryIds.length)
     next.set('categoryIds', [...new Set(filters.categoryIds)].sort((a, b) => a - b).join(','));
+  if (filters.tagIds.length && filters.tagMatch === 'all')
+    next.set('tagMatch', 'all');
   if (filters.tagIds.length)
     next.set('tagIds', [...new Set(filters.tagIds)].sort().join(','));
   if (filters.minAmount)
@@ -227,12 +232,12 @@ export function toCommonRecordSearchFilters(
 ): RecordSearchFilters {
   return {
     ...filters,
-    categoryIds: [],
+    categoryIds: filters.categoryIds,
     familyCounting: 'all',
     maxAmount: '',
     memberUserId: '',
     minAmount: '',
-    tagIds: [],
+    tagIds: filters.tagIds,
   };
 }
 
@@ -242,7 +247,9 @@ export function isCommonRecordSearchActive(state: RecordSearchState) {
     state.keyword.trim()
     || filters.type !== 'all'
     || filters.startDate
-    || filters.endDate,
+    || filters.endDate
+    || filters.categoryIds.length
+    || filters.tagIds.length,
   );
 }
 
@@ -254,6 +261,8 @@ export function toRecordApiParams(
   const normalizedKeyword = keyword.trim();
   return {
     ...(normalizedKeyword ? { keyword: normalizedKeyword, keywordTarget: filters.match } : {}),
+    ...(filters.categoryIds.length ? { categoryIds: filters.categoryIds } : {}),
+    ...(filters.tagIds.length ? { tagIds: filters.tagIds, tagMatch: filters.tagMatch ?? 'any' } : {}),
     ...(filters.type === 'all' ? {} : { type: filters.type }),
     ...(filters.startDate ? { startDate: filters.startDate } : {}),
     ...(filters.endDate ? { endDate: filters.endDate } : {}),
@@ -275,7 +284,7 @@ export function toHouseholdRecordApiParams(
     ...(filters.startDate || filters.endDate ? { dateMode: 'range' as const } : {}),
     ...(filters.memberUserId ? { memberUserId: Number(filters.memberUserId) } : {}),
     ...(filters.categoryIds.length ? { categoryIds: filters.categoryIds } : {}),
-    ...(filters.tagIds.length ? { tagIds: filters.tagIds } : {}),
+    ...(filters.tagIds.length ? { tagIds: filters.tagIds, tagMatch: filters.tagMatch ?? 'any' } : {}),
     ...(filters.minAmount ? { minAmount: filters.minAmount } : {}),
     ...(filters.maxAmount ? { maxAmount: filters.maxAmount } : {}),
     ...(filters.familyCounting === 'counted' ? { countedOnly: true } : {}),

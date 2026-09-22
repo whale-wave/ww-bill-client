@@ -113,6 +113,9 @@ export interface CreateHouseholdResult {
 }
 
 export interface FamilyRecordCategory {
+  parentId?: number | null;
+  parentKey?: string | null;
+  path?: string;
   id: number;
   key?: string;
   name: string;
@@ -221,6 +224,7 @@ export interface HouseholdRecordSummary {
 }
 
 export interface HouseholdRecordsPage {
+  categoryBreakdown?: Array<{ key: string; name: string; amount: string }>;
   data: FamilyRecord[];
   daySummaries?: Array<{
     date: string;

@@ -11,6 +11,7 @@ export interface ChartOverviewPresentationProps {
 
 export const ChartOverviewBody: FC<ChartOverviewPresentationProps> = ({ pieChart, tagRanking }) => {
   const {
+    tagRanking: defaultTagRanking,
     currentAmountType,
     currentMetric,
     currentTimeRangeCategory,
@@ -146,7 +147,7 @@ export const ChartOverviewBody: FC<ChartOverviewPresentationProps> = ({ pieChart
           )}
         </div>
       )}
-      <ChartContent pieChart={pieChart} tagRanking={tagRanking} />
+      <ChartContent pieChart={pieChart} tagRanking={tagRanking ?? defaultTagRanking} />
     </div>
   );
 };

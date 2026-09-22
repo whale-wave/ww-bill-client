@@ -1,8 +1,7 @@
-import { ChevronDown, PencilLine, Plus, Tag, Trash2 } from 'lucide-react';
+import { PencilLine, Plus, Tag, Trash2 } from 'lucide-react';
 
 import { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CategoryIcon, useLedgerCategoriesQuery } from '@/entities/category';
 import { LedgerCapability } from '@/entities/ledger';
 import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQuery, useUpdateLedgerTagMutation } from '@/entities/ledger-data';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
@@ -11,14 +10,9 @@ import { useTranslation } from '@/shared/i18n';
 import { confirmDangerousAction, IllustratedEmptyState, PageHeader, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 
-function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: number; ledgerId: string }) {
+function TagsContent({ ledgerId }: { initialCategoryId?: number; ledgerId: string }) {
   const { t } = useTranslation('ledger');
-  const categoriesQuery = useLedgerCategoriesQuery({ params: { ledgerId } });
-  const [categoryId, setCategoryId] = useState<number | undefined>(initialCategoryId);
-  const selectedCategory = categoriesQuery.data.find(category => category.id === categoryId);
-  const effectiveCategoryId = selectedCategory?.id ?? categoriesQuery.data[0]?.id;
-  const effectiveCategory = categoriesQuery.data.find(category => category.id === effectiveCategoryId);
-  const query = useLedgerTagsQuery({ params: { ledgerId, categoryId: effectiveCategoryId }, queryOptions: { enabled: Boolean(ledgerId && effectiveCategoryId) } });
+  const query = useLedgerTagsQuery({ params: { ledgerId }, queryOptions: { enabled: Boolean(ledgerId) } });
   const [createTag, createState] = useCreateLedgerTagMutation();
   const [updateTag, updateState] = useUpdateLedgerTagMutation();
   const [archiveTag, archiveState] = useArchiveLedgerTagMutation();
@@ -29,16 +23,6 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
     <main className="relative z-[1] min-h-0 flex-grow overflow-auto px-[18px] pb-[max(28px,env(safe-area-inset-bottom))] pt-2">
       <div className="mx-auto w-full max-w-[520px]">
         <Surface className="px-4 py-4" material="raised">
-          <p className="mb-2 text-[12px] font-bold text-ww-mid">{t('tags.category')}</p>
-          <label className="relative mb-4 flex h-12 items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-white/80 px-3 shadow-ww-xs">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-light/50 text-primary-deep">
-              {effectiveCategory && <CategoryIcon categoryName={effectiveCategory.name} iconKey={effectiveCategory.icon} iconType={effectiveCategory.iconType} textIconEnabled={effectiveCategory.textIconEnabled} textIconIndex={effectiveCategory.textIconIndex} size={18} />}
-            </span>
-            <select aria-label={t('tags.category')} className="h-full min-w-0 flex-1 appearance-none border-0 bg-transparent pr-6 text-[14px] font-extrabold text-ww-ink outline-none" onChange={event => setCategoryId(Number(event.target.value))} value={effectiveCategoryId}>
-              {categoriesQuery.data.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
-            </select>
-            <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-3 text-primary-deep" size={16} strokeWidth={2.2} />
-          </label>
           <p className="mb-2 text-[12px] font-bold text-ww-mid">{t('tags.create')}</p>
           <div className="flex gap-2">
             <input
@@ -57,9 +41,7 @@ function TagsContent({ initialCategoryId, ledgerId }: { initialCategoryId?: numb
                   return;
                 creatingRef.current = true;
                 try {
-                  if (!effectiveCategoryId)
-                    return;
-                  await createTag({ data: { categoryId: effectiveCategoryId, name: newName.trim() }, ledgerId });
+                  await createTag({ data: { name: newName.trim() }, ledgerId });
                   setNewName('');
                 }
                 finally {

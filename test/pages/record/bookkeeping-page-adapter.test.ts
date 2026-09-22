@@ -346,6 +346,7 @@ describe('personal record editor adapter', () => {
       [...document.querySelectorAll('button')].find(button => button.textContent === '通勤')?.click();
       await Promise.resolve();
     });
+    act(() => document.querySelector<HTMLButtonElement>('[data-record-editor-tag-confirm]')!.click());
 
     await act(async () => {
       [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();

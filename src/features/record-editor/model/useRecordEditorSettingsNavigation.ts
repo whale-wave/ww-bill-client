@@ -5,6 +5,7 @@ import { createRecordEditorSettingsNavigationState } from './types';
 
 interface OpenRecordEditorSettingsOptions {
   reopenTagPicker?: boolean;
+  tagPickerDraftIds?: string[];
 }
 
 export function useRecordEditorSettingsNavigation(
@@ -14,7 +15,10 @@ export function useRecordEditorSettingsNavigation(
   const navigate = useNavigate();
 
   return useCallback((path: string, options?: OpenRecordEditorSettingsOptions) => {
-    const draft = getDraftSnapshot();
+    const draft = {
+      ...getDraftSnapshot(),
+      ...(options?.tagPickerDraftIds ? { tagPickerDraftIds: options.tagPickerDraftIds } : {}),
+    };
     navigate(path, {
       replace: true,
       state: createRecordEditorSettingsNavigationState(

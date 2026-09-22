@@ -60,7 +60,7 @@ const submit = vi.fn<(draft: RecordDraft) => Promise<void>>();
 const locate = vi.fn<() => Promise<RecordLocation>>();
 let cleanup: (() => void) | undefined;
 
-function Editor({ amount, assets = false, editing = false, location, remark, tags = false }: { amount?: string; assets?: boolean; editing?: boolean; location?: RecordLocation; remark?: string; tags?: boolean }) {
+function Editor({ amount, assets = false, editing = false, location, remark, restoredTagPicker = false, tagPickerDraftIds, tags = false }: { amount?: string; assets?: boolean; editing?: boolean; location?: RecordLocation; remark?: string; restoredTagPicker?: boolean; tagPickerDraftIds?: string[]; tags?: boolean }) {
   const controller = useRecordEditorController({
     locate,
     onSubmit: submit,
@@ -71,6 +71,8 @@ function Editor({ amount, assets = false, editing = false, location, remark, tag
       location,
       recordType: 'sub',
       remark,
+      isTagPickerVisible: restoredTagPicker,
+      tagPickerDraftIds,
       tagIds: editing ? ['00000000-0000-4000-8000-000000000301', '00000000-0000-4000-8000-000000000302'] : undefined,
       time: '2026-07-21T12:00:00.000Z',
     },
@@ -88,7 +90,7 @@ function Editor({ amount, assets = false, editing = false, location, remark, tag
   });
 }
 
-function renderEditor(props: { amount?: string; assets?: boolean; editing?: boolean; location?: RecordLocation; remark?: string; tags?: boolean } = {}) {
+function renderEditor(props: { amount?: string; assets?: boolean; editing?: boolean; location?: RecordLocation; remark?: string; restoredTagPicker?: boolean; tagPickerDraftIds?: string[]; tags?: boolean } = {}) {
   const container = document.createElement('div');
   document.body.appendChild(container);
   const root = createRoot(container);
@@ -290,10 +292,45 @@ describe('record editor controller', () => {
     submit.mockClear();
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-tag-trigger]')?.click());
     act(() => [...document.querySelectorAll('button')].find(button => button.textContent === '出游')?.click());
+    const confirmTags = document.querySelector<HTMLButtonElement>('[data-record-editor-tag-confirm]');
+    expect(confirmTags).not.toBeNull();
+    act(() => confirmTags!.click());
     await complete(container);
     expect(submit).toHaveBeenCalledWith(expect.objectContaining({
-      tagIds: ['00000000-0000-4000-8000-000000000303'],
+      tagIds: ['00000000-0000-4000-8000-000000000301', '00000000-0000-4000-8000-000000000302', '00000000-0000-4000-8000-000000000303'],
     }));
+  });
+
+  it('preserves selected tags when returning from tag management with the picker open', async () => {
+    const container = renderEditor({ amount: '20', editing: true, tags: true, restoredTagPicker: true });
+    act(() => document.querySelector<HTMLButtonElement>('[data-record-editor-tag-confirm]')!.click());
+    await complete(container);
+    expect(submit).toHaveBeenLastCalledWith(expect.not.objectContaining({ tagIds: expect.anything() }));
+  });
+
+  it.each(['confirm', 'cancel'] as const)('restores unconfirmed tag changes after management and supports %s', async (action) => {
+    const tagPickerDraftIds = ['00000000-0000-4000-8000-000000000301', '00000000-0000-4000-8000-000000000302', '00000000-0000-4000-8000-000000000303'];
+    const container = renderEditor({ amount: '20', editing: true, tags: true, restoredTagPicker: true, tagPickerDraftIds });
+    act(() => document.querySelector<HTMLButtonElement>(`[data-record-editor-tag-${action}]`)!.click());
+    await complete(container);
+    if (action === 'confirm')
+      expect(submit).toHaveBeenLastCalledWith(expect.objectContaining({ tagIds: tagPickerDraftIds }));
+    else
+      expect(submit).toHaveBeenLastCalledWith(expect.not.objectContaining({ tagIds: expect.anything() }));
+  });
+
+  it('discards tag picker drafts on cancel and clears all tags only on confirmation', async () => {
+    const container = renderEditor({ amount: '20', editing: true, tags: true });
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-tag-trigger]')!.click());
+    clickButton(document.body, '清空');
+    act(() => document.querySelector<HTMLButtonElement>('[data-record-editor-tag-cancel]')!.click());
+    await complete(container);
+    expect(submit).toHaveBeenLastCalledWith(expect.not.objectContaining({ tagIds: expect.anything() }));
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-tag-trigger]')!.click());
+    clickButton(document.body, '清空');
+    act(() => document.querySelector<HTMLButtonElement>('[data-record-editor-tag-confirm]')!.click());
+    await complete(container);
+    expect(submit).toHaveBeenLastCalledWith(expect.objectContaining({ tagIds: [] }));
   });
 
   it('keeps an existing asset link unless the user explicitly unlinks it', async () => {

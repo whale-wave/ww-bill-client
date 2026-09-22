@@ -27,6 +27,7 @@ import {
   ChartOverviewPresentation,
   formatChartOverviewCustomRangeSummary,
   getChartPeriodName,
+  GlobalTagRanking,
 } from '@/features/chart-overview';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -93,7 +94,7 @@ function legacyTabToAnchorDate(tab: string, period: LedgerChartPeriod) {
   return undefined;
 }
 
-function ChartContent({ ledgerId }: { ledgerId: string }) {
+function ChartContent({ ledgerId, canReadTags }: { ledgerId: string; canReadTags: boolean }) {
   const { t } = useTranslation('ledger');
   const { t: chartT } = useTranslation('chart');
   const navigate = useNavigate();
@@ -354,7 +355,7 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
 
   return (
     <ChartOverviewContext.Provider value={contextValue}>
-      <ChartOverviewPresentation />
+      <ChartOverviewPresentation tagRanking={metric === LedgerChartMetric.NET || !canReadTags ? null : <GlobalTagRanking ledgerId={ledgerId} type={toAmountType(metric)} startDate={detailQuery.data?.startDate} endDate={detailQuery.data?.endDate} />} />
     </ChartOverviewContext.Provider>
   );
 }
@@ -362,7 +363,7 @@ function ChartContent({ ledgerId }: { ledgerId: string }) {
 function LedgerChartsWorkspace({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string }) {
   return (
     <>
-      <ChartContent ledgerId={ledgerId} />
+      <ChartContent ledgerId={ledgerId} canReadTags={ledger.capabilities.includes(LedgerCapability.TAG_READ)} />
       <LedgerWorkspaceTabBar
         activeKey="charts"
         capabilities={ledger.capabilities}

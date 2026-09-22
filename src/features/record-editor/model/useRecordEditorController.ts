@@ -55,7 +55,7 @@ export function useRecordEditorController({
     return initialDate.isValid() ? initialDate.toDate() : new Date();
   });
   const [selectedTagIds, setSelectedTagIds] = useState(seed.tagIds ?? []);
-  const [tagSelectionDirty, setTagSelectionDirty] = useState(false);
+  const [tagSelectionDirty, setTagSelectionDirty] = useState(Boolean(seed.tagSelectionDirty));
   const [linkedAssetId, setLinkedAssetId] = useState<string | null>(
     seed.linkedAssetId ?? null,
   );
@@ -111,8 +111,6 @@ export function useRecordEditorController({
         return;
       setRecordType(nextType);
       setSelectedCategory(undefined);
-      setSelectedTagIds([]);
-      setTagSelectionDirty(true);
       setIsTagPickerVisible(false);
     },
     [recordType],
@@ -121,8 +119,6 @@ export function useRecordEditorController({
   const handleSelectCategory = useCallback(
     (category: CategoryEntity) => {
       if (selectedCategory?.id !== category.id) {
-        setSelectedTagIds([]);
-        setTagSelectionDirty(true);
         setIsTagPickerVisible(false);
       }
       setSelectedCategory(category);
@@ -185,10 +181,16 @@ export function useRecordEditorController({
 
   const handleToggleTag = useCallback((tagId: string) => {
     setTagSelectionDirty(true);
-    // A historical record can start with multiple tags. Choosing its primary
-    // tag is still an explicit single-selection mutation, not a clear action.
-    setSelectedTagIds([tagId]);
+    setSelectedTagIds(current => current.includes(tagId) ? current.filter(id => id !== tagId) : current.length < 20 ? [...current, tagId] : current);
   }, []);
+
+  const handleSetTags = useCallback((tagIds: string[]) => {
+    const next = [...new Set(tagIds)].slice(0, 20);
+    if (next.length === selectedTagIds.length && next.every(id => selectedTagIds.includes(id)))
+      return;
+    setSelectedTagIds(next);
+    setTagSelectionDirty(true);
+  }, [selectedTagIds]);
 
   const handleClearTag = useCallback(() => {
     setTagSelectionDirty(true);
@@ -371,6 +373,7 @@ export function useRecordEditorController({
       recordType,
       remark,
       tagIds: selectedTagIds,
+      ...(tagSelectionDirty ? { tagSelectionDirty } : {}),
       time: dayjs(date).toISOString(),
       shouldReconcileTags: true,
     }),
@@ -388,6 +391,7 @@ export function useRecordEditorController({
       seed.hasImage,
       selectedCategory,
       selectedTagIds,
+      tagSelectionDirty,
     ],
   );
 
@@ -409,6 +413,7 @@ export function useRecordEditorController({
     handleSelectCategory,
     handleSubmit,
     handleToggleTag,
+    handleSetTags,
     handleClearTag,
     handleRemoveTag,
     handleReconcileTags,
@@ -437,6 +442,7 @@ export function useRecordEditorController({
     selectedCategory,
     selectedTagIds,
     shouldReconcileTags: Boolean(seed.shouldReconcileTags),
+    tagPickerDraftIds: seed.tagPickerDraftIds,
     tagSelectionDirty,
     assetSelectionDirty,
     setActiveSideIndex,

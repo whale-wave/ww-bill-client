@@ -69,7 +69,7 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
 
       <main className="min-h-0 flex-grow overflow-y-auto overscroll-contain px-[14px] pb-[calc(20px+env(safe-area-inset-bottom))]" data-budget-category-list>
         <div className="grid grid-cols-4 gap-[9px]">
-          {data.map(category => (
+          {data.filter(category => !category.parentId).map(category => (
             <button
               aria-pressed={selectCategory?.id === category.id}
               className="flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-solid border-border-primary bg-white/80 px-1 pb-[10px] pt-[13px] shadow-ww-xs transition active:scale-95"

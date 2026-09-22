@@ -15,7 +15,7 @@ import {
   useHouseholdChartPeriodOptionsQuery,
   useHouseholdChartsQuery,
 } from '@/entities/household';
-import { ChartOverviewContext, ChartOverviewPresentation, formatChartOverviewCustomRangeSummary, getChartPeriodName } from '@/features/chart-overview';
+import { ChartOverviewContext, ChartOverviewPresentation, formatChartOverviewCustomRangeSummary, getChartPeriodName, GlobalTagRanking } from '@/features/chart-overview';
 import {
   HouseholdBottomNav,
   HouseholdPageState,
@@ -363,6 +363,7 @@ const ChartsContent: FC<{ household: Household }> = ({ household }) => {
       >
         <ChartOverviewContext.Provider value={contextValue}>
           <ChartOverviewPresentation
+            tagRanking={<GlobalTagRanking householdId={household.id} type={currentAmountType} startDate={query.data?.startDate} endDate={query.data?.endDate} />}
             pieChart={<HouseholdCategoryPieChart compact ranking={currentTab?.ranking ?? []} />}
           />
         </ChartOverviewContext.Provider>

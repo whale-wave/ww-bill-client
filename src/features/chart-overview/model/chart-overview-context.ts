@@ -63,6 +63,7 @@ export interface ChartOverviewMetricOption {
 }
 
 export interface ChartOverviewContextValue {
+  tagRanking?: ReactNode;
   additionalRankingSections?: ChartOverviewRankingSection[];
   currentAmountType: AmountType;
   currentMetric?: ChartOverviewMetric;

@@ -738,6 +738,7 @@ describe('household records', () => {
           offset: 0,
           startDate: '2026-07-01',
           tagIds: ['tag-a', 'tag-b'],
+          tagMatch: 'any',
           type: 'sub',
         },
         householdId: 'household/a',

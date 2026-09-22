@@ -13,6 +13,7 @@ import {
   getCategoryApi,
   getCategoryIconCatalogApi,
   getLedgerCategoriesApi,
+  moveLedgerCategoryApi,
   patchLedgerCategoryApi,
   postLedgerCategoryApi,
   putLedgerCategoryApi,
@@ -198,4 +199,18 @@ export function useDeleteLedgerCategoryMutation() {
     onSuccess: async () => invalidateCategoryConsumers(queryClient, 'status'),
   });
   return [mutateAsync, rest] as const;
+}
+
+export function useMoveLedgerCategoryMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (options: { ledgerId: string; categoryId: number; parentId: number | null; version: number; preview?: boolean }) => {
+      const response = assertSuccessApi(await moveLedgerCategoryApi(options.ledgerId, options.categoryId, { parentId: options.parentId, version: options.version }, options.preview));
+      return response.data;
+    },
+    onSuccess: async (_response, options) => {
+      if (!options.preview)
+        await invalidateCategoryConsumers(queryClient, 'metadata');
+    },
+  });
 }

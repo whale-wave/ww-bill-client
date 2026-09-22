@@ -1,8 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import type { TagRankingResponse } from '@/entities/chart';
-import { getDonutAmountSize } from '@/shared/lib';
+import { math } from '@/shared/lib';
 import { readAppearanceChartColors, useAppearanceRevision } from '@/shared/lib/appearance-tokens';
-import { DonutChart } from '@/shared/ui';
 
 interface TagRankingFallbackRecord {
   amount: number | string;
@@ -13,8 +12,8 @@ function getUntaggedRankingFallback(records: readonly TagRankingFallbackRecord[]
   if (!records?.length || records.some(record => record.tags?.length))
     return;
 
-  const total = records.reduce((sum, record) => sum + Number(record.amount), 0);
-  if (!Number.isFinite(total))
+  const total = records.reduce((sum, record) => math.add(sum, record.amount), math.add(0, 0));
+  if (!total.isFinite())
     return;
 
   return {
@@ -29,64 +28,11 @@ function getUntaggedRankingFallback(records: readonly TagRankingFallbackRecord[]
   };
 }
 
-function getPercentage(item: TagRankingResponse['items'][number], total: number) {
-  if (total > 0)
-    return item.percentage / total * 100;
-  return 0;
-}
-
-const TagDonut: FC<{ data: TagRankingResponse }> = ({ data }) => {
-  const appearanceRevision = useAppearanceRevision();
-  const colors = readAppearanceChartColors();
-  void appearanceRevision;
-  const percentageTotal = data.items.reduce((sum, item) => sum + item.percentage, 0);
-  let position = 0;
-  const segments = data.items.map((item, index) => {
-    const start = position;
-    position += getPercentage(item, percentageTotal);
-    const end = index === data.items.length - 1 ? 100 : position;
-    return `${colors[index % colors.length]} ${start}% ${end}%`;
-  });
-  return <div aria-label="标签金额占比" className="h-full w-full rounded-full" style={{ background: `conic-gradient(${segments.join(', ')})` }} />;
-};
-
-const TagLegend: FC<{ data: TagRankingResponse }> = ({ data }) => {
-  const appearanceRevision = useAppearanceRevision();
-  const colors = readAppearanceChartColors();
-  void appearanceRevision;
-  return (
-    <div className="min-w-0 flex-1 space-y-2">
-      {data.items.slice(0, 4).map((item, index) => (
-        <div className="flex min-w-0 items-center gap-1.5 text-[12px] leading-4 text-ww-soft" key={item.key}>
-          <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: colors[index % colors.length] }} />
-          <span className="min-w-0 flex-1 truncate">
-            #
-            {item.name}
-          </span>
-          <span className="shrink-0 font-number">
-            {item.percentage}
-            %
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const TagRankingSkeleton: FC = () => (
   <div aria-label="正在加载标签排行" className="space-y-3" data-tag-ranking-loading role="status">
-    <div className="flex items-center gap-4 px-1 py-1">
-      <div className="relative flex h-[112px] w-[112px] shrink-0 items-center justify-center rounded-full bg-primary-light/45 p-[17px] animate-pulse">
-        <div className="h-full w-full rounded-full bg-white/85" />
-      </div>
-      <div className="min-w-0 flex-1 space-y-3">
-        {[0, 1, 2].map(item => (
-          <div className="flex items-center gap-2" key={item}>
-            <span className="h-2.5 w-2.5 shrink-0 rounded-sm bg-primary-light/80" />
-            <span className="h-3 animate-pulse rounded-full bg-primary-light/60" style={{ width: `${76 - item * 12}%` }} />
-          </div>
-        ))}
-      </div>
+    <div className="space-y-3 px-1 py-2">
+      <div className="h-5 w-1/2 animate-pulse rounded-full bg-primary-light/60" />
+      <div className="h-3 w-4/5 animate-pulse rounded-full bg-primary-light/45" />
     </div>
     {[0, 1, 2].map(item => (
       <div className="space-y-2 border-t border-border-primary py-3" key={item}>
@@ -131,14 +77,11 @@ export const TagRankingSection: FC<{
       <h2 className="pb-[10px] text-[15px] font-extrabold leading-6 text-ww-ink">标签排行</h2>
       <div className="overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] px-4 py-3 shadow-ww backdrop-blur-xl">
         <div className="px-1 py-2">
-          <DonutChart
-            amount={ranking.totalAmount}
-            amountSize={getDonutAmountSize(`¥${ranking.totalAmount}`)}
-            chart={<TagDonut data={ranking} />}
-            label="总金额"
-            legend={<TagLegend data={ranking} />}
-            marker="tag"
-          />
+          <p className="text-sm font-bold text-ww-ink">
+            去重总金额 ¥
+            {ranking.totalAmount}
+          </p>
+          <p className="mt-2 text-xs leading-5 text-ww-soft">同一笔账可计入多个标签，金额不可相加。</p>
         </div>
         <div data-tag-ranking-rows>
           {ranking.items.map((item, index) => (
@@ -159,7 +102,7 @@ export const TagRankingSection: FC<{
                 </span>
               </div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/5">
-                <div className="h-full rounded-full bg-primary-mid" style={{ width: `${Math.min(100, getPercentage(item, 100))}%` }} />
+                <div className="h-full rounded-full bg-primary-mid" style={{ width: `${Math.min(100, Math.max(0, item.percentage))}%` }} />
               </div>
             </div>
           ))}

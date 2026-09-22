@@ -53,18 +53,18 @@ describe('record search URL state', () => {
     });
   });
 
-  it('ignores household-only deep-link filters in personal and custom searches', () => {
+  it('preserves category and tag filters while ignoring household-only fields', () => {
     const state = readRecordSearchState(new URLSearchParams(
       'categoryIds=2,3&tagIds=tag-a&memberUserId=9&minAmount=1',
     ));
-    expect(isCommonRecordSearchActive(state)).toBe(false);
+    expect(isCommonRecordSearchActive(state)).toBe(true);
     expect(toCommonRecordSearchFilters(state.filters)).toMatchObject({
-      categoryIds: [],
+      categoryIds: [2, 3],
       familyCounting: 'all',
       maxAmount: '',
       memberUserId: '',
       minAmount: '',
-      tagIds: [],
+      tagIds: ['tag-a'],
     });
   });
 

@@ -13,6 +13,9 @@ export interface CategoryEntity {
   isCustom: boolean;
   ledgerId: string;
   name: string;
+  parentId?: number | null;
+  parentName?: string | null;
+  path?: string;
   sortOrder: number;
   status: CategoryStatus;
   textIconEnabled?: boolean;
@@ -61,6 +64,7 @@ export function getLedgerCategoriesApi(
 }
 
 export interface PostLedgerCategoryApiData {
+  parentId?: number | null;
   file?: File;
   iconKey?: string;
   name: string;
@@ -77,6 +81,8 @@ export function postLedgerCategoryApi(
   const formData = new FormData();
   formData.append('name', data.name);
   formData.append('type', data.type);
+  if (data.parentId)
+    formData.append('parentId', String(data.parentId));
   if (data.iconKey)
     formData.append('iconKey', data.iconKey);
   if (data.file)
@@ -119,6 +125,7 @@ export function patchLedgerCategoryApi(
 }
 
 export interface ReorderLedgerCategoriesApiData {
+  parentId?: number | null;
   items: Array<{ categoryId: number; version: number }>;
   type: CategoryAmountType;
 }
@@ -186,4 +193,16 @@ export function deleteLedgerCategoryApi(
     : request.delete<unknown, SuccessResponse<undefined>>(path, {
         params: { version },
       });
+}
+
+export interface CategoryMovePreview {
+  categoryId: number;
+  parentId: number | null;
+  path: string;
+  recordCount: number;
+  version: number;
+}
+
+export function moveLedgerCategoryApi(ledgerId: string, categoryId: number, data: { parentId: number | null; version: number }, preview = false) {
+  return request.post<unknown, SuccessResponse<CategoryMovePreview>>(`/ledgers/${encodeURIComponent(ledgerId)}/categories/${categoryId}/${preview ? 'move-preview' : 'move'}`, data);
 }

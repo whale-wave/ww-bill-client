@@ -267,6 +267,7 @@ describe('custom ledger record editor adapter', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-tag-trigger]')?.click());
     await act(async () => Promise.resolve());
     act(() => [...document.body.querySelectorAll('button')].find(button => button.textContent === '固定收入')?.click());
+    act(() => document.querySelector<HTMLButtonElement>('[data-record-editor-tag-confirm]')!.click());
     act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
     await act(async () => {
       [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();

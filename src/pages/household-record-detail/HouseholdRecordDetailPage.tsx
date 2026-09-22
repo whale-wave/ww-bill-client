@@ -85,7 +85,7 @@ const RecordDetail: FC<{
       backLabel={t('common:nav.back')}
       category={{
         icon: record.category?.icon ?? 'bill',
-        name: record.category?.name ?? t('recordDetail.uncategorized'),
+        name: record.category?.path ?? record.category?.name ?? t('recordDetail.uncategorized'),
       }}
       categoryIcon={<CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} iconType={record.category?.iconType} textIconEnabled={record.category?.textIconEnabled} textIconIndex={record.category?.textIconIndex} size={36} />}
       memberColorKey={record.creator.colorKey}

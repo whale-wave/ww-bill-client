@@ -141,6 +141,7 @@ export interface GetHouseholdRecordsApiParams {
   categoryIds?: number[];
   categoryKeys?: string[];
   tagIds?: string[];
+  tagMatch?: 'any' | 'all';
   minAmount?: string;
   maxAmount?: string;
   policy?: FamilyRecordPolicy;

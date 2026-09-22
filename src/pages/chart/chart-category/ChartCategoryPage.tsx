@@ -11,7 +11,7 @@ import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { useChartPeriodQuery, useTagRankingQuery } from '@/entities/chart';
-import { CategoryTrendChart, TagRankingSection } from '@/features/chart-overview';
+import { CategoryTrendChart, SubcategoryBreakdown, TagRankingSection } from '@/features/chart-overview';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
 import { IllustratedEmptyState, MetricGrid, ProgressBar, Surface } from '@/shared/ui';
@@ -300,6 +300,7 @@ const ChartCategory: FC = () => {
             </Surface>
           </section>
 
+          <SubcategoryBreakdown records={sortedRecords} />
           <TagRankingSection data={tagRanking.data} fallbackRecords={records} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />
         </div>
       </main>

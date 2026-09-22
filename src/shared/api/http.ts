@@ -26,6 +26,7 @@ if (typeof import.meta.env.VITE_HOST === 'string')
   host = import.meta.env.VITE_HOST;
 
 const request = axios.create({
+  headers: { 'X-Classification-Version': '2' },
   baseURL: `${host}/api`,
   timeout: 50000,
 });

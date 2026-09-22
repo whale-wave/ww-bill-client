@@ -5,7 +5,7 @@ import { format, setISOWeek, setISOWeekYear, startOfISOWeek } from 'date-fns';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useChartPeriodOptionsQuery, useChartPeriodQuery } from '@/entities/chart';
-import { ChartOverviewContext, formatChartOverviewCustomRangeSummary, getChartPeriodName } from '@/features/chart-overview';
+import { ChartOverviewContext, formatChartOverviewCustomRangeSummary, getChartPeriodName, GlobalTagRanking } from '@/features/chart-overview';
 import { useTranslation } from '@/shared/i18n';
 
 function isAmountType(value: string | null): value is AmountType {
@@ -122,6 +122,7 @@ export const ChartHomeProvider: FC<{ children: ReactNode }> = ({ children }) => 
     }, { replace: true });
   }, [setSearchParams]);
   const value = useMemo<ChartOverviewContextValue>(() => ({
+    tagRanking: <GlobalTagRanking type={currentAmountType} startDate={detailQuery.data?.startDate} endDate={detailQuery.data?.endDate} />,
     currentAmountType,
     currentTimeRangeCategory,
     curTab,

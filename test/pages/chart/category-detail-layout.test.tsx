@@ -52,7 +52,6 @@ function assertNormalLayout(container: HTMLElement) {
   const markers = [
     '[data-chart-category-trend]',
     '[data-record-ranking]',
-    '[data-tag-ranking-donut]',
     '[data-tag-ranking-rows]',
   ].map(selector => container.querySelector(selector));
 

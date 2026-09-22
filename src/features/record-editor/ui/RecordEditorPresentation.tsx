@@ -57,7 +57,7 @@ interface RecordEditorPresentationProps {
   onArchiveTag?: (tagId: string) => Promise<void>;
   onCancel: () => void;
   onManageCategories?: () => void;
-  onManageTags?: () => void;
+  onManageTags?: (tagPickerDraftIds: string[]) => void;
   onRetryCategories?: () => void;
   onCreateTag?: (name: string) => Promise<{ id: string; name: string }>;
   remarkHistory?: string[];
@@ -84,7 +84,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   tags,
 }) => {
   const { t } = useTranslation(['record', 'ledger', 'common']);
-  const { handleReconcileTags, shouldReconcileTags } = controller;
+
   const imageInputRef = useRef<HTMLInputElement>(null);
   const contentUrlRef = useRef<string>();
   const previewRequestRef = useRef(0);
@@ -92,6 +92,19 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
     initialStage ?? (controller.selectedCategory ? 'amount' : 'category'),
   );
   const [newTagName, setNewTagName] = useState('');
+  const [tagSearch, setTagSearch] = useState('');
+  const [draftTagIds, setDraftTagIds] = useState<string[]>(() => controller.tagPickerDraftIds ?? controller.selectedTagIds);
+  const [categoryParentId, setCategoryParentId] = useState<number | null>(null);
+  const categoryParent = categories.find(category => category.id === categoryParentId);
+  const visibleCategories = categories.filter(category => (category.parentId ?? null) === (categoryParent?.id ?? null));
+  const openTagPicker = () => {
+    setDraftTagIds(controller.selectedTagIds);
+    setTagSearch('');
+    controller.setIsTagPickerVisible(true);
+  };
+  const toggleDraftTag = (tagId: string) => setDraftTagIds(current => current.includes(tagId)
+    ? current.filter(id => id !== tagId)
+    : current.length < 20 ? [...current, tagId] : current);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState<string>();
   const [contentUrl, setContentUrl] = useState<string>();
@@ -99,7 +112,6 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const [isImagePreviewLoading, setIsImagePreviewLoading] = useState(false);
   const [isAssetPickerVisible, setIsAssetPickerVisible] = useState(false);
   const [pendingCategoryId, setPendingCategoryId] = useState<number>();
-  const hasReconciledTagsRef = useRef(false);
   const categoryTransitionTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const { isMotionEnabled } = useMotionPreference();
   const attachmentId = controller.initialAttachment?.id;
@@ -136,18 +148,6 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       remark.toLocaleLowerCase().includes(keyword),
     );
   }, [controller.remark, remarkHistory]);
-
-  useEffect(() => {
-    if (
-      !shouldReconcileTags
-      || tags === undefined
-      || hasReconciledTagsRef.current
-    ) {
-      return;
-    }
-    hasReconciledTagsRef.current = true;
-    handleReconcileTags(tags.map(tag => tag.id));
-  }, [handleReconcileTags, shouldReconcileTags, tags]);
 
   const clearContentUrl = useCallback(() => {
     previewRequestRef.current += 1;
@@ -231,9 +231,9 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       if (!confirmed)
         return;
       await onArchiveTag(tagId);
-      controller.handleRemoveTag(tagId);
+      setDraftTagIds(current => current.filter(id => id !== tagId));
     },
-    [controller, onArchiveTag, t],
+    [onArchiveTag, t],
   );
   const showNumericKeypad = stage === 'amount' && !controller.isNoteFocused;
   const showOperatorControls
@@ -349,7 +349,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   />
                 </span>
                 <span className="truncate">
-                  {controller.selectedCategory?.name}
+                  {categories.find(category => category.id === controller.selectedCategory?.id)?.path ?? controller.selectedCategory?.path ?? controller.selectedCategory?.name}
                 </span>
               </button>
             )}
@@ -429,7 +429,16 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     </m.button>
                   )}
                   <div className="grid grid-cols-4 gap-[9px]">
-                    {categories.map(category => (
+                    {categoryParent && (
+                      <div className="col-span-full flex items-center justify-between gap-2">
+                        <AppButton variant="secondary" onClick={() => setCategoryParentId(null)}>返回一级分类</AppButton>
+                        <AppButton onClick={() => handleSelectCategory(categoryParent)}>
+                          直接记入
+                          {categoryParent.name}
+                        </AppButton>
+                      </div>
+                    )}
+                    {visibleCategories.map(category => (
                       <m.button
                         aria-pressed={
                           controller.selectedCategory?.id === category.id
@@ -448,7 +457,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                         data-record-editor-category={category.id}
                         disabled={Boolean(pendingCategoryId)}
                         key={category.id}
-                        onClick={() => handleSelectCategory(category)}
+                        onClick={() => categories.some(child => child.parentId === category.id) ? setCategoryParentId(category.id) : handleSelectCategory(category)}
                         transition={
                           isMotionEnabled
                             ? MOTION_PRESETS.selection.transition
@@ -541,7 +550,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   <button
                     className="min-h-11 shrink-0 border-0 bg-transparent px-1 text-[13px] font-semibold text-primary-deep"
                     data-record-editor-tag-trigger
-                    onClick={() => controller.setIsTagPickerVisible(true)}
+                    onClick={openTagPicker}
                     type="button"
                   >
                     #
@@ -977,7 +986,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   aria-label="标签设置"
                   className="flex h-11 w-11 items-center justify-center rounded-xl border-0 bg-primary-light/45 text-primary-deep active:bg-primary-light disabled:opacity-45"
                   disabled={controller.isImageUploading}
-                  onClick={onManageTags}
+                  onClick={() => onManageTags(draftTagIds)}
                   type="button"
                 >
                   <Settings2 size={18} strokeWidth={1.9} />
@@ -987,7 +996,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 <span className="w-10" aria-hidden="true" />
               )}
         </div>
-        {controller.selectedTagIds.length > 0 && (
+        {draftTagIds.length > 0 && (
           <section
             className="mb-4 rounded-[18px] border border-primary-light/80 bg-primary-light/25 p-3"
             data-record-editor-selected-tags
@@ -997,7 +1006,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </div>
             <div className="flex flex-wrap gap-2">
               {(tags ?? [])
-                .filter(tag => controller.selectedTagIds.includes(tag.id))
+                .filter(tag => draftTagIds.includes(tag.id))
                 .map(tag => (
                   <span
                     className="inline-flex min-h-11 items-center gap-1 rounded-full border border-primary/25 bg-white px-2 pl-3 text-[13px] font-bold text-primary-deep shadow-ww-xs"
@@ -1005,10 +1014,11 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   >
                     #
                     {tag.name}
+                    {tag.status === 'ARCHIVED' && <span className="text-xs text-ww-soft">（已归档）</span>}
                     <button
                       aria-label={`移除标签 ${tag.name}`}
                       className="ml-0.5 flex h-11 w-11 items-center justify-center rounded-full text-primary-deep transition active:bg-primary-light"
-                      onClick={() => controller.handleRemoveTag(tag.id)}
+                      onClick={() => toggleDraftTag(tag.id)}
                       type="button"
                     >
                       <X aria-hidden="true" size={14} strokeWidth={2.4} />
@@ -1018,29 +1028,29 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </div>
           </section>
         )}
-        {controller.selectedTagIds.length > 1 && (
-          <div className="mb-3 text-sm text-ww-soft">
-            已保留
-            {controller.selectedTagIds.length}
-            {' '}
-            个历史标签；选择后会收敛为单标签。
-          </div>
-        )}
+        <input aria-label="搜索标签" className="ww-sheet-control mb-3 min-h-11 w-full rounded-xl px-3" value={tagSearch} onChange={event => setTagSearch(event.target.value)} placeholder="搜索标签" />
+        <p className="mb-3 text-xs text-ww-soft">
+          已选
+          {draftTagIds.length}
+          {' '}
+          / 20；标签在本账本内通用
+        </p>
         <div className="flex flex-wrap gap-2">
-          {(tags ?? []).map(tag => (
+          {(tags ?? []).filter(tag => tag.status !== 'ARCHIVED' && tag.name.includes(tagSearch.trim())).map(tag => (
             <div
               className="inline-flex overflow-hidden rounded-full"
               key={tag.id}
             >
               <button
-                aria-pressed={controller.selectedTagIds.includes(tag.id)}
+                aria-pressed={draftTagIds.includes(tag.id)}
                 className={cn(
                   'min-h-11 rounded-l-full border border-solid border-r-0 px-3 text-sm',
-                  controller.selectedTagIds.includes(tag.id)
+                  draftTagIds.includes(tag.id)
                     ? 'border-primary bg-primary text-white'
                     : 'border-border-primary bg-white text-ww-mid',
                 )}
-                onClick={() => controller.handleToggleTag(tag.id)}
+                onClick={() => toggleDraftTag(tag.id)}
+                disabled={!draftTagIds.includes(tag.id) && draftTagIds.length >= 20}
                 type="button"
               >
                 {tag.name}
@@ -1050,7 +1060,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   aria-label={`${t('ledger:tags.delete')} ${tag.name}`}
                   className={cn(
                     'flex min-h-11 w-11 items-center justify-center border border-solid border-l border-l-white/35 transition disabled:opacity-45',
-                    controller.selectedTagIds.includes(tag.id)
+                    draftTagIds.includes(tag.id)
                       ? 'border-primary bg-primary text-white active:bg-primary-deep'
                       : 'border-border-primary bg-white text-feedback-danger active:bg-feedback-danger-surface',
                   )}
@@ -1076,7 +1086,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               setIsCreatingTag(true);
               void onCreateTag(name)
                 .then((tag) => {
-                  controller.handleToggleTag(tag.id);
+                  toggleDraftTag(tag.id);
                   setNewTagName('');
                 })
                 .finally(() => setIsCreatingTag(false));
@@ -1084,7 +1094,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           >
             <input
               className="ww-sheet-control min-w-0 flex-1 rounded-xl border border-border-primary px-3 py-2 text-sm outline-none"
-              maxLength={32}
+              maxLength={20}
               onChange={event => setNewTagName(event.target.value)}
               placeholder="新建标签"
               value={newTagName}
@@ -1098,6 +1108,20 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </button>
           </form>
         )}
+        <div className="mt-4 flex gap-3">
+          <AppButton variant="secondary" onClick={() => setDraftTagIds([])}>清空</AppButton>
+          <AppButton data-record-editor-tag-cancel variant="secondary" onClick={() => controller.setIsTagPickerVisible(false)}>取消</AppButton>
+          <AppButton
+            data-record-editor-tag-confirm
+            className="flex-1"
+            onClick={() => {
+              controller.handleSetTags(draftTagIds);
+              controller.setIsTagPickerVisible(false);
+            }}
+          >
+            完成
+          </AppButton>
+        </div>
       </AppSheet>
       <ImagePreview
         image={controller.imagePreviewUrl ?? contentUrl}

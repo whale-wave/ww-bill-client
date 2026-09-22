@@ -1,4 +1,3 @@
-import type { DragEndEvent } from '@dnd-kit/core';
 import type { CSSProperties } from 'react';
 import type {
   CategoryAmountType,
@@ -29,16 +28,18 @@ import {
   useCategoryIconCatalogQuery,
   useCreateLedgerCategoryMutation,
   useLedgerCategoriesQuery,
+  useMoveLedgerCategoryMutation,
   usePatchLedgerCategoryMutation,
   useReorderLedgerCategoriesMutation,
   useUploadLedgerCategoryIconMutation,
 } from '@/entities/category';
 import { useTranslation } from '@/shared/i18n';
-import { AppSheet, PageLoadingState } from '@/shared/ui';
+import { AppButton, AppSheet, PageLoadingState } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import { useMotionPreference } from '@/shared/ui/motion';
 import { CategoryImageCropper } from './CategoryImageCropper';
 
-type EditorState = { category?: CategoryEntity; mode: 'create' | 'edit' } | null;
+type EditorState = { category?: CategoryEntity; parentId?: number; mode: 'create' | 'edit' } | null;
 
 const GROUP_ORDER: CategoryIconCatalogItem['group'][] = [
   'food',
@@ -183,6 +184,7 @@ function CategoryEditorSheet({
   ledgerId,
   onClose,
   onRefresh,
+  onMove,
   type,
 }: {
   editor: Exclude<EditorState, null>;
@@ -190,6 +192,7 @@ function CategoryEditorSheet({
   ledgerId: string;
   onClose: () => void;
   onRefresh: () => Promise<unknown>;
+  onMove: (category: CategoryEntity) => void;
   type: CategoryAmountType;
 }) {
   const { i18n, t } = useTranslation('ledger');
@@ -246,6 +249,7 @@ function CategoryEditorSheet({
           data: {
             ...(image ? { file: image } : { iconKey: iconKey ?? 'receipt' }),
             name: normalizedName,
+            parentId: editor.parentId,
             type,
             textIconEnabled,
             textIconIndex: safeTextIconIndex,
@@ -308,6 +312,9 @@ function CategoryEditorSheet({
       visible
     >
       <div className="flex h-full flex-col bg-ww-background">
+        {editor.category?.isCustom && !cropSourceUrl && (
+          <AppButton variant="secondary" onClick={() => onMove(editor.category!)}>调整归属</AppButton>
+        )}
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-solid border-border-primary px-4">
           <button className="border-0 bg-transparent text-[14px] font-bold text-ww-mid" onClick={cropSourceUrl ? () => setCropSourceUrl(undefined) : onClose} type="button">{t('categories.cancel')}</button>
           <h2 className="text-[15px] font-black text-ww-ink">
@@ -521,8 +528,34 @@ export function CategoryManagement({
   const [reorderCategories, reorderState] = useReorderLedgerCategoriesMutation();
   const [categories, setCategories] = useState<CategoryEntity[]>([]);
   const [editor, setEditor] = useState<EditorState>(null);
+  const { isMotionEnabled } = useMotionPreference();
+  const [collapsedIds, setCollapsedIds] = useState<number[]>([]);
+  const [moving, setMoving] = useState<CategoryEntity | null>(null);
+  const [moveParentId, setMoveParentId] = useState<number | null>(null);
+  const [movePreview, setMovePreview] = useState<{ path: string; recordCount: number; version: number } | null>(null);
+  const moveCategory = useMoveLedgerCategoryMutation();
+  const handleMove = async (preview: boolean) => {
+    if (!moving)
+      return;
+    try {
+      const result = await moveCategory.mutateAsync({ ledgerId, categoryId: moving.id, parentId: moveParentId, version: movePreview?.version ?? moving.version, preview });
+      if (preview) {
+        setMovePreview(result);
+      }
+      else {
+        setMoving(null);
+        setMovePreview(null);
+      }
+    }
+    catch (error) {
+      setMovePreview(null);
+      showAppError({ content: getCategoryErrorMessage(error, t, t('categories.saveFailed')), icon: 'fail' });
+      await query.refetch();
+    }
+  };
   const writesRef = useRef(new Set<number | 'order'>());
   const active = categories.filter(category => category.status === 'ACTIVE');
+  const roots = active.filter(category => !category.parentId);
   const archived = categories.filter(category => category.status === 'ARCHIVED');
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 7 } }),
@@ -571,20 +604,26 @@ export function CategoryManagement({
     }
   };
 
-  const handleDragEnd = async ({ active: dragged, over }: DragEndEvent) => {
-    if (!over || dragged.id === over.id || writesRef.current.has('order'))
+  const handleReorder = async (draggedId: number, overId: number | undefined) => {
+    if (overId === undefined || draggedId === overId || writesRef.current.has('order'))
       return;
-    const oldIndex = active.findIndex(item => item.id === Number(dragged.id));
-    const newIndex = active.findIndex(item => item.id === Number(over.id));
+    const draggedCategory = active.find(item => item.id === draggedId);
+    const overCategory = active.find(item => item.id === overId);
+    if (!draggedCategory || !overCategory || (draggedCategory.parentId ?? null) !== (overCategory.parentId ?? null))
+      return;
+    const siblings = active.filter(item => (item.parentId ?? null) === (draggedCategory.parentId ?? null));
+    const oldIndex = siblings.findIndex(item => item.id === draggedId);
+    const newIndex = siblings.findIndex(item => item.id === overId);
     if (oldIndex < 0 || newIndex < 0)
       return;
     const previous = categories;
-    const nextActive = arrayMove(active, oldIndex, newIndex);
-    setCategories([...nextActive, ...archived]);
+    const nextActive = arrayMove(siblings, oldIndex, newIndex);
+    setCategories([...nextActive, ...categories.filter(item => !siblings.some(sibling => sibling.id === item.id))]);
     writesRef.current.add('order');
     try {
       const saved = await reorderCategories({
         data: {
+          parentId: draggedCategory.parentId,
           items: nextActive.map(category => ({
             categoryId: category.id,
             version: category.version,
@@ -593,7 +632,7 @@ export function CategoryManagement({
         },
         ledgerId,
       });
-      setCategories([...saved, ...archived]);
+      setCategories([...saved, ...categories.filter(item => !siblings.some(sibling => sibling.id === item.id))]);
     }
     catch {
       setCategories(previous);
@@ -649,24 +688,56 @@ export function CategoryManagement({
               : (
                   <DndContext
                     collisionDetection={closestCenter}
-                    onDragEnd={event => void handleDragEnd(event)}
+                    onDragEnd={event => void handleReorder(Number(event.active.id), event.over ? Number(event.over.id) : undefined)}
                     sensors={sensors}
                   >
-                    <SortableContext items={active.map(item => item.id)} strategy={verticalListSortingStrategy}>
+                    <SortableContext items={roots.map(item => item.id)} strategy={verticalListSortingStrategy}>
                       <div aria-label={t('categories.current')} role="list">
-                        {active.map((category, index) => (
-                          <SortableCategoryRow
-                            canManage={canManage}
-                            category={category}
-                            disableArchive={active.length <= 1}
-                            key={category.id}
-                            onArchive={() => void changeStatus(category, 'ARCHIVED')}
-                            onEdit={() => setEditor({ category, mode: 'edit' })}
-                            position={index + 1}
-                            total={active.length}
-                            writePending={patchState.isLoading || reorderState.isLoading}
-                          />
-                        ))}
+                        {roots.map((category, index) => {
+                          const children = active.filter(child => child.parentId === category.id);
+                          const isCollapsed = collapsedIds.includes(category.id);
+                          return (
+                            <div key={category.id}>
+                              <SortableCategoryRow canManage={canManage} category={category} disableArchive={roots.length <= 1} onArchive={() => void changeStatus(category, 'ARCHIVED')} onEdit={() => setEditor({ category, mode: 'edit' })} position={index + 1} total={roots.length} writePending={patchState.isLoading || reorderState.isLoading} />
+                              {(canManage || children.length > 0) && (
+                                <>
+                                  <button className="flex min-h-11 w-full items-center gap-2 bg-transparent px-4 text-sm text-ww-mid" aria-expanded={!isCollapsed} onClick={() => setCollapsedIds(current => isCollapsed ? current.filter(id => id !== category.id) : [...current, category.id])} type="button">
+                                    <ChevronDown size={16} className={isCollapsed ? '-rotate-90' : ''} />
+                                    二级分类（
+                                    {children.length}
+                                    ）
+                                  </button>
+                                  <div aria-hidden={isCollapsed} style={{ display: 'grid', gridTemplateRows: isCollapsed ? '0fr' : '1fr', visibility: isCollapsed ? 'hidden' : 'visible', transition: isMotionEnabled ? 'grid-template-rows 180ms ease, visibility 180ms' : undefined }}>
+                                    <div className="min-h-0 overflow-hidden">
+                                      <div className="mx-3 mb-3 grid grid-cols-3 gap-2 rounded-2xl bg-ww-surface-tint p-3">
+                                        {children.map((child, childIndex) => (
+                                          <div key={child.id} className="flex flex-col items-center rounded-xl bg-ww-surface p-2">
+                                            <button type="button" className="flex min-h-16 w-full flex-col items-center gap-2 text-sm" disabled={!canManage} onClick={() => setEditor({ category: child, mode: 'edit' })}>
+                                              <CategoryIcon categoryName={child.name} iconKey={child.icon} iconType={child.iconType} textIconEnabled={child.textIconEnabled} textIconIndex={child.textIconIndex} size={24} />
+                                              {child.name}
+                                            </button>
+                                            {canManage && (
+                                              <div className="flex">
+                                                <button type="button" aria-label={`隐藏${child.name}`} className="min-h-11 min-w-11 text-feedback-danger" onClick={() => void changeStatus(child, 'ARCHIVED')}>隐藏</button>
+                                                <button type="button" aria-label={`前移${child.name}`} className="min-h-11 min-w-11 text-primary-deep disabled:opacity-35" disabled={!childIndex || reorderState.isLoading} onClick={() => void handleReorder(child.id, children[childIndex - 1]?.id)}>前移</button>
+                                              </div>
+                                            )}
+                                          </div>
+                                        ))}
+                                        {canManage && (
+                                          <button type="button" className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-xl text-sm text-primary-deep" onClick={() => setEditor({ mode: 'create', parentId: category.id })}>
+                                            <Plus size={24} />
+                                            添加二级分类
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </SortableContext>
                   </DndContext>
@@ -738,6 +809,38 @@ export function CategoryManagement({
           </Button>
         </div>
       )}
+      {moving && (
+        <AppSheet visible onClose={() => setMoving(null)} onMaskClick={() => setMoving(null)} bodyClassName="p-4">
+          <h2 className="mb-4 text-base font-bold">
+            调整「
+            {moving.name}
+            」归属
+          </h2>
+          <select
+            aria-label="目标一级分类"
+            className="ww-sheet-control min-h-11 w-full rounded-xl px-3"
+            value={moveParentId ?? ''}
+            onChange={(event) => {
+              setMoveParentId(event.target.value ? Number(event.target.value) : null);
+              setMovePreview(null);
+            }}
+          >
+            <option value="">作为一级分类</option>
+            {roots.filter(category => category.id !== moving.id).map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
+          </select>
+          {movePreview && (
+            <p className="my-4 text-sm leading-6">
+              调整后：
+              {movePreview.path}
+              。涉及
+              {movePreview.recordCount}
+              {' '}
+              笔账单，历史分类统计会按新归属重新汇总。
+            </p>
+          )}
+          <AppButton className="mt-4" fullWidth disabled={moveCategory.isLoading} onClick={() => void handleMove(!movePreview)}>{movePreview ? '确认调整' : '预览影响'}</AppButton>
+        </AppSheet>
+      )}
       {editor && (
         <CategoryEditorSheet
           editor={editor}
@@ -745,6 +848,12 @@ export function CategoryManagement({
           ledgerId={ledgerId}
           onClose={() => setEditor(null)}
           onRefresh={query.refetch}
+          onMove={(category) => {
+            setEditor(null);
+            setMoving(category);
+            setMoveParentId(category.parentId ?? null);
+            setMovePreview(null);
+          }}
           type={type}
         />
       )}
