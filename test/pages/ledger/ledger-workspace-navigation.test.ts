@@ -532,7 +532,7 @@ describe('custom ledger workspace integration', () => {
     expect(router.state.location.search).not.toContain('keyword=');
   });
 
-  it('uses the current ledger name without a redundant capsule and preserves ledger-scoped tabs', () => {
+  it('opens the ledger switcher from a custom-ledger title and preserves ledger-scoped tabs', async () => {
     hooks.useInfiniteLedgerRecordsQuery.mockReturnValue({
       data: {
         data: [{
@@ -583,8 +583,12 @@ describe('custom ledger workspace integration', () => {
     expect(first.container.querySelector('[data-testid="ledger-search-action"]')).not.toBeNull();
     expect(first.container.querySelector('[data-testid="ledger-calendar-action"]')).not.toBeNull();
     expect(first.container.querySelector('.adm-search-bar')).toBeNull();
-    expect(first.container.querySelector('.record-overview-title')?.textContent).toContain('家庭旅行账本');
-    expect(first.container.querySelector('.record-overview-title')?.tagName).toBe('H1');
+    const title = first.container.querySelector('[data-testid="ledger-switcher-title"]');
+    expect(title?.textContent).toContain('家庭旅行账本');
+    expect(title?.tagName).toBe('BUTTON');
+    expect(title?.getAttribute('aria-haspopup')).toBe('dialog');
+    await click(title);
+    expect(document.body.querySelector('[data-ledger-switcher-id="ledger/a"]')?.getAttribute('data-selected')).toBe('true');
     expect(first.container.querySelector('[data-workspace-capsule]')).not.toBeNull();
     expect(first.container.querySelector('[data-record-overview-infinite-scroll]')).not.toBeNull();
     expect(hooks.useInfiniteLedgerRecordsQuery).toHaveBeenCalledWith(expect.objectContaining({
@@ -611,7 +615,7 @@ describe('custom ledger workspace integration', () => {
       isLoading: false,
     });
     const second = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
-    expect(second.container.querySelector('.record-overview-title')?.tagName).toBe('H1');
+    expect(second.container.querySelector('[data-testid="ledger-switcher-title"]')?.tagName).toBe('SPAN');
     expect(second.container.querySelector('[data-workspace-capsule]')).not.toBeNull();
   });
 

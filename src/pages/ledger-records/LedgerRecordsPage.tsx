@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import {
   LedgerCapability,
-  LedgerVisualIcon,
   patchLedgerPreferencesApi,
   useLedgerPreferencesQuery,
 } from '@/entities/ledger';
@@ -27,6 +26,7 @@ import {
   formatMonthStart,
 } from '@/features/household';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
+import { LedgerTitleSwitcher } from '@/features/ledger-switcher';
 import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { getQueryViewState } from '@/shared/api';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -259,7 +259,7 @@ function LedgerRecordsView({
           ),
           valueWidth: 'cell',
         },
-        renderTitle: className => <h1 className={className}>{ledger.name}</h1>,
+        renderTitle: className => <LedgerTitleSwitcher className={className} ledgerName={ledger.name} />,
         shortcuts: LEDGER_SHORTCUTS.map(({ capability, icon: ShortcutIcon, key, route }) => ({
           disabled: !ledger.capabilities.includes(capability),
           icon: <ShortcutIcon size={20} />,
@@ -275,15 +275,6 @@ function LedgerRecordsView({
         })),
         shortcutsTestId: 'ledger-record-shortcuts',
         testId: 'ledger-records-header',
-        titleIcon: (
-          <LedgerVisualIcon
-            className="h-[18px] w-[18px] text-primary-deep"
-            iconKey={ledger.iconKey}
-            kind={ledger.kind}
-            templateKey={ledger.templateKey}
-          />
-        ),
-        titleIconContainerClassName: 'rounded-[12px] border border-white/80 bg-white/75 !bg-none text-primary-deep shadow-ww-xs',
         titleAlignment: 'start',
       }}
       onRetry={() => void recordsQuery.refetch()}

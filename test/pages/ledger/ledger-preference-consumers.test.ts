@@ -220,10 +220,10 @@ describe('ledger preference consumers', () => {
   it('uses the compact shared-ledger icon treatment in the title row', () => {
     const container = renderPage(createElement(LedgerRecordsPage));
 
-    const iconContainer = container.querySelector('[data-record-overview-title-row] > span');
+    const iconContainer = container.querySelector('[data-ledger-title-icon]');
     const icon = iconContainer?.querySelector('svg');
     expect(iconContainer?.classList).toContain('bg-white/75');
-    expect(iconContainer?.classList).toContain('!bg-none');
+    expect(iconContainer?.classList).toContain('rounded-[12px]');
     expect(icon?.classList).toContain('text-primary-deep');
   });
 
