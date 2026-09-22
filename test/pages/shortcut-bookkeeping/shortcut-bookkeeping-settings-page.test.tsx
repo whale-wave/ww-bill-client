@@ -192,6 +192,11 @@ describe('shortcut bookkeeping settings page', () => {
     expect(container.textContent).toContain(
       'shortcutBookkeeping.installGuide.title',
     );
+    expect(
+      container.querySelector<HTMLImageElement>(
+        'img[alt="shortcutBookkeeping.installGuide.imageAlt"]',
+      )?.getAttribute('src'),
+    ).not.toBe('/shortcut-install-guide.png');
     expect(mocks.openInstaller).not.toHaveBeenCalled();
     await act(async () => {
       vi.advanceTimersByTime(5100);

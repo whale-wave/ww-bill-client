@@ -44,6 +44,7 @@ import {
   Surface,
 } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import shortcutInstallGuide from '../../../public/shortcut-install-guide.png';
 import {
   getConfiguredIosShortcutInstallUrl,
   getShortcutTokenRetryAt,
@@ -643,7 +644,7 @@ export default function ShortcutBookkeepingSettingsPage() {
           <img
             alt={t('shortcutBookkeeping.installGuide.imageAlt')}
             className="mt-5 w-full rounded-[16px]"
-            src="/shortcut-install-guide.png"
+            src={shortcutInstallGuide}
           />
           <ol className="mt-5 space-y-3">
             {['paste', 'confirm', 'run'].map((key, index) => (
