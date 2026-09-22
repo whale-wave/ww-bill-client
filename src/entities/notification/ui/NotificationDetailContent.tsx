@@ -37,23 +37,24 @@ const MARKDOWN_COMPONENTS: Components = {
       </a>
     );
   },
-  blockquote: ({ children }) => <blockquote className="my-[var(--ww-space-md)] border-l-4 border-primary/35 bg-ww-surface-tint px-[var(--ww-space-md)] py-[var(--ww-space-sm)] text-ww-mid">{children}</blockquote>,
+  blockquote: ({ children }) => <blockquote className="my-[var(--ww-space-lg)] rounded-[var(--ww-radius-control)] border-0 bg-ww-surface-tint px-[var(--ww-space-lg)] py-[var(--ww-space-md)] text-[14px] leading-6 text-ww-mid">{children}</blockquote>,
   code: ({ children, className }) => className
     ? <code className={className}>{children}</code>
-    : <code className="rounded bg-ww-surface-tint px-1.5 py-0.5 font-mono text-[0.9em] text-primary-deep">{children}</code>,
-  h1: ({ children }) => <h1 className="mb-[var(--ww-space-sm)] mt-[var(--ww-space-xl)] text-xl font-extrabold leading-7 text-ww-ink first:mt-0">{children}</h1>,
-  h2: ({ children }) => <h2 className="mb-[var(--ww-space-sm)] mt-[var(--ww-space-xl)] text-lg font-extrabold leading-7 text-ww-ink first:mt-0">{children}</h2>,
-  h3: ({ children }) => <h3 className="mb-[var(--ww-space-sm)] mt-[var(--ww-space-lg)] text-base font-bold leading-6 text-ww-ink first:mt-0">{children}</h3>,
-  hr: () => <hr className="my-[var(--ww-space-lg)] border-0 border-t border-solid border-border-primary" />,
+    : <code className="rounded-[6px] bg-ww-surface-tint px-1.5 py-0.5 font-mono text-[0.9em] text-primary-deep">{children}</code>,
+  h1: ({ children }) => <h1 className="mb-[var(--ww-space-md)] mt-[var(--ww-space-2xl)] text-pretty text-[18px] font-extrabold leading-[27px] text-ww-ink first:mt-0">{children}</h1>,
+  h2: ({ children }) => <h2 className="mb-[var(--ww-space-sm)] mt-[var(--ww-space-2xl)] text-pretty text-[16px] font-extrabold leading-6 text-ww-ink first:mt-0">{children}</h2>,
+  h3: ({ children }) => <h3 className="mb-[var(--ww-space-sm)] mt-[var(--ww-space-xl)] text-pretty text-[15px] font-bold leading-6 text-ww-ink first:mt-0">{children}</h3>,
+  hr: () => <hr className="my-[var(--ww-space-xl)] border-0 border-t border-solid border-border-primary" />,
   img: ({ alt }) => alt ? <span className="text-ww-soft">{alt}</span> : null,
-  li: ({ children }) => <li className="pl-[var(--ww-space-xs)]">{children}</li>,
-  ol: ({ children }) => <ol className="my-[var(--ww-space-md)] list-decimal space-y-[var(--ww-space-xs)] pl-[var(--ww-space-2xl)]">{children}</ol>,
-  p: ({ children }) => <p className="my-[var(--ww-space-sm)] whitespace-pre-wrap break-words first:mt-0 last:mb-0">{children}</p>,
-  pre: ({ children }) => <pre className="my-[var(--ww-space-md)] overflow-x-auto rounded-[var(--ww-radius-control)] bg-ww-ink p-[var(--ww-space-md)] font-mono text-[13px] leading-5 text-white">{children}</pre>,
-  table: ({ children }) => <div className="my-[var(--ww-space-md)] overflow-x-auto"><table className="w-full min-w-max border-collapse text-left text-sm">{children}</table></div>,
+  li: ({ children }) => <li className="relative pl-[var(--ww-space-xl)] before:absolute before:left-0 before:top-[0.68em] before:h-1.5 before:w-1.5 before:rounded-full before:bg-primary-mid before:content-[''] [&>p]:my-0 [&>p:not(:first-child)]:mt-[var(--ww-space-xs)]">{children}</li>,
+  ol: ({ children }) => <ol className="my-[var(--ww-space-lg)] list-decimal space-y-[var(--ww-space-md)] pl-[var(--ww-space-2xl)] marker:font-bold marker:text-primary-deep">{children}</ol>,
+  p: ({ children }) => <p className="my-[var(--ww-space-md)] whitespace-pre-wrap break-words text-pretty first:mt-0 last:mb-0">{children}</p>,
+  pre: ({ children }) => <pre className="my-[var(--ww-space-lg)] overflow-x-auto rounded-[var(--ww-radius-control)] bg-ww-ink p-[var(--ww-space-lg)] font-mono text-[13px] leading-6 text-white">{children}</pre>,
+  strong: ({ children }) => <strong className="font-bold text-ww-ink">{children}</strong>,
+  table: ({ children }) => <div className="my-[var(--ww-space-lg)] overflow-x-auto rounded-[var(--ww-radius-control)] border border-solid border-border-primary"><table className="w-full min-w-max border-collapse text-left text-sm">{children}</table></div>,
   td: ({ children }) => <td className="border border-solid border-border-primary px-[var(--ww-space-md)] py-[var(--ww-space-sm)] align-top">{children}</td>,
   th: ({ children }) => <th className="border border-solid border-border-primary bg-ww-surface-tint px-[var(--ww-space-md)] py-[var(--ww-space-sm)] font-bold text-ww-ink">{children}</th>,
-  ul: ({ children }) => <ul className="my-[var(--ww-space-md)] list-disc space-y-[var(--ww-space-xs)] pl-[var(--ww-space-2xl)]">{children}</ul>,
+  ul: ({ children }) => <ul className="my-[var(--ww-space-lg)] list-none space-y-[var(--ww-space-md)] p-0">{children}</ul>,
 };
 
 export function NotificationMarkdown({ content }: { content: string }) {
@@ -61,7 +62,7 @@ export function NotificationMarkdown({ content }: { content: string }) {
     return null;
 
   return (
-    <div className="break-words text-[15px] leading-6 text-ww-ink" data-notification-markdown>
+    <div className="break-words text-[15px] font-normal leading-[1.72] text-ww-mid" data-notification-markdown>
       <Markdown components={MARKDOWN_COMPONENTS} remarkPlugins={[remarkGfm]} skipHtml urlTransform={defaultUrlTransform}>
         {content}
       </Markdown>
