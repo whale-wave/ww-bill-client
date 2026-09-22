@@ -1,0 +1,45 @@
+.record-editor-keypad {
+  --record-editor-keypad-action-height: clamp(46px, 7.2vh, 50px);
+  --record-editor-keypad-key-height: clamp(44px, 7vh, 48px);
+  --record-editor-keypad-gap: clamp(6px, 1.2vh, 8px);
+
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  padding-top: clamp(8px, 1.8vh, 12px);
+}
+
+@supports (height: 1dvh) {
+  .record-editor-keypad {
+    --record-editor-keypad-action-height: clamp(46px, 7.2dvh, 50px);
+    --record-editor-keypad-key-height: clamp(44px, 7dvh, 48px);
+    --record-editor-keypad-gap: clamp(6px, 1.2dvh, 8px);
+
+    padding-top: clamp(8px, 1.8dvh, 12px);
+  }
+}
+
+.record-editor-keypad__action {
+  height: var(--record-editor-keypad-action-height);
+  border-radius: 15px;
+}
+
+.record-editor-keypad__keys {
+  gap: var(--record-editor-keypad-gap);
+  margin-top: var(--record-editor-keypad-gap);
+}
+
+.record-editor-keypad__key {
+  height: var(--record-editor-keypad-key-height);
+  min-height: 44px;
+  border-radius: 15px;
+}
+
+@media (max-height: 680px) {
+  .record-editor-keypad {
+    --record-editor-keypad-action-height: 46px;
+    --record-editor-keypad-key-height: 44px;
+    --record-editor-keypad-gap: 6px;
+
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    padding-top: 8px;
+  }
+}

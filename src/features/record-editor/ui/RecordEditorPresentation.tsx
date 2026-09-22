@@ -43,6 +43,7 @@ import {
 } from '@/shared/ui';
 import { KEYPAD_LAYOUT } from '../model/constants';
 import { RecordLocationPicker } from './RecordLocationPicker';
+import './record-editor-presentation.scss';
 
 export type RecordEditorCategoryState = 'error' | 'loading' | 'ready';
 
@@ -729,12 +730,12 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               </div>
 
               <section
-                className="shrink-0 border-t border-solid border-border-primary bg-white/70 px-4 pb-[max(14px,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl"
+                className="record-editor-keypad shrink-0 border-t border-solid border-border-primary bg-white/70 px-4 backdrop-blur-xl"
                 data-record-editor-keypad
               >
                 <div className="grid grid-cols-[1fr_1fr] gap-[10px]">
                   <button
-                    className="flex h-[50px] items-center justify-center rounded-[16px] border border-border-primary bg-white/80 px-2 text-[14px] font-bold leading-[21px] text-ww-mid active:bg-primary-light"
+                    className="record-editor-keypad__action flex items-center justify-center border border-border-primary bg-white/80 px-2 text-[14px] font-bold leading-[21px] text-ww-mid active:bg-primary-light"
                     data-record-editor-date-trigger
                     onClick={() => controller.setIsDatePickerVisible(true)}
                     type="button"
@@ -745,7 +746,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                       : controller.formattedDate}
                   </button>
                   <m.button
-                    className="ww-theme-primary-action h-[50px] rounded-[16px] px-4 text-[15px] font-extrabold leading-[22.5px] disabled:opacity-50"
+                    className="record-editor-keypad__action ww-theme-primary-action px-4 text-[15px] font-extrabold leading-[22.5px] disabled:opacity-50"
                     disabled={
                       controller.isSubmitting || controller.isImageUploading
                     }
@@ -757,7 +758,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   </m.button>
                 </div>
                 {showNumericKeypad && (
-                  <div className="mt-[10px] grid grid-cols-3 gap-2">
+                  <div className="record-editor-keypad__keys grid grid-cols-3">
                     {KEYPAD_LAYOUT.map((item, index) => (
                       <m.button
                         aria-label={
@@ -766,7 +767,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                             : undefined
                         }
                         className={cn(
-                          'flex h-[54px] items-center justify-center rounded-[16px] border border-border-primary bg-white/90 font-number text-[21px] font-bold leading-[31.5px] text-ww-ink shadow-ww-xs',
+                          'record-editor-keypad__key flex items-center justify-center border border-border-primary bg-white/90 font-number text-[21px] font-bold leading-[31.5px] text-ww-ink shadow-ww-xs',
                           item.keys === 'x'
                           && 'gap-1.5 border-primary-light bg-primary-light/55 font-sans text-[12px] text-primary-deep',
                           controller.activeKeyIndex === index && 'bg-primary-light',

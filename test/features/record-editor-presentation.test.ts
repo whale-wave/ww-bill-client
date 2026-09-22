@@ -469,7 +469,7 @@ describe('record editor presentation', () => {
 
     expect(container.querySelector('[data-record-editor-total]')?.parentElement?.classList).toContain('min-h-0');
     expect(container.querySelector('[data-record-editor-total]')?.parentElement?.classList).not.toContain('min-h-[220px]');
-    expect(container.querySelector('[data-record-editor-keypad]')?.classList).toContain('pb-[max(14px,env(safe-area-inset-bottom))]');
+    expect(container.querySelector('[data-record-editor-keypad]')?.classList).toContain('record-editor-keypad');
   });
 
   it('uses a quiet outline and checkmark for the selected linked account', () => {
