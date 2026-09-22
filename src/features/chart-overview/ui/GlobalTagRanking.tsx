@@ -14,16 +14,16 @@ interface RangeProps {
   endDate: string;
   type: 'add' | 'sub';
 }
-function PersonalTagRanking(filters: RangeProps) {
-  const query = useTagRankingQuery({ params: filters });
+function PersonalTagRanking({ startDate, endDate, type }: RangeProps) {
+  const query = useTagRankingQuery({ params: { startDate, endDate, type } });
   return <TagRankingSection data={query.data} isLoading={query.isLoading} isError={query.isError} />;
 }
-function LedgerTagRanking({ ledgerId, ...filters }: RangeProps & { ledgerId: string }) {
-  const query = useLedgerTagRankingQuery({ params: { ledgerId, filters } });
+function LedgerTagRanking({ ledgerId, startDate, endDate, type }: RangeProps & { ledgerId: string }) {
+  const query = useLedgerTagRankingQuery({ params: { ledgerId, filters: { startDate, endDate, type } } });
   return <TagRankingSection data={query.data} isLoading={query.isLoading} isError={query.isError} />;
 }
-function HouseholdTagRanking({ householdId, type, ...range }: RangeProps & { householdId: string }) {
-  const query = useHouseholdTagRankingQuery({ params: { householdId, filters: { ...range, metric: type === 'sub' ? 'expense' : 'income' } } });
+function HouseholdTagRanking({ householdId, startDate, endDate, type }: RangeProps & { householdId: string }) {
+  const query = useHouseholdTagRankingQuery({ params: { householdId, filters: { startDate, endDate, metric: type === 'sub' ? 'expense' : 'income' } } });
   return <TagRankingSection data={query.data} isLoading={query.isLoading} isError={query.isError} />;
 }
 export function GlobalTagRanking({ startDate, endDate, type, ledgerId, householdId }: Props) {

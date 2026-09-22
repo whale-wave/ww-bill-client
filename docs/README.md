@@ -4,6 +4,8 @@
 
 ## 文档入口
 
+- [标签排行 Locator 属性泄漏修复记录](./context/locator-api-boundary.md)
+
 - [跨三端计划执行记录与维护模板](../../ww-bill-service/docs/execution/README.md)
 - [二级分类与多标签执行记录](../../ww-bill-service/docs/execution/2026-09-22-category-hierarchy-global-tags.md)
 
