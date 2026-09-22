@@ -85,6 +85,8 @@ function SortableCategoryRow({
   disableArchive,
   onArchive,
   onEdit,
+  onToggleChildren,
+  isCollapsed,
   position,
   total,
   writePending,
@@ -94,6 +96,8 @@ function SortableCategoryRow({
   disableArchive: boolean;
   onArchive: () => void;
   onEdit: () => void;
+  onToggleChildren?: () => void;
+  isCollapsed: boolean;
   position: number;
   total: number;
   writePending: boolean;
@@ -127,26 +131,21 @@ function SortableCategoryRow({
           <Minus size={17} strokeWidth={2.4} />
         </button>
       )}
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-primary-deep" data-category-management-icon>
-        <CategoryIcon
-          categoryName={category.name}
-          iconKey={category.icon}
-          iconType={category.iconType}
-          textIconEnabled={category.textIconEnabled}
-          textIconIndex={category.textIconIndex}
-          size={21}
-        />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-[14px] font-extrabold text-ww-ink">{category.name}</span>
-          {category.isCustom && (
-            <span className="shrink-0 rounded-full bg-primary-light/55 px-2 py-0.5 text-[9px] font-extrabold tracking-wide text-primary-deep">
-              {t('categories.custom')}
-            </span>
-          )}
-        </div>
-      </div>
+      <button
+        type="button"
+        className="flex min-h-11 min-w-0 flex-1 items-center gap-2 border-0 bg-transparent p-0 text-left"
+        aria-label={`${category.name}子分类`}
+        aria-expanded={onToggleChildren ? !isCollapsed : undefined}
+        aria-controls={onToggleChildren ? `subcategory-list-${category.id}` : undefined}
+        disabled={!onToggleChildren}
+        onClick={onToggleChildren}
+      >
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-primary-deep" data-category-management-icon>
+          <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={21} />
+        </span>
+        <span className="min-w-0 flex-1 truncate text-[14px] font-extrabold text-ww-ink">{category.name}</span>
+        {onToggleChildren && <ChevronDown aria-hidden size={14} className={`shrink-0 text-ww-soft ${isCollapsed ? '-rotate-90' : ''}`} />}
+      </button>
       {canManage && (
         <button
           aria-label={t('categories.edit')}
@@ -185,6 +184,9 @@ function CategoryEditorSheet({
   onClose,
   onRefresh,
   onMove,
+  onArchive,
+  onMoveEarlier,
+  managementPending,
   type,
 }: {
   editor: Exclude<EditorState, null>;
@@ -193,6 +195,9 @@ function CategoryEditorSheet({
   onClose: () => void;
   onRefresh: () => Promise<unknown>;
   onMove: (category: CategoryEntity) => void;
+  onArchive?: () => void;
+  onMoveEarlier?: () => void;
+  managementPending?: boolean;
   type: CategoryAmountType;
 }) {
   const { i18n, t } = useTranslation('ledger');
@@ -499,6 +504,12 @@ function CategoryEditorSheet({
                   </section>
                 );
               })}
+              {onArchive && (
+                <div className="mt-6 flex gap-3 border-t border-solid border-border-primary pt-4">
+                  <AppButton variant="secondary" disabled={isSaving || managementPending || !onMoveEarlier} onClick={onMoveEarlier}>向前移动</AppButton>
+                  <AppButton variant="secondary" className="text-feedback-danger" disabled={isSaving || managementPending} onClick={onArchive}>隐藏分类</AppButton>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -698,42 +709,46 @@ export function CategoryManagement({
                           const isCollapsed = collapsedIds.includes(category.id);
                           return (
                             <div key={category.id}>
-                              <SortableCategoryRow canManage={canManage} category={category} disableArchive={roots.length <= 1} onArchive={() => void changeStatus(category, 'ARCHIVED')} onEdit={() => setEditor({ category, mode: 'edit' })} position={index + 1} total={roots.length} writePending={patchState.isLoading || reorderState.isLoading} />
+                              <SortableCategoryRow
+                                canManage={canManage}
+                                category={category}
+                                disableArchive={roots.length <= 1}
+                                onArchive={() => void changeStatus(category, 'ARCHIVED')}
+                                onEdit={() => setEditor({ category, mode: 'edit' })}
+                                onToggleChildren={canManage || children.length > 0 ? () => setCollapsedIds(current => isCollapsed ? current.filter(id => id !== category.id) : [...current, category.id]) : undefined}
+                                isCollapsed={isCollapsed}
+                                position={index + 1}
+                                total={roots.length}
+                                writePending={patchState.isLoading || reorderState.isLoading}
+                              />
                               {(canManage || children.length > 0) && (
-                                <>
-                                  <button className="flex min-h-11 w-full items-center gap-2 bg-transparent px-4 text-sm text-ww-mid" aria-expanded={!isCollapsed} onClick={() => setCollapsedIds(current => isCollapsed ? current.filter(id => id !== category.id) : [...current, category.id])} type="button">
-                                    <ChevronDown size={16} className={isCollapsed ? '-rotate-90' : ''} />
-                                    二级分类（
-                                    {children.length}
-                                    ）
-                                  </button>
-                                  <div aria-hidden={isCollapsed} style={{ display: 'grid', gridTemplateRows: isCollapsed ? '0fr' : '1fr', visibility: isCollapsed ? 'hidden' : 'visible', transition: isMotionEnabled ? 'grid-template-rows 180ms ease, visibility 180ms' : undefined }}>
-                                    <div className="min-h-0 overflow-hidden">
-                                      <div className="mx-3 mb-3 grid grid-cols-3 gap-2 rounded-2xl bg-ww-surface-tint p-3">
-                                        {children.map((child, childIndex) => (
-                                          <div key={child.id} className="flex flex-col items-center rounded-xl bg-ww-surface p-2">
-                                            <button type="button" className="flex min-h-16 w-full flex-col items-center gap-2 text-sm" disabled={!canManage} onClick={() => setEditor({ category: child, mode: 'edit' })}>
-                                              <CategoryIcon categoryName={child.name} iconKey={child.icon} iconType={child.iconType} textIconEnabled={child.textIconEnabled} textIconIndex={child.textIconIndex} size={24} />
-                                              {child.name}
-                                            </button>
-                                            {canManage && (
-                                              <div className="flex">
-                                                <button type="button" aria-label={`隐藏${child.name}`} className="min-h-11 min-w-11 text-feedback-danger" onClick={() => void changeStatus(child, 'ARCHIVED')}>隐藏</button>
-                                                <button type="button" aria-label={`前移${child.name}`} className="min-h-11 min-w-11 text-primary-deep disabled:opacity-35" disabled={!childIndex || reorderState.isLoading} onClick={() => void handleReorder(child.id, children[childIndex - 1]?.id)}>前移</button>
-                                              </div>
-                                            )}
-                                          </div>
-                                        ))}
-                                        {canManage && (
-                                          <button type="button" className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-xl text-sm text-primary-deep" onClick={() => setEditor({ mode: 'create', parentId: category.id })}>
-                                            <Plus size={24} />
-                                            添加二级分类
-                                          </button>
-                                        )}
-                                      </div>
+                                <div id={`subcategory-list-${category.id}`} aria-hidden={isCollapsed} className={`grid ${isCollapsed ? 'invisible grid-rows-[0fr]' : 'visible grid-rows-[1fr]'} ${isMotionEnabled ? 'transition-[grid-template-rows,visibility] duration-200 ease-out' : ''}`}>
+                                  <div className="min-h-0 overflow-hidden">
+                                    <div className="mx-3 mb-3 mt-2 grid grid-cols-5 gap-x-1 gap-y-2 rounded-2xl max-[360px]:grid-cols-4 bg-ww-surface-tint px-2 py-3" data-subcategory-grid>
+                                      {children.map(child => (
+                                        <button
+                                          key={child.id}
+                                          type="button"
+                                          aria-label={`${canManage ? '编辑' : ''}${child.name}`}
+                                          className="flex min-h-[76px] min-w-0 flex-col items-center gap-1.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center text-[12px] leading-4 text-ww-ink enabled:active:bg-primary-light/50"
+                                          disabled={!canManage || patchState.isLoading || reorderState.isLoading}
+                                          onClick={() => setEditor({ category: child, mode: 'edit' })}
+                                        >
+                                          <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface" data-subcategory-icon>
+                                            <CategoryIcon categoryName={child.name} iconKey={child.icon} iconType={child.iconType} textIconEnabled={child.textIconEnabled} textIconIndex={child.textIconIndex} size={24} />
+                                          </span>
+                                          <span className="w-full break-words">{child.name}</span>
+                                        </button>
+                                      ))}
+                                      {canManage && (
+                                        <button type="button" aria-label={`在${category.name}下添加子分类`} className="flex min-h-[76px] min-w-0 flex-col items-center gap-1.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-[12px] leading-4 text-ww-mid active:bg-primary-light/50" onClick={() => setEditor({ mode: 'create', parentId: category.id })}>
+                                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ww-soft/20"><Plus size={24} strokeWidth={1.8} /></span>
+                                          <span>添加</span>
+                                        </button>
+                                      )}
                                     </div>
                                   </div>
-                                </>
+                                </div>
                               )}
                             </div>
                           );
@@ -848,6 +863,23 @@ export function CategoryManagement({
           ledgerId={ledgerId}
           onClose={() => setEditor(null)}
           onRefresh={query.refetch}
+          managementPending={patchState.isLoading || reorderState.isLoading}
+          onArchive={editor.category?.parentId
+            ? () => {
+                const category = editor.category!;
+                setEditor(null);
+                void changeStatus(category, 'ARCHIVED');
+              }
+            : undefined}
+          onMoveEarlier={editor.category?.parentId && active.filter(item => item.parentId === editor.category?.parentId).findIndex(item => item.id === editor.category?.id) > 0
+            ? () => {
+                const category = editor.category!;
+                const siblings = active.filter(item => item.parentId === category.parentId);
+                const index = siblings.findIndex(item => item.id === category.id);
+                setEditor(null);
+                void handleReorder(category.id, siblings[index - 1]?.id);
+              }
+            : undefined}
           onMove={(category) => {
             setEditor(null);
             setMoving(category);

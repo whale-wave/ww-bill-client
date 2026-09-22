@@ -4,6 +4,8 @@
 
 ## 文档入口
 
+- [分类管理子分类宫格调整](./context/category-management-grid.md)
+
 - [标签排行 Locator 属性泄漏修复记录](./context/locator-api-boundary.md)
 
 - [跨三端计划执行记录与维护模板](../../ww-bill-service/docs/execution/README.md)
