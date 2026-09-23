@@ -222,31 +222,99 @@ describe('record editor presentation', () => {
     expect(container.textContent).toContain('record:bookkeeping.emptyCategoryTitle');
   });
 
-  it('moves from category selection to the amount keypad', () => {
+  it('disables saving when a previously selected category is no longer available', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    function HiddenCategoryEditor() {
+      return createElement(RecordEditorPresentation, {
+        categories: [],
+        categoryState: 'ready',
+        controller: useRecordEditorController({
+          onSubmit: vi.fn(),
+          seed: { category, recordType: 'sub', time: '2026-07-21T12:00:00.000Z' },
+        }),
+        onCancel: vi.fn(),
+      });
+    }
+
+    act(() => root.render(createElement(HiddenCategoryEditor)));
+    cleanup = () => act(() => root.unmount());
+
+    expect(container.querySelector<HTMLButtonElement>('[data-record-editor-submit]')?.disabled).toBe(true);
+    expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
+    expect(container.querySelector('.record-editor-amount-caption')?.textContent).not.toContain(category.name);
+  });
+
+  it('keeps category selection and the amount keypad on one screen', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
     act(() => root.render(createElement(TestEditor)));
     cleanup = () => act(() => root.unmount());
 
     expect(container.querySelector('[data-record-editor-presentation]')).not.toBeNull();
-    expect(container.querySelector('[data-record-editor-keypad]')).toBeNull();
-    expect(container.querySelector('[data-record-editor-header]')?.classList).toContain('px-5');
-    expect(container.querySelector('[data-record-editor-categories]')?.classList).toContain('px-[14px]');
-    expect(container.querySelector('[data-record-editor-category="1"]')?.classList).toContain('h-[92.5px]');
+    expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
+    expect(container.querySelector('[data-record-editor-categories]')).not.toBeNull();
+    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBeNull();
+    expect(container.querySelector('[data-record-editor-category-grid]')?.classList).toContain('grid-cols-5');
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
 
     expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
-    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
     expect(container.querySelector('[data-record-editor-amount]')).not.toBeNull();
-    expect(container.querySelector('[data-record-editor-categories]')).toBeNull();
-    expect(container.querySelector('[data-record-editor-header]')?.classList).toContain('px-[22px]');
+    expect(container.querySelector('[data-record-editor-categories]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-note]')?.classList).toContain('mx-[22px]');
     expect(container.querySelector('[data-record-editor-location-trigger]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-total]')?.classList).toContain('text-[54px]');
     const backspace = container.querySelector<HTMLButtonElement>('[aria-label="record:bookkeeping.backspace"]');
     expect(backspace?.textContent).toContain('record:bookkeeping.backspace');
     expect(backspace?.querySelector('svg')).not.toBeNull();
+  });
+
+  it('expands a parent inline and selects either its direct entry or a child without hiding the keypad', () => {
+    const child = { ...category, id: 11, name: '奶茶', parentId: category.id, path: '餐饮 / 奶茶', sortOrder: 1 };
+    const leaf = { ...category, id: 2, name: '交通', sortOrder: 2 };
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    function HierarchyEditor() {
+      const controller = useRecordEditorController({
+        onSubmit: vi.fn(),
+        seed: { recordType: 'sub', time: '2026-07-21T12:00:00.000Z' },
+      });
+      return createElement(RecordEditorPresentation, {
+        categories: [category, child, leaf],
+        categoryState: 'ready',
+        controller,
+        onCancel: vi.fn(),
+      });
+    }
+
+    act(() => root.render(createElement(HierarchyEditor)));
+    cleanup = () => act(() => root.unmount());
+
+    const submit = container.querySelector<HTMLButtonElement>('[data-record-editor-submit]');
+    const parent = container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]');
+    expect(submit?.disabled).toBe(true);
+    expect(parent?.getAttribute('aria-label')).toContain('record:bookkeeping.categoryWithChildren');
+    expect(parent?.getAttribute('aria-label')).toContain('1');
+
+    act(() => parent?.click());
+    expect(parent?.getAttribute('aria-expanded')).toBe('true');
+    expect(container.querySelector('#record-editor-subcategories-1')).not.toBeNull();
+    expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="11"]')?.click());
+    expect(parent?.getAttribute('aria-expanded')).toBe('false');
+    expect(container.querySelector('#record-editor-subcategories-1')).toBeNull();
+    expect(container.querySelector('[data-record-editor-amount]')?.textContent).toContain('餐饮 / 奶茶');
+    expect(submit?.disabled).toBe(false);
+    expect(parent?.querySelector('[data-record-editor-category-check]')).not.toBeNull();
+
+    act(() => parent?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category-direct="1"]')?.click());
+    expect(container.querySelector('[data-record-editor-amount]')?.textContent).toContain('餐饮');
+    expect(container.querySelector('#record-editor-subcategories-1')).toBeNull();
   });
 
   it('shows only the selected date while keeping second-level time selection', () => {
@@ -280,7 +348,7 @@ describe('record editor presentation', () => {
     expect(container.querySelector('[role="status"]')?.textContent).toContain('record:bookkeeping.saveSuccess');
   });
 
-  it('renders category settings above the category grid', () => {
+  it('renders category settings in the header without taking category-grid space', () => {
     const onManageCategories = vi.fn();
     const container = document.createElement('div');
     const root = createRoot(container);
@@ -290,10 +358,10 @@ describe('record editor presentation', () => {
     const items = container.querySelectorAll('[data-record-editor-categories] button');
     const settings = container.querySelector<HTMLButtonElement>('[data-record-editor-category-settings]');
 
-    expect(items).toHaveLength(2);
-    expect(items.item(0)).toBe(settings);
+    expect(items).toHaveLength(1);
+    expect(container.querySelector('[data-record-editor-header]')?.contains(settings ?? null)).toBe(true);
+    expect(container.querySelector('[data-record-editor-categories]')?.contains(settings ?? null)).toBe(false);
     expect(settings?.getAttribute('aria-label')).toBe('record:bookkeeping.categorySettings');
-    expect(settings?.textContent).toContain('record:bookkeeping.categorySettingsDescription');
 
     act(() => settings?.click());
     expect(onManageCategories).toHaveBeenCalledOnce();
@@ -351,7 +419,7 @@ describe('record editor presentation', () => {
     expect(document.body.querySelector('[data-record-editor-selected-tags]')).toBeNull();
   });
 
-  it('leaves the editor from the back button and opens categories from the category name', () => {
+  it('leaves the editor from the back button while keeping categories visible after selection', () => {
     const onCancel = vi.fn();
     const container = document.createElement('div');
     const root = createRoot(container);
@@ -359,13 +427,9 @@ describe('record editor presentation', () => {
     cleanup = () => act(() => root.unmount());
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
-    expect(container.querySelector('[data-record-editor-category-trigger]')?.textContent).toBe('餐饮');
-    expect(container.querySelector('[data-record-editor-category-icon] svg')).not.toBeNull();
-
-    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category-trigger]')?.click());
-    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('category');
-
-    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+    expect(container.querySelector('[data-record-editor-categories]')).not.toBeNull();
+    expect(container.querySelector('[data-record-editor-amount]')?.textContent).toContain('餐饮');
+    expect(container.querySelector('[data-record-editor-category="1"] svg')).not.toBeNull();
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-cancel]')?.click());
     expect(onCancel).toHaveBeenCalledOnce();
   });

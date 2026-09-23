@@ -202,25 +202,29 @@ describe('record editor controller', () => {
     expect(submit).toHaveBeenCalledWith(expect.objectContaining({ amount: '2.7' }));
   });
 
-  it('resets the selected category when the record type changes', () => {
-    const container = renderEditor();
+  it('revalidates only the selected category when the record type changes', () => {
+    const container = renderEditor({ amount: '18.60', remark: '滴滴出行' });
 
-    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category-trigger]')?.click());
     clickButton(container, 'record:bookkeeping.income');
 
-    expect(container.querySelector('[data-record-editor-keypad]')).toBeNull();
+    expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
+    expect(container.querySelector<HTMLButtonElement>('[data-record-editor-submit]')?.disabled).toBe(true);
+    expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('18.60');
+    expect(container.querySelector<HTMLInputElement>('[data-record-editor-note] input')?.value).toBe('滴滴出行');
     expect(container.querySelector('[data-record-editor-category="1"]')?.getAttribute('aria-pressed'))
       .toBe('false');
   });
 
-  it('hides numeric keys while the note input is focused', () => {
+  it('keeps numeric keys mounted but inert while the note input is focused', () => {
     const container = renderEditor();
     const input = container.querySelector<HTMLInputElement>('input[type="text"]');
 
     act(() => input?.focus());
 
-    expect([...container.querySelectorAll('button')].some(button => button.textContent === '1'))
-      .toBe(false);
+    const numericKeys = container.querySelector('[data-record-editor-numeric-keys]');
+    expect(numericKeys?.classList).toContain('invisible');
+    expect(numericKeys?.getAttribute('aria-hidden')).toBe('true');
+    expect([...numericKeys?.querySelectorAll('button') ?? []].every(button => button.disabled)).toBe(true);
   });
 
   it('limits decimals to two places and supports deleting the last digit', async () => {

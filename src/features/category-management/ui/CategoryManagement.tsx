@@ -82,6 +82,7 @@ function getCategoryErrorMessage(
 function SortableCategoryRow({
   category,
   canManage,
+  childCount,
   disableArchive,
   onArchive,
   onEdit,
@@ -93,6 +94,7 @@ function SortableCategoryRow({
 }: {
   canManage: boolean;
   category: CategoryEntity;
+  childCount: number;
   disableArchive: boolean;
   onArchive: () => void;
   onEdit: () => void;
@@ -103,6 +105,9 @@ function SortableCategoryRow({
   writePending: boolean;
 }) {
   const { t } = useTranslation('ledger');
+  const childSummary = childCount > 0
+    ? t('categories.childCount', { count: childCount })
+    : t('categories.noChildren');
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
     disabled: !canManage || writePending,
     id: category.id,
@@ -134,7 +139,7 @@ function SortableCategoryRow({
       <button
         type="button"
         className="flex min-h-11 min-w-0 flex-1 items-center gap-2 border-0 bg-transparent p-0 text-left"
-        aria-label={`${category.name}子分类`}
+        aria-label={`${category.name}，${childSummary}`}
         aria-expanded={onToggleChildren ? !isCollapsed : undefined}
         aria-controls={onToggleChildren ? `subcategory-list-${category.id}` : undefined}
         disabled={!onToggleChildren}
@@ -143,7 +148,10 @@ function SortableCategoryRow({
         <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-primary-deep" data-category-management-icon>
           <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={21} />
         </span>
-        <span className="min-w-0 flex-1 truncate text-[14px] font-extrabold text-ww-ink">{category.name}</span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[14px] font-extrabold text-ww-ink">{category.name}</span>
+          <span className="mt-0.5 block truncate text-[10px] font-semibold text-ww-soft">{childSummary}</span>
+        </span>
         {onToggleChildren && <ChevronDown aria-hidden size={14} className={`shrink-0 text-ww-soft ${isCollapsed ? '-rotate-90' : ''}`} />}
       </button>
       {canManage && (
@@ -183,6 +191,7 @@ function CategoryEditorSheet({
   ledgerId,
   onClose,
   onRefresh,
+  onSaved,
   onMove,
   onArchive,
   onMoveEarlier,
@@ -194,6 +203,7 @@ function CategoryEditorSheet({
   ledgerId: string;
   onClose: () => void;
   onRefresh: () => Promise<unknown>;
+  onSaved: () => void;
   onMove: (category: CategoryEntity) => void;
   onArchive?: () => void;
   onMoveEarlier?: () => void;
@@ -293,6 +303,7 @@ function CategoryEditorSheet({
           });
         }
       }
+      onSaved();
       onClose();
     }
     catch (error) {
@@ -540,11 +551,21 @@ export function CategoryManagement({
   const [categories, setCategories] = useState<CategoryEntity[]>([]);
   const [editor, setEditor] = useState<EditorState>(null);
   const { isMotionEnabled } = useMotionPreference();
-  const [collapsedIds, setCollapsedIds] = useState<number[]>([]);
+  const [expandedIds, setExpandedIds] = useState<number[]>([]);
+  const parentRowsRef = useRef(new Map<number, HTMLDivElement>());
   const [moving, setMoving] = useState<CategoryEntity | null>(null);
   const [moveParentId, setMoveParentId] = useState<number | null>(null);
   const [movePreview, setMovePreview] = useState<{ path: string; recordCount: number; version: number } | null>(null);
   const moveCategory = useMoveLedgerCategoryMutation();
+  const revealParent = (parentId: number) => {
+    setExpandedIds(current => current.includes(parentId) ? current : [...current, parentId]);
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => parentRowsRef.current.get(parentId)?.scrollIntoView?.({
+        behavior: isMotionEnabled ? 'smooth' : 'auto',
+        block: 'nearest',
+      }));
+    }
+  };
   const handleMove = async (preview: boolean) => {
     if (!moving)
       return;
@@ -554,6 +575,8 @@ export function CategoryManagement({
         setMovePreview(result);
       }
       else {
+        if (moveParentId)
+          revealParent(moveParentId);
         setMoving(null);
         setMovePreview(null);
       }
@@ -659,6 +682,7 @@ export function CategoryManagement({
     if (nextType === type)
       return;
     setShowArchived(false);
+    setExpandedIds([]);
     setType(nextType);
   };
 
@@ -706,16 +730,26 @@ export function CategoryManagement({
                       <div aria-label={t('categories.current')} role="list">
                         {roots.map((category, index) => {
                           const children = active.filter(child => child.parentId === category.id);
-                          const isCollapsed = collapsedIds.includes(category.id);
+                          const isCollapsed = !expandedIds.includes(category.id);
                           return (
-                            <div key={category.id}>
+                            <div
+                              data-category-parent={category.id}
+                              key={category.id}
+                              ref={(node) => {
+                                if (node)
+                                  parentRowsRef.current.set(category.id, node);
+                                else
+                                  parentRowsRef.current.delete(category.id);
+                              }}
+                            >
                               <SortableCategoryRow
                                 canManage={canManage}
                                 category={category}
+                                childCount={children.length}
                                 disableArchive={roots.length <= 1}
                                 onArchive={() => void changeStatus(category, 'ARCHIVED')}
                                 onEdit={() => setEditor({ category, mode: 'edit' })}
-                                onToggleChildren={canManage || children.length > 0 ? () => setCollapsedIds(current => isCollapsed ? current.filter(id => id !== category.id) : [...current, category.id]) : undefined}
+                                onToggleChildren={canManage || children.length > 0 ? () => setExpandedIds(current => isCollapsed ? [...current, category.id] : current.filter(id => id !== category.id)) : undefined}
                                 isCollapsed={isCollapsed}
                                 position={index + 1}
                                 total={roots.length}
@@ -863,6 +897,11 @@ export function CategoryManagement({
           ledgerId={ledgerId}
           onClose={() => setEditor(null)}
           onRefresh={query.refetch}
+          onSaved={() => {
+            const parentId = editor.parentId ?? editor.category?.parentId;
+            if (parentId)
+              revealParent(parentId);
+          }}
           managementPending={patchState.isLoading || reorderState.isLoading}
           onArchive={editor.category?.parentId
             ? () => {

@@ -39,6 +39,19 @@ function MultiTagPreview() {
   const controller = useRecordEditorController({ seed: { amount: '100', category: categories[3], recordType: 'sub', time: '2026-09-22T12:00:00+08:00', tagIds: ['trip', 'old'], isTagPickerVisible: true }, isEditing: true, supportsTags: true, onSubmit: async () => undefined });
   return <RecordEditorPresentation categories={categories} categoryState="ready" controller={controller} onCancel={() => undefined} tags={[{ id: 'trip', name: '出差' }, { id: 'refund', name: '可报销' }, { id: 'weekend', name: '周末' }, { id: 'old', name: '去年旅行', status: 'ARCHIVED' }]} />;
 }
+function RecordEditorPreview({ items = categories, selectedCategory }: { items?: CategoryEntity[]; selectedCategory?: CategoryEntity }) {
+  const controller = useRecordEditorController({ seed: { category: selectedCategory, recordType: 'sub', time: '2026-09-22T12:00:00+08:00' }, onSubmit: async () => undefined });
+  return <RecordEditorPresentation assetAccounts={[]} categories={items} categoryState="ready" controller={controller} onCancel={() => undefined} onManageCategories={() => undefined} />;
+}
 export const Hierarchy: Story = { render: () => <CategoryPreview /> };
 export const EditableHierarchy: Story = { render: () => <CategoryPreview canManage /> };
+export const SingleScreenHierarchy: Story = { render: () => <RecordEditorPreview /> };
+export const ExpandedSubcategories: Story = {
+  play: async ({ canvasElement }) => {
+    canvasElement.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click();
+  },
+  render: () => <RecordEditorPreview />,
+};
+export const SelectedSubcategory: Story = { render: () => <RecordEditorPreview selectedCategory={categories[3]} /> };
+export const LeafCategories: Story = { render: () => <RecordEditorPreview items={categories.filter(category => !category.parentId).slice(0, 3)} /> };
 export const MultipleTags: Story = { render: () => <MultiTagPreview /> };

@@ -321,9 +321,10 @@ describe('personal record editor adapter', () => {
     expect(hooks.useGetAssetGroupQuery).toHaveBeenCalledWith({ queryOptions: { enabled: true } });
     expect(container.querySelector('[data-record-editor-asset-trigger]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-asset-trigger]')?.textContent).toContain('默认账户');
-    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
+    expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
+    expect(container.querySelector('[data-record-editor-categories]')).not.toBeNull();
     expect(container.querySelector<HTMLInputElement>('[data-record-editor-note] input')?.value).toBe('滴滴出行');
-    expect(container.querySelector('[data-record-editor-category-trigger]')?.textContent).toBe('交通');
+    expect(container.querySelector('[data-record-editor-amount]')?.textContent).toContain('交通');
     expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('18.60');
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
@@ -399,7 +400,8 @@ describe('personal record editor adapter', () => {
     });
     const container = renderRouter(router);
 
-    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
+    expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
+    expect(container.querySelector('[data-record-editor-categories]')).not.toBeNull();
     expect(container.querySelector<HTMLInputElement>('[data-record-editor-note] input')?.value).toBe('未知商户');
     expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('18.60');
   });

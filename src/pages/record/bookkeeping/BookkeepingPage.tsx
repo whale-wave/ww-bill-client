@@ -334,7 +334,6 @@ function BookkeepingPage() {
         ...controller,
         isSubmitting: controller.isSubmitting || postState.isLoading || putState.isLoading || confirmShortcutDraftMutation.isLoading || confirmAgentActionMutation.isLoading,
       }}
-      initialStage={shortcutBookkeeping || agentRecordDraft ? 'amount' : undefined}
       onArchiveTag={defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE) ? handleArchiveTag : undefined}
       onCancel={() => void handleCancel()}
       onManageCategories={defaultLedger

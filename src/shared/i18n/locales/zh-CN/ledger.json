@@ -502,6 +502,8 @@
     "namePlaceholder": "请输入分类名称（最多 12 个字符）",
     "current": "当前分类",
     "currentHint": "拖动可调整记账时的展示顺序",
+    "childCount": "{{count}} 个二级分类",
+    "noChildren": "暂无二级分类",
     "more": "更多分类",
     "moreCount": "更多分类（{{count}}）",
     "moreHint": "已停用的分类仍保留历史数据",

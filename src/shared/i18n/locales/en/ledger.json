@@ -502,6 +502,8 @@
     "namePlaceholder": "Enter a name (up to 12 characters)",
     "current": "Current categories",
     "currentHint": "Drag to change the order used while recording",
+    "childCount": "{{count}} subcategories",
+    "noChildren": "No subcategories",
     "more": "More categories",
     "moreCount": "More categories ({{count}})",
     "moreHint": "Inactive categories remain on historical data",

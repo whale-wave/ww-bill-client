@@ -305,7 +305,7 @@ describe('category custom image flow', () => {
     return container;
   }
 
-  it('keeps child tiles to icon/name and folds them from the parent row', () => {
+  it('starts parent groups collapsed, shows child summaries, and expands groups independently', () => {
     const container = renderChildGrid();
     const grid = container.querySelector('[data-subcategory-grid]');
     expect(grid?.textContent).toBe('北京上海添加');
@@ -313,12 +313,17 @@ describe('category custom image flow', () => {
     expect(grid?.querySelectorAll('[data-subcategory-icon]')).toHaveLength(2);
     expect(container.textContent).not.toContain('二级分类（');
     const toggle = container.querySelector<HTMLButtonElement>('[aria-controls="subcategory-list-1"]');
-    act(() => toggle?.click());
+    const emptyToggle = container.querySelector<HTMLButtonElement>('[aria-controls="subcategory-list-2"]');
+    expect(toggle?.textContent).toContain('categories.childCount');
+    expect(emptyToggle?.textContent).toContain('categories.noChildren');
     expect(toggle?.getAttribute('aria-expanded')).toBe('false');
     expect(container.querySelector('#subcategory-list-1')?.getAttribute('aria-hidden')).toBe('true');
-    expect(container.querySelector('#subcategory-list-2')?.getAttribute('aria-hidden')).toBe('false');
+
     act(() => toggle?.click());
     expect(toggle?.getAttribute('aria-expanded')).toBe('true');
+    act(() => emptyToggle?.click());
+    expect(toggle?.getAttribute('aria-expanded')).toBe('true');
+    expect(emptyToggle?.getAttribute('aria-expanded')).toBe('true');
   });
 
   it('keeps hiding and sibling reordering reachable from child editing', async () => {
@@ -341,13 +346,18 @@ describe('category custom image flow', () => {
     expect(container.querySelector('[aria-label="编辑上海"]')).toBeNull();
   });
 
-  it('creates from the grid add tile under the correct parent', async () => {
+  it('creates from the grid add tile under the correct parent and reveals that parent after saving', async () => {
     const container = renderChildGrid();
+    const parentToggle = container.querySelector<HTMLButtonElement>('[aria-controls="subcategory-list-1"]');
+    act(() => parentToggle?.click());
     act(() => container.querySelector<HTMLButtonElement>('[aria-label="在旅游下添加子分类"]')?.click());
+    act(() => parentToggle?.click());
+    expect(parentToggle?.getAttribute('aria-expanded')).toBe('false');
     setCategoryName(container, '成都');
     act(() => container.querySelector<HTMLButtonElement>('[aria-label="categories.textIcon"]')?.click());
     const save = [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === 'categories.done');
     await act(async () => save?.click());
     expect(mocks.createCategory).toHaveBeenCalledWith(expect.objectContaining({ ledgerId: 'ledger-1', data: expect.objectContaining({ name: '成都', parentId: 1 }) }));
+    expect(parentToggle?.getAttribute('aria-expanded')).toBe('true');
   });
 });
