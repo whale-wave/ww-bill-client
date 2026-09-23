@@ -31,10 +31,31 @@ afterEach(() => {
   cleanup = undefined;
   Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: originalCreateObjectUrl });
   Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: originalRevokeObjectUrl });
+  vi.mocked(getRecordAttachmentContentApi).mockReset();
   vi.restoreAllMocks();
 });
 
 describe('record attachment section', () => {
+  it('shows one count entry and makes every attached image available in the gallery', async () => {
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:image') });
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
+    vi.mocked(getRecordAttachmentContentApi).mockResolvedValue(new Blob(['image']));
+    const client = new QueryClient();
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(createElement(QueryClientProvider, { client }, createElement(RecordAttachmentSection, { attachments: [attachment, { ...attachment, id: 'attachment-2', sortOrder: 1 }] })));
+      await Promise.resolve();
+    });
+    cleanup = () => act(() => root.unmount());
+
+    expect(container.querySelector('[data-record-attachment-count]')?.textContent).toBe('2');
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-record-attachment-trigger] button')?.click());
+    expect(document.body.querySelectorAll('[data-record-attachment-gallery] button')).toHaveLength(2);
+    await act(async () => document.body.querySelectorAll<HTMLButtonElement>('[data-record-attachment-gallery] button')[1].click());
+    await vi.waitFor(() => expect(getRecordAttachmentContentApi).toHaveBeenCalledWith('attachment-2', 'content', undefined));
+  });
+
   it('shows a visible skeleton first, then reuses the session Blob cache after remounting', async () => {
     const createObjectUrl = vi.fn().mockReturnValue('blob:thumbnail');
     const revokeObjectUrl = vi.fn();
@@ -81,20 +102,17 @@ describe('record attachment section', () => {
   it('opens the full image in the touch gesture viewer', async () => {
     Object.defineProperty(URL, 'createObjectURL', {
       configurable: true,
-      value: vi.fn()
-        .mockReturnValueOnce('blob:thumbnail')
-        .mockReturnValueOnce('blob:content'),
+      value: vi.fn((blob: Blob) => blob.size === 7 ? 'blob:content' : 'blob:thumbnail'),
     });
     Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
     let resolveThumbnail: ((value: Blob) => void) | undefined;
     let resolveContent: ((value: Blob) => void) | undefined;
-    vi.mocked(getRecordAttachmentContentApi)
-      .mockReturnValueOnce(new Promise((resolve) => {
+    vi.mocked(getRecordAttachmentContentApi).mockImplementation((_id, variant) => new Promise((resolve) => {
+      if (variant === 'thumbnail')
         resolveThumbnail = resolve;
-      }))
-      .mockReturnValueOnce(new Promise((resolve) => {
+      else
         resolveContent = resolve;
-      }));
+    }));
     const client = new QueryClient();
     const container = document.createElement('div');
     const root = createRoot(container);
@@ -113,6 +131,12 @@ describe('record attachment section', () => {
 
     await act(async () => {
       container.querySelector<HTMLButtonElement>('button')?.click();
+      await Promise.resolve();
+    });
+
+    expect(document.body.querySelectorAll('[data-record-attachment-gallery] button')).toHaveLength(1);
+    await act(async () => {
+      document.body.querySelector<HTMLButtonElement>('[data-record-attachment-gallery] button')?.click();
       await Promise.resolve();
     });
 

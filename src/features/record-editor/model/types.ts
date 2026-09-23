@@ -1,4 +1,5 @@
 import type { CalculatorState } from './useCalculator';
+import type { PendingRecordEditorImage } from './useRecordEditorImages';
 import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
 import type { PostRecordApiData, RecordEntry } from '@/entities/record';
 
@@ -16,6 +17,9 @@ export interface RecordEditorSeed {
   };
   imageAssetId?: string | null;
   imagePreviewFile?: File;
+  attachments?: RecordEntry['attachments'];
+  pendingImages?: PendingRecordEditorImage[];
+  imageSelectionDirty?: boolean;
   linkedAssetId?: string | null;
   location?: RecordEntry['location'];
   locationSelectionDirty?: boolean;
@@ -92,7 +96,7 @@ export function createRecordEditorSettingsNavigationState(
   };
 }
 
-export type RecordDraft = Omit<PostRecordApiData, 'imageAssetId'> & { imageAssetId?: string | null };
+export type RecordDraft = Omit<PostRecordApiData, 'imageAssetId'> & { retainedAttachmentIds?: string[] };
 
 export interface RecordEditorTag {
   status?: string;

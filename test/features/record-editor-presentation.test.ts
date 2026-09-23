@@ -7,7 +7,7 @@ import { createPortal } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AssetGroupAssetType } from '@/entities/asset';
-import { getRecordAttachmentContentApi } from '@/entities/record';
+import { useRecordAttachmentContentQuery } from '@/entities/record';
 import {
   RecordEditorPresentation,
   useRecordEditorController,
@@ -75,7 +75,8 @@ vi.mock('@/shared/ui', () => ({
 }));
 
 vi.mock('@/entities/record', () => ({
-  getRecordAttachmentContentApi: vi.fn(),
+  useRecordAttachmentContentQuery: vi.fn(({ variant }: { variant: string }) => ({ data: new Blob([variant], { type: variant }), isError: false })),
+  useAttachmentObjectUrl: (blob?: Blob) => blob && `blob:${blob.type}`,
 }));
 
 const category: CategoryEntity = {
@@ -520,9 +521,6 @@ describe('record editor presentation', () => {
         .mockReturnValueOnce('blob:content'),
     });
     Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
-    vi.mocked(getRecordAttachmentContentApi)
-      .mockResolvedValueOnce(new Blob(['thumbnail']))
-      .mockResolvedValueOnce(new Blob(['content']));
     const container = document.createElement('div');
     document.body.appendChild(container);
     const root = createRoot(container);
@@ -560,12 +558,14 @@ describe('record editor presentation', () => {
       container.remove();
     };
 
-    expect(getRecordAttachmentContentApi).toHaveBeenCalledWith('attachment-1', 'thumbnail');
-    expect(container.querySelector<HTMLImageElement>('[data-record-editor-image-preview] img')?.src).toBe('blob:thumbnail');
+    expect(container.querySelector('[data-record-editor-image-count]')?.textContent).toBe('1');
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-record-editor-image-trigger]')?.click());
+    expect(useRecordAttachmentContentQuery).toHaveBeenCalledWith(expect.objectContaining({ attachmentId: 'attachment-1', variant: 'thumbnail' }));
+    expect(document.body.querySelector<HTMLImageElement>('[data-record-editor-image-preview] img')?.src).toBe('blob:thumbnail');
 
-    await act(async () => container.querySelector<HTMLButtonElement>('[data-record-editor-image-preview]')?.click());
+    await act(async () => document.body.querySelector<HTMLButtonElement>('[data-record-editor-image-preview]')?.click());
 
-    expect(getRecordAttachmentContentApi).toHaveBeenLastCalledWith('attachment-1', 'content');
+    expect(useRecordAttachmentContentQuery).toHaveBeenCalledWith(expect.objectContaining({ attachmentId: 'attachment-1', variant: 'content' }));
     expect(document.body.querySelector('[data-testid="interactive-image-preview"] img')?.getAttribute('src')).toBe('blob:content');
   });
 
@@ -607,7 +607,7 @@ describe('record editor presentation', () => {
     expect(assetOption?.textContent).toContain('日常支出卡');
     expect(assetOption?.textContent).toContain('record:bookkeeping.linkedAssetBalance 50000');
     expect(container.querySelector('[data-record-editor-asset-trigger]')?.textContent).toContain('日常支出卡');
-    expect(container.querySelector('[data-record-editor-asset-trigger]')?.classList).toContain('record-editor-chip--selected');
+    expect(container.querySelector('[data-record-editor-asset-trigger]')?.classList).toContain('bg-primary-light');
   });
 
   it('shows available credit and debt instead of a current balance for credit cards', () => {

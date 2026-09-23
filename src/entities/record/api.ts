@@ -269,6 +269,7 @@ export interface PostRecordApiData {
   time: string;
   tagIds?: string[];
   imageAssetId?: string;
+  imageAssetIds?: string[];
   linkedAssetId?: string | null;
   location?: RecordLocation | null;
 }
@@ -291,6 +292,7 @@ export interface PutRecordApiData extends Omit<
 > {
   version: number;
   imageAssetId?: string | null;
+  retainedAttachmentIds?: string[];
 }
 
 export interface TemporaryRecordAttachment {

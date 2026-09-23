@@ -70,9 +70,9 @@ function LedgerRecordCreateEditor({
   }, [ledgerId, navigate, selectTime]);
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
     try {
-      const { imageAssetId, ...recordData } = draft;
+      const { retainedAttachmentIds: _retainedAttachmentIds, ...recordData } = draft;
       await createRecord({
-        data: imageAssetId === null ? recordData : { ...recordData, imageAssetId },
+        data: recordData,
         ledgerId,
       });
       await invalidateLedgerRecordEditorCaches(queryClient, ledgerId);

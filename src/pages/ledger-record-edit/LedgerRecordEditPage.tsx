@@ -59,8 +59,7 @@ function LedgerRecordEditEditor({
     recordType: initialRecord.type,
     remark: initialRecord.remark,
     tagIds: supportsTags ? initialRecord.tags?.map(tag => tag.id) ?? [] : undefined,
-    attachment: initialRecord.attachments?.[0],
-    hasImage: Boolean(initialRecord.attachments?.length),
+    attachments: initialRecord.attachments,
     location: initialRecord.location,
     time: initialRecord.time,
   }), [initialRecord, restoredDraft, supportsTags]);
@@ -74,15 +73,17 @@ function LedgerRecordEditEditor({
       await invalidateLedgerRecordEditorCaches(queryClient, ledgerId);
       navigate(ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId), {
         replace: true,
-        state: createLedgerRecordDetailState({
-          ...initialRecord,
-          amount: draft.amount,
-          location: draft.location === undefined ? initialRecord.location : draft.location,
-          remark: draft.remark,
-          time: draft.time,
-          type: draft.type,
-          version: initialRecord.version + 1,
-        }, ledgerId),
+        state: draft.imageAssetIds !== undefined
+          ? undefined
+          : createLedgerRecordDetailState({
+              ...initialRecord,
+              amount: draft.amount,
+              location: draft.location === undefined ? initialRecord.location : draft.location,
+              remark: draft.remark,
+              time: draft.time,
+              type: draft.type,
+              version: initialRecord.version + 1,
+            }, ledgerId),
       });
     }
     catch (error) {

@@ -17,6 +17,7 @@ export interface AgentRecordDraft {
   categoryId: number;
   remark: string;
   tagIds?: string[];
+  imageAssetIds?: string[];
   time: string;
   type: AgentRecordType;
 }

@@ -360,7 +360,7 @@ describe('personal record editor adapter', () => {
       categoryId: 1,
       code: 'review-code-00001',
       draftId: 'shortcut-draft-1',
-      imageAssetId,
+      imageAssetIds: [imageAssetId],
       ledgerId: 'default-ledger',
       linkedAssetId,
       remark: '滴滴出行',

@@ -133,8 +133,7 @@ function BookkeepingPage() {
           recordType: initialRecord?.type ?? 'sub' as const,
           remark: initialRecord?.remark,
           tagIds: initialRecord?.tags?.map(tag => tag.id),
-          attachment: initialRecord?.attachments?.[0],
-          hasImage: Boolean(initialRecord?.attachments?.length),
+          attachments: initialRecord?.attachments,
           linkedAssetId: initialRecord?.linkedAsset?.id ?? null,
           location: initialRecord?.location,
           time: initialRecord?.time
@@ -158,14 +157,14 @@ function BookkeepingPage() {
       case 'personal-detail':
         navigate(`/editing/${context.recordId}`, {
           replace: true,
-          state: initialRecord && draft
+          state: initialRecord && draft && draft.imageAssetIds === undefined
             ? {
                 ...initialRecord,
                 ...draft,
                 status: true,
                 ...personalRecordDetailNavigation,
               }
-            : undefined,
+            : personalRecordDetailNavigation,
         });
         return;
       default:
@@ -176,7 +175,7 @@ function BookkeepingPage() {
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
     try {
       if (agentRecordDraft) {
-        const { imageAssetId: _imageAssetId, ...record } = draft;
+        const { retainedAttachmentIds: _retainedAttachmentIds, ...record } = draft;
         await confirmAgentActionMutation.mutateAsync({
           actionId: agentRecordDraft.actionId,
           record,
@@ -195,7 +194,7 @@ function BookkeepingPage() {
           categoryId: draft.categoryId,
           code: shortcutBookkeeping.reviewCode,
           draftId: shortcutBookkeeping.id,
-          ...(typeof draft.imageAssetId === 'string' ? { imageAssetId: draft.imageAssetId } : {}),
+          ...(draft.imageAssetIds !== undefined ? { imageAssetIds: draft.imageAssetIds } : {}),
           ledgerId: defaultLedger.id,
           ...(draft.linkedAssetId ? { linkedAssetId: draft.linkedAssetId } : {}),
           ...(draft.location === undefined ? {} : { location: draft.location }),
@@ -214,13 +213,13 @@ function BookkeepingPage() {
         });
         return;
       }
-      const { imageAssetId, ...recordData } = draft;
+      const { retainedAttachmentIds: _retainedAttachmentIds, ...recordData } = draft;
       const response = initialRecord
         ? await putRecord({
             data: { ...draft, version: initialRecord.version },
             id: String(initialRecord.id),
           })
-        : await postRecord(imageAssetId === null ? recordData : { ...recordData, imageAssetId });
+        : await postRecord(recordData);
       if (response.statusCode !== 200)
         throw response;
       await invalidatePersonalRecordEditorCaches(queryClient);

@@ -49,11 +49,21 @@ function MultiTagPreview() {
   const controller = useRecordEditorController({ seed: { amount: '100', category: categories[3], recordType: 'sub', time: '2026-09-22T12:00:00+08:00', tagIds: ['trip', 'old'], isTagPickerVisible: true }, isEditing: true, supportsTags: true, onSubmit: async () => undefined });
   return <div className="h-dvh"><RecordEditorPresentation categories={categories} categoryState="ready" controller={controller} onCancel={() => undefined} tags={[{ id: 'trip', name: '出差' }, { id: 'refund', name: '可报销' }, { id: 'weekend', name: '周末' }, { id: 'old', name: '去年旅行', status: 'ARCHIVED' }]} /></div>;
 }
-function RecordEditorPreview({ items = categories, categoryState = 'ready', selectedCategory, withDetails = false }: { items?: CategoryEntity[]; categoryState?: RecordEditorCategoryState; selectedCategory?: CategoryEntity; withDetails?: boolean }) {
+function RecordEditorPreview({ items = categories, categoryState = 'ready', selectedCategory, withDetails = false, withImages = false }: { items?: CategoryEntity[]; categoryState?: RecordEditorCategoryState; selectedCategory?: CategoryEntity; withDetails?: boolean; withImages?: boolean }) {
+  const [client] = useState(() => new QueryClient({ defaultOptions: { queries: { retry: false } } }));
+  const [imageFiles] = useState(() => withImages
+    ? Array.from({ length: 3 }, (_, index) => new File(
+        [`<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><rect width="240" height="240" fill="${['#e7f4f8', '#f6e8ec', '#e9f4ed'][index]}"/><rect x="45" y="19" width="150" height="202" rx="9" fill="white"/><path d="M65 66h105M65 91h80M65 116h105M65 141h71M65 169h105" stroke="#a7bcc7" stroke-width="7" stroke-linecap="round"/><circle cx="160" cy="185" r="12" fill="${['#6fc2dc', '#c04870', '#2a9460'][index]}"/></svg>`],
+        `receipt-${index + 1}.svg`,
+        { type: 'image/svg+xml' },
+      ))
+    : []);
   const controller = useRecordEditorController({
     seed: {
       amount: withDetails ? '38.50' : undefined,
       category: selectedCategory,
+      pendingImages: imageFiles.map((file, index) => ({ assetId: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`, file, id: `storybook-image-${index}` })),
+      imageSelectionDirty: withImages,
       location: withDetails ? { accuracy: 15, latitude: 31.23, longitude: 121.47, name: '南京西路', capturedAt: '2026-09-22T12:00:00+08:00' } : undefined,
       recordType: 'sub',
       remark: withDetails ? '下午茶' : undefined,
@@ -62,8 +72,9 @@ function RecordEditorPreview({ items = categories, categoryState = 'ready', sele
     },
     supportsTags: true,
     onSubmit: async () => undefined,
+    onUploadImage: async file => file.name,
   });
-  return <div className="h-dvh"><RecordEditorPresentation assetAccounts={[]} categories={items} categoryState={categoryState} controller={controller} onCancel={() => undefined} onManageCategories={() => undefined} onRetryCategories={() => undefined} tags={[{ id: 'weekend', name: '周末' }]} /></div>;
+  return <QueryClientProvider client={client}><div className="h-dvh"><RecordEditorPresentation assetAccounts={[]} categories={items} categoryState={categoryState} controller={controller} onCancel={() => undefined} onManageCategories={() => undefined} onRetryCategories={() => undefined} tags={[{ id: 'weekend', name: '周末' }]} /></div></QueryClientProvider>;
 }
 export const Hierarchy: Story = { render: () => <CategoryPreview /> };
 export const EditableHierarchy: Story = { render: () => <CategoryPreview canManage /> };
@@ -77,6 +88,12 @@ export const ExpandedSubcategories: Story = {
 export const SelectedSubcategory: Story = { render: () => <RecordEditorPreview selectedCategory={categories[3]} /> };
 export const CompactDetails: Story = { render: () => <RecordEditorPreview selectedCategory={categories[3]} withDetails /> };
 export const FloatingDetailsOverCategories: Story = { render: () => <RecordEditorPreview items={denseCategories} selectedCategory={categories[3]} withDetails /> };
+export const ImageCountAndGallery: Story = {
+  play: async ({ canvasElement }) => {
+    canvasElement.querySelector<HTMLButtonElement>('[data-record-editor-image-trigger]')?.click();
+  },
+  render: () => <RecordEditorPreview items={denseCategories} selectedCategory={categories[3]} withDetails withImages />,
+};
 export const LeafCategories: Story = { render: () => <RecordEditorPreview items={categories.filter(category => !category.parentId).slice(0, 3)} /> };
 export const LoadingCategories: Story = { render: () => <RecordEditorPreview categoryState="loading" items={[]} /> };
 export const FailedCategories: Story = { render: () => <RecordEditorPreview categoryState="error" items={[]} /> };

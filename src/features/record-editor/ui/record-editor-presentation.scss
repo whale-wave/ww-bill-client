@@ -37,35 +37,6 @@
   border-radius: 15px;
 }
 
-.record-editor-chip {
-  display: inline-flex;
-  pointer-events: auto;
-  flex: none;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  padding: 0 12px;
-  border: 1px solid transparent;
-  border-radius: 9999px;
-  background: var(--ww-surface-tint-color);
-  color: var(--ww-text-color-mid);
-  font-size: var(--ww-font-size-sm);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.record-editor-chip--selected {
-  border-color: color-mix(in srgb, var(--ww-theme-color) 24%, transparent);
-  background: var(--ww-theme-color-light);
-  color: var(--ww-theme-color-deep);
-}
-
-.record-editor-chip:focus-visible,
-.record-editor-chip button:focus-visible {
-  outline: 2px solid var(--ww-theme-color);
-  outline-offset: 2px;
-}
-
 @media (max-height: 680px) {
   .record-editor-empty-state {
     min-height: 100%;

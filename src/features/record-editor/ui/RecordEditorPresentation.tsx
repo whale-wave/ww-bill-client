@@ -10,7 +10,6 @@ import {
   Check,
   CheckCircle2,
   CircleAlert,
-  ImagePlus,
   MapPin,
   Settings2,
   Tags,
@@ -23,7 +22,6 @@ import { getAssetAccountTypeLabel } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
 import {
   formatRecordLocationLabel,
-  getRecordAttachmentContentApi,
   postRecordLocationCandidatesApi,
 } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
@@ -35,12 +33,12 @@ import {
   confirmDangerousAction,
   DesignIcon,
   IllustratedEmptyState,
-  ImagePreview,
   MOTION_PRESETS,
   SheetHeader,
   useMotionPreference,
 } from '@/shared/ui';
 import { KEYPAD_LAYOUT } from '../model/constants';
+import { RecordEditorImagesPanel } from './RecordEditorImagesPanel';
 import { RecordLocationPicker } from './RecordLocationPicker';
 import './record-editor-presentation.scss';
 
@@ -83,12 +81,9 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
 }) => {
   const { t } = useTranslation(['record', 'ledger', 'common']);
 
-  const imageInputRef = useRef<HTMLInputElement>(null);
   const noteInputRef = useRef<HTMLInputElement>(null);
   const categoryViewportRef = useRef<HTMLElement>(null);
   const actionStripRef = useRef<HTMLDivElement>(null);
-  const contentUrlRef = useRef<string>();
-  const previewRequestRef = useRef(0);
   const [newTagName, setNewTagName] = useState('');
   const [tagSearch, setTagSearch] = useState('');
   const [draftTagIds, setDraftTagIds] = useState<string[]>(() => controller.tagPickerDraftIds ?? controller.selectedTagIds);
@@ -130,10 +125,6 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
     ? current.filter(id => id !== tagId)
     : current.length < 20 ? [...current, tagId] : current);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
-  const [thumbnailUrl, setThumbnailUrl] = useState<string>();
-  const [contentUrl, setContentUrl] = useState<string>();
-  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
-  const [isImagePreviewLoading, setIsImagePreviewLoading] = useState(false);
   const [isAssetPickerVisible, setIsAssetPickerVisible] = useState(false);
   const { isMotionEnabled } = useMotionPreference();
   useEffect(() => {
@@ -168,7 +159,6 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
     const timeout = window.setTimeout(revealExpandedGroup, isMotionEnabled ? 220 : 0);
     return () => window.clearTimeout(timeout);
   }, [expandedCategoryId, isMotionEnabled]);
-  const attachmentId = controller.initialAttachment?.id;
   const linkedAsset = assetAccounts?.find(
     asset => asset.id === controller.linkedAssetId,
   );
@@ -186,64 +176,8 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
     );
   }, [controller.remark, remarkHistory]);
 
-  const clearContentUrl = useCallback(() => {
-    previewRequestRef.current += 1;
-    if (contentUrlRef.current)
-      URL.revokeObjectURL(contentUrlRef.current);
-    contentUrlRef.current = undefined;
-    setContentUrl(undefined);
-  }, []);
-
-  useEffect(() => {
-    if (!attachmentId)
-      return;
-    let active = true;
-    let url: string | undefined;
-    void getRecordAttachmentContentApi(attachmentId, 'thumbnail')
-      .then((blob) => {
-        if (!active)
-          return;
-        url = URL.createObjectURL(blob);
-        setThumbnailUrl(url);
-      })
-      .catch(() => undefined);
-    return () => {
-      active = false;
-      if (url)
-        URL.revokeObjectURL(url);
-    };
-  }, [attachmentId]);
-
-  useEffect(() => clearContentUrl, [clearContentUrl]);
-
-  const closeImagePreview = useCallback(() => {
-    setIsImagePreviewOpen(false);
-    clearContentUrl();
-  }, [clearContentUrl]);
-
-  const openImagePreview = useCallback(async () => {
-    setIsImagePreviewOpen(true);
-    if (controller.imagePreviewUrl || !attachmentId || contentUrl)
-      return;
-    const request = ++previewRequestRef.current;
-    setIsImagePreviewLoading(true);
-    try {
-      const blob = await getRecordAttachmentContentApi(attachmentId, 'content');
-      if (request !== previewRequestRef.current)
-        return;
-      const url = URL.createObjectURL(blob);
-      contentUrlRef.current = url;
-      setContentUrl(url);
-    }
-    catch {
-      if (request === previewRequestRef.current)
-        setIsImagePreviewOpen(false);
-    }
-    finally {
-      if (request === previewRequestRef.current)
-        setIsImagePreviewLoading(false);
-    }
-  }, [attachmentId, contentUrl, controller.imagePreviewUrl]);
+  const detailChipClassName = 'pointer-events-auto inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-border-primary bg-white px-3 text-sm font-bold text-ww-mid shadow-ww-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep';
+  const selectedChipClassName = 'border-primary-light bg-primary-light text-primary-deep';
   const renderDateLabel = useCallback((type: string, value: number) => {
     return type === 'year' ? String(value) : String(value).padStart(2, '0');
   }, []);
@@ -310,7 +244,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 'min-h-11 rounded-[10px] px-[22px] py-[7px] text-[13px] font-bold leading-[19.5px] transition',
                 controller.recordType === item.type
                   ? item.type === 'sub'
-                    ? 'bg-[linear-gradient(154.093deg,#f0a0b8_0%,#d06080_100%)] text-white shadow-ww-xs'
+                    ? 'bg-finance-expense text-white shadow-ww-xs'
                     : 'ww-theme-primary-action'
                   : 'text-ww-soft',
               )}
@@ -345,7 +279,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         className="flex min-h-0 flex-grow flex-col"
         data-record-editor-amount
       >
-        <div className="record-editor-category-stage relative min-h-0 flex-1 bg-white/55" data-record-editor-category-stage>
+        <div className="record-editor-category-stage relative min-h-0 flex-1 bg-ww-surface" data-record-editor-category-stage>
           <section
             aria-label={t('record:bookkeeping.selectCategory')}
             className="record-editor-categories h-full overflow-y-auto overscroll-contain px-[18px] pb-[148px] pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -539,18 +473,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </section>
           )}
 
-          <input
-            accept="image/jpeg,image/png,image/webp"
-            className="hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              event.target.value = '';
-              if (file)
-                void controller.handleSelectImage(file);
-            }}
-            ref={imageInputRef}
-            type="file"
-          />
+          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 z-[5] h-[138px] border-t border-border-primary bg-white" data-record-editor-control-dock />
           <div
             aria-label={t('record:bookkeeping.moreDetails')}
             className="record-editor-action-strip pointer-events-none absolute inset-x-0 bottom-[78px] z-10 flex h-11 items-center gap-2 overflow-x-auto overscroll-x-contain px-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -561,7 +484,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             {assetAccounts !== undefined && (
               <button
                 aria-label={linkedAssetLabel ?? t('record:bookkeeping.noLinkedAsset')}
-                className={cn('record-editor-chip', linkedAsset && 'record-editor-chip--selected')}
+                className={cn(detailChipClassName, linkedAsset && selectedChipClassName)}
                 data-record-editor-asset-trigger
                 onClick={() => setIsAssetPickerVisible(true)}
                 type="button"
@@ -573,7 +496,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             {tags !== undefined && (
               <button
                 aria-label={t('record:bookkeeping.selectTagsWithCount', { count: controller.selectedTagIds.length })}
-                className={cn('record-editor-chip', controller.selectedTagIds.length > 0 && 'record-editor-chip--selected')}
+                className={cn(detailChipClassName, controller.selectedTagIds.length > 0 && selectedChipClassName)}
                 data-record-editor-tag-trigger
                 onClick={openTagPicker}
                 type="button"
@@ -584,7 +507,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             )}
             <button
               aria-label={controller.location ? t('record:location.change') : t('record:location.add')}
-              className={cn('record-editor-chip', controller.location && 'record-editor-chip--selected')}
+              className={cn(detailChipClassName, controller.location && selectedChipClassName)}
               data-record-editor-location-trigger
               onClick={() => controller.setIsLocationPickerVisible(true)}
               type="button"
@@ -596,7 +519,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </button>
             <button
               aria-label={`${t('record:bookkeeping.selectTime')}：${controller.formattedDate}`}
-              className="record-editor-chip"
+              className={detailChipClassName}
               data-record-editor-date-trigger
               onClick={() => controller.setIsDatePickerVisible(true)}
               type="button"
@@ -604,51 +527,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               <DesignIcon name="editor-date" size={17} />
               <span>{controller.isToday ? t('common:time.today') : controller.formattedDate}</span>
             </button>
-            {(controller.imagePreviewUrl || controller.hasInitialImage)
-              ? (
-                  <div className="record-editor-chip record-editor-chip--selected !gap-0 !p-0" data-record-editor-image>
-                    <button
-                      aria-label={t('record:bookkeeping.previewImage')}
-                      className="flex min-h-11 items-center gap-1.5 pl-2 pr-1"
-                      data-record-editor-image-preview
-                      onClick={() => void openImagePreview()}
-                      type="button"
-                    >
-                      {controller.imagePreviewUrl || thumbnailUrl
-                        ? <img alt="" className="h-7 w-7 rounded-full object-cover" src={controller.imagePreviewUrl ?? thumbnailUrl} />
-                        : <ImagePlus aria-hidden="true" size={17} />}
-                      <span className="max-w-[112px] truncate">
-                        {controller.isImageUploading
-                          ? t('record:bookkeeping.imageUploading')
-                          : controller.imageUploadError
-                            ? t('record:bookkeeping.imageUploadFailed')
-                            : t('record:bookkeeping.imageAdded')}
-                      </span>
-                    </button>
-                    <button
-                      aria-label={t('record:bookkeeping.removeImage')}
-                      className="flex h-11 w-11 items-center justify-center"
-                      onClick={() => {
-                        closeImagePreview();
-                        controller.handleRemoveImage();
-                      }}
-                      type="button"
-                    >
-                      <X aria-hidden="true" size={15} />
-                    </button>
-                  </div>
-                )
-              : (
-                  <button
-                    aria-label={t('record:bookkeeping.selectImage')}
-                    className="record-editor-chip"
-                    onClick={() => imageInputRef.current?.click()}
-                    type="button"
-                  >
-                    <ImagePlus aria-hidden="true" size={17} strokeWidth={1.8} />
-                    <span>{t('record:bookkeeping.image')}</span>
-                  </button>
-                )}
+            <RecordEditorImagesPanel chipClassName={detailChipClassName} controller={controller} />
           </div>
 
           <div
@@ -669,7 +548,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 onChange={event => controller.setRemark(event.target.value)}
                 onFocus={() => controller.setIsNoteFocused(true)}
                 onKeyDown={(event) => {
-                  if (event.key === 'Enter' && hasValidSelectedCategory && !controller.isSubmitting && !controller.isImageUploading) {
+                  if (event.key === 'Enter' && hasValidSelectedCategory && !controller.isSubmitting && !controller.isImageUploading && !controller.hasImageUploadError) {
                     event.stopPropagation();
                     void controller.handleSubmit();
                   }
@@ -730,6 +609,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 !hasValidSelectedCategory
                 || controller.isSubmitting
                 || controller.isImageUploading
+                || controller.hasImageUploadError
               }
               onClick={() => void controller.handleSubmit()}
               type="button"
@@ -1110,14 +990,6 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           </AppButton>
         </div>
       </AppSheet>
-      <ImagePreview
-        image={controller.imagePreviewUrl ?? contentUrl}
-        onClose={closeImagePreview}
-        placeholder={
-          isImagePreviewLoading ? <SpinLoading color="white" /> : null
-        }
-        visible={isImagePreviewOpen}
-      />
     </div>
   );
 };
