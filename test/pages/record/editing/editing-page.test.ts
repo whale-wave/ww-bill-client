@@ -184,6 +184,32 @@ describe('record editing page', () => {
     expect(container.querySelector('[data-testid="record-detail-share"]')).toBeNull();
   });
 
+  it('does not render a supplementary card when an income record has no supplementary data', () => {
+    queryResult.data = {
+      amount: '6.66',
+      category: {
+        createdAt: '2026-09-21T03:05:07.000Z',
+        icon: 'wallet',
+        id: 1,
+        name: '红包',
+        updatedAt: '2026-09-21T03:05:07.000Z',
+      },
+      createdAt: '2026-09-21T03:05:07.000Z',
+      id: 8,
+      remark: '老妈红包',
+      time: '2026-09-21T03:05:07.000Z',
+      type: 'add',
+      updatedAt: '2026-09-21T03:05:07.000Z',
+      version: 1,
+    };
+    queryResult.isError = false;
+    queryResult.isLoading = false;
+
+    const { container } = renderPage();
+
+    expect(container.querySelector('[data-testid="supplementary-content"]')).toBeNull();
+  });
+
   it('keeps the adjustment section available without attachments on an expense record', () => {
     queryResult.data = {
       amount: '20.00',

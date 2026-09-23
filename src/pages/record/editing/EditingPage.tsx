@@ -188,21 +188,23 @@ const Editing: FC = () => {
             }]
           : []),
       ]}
-      supplementaryContent={(
-        <>
-          {state.attachments?.length
-            ? <RecordAttachmentSection attachments={state.attachments} />
-            : undefined}
-          {state.type === 'sub' && (
-            <RecordAdjustmentSection
-              assetOptions={assetQuery.data.map(asset => ({ amount: asset.amount, id: asset.id, name: asset.name }))}
-              canManage
-              record={state}
-              supportsAssetLink
-            />
-          )}
-        </>
-      )}
+      supplementaryContent={(state.attachments?.length || state.type === 'sub')
+        ? (
+            <>
+              {state.attachments?.length
+                ? <RecordAttachmentSection attachments={state.attachments} />
+                : undefined}
+              {state.type === 'sub' && (
+                <RecordAdjustmentSection
+                  assetOptions={assetQuery.data.map(asset => ({ amount: asset.amount, id: asset.id, name: asset.name }))}
+                  canManage
+                  record={state}
+                  supportsAssetLink
+                />
+              )}
+            </>
+          )
+        : undefined}
       supplementaryRows={[
         ...(state.linkedAsset
           ? [{ label: '资产账户', value: `${state.linkedAsset.name} · ¥${state.linkedAsset.amount}` }]
