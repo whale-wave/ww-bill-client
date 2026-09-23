@@ -263,9 +263,11 @@ describe('record editor presentation', () => {
     expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-amount]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-categories]')).not.toBeNull();
-    expect(container.querySelector('[data-record-editor-note]')?.classList).toContain('mx-[22px]');
+    expect(container.querySelector('[data-record-editor-action-strip]')).not.toBeNull();
+    expect(container.querySelector('[data-record-editor-entry-row] [data-record-editor-note]')).not.toBeNull();
+    expect(container.querySelector('[data-record-editor-entry-row] [data-record-editor-total]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-location-trigger]')).not.toBeNull();
-    expect(container.querySelector('[data-record-editor-total]')?.classList).toContain('text-[54px]');
+    expect(container.querySelector('[data-record-editor-total]')?.classList).toContain('text-[34px]');
     const backspace = container.querySelector<HTMLButtonElement>('[aria-label="record:bookkeeping.backspace"]');
     expect(backspace?.textContent).toContain('record:bookkeeping.backspace');
     expect(backspace?.querySelector('svg')).not.toBeNull();
@@ -367,7 +369,7 @@ describe('record editor presentation', () => {
     expect(onManageCategories).toHaveBeenCalledOnce();
   });
 
-  it('keeps tags as an optional fixed entry instead of a separate form layout', () => {
+  it('keeps tags and location in the scrollable strip without disturbing the amount row', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
     act(() => root.render(createElement(TestEditor, { withTags: true })));
@@ -375,9 +377,16 @@ describe('record editor presentation', () => {
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
 
-    expect(container.querySelector('[data-record-editor-tag-trigger]')).not.toBeNull();
+    const strip = container.querySelector('[data-record-editor-action-strip]');
+    expect(strip?.classList).toContain('overflow-x-auto');
+    expect(strip?.querySelector('[data-record-editor-tag-trigger]')).not.toBeNull();
+    expect(strip?.querySelector('[data-record-editor-location-trigger]')).not.toBeNull();
+    expect(strip?.querySelector('[data-record-editor-date-trigger]')).not.toBeNull();
     expect(container.querySelector('form')).toBeNull();
     expect(container.querySelector('input[type="date"]')).toBeNull();
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-numeric-keys] button')?.click());
+    const amountBefore = container.querySelector('[data-record-editor-total]')?.textContent;
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-tag-trigger]')?.click());
     const tag = [...document.body.querySelectorAll<HTMLButtonElement>('button')]
@@ -393,6 +402,8 @@ describe('record editor presentation', () => {
 
     expect(document.body.querySelector('[data-record-editor-selected-tags]')).toBeNull();
     expect(tag?.getAttribute('aria-pressed')).toBe('false');
+    expect(container.querySelector('[data-record-editor-total]')?.textContent).toBe(amountBefore);
+    expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
   });
 
   it('archives a tag from the picker and removes it from the current draft', async () => {
@@ -523,7 +534,7 @@ describe('record editor presentation', () => {
     expect(document.body.querySelector('[data-testid="interactive-image-preview"] img')?.getAttribute('src')).toBe('blob:content');
   });
 
-  it('allows the amount panel to shrink before clipping the keypad', () => {
+  it('keeps the compact amount row and keypad mounted together', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
     act(() => root.render(createElement(TestEditor)));
@@ -531,8 +542,8 @@ describe('record editor presentation', () => {
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
 
-    expect(container.querySelector('[data-record-editor-total]')?.parentElement?.classList).toContain('min-h-0');
-    expect(container.querySelector('[data-record-editor-total]')?.parentElement?.classList).not.toContain('min-h-[220px]');
+    expect(container.querySelector('[data-record-editor-entry-row]')?.classList).toContain('h-[62px]');
+    expect(container.querySelector('[data-record-editor-total]')?.classList).toContain('whitespace-nowrap');
     expect(container.querySelector('[data-record-editor-keypad]')?.classList).toContain('record-editor-keypad');
   });
 
@@ -561,7 +572,7 @@ describe('record editor presentation', () => {
     expect(assetOption?.textContent).toContain('日常支出卡');
     expect(assetOption?.textContent).toContain('record:bookkeeping.linkedAssetBalance 50000');
     expect(container.querySelector('[data-record-editor-asset-trigger]')?.textContent).toContain('日常支出卡');
-    expect(container.querySelector('[data-record-editor-asset-trigger]')?.textContent).toContain('record:bookkeeping.linkedAssetBalance 50000');
+    expect(container.querySelector('[data-record-editor-asset-trigger]')?.classList).toContain('record-editor-chip--selected');
   });
 
   it('shows available credit and debt instead of a current balance for credit cards', () => {
@@ -577,10 +588,11 @@ describe('record editor presentation', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
     act(() => document.body.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="asset-account"]')?.click());
 
-    const trigger = container.querySelector('[data-record-editor-asset-trigger]');
-    expect(trigger?.textContent).toContain('record:bookkeeping.linkedAssetAvailableCreditLimit 70000');
-    expect(trigger?.textContent).toContain('record:bookkeeping.linkedAssetDebt 50000');
-    expect(trigger?.textContent).not.toContain('record:bookkeeping.linkedAssetBalance');
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
+    const option = document.body.querySelector('[data-record-editor-asset-option="asset-account"]');
+    expect(option?.textContent).toContain('record:bookkeeping.linkedAssetAvailableCreditLimit 70000');
+    expect(option?.textContent).toContain('record:bookkeeping.linkedAssetDebt 50000');
+    expect(option?.textContent).not.toContain('record:bookkeeping.linkedAssetBalance');
   });
 
   it('uses the credit limit when a credit asset group omits its asset type', () => {
@@ -596,9 +608,10 @@ describe('record editor presentation', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
     act(() => document.body.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="asset-account"]')?.click());
 
-    const trigger = container.querySelector('[data-record-editor-asset-trigger]');
-    expect(trigger?.textContent).toContain('record:bookkeeping.linkedAssetAvailableCreditLimit 70000');
-    expect(trigger?.textContent).toContain('record:bookkeeping.linkedAssetDebt 50000');
-    expect(trigger?.textContent).not.toContain('record:bookkeeping.linkedAssetBalance');
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
+    const option = document.body.querySelector('[data-record-editor-asset-option="asset-account"]');
+    expect(option?.textContent).toContain('record:bookkeeping.linkedAssetAvailableCreditLimit 70000');
+    expect(option?.textContent).toContain('record:bookkeeping.linkedAssetDebt 50000');
+    expect(option?.textContent).not.toContain('record:bookkeeping.linkedAssetBalance');
   });
 });

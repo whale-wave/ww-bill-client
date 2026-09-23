@@ -1,3 +1,7 @@
+.record-editor-categories {
+  height: clamp(84px, 20.8dvh, 220px);
+}
+
 .record-editor-keypad {
   --record-editor-keypad-action-height: clamp(46px, 7.2vh, 50px);
   --record-editor-keypad-key-height: clamp(44px, 7vh, 48px);
@@ -33,9 +37,32 @@
   border-radius: 15px;
 }
 
-.record-editor-asset-compact,
-.record-editor-location-compact {
-  display: none;
+.record-editor-chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  background: var(--ww-surface-tint-color);
+  color: var(--ww-text-color-mid);
+  font-size: var(--ww-font-size-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.record-editor-chip--selected {
+  border-color: color-mix(in srgb, var(--ww-theme-color) 24%, transparent);
+  background: var(--ww-theme-color-light);
+  color: var(--ww-theme-color-deep);
+}
+
+.record-editor-chip:focus-visible,
+.record-editor-chip button:focus-visible {
+  outline: 2px solid var(--ww-theme-color);
+  outline-offset: 2px;
 }
 
 @media (max-height: 680px) {
@@ -45,43 +72,8 @@
   }
 
   .record-editor-categories {
+    height: max(80px, min(20.8dvh, calc(100dvh - 452px - env(safe-area-inset-bottom))));
     margin-bottom: 4px;
-  }
-
-  .record-editor-note {
-    height: 44px;
-    margin-right: 14px;
-    margin-left: 14px;
-    padding-right: 4px;
-    padding-left: 8px;
-  }
-
-  .record-editor-asset {
-    display: none;
-  }
-
-  .record-editor-location {
-    display: none;
-  }
-
-  .record-editor-asset-compact,
-  .record-editor-location-compact {
-    display: flex;
-  }
-
-  .record-editor-amount-caption {
-    padding-bottom: 0;
-    line-height: 14px;
-  }
-
-  .record-editor-total {
-    height: 58px;
-    font-size: 46px;
-    line-height: 58px;
-  }
-
-  .record-editor-amount-underline {
-    margin-top: 2px;
   }
 
   .record-editor-keypad {
