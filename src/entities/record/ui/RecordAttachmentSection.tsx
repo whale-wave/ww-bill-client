@@ -2,7 +2,7 @@ import type { RecordEntry } from '../types';
 import { ImageOff } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '@/shared/i18n';
-import { AppSheet, ImagePreview, SheetHeader } from '@/shared/ui';
+import { AppSheet, ImageGallerySheetHeader, ImagePreview } from '@/shared/ui';
 import { useRecordAttachmentContentQuery } from '../hooks';
 import { useAttachmentObjectUrl } from './useAttachmentObjectUrl';
 
@@ -41,7 +41,7 @@ function RecordAttachmentThumbnail({ attachment, householdId, index, onOpen, sho
           ? <span aria-label={t('bookkeeping.imagePreviewLoading')} className="h-full w-full animate-pulse bg-primary-light/55" role="status" />
           : <ImageOff aria-hidden="true" className="text-ww-soft" size={20} />}
       {showCount !== undefined && showCount > 1 && (
-        <span aria-hidden="true" className="absolute bottom-1 right-1 flex min-h-6 min-w-6 items-center justify-center rounded-full bg-ww-ink/80 px-1.5 text-xs font-bold text-white" data-record-attachment-count>
+        <span aria-hidden="true" className="absolute bottom-1 right-1 flex min-h-6 min-w-6 items-center justify-center rounded-full bg-ww-ink px-1.5 text-xs font-bold text-white" data-record-attachment-count>
           {showCount}
         </span>
       )}
@@ -68,7 +68,7 @@ export function RecordAttachmentSection({ attachments = [], householdId }: Recor
         <RecordAttachmentThumbnail attachment={sortedAttachments[0]} householdId={householdId} index={0} onOpen={() => setGalleryOpen(true)} showCount={sortedAttachments.length} />
       </div>
       <AppSheet
-        bodyClassName="max-h-[72vh] overflow-hidden"
+        bodyClassName="flex max-h-[72dvh] flex-col overflow-hidden"
         destroyOnClose
         material="opaque"
         onClose={() => setGalleryOpen(false)}
@@ -76,16 +76,19 @@ export function RecordAttachmentSection({ attachments = [], householdId }: Recor
         position="bottom"
         visible={galleryOpen}
       >
-        <SheetHeader
+        <ImageGallerySheetHeader
           closeLabel={t('common:nav.close')}
-          description={t('record:detail.imageCount', { count: sortedAttachments.length })}
+          doneLabel={t('record:bookkeeping.complete')}
           onClose={() => setGalleryOpen(false)}
           title={t('record:bookkeeping.image')}
         />
-        <div className="grid max-h-[calc(72vh-64px)] grid-cols-3 gap-2 overflow-y-auto overscroll-contain px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-4" data-record-attachment-gallery>
-          {sortedAttachments.map((attachment, index) => (
-            <RecordAttachmentThumbnail attachment={attachment} householdId={householdId} index={index} key={attachment.id} onOpen={() => setPreviewId(attachment.id)} />
-          ))}
+        <div className="min-h-0 overflow-y-auto overscroll-contain px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-5">
+          <div className="grid grid-cols-3 gap-x-5 gap-y-5" data-record-attachment-gallery>
+            {sortedAttachments.map((attachment, index) => (
+              <RecordAttachmentThumbnail attachment={attachment} householdId={householdId} index={index} key={attachment.id} onOpen={() => setPreviewId(attachment.id)} />
+            ))}
+          </div>
+          <p className="mt-5 text-[12px] text-[var(--ww-component-sheet-placeholder)]">{t('record:detail.imageCount', { count: sortedAttachments.length })}</p>
         </div>
       </AppSheet>
       <ImagePreview

@@ -49,25 +49,25 @@ function MultiTagPreview() {
   const controller = useRecordEditorController({ seed: { amount: '100', category: categories[3], recordType: 'sub', time: '2026-09-22T12:00:00+08:00', tagIds: ['trip', 'old'], isTagPickerVisible: true }, isEditing: true, supportsTags: true, onSubmit: async () => undefined });
   return <div className="h-dvh"><RecordEditorPresentation categories={categories} categoryState="ready" controller={controller} onCancel={() => undefined} tags={[{ id: 'trip', name: '出差' }, { id: 'refund', name: '可报销' }, { id: 'weekend', name: '周末' }, { id: 'old', name: '去年旅行', status: 'ARCHIVED' }]} /></div>;
 }
-function createReceiptPreviewFiles() {
+function createReceiptPreviewFiles(count: number) {
   const root = getComputedStyle(document.documentElement);
   const color = (token: string) => root.getPropertyValue(token).trim();
   const backgrounds = ['--ww-theme-color-light', '--ww-surface-tint-color', '--ww-surface-raised-color'];
-  return Array.from({ length: 3 }, (_, index) => new File(
-    [`<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><rect width="240" height="240" fill="${color(backgrounds[index])}"/><rect x="45" y="19" width="150" height="202" rx="9" fill="${color('--ww-ref-mono-white')}"/><path d="M65 66h105M65 91h80M65 116h105M65 141h71M65 169h105" stroke="${color('--ww-text-color-soft')}" stroke-width="7" stroke-linecap="round"/><circle cx="160" cy="185" r="12" fill="${color('--ww-theme-color')}"/></svg>`],
+  return Array.from({ length: count }, (_, index) => new File(
+    [`<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><rect width="240" height="240" fill="${color(backgrounds[index % backgrounds.length])}"/><rect x="45" y="19" width="150" height="202" rx="9" fill="${color('--ww-ref-mono-white')}"/><path d="M65 66h105M65 91h80M65 116h105M65 141h71M65 169h105" stroke="${color('--ww-text-color-soft')}" stroke-width="7" stroke-linecap="round"/><circle cx="160" cy="185" r="12" fill="${color('--ww-theme-color')}"/></svg>`],
     `receipt-${index + 1}.svg`,
     { type: 'image/svg+xml' },
   ));
 }
-function RecordEditorPreview({ items = categories, categoryState = 'ready', selectedCategory, withDetails = false, withImages = false }: { items?: CategoryEntity[]; categoryState?: RecordEditorCategoryState; selectedCategory?: CategoryEntity; withDetails?: boolean; withImages?: boolean }) {
+function RecordEditorPreview({ items = categories, categoryState = 'ready', imageCount = 0, selectedCategory, withDetails = false }: { items?: CategoryEntity[]; categoryState?: RecordEditorCategoryState; imageCount?: number; selectedCategory?: CategoryEntity; withDetails?: boolean }) {
   const [client] = useState(() => new QueryClient({ defaultOptions: { queries: { retry: false } } }));
-  const [imageFiles] = useState(() => withImages ? createReceiptPreviewFiles() : []);
+  const [imageFiles] = useState(() => createReceiptPreviewFiles(imageCount));
   const controller = useRecordEditorController({
     seed: {
       amount: withDetails ? '38.50' : undefined,
       category: selectedCategory,
       pendingImages: imageFiles.map((file, index) => ({ assetId: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`, file, id: `storybook-image-${index}` })),
-      imageSelectionDirty: withImages,
+      imageSelectionDirty: imageCount > 0,
       location: withDetails ? { accuracy: 15, latitude: 31.23, longitude: 121.47, name: '南京西路', capturedAt: '2026-09-22T12:00:00+08:00' } : undefined,
       recordType: 'sub',
       remark: withDetails ? '下午茶' : undefined,
@@ -96,7 +96,13 @@ export const ImageCountAndGallery: Story = {
   play: async ({ canvasElement }) => {
     canvasElement.querySelector<HTMLButtonElement>('[data-record-editor-image-trigger]')?.click();
   },
-  render: () => <RecordEditorPreview items={denseCategories} selectedCategory={categories[3]} withDetails withImages />,
+  render: () => <RecordEditorPreview imageCount={3} items={denseCategories} selectedCategory={categories[3]} withDetails />,
+};
+export const ImageGalleryAtLimit: Story = {
+  play: async ({ canvasElement }) => {
+    canvasElement.querySelector<HTMLButtonElement>('[data-record-editor-image-trigger]')?.click();
+  },
+  render: () => <RecordEditorPreview imageCount={9} items={denseCategories} selectedCategory={categories[3]} withDetails />,
 };
 export const LeafCategories: Story = { render: () => <RecordEditorPreview items={categories.filter(category => !category.parentId).slice(0, 3)} /> };
 export const LoadingCategories: Story = { render: () => <RecordEditorPreview categoryState="loading" items={[]} /> };

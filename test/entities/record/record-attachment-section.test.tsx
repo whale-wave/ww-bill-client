@@ -51,6 +51,7 @@ describe('record attachment section', () => {
 
     expect(container.querySelector('[data-record-attachment-count]')?.textContent).toBe('2');
     await act(async () => container.querySelector<HTMLButtonElement>('[data-record-attachment-trigger] button')?.click());
+    expect(document.body.querySelector('[data-image-gallery-header]')).not.toBeNull();
     expect(document.body.querySelectorAll('[data-record-attachment-gallery] button')).toHaveLength(2);
     await act(async () => document.body.querySelectorAll<HTMLButtonElement>('[data-record-attachment-gallery] button')[1].click());
     await vi.waitFor(() => expect(getRecordAttachmentContentApi).toHaveBeenCalledWith('attachment-2', 'content', undefined));

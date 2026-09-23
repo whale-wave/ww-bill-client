@@ -12,6 +12,7 @@ import {
   RecordEditorPresentation,
   useRecordEditorController,
 } from '@/features/record-editor';
+import { RecordEditorImagesPanel } from '@/features/record-editor/ui/RecordEditorImagesPanel';
 import { confirmDangerousAction } from '@/shared/ui';
 
 vi.mock('@/shared/i18n', () => ({
@@ -59,6 +60,13 @@ vi.mock('@/shared/ui', () => ({
         createElement('button', { 'aria-label': '关闭图片预览', 'onClick': onClose, 'type': 'button' }),
       ), document.body)
     : null,
+  ImageGallerySheetHeader: ({ closeLabel, doneLabel, onClose, title }: { closeLabel: string; doneLabel: string; onClose: () => void; title: string }) => createElement(
+    'header',
+    { 'data-image-gallery-header': true },
+    createElement('button', { 'aria-label': closeLabel, 'onClick': onClose, 'type': 'button' }),
+    createElement('h2', null, title),
+    createElement('button', { onClick: onClose, type: 'button' }, doneLabel),
+  ),
   MOTION_PRESETS: {
     contentSwap: {},
     press: {},
@@ -200,6 +208,55 @@ function TestEditor({
 }
 
 describe('record editor presentation', () => {
+  it('opens the device image picker directly when the draft has no images', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(RecordEditorImagesPanel, {
+      canAddImages: true,
+      chipClassName: '',
+      hasImageUploadError: false,
+      images: [],
+      onRemoveImage: vi.fn(),
+      onRetryImage: vi.fn(),
+      onSelectImages: vi.fn(),
+    })));
+    cleanup = () => act(() => root.unmount());
+    const input = container.querySelector<HTMLInputElement>('input[type="file"]')!;
+    const openDevicePicker = vi.spyOn(input, 'click').mockImplementation(() => {});
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-image-trigger]')?.click());
+
+    expect(openDevicePicker).toHaveBeenCalledOnce();
+    expect(document.body.querySelector('[data-record-editor-image-gallery]')).toBeNull();
+  });
+
+  it('keeps image removal separate from preview and closes the gallery with Done', () => {
+    const onRemoveImage = vi.fn();
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(RecordEditorImagesPanel, {
+      canAddImages: true,
+      chipClassName: '',
+      hasImageUploadError: false,
+      images: [{ assetId: 'asset-1', file: new File(['image'], 'receipt.png', { type: 'image/png' }), id: 'image-1', kind: 'new', status: 'ready' }],
+      onRemoveImage,
+      onRetryImage: vi.fn(),
+      onSelectImages: vi.fn(),
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-image-trigger]')?.click());
+    const gallery = document.body.querySelector('[data-record-editor-image-gallery]');
+    expect(gallery?.querySelectorAll('[data-record-editor-image-tile]')).toHaveLength(1);
+
+    act(() => gallery?.querySelector<HTMLButtonElement>('[aria-label*="removeImageAt"]')?.click());
+    expect(onRemoveImage).toHaveBeenCalledWith('image-1');
+    expect(document.body.querySelector('[data-testid="interactive-image-preview"]')).toBeNull();
+
+    act(() => document.body.querySelector<HTMLButtonElement>('[data-image-gallery-header] button:last-child')?.click());
+    expect(document.body.querySelector('[data-record-editor-image-gallery]')).toBeNull();
+  });
+
   it('uses the shared empty state when no bookkeeping categories exist', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
@@ -562,6 +619,10 @@ describe('record editor presentation', () => {
     await act(async () => container.querySelector<HTMLButtonElement>('[data-record-editor-image-trigger]')?.click());
     expect(useRecordAttachmentContentQuery).toHaveBeenCalledWith(expect.objectContaining({ attachmentId: 'attachment-1', variant: 'thumbnail' }));
     expect(document.body.querySelector<HTMLImageElement>('[data-record-editor-image-preview] img')?.src).toBe('blob:thumbnail');
+    const gallery = document.body.querySelector('[data-record-editor-image-gallery]');
+    expect(gallery?.classList).toContain('gap-x-5');
+    expect(gallery?.querySelector('[data-record-editor-image-tile]')?.querySelectorAll('button')).toHaveLength(2);
+    expect(gallery?.querySelector('[data-record-editor-image-tile]')?.textContent).toBe('');
 
     await act(async () => document.body.querySelector<HTMLButtonElement>('[data-record-editor-image-preview]')?.click());
 
