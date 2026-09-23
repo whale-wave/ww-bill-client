@@ -20,6 +20,15 @@ const categories: CategoryEntity[] = [
   { id: 21, name: '打车', icon: 'traffic', parentId: 2 },
   { id: 22, name: '公共交通', icon: 'traffic', parentId: 2 },
 ].map((item, index) => ({ ...item, createdAt: '', updatedAt: '', ledgerId, isCustom: true, iconType: 'BUILTIN', sortOrder: index, status: 'ACTIVE', type: 'sub', version: 1 }));
+const denseCategories: CategoryEntity[] = [
+  ...categories,
+  ...['咖啡', '购物', '运动', '旅行', '学习', '娱乐', '医疗', '家居', '服饰', '宠物', '礼物', '通讯', '办公', '饮料', '书籍', '交通卡', '影视', '水电', '家政', '保健', '游戏', '零食'].map((name, index) => ({
+    ...categories[index % 3],
+    id: 100 + index,
+    name,
+    sortOrder: 100 + index,
+  })),
+];
 
 const meta = { title: 'Features/Classification', parameters: { layout: 'fullscreen' } } satisfies Meta;
 export default meta;
@@ -66,5 +75,6 @@ export const ExpandedSubcategories: Story = {
 };
 export const SelectedSubcategory: Story = { render: () => <RecordEditorPreview selectedCategory={categories[3]} /> };
 export const CompactDetails: Story = { render: () => <RecordEditorPreview selectedCategory={categories[3]} withDetails /> };
+export const FloatingDetailsOverCategories: Story = { render: () => <RecordEditorPreview items={denseCategories} selectedCategory={categories[3]} withDetails /> };
 export const LeafCategories: Story = { render: () => <RecordEditorPreview items={categories.filter(category => !category.parentId).slice(0, 3)} /> };
 export const MultipleTags: Story = { render: () => <MultiTagPreview /> };

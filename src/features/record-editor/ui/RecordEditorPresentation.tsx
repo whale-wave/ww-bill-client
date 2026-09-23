@@ -85,6 +85,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const imageInputRef = useRef<HTMLInputElement>(null);
   const noteInputRef = useRef<HTMLInputElement>(null);
   const categoryViewportRef = useRef<HTMLElement>(null);
+  const actionStripRef = useRef<HTMLDivElement>(null);
   const contentUrlRef = useRef<string>();
   const previewRequestRef = useRef(0);
   const [newTagName, setNewTagName] = useState('');
@@ -144,10 +145,15 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         return;
       const groupBounds = group.getBoundingClientRect();
       const viewportBounds = viewport.getBoundingClientRect();
-      const scrollDelta = groupBounds.height > viewportBounds.height
+      const visibleBottom = Math.min(
+        viewportBounds.bottom,
+        (actionStripRef.current?.getBoundingClientRect().top ?? viewportBounds.bottom) - 8,
+      );
+      const visibleHeight = visibleBottom - viewportBounds.top;
+      const scrollDelta = groupBounds.height > visibleHeight
         ? groupBounds.top - viewportBounds.top
-        : groupBounds.bottom > viewportBounds.bottom
-          ? groupBounds.bottom - viewportBounds.bottom
+        : groupBounds.bottom > visibleBottom
+          ? groupBounds.bottom - visibleBottom
           : groupBounds.top < viewportBounds.top
             ? groupBounds.top - viewportBounds.top
             : 0;
@@ -338,174 +344,177 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         className="flex min-h-0 flex-grow flex-col"
         data-record-editor-amount
       >
-        <section
-          aria-label={t('record:bookkeeping.selectCategory')}
-          className="record-editor-categories mx-[14px] mb-2 shrink-0 overflow-y-auto overscroll-contain rounded-[18px] bg-white/55 px-1 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          data-record-editor-categories
-          ref={categoryViewportRef}
-        >
-          {categoryState === 'loading' && (
-            <div className="flex min-h-full items-center justify-center">
-              <SpinLoading />
-            </div>
-          )}
-          {categoryState === 'error' && (
-            <div className="flex min-h-full flex-col items-center justify-center py-2">
-              <ErrorBlock description={t('common:error.loadFail')} />
-              {onRetryCategories && (
-                <Button onClick={onRetryCategories} size="small">
-                  {t('common:retry')}
-                </Button>
-              )}
-            </div>
-          )}
-          {categoryState === 'ready' && categories.length === 0 && (
-            <IllustratedEmptyState
-              className="min-h-full"
-              description={t('record:bookkeeping.emptyCategoryDescription')}
-              icon={<Tags className="text-primary-deep" size={30} strokeWidth={1.5} />}
-              testId="record-editor-empty-state"
-              title={t('record:bookkeeping.emptyCategoryTitle')}
-            />
-          )}
-          {categoryState === 'ready' && rootCategories.length > 0 && (
-            <div className="grid grid-cols-5 gap-x-1 gap-y-2" data-record-editor-category-grid>
-              {rootCategories.map((category, index) => {
-                const children = childCategoriesByParent.get(category.id) ?? [];
-                const isExpanded = expandedCategoryId === category.id;
-                const isSelectedRoot = selectedCategory?.id === category.id || selectedCategory?.parentId === category.id;
-                return (
-                  <Fragment key={category.id}>
-                    <m.button
-                      aria-controls={children.length ? `record-editor-subcategories-${category.id}` : undefined}
-                      aria-expanded={children.length ? isExpanded : undefined}
-                      aria-label={children.length
-                        ? t('record:bookkeeping.categoryWithChildren', {
-                            count: children.length,
-                            name: category.name,
-                          })
-                        : category.name}
-                      aria-pressed={isSelectedRoot}
-                      className={cn(
-                        'relative flex min-h-[76px] min-w-0 flex-col items-center gap-1 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
-                        isSelectedRoot && 'bg-primary-light/55 text-primary-deep',
-                      )}
-                      data-record-editor-category={category.id}
-                      onClick={() => children.length
-                        ? setExpandedCategoryId(current => current === category.id ? undefined : category.id)
-                        : handleSelectCategory(category)}
-                      type="button"
-                      whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
-                    >
-                      <span className="ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full">
-                        <CategoryIcon
-                          categoryName={category.name}
-                          iconKey={category.icon}
-                          iconType={category.iconType}
-                          textIconEnabled={category.textIconEnabled}
-                          textIconIndex={category.textIconIndex}
-                          size={24}
-                        />
-                      </span>
-                      <span className="line-clamp-2 w-full text-[11px] font-semibold leading-4 text-ww-mid">{category.name}</span>
-                      {isSelectedRoot && (
-                        <span aria-hidden="true" className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-deep text-white shadow-ww-xs" data-record-editor-category-check>
-                          <Check size={12} strokeWidth={3} />
+        <div className="record-editor-category-stage relative min-h-0 flex-1" data-record-editor-category-stage>
+          <section
+            aria-label={t('record:bookkeeping.selectCategory')}
+            className={cn(
+              'record-editor-categories mx-[14px] h-full overflow-y-auto overscroll-contain rounded-[18px] bg-white/55 px-1 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+              categoryState === 'ready' && rootCategories.length > 0 && 'pb-[68px]',
+            )}
+            data-record-editor-categories
+            ref={categoryViewportRef}
+          >
+            {categoryState === 'loading' && (
+              <div className="flex min-h-full items-center justify-center">
+                <SpinLoading />
+              </div>
+            )}
+            {categoryState === 'error' && (
+              <div className="flex min-h-full flex-col items-center justify-center py-2">
+                <ErrorBlock description={t('common:error.loadFail')} />
+                {onRetryCategories && (
+                  <Button onClick={onRetryCategories} size="small">
+                    {t('common:retry')}
+                  </Button>
+                )}
+              </div>
+            )}
+            {categoryState === 'ready' && categories.length === 0 && (
+              <IllustratedEmptyState
+                className="min-h-full"
+                description={t('record:bookkeeping.emptyCategoryDescription')}
+                icon={<Tags className="text-primary-deep" size={30} strokeWidth={1.5} />}
+                testId="record-editor-empty-state"
+                title={t('record:bookkeeping.emptyCategoryTitle')}
+              />
+            )}
+            {categoryState === 'ready' && rootCategories.length > 0 && (
+              <div className="grid grid-cols-5 gap-x-1 gap-y-2" data-record-editor-category-grid>
+                {rootCategories.map((category, index) => {
+                  const children = childCategoriesByParent.get(category.id) ?? [];
+                  const isExpanded = expandedCategoryId === category.id;
+                  const isSelectedRoot = selectedCategory?.id === category.id || selectedCategory?.parentId === category.id;
+                  return (
+                    <Fragment key={category.id}>
+                      <m.button
+                        aria-controls={children.length ? `record-editor-subcategories-${category.id}` : undefined}
+                        aria-expanded={children.length ? isExpanded : undefined}
+                        aria-label={children.length
+                          ? t('record:bookkeeping.categoryWithChildren', {
+                              count: children.length,
+                              name: category.name,
+                            })
+                          : category.name}
+                        aria-pressed={isSelectedRoot}
+                        className={cn(
+                          'relative flex min-h-[76px] min-w-0 flex-col items-center gap-1 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
+                          isSelectedRoot && 'bg-primary-light/55 text-primary-deep',
+                        )}
+                        data-record-editor-category={category.id}
+                        onClick={() => children.length
+                          ? setExpandedCategoryId(current => current === category.id ? undefined : category.id)
+                          : handleSelectCategory(category)}
+                        type="button"
+                        whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
+                      >
+                        <span className="ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full">
+                          <CategoryIcon
+                            categoryName={category.name}
+                            iconKey={category.icon}
+                            iconType={category.iconType}
+                            textIconEnabled={category.textIconEnabled}
+                            textIconIndex={category.textIconIndex}
+                            size={24}
+                          />
                         </span>
-                      )}
-                      {children.length > 0 && (
-                        <span aria-hidden="true" className="absolute right-0.5 top-[34px] flex h-5 min-w-5 items-center justify-center rounded-full bg-primary-deep px-1 text-[8px] font-black tracking-[-1px] text-white shadow-ww-xs">•••</span>
-                      )}
-                    </m.button>
-                    {(index % 5 === 4 || index === rootCategories.length - 1) && (
-                      <AnimatePresence initial={false}>
-                        {index === expandedRowEndIndex && expandedCategory && (
-                          <m.div
-                            animate={{ height: 'auto', opacity: 1 }}
-                            aria-label={t('record:bookkeeping.subcategoryGroup', { name: expandedCategory.name })}
-                            className="col-span-5 overflow-hidden rounded-[16px] bg-ww-surface-tint"
-                            exit={{ height: 0, opacity: 0 }}
-                            id={`record-editor-subcategories-${expandedCategory.id}`}
-                            initial={isMotionEnabled ? { height: 0, opacity: 0 } : false}
-                            key={expandedCategory.id}
-                            role="group"
-                            transition={{ duration: isMotionEnabled ? 0.2 : 0, ease: 'easeOut' }}
-                          >
-                            <div className="grid grid-cols-5 gap-x-1 gap-y-2 px-1.5 py-2">
-                              <button
-                                aria-pressed={selectedCategory?.id === expandedCategory.id}
-                                className={cn(
-                                  'relative flex min-h-[76px] min-w-0 flex-col items-center gap-1 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
-                                  selectedCategory?.id === expandedCategory.id && 'bg-primary-light/60 text-primary-deep',
-                                )}
-                                data-record-editor-category-direct={expandedCategory.id}
-                                onClick={() => handleSelectCategory(expandedCategory)}
-                                type="button"
-                              >
-                                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/85">
-                                  <CategoryIcon
-                                    categoryName={expandedCategory.name}
-                                    iconKey={expandedCategory.icon}
-                                    iconType={expandedCategory.iconType}
-                                    textIconEnabled={expandedCategory.textIconEnabled}
-                                    textIconIndex={expandedCategory.textIconIndex}
-                                    size={24}
-                                  />
-                                </span>
-                                <span className="line-clamp-2 w-full text-[11px] font-semibold leading-4">{expandedCategory.name}</span>
-                                <span className="text-[9px] leading-3 text-ww-soft">{t('record:bookkeeping.directEntry')}</span>
-                                {selectedCategory?.id === expandedCategory.id && (
-                                  <span aria-hidden="true" className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-deep text-white shadow-ww-xs" data-record-editor-category-check>
-                                    <Check size={12} strokeWidth={3} />
-                                  </span>
-                                )}
-                              </button>
-                              {expandedChildren.map(child => (
+                        <span className="line-clamp-2 w-full text-[11px] font-semibold leading-4 text-ww-mid">{category.name}</span>
+                        {isSelectedRoot && (
+                          <span aria-hidden="true" className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-deep text-white shadow-ww-xs" data-record-editor-category-check>
+                            <Check size={12} strokeWidth={3} />
+                          </span>
+                        )}
+                        {children.length > 0 && (
+                          <span aria-hidden="true" className="absolute right-0.5 top-[34px] flex h-5 min-w-5 items-center justify-center rounded-full bg-primary-deep px-1 text-[8px] font-black tracking-[-1px] text-white shadow-ww-xs">•••</span>
+                        )}
+                      </m.button>
+                      {(index % 5 === 4 || index === rootCategories.length - 1) && (
+                        <AnimatePresence initial={false}>
+                          {index === expandedRowEndIndex && expandedCategory && (
+                            <m.div
+                              animate={{ height: 'auto', opacity: 1 }}
+                              aria-label={t('record:bookkeeping.subcategoryGroup', { name: expandedCategory.name })}
+                              className="col-span-5 overflow-hidden rounded-[16px] bg-ww-surface-tint"
+                              exit={{ height: 0, opacity: 0 }}
+                              id={`record-editor-subcategories-${expandedCategory.id}`}
+                              initial={isMotionEnabled ? { height: 0, opacity: 0 } : false}
+                              key={expandedCategory.id}
+                              role="group"
+                              transition={{ duration: isMotionEnabled ? 0.2 : 0, ease: 'easeOut' }}
+                            >
+                              <div className="grid grid-cols-5 gap-x-1 gap-y-2 px-1.5 py-2">
                                 <button
-                                  aria-pressed={selectedCategory?.id === child.id}
+                                  aria-pressed={selectedCategory?.id === expandedCategory.id}
                                   className={cn(
                                     'relative flex min-h-[76px] min-w-0 flex-col items-center gap-1 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
-                                    selectedCategory?.id === child.id && 'bg-primary-light/60 text-primary-deep',
+                                    selectedCategory?.id === expandedCategory.id && 'bg-primary-light/60 text-primary-deep',
                                   )}
-                                  data-record-editor-category={child.id}
-                                  key={child.id}
-                                  onClick={() => handleSelectCategory(child)}
+                                  data-record-editor-category-direct={expandedCategory.id}
+                                  onClick={() => handleSelectCategory(expandedCategory)}
                                   type="button"
                                 >
                                   <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/85">
                                     <CategoryIcon
-                                      categoryName={child.name}
-                                      iconKey={child.icon}
-                                      iconType={child.iconType}
-                                      textIconEnabled={child.textIconEnabled}
-                                      textIconIndex={child.textIconIndex}
+                                      categoryName={expandedCategory.name}
+                                      iconKey={expandedCategory.icon}
+                                      iconType={expandedCategory.iconType}
+                                      textIconEnabled={expandedCategory.textIconEnabled}
+                                      textIconIndex={expandedCategory.textIconIndex}
                                       size={24}
                                     />
                                   </span>
-                                  <span className="line-clamp-2 w-full text-[11px] font-semibold leading-4 text-ww-mid">{child.name}</span>
-                                  {selectedCategory?.id === child.id && (
+                                  <span className="line-clamp-2 w-full text-[11px] font-semibold leading-4">{expandedCategory.name}</span>
+                                  <span className="text-[9px] leading-3 text-ww-soft">{t('record:bookkeeping.directEntry')}</span>
+                                  {selectedCategory?.id === expandedCategory.id && (
                                     <span aria-hidden="true" className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-deep text-white shadow-ww-xs" data-record-editor-category-check>
                                       <Check size={12} strokeWidth={3} />
                                     </span>
                                   )}
                                 </button>
-                              ))}
-                            </div>
-                          </m.div>
-                        )}
-                      </AnimatePresence>
-                    )}
-                  </Fragment>
-                );
-              })}
-            </div>
-          )}
-        </section>
-        <div className="flex min-h-0 flex-1 flex-col justify-end">
+                                {expandedChildren.map(child => (
+                                  <button
+                                    aria-pressed={selectedCategory?.id === child.id}
+                                    className={cn(
+                                      'relative flex min-h-[76px] min-w-0 flex-col items-center gap-1 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
+                                      selectedCategory?.id === child.id && 'bg-primary-light/60 text-primary-deep',
+                                    )}
+                                    data-record-editor-category={child.id}
+                                    key={child.id}
+                                    onClick={() => handleSelectCategory(child)}
+                                    type="button"
+                                  >
+                                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/85">
+                                      <CategoryIcon
+                                        categoryName={child.name}
+                                        iconKey={child.icon}
+                                        iconType={child.iconType}
+                                        textIconEnabled={child.textIconEnabled}
+                                        textIconIndex={child.textIconIndex}
+                                        size={24}
+                                      />
+                                    </span>
+                                    <span className="line-clamp-2 w-full text-[11px] font-semibold leading-4 text-ww-mid">{child.name}</span>
+                                    {selectedCategory?.id === child.id && (
+                                      <span aria-hidden="true" className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-deep text-white shadow-ww-xs" data-record-editor-category-check>
+                                        <Check size={12} strokeWidth={3} />
+                                      </span>
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            </m.div>
+                          )}
+                        </AnimatePresence>
+                      )}
+                    </Fragment>
+                  );
+                })}
+              </div>
+            )}
+          </section>
           {controller.isNoteFocused && filteredRemarkHistory.length > 0 && (
             <section
               aria-label={t('record:bookkeeping.remarkHistory')}
-              className="mx-[14px] mb-2 min-h-0 max-h-48 overflow-y-auto rounded-[14px] border border-border-primary bg-white/[0.96] p-2 shadow-ww-xs"
+              className="record-editor-remark-history absolute inset-x-[14px] bottom-[60px] z-20 min-h-0 overflow-y-auto rounded-[14px] border border-border-primary bg-white/[0.96] p-2 shadow-ww-xs"
               data-record-editor-remark-history
             >
               <h2 className="px-2 pb-1 text-[12px] font-semibold leading-5 text-ww-soft">
@@ -528,117 +537,118 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               </div>
             </section>
           )}
-        </div>
 
-        <input
-          accept="image/jpeg,image/png,image/webp"
-          className="hidden"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            event.target.value = '';
-            if (file)
-              void controller.handleSelectImage(file);
-          }}
-          ref={imageInputRef}
-          type="file"
-        />
-        <div
-          aria-label={t('record:bookkeeping.moreDetails')}
-          className="record-editor-action-strip mb-2 flex min-h-11 shrink-0 items-center gap-2 overflow-x-auto overscroll-x-contain px-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          data-record-editor-action-strip
-          role="group"
-        >
-          {assetAccounts !== undefined && (
+          <input
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.target.value = '';
+              if (file)
+                void controller.handleSelectImage(file);
+            }}
+            ref={imageInputRef}
+            type="file"
+          />
+          <div
+            aria-label={t('record:bookkeeping.moreDetails')}
+            className="record-editor-action-strip pointer-events-none absolute inset-x-0 bottom-2 z-10 flex h-11 items-center gap-2 overflow-x-auto overscroll-x-contain px-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            data-record-editor-action-strip
+            ref={actionStripRef}
+            role="group"
+          >
+            {assetAccounts !== undefined && (
+              <button
+                aria-label={linkedAssetLabel ?? t('record:bookkeeping.noLinkedAsset')}
+                className={cn('record-editor-chip', linkedAsset && 'record-editor-chip--selected')}
+                data-record-editor-asset-trigger
+                onClick={() => setIsAssetPickerVisible(true)}
+                type="button"
+              >
+                <Banknote aria-hidden="true" size={17} strokeWidth={1.8} />
+                <span className="max-w-[112px] truncate">{linkedAssetLabel ?? t('record:bookkeeping.noLinkedAsset')}</span>
+              </button>
+            )}
+            {tags !== undefined && (
+              <button
+                aria-label={t('record:bookkeeping.selectTagsWithCount', { count: controller.selectedTagIds.length })}
+                className={cn('record-editor-chip', controller.selectedTagIds.length > 0 && 'record-editor-chip--selected')}
+                data-record-editor-tag-trigger
+                onClick={openTagPicker}
+                type="button"
+              >
+                <Tags aria-hidden="true" size={17} strokeWidth={1.8} />
+                <span className="max-w-[125px] truncate">{tagSummary}</span>
+              </button>
+            )}
             <button
-              aria-label={linkedAssetLabel ?? t('record:bookkeeping.noLinkedAsset')}
-              className={cn('record-editor-chip', linkedAsset && 'record-editor-chip--selected')}
-              data-record-editor-asset-trigger
-              onClick={() => setIsAssetPickerVisible(true)}
+              aria-label={controller.location ? t('record:location.change') : t('record:location.add')}
+              className={cn('record-editor-chip', controller.location && 'record-editor-chip--selected')}
+              data-record-editor-location-trigger
+              onClick={() => controller.setIsLocationPickerVisible(true)}
               type="button"
             >
-              <Banknote aria-hidden="true" size={17} strokeWidth={1.8} />
-              <span className="max-w-[112px] truncate">{linkedAssetLabel ?? t('record:bookkeeping.noLinkedAsset')}</span>
+              <MapPin aria-hidden="true" size={17} strokeWidth={1.8} />
+              <span className="max-w-[132px] truncate">
+                {controller.location ? formatRecordLocationLabel(controller.location) : t('record:location.add')}
+              </span>
             </button>
-          )}
-          {tags !== undefined && (
             <button
-              aria-label={t('record:bookkeeping.selectTagsWithCount', { count: controller.selectedTagIds.length })}
-              className={cn('record-editor-chip', controller.selectedTagIds.length > 0 && 'record-editor-chip--selected')}
-              data-record-editor-tag-trigger
-              onClick={openTagPicker}
+              aria-label={`${t('record:bookkeeping.selectTime')}：${controller.formattedDate}`}
+              className="record-editor-chip"
+              data-record-editor-date-trigger
+              onClick={() => controller.setIsDatePickerVisible(true)}
               type="button"
             >
-              <Tags aria-hidden="true" size={17} strokeWidth={1.8} />
-              <span className="max-w-[125px] truncate">{tagSummary}</span>
+              <DesignIcon name="editor-date" size={17} />
+              <span>{controller.isToday ? t('common:time.today') : controller.formattedDate}</span>
             </button>
-          )}
-          <button
-            aria-label={controller.location ? t('record:location.change') : t('record:location.add')}
-            className={cn('record-editor-chip', controller.location && 'record-editor-chip--selected')}
-            data-record-editor-location-trigger
-            onClick={() => controller.setIsLocationPickerVisible(true)}
-            type="button"
-          >
-            <MapPin aria-hidden="true" size={17} strokeWidth={1.8} />
-            <span className="max-w-[132px] truncate">
-              {controller.location ? formatRecordLocationLabel(controller.location) : t('record:location.add')}
-            </span>
-          </button>
-          <button
-            aria-label={`${t('record:bookkeeping.selectTime')}：${controller.formattedDate}`}
-            className="record-editor-chip"
-            data-record-editor-date-trigger
-            onClick={() => controller.setIsDatePickerVisible(true)}
-            type="button"
-          >
-            <DesignIcon name="editor-date" size={17} />
-            <span>{controller.isToday ? t('common:time.today') : controller.formattedDate}</span>
-          </button>
-          {(controller.imagePreviewUrl || controller.hasInitialImage)
-            ? (
-                <div className="record-editor-chip record-editor-chip--selected !gap-0 !p-0" data-record-editor-image>
+            {(controller.imagePreviewUrl || controller.hasInitialImage)
+              ? (
+                  <div className="record-editor-chip record-editor-chip--selected !gap-0 !p-0" data-record-editor-image>
+                    <button
+                      aria-label={t('record:bookkeeping.previewImage')}
+                      className="flex min-h-11 items-center gap-1.5 pl-2 pr-1"
+                      data-record-editor-image-preview
+                      onClick={() => void openImagePreview()}
+                      type="button"
+                    >
+                      {controller.imagePreviewUrl || thumbnailUrl
+                        ? <img alt="" className="h-7 w-7 rounded-full object-cover" src={controller.imagePreviewUrl ?? thumbnailUrl} />
+                        : <ImagePlus aria-hidden="true" size={17} />}
+                      <span className="max-w-[112px] truncate">
+                        {controller.isImageUploading
+                          ? t('record:bookkeeping.imageUploading')
+                          : controller.imageUploadError
+                            ? t('record:bookkeeping.imageUploadFailed')
+                            : t('record:bookkeeping.imageAdded')}
+                      </span>
+                    </button>
+                    <button
+                      aria-label={t('record:bookkeeping.removeImage')}
+                      className="flex h-11 w-11 items-center justify-center"
+                      onClick={() => {
+                        closeImagePreview();
+                        controller.handleRemoveImage();
+                      }}
+                      type="button"
+                    >
+                      <X aria-hidden="true" size={15} />
+                    </button>
+                  </div>
+                )
+              : (
                   <button
-                    aria-label={t('record:bookkeeping.previewImage')}
-                    className="flex min-h-11 items-center gap-1.5 pl-2 pr-1"
-                    data-record-editor-image-preview
-                    onClick={() => void openImagePreview()}
+                    aria-label={t('record:bookkeeping.selectImage')}
+                    className="record-editor-chip"
+                    onClick={() => imageInputRef.current?.click()}
                     type="button"
                   >
-                    {controller.imagePreviewUrl || thumbnailUrl
-                      ? <img alt="" className="h-7 w-7 rounded-full object-cover" src={controller.imagePreviewUrl ?? thumbnailUrl} />
-                      : <ImagePlus aria-hidden="true" size={17} />}
-                    <span className="max-w-[112px] truncate">
-                      {controller.isImageUploading
-                        ? t('record:bookkeeping.imageUploading')
-                        : controller.imageUploadError
-                          ? t('record:bookkeeping.imageUploadFailed')
-                          : t('record:bookkeeping.imageAdded')}
-                    </span>
+                    <ImagePlus aria-hidden="true" size={17} strokeWidth={1.8} />
+                    <span>{t('record:bookkeeping.image')}</span>
                   </button>
-                  <button
-                    aria-label={t('record:bookkeeping.removeImage')}
-                    className="flex h-11 w-11 items-center justify-center"
-                    onClick={() => {
-                      closeImagePreview();
-                      controller.handleRemoveImage();
-                    }}
-                    type="button"
-                  >
-                    <X aria-hidden="true" size={15} />
-                  </button>
-                </div>
-              )
-            : (
-                <button
-                  aria-label={t('record:bookkeeping.selectImage')}
-                  className="record-editor-chip"
-                  onClick={() => imageInputRef.current?.click()}
-                  type="button"
-                >
-                  <ImagePlus aria-hidden="true" size={17} strokeWidth={1.8} />
-                  <span>{t('record:bookkeeping.image')}</span>
-                </button>
-              )}
+                )}
+          </div>
         </div>
 
         <div

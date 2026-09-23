@@ -1,5 +1,5 @@
-.record-editor-categories {
-  height: clamp(84px, 20.8dvh, 220px);
+.record-editor-remark-history {
+  max-height: min(192px, calc(100% - 64px));
 }
 
 .record-editor-keypad {
@@ -39,6 +39,7 @@
 
 .record-editor-chip {
   display: inline-flex;
+  pointer-events: auto;
   flex: none;
   align-items: center;
   gap: 6px;
@@ -69,11 +70,6 @@
   .record-editor-header {
     height: 54px;
     padding-bottom: 8px;
-  }
-
-  .record-editor-categories {
-    height: max(80px, min(20.8dvh, calc(100dvh - 452px - env(safe-area-inset-bottom))));
-    margin-bottom: 4px;
   }
 
   .record-editor-keypad {
