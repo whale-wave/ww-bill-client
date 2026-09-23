@@ -121,4 +121,29 @@ describe('record editor images', () => {
     await act(async () => restored.controller.handleSubmit());
     expect(restored.submit).toHaveBeenCalledWith(expect.objectContaining({ imageAssetIds: ['first-asset', 'second-asset'] }));
   });
+
+  it('waits for an in-flight upload before taking the settings draft snapshot', async () => {
+    let resolveUpload!: (assetId: string) => void;
+    const upload = new Promise<string>((resolve) => {
+      resolveUpload = resolve;
+    });
+    const editor = setup({ onUploadImage: () => upload });
+    act(() => editor.controller.handleSelectImages([new File(['image'], 'pending-asset')]));
+    expect(editor.controller.getDraftSnapshot().pendingImages?.[0].assetId).toBeUndefined();
+
+    const waitForUploads = editor.controller.waitForImageUploads();
+    await act(async () => {
+      resolveUpload('uploaded-asset');
+      await waitForUploads;
+    });
+    const snapshot = editor.controller.getDraftSnapshot();
+    expect(snapshot.pendingImages?.[0].assetId).toBe('uploaded-asset');
+    cleanup?.();
+    cleanup = undefined;
+
+    const restored = setup({ seedOverride: snapshot });
+    expect(restored.controller.hasImageUploadError).toBe(false);
+    await act(async () => restored.controller.handleSubmit());
+    expect(restored.submit).toHaveBeenCalledWith(expect.objectContaining({ imageAssetIds: ['uploaded-asset'] }));
+  });
 });

@@ -43,6 +43,8 @@ export function useRecordEditorImages({
   const imagesRef = useRef(images);
   const nextImageIdRef = useRef(0);
   const [isImageSelectionDirty, setIsImageSelectionDirty] = useState(initiallyDirty);
+  const imageSelectionDirtyRef = useRef(initiallyDirty);
+  const inFlightUploadsRef = useRef(new Set<Promise<void>>());
 
   const commitImages = useCallback((nextImages: RecordEditorImage[]) => {
     imagesRef.current = nextImages;
@@ -52,7 +54,8 @@ export function useRecordEditorImages({
   const uploadImage = useCallback((image: Extract<RecordEditorImage, { kind: 'new' }>) => {
     if (!onUploadImage)
       return;
-    void onUploadImage(image.file)
+    const upload = Promise.resolve()
+      .then(() => onUploadImage(image.file))
       .then((assetId) => {
         commitImages(imagesRef.current.map(current => current.id === image.id && current.kind === 'new'
           ? { ...current, assetId, status: 'ready' }
@@ -62,8 +65,22 @@ export function useRecordEditorImages({
         commitImages(imagesRef.current.map(current => current.id === image.id && current.kind === 'new'
           ? { ...current, status: 'error' }
           : current));
+      })
+      .finally(() => {
+        inFlightUploadsRef.current.delete(upload);
       });
+    inFlightUploadsRef.current.add(upload);
   }, [commitImages, onUploadImage]);
+
+  const waitForImageUploads = useCallback(async () => {
+    while (inFlightUploadsRef.current.size > 0)
+      await Promise.allSettled([...inFlightUploadsRef.current]);
+  }, []);
+
+  const getImageDraftState = useCallback(() => ({
+    images: imagesRef.current,
+    isImageSelectionDirty: imageSelectionDirtyRef.current,
+  }), []);
 
   const handleSelectImages = useCallback((files: File[]) => {
     if (!onUploadImage)
@@ -78,6 +95,7 @@ export function useRecordEditorImages({
       status: 'uploading',
     }));
     commitImages([...imagesRef.current, ...added]);
+    imageSelectionDirtyRef.current = true;
     setIsImageSelectionDirty(true);
     for (const image of added) {
       if (image.kind === 'new')
@@ -100,6 +118,7 @@ export function useRecordEditorImages({
     if (!imagesRef.current.some(image => image.id === id))
       return;
     commitImages(imagesRef.current.filter(image => image.id !== id));
+    imageSelectionDirtyRef.current = true;
     setIsImageSelectionDirty(true);
   }, [commitImages]);
 
@@ -107,9 +126,11 @@ export function useRecordEditorImages({
     handleRemoveImage,
     handleRetryImage,
     handleSelectImages,
+    getImageDraftState,
     images,
     isImageSelectionDirty,
     isImageUploading: images.some(image => image.kind === 'new' && image.status === 'uploading'),
     hasImageUploadError: images.some(image => image.kind === 'new' && image.status === 'error'),
+    waitForImageUploads,
   };
 }

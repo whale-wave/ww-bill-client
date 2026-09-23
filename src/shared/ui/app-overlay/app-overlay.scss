@@ -238,6 +238,10 @@
   box-shadow: var(--ww-material-overlay-shadow);
 }
 
+.ww-app-sheet.ww-app-sheet--opaque.adm-popup-body {
+  background: var(--ww-material-overlay-opaque-background);
+}
+
 .ww-app-action-sheet > .adm-popup-body,
 .adm-picker-popup:has(.ww-app-date-picker) .adm-popup-body,
 .ww-app-sheet--bottom.adm-popup-body {

@@ -279,6 +279,7 @@ function BookkeepingPage() {
   }, [availableDefaultAssetId, controller]);
   const openRecordEditorSettings = useRecordEditorSettingsNavigation(
     controller.getDraftSnapshot,
+    controller.waitForImageUploads,
   );
   const categoryQuery = useGetCategoryQuery({
     params: { type: controller.recordType },

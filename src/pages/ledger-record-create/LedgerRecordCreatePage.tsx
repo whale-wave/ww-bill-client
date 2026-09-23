@@ -96,6 +96,7 @@ function LedgerRecordCreateEditor({
   });
   const openRecordEditorSettings = useRecordEditorSettingsNavigation(
     controller.getDraftSnapshot,
+    controller.waitForImageUploads,
   );
   const categoryQuery = useLedgerCategoriesQuery({
     params: { ledgerId, type: controller.recordType },

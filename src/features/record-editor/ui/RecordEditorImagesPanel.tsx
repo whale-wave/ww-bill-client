@@ -1,4 +1,3 @@
-import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { RecordEditorImage } from '../model/useRecordEditorImages';
 import { ImageOff, ImagePlus, RotateCcw, Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -65,8 +64,13 @@ function RecordEditorImageTile({ image, index, onPreview, onRemove, onRetry }: R
 }
 
 interface RecordEditorImagesPanelProps {
+  canAddImages: boolean;
   chipClassName: string;
-  controller: RecordEditorController;
+  hasImageUploadError: boolean;
+  images: RecordEditorImage[];
+  onRemoveImage: (id: string) => void;
+  onRetryImage: (id: string) => void;
+  onSelectImages: (files: File[]) => number;
 }
 
 function RecordEditorImagePreview({ image, onClose }: { image: RecordEditorImage; onClose: () => void }) {
@@ -91,27 +95,27 @@ function RecordEditorImagePreview({ image, onClose }: { image: RecordEditorImage
   );
 }
 
-export function RecordEditorImagesPanel({ chipClassName, controller }: RecordEditorImagesPanelProps) {
+export function RecordEditorImagesPanel({ canAddImages, chipClassName, hasImageUploadError, images, onRemoveImage, onRetryImage, onSelectImages }: RecordEditorImagesPanelProps) {
   const { t } = useTranslation(['record', 'common']);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [previewId, setPreviewId] = useState<string>();
-  const selectedImage = controller.images.find(image => image.id === previewId);
+  const selectedImage = images.find(image => image.id === previewId);
 
   return (
     <>
       <button
-        aria-label={`${t('record:bookkeeping.imageCount', { count: controller.images.length })}${controller.hasImageUploadError ? `，${t('record:bookkeeping.imageUploadFailed')}` : ''}`}
-        className={cn(chipClassName, controller.images.length > 0 && 'border-primary-light bg-primary-light text-primary-deep', controller.hasImageUploadError && 'border-feedback-danger text-feedback-danger')}
+        aria-label={`${t('record:bookkeeping.imageCount', { count: images.length })}${hasImageUploadError ? `，${t('record:bookkeeping.imageUploadFailed')}` : ''}`}
+        className={cn(chipClassName, images.length > 0 && 'border-primary-light bg-primary-light text-primary-deep', hasImageUploadError && 'border-feedback-danger text-feedback-danger')}
         data-record-editor-image-trigger
         onClick={() => setIsOpen(true)}
         type="button"
       >
         <ImagePlus aria-hidden="true" size={17} strokeWidth={1.8} />
         <span>{t('record:bookkeeping.image')}</span>
-        {controller.images.length > 0 && (
-          <span aria-hidden="true" className={cn('flex min-h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-bold leading-none text-white', controller.hasImageUploadError ? 'bg-feedback-danger' : 'bg-primary-deep')} data-record-editor-image-count>
-            {controller.images.length}
+        {images.length > 0 && (
+          <span aria-hidden="true" className={cn('flex min-h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-bold leading-none text-white', hasImageUploadError ? 'bg-feedback-danger' : 'bg-primary-deep')} data-record-editor-image-count>
+            {images.length}
           </span>
         )}
       </button>
@@ -122,7 +126,7 @@ export function RecordEditorImagesPanel({ chipClassName, controller }: RecordEdi
         onChange={(event) => {
           const files = Array.from(event.target.files ?? []);
           event.target.value = '';
-          const accepted = controller.handleSelectImages(files);
+          const accepted = onSelectImages(files);
           if (accepted < files.length)
             showAppNotice({ content: t('record:bookkeeping.imageLimit', { count: MAX_RECORD_IMAGES }) });
         }}
@@ -130,8 +134,9 @@ export function RecordEditorImagesPanel({ chipClassName, controller }: RecordEdi
         type="file"
       />
       <AppSheet
-        bodyClassName="max-h-[72vh] overflow-hidden !bg-white"
+        bodyClassName="max-h-[72vh] overflow-hidden"
         destroyOnClose
+        material="opaque"
         onClose={() => setIsOpen(false)}
         onMaskClick={() => setIsOpen(false)}
         position="bottom"
@@ -139,23 +144,23 @@ export function RecordEditorImagesPanel({ chipClassName, controller }: RecordEdi
       >
         <SheetHeader
           closeLabel={t('common:nav.close')}
-          description={t('record:bookkeeping.imageCountOfLimit', { count: controller.images.length, limit: MAX_RECORD_IMAGES })}
+          description={t('record:bookkeeping.imageCountOfLimit', { count: images.length, limit: MAX_RECORD_IMAGES })}
           onClose={() => setIsOpen(false)}
           title={t('record:bookkeeping.image')}
         />
         <div className="max-h-[calc(72vh-64px)] overflow-y-auto overscroll-contain px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-4">
           <div className="grid grid-cols-3 gap-2" data-record-editor-image-gallery>
-            {controller.images.map((image, index) => (
+            {images.map((image, index) => (
               <RecordEditorImageTile
                 image={image}
                 index={index}
                 key={image.id}
                 onPreview={() => setPreviewId(image.id)}
-                onRemove={() => controller.handleRemoveImage(image.id)}
-                onRetry={() => controller.handleRetryImage(image.id)}
+                onRemove={() => onRemoveImage(image.id)}
+                onRetry={() => onRetryImage(image.id)}
               />
             ))}
-            {controller.canAddImages && (
+            {canAddImages && (
               <button
                 aria-label={t('record:bookkeeping.addImage')}
                 className="flex min-h-[104px] flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-primary bg-primary-light/40 text-primary-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep"

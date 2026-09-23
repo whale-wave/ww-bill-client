@@ -288,7 +288,7 @@ const UserInfo: FC = () => {
       )}
       {deletionModalVisible && (
         <div aria-labelledby="account-deletion-dialog-title" aria-modal="true" className="fixed inset-0 z-[1001] flex items-end bg-black/25 px-3 pt-12 backdrop-blur-[3px] sm:items-center sm:justify-center" role="dialog">
-          <Surface className="max-h-full w-full max-w-[520px] overflow-hidden rounded-b-none px-5 py-5 sm:rounded-[24px]" material="floating">
+          <Surface className="max-h-full w-full max-w-[520px] overflow-hidden px-5 py-5" material="floating">
             <div className="flex max-h-[calc(100vh-5rem)] flex-col">
               <h2 className="text-[18px] font-extrabold text-ww-ink" id="account-deletion-dialog-title">{t('deletion.title')}</h2>
               <div className="mt-3 min-h-0 space-y-3 overflow-y-auto pr-1 text-[13px] leading-6 text-ww-mid">

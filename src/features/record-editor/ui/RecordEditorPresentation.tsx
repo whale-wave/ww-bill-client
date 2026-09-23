@@ -473,7 +473,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </section>
           )}
 
-          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 z-[5] h-[138px] border-t border-border-primary bg-white" data-record-editor-control-dock />
+          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 z-[5] h-[138px] border-t border-border-primary bg-[var(--ww-ref-mono-white)]" data-record-editor-control-dock />
           <div
             aria-label={t('record:bookkeeping.moreDetails')}
             className="record-editor-action-strip pointer-events-none absolute inset-x-0 bottom-[78px] z-10 flex h-11 items-center gap-2 overflow-x-auto overscroll-x-contain px-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -527,7 +527,15 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               <DesignIcon name="editor-date" size={17} />
               <span>{controller.isToday ? t('common:time.today') : controller.formattedDate}</span>
             </button>
-            <RecordEditorImagesPanel chipClassName={detailChipClassName} controller={controller} />
+            <RecordEditorImagesPanel
+              canAddImages={controller.canAddImages}
+              chipClassName={detailChipClassName}
+              hasImageUploadError={controller.hasImageUploadError}
+              images={controller.images}
+              onRemoveImage={controller.handleRemoveImage}
+              onRetryImage={controller.handleRetryImage}
+              onSelectImages={controller.handleSelectImages}
+            />
           </div>
 
           <div

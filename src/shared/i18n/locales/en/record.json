@@ -55,6 +55,8 @@
   },
   "detail": {
     "title": "Records",
+    "imageCount": "{{count}} images",
+    "viewImages": "View {{count}} images",
     "income": "Income",
     "expend": "Expense",
     "balance": "Balance",

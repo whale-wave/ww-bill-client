@@ -49,15 +49,19 @@ function MultiTagPreview() {
   const controller = useRecordEditorController({ seed: { amount: '100', category: categories[3], recordType: 'sub', time: '2026-09-22T12:00:00+08:00', tagIds: ['trip', 'old'], isTagPickerVisible: true }, isEditing: true, supportsTags: true, onSubmit: async () => undefined });
   return <div className="h-dvh"><RecordEditorPresentation categories={categories} categoryState="ready" controller={controller} onCancel={() => undefined} tags={[{ id: 'trip', name: '出差' }, { id: 'refund', name: '可报销' }, { id: 'weekend', name: '周末' }, { id: 'old', name: '去年旅行', status: 'ARCHIVED' }]} /></div>;
 }
+function createReceiptPreviewFiles() {
+  const root = getComputedStyle(document.documentElement);
+  const color = (token: string) => root.getPropertyValue(token).trim();
+  const backgrounds = ['--ww-theme-color-light', '--ww-surface-tint-color', '--ww-surface-raised-color'];
+  return Array.from({ length: 3 }, (_, index) => new File(
+    [`<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><rect width="240" height="240" fill="${color(backgrounds[index])}"/><rect x="45" y="19" width="150" height="202" rx="9" fill="${color('--ww-ref-mono-white')}"/><path d="M65 66h105M65 91h80M65 116h105M65 141h71M65 169h105" stroke="${color('--ww-text-color-soft')}" stroke-width="7" stroke-linecap="round"/><circle cx="160" cy="185" r="12" fill="${color('--ww-theme-color')}"/></svg>`],
+    `receipt-${index + 1}.svg`,
+    { type: 'image/svg+xml' },
+  ));
+}
 function RecordEditorPreview({ items = categories, categoryState = 'ready', selectedCategory, withDetails = false, withImages = false }: { items?: CategoryEntity[]; categoryState?: RecordEditorCategoryState; selectedCategory?: CategoryEntity; withDetails?: boolean; withImages?: boolean }) {
   const [client] = useState(() => new QueryClient({ defaultOptions: { queries: { retry: false } } }));
-  const [imageFiles] = useState(() => withImages
-    ? Array.from({ length: 3 }, (_, index) => new File(
-        [`<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><rect width="240" height="240" fill="${['#e7f4f8', '#f6e8ec', '#e9f4ed'][index]}"/><rect x="45" y="19" width="150" height="202" rx="9" fill="white"/><path d="M65 66h105M65 91h80M65 116h105M65 141h71M65 169h105" stroke="#a7bcc7" stroke-width="7" stroke-linecap="round"/><circle cx="160" cy="185" r="12" fill="${['#6fc2dc', '#c04870', '#2a9460'][index]}"/></svg>`],
-        `receipt-${index + 1}.svg`,
-        { type: 'image/svg+xml' },
-      ))
-    : []);
+  const [imageFiles] = useState(() => withImages ? createReceiptPreviewFiles() : []);
   const controller = useRecordEditorController({
     seed: {
       amount: withDetails ? '38.50' : undefined,

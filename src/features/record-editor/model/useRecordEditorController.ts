@@ -72,10 +72,12 @@ export function useRecordEditorController({
     handleRemoveImage,
     handleRetryImage,
     handleSelectImages,
+    getImageDraftState,
     hasImageUploadError,
     images,
     isImageSelectionDirty,
     isImageUploading,
+    waitForImageUploads,
   } = useRecordEditorImages({
     attachments: seed.attachments ?? (seed.imageAssetId !== undefined || !seed.attachment ? [] : [seed.attachment]),
     pendingImages: seed.pendingImages ?? (seed.imagePreviewFile
@@ -310,37 +312,39 @@ export function useRecordEditorController({
   const formattedTime = useMemo(() => dayjs(date).format('HH:mm:ss'), [date]);
   const isToday = useMemo(() => dayjs().isSame(date, 'day'), [date]);
   const getDraftSnapshot = useCallback(
-    (): RecordEditorSeed => ({
-      amount: calculator.totals,
-      attachments: images.flatMap(image => image.kind === 'existing' ? [image.attachment] : []),
-      calculator: {
-        addNum: calculator.addNum,
-        addition: calculator.addition,
-        completeText: calculator.completeText,
-        num: calculator.num,
-        totals: calculator.totals,
-      },
-      category: selectedCategory,
-      pendingImages: images.flatMap(image => image.kind === 'new'
-        ? [{ assetId: image.assetId, file: image.file, id: image.id }]
-        : []),
-      imageSelectionDirty: isImageSelectionDirty,
-      linkedAssetId,
-      location,
-      locationSelectionDirty,
-      isTagPickerVisible: true,
-      recordType,
-      remark,
-      tagIds: selectedTagIds,
-      ...(tagSelectionDirty ? { tagSelectionDirty } : {}),
-      time: dayjs(date).toISOString(),
-      shouldReconcileTags: true,
-    }),
+    (): RecordEditorSeed => {
+      const { images: currentImages, isImageSelectionDirty: currentImageSelectionDirty } = getImageDraftState();
+      return {
+        amount: calculator.totals,
+        attachments: currentImages.flatMap(image => image.kind === 'existing' ? [image.attachment] : []),
+        calculator: {
+          addNum: calculator.addNum,
+          addition: calculator.addition,
+          completeText: calculator.completeText,
+          num: calculator.num,
+          totals: calculator.totals,
+        },
+        category: selectedCategory,
+        pendingImages: currentImages.flatMap(image => image.kind === 'new'
+          ? [{ assetId: image.assetId, file: image.file, id: image.id }]
+          : []),
+        imageSelectionDirty: currentImageSelectionDirty,
+        linkedAssetId,
+        location,
+        locationSelectionDirty,
+        isTagPickerVisible: true,
+        recordType,
+        remark,
+        tagIds: selectedTagIds,
+        ...(tagSelectionDirty ? { tagSelectionDirty } : {}),
+        time: dayjs(date).toISOString(),
+        shouldReconcileTags: true,
+      };
+    },
     [
       calculator,
       date,
-      images,
-      isImageSelectionDirty,
+      getImageDraftState,
       linkedAssetId,
       location,
       locationSelectionDirty,
@@ -362,6 +366,7 @@ export function useRecordEditorController({
     formattedDate,
     formattedTime,
     getDraftSnapshot,
+    waitForImageUploads,
     handleKeyClick,
     handleKeyTouchMove,
     handleKeyTouchStart,

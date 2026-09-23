@@ -23,7 +23,7 @@ function SettingsNavigationProbe({ reopenTagPicker }: { reopenTagPicker?: boolea
     isTagPickerVisible: true,
     recordType: 'sub',
     time: '2026-08-30T00:00:00.000Z',
-  }));
+  }), async () => {});
   return createElement('button', {
     onClick: () => openSettings('/ledgers/ledger-a/settings/categories', { reopenTagPicker }),
     type: 'button',
@@ -31,13 +31,13 @@ function SettingsNavigationProbe({ reopenTagPicker }: { reopenTagPicker?: boolea
 }
 
 describe('record editor settings navigation', () => {
-  it('does not restore the tag picker after category settings', () => {
+  it('does not restore the tag picker after category settings', async () => {
     mocks.useLocation.mockReturnValue({ pathname: '/bookkeeping', search: '', state: null });
     const container = document.createElement('div');
     const root = createRoot(container);
     act(() => root.render(createElement(SettingsNavigationProbe, { reopenTagPicker: false })));
 
-    act(() => container.querySelector('button')?.click());
+    await act(async () => container.querySelector('button')?.click());
 
     expect(mocks.navigate).toHaveBeenCalledWith('/ledgers/ledger-a/settings/categories', {
       replace: true,
@@ -47,6 +47,45 @@ describe('record editor settings navigation', () => {
         }),
       }),
     });
+    act(() => root.unmount());
+  });
+
+  it('waits for image uploads before reading the latest draft', async () => {
+    mocks.useLocation.mockReturnValue({ pathname: '/bookkeeping', search: '', state: null });
+    let finishUpload!: () => void;
+    const upload = new Promise<void>((resolve) => {
+      finishUpload = resolve;
+    });
+    let assetId: string | undefined;
+    let openSettings!: (path: string) => Promise<void>;
+    function Probe() {
+      openSettings = useRecordEditorSettingsNavigation(() => ({
+        pendingImages: assetId ? [{ assetId, file: new File(['image'], 'image'), id: 'image' }] : [],
+        recordType: 'sub',
+        time: '2026-08-30T00:00:00.000Z',
+      }), () => upload);
+      return null;
+    }
+    const root = createRoot(document.createElement('div'));
+    act(() => root.render(createElement(Probe)));
+
+    let navigation!: Promise<void>;
+    act(() => {
+      navigation = openSettings('/settings/categories');
+    });
+    expect(mocks.navigate).not.toHaveBeenCalled();
+    assetId = 'uploaded-asset';
+    await act(async () => {
+      finishUpload();
+      await navigation;
+    });
+    expect(mocks.navigate).toHaveBeenCalledWith('/settings/categories', expect.objectContaining({
+      state: expect.objectContaining({
+        recordEditorSettingsNavigation: expect.objectContaining({
+          draft: expect.objectContaining({ pendingImages: [expect.objectContaining({ assetId: 'uploaded-asset' })] }),
+        }),
+      }),
+    }));
     act(() => root.unmount());
   });
 });
