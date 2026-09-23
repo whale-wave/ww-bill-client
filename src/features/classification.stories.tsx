@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { RecordEditorCategoryState } from './record-editor';
 import type { CategoryEntity } from '@/entities/category';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -48,7 +49,7 @@ function MultiTagPreview() {
   const controller = useRecordEditorController({ seed: { amount: '100', category: categories[3], recordType: 'sub', time: '2026-09-22T12:00:00+08:00', tagIds: ['trip', 'old'], isTagPickerVisible: true }, isEditing: true, supportsTags: true, onSubmit: async () => undefined });
   return <div className="h-dvh"><RecordEditorPresentation categories={categories} categoryState="ready" controller={controller} onCancel={() => undefined} tags={[{ id: 'trip', name: '出差' }, { id: 'refund', name: '可报销' }, { id: 'weekend', name: '周末' }, { id: 'old', name: '去年旅行', status: 'ARCHIVED' }]} /></div>;
 }
-function RecordEditorPreview({ items = categories, selectedCategory, withDetails = false }: { items?: CategoryEntity[]; selectedCategory?: CategoryEntity; withDetails?: boolean }) {
+function RecordEditorPreview({ items = categories, categoryState = 'ready', selectedCategory, withDetails = false }: { items?: CategoryEntity[]; categoryState?: RecordEditorCategoryState; selectedCategory?: CategoryEntity; withDetails?: boolean }) {
   const controller = useRecordEditorController({
     seed: {
       amount: withDetails ? '38.50' : undefined,
@@ -62,7 +63,7 @@ function RecordEditorPreview({ items = categories, selectedCategory, withDetails
     supportsTags: true,
     onSubmit: async () => undefined,
   });
-  return <div className="h-dvh"><RecordEditorPresentation assetAccounts={[]} categories={items} categoryState="ready" controller={controller} onCancel={() => undefined} onManageCategories={() => undefined} tags={[{ id: 'weekend', name: '周末' }]} /></div>;
+  return <div className="h-dvh"><RecordEditorPresentation assetAccounts={[]} categories={items} categoryState={categoryState} controller={controller} onCancel={() => undefined} onManageCategories={() => undefined} onRetryCategories={() => undefined} tags={[{ id: 'weekend', name: '周末' }]} /></div>;
 }
 export const Hierarchy: Story = { render: () => <CategoryPreview /> };
 export const EditableHierarchy: Story = { render: () => <CategoryPreview canManage /> };
@@ -77,4 +78,7 @@ export const SelectedSubcategory: Story = { render: () => <RecordEditorPreview s
 export const CompactDetails: Story = { render: () => <RecordEditorPreview selectedCategory={categories[3]} withDetails /> };
 export const FloatingDetailsOverCategories: Story = { render: () => <RecordEditorPreview items={denseCategories} selectedCategory={categories[3]} withDetails /> };
 export const LeafCategories: Story = { render: () => <RecordEditorPreview items={categories.filter(category => !category.parentId).slice(0, 3)} /> };
+export const LoadingCategories: Story = { render: () => <RecordEditorPreview categoryState="loading" items={[]} /> };
+export const FailedCategories: Story = { render: () => <RecordEditorPreview categoryState="error" items={[]} /> };
+export const EmptyCategories: Story = { render: () => <RecordEditorPreview items={[]} /> };
 export const MultipleTags: Story = { render: () => <MultiTagPreview /> };

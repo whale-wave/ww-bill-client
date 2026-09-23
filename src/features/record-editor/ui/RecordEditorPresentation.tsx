@@ -3,12 +3,13 @@ import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { Asset, AssetGroup } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
-import { Button, ErrorBlock, SpinLoading } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import {
   Delete as BackspaceIcon,
   Banknote,
   Check,
   CheckCircle2,
+  CircleAlert,
   ImagePlus,
   MapPin,
   Settings2,
@@ -344,13 +345,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         className="flex min-h-0 flex-grow flex-col"
         data-record-editor-amount
       >
-        <div className="record-editor-category-stage relative min-h-0 flex-1" data-record-editor-category-stage>
+        <div className="record-editor-category-stage relative min-h-0 flex-1 bg-white/55" data-record-editor-category-stage>
           <section
             aria-label={t('record:bookkeeping.selectCategory')}
-            className={cn(
-              'record-editor-categories mx-[14px] h-full overflow-y-auto overscroll-contain rounded-[18px] bg-white/55 px-1 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-              categoryState === 'ready' && rootCategories.length > 0 && 'pb-[68px]',
-            )}
+            className="record-editor-categories h-full overflow-y-auto overscroll-contain px-[18px] pb-[148px] pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             data-record-editor-categories
             ref={categoryViewportRef}
           >
@@ -360,18 +358,21 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               </div>
             )}
             {categoryState === 'error' && (
-              <div className="flex min-h-full flex-col items-center justify-center py-2">
-                <ErrorBlock description={t('common:error.loadFail')} />
+              <div className="flex min-h-full flex-col items-center justify-center gap-2 py-2 text-center">
+                <div className="flex items-center gap-1.5 text-[13px] font-semibold leading-5 text-ww-mid" role="alert">
+                  <CircleAlert aria-hidden="true" size={17} strokeWidth={1.8} />
+                  <span>{t('common:error.loadFail')}</span>
+                </div>
                 {onRetryCategories && (
-                  <Button onClick={onRetryCategories} size="small">
+                  <button className="min-h-11 rounded-full border border-border-primary bg-white px-5 text-[13px] font-semibold text-primary-deep shadow-ww-xs" onClick={onRetryCategories} type="button">
                     {t('common:retry')}
-                  </Button>
+                  </button>
                 )}
               </div>
             )}
             {categoryState === 'ready' && categories.length === 0 && (
               <IllustratedEmptyState
-                className="min-h-full"
+                className="record-editor-empty-state min-h-full"
                 description={t('record:bookkeeping.emptyCategoryDescription')}
                 icon={<Tags className="text-primary-deep" size={30} strokeWidth={1.5} />}
                 testId="record-editor-empty-state"
@@ -514,7 +515,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           {controller.isNoteFocused && filteredRemarkHistory.length > 0 && (
             <section
               aria-label={t('record:bookkeeping.remarkHistory')}
-              className="record-editor-remark-history absolute inset-x-[14px] bottom-[60px] z-20 min-h-0 overflow-y-auto rounded-[14px] border border-border-primary bg-white/[0.96] p-2 shadow-ww-xs"
+              className="record-editor-remark-history absolute inset-x-[14px] bottom-[130px] z-20 min-h-0 overflow-y-auto rounded-[14px] border border-border-primary bg-white/[0.96] p-2 shadow-ww-xs"
               data-record-editor-remark-history
             >
               <h2 className="px-2 pb-1 text-[12px] font-semibold leading-5 text-ww-soft">
@@ -552,7 +553,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           />
           <div
             aria-label={t('record:bookkeeping.moreDetails')}
-            className="record-editor-action-strip pointer-events-none absolute inset-x-0 bottom-2 z-10 flex h-11 items-center gap-2 overflow-x-auto overscroll-x-contain px-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="record-editor-action-strip pointer-events-none absolute inset-x-0 bottom-[78px] z-10 flex h-11 items-center gap-2 overflow-x-auto overscroll-x-contain px-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             data-record-editor-action-strip
             ref={actionStripRef}
             role="group"
@@ -649,53 +650,53 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   </button>
                 )}
           </div>
-        </div>
 
-        <div
-          className="record-editor-entry-row mx-[14px] mb-2 flex h-[62px] shrink-0 items-center gap-2 rounded-[14px] border border-border-primary bg-white/[0.92] px-3 shadow-ww-xs"
-          data-record-editor-entry-row
-        >
-          <label className="flex h-full min-w-0 flex-1 flex-col justify-center" data-record-editor-note>
-            <div className="record-editor-amount-caption truncate text-[10px] font-semibold leading-4 text-primary-deep">
-              {selectedCategoryPath
-                ? `${selectedCategoryPath} · ${controller.recordType === 'sub' ? t('record:bookkeeping.expend') : t('record:bookkeeping.income')}`
-                : t('record:bookkeeping.chooseCategory')}
-            </div>
-            <input
-              ref={noteInputRef}
-              aria-label={t('record:bookkeeping.note')}
-              className="min-w-0 w-full select-text border-0 bg-transparent py-1 text-[13px] leading-5 text-ww-ink outline-none placeholder:text-ww-mid [-webkit-user-select:text]"
-              onBlur={() => controller.setIsNoteFocused(false)}
-              onChange={event => controller.setRemark(event.target.value)}
-              onFocus={() => controller.setIsNoteFocused(true)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && hasValidSelectedCategory && !controller.isSubmitting && !controller.isImageUploading) {
-                  event.stopPropagation();
-                  void controller.handleSubmit();
-                }
-              }}
-              placeholder={t('record:bookkeeping.notePlaceholder')}
-              type="text"
-              value={controller.remark}
-            />
-          </label>
-          <button
-            aria-label={`${t('record:bookkeeping.amount')}：${controller.calculator.totals}`}
-            className="flex min-h-11 min-w-0 max-w-[48%] items-center justify-end text-right"
-            onClick={() => {
-              noteInputRef.current?.blur();
-              controller.setIsNoteFocused(false);
-            }}
-            type="button"
+          <div
+            className="record-editor-entry-row absolute inset-x-[14px] bottom-2 z-10 flex h-[62px] items-center gap-2 rounded-[14px] border border-border-primary bg-white px-3 shadow-ww-xs"
+            data-record-editor-entry-row
           >
-            <span
-              className="record-editor-total max-w-full overflow-x-auto whitespace-nowrap font-number text-[34px] font-black leading-[44px] tracking-[-1px] text-ww-ink [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              data-record-editor-total
+            <label className="flex h-full min-w-0 flex-1 flex-col justify-center" data-record-editor-note>
+              <div className="record-editor-amount-caption truncate text-[10px] font-semibold leading-4 text-primary-deep">
+                {selectedCategoryPath
+                  ? `${selectedCategoryPath} · ${controller.recordType === 'sub' ? t('record:bookkeeping.expend') : t('record:bookkeeping.income')}`
+                  : t('record:bookkeeping.chooseCategory')}
+              </div>
+              <input
+                ref={noteInputRef}
+                aria-label={t('record:bookkeeping.note')}
+                className="min-w-0 w-full select-text border-0 bg-transparent py-1 text-[13px] leading-5 text-ww-ink outline-none placeholder:text-ww-mid [-webkit-user-select:text]"
+                onBlur={() => controller.setIsNoteFocused(false)}
+                onChange={event => controller.setRemark(event.target.value)}
+                onFocus={() => controller.setIsNoteFocused(true)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && hasValidSelectedCategory && !controller.isSubmitting && !controller.isImageUploading) {
+                    event.stopPropagation();
+                    void controller.handleSubmit();
+                  }
+                }}
+                placeholder={t('record:bookkeeping.notePlaceholder')}
+                type="text"
+                value={controller.remark}
+              />
+            </label>
+            <button
+              aria-label={`${t('record:bookkeeping.amount')}：${controller.calculator.totals}`}
+              className="flex min-h-11 min-w-0 max-w-[48%] items-center justify-end text-right"
+              onClick={() => {
+                noteInputRef.current?.blur();
+                controller.setIsNoteFocused(false);
+              }}
+              type="button"
             >
-              <span className="mr-0.5 text-[18px] font-bold tracking-normal text-ww-soft">¥</span>
-              {controller.calculator.totals}
-            </span>
-          </button>
+              <span
+                className="record-editor-total max-w-full overflow-x-auto whitespace-nowrap font-number text-[34px] font-black leading-[44px] tracking-[-1px] text-ww-ink [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                data-record-editor-total
+              >
+                <span className="mr-0.5 text-[18px] font-bold tracking-normal text-ww-soft">¥</span>
+                {controller.calculator.totals}
+              </span>
+            </button>
+          </div>
         </div>
 
         <section

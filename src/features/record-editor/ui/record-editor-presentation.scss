@@ -1,5 +1,5 @@
 .record-editor-remark-history {
-  max-height: min(192px, calc(100% - 64px));
+  max-height: min(192px, calc(100% - 138px));
 }
 
 .record-editor-keypad {
@@ -67,6 +67,26 @@
 }
 
 @media (max-height: 680px) {
+  .record-editor-empty-state {
+    min-height: 100%;
+    padding: 8px 10px;
+  }
+
+  .record-editor-empty-state > div:first-child {
+    display: none;
+  }
+
+  .record-editor-empty-state h2 {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .record-editor-empty-state p {
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 16px;
+  }
+
   .record-editor-header {
     height: 54px;
     padding-bottom: 8px;

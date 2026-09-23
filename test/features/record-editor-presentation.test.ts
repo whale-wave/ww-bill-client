@@ -222,6 +222,36 @@ describe('record editor presentation', () => {
     expect(container.textContent).toContain('record:bookkeeping.emptyCategoryTitle');
   });
 
+  it('keeps a category loading failure and retry local to the category area', () => {
+    const onRetryCategories = vi.fn();
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    function ErrorEditor() {
+      return createElement(RecordEditorPresentation, {
+        categories: [],
+        categoryState: 'error',
+        controller: useRecordEditorController({
+          onSubmit: vi.fn(),
+          seed: { recordType: 'sub', time: '2026-07-21T12:00:00.000Z' },
+        }),
+        onCancel: vi.fn(),
+        onRetryCategories,
+      });
+    }
+
+    act(() => root.render(createElement(ErrorEditor)));
+    cleanup = () => act(() => root.unmount());
+
+    const categoryArea = container.querySelector('[data-record-editor-categories]');
+    expect(categoryArea?.querySelector('[role="alert"]')?.textContent).toContain('common:error.loadFail');
+    expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
+    expect(container.querySelector<HTMLButtonElement>('[data-record-editor-submit]')?.disabled).toBe(true);
+
+    act(() => categoryArea?.querySelector<HTMLButtonElement>('button')?.click());
+    expect(onRetryCategories).toHaveBeenCalledOnce();
+  });
+
   it('disables saving when a previously selected category is no longer available', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
@@ -266,6 +296,11 @@ describe('record editor presentation', () => {
     expect(container.querySelector('[data-record-editor-action-strip]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-entry-row] [data-record-editor-note]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-entry-row] [data-record-editor-total]')).not.toBeNull();
+    const categoryStage = container.querySelector('[data-record-editor-category-stage]');
+    expect(categoryStage?.contains(container.querySelector('[data-record-editor-categories]'))).toBe(true);
+    expect(categoryStage?.contains(container.querySelector('[data-record-editor-action-strip]'))).toBe(true);
+    expect(categoryStage?.contains(container.querySelector('[data-record-editor-entry-row]'))).toBe(true);
+    expect(categoryStage?.contains(container.querySelector('[data-record-editor-keypad]'))).toBe(false);
     expect(container.querySelector('[data-record-editor-location-trigger]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-total]')?.classList).toContain('text-[34px]');
     const backspace = container.querySelector<HTMLButtonElement>('[aria-label="record:bookkeeping.backspace"]');
