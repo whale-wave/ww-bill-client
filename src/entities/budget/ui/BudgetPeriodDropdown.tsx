@@ -28,7 +28,7 @@ export const BudgetPeriodDropdown: React.FC<BudgetPeriodDropdownProps> = ({
   }));
 
   return (
-    <header className="relative z-10 shrink-0 px-[18px] pb-3 pt-[max(10px,env(safe-area-inset-top))]">
+    <header className="relative z-10 shrink-0 px-[18px] pb-3 pt-[max(10px,var(--ww-safe-area-top))]">
       <div className="relative flex h-11 items-center justify-center">
         <button
           aria-label={t('common:nav.back')}

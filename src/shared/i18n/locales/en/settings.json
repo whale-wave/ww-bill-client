@@ -260,7 +260,8 @@
       "continue": "Copy key and add Shortcut",
       "show": "Show connection key",
       "hide": "Hide connection key",
-      "copy": "Copy connection key"
+      "copy": "Copy connection key",
+      "copied": "Copied"
     },
     "installGuide": {
       "title": "Paste the key in Shortcuts",
@@ -374,9 +375,9 @@
     "invalidLink": "This Shortcut link is incomplete",
     "loadFailed": "The draft is missing, expired, or belongs to another account",
     "noWritableLedger": "This account has no ledger that accepts new records",
-    "discard": "Discard and clear draft",
+    "discard": "Discard draft",
     "discardTitle": "Discard this Shortcut draft?",
-    "discardDescription": "The OCR text and detected candidates will be cleared immediately, and the confirmation link will stop working.",
+    "discardDescription": "The confirmation link will stop working. The extracted text and detected candidates will remain available for troubleshooting.",
     "saved": "Record saved",
     "saveRecordFailed": "Unable to save the record. Try again later."
   },

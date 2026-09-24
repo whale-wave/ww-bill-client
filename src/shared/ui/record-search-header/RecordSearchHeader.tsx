@@ -38,7 +38,7 @@ export const RecordSearchHeader: FC<RecordSearchHeaderProps> = ({
   }, [autoFocus]);
 
   return (
-    <header className="relative z-20 shrink-0 px-[18px] pb-3 pt-[max(8px,env(safe-area-inset-top))]" data-record-search-header>
+    <header className="relative z-20 shrink-0 px-[18px] pb-3 pt-[max(8px,var(--ww-safe-area-top))]" data-record-search-header>
       <div className="relative flex h-11 items-center justify-center px-14">
         <button
           aria-label={backLabel}

@@ -55,6 +55,8 @@ describe('record attachment section', () => {
     expect(document.body.querySelectorAll('[data-record-attachment-gallery] button')).toHaveLength(2);
     await act(async () => document.body.querySelectorAll<HTMLButtonElement>('[data-record-attachment-gallery] button')[1].click());
     await vi.waitFor(() => expect(getRecordAttachmentContentApi).toHaveBeenCalledWith('attachment-2', 'content', undefined));
+    await vi.waitFor(() => expect(document.body.querySelectorAll('.adm-image-viewer-slide img')).toHaveLength(2));
+    expect(document.body.querySelector('.adm-image-viewer-footer')?.textContent).toContain('2 / 2');
   });
 
   it('shows a visible skeleton first, then reuses the session Blob cache after remounting', async () => {

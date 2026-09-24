@@ -10,6 +10,12 @@ body {
   background: var(--ww-status-bar-background, var(--ww-background-color));
 }
 
+// Capacitor injects --safe-area-inset-top when Android WebView cannot expose
+// the status bar inset through env(). Use the larger value on newer WebViews.
+html {
+  --ww-safe-area-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+}
+
 .page {
   @apply h-full overflow-hidden flex flex-col text-ww-ink;
   background: var(--ww-page-gradient);

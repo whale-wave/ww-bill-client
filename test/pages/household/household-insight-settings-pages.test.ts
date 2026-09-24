@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { Household, HouseholdBudgetOverview, HouseholdChartResult, HouseholdMember } from '@/entities/household';
+import type { Household, HouseholdBudgetOverview, HouseholdMember } from '@/entities/household';
 import { ActionSheet, Dialog, Toast } from 'antd-mobile';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -18,6 +18,7 @@ import HouseholdSettingsPage from '@/pages/household-settings/HouseholdSettingsP
 
 const hooks = vi.hoisted(() => ({
   chartSetOption: vi.fn(),
+  dashboard: vi.fn(),
   deleteBudget: vi.fn(),
   dissolve: vi.fn(),
   updateHousehold: vi.fn(),
@@ -37,6 +38,10 @@ const hooks = vi.hoisted(() => ({
   useUpdateMyHouseholdNicknameMutation: vi.fn(),
   useUpsertHouseholdBudgetMutation: vi.fn(),
   useUserQuery: vi.fn(),
+}));
+
+vi.mock('@/pages/chart/chart-home/ChartDashboardHome', () => ({
+  ChartDashboardHome: hooks.dashboard,
 }));
 
 vi.mock('@/entities/household', async importOriginal => ({
@@ -109,36 +114,10 @@ const budget: HouseholdBudgetOverview = {
   },
 };
 
-const chart: HouseholdChartResult = {
-  anchorDate: '2026-07-01',
-  categories: [{ amount: '20.00', key: 'food', name: '餐饮', percent: 1 }],
-  display: 'pie',
-  endDate: '2026-07-31',
-  members: [{ amount: '20.00', percent: 1, user: { id: 1, name: 'Avan' } }],
-  metric: 'expense',
-  period: 'month',
-  startDate: '2026-07-01',
-  summary: { expense: '20.00', income: '0.00', net: '-20.00' },
-  timeline: [{ expense: '20.00', income: '0.00', key: '2026-07-21', label: '07-21', net: '-20.00' }],
-};
-
 let cleanup: (() => void) | undefined;
 
 function query<T>(data: T) {
   return { data, isError: false, isLoading: false, prefetch: vi.fn(), refetch: vi.fn() };
-}
-
-function periodOptionsQuery(options: unknown[]) {
-  return {
-    ...query(undefined),
-    fetchNextPage: vi.fn(),
-    fetchPreviousPage: vi.fn(),
-    hasNextPage: false,
-    hasPreviousPage: false,
-    isFetchingNextPage: false,
-    isFetchingPreviousPage: false,
-    options,
-  };
 }
 
 function renderPage(pathname: string, routePath: string, element: ReactNode, previousPath?: string) {
@@ -208,6 +187,7 @@ function householdCategoryOverview(version = 7): HouseholdBudgetOverview {
 
 beforeEach(() => {
   Object.values(hooks).forEach(mock => mock.mockReset());
+  hooks.dashboard.mockImplementation(() => null);
   hooks.useMyHouseholdQuery.mockReturnValue(query(household));
   hooks.useHouseholdMembersQuery.mockReturnValue({ ...query(members), data: members });
   hooks.useHouseholdPreferencesQuery.mockReturnValue(query({
@@ -217,14 +197,6 @@ beforeEach(() => {
     version: 4,
   }));
   hooks.useHouseholdBudgetsQuery.mockReturnValue(query(budget));
-  hooks.useHouseholdChartsQuery.mockReturnValue(query(chart));
-  hooks.useHouseholdChartPeriodOptionsQuery.mockReturnValue(periodOptionsQuery([{
-    anchorDate: '2026-07-01',
-    key: '2026-07',
-    month: 7,
-    period: 'month',
-    year: 2026,
-  }]));
   hooks.useUpsertHouseholdBudgetMutation.mockReturnValue([hooks.upsertBudget, { isLoading: false }]);
   hooks.useDeleteHouseholdBudgetMutation.mockReturnValue([hooks.deleteBudget, { isLoading: false }]);
   hooks.useUpdateHouseholdMutation.mockReturnValue([hooks.updateHousehold, { isLoading: false }]);
@@ -727,339 +699,24 @@ describe('household budget and charts', () => {
     expect(refetch).toHaveBeenCalledOnce();
   });
 
-  it('switches charts to the canonical year query', async () => {
-    const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
-    const ranges = container.querySelectorAll('.chart-period-tabs > button');
+  it('renders the shared monthly dashboard for the selected household', () => {
+    renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
 
-    expect(container.querySelector('[data-chart-amount-type="sub"]')).not.toBeNull();
-    expect(ranges).toHaveLength(4);
-    expect(container.querySelector('.bwm-nav-bar')).toBeNull();
-    expect(container.querySelectorAll('select')).toHaveLength(0);
-
-    await act(async () => (ranges[2] as HTMLElement).click());
-    expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith({
-      params: {
-        filters: expect.objectContaining({ display: 'line', metric: 'expense', period: 'year' }),
-        householdId: 'household/a',
-      },
-      queryOptions: { enabled: true },
+    expect(hooks.dashboard.mock.calls[0]?.[0]).toMatchObject({
+      defaultPeriod: 'month',
+      scope: { householdId: 'household/a', kind: 'household' },
     });
   });
 
-  it.each([
-    ['', 'line'],
-    ['?display=line', 'line'],
-    ['?display=pie', 'pie'],
-    ['?display=unknown', 'line'],
-    ['?display=line&display=pie', 'line'],
-  ] as const)('resolves household chart display %s to %s', (search, display) => {
-    const { container } = renderPage(
-      `/households/household%2Fa/charts${search}`,
+  it('keeps legacy household period and metric URL state when opening the dashboard', () => {
+    const { router } = renderPage(
+      '/households/household%2Fa/charts?amount=sub&range=month&date=2026-07-01&display=pie',
       '/households/:householdId/charts',
       createElement(HouseholdChartsPage),
     );
 
-    expect(container.querySelector(`[data-chart-display-option="${display}"]`)?.getAttribute('aria-pressed')).toBe('true');
-    expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
-      params: expect.objectContaining({ filters: expect.objectContaining({ display }) }),
-    }));
-  });
-
-  it('changes only the household chart display query parameter', async () => {
-    const { container, router } = renderPage(
-      '/households/household%2Fa/charts?amount=sub&range=month&date=2026-07-01',
-      '/households/:householdId/charts',
-      createElement(HouseholdChartsPage),
-    );
-
-    await act(async () => container.querySelector<HTMLElement>('[data-chart-display-option="pie"]')?.click());
-
+    expect(hooks.dashboard.mock.calls[0]?.[0]).toMatchObject({ scope: { kind: 'household' } });
     expect(router.state.location.search).toBe('?amount=sub&range=month&date=2026-07-01&display=pie');
-    expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
-      params: expect.objectContaining({ filters: expect.objectContaining({ display: 'pie' }) }),
-    }));
-  });
-
-  it('renders household category segments and legend in pie mode', () => {
-    hooks.useHouseholdChartsQuery.mockReturnValue(query({
-      ...chart,
-      categories: [
-        { amount: '50.00', key: 'food', name: '餐饮', percent: 0.5 },
-        { amount: '30.00', key: 'travel', name: '交通', percent: 0.3 },
-        { amount: '10.00', key: 'home', name: '住房', percent: 0.1 },
-        { amount: '5.00', key: 'fun', name: '娱乐', percent: 0.05 },
-        { amount: '5.00', key: 'other', name: '其他分类', percent: 0.05 },
-      ],
-    }));
-
-    const { container } = renderPage(
-      '/households/household%2Fa/charts?display=pie',
-      '/households/:householdId/charts',
-      createElement(HouseholdChartsPage),
-    );
-
-    expect(container.querySelector('[data-household-pie-chart]')).not.toBeNull();
-    expect(container.querySelector('[data-household-pie-legend]')?.textContent).toContain('餐饮50%');
-    expect(container.querySelector('[data-household-pie-legend]')?.textContent).toContain('other5%');
-    expect(hooks.chartSetOption).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        series: [expect.objectContaining({
-          data: [
-            expect.objectContaining({ id: 'category:food', name: '餐饮', value: 50 }),
-            expect.objectContaining({ id: 'category:travel', name: '交通', value: 30 }),
-            expect.objectContaining({ id: 'category:home', name: '住房', value: 10 }),
-            expect.objectContaining({ id: 'category:fun', name: '娱乐', value: 5 }),
-            expect.objectContaining({ id: 'aggregate:other', name: 'other', value: 5 }),
-          ],
-        })],
-      }),
-      { notMerge: true },
-    );
-  });
-
-  it('shows a category empty state without initializing a pie chart', () => {
-    hooks.useHouseholdChartsQuery.mockReturnValue(query({
-      ...chart,
-      categories: [],
-      summary: { expense: '20.00', income: '0.00', net: '-20.00' },
-    }));
-
-    const { container } = renderPage(
-      '/households/household%2Fa/charts?display=pie',
-      '/households/:householdId/charts',
-      createElement(HouseholdChartsPage),
-    );
-
-    expect(container.querySelector('[data-household-pie-empty]')?.textContent).toContain('noCategoryData');
-    expect(container.querySelector('[data-household-pie-chart]')).toBeNull();
-    expect(hooks.chartSetOption).not.toHaveBeenCalled();
-  });
-
-  it('renders counted household weeks with relative labels and selects an older week', async () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-08-25T12:00:00.000Z'));
-    try {
-      hooks.useHouseholdChartPeriodOptionsQuery.mockReturnValue(periodOptionsQuery([
-        { anchorDate: '2025-12-22', isoWeek: 52, isoWeekYear: 2025, key: '2025-W52', period: 'week' },
-        { anchorDate: '2026-08-10', isoWeek: 33, isoWeekYear: 2026, key: '2026-W33', period: 'week' },
-        { anchorDate: '2026-08-17', isoWeek: 34, isoWeekYear: 2026, key: '2026-W34', period: 'week' },
-        { anchorDate: '2026-08-24', isoWeek: 35, isoWeekYear: 2026, key: '2026-W35', period: 'week' },
-      ]));
-      hooks.useHouseholdChartsQuery.mockReturnValue(query({
-        ...chart,
-        anchorDate: '2026-08-24',
-        endDate: '2026-08-30',
-        period: 'week',
-        startDate: '2026-08-24',
-        timeline: Array.from({ length: 7 }, (_, index) => ({
-          expense: '1.00',
-          income: '0.00',
-          key: `2026-08-${String(24 + index).padStart(2, '0')}`,
-          label: `08-${String(24 + index).padStart(2, '0')}`,
-          net: '-1.00',
-        })),
-      }));
-      const { container, router } = renderPage('/households/household%2Fa/charts?range=week', '/households/:householdId/charts', createElement(HouseholdChartsPage));
-
-      const tabs = [...container.querySelectorAll<HTMLButtonElement>('[data-chart-period-options] > button')];
-      expect(tabs.map(tab => tab.textContent)).toEqual(['tab.yearWeekNumber', 'tab.weekNumber', 'tab.lastWeek', 'tab.thisWeek']);
-      expect(tabs[3]?.getAttribute('aria-pressed')).toBe('true');
-      await act(async () => tabs[1]?.click());
-      expect(router.state.location.search).toContain('date=2026-08-10');
-      expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith(expect.objectContaining({
-        params: expect.objectContaining({ filters: expect.objectContaining({ anchorDate: '2026-08-10' }) }),
-      }));
-    }
-    finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it('prioritizes relative names for current and previous months', () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-08-25T12:00:00.000Z'));
-    try {
-      hooks.useHouseholdChartPeriodOptionsQuery.mockReturnValue(periodOptionsQuery([
-        { anchorDate: '2025-12-01', key: '2025-12', month: 12, period: 'month', year: 2025 },
-        { anchorDate: '2026-07-01', key: '2026-07', month: 7, period: 'month', year: 2026 },
-        { anchorDate: '2026-08-01', key: '2026-08', month: 8, period: 'month', year: 2026 },
-      ]));
-      hooks.useHouseholdChartsQuery.mockReturnValue(query({ ...chart, anchorDate: '2026-08-01' }));
-      const { container } = renderPage('/households/household%2Fa/charts?range=month', '/households/:householdId/charts', createElement(HouseholdChartsPage));
-      const tabs = [...container.querySelectorAll<HTMLButtonElement>('[data-chart-period-options] > button')];
-      expect(tabs.map(tab => tab.textContent)).toEqual(['tab.yearMonthNumber', 'tab.lastMonth', 'tab.thisMonth']);
-    }
-    finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it('uses the shared amount selector for the household income query', async () => {
-    const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
-
-    await act(async () => container.querySelector<HTMLElement>('[data-chart-amount-type="add"]')?.click());
-
-    expect(hooks.useHouseholdChartsQuery).toHaveBeenLastCalledWith({
-      params: {
-        filters: expect.objectContaining({ display: 'line', metric: 'income', period: 'month' }),
-        householdId: 'household/a',
-      },
-      queryOptions: { enabled: true },
-    });
-  });
-
-  it('renders exact household totals, averages, category and member rankings', () => {
-    hooks.useHouseholdChartsQuery.mockReturnValue(query({
-      ...chart,
-      categories: [
-        { amount: '20.00', key: 'food', name: '餐饮', percent: 0.3333 },
-        { amount: '40.50', key: 'travel', name: '交通', percent: 0.6667 },
-      ],
-      members: [
-        { amount: '60.50', percent: 1, user: { id: 1, name: 'Avan' } },
-      ],
-      summary: {
-        expense: '10000000000000000.01',
-        income: '0.00',
-        net: '-10000000000000000.01',
-      },
-      timeline: [
-        { expense: '0.01', income: '0.00', key: '2026-07-19', label: '07-19', net: '-0.01' },
-        { expense: '9999999999999999.99', income: '0.00', key: '2026-07-20', label: '07-20', net: '-9999999999999999.99' },
-        { expense: '0.01', income: '0.00', key: '2026-07-21', label: '07-21', net: '-0.01' },
-      ],
-    }));
-
-    const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
-    const categoryRows = [...container.querySelectorAll('[data-chart-ranking-item]')];
-    const foodRow = categoryRows.find(row => row.textContent?.includes('餐饮'));
-    const travelRow = categoryRows.find(row => row.textContent?.includes('交通'));
-    const memberRow = categoryRows.find(row => row.textContent?.includes('Avan'));
-
-    expect(container.textContent).toContain('totalExpend¥10000000000000000.01');
-    expect(container.textContent).toContain('averageLabel¥3333333333333333.34');
-    expect(foodRow?.textContent).toContain('餐饮33.33%20.00');
-    expect(travelRow?.textContent).toContain('交通66.67%40.50');
-    expect(memberRow?.textContent).toContain('Avan100%60.50');
-    expect(foodRow instanceof HTMLElement ? foodRow.onclick : undefined).not.toBeNull();
-    expect(memberRow instanceof HTMLElement ? memberRow.onclick : undefined).toBeNull();
-  });
-
-  it.each(['week', 'month'] as const)('keeps %s household day labels stable and renders aggregate tooltips', async (period) => {
-    vi.stubEnv('TZ', 'America/Los_Angeles');
-    hooks.useHouseholdChartsQuery.mockReturnValue(query({
-      ...chart,
-      endDate: period === 'week' ? '2026-07-26' : chart.endDate,
-      period,
-      startDate: period === 'week' ? '2026-07-20' : chart.startDate,
-    }));
-    const { container } = renderPage(`/households/household%2Fa/charts?range=${period}`, '/households/:householdId/charts', createElement(HouseholdChartsPage));
-
-    const option = hooks.chartSetOption.mock.calls.at(-1)?.[0] as {
-      series: Array<{
-        data: Array<{
-          source: { amount: string; displayLabel?: string; value: string };
-          value: number;
-        }>;
-      }>;
-      tooltip: {
-        formatter: (params: Array<{
-          data: {
-            source: { amount: string; displayLabel?: string; value: string };
-            value: number;
-          };
-        }>) => string;
-      };
-      xAxis: { data: string[] };
-    };
-    const point = option.series[0].data[0];
-    const tooltip = option.tooltip.formatter([{ data: point }]);
-
-    expect(point.source.amount).toBe('20.00');
-    expect(point.source.displayLabel).toBe('07-21');
-    expect(point.value).toBe(20);
-    expect(option.xAxis.data).toEqual(['07-21']);
-    expect(tooltip).toContain('07-21');
-    expect(tooltip).not.toContain('07-20');
-    expect(tooltip).toContain('当月总支出:');
-    expect(tooltip).toContain('20.00');
-    expect(tooltip).not.toContain('没有费用');
-
-    await act(async () => container.querySelector<HTMLElement>('[data-chart-amount-type="add"]')?.click());
-
-    const incomeOption = hooks.chartSetOption.mock.calls.at(-1)?.[0] as typeof option;
-    const incomePoint = incomeOption.series[0].data[0];
-    const incomeTooltip = incomeOption.tooltip.formatter([{ data: incomePoint }]);
-    expect(incomePoint.source.amount).toBe('0.00');
-    expect(incomeTooltip).toContain('当月总收入:');
-    expect(incomeTooltip).toContain('0.00');
-    expect(incomeTooltip).not.toContain('没有费用');
-  });
-
-  it('uses the household API label for yearly axes and aggregate tooltips', () => {
-    vi.stubEnv('TZ', 'America/Los_Angeles');
-    hooks.useHouseholdChartsQuery.mockReturnValue(query({
-      ...chart,
-      endDate: '2026-12-31',
-      period: 'year',
-      startDate: '2026-01-01',
-      timeline: [
-        { expense: '20.00', income: '0.00', key: '2026-01', label: '1月', net: '-20.00' },
-      ],
-    }));
-
-    renderPage('/households/household%2Fa/charts?range=year', '/households/:householdId/charts', createElement(HouseholdChartsPage));
-    const option = hooks.chartSetOption.mock.calls.at(-1)?.[0] as {
-      series: Array<{
-        data: Array<{
-          source: { displayLabel?: string };
-          value: number;
-        }>;
-      }>;
-      tooltip: {
-        formatter: (params: Array<{
-          data: {
-            source: { displayLabel?: string };
-            value: number;
-          };
-        }>) => string;
-      };
-      xAxis: { data: string[] };
-    };
-    const point = option.series[0].data[0];
-    const tooltip = option.tooltip.formatter([{ data: point }]);
-
-    expect(point.source.displayLabel).toBe('1月');
-    expect(option.xAxis.data).toEqual(['1月']);
-    expect(tooltip).toContain('1月');
-    expect(tooltip).not.toContain('01-01');
-  });
-
-  it('renders the shared empty state for a wholly empty household chart response', () => {
-    hooks.useHouseholdChartsQuery.mockReturnValue(query({
-      ...chart,
-      categories: [],
-      members: [],
-      summary: { expense: '0.00', income: '0.00', net: '0.00' },
-      timeline: Array.from({ length: 31 }, (_, index) => {
-        const day = String(index + 1).padStart(2, '0');
-        return {
-          expense: '0.00',
-          income: '0.00',
-          key: `2026-07-${day}`,
-          label: `07-${day}`,
-          net: '0.00',
-        };
-      }),
-    }));
-
-    const { container } = renderPage('/households/household%2Fa/charts', '/households/:householdId/charts', createElement(HouseholdChartsPage));
-
-    expect(container.textContent).toContain('emptyTitle');
-    expect(container.textContent).toContain('emptyDescription');
-    expect(container.textContent).not.toContain('totalExpend');
-    expect(container.textContent).not.toContain('charts.categoryRanking');
-    expect(container.textContent).not.toContain('charts.memberRanking');
   });
 });
 

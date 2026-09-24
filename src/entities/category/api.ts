@@ -206,3 +206,24 @@ export interface CategoryMovePreview {
 export function moveLedgerCategoryApi(ledgerId: string, categoryId: number, data: { parentId: number | null; version: number }, preview = false) {
   return request.post<unknown, SuccessResponse<CategoryMovePreview>>(`/ledgers/${encodeURIComponent(ledgerId)}/categories/${categoryId}/${preview ? 'move-preview' : 'move'}`, data);
 }
+
+export interface CategoryDeleteImpact {
+  budgetCount: number;
+  childCount: number;
+  householdBudgetCount: number;
+  recordCount: number;
+  tagCount: number;
+  requiresMigration: boolean;
+}
+
+export function deleteLedgerCategoryPermanentlyApi(
+  ledgerId: string,
+  categoryId: number,
+  data: { targetCategoryId?: number; version: number },
+  preview = false,
+) {
+  return request.post<unknown, SuccessResponse<CategoryDeleteImpact>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/categories/${categoryId}/${preview ? 'delete-preview' : 'delete'}`,
+    data,
+  );
+}

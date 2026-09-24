@@ -35,11 +35,13 @@ describe('tag ranking section', () => {
     expect(container.textContent).not.toContain('标签排行加载中');
   });
 
-  it('renders non-additive totals and progress rows without a pie chart', () => {
+  it('renders the total and progress rows without calculation notes or a pie chart', () => {
     const container = render({ data: ranking });
 
     expect(container.querySelector('[aria-label="标签金额占比"]')).toBeNull();
-    expect(container.textContent).toContain('金额不可相加');
+    expect(container.textContent).toContain('总金额 ¥139.20');
+    expect(container.textContent).not.toContain('去重');
+    expect(container.textContent).not.toContain('金额不可相加');
     expect(container.querySelector('[data-tag-ranking-rows]')).not.toBeNull();
     expect(container.querySelectorAll('[data-tag-ranking-section]')).toHaveLength(1);
     expect(container.querySelectorAll('.bg-primary-mid')).toHaveLength(2);

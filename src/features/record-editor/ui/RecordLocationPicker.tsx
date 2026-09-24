@@ -144,8 +144,9 @@ export function RecordLocationPicker({
 
   return (
     <AppSheet
-      bodyClassName="ww-app-sheet--fullscreen flex h-[100dvh] max-h-none flex-col overflow-hidden"
+      bodyClassName={`record-editor-location-sheet flex flex-col overflow-hidden${isSearchView ? ' record-editor-location-sheet--search' : ''}`}
       destroyOnClose
+      material="opaque"
       onClose={onClose}
       onMaskClick={onClose}
       position="bottom"
@@ -160,7 +161,7 @@ export function RecordLocationPicker({
       />
       {isSearchView
         ? (
-            <div className="min-h-0 overflow-y-auto">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
               <RecordLocationSearchView
                 bias={currentLocationFix
                   ? {
@@ -174,8 +175,9 @@ export function RecordLocationPicker({
             </div>
           )
         : (
-            <div className="min-h-0 overflow-y-auto px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">
               <AppButton
+                className="record-editor-location-option"
                 fullWidth
                 loading={isLocating}
                 loadingLabel={t('location.locating')}
@@ -228,7 +230,7 @@ export function RecordLocationPicker({
               )}
               {draftLocation && (
                 <section
-                  className="mt-3 rounded-[18px] border border-primary bg-white p-4 shadow-ww-xs"
+                  className="record-editor-location-selected mt-3 rounded-[14px] p-4"
                   data-record-location-selected
                 >
                   <div className="flex items-center gap-3">
@@ -324,7 +326,7 @@ export function RecordLocationPicker({
                 </section>
               )}
               <button
-                className="mt-3 flex min-h-11 w-full items-center gap-3 rounded-[16px] border border-solid border-primary/40 bg-primary-light/20 px-3 text-left text-[13px] font-bold text-primary-deep"
+                className="record-editor-location-option mt-3 flex min-h-11 w-full items-center gap-3 rounded-[14px] px-3 text-left text-[13px] font-bold text-primary-deep"
                 onClick={handleOpenSearch}
                 type="button"
               >
@@ -333,7 +335,7 @@ export function RecordLocationPicker({
               </button>
               <button
                 aria-pressed={draftLocation === null}
-                className="mt-3 flex min-h-11 w-full items-center gap-3 rounded-[16px] border border-solid border-border-primary bg-white px-3 text-left text-[13px] font-bold text-ww-mid active:bg-primary-light/25"
+                className={`record-editor-location-option mt-3 flex min-h-11 w-full items-center gap-3 rounded-[14px] px-3 text-left text-[13px] font-bold text-ww-mid${draftLocation === null ? ' record-editor-location-option--selected' : ''}`}
                 onClick={handleClearLocation}
                 type="button"
               >
@@ -350,27 +352,30 @@ export function RecordLocationPicker({
                   {t('location.webPermissionGuide')}
                 </p>
               )}
-              <AppButton
-                className="mt-4"
-                fullWidth
-                disabled={!canConfirm}
-                onClick={() => {
-                  const normalized = draftLocation?.name?.trim();
-                  onConfirm(
-                    draftLocation
-                      ? {
-                          ...draftLocation,
-                          ...(normalized ? { name: normalized } : {}),
-                        }
-                      : null,
-                  );
-                }}
-                size="large"
-              >
-                {t('location.confirm')}
-              </AppButton>
             </div>
           )}
+      {!isSearchView && (
+        <div className="record-editor-location-footer shrink-0 px-4 pb-[calc(12px+env(safe-area-inset-bottom))] pt-3">
+          <AppButton
+            fullWidth
+            disabled={!canConfirm}
+            onClick={() => {
+              const normalized = draftLocation?.name?.trim();
+              onConfirm(
+                draftLocation
+                  ? {
+                      ...draftLocation,
+                      ...(normalized ? { name: normalized } : {}),
+                    }
+                  : null,
+              );
+            }}
+            size="large"
+          >
+            {t('location.confirm')}
+          </AppButton>
+        </div>
+      )}
     </AppSheet>
   );
 }

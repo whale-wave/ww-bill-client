@@ -10,6 +10,7 @@ import {
   Check,
   CheckCircle2,
   CircleAlert,
+  History,
   MapPin,
   Settings2,
   Tags,
@@ -82,12 +83,37 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const { t } = useTranslation(['record', 'ledger', 'common']);
 
   const noteInputRef = useRef<HTMLInputElement>(null);
+  const editorPageRef = useRef<HTMLDivElement>(null);
   const categoryViewportRef = useRef<HTMLElement>(null);
   const actionStripRef = useRef<HTMLDivElement>(null);
   const [newTagName, setNewTagName] = useState('');
   const [tagSearch, setTagSearch] = useState('');
   const [draftTagIds, setDraftTagIds] = useState<string[]>(() => controller.tagPickerDraftIds ?? controller.selectedTagIds);
   const [expandedCategoryId, setExpandedCategoryId] = useState<number>();
+  useEffect(() => {
+    if (!controller.isNoteFocused) {
+      editorPageRef.current?.style.removeProperty('height');
+      editorPageRef.current?.style.removeProperty('top');
+      return;
+    }
+    const updateViewport = () => {
+      const viewport = window.visualViewport;
+      const page = editorPageRef.current;
+      if (!page)
+        return;
+      page.style.height = `${viewport?.height ?? window.innerHeight}px`;
+      page.style.top = `${viewport?.offsetTop ?? 0}px`;
+    };
+    updateViewport();
+    window.visualViewport?.addEventListener('resize', updateViewport);
+    window.visualViewport?.addEventListener('scroll', updateViewport);
+    window.addEventListener('resize', updateViewport);
+    return () => {
+      window.visualViewport?.removeEventListener('resize', updateViewport);
+      window.visualViewport?.removeEventListener('scroll', updateViewport);
+      window.removeEventListener('resize', updateViewport);
+    };
+  }, [controller.isNoteFocused]);
   const rootCategories = useMemo(
     () => categories.filter(category => !category.parentId),
     [categories],
@@ -176,8 +202,8 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
     );
   }, [controller.remark, remarkHistory]);
 
-  const detailChipClassName = 'pointer-events-auto inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-border-primary bg-white px-3 text-sm font-bold text-ww-mid shadow-ww-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep';
-  const selectedChipClassName = 'border-primary-light bg-primary-light text-primary-deep';
+  const detailChipClassName = 'record-editor-detail-chip pointer-events-auto inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-[13px] font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep';
+  const selectedChipClassName = 'record-editor-detail-chip--selected';
   const renderDateLabel = useCallback((type: string, value: number) => {
     return type === 'year' ? String(value) : String(value).padStart(2, '0');
   }, []);
@@ -215,8 +241,12 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
 
   return (
     <div
-      className="page relative select-none pt-[max(8px,env(safe-area-inset-top))] [-webkit-touch-callout:none]"
+      className={cn(
+        'page relative select-none pt-[max(8px,var(--ww-safe-area-top))] [-webkit-touch-callout:none]',
+        controller.isNoteFocused && 'record-editor-note-mode',
+      )}
       data-record-editor-presentation
+      ref={editorPageRef}
     >
       <header
         className="record-editor-header flex h-[60px] shrink-0 items-start justify-between gap-3 px-5 pb-[14px] pt-1"
@@ -282,7 +312,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         <div className="record-editor-category-stage relative min-h-0 flex-1 bg-ww-surface" data-record-editor-category-stage>
           <section
             aria-label={t('record:bookkeeping.selectCategory')}
-            className="record-editor-categories h-full overflow-y-auto overscroll-contain px-[18px] pb-[148px] pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="record-editor-categories h-full overflow-y-auto overscroll-contain px-[18px] pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             data-record-editor-categories
             ref={categoryViewportRef}
           >
@@ -332,8 +362,8 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                           : category.name}
                         aria-pressed={isSelectedRoot}
                         className={cn(
-                          'relative flex min-h-[76px] min-w-0 flex-col items-center gap-1 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
-                          isSelectedRoot && 'bg-primary-light/55 text-primary-deep',
+                          'record-editor-category-choice relative flex min-w-0 flex-col items-center gap-0.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
+                          isSelectedRoot && 'record-editor-category-choice--selected text-primary-deep',
                         )}
                         data-record-editor-category={category.id}
                         onClick={() => children.length
@@ -342,7 +372,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                         type="button"
                         whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
                       >
-                        <span className="ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full">
+                        <span className="record-editor-category-icon ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full">
                           <CategoryIcon
                             categoryName={category.name}
                             iconKey={category.icon}
@@ -352,10 +382,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                             size={24}
                           />
                         </span>
-                        <span className="line-clamp-2 w-full text-[11px] font-semibold leading-4 text-ww-mid">{category.name}</span>
+                        <span className="record-editor-category-label line-clamp-2 w-full text-[11px] font-semibold leading-4 text-ww-mid">{category.name}</span>
                         {isSelectedRoot && (
-                          <span aria-hidden="true" className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-deep text-white shadow-ww-xs" data-record-editor-category-check>
-                            <Check size={12} strokeWidth={3} />
+                          <span aria-hidden="true" className="record-editor-category-check absolute flex items-center justify-center rounded-full bg-primary-deep text-white" data-record-editor-category-check>
+                            <Check size={10} strokeWidth={3} />
                           </span>
                         )}
                         {children.length > 0 && (
@@ -380,14 +410,14 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                                 <button
                                   aria-pressed={selectedCategory?.id === expandedCategory.id}
                                   className={cn(
-                                    'relative flex min-h-[76px] min-w-0 flex-col items-center gap-1 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
-                                    selectedCategory?.id === expandedCategory.id && 'bg-primary-light/60 text-primary-deep',
+                                    'record-editor-category-choice relative flex min-w-0 flex-col items-center gap-0.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
+                                    selectedCategory?.id === expandedCategory.id && 'record-editor-category-choice--selected text-primary-deep',
                                   )}
                                   data-record-editor-category-direct={expandedCategory.id}
                                   onClick={() => handleSelectCategory(expandedCategory)}
                                   type="button"
                                 >
-                                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/85">
+                                  <span className="record-editor-category-icon flex h-11 w-11 items-center justify-center rounded-full bg-white/85">
                                     <CategoryIcon
                                       categoryName={expandedCategory.name}
                                       iconKey={expandedCategory.icon}
@@ -397,11 +427,11 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                                       size={24}
                                     />
                                   </span>
-                                  <span className="line-clamp-2 w-full text-[11px] font-semibold leading-4">{expandedCategory.name}</span>
+                                  <span className="record-editor-category-label line-clamp-2 w-full text-[11px] font-semibold leading-4">{expandedCategory.name}</span>
                                   <span className="text-[9px] leading-3 text-ww-soft">{t('record:bookkeeping.directEntry')}</span>
                                   {selectedCategory?.id === expandedCategory.id && (
-                                    <span aria-hidden="true" className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-deep text-white shadow-ww-xs" data-record-editor-category-check>
-                                      <Check size={12} strokeWidth={3} />
+                                    <span aria-hidden="true" className="record-editor-category-check absolute flex items-center justify-center rounded-full bg-primary-deep text-white" data-record-editor-category-check>
+                                      <Check size={10} strokeWidth={3} />
                                     </span>
                                   )}
                                 </button>
@@ -409,15 +439,15 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                                   <button
                                     aria-pressed={selectedCategory?.id === child.id}
                                     className={cn(
-                                      'relative flex min-h-[76px] min-w-0 flex-col items-center gap-1 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
-                                      selectedCategory?.id === child.id && 'bg-primary-light/60 text-primary-deep',
+                                      'record-editor-category-choice relative flex min-w-0 flex-col items-center gap-0.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
+                                      selectedCategory?.id === child.id && 'record-editor-category-choice--selected text-primary-deep',
                                     )}
                                     data-record-editor-category={child.id}
                                     key={child.id}
                                     onClick={() => handleSelectCategory(child)}
                                     type="button"
                                   >
-                                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/85">
+                                    <span className="record-editor-category-icon flex h-11 w-11 items-center justify-center rounded-full bg-white/85">
                                       <CategoryIcon
                                         categoryName={child.name}
                                         iconKey={child.icon}
@@ -427,10 +457,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                                         size={24}
                                       />
                                     </span>
-                                    <span className="line-clamp-2 w-full text-[11px] font-semibold leading-4 text-ww-mid">{child.name}</span>
+                                    <span className="record-editor-category-label line-clamp-2 w-full text-[11px] font-semibold leading-4 text-ww-mid">{child.name}</span>
                                     {selectedCategory?.id === child.id && (
-                                      <span aria-hidden="true" className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-deep text-white shadow-ww-xs" data-record-editor-category-check>
-                                        <Check size={12} strokeWidth={3} />
+                                      <span aria-hidden="true" className="record-editor-category-check absolute flex items-center justify-center rounded-full bg-primary-deep text-white" data-record-editor-category-check>
+                                        <Check size={10} strokeWidth={3} />
                                       </span>
                                     )}
                                   </button>
@@ -449,17 +479,18 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           {controller.isNoteFocused && filteredRemarkHistory.length > 0 && (
             <section
               aria-label={t('record:bookkeeping.remarkHistory')}
-              className="record-editor-remark-history absolute inset-x-[14px] bottom-[130px] z-20 min-h-0 overflow-y-auto rounded-[14px] border border-border-primary bg-white/[0.96] p-2 shadow-ww-xs"
+              className="record-editor-remark-history absolute inset-x-[14px] z-20 min-h-0 overflow-y-auto"
               data-record-editor-remark-history
             >
-              <h2 className="px-2 pb-1 text-[12px] font-semibold leading-5 text-ww-soft">
+              <h2 className="record-editor-remark-heading flex items-center gap-1.5 text-[12px] font-semibold leading-5 text-ww-mid">
+                <History aria-hidden="true" size={14} strokeWidth={1.8} />
                 {t('record:bookkeeping.remarkHistory')}
               </h2>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col">
                 {filteredRemarkHistory.map(remark => (
                   <button
                     aria-label={t('record:bookkeeping.selectRemarkHistory', { remark })}
-                    className="min-h-11 w-full truncate rounded-[10px] px-2 text-left text-[14px] leading-5 text-ww-ink active:bg-primary-light"
+                    className="record-editor-remark-option min-h-11 w-full truncate rounded-[10px] px-2 text-left text-[14px] leading-5 text-ww-ink active:bg-primary-light"
                     data-record-editor-remark-history-item={remark}
                     key={remark}
                     onClick={() => controller.setRemark(remark)}
@@ -473,10 +504,13 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </section>
           )}
 
-          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 z-[5] h-[138px] border-t border-border-primary bg-[var(--ww-ref-mono-white)]" data-record-editor-control-dock />
+          <div aria-hidden="true" className="record-editor-control-dock absolute inset-x-0 bottom-0 z-[5]" data-record-editor-control-dock />
           <div
             aria-label={t('record:bookkeeping.moreDetails')}
-            className="record-editor-action-strip pointer-events-none absolute inset-x-0 bottom-[78px] z-10 flex h-11 items-center gap-2 overflow-x-auto overscroll-x-contain px-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className={cn(
+              'record-editor-action-strip absolute inset-x-0 z-10 flex h-11 items-center gap-1 overflow-x-auto overscroll-x-contain px-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+              controller.isNoteFocused && 'hidden',
+            )}
             data-record-editor-action-strip
             ref={actionStripRef}
             role="group"
@@ -539,7 +573,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           </div>
 
           <div
-            className="record-editor-entry-row absolute inset-x-[14px] bottom-2 z-10 flex h-[62px] items-center gap-2 rounded-[14px] border border-border-primary bg-white px-3 shadow-ww-xs"
+            className="record-editor-entry-row absolute inset-x-[14px] z-10 flex items-center gap-2 px-3"
             data-record-editor-entry-row
           >
             <label className="flex h-full min-w-0 flex-1 flex-col justify-center" data-record-editor-note>
@@ -552,6 +586,8 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 ref={noteInputRef}
                 aria-label={t('record:bookkeeping.note')}
                 className="min-w-0 w-full select-text border-0 bg-transparent py-1 text-[13px] leading-5 text-ww-ink outline-none placeholder:text-ww-mid [-webkit-user-select:text]"
+                autoComplete="off"
+                enterKeyHint="done"
                 onBlur={() => controller.setIsNoteFocused(false)}
                 onChange={event => controller.setRemark(event.target.value)}
                 onFocus={() => controller.setIsNoteFocused(true)}
@@ -587,7 +623,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         </div>
 
         <section
-          className="record-editor-keypad shrink-0 border-t border-solid border-border-primary bg-white/70 px-4 backdrop-blur-xl"
+          className={cn('record-editor-keypad shrink-0 border-t border-solid px-4', controller.isNoteFocused && 'hidden')}
           data-record-editor-keypad
         >
           <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-2">
@@ -642,10 +678,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     : undefined
                 }
                 className={cn(
-                  'record-editor-keypad__key flex items-center justify-center border border-border-primary bg-white/90 font-number text-[21px] font-bold leading-[31.5px] text-ww-ink shadow-ww-xs',
+                  'record-editor-keypad__key flex items-center justify-center font-number text-[21px] font-bold leading-[31.5px] text-ww-ink',
                   item.keys === 'x'
-                  && 'gap-1.5 border-primary-light bg-primary-light/55 font-sans text-[12px] text-primary-deep',
-                  controller.activeKeyIndex === index && 'bg-primary-light',
+                  && 'gap-1.5 font-sans text-[12px] text-primary-deep',
+                  (item.keys === 'x' || controller.activeKeyIndex === index) && 'record-editor-keypad__key--active',
                 )}
                 disabled={controller.isNoteFocused}
                 key={String(item.keys)}
@@ -702,6 +738,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       )}
 
       <AppDatePicker
+        className="record-editor-date-picker"
         onClose={() => controller.setIsDatePickerVisible(false)}
         onConfirm={(value) => {
           controller.setDate(value);
@@ -729,8 +766,9 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       )}
 
       <AppSheet
-        bodyClassName="flex max-h-[62vh] flex-col overflow-hidden"
+        bodyClassName="record-editor-asset-sheet flex flex-col overflow-hidden"
         destroyOnClose
+        material="opaque"
         onMaskClick={() => setIsAssetPickerVisible(false)}
         onClose={() => setIsAssetPickerVisible(false)}
         position="bottom"
@@ -741,14 +779,14 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           onClose={() => setIsAssetPickerVisible(false)}
           title={t('record:bookkeeping.selectLinkedAsset')}
         />
-        <div className="space-y-2 overflow-auto px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-3">
+        <div className="record-editor-asset-list space-y-2 overflow-y-auto overscroll-contain px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-3">
           <button
             aria-pressed={controller.linkedAssetId === null}
             className={cn(
-              'flex min-h-[58px] w-full items-center gap-3 rounded-[16px] border bg-white px-3 text-left transition-colors active:bg-primary-light/25 focus-visible:border-primary',
+              'record-editor-asset-option flex min-h-[58px] w-full items-center gap-3 rounded-[12px] px-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
               controller.linkedAssetId === null
-                ? 'border-primary'
-                : 'border-transparent',
+                ? 'record-editor-asset-option--selected'
+                : '',
             )}
             data-record-editor-asset-option="none"
             onClick={() => {
@@ -781,10 +819,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               <button
                 aria-pressed={controller.linkedAssetId === asset.id}
                 className={cn(
-                  'flex min-h-[64px] w-full items-center gap-3 rounded-[16px] border bg-white px-3 text-left transition-colors active:bg-primary-light/25 focus-visible:border-primary',
+                  'record-editor-asset-option flex min-h-[64px] w-full items-center gap-3 rounded-[12px] px-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
                   controller.linkedAssetId === asset.id
-                    ? 'border-primary'
-                    : 'border-transparent',
+                    ? 'record-editor-asset-option--selected'
+                    : '',
                 )}
                 data-record-editor-asset-option={asset.id}
                 key={asset.id}
@@ -843,7 +881,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       </AppSheet>
 
       <AppSheet
-        bodyClassName="max-h-[55vh] overflow-auto px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4"
+        bodyClassName="record-editor-tag-sheet flex flex-col overflow-hidden px-4 pb-[calc(12px+env(safe-area-inset-bottom))] pt-3"
         destroyOnClose
         onMaskClick={() => controller.setIsTagPickerVisible(false)}
         onClose={() => controller.setIsTagPickerVisible(false)}
@@ -873,7 +911,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         </div>
         {draftTagIds.length > 0 && (
           <section
-            className="mb-4 rounded-[18px] border border-primary-light/80 bg-primary-light/25 p-3"
+            className="record-editor-selected-tags mb-3 max-h-[104px] shrink-0 overflow-y-auto rounded-[12px] p-3"
             data-record-editor-selected-tags
           >
             <div className="mb-2 text-[12px] font-extrabold text-primary-deep">
@@ -884,7 +922,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 .filter(tag => draftTagIds.includes(tag.id))
                 .map(tag => (
                   <span
-                    className="inline-flex min-h-11 items-center gap-1 rounded-full border border-primary/25 bg-white px-2 pl-3 text-[13px] font-bold text-primary-deep shadow-ww-xs"
+                    className="record-editor-selected-tag inline-flex min-h-11 items-center gap-1 rounded-full pl-3 text-[12px] font-semibold text-primary-deep"
                     key={tag.id}
                   >
                     #
@@ -903,14 +941,14 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </div>
           </section>
         )}
-        <input aria-label="搜索标签" className="ww-sheet-control mb-3 min-h-11 w-full rounded-xl px-3" value={tagSearch} onChange={event => setTagSearch(event.target.value)} placeholder="搜索标签" />
-        <p className="mb-3 text-xs text-ww-soft">
+        <input aria-label="搜索标签" className="ww-sheet-control mb-2 min-h-11 w-full shrink-0 rounded-xl px-3" value={tagSearch} onChange={event => setTagSearch(event.target.value)} placeholder="搜索标签" />
+        <p className="mb-2 shrink-0 text-xs text-ww-soft">
           已选
           {draftTagIds.length}
           {' '}
           / 20；标签在本账本内通用
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="record-editor-tag-list flex min-h-0 flex-1 flex-wrap content-start gap-2 overflow-y-auto overscroll-contain pb-2">
           {(tags ?? []).filter(tag => tag.status !== 'ARCHIVED' && tag.name.includes(tagSearch.trim())).map(tag => (
             <div
               className="inline-flex overflow-hidden rounded-full"
@@ -919,10 +957,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               <button
                 aria-pressed={draftTagIds.includes(tag.id)}
                 className={cn(
-                  'min-h-11 rounded-l-full border border-solid border-r-0 px-3 text-sm',
+                  'record-editor-tag-option min-h-11 rounded-l-full px-3 text-[13px] font-semibold',
                   draftTagIds.includes(tag.id)
-                    ? 'border-primary bg-primary text-white'
-                    : 'border-border-primary bg-white text-ww-mid',
+                    ? 'record-editor-tag-option--selected'
+                    : 'text-ww-mid',
                 )}
                 onClick={() => toggleDraftTag(tag.id)}
                 disabled={!draftTagIds.includes(tag.id) && draftTagIds.length >= 20}
@@ -933,12 +971,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               {onArchiveTag && (
                 <button
                   aria-label={`${t('ledger:tags.delete')} ${tag.name}`}
-                  className={cn(
-                    'flex min-h-11 w-11 items-center justify-center border border-solid border-l border-l-white/35 transition disabled:opacity-45',
-                    draftTagIds.includes(tag.id)
-                      ? 'border-primary bg-primary text-white active:bg-primary-deep'
-                      : 'border-border-primary bg-white text-feedback-danger active:bg-feedback-danger-surface',
-                  )}
+                  className="record-editor-tag-delete flex min-h-11 w-11 items-center justify-center text-ww-soft transition-colors active:text-feedback-danger focus-visible:text-feedback-danger disabled:opacity-45"
                   data-record-editor-tag-delete={tag.id}
                   disabled={controller.isImageUploading}
                   onClick={() => void handleArchiveTag(tag.id, tag.name)}
@@ -952,7 +985,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         </div>
         {canManageTags && onCreateTag && (
           <form
-            className="mt-4 flex gap-2 border-t border-border-primary pt-3"
+            className="mt-2 flex shrink-0 gap-2 border-t border-border-primary pt-2"
             onSubmit={(event) => {
               event.preventDefault();
               const name = newTagName.trim();
@@ -983,7 +1016,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </button>
           </form>
         )}
-        <div className="mt-4 flex gap-3">
+        <div className="mt-2 flex shrink-0 gap-2 border-t border-border-primary pt-2">
           <AppButton variant="secondary" onClick={() => setDraftTagIds([])}>清空</AppButton>
           <AppButton data-record-editor-tag-cancel variant="secondary" onClick={() => controller.setIsTagPickerVisible(false)}>取消</AppButton>
           <AppButton

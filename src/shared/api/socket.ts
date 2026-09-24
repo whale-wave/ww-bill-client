@@ -1,6 +1,7 @@
 import type { Socket } from 'socket.io-client';
 import { io } from 'socket.io-client';
 import { useAuthStore } from '@/features/auth';
+import { getClientDeviceHeaders } from './client-device';
 
 let socketInstance: Socket | null = null;
 
@@ -31,7 +32,12 @@ export function getAppSocket(): Socket | null {
 
   const socketHost = getSocketHost();
   socketInstance = io(socketHost, {
-    auth: { token: `Bearer ${token}` },
+    auth: (callback) => {
+      void getClientDeviceHeaders().then(device => callback({
+        token: `Bearer ${token}`,
+        ...(device ? { clientPlatform: device.platform, deviceModel: device.model, osVersion: device.osVersion } : {}),
+      }));
+    },
     autoConnect: true,
     reconnection: true,
     reconnectionAttempts: Infinity,

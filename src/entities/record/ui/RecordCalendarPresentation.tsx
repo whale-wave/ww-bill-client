@@ -212,7 +212,7 @@ export const RecordCalendarPresentation: FC<RecordCalendarPresentationProps> = (
       className={calendarRootClassName}
       data-record-calendar-presentation
     >
-      <header className="relative z-10 grid shrink-0 grid-cols-[48px_minmax(0,1fr)_48px] items-center gap-2 px-[18px] pb-2 pt-[max(10px,env(safe-area-inset-top))]">
+      <header className="relative z-10 grid shrink-0 grid-cols-[48px_minmax(0,1fr)_48px] items-center gap-2 px-[18px] pb-2 pt-[max(10px,var(--ww-safe-area-top))]">
         <button
           aria-label={backLabel}
           className="flex h-11 w-11 items-center justify-center rounded-full border border-solid border-white/70 bg-white/75 p-0 text-primary-dark shadow-ww-xs backdrop-blur-md transition active:scale-95"

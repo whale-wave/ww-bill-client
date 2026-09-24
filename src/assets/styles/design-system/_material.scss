@@ -76,6 +76,34 @@
   --ww-component-sheet-handle-width: 36px;
   --ww-component-sheet-handle-color: color-mix(in srgb, var(--ww-text-color-ghost) 72%, transparent);
   --ww-component-sheet-handle-space: 16px;
+  /* Record editor uses the same quiet control surface in its dock and sheets. */
+  --ww-component-record-editor-controls-height: 112px;
+  --ww-component-record-editor-dock-height: 61px;
+  --ww-component-record-editor-control-background: var(--ww-surface-raised-color);
+  --ww-component-record-editor-control-border: var(--ww-divider-color);
+  --ww-component-record-editor-dock-background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ww-material-overlay-opaque-background) 68%, transparent),
+    var(--ww-material-overlay-opaque-background) 75%
+  );
+  --ww-component-record-editor-entry-background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ww-surface-secondary-color) 54%, transparent),
+    color-mix(in srgb, var(--ww-surface-raised-color) 98%, transparent)
+  );
+  --ww-component-record-editor-detail-background: color-mix(
+    in srgb,
+    var(--ww-theme-color-light) 16%,
+    var(--ww-material-overlay-opaque-background)
+  );
+  --ww-component-record-editor-detail-selected-background: var(--ww-component-record-editor-selected-background);
+  --ww-component-record-editor-detail-shadow: 0 1px 4px color-mix(in srgb, var(--ww-theme-text-color) 12%, transparent);
+  --ww-component-record-editor-chip-background: var(--ww-surface-secondary-color);
+  --ww-component-record-editor-chip-selected-background: var(--ww-component-sheet-selected-background);
+  --ww-component-record-editor-chip-foreground: var(--ww-text-color-mid);
+  --ww-component-record-editor-chip-selected-foreground: var(--ww-theme-color-deep);
+  --ww-component-record-editor-selected-background: var(--ww-component-sheet-selected-background);
+  --ww-component-record-editor-category-height: 68px;
   --ww-component-overlay-width: 320px;
   --ww-component-overlay-padding-x: 20px;
   --ww-component-overlay-control-height: 48px;

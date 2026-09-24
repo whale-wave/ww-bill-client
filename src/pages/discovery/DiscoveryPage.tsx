@@ -188,7 +188,7 @@ const Discovery: FC = () => {
 
   return (
     <div className="page-new relative w-full">
-      <header className="flex h-[60px] shrink-0 items-center justify-between gap-3 px-[22px] pb-4 pt-[max(8px,env(safe-area-inset-top))]">
+      <header className="flex h-[60px] shrink-0 items-center justify-between gap-3 px-[22px] pb-4 pt-[max(8px,var(--ww-safe-area-top))]">
         <h1 className="text-[20px] font-extrabold leading-[30px] text-ww-ink">{t('commonFunctions.discovery')}</h1>
         {isEditing && <button className="h-9 rounded-[13px] border-0 bg-primary-light/70 px-3 text-[13px] font-extrabold text-primary-deep transition active:scale-95" onClick={() => setIsEditing(false)} type="button">{t('discoveryCards.done')}</button>}
       </header>

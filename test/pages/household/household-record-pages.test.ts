@@ -213,7 +213,7 @@ describe('household records', () => {
     const header = container.querySelector('[data-testid="household-home-header"]');
     const title = header?.querySelector('h1');
     expect(header?.matches('[data-record-overview-header]')).toBe(true);
-    expect(header?.classList).toContain('pt-[max(6px,env(safe-area-inset-top))]');
+    expect(header?.classList).toContain('pt-[max(6px,var(--ww-safe-area-top))]');
     expect(title?.textContent).toBe('home.title');
     expect(title?.parentElement?.classList).toContain('gap-2');
     expect(title?.classList).toContain('text-left');
@@ -458,20 +458,20 @@ describe('household records', () => {
     const header = container.querySelector('[data-record-search-header]');
     const input = header?.querySelector('[data-record-search-input]');
     const shell = container.querySelector('[data-record-search-page-shell]');
-    expect(header?.classList).toContain('pt-[max(8px,env(safe-area-inset-top))]');
+    expect(header?.classList).toContain('pt-[max(8px,var(--ww-safe-area-top))]');
     expect(input?.classList).toContain('bg-white/85');
     expect(shell?.classList).not.toContain('bg-bg-gray');
     expect(header?.querySelector<HTMLInputElement>('input')?.value).toBe('餐');
     expect(container.querySelector('[data-record-filter-panel]')).toBeNull();
 
     await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="record-filter-action"]')?.click());
-    const filterPanel = container.querySelector<HTMLElement>('[data-record-filter-panel]');
+    const filterPanel = document.querySelector<HTMLElement>('[data-record-filter-panel]');
     expect(filterPanel).not.toBeNull();
     expect(filterPanel?.textContent).toContain('search.more');
     await act(async () => [...filterPanel?.querySelectorAll<HTMLButtonElement>('button') ?? []]
       .find(button => button.textContent === 'search.more')
       ?.click());
-    expect(container.querySelector('[data-record-filter-more]')).not.toBeNull();
+    expect(filterPanel?.querySelector('[data-record-filter-more]')).not.toBeNull();
     await act(async () => [...filterPanel?.querySelectorAll<HTMLButtonElement>('button') ?? []]
       .find(button => button.textContent === 'search.confirm')
       ?.click());

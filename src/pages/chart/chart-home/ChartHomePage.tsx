@@ -1,12 +1,11 @@
 import type { FC } from 'react';
-import { ChartOverviewPresentation } from '@/features/chart-overview';
-import { ChartHomeProvider } from '@/pages/chart/chart-home/model/ChartHomeProvider';
+import { ChartDashboardHome } from '@/pages/chart/chart-home/ChartDashboardHome';
 import { TabBar } from '@/widgets/layout';
 
 const ChartHomeInner: FC = () => {
   return (
     <>
-      <ChartOverviewPresentation />
+      <ChartDashboardHome scope={{ kind: 'personal' }} defaultPeriod="week" />
       <TabBar active={1} />
     </>
   );
@@ -14,9 +13,7 @@ const ChartHomeInner: FC = () => {
 
 const ChartHome: FC = () => {
   return (
-    <ChartHomeProvider>
-      <ChartHomeInner />
-    </ChartHomeProvider>
+    <ChartHomeInner />
   );
 };
 

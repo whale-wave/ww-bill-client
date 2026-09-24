@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import type {
   CategoryAmountType,
+  CategoryDeleteImpact,
   CategoryEntity,
   CategoryIconCatalogItem,
 } from '@/entities/category';
@@ -13,13 +14,17 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button, Input } from 'antd-mobile';
+import { Input } from 'antd-mobile';
 import {
+  Check,
   ChevronDown,
+  ChevronRight,
+  EyeOff,
+  FolderInput,
   GripVertical,
-  Minus,
   Pencil,
   Plus,
+  Trash2,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -27,6 +32,7 @@ import {
   hasCategoryGlyph,
   useCategoryIconCatalogQuery,
   useCreateLedgerCategoryMutation,
+  useDeleteLedgerCategoryPermanentlyMutation,
   useLedgerCategoriesQuery,
   useMoveLedgerCategoryMutation,
   usePatchLedgerCategoryMutation,
@@ -34,7 +40,7 @@ import {
   useUploadLedgerCategoryIconMutation,
 } from '@/entities/category';
 import { useTranslation } from '@/shared/i18n';
-import { AppButton, AppSheet, PageLoadingState } from '@/shared/ui';
+import { AppButton, AppSheet, PageLoadingState, SheetHeader } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 import { useMotionPreference } from '@/shared/ui/motion';
 import { CategoryImageCropper } from './CategoryImageCropper';
@@ -52,6 +58,11 @@ const GROUP_ORDER: CategoryIconCatalogItem['group'][] = [
 
 const CATEGORY_ERROR_KEYS: Record<string, string> = {
   CATEGORY_ARCHIVED: 'archived',
+  CATEGORY_DELETE_REFERENCED: 'deleteReferenced',
+  CATEGORY_DELETE_REQUIRES_MIGRATION: 'deleteRequiresMigration',
+  CATEGORY_DELETE_TARGET_CONFLICT: 'deleteTargetConflict',
+  CATEGORY_DELETE_TARGET_INVALID: 'deleteTargetInvalid',
+  CATEGORY_DELETE_TARGET_ROOT_REQUIRED: 'deleteTargetRootRequired',
   CATEGORY_ICON_ANIMATED: 'iconAnimated',
   CATEGORY_ICON_INVALID: 'iconInvalid',
   CATEGORY_ICON_STORAGE_UNAVAILABLE: 'iconStorageUnavailable',
@@ -83,8 +94,6 @@ function SortableCategoryRow({
   category,
   canManage,
   childCount,
-  disableArchive,
-  onArchive,
   onEdit,
   onToggleChildren,
   isCollapsed,
@@ -95,8 +104,6 @@ function SortableCategoryRow({
   canManage: boolean;
   category: CategoryEntity;
   childCount: number;
-  disableArchive: boolean;
-  onArchive: () => void;
   onEdit: () => void;
   onToggleChildren?: () => void;
   isCollapsed: boolean;
@@ -120,25 +127,14 @@ function SortableCategoryRow({
 
   return (
     <div
-      className="flex min-h-[62px] items-center gap-3 border-b border-solid border-border-primary px-3 last:border-b-0"
+      className="flex min-h-[64px] items-center gap-2 border-b border-solid border-border-primary pl-4 pr-2 last:border-b-0"
       ref={setNodeRef}
       role="listitem"
       style={style}
     >
-      {canManage && (
-        <button
-          aria-label={disableArchive ? t('categories.lastActive') : t('categories.archive')}
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-feedback-danger/10 text-feedback-danger disabled:cursor-not-allowed ${disableArchive ? 'opacity-35' : ''}`}
-          disabled={disableArchive || writePending}
-          onClick={onArchive}
-          type="button"
-        >
-          <Minus size={17} strokeWidth={2.4} />
-        </button>
-      )}
       <button
         type="button"
-        className="flex min-h-11 min-w-0 flex-1 items-center gap-2 border-0 bg-transparent p-0 text-left"
+        className="flex min-h-[64px] min-w-0 flex-1 items-center gap-3 border-0 bg-transparent p-0 text-left"
         aria-label={`${category.name}，${childSummary}`}
         aria-expanded={onToggleChildren ? !isCollapsed : undefined}
         aria-controls={onToggleChildren ? `subcategory-list-${category.id}` : undefined}
@@ -152,7 +148,7 @@ function SortableCategoryRow({
           <span className="block truncate text-[14px] font-extrabold text-ww-ink">{category.name}</span>
           <span className="mt-0.5 block truncate text-[10px] font-semibold text-ww-soft">{childSummary}</span>
         </span>
-        {onToggleChildren && <ChevronDown aria-hidden size={14} className={`shrink-0 text-ww-soft ${isCollapsed ? '-rotate-90' : ''}`} />}
+        {onToggleChildren && <ChevronDown aria-hidden size={16} className={`shrink-0 text-ww-soft transition-transform ${isCollapsed ? '-rotate-90' : ''}`} />}
       </button>
       {canManage && (
         <button
@@ -194,6 +190,7 @@ function CategoryEditorSheet({
   onSaved,
   onMove,
   onArchive,
+  onDelete,
   onMoveEarlier,
   managementPending,
   type,
@@ -206,6 +203,7 @@ function CategoryEditorSheet({
   onSaved: () => void;
   onMove: (category: CategoryEntity) => void;
   onArchive?: () => void;
+  onDelete?: () => void;
   onMoveEarlier?: () => void;
   managementPending?: boolean;
   type: CategoryAmountType;
@@ -328,9 +326,6 @@ function CategoryEditorSheet({
       visible
     >
       <div className="flex h-full flex-col bg-ww-background">
-        {editor.category?.isCustom && !cropSourceUrl && (
-          <AppButton variant="secondary" onClick={() => onMove(editor.category!)}>调整归属</AppButton>
-        )}
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-solid border-border-primary px-4">
           <button className="border-0 bg-transparent text-[14px] font-bold text-ww-mid" onClick={cropSourceUrl ? () => setCropSourceUrl(undefined) : onClose} type="button">{t('categories.cancel')}</button>
           <h2 className="text-[15px] font-black text-ww-ink">
@@ -468,6 +463,57 @@ function CategoryEditorSheet({
                   </div>
                 )}
               </section>
+              {editor.category && (editor.category.isCustom || onArchive || onDelete || onMoveEarlier) && (
+                <section className="mt-5 overflow-hidden rounded-[18px] border border-solid border-border-primary bg-white/90 shadow-ww-xs">
+                  <h3 className="px-4 pb-1 pt-4 text-[12px] font-black text-ww-mid">{t('categories.actions')}</h3>
+                  {editor.category.isCustom && (
+                    <button
+                      className="flex min-h-12 w-full items-center gap-3 border-0 border-b border-solid border-border-primary bg-transparent px-4 text-left text-[13px] font-bold text-ww-ink"
+                      disabled={isSaving || managementPending}
+                      onClick={() => onMove(editor.category!)}
+                      type="button"
+                    >
+                      <FolderInput aria-hidden size={18} className="text-primary-deep" />
+                      <span className="flex-1">{t('categories.moveAction')}</span>
+                      <ChevronRight aria-hidden size={16} className="text-ww-soft" />
+                    </button>
+                  )}
+                  {onMoveEarlier && (
+                    <button
+                      className="flex min-h-12 w-full items-center gap-3 border-0 border-b border-solid border-border-primary bg-transparent px-4 text-left text-[13px] font-bold text-ww-ink"
+                      disabled={isSaving || managementPending}
+                      onClick={onMoveEarlier}
+                      type="button"
+                    >
+                      <GripVertical aria-hidden size={18} className="text-primary-deep" />
+                      <span className="flex-1">{t('categories.moveEarlier')}</span>
+                      <ChevronRight aria-hidden size={16} className="text-ww-soft" />
+                    </button>
+                  )}
+                  {onArchive && (
+                    <button
+                      className="flex min-h-12 w-full items-center gap-3 border-0 bg-transparent px-4 text-left text-[13px] font-bold text-feedback-danger"
+                      disabled={isSaving || managementPending}
+                      onClick={onArchive}
+                      type="button"
+                    >
+                      <EyeOff aria-hidden size={18} />
+                      <span className="flex-1">{t('categories.archive')}</span>
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      className="flex min-h-12 w-full items-center gap-3 border-0 border-t border-solid border-border-primary bg-transparent px-4 text-left text-[13px] font-bold text-feedback-danger"
+                      disabled={isSaving || managementPending}
+                      onClick={onDelete}
+                      type="button"
+                    >
+                      <Trash2 aria-hidden size={18} />
+                      <span className="flex-1">{t('categories.deleteAction')}</span>
+                    </button>
+                  )}
+                </section>
+              )}
               {image && (isSaving || uploadProgress > 0) && (
                 <div className="mt-3" role="progressbar" aria-label={t('categories.uploadProgress')} aria-valuemax={100} aria-valuemin={0} aria-valuenow={Math.round(uploadProgress * 100)}>
                   <div className="h-1.5 overflow-hidden rounded-full bg-ww-surface-tint">
@@ -515,12 +561,6 @@ function CategoryEditorSheet({
                   </section>
                 );
               })}
-              {onArchive && (
-                <div className="mt-6 flex gap-3 border-t border-solid border-border-primary pt-4">
-                  <AppButton variant="secondary" disabled={isSaving || managementPending || !onMoveEarlier} onClick={onMoveEarlier}>向前移动</AppButton>
-                  <AppButton variant="secondary" className="text-feedback-danger" disabled={isSaving || managementPending} onClick={onArchive}>隐藏分类</AppButton>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -557,6 +597,10 @@ export function CategoryManagement({
   const [moveParentId, setMoveParentId] = useState<number | null>(null);
   const [movePreview, setMovePreview] = useState<{ path: string; recordCount: number; version: number } | null>(null);
   const moveCategory = useMoveLedgerCategoryMutation();
+  const [deleting, setDeleting] = useState<CategoryEntity | null>(null);
+  const [deleteImpact, setDeleteImpact] = useState<CategoryDeleteImpact | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const deleteCategory = useDeleteLedgerCategoryPermanentlyMutation();
   const revealParent = (parentId: number) => {
     setExpandedIds(current => current.includes(parentId) ? current : [...current, parentId]);
     if (typeof requestAnimationFrame === 'function') {
@@ -587,10 +631,62 @@ export function CategoryManagement({
       await query.refetch();
     }
   };
+  const handleStartDelete = async (category: CategoryEntity) => {
+    setEditor(null);
+    setDeleting(category);
+    setDeleteImpact(null);
+    setDeleteTargetId(null);
+    try {
+      const impact = await deleteCategory.mutateAsync({
+        categoryId: category.id,
+        ledgerId,
+        preview: true,
+        version: category.version,
+      });
+      setDeleteImpact(impact);
+    }
+    catch (error) {
+      setDeleting(null);
+      showAppError({ content: getCategoryErrorMessage(error, t, t('categories.deleteFailed')), icon: 'fail' });
+      void query.refetch();
+    }
+  };
+  const handleDelete = async () => {
+    if (!deleting || !deleteImpact || (deleteImpact.requiresMigration && !deleteTargetId))
+      return;
+    try {
+      await deleteCategory.mutateAsync({
+        categoryId: deleting.id,
+        ledgerId,
+        targetCategoryId: deleteImpact.requiresMigration ? deleteTargetId! : undefined,
+        version: deleting.version,
+      });
+      setDeleting(null);
+      setDeleteImpact(null);
+      setDeleteTargetId(null);
+    }
+    catch (error) {
+      showAppError({ content: getCategoryErrorMessage(error, t, t('categories.deleteFailed')), icon: 'fail' });
+      void query.refetch();
+    }
+  };
   const writesRef = useRef(new Set<number | 'order'>());
   const active = categories.filter(category => category.status === 'ACTIVE');
   const roots = active.filter(category => !category.parentId);
   const archived = categories.filter(category => category.status === 'ARCHIVED');
+  const deleteRequiresRoot = Boolean(deleteImpact && (deleteImpact.childCount || deleteImpact.budgetCount || deleteImpact.householdBudgetCount));
+  const deleteTargets = active.filter(category => category.id !== deleting?.id
+    && (!category.parentId || roots.some(root => root.id === category.parentId))
+    && (!deleteRequiresRoot || !category.parentId));
+  const deleteImpactRows = deleteImpact
+    ? [
+        { count: deleteImpact.recordCount, label: t('categories.deleteRecords') },
+        { count: deleteImpact.budgetCount, label: t('categories.deleteBudgets') },
+        { count: deleteImpact.householdBudgetCount, label: t('categories.deleteHouseholdBudgets') },
+        { count: deleteImpact.tagCount, label: t('categories.deleteTags') },
+        { count: deleteImpact.childCount, label: t('categories.deleteChildren') },
+      ].filter(item => item.count > 0)
+    : [];
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 7 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -746,8 +842,6 @@ export function CategoryManagement({
                                 canManage={canManage}
                                 category={category}
                                 childCount={children.length}
-                                disableArchive={roots.length <= 1}
-                                onArchive={() => void changeStatus(category, 'ARCHIVED')}
                                 onEdit={() => setEditor({ category, mode: 'edit' })}
                                 onToggleChildren={canManage || children.length > 0 ? () => setExpandedIds(current => isCollapsed ? [...current, category.id] : current.filter(id => id !== category.id)) : undefined}
                                 isCollapsed={isCollapsed}
@@ -758,29 +852,43 @@ export function CategoryManagement({
                               {(canManage || children.length > 0) && (
                                 <div id={`subcategory-list-${category.id}`} aria-hidden={isCollapsed} className={`grid ${isCollapsed ? 'invisible grid-rows-[0fr]' : 'visible grid-rows-[1fr]'} ${isMotionEnabled ? 'transition-[grid-template-rows,visibility] duration-200 ease-out' : ''}`}>
                                   <div className="min-h-0 overflow-hidden">
-                                    <div className="mx-3 mb-3 mt-2 grid grid-cols-5 gap-x-1 gap-y-2 rounded-2xl max-[360px]:grid-cols-4 bg-ww-surface-tint px-2 py-3" data-subcategory-grid>
-                                      {children.map(child => (
-                                        <button
-                                          key={child.id}
-                                          type="button"
-                                          aria-label={`${canManage ? '编辑' : ''}${child.name}`}
-                                          className="flex min-h-[76px] min-w-0 flex-col items-center gap-1.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center text-[12px] leading-4 text-ww-ink enabled:active:bg-primary-light/50"
-                                          disabled={!canManage || patchState.isLoading || reorderState.isLoading}
-                                          onClick={() => setEditor({ category: child, mode: 'edit' })}
-                                        >
-                                          <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface" data-subcategory-icon>
-                                            <CategoryIcon categoryName={child.name} iconKey={child.icon} iconType={child.iconType} textIconEnabled={child.textIconEnabled} textIconIndex={child.textIconIndex} size={24} />
-                                          </span>
-                                          <span className="w-full break-words">{child.name}</span>
-                                        </button>
-                                      ))}
-                                      {canManage && (
-                                        <button type="button" aria-label={`在${category.name}下添加子分类`} className="flex min-h-[76px] min-w-0 flex-col items-center gap-1.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-[12px] leading-4 text-ww-mid active:bg-primary-light/50" onClick={() => setEditor({ mode: 'create', parentId: category.id })}>
-                                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ww-soft/20"><Plus size={24} strokeWidth={1.8} /></span>
-                                          <span>添加</span>
-                                        </button>
-                                      )}
-                                    </div>
+                                    {children.length === 0
+                                      ? (
+                                          <button
+                                            aria-label={t('categories.addChildTo', { name: category.name })}
+                                            className="mx-4 mb-3 mt-2 flex min-h-12 w-[calc(100%-32px)] items-center justify-center gap-2 rounded-[14px] border border-dashed border-primary-mid bg-ww-surface-tint text-[12px] font-bold text-primary-deep"
+                                            onClick={() => setEditor({ mode: 'create', parentId: category.id })}
+                                            type="button"
+                                          >
+                                            <Plus aria-hidden size={17} />
+                                            {t('categories.addChild')}
+                                          </button>
+                                        )
+                                      : (
+                                          <div className="mx-3 mb-3 mt-2 grid grid-cols-5 gap-x-1 gap-y-2 rounded-2xl bg-ww-surface-tint px-2 py-3 max-[360px]:grid-cols-4" data-subcategory-grid>
+                                            {children.map(child => (
+                                              <button
+                                                key={child.id}
+                                                type="button"
+                                                aria-label={t(canManage ? 'categories.editChild' : 'categories.viewChild', { name: child.name })}
+                                                className="flex min-h-[76px] min-w-0 flex-col items-center gap-1.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center text-[12px] leading-4 text-ww-ink enabled:active:bg-primary-light/50"
+                                                disabled={!canManage || patchState.isLoading || reorderState.isLoading}
+                                                onClick={() => setEditor({ category: child, mode: 'edit' })}
+                                              >
+                                                <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface" data-subcategory-icon>
+                                                  <CategoryIcon categoryName={child.name} iconKey={child.icon} iconType={child.iconType} textIconEnabled={child.textIconEnabled} textIconIndex={child.textIconIndex} size={24} />
+                                                </span>
+                                                <span className="w-full break-words">{child.name}</span>
+                                              </button>
+                                            ))}
+                                            {canManage && (
+                                              <button type="button" aria-label={t('categories.addChildTo', { name: category.name })} className="flex min-h-[76px] min-w-0 flex-col items-center gap-1.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-[12px] leading-4 text-ww-mid active:bg-primary-light/50" onClick={() => setEditor({ mode: 'create', parentId: category.id })}>
+                                                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ww-soft/20"><Plus size={24} strokeWidth={1.8} /></span>
+                                                <span>{t('categories.addChildShort')}</span>
+                                              </button>
+                                            )}
+                                          </div>
+                                        )}
                                   </div>
                                 </div>
                               )}
@@ -821,22 +929,33 @@ export function CategoryManagement({
             >
               {archived.length
                 ? archived.map(category => (
-                    <div className="flex min-h-[60px] items-center gap-3 border-b border-solid border-border-primary px-3 last:border-b-0" key={category.id}>
-                      {canManage && (
-                        <button
-                          aria-label={t('categories.restoreName', { name: category.name })}
-                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-feedback-success/10 text-feedback-success"
-                          onClick={() => void changeStatus(category, 'ACTIVE')}
-                          type="button"
-                        >
-                          <Plus size={18} strokeWidth={2.5} />
-                        </button>
-                      )}
+                    <div className="flex min-h-[60px] items-center gap-3 border-b border-solid border-border-primary px-4 last:border-b-0" key={category.id}>
                       <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-ww-mid" data-category-management-icon>
                         <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={20} />
                       </span>
                       <span className="min-w-0 flex-1 truncate text-[14px] font-bold text-ww-mid">{category.name}</span>
-                      <span className="rounded-full bg-ww-surface-tint px-2 py-1 text-[9px] font-bold text-ww-soft">{t('categories.inactive')}</span>
+                      {canManage && (
+                        <button
+                          aria-label={t('categories.editName', { name: category.name })}
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-0 bg-transparent text-ww-mid"
+                          onClick={() => setEditor({ category, mode: 'edit' })}
+                          type="button"
+                        >
+                          <Pencil aria-hidden size={17} />
+                        </button>
+                      )}
+                      {canManage
+                        ? (
+                            <button
+                              aria-label={t('categories.restoreName', { name: category.name })}
+                              className="min-h-11 shrink-0 rounded-xl border-0 bg-ww-surface-tint px-3 text-[12px] font-bold text-primary-deep"
+                              onClick={() => void changeStatus(category, 'ACTIVE')}
+                              type="button"
+                            >
+                              {t('categories.restore')}
+                            </button>
+                          )
+                        : <span className="text-[11px] font-bold text-ww-soft">{t('categories.inactive')}</span>}
                     </div>
                   ))
                 : <p className="px-4 py-6 text-center text-[11px] font-semibold text-ww-mid">{t('categories.noMore')}</p>}
@@ -845,49 +964,192 @@ export function CategoryManagement({
         </div>
       </main>
       {canManage && (
-        <div className="absolute inset-x-0 bottom-0 border-t border-solid border-border-primary bg-ww-surface px-[18px] pb-[calc(12px+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
-          <Button
-            block
-            className="mx-auto !h-12 !max-w-[520px] !rounded-[17px] !border-0 !bg-primary !text-[14px] !font-black !text-white !shadow-[0_12px_26px_rgba(45,135,181,0.25)]"
+        <div className="absolute inset-x-0 bottom-0 flex justify-center border-t border-solid border-border-primary bg-ww-surface px-[18px] pb-[calc(12px+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
+          <AppButton
+            className="max-w-[520px]"
+            fullWidth
+            size="large"
             onClick={() => setEditor({ mode: 'create' })}
           >
             <span className="inline-flex items-center gap-2">
               <Plus size={18} />
               {t('categories.add')}
             </span>
-          </Button>
+          </AppButton>
         </div>
       )}
       {moving && (
-        <AppSheet visible onClose={() => setMoving(null)} onMaskClick={() => setMoving(null)} bodyClassName="p-4">
-          <h2 className="mb-4 text-base font-bold">
-            调整「
-            {moving.name}
-            」归属
-          </h2>
-          <select
-            aria-label="目标一级分类"
-            className="ww-sheet-control min-h-11 w-full rounded-xl px-3"
-            value={moveParentId ?? ''}
-            onChange={(event) => {
-              setMoveParentId(event.target.value ? Number(event.target.value) : null);
-              setMovePreview(null);
-            }}
-          >
-            <option value="">作为一级分类</option>
-            {roots.filter(category => category.id !== moving.id).map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
-          </select>
-          {movePreview && (
-            <p className="my-4 text-sm leading-6">
-              调整后：
-              {movePreview.path}
-              。涉及
-              {movePreview.recordCount}
-              {' '}
-              笔账单，历史分类统计会按新归属重新汇总。
-            </p>
-          )}
-          <AppButton className="mt-4" fullWidth disabled={moveCategory.isLoading} onClick={() => void handleMove(!movePreview)}>{movePreview ? '确认调整' : '预览影响'}</AppButton>
+        <AppSheet
+          bodyStyle={{ height: 'min(78dvh, 640px)', overflow: 'hidden' }}
+          onMaskClick={() => setMoving(null)}
+          showCloseButton={false}
+          visible
+        >
+          <div className="flex h-full flex-col bg-ww-background">
+            <SheetHeader
+              closeLabel={t('categories.cancel')}
+              description={moving.name}
+              icon={<FolderInput size={20} />}
+              onClose={() => setMoving(null)}
+              title={t('categories.moveTitle')}
+            />
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-[18px] py-4">
+              <div className="mx-auto max-w-[520px]">
+                {movePreview
+                  ? (
+                      <div className="rounded-[20px] border border-solid border-border-primary bg-ww-surface p-5 shadow-ww-xs" role="status">
+                        <p className="text-[12px] font-bold text-ww-mid">{t('categories.moveCurrent')}</p>
+                        <p className="mt-1 text-[15px] font-black text-ww-ink">
+                          {moving.parentId ? roots.find(category => category.id === moving.parentId)?.name : t('categories.asRoot')}
+                        </p>
+                        <div className="my-4 h-px bg-ww-surface-tint" />
+                        <p className="text-[12px] font-bold text-ww-mid">{t('categories.moveResult')}</p>
+                        <p className="mt-1 text-[17px] font-black text-primary-deep">{movePreview.path}</p>
+                        <p className="mt-3 rounded-[12px] bg-ww-surface-tint px-3 py-2 text-[12px] font-semibold text-ww-mid">{t('categories.moveRecords', { count: movePreview.recordCount })}</p>
+                        <button
+                          className="mt-4 min-h-11 border-0 bg-transparent p-0 text-[12px] font-bold text-primary-deep"
+                          onClick={() => setMovePreview(null)}
+                          type="button"
+                        >
+                          {t('categories.changeDestination')}
+                        </button>
+                      </div>
+                    )
+                  : (
+                      <>
+                        <p className="mb-2 px-1 text-[12px] font-black text-ww-mid">{t('categories.moveDestination')}</p>
+                        <div aria-label={t('categories.moveDestination')} className="overflow-hidden rounded-[20px] border border-solid border-border-primary bg-ww-surface shadow-ww-xs" role="radiogroup">
+                          <button
+                            aria-checked={moveParentId === null}
+                            className={`flex min-h-[58px] w-full items-center gap-3 border-0 border-b border-solid border-border-primary px-4 text-left ${moveParentId === null ? 'bg-primary-light/40' : 'bg-transparent'}`}
+                            onClick={() => {
+                              setMoveParentId(null);
+                              setMovePreview(null);
+                            }}
+                            role="radio"
+                            type="button"
+                          >
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ww-surface-tint text-primary-deep"><FolderInput size={18} /></span>
+                            <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-ww-ink">{t('categories.asRoot')}</span>
+                            {moveParentId === null && <Check aria-hidden size={18} className="text-primary-deep" />}
+                          </button>
+                          {roots.filter(category => category.id !== moving.id).map(category => (
+                            <button
+                              aria-checked={moveParentId === category.id}
+                              className={`flex min-h-[58px] w-full items-center gap-3 border-0 border-b border-solid border-border-primary px-4 text-left last:border-b-0 ${moveParentId === category.id ? 'bg-primary-light/40' : 'bg-transparent'}`}
+                              key={category.id}
+                              onClick={() => {
+                                setMoveParentId(category.id);
+                                setMovePreview(null);
+                              }}
+                              role="radio"
+                              type="button"
+                            >
+                              <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint" data-category-management-icon>
+                                <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={19} />
+                              </span>
+                              <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-ww-ink">{category.name}</span>
+                              {moveParentId === category.id && <Check aria-hidden size={18} className="text-primary-deep" />}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+              </div>
+            </div>
+            <div className="flex shrink-0 justify-center border-t border-solid border-border-primary bg-ww-surface px-[18px] pb-[calc(14px+env(safe-area-inset-bottom))] pt-3">
+              <AppButton
+                className="max-w-[520px]"
+                disabled={moveParentId === (moving.parentId ?? null)}
+                fullWidth
+                loading={moveCategory.isLoading}
+                onClick={() => void handleMove(!movePreview)}
+                size="large"
+              >
+                {t(movePreview ? 'categories.confirmMove' : 'categories.previewMove')}
+              </AppButton>
+            </div>
+          </div>
+        </AppSheet>
+      )}
+      {deleting && (
+        <AppSheet
+          bodyStyle={deleteImpact?.requiresMigration ? { height: 'min(78dvh, 640px)', overflow: 'hidden' } : undefined}
+          onMaskClick={() => setDeleting(null)}
+          showCloseButton={false}
+          visible
+        >
+          <div className={`flex flex-col bg-ww-background ${deleteImpact?.requiresMigration ? 'h-full' : ''}`}>
+            <SheetHeader
+              closeLabel={t('categories.cancel')}
+              description={deleting.path ?? deleting.name}
+              icon={<Trash2 size={20} />}
+              onClose={() => setDeleting(null)}
+              title={t('categories.deleteTitle')}
+            />
+            <div className={`${deleteImpact?.requiresMigration ? 'min-h-0 flex-1 overflow-y-auto overscroll-contain' : ''} px-[18px] py-4`}>
+              <div className="mx-auto max-w-[520px]">
+                {!deleteImpact
+                  ? <PageLoadingState compact label={t('common:nav.loading')} />
+                  : deleteImpact.requiresMigration
+                    ? (
+                        <>
+                          <div className="mb-4 rounded-[18px] border border-solid border-border-primary bg-ww-surface px-4 py-3">
+                            <p className="text-[12px] font-bold text-ww-mid">{t('categories.deleteMigrationHint')}</p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {deleteImpactRows.map(item => (
+                                <span className="rounded-full bg-ww-surface-tint px-2.5 py-1 text-[11px] font-bold text-ww-ink" key={item.label}>
+                                  {item.label}
+                                  {' '}
+                                  {item.count}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <p className="mb-2 px-1 text-[12px] font-black text-ww-mid">{t('categories.deleteTarget')}</p>
+                          {deleteTargets.length
+                            ? (
+                                <div aria-label={t('categories.deleteTarget')} className="overflow-hidden rounded-[20px] border border-solid border-border-primary bg-ww-surface shadow-ww-xs" role="radiogroup">
+                                  {deleteTargets.map(category => (
+                                    <button
+                                      aria-checked={deleteTargetId === category.id}
+                                      className={`flex min-h-[58px] w-full items-center gap-3 border-0 border-b border-solid border-border-primary px-4 text-left last:border-b-0 ${deleteTargetId === category.id ? 'bg-primary-light/40' : 'bg-transparent'}`}
+                                      key={category.id}
+                                      onClick={() => setDeleteTargetId(category.id)}
+                                      role="radio"
+                                      type="button"
+                                    >
+                                      <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint" data-category-management-icon>
+                                        <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={19} />
+                                      </span>
+                                      <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-ww-ink">{category.path ?? category.name}</span>
+                                      {deleteTargetId === category.id && <Check aria-hidden size={18} className="text-primary-deep" />}
+                                    </button>
+                                  ))}
+                                </div>
+                              )
+                            : <p className="rounded-[18px] bg-ww-surface px-4 py-5 text-[12px] font-semibold text-ww-mid">{t('categories.deleteNoTarget')}</p>}
+                        </>
+                      )
+                    : <p className="rounded-[18px] bg-ww-surface px-4 py-5 text-[13px] font-semibold leading-6 text-ww-mid">{t('categories.deleteEmptyHint')}</p>}
+              </div>
+            </div>
+            {deleteImpact && (
+              <div className="flex shrink-0 justify-center border-t border-solid border-border-primary bg-ww-surface px-[18px] pb-[calc(14px+env(safe-area-inset-bottom))] pt-3">
+                <AppButton
+                  className="max-w-[520px]"
+                  disabled={deleteImpact.requiresMigration && !deleteTargetId}
+                  fullWidth
+                  loading={deleteCategory.isLoading}
+                  onClick={() => void handleDelete()}
+                  size="large"
+                  variant="danger"
+                >
+                  {t(deleteImpact.requiresMigration ? 'categories.migrateAndDelete' : 'categories.confirmDelete')}
+                </AppButton>
+              </div>
+            )}
+          </div>
         </AppSheet>
       )}
       {editor && (
@@ -903,12 +1165,15 @@ export function CategoryManagement({
               revealParent(parentId);
           }}
           managementPending={patchState.isLoading || reorderState.isLoading}
-          onArchive={editor.category?.parentId
+          onArchive={editor.category?.status === 'ACTIVE' && (editor.category.parentId || roots.length > 1)
             ? () => {
                 const category = editor.category!;
                 setEditor(null);
                 void changeStatus(category, 'ARCHIVED');
               }
+            : undefined}
+          onDelete={editor.category && (editor.category.status === 'ARCHIVED' || editor.category.parentId || roots.length > 1)
+            ? () => void handleStartDelete(editor.category!)
             : undefined}
           onMoveEarlier={editor.category?.parentId && active.filter(item => item.parentId === editor.category?.parentId).findIndex(item => item.id === editor.category?.id) > 0
             ? () => {

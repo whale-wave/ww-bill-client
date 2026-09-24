@@ -146,7 +146,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
       <div aria-hidden="true" className="pointer-events-none absolute -left-20 top-[54%] h-52 w-52 rounded-full bg-ww-pink-light/25 blur-3xl" />
 
       {showNavigation && (
-        <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,env(safe-area-inset-top))]" data-record-detail-navigation>
+        <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,var(--ww-safe-area-top))]" data-record-detail-navigation>
           <button
             aria-label={backLabel}
             className="absolute left-[18px] flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"

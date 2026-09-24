@@ -4,6 +4,8 @@
 
 安卓通过本地 `NativeStatusBar` 插件同步原生窗口、WebView 父容器与 WebView 的背景。Android 15+ 保留系统强制的透明状态栏和 Capacitor 的安全区处理；旧 WebView 留出的原生区域也使用同步后的颜色。Android 14 及以前同时设置状态栏背景。文字根据背景亮度选择黑色或白色，恢复应用或系统配置改变后重新应用。
 
+顶部交互区域统一使用 `--ww-safe-area-top`。它取 WebView 的 `env(safe-area-inset-top)` 与 Capacitor SystemBars 注入的 `--safe-area-inset-top` 中较大的值，以兼容 Android WebView 未向 CSS `env()` 暴露状态栏高度的情况。不要只依赖 `env(safe-area-inset-top)` 布局顶部控件；旧 WebView 由 Capacitor 在原生父容器处理留白，注入变量为零时不会重复增加间距。
+
 iOS 桌面快捷方式保持 `apple-mobile-web-app-status-bar-style=default`，通过动态 `theme-color` 和页面画布背景交由 WebKit 着色。没有改成 `black-translucent`，以免浅色主题下状态栏文字对比度不足。iOS 的快捷方式没有原生状态栏 API，实际着色行为受系统版本控制，需要在目标 iPhone 上验收；不能保证所有 iOS 版本都支持动态着色。
 
 网页发布后快捷方式重新打开才能加载变更；安卓本地插件需要重新打包安装。此改动本身不等于已发布、已安装或已真机验收。

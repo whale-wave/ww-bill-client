@@ -93,11 +93,68 @@ export interface GetTagRankingParams {
   startDate?: string;
   endDate?: string;
   categoryId?: string;
+  tagIds?: string[];
+  tagMatch?: 'any' | 'all';
+  account?: string;
 }
 
 export type GetChartApiResponse = GetChartApiResponseWeekData[] | GetChartApiResponseMonthData[] | GetChartApiResponseYearData[];
 
 export type ChartMetric = 'expense' | 'income' | 'net';
+export type ChartDashboardPeriod = 'week' | 'month' | 'year' | 'all' | 'custom';
+export interface ChartDashboardParams {
+  period: ChartDashboardPeriod;
+  anchorDate?: string;
+  startDate?: string;
+  endDate?: string;
+  tagIds?: string[];
+  tagMatch?: 'any' | 'all';
+  account?: string;
+  sourceMemberId?: number;
+}
+export interface ChartDashboardResult {
+  period: ChartDashboardPeriod;
+  startDate: string;
+  endDate: string;
+  grain: 'day' | 'week' | 'month' | 'year';
+  summary: { income: string; expense: string; net: string; averageDailyExpense: string; dayCount: number };
+  timeline: Array<{ key: string; label?: string; income: string; expense: string; net: string }>;
+  categories: Array<{ id?: number | null; key?: string; name: string; icon?: string; iconType?: 'BUILTIN' | 'IMAGE'; textIconEnabled?: boolean; textIconIndex?: number; amount: string; percent?: number }>;
+  incomeCategories?: Array<{ id?: number | null; key?: string; name: string; icon?: string; iconType?: 'BUILTIN' | 'IMAGE'; textIconEnabled?: boolean; textIconIndex?: number; amount: string; percent?: number }>;
+  adjustments: { refund: string; cashback: string; supplement: string };
+  members?: Array<{ user: { id: number; name?: string; username?: string }; amount: string; percent: number }>;
+  tags?: Array<{ key: string; name: string; amount: string; percent: number }>;
+}
+export interface PersonalAssetDashboardResult {
+  startDate: string;
+  endDate: string;
+  grain: 'day' | 'week' | 'month' | 'year';
+  hasHistory: boolean;
+  timeline: Array<{ date: string; asset: string | null; liability: string | null; netAsset: string | null }>;
+  transfers: { count: number; amount: string };
+}
+
+export function getChartDashboardApi(params: ChartDashboardParams) {
+  return request.get<unknown, SuccessResponse<ChartDashboardResult>>('/chart/dashboard', { params });
+}
+
+export function getPersonalAssetDashboardApi(params: ChartDashboardParams) {
+  return request.get<unknown, SuccessResponse<PersonalAssetDashboardResult>>('/asset/chart-dashboard', { params });
+}
+
+export function getLedgerChartDashboardApi(ledgerId: string, params: ChartDashboardParams) {
+  return request.get<unknown, SuccessResponse<ChartDashboardResult>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/charts/dashboard`,
+    { params },
+  );
+}
+
+export function getHouseholdChartDashboardApi(householdId: string, params: ChartDashboardParams) {
+  return request.get<unknown, SuccessResponse<ChartDashboardResult>>(
+    `/households/${encodeURIComponent(householdId)}/charts/dashboard`,
+    { params },
+  );
+}
 
 export interface ChartWeekPeriodOption {
   period: 'week';
@@ -147,6 +204,9 @@ export interface GetChartPeriodApiParams {
   startDate?: string;
   endDate?: string;
   categoryId?: number;
+  tagIds?: string[];
+  tagMatch?: 'any' | 'all';
+  account?: string;
 }
 
 export interface ChartPeriodResult {

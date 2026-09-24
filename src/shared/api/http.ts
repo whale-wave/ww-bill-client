@@ -6,6 +6,7 @@ import { captureTransportError } from '@/shared/monitoring';
 import { buildTransportContext, requestUrl } from '@/shared/monitoring/transport-context';
 import { showAppError } from '@/shared/ui';
 import { captureRequestAuth, isTransitionCurrent } from './auth-injection';
+import { getClientDeviceHeaders } from './client-device';
 import { processAuthFailure } from './request-process';
 
 export interface RequestError extends Error {
@@ -31,7 +32,7 @@ const request = axios.create({
   timeout: 50000,
 });
 
-request.interceptors.request.use((config) => {
+request.interceptors.request.use(async (config) => {
   config.monitoringStartedAt = performance.now();
   const auth = config.authContext ?? captureRequestAuth();
   const token = auth.token;
@@ -40,6 +41,15 @@ request.interceptors.request.use((config) => {
     (
       config.headers as { Authorization: string }
     ).Authorization = `Bearer ${token}`;
+  }
+  const isDeviceEvent = config.url === '/auth/login' || config.url === '/auth/presence';
+  const device = isDeviceEvent ? await getClientDeviceHeaders() : undefined;
+  if (device) {
+    config.headers.set('X-Client-Platform', device.platform);
+    if (device.model)
+      config.headers.set('X-Client-Device-Model', device.model);
+    if (device.osVersion)
+      config.headers.set('X-Client-OS-Version', device.osVersion);
   }
   return config;
 });

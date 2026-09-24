@@ -1,10 +1,10 @@
 import type { RecordEditorImage } from '../model/useRecordEditorImages';
 import { ImageOff, ImagePlus, Info, RotateCcw, X } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAttachmentObjectUrl, useRecordAttachmentContentQuery } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
-import { AppSheet, ImageGallerySheetHeader, ImagePreview } from '@/shared/ui';
+import { AppSheet, getImagePreviewStatusImage, ImageGallerySheetHeader, ImagePreview } from '@/shared/ui';
 import { showAppNotice } from '@/shared/ui/app-feedback';
 import { MAX_RECORD_IMAGES } from '../model/useRecordEditorImages';
 
@@ -76,25 +76,60 @@ interface RecordEditorImagesPanelProps {
   onSelectImages: (files: File[]) => number;
 }
 
-function RecordEditorImagePreview({ image, onClose }: { image: RecordEditorImage; onClose: () => void }) {
-  const { t } = useTranslation('record');
+interface PreviewSource {
+  isError: boolean;
+  url?: string;
+}
+
+function RecordEditorPreviewSource({ image, onChange }: { image: RecordEditorImage; onChange: (id: string, source: PreviewSource) => void }) {
   const contentQuery = useRecordAttachmentContentQuery({
     attachmentId: image.kind === 'existing' ? image.attachment.id : undefined,
     enabled: image.kind === 'existing',
     variant: 'content',
   });
-  const previewUrl = useAttachmentObjectUrl(image.kind === 'new' ? image.file : contentQuery.data);
+  const url = useAttachmentObjectUrl(image.kind === 'new' ? image.file : contentQuery.data);
+
+  useEffect(() => {
+    onChange(image.id, { isError: contentQuery.isError, url });
+  }, [contentQuery.isError, image.id, onChange, url]);
+
+  return null;
+}
+
+function RecordEditorImagePreview({ images, onClose, selectedId }: { images: RecordEditorImage[]; onClose: () => void; selectedId: string }) {
+  const { t } = useTranslation('record');
+  const [sources, setSources] = useState<Record<string, PreviewSource>>({});
+  const handleSourceChange = useCallback((id: string, source: PreviewSource) => {
+    setSources((current) => {
+      const previous = current[id];
+      return previous?.url === source.url && previous.isError === source.isError
+        ? current
+        : { ...current, [id]: source };
+    });
+  }, []);
+  const selectedIndex = Math.max(0, images.findIndex(image => image.id === selectedId));
+  const selectedSource = sources[selectedId];
+  const isGallery = images.length > 1;
+  const previewImages = isGallery
+    ? images.map((image) => {
+        const source = sources[image.id];
+        return source?.url ?? getImagePreviewStatusImage(t(source?.isError ? 'bookkeeping.imagePreviewFailed' : 'bookkeeping.imagePreviewLoading'));
+      })
+    : undefined;
 
   return (
-    <ImagePreview
-      image={previewUrl}
-      onClose={onClose}
-      placeholder={contentQuery.isError
-        ? <span className="text-sm font-semibold text-white">{t('bookkeeping.imagePreviewFailed')}</span>
-        : <span className="text-sm font-semibold text-white">{t('bookkeeping.imagePreviewLoading')}</span>}
-      statusLabel={contentQuery.isError ? t('bookkeeping.imagePreviewFailed') : t('bookkeeping.imagePreviewLoading')}
-      visible
-    />
+    <>
+      {images.map(image => <RecordEditorPreviewSource image={image} key={image.id} onChange={handleSourceChange} />)}
+      <ImagePreview
+        defaultIndex={selectedIndex}
+        image={selectedSource?.url}
+        images={previewImages}
+        onClose={onClose}
+        placeholder={<span className="text-sm font-semibold text-white">{t(selectedSource?.isError ? 'bookkeeping.imagePreviewFailed' : 'bookkeeping.imagePreviewLoading')}</span>}
+        statusLabel={t(selectedSource?.isError ? 'bookkeeping.imagePreviewFailed' : 'bookkeeping.imagePreviewLoading')}
+        visible
+      />
+    </>
   );
 }
 
@@ -109,7 +144,7 @@ export function RecordEditorImagesPanel({ canAddImages, chipClassName, hasImageU
     <>
       <button
         aria-label={`${t('record:bookkeeping.imageCount', { count: images.length })}${hasImageUploadError ? `，${t('record:bookkeeping.imageUploadFailed')}` : ''}`}
-        className={cn(chipClassName, images.length > 0 && 'border-primary-light bg-primary-light text-primary-deep', hasImageUploadError && 'border-feedback-danger text-feedback-danger')}
+        className={cn(chipClassName, images.length > 0 && 'record-editor-detail-chip--selected', hasImageUploadError && 'text-feedback-danger')}
         data-record-editor-image-trigger
         onClick={() => {
           if (images.length === 0 && canAddImages)
@@ -191,7 +226,7 @@ export function RecordEditorImagesPanel({ canAddImages, chipClassName, hasImageU
           </div>
         </div>
       </AppSheet>
-      {selectedImage && <RecordEditorImagePreview image={selectedImage} onClose={() => setPreviewId(undefined)} />}
+      {selectedImage && <RecordEditorImagePreview images={images} onClose={() => setPreviewId(undefined)} selectedId={selectedImage.id} />}
     </>
   );
 }

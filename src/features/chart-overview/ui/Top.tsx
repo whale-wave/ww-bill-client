@@ -51,7 +51,7 @@ export const Top: FC = () => {
   }, []);
 
   return (
-    <header className="shrink-0 pt-[max(8px,env(safe-area-inset-top))]">
+    <header className="shrink-0 pt-[max(8px,var(--ww-safe-area-top))]">
       <div className="relative flex h-[52px] items-start justify-between gap-3 px-[22px] pb-4 pt-0.5">
         <h1 className="text-[18px] font-extrabold leading-[27px] text-ww-ink">{t('title')}</h1>
         <button

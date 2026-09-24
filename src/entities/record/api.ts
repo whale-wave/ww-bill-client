@@ -162,6 +162,7 @@ export interface GetRecordApiParams {
   categoryIds?: number[];
   tagIds?: string[];
   tagMatch?: 'any' | 'all';
+  account?: string;
   startDate?: string | number;
   endDate?: string;
   keyword?: string;

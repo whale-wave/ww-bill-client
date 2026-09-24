@@ -92,7 +92,7 @@ export function PersonalBillWorkspaceView({ query }: { query: BillQueryState }) 
 
   return (
     <div className="page-new overflow-hidden">
-      <header className="flex h-[60px] shrink-0 items-center justify-center px-[22px] pb-4 pt-[max(8px,env(safe-area-inset-top))]">
+      <header className="flex h-[60px] shrink-0 items-center justify-center px-[22px] pb-4 pt-[max(8px,var(--ww-safe-area-top))]">
         <h1 className="text-[20px] font-extrabold leading-[30px] text-ww-ink">{t('title')}</h1>
       </header>
       <div className="flex flex-grow flex-col overflow-hidden">

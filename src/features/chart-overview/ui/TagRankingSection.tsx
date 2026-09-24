@@ -30,9 +30,8 @@ function getUntaggedRankingFallback(records: readonly TagRankingFallbackRecord[]
 
 const TagRankingSkeleton: FC = () => (
   <div aria-label="正在加载标签排行" className="space-y-3" data-tag-ranking-loading role="status">
-    <div className="space-y-3 px-1 py-2">
+    <div className="px-1 py-2">
       <div className="h-5 w-1/2 animate-pulse rounded-full bg-primary-light/60" />
-      <div className="h-3 w-4/5 animate-pulse rounded-full bg-primary-light/45" />
     </div>
     {[0, 1, 2].map(item => (
       <div className="space-y-2 border-t border-border-primary py-3" key={item}>
@@ -78,10 +77,9 @@ export const TagRankingSection: FC<{
       <div className="overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] px-4 py-3 shadow-ww backdrop-blur-xl">
         <div className="px-1 py-2">
           <p className="text-sm font-bold text-ww-ink">
-            去重总金额 ¥
+            总金额 ¥
             {ranking.totalAmount}
           </p>
-          <p className="mt-2 text-xs leading-5 text-ww-soft">同一笔账可计入多个标签，金额不可相加。</p>
         </div>
         <div data-tag-ranking-rows>
           {ranking.items.map((item, index) => (

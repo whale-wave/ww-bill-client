@@ -101,7 +101,7 @@ const Mine: FC = () => {
 
   return (
     <div className="page-new relative overflow-hidden">
-      <main className="ww-tab-bar-scroll-padding grow overflow-auto px-[18px] pt-[max(0px,env(safe-area-inset-top)+18px)]">
+      <main className="ww-tab-bar-scroll-padding grow overflow-auto px-[18px] pt-[max(0px,var(--ww-safe-area-top)+18px)]">
         <UserSummaryCard
           achievementTitle={achievementSummary?.currentTitle?.name}
           name={userInfo?.name}

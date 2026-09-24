@@ -2,13 +2,14 @@ import type { TagRankingResponse } from '@/entities/chart';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TagRankingSection } from '@/features/chart-overview';
 import { CategoryDetail } from '@/pages/chart-scope-category/ChartScopeCategoryPage';
 import ChartCategory from '@/pages/chart/chart-category/ChartCategoryPage';
 
 const hooks = vi.hoisted(() => ({
   getChart: vi.fn(),
+  records: vi.fn(),
   tagRanking: vi.fn(),
 }));
 
@@ -16,6 +17,11 @@ vi.mock('@/entities/chart', async importOriginal => ({
   ...await importOriginal<typeof import('@/entities/chart')>(),
   useChartPeriodQuery: hooks.getChart,
   useTagRankingQuery: hooks.tagRanking,
+}));
+
+vi.mock('@/entities/record', async importOriginal => ({
+  ...await importOriginal<typeof import('@/entities/record')>(),
+  useInfiniteRecordsQuery: hooks.records,
 }));
 
 vi.mock('@/shared/lib/use-chart', () => ({
@@ -69,8 +75,13 @@ function render(element: React.ReactElement) {
 }
 
 describe('category detail chart layout', () => {
+  beforeEach(() => {
+    hooks.records.mockReturnValue({ records: [], isError: false, isLoading: false, hasNextPage: false });
+  });
+
   afterEach(() => {
     hooks.getChart.mockReset();
+    hooks.records.mockReset();
     hooks.tagRanking.mockReset();
   });
 

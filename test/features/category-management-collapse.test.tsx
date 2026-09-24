@@ -16,14 +16,18 @@ const hooks = vi.hoisted(() => ({
 vi.mock('@/entities/category', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/category')>()),
   useCategoryIconCatalogQuery: hooks.useCategoryIconCatalogQuery,
+  useCreateLedgerCategoryMutation: () => [vi.fn(), { isLoading: false }],
+  useDeleteLedgerCategoryPermanentlyMutation: () => ({ mutateAsync: vi.fn(), isLoading: false }),
   useLedgerCategoriesQuery: hooks.useLedgerCategoriesQuery,
   usePatchLedgerCategoryMutation: hooks.usePatchLedgerCategoryMutation,
   useMoveLedgerCategoryMutation: () => ({ mutateAsync: vi.fn(), isLoading: false }),
   useReorderLedgerCategoriesMutation: hooks.useReorderLedgerCategoriesMutation,
+  useUploadLedgerCategoryIconMutation: () => [vi.fn(), { isLoading: false }],
 }));
 
 vi.mock('@/shared/i18n', () => ({
   useTranslation: () => ({
+    i18n: { resolvedLanguage: 'zh-CN' },
     t: (key: string, options?: { count?: number }) => key === 'categories.moreCount'
       ? `More categories (${options?.count ?? 0})`
       : key,
@@ -163,7 +167,10 @@ describe('category management archived categories', () => {
   it('does not expand archived categories after hiding an active category', async () => {
     const container = renderCategoryManagement();
     const toggle = getArchivedToggle(container);
-    const archiveButton = container.querySelector<HTMLButtonElement>('[aria-label="categories.archive"]');
+    const editButton = container.querySelector<HTMLButtonElement>('[aria-label="categories.edit"]');
+    await act(async () => editButton?.click());
+    const archiveButton = [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.archive');
 
     await act(async () => archiveButton?.click());
 

@@ -124,6 +124,28 @@ describe('shortcut bookkeeping settings page', () => {
     expect(mocks.openInstaller).not.toHaveBeenCalled();
   });
 
+  it('shows a temporary copied state only after the key reaches the clipboard', async () => {
+    const container = renderPage();
+    await act(async () => {
+      buttonByText(container, 'shortcutBookkeeping.intro.start')?.click();
+    });
+    await act(async () => {
+      buttonByText(container, 'shortcutBookkeeping.createKey.submit')?.click();
+    });
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[aria-label="shortcutBookkeeping.keyCreated.copy"]')?.click();
+    });
+    expect(mocks.writeText).toHaveBeenCalledWith('wws_test-credential');
+    expect(container.querySelector('[aria-label="shortcutBookkeeping.keyCreated.copied"]')?.textContent).toBe('shortcutBookkeeping.keyCreated.copied');
+    expect(mocks.showError).not.toHaveBeenCalled();
+
+    await act(async () => {
+      vi.advanceTimersByTime(2000);
+    });
+    expect(container.querySelector('[aria-label="shortcutBookkeeping.keyCreated.copy"]')).not.toBeNull();
+  });
+
   it('shows the exact local retry time until token creation is available', async () => {
     const retryAt = new Date(Date.now() + 10 * 60 * 1000 + 500).toISOString();
     const displayedTime = dayjs(Math.ceil(Date.parse(retryAt) / 1000) * 1000)
@@ -223,6 +245,7 @@ describe('shortcut bookkeeping settings page', () => {
     expect(container.textContent).toContain(
       'shortcutBookkeeping.keyCreated.title',
     );
+    expect(container.querySelector('[aria-label="shortcutBookkeeping.keyCreated.copied"]')).toBeNull();
     await act(async () => {
       vi.advanceTimersByTime(6000);
     });

@@ -70,4 +70,24 @@ describe('image preview', () => {
     expect(status?.textContent).toBe('凭证图片加载失败');
     expect(status?.closest('[aria-hidden="true"]')).toBeNull();
   });
+
+  it('uses the library gallery at the selected image and gives the footer a contrast background', async () => {
+    const container = document.createElement('div');
+    document.body.append(container);
+    const root = createRoot(container);
+    act(() => root.render(createElement(ImagePreview, {
+      defaultIndex: 1,
+      images: ['blob:first', 'blob:second', 'blob:third'],
+      visible: true,
+    })));
+    cleanup = () => {
+      act(() => root.unmount());
+      container.remove();
+    };
+
+    await vi.waitFor(() => expect(document.body.querySelectorAll('.adm-image-viewer-slide img')).toHaveLength(3));
+    expect(document.body.querySelector('.adm-image-viewer-footer')?.textContent).toContain('2 / 3');
+    expect(document.body.querySelector('.adm-image-viewer-footer .bg-black\\/75')).not.toBeNull();
+    expect(document.body.querySelector('.ww-image-preview-mask')).not.toBeNull();
+  });
 });

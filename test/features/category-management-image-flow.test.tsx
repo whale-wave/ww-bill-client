@@ -9,6 +9,8 @@ import { CategoryManagement } from '@/features/category-management';
 const mocks = vi.hoisted(() => ({
   categories: [] as CategoryEntity[],
   createCategory: vi.fn(),
+  deleteCategory: vi.fn(),
+  moveCategory: vi.fn(),
   patchCategory: vi.fn(),
   reorderCategories: vi.fn(),
   uploadIcon: vi.fn(),
@@ -31,14 +33,22 @@ vi.mock('@/entities/category', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/category')>()),
   useCategoryIconCatalogQuery: () => ({ data: [] }),
   useCreateLedgerCategoryMutation: () => [mocks.createCategory, { isLoading: false }],
+  useDeleteLedgerCategoryPermanentlyMutation: () => ({ mutateAsync: mocks.deleteCategory, isLoading: false }),
   useLedgerCategoriesQuery: () => ({ data: mocks.categories, isLoading: false, refetch: vi.fn() }),
-  useMoveLedgerCategoryMutation: () => ({ mutateAsync: vi.fn(), isLoading: false }),
+  useMoveLedgerCategoryMutation: () => ({ mutateAsync: mocks.moveCategory, isLoading: false }),
   usePatchLedgerCategoryMutation: () => [mocks.patchCategory, { isLoading: false }],
   useReorderLedgerCategoriesMutation: () => [mocks.reorderCategories, { isLoading: false }],
   useUploadLedgerCategoryIconMutation: () => [mocks.uploadIcon, { isLoading: false }],
 }));
 vi.mock('@/shared/i18n', () => ({
-  useTranslation: () => ({ i18n: { resolvedLanguage: 'zh-CN' }, t: (key: string) => key }),
+  useTranslation: () => ({
+    i18n: { resolvedLanguage: 'zh-CN' },
+    t: (key: string, options?: { name?: string }) => key === 'categories.editChild'
+      ? `编辑${options?.name}`
+      : key === 'categories.addChildTo'
+        ? `在${options?.name}下添加子分类`
+        : key,
+  }),
 }));
 vi.mock('@/shared/ui', async importOriginal => ({
   ...(await importOriginal<typeof import('@/shared/ui')>()),
@@ -53,6 +63,8 @@ beforeEach(() => {
   mocks.categories = [];
   mocks.createCategory.mockReset();
   mocks.createCategory.mockResolvedValue({ id: 1 });
+  mocks.deleteCategory.mockReset();
+  mocks.moveCategory.mockReset();
   mocks.patchCategory.mockReset();
   mocks.patchCategory.mockResolvedValue({ version: 2 });
   mocks.reorderCategories.mockReset();
@@ -308,7 +320,7 @@ describe('category custom image flow', () => {
   it('starts parent groups collapsed, shows child summaries, and expands groups independently', () => {
     const container = renderChildGrid();
     const grid = container.querySelector('[data-subcategory-grid]');
-    expect(grid?.textContent).toBe('北京上海添加');
+    expect(grid?.textContent).toBe('北京上海categories.addChildShort');
     expect(grid?.querySelectorAll('button')).toHaveLength(3);
     expect(grid?.querySelectorAll('[data-subcategory-icon]')).toHaveLength(2);
     expect(container.textContent).not.toContain('二级分类（');
@@ -324,12 +336,14 @@ describe('category custom image flow', () => {
     act(() => emptyToggle?.click());
     expect(toggle?.getAttribute('aria-expanded')).toBe('true');
     expect(emptyToggle?.getAttribute('aria-expanded')).toBe('true');
+    expect(container.querySelector('#subcategory-list-2')?.textContent).toBe('categories.addChild');
+    expect(container.querySelector('#subcategory-list-2 [data-subcategory-grid]')).toBeNull();
   });
 
   it('keeps hiding and sibling reordering reachable from child editing', async () => {
     const container = renderChildGrid();
     act(() => container.querySelector<HTMLButtonElement>('[aria-label="编辑上海"]')?.click());
-    const move = [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === '向前移动');
+    const move = [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === 'categories.moveEarlier');
     expect(move?.disabled).toBe(false);
     const siblings = mocks.categories.filter(category => category.parentId === 1).reverse();
     mocks.reorderCategories.mockResolvedValue(siblings);
@@ -337,13 +351,72 @@ describe('category custom image flow', () => {
     expect(mocks.reorderCategories).toHaveBeenCalledWith({ ledgerId: 'ledger-1', data: { parentId: 1, type: 'sub', items: [{ categoryId: 12, version: 1 }, { categoryId: 11, version: 1 }] } });
     expect(container.querySelector('[data-category-image-preview]')).toBeNull();
     act(() => container.querySelector<HTMLButtonElement>('[aria-label="编辑上海"]')?.click());
-    const firstMove = [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === '向前移动');
-    expect(firstMove?.disabled).toBe(true);
-    const hide = [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === '隐藏分类');
+    const firstMove = [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === 'categories.moveEarlier');
+    expect(firstMove).toBeUndefined();
+    const hide = [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === 'categories.archive');
     mocks.patchCategory.mockResolvedValue({ ...siblings[0], status: 'ARCHIVED', version: 2 });
     await act(async () => hide?.click());
     expect(mocks.patchCategory).toHaveBeenCalledWith({ categoryId: 12, ledgerId: 'ledger-1', data: { status: 'ARCHIVED', version: 1 } });
     expect(container.querySelector('[aria-label="编辑上海"]')).toBeNull();
+  });
+
+  it('previews a new parent before moving a category', async () => {
+    const container = renderChildGrid();
+    mocks.moveCategory.mockResolvedValue({ path: '餐饮 / 北京', recordCount: 2, version: 1 });
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="编辑北京"]')?.click());
+    const openMove = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.moveAction');
+    act(() => openMove?.click());
+
+    const target = [...container.querySelectorAll<HTMLButtonElement>('[role="radio"]')]
+      .find(button => button.textContent === '餐饮');
+    act(() => target?.click());
+    const preview = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.previewMove');
+    await act(async () => preview?.click());
+
+    expect(mocks.moveCategory).toHaveBeenCalledWith({ ledgerId: 'ledger-1', categoryId: 11, parentId: 2, version: 1, preview: true });
+    expect(container.textContent).toContain('餐饮 / 北京');
+    expect(container.querySelector('[role="radiogroup"]')).toBeNull();
+    const confirm = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.confirmMove');
+    await act(async () => confirm?.click());
+    expect(mocks.moveCategory).toHaveBeenLastCalledWith({ ledgerId: 'ledger-1', categoryId: 11, parentId: 2, version: 1, preview: false });
+  });
+
+  it('deletes an empty category without a migration target', async () => {
+    const container = renderChildGrid();
+    mocks.deleteCategory.mockResolvedValue({ budgetCount: 0, childCount: 0, householdBudgetCount: 0, recordCount: 0, tagCount: 0, requiresMigration: false });
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="编辑北京"]')?.click());
+    const openDelete = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.deleteAction');
+    await act(async () => openDelete?.click());
+
+    expect(mocks.deleteCategory).toHaveBeenCalledWith({ ledgerId: 'ledger-1', categoryId: 11, version: 1, preview: true });
+    expect(container.textContent).toContain('categories.deleteEmptyHint');
+    const confirm = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.confirmDelete');
+    await act(async () => confirm?.click());
+    expect(mocks.deleteCategory).toHaveBeenLastCalledWith({ ledgerId: 'ledger-1', categoryId: 11, version: 1, targetCategoryId: undefined });
+  });
+
+  it('requires a destination before deleting a category with linked records', async () => {
+    const container = renderChildGrid();
+    mocks.deleteCategory.mockResolvedValue({ budgetCount: 0, childCount: 0, householdBudgetCount: 0, recordCount: 2, tagCount: 0, requiresMigration: true });
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="编辑北京"]')?.click());
+    const openDelete = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.deleteAction');
+    await act(async () => openDelete?.click());
+
+    const confirm = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.migrateAndDelete');
+    expect(confirm?.disabled).toBe(true);
+    const target = [...container.querySelectorAll<HTMLButtonElement>('[role="radio"]')]
+      .find(button => button.textContent === '餐饮');
+    act(() => target?.click());
+    expect(confirm?.disabled).toBe(false);
+    await act(async () => confirm?.click());
+    expect(mocks.deleteCategory).toHaveBeenLastCalledWith({ ledgerId: 'ledger-1', categoryId: 11, version: 1, targetCategoryId: 2 });
   });
 
   it('creates from the grid add tile under the correct parent and reveals that parent after saving', async () => {

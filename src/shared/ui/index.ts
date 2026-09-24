@@ -16,6 +16,7 @@ export { default as Gap } from './gap';
 export { default as Icon } from './icon';
 export * from './illustrated-empty-state';
 export { default as ImagePreview } from './image-preview';
+export { getImagePreviewStatusImage } from './image-preview/image-preview-status';
 export { default as Input, type InputProps } from './input';
 export { default as List } from './list';
 export { default as Mask } from './mask';

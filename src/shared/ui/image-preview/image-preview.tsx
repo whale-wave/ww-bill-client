@@ -8,18 +8,22 @@ const getImagePreviewContainer = () => document.body;
 
 export interface ImagePreviewProps {
   image?: string;
+  images?: string[];
+  defaultIndex?: number;
   placeholder?: ReactNode;
   statusLabel?: string;
   visible?: boolean;
   onClose?: () => void;
 }
 
-export const ImagePreview: FC<ImagePreviewProps> = ({ image, onClose, placeholder, statusLabel, visible = false }) => {
+export const ImagePreview: FC<ImagePreviewProps> = ({ defaultIndex = 0, image, images, onClose, placeholder, statusLabel, visible = false }) => {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
   const descriptionId = useId();
+  const isGallery = Boolean(images && images.length > 1);
+  const hasImage = isGallery ? Boolean(images?.length) : Boolean(image);
   onCloseRef.current = onClose;
 
   useEffect(() => {
@@ -64,22 +68,51 @@ export const ImagePreview: FC<ImagePreviewProps> = ({ image, onClose, placeholde
 
   return (
     <>
-      <ImageViewer
-        classNames={{ body: 'h-[100dvh]' }}
-        getContainer={getImagePreviewContainer}
-        image={image}
-        maxZoom={4}
-        onClose={onClose}
-        renderFooter={() => (
-          <p aria-hidden className="pointer-events-none mb-5 text-center text-xs text-white/70">双指缩放 · 拖动查看</p>
-        )}
-        visible={Boolean(image && visible)}
-      />
+      {isGallery
+        ? (
+            <ImageViewer.Multi
+              classNames={{ body: 'h-[100dvh]', mask: 'ww-image-preview-mask' }}
+              defaultIndex={defaultIndex}
+              getContainer={getImagePreviewContainer}
+              images={images}
+              maxZoom={4}
+              onClose={onClose}
+              renderFooter={(_, index) => (
+                <div aria-hidden className="pointer-events-none mb-5 flex justify-center px-4">
+                  <span className="rounded-full bg-black/75 px-3 py-1.5 text-center text-xs font-medium text-white shadow-sm backdrop-blur-sm">
+                    {index + 1}
+                    {' '}
+                    /
+                    {images?.length}
+                    {' '}
+                    · 左右滑动 · 双指缩放
+                  </span>
+                </div>
+              )}
+              visible={visible}
+            />
+          )
+        : (
+            <ImageViewer
+              classNames={{ body: 'h-[100dvh]', mask: 'ww-image-preview-mask' }}
+              getContainer={getImagePreviewContainer}
+              image={image}
+              maxZoom={4}
+              onClose={onClose}
+              renderFooter={() => (
+                <div aria-hidden className="pointer-events-none mb-5 flex justify-center px-4">
+                  <span className="rounded-full bg-black/75 px-3 py-1.5 text-center text-xs font-medium text-white shadow-sm backdrop-blur-sm">双指缩放 · 拖动查看</span>
+                </div>
+              )}
+              visible={Boolean(image && visible)}
+            />
+          )}
       <Mask
+        className="ww-image-preview-mask"
         destroyOnClose
         getContainer={getImagePreviewContainer}
         opacity="thick"
-        visible={Boolean(visible && !image)}
+        visible={Boolean(visible && !hasImage)}
       >
         <div className="fixed inset-0 flex items-center justify-center p-5">
           {placeholder}
@@ -95,11 +128,11 @@ export const ImagePreview: FC<ImagePreviewProps> = ({ image, onClose, placeholde
           role="dialog"
         >
           <p aria-live="polite" className="sr-only" id={descriptionId}>
-            {image ? '支持双指缩放和拖动查看' : statusLabel ?? '图片加载中'}
+            {hasImage ? (isGallery ? `共 ${images?.length} 张图片，支持左右滑动和双指缩放` : '支持双指缩放和拖动查看') : statusLabel ?? '图片加载中'}
           </p>
           <button
             aria-label="关闭图片预览"
-            className="pointer-events-auto fixed right-4 top-[max(var(--ww-space-lg),env(safe-area-inset-top))] flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border-0 bg-black/50 p-0 text-white"
+            className="pointer-events-auto fixed right-4 top-[max(var(--ww-space-lg),var(--ww-safe-area-top))] flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border-0 bg-black/50 p-0 text-white"
             onClick={onClose}
             ref={closeButtonRef}
             type="button"

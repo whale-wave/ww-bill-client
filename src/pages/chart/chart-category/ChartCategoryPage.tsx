@@ -11,6 +11,7 @@ import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { useChartPeriodQuery, useTagRankingQuery } from '@/entities/chart';
+import { useInfiniteRecordsQuery } from '@/entities/record';
 import { CategoryTrendChart, SubcategoryBreakdown, TagRankingSection } from '@/features/chart-overview';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
@@ -51,7 +52,9 @@ function displayAmount(value: number | string | undefined) {
 }
 
 function toShanghaiTimestamp(value: string) {
-  return /(?:Z|[+-]\d{2}:\d{2})$/.test(value) ? value : `${value}+08:00`;
+  if (/(?:Z|[+-]\d{2}:\d{2})$/.test(value))
+    return value;
+  return value.includes('T') ? `${value}+08:00` : `${value}T00:00:00+08:00`;
 }
 
 const RecordRankingLoadingPlaceholder: FC<{ rows: number }> = ({ rows }) => (
@@ -81,15 +84,19 @@ const ChartCategory: FC = () => {
   const tabKey = searchParams.get('tabKey');
   const customStartDate = searchParams.get('startDate');
   const customEndDate = searchParams.get('endDate');
+  const detailTagIds = (searchParams.get('tagIds') ?? '').split(',').filter(Boolean);
+  const detailTagMatch = searchParams.get('tagMatch') === 'all' ? 'all' : 'any';
+  const detailAccount = searchParams.get('account') ?? undefined;
   const isCustomRange = category === 'custom';
-  const isSupportedCategory = isCustomRange || isTimeRangeCategory(category);
+  const isAllRange = category === 'all';
+  const isSupportedCategory = isCustomRange || isAllRange || isTimeRangeCategory(category);
   const parsedCategoryId = categoryId && /^\d+$/.test(categoryId) ? Number(categoryId) : undefined;
 
   const matchedRouteState = useMemo(() => {
-    if (!categoryId || !isAmountType(type) || !isSupportedCategory)
+    if (!categoryId || !isAmountType(type) || !isSupportedCategory || isAllRange)
       return undefined;
     return getMatchedRouteState(routeState, { categoryId, type, category: category as 'custom' | 'week' | 'month' | 'year', tabKey });
-  }, [category, categoryId, isSupportedCategory, routeState, tabKey, type]);
+  }, [category, categoryId, isAllRange, isSupportedCategory, routeState, tabKey, type]);
 
   const anchorDate = searchParams.get('anchorDate')
     ?? matchedRouteState?.curTab?.anchorDate
@@ -100,28 +107,57 @@ const ChartCategory: FC = () => {
     && isAmountType(type)
     && isSupportedCategory
     && Boolean(anchorDate)
-    && (!isCustomRange || Boolean(customStartDate && customEndDate));
+    && (!(isCustomRange || isAllRange) || Boolean(customStartDate && customEndDate));
   const periodQuery = useChartPeriodQuery({
     params: {
       anchorDate: anchorDate ?? '',
       categoryId: parsedCategoryId,
       metric: type === 'add' ? 'income' : 'expense',
       period: isCustomRange ? 'month' : isTimeRangeCategory(category) ? category : 'week',
+      ...(detailTagIds.length ? { tagIds: detailTagIds, tagMatch: detailTagMatch } : {}),
+      ...(detailAccount ? { account: detailAccount } : {}),
       ...(isCustomRange && customStartDate && customEndDate
         ? { endDate: `${customEndDate}+08:00`, startDate: `${customStartDate}+08:00` }
         : {}),
     },
-    queryOptions: { enabled: hasRequiredParams },
+    queryOptions: { enabled: hasRequiredParams && !isAllRange },
   });
   const rankingItem = useMemo(() =>
     matchedRouteState?.rankingItem
     || periodQuery.data?.tab.ranking.find(item => String(item.category.id) === categoryId), [categoryId, matchedRouteState?.rankingItem, periodQuery.data?.tab.ranking]);
 
-  const records = useMemo(
+  const listRange = useMemo(() => {
+    if (isAllRange || isCustomRange) {
+      if (!customStartDate || !customEndDate)
+        return undefined;
+      return { endDate: `${customEndDate.slice(0, 10)}T23:59:59+08:00`, startDate: `${customStartDate.slice(0, 10)}T00:00:00+08:00` };
+    }
+    if (!periodQuery.data)
+      return undefined;
+    return { endDate: `${periodQuery.data.endDate}T23:59:59+08:00`, startDate: `${periodQuery.data.startDate}T00:00:00+08:00` };
+  }, [customEndDate, customStartDate, isAllRange, isCustomRange, periodQuery.data]);
+  const recordListQuery = useInfiniteRecordsQuery({
+    params: {
+      categoryIds: parsedCategoryId === undefined ? undefined : [parsedCategoryId],
+      type: isAmountType(type) ? type : undefined,
+      ...(listRange ?? {}),
+      ...(detailTagIds.length ? { tagIds: detailTagIds, tagMatch: detailTagMatch } : {}),
+      ...(detailAccount ? { account: detailAccount } : {}),
+      limit: 50,
+    },
+    queryOptions: { enabled: hasRequiredParams && Boolean(listRange) },
+  });
+  const records = recordListQuery.records;
+  const trendRecords = useMemo(
     () => flattenRecords(periodQuery.data?.tab.data ?? []),
     [periodQuery.data?.tab.data],
   );
   const tagRange = useMemo(() => {
+    if ((isAllRange || isCustomRange) && customStartDate && customEndDate) {
+      const endExclusive = new Date(toShanghaiTimestamp(customEndDate.slice(0, 10)));
+      endExclusive.setUTCDate(endExclusive.getUTCDate() + 1);
+      return { endDate: endExclusive.toISOString(), startDate: new Date(toShanghaiTimestamp(customStartDate.slice(0, 10))).toISOString() };
+    }
     if (!periodQuery.data)
       return undefined;
     if (isCustomRange && customStartDate && customEndDate) {
@@ -137,9 +173,9 @@ const ChartCategory: FC = () => {
       endDate: endExclusive.toISOString(),
       startDate: new Date(`${periodQuery.data.startDate}T00:00:00+08:00`).toISOString(),
     };
-  }, [customEndDate, customStartDate, isCustomRange, periodQuery.data]);
+  }, [customEndDate, customStartDate, isAllRange, isCustomRange, periodQuery.data]);
   const tagRanking = useTagRankingQuery({
-    params: { categoryId: categoryId ?? '', type: isAmountType(type) ? type : 'sub', ...tagRange },
+    params: { categoryId: categoryId ?? '', type: isAmountType(type) ? type : 'sub', ...tagRange, ...(detailTagIds.length ? { tagIds: detailTagIds, tagMatch: detailTagMatch } : {}), ...(detailAccount ? { account: detailAccount } : {}) },
     enabled: Boolean(categoryId && tagRange),
   });
   const [recordSort, setRecordSort] = useState<'amount' | 'time'>('amount');
@@ -148,22 +184,21 @@ const ChartCategory: FC = () => {
       return Number(right.amount) - Number(left.amount);
     return new Date(right.time).getTime() - new Date(left.time).getTime();
   }), [recordSort, records]);
-  const recordsAmount = useMemo(
-    () => sortedRecords.reduce((sum, record) => sum + Number(record.amount), 0),
-    [sortedRecords],
-  );
-  const totalAmount = rankingItem?.amount
-    ?? periodQuery.data?.tab.amount
-    ?? (records.length ? getRecordsAmount(records) : undefined);
-  const percentage = rankingItem?.percentage;
-  const categoryInfo = rankingItem?.category || records[0]?.category;
-  const periodName = matchedRouteState?.tabName || periodQuery.data?.tab.key;
+  const totalAmount = (isAllRange || isCustomRange)
+    ? searchParams.get('amount') ?? rankingItem?.amount
+    : rankingItem?.amount
+      ?? periodQuery.data?.tab.amount
+      ?? (records.length ? getRecordsAmount(records) : undefined);
+  const recordsAmount = Number(totalAmount ?? 0);
+  const percentage = searchParams.get('percentage') ?? rankingItem?.percentage;
+  const categoryInfo = rankingItem?.category || records[0]?.category || (searchParams.get('categoryName') ? { name: searchParams.get('categoryName')! } : undefined);
+  const periodName = matchedRouteState?.tabName || searchParams.get('periodName') || periodQuery.data?.tab.key;
   const currentType = isAmountType(type) ? type : matchedRouteState?.amountType;
-  const hasMatchedDisplayData = !!rankingItem || records.length > 0;
+  const hasMatchedDisplayData = !!rankingItem || records.length > 0 || ((isAllRange || isCustomRange) && totalAmount !== undefined);
 
   const renderPageState = (kind: 'error' | 'missing') => (
     <div className="page-new relative overflow-hidden">
-      <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,env(safe-area-inset-top))]">
+      <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,var(--ww-safe-area-top))]">
         <button
           aria-label={t('common:nav.back')}
           className="absolute left-[18px] flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
@@ -197,7 +232,7 @@ const ChartCategory: FC = () => {
       <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-20 h-52 w-52 rounded-full bg-primary-light/35 blur-3xl" />
       <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-[46%] h-56 w-56 rounded-full bg-ww-pink-light/30 blur-3xl" />
 
-      <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,env(safe-area-inset-top))]">
+      <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,var(--ww-safe-area-top))]">
         <button
           aria-label={t('common:nav.back')}
           className="absolute left-[18px] flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
@@ -218,7 +253,7 @@ const ChartCategory: FC = () => {
                 {currentType ? ` · ${t(`amount.${currentType === 'sub' ? 'expend' : 'income'}`)}` : ''}
               </p>
             </div>
-            <Surface className="h-[212.5px] overflow-hidden px-5 pb-4 pt-5" material="raised">
+            <Surface className={`${isAllRange ? 'min-h-[100px]' : 'h-[212.5px]'} overflow-hidden px-5 pb-4 pt-5`} material="raised">
               <MetricGrid
                 columns={2}
                 items={[
@@ -227,7 +262,7 @@ const ChartCategory: FC = () => {
                 ]}
                 variant="chart-summary"
               />
-              <CategoryTrendChart records={records} />
+              {!isAllRange && <CategoryTrendChart records={trendRecords} />}
             </Surface>
           </section>
 
@@ -285,9 +320,11 @@ const ChartCategory: FC = () => {
                 );
               })}
 
-              {periodQuery.isFetching && <RecordRankingLoadingPlaceholder rows={sortedRecords.length ? 1 : 3} />}
+              {(periodQuery.isFetching || recordListQuery.isLoading) && <RecordRankingLoadingPlaceholder rows={sortedRecords.length ? 1 : 3} />}
 
-              {!records.length && !periodQuery.isFetching && (
+              {recordListQuery.hasNextPage && <button className="w-full py-3 text-sm font-semibold text-primary-deep disabled:opacity-50" disabled={recordListQuery.isFetchingNextPage} onClick={() => void recordListQuery.fetchNextPage()} type="button">{t('dashboard.loadMore')}</button>}
+
+              {!records.length && !periodQuery.isFetching && !recordListQuery.isLoading && (
                 <IllustratedEmptyState
                   className="min-h-[270px]"
                   description={t('noRecordsHint')}

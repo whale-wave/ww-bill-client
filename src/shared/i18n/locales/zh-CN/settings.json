@@ -257,7 +257,8 @@
       "continue": "复制密钥并添加快捷指令",
       "show": "显示连接密钥",
       "hide": "隐藏连接密钥",
-      "copy": "复制连接密钥"
+      "copy": "复制连接密钥",
+      "copied": "已复制"
     },
     "installGuide": {
       "title": "在快捷指令中粘贴密钥",
@@ -371,9 +372,9 @@
     "invalidLink": "快捷记账链接不完整",
     "loadFailed": "草稿不存在、已过期，或不属于当前账号",
     "noWritableLedger": "当前账号没有可记账的账本",
-    "discard": "放弃并清除草稿",
+    "discard": "放弃草稿",
     "discardTitle": "放弃这条快捷记账草稿？",
-    "discardDescription": "OCR 原文和识别候选会立即清除，确认链接也会失效。",
+    "discardDescription": "确认链接将失效；识别原文和候选结果会保留，供后续排查。",
     "saved": "记账成功",
     "saveRecordFailed": "记账失败，请稍后重试"
   },

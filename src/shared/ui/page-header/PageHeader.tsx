@@ -10,7 +10,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ backLabel, onBack, right, title }: PageHeaderProps) {
   return (
-    <header className="relative z-20 shrink-0 px-[var(--ww-page-gutter)] pt-[max(6px,env(safe-area-inset-top))]" data-page-header>
+    <header className="relative z-20 shrink-0 px-[var(--ww-page-gutter)] pt-[max(6px,var(--ww-safe-area-top))]" data-page-header>
       <div className="relative flex min-h-[48px] items-center justify-center">
         {onBack && (
           <button

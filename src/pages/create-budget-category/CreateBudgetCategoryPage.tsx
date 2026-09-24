@@ -38,7 +38,7 @@ const CreateBudgetCategory: React.FC<CreateBudgetCategoryProps> = () => {
 
   return (
     <div className="page-new h-[100dvh] min-h-[100svh] overflow-hidden" data-create-budget-category-page>
-      <header className="relative z-10 shrink-0 px-[18px] pb-4 pt-[max(10px,env(safe-area-inset-top))]">
+      <header className="relative z-10 shrink-0 px-[18px] pb-4 pt-[max(10px,var(--ww-safe-area-top))]">
         <div className="relative flex h-11 items-center justify-center">
           <button
             aria-label={t('nav.back')}

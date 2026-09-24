@@ -26,13 +26,38 @@ function getShortcutText(draft: ShortcutDraft) {
   return `${draft.merchantCandidate}\n${draft.rawText}`.toLowerCase();
 }
 
+function hasTelecomPaymentEvidence(draft: ShortcutDraft) {
+  const merchant = draft.merchantCandidate.trim();
+  const telecomKeywords = /联通收银台|中国联通|中国联合网络通信|中国移动|中国电信|话费充值|充值话费|手机充值|流量充值/;
+  if (telecomKeywords.test(merchant))
+    return true;
+  if (!/^(?:支付成功|付款成功|交易成功)?$/.test(merchant))
+    return false;
+  const paymentHeader = draft.rawText.split(/\r?\n/).slice(0, 10).join('\n');
+  if (telecomKeywords.test(paymentHeader))
+    return true;
+  const phoneBillMentions = draft.rawText.match(/话费/g)?.length ?? 0;
+  return /支付成功|付款成功|交易成功/.test(paymentHeader)
+    && phoneBillMentions >= 2;
+}
+
+function getReceivedRedPacketAmount(rawText: string) {
+  const lines = rawText.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const transferLine = lines.findIndex(line => /Red Packet transferred to Wallet/i.test(line));
+  if (transferLine < 1)
+    return undefined;
+  return lines[transferLine - 1]
+    .match(/^[+\-−—–]?\s*(\d[\d,]*(?:\.\d{1,2})?)\s*(?:CNY|RMB|CN¥|元|cr|c)?$/i)?.[1]
+    ?.replace(/,/g, '');
+}
+
 function getStandaloneOcrAmount(rawText: string) {
   const lines = rawText.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
   const standalone = lines
-    .map(line => line.trim().match(/^[+\-−—–]?\s*(\d[\d,]*(?:\.\d{1,2})?)$/)?.[1])
-    .find((amount): amount is string => Boolean(amount));
+    .map(line => line.trim().match(/^[+\-−—–]?\s*\d[\d,]*(?:\.\d{1,2})?$/)?.[0])
+    .find((amount): amount is string => Boolean(amount && (amount.includes('.') || /^[+\-−—–]/.test(amount))));
   if (standalone)
-    return standalone.replace(/,/g, '');
+    return standalone.replace(/^[+\-−—–]\s*/, '').replace(/,/g, '');
 
   const candidates = lines.flatMap((line, lineIndex) =>
     [...line.matchAll(/[+\-−—–]?\s*\d[\d,]*(?:\.\d{1,2})?/g)].flatMap((match) => {
@@ -62,18 +87,59 @@ function getStandaloneOcrAmount(rawText: string) {
     }),
   );
   return candidates
+    .filter(candidate => candidate.score > 0)
     .sort((left, right) => right.score - left.score || left.index - right.index)[0]
     ?.amount;
 }
 
 function getShortcutAmount(draft: ShortcutDraft) {
+  const redPacketAmount = getReceivedRedPacketAmount(draft.rawText);
+  if (redPacketAmount && /^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/.test(redPacketAmount))
+    return redPacketAmount;
   const candidate = draft.amountCandidate?.trim();
   if (candidate && /^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/.test(candidate))
     return candidate;
   return getStandaloneOcrAmount(draft.rawText) ?? '0';
 }
 
+function getProductDescription(rawText: string) {
+  const lines = rawText.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const labelIndex = lines.findIndex(line => line === '商品说明' || /^商品说明[：:\s]/.test(line));
+  if (labelIndex < 0)
+    return undefined;
+
+  const inlineValue = lines[labelIndex].slice('商品说明'.length).replace(/^[：:\s]+/, '').trim();
+  if (inlineValue)
+    return inlineValue.slice(0, 200);
+
+  const isDescription = (value: string) => !/^(?:支付奖励|订单号|商家订单号|支付时间|付款方式|交易成功|账单管理|账单分类|立即领取)/.test(value)
+    && !/^[-+\d\s.,¥￥]+$/.test(value)
+    && value.length >= 2;
+  const adjacentValue = lines[labelIndex + 1];
+  if (adjacentValue && isDescription(adjacentValue))
+    return adjacentValue.slice(0, 200);
+
+  const paymentTimeIndex = lines.findIndex((line, index) => index > labelIndex && /^\d{4}-\d{1,2}-\d{1,2}\s+\d{1,2}:\d{2}/.test(line));
+  if (paymentTimeIndex < 0)
+    return undefined;
+  const paymentMethod = lines[paymentTimeIndex + 1] ?? '';
+  if (!/余额宝|花呗|银行卡|银行|微信零钱|支付余额/.test(paymentMethod))
+    return undefined;
+  const columnValue = lines[paymentTimeIndex + 2];
+  return columnValue && isDescription(columnValue) ? columnValue.slice(0, 200) : undefined;
+}
+
 function getShortcutRemark(draft: ShortcutDraft) {
+  if (/Red Packet transferred to Wallet/i.test(draft.rawText)) {
+    const sender = draft.rawText.split(/\r?\n/)
+      .map(line => line.trim())
+      .map(line => line.toLowerCase().startsWith('sent by ') ? line.slice(8).trim() : undefined)
+      .find((value): value is string => Boolean(value));
+    return sender ? `${sender.slice(0, 76)}的红包` : '收到红包';
+  }
+  const productDescription = getProductDescription(draft.rawText);
+  if (productDescription)
+    return productDescription;
   if (draft.merchantCandidate.trim())
     return draft.merchantCandidate.trim();
 
@@ -98,7 +164,7 @@ function getShortcutRemark(draft: ShortcutDraft) {
 }
 
 export function inferShortcutRecordType(draft: ShortcutDraft): CategoryAmountType {
-  return /退款|收款到账|转入|收入/.test(getShortcutText(draft))
+  return /退款|收款到账|转入|收入|收到红包|red packet transferred to wallet/.test(getShortcutText(draft))
     ? 'add'
     : 'sub';
 }
@@ -116,6 +182,16 @@ export function inferShortcutCategory(
   categories
     .filter(category => category.name.length > 1 && text.includes(category.name.toLowerCase()))
     .forEach(category => addScore(category, 4));
+  if (/red packet transferred to wallet/.test(text)) {
+    categories
+      .filter(category => category.name === '红包')
+      .forEach(category => addScore(category, 6));
+  }
+  if (hasTelecomPaymentEvidence(draft)) {
+    categories
+      .filter(category => category.name === '通讯')
+      .forEach(category => addScore(category, 8));
+  }
   CATEGORY_KEYWORDS
     .forEach((group) => {
       const matchedKeywords = group.keywords.filter(keyword => text.includes(keyword.toLowerCase()));

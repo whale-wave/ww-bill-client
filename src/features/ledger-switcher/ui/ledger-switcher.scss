@@ -94,12 +94,12 @@
 }
 
 .ledger-switcher-panel.adm-popup-body-position-top {
-  top: calc(52px + env(safe-area-inset-top));
+  top: calc(52px + var(--ww-safe-area-top));
 }
 
 .ledger-switcher-panel__mask {
-  top: calc(52px + env(safe-area-inset-top));
-  height: calc(100% - 52px - env(safe-area-inset-top));
+  top: calc(52px + var(--ww-safe-area-top));
+  height: calc(100% - 52px - var(--ww-safe-area-top));
 }
 
 .ledger-switcher-panel__dialog {

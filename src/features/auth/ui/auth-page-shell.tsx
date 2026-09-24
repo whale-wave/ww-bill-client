@@ -28,7 +28,7 @@ export function AuthPageShell({
     <div className="page-new relative overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute -left-20 top-24 h-48 w-48 rounded-full bg-primary-light/35 blur-3xl" />
       <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-[38%] h-52 w-52 rounded-full bg-ww-pink-light/35 blur-3xl" />
-      <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-between px-[18px] pb-3 pt-[max(8px,env(safe-area-inset-top))]">
+      <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-between px-[18px] pb-3 pt-[max(8px,var(--ww-safe-area-top))]">
         {onBack
           ? (
               <button

@@ -142,6 +142,7 @@ export interface GetHouseholdRecordsApiParams {
   categoryKeys?: string[];
   tagIds?: string[];
   tagMatch?: 'any' | 'all';
+  account?: string;
   minAmount?: string;
   maxAmount?: string;
   policy?: FamilyRecordPolicy;
@@ -335,6 +336,10 @@ export interface GetHouseholdChartsApiParams {
   categoryKey?: string;
   startDate?: string;
   endDate?: string;
+  tagIds?: string[];
+  tagMatch?: 'any' | 'all';
+  account?: string;
+  sourceMemberId?: number;
 }
 
 export interface GetHouseholdChartPeriodsApiParams {

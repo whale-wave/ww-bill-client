@@ -1,4 +1,4 @@
-export type ShortcutDraftSource = 'ALIPAY' | 'UNKNOWN' | 'WECHAT';
+export type ShortcutDraftSource = 'ALIPAY' | 'UNICOM' | 'UNKNOWN' | 'WECHAT';
 export type ShortcutDraftStatus = 'CLAIMED' | 'DISCARDED' | 'EXPIRED' | 'NEEDS_REVIEW' | 'SAVED';
 
 export interface ShortcutRecordLocationSnapshot {

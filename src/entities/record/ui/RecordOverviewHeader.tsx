@@ -67,7 +67,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
 
   return (
     <div
-      className="record-detail-top w-full shrink-0 pt-[max(6px,env(safe-area-inset-top))]"
+      className="record-detail-top w-full shrink-0 pt-[max(6px,var(--ww-safe-area-top))]"
       data-record-overview-header=""
       data-testid={testId}
     >

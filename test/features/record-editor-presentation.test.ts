@@ -52,11 +52,12 @@ vi.mock('@/shared/ui', () => ({
   confirmDangerousAction: vi.fn(),
   DesignIcon: ({ name }: { name: string }) => createElement('span', { 'data-design-icon': name }),
   IllustratedEmptyState: ({ testId, title }: { testId: string; title: string }) => createElement('div', { 'data-testid': testId }, title),
-  ImagePreview: ({ image, onClose, visible }: { image?: string; onClose?: () => void; visible?: boolean }) => visible
+  getImagePreviewStatusImage: (label: string) => `data:status,${label}`,
+  ImagePreview: ({ defaultIndex = 0, image, images, onClose, visible }: { defaultIndex?: number; image?: string; images?: string[]; onClose?: () => void; visible?: boolean }) => visible
     ? createPortal(createElement(
         'section',
-        { 'data-testid': 'interactive-image-preview' },
-        createElement('img', { src: image }),
+        { 'data-testid': 'interactive-image-preview', 'data-initial-index': defaultIndex, 'data-images': JSON.stringify(images) },
+        createElement('img', { src: images?.[defaultIndex] ?? image }),
         createElement('button', { 'aria-label': '关闭图片预览', 'onClick': onClose, 'type': 'button' }),
       ), document.body)
     : null,
@@ -255,6 +256,32 @@ describe('record editor presentation', () => {
 
     act(() => document.body.querySelector<HTMLButtonElement>('[data-image-gallery-header] button:last-child')?.click());
     expect(document.body.querySelector('[data-record-editor-image-gallery]')).toBeNull();
+  });
+
+  it('opens a multi-image preview at the tapped thumbnail', async () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(RecordEditorImagesPanel, {
+      canAddImages: false,
+      chipClassName: '',
+      hasImageUploadError: false,
+      images: [
+        { assetId: 'asset-1', file: new File(['first'], 'first.png', { type: 'image/png' }), id: 'image-1', kind: 'new', status: 'ready' },
+        { assetId: 'asset-2', file: new File(['second'], 'second.jpg', { type: 'image/jpeg' }), id: 'image-2', kind: 'new', status: 'ready' },
+      ],
+      onRemoveImage: vi.fn(),
+      onRetryImage: vi.fn(),
+      onSelectImages: vi.fn(),
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-image-trigger]')?.click());
+    await act(async () => document.body.querySelectorAll<HTMLButtonElement>('[data-record-editor-image-preview]')[1]?.click());
+
+    const preview = document.body.querySelector<HTMLElement>('[data-testid="interactive-image-preview"]');
+    expect(preview?.dataset.initialIndex).toBe('1');
+    expect(JSON.parse(preview?.dataset.images ?? '[]')).toEqual(['blob:image/png', 'blob:image/jpeg']);
+    expect(preview?.querySelector('img')?.getAttribute('src')).toBe('blob:image/jpeg');
   });
 
   it('uses the shared empty state when no bookkeeping categories exist', () => {
@@ -487,8 +514,7 @@ describe('record editor presentation', () => {
     act(() => tag?.click());
 
     expect(tag?.getAttribute('aria-pressed')).toBe('true');
-    expect(tag?.classList).toContain('bg-primary');
-    expect(tag?.classList).not.toContain('bg-white');
+    expect(tag?.classList).toContain('record-editor-tag-option--selected');
     expect(document.body.querySelector('[data-record-editor-selected-tags]')).not.toBeNull();
 
     act(() => document.body.querySelector<HTMLButtonElement>('[aria-label="移除标签 聚餐"]')?.click());
@@ -551,6 +577,9 @@ describe('record editor presentation', () => {
     act(() => input.dispatchEvent(new FocusEvent('focusin', { bubbles: true })));
     expect(container.querySelector('[data-record-editor-remark-history]')?.textContent).toContain('便利店');
     expect(container.querySelector('[data-record-editor-remark-history]')?.textContent).toContain('午餐');
+    expect(container.querySelector('[data-record-editor-keypad]')?.classList).toContain('hidden');
+    expect(container.querySelector('[data-record-editor-action-strip]')?.classList).toContain('hidden');
+    expect(container.querySelector<HTMLElement>('[data-record-editor-presentation]')?.style.height).toBe(`${window.innerHeight}px`);
 
     const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
     act(() => {
@@ -568,6 +597,10 @@ describe('record editor presentation', () => {
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-remark-history-item="午餐"]')?.click());
     expect(input.value).toBe('午餐');
+
+    act(() => input.dispatchEvent(new FocusEvent('focusout', { bubbles: true })));
+    expect(container.querySelector('[data-record-editor-keypad]')?.classList).not.toContain('hidden');
+    expect(container.querySelector<HTMLElement>('[data-record-editor-presentation]')?.style.height).toBe('');
   });
 
   it('shows the authenticated thumbnail in edit mode and opens a full-screen preview', async () => {
@@ -638,7 +671,7 @@ describe('record editor presentation', () => {
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
 
-    expect(container.querySelector('[data-record-editor-entry-row]')?.classList).toContain('h-[62px]');
+    expect(container.querySelector('[data-record-editor-entry-row]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-total]')?.classList).toContain('whitespace-nowrap');
     expect(container.querySelector('[data-record-editor-keypad]')?.classList).toContain('record-editor-keypad');
   });
@@ -653,8 +686,7 @@ describe('record editor presentation', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
 
     const noAccountOption = document.body.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="none"]');
-    expect(noAccountOption?.classList).toContain('border-primary');
-    expect(noAccountOption?.classList).not.toContain('bg-primary-light/45');
+    expect(noAccountOption?.classList).toContain('record-editor-asset-option--selected');
     expect(noAccountOption?.querySelector('svg.lucide-check')).not.toBeNull();
 
     act(() => document.body.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="asset-account"]')?.click());
@@ -662,13 +694,13 @@ describe('record editor presentation', () => {
 
     const assetOption = document.body.querySelector<HTMLButtonElement>('[data-record-editor-asset-option="asset-account"]');
     expect(assetOption?.getAttribute('aria-pressed')).toBe('true');
-    expect(assetOption?.classList).toContain('border-primary');
+    expect(assetOption?.classList).toContain('record-editor-asset-option--selected');
     expect(assetOption?.querySelector('svg.lucide-check')).not.toBeNull();
     expect(assetOption?.textContent).toContain('储蓄卡');
     expect(assetOption?.textContent).toContain('日常支出卡');
     expect(assetOption?.textContent).toContain('record:bookkeeping.linkedAssetBalance 50000');
     expect(container.querySelector('[data-record-editor-asset-trigger]')?.textContent).toContain('日常支出卡');
-    expect(container.querySelector('[data-record-editor-asset-trigger]')?.classList).toContain('bg-primary-light');
+    expect(container.querySelector('[data-record-editor-asset-trigger]')?.classList).toContain('record-editor-detail-chip--selected');
   });
 
   it('shows available credit and debt instead of a current balance for credit cards', () => {

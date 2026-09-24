@@ -7,6 +7,7 @@ import type { RecordOverviewListGroup } from '@/entities/record';
 import { Button, ErrorBlock, InfiniteScroll, SpinLoading } from 'antd-mobile';
 import { ChevronDown, Search, SlidersHorizontal } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { RecordOverviewList } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
@@ -228,16 +229,17 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
           </>
         )}
       </main>
-      {isFilterVisible && (
+      {isFilterVisible && typeof document !== 'undefined' && createPortal((
         <div
-          className="absolute inset-x-0 bottom-0 top-[116px] z-30 bg-ww-ink/20 backdrop-blur-[2px]"
+          className="fixed inset-x-0 bottom-0 top-[calc(124px+var(--ww-safe-area-top))] z-[110] bg-ww-ink/20 backdrop-blur-[2px]"
           data-record-filter-mask
+          data-tab-swipe-ignore
           onClick={handleCloseFilters}
           role="presentation"
         >
           <section
             aria-label={t('search.filterPanelTitle')}
-            className="max-h-[calc(100dvh-116px)] overflow-auto rounded-b-[28px] border-x-0 border-b border-t-0 border-solid border-white/70 bg-white/95 px-[18px] pb-[max(18px,env(safe-area-inset-bottom))] pt-3 shadow-ww-lg"
+            className="max-h-full overflow-auto rounded-b-[28px] border-x-0 border-b border-t-0 border-solid border-white/70 bg-white/95 px-[18px] pb-[max(18px,env(safe-area-inset-bottom))] pt-3 shadow-ww-lg"
             data-record-filter-panel
             onClick={event => event.stopPropagation()}
           >
@@ -431,6 +433,7 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
             </div>
           </section>
         </div>
+      ), document.body,
       )}
     </div>
   );

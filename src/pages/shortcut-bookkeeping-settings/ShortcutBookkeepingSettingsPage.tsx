@@ -102,11 +102,13 @@ export default function ShortcutBookkeepingSettingsPage() {
   const [view, setView] = useState<ShortcutView>('loading');
   const [newToken, setNewToken] = useState<string>();
   const [isTokenVisible, setIsTokenVisible] = useState(false);
+  const [isTokenCopied, setIsTokenCopied] = useState(false);
   const [rateLimitedUntil, setRateLimitedUntil] = useState<Date>();
   const [countdown, setCountdown] = useState(INSTALL_COUNTDOWN_SECONDS);
   const deadlineRef = useRef<number>();
   const redirectedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
+  const copyFeedbackTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const hasSetupFlow
     = Boolean(newToken)
       || view === 'create-key'
@@ -176,6 +178,7 @@ export default function ShortcutBookkeepingSettingsPage() {
     return clearTimer;
   }, [installUrl, view]);
   useEffect(() => clearTimer, []);
+  useEffect(() => () => clearTimeout(copyFeedbackTimerRef.current), []);
 
   const handleCopy = async (value: string) => {
     let copied = false;
@@ -189,8 +192,15 @@ export default function ShortcutBookkeepingSettingsPage() {
       copied = false;
     }
     copied ||= copy(value);
-    if (!copied)
+    if (copied) {
+      setIsTokenCopied(true);
+      clearTimeout(copyFeedbackTimerRef.current);
+      copyFeedbackTimerRef.current = setTimeout(setIsTokenCopied, 2000, false);
+    }
+    else {
+      setIsTokenCopied(false);
       showAppError(undefined, { message: t('shortcutBookkeeping.copyFailed') });
+    }
     return copied;
   };
 
@@ -205,6 +215,7 @@ export default function ShortcutBookkeepingSettingsPage() {
       setNewToken(result.token);
       setRateLimitedUntil(undefined);
       setIsTokenVisible(false);
+      setIsTokenCopied(false);
       setView('key-created');
     }
     catch (error) {
@@ -602,12 +613,14 @@ export default function ShortcutBookkeepingSettingsPage() {
               {isTokenVisible ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
             <button
-              aria-label={t('shortcutBookkeeping.keyCreated.copy')}
+              aria-label={t(isTokenCopied ? 'shortcutBookkeeping.keyCreated.copied' : 'shortcutBookkeeping.keyCreated.copy')}
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-white text-primary-deep"
               onClick={() => void handleCopy(newToken)}
               type="button"
             >
-              <Copy size={18} />
+              {isTokenCopied
+                ? <span aria-live="polite" className="whitespace-nowrap text-[11px] font-bold">{t('shortcutBookkeeping.keyCreated.copied')}</span>
+                : <Copy size={18} />}
             </button>
           </div>
           <div className="mt-4 rounded-[14px] bg-amber-50 px-3 py-3 text-[11px] leading-5 text-amber-700">

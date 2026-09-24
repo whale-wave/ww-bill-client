@@ -85,7 +85,7 @@ export function RecordLocationSearchView({ bias, onBack, onSelect }: RecordLocat
           />
         </label>
         <button
-          className="flex h-12 shrink-0 items-center gap-1.5 rounded-[15px] bg-primary px-4 text-[13px] font-extrabold text-white shadow-ww-xs transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-45"
+          className="flex h-12 shrink-0 items-center gap-1.5 rounded-[15px] bg-primary px-4 text-[13px] font-extrabold text-white transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-45"
           disabled={isLoading || keyword.trim().length < 2}
           type="submit"
         >
