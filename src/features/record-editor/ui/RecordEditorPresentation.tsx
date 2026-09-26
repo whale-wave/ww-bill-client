@@ -18,7 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { AnimatePresence, m } from 'motion/react';
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { getAssetAccountTypeLabel } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
 import {
@@ -83,6 +83,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const { t } = useTranslation(['record', 'ledger', 'common']);
 
   const noteInputRef = useRef<HTMLInputElement>(null);
+  const amountDigitsRef = useRef<HTMLSpanElement>(null);
   const editorPageRef = useRef<HTMLDivElement>(null);
   const categoryViewportRef = useRef<HTMLElement>(null);
   const actionStripRef = useRef<HTMLDivElement>(null);
@@ -226,6 +227,20 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   );
   const showOperatorControls
     = Number.parseFloat(controller.calculator.totals) > 0;
+  const amountLength = controller.calculator.totals.length;
+  const isCalculationPending = controller.calculator.completeText === '=';
+
+  useLayoutEffect(() => {
+    const digits = amountDigitsRef.current;
+    if (!digits)
+      return;
+    const showLatestDigits = () => {
+      digits.scrollLeft = digits.scrollWidth;
+    };
+    showLatestDigits();
+    window.addEventListener('resize', showLatestDigits);
+    return () => window.removeEventListener('resize', showLatestDigits);
+  }, [controller.calculator.totals]);
 
   const handleBack = () => {
     onCancel();
@@ -604,7 +619,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </label>
             <button
               aria-label={`${t('record:bookkeeping.amount')}：${controller.calculator.totals}`}
-              className="flex min-h-11 min-w-0 max-w-[48%] items-center justify-end text-right"
+              className="flex min-h-11 min-w-0 max-w-[72%] items-center justify-end text-right"
               onClick={() => {
                 noteInputRef.current?.blur();
                 controller.setIsNoteFocused(false);
@@ -612,11 +627,20 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               type="button"
             >
               <span
-                className="record-editor-total max-w-full overflow-x-auto whitespace-nowrap font-number text-[34px] font-black leading-[44px] tracking-[-1px] text-ww-ink [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className={cn(
+                  'record-editor-total flex max-w-full min-w-0 items-center whitespace-nowrap font-number font-black leading-[44px] tracking-[-1px] text-ww-ink',
+                  amountLength > 11 ? 'text-[23px]' : amountLength > 8 ? 'text-[28px]' : 'text-[34px]',
+                )}
                 data-record-editor-total
               >
-                <span className="mr-0.5 text-[18px] font-bold tracking-normal text-ww-soft">¥</span>
-                {controller.calculator.totals}
+                <span className="mr-0.5 shrink-0 text-[18px] font-bold tracking-normal text-ww-soft">¥</span>
+                <span
+                  className="min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  data-record-editor-amount-digits
+                  ref={amountDigitsRef}
+                >
+                  {controller.calculator.totals}
+                </span>
               </span>
             </button>
           </div>
@@ -626,14 +650,14 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           className={cn('record-editor-keypad shrink-0 border-t border-solid px-4', controller.isNoteFocused && 'hidden')}
           data-record-editor-keypad
         >
-          <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-2">
-            <div className="flex gap-2" data-record-editor-operators>
+          <div className="grid grid-cols-3 gap-[var(--record-editor-keypad-gap)]">
+            <div className="contents" data-record-editor-operators>
               {['+', '-'].map((operator, index) => (
                 <button
                   aria-label={operator === '+' ? t('record:bookkeeping.addAmount') : t('record:bookkeeping.subtractAmount')}
                   className={cn(
-                    'record-editor-keypad__action flex w-11 items-center justify-center border border-border-primary bg-white/80 font-number text-lg font-bold text-primary-deep active:bg-primary-light disabled:opacity-45',
-                    controller.activeSideIndex === index + 1 && 'bg-primary-light',
+                    'record-editor-keypad__action record-editor-keypad__operator flex w-full items-center justify-center border-0 font-number text-lg font-bold disabled:opacity-45',
+                    controller.activeSideIndex === index + 1 && 'record-editor-keypad__operator--active',
                   )}
                   disabled={!showOperatorControls || controller.isNoteFocused}
                   key={operator}
@@ -647,19 +671,27 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               ))}
             </div>
             <m.button
-              className="record-editor-keypad__action ww-theme-primary-action px-4 text-[15px] font-extrabold leading-[22.5px] disabled:opacity-50"
+              aria-label={isCalculationPending ? t('record:bookkeeping.calculateResult') : t('record:bookkeeping.complete')}
+              className="record-editor-keypad__action ww-theme-primary-action w-full text-[15px] font-extrabold leading-[22.5px] disabled:opacity-50"
               data-record-editor-submit
               disabled={
-                !hasValidSelectedCategory
-                || controller.isSubmitting
-                || controller.isImageUploading
-                || controller.hasImageUploadError
+                isCalculationPending
+                  ? !controller.calculator.canCalculate() || controller.isSubmitting
+                  : !hasValidSelectedCategory
+                    || controller.isSubmitting
+                    || controller.isImageUploading
+                    || controller.hasImageUploadError
               }
-              onClick={() => void controller.handleSubmit()}
+              onClick={() => {
+                if (isCalculationPending)
+                  controller.calculator.resolveAmount();
+                else
+                  void controller.handleSubmit();
+              }}
               type="button"
               whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
             >
-              {controller.calculator.completeText}
+              {isCalculationPending ? '=' : t('record:bookkeeping.complete')}
             </m.button>
           </div>
           <div

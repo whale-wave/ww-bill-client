@@ -163,6 +163,7 @@ function TestEditor({
   assetAccounts,
   onArchiveTag,
   onCancel = vi.fn(),
+  onSubmit = vi.fn(),
   onManageCategories,
   remarkHistory,
   isSaveSucceeded = false,
@@ -172,6 +173,7 @@ function TestEditor({
   assetAccounts?: Asset[];
   onArchiveTag?: (tagId: string) => Promise<void>;
   onCancel?: () => void;
+  onSubmit?: (draft: { amount: string }) => Promise<void>;
   onManageCategories?: () => void;
   remarkHistory?: string[];
   isSaveSucceeded?: boolean;
@@ -180,7 +182,7 @@ function TestEditor({
 }) {
   const resolvedAssetAccounts = assetAccounts ?? [assetAccount];
   const controller = useRecordEditorController({
-    onSubmit: vi.fn(),
+    onSubmit,
     seed: {
       recordType: 'sub',
       time: '2026-07-21T12:00:00.000Z',
@@ -674,6 +676,84 @@ describe('record editor presentation', () => {
     expect(container.querySelector('[data-record-editor-entry-row]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-total]')?.classList).toContain('whitespace-nowrap');
     expect(container.querySelector('[data-record-editor-keypad]')?.classList).toContain('record-editor-keypad');
+  });
+
+  it('shows the newest digits when a long amount exceeds its space', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor)));
+    cleanup = () => act(() => root.unmount());
+
+    const digits = container.querySelector<HTMLElement>('[data-record-editor-amount-digits]')!;
+    Object.defineProperty(digits, 'scrollWidth', { configurable: true, value: 600 });
+    const keypad = container.querySelector('[data-record-editor-numeric-keys]')!;
+    for (const value of '12345678.99') {
+      const key = Array.from(keypad.querySelectorAll<HTMLButtonElement>('button')).find(button => button.textContent === value);
+      act(() => key?.click());
+    }
+
+    expect(digits.textContent).toBe('12345678.99');
+    expect(digits.scrollLeft).toBe(600);
+    expect(container.querySelector('[data-record-editor-total]')?.textContent).toBe('¥12345678.99');
+    expect(container.querySelector('[data-record-editor-total]')?.classList).toContain('text-[28px]');
+
+    digits.scrollLeft = 0;
+    act(() => window.dispatchEvent(new Event('resize')));
+    expect(digits.scrollLeft).toBe(600);
+  });
+
+  it('calculates an expression before offering to save the record', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor, { onSubmit })));
+    cleanup = () => act(() => root.unmount());
+
+    const clickKey = (label: string) => {
+      const key = Array.from(container.querySelectorAll<HTMLButtonElement>('[data-record-editor-keypad] button')).find(button => button.textContent === label);
+      act(() => key?.click());
+    };
+    clickKey('8');
+    clickKey('-');
+    clickKey('5');
+
+    const action = container.querySelector<HTMLButtonElement>('[data-record-editor-submit]')!;
+    expect(action.textContent).toBe('=');
+    expect(action.disabled).toBe(false);
+    act(() => action.click());
+
+    expect(container.querySelector('[data-record-editor-total]')?.textContent).toBe('¥3');
+    expect(action.textContent).toBe('record:bookkeeping.complete');
+    expect(action.disabled).toBe(true);
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+    expect(action.disabled).toBe(false);
+    await act(async () => action.click());
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ amount: '3' }));
+  });
+
+  it('does not submit a selected category when the equals button is pressed', () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor, { onSubmit })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
+    const clickKey = (label: string) => {
+      const key = Array.from(container.querySelectorAll<HTMLButtonElement>('[data-record-editor-keypad] button')).find(button => button.textContent === label);
+      act(() => key?.click());
+    };
+    clickKey('8');
+    clickKey('-');
+    clickKey('5');
+
+    const action = container.querySelector<HTMLButtonElement>('[data-record-editor-submit]')!;
+    act(() => action.click());
+    expect(container.querySelector('[data-record-editor-total]')?.textContent).toBe('¥3');
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(action.textContent).toBe('record:bookkeeping.complete');
   });
 
   it('uses a quiet outline and checkmark for the selected linked account', () => {

@@ -76,7 +76,7 @@ export function RecordAttachmentSection({ attachments = [], householdId }: Recor
   const handleSourceChange = useCallback((id: string, source: PreviewSource) => {
     setSources((current) => {
       const previous = current[id];
-      return previous?.url === source.url && previous.isError === source.isError
+      return previous?.url === source.url && previous?.isError === source.isError
         ? current
         : { ...current, [id]: source };
     });
@@ -123,17 +123,22 @@ export function RecordAttachmentSection({ attachments = [], householdId }: Recor
         </div>
       </AppSheet>
       {selectedAttachment && sortedAttachments.map(attachment => <RecordAttachmentPreviewSource attachment={attachment} householdId={householdId} key={attachment.id} onChange={handleSourceChange} />)}
-      <ImagePreview
-        defaultIndex={selectedIndex}
-        image={selectedSource?.url}
-        images={previewImages}
-        onClose={() => setPreviewId(undefined)}
-        placeholder={selectedSource?.isError
-          ? <span className="flex h-24 w-24 items-center justify-center rounded-xl bg-white/15 text-white"><ImageOff size={26} /></span>
-          : <span aria-label={t('record:bookkeeping.imagePreviewLoading')} className="h-24 w-24 animate-pulse rounded-xl bg-white/25" role="status" />}
-        statusLabel={t(selectedSource?.isError ? 'record:bookkeeping.imagePreviewFailed' : 'record:bookkeeping.imagePreviewLoading')}
-        visible={Boolean(selectedAttachment)}
-      />
+      {selectedAttachment && (
+        <ImagePreview
+          defaultIndex={selectedIndex}
+          image={selectedSource?.url}
+          images={previewImages}
+          onClose={() => {
+            setPreviewId(undefined);
+            setSources({});
+          }}
+          placeholder={selectedSource?.isError
+            ? <span className="flex h-24 w-24 items-center justify-center rounded-xl bg-white/15 text-white"><ImageOff size={26} /></span>
+            : <span aria-label={t('record:bookkeeping.imagePreviewLoading')} className="h-24 w-24 animate-pulse rounded-xl bg-white/25" role="status" />}
+          statusLabel={t(selectedSource?.isError ? 'record:bookkeeping.imagePreviewFailed' : 'record:bookkeeping.imagePreviewLoading')}
+          visible
+        />
+      )}
     </section>
   );
 }

@@ -229,6 +229,16 @@
   border-radius: 15px;
 }
 
+.record-editor-keypad__operator {
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-component-record-editor-chip-background);
+}
+
+.record-editor-keypad__operator:active,
+.record-editor-keypad__operator--active {
+  background: var(--ww-component-record-editor-chip-selected-background);
+}
+
 .record-editor-keypad__keys {
   gap: var(--record-editor-keypad-gap);
   margin-top: var(--record-editor-keypad-gap);

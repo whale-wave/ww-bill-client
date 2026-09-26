@@ -80,12 +80,7 @@ export const ImagePreview: FC<ImagePreviewProps> = ({ defaultIndex = 0, image, i
               renderFooter={(_, index) => (
                 <div aria-hidden className="pointer-events-none mb-5 flex justify-center px-4">
                   <span className="rounded-full bg-black/75 px-3 py-1.5 text-center text-xs font-medium text-white shadow-sm backdrop-blur-sm">
-                    {index + 1}
-                    {' '}
-                    /
-                    {images?.length}
-                    {' '}
-                    · 左右滑动 · 双指缩放
+                    {`${index + 1} / ${images?.length} · 左右滑动 · 双指缩放`}
                   </span>
                 </div>
               )}

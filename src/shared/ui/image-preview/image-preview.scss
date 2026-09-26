@@ -1,7 +1,15 @@
 .ww-image-preview-mask {
-  --z-index: 1100;
+  --z-index: var(--ww-ref-z-image-preview);
+
+  &::before {
+    position: absolute;
+    inset: 0;
+    background: var(--ww-ref-mono-ink);
+    content: '';
+    pointer-events: none;
+  }
 }
 
 .ww-image-preview-dialog-layer {
-  z-index: 1101;
+  z-index: calc(var(--ww-ref-z-image-preview) + 1);
 }

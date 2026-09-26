@@ -36,6 +36,7 @@
     "imagePreviewFailed": "Image failed to load",
     "addAmount": "Add amount",
     "subtractAmount": "Subtract amount",
+    "calculateResult": "Calculate result",
     "selectLinkedAsset": "Select linked account",
     "noLinkedAsset": "No linked account",
     "linkedAssetHint": "Optional; bookkeeping remains independent",

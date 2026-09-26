@@ -111,10 +111,11 @@ function clickButton(container: HTMLElement, label: string) {
 }
 
 async function complete(container: HTMLElement) {
-  const button = [...container.querySelectorAll('button')]
-    .find(element => element.textContent === '完成' || element.textContent === '=');
+  const button = container.querySelector<HTMLButtonElement>('[data-record-editor-submit]');
   if (!button)
     throw new Error('Missing completion button');
+  if (button.textContent === '=')
+    await act(async () => button.click());
   await act(async () => button.click());
 }
 
@@ -277,8 +278,7 @@ describe('record editor controller', () => {
   it('allows only one in-flight submission', () => {
     submit.mockReturnValue(new Promise(() => {}));
     const container = renderEditor({ amount: '20.00' });
-    const completion = [...container.querySelectorAll('button')]
-      .find(element => element.textContent === '完成');
+    const completion = container.querySelector<HTMLButtonElement>('[data-record-editor-submit]');
 
     act(() => {
       completion?.click();

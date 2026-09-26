@@ -102,7 +102,7 @@ function RecordEditorImagePreview({ images, onClose, selectedId }: { images: Rec
   const handleSourceChange = useCallback((id: string, source: PreviewSource) => {
     setSources((current) => {
       const previous = current[id];
-      return previous?.url === source.url && previous.isError === source.isError
+      return previous?.url === source.url && previous?.isError === source.isError
         ? current
         : { ...current, [id]: source };
     });

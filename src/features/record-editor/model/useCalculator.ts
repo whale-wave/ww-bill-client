@@ -60,6 +60,7 @@ export function useCalculator({ initialAmount, initialState }: CalculatorOptions
               setAddition(numStr);
               setAddNum('');
               setTotals(num + numStr);
+              setCompleteText('=');
               return undefined;
             }
             return undefined;
@@ -75,7 +76,7 @@ export function useCalculator({ initialAmount, initialState }: CalculatorOptions
             setAddNum('');
             setTotals(result + keys);
             setAddition(numStr);
-            setCompleteText('完成');
+            setCompleteText(keys ? '=' : '完成');
             return result;
           }
           if (addition === '-') {
@@ -87,13 +88,14 @@ export function useCalculator({ initialAmount, initialState }: CalculatorOptions
             setAddNum('');
             setTotals(result + keys);
             setAddition(numStr);
-            setCompleteText('完成');
+            setCompleteText(keys ? '=' : '完成');
             return result;
           }
         }
         else {
           setAddition(numStr);
           setTotals(num + numStr);
+          setCompleteText('=');
           return num;
         }
       }
@@ -137,12 +139,13 @@ export function useCalculator({ initialAmount, initialState }: CalculatorOptions
           if (lastPlus + 1 === totals.length || lastMinus + 1 === totals.length) {
             setAddition('');
             setTotals(totals.slice(0, -1));
+            setCompleteText('完成');
             return undefined;
           }
           if (newAddNum === '') {
             setAddNum('');
             setTotals(num + addition);
-            setCompleteText('完成');
+            setCompleteText('=');
             return undefined;
           }
           setAddNum(newAddNum);
@@ -224,6 +227,14 @@ export function useCalculator({ initialAmount, initialState }: CalculatorOptions
     return completeText === '完成';
   }, [totals, addition, completeText]);
 
+  const canCalculate = useCallback(() => {
+    if ((addition !== '+' && addition !== '-') || addNum === '' || addNum === '.')
+      return false;
+    const firstAmount = toMinorUnits(num);
+    const secondAmount = toMinorUnits(addNum);
+    return addition === '+' ? firstAmount + secondAmount > 0 : firstAmount - secondAmount > 0;
+  }, [addNum, addition, num]);
+
   const resolveAmount = useCallback((): string | undefined => {
     if (addition === '+' || addition === '-') {
       if (addNum === '' || addNum === '.')
@@ -255,6 +266,7 @@ export function useCalculator({ initialAmount, initialState }: CalculatorOptions
     inputOperatorState,
     resolveAmount,
     canSubmit,
+    canCalculate,
     setNum,
     setTotals,
     setAddition,
