@@ -11,8 +11,8 @@ interface ChartDashboardSwitchProps<T extends string> {
 
 export function ChartDashboardSwitch<T extends string>({ label, options, value, onChange, className }: ChartDashboardSwitchProps<T>) {
   return (
-    <div aria-label={label} className={cn('relative isolate flex min-w-0 max-w-full items-center px-[var(--ww-space-xs)]', className)} role="group">
-      <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-1/2 -z-10 h-[var(--ww-component-button-height-compact)] -translate-y-1/2 rounded-[var(--ww-component-button-radius-compact)] bg-ww-surface-tint" />
+    <div aria-label={label} className={cn('relative isolate flex min-w-0 max-w-full items-center', className)} role="group">
+      <span aria-hidden="true" data-chart-switch-track className="pointer-events-none absolute inset-x-0 top-1/2 -z-10 h-[var(--ww-component-button-height-compact)] -translate-y-1/2 rounded-[var(--ww-component-button-radius-compact)] bg-ww-surface-tint" />
       {options.map(option => (
         <button
           aria-pressed={value === option.value}
@@ -21,10 +21,12 @@ export function ChartDashboardSwitch<T extends string>({ label, options, value, 
           onClick={() => onChange(option.value)}
           type="button"
         >
-          <span className={cn(
-            'flex h-[var(--ww-component-button-height-compact)] w-full items-center justify-center whitespace-nowrap rounded-[var(--ww-component-button-radius-compact)] px-[var(--ww-space-sm)] text-[length:var(--ww-component-button-font-size-compact)]',
-            value === option.value ? 'bg-ww-surface-raised font-bold text-primary-deep shadow-ww-xs' : 'text-ww-soft',
-          )}
+          <span
+            data-chart-switch-option
+            className={cn(
+              'flex h-[var(--ww-component-button-height-compact)] w-full items-center justify-center whitespace-nowrap rounded-[var(--ww-component-button-radius-compact)] px-[var(--ww-space-sm)] text-[length:var(--ww-component-button-font-size-compact)]',
+              value === option.value ? 'bg-ww-surface-raised font-bold text-primary-deep' : 'text-ww-soft',
+            )}
           >
             {option.label}
           </span>
