@@ -124,6 +124,7 @@ Version 10 使用柔和的大圆角卡片和两级浅阴影，但不使用厚重
 - **次按钮**：使用 `AppButton variant="secondary"`，尺寸按所在层级选择，不在业务组件重复拼描边、背景和阴影。
 - **幽灵按钮**：`h-11 w-full border-0 bg-transparent text-[12px] font-extrabold text-primary-deep`，danger 文案使用 `text-[#b24f71]`，需要时补充 `disabled:opacity-45`。
 - **紧凑按钮**：使用 `AppButton size="compact"`；不得直接把交互高度压到 `44px` 以下，视觉本体与透明触控区由组件内部处理。
+- **图表分段切换**：期间、趋势指标和资产指标共用紧凑样式。可见胶囊读取 `--ww-component-button-height-compact`（32px），透明触控区读取 `--ww-component-button-hit-target-min`（44px）；字号、圆角和间距均读取现有 token。资产日期放在切换组下方，卡片标题与切换组允许换行，避免 320px 小屏拥挤。
 
 非提交按钮必须显式 `type="button"`，避免原生 `button` 的默认 submit 语义。`IllustratedEmptyState` 等封装组件的组件级 CTA 保留组件自身 pill 样式，不在上述规范约束范围内。
 

@@ -13,11 +13,12 @@ import { useRecordFilterOptionsQuery } from '@/entities/record';
 import { useGetUserUserInfoQuery } from '@/entities/user';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
-import { Surface } from '@/shared/ui';
+import { AppButton, Surface } from '@/shared/ui';
 import { buildAssetTrendGeometry, buildTrendGeometry, formatChartPercent, getLatestAssetValue } from './model/dashboard-chart';
 import { useChartDashboardQueries } from './model/useChartDashboardQueries';
 import { localDate, useChartDashboardUrlState } from './model/useChartDashboardUrlState';
 import { ChartDashboardFilterSheet } from './ui/ChartDashboardFilterSheet';
+import { ChartDashboardSwitch } from './ui/ChartDashboardSwitch';
 
 const money = (value: string, hidden: boolean) => hidden ? '••••' : `¥${Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -193,47 +194,44 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-canvas text-ww-ink" data-chart-dashboard data-hide-amounts={hideAmounts}>
-      <header className="flex shrink-0 items-center justify-between px-5 pb-3 pt-[max(10px,var(--ww-safe-area-top))]">
+      <header className="flex shrink-0 items-center justify-between px-[var(--ww-space-xl)] pb-[var(--ww-space-xs)] pt-[max(10px,var(--ww-safe-area-top))]">
         <h1 className="text-[22px] font-extrabold">{t('dashboard.title')}</h1>
-        <button aria-label={t('dashboard.filter')} className="grid size-11 place-items-center rounded-full bg-ww-surface-raised shadow-ww-xs" onClick={openFilter} type="button"><SlidersHorizontal size={18} /></button>
+        <AppButton aria-label={t('dashboard.filter')} className="min-w-[var(--ww-component-button-hit-target-min)]" onClick={openFilter} size="compact" variant="secondary"><SlidersHorizontal size={18} /></AppButton>
       </header>
-      <div className="mx-4 grid shrink-0 grid-cols-5 rounded-full bg-ww-surface-tint p-1 text-center text-[13px]">
-        {(['week', 'month', 'year', 'all', 'custom'] as const).map(item => (
-          <button
-            key={item}
-            aria-pressed={period === item}
-            onClick={() => {
-              setParams((previous) => {
-                previous.set('range', item);
-                previous.delete('tab');
-                if (item === 'custom') {
-                  if (!previous.get('startDate'))
-                    previous.set('startDate', today);
-                  if (!previous.get('endDate'))
-                    previous.set('endDate', today);
-                  previous.delete('date');
-                }
-                else {
-                  previous.set('date', today);
-                  previous.delete('startDate');
-                  previous.delete('endDate');
-                }
-                return previous;
-              }, { replace: true });
-            }}
-            className={`min-h-11 rounded-full px-1 ${period === item ? 'bg-ww-surface-raised font-bold text-primary-deep shadow-ww-xs' : 'text-ww-soft'}`}
-            type="button"
-          >
-            {item === 'all' ? t('dashboard.all') : item === 'custom' ? t('dashboard.range') : t(`tabs.${item}`)}
-          </button>
-        ))}
-      </div>
+      <ChartDashboardSwitch
+        className="mx-[var(--ww-space-lg)] shrink-0"
+        label={t('dashboard.range')}
+        options={(['week', 'month', 'year', 'all', 'custom'] as const).map(item => ({
+          label: item === 'all' ? t('dashboard.all') : item === 'custom' ? t('dashboard.range') : t(`tabs.${item}`),
+          value: item,
+        }))}
+        value={period}
+        onChange={(item) => {
+          setParams((previous) => {
+            previous.set('range', item);
+            previous.delete('tab');
+            if (item === 'custom') {
+              if (!previous.get('startDate'))
+                previous.set('startDate', today);
+              if (!previous.get('endDate'))
+                previous.set('endDate', today);
+              previous.delete('date');
+            }
+            else {
+              previous.set('date', today);
+              previous.delete('startDate');
+              previous.delete('endDate');
+            }
+            return previous;
+          }, { replace: true });
+        }}
+      />
       {period === 'custom'
         ? (
-            <div className="flex shrink-0 items-center justify-center gap-2 px-4 py-3 text-sm">
+            <div className="flex shrink-0 items-center justify-center gap-[var(--ww-space-sm)] px-[var(--ww-space-lg)] py-[var(--ww-space-xs)] text-xs">
               <input
                 aria-label={t('dashboard.start')}
-                className="min-h-11 rounded-xl bg-ww-surface px-2 py-2"
+                className="min-h-[var(--ww-component-button-hit-target-min)] min-w-0 flex-1 rounded-xl bg-ww-surface px-[var(--ww-space-sm)] py-[var(--ww-space-sm)]"
                 max={periodEnd}
                 min={earliestCustomDate}
                 onChange={(event) => {
@@ -246,7 +244,7 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
               <span>{t('dashboard.from')}</span>
               <input
                 aria-label={t('dashboard.end')}
-                className="min-h-11 rounded-xl bg-ww-surface px-2 py-2"
+                className="min-h-[var(--ww-component-button-hit-target-min)] min-w-0 flex-1 rounded-xl bg-ww-surface px-[var(--ww-space-sm)] py-[var(--ww-space-sm)]"
                 max={today}
                 min={periodStart}
                 onChange={(event) => {
@@ -259,10 +257,10 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
             </div>
           )
         : (
-            <div className="flex shrink-0 items-center justify-between px-5 py-3">
-              {period !== 'all' && <button aria-label={t('dashboard.previous')} className="grid size-11 place-items-center rounded-full bg-primary text-white" onClick={() => stepPeriod(-1)} type="button"><ChevronLeft size={20} /></button>}
-              <span className="text-[15px] font-semibold text-ww-mid">{period === 'all' ? `${data?.startDate ?? '—'} ${t('dashboard.from')} ${data?.endDate ?? today}` : `${rangeStart}  —  ${rangeEnd}`}</span>
-              {period !== 'all' && <button aria-label={t('dashboard.next')} className="grid size-11 place-items-center rounded-full bg-primary text-white disabled:opacity-40" disabled={periodEnd >= today} onClick={() => stepPeriod(1)} type="button"><ChevronRight size={20} /></button>}
+            <div className="flex shrink-0 items-center justify-between px-[var(--ww-space-lg)] py-[var(--ww-space-xs)]">
+              {period !== 'all' && <AppButton aria-label={t('dashboard.previous')} className="shrink-0" onClick={() => stepPeriod(-1)} size="compact" variant="ghost"><ChevronLeft size={20} /></AppButton>}
+              <span className="min-w-0 flex-1 px-[var(--ww-space-xs)] text-center font-number text-xs font-semibold text-ww-mid">{period === 'all' ? `${data?.startDate ?? '—'} ${t('dashboard.from')} ${data?.endDate ?? today}` : `${rangeStart}  —  ${rangeEnd}`}</span>
+              {period !== 'all' && <AppButton aria-label={t('dashboard.next')} className="shrink-0" disabled={periodEnd >= today} onClick={() => stepPeriod(1)} size="compact" variant="ghost"><ChevronRight size={20} /></AppButton>}
             </div>
           )}
       <main className="ww-tab-bar-scroll-padding min-h-0 flex-1 space-y-3 overflow-y-auto px-4" data-dashboard-scroll>
@@ -285,9 +283,9 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
               </div>
             </Surface>
             <Surface className="p-4" data-dashboard-section="trend" material="content">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-bold">{t('dashboard.trend')}</h2>
-                <div className="flex rounded-full bg-ww-surface-tint p-1">{(['expense', 'income', 'net'] as ChartDashboardMetric[]).map(item => <button key={item} className={`min-h-11 rounded-full px-3 text-xs ${metric === item ? 'bg-ww-surface-raised font-bold text-primary-deep shadow-ww-xs' : 'text-ww-soft'}`} onClick={() => setValue('metric', item)} type="button">{t(`dashboard.${item}`)}</button>)}</div>
+              <div className="mb-[var(--ww-space-sm)] flex flex-wrap items-center justify-between gap-[var(--ww-space-sm)]">
+                <h2 className="shrink-0 font-bold">{t('dashboard.trend')}</h2>
+                <ChartDashboardSwitch label={t('dashboard.trend')} options={(['expense', 'income', 'net'] as ChartDashboardMetric[]).map(item => ({ label: t(`dashboard.${item}`), value: item }))} value={metric} onChange={item => setValue('metric', item)} />
               </div>
               <div className="h-28 border-b border-dashed border-border-primary px-1">
                 <div className="relative h-full w-full">
@@ -367,13 +365,11 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
             {scope.kind === 'personal' && assetQuery.data && (
               <>
                 <Surface className="p-4" material="content">
-                  <div className="mb-3 flex items-center justify-between">
-                    <div>
-                      <h2 className="font-bold">{t('dashboard.assets')}</h2>
-                      <p className="mt-1 text-[11px] text-ww-soft">{`${assetQuery.data.startDate} — ${assetQuery.data.endDate}`}</p>
-                    </div>
-                    <div className="flex rounded-full bg-ww-surface-tint p-1">{(['netAsset', 'asset', 'liability'] as const).map(item => <button key={item} onClick={() => setAssetMetric(item)} className={`min-h-11 rounded-full px-2.5 text-[11px] ${assetMetric === item ? 'bg-ww-surface-raised font-bold text-primary-deep' : 'text-ww-soft'}`} type="button">{t(`dashboard.${item === 'asset' ? 'totalAsset' : item === 'liability' ? 'liability' : 'netAsset'}`)}</button>)}</div>
+                  <div className="flex flex-wrap items-center justify-between gap-[var(--ww-space-sm)]">
+                    <h2 className="shrink-0 font-bold">{t('dashboard.assets')}</h2>
+                    <ChartDashboardSwitch label={t('dashboard.assets')} options={(['netAsset', 'asset', 'liability'] as const).map(item => ({ label: t(`dashboard.${item === 'asset' ? 'totalAsset' : item === 'liability' ? 'liability' : 'netAsset'}`), value: item }))} value={assetMetric} onChange={setAssetMetric} />
                   </div>
+                  <p className="mb-[var(--ww-space-md)] text-xs text-ww-soft">{`${assetQuery.data.startDate} — ${assetQuery.data.endDate}`}</p>
                   {latestAssetValue !== null
                     ? (
                         <div className="relative h-24 w-full border-b border-dashed border-border-primary">
