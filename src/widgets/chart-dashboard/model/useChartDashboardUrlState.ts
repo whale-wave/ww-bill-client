@@ -1,13 +1,19 @@
 import type { ChartDashboardParams, ChartDashboardPeriod } from '@/entities/chart';
-import { addDays, addMonths, addYears, format, setISOWeek, setISOWeekYear, startOfISOWeek } from 'date-fns';
+import { addYears, format, setISOWeek, setISOWeekYear, startOfISOWeek } from 'date-fns';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { getDashboardPeriodBounds } from './dashboard-period-picker';
 import { resolveChartAccountFilter } from './query-params';
 
 export type ChartDashboardScope = { kind: 'personal' } | { kind: 'ledger'; ledgerId: string } | { kind: 'household'; householdId: string };
 export type ChartDashboardMetric = 'expense' | 'income' | 'net';
 
-export function localDate(date = new Date()) {
+export function localDate(date?: Date) {
+  if (!date) {
+    const parts = new Intl.DateTimeFormat('en-CA', { day: '2-digit', month: '2-digit', timeZone: 'Asia/Shanghai', year: 'numeric' }).formatToParts(new Date());
+    const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+    return `${values.year}-${values.month}-${values.day}`;
+  }
   return format(date, 'yyyy-MM-dd');
 }
 
@@ -34,16 +40,6 @@ function legacyTabDate(value: string | null, period: ChartDashboardPeriod) {
   return undefined;
 }
 
-function periodBounds(period: ChartDashboardPeriod, anchor: Date) {
-  if (period === 'week') {
-    const start = startOfISOWeek(anchor);
-    return [localDate(start), localDate(addDays(start, 6))];
-  }
-  if (period === 'year')
-    return [`${format(anchor, 'yyyy')}-01-01`, `${format(anchor, 'yyyy')}-12-31`];
-  return [`${format(anchor, 'yyyy-MM')}-01`, localDate(addDays(addMonths(new Date(anchor.getFullYear(), anchor.getMonth(), 1), 1), -1))];
-}
-
 export function useChartDashboardUrlState(scope: ChartDashboardScope, defaultPeriod?: ChartDashboardPeriod) {
   const [params, setParams] = useSearchParams();
   const today = localDate();
@@ -56,7 +52,7 @@ export function useChartDashboardUrlState(scope: ChartDashboardScope, defaultPer
   const anchor = parseDate(params.get('date') ?? legacyDate ?? null, today);
   const [periodStart, periodEnd] = period === 'custom'
     ? [(params.get('startDate') ?? today).slice(0, 10), (params.get('endDate') ?? today).slice(0, 10)]
-    : periodBounds(period === 'all' ? 'year' : period, anchor);
+    : getDashboardPeriodBounds(period === 'week' || period === 'month' ? period : 'year', anchor);
   const metricParam = params.get('metric');
   const legacyDisplay = params.get('display');
   const legacyAmount = params.get('amount');

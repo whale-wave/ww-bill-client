@@ -562,11 +562,11 @@
     "readOnly": "你可以查看分类配置，但当前角色没有管理权限。",
     "noMore": "暂无停用分类",
     "uploadImage": "自定义图片",
-    "uploadHint": "点按图标选择图片",
+    "uploadHint": "点击上方图标，选择自定义图片",
     "uploadProgress": "图片上传进度",
     "uploadProgressValue": "已上传 {{value}}%",
     "uploadProcessing": "图片已上传，正在处理并保存…",
-    "imageCropped": "点按图标更换图片",
+    "imageCropped": "点击上方图片，更换自定义图片",
     "imageHiddenByText": "图片已保留，关闭文字图标可恢复",
     "imageFailed": "图片读取失败，请重新选择",
     "cropTitle": "裁切分类图片",
@@ -581,6 +581,12 @@
     "textIcon": "文字图标",
     "textIconHint": "使用分类名称中的一个字作为图标",
     "chooseTextIcon": "选择文字",
+    "iconSource": "图标类型",
+    "iconSources": { "builtins": "内置图标", "emoji": "Emoji" },
+    "emojiSearch": "搜索表情，例如咖啡",
+    "emojiGroupsLabel": "表情分组",
+    "emojiGroups": { "popular": "常用", "emoji-smileys": "表情", "emoji-people": "人物", "emoji-animals": "动物自然", "emoji-food": "饮食", "emoji-travel": "旅行地点", "emoji-activities": "活动", "emoji-objects": "物品", "emoji-symbols": "符号", "emoji-flags": "旗帜" },
+    "emojiNoResults": "没有找到相关表情",
     "errors": {
       "archived": "该分类已停用，请先恢复",
       "deleteReferenced": "分类仍被其他数据引用，请刷新后重试",
@@ -607,7 +613,8 @@
       "family": "家庭",
       "social": "社交",
       "income": "收入",
-      "other": "其他"
+      "other": "其他",
+      "emoji": "表情符号"
     }
   },
   "tags": { "title": "标签管理", "category": "所属分类", "name": "标签名称", "create": "新增", "creating": "新增中…", "archive": "归档", "delete": "删除", "deleteTitle": "删除标签", "deleteDescription": "确认删除标签“{{name}}”？历史账单会保留该标签。", "empty": "还没有标签", "emptyDescription": "创建标签后，可为账本记录补充分类标记。", "saveFailed": "标签保存失败" },

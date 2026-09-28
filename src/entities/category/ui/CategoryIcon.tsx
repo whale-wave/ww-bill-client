@@ -181,7 +181,7 @@ const glyphByIconKey: Record<string, CategoryGlyph> = {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function hasCategoryGlyph(iconKey: string) {
-  return Boolean(glyphByIconKey[iconKey]);
+  return Boolean(glyphByIconKey[iconKey]) || (iconKey.startsWith('emoji:') && iconKey.length > 'emoji:'.length);
 }
 
 const glyphByName: Array<[RegExp, CategoryGlyph]> = [
@@ -275,6 +275,18 @@ export function CategoryIcon({
         }}
       >
         {textIcon}
+      </span>
+    );
+  }
+
+  if (!isImage && iconKey?.startsWith('emoji:')) {
+    return (
+      <span
+        aria-hidden="true"
+        className={className}
+        style={{ alignItems: 'center', display: 'inline-flex', fontSize: size, height: size, justifyContent: 'center', lineHeight: 1, width: size, ...style }}
+      >
+        {iconKey.slice('emoji:'.length)}
       </span>
     );
   }

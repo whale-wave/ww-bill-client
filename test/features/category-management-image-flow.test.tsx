@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import type { CropperProps } from 'react-easy-crop';
-import type { CategoryEntity } from '@/entities/category';
+import type { CategoryEntity, CategoryIconCatalogItem } from '@/entities/category';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -8,6 +8,7 @@ import { CategoryManagement } from '@/features/category-management';
 
 const mocks = vi.hoisted(() => ({
   categories: [] as CategoryEntity[],
+  iconCatalog: [] as CategoryIconCatalogItem[],
   createCategory: vi.fn(),
   deleteCategory: vi.fn(),
   moveCategory: vi.fn(),
@@ -31,7 +32,7 @@ vi.mock('react-easy-crop', () => ({
 
 vi.mock('@/entities/category', async importOriginal => ({
   ...(await importOriginal<typeof import('@/entities/category')>()),
-  useCategoryIconCatalogQuery: () => ({ data: [] }),
+  useCategoryIconCatalogQuery: () => ({ data: mocks.iconCatalog }),
   useCreateLedgerCategoryMutation: () => [mocks.createCategory, { isLoading: false }],
   useDeleteLedgerCategoryPermanentlyMutation: () => ({ mutateAsync: mocks.deleteCategory, isLoading: false }),
   useLedgerCategoriesQuery: () => ({ data: mocks.categories, isLoading: false, refetch: vi.fn() }),
@@ -61,6 +62,7 @@ let cleanup: (() => void) | undefined;
 
 beforeEach(() => {
   mocks.categories = [];
+  mocks.iconCatalog = [];
   mocks.createCategory.mockReset();
   mocks.createCategory.mockResolvedValue({ id: 1 });
   mocks.deleteCategory.mockReset();
@@ -88,6 +90,58 @@ describe('category custom image flow', () => {
       categoryName?.dispatchEvent(new Event('input', { bubbles: true }));
     });
   }
+
+  it('offers an emoji and saves its catalog key without uploading an image', async () => {
+    mocks.iconCatalog = [
+      { group: 'emoji-food', key: 'emoji:🍕', name: { en: 'Pizza', zh: '披萨' } },
+      { group: 'emoji-travel', key: 'emoji:🚕', name: { en: 'Taxi', zh: '出租车' } },
+    ];
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+
+    const addButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('categories.add'));
+    act(() => addButton?.click());
+    setCategoryName(container, '外卖');
+    const emojiModeButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.iconSources.emoji');
+    act(() => emojiModeButton?.click());
+    const foodTab = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.emojiGroups.emoji-food');
+    act(() => foodTab?.click());
+    expect(container.querySelector('button[aria-label="披萨"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="出租车"]')).toBeNull();
+    const search = container.querySelector<HTMLInputElement>('input[aria-label="categories.emojiSearch"]');
+    act(() => {
+      if (search) {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(search, '出租车');
+        search.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+    expect(container.querySelector('button[aria-label="出租车"]')).not.toBeNull();
+    act(() => {
+      if (search) {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(search, '');
+        search.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+    const emojiButton = container.querySelector<HTMLButtonElement>('button[aria-label="披萨"]');
+    expect(emojiButton?.textContent).toBe('🍕');
+    act(() => emojiButton?.click());
+    expect(emojiButton?.getAttribute('aria-pressed')).toBe('true');
+    expect(container.querySelector('[data-category-image-preview]')?.textContent).toBe('🍕');
+
+    const doneButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.done');
+    await act(async () => doneButton?.click());
+    expect(mocks.createCategory).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ iconKey: 'emoji:🍕', name: '外卖', textIconEnabled: false }),
+      ledgerId: 'ledger-1',
+    }));
+    expect(mocks.createCategory.mock.calls[0]?.[0]?.data?.file).toBeUndefined();
+  });
 
   it('uses the top preview to choose an image and saves only the confirmed square crop', async () => {
     const drawImage = vi.fn();

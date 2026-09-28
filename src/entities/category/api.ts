@@ -38,8 +38,11 @@ export interface GetCategoryApiResponseData {
 }
 
 export interface CategoryIconCatalogItem {
-  group: 'food' | 'life' | 'family' | 'social' | 'income' | 'other';
+  group: 'food' | 'life' | 'family' | 'social' | 'income' | 'other' | 'emoji'
+    | 'emoji-smileys' | 'emoji-people' | 'emoji-animals' | 'emoji-food'
+    | 'emoji-travel' | 'emoji-activities' | 'emoji-objects' | 'emoji-symbols' | 'emoji-flags';
   key: string;
+  keywords?: string[];
   name: { en: string; zh: string };
 }
 

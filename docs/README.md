@@ -4,6 +4,8 @@
 
 ## 文档入口
 
+- [登录过渡与延迟加载修复记录](./context/login-transition.md)
+
 - [分类管理子分类宫格调整](./context/category-management-grid.md)
 
 - [标签排行 Locator 属性泄漏修复记录](./context/locator-api-boundary.md)

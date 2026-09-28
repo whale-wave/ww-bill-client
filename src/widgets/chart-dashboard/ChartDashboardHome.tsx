@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { ChartDashboardMetric, ChartDashboardScope } from './model/useChartDashboardUrlState';
 import type { ChartDashboardPeriod, ChartDashboardResult } from '@/entities/chart';
 import { addDays, addMonths, addYears } from 'date-fns';
-import { ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetAssetQuery } from '@/entities/asset';
@@ -15,9 +15,11 @@ import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { AppButton, Surface } from '@/shared/ui';
 import { buildAssetTrendGeometry, buildTrendGeometry, formatChartPercent, getLatestAssetValue } from './model/dashboard-chart';
+import { getDashboardPeriodTitle } from './model/dashboard-period-picker';
 import { useChartDashboardQueries } from './model/useChartDashboardQueries';
 import { localDate, useChartDashboardUrlState } from './model/useChartDashboardUrlState';
 import { ChartDashboardFilterSheet } from './ui/ChartDashboardFilterSheet';
+import { ChartDashboardPeriodSheet } from './ui/ChartDashboardPeriodSheet';
 import { ChartDashboardSwitch } from './ui/ChartDashboardSwitch';
 
 const money = (value: string, hidden: boolean) => hidden ? '••••' : `¥${Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -43,6 +45,7 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
   const { t } = useTranslation('chart');
   const navigate = useNavigate();
   const [filterOpen, setFilterOpen] = useState(false);
+  const [periodPickerOpen, setPeriodPickerOpen] = useState(false);
   const [draftTagIds, setDraftTagIds] = useState<string[]>([]);
   const [draftTagMatch, setDraftTagMatch] = useState<'any' | 'all'>('any');
   const [draftAccount, setDraftAccount] = useState('');
@@ -138,6 +141,12 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
     setFilterOpen(false);
   };
   const [rangeStart, rangeEnd] = data ? [data.startDate, data.endDate] : [periodStart, periodEnd];
+  const selectablePeriod = period === 'week' || period === 'month' || period === 'year' ? period : undefined;
+  const periodTitle = selectablePeriod
+    ? getDashboardPeriodTitle(selectablePeriod, localDate(anchor), today, t)
+    : t(period === 'all' ? 'dashboard.all' : 'tabs.custom');
+  const displayedStart = period === 'all' ? data?.startDate ?? '—' : rangeStart;
+  const displayedEnd = period === 'all' ? data?.endDate ?? today : rangeEnd;
   const categoryRoute = (item: NonNullable<ChartDashboardResult['categories']>[number]) => {
     if (!data)
       return;
@@ -148,7 +157,7 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
       category,
       endDate: data.endDate,
       percentage: String(Math.round((item.percent ?? 0) * 1000) / 10),
-      periodName: `${data.startDate} — ${data.endDate}`,
+      periodName: `${periodTitle} · ${data.startDate} — ${data.endDate}`,
       startDate: data.startDate,
       type,
       tagIds,
@@ -174,7 +183,7 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
         categoryIconType: item.iconType ?? 'BUILTIN',
         amount: item.amount,
         percentage: String(Math.round((item.percent ?? 0) * 1000) / 10),
-        periodName: `${data.startDate} — ${data.endDate}`,
+        periodName: `${periodTitle} · ${data.startDate} — ${data.endDate}`,
         type,
         tabKey: period === 'custom' ? `${data.startDate}:${data.endDate}` : params.get('tab') ?? '',
       });
@@ -207,6 +216,7 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
         }))}
         value={period}
         onChange={(item) => {
+          setPeriodPickerOpen(false);
           setParams((previous) => {
             previous.set('range', item);
             previous.delete('tab');
@@ -226,43 +236,77 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
           }, { replace: true });
         }}
       />
-      {period === 'custom'
-        ? (
-            <div className="flex shrink-0 items-center justify-center gap-[var(--ww-space-sm)] px-[var(--ww-space-lg)] py-[var(--ww-space-xs)] text-xs">
-              <input
-                aria-label={t('dashboard.start')}
-                className="min-h-[var(--ww-component-button-hit-target-min)] min-w-0 flex-1 rounded-xl bg-ww-surface px-[var(--ww-space-sm)] py-[var(--ww-space-sm)]"
-                max={periodEnd}
-                min={earliestCustomDate}
-                onChange={(event) => {
-                  if (event.target.value <= periodEnd)
-                    setValue('startDate', event.target.value);
-                }}
-                type="date"
-                value={periodStart}
-              />
-              <span>{t('dashboard.from')}</span>
-              <input
-                aria-label={t('dashboard.end')}
-                className="min-h-[var(--ww-component-button-hit-target-min)] min-w-0 flex-1 rounded-xl bg-ww-surface px-[var(--ww-space-sm)] py-[var(--ww-space-sm)]"
-                max={today}
-                min={periodStart}
-                onChange={(event) => {
-                  if (event.target.value >= periodStart && event.target.value <= today)
-                    setValue('endDate', event.target.value);
-                }}
-                type="date"
-                value={periodEnd}
-              />
-            </div>
-          )
-        : (
-            <div className="flex shrink-0 items-center justify-between px-[var(--ww-space-lg)] py-[var(--ww-space-xs)]">
-              {period !== 'all' && <AppButton aria-label={t('dashboard.previous')} className="shrink-0" onClick={() => stepPeriod(-1)} size="compact" variant="ghost"><ChevronLeft size={20} /></AppButton>}
-              <span className="min-w-0 flex-1 px-[var(--ww-space-xs)] text-center font-number text-xs font-semibold text-ww-mid">{period === 'all' ? `${data?.startDate ?? '—'} ${t('dashboard.from')} ${data?.endDate ?? today}` : `${rangeStart}  —  ${rangeEnd}`}</span>
-              {period !== 'all' && <AppButton aria-label={t('dashboard.next')} className="shrink-0" disabled={periodEnd >= today} onClick={() => stepPeriod(1)} size="compact" variant="ghost"><ChevronRight size={20} /></AppButton>}
-            </div>
-          )}
+      <div className="flex h-[calc(var(--ww-component-button-hit-target-min)+var(--ww-space-lg))] shrink-0 items-center justify-between gap-[var(--ww-space-sm)] px-[var(--ww-space-lg)]">
+        {period === 'custom'
+          ? (
+              <>
+                <input
+                  aria-label={t('dashboard.start')}
+                  className="box-border h-[var(--ww-component-button-hit-target-min)] min-h-0 min-w-0 flex-1 rounded-xl bg-ww-surface px-[var(--ww-space-sm)] py-0 text-xs"
+                  max={periodEnd}
+                  min={earliestCustomDate}
+                  onChange={(event) => {
+                    if (event.target.value <= periodEnd)
+                      setValue('startDate', event.target.value);
+                  }}
+                  type="date"
+                  value={periodStart}
+                />
+                <span>{t('dashboard.from')}</span>
+                <input
+                  aria-label={t('dashboard.end')}
+                  className="box-border h-[var(--ww-component-button-hit-target-min)] min-h-0 min-w-0 flex-1 rounded-xl bg-ww-surface px-[var(--ww-space-sm)] py-0 text-xs"
+                  max={today}
+                  min={periodStart}
+                  onChange={(event) => {
+                    if (event.target.value >= periodStart && event.target.value <= today)
+                      setValue('endDate', event.target.value);
+                  }}
+                  type="date"
+                  value={periodEnd}
+                />
+              </>
+            )
+          : (
+              <>
+                {period !== 'all' && <AppButton aria-label={t('dashboard.previous')} className="shrink-0" onClick={() => stepPeriod(-1)} size="compact" variant="ghost"><ChevronLeft size={20} /></AppButton>}
+                {selectablePeriod
+                  ? (
+                      <button
+                        aria-label={`${t('dashboard.choosePeriod')}: ${periodTitle}, ${displayedStart} — ${displayedEnd}`}
+                        className="flex h-[var(--ww-component-button-hit-target-min)] min-w-0 flex-1 flex-col items-center justify-center px-[var(--ww-space-xs)] text-center"
+                        onClick={() => setPeriodPickerOpen(true)}
+                        type="button"
+                      >
+                        <span className="flex items-center gap-1 text-[14px] font-bold text-primary-deep">
+                          {periodTitle}
+                          <ChevronDown aria-hidden size={15} />
+                        </span>
+                        <span className="max-w-full truncate font-number text-[11px] font-semibold text-ww-mid">
+                          {displayedStart}
+                          {' '}
+                          —
+                          {' '}
+                          {displayedEnd}
+                        </span>
+                      </button>
+                    )
+                  : (
+                      <span className="flex h-[var(--ww-component-button-hit-target-min)] min-w-0 flex-1 flex-col justify-center px-[var(--ww-space-xs)] text-center">
+                        <span className="block text-[14px] font-bold text-ww-ink">{periodTitle}</span>
+                        <span className="block truncate font-number text-[11px] font-semibold text-ww-mid">
+                          {displayedStart}
+                          {' '}
+                          —
+                          {' '}
+                          {displayedEnd}
+                        </span>
+                      </span>
+                    )}
+                {period !== 'all' && <AppButton aria-label={t('dashboard.next')} className="shrink-0" disabled={periodEnd >= today} onClick={() => stepPeriod(1)} size="compact" variant="ghost"><ChevronRight size={20} /></AppButton>}
+              </>
+            )}
+      </div>
       <main className="ww-tab-bar-scroll-padding min-h-0 flex-1 space-y-3 overflow-y-auto px-4" data-dashboard-scroll>
         {query.isError && <button className="w-full rounded-2xl bg-ww-surface p-4 text-sm text-feedback-danger" onClick={() => void query.refetch()} type="button">{t('dashboard.loadError')}</button>}
         {query.isLoading && !data && <div className="h-40 animate-pulse rounded-3xl bg-ww-surface" />}
@@ -463,6 +507,21 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
         }}
         onApply={applyFilterDraft}
       />
+      {selectablePeriod && (
+        <ChartDashboardPeriodSheet
+          anchorDate={localDate(anchor)}
+          key={`${selectablePeriod}:${localDate(anchor)}`}
+          onClose={() => setPeriodPickerOpen(false)}
+          onSelect={(selectedDate) => {
+            setValue('date', selectedDate);
+            setPeriodPickerOpen(false);
+          }}
+          period={selectablePeriod}
+          selectedStart={periodStart}
+          today={today}
+          visible={periodPickerOpen}
+        />
+      )}
     </div>
   );
 };

@@ -12,7 +12,7 @@ const FirstScreen: FC = () => {
   useEffect(() => {
     const timer = window.setTimeout(() => {
       navigate('/detail', { replace: true });
-    }, 1200);
+    }, 600);
 
     return () => window.clearTimeout(timer);
   }, [navigate]);

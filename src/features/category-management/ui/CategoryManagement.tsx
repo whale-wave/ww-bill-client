@@ -43,6 +43,7 @@ import { useTranslation } from '@/shared/i18n';
 import { AppButton, AppSheet, PageLoadingState, SheetHeader } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 import { useMotionPreference } from '@/shared/ui/motion';
+import { CategoryEmojiPicker } from './CategoryEmojiPicker';
 import { CategoryImageCropper } from './CategoryImageCropper';
 
 type EditorState = { category?: CategoryEntity; parentId?: number; mode: 'create' | 'edit' } | null;
@@ -216,6 +217,10 @@ function CategoryEditorSheet({
     () => iconCatalog.filter(item => hasCategoryGlyph(item.key)),
     [iconCatalog],
   );
+  const emojiIcons = useMemo(
+    () => availableIcons.filter(item => item.group.startsWith('emoji')),
+    [availableIcons],
+  );
   const [name, setName] = useState(editor.category?.name ?? '');
   const [iconKey, setIconKey] = useState<string | undefined>(
     editor.category?.iconType === 'BUILTIN'
@@ -223,6 +228,9 @@ function CategoryEditorSheet({
       : editor.mode === 'create'
         ? availableIcons[0]?.key
         : undefined,
+  );
+  const [iconMode, setIconMode] = useState<'builtins' | 'emoji'>(
+    editor.category?.icon?.startsWith('emoji:') ? 'emoji' : 'builtins',
   );
   const [textIconEnabled, setTextIconEnabled] = useState(editor.category?.textIconEnabled ?? false);
   const [textIconIndex, setTextIconIndex] = useState(editor.category?.textIconIndex ?? 0);
@@ -380,7 +388,7 @@ function CategoryEditorSheet({
                         />
                       )}
                 </span>
-                <span className="text-center text-[11px] font-semibold leading-4 text-ww-mid">
+                <span className="text-center text-xs font-bold leading-5 text-primary-deep">
                   {hasImage
                     ? t(textIconEnabled ? 'categories.imageHiddenByText' : 'categories.imageCropped')
                     : t('categories.uploadHint')}
@@ -526,7 +534,33 @@ function CategoryEditorSheet({
                   </p>
                 </div>
               )}
-              {GROUP_ORDER.map((group) => {
+              <div className="mt-5 flex rounded-full bg-ww-surface-tint p-1" role="group" aria-label={t('categories.iconSource')}>
+                {(['builtins', 'emoji'] as const).map(mode => (
+                  <button
+                    aria-pressed={iconMode === mode}
+                    className={`min-h-11 flex-1 rounded-full border-0 text-[13px] font-bold ${iconMode === mode ? 'bg-ww-surface text-primary-deep shadow-ww-xs' : 'bg-transparent text-ww-mid'}`}
+                    key={mode}
+                    onClick={() => setIconMode(mode)}
+                    type="button"
+                  >
+                    {t(`categories.iconSources.${mode}`)}
+                  </button>
+                ))}
+              </div>
+              {iconMode === 'emoji' && (
+                <CategoryEmojiPicker
+                  icons={emojiIcons}
+                  onSelect={(selectedKey) => {
+                    setImage(undefined);
+                    setPreview(undefined);
+                    setIconKey(selectedKey);
+                    setTextIconEnabled(false);
+                    setUploadProgress(0);
+                  }}
+                  selectedKey={!image ? iconKey : undefined}
+                />
+              )}
+              {iconMode === 'builtins' && GROUP_ORDER.map((group) => {
                 const icons = availableIcons.filter(item => item.group === group);
                 if (!icons.length)
                   return null;

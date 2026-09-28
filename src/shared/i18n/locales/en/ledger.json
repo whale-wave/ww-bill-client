@@ -562,11 +562,11 @@
     "readOnly": "You can view these categories, but your role cannot manage them.",
     "noMore": "No inactive categories",
     "uploadImage": "Custom image",
-    "uploadHint": "Tap the icon to choose an image",
+    "uploadHint": "Tap the icon above to choose a custom image",
     "uploadProgress": "Image upload progress",
     "uploadProgressValue": "{{value}}% uploaded",
     "uploadProcessing": "Image uploaded. Processing and saving…",
-    "imageCropped": "Tap the icon to replace the image",
+    "imageCropped": "Tap the image above to replace your custom image",
     "imageHiddenByText": "Image kept. Turn off the text icon to show it.",
     "imageFailed": "Unable to read the image. Choose another file.",
     "cropTitle": "Crop category image",
@@ -581,6 +581,12 @@
     "textIcon": "Text icon",
     "textIconHint": "Use one character from the category name as its icon",
     "chooseTextIcon": "Choose character",
+    "iconSource": "Icon type",
+    "iconSources": { "builtins": "Built-in icons", "emoji": "Emoji" },
+    "emojiSearch": "Search emoji, such as coffee",
+    "emojiGroupsLabel": "Emoji groups",
+    "emojiGroups": { "popular": "Popular", "emoji-smileys": "Smileys", "emoji-people": "People", "emoji-animals": "Animals & nature", "emoji-food": "Food & drink", "emoji-travel": "Travel & places", "emoji-activities": "Activities", "emoji-objects": "Objects", "emoji-symbols": "Symbols", "emoji-flags": "Flags" },
+    "emojiNoResults": "No matching emoji",
     "errors": {
       "archived": "This category is inactive. Restore it first.",
       "deleteReferenced": "The category is still linked to other data. Refresh and try again.",
@@ -607,7 +613,8 @@
       "family": "Family",
       "social": "Social",
       "income": "Income",
-      "other": "Other"
+      "other": "Other",
+      "emoji": "Emoji"
     }
   },
   "tags": { "title": "Tags", "category": "Category", "name": "Tag Name", "create": "Add", "creating": "Adding…", "archive": "Archive", "delete": "Delete", "deleteTitle": "Delete tag", "deleteDescription": "Delete “{{name}}”? Existing records will keep this tag.", "empty": "No tags yet", "emptyDescription": "Create tags to add extra markers to ledger records.", "saveFailed": "Unable to save tag" },

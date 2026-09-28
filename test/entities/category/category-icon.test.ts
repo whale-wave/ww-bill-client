@@ -151,6 +151,13 @@ describe('category icon', () => {
     expect(container.querySelector('svg')).toBeNull();
   });
 
+  it('renders a selected emoji across category consumers', () => {
+    expect(hasCategoryGlyph('emoji:🍕')).toBe(true);
+    const container = render('emoji:🍕', '外卖', 'BUILTIN');
+    expect(container.querySelector('span')?.textContent).toBe('🍕');
+    expect(container.querySelector('svg')).toBeNull();
+  });
+
   it('falls back to the underlying icon for an invalid character index', () => {
     expect(render('catering', '日本手办', 'BUILTIN', true, 9).querySelector('svg')?.classList)
       .toContain('lucide-utensils');
