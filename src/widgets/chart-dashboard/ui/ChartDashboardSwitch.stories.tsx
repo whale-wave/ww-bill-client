@@ -71,6 +71,12 @@ export const SmallScreens: Story = {
             throw new Error('Chart switch selection did not change');
           if (getComputedStyle(button.querySelector('[data-chart-switch-option]')!).boxShadow !== 'none')
             throw new Error('Chart switch selection shadow must not create an extra edge');
+          const selectedBackground = getComputedStyle(button.querySelector('[data-chart-switch-option]')!).backgroundColor;
+          if (selectedBackground === getComputedStyle(track).backgroundColor)
+            throw new Error('Chart switch selection must remain distinct from its track');
+          const card = group.closest('.ww-surface');
+          if (card && selectedBackground === getComputedStyle(card).backgroundColor)
+            throw new Error('Chart switch selection must remain distinct from its containing card');
         }
       }
     }

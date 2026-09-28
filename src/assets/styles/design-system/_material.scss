@@ -145,12 +145,12 @@
   --ww-component-summary-shortcut-foreground: var(--ww-theme-text-color);
   --ww-component-summary-control-active: var(--ww-surface-tint-color);
   --ww-component-summary-icon-foreground: var(--ww-theme-text-color);
-  --ww-component-chart-switch-background: var(--ww-surface-color);
+  --ww-component-chart-switch-background: var(--ww-surface-tint-color);
   --ww-component-chart-switch-border: var(--ww-border-color);
-  --ww-component-chart-switch-active: var(--ww-surface-tint-color);
-  --ww-component-chart-switch-visible-height: 32px;
-  --ww-component-chart-switch-radius: 999px;
-  --ww-component-chart-switch-active-radius: 999px;
+  --ww-component-chart-switch-active: var(--ww-theme-color-light);
+  --ww-component-chart-switch-visible-height: var(--ww-component-button-height-compact);
+  --ww-component-chart-switch-radius: var(--ww-component-button-radius-compact);
+  --ww-component-chart-switch-active-radius: var(--ww-component-chart-switch-radius);
   --ww-component-chart-switch-inactive-foreground: var(--ww-text-color-soft);
   --ww-component-chart-switch-active-foreground: var(--ww-theme-color-deep);
   --ww-component-profile-action-background: color-mix(in srgb, var(--ww-theme-color-light) 48%, transparent);
@@ -179,8 +179,6 @@ html[data-appearance-template='minimal'] {
   --ww-component-dock-shadow: var(--ww-card-shadow-floating);
   --ww-component-dock-blur: none;
   --ww-component-dock-active: var(--ww-theme-color-light);
-  --ww-component-chart-switch-background: var(--ww-surface-raised-color);
-  --ww-component-chart-switch-active: var(--ww-theme-color-light);
   --ww-component-sheet-header-blur: none;
 }
 

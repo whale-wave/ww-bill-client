@@ -748,7 +748,7 @@ html[data-design-studio-template='mono'] {
   --ww-component-dock-active: var(--ww-surface-tint-color);
   --ww-component-chart-switch-background: var(--ww-surface-tint-color);
   --ww-component-chart-switch-border: transparent;
-  --ww-component-chart-switch-active: var(--ww-surface-raised-color);
+  --ww-component-chart-switch-active: var(--ww-theme-color-light);
   --ww-component-profile-action-background: var(--ww-surface-tint-color);
   --ww-component-profile-action-border: transparent;
   --ww-component-profile-action-foreground: var(--ww-theme-color);
@@ -889,7 +889,7 @@ html[data-design-studio-template='konsta-ios'] {
   --ww-component-dock-active: rgb(255 255 255 / 0.78);
   --ww-component-chart-switch-background: rgb(255 255 255 / 0.66);
   --ww-component-chart-switch-border: rgb(255 255 255 / 0.72);
-  --ww-component-chart-switch-active: rgb(255 255 255 / 0.88);
+  --ww-component-chart-switch-active: var(--ww-theme-color-light);
   --ww-component-profile-action-background: rgb(255 255 255 / 0.74);
   --ww-component-profile-action-border: rgb(255 255 255 / 0.72);
   --ww-component-profile-action-foreground: var(--ww-theme-color-deep);
