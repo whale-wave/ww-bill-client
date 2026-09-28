@@ -6,7 +6,16 @@ interface NativeStatusBarPlugin {
 }
 
 const NativeStatusBar = registerPlugin<NativeStatusBarPlugin>('NativeStatusBar');
-const DEFAULT_BACKGROUND = '#f4f4f6';
+const DEFAULT_BACKGROUND_CHANNELS = [244, 244, 246] as const;
+
+function defaultBackground(): string {
+  const configured = typeof document === 'undefined'
+    ? ''
+    : getComputedStyle(document.documentElement).getPropertyValue('--ww-background-color').trim();
+  if (configured)
+    return configured;
+  return `#${DEFAULT_BACKGROUND_CHANNELS.map(channel => channel.toString(16).padStart(2, '0')).join('')}`;
+}
 
 function readRgb(color: string): number[] | undefined {
   const hex = color.match(/^#([\da-f]{3}|[\da-f]{6})$/i)?.[1];
@@ -21,14 +30,14 @@ function readRgb(color: string): number[] | undefined {
 }
 
 /** Linear gradients use their first stop, matching the existing page themes. */
-export function resolveStatusBarColor(backgroundImage: string, backgroundColor: string, fallback = DEFAULT_BACKGROUND): string {
+export function resolveStatusBarColor(backgroundImage: string, backgroundColor: string, fallback = defaultBackground()): string {
   const gradientColor = backgroundImage.startsWith('linear-gradient(')
     ? backgroundImage.match(/#[\da-f]{6}\b|#[\da-f]{3}\b|rgba?\([^)]*\)/i)?.[0]
     : undefined;
   const rgb = readRgb(gradientColor ?? '') ?? readRgb(backgroundColor);
   if (!rgb)
     return fallback;
-  const base = readRgb(fallback) ?? readRgb(DEFAULT_BACKGROUND)!;
+  const base = readRgb(fallback) ?? readRgb(defaultBackground())!;
   const alpha = Math.min(1, Math.max(0, rgb[3] ?? 1));
   return `#${rgb.slice(0, 3).map((value, index) => (
     Math.round(Math.min(255, Math.max(0, value * alpha + base[index] * (1 - alpha)))).toString(16).padStart(2, '0')
@@ -36,7 +45,7 @@ export function resolveStatusBarColor(backgroundImage: string, backgroundColor: 
 }
 
 export function isLightStatusBarBackground(color: string): boolean {
-  const channels = (readRgb(color) ?? readRgb(DEFAULT_BACKGROUND)!).slice(0, 3).map((value) => {
+  const channels = (readRgb(color) ?? readRgb(defaultBackground())!).slice(0, 3).map((value) => {
     const channel = value / 255;
     return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
   });
@@ -48,6 +57,7 @@ function readPageBackground(): string {
   let color = resolveStatusBarColor(
     rootStyle.getPropertyValue('--ww-page-gradient').trim(),
     rootStyle.getPropertyValue('--ww-background-color').trim(),
+    defaultBackground(),
   );
   // Sample the top edge, rather than an accent, button or card further down.
   const topElement = document.elementFromPoint?.(window.innerWidth / 2, 1);

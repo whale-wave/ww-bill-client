@@ -2,9 +2,9 @@ import type { FC } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useHouseholdPreferencesQuery } from '@/entities/household';
 import { HouseholdBottomNav, HouseholdScopeBoundary } from '@/features/household';
-import { ChartDashboardHome } from '@/pages/chart/chart-home/ChartDashboardHome';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
+import { ChartDashboardHome } from '@/widgets/chart-dashboard';
 
 const ChartsContent: FC<{ householdId: string }> = ({ householdId }) => {
   const navigate = useNavigate();

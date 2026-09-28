@@ -40,7 +40,7 @@ const hooks = vi.hoisted(() => ({
   useUserQuery: vi.fn(),
 }));
 
-vi.mock('@/pages/chart/chart-home/ChartDashboardHome', () => ({
+vi.mock('@/widgets/chart-dashboard', () => ({
   ChartDashboardHome: hooks.dashboard,
 }));
 

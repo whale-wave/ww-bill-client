@@ -38,6 +38,7 @@ const hooks = vi.hoisted(() => ({
   useCreateLedgerCategoryMutation: vi.fn(),
   useCreateLedgerTagMutation: vi.fn(),
   useDeleteLedgerCategoryMutation: vi.fn(),
+  useDeleteLedgerCategoryPermanentlyMutation: vi.fn(),
   useLedgerCategoriesQuery: vi.fn(),
   useLedgerMembersQuery: vi.fn(),
   useLedgerPreferencesQuery: vi.fn(),
@@ -82,6 +83,7 @@ vi.mock('@/entities/category', async importOriginal => ({
   useCreateLedgerCategoryMutation: hooks.useCreateLedgerCategoryMutation,
   useCategoryIconCatalogQuery: hooks.useCategoryIconCatalogQuery,
   useDeleteLedgerCategoryMutation: hooks.useDeleteLedgerCategoryMutation,
+  useDeleteLedgerCategoryPermanentlyMutation: hooks.useDeleteLedgerCategoryPermanentlyMutation,
   useLedgerCategoriesQuery: hooks.useLedgerCategoriesQuery,
   usePatchLedgerCategoryMutation: hooks.usePatchLedgerCategoryMutation,
   useMoveLedgerCategoryMutation: () => ({ mutateAsync: vi.fn(), isLoading: false }),
@@ -210,6 +212,7 @@ beforeEach(() => {
   hooks.useUpdateLedgerCategoryMutation.mockReturnValue([hooks.updateCategory, { isLoading: false }]);
   hooks.useCreateLedgerCategoryMutation.mockReturnValue([hooks.createCategory, { isLoading: false }]);
   hooks.useDeleteLedgerCategoryMutation.mockReturnValue([hooks.deleteCategory, { isLoading: false }]);
+  hooks.useDeleteLedgerCategoryPermanentlyMutation.mockReturnValue({ mutateAsync: hooks.deleteCategory, isPending: false });
   hooks.useLedgerTagsQuery.mockReturnValue(query([{ createdAt: '', createdByUserId: 1, id: 'tag/a', ledgerId: ledger.id, name: '聚餐', status: 'ACTIVE', updatedAt: '', version: 4 }]));
   hooks.useUpdateLedgerTagMutation.mockReturnValue([hooks.updateTag, { isLoading: false }]);
   hooks.useCreateLedgerTagMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
@@ -588,7 +591,12 @@ describe('ledger category and tag management', () => {
       .mockResolvedValueOnce({ ...activeCategory, status: 'ACTIVE', sortOrder: -1, version: 4 });
     const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
 
-    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.archive"]')?.click());
+    expect(container.querySelectorAll('[aria-label="categories.edit"]')).toHaveLength(2);
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.edit"]')?.click());
+    expect(document.body.textContent).toContain('categories.actions');
+    const archiveButton = [...document.body.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent?.includes('categories.archive'));
+    expect(archiveButton, document.body.textContent).toBeDefined();
+    await act(async () => archiveButton?.click());
     await act(async () => container.querySelector<HTMLButtonElement>('[aria-controls="archived-category-list"]')?.click());
     await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.restoreName"]')?.click());
 
@@ -630,14 +638,13 @@ describe('ledger category and tag management', () => {
 
     const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
 
-    const archiveButtons = container.querySelectorAll<HTMLButtonElement>(
-      '[aria-label="categories.archive"]',
+    const editButtons = container.querySelectorAll<HTMLButtonElement>(
+      '[aria-label="categories.edit"]',
     );
-    expect(archiveButtons).toHaveLength(2);
-    expect([...archiveButtons].every(button => button.disabled)).toBe(true);
-    expect([...archiveButtons].every(button => !button.classList.contains('opacity-35')))
+    expect(editButtons).toHaveLength(2);
+    expect([...editButtons].every(button => button.disabled)).toBe(true);
+    expect([...editButtons].every(button => !button.classList.contains('opacity-35')))
       .toBe(true);
-    expect(container.querySelectorAll('[aria-label="categories.edit"]')).toHaveLength(2);
   });
 
   it('previews and uploads the confirmed crop', async () => {

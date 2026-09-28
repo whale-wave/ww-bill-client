@@ -42,6 +42,7 @@ const hooks = vi.hoisted(() => ({
   useChartPeriodQuery: vi.fn(),
   useGetRecordBillQuery: vi.fn(),
   useGetUserAppConfigQuery: vi.fn(),
+  useVisibleAmount: vi.fn(),
   useLedgerBudgetInfoQuery: vi.fn(),
   useLedgerCategoriesQuery: vi.fn(),
   useLedgerChartQuery: vi.fn(),
@@ -73,6 +74,7 @@ vi.mock('@/entities/ledger', async importOriginal => ({
 
 vi.mock('@/entities/user-app-config', () => ({
   useGetUserAppConfigQuery: hooks.useGetUserAppConfigQuery,
+  useVisibleAmount: hooks.useVisibleAmount,
 }));
 
 vi.mock('@/entities/household', async importOriginal => ({
@@ -285,6 +287,7 @@ beforeEach(() => {
     isError: false,
     isLoading: false,
   });
+  hooks.useVisibleAmount.mockReturnValue({ isVisibleAmount: true });
   hooks.useLedgerNavigationQuery.mockReturnValue({
     data: [
       navigationLedger({ id: 'private-default-id', kind: LedgerKind.SYSTEM_DEFAULT, name: '系统默认账本', recordCount: 8 }),
@@ -403,7 +406,7 @@ describe('personal ledger workspace integration', () => {
   });
 
   it.each([
-    ['chart', '/chart', createElement(ChartHomePage), '支出', false, true],
+    ['chart', '/chart', createElement(ChartHomePage), 'dashboard.title', false, true],
     ['budget', '/budget', createElement(BudgetPage), '月预算', true, false],
     ['bill', '/bill', createElement(BillPage), '月账单', false, false],
   ])('keeps the original %s navigation contract', (_name, pathname, element, businessTitle, hasTopBack, hasTabBar) => {
@@ -452,20 +455,19 @@ describe('personal ledger workspace integration', () => {
     expect(metrics?.querySelector('.col-span-2')).toBeNull();
   });
 
-  it('changes personal chart amount and range filters through the restored controls', async () => {
+  it('passes the hidden amount preference into the personal statistics dashboard', () => {
+    hooks.useVisibleAmount.mockReturnValue({ isVisibleAmount: false });
+    const { container } = renderPage('/chart', '/chart', createElement(ChartHomePage));
+    expect(container.querySelector('[data-chart-dashboard][data-hide-amounts="true"]')).not.toBeNull();
+  });
+
+  it('changes personal chart range and metric through the statistics controls', async () => {
     const { container, router } = renderPage('/chart', '/chart', createElement(ChartHomePage));
-    const ranges = container.querySelectorAll('.chart-period-tabs > button');
-
-    expect(ranges).toHaveLength(4);
-    await click(ranges[2]);
+    const yearRange = [...container.querySelectorAll('button')].find(button => button.textContent === 'tabs.year');
+    expect(yearRange).not.toBeUndefined();
+    await click(yearRange);
     expect(router.state.location.search).toContain('range=year');
-
-    await click(container.querySelector('[data-chart-amount-type="add"]'));
-    expect(router.state.location.search).toContain('amount=add');
-    expect(hooks.useChartPeriodOptionsQuery).toHaveBeenLastCalledWith({
-      params: { metric: 'income', pageSize: 6, period: 'year' },
-      queryOptions: { enabled: true },
-    });
+    expect(hooks.useChartPeriodOptionsQuery).not.toHaveBeenCalled();
   });
 
   it('changes personal budget period and returns through the restored navbar', async () => {

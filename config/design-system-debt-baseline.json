@@ -28,8 +28,6 @@
     "raw-color\u0000src/pages/design-system/BalanceCardMotionPrototype.tsx\u0000{ background: '#ffffff', color: '#1c2b3d', label: '日常消费', value: '¥ 4,620', y: 52 },\u00001",
     "raw-color\u0000src/pages/design-system/BalanceCardMotionPrototype.tsx\u0000{ background: 'linear-gradient(135deg, #8291f4, #5d69d2)', color: '#ffffff', label: '鲸浪储蓄', value: '¥ 12,480', y: 18 },\u00001",
     "raw-color\u0000src/pages/design-system/BalanceCardMotionPrototype.tsx\u0000{ background: 'linear-gradient(135deg, #d7f0f1, #a8d3dc)', color: '#21485c', label: '旅行备用金', value: '¥ 3,280', y: 86 },\u00001",
-    "raw-color\u0000src/shared/lib/system-status-bar.ts\u0000const DEFAULT_BACKGROUND = '#f4f4f6';\u00001",
-    "raw-color\u0000src/shared/ui/compatibility.stories.tsx\u0000<Share shares={[{ id: 1, name: '微信', color: '#65c466' }, { id: 2, name: '复制链接', color: '#6fc2dc' }]} visible={shareVisible} onClose={() => setShareVisible(false)} />\u00001",
     "raw-z-index\u0000src/pages/community/CommunityPage.module.scss\u0000z-index: 2;\u00001",
     "raw-z-index\u0000src/pages/community/Personal.module.scss\u0000z-index: 1;\u00001",
     "raw-z-index\u0000src/pages/message/index.module.scss\u0000z-index: 1;\u00001",

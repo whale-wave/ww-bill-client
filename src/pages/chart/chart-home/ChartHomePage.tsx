@@ -1,11 +1,13 @@
 import type { FC } from 'react';
-import { ChartDashboardHome } from '@/pages/chart/chart-home/ChartDashboardHome';
+import { useVisibleAmount } from '@/entities/user-app-config';
+import { ChartDashboardHome } from '@/widgets/chart-dashboard';
 import { TabBar } from '@/widgets/layout';
 
 const ChartHomeInner: FC = () => {
+  const { isVisibleAmount } = useVisibleAmount();
   return (
     <>
-      <ChartDashboardHome scope={{ kind: 'personal' }} defaultPeriod="week" />
+      <ChartDashboardHome hideAmounts={!isVisibleAmount} scope={{ kind: 'personal' }} defaultPeriod="week" />
       <TabBar active={1} />
     </>
   );

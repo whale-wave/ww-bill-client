@@ -14,7 +14,7 @@ import { useChartPeriodQuery, useTagRankingQuery } from '@/entities/chart';
 import { useInfiniteRecordsQuery } from '@/entities/record';
 import { CategoryTrendChart, SubcategoryBreakdown, TagRankingSection } from '@/features/chart-overview';
 import { useTranslation } from '@/shared/i18n';
-import { formatAmount } from '@/shared/lib';
+import { cn, formatAmount } from '@/shared/lib';
 import { IllustratedEmptyState, MetricGrid, ProgressBar, Surface } from '@/shared/ui';
 import {
   flattenRecords,
@@ -253,7 +253,7 @@ const ChartCategory: FC = () => {
                 {currentType ? ` · ${t(`amount.${currentType === 'sub' ? 'expend' : 'income'}`)}` : ''}
               </p>
             </div>
-            <Surface className={`${isAllRange ? 'min-h-[100px]' : 'h-[212.5px]'} overflow-hidden px-5 pb-4 pt-5`} material="raised">
+            <Surface className={cn(isAllRange ? 'min-h-[100px]' : 'h-[212.5px]', 'overflow-hidden px-5 pb-4 pt-5')} material="raised">
               <MetricGrid
                 columns={2}
                 items={[

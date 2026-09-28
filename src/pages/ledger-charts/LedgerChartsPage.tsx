@@ -1,7 +1,7 @@
 import type { Ledger } from '@/entities/ledger';
 import { LedgerCapability, useLedgerPreferencesQuery } from '@/entities/ledger';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
-import { ChartDashboardHome } from '@/pages/chart/chart-home/ChartDashboardHome';
+import { ChartDashboardHome } from '@/widgets/chart-dashboard';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 
 function LedgerChartsWorkspace({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string }) {

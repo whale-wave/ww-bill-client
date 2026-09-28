@@ -36,7 +36,7 @@ function LegacyControls() {
       <List mode="card"><ListItem arrow clickable extra="已开启" prefix={<Icon name="setting" />}>旧版列表项</ListItem></List>
       <Comment data={{ commentCount: 8, isLike: false, likeCount: 12, shareCount: 4 }} />
       <Button onClick={() => setShareVisible(true)}>打开旧版分享</Button>
-      <Share shares={[{ id: 1, name: '微信', color: '#65c466' }, { id: 2, name: '复制链接', color: '#6fc2dc' }]} visible={shareVisible} onClose={() => setShareVisible(false)} />
+      <Share shares={[{ id: 1, name: '微信', color: 'var(--ww-color-finance-income)' }, { id: 2, name: '复制链接', color: 'var(--ww-theme-color)' }]} visible={shareVisible} onClose={() => setShareVisible(false)} />
       <Mask color="black" opacity="thin" visible={false} />
       <Gap height={8} />
       <FixedPin onClick={() => undefined}>固定操作</FixedPin>

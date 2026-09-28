@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { buildAssetTrendGeometry, buildTrendGeometry, formatChartPercent, getLatestAssetValue } from '@/pages/chart/chart-home/model/dashboard-chart';
+import { buildAssetTrendGeometry, buildTrendGeometry, formatChartPercent, getLatestAssetValue } from '@/widgets/chart-dashboard/model/dashboard-chart';
+import { resolveChartAccountFilter } from '@/widgets/chart-dashboard/model/query-params';
 
 describe('dashboard chart geometry', () => {
+  it('drops legacy account filters for custom ledgers while preserving supported scopes', () => {
+    expect(resolveChartAccountFilter('ledger', 'asset-1')).toBeUndefined();
+    expect(resolveChartAccountFilter('personal', 'asset-1')).toBe('asset-1');
+    expect(resolveChartAccountFilter('household', 'unlinked')).toBe('unlinked');
+  });
+
   it('uses the full plot height above zero for income and expense', () => {
     const chart = buildTrendGeometry([0, 100, 0]);
     expect(chart.zeroY).toBe(92);

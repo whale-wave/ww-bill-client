@@ -91,6 +91,12 @@ vi.mock('@/shared/ui', async importOriginal => ({
 
 let cleanup: (() => void) | undefined;
 
+function clickRecordEditorSubmit(container: ParentNode) {
+  const submitButton = container.querySelector<HTMLButtonElement>('[data-record-editor-submit]');
+  expect(submitButton).not.toBeNull();
+  act(() => submitButton?.click());
+}
+
 function renderRouter(router: ReturnType<typeof createMemoryRouter>) {
   const container = document.createElement('div');
   const root = createRoot(container);
@@ -183,7 +189,7 @@ describe('personal record editor adapter', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 
@@ -204,7 +210,7 @@ describe('personal record editor adapter', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 
@@ -225,7 +231,7 @@ describe('personal record editor adapter', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
     expect(container.querySelector('[role="status"]')).toBeNull();
@@ -350,7 +356,7 @@ describe('personal record editor adapter', () => {
     act(() => document.querySelector<HTMLButtonElement>('[data-record-editor-tag-confirm]')!.click());
 
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
     expect(container.querySelector('[role="status"]')).toBeNull();
@@ -433,7 +439,7 @@ describe('personal record editor adapter', () => {
     const container = renderRouter(router);
 
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 
@@ -553,7 +559,7 @@ describe('personal record editor adapter', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
     expect(container.querySelector('[role="status"]')).toBeNull();
@@ -593,7 +599,7 @@ describe('personal record editor adapter', () => {
     const container = renderRouter(router);
 
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
     expect(container.querySelector('[role="status"]')).toBeNull();
@@ -704,7 +710,7 @@ describe('personal record editor adapter', () => {
     const container = renderRouter(router);
 
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 
@@ -722,7 +728,7 @@ describe('personal record editor adapter', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 
