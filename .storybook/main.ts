@@ -8,10 +8,8 @@ const config: StorybookConfig = {
   staticDirs: ['../static'],
   async viteFinal(baseConfig) {
     const { mergeConfig } = await import('vite');
-    const react = (await import('@vitejs/plugin-react')).default;
 
     return mergeConfig(baseConfig, {
-      plugins: [react()],
       resolve: {
         alias: {
           '@': resolve(import.meta.dirname, '../src'),
