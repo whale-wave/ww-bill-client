@@ -1,0 +1,80 @@
+.ww-ios-toggle {
+  -webkit-tap-highlight-color: transparent;
+
+  &__track {
+    background: var(--ww-ios-neutral-fill, rgb(0 0 0 / 0.1));
+    transition: background-color 300ms;
+  }
+
+  &__thumb {
+    width: 38px;
+    background: var(--ww-material-glass-highlight, var(--ww-control-surface));
+    box-shadow: var(--ww-ios-thumb-shadow, var(--ww-ref-konsta-ios-thumb-shadow));
+    transition:
+      transform 300ms,
+      background-color 300ms;
+  }
+
+  &__thumb-glass {
+    opacity: 0;
+    box-shadow: var(--ww-ios-thumb-shadow, var(--ww-ref-konsta-ios-thumb-shadow));
+    transition: opacity 300ms;
+  }
+
+  &__input:checked + &__track {
+    background: var(--ww-theme-color);
+  }
+
+  &__input:checked + &__track &__thumb {
+    transform: translateX(22px);
+  }
+
+  &__input:active:not(:disabled) + &__track &__thumb {
+    background: transparent;
+    transform: scale(var(--ww-ios-press-scale, 1.12));
+  }
+
+  &__input:checked:active:not(:disabled) + &__track &__thumb {
+    transform: translateX(22px) scale(var(--ww-ios-press-scale, 1.12));
+  }
+
+  &__input:active:not(:disabled) + &__track &__thumb-glass {
+    opacity: 1;
+  }
+
+  &__input:focus-visible + &__track {
+    outline: 2px solid var(--ww-theme-color-deep);
+    outline-offset: 3px;
+  }
+
+  &--disabled {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ww-ios-toggle {
+    &__track,
+    &__thumb,
+    &__thumb-glass {
+      transition: none;
+    }
+  }
+}
+
+[data-motion-enabled='false'] .ww-ios-toggle {
+  &__track,
+  &__thumb,
+  &__thumb-glass {
+    transition: none;
+  }
+
+  &__input:active:not(:disabled) + &__track &__thumb {
+    background: var(--ww-material-glass-highlight, var(--ww-control-surface));
+    transform: none;
+  }
+
+  &__input:checked:active:not(:disabled) + &__track &__thumb {
+    transform: translateX(22px);
+  }
+}

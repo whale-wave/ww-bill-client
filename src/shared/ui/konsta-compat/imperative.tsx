@@ -1,13 +1,4 @@
-import type { ButtonHTMLAttributes, ComponentType, CSSProperties, ReactNode } from 'react';
-import {
-  Actions as KonstaActions,
-  ActionsButton as KonstaActionsButton,
-  ActionsGroup as KonstaActionsGroup,
-  App as KonstaApp,
-  Dialog as KonstaDialog,
-  DialogButton as KonstaDialogButton,
-  Toast as KonstaToast,
-} from 'konsta/react';
+import type { CSSProperties, ReactNode } from 'react';
 import { CircleAlert } from 'lucide-react';
 import { createRoot } from 'react-dom/client';
 import { DialogFocusBoundary } from '@/shared/ui/app-overlay/DialogFocusBoundary';
@@ -46,8 +37,6 @@ interface ToastOptions {
   maskStyle?: CSSProperties;
 }
 
-const ActionsButtonBridge = KonstaActionsButton as unknown as ComponentType<ButtonHTMLAttributes<HTMLButtonElement> & { bold?: boolean }>;
-
 function createOverlayRoot() {
   const container = document.createElement('div');
   document.body.append(container);
@@ -73,35 +62,34 @@ function showActionSheet(options: ActionSheetOptions) {
     overlay.remove();
   };
   overlay.render(
-    <KonstaApp className="contents" dark={false} safeAreas={false} theme="ios">
-      <KonstaActions className={`adm-action-sheet ${options.popupClassName ?? ''}`.trim()} onBackdropClick={close} opened>
-        {options.extra}
-        <KonstaActionsGroup className="adm-action-sheet-button-list">
-          {options.actions.map(action => (
-            <ActionsButtonBridge
-              bold={action.bold}
-              className={action.danger ? 'adm-action-sheet-button-item adm-action-sheet-button-item-danger' : 'adm-action-sheet-button-item'}
-              disabled={action.disabled}
-              key={action.key}
-              onClick={() => {
-                const result = action.onClick?.();
-                if (result instanceof Promise)
-                  void result.finally(close);
-                else
-                  close();
-              }}
-            >
-              <span className="adm-action-sheet-button-item-name">{action.text}</span>
-            </ActionsButtonBridge>
-          ))}
-        </KonstaActionsGroup>
-        <KonstaActionsGroup className="adm-action-sheet-cancel">
-          <KonstaActionsButton className="adm-action-sheet-button-item" onClick={close} bold>
-            {options.cancelText ?? '取消'}
-          </KonstaActionsButton>
-        </KonstaActionsGroup>
-      </KonstaActions>
-    </KonstaApp>,
+    <DialogFocusBoundary label="操作选项" onEscape={close}>
+      <div className="fixed inset-0 z-[var(--ww-layer-dialog)]">
+        <button aria-label="关闭操作选项" className="ww-app-overlay-mask absolute inset-0 border-0" onClick={close} type="button" />
+        <div className={`adm-action-sheet ww-ios-overlay-action-panel absolute inset-x-0 bottom-0 mx-auto max-w-[560px] p-3 pb-[max(12px,env(safe-area-inset-bottom))] ${options.popupClassName ?? ''}`.trim()}>
+          {options.extra}
+          <div className="adm-action-sheet-button-list overflow-hidden rounded-2xl bg-ww-surface-raised">
+            {options.actions.map(action => (
+              <button
+                className={`adm-action-sheet-button-item flex min-h-12 w-full items-center justify-center border-0 border-b border-border-primary bg-transparent px-4 text-[15px] ${action.bold ? 'font-bold' : ''} ${action.danger ? 'adm-action-sheet-button-item-danger text-feedback-danger' : 'text-primary-deep'}`}
+                disabled={action.disabled}
+                key={action.key}
+                onClick={() => {
+                  const result = action.onClick?.();
+                  if (result instanceof Promise)
+                    void result.finally(close);
+                  else
+                    close();
+                }}
+                type="button"
+              >
+                <span className="adm-action-sheet-button-item-name">{action.text}</span>
+              </button>
+            ))}
+          </div>
+          <button className="adm-action-sheet-button-item adm-action-sheet-cancel mt-2 min-h-12 w-full rounded-2xl border-0 bg-ww-surface-raised font-bold text-primary-deep" onClick={close} type="button">{options.cancelText ?? '取消'}</button>
+        </div>
+      </div>
+    </DialogFocusBoundary>,
   );
   return { close };
 }
@@ -116,24 +104,19 @@ function showDialog(options: DialogOptions, confirmOnly: boolean) {
       overlay.remove();
     };
     overlay.render(
-      <KonstaApp className="contents" dark={false} safeAreas={false} theme="ios">
-        <DialogFocusBoundary label={typeof options.header === 'string' ? options.header : undefined} onEscape={() => finish(false)}>
-          <KonstaDialog
-            buttons={(
-              <>
-                {!confirmOnly && <KonstaDialogButton className="adm-dialog-button" onClick={() => finish(false)}>{options.cancelText ?? '取消'}</KonstaDialogButton>}
-                <KonstaDialogButton className="adm-dialog-button" onClick={() => finish(true)} strong>{options.confirmText ?? '确定'}</KonstaDialogButton>
-              </>
-            )}
-            className={options.bodyClassName}
-            content={options.content}
-            onBackdropClick={options.closeOnMaskClick ? () => finish(false) : undefined}
-            opened
-            title={options.header}
-            translucent
-          />
-        </DialogFocusBoundary>
-      </KonstaApp>,
+      <DialogFocusBoundary label={typeof options.header === 'string' ? options.header : undefined} onEscape={() => finish(false)}>
+        <div className="fixed inset-0 z-[var(--ww-layer-dialog)] flex items-center justify-center p-4" role="presentation">
+          <button aria-label="关闭对话框" className={`ww-app-overlay-mask absolute inset-0 border-0 ${options.maskClassName ?? ''}`} onClick={options.closeOnMaskClick ? () => finish(false) : undefined} type="button" />
+          <div className={`ww-app-dialog ww-ios-overlay-dialog-panel adm-dialog-body relative max-h-[85dvh] w-[min(390px,calc(100vw-32px))] ${options.bodyClassName ?? ''}`}>
+            {options.header && <div className="adm-dialog-header px-5 pt-5"><div className="adm-dialog-title text-lg font-bold">{options.header}</div></div>}
+            {options.content && <div className="adm-dialog-content px-5 py-4">{options.content}</div>}
+            <div className="adm-dialog-footer flex gap-2 p-3">
+              {!confirmOnly && <button className="adm-dialog-button min-h-11 flex-1 rounded-xl bg-ww-surface-tint" onClick={() => finish(false)} type="button">{options.cancelText ?? '取消'}</button>}
+              <button className="adm-dialog-button min-h-11 flex-1 rounded-xl bg-primary text-white" onClick={() => finish(true)} type="button">{options.confirmText ?? '确定'}</button>
+            </div>
+          </div>
+        </div>
+      </DialogFocusBoundary>,
     );
   });
 }
@@ -155,15 +138,13 @@ function showToast(options: ToastOptions) {
   };
   clearToast = clear;
   overlay.render(
-    <KonstaApp className="contents" dark={false} safeAreas={false} theme="ios">
-      <KonstaToast className="ww-k-toast !top-[max(16px,env(safe-area-inset-top))] !bottom-auto !z-[var(--ww-layer-overlay)]" opened position="center">
-        <span className="flex items-center gap-2 text-[13px] font-semibold text-ww-ink">
-          {options.icon === 'fail' && <CircleAlert aria-hidden className="text-feedback-danger" size={18} />}
-          {options.icon && options.icon !== 'fail' ? options.icon : null}
-          {options.content}
-        </span>
-      </KonstaToast>
-    </KonstaApp>,
+    <div aria-live="polite" className="ww-k-toast pointer-events-none fixed inset-x-4 top-[max(16px,env(safe-area-inset-top))] z-[var(--ww-layer-dialog)] flex justify-center">
+      <span className="flex items-center gap-2 rounded-xl bg-ww-surface-raised px-4 py-3 text-[13px] font-semibold text-ww-ink shadow-ww">
+        {options.icon === 'fail' && <CircleAlert aria-hidden className="text-feedback-danger" size={18} />}
+        {options.icon && options.icon !== 'fail' ? options.icon : null}
+        {options.content}
+      </span>
+    </div>,
   );
   timeout = setTimeout(clear, options.duration ?? 1500);
   return { close: clear };

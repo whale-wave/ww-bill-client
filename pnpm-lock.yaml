@@ -73,6 +73,9 @@ importers:
       '@tanstack/react-query-persist-client':
         specifier: 4.36.1
         version: 4.36.1(@tanstack/react-query@4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      '@use-gesture/react':
+        specifier: 10.3.1
+        version: 10.3.1(react@18.3.1)
       ahooks:
         specifier: 3.8.0
         version: 3.8.0(react@18.3.1)
@@ -109,9 +112,6 @@ importers:
       immer:
         specifier: ^10.1.1
         version: 10.2.0
-      konsta:
-        specifier: 3.1.4
-        version: 3.1.4
       lodash-es:
         specifier: ^4.17.21
         version: 4.18.1
@@ -2525,6 +2525,14 @@ packages:
   '@ungap/structured-clone@1.4.0':
     resolution: {integrity: sha512-1mEZtMKPM09vDmQt5y7YvmN2+DFTP7Tg0EWXdic8/C6VRnpb33e4ghisCIE3WZjsE2N8mf+QV1Zqh7ZFYLWInQ==}
 
+  '@use-gesture/core@10.3.1':
+    resolution: {integrity: sha512-WcINiDt8WjqBdUXye25anHiNxPc0VOrlT8F6LLkU6cycrOGUDyY/yyFmsg3k8i5OLvv25llc0QC45GhR/C8llw==}
+
+  '@use-gesture/react@10.3.1':
+    resolution: {integrity: sha512-Yy19y6O2GJq8f7CHf7L0nxL8bf4PZCPaVOCgJrusOeFHY1LvHgYXnmnXg6N5iwAnbgbZCDjo60SiM6IPJi9C5g==}
+    peerDependencies:
+      react: '>= 16.8.0'
+
   '@vitejs/plugin-react@6.0.2':
     resolution: {integrity: sha512-DlSMqo4WhThw4vB8Mpn0Woe9J+Jfq1geJ61AKW0QEgLzGMNwtIMdxbDUzLxcun8W7NbJO0e2Jg/Nxm3cCSVzzg==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -4324,10 +4332,6 @@ packages:
   kleur@4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
-
-  konsta@3.1.4:
-    resolution: {integrity: sha512-bVcy+BPRact12NYQjsozlZbljPQWy/dNRo1h+YILlShzQmeuo2MuEQascKc9SLY5glCRAD5xJ8BKg264oU7ZeQ==}
-    engines: {node: '>= 4.7.0'}
 
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
@@ -8547,6 +8551,13 @@ snapshots:
 
   '@ungap/structured-clone@1.4.0': {}
 
+  '@use-gesture/core@10.3.1': {}
+
+  '@use-gesture/react@10.3.1(react@18.3.1)':
+    dependencies:
+      '@use-gesture/core': 10.3.1
+      react: 18.3.1
+
   '@vitejs/plugin-react@6.0.2(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.7)(@babel/runtime@7.29.7)(rolldown@1.0.3)(vite@8.0.16(@types/node@22.19.19)(esbuild@0.28.2)(jiti@1.21.7)(sass@1.100.0)(terser@5.48.0)(yaml@2.9.0)))(vite@8.0.16(@types/node@22.19.19)(esbuild@0.28.2)(jiti@1.21.7)(sass@1.100.0)(terser@5.48.0)(yaml@2.9.0))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
@@ -10486,8 +10497,6 @@ snapshots:
   kleur@3.0.3: {}
 
   kleur@4.1.5: {}
-
-  konsta@3.1.4: {}
 
   levn@0.4.1:
     dependencies:

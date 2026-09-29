@@ -1,0 +1,26 @@
+/* Source-adapted from the studio's Konsta iOS grouped List treatment. */
+.ww-ios-settings-list {
+  border-color: transparent;
+  background: var(--ww-material-content-background);
+  box-shadow: none;
+  backdrop-filter: none;
+
+  > div {
+    position: relative;
+    border: 0;
+
+    + div::before {
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 16px;
+      height: 0.5px;
+      background: var(--ww-divider-color);
+      content: '';
+    }
+  }
+
+  > div > button {
+    min-height: 50px;
+  }
+}

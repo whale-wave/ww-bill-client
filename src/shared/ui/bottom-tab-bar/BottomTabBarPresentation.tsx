@@ -1,10 +1,10 @@
 import type { MotionValue } from 'motion/react';
 import type { CSSProperties, FC, ReactNode } from 'react';
-import { Tabbar, TabbarLink } from 'konsta/react';
 import { animate, AnimatePresence, m, useMotionValue, useMotionValueEvent } from 'motion/react';
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { cn } from '@/shared/lib';
 import { useMotionPreference } from '@/shared/ui/motion';
+import { attachTabbarGesture } from './ios-tabbar-gesture';
 
 export interface BottomTabBarItem {
   activeIcon?: ReactNode;
@@ -21,6 +21,7 @@ export interface BottomTabBarItem {
 interface BottomTabBarPresentationProps {
   activeKey: string;
   ariaLabel: string;
+  gestureEnabled?: boolean;
   indicatorProgress?: MotionValue<number>;
   indicatorStretch?: MotionValue<number>;
   items: readonly BottomTabBarItem[];
@@ -29,6 +30,7 @@ interface BottomTabBarPresentationProps {
 export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
   activeKey,
   ariaLabel,
+  gestureEnabled = true,
   indicatorProgress,
   indicatorStretch,
   items,
@@ -42,6 +44,46 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
   const tabListRef = useRef<HTMLElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
   const indicatorStepRef = useRef(0);
+  const activeIndexRef = useRef(activeIndex);
+  const itemsRef = useRef(items);
+  const gestureAnimationRef = useRef<ReturnType<typeof animate>>();
+
+  useLayoutEffect(() => {
+    activeIndexRef.current = activeIndex;
+    itemsRef.current = items;
+  }, [activeIndex, items]);
+
+  useEffect(() => {
+    const nav = tabListRef.current;
+    if (!nav || !gestureEnabled)
+      return;
+    const snap = (index: number) => {
+      gestureAnimationRef.current?.stop();
+      resolvedIndicatorProgress.stop();
+      if (isMotionEnabled)
+        gestureAnimationRef.current = animate(resolvedIndicatorProgress, Math.max(0, index), { duration: 0.25, ease: [0.22, 1, 0.36, 1] });
+      else resolvedIndicatorProgress.set(Math.max(0, index));
+    };
+    const detach = attachTabbarGesture({
+      element: nav,
+      getActiveIndex: () => Math.max(0, activeIndexRef.current),
+      onPress: (pressed) => { nav.dataset.iosPressed = String(pressed && isMotionEnabled); },
+      onProgress: (value) => {
+        gestureAnimationRef.current?.stop();
+        resolvedIndicatorProgress.stop();
+        resolvedIndicatorProgress.set(value);
+      },
+      onRelease: (index, cancelled) => {
+        snap(index);
+        if (!cancelled && index !== activeIndexRef.current)
+          itemsRef.current[index]?.onSelect();
+      },
+    });
+    return () => {
+      gestureAnimationRef.current?.stop();
+      detach();
+    };
+  }, [gestureEnabled, isMotionEnabled, resolvedIndicatorProgress]);
 
   const updateIndicatorTransform = useCallback(() => {
     if (!indicatorRef.current)
@@ -88,13 +130,13 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
   return (
     <nav
       aria-label={ariaLabel}
-      className="ww-ledger-workspace-tab-bar ww-tab-bar ww-floating-dock fixed bottom-[calc(10px+env(safe-area-inset-bottom))] left-[14px] right-[14px] z-[100] flex h-[68px] items-center justify-evenly rounded-[34px] px-[5px] text-ww-ghost"
+      className="ww-ledger-workspace-tab-bar ww-tab-bar ww-floating-dock ww-ios-tabbar fixed bottom-[calc(10px+var(--ww-safe-area-bottom))] left-[14px] right-[14px] z-[100] flex h-[68px] items-center justify-evenly rounded-[34px] px-[5px] text-ww-mid"
       data-active-index={activeIndex >= 0 ? activeIndex : undefined}
       data-motion-enabled={isMotionEnabled}
       ref={tabListRef}
       style={{ '--ww-tab-count': items.length } as CSSProperties}
     >
-      <Tabbar {...{ innerClassName: 'bwm-tab-bar' }} className="contents" icons labels>
+      <div className="bwm-tab-bar contents">
         <span
           aria-hidden="true"
           className="ww-floating-dock__active-indicator"
@@ -110,69 +152,64 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
               )}
               key={item.key}
             >
-              <TabbarLink
-                active={isActive}
+              <button
+                aria-label={item.prominent && typeof item.label === 'string' ? item.label : undefined}
+                aria-current={isActive ? 'page' : undefined}
+                aria-disabled={item.disabled || undefined}
                 className={cn(
-                  'ww-tab-bar__button ww-floating-dock__button !relative !flex !h-11 !min-w-0 !flex-1 !flex-col !items-center !justify-center !gap-[2px] !rounded-[18px] !border-0 !bg-transparent !px-1 !text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
+                  'ww-tab-bar__button ww-floating-dock__button !relative !flex !h-11 !min-w-0 !flex-1 !flex-col !items-center !justify-center !gap-[2px] !rounded-[18px] !border-0 !bg-transparent !px-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
                   isMotionEnabled && 'transition-[background,color,transform] duration-200 ease-out active:scale-[0.97]',
                   isActive && 'ww-floating-dock__button--active',
-                  item.prominent && 'ww-floating-dock__button--prominent ww-floating-dock__create',
+                  item.prominent && 'ww-floating-dock__button--prominent',
                   item.disabled && 'opacity-45',
                 )}
-                icon={(
-                  <span
-                    className={cn(
-                      'ww-tab-bar__button-icon tab-icon relative flex h-[19px] w-[19px] shrink-0 items-center justify-center text-[19px]',
-                      isMotionEnabled && 'transition-transform duration-200 ease-out',
-                      item.prominent
-                      && 'ww-tab-bar__create-icon ww-floating-dock__create absolute bottom-[13px] h-14 w-14 rounded-full text-[22px] text-white',
-                    )}
-                  >
-                    <AnimatePresence initial={false} mode="sync">
-                      <m.span
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="absolute inset-0 flex items-center justify-center"
-                        exit={isMotionEnabled ? { opacity: 0, scale: 0.92 } : undefined}
-                        initial={isMotionEnabled ? { opacity: 0, scale: 0.92 } : false}
-                        key={isActive ? 'active' : 'inactive'}
-                        transition={isMotionEnabled ? { duration: 0.18, ease: [0.22, 1, 0.36, 1] } : { duration: 0 }}
-                      >
-                        {isActive ? item.activeIcon ?? item.icon : item.icon}
-                      </m.span>
-                    </AnimatePresence>
-                  </span>
-                )}
-                label={(
-                  <span className={cn(
-                    'name ww-tab-bar__button-label max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[9.5px] font-medium leading-[14.25px] tracking-[0.3px]',
-                    isActive && 'font-bold',
-                    item.prominent && 'invisible',
-                  )}
-                  >
-                    {item.label}
-                  </span>
-                )}
-                linkProps={{
-                  'aria-current': isActive ? 'page' : undefined,
-                  'aria-disabled': item.disabled || undefined,
-                  'component': 'button',
-                  'data-prefetch-key': item.key,
-                  'data-route': item.route,
-                  'data-tab-key': item.key,
-                  'onClick': () => {
-                    if (!isActive)
-                      item.onSelect();
-                  },
-                  'onFocus': item.disabled ? undefined : item.onPrefetch,
-                  'onMouseEnter': item.disabled ? undefined : item.onPrefetch,
-                  'onTouchStart': item.disabled ? undefined : item.onPrefetch,
-                  'type': 'button',
+                data-prefetch-key={item.key}
+                data-gesture-disabled={item.prominent || item.disabled ? '' : undefined}
+                data-route={item.route}
+                data-tab-key={item.key}
+                onClick={() => {
+                  if (!isActive)
+                    item.onSelect();
                 }}
-              />
+                onFocus={item.disabled ? undefined : item.onPrefetch}
+                onMouseEnter={item.disabled ? undefined : item.onPrefetch}
+                onTouchStart={item.disabled ? undefined : item.onPrefetch}
+                type="button"
+              >
+                <span
+                  className={cn(
+                    'ww-tab-bar__button-icon tab-icon relative flex h-[22px] w-[22px] shrink-0 items-center justify-center text-[22px]',
+                    isMotionEnabled && 'transition-transform duration-200 ease-out',
+                    item.prominent
+                    && 'ww-tab-bar__create-icon ww-floating-dock__create ww-ios-fab absolute bottom-[13px] h-14 w-14 rounded-full text-[22px] text-white',
+                  )}
+                >
+                  <AnimatePresence initial={false} mode="sync">
+                    <m.span
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="absolute inset-0 flex items-center justify-center"
+                      exit={isMotionEnabled ? { opacity: 0, scale: 0.92 } : undefined}
+                      initial={isMotionEnabled ? { opacity: 0, scale: 0.92 } : false}
+                      key={isActive ? 'active' : 'inactive'}
+                      transition={isMotionEnabled ? { duration: 0.18, ease: [0.22, 1, 0.36, 1] } : { duration: 0 }}
+                    >
+                      {isActive ? item.activeIcon ?? item.icon : item.icon}
+                    </m.span>
+                  </AnimatePresence>
+                </span>
+                <span className={cn(
+                  'name ww-tab-bar__button-label max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[11px] font-medium leading-[15px]',
+                  isActive && 'font-bold',
+                  item.prominent && 'invisible',
+                )}
+                >
+                  {item.label}
+                </span>
+              </button>
             </div>
           );
         })}
-      </Tabbar>
+      </div>
     </nav>
   );
 };

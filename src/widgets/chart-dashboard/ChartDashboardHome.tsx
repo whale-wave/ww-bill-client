@@ -203,8 +203,8 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-canvas text-ww-ink" data-chart-dashboard data-hide-amounts={hideAmounts}>
-      <header className="flex shrink-0 items-center justify-between px-[var(--ww-space-xl)] pb-[var(--ww-space-xs)] pt-[max(10px,var(--ww-safe-area-top))]">
-        <h1 className="text-[22px] font-extrabold">{t('dashboard.title')}</h1>
+      <header className="flex shrink-0 items-center justify-between gap-3 px-[var(--ww-space-xl)] pb-[var(--ww-space-xs)] pt-[max(10px,var(--ww-safe-area-top))]">
+        <h1 className="min-w-max whitespace-nowrap text-[22px] font-extrabold">{t('dashboard.title')}</h1>
         <AppButton aria-label={t('dashboard.filter')} className="min-w-[var(--ww-component-button-hit-target-min)]" onClick={openFilter} size="compact" variant="secondary"><SlidersHorizontal size={18} /></AppButton>
       </header>
       <ChartDashboardSwitch
@@ -278,7 +278,7 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
                         onClick={() => setPeriodPickerOpen(true)}
                         type="button"
                       >
-                        <span className="flex items-center gap-1 text-[14px] font-bold text-primary-deep">
+                        <span className="flex items-center gap-1 whitespace-nowrap text-[14px] font-bold text-primary-deep">
                           {periodTitle}
                           <ChevronDown aria-hidden size={15} />
                         </span>

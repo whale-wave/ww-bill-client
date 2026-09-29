@@ -4,6 +4,7 @@ import { useId, useState } from 'react';
 import { cn } from '@/shared/lib';
 import { Input } from '@/shared/ui/konsta-compat';
 import { FieldFrame } from './FieldFrame';
+import './ios-form-field.scss';
 
 export interface FormFieldProps {
   autoComplete?: InputHTMLAttributes<HTMLInputElement>['autoComplete'];
@@ -22,6 +23,7 @@ export interface FormFieldProps {
   suffix?: ReactNode;
   type?: 'email' | 'password' | 'text';
   value: string;
+  variant?: 'default' | 'ios';
 }
 
 export function FormField({
@@ -41,6 +43,7 @@ export function FormField({
   suffix,
   type = 'text',
   value,
+  variant = 'default',
 }: FormFieldProps) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
@@ -48,7 +51,7 @@ export function FormField({
   const inputType = type === 'password' && isPasswordVisible ? 'text' : type;
 
   return (
-    <label className={cn('block min-w-0', className)} htmlFor={inputId}>
+    <label className={cn('block min-w-0', variant === 'ios' && 'ww-ios-form-field', className)} data-empty={variant === 'ios' ? !value : undefined} data-error={variant === 'ios' ? Boolean(errorMessage) : undefined} htmlFor={inputId}>
       <span className="mb-2 block text-[12px] font-bold leading-[18px] text-ww-mid">{label}</span>
       <FieldFrame disabled={disabled} error={Boolean(errorMessage)}>
         {prefix && <span className="flex h-5 w-5 shrink-0 items-center justify-center text-primary-deep">{prefix}</span>}

@@ -1,5 +1,4 @@
 import type { FC, ReactNode, PointerEvent as ReactPointerEvent } from 'react';
-import { Popup as KonstaPopup } from 'konsta/react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -131,10 +130,8 @@ export const ImagePreview: FC<ImagePreviewProps> = ({ defaultIndex = 0, image, i
 
   return createPortal(
     <DialogFocusBoundary describedBy={descriptionId} label="图片预览" onEscape={onClose}>
-      <KonstaPopup
-        className="ww-image-preview-popup !z-[var(--ww-layer-overlay)] !flex !h-[100dvh] !w-screen !items-center !justify-center !bg-black/95"
-        onBackdropClick={onClose}
-        opened
+      <div
+        className="ww-image-preview-popup fixed inset-0 !z-[var(--ww-ref-z-image-preview)] !flex !h-[100dvh] !w-screen !items-center !justify-center !bg-black/95"
       >
         <div
           className="adm-image-viewer-control absolute inset-0 overflow-hidden overscroll-contain p-5 [touch-action:none]"
@@ -176,7 +173,7 @@ export const ImagePreview: FC<ImagePreviewProps> = ({ defaultIndex = 0, image, i
             <X aria-hidden size={24} strokeWidth={2} />
           </button>
         </div>
-      </KonstaPopup>
+      </div>
     </DialogFocusBoundary>,
     getImagePreviewContainer(),
   );

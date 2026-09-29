@@ -1,0 +1,58 @@
+/* Source-adapted iOS floating field used by the studio and product forms. */
+.ww-ios-form-field {
+  padding-top: 4px;
+
+  > span:first-child {
+    max-width: 66%;
+    margin-bottom: 0;
+    font-size: 12px;
+    font-weight: 500;
+    transform-origin: left center;
+    transition:
+      color 200ms,
+      transform 200ms;
+    pointer-events: none;
+  }
+
+  > .ww-field-frame {
+    min-height: 44px;
+    border: 0;
+    border-bottom: 0.5px solid var(--ww-divider-color);
+    border-radius: 0;
+    padding-inline: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  &:focus-within > .ww-field-frame {
+    border-bottom-color: var(--ww-theme-color);
+    box-shadow: none;
+    --tw-ring-shadow: 0 0 transparent;
+  }
+
+  &:focus-within > span:first-child {
+    color: var(--ww-theme-color-deep);
+  }
+
+  &[data-empty='true']:not(:focus-within) > span:first-child {
+    transform: translateY(26px) scale(1.33);
+  }
+
+  &[data-empty='true']:not(:focus-within) input::placeholder {
+    opacity: 0;
+  }
+
+  &[data-error='true'] > .ww-field-frame {
+    border-bottom-color: rgb(var(--ww-color-feedback-danger));
+  }
+
+  .adm-input-element {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ww-ios-form-field > span:first-child {
+    transition: none;
+  }
+}

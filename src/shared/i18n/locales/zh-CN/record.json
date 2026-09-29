@@ -190,7 +190,7 @@
   },
   "search": {
     "title": "搜索",
-    "placeholder": "搜索类别/标签/备注",
+    "placeholder": "搜索记录",
     "noResult": "暂无搜索结果",
     "filter": "筛选",
     "filterPanelTitle": "筛选记录",

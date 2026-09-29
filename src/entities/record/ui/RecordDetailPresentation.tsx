@@ -55,6 +55,7 @@ function displayAmount(amount?: string) {
 }
 
 function DetailRows({ onCopy, rows }: { onCopy: (value: string) => void; rows: readonly RecordDetailRow[] }) {
+  const { t } = useTranslation('common');
   return rows.map(item => (
     <Fragment key={item.label}>
       {item.onClick
@@ -74,7 +75,7 @@ function DetailRows({ onCopy, rows }: { onCopy: (value: string) => void; rows: r
         : item.copyValue
           ? (
               <button
-                aria-label={`Copy ${item.label}`}
+                aria-label={t('action.copyField', { field: item.label })}
                 className="flex min-h-[62px] w-full items-center gap-3 border-0 border-b border-solid border-border-primary bg-transparent py-3.5 text-left last:border-b-0 active:bg-primary-light/20"
                 data-record-detail-copyable
                 data-record-detail-row
@@ -209,7 +210,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
             {amount !== undefined && (
               <div className="relative mt-6 border-0 border-t border-solid border-white/60 pt-4">
                 <button
-                  aria-label="Copy amount"
+                  aria-label={t('action.copyAmount')}
                   className={`-ml-2 flex items-center rounded-lg border-0 bg-transparent px-2 py-1 font-number text-[34px] font-black leading-10 tracking-[-0.8px] active:bg-white/40 ${amountTone}`}
                   data-record-detail-amount
                   data-record-detail-copyable

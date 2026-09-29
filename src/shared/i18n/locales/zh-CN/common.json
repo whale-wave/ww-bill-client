@@ -11,6 +11,8 @@
     "title": "标题"
   },
   "action": {
+    "copyField": "复制{{field}}",
+    "copyAmount": "复制金额",
     "edit": "编辑",
     "delete": "删除",
     "add": "新增",
@@ -220,6 +222,8 @@
         "ARCHIVED": "已归档"
       },
       "types": {
+        "ACHIEVEMENT_BACKFILLED": "历史成就",
+        "ACHIEVEMENT_UNLOCKED": "新成就",
         "SYSTEM_ANNOUNCEMENT": "系统公告",
         "CLIENT_RELEASE": "版本更新",
         "HOUSEHOLD_STATUS_CHANGED": "家庭状态",

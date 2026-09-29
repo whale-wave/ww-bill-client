@@ -1,16 +1,8 @@
 /** @type {import('tailwindcss').Config} */
-const konstaConfig = require('konsta/config');
 
 const tokenColor = name => ({ opacityValue }) => `rgb(var(${name}) / ${opacityValue ?? 1})`;
 
-module.exports = konstaConfig({
-  konsta: {
-    colors: {
-      // Konsta is the visual base. Keep its generated iOS interaction colors
-      // native; product appearances override the semantic primary token below.
-      primary: '#007aff',
-    },
-  },
+module.exports = {
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
   safelist: ['bg-action-primary/20', 'text-fg/60', 'border-stroke/50'],
   theme: {
@@ -118,4 +110,4 @@ module.exports = konstaConfig({
       });
     },
   ],
-});
+};

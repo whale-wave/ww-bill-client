@@ -8,7 +8,14 @@ let cleanup: (() => void) | undefined;
 afterEach(() => {
   cleanup?.();
   cleanup = undefined;
+  document.body.replaceChildren();
 });
+
+function touch(target: EventTarget, type: string, clientX: number) {
+  const event = new Event(type, { bubbles: true, cancelable: true });
+  Object.assign(event, { clientX, pointerId: 1, pointerType: 'touch', isPrimary: true });
+  target.dispatchEvent(event);
+}
 
 describe('bottom tab bar presentation', () => {
   it.each([2, 3, 5])('keeps the Figma floating presentation for %s adapter items', (count) => {
@@ -41,5 +48,36 @@ describe('bottom tab bar presentation', () => {
     expect(tabList?.querySelector('.ww-floating-dock__create')).not.toBeNull();
     expect(tabList?.querySelector('.ww-tab-bar__button')?.className).not.toContain('transition-');
     expect(container.querySelector('.ww-tab-bar-spacer')).toBeNull();
+  });
+
+  it('selects the released destination once when dragging across real tab buttons', () => {
+    const container = document.createElement('div');
+    document.body.append(container);
+    const root = createRoot(container);
+    const onSelect = Array.from({ length: 5 }, () => vi.fn());
+    act(() => root.render(createElement(BottomTabBarPresentation, {
+      activeKey: 'detail',
+      ariaLabel: 'Main navigation',
+      items: ['detail', 'chart', 'bookkeeping', 'discovery', 'mine'].map((key, index) => ({
+        icon: key,
+        key,
+        label: key,
+        onSelect: onSelect[index],
+        prominent: key === 'bookkeeping',
+      })),
+    })));
+    cleanup = () => act(() => root.unmount());
+    const nav = container.querySelector('nav')!;
+    vi.spyOn(nav, 'getBoundingClientRect').mockReturnValue({ left: 0, width: 350 } as DOMRect);
+    const first = nav.querySelector<HTMLButtonElement>('button[data-tab-key="detail"]')!;
+    act(() => {
+      touch(first, 'pointerdown', 35);
+      touch(document, 'pointermove', 300);
+      touch(document, 'pointerup', 315);
+      first.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }));
+    });
+    expect(onSelect[4]).toHaveBeenCalledOnce();
+    expect(onSelect[0]).not.toHaveBeenCalled();
+    expect(nav.getAttribute('data-ios-pressed')).toBe('false');
   });
 });

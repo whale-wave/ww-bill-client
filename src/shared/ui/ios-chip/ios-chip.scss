@@ -1,0 +1,19 @@
+.ww-ios-chip {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding-inline: 12px;
+  color: var(--ww-theme-text-color);
+  font-size: 14px;
+
+  &--fill {
+    background: var(--ww-ios-neutral-fill, var(--ww-surface-tint-color));
+  }
+
+  &--outline {
+    border: 1px solid var(--ww-ios-neutral-border, var(--ww-border-color));
+    background: transparent;
+  }
+}

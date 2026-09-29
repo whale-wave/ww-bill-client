@@ -1,4 +1,3 @@
-import { App as KonstaApp } from 'konsta/react';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from '@/app/App';
@@ -35,9 +34,9 @@ if (isDesignStudio) {
   void import('@/pages/design-system/DesignSystemPage').then(({ default: DesignSystemPage }) => {
     root.render(
       <React.StrictMode>
-        <KonstaApp className="h-full bg-transparent font-sans text-ww-ink" dark={false} safeAreas={false} theme="ios">
+        <div className="h-full bg-transparent font-sans text-ww-ink">
           <DesignSystemPage />
-        </KonstaApp>
+        </div>
       </React.StrictMode>,
     );
   });

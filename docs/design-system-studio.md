@@ -16,6 +16,8 @@ Konsta iOS 候选是仅限工坊的浅色试验风格：它以鲸浪蓝为强调
 
 本轮直接参考本地 Konsta 5.4.0 源码，没有新增 npm 依赖，也没有改变 React 18、Tailwind 3 的构建体系。MIT 许可保存在 `docs/licenses/konsta-MIT.txt`。移植内容由 `StudioIosAdapters.tsx`、`ios-tabbar-gesture.ts` 和 `studio-ios.scss` 承载，仅由候选标识启用，不新增业务组件体系。
 
+2026-09-29 起，用户要求将已确认的候选效果逐步接入正式系统，并继续在工坊同步验收。正式接入记录见 [`execution/konsta-ui-adoption.md`](execution/konsta-ui-adoption.md)。上表保留 9 月 18 日工坊阶段的历史边界；正式页面只使用项目自有共享组件，不安装 Konsta 运行时。
+
 | 组件 | 源码参考 | 工坊适配 |
 | --- | --- | --- |
 | Badge / Chip | `BadgeClasses.js`、`ChipClasses.js` 与颜色定义 | 保留 16/20px badge、28px chip、填充/描边及删除入口；强调色接鲸浪品牌色 |

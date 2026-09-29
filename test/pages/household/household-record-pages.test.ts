@@ -444,7 +444,7 @@ describe('household records', () => {
     expect(row?.classList).toContain('h-[59px]');
   });
 
-  it('uses the shared glass search header and keeps advanced household filters in its optional panel', async () => {
+  it('uses the shared iOS search header and keeps advanced household filters in its optional panel', async () => {
     hooks.useHouseholdMembersQuery.mockReturnValue(query([
       { id: 'member-2', nickname: 'Partner', user: { id: 2, name: 'Partner' } },
     ]));
@@ -458,7 +458,7 @@ describe('household records', () => {
     const input = header?.querySelector('[data-record-search-input]');
     const shell = container.querySelector('[data-record-search-page-shell]');
     expect(header?.classList).toContain('pt-[max(8px,var(--ww-safe-area-top))]');
-    expect(input?.classList).toContain('bg-white/85');
+    expect(input?.querySelector('.ww-ios-searchbar__surface')).not.toBeNull();
     expect(shell?.classList).not.toContain('bg-bg-gray');
     expect(header?.querySelector<HTMLInputElement>('input')?.value).toBe('餐');
     expect(container.querySelector('[data-record-filter-panel]')).toBeNull();

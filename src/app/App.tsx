@@ -2,7 +2,6 @@ import type { FC } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { App as KonstaApp } from 'konsta/react';
 import { Router } from '@/app/router';
 import { AchievementFeedbackController } from '@/features/achievement-feedback';
 import { ClientUpdateController } from '@/features/app-update';
@@ -30,7 +29,7 @@ export const App: FC = () => {
       <QueryClientProvider key={providerKey} client={queryClient}>
         <QueryRefreshController>
           <AppearanceProvider>
-            <KonstaApp className="h-full bg-transparent font-sans text-ww-ink" dark={false} safeAreas={false} theme="ios">
+            <div className="h-full bg-transparent font-sans text-ww-ink">
               <AchievementFeedbackController sessionKey={useAuthStore.getState().token} />
               <PresenceReporter />
               <ClientUpdateController />
@@ -40,7 +39,7 @@ export const App: FC = () => {
                   <Router />
                 </MotionEffectsProvider>
               </SeniorModeProvider>
-            </KonstaApp>
+            </div>
           </AppearanceProvider>
         </QueryRefreshController>
       </QueryClientProvider>
@@ -60,7 +59,7 @@ export const App: FC = () => {
     >
       <QueryRefreshController persister={persister}>
         <AppearanceProvider>
-          <KonstaApp className="h-full bg-transparent font-sans text-ww-ink" dark={false} safeAreas={false} theme="ios">
+          <div className="h-full bg-transparent font-sans text-ww-ink">
             <AchievementFeedbackController sessionKey={useAuthStore.getState().token} />
             <PresenceReporter />
             <ClientUpdateController />
@@ -70,7 +69,7 @@ export const App: FC = () => {
                 <Router />
               </MotionEffectsProvider>
             </SeniorModeProvider>
-          </KonstaApp>
+          </div>
         </AppearanceProvider>
       </QueryRefreshController>
     </PersistQueryClientProvider>

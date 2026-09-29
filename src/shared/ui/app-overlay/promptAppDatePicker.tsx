@@ -1,5 +1,4 @@
 import type { AppDatePickerProps } from './AppDatePicker';
-import { App as KonstaApp } from 'konsta/react';
 import { createRoot } from 'react-dom/client';
 import { AppDatePicker } from './AppDatePicker';
 
@@ -20,9 +19,7 @@ export function promptAppDatePicker(props: AppDatePickerPromptProps) {
       });
     };
     root.render(
-      <KonstaApp className="contents" dark={false} safeAreas={false} theme="ios">
-        <AppDatePicker {...props} onClose={() => finish()} onConfirm={finish} visible />
-      </KonstaApp>,
+      <AppDatePicker {...props} onClose={() => finish()} onConfirm={finish} visible />,
     );
   });
 }

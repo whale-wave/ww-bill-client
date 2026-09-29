@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { CalendarCheck2, Medal } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
-import { DesignIcon, MetricGrid, Surface, UserAvatar } from '@/shared/ui';
+import { DesignIcon, IosCard, IosChip, MetricGrid, UserAvatar } from '@/shared/ui';
 
 export interface UserSummaryCardProps {
   achievementTitle?: string | null;
@@ -32,7 +32,7 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
 
   return (
     <div className="space-y-[14px]">
-      <Surface className="ww-user-summary-card overflow-hidden px-5 py-5" material="raised">
+      <IosCard className="ww-user-summary-card px-5 py-5" contentWrap={false} variant="raised">
         <div className="flex items-center gap-4">
           <button
             className="ww-user-summary-avatar relative flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full border-[3px] border-white shadow-ww-xs"
@@ -54,10 +54,10 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
               <div className="mt-2 flex h-11 items-center text-[12px] font-bold leading-[18px]">
                 {checkIn
                   ? (
-                      <span className="ww-profile-check-in flex items-center px-[13px]">
+                      <IosChip className="ww-profile-check-in flex items-center px-[13px]" variant="outline">
                         <CalendarCheck2 className="mr-1" size={14} strokeWidth={2} />
                         {t('checkIn.completed')}
-                      </span>
+                      </IosChip>
                     )
                   : onCheckIn && (
                     <button
@@ -91,7 +91,7 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
             },
           ]}
         />
-      </Surface>
+      </IosCard>
       {/* <Surface className="flex min-h-12 items-center gap-[10px] px-[18px] py-[13px]" material="content">
         <DesignIcon name="vip-crown" size={18} />
         <span className="flex-1 text-[13px] font-semibold leading-[19.5px] text-ww-mid">{t('vipNotSupported')}</span>

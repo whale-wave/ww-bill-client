@@ -1,0 +1,25 @@
+.ww-ios-card {
+  border-radius: var(--ww-radius-card);
+  background: var(--ww-material-content-background);
+
+  &--plain,
+  &--raised {
+    border-color: transparent;
+  }
+
+  &--raised {
+    box-shadow: var(--ww-card-shadow);
+  }
+
+  &--outline {
+    border-color: var(--ww-ios-neutral-border, var(--ww-border-color));
+  }
+
+  &__header {
+    border-bottom: 0.5px solid var(--ww-divider-color);
+  }
+
+  &__footer {
+    border-top: 0.5px solid var(--ww-divider-color);
+  }
+}

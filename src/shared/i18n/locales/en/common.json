@@ -11,6 +11,8 @@
     "title": "Title"
   },
   "action": {
+    "copyField": "Copy {{field}}",
+    "copyAmount": "Copy amount",
     "edit": "Edit",
     "delete": "Delete",
     "add": "Add",
@@ -139,6 +141,8 @@
         "ARCHIVED": "Archived"
       },
       "types": {
+        "ACHIEVEMENT_BACKFILLED": "Past achievements",
+        "ACHIEVEMENT_UNLOCKED": "New achievement",
         "SYSTEM_ANNOUNCEMENT": "System announcement",
         "CLIENT_RELEASE": "Version update",
         "HOUSEHOLD_STATUS_CHANGED": "Household status",

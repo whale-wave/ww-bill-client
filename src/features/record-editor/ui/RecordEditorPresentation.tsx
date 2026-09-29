@@ -325,7 +325,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         className="flex min-h-0 flex-grow flex-col"
         data-record-editor-amount
       >
-        <div className="record-editor-category-stage relative min-h-0 flex-1 bg-ww-surface" data-record-editor-category-stage>
+        <div className="record-editor-category-stage relative min-h-0 flex-1 bg-ww-surface" data-note-focused={controller.isNoteFocused} data-record-editor-category-stage>
           <section
             aria-label={t('record:bookkeeping.selectCategory')}
             className="record-editor-categories h-full overflow-y-auto overscroll-contain px-[18px] pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"

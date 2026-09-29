@@ -1,0 +1,18 @@
+.ww-ios-progressbar {
+  background: var(--ww-ios-neutral-fill, rgb(0 0 0 / 0.1));
+
+  &__fill {
+    background: var(--ww-progress-primary-background, var(--ww-theme-color));
+    transition: transform 200ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ww-ios-progressbar__fill {
+    transition: none;
+  }
+}
+
+[data-motion-enabled='false'] .ww-ios-progressbar__fill {
+  transition: none;
+}

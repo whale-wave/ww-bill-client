@@ -1,47 +1,22 @@
 /* eslint-disable react-refresh/only-export-components -- compatibility namespaces mirror the replaced component API. */
 import type {
   ButtonHTMLAttributes,
-  ComponentType,
   HTMLAttributes,
   InputHTMLAttributes,
   KeyboardEvent,
   MouseEvent,
-  PointerEvent,
   ReactNode,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react';
-import {
-  Block as KonstaBlock,
-  Button as KonstaButton,
-  Checkbox as KonstaCheckbox,
-  Chip as KonstaChip,
-  ListInput as KonstaListInput,
-  Preloader as KonstaPreloader,
-  Segmented as KonstaSegmented,
-  SegmentedButton as KonstaSegmentedButton,
-  Stepper as KonstaStepper,
-  Toggle as KonstaToggle,
-} from 'konsta/react';
+import { useDrag } from '@use-gesture/react';
 import { AlertCircle, Inbox, SearchX, X } from 'lucide-react';
+import { animate, m, useMotionValue } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
+import { IosToggle } from '@/shared/ui/ios-toggle';
 import { useFormFieldBinding } from './form';
-
-type KonstaButtonBridgeProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  clear?: boolean;
-  component?: string;
-  outline?: boolean;
-  rounded?: boolean;
-};
-
-const KonstaButtonBridge = KonstaButton as unknown as ComponentType<KonstaButtonBridgeProps>;
-const KonstaSegmentedButtonBridge = KonstaSegmentedButton as unknown as ComponentType<ButtonHTMLAttributes<HTMLButtonElement> & {
-  active?: boolean;
-  rounded?: boolean;
-  strong?: boolean;
-}>;
 
 export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'color'> {
   block?: boolean;
@@ -64,25 +39,22 @@ export function Button({
   ...props
 }: ButtonProps) {
   return (
-    <KonstaButtonBridge
+    <button
       {...props}
-      clear={fill === 'none'}
       className={cn(
-        'adm-button ww-k-button min-h-11 font-bold',
+        'adm-button ww-k-button inline-flex min-h-11 items-center justify-center rounded-xl border-0 px-4 font-bold',
         `ww-k-button--${color}`,
         `ww-k-button--${size}`,
+        fill === 'none' ? 'bg-transparent text-primary-deep' : fill === 'outline' ? 'border border-primary-deep bg-transparent text-primary-deep' : 'bg-primary text-white',
         block && 'w-full',
         className,
       )}
-      component="button"
       disabled={disabled || loading}
-      outline={fill === 'outline'}
-      rounded
       type={type}
     >
-      {loading && <KonstaPreloader aria-hidden className="mr-2" size="w-4 h-4" />}
+      {loading && <span aria-hidden className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
       {children}
-    </KonstaButtonBridge>
+    </button>
   );
 }
 
@@ -92,10 +64,9 @@ export interface SpinLoadingProps extends HTMLAttributes<HTMLSpanElement> {
 
 export function SpinLoading({ className, color = 'primary', ...props }: SpinLoadingProps) {
   return (
-    <KonstaPreloader
+    <span
       {...props}
-      className={cn('adm-spin-loading ww-k-preloader', color === 'white' && 'text-white', className)}
-      size="w-6 h-6"
+      className={cn('adm-spin-loading ww-k-preloader inline-block h-6 w-6 animate-spin rounded-full border-[3px] border-current border-t-transparent', color === 'white' && 'text-white', className)}
     />
   );
 }
@@ -109,14 +80,14 @@ export interface ErrorBlockProps extends Omit<HTMLAttributes<HTMLDivElement>, 't
 export function ErrorBlock({ className, description, status = 'default', title, ...props }: ErrorBlockProps) {
   const Icon = status === 'empty' ? Inbox : status === 'disconnected' ? SearchX : AlertCircle;
   return (
-    <KonstaBlock
+    <div
       {...props}
       className={cn('adm-error-block ww-k-error-block m-0 flex flex-col items-center px-5 py-8 text-center', className)}
     >
       <Icon aria-hidden className="mb-3 text-ww-soft" size={34} strokeWidth={1.5} />
       {title && <strong className="text-[15px] text-ww-ink">{title}</strong>}
       {description && <p className="mt-1 text-[13px] leading-5 text-ww-mid">{description}</p>}
-    </KonstaBlock>
+    </div>
   );
 }
 
@@ -135,21 +106,25 @@ export function Checkbox(checkboxProps: CheckboxProps) {
   const isControlled = Object.hasOwn(checkboxProps, 'checked');
   const resolvedChecked = isControlled ? checked : internalChecked;
   return (
-    <KonstaCheckbox
+    <label
       {...props}
-      checked={resolvedChecked}
-      className={cn('adm-checkbox ww-k-checkbox', className)}
-      disabled={disabled}
-      name={name}
-      onChange={(event) => {
-        if (!isControlled)
-          setInternalChecked(event.currentTarget.checked);
-        onChange?.(event.currentTarget.checked);
-      }}
-      value={value}
+      className={cn('adm-checkbox ww-k-checkbox inline-flex items-center gap-2', className)}
     >
+      <input
+        className="h-[18px] w-[18px] shrink-0 accent-primary"
+        checked={resolvedChecked}
+        disabled={disabled}
+        name={name}
+        onChange={(event) => {
+          if (!isControlled)
+            setInternalChecked(event.currentTarget.checked);
+          onChange?.(event.currentTarget.checked);
+        }}
+        type="checkbox"
+        value={value}
+      />
       {children}
-    </KonstaCheckbox>
+    </label>
   );
 }
 
@@ -201,17 +176,13 @@ export function Input(inputProps: InputProps) {
         if (event.key === 'Enter')
           onEnterPress?.(event);
       }}
-      value={resolvedValue}
+      value={resolvedValue ?? ''}
     />
   );
   const canClear = Boolean(clearable && resolvedValue && !resolvedDisabled && !props.readOnly);
   return (
     <div aria-label={ariaLabel} className="adm-input ww-k-input relative">
-      <KonstaListInput
-        component="div"
-        input={input}
-        outlineIos
-      />
+      {input}
       {canClear && (
         <button
           aria-label={ariaLabel ? `${ariaLabel}: ${resolvedClearLabel}` : resolvedClearLabel}
@@ -244,7 +215,7 @@ export function Select({ 'aria-label': ariaLabel, children, className, onChange,
   );
   return (
     <div className="adm-select ww-k-select">
-      <KonstaListInput component="div" dropdown input={select} outlineIos />
+      {select}
     </div>
   );
 }
@@ -270,12 +241,14 @@ export function TextArea({ autoSize, className, maxLength, onChange, rows, showC
   );
   return (
     <div className="adm-text-area ww-k-textarea">
-      <KonstaListInput
-        component="div"
-        info={showCount ? `${String(value ?? '').length}/${maxLength ?? ''}` : undefined}
-        input={input}
-        outlineIos
-      />
+      {input}
+      {showCount && (
+        <span className="block text-right text-xs text-ww-soft">
+          {String(value ?? '').length}
+          /
+          {maxLength ?? ''}
+        </span>
+      )}
     </div>
   );
 }
@@ -297,34 +270,29 @@ export interface SelectorProps<T = string> extends Omit<HTMLAttributes<HTMLDivEl
 
 export function Selector<T = string>({ className, columns, disabled, onChange, options, value = [], ...props }: SelectorProps<T>) {
   return (
-    <KonstaSegmented
+    <div
       {...props}
       className={cn('adm-selector ww-k-selector grid w-full gap-2', className)}
-      rounded
-      strong
       style={{ gridTemplateColumns: `repeat(${columns ?? options.length}, minmax(0, 1fr))`, ...props.style }}
     >
       {options.map((option) => {
         const isActive = value.some(selected => Object.is(selected, option.value));
         return (
-          <KonstaSegmentedButtonBridge
-            active={isActive}
+          <button
             aria-selected={isActive}
             className={cn('adm-selector-item ww-k-selector__item min-h-11', isActive && 'adm-selector-item-active')}
             disabled={disabled || option.disabled}
             key={String(option.value)}
             onClick={() => onChange?.([option.value])}
             role="option"
-            rounded
-            strong
             type="button"
           >
             <span>{option.label}</span>
             {option.description && <small className="block opacity-70">{option.description}</small>}
-          </KonstaSegmentedButtonBridge>
+          </button>
         );
       })}
-    </KonstaSegmented>
+    </div>
   );
 }
 
@@ -337,18 +305,22 @@ export interface SwitchProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange
 }
 
 export function Switch({ checked, className, disabled, loading, onChange, value, ...props }: SwitchProps) {
-  const isChecked = checked ?? value ?? false;
-  const isDisabled = disabled || loading;
+  const field = useFormFieldBinding();
+  const isChecked = checked ?? value ?? Boolean(field?.value);
+  const isDisabled = Boolean(disabled || loading || field?.disabled);
   return (
-    <KonstaToggle
+    <IosToggle
       {...props}
       aria-checked={isChecked}
       aria-disabled={isDisabled}
       checked={isChecked}
       className={cn('adm-switch ww-k-switch', className)}
       disabled={isDisabled}
-      onChange={event => onChange?.(event.currentTarget.checked)}
-      role="switch"
+      onChange={(event) => {
+        onChange?.(event.currentTarget.checked);
+        if (!onChange)
+          field?.onChange(event.currentTarget.checked);
+      }}
     />
   );
 }
@@ -378,33 +350,31 @@ export function Stepper(stepperProps: StepperProps) {
   };
   const numericValue = currentValue ?? min ?? 0;
   return (
-    <KonstaStepper
-      {...props}
-      aria-disabled={disabled}
-      className={cn('adm-stepper ww-k-stepper', disabled && 'pointer-events-none opacity-45', className)}
-      input
-      inputDisabled={disabled}
-      inputPlaceholder={allowEmpty ? '—' : undefined}
-      onChange={(event) => {
-        if (disabled)
-          return;
-        const rawValue = event.currentTarget.value;
-        if (allowEmpty && rawValue === '') {
-          onChange?.(undefined);
-          return;
-        }
-        const next = Number(rawValue);
-        if (Number.isFinite(next))
-          updateValue(next);
-        else if (allowEmpty)
-          onChange?.(undefined);
-      }}
-      onMinus={disabled ? undefined : () => updateValue(numericValue - 1)}
-      onPlus={disabled ? undefined : () => updateValue(numericValue + 1)}
-      outline
-      rounded
-      value={(currentValue ?? '') as number}
-    />
+    <div {...props} aria-disabled={disabled} className={cn('adm-stepper ww-k-stepper inline-flex items-center gap-1', disabled && 'pointer-events-none opacity-45', className)}>
+      <button aria-label="减少" className="h-11 w-11 rounded-xl bg-ww-surface-tint" disabled={disabled} onClick={() => updateValue(numericValue - 1)} type="button">−</button>
+      <input
+        className="h-11 w-14 bg-transparent text-center"
+        disabled={disabled}
+        placeholder={allowEmpty ? '—' : undefined}
+        onChange={(event) => {
+          if (disabled)
+            return;
+          const rawValue = event.currentTarget.value;
+          if (allowEmpty && rawValue === '') {
+            onChange?.(undefined);
+            return;
+          }
+          const next = Number(rawValue);
+          if (Number.isFinite(next))
+            updateValue(next);
+          else if (allowEmpty)
+            onChange?.(undefined);
+        }}
+        type="number"
+        value={(currentValue ?? '') as number}
+      />
+      <button aria-label="增加" className="h-11 w-11 rounded-xl bg-ww-surface-tint" disabled={disabled} onClick={() => updateValue(numericValue + 1)} type="button">+</button>
+    </div>
   );
 }
 
@@ -487,7 +457,7 @@ export interface TagProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function Tag({ children, className, fill, ...props }: TagProps) {
-  return <KonstaChip {...props} className={cn('adm-tag ww-k-tag', className)} outline={fill === 'outline'}>{children}</KonstaChip>;
+  return <div {...props} className={cn('adm-tag ww-k-tag inline-flex items-center rounded-full px-2 py-1 text-xs', fill === 'outline' ? 'border border-current' : 'bg-primary-light text-primary-deep', className)}>{children}</div>;
 }
 
 export interface SwipeActionItem {
@@ -498,53 +468,81 @@ export interface SwipeActionItem {
 }
 
 export interface SwipeActionProps extends HTMLAttributes<HTMLDivElement> {
+  leftActions?: SwipeActionItem[];
   rightActions?: SwipeActionItem[];
 }
 
-export function SwipeAction({ children, className, rightActions = [], ...props }: SwipeActionProps) {
-  const actionWidth = Math.max(76, rightActions.length * 76);
-  const [offset, setOffset] = useState(0);
-  const dragStartRef = useRef<{ offset: number; x: number } | null>(null);
-  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    dragStartRef.current = { offset, x: event.clientX };
-    event.currentTarget.setPointerCapture(event.pointerId);
+export function SwipeAction({ children, className, leftActions = [], rightActions = [], ...props }: SwipeActionProps) {
+  const leftWidth = leftActions.length * 76;
+  const rightWidth = rightActions.length * 76;
+  const x = useMotionValue(0);
+  const [activeSide, setActiveSide] = useState<'left' | 'right' | null>(null);
+  const draggedRef = useRef(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const snapTo = (target: number) => {
+    x.stop();
+    setActiveSide(target > 0 ? 'left' : target < 0 ? 'right' : null);
+    animate(x, target, { type: 'spring', stiffness: 520, damping: 42 });
   };
-  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (!dragStartRef.current)
+  useDrag(({ down, first, offset: [offset] }) => {
+    if (first) {
+      x.stop();
+      draggedRef.current = true;
+    }
+    if (down) {
+      x.set(offset);
       return;
-    const next = dragStartRef.current.offset + event.clientX - dragStartRef.current.x;
-    setOffset(Math.max(-actionWidth, Math.min(0, next)));
-  };
-  const handlePointerUp = () => {
-    setOffset(offset < -actionWidth / 3 ? -actionWidth : 0);
-    dragStartRef.current = null;
-  };
+    }
+    const target = offset > leftWidth * 0.35 && leftWidth > 0
+      ? leftWidth
+      : offset < -rightWidth * 0.35 && rightWidth > 0 ? -rightWidth : 0;
+    snapTo(target);
+  }, {
+    axis: 'x',
+    bounds: { left: -rightWidth, right: leftWidth },
+    filterTaps: true,
+    from: () => [x.get(), 0],
+    rubberband: false,
+    target: contentRef,
+  });
+  const renderActions = (actions: SwipeActionItem[], isActive: boolean) => actions.map(action => (
+    <button
+      className={cn('ww-k-swipe-action__button', `ww-k-swipe-action__action--${action.color ?? 'primary'}`)}
+      key={action.key}
+      onClick={(event) => {
+        snapTo(0);
+        action.onClick?.(event);
+      }}
+      tabIndex={isActive ? 0 : -1}
+      type="button"
+    >
+      {action.text}
+    </button>
+  ));
   return (
-    <div {...props} className={cn('adm-swipe-action ww-k-swipe-action relative overflow-hidden', className)}>
-      <div className="ww-k-swipe-action__actions absolute inset-y-0 right-0 flex" style={{ width: actionWidth }}>
-        {rightActions.map(action => (
-          <button
-            className={cn('adm-swipe-action-action-button min-w-[76px] flex-1 px-3 text-[13px] font-bold text-white', `ww-k-swipe-action__action--${action.color ?? 'primary'}`)}
-            key={action.key}
-            onClick={(event) => {
-              setOffset(0);
-              action.onClick?.(event);
-            }}
-            type="button"
-          >
-            {action.text}
-          </button>
-        ))}
-      </div>
-      <div
-        className="ww-k-swipe-action__content relative z-[1] touch-pan-y transition-transform duration-200"
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        style={{ transform: `translate3d(${offset}px, 0, 0)` }}
+    <div {...props} className={cn('adm-swipe-action ww-k-swipe-action relative overflow-hidden', className)} data-tab-swipe-ignore>
+      {leftWidth > 0 && <div aria-hidden={activeSide !== 'left'} className="ww-k-swipe-action__actions absolute inset-y-0 left-0 flex" style={{ width: leftWidth }}>{renderActions(leftActions, activeSide === 'left')}</div>}
+      {rightWidth > 0 && <div aria-hidden={activeSide !== 'right'} className="ww-k-swipe-action__actions absolute inset-y-0 right-0 flex" style={{ width: rightWidth }}>{renderActions(rightActions, activeSide === 'right')}</div>}
+      <m.div
+        className="ww-k-swipe-action__content relative z-[1] w-full touch-pan-y"
+        onClickCapture={(event) => {
+          const wasDrag = draggedRef.current;
+          if (!wasDrag && Math.abs(x.get()) < 1)
+            return;
+          event.preventDefault();
+          event.stopPropagation();
+          draggedRef.current = false;
+          if (!wasDrag)
+            snapTo(0);
+        }}
+        onPointerDownCapture={() => {
+          draggedRef.current = false;
+        }}
+        ref={contentRef}
+        style={{ x }}
       >
         {children}
-      </div>
+      </m.div>
     </div>
   );
 }

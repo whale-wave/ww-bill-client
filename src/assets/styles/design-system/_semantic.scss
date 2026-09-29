@@ -28,6 +28,8 @@
   --ww-layer-floating: var(--ww-ref-z-floating);
   --ww-layer-overlay: var(--ww-ref-z-overlay);
   --ww-layer-scrim: var(--ww-ref-z-scrim);
+  --ww-layer-dialog: 120;
+  --ww-layer-dialog-mask: 119;
 }
 
 html[data-appearance-template='native'] {

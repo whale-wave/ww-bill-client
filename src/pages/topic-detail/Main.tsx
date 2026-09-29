@@ -1,11 +1,14 @@
 import type { FC } from 'react';
 import type { TopicDetail } from '@/entities/topic';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TopicItem } from '@/entities/topic';
 import ReplyArea from '@/pages/topic-detail/ReplyArea';
-import { SHARE_PLATFORM_COLORS } from '@/shared/config/share-platform-colors';
+import config from '@/shared/config';
 import { useTranslation } from '@/shared/i18n';
-import { FixedPin, ImagePreview, Share } from '@/shared/ui';
+import { useCopyAction } from '@/shared/lib';
+import { FixedPin, ImagePreview } from '@/shared/ui';
+import { showAppNotice } from '@/shared/ui/app-feedback';
 import styles from './index.module.scss';
 
 interface MainProps {
@@ -16,57 +19,31 @@ interface MainProps {
 
 const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
   const { t } = useTranslation('community');
+  const navigate = useNavigate();
+  const { copyText } = useCopyAction();
   const [imgVisible, setImgVisible] = useState(false);
   const [imgSrc, setImgSrc] = useState('');
-  const [shareVisible, setShareVisible] = useState(false);
 
-  const shares = [
-    {
-      id: 1,
-      name: t('share.wechat'),
-      icon: 'wechat',
-      color: SHARE_PLATFORM_COLORS.wechat,
-      onClick: () => {
-        console.error('share.wechat(topic)');
-      },
-    },
-    {
-      id: 2,
-      name: t('share.wechatMoments'),
-      icon: 'wechat-friends',
-      color: SHARE_PLATFORM_COLORS.wechatMoments,
-      onClick: () => {
-        console.error('share.wechat-friends(topic)');
-      },
-    },
-    {
-      id: 3,
-      name: 'QQ',
-      icon: 'qq',
-      color: SHARE_PLATFORM_COLORS.qq,
-      onClick: () => {
-        console.error('share.qq(topic)');
-      },
-    },
-    {
-      id: 4,
-      name: t('share.qqZone'),
-      icon: 'qq-zone',
-      color: SHARE_PLATFORM_COLORS.qqZone,
-      onClick: () => {
-        console.error('share.qq-zone(topic)');
-      },
-    },
-  ];
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: config.appName, url });
+        return;
+      }
+      catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError')
+          return;
+      }
+    }
+    const copied = await copyText({ key: 'topic-link', text: url, failureMessage: t('share.fail') });
+    if (copied)
+      showAppNotice(t('share.copied'));
+  };
 
   return (
     <main className={styles.content}>
-      <Share
-        shares={shares}
-        visible={shareVisible}
-        onClose={() => setShareVisible(false)}
-      />
-      <FixedPin onClick={() => setShareVisible(true)}>{t('share.share')}</FixedPin>
+      <FixedPin onClick={() => void handleShare()}>{t('share.share')}</FixedPin>
       <ImagePreview
         visible={imgVisible}
         image={imgSrc}
@@ -76,8 +53,9 @@ const Main: FC<MainProps> = ({ topic, comments, onLike }) => {
         <section className={styles['topic-card']}>
           <TopicItem
             data={topic}
-            onClick={() => console.error('click item')}
-            onShare={() => console.error('share')}
+            onAuthor={userId => navigate(`/community/personal/${userId}`)}
+            onAvatar={userId => navigate(`/community/personal/${userId}`)}
+            onShare={() => void handleShare()}
             onLike={onLike}
             onImg={(_, src) => {
               setImgVisible(true);

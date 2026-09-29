@@ -23,7 +23,7 @@ const BottomList: FC = () => {
     },
   ], [location.pathname, navigate, t]);
 
-  return <SettingsListCard density="compact" items={items} />;
+  return <SettingsListCard density="compact" items={items} variant="ios" />;
 };
 
 export default BottomList;

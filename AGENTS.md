@@ -92,7 +92,7 @@ TypeScript 要求：
 - React Router 6
 - TanStack React Query 4
 - Zustand 4
-- Konsta UI 3（过渡依赖，逐步替换为项目自有 `shared/ui` 组件）
+- 项目自有 `shared/ui` 组件（可参考 Konsta 的设计思路，不直接安装或引用 Konsta 运行时）
 - Lucide React
 - Tailwind CSS 3
 - Sass
@@ -319,7 +319,7 @@ Mutation hook 内部使用 `useQueryClient()` 获取 client，不要 import 全�
 
 `ww-bill-client`：
 
-- 移动端业务交互优先使用项目自有 `shared/ui`；现有 Konsta 适配层仅用于渐进迁移，不新增 Ant Design Mobile 依赖。
+- 移动端业务交互使用项目自有 `shared/ui`；不得直接安装或引用 Konsta、Ant Design Mobile 运行时依赖。现有兼容层只保留项目内的组件 API。
 - 样式优先使用 Tailwind CSS、项目已有 Sass、`global.scss` 中的全局类和 `DESIGN.md` 中的规则。
 - 图标优先复用 `lucide-react` 或 `src/shared/ui/icon`。
 - 页面根容器优先使用 `.page` 或 `.page-new`。

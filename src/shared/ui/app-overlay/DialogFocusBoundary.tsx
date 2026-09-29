@@ -19,7 +19,7 @@ interface DialogFocusBoundaryProps {
   onEscape?: () => void;
 }
 
-/** Adds the modal semantics and focus behavior that Konsta Dialog leaves to apps. */
+/** Provides modal semantics, focus containment, and focus restoration. */
 export function DialogFocusBoundary({ children, describedBy, label, labelledBy, onEscape }: DialogFocusBoundaryProps) {
   const boundaryRef = useRef<HTMLDivElement>(null);
   const boundaryIdRef = useRef(Symbol('dialog-boundary'));

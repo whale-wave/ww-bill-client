@@ -11,6 +11,7 @@ import { useTranslation } from '@/shared/i18n';
 import choseFile from '@/shared/lib/chose-file';
 import {
   AppButton,
+  AppModal,
   confirmAppAction,
   FormField,
   PageHeader,
@@ -262,20 +263,22 @@ const UserInfo: FC = () => {
         </div>
       </main>
 
-      {modalVisible && (
-        <div aria-labelledby="nickname-dialog-title" aria-modal="true" className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/20 px-6 backdrop-blur-[3px]" onClick={() => setModalVisible(false)} role="dialog">
-          <Surface className="w-full max-w-[340px] px-5 py-5" material="floating">
-            <div onClick={event => event.stopPropagation()}>
-              <h2 className="text-center text-[17px] font-extrabold text-ww-ink" id="nickname-dialog-title">{t('info.changeNickname')}</h2>
-              <FormField className="mt-5" label={t('info.nickname')} onChange={setName} placeholder={t('info.namePlaceholder')} value={name} />
-              <div className="mt-5 grid grid-cols-2 gap-2">
-                <button className="h-11 rounded-[15px] border-0 bg-bg-gray text-[13px] font-bold text-ww-mid" onClick={() => setModalVisible(false)} type="button">{t('common:nav.cancel')}</button>
-                <button className="h-11 rounded-[15px] border-0 bg-primary text-[13px] font-extrabold text-white" onClick={() => void onChangeName()} type="button">{t('common:nav.confirm')}</button>
-              </div>
+      <AppModal
+        aria-labelledby="nickname-dialog-title"
+        className="max-w-[340px]"
+        content={(
+          <div className="px-5 py-5">
+            <h2 className="text-center text-[17px] font-extrabold text-ww-ink" id="nickname-dialog-title">{t('info.changeNickname')}</h2>
+            <FormField className="mt-5" label={t('info.nickname')} onChange={setName} placeholder={t('info.namePlaceholder')} value={name} variant="ios" />
+            <div className="mt-5 grid grid-cols-2 gap-2">
+              <button className="h-11 rounded-[15px] border-0 bg-bg-gray text-[13px] font-bold text-ww-mid" onClick={() => setModalVisible(false)} type="button">{t('common:nav.cancel')}</button>
+              <button className="h-11 rounded-[15px] border-0 bg-primary text-[13px] font-extrabold text-white" onClick={() => void onChangeName()} type="button">{t('common:nav.confirm')}</button>
             </div>
-          </Surface>
-        </div>
-      )}
+          </div>
+        )}
+        onClose={() => setModalVisible(false)}
+        visible={modalVisible}
+      />
       {avatarCropSourceUrl && (
         <AvatarImageCropDialog
           isSubmitting={isAvatarUploading}

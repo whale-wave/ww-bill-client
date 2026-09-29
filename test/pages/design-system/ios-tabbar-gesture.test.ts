@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { attachTabbarGesture, getTabbarProgress } from '@/pages/design-system/ios-tabbar-gesture';
+import { attachTabbarGesture, getTabbarProgress } from '@/shared/ui/bottom-tab-bar/ios-tabbar-gesture';
 
 let detach: (() => void) | undefined;
 afterEach(() => {
@@ -21,7 +21,7 @@ function setup() {
   vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => setTimeout(callback, 16, 0));
   vi.stubGlobal('cancelAnimationFrame', clearTimeout);
   const nav = document.createElement('nav');
-  nav.innerHTML = Array.from({ length: 5 }, (_, index) => `<button role="tab">${index}</button>`).join('');
+  nav.innerHTML = Array.from({ length: 5 }, (_, index) => `<button data-tab-key="${index}">${index}</button>`).join('');
   document.body.append(nav);
   vi.spyOn(nav, 'getBoundingClientRect').mockReturnValue({ left: 10, width: 360 } as DOMRect);
   const onPress = vi.fn();

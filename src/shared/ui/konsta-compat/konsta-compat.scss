@@ -108,7 +108,33 @@
 }
 
 .ww-k-swipe-action__content {
-  background: var(--ww-surface-raised-color);
+  /* Glass tokens contain alpha. The opaque base keeps hidden actions from
+     showing through the row before it is swiped. */
+  background:
+    linear-gradient(var(--ww-surface-raised-color), var(--ww-surface-raised-color)), var(--ww-background-color);
+}
+
+.ww-k-swipe-action__button {
+  display: flex;
+  width: 76px;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  color: var(--ww-primary-foreground);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    filter: brightness(0.92);
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -4px;
+  }
 }
 
 .ww-k-swipe-action__action--primary {

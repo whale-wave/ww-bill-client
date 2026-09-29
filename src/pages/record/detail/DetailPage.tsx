@@ -88,6 +88,15 @@ const Detail: FC = () => {
         originalAmount: item.originalAmount ? `-${item.originalAmount}` : undefined,
         overviewSecondary: [indicators.adjustmentSummary, indicators.tagSummary].filter(Boolean).join(' · ') || undefined,
         primary: item.remark,
+        leftActions: [{
+          color: 'primary',
+          key: 'edit',
+          onClick: (event) => {
+            event.stopPropagation();
+            handleRecord(item);
+          },
+          text: t('common:action.edit'),
+        }],
         rightActions: [{
           color: 'danger',
           key: 'delete',

@@ -1,7 +1,7 @@
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { Button, Form, Input, Selector, Stepper } from '@/shared/ui/konsta-compat';
+import { Button, Form, Input, Selector, Stepper, Switch } from '@/shared/ui/konsta-compat';
 
 let cleanup: (() => void) | undefined;
 
@@ -63,6 +63,25 @@ describe('konsta compatibility controls', () => {
     expect(container.querySelector<HTMLInputElement>('input')?.value).toBe('Travel');
     act(() => clearButton?.click());
     expect(onValuesChange).toHaveBeenCalledWith({ name: '' }, { name: '' });
+  });
+
+  it('keeps a form switch in sync with its initial and changed values', () => {
+    const onValuesChange = vi.fn();
+    const container = render(createElement(Form, {
+      initialValues: { autoRenew: true },
+      onValuesChange,
+      children: createElement(Form.Item, {
+        label: 'Auto renew',
+        name: 'autoRenew',
+        children: createElement(Switch, { 'aria-label': 'Auto renew' }),
+      }),
+    }));
+    const toggle = container.querySelector<HTMLInputElement>('[role="switch"]');
+
+    expect(toggle?.checked).toBe(true);
+    act(() => toggle?.click());
+    expect(toggle?.checked).toBe(false);
+    expect(onValuesChange).toHaveBeenCalledWith({ autoRenew: false }, { autoRenew: false });
   });
 
   it('does not expose a clear action for disabled or read-only inputs', () => {

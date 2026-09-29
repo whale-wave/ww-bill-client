@@ -11,7 +11,7 @@ import { BottomList } from '@/pages/mine/ui';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
-import { ActionMenuCard, DesignIcon } from '@/shared/ui';
+import { ActionMenuCard, DesignIcon, IosBadge } from '@/shared/ui';
 import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 import { TabBar } from '@/widgets/layout';
 
@@ -131,7 +131,7 @@ const Mine: FC = () => {
               icon: (
                 <span className="relative">
                   <DesignIcon name={tab.icon} size={20} />
-                  {tab.path === '/message' && unreadCount > 0 && <span className="absolute -right-3 -top-3 inline-flex min-w-4 items-center justify-center rounded-full bg-ww-pink px-1 text-[10px] font-bold leading-4 text-white" data-testid="mine-message-unread-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>}
+                  {tab.path === '/message' && unreadCount > 0 && <IosBadge className="absolute -right-3 -top-3" data-testid="mine-message-unread-badge" tone="accent">{unreadCount > 99 ? '99+' : unreadCount}</IosBadge>}
                 </span>
               ),
               key: tab.name,

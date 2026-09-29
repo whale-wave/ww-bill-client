@@ -106,7 +106,7 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
                 accentIcon={onEmptyAction ? <Plus size={19} strokeWidth={2.2} /> : undefined}
                 actionLabel={emptyActionLabel}
                 className="min-h-[260px] sm:min-h-[300px]"
-                description={emptyDescription}
+                description={emptyTitle === undefined ? undefined : emptyDescription}
                 icon={<DesignIcon name="tab-detail-active" size={46} />}
                 onAction={onEmptyAction}
                 testId="record-overview-empty-state"

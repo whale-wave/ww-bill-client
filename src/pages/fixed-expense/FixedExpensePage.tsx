@@ -142,14 +142,15 @@ const FixedExpenses: React.FC = () => {
                   : (
                       filteredList.map(item => (
                         <SwipeAction
+                          className="rounded-[20px]"
                           key={item.id}
+                          leftActions={[{
+                            key: 'edit',
+                            text: t('common:action.edit'),
+                            color: 'primary',
+                            onClick: () => onEditItem(item),
+                          }]}
                           rightActions={[
-                            {
-                              key: 'edit',
-                              text: t('common:action.edit'),
-                              color: 'primary',
-                              onClick: () => onEditItem(item),
-                            },
                             {
                               key: 'delete',
                               text: t('common:action.delete'),

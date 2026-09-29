@@ -11,20 +11,20 @@ afterEach(() => {
 });
 
 describe('progressBar', () => {
-  it('uses responsive CSS percentages and clamps values to the supported range', () => {
+  it('animates the shared fill and clamps values to the supported range', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
     cleanup = () => act(() => root.unmount());
 
     act(() => root.render(createElement(ProgressBar, { percent: 0.25 })));
     const bar = container.firstElementChild?.firstElementChild as HTMLElement;
-    expect(bar.style.width).toBe('25%');
-    expect(bar.style.minWidth).toBe('4px');
+    expect(bar.style.transform).toBe('translateX(-75%)');
+    expect(container.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('25');
 
     act(() => root.render(createElement(ProgressBar, { percent: 2 })));
-    expect(bar.style.width).toBe('100%');
+    expect(bar.style.transform).toBe('translateX(-0%)');
 
     act(() => root.render(createElement(ProgressBar, { percent: -1 })));
-    expect(bar.style.width).toBe('0%');
+    expect(bar.style.transform).toBe('translateX(-100%)');
   });
 });

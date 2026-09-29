@@ -4,13 +4,133 @@
   -webkit-backdrop-filter: var(--ww-material-overlay-blur);
 }
 
+/* Adapted from Konsta iOS DialogClasses and SheetClasses; the studio and
+ * product overlays share these scale, slide, scrim and duration recipes. */
+.ww-ios-overlay {
+  overflow: hidden;
+  color: var(--ww-theme-text-color);
+
+  &::backdrop {
+    background: transparent;
+  }
+
+  .ww-ios-overlay-mask {
+    background: var(--ww-material-scrim-background);
+    opacity: 0;
+    transition: opacity var(--ww-ios-overlay-duration, 400ms) ease;
+  }
+
+  .ww-ios-overlay-panel {
+    width: min(var(--ww-component-overlay-width), calc(100vw - 32px));
+    border-radius: var(--ww-material-overlay-radius);
+    opacity: 0;
+    transform: scale(var(--ww-ios-dialog-start-scale, 0.85));
+    transition:
+      transform var(--ww-ios-overlay-duration, 400ms) ease,
+      opacity var(--ww-ios-overlay-duration, 400ms) ease;
+  }
+
+  &[data-kind='sheet'],
+  &[data-kind='actions'] {
+    .ww-ios-overlay-layout {
+      align-items: flex-end;
+    }
+
+    .ww-ios-overlay-panel {
+      width: 100%;
+      opacity: 1;
+      transform: translateY(100%);
+      border-radius: var(--ww-component-sheet-radius) var(--ww-component-sheet-radius) 0 0;
+      background: var(--ww-material-content-background);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+
+  &[data-open='true'] {
+    .ww-ios-overlay-mask,
+    .ww-ios-overlay-panel {
+      opacity: 1;
+    }
+
+    .ww-ios-overlay-panel {
+      transform: none;
+    }
+  }
+
+  &[data-motion-enabled='false'] .ww-ios-overlay-mask,
+  &[data-motion-enabled='false'] .ww-ios-overlay-panel {
+    transition: none;
+  }
+}
+
+.ww-ios-overlay-dialog-panel {
+  animation: ww-ios-dialog-enter var(--ww-ios-overlay-duration, 400ms) ease both;
+}
+
+.ww-ios-overlay-dialog-panel[data-motion-enabled='false'],
+.ww-ios-overlay-sheet-panel[data-motion-enabled='false'].ww-app-sheet--open {
+  animation: none;
+}
+
+.ww-ios-overlay-sheet-panel.ww-app-sheet--open {
+  animation: ww-ios-sheet-enter var(--ww-ios-overlay-duration, 400ms) ease both;
+}
+
+.ww-ios-overlay-action-panel {
+  animation: ww-ios-sheet-enter var(--ww-ios-overlay-duration, 400ms) ease both;
+}
+
+.ww-ios-overlay-sheet-panel.ww-app-sheet--top.ww-app-sheet--open {
+  animation-name: ww-ios-top-sheet-enter;
+}
+
+@keyframes ww-ios-dialog-enter {
+  from {
+    opacity: 0;
+    transform: scale(var(--ww-ios-dialog-start-scale, 0.85));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ww-ios-sheet-enter {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@keyframes ww-ios-top-sheet-enter {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ww-ios-overlay-dialog-panel,
+  .ww-ios-overlay-sheet-panel.ww-app-sheet--open,
+  .ww-ios-overlay-action-panel {
+    animation: none;
+  }
+}
+
 .ww-app-sheet-shell:not(.ww-app-sheet-shell--open) .ww-app-overlay-mask {
   opacity: 0;
   pointer-events: none;
 }
 
 .ww-app-sheet.adm-popup-body {
-  z-index: var(--ww-layer-overlay);
+  z-index: var(--ww-layer-dialog);
   width: 100%;
   max-height: 92dvh;
 }

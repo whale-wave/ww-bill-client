@@ -1,9 +1,9 @@
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
-import { Sheet as KonstaSheet } from 'konsta/react';
 import { X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/shared/lib';
+import { useMotionPreference } from '@/shared/ui/motion';
 import './app-overlay.scss';
 
 export interface AppSheetProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onClose'> {
@@ -41,6 +41,7 @@ export function AppSheet({
   visible = false,
   ...props
 }: AppSheetProps) {
+  const { isMotionEnabled } = useMotionPreference();
   const previousVisibleRef = useRef(visible);
   useEffect(() => {
     if (visible && !previousVisibleRef.current)
@@ -68,28 +69,27 @@ export function AppSheet({
   return createPortal(
     <div
       aria-hidden={!visible}
-      className={cn('adm-popup ww-app-sheet-shell', visible && 'ww-app-sheet-shell--open')}
+      className={cn('adm-popup ww-app-sheet-shell fixed inset-0 z-[var(--ww-layer-dialog)]', visible && 'ww-app-sheet-shell--open')}
       hidden={!visible}
     >
       <button
         aria-label="关闭弹层"
-        className={cn('ww-app-overlay-mask adm-mask fixed inset-0 z-[var(--ww-layer-scrim)] border-0', maskClassName)}
+        className={cn('ww-app-overlay-mask adm-mask fixed inset-0 z-[var(--ww-layer-dialog-mask)] border-0', maskClassName)}
         onClick={closeOnMaskClick ? close : undefined}
         type="button"
       />
-      <KonstaSheet
+      <div
         {...props}
-        backdrop={false}
         className={cn(
-          'adm-popup-body ww-app-sheet',
+          'adm-popup-body ww-app-sheet ww-ios-overlay-sheet-panel fixed bottom-0 left-0 right-0 z-[var(--ww-layer-dialog)] overflow-y-auto',
           `ww-app-sheet--${position}`,
           material === 'opaque' && 'ww-app-sheet--opaque',
           visible && 'ww-app-sheet--open',
           bodyClassName,
           className,
         )}
-        opened={visible}
         style={resolvedBodyStyle}
+        data-motion-enabled={isMotionEnabled}
       >
         {showCloseButton && (
           <button
@@ -102,7 +102,7 @@ export function AppSheet({
           </button>
         )}
         {children}
-      </KonstaSheet>
+      </div>
     </div>,
     document.body,
   );

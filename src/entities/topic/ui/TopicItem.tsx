@@ -8,6 +8,7 @@ import styles from './TopicItem.module.scss';
 
 interface TopicItemProps {
   data: Topic;
+  onAuthor?: (userId: number) => void;
   onClick?: (id: number) => void;
   onImg?: (index: number, src: string) => void;
   onLike?: (id: number) => void;
@@ -18,6 +19,7 @@ interface TopicItemProps {
 
 export const TopicItem: FC<TopicItemProps> = ({
   data,
+  onAuthor,
   onClick,
   onImg,
   onLike,
@@ -41,9 +43,9 @@ export const TopicItem: FC<TopicItemProps> = ({
                 <UserAvatar alt={data.user.name || t('userInfo.defaultName')} name={data.user.name} size={42} src={data.user.avatar} />
               </div>
             )}
-        {onClick
+        {onAuthor || onClick
           ? (
-              <button className={styles.profile} onClick={() => onClick(data.id)} type="button">
+              <button className={styles.profile} onClick={() => onAuthor ? onAuthor(data.user.id) : onClick?.(data.id)} type="button">
                 <span className={styles.name}>{data.user.name || t('userInfo.defaultName')}</span>
                 <span className={styles.time}>{showDate(data.createdAt)}</span>
               </button>

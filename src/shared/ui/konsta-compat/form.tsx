@@ -199,7 +199,9 @@ function FormItem({
       'aria-describedby': [child.props['aria-describedby'], errors.length ? errorId : undefined].filter(Boolean).join(' ') || undefined,
       'aria-invalid': errors.length ? true : child.props['aria-invalid'],
       'disabled': child.props.disabled ?? context.disabled,
-      'value': value,
+      'value': typeof children.type === 'string' && ['input', 'textarea'].includes(children.type)
+        ? value ?? ''
+        : value,
       'onChange': (nextValue: unknown) => {
         updateFieldValue(nextValue);
         if (typeof originalOnChange === 'function')

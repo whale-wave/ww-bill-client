@@ -190,7 +190,7 @@
   },
   "search": {
     "title": "Search",
-    "placeholder": "Search category/tag/note",
+    "placeholder": "Search records",
     "noResult": "No results",
     "filter": "Filter",
     "filterPanelTitle": "Filter records",

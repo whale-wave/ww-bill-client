@@ -28,7 +28,7 @@ interface SwipeOrigin {
 }
 
 const SWIPE_IGNORE_SELECTOR = [
-  '.adm-swipe-action',
+  '.ww-k-swipe-action',
   '.ww-tab-bar',
   '[data-record-calendar-swipe]',
   '[data-tab-swipe-ignore]',

@@ -23,6 +23,12 @@ export interface RecordOverviewListItem {
   onClick?: () => void;
   overviewSecondary?: ReactNode;
   primary: ReactNode;
+  leftActions?: Array<{
+    color?: 'danger' | 'light' | 'primary' | 'success' | 'warning' | string;
+    key: string | number;
+    onClick?: (event: MouseEvent) => void;
+    text: ReactNode;
+  }>;
   rightActions?: Array<{
     color?: 'danger' | 'light' | 'primary' | 'success' | 'warning' | string;
     key: string | number;
@@ -205,8 +211,8 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                       )}
                     </div>
                   );
-                  return record.rightActions?.length
-                    ? <SwipeAction className="ww-record-swipe-action" key={record.id} rightActions={record.rightActions}>{recordRow}</SwipeAction>
+                  return record.leftActions?.length || record.rightActions?.length
+                    ? <SwipeAction className="ww-record-swipe-action" key={record.id} leftActions={record.leftActions} rightActions={record.rightActions}>{recordRow}</SwipeAction>
                     : recordRow;
                 }
 
@@ -288,8 +294,8 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                     {content}
                   </div>
                 );
-                return record.rightActions?.length
-                  ? <SwipeAction className="ww-record-swipe-action" key={record.id} rightActions={record.rightActions}>{recordRow}</SwipeAction>
+                return record.leftActions?.length || record.rightActions?.length
+                  ? <SwipeAction className="ww-record-swipe-action" key={record.id} leftActions={record.leftActions} rightActions={record.rightActions}>{recordRow}</SwipeAction>
                   : recordRow;
               })}
             </div>

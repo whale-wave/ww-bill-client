@@ -25,7 +25,7 @@ import { channelsToColor, colorToChannels, createStudioDebugRecord, createThemeC
 import './design-system.scss';
 
 const templates = STUDIO_TEMPLATES;
-const labels: Record<StudioTemplate, string> = { 'native': 'Konsta 原生', 'glass': '玻璃鲸浪', 'fresh': '清新海风', 'minimal': '极简沉静', 'mono': 'MONO · 软黑紫', 'konsta-ios': 'Konsta iOS · 候选' };
+const labels: Record<StudioTemplate, string> = { 'native': '经典蓝', 'glass': '玻璃鲸浪', 'fresh': '清新海风', 'minimal': '极简沉静', 'mono': 'MONO · 软黑紫', 'konsta-ios': 'Konsta iOS · 候选' };
 const previewTabKeys = ['showcase', 'detail', 'chart', 'create', 'discovery', 'mine', 'asset-overview'] as const;
 type PreviewTabKey = typeof previewTabKeys[number];
 const navigationItems: Array<{ icon: typeof LayoutGrid; label: string; tab: PreviewTabKey }> = [
@@ -220,8 +220,8 @@ function MinePreview() {
         variant="mine-actions"
       />
       <SettingsListCard
-        className="studio-ios-settings-list"
         density="compact"
+        variant="ios"
         items={[
           { key: 'ledgers', label: '我的账本' },
           { key: 'household', label: '家庭账本' },

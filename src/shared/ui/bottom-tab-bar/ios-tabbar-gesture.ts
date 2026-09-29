@@ -21,7 +21,7 @@ export function attachTabbarGesture({ element, getActiveIndex, onPress, onProgre
   let frame = 0;
   let suppressClick = false;
   let clickTimeout: ReturnType<typeof setTimeout> | undefined;
-  const links = () => Array.from(element.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+  const links = () => Array.from(element.querySelectorAll<HTMLButtonElement>('button[data-tab-key]'));
   const update = (event: PointerEvent) => {
     const rect = element.getBoundingClientRect();
     progress = getTabbarProgress(event.clientX, rect.left + 5, rect.width - 10, links().length);
@@ -31,7 +31,7 @@ export function attachTabbarGesture({ element, getActiveIndex, onPress, onProgre
   const handleDown = (event: PointerEvent) => {
     if (pointerId !== undefined || event.pointerType === 'mouse' || !event.isPrimary)
       return;
-    if (!(event.target instanceof Element) || !event.target.closest('[role="tab"]'))
+    if (!(event.target instanceof Element) || !event.target.closest('button[data-tab-key]:not([data-gesture-disabled])'))
       return;
     pointerId = event.pointerId;
     suppressClick = false;
@@ -50,7 +50,7 @@ export function attachTabbarGesture({ element, getActiveIndex, onPress, onProgre
     onPress(false);
     const buttons = links();
     const index = Math.round(progress);
-    const isDisabled = buttons[index]?.disabled || buttons[index]?.getAttribute('aria-disabled') === 'true';
+    const isDisabled = buttons[index]?.disabled || buttons[index]?.getAttribute('aria-disabled') === 'true' || buttons[index]?.hasAttribute('data-gesture-disabled');
     onRelease(cancelled || isDisabled ? getActiveIndex() : index, cancelled || Boolean(isDisabled));
     suppressClick = !cancelled;
     clearTimeout(clickTimeout);
