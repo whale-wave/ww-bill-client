@@ -39,7 +39,7 @@ export function WorkspaceCapsule({ className, onReturnPersonal, onSwitch, return
       onSwitch();
       return;
     }
-    setIsSwitcherVisible(true);
+    setIsSwitcherVisible(current => !current);
   };
 
   return (
@@ -54,6 +54,8 @@ export function WorkspaceCapsule({ className, onReturnPersonal, onSwitch, return
         role="group"
       >
         <button
+          aria-expanded={isSwitcherVisible}
+          aria-haspopup="dialog"
           aria-label={switchLabel ?? t('switcher.switch')}
           className="flex h-full min-w-0 flex-1 items-center justify-center rounded-full border-0 bg-transparent p-0"
           data-testid={switchTestId}

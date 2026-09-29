@@ -157,6 +157,7 @@ export function Input(inputProps: InputProps) {
   const resolvedValue = isControlled ? value : field?.value as InputProps['value'];
   const resolvedDisabled = props.disabled ?? field?.disabled;
   const resolvedClearLabel = clearLabel ?? t('action.clearInput');
+  const canClear = Boolean(clearable && resolvedValue && !resolvedDisabled && !props.readOnly);
   const commitValue = (nextValue: string) => {
     onChange?.(nextValue);
     if (!hasOwnOnChange)
@@ -168,7 +169,7 @@ export function Input(inputProps: InputProps) {
       aria-describedby={ariaDescribedBy ?? field?.describedBy}
       aria-invalid={ariaInvalid ?? field?.invalid}
       aria-label={ariaLabel}
-      className={cn('adm-input-element ww-k-input__control', className)}
+      className={cn('adm-input-element ww-k-input__control', canClear && 'pr-12', className)}
       disabled={resolvedDisabled}
       onChange={event => commitValue(event.target.value)}
       onKeyDown={(event) => {
@@ -179,9 +180,8 @@ export function Input(inputProps: InputProps) {
       value={resolvedValue ?? ''}
     />
   );
-  const canClear = Boolean(clearable && resolvedValue && !resolvedDisabled && !props.readOnly);
   return (
-    <div aria-label={ariaLabel} className="adm-input ww-k-input relative">
+    <div aria-label={ariaLabel} className="adm-input ww-k-input relative w-full">
       {input}
       {canClear && (
         <button

@@ -180,9 +180,11 @@ export function WorkspaceSwitcherPanel({
   return (
     <AppSheet
       bodyClassName="ledger-switcher-panel"
+      bodyStyle={{ top: 'calc(52px + var(--ww-safe-area-top))' }}
       closeOnMaskClick
       destroyOnClose
       maskClassName="ledger-switcher-panel__mask"
+      material="opaque"
       onClose={onClose}
       position="top"
       visible={visible}

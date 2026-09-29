@@ -161,6 +161,10 @@ describe('ledger title switcher', () => {
     expect(createAction?.querySelector('svg')).not.toBeNull();
     expect(manageAction?.querySelector('svg')).not.toBeNull();
     expect(document.body.innerHTML).not.toContain('private-default-ledger-id');
+
+    await click(title);
+    expect(title?.getAttribute('aria-expanded')).toBe('false');
+    expect(document.querySelector('.ledger-switcher-panel')).toBeNull();
   });
 
   it('renders the original title as static text when quick switching is disabled', () => {

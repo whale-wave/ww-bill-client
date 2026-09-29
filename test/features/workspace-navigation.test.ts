@@ -162,6 +162,13 @@ describe('workspace navigation', () => {
     expect(panel).not.toBeNull();
     expect(companyOption?.classList).toContain('ledger-switcher-panel__option');
     expect(document.body.querySelectorAll('.ledger-switcher-panel__footer-action')).toHaveLength(2);
+
+    const switchButton = container.querySelector<HTMLButtonElement>(
+      '[data-workspace-capsule] button[aria-label="切换账本"]',
+    );
+    await act(async () => switchButton?.click());
+    expect(switchButton?.getAttribute('aria-expanded')).toBe('false');
+    expect(document.body.querySelector('.ledger-switcher-panel')).toBeNull();
   });
 
   it('renders every custom ledger glyph and keeps the household Users icon in the selector', async () => {

@@ -61,7 +61,7 @@ export function AppSheet({
     ? {
         ...bodyStyle,
         bottom: 'auto',
-        top: 0,
+        top: bodyStyle?.top ?? 0,
         transform: visible ? 'translateY(0)' : 'translateY(-100%)',
       }
     : bodyStyle;
@@ -69,19 +69,19 @@ export function AppSheet({
   return createPortal(
     <div
       aria-hidden={!visible}
-      className={cn('adm-popup ww-app-sheet-shell fixed inset-0 z-[var(--ww-layer-dialog)]', visible && 'ww-app-sheet-shell--open')}
+      className={cn('adm-popup ww-app-sheet-shell pointer-events-none fixed inset-0 z-[var(--ww-layer-dialog)]', visible && 'ww-app-sheet-shell--open')}
       hidden={!visible}
     >
       <button
         aria-label="关闭弹层"
-        className={cn('ww-app-overlay-mask adm-mask fixed inset-0 z-[var(--ww-layer-dialog-mask)] border-0', maskClassName)}
+        className={cn('ww-app-overlay-mask adm-mask pointer-events-auto fixed inset-0 z-[var(--ww-layer-dialog-mask)] border-0', maskClassName)}
         onClick={closeOnMaskClick ? close : undefined}
         type="button"
       />
       <div
         {...props}
         className={cn(
-          'adm-popup-body ww-app-sheet ww-ios-overlay-sheet-panel fixed bottom-0 left-0 right-0 z-[var(--ww-layer-dialog)] overflow-y-auto',
+          'adm-popup-body ww-app-sheet ww-ios-overlay-sheet-panel pointer-events-auto fixed bottom-0 left-0 right-0 z-[var(--ww-layer-dialog)] overflow-y-auto',
           `ww-app-sheet--${position}`,
           material === 'opaque' && 'ww-app-sheet--opaque',
           visible && 'ww-app-sheet--open',
