@@ -7,6 +7,7 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetAssetGroupQuery, useGetAssetQuery } from '@/entities/asset';
 import { useGetUserAppConfigQuery, usePatchUserAppConfigMutation } from '@/entities/user-app-config';
+import { useVisibleAmount } from '@/features/display-preferences';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import {
   SettingsOverviewPresentation,
@@ -38,7 +39,7 @@ const Settings: FC = () => {
   const { data: userAppConfig } = useGetUserAppConfigQuery();
   const assetQuery = useGetAssetQuery();
   const assetGroupQuery = useGetAssetGroupQuery();
-  const visibleAmountSwitch = userAppConfig?.isDisplayAmountSwitch ?? false;
+  const { visibleAmountSwitch, setVisibleAmountSwitch } = useVisibleAmount();
   const { isSeniorMode, toggleSeniorMode } = useSeniorMode();
   const [patchUserAppConfig, patchUserAppConfigState] = usePatchUserAppConfigMutation();
   const [localStorageSize, setLocalStorageSize] = useState(() => getLocalStorageSize());
@@ -206,9 +207,7 @@ const Settings: FC = () => {
                     id: 'amount',
                     kind: 'switch',
                     label: t('amount.visible'),
-                    onChange: checked => void patchUserAppConfig({
-                      isDisplayAmountSwitch: checked,
-                    }),
+                    onChange: setVisibleAmountSwitch,
                   },
                 ],
                 title: t('personal'),

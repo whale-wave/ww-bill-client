@@ -10,6 +10,7 @@ import {
   toRecordSearchGroups,
   useLedgerRecordsQuery,
 } from '@/entities/record';
+import { useLedgerAmountPreferences } from '@/features/display-preferences';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { getQueryViewState } from '@/shared/api';
@@ -67,8 +68,7 @@ function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: strin
     },
   });
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
-  const showDailySummary = preferenceQuery.data?.showDailySummary !== false;
-  const isAmountHidden = preferenceQuery.data?.hideTotalAmount === true;
+  const { hideTotalAmount: isAmountHidden, showDailySummary } = useLedgerAmountPreferences(ledgerId, preferenceQuery.data);
   const currentMonthRecords = query.data.data;
   const days = useMemo(() => {
     if (!showDailySummary)

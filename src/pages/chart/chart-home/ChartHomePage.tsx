@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useVisibleAmount } from '@/entities/user-app-config';
+import { useVisibleAmount } from '@/features/display-preferences';
 import { ChartDashboardHome } from '@/widgets/chart-dashboard';
 import { TabBar } from '@/widgets/layout';
 

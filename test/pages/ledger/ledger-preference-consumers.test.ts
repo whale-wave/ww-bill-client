@@ -233,7 +233,7 @@ describe('ledger preference consumers', () => {
     expect(icon?.classList).toContain('text-primary-deep');
   });
 
-  it('persists amount visibility changes on the current shared ledger', async () => {
+  it('stores amount visibility on this device for the current shared ledger', async () => {
     const refetchPreference = vi.fn().mockResolvedValue(undefined);
     hooks.useLedgerPreferencesQuery.mockReturnValue({
       data: { ...preference, version: 4 },
@@ -245,11 +245,10 @@ describe('ledger preference consumers', () => {
 
     await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="toggle amount visibility"]')?.click());
 
-    expect(hooks.patchLedgerPreferencesApi).toHaveBeenCalledWith('ledger/a', {
-      hideTotalAmount: true,
-      version: 4,
-    });
-    expect(refetchPreference).toHaveBeenCalled();
+    expect(localStorage.getItem('ww:display-preference:v1:device:ledger:ledger/a:hide-total')).toBe('true');
+    expect(hooks.patchLedgerPreferencesApi).not.toHaveBeenCalled();
+    expect(refetchPreference).not.toHaveBeenCalled();
+    expect(container.querySelector('[data-testid="ledger-monthly-income"]')?.textContent).toContain('＊＊＊＊＊');
   });
 
   it('only enables swipe deletion when the ledger grants record deletion', async () => {

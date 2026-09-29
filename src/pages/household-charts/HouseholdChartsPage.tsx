@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useHouseholdPreferencesQuery } from '@/entities/household';
+import { useHouseholdAmountPreference } from '@/features/display-preferences';
 import { HouseholdBottomNav, HouseholdScopeBoundary } from '@/features/household';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
@@ -10,11 +11,12 @@ const ChartsContent: FC<{ householdId: string }> = ({ householdId }) => {
   const navigate = useNavigate();
   const { t } = useTranslation('household');
   const preferenceQuery = useHouseholdPreferencesQuery({ params: { householdId } });
+  const [isAmountHidden] = useHouseholdAmountPreference(householdId, preferenceQuery.data?.hideTotalAmount);
   return (
     <>
       <ChartDashboardHome
         defaultPeriod="month"
-        hideAmounts={preferenceQuery.data?.hideTotalAmount === true}
+        hideAmounts={isAmountHidden}
         scope={{ kind: 'household', householdId }}
       />
       <HouseholdBottomNav

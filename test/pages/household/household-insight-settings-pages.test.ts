@@ -721,16 +721,14 @@ describe('household budget and charts', () => {
 });
 
 describe('household settings and members', () => {
-  it('stores the current member amount visibility preference', async () => {
+  it('stores the current member amount visibility preference on this device', async () => {
     hooks.updatePreferences.mockResolvedValue({ data: {} });
     const { container } = renderPage('/households/household%2Fa/settings', '/households/:householdId/settings', createElement(HouseholdSettingsPage));
 
     await act(async () => container.querySelector<HTMLButtonElement>('[data-settings-row="hide-total"] [role="switch"]')?.click());
 
-    expect(hooks.updatePreferences).toHaveBeenCalledWith({
-      data: { hideTotalAmount: true, version: 4 },
-      householdId: 'household/a',
-    });
+    expect(localStorage.getItem('ww:display-preference:v1:device:household:household/a:hide-total')).toBe('true');
+    expect(hooks.updatePreferences).not.toHaveBeenCalled();
   });
 
   it('opens household export from settings with the URL household id', async () => {

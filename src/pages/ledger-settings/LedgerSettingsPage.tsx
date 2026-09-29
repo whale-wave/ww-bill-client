@@ -32,6 +32,7 @@ import {
   usePatchLedgerPreferencesMutation,
 } from '@/entities/ledger';
 import { useGetUserUserInfoQuery } from '@/entities/user';
+import { useLedgerAmountPreferences } from '@/features/display-preferences';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { SettingsOverviewPresentation } from '@/features/workspace-settings';
@@ -133,6 +134,7 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
   const navigate = useNavigate();
   const ledgerQuery = useLedgerQuery({ params: { ledgerId }, queryOptions: { enabled: Boolean(ledgerId) } });
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId }, queryOptions: { enabled: Boolean(ledgerId) } });
+  const localAmountPreferences = useLedgerAmountPreferences(ledgerId, preferenceQuery.data);
   const userQuery = useGetUserUserInfoQuery({ options: { enabled: Boolean(ledgerId) } });
   const onBack = useWorkspaceBack({
     capabilities: ledgerQuery.data?.capabilities,
@@ -184,8 +186,8 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
     const preference = preferenceQuery.data;
     if (!preference)
       return;
-    setHideTotalAmount(preference.hideTotalAmount);
-    setShowDailySummary(preference.showDailySummary);
+    setHideTotalAmount(localAmountPreferences.hideTotalAmount);
+    setShowDailySummary(localAmountPreferences.showDailySummary);
     setDefaultRecordType(preference.defaultRecordType);
     setDefaultChartPeriod(preference.defaultChartPeriod);
     setDefaultChartMetric(preference.defaultChartMetric);
@@ -235,18 +237,23 @@ function LedgerSettingsContent({ ledgerId }: { ledgerId: string }) {
       return;
     submittingRef.current = true;
     try {
-      await patchPreferences({
-        ledgerId,
-        data: {
-          defaultChartDisplay,
-          defaultChartMetric,
-          defaultChartPeriod,
-          defaultRecordType,
-          hideTotalAmount,
-          showDailySummary,
-          version: preference.version,
-        },
-      });
+      if (defaultChartDisplay !== preference.defaultChartDisplay
+        || defaultChartMetric !== preference.defaultChartMetric
+        || defaultChartPeriod !== preference.defaultChartPeriod
+        || defaultRecordType !== preference.defaultRecordType) {
+        await patchPreferences({
+          ledgerId,
+          data: {
+            defaultChartDisplay,
+            defaultChartMetric,
+            defaultChartPeriod,
+            defaultRecordType,
+            version: preference.version,
+          },
+        });
+      }
+      localAmountPreferences.setHideTotalAmount(hideTotalAmount);
+      localAmountPreferences.setShowDailySummary(showDailySummary);
       setEditor(null);
     }
     catch (error) {

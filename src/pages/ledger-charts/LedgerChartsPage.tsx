@@ -1,16 +1,18 @@
 import type { Ledger } from '@/entities/ledger';
 import { LedgerCapability, useLedgerPreferencesQuery } from '@/entities/ledger';
+import { useLedgerAmountPreferences } from '@/features/display-preferences';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { ChartDashboardHome } from '@/widgets/chart-dashboard';
 import { LedgerWorkspaceTabBar } from '@/widgets/layout';
 
 function LedgerChartsWorkspace({ ledger, ledgerId }: { ledger: Ledger; ledgerId: string }) {
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
+  const { hideTotalAmount } = useLedgerAmountPreferences(ledgerId, preferenceQuery.data);
   return (
     <>
       <ChartDashboardHome
         defaultPeriod="month"
-        hideAmounts={preferenceQuery.data?.hideTotalAmount === true}
+        hideAmounts={hideTotalAmount}
         scope={{ kind: 'ledger', ledgerId }}
       />
       <LedgerWorkspaceTabBar

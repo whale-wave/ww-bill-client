@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import {
   LedgerCapability,
-  patchLedgerPreferencesApi,
   useLedgerPreferencesQuery,
 } from '@/entities/ledger';
 import {
@@ -21,6 +20,7 @@ import {
   useDeleteLedgerRecordMutation,
   useInfiniteLedgerRecordsQuery,
 } from '@/entities/record';
+import { useLedgerAmountPreferences } from '@/features/display-preferences';
 import {
   buildMonthRecordRange,
   formatMonthStart,
@@ -122,6 +122,7 @@ function groupRecords(
           hasAttachment: indicators.hasAttachment,
           iconName: record.category.icon,
           iconType: record.category.iconType,
+          backgroundColor: record.category.backgroundColor,
           textIconEnabled: record.category.textIconEnabled,
           textIconIndex: record.category.textIconIndex,
           memberColorKey: record.creator?.colorKey,
@@ -184,11 +185,11 @@ function LedgerRecordsView({
   const { i18n, t } = useTranslation('ledger');
   const navigate = useNavigate();
   const locale = i18n?.resolvedLanguage ?? i18n?.language ?? 'zh-CN';
-  const isAmountHidden = preferenceQuery.data?.hideTotalAmount === true;
+  const { hideTotalAmount: isAmountHidden, showDailySummary } = useLedgerAmountPreferences(ledgerId, preferenceQuery.data);
   const groups = useMemo(() => {
     const groupedRecords = groupRecords(
       recordsQuery.data.data,
-      preferenceQuery.data?.showDailySummary !== false,
+      showDailySummary,
       locale,
       t,
       record => navigate(
@@ -208,7 +209,7 @@ function LedgerRecordsView({
     locale,
     navigate,
     onRecordDelete,
-    preferenceQuery.data?.showDailySummary,
+    showDailySummary,
     recordsQuery.data.data,
     recordsQuery.hasNextPage,
     t,
@@ -341,15 +342,10 @@ function RecordsContent({ canDelete, ledger, ledgerId }: { canDelete: boolean; l
   }), [month]);
   const recordsQuery = useInfiniteLedgerRecordsQuery({ params: { filters, ledgerId } });
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
+  const { hideTotalAmount, setHideTotalAmount } = useLedgerAmountPreferences(ledgerId, preferenceQuery.data);
   const handleToggleAmountVisibility = useCallback(() => {
-    const preference = preferenceQuery.data;
-    if (!preference)
-      return;
-    void patchLedgerPreferencesApi(ledgerId, {
-      hideTotalAmount: !preference.hideTotalAmount,
-      version: preference.version,
-    }).then(() => preferenceQuery.refetch());
-  }, [ledgerId, preferenceQuery]);
+    setHideTotalAmount(!hideTotalAmount);
+  }, [hideTotalAmount, setHideTotalAmount]);
   const viewProps = {
     ledger,
     ledgerId,

@@ -1,1 +1,1 @@
-export { useVisibleAmount } from '@/entities/user-app-config';
+export { useVisibleAmount } from '@/features/display-preferences';

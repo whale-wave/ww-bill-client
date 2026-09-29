@@ -241,7 +241,7 @@ describe('household records', () => {
     expect(container.textContent).not.toContain('common.net');
   });
 
-  it('persists the current member visibility preference from the home summary', async () => {
+  it('stores the current member visibility preference on this device', async () => {
     const refetchPreference = vi.fn().mockResolvedValue(undefined);
     hooks.useHouseholdPreferencesQuery.mockReturnValue({
       data: { hideTotalAmount: false, id: 'preference/a', updatedAt: '2026-07-01T00:00:00.000Z', version: 3 },
@@ -253,11 +253,10 @@ describe('household records', () => {
 
     await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="toggle amount visibility"]')?.click());
 
-    expect(hooks.patchHouseholdPreferencesApi).toHaveBeenCalledWith('household/a', {
-      hideTotalAmount: true,
-      version: 3,
-    });
-    expect(refetchPreference).toHaveBeenCalled();
+    expect(localStorage.getItem('ww:display-preference:v1:device:household:household/a:hide-total')).toBe('true');
+    expect(hooks.patchHouseholdPreferencesApi).not.toHaveBeenCalled();
+    expect(refetchPreference).not.toHaveBeenCalled();
+    expect(container.querySelector('[data-testid="household-monthly-income"]')?.textContent).toContain('＊＊＊＊＊');
   });
 
   it('uses the shared month picker trigger', () => {

@@ -311,11 +311,11 @@ describe('ledger settings', () => {
         defaultChartMetric: LedgerChartMetric.NET,
         defaultChartPeriod: LedgerChartPeriod.YEAR,
         defaultRecordType: LedgerRecordType.INCOME,
-        hideTotalAmount: true,
         version: 2,
       }),
       ledgerId: 'ledger/a',
     });
+    expect(localStorage.getItem('ww:display-preference:v1:device:ledger:ledger/a:hide-total')).toBe('true');
   });
 
   it('disables the basic save action while the mutation is loading', async () => {

@@ -7,7 +7,6 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import {
-  patchHouseholdPreferencesApi,
   useHouseholdCalendarQuery,
   useHouseholdPreferencesQuery,
   useInfiniteHouseholdRecordsQuery,
@@ -19,6 +18,7 @@ import {
   useDeleteRecordMutation,
 } from '@/entities/record';
 import { useGetUserUserInfoQuery } from '@/entities/user';
+import { useHouseholdAmountPreference } from '@/features/display-preferences';
 import {
   buildMonthRecordRange,
   formatMonthStart,
@@ -73,7 +73,7 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
   const userQuery = useGetUserUserInfoQuery();
   const [deleteRecord, deleteState] = useDeleteRecordMutation();
   const deletingRecordIdRef = useRef<number>();
-  const isAmountHidden = preferenceQuery.data?.hideTotalAmount === true;
+  const [isAmountHidden, setAmountHidden] = useHouseholdAmountPreference(household.id, preferenceQuery.data?.hideTotalAmount);
 
   const handleRecord = useCallback((record: FamilyRecord) => {
     navigate(ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(household.id, record.id));
@@ -109,14 +109,8 @@ const HouseholdHomeContent: FC<{ household: Household }> = ({ household }) => {
   }, [navigate]);
 
   const handleToggleAmountVisibility = useCallback(() => {
-    const preference = preferenceQuery.data;
-    if (!preference)
-      return;
-    void patchHouseholdPreferencesApi(household.id, {
-      hideTotalAmount: !preference.hideTotalAmount,
-      version: preference.version,
-    }).then(() => preferenceQuery.refetch());
-  }, [household.id, preferenceQuery]);
+    setAmountHidden(!isAmountHidden);
+  }, [isAmountHidden, setAmountHidden]);
 
   const handleShowMore = useCallback(() => {
     showAppActionSheet({

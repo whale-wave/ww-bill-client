@@ -74,6 +74,10 @@ vi.mock('@/entities/ledger', async importOriginal => ({
 
 vi.mock('@/entities/user-app-config', () => ({
   useGetUserAppConfigQuery: hooks.useGetUserAppConfigQuery,
+}));
+
+vi.mock('@/features/display-preferences', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/features/display-preferences')>()),
   useVisibleAmount: hooks.useVisibleAmount,
 }));
 

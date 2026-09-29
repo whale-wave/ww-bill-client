@@ -150,6 +150,7 @@ export function toHouseholdRecordOverviewGroups(
           categoryName: record.category?.name,
           iconName: record.category?.icon ?? 'bill',
           iconType: record.category?.iconType,
+          backgroundColor: record.category?.backgroundColor,
           textIconEnabled: record.category?.textIconEnabled,
           textIconIndex: record.category?.textIconIndex,
           memberColorKey: record.creator.colorKey,
