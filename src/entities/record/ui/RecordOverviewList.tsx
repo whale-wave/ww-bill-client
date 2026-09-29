@@ -4,6 +4,7 @@ import { Image as ImageIcon } from 'lucide-react';
 import { CategoryIcon } from '@/entities/category';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { cn } from '@/shared/lib';
+import { getCategoryIconForegroundColor } from '@/shared/lib/category-background';
 import { getRecordDisplayTitle } from '../display-title';
 
 export interface RecordOverviewListItem {
@@ -13,6 +14,7 @@ export interface RecordOverviewListItem {
   categoryName?: string;
   iconName: string;
   iconType?: 'BUILTIN' | 'IMAGE';
+  backgroundColor?: string | null;
   textIconEnabled?: boolean;
   textIconIndex?: number;
   memberColorKey?: keyof typeof MEMBER_COLOR_PALETTE;
@@ -159,13 +161,15 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                                       ? 'bg-[color:var(--ww-surface-accent-color)] text-primary-deep'
                                       : !record.memberColorKey ? 'bg-[color:var(--ww-surface-tint-color)] text-primary-deep' : '',
                           )}
-                          style={record.memberColorKey
-                            ? {
-                                backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
-                                color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
-                                padding: record.iconType === 'IMAGE' ? 0 : 3,
-                              }
-                            : undefined}
+                          style={record.backgroundColor
+                            ? { backgroundColor: record.backgroundColor, color: getCategoryIconForegroundColor(record.backgroundColor) ?? 'var(--ww-theme-text-color)', padding: record.iconType === 'IMAGE' ? 0 : 3 }
+                            : record.memberColorKey
+                              ? {
+                                  backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
+                                  color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
+                                  padding: record.iconType === 'IMAGE' ? 0 : 3,
+                                }
+                              : undefined}
                           data-category-icon={record.iconName}
                         >
                           {renderCategoryIcon?.(record) ?? <CategoryIcon categoryName={record.categoryName} iconKey={record.iconName} iconType={record.iconType} textIconEnabled={record.textIconEnabled} textIconIndex={record.textIconIndex} size={18} />}
@@ -226,13 +230,15 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                                 ? 'bg-[color:var(--ww-surface-accent-color)] text-primary-deep'
                                 : 'bg-[color:var(--ww-surface-tint-color)] text-primary-deep',
                         )}
-                        style={record.memberColorKey
-                          ? {
-                              backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
-                              color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
-                              padding: record.iconType === 'IMAGE' ? 0 : 3,
-                            }
-                          : undefined}
+                        style={record.backgroundColor
+                          ? { backgroundColor: record.backgroundColor, color: getCategoryIconForegroundColor(record.backgroundColor) ?? 'var(--ww-theme-text-color)', padding: record.iconType === 'IMAGE' ? 0 : 3 }
+                          : record.memberColorKey
+                            ? {
+                                backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
+                                color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
+                                padding: record.iconType === 'IMAGE' ? 0 : 3,
+                              }
+                            : undefined}
                       >
                         {renderCategoryIcon?.(record) ?? <CategoryIcon categoryName={record.categoryName} iconKey={record.iconName} iconType={record.iconType} textIconEnabled={record.textIconEnabled} textIconIndex={record.textIconIndex} size={18} />}
                       </span>

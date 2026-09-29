@@ -61,6 +61,22 @@ function renderImageCategoryList() {
 }
 
 describe('record overview list', () => {
+  it('uses a saved category background color for a record icon', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(RecordOverviewList, {
+      groups: [{
+        dateLabel: '2026年07月21日',
+        key: '2026-07-21',
+        records: [{ amount: '-20.00', backgroundColor: '#DCEBFF', iconName: 'food', id: 7, primary: 'Dinner' }],
+      }],
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    const icon = container.querySelector<HTMLElement>('[data-category-icon="food"] span');
+    expect(icon?.style.backgroundColor).toBe('rgb(220, 235, 255)');
+  });
+
   it.each(['overview', 'search'] as const)('shows the category for empty remarks in the %s view', (variant) => {
     const container = document.createElement('div');
     const root = createRoot(container);

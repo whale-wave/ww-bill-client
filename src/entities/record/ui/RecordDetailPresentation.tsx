@@ -7,6 +7,7 @@ import { Fragment, useEffect, useRef } from 'react';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
+import { getCategoryIconForegroundColor } from '@/shared/lib/category-background';
 import { Icon, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 
@@ -31,6 +32,7 @@ export interface RecordDetailPresentationProps {
   amountType?: 'add' | 'sub';
   backLabel: string;
   category: {
+    backgroundColor?: string | null;
     icon: string;
     name: string;
     path?: string;
@@ -174,12 +176,14 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
               <div
                 className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/80 text-primary-deep shadow-ww-xs"
                 data-category-icon={category.icon}
-                style={memberColorKey
-                  ? {
-                      backgroundColor: MEMBER_COLOR_PALETTE[memberColorKey].background,
-                      color: MEMBER_COLOR_PALETTE[memberColorKey].foreground,
-                    }
-                  : { backgroundColor: 'rgba(255,255,255,0.75)' }}
+                style={category.backgroundColor
+                  ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) }
+                  : memberColorKey
+                    ? {
+                        backgroundColor: MEMBER_COLOR_PALETTE[memberColorKey].background,
+                        color: MEMBER_COLOR_PALETTE[memberColorKey].foreground,
+                      }
+                    : { backgroundColor: 'rgba(255,255,255,0.75)' }}
               >
                 {categoryIcon ?? <Icon className="text-[26px]" name={category.icon} />}
               </div>

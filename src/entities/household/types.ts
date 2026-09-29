@@ -121,6 +121,7 @@ export interface FamilyRecordCategory {
   name: string;
   icon: string;
   iconType?: 'BUILTIN' | 'IMAGE';
+  backgroundColor?: string | null;
   textIconEnabled?: boolean;
   textIconIndex?: number;
   templateKey?: string;

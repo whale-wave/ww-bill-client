@@ -10,6 +10,7 @@ import {
   getCategoryIconCatalogApi,
   getLedgerCategoriesApi,
   patchLedgerCategoryApi,
+  postLedgerCategoryApi,
   putLedgerCategoryApi,
   reorderLedgerCategoriesApi,
   uploadLedgerCategoryIconApi,
@@ -143,6 +144,23 @@ describe('ledger third-batch canonical APIs', () => {
       '/ledgers/ledger%2Fa%20b/categories/8',
       { params: { version: 5 } },
     );
+  });
+
+  it('sends the selected category background color on create and edit', () => {
+    postLedgerCategoryApi('ledger/a', {
+      backgroundColor: '#DCEBFF',
+      iconKey: 'catering',
+      name: '餐饮',
+      type: 'sub',
+    });
+    const formData = request.post.mock.calls[0]?.[1] as FormData;
+    expect(formData.get('backgroundColor')).toBe('#DCEBFF');
+
+    patchLedgerCategoryApi('ledger/a', 8, { backgroundColor: null, version: 2 });
+    expect(request.patch).toHaveBeenCalledWith('/ledgers/ledger%2Fa/categories/8', {
+      backgroundColor: null,
+      version: 2,
+    });
   });
 
   it('uses canonical tag, recovery, physical transfer and export routes', () => {

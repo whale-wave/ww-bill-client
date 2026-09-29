@@ -9,6 +9,7 @@ export interface CategoryEntity {
   createdAt: string;
   icon: string;
   iconType: CategoryIconType;
+  backgroundColor?: string | null;
   id: number;
   isCustom: boolean;
   ledgerId: string;
@@ -67,6 +68,7 @@ export function getLedgerCategoriesApi(
 }
 
 export interface PostLedgerCategoryApiData {
+  backgroundColor?: string | null;
   parentId?: number | null;
   file?: File;
   iconKey?: string;
@@ -84,6 +86,8 @@ export function postLedgerCategoryApi(
   const formData = new FormData();
   formData.append('name', data.name);
   formData.append('type', data.type);
+  if (data.backgroundColor)
+    formData.append('backgroundColor', data.backgroundColor);
   if (data.parentId)
     formData.append('parentId', String(data.parentId));
   if (data.iconKey)
@@ -108,6 +112,7 @@ export function postLedgerCategoryApi(
 }
 
 export interface PatchLedgerCategoryApiData {
+  backgroundColor?: string | null;
   iconKey?: string;
   name?: string;
   status?: CategoryStatus;

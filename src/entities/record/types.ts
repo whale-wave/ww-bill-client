@@ -50,6 +50,7 @@ export interface RecordEntry {
     createdAt: string;
     icon: string;
     iconType?: 'BUILTIN' | 'IMAGE';
+    backgroundColor?: string | null;
     textIconEnabled?: boolean;
     textIconIndex?: number;
     id: number;

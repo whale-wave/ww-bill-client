@@ -3,7 +3,6 @@ import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { Asset, AssetGroup } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
-import { SpinLoading } from 'antd-mobile';
 import {
   Delete as BackspaceIcon,
   Banknote,
@@ -27,6 +26,7 @@ import {
 } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { cn, money } from '@/shared/lib';
+import { getCategoryIconForegroundColor } from '@/shared/lib/category-background';
 import {
   AppButton,
   AppDatePicker,
@@ -35,6 +35,7 @@ import {
   DesignIcon,
   IllustratedEmptyState,
   MOTION_PRESETS,
+  PageLoadingState,
   SheetHeader,
   useMotionPreference,
 } from '@/shared/ui';
@@ -332,9 +333,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             ref={categoryViewportRef}
           >
             {categoryState === 'loading' && (
-              <div className="flex min-h-full items-center justify-center">
-                <SpinLoading />
-              </div>
+              <PageLoadingState className="min-h-full" compact label={t('record:bookkeeping.loadingCategories')} />
             )}
             {categoryState === 'error' && (
               <div className="flex min-h-full flex-col items-center justify-center gap-2 py-2 text-center">
@@ -387,7 +386,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                         type="button"
                         whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
                       >
-                        <span className="record-editor-category-icon ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full">
+                        <span className="record-editor-category-icon ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full" style={category.backgroundColor ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) } : undefined}>
                           <CategoryIcon
                             categoryName={category.name}
                             iconKey={category.icon}
@@ -404,7 +403,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                           </span>
                         )}
                         {children.length > 0 && (
-                          <span aria-hidden="true" className="absolute right-0.5 top-[34px] flex h-5 min-w-5 items-center justify-center rounded-full bg-primary-deep px-1 text-[8px] font-black tracking-[-1px] text-white shadow-ww-xs">•••</span>
+                          <span aria-hidden="true" className="absolute right-1 top-[31px] flex h-3.5 min-w-4 items-center justify-center rounded-full bg-primary-deep px-0.5 text-[7px] font-black tracking-[-1.5px] text-white shadow-ww-xs">•••</span>
                         )}
                       </m.button>
                       {(index % 5 === 4 || index === rootCategories.length - 1) && (
@@ -432,7 +431,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                                   onClick={() => handleSelectCategory(expandedCategory)}
                                   type="button"
                                 >
-                                  <span className="record-editor-category-icon flex h-11 w-11 items-center justify-center rounded-full bg-white/85">
+                                  <span className="record-editor-category-icon flex h-11 w-11 items-center justify-center rounded-full bg-white/85" style={expandedCategory.backgroundColor ? { backgroundColor: expandedCategory.backgroundColor, color: getCategoryIconForegroundColor(expandedCategory.backgroundColor) } : undefined}>
                                     <CategoryIcon
                                       categoryName={expandedCategory.name}
                                       iconKey={expandedCategory.icon}
@@ -462,7 +461,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                                     onClick={() => handleSelectCategory(child)}
                                     type="button"
                                   >
-                                    <span className="record-editor-category-icon flex h-11 w-11 items-center justify-center rounded-full bg-white/85">
+                                    <span className="record-editor-category-icon flex h-11 w-11 items-center justify-center rounded-full bg-white/85" style={child.backgroundColor ? { backgroundColor: child.backgroundColor, color: getCategoryIconForegroundColor(child.backgroundColor) } : undefined}>
                                       <CategoryIcon
                                         categoryName={child.name}
                                         iconKey={child.icon}

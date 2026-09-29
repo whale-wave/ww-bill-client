@@ -91,6 +91,107 @@ describe('category custom image flow', () => {
     });
   }
 
+  it('previews and saves a category background color', async () => {
+    mocks.iconCatalog = [{ group: 'food', key: 'catering', name: { en: 'Dining', zh: '餐饮' } }];
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+
+    const addButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('categories.add'));
+    act(() => addButton?.click());
+    setCategoryName(container, '餐饮');
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="categories.backgroundColorOption"]')?.click());
+
+    const selectedColor = container.querySelector<HTMLButtonElement>('[aria-label="categories.backgroundColorOption"][aria-pressed="true"]')?.style.backgroundColor;
+    expect(selectedColor).toBe('rgb(220, 235, 255)');
+    expect((container.querySelector('[data-category-image-preview]') as HTMLElement)?.style.backgroundColor).toBe(selectedColor);
+
+    const doneButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.done');
+    await act(async () => doneButton?.click());
+    expect(mocks.createCategory).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ backgroundColor: '#DCEBFF' }),
+    }));
+  });
+
+  it('accepts a custom hex color and blocks incomplete input', async () => {
+    mocks.iconCatalog = [{ group: 'food', key: 'catering', name: { en: 'Dining', zh: '餐饮' } }];
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+
+    const addButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('categories.add'));
+    act(() => addButton?.click());
+    setCategoryName(container, '餐饮');
+    const customButton = container.querySelector<HTMLButtonElement>('[aria-label="categories.customBackground"]');
+    act(() => customButton?.click());
+    expect(customButton?.getAttribute('aria-pressed')).toBe('true');
+    expect(container.querySelector('.react-colorful')).not.toBeNull();
+
+    const hexInput = container.querySelector<HTMLInputElement>('[aria-label="categories.backgroundHex"]');
+    act(() => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(hexInput, '#12');
+      hexInput?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    expect(container.querySelector('[role="alert"]')?.textContent).toBe('categories.invalidBackgroundHex');
+    const saveButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.done');
+    expect(saveButton?.disabled).toBe(true);
+
+    act(() => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(hexInput, '#123456');
+      hexInput?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+    expect((container.querySelector('[data-category-image-preview]') as HTMLElement)?.style.backgroundColor).toBe('rgb(18, 52, 86)');
+    expect((container.querySelector('[data-category-image-preview]') as HTMLElement)?.style.color).toBe('var(--ww-ref-mono-white)');
+    expect(saveButton?.disabled).toBe(false);
+    await act(async () => saveButton?.click());
+    expect(mocks.createCategory).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ backgroundColor: '#123456' }),
+    }));
+  });
+
+  it('reopens a saved custom color and can restore the default background', async () => {
+    mocks.categories = [{
+      backgroundColor: '#123456',
+      createdAt: '2026-09-20T00:00:00.000Z',
+      icon: 'catering',
+      iconType: 'BUILTIN',
+      id: 7,
+      isCustom: true,
+      ledgerId: 'ledger-1',
+      name: '餐饮',
+      sortOrder: 1,
+      status: 'ACTIVE',
+      textIconEnabled: false,
+      textIconIndex: 0,
+      type: 'sub',
+      updatedAt: '2026-09-20T00:00:00.000Z',
+      version: 1,
+    }];
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="categories.edit"]')?.click());
+    expect(container.querySelector<HTMLInputElement>('[aria-label="categories.backgroundHex"]')?.value).toBe('#123456');
+    expect(container.querySelector<HTMLButtonElement>('[aria-label="categories.customBackground"]')?.getAttribute('aria-pressed')).toBe('true');
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="categories.defaultBackground"]')?.click());
+    expect(container.querySelector('.react-colorful')).toBeNull();
+    const saveButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.done');
+    await act(async () => saveButton?.click());
+    expect(mocks.patchCategory).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ backgroundColor: null, version: 1 }),
+    }));
+  });
+
   it('offers an emoji and saves its catalog key without uploading an image', async () => {
     mocks.iconCatalog = [
       { group: 'emoji-food', key: 'emoji:🍕', name: { en: 'Pizza', zh: '披萨' } },

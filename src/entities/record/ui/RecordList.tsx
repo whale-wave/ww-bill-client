@@ -65,6 +65,7 @@ const RecordList: React.FC<RecordItemGroupProps> = memo((props) => {
             categoryName: record.category.name,
             iconName: record.category.icon,
             iconType: record.category.iconType,
+            backgroundColor: record.category.backgroundColor,
             textIconEnabled: record.category.textIconEnabled,
             textIconIndex: record.category.textIconIndex,
             id: record.id,

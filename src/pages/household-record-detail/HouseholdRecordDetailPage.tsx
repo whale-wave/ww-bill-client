@@ -84,6 +84,7 @@ const RecordDetail: FC<{
       amountType={record.type}
       backLabel={t('common:nav.back')}
       category={{
+        backgroundColor: record.category?.backgroundColor,
         icon: record.category?.icon ?? 'bill',
         name: record.category?.path ?? record.category?.name ?? t('recordDetail.uncategorized'),
       }}

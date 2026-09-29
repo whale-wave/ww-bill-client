@@ -11,6 +11,7 @@
     "expend": "Expense",
     "category": "Category",
     "selectCategory": "Choose category",
+    "loadingCategories": "Loading categories",
     "categorySettings": "Category settings",
     "categorySettingsDescription": "Add and organize your custom categories",
     "categoryWithChildren": "{{name}}, {{count}} subcategories. Tap to expand",

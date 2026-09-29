@@ -22,11 +22,13 @@ import {
   EyeOff,
   FolderInput,
   GripVertical,
+  Palette,
   Pencil,
   Plus,
   Trash2,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { HexColorPicker } from 'react-colorful';
 import {
   CategoryIcon,
   hasCategoryGlyph,
@@ -39,7 +41,9 @@ import {
   useReorderLedgerCategoriesMutation,
   useUploadLedgerCategoryIconMutation,
 } from '@/entities/category';
+import { CATEGORY_BACKGROUND_COLORS, DEFAULT_CUSTOM_CATEGORY_BACKGROUND_COLOR } from '@/shared/config/category-background-colors';
 import { useTranslation } from '@/shared/i18n';
+import { getCategoryIconForegroundColor } from '@/shared/lib/category-background';
 import { AppButton, AppSheet, PageLoadingState, SheetHeader } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 import { useMotionPreference } from '@/shared/ui/motion';
@@ -142,7 +146,7 @@ function SortableCategoryRow({
         disabled={!onToggleChildren}
         onClick={onToggleChildren}
       >
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-primary-deep" data-category-management-icon>
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-primary-deep" data-category-management-icon style={category.backgroundColor ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) } : undefined}>
           <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={21} />
         </span>
         <span className="min-w-0 flex-1">
@@ -234,6 +238,18 @@ function CategoryEditorSheet({
   );
   const [textIconEnabled, setTextIconEnabled] = useState(editor.category?.textIconEnabled ?? false);
   const [textIconIndex, setTextIconIndex] = useState(editor.category?.textIconIndex ?? 0);
+  const [backgroundColor, setBackgroundColor] = useState<string | null>(editor.category?.backgroundColor ?? null);
+  const [isCustomColor, setIsCustomColor] = useState(
+    Boolean(editor.category?.backgroundColor)
+    && !CATEGORY_BACKGROUND_COLORS.some(color => color.toUpperCase() === editor.category?.backgroundColor?.toUpperCase()),
+  );
+  const [lastCustomColor, setLastCustomColor] = useState(
+    editor.category?.backgroundColor && !CATEGORY_BACKGROUND_COLORS.some(color => color.toUpperCase() === editor.category?.backgroundColor?.toUpperCase())
+      ? editor.category.backgroundColor.toUpperCase()
+      : DEFAULT_CUSTOM_CATEGORY_BACKGROUND_COLOR,
+  );
+  const [hexDraft, setHexDraft] = useState(lastCustomColor);
+  const isHexDraftValid = !isCustomColor || /^#[0-9A-F]{6}$/i.test(hexDraft);
   const [image, setImage] = useState<File>();
   const [preview, setPreview] = useState<string>();
   const [cropSourceUrl, setCropSourceUrl] = useState<string>();
@@ -245,7 +261,8 @@ function CategoryEditorSheet({
   const hasImage = Boolean(image || (!iconKey && editor.category?.iconType === 'IMAGE'));
   const valid = Array.from(normalizedName).length >= 1
     && Array.from(normalizedName).length <= 12
-    && Boolean(image || iconKey || editor.category?.iconType === 'IMAGE' || textIconEnabled);
+    && Boolean(image || iconKey || editor.category?.iconType === 'IMAGE' || textIconEnabled)
+    && isHexDraftValid;
   const isSaving = createState.isLoading || patchState.isLoading || uploadState.isLoading;
 
   useEffect(() => () => {
@@ -274,6 +291,7 @@ function CategoryEditorSheet({
             type,
             textIconEnabled,
             textIconIndex: safeTextIconIndex,
+            backgroundColor,
           },
           ledgerId,
           ...(image ? { onProgress: setUploadProgress } : {}),
@@ -285,13 +303,15 @@ function CategoryEditorSheet({
           && (editor.category.iconType !== 'BUILTIN' || iconKey !== editor.category.icon);
         const textChanged = textIconEnabled !== editor.category.textIconEnabled
           || safeTextIconIndex !== editor.category.textIconIndex;
-        if (normalizedName !== editor.category.name || builtinChanged || textChanged) {
+        const backgroundChanged = backgroundColor !== (editor.category.backgroundColor ?? null);
+        if (normalizedName !== editor.category.name || builtinChanged || textChanged || backgroundChanged) {
           const updated = await patchCategory({
             categoryId: editor.category.id,
             data: {
               ...(builtinChanged ? { iconKey: iconKey! } : {}),
               ...(normalizedName !== editor.category.name ? { name: normalizedName } : {}),
               ...(textChanged ? { textIconEnabled, textIconIndex: safeTextIconIndex } : {}),
+              ...(backgroundChanged ? { backgroundColor } : {}),
               version,
             },
             ledgerId,
@@ -374,7 +394,7 @@ function CategoryEditorSheet({
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5">
             <div className="mx-auto max-w-[520px]">
               <label className="group mb-5 flex cursor-pointer flex-col items-center gap-2" data-category-image-upload>
-                <span className="flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-primary-deep shadow-ww transition-opacity group-hover:opacity-80 group-focus-within:outline group-focus-within:outline-2 group-focus-within:outline-offset-2 group-focus-within:outline-primary" data-category-image-preview>
+                <span className="flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-primary-deep shadow-ww transition-opacity group-hover:opacity-80 group-focus-within:outline group-focus-within:outline-2 group-focus-within:outline-offset-2 group-focus-within:outline-primary" data-category-image-preview style={backgroundColor ? { backgroundColor, color: getCategoryIconForegroundColor(backgroundColor) } : undefined}>
                   {preview && !textIconEnabled
                     ? <img alt="" className="h-full w-full object-cover" src={preview} />
                     : (
@@ -438,6 +458,89 @@ function CategoryEditorSheet({
                 {Array.from(normalizedName).length}
                 /12
               </div>
+              <section className="mt-5 rounded-[18px] border border-border-primary bg-white/90 p-4 shadow-ww-xs">
+                <h3 className="text-[13px] font-black text-ww-ink">{t('categories.backgroundColor')}</h3>
+                <div className="mt-3 grid grid-cols-5 gap-2" role="group" aria-label={t('categories.backgroundColor')}>
+                  <button
+                    aria-label={t('categories.defaultBackground')}
+                    aria-pressed={backgroundColor === null && !isCustomColor}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-solid border-border-primary bg-ww-surface-tint text-primary-deep aria-pressed:border-primary"
+                    onClick={() => {
+                      setBackgroundColor(null);
+                      setIsCustomColor(false);
+                    }}
+                    type="button"
+                  >
+                    {backgroundColor === null && !isCustomColor && <Check size={20} strokeWidth={2.5} />}
+                  </button>
+                  {CATEGORY_BACKGROUND_COLORS.map((color, index) => (
+                    <button
+                      aria-label={t('categories.backgroundColorOption', { number: index + 1 })}
+                      aria-pressed={backgroundColor === color && !isCustomColor}
+                      className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-solid border-transparent text-ww-ink aria-pressed:border-primary"
+                      key={color}
+                      onClick={() => {
+                        setBackgroundColor(color);
+                        setIsCustomColor(false);
+                      }}
+                      style={{ backgroundColor: color }}
+                      type="button"
+                    >
+                      {backgroundColor === color && !isCustomColor && <Check size={20} strokeWidth={2.5} />}
+                    </button>
+                  ))}
+                  <button
+                    aria-label={t('categories.customBackground')}
+                    aria-pressed={isCustomColor}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-solid border-border-primary bg-white text-primary-deep aria-pressed:border-primary"
+                    onClick={() => {
+                      setBackgroundColor(lastCustomColor);
+                      setHexDraft(lastCustomColor);
+                      setIsCustomColor(true);
+                    }}
+                    type="button"
+                  >
+                    <Palette size={20} />
+                  </button>
+                </div>
+                {isCustomColor && (
+                  <div className="mt-4 border-t border-solid border-border-primary pt-4">
+                    <p className="mb-3 text-xs font-semibold text-ww-mid">{t('categories.customBackgroundHint')}</p>
+                    <HexColorPicker
+                      className="!h-[192px] !w-full [&_.react-colorful__hue]:!h-11"
+                      color={backgroundColor ?? lastCustomColor}
+                      onChange={(color) => {
+                        const normalized = color.toUpperCase();
+                        setBackgroundColor(normalized);
+                        setLastCustomColor(normalized);
+                        setHexDraft(normalized);
+                      }}
+                    />
+                    <label className="mt-4 flex min-h-11 items-center gap-3 rounded-xl border border-solid border-border-primary bg-white px-3 focus-within:border-primary-mid">
+                      <span className="shrink-0 text-xs font-bold text-ww-mid">{t('categories.backgroundHex')}</span>
+                      <input
+                        aria-label={t('categories.backgroundHex')}
+                        autoCapitalize="characters"
+                        className="min-w-0 flex-1 border-0 bg-transparent py-2 text-sm font-semibold uppercase text-ww-ink outline-none"
+                        inputMode="text"
+                        maxLength={7}
+                        onInput={(event) => {
+                          const value = event.currentTarget.value;
+                          const draft = (value.startsWith('#') ? value : `#${value}`).toUpperCase();
+                          setHexDraft(draft);
+                          if (/^#[0-9A-F]{6}$/.test(draft)) {
+                            setBackgroundColor(draft);
+                            setLastCustomColor(draft);
+                          }
+                        }}
+                        spellCheck={false}
+                        value={hexDraft}
+                      />
+                    </label>
+                    {!isHexDraftValid && <p className="mt-2 text-xs text-[rgb(var(--ww-color-feedback-danger))]" role="alert">{t('categories.invalidBackgroundHex')}</p>}
+                  </div>
+                )}
+              </section>
               <section className="mt-5 rounded-[18px] border border-border-primary bg-white/90 p-4 shadow-ww-xs">
                 <div className="flex items-center justify-between">
                   <div>
@@ -909,7 +1012,7 @@ export function CategoryManagement({
                                                 disabled={!canManage || patchState.isLoading || reorderState.isLoading}
                                                 onClick={() => setEditor({ category: child, mode: 'edit' })}
                                               >
-                                                <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface" data-subcategory-icon>
+                                                <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface" data-subcategory-icon style={child.backgroundColor ? { backgroundColor: child.backgroundColor, color: getCategoryIconForegroundColor(child.backgroundColor) } : undefined}>
                                                   <CategoryIcon categoryName={child.name} iconKey={child.icon} iconType={child.iconType} textIconEnabled={child.textIconEnabled} textIconIndex={child.textIconIndex} size={24} />
                                                 </span>
                                                 <span className="w-full break-words">{child.name}</span>
@@ -964,7 +1067,7 @@ export function CategoryManagement({
               {archived.length
                 ? archived.map(category => (
                     <div className="flex min-h-[60px] items-center gap-3 border-b border-solid border-border-primary px-4 last:border-b-0" key={category.id}>
-                      <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-ww-mid" data-category-management-icon>
+                      <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-ww-mid" data-category-management-icon style={category.backgroundColor ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) } : undefined}>
                         <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={20} />
                       </span>
                       <span className="min-w-0 flex-1 truncate text-[14px] font-bold text-ww-mid">{category.name}</span>
@@ -1079,7 +1182,7 @@ export function CategoryManagement({
                               role="radio"
                               type="button"
                             >
-                              <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint" data-category-management-icon>
+                              <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint" data-category-management-icon style={category.backgroundColor ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) } : undefined}>
                                 <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={19} />
                               </span>
                               <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-ww-ink">{category.name}</span>
@@ -1153,7 +1256,7 @@ export function CategoryManagement({
                                       role="radio"
                                       type="button"
                                     >
-                                      <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint" data-category-management-icon>
+                                      <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint" data-category-management-icon style={category.backgroundColor ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) } : undefined}>
                                         <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={19} />
                                       </span>
                                       <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-ww-ink">{category.path ?? category.name}</span>
