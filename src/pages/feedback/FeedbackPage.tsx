@@ -237,8 +237,12 @@ export default function FeedbackPage() {
                     >
                       {t('contactLabel')}
                     </label>
+                    <p className="mt-1.5 px-1 text-[11px] font-medium leading-[17px] text-ww-mid" id="feedback-contact-hint">
+                      {t('contactHint')}
+                    </p>
                     <div className="mt-3 flex h-[50px] items-center rounded-[16px] border border-solid border-border-primary bg-white/82 px-3.5 shadow-ww-xs focus-within:border-primary-mid focus-within:ring-2 focus-within:ring-primary-light/60">
                       <Input
+                        aria-describedby="feedback-contact-hint"
                         id="feedback-contact"
                         clearable
                         maxLength={120}
