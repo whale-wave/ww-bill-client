@@ -22,7 +22,7 @@ export interface SettingsListCardProps {
 export function SettingsListCard({ items, className = '', density = 'standard', variant = 'default' }: SettingsListCardProps) {
   return (
     <section
-      className={`!m-0 overflow-hidden rounded-[var(--ww-radius-card)] border border-border-primary bg-ww-surface py-0.5 shadow-ww backdrop-blur-[var(--ww-card-blur)] ${variant === 'ios' ? 'ww-ios-settings-list' : ''} ${className}`}
+      className={`overflow-hidden rounded-[var(--ww-radius-card)] border border-border-primary bg-ww-surface py-0.5 shadow-ww backdrop-blur-[var(--ww-card-blur)] ${variant === 'ios' ? 'ww-ios-settings-list' : ''} ${className}`}
     >
       {items.map((item, index) => (
         <div
