@@ -80,25 +80,25 @@
 
 html[data-appearance-template='fresh'] {
   --ww-theme-color: #6fc2dc;
-  --ww-theme-color-light: #c8eaf6;
+  --ww-theme-color-light: #dceef4;
   --ww-theme-color-mid: #4aaac4;
-  --ww-theme-color-deep: #2b8baa;
+  --ww-theme-color-deep: #23728e;
   --ww-primary-foreground: #ffffff;
   --ww-pink-color: #f0a0b8;
   --ww-pink-color-light: #ffd8e6;
   --ww-theme-text-color: #263340;
   --ww-text-color-mid: #5c7080;
-  --ww-text-color-soft: #9baebb;
-  --ww-text-color-ghost: #c4d4dc;
-  --ww-background-color: #f4fbff;
-  --ww-page-gradient: linear-gradient(155deg, #e7f7ff 0%, #f6fcff 48%, #fff4f8 100%);
+  --ww-text-color-soft: #637987;
+  --ww-text-color-ghost: #9eafb9;
+  --ww-background-color: #f7fafb;
+  --ww-page-gradient: linear-gradient(155deg, #f2f8fa 0%, #f8fafb 54%, #fbf7f8 100%);
   --ww-card-color: rgba(255, 255, 255, 0.9);
   --ww-surface-color: rgba(255, 255, 255, 0.88);
   --ww-surface-raised-color: #ffffff;
-  --ww-surface-tint-color: #e5f7fc;
+  --ww-surface-tint-color: #f1f5f7;
   --ww-surface-accent-color: #fff1f6;
   --ww-surface-secondary-color: #f4efff;
-  --ww-border-color: rgba(110, 194, 220, 0.2);
+  --ww-border-color: rgba(73, 112, 129, 0.14);
   --ww-card-shadow: 0 3px 12px rgba(60, 140, 180, 0.09);
   --ww-card-shadow-xs: 0 1px 5px rgba(60, 140, 180, 0.07);
   --ww-card-shadow-lg: 0 5px 16px rgba(60, 140, 180, 0.11);
@@ -146,6 +146,10 @@ html[data-appearance-template='fresh'] {
   --ww-chart-4: #79c6a8;
   --ww-chart-5: #efbc70;
   --ww-chart-6: #6e9fdb;
+  --ww-dashboard-expense-surface: #fff3f1;
+  --ww-dashboard-expense-foreground: #95515a;
+  --ww-dashboard-income-surface: #eef7f2;
+  --ww-dashboard-income-foreground: #277154;
 }
 
 html[data-appearance-template='minimal'] {
