@@ -1,4 +1,4 @@
-import { DownFill } from 'antd-mobile-icons';
+import { ChevronDown } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { LedgerKind, LedgerVisualIcon, useLedgerNavigationQuery } from '@/entities/ledger';
@@ -71,7 +71,7 @@ export function LedgerTitleSwitcher({
             >
               {visualIcon}
               <span>{title}</span>
-              <DownFill aria-hidden="true" />
+              <ChevronDown aria-hidden="true" />
             </button>
           )
         : (

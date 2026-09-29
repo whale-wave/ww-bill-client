@@ -1,4 +1,4 @@
-import { MinusOutline } from 'antd-mobile-icons';
+import { Minus } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
 
 interface RemoveLedgerBadgeProps {
@@ -33,7 +33,7 @@ export function RemoveLedgerBadge({
       title={disabled ? t('center.suspended') : `${actionLabel} ${ledgerName}`}
       type="button"
     >
-      <MinusOutline aria-hidden="true" />
+      <Minus aria-hidden="true" />
     </button>
   );
 }

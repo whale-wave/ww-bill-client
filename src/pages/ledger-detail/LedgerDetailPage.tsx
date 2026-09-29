@@ -1,16 +1,16 @@
 import type { FC, ReactNode } from 'react';
 import {
-  AddSquareOutline,
-  BillOutline,
-  CheckShieldOutline,
-  PayCircleOutline,
-  PieOutline,
-  RightOutline,
-  SetOutline,
-  TeamOutline,
-  UnorderedListOutline,
-} from 'antd-mobile-icons';
-import { CircleAlert } from 'lucide-react';
+  ChartPie,
+  ChevronRight,
+  CircleAlert,
+  CircleDollarSign,
+  List,
+  Notebook,
+  Settings2,
+  ShieldCheck,
+  SquarePlus,
+  UsersRound,
+} from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   LedgerCapability,
@@ -34,15 +34,15 @@ const MODULE_CAPABILITIES = {
 function getModuleIcon(moduleKey: typeof LEDGER_MODULES[number]): ReactNode {
   switch (moduleKey) {
     case 'records':
-      return <UnorderedListOutline />;
+      return <List />;
     case 'bill':
-      return <BillOutline />;
+      return <Notebook />;
     case 'budget':
-      return <PayCircleOutline />;
+      return <CircleDollarSign />;
     case 'charts':
-      return <PieOutline />;
+      return <ChartPie />;
     case 'settings':
-      return <SetOutline />;
+      return <Settings2 />;
   }
 }
 
@@ -61,21 +61,21 @@ const LedgerDetailPage: FC = () => {
     ? [
         ledger.capabilities.includes(LedgerCapability.MEMBER_READ)
           ? {
-              icon: <TeamOutline />,
+              icon: <UsersRound />,
               key: 'members',
               path: ROUTES_PATH.LEDGER_MEMBERS.getPath(ledger.id),
             }
           : undefined,
         ledger.capabilities.includes(LedgerCapability.MEMBER_INVITE)
           ? {
-              icon: <AddSquareOutline />,
+              icon: <SquarePlus />,
               key: 'invite',
               path: ROUTES_PATH.LEDGER_INVITES.getPath(ledger.id),
             }
           : undefined,
         ledger.capabilities.includes(LedgerCapability.MEMBER_REVIEW)
           ? {
-              icon: <CheckShieldOutline />,
+              icon: <ShieldCheck />,
               key: 'requests',
               path: ROUTES_PATH.LEDGER_JOIN_REQUESTS.getPath(ledger.id),
             }
@@ -182,7 +182,7 @@ const LedgerDetailPage: FC = () => {
                     <span className="flex-grow text-[14px] font-bold text-ww-ink">
                       {t(`detail.module.${moduleKey}`)}
                     </span>
-                    {isEnabled ? <RightOutline className="text-ww-ghost" /> : <span className="text-[11px] font-semibold text-ww-soft">{t('detail.comingSoon')}</span>}
+                    {isEnabled ? <ChevronRight className="text-ww-ghost" /> : <span className="text-[11px] font-semibold text-ww-soft">{t('detail.comingSoon')}</span>}
                   </button>
                 );
               })}
@@ -207,7 +207,7 @@ const LedgerDetailPage: FC = () => {
                     <span className="flex-grow text-[14px] font-bold text-ww-ink">
                       {t(`detail.collaborationItem.${item.key}`)}
                     </span>
-                    <RightOutline className="text-ww-ghost" />
+                    <ChevronRight className="text-ww-ghost" />
                   </button>
                 ))}
               </Surface>

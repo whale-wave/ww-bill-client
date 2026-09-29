@@ -1,5 +1,4 @@
-import { CheckOutline } from 'antd-mobile-icons';
-import { Plus, Settings2, Sparkles } from 'lucide-react';
+import { Check, Plus, Settings2, Sparkles } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LedgerVisualIcon, useLedgerNavigationQuery } from '@/entities/ledger';
@@ -197,7 +196,7 @@ export function LedgerSwitcherPanel({ onClose, visible }: LedgerSwitcherPanelPro
                           )}
                         </span>
                         {selected
-                          ? <CheckOutline aria-label={t('switcher.selected')} className="ledger-switcher-panel__check" />
+                          ? <Check aria-label={t('switcher.selected')} className="ledger-switcher-panel__check" />
                           : null}
                       </span>
                     </button>

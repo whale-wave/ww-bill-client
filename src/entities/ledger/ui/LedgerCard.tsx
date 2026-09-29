@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { Ledger } from '../types';
-import { RightOutline } from 'antd-mobile-icons';
+import { ChevronRight } from 'lucide-react';
 import { LedgerVisualIcon } from './LedgerVisualIcon';
 
 interface LedgerCardProps {
@@ -48,7 +48,7 @@ export const LedgerCard: FC<LedgerCardProps> = ({
           <span>{statusLabel}</span>
         </span>
       </span>
-      <RightOutline className="ml-3 flex-shrink-0 text-font-gray" />
+      <ChevronRight className="ml-3 flex-shrink-0 text-font-gray" />
     </button>
   );
 };

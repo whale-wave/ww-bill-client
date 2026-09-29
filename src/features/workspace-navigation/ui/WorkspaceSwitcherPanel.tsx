@@ -2,8 +2,7 @@ import type { WorkspaceScope } from '../model/workspace-scope';
 import type {
   LedgerTemplateKey,
 } from '@/entities/ledger';
-import { CheckOutline } from 'antd-mobile-icons';
-import { Plus, Settings2, Users } from 'lucide-react';
+import { Check, Plus, Settings2, Users } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HouseholdStatus, useMyHouseholdQuery } from '@/entities/household';
@@ -168,7 +167,7 @@ export function WorkspaceSwitcherPanel({
             {option.description && <span className="ledger-switcher-panel__option-description">{option.description}</span>}
           </span>
           {isSelected && (
-            <CheckOutline
+            <Check
               aria-label={t('switcher.selected')}
               className="ledger-switcher-panel__check"
             />

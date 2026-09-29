@@ -1,5 +1,5 @@
 import type { FC, FormEvent } from 'react';
-import { CheckCircleFill } from 'antd-mobile-icons';
+import { CircleCheckBig } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -148,7 +148,7 @@ const LedgerInvitationPreviewPage: FC = () => {
         )}
         {submitted && (
           <div className="mt-2 flex flex-col items-center rounded-[var(--ww-card-radius)] border border-solid border-border-primary bg-ww-surface-raised px-5 py-12 text-center shadow-ww-xs">
-            <CheckCircleFill className="text-6xl text-green-500" />
+            <CircleCheckBig className="h-16 w-16 text-green-500" />
             <h1 className="mt-5 text-2xl font-medium text-font-black">
               {t('join.submittedTitle')}
             </h1>

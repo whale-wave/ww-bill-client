@@ -31,21 +31,15 @@ export default antfu({
   files: ['src/**/*.{ts,tsx}'],
   rules: {
     'no-restricted-imports': ['error', {
-      paths: [{
-        importNames: ['Toast'],
-        message: 'Use showAppError/showAppNotice from shared/ui/app-feedback instead.',
-        name: 'antd-mobile',
-      }],
+      paths: [
+        { message: 'Use shared/ui instead.', name: 'antd-mobile' },
+        { message: 'Use lucide-react or shared/ui/icon instead.', name: 'antd-mobile-icons' },
+      ],
       patterns: [{
-        group: ['antd-mobile/es/components/toast*'],
-        message: 'Use the shared app feedback API instead of importing Toast directly.',
+        group: ['antd-mobile/*', 'antd-mobile-icons/*'],
+        message: 'Do not add Ant Design Mobile dependencies back to the client.',
       }],
     }],
-  },
-}, {
-  files: ['src/shared/ui/app-feedback/**/*.{ts,tsx}'],
-  rules: {
-    'no-restricted-imports': 'off',
   },
 // }, ({
 //   plugins: ['@tanstack/query'],

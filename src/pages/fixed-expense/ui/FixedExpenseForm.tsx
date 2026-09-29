@@ -1,5 +1,5 @@
-import { DownOutline, RightOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { FixedExpenseCycle } from '@/entities/fixed-expense';
 import { useTranslation } from '@/shared/i18n';
@@ -65,7 +65,7 @@ const Section: React.FC<SectionProps> = ({
       </div>
       {collapsible && (
         <span className="text-primary-deep">
-          {open ? <DownOutline /> : <RightOutline />}
+          {open ? <ChevronDown /> : <ChevronRight />}
         </span>
       )}
     </>

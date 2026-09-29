@@ -76,9 +76,6 @@ importers:
       ahooks:
         specifier: 3.8.0
         version: 3.8.0(react@18.3.1)
-      antd-mobile-icons:
-        specifier: 0.3.0
-        version: 0.3.0
       axios:
         specifier: 1.6.0
         version: 1.6.0
@@ -2700,9 +2697,6 @@ packages:
   ansis@4.3.1:
     resolution: {integrity: sha512-BJ8/l4R5LRE7hW9WdSuGYrLSHi2ynxeFpDFbH0K/CgNeY/tyhk+vO6TYxXC5r5CpUhNVX310xzPsN/H9lCdfOA==}
     engines: {node: '>=14'}
-
-  antd-mobile-icons@0.3.0:
-    resolution: {integrity: sha512-rqINQpJWZWrva9moCd1Ye695MZYWmqLPE+bY8d2xLRy7iSQwPsinCdZYjpUPp2zL/LnKYSyXxP2ut2A+DC+whQ==}
 
   any-promise@1.3.0:
     resolution: {integrity: sha512-7UvmKalWRt1wgjL1RrGxoSJW/0QZFIegpeGvZG9kjp8vrRu55XTHbwnqq2GpXm9uLbcuhxm3IqX9OB4MZR1b2A==}
@@ -8770,8 +8764,6 @@ snapshots:
   ansi-styles@6.2.3: {}
 
   ansis@4.3.1: {}
-
-  antd-mobile-icons@0.3.0: {}
 
   any-promise@1.3.0: {}
 

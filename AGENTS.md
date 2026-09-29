@@ -92,7 +92,8 @@ TypeScript 要求：
 - React Router 6
 - TanStack React Query 4
 - Zustand 4
-- Ant Design Mobile 5
+- Konsta UI 3（过渡依赖，逐步替换为项目自有 `shared/ui` 组件）
+- Lucide React
 - Tailwind CSS 3
 - Sass
 - Axios
@@ -153,7 +154,7 @@ src/
 ├── shared/        跨切面共享
 │   ├── api/       HTTP 实例 + SuccessResponse + upload + 拦截器
 │   ├── lib/       纯工具 + 第三方封装 + 通用 hook
-│   ├── ui/        设计系统 (基础组件, 无 antd-mobile 对应的保留)
+│   ├── ui/        设计系统 (自有组件与过渡适配)
 │   └── config/    env 配置 + 路由常量
 └── assets/        静态资源、图片、全局样式
 ```
@@ -318,12 +319,12 @@ Mutation hook 内部使用 `useQueryClient()` 获取 client，不要 import 全�
 
 `ww-bill-client`：
 
-- 移动端交互优先使用 Ant Design Mobile。
+- 移动端业务交互优先使用项目自有 `shared/ui`；现有 Konsta 适配层仅用于渐进迁移，不新增 Ant Design Mobile 依赖。
 - 样式优先使用 Tailwind CSS、项目已有 Sass、`global.scss` 中的全局类和 `DESIGN.md` 中的规则。
-- 图标优先复用 `antd-mobile-icons` 或 `src/shared/ui/icon`。
+- 图标优先复用 `lucide-react` 或 `src/shared/ui/icon`。
 - 页面根容器优先使用 `.page` 或 `.page-new`。
 - 主色通过 `var(--ww-theme-color)`、`bg-primary` 或 `text-primary` 使用。
-- Ant Design Mobile 变量已在 `global.scss` 中做全局映射，不随意改全局变量。
+- `global.scss` 中保留的旧组件兼容样式按实际迁移情况逐步清理，不新增对旧组件的依赖。
 - `AppSheet` 不给所有后代输入元素统一叠加表面样式。独立的原生输入、选择和多行控件显式使用 `ww-sheet-control`；放在 `FieldFrame` 等自带外框容器内的控件保持透明、无边框和阴影，焦点样式由外框承载。修改弹层控件样式时检查共享 Storybook 的 `SheetFieldSurfaces` 场景。
 
 `ww-bill-admin`：

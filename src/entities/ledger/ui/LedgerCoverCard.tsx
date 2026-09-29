@@ -1,6 +1,6 @@
 import type { CSSProperties, HTMLAttributes, KeyboardEvent, PointerEvent } from 'react';
 import type { LedgerListItem } from '../types';
-import { PayCircleOutline } from 'antd-mobile-icons';
+import { CircleDollarSign } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from '@/shared/i18n';
 import { Tag } from '@/shared/ui/konsta-compat';
@@ -144,11 +144,11 @@ export function LedgerCoverCard({
       type="button"
     >
       <span aria-hidden="true" className="ledger-cover-card__motif">
-        <PayCircleOutline />
-        <PayCircleOutline />
-        <PayCircleOutline />
+        <CircleDollarSign />
+        <CircleDollarSign />
+        <CircleDollarSign />
       </span>
-      <PayCircleOutline aria-hidden="true" className="ledger-cover-card__currency" />
+      <CircleDollarSign aria-hidden="true" className="ledger-cover-card__currency" />
       <span className="ledger-cover-card__meta">
         {ledger.activeMemberCount > 1 && (
           <Tag

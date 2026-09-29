@@ -1,14 +1,14 @@
 import type { FC } from 'react';
 import type { LedgerTemplateKey } from '../types';
 import {
-  BillOutline,
-  FileOutline,
-  ReceiptOutline,
-  SetOutline,
-  ShopbagOutline,
-  TeamOutline,
-  UserContactOutline,
-} from 'antd-mobile-icons';
+  ContactRound,
+  FileText,
+  Notebook,
+  Receipt,
+  Settings2,
+  ShoppingBag,
+  UsersRound,
+} from 'lucide-react';
 
 interface LedgerTemplateIconProps {
   className?: string;
@@ -18,18 +18,18 @@ interface LedgerTemplateIconProps {
 export const LedgerTemplateIcon: FC<LedgerTemplateIconProps> = ({ className, templateKey }) => {
   switch (templateKey) {
     case 'business':
-      return <ShopbagOutline className={className} />;
+      return <ShoppingBag className={className} />;
     case 'reimbursement':
-      return <ReceiptOutline className={className} />;
+      return <Receipt className={className} />;
     case 'company':
-      return <FileOutline className={className} />;
+      return <FileText className={className} />;
     case 'team':
-      return <TeamOutline className={className} />;
+      return <UsersRound className={className} />;
     case 'micro-business':
-      return <UserContactOutline className={className} />;
+      return <ContactRound className={className} />;
     case 'custom':
-      return <SetOutline className={className} />;
+      return <Settings2 className={className} />;
     default:
-      return <BillOutline className={className} />;
+      return <Notebook className={className} />;
   }
 };

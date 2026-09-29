@@ -1,4 +1,4 @@
-import { AddOutline } from 'antd-mobile-icons';
+import { Plus } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
 import { SafeArea } from '@/shared/ui/konsta-compat';
 
@@ -42,7 +42,7 @@ export function LedgerManagementFooter({
               type="button"
             >
               <span className="ledger-management-footer__create-copy">
-                <AddOutline aria-hidden="true" />
+                <Plus aria-hidden="true" />
                 {t('center.create')}
               </span>
             </button>

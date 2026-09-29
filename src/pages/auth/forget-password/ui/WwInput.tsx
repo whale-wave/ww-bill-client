@@ -1,7 +1,7 @@
 import type { FC } from 'react';
-import { EyeInvisibleOutline, EyeOutline } from 'antd-mobile-icons';
 import classNames from 'classnames';
-import { useCallback, useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
 import { Input } from '@/shared/ui/konsta-compat';
 
 const WwInput: FC<{
@@ -19,9 +19,9 @@ const WwInput: FC<{
   const { className, clearable, onEnterPress } = props;
   const [type, setType] = useState(props.type);
 
-  const onChange = useCallback((v: string) => {
+  const handleChange = (v: string) => {
     props.onChange?.(v);
-  }, []);
+  };
 
   return (
     <div
@@ -37,7 +37,7 @@ const WwInput: FC<{
         clearable={clearable}
         onlyShowClearWhenFocus={false}
         value={props.value}
-        onChange={onChange}
+        onChange={handleChange}
         readOnly={props.readonly}
         disabled={props.disabled}
         onEnterPress={onEnterPress}
@@ -49,14 +49,14 @@ const WwInput: FC<{
         >
           {type === 'text'
             ? (
-                <EyeOutline
-                  className="text-xl"
+                <Eye
+                  className="h-5 w-5"
                   onClick={() => setType('text')}
                 />
               )
             : (
-                <EyeInvisibleOutline
-                  className="text-xl"
+                <EyeOff
+                  className="h-5 w-5"
                   onClick={() => setType('password')}
                 />
               )}
