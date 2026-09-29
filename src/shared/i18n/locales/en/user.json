@@ -74,10 +74,14 @@
   "checkIn": {
     "dayUnit": "",
     "keep": "Streak",
-    "allDays": "Total Days",
+    "allDays": "Check-in Days",
     "recordCount": "Total Records",
     "recordUnit": "",
-    "completed": "Checked in"
+    "completed": "Checked in",
+    "action": "Check in",
+    "checking": "Checking in",
+    "success": "Checked in successfully",
+    "failed": "Could not check in. Try again later."
   },
   "notLoggedIn": "Not logged in",
   "vipNotSupported": "VIP not yet supported",

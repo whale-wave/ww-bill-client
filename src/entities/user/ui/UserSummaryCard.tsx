@@ -8,12 +8,14 @@ export interface UserSummaryCardProps {
   avatar?: string | null;
   name?: string;
   checkIn: boolean;
+  isCheckingIn?: boolean;
   numberInfo: {
     checkInAll?: number | null;
     checkInKeep?: number | null;
     recordCount?: number | null;
   };
   onProfileClick: () => void;
+  onCheckIn?: () => void;
 }
 
 export const UserSummaryCard: FC<UserSummaryCardProps> = ({
@@ -21,8 +23,10 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
   avatar,
   achievementTitle,
   checkIn,
+  isCheckingIn = false,
   numberInfo,
   onProfileClick,
+  onCheckIn,
 }) => {
   const { t } = useTranslation('user');
 
@@ -46,12 +50,27 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
               <Medal className="shrink-0" size={12} strokeWidth={2} />
               <span className="truncate">{achievementTitle ?? '航程称号 · 开启你的航程'}</span>
             </div>
-            {name && checkIn && (
+            {name !== undefined && (
               <div className="mt-2 flex h-11 items-center text-[12px] font-bold leading-[18px]">
-                <span className="ww-profile-check-in flex items-center px-[13px]">
-                  <CalendarCheck2 className="mr-1" size={14} strokeWidth={2} />
-                  {t('checkIn.completed')}
-                </span>
+                {checkIn
+                  ? (
+                      <span className="ww-profile-check-in flex items-center px-[13px]">
+                        <CalendarCheck2 className="mr-1" size={14} strokeWidth={2} />
+                        {t('checkIn.completed')}
+                      </span>
+                    )
+                  : onCheckIn && (
+                    <button
+                      className="ww-profile-check-in flex min-h-11 items-center px-[13px] disabled:cursor-not-allowed disabled:opacity-60"
+                      aria-busy={isCheckingIn}
+                      disabled={isCheckingIn}
+                      onClick={onCheckIn}
+                      type="button"
+                    >
+                      <CalendarCheck2 className="mr-1" size={14} strokeWidth={2} />
+                      {t(isCheckingIn ? 'checkIn.checking' : 'checkIn.action')}
+                    </button>
+                  )}
               </div>
             )}
           </div>

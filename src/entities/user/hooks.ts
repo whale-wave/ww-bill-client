@@ -67,7 +67,7 @@ export function usePostCheckInMutation() {
       const previousUserInfo = queryClient.getQueryData<SuccessResponse<UserInfo>>(userKeys.info());
 
       queryClient.setQueryData<SuccessResponse<UserInfo>>(userKeys.info(), (currentUserInfo) => {
-        if (!isSuccessApi(currentUserInfo))
+        if (!isSuccessApi(currentUserInfo) || currentUserInfo.data.checkIn)
           return currentUserInfo;
 
         return {

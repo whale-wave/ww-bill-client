@@ -6,13 +6,13 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAchievementSummaryQuery } from '@/entities/achievement';
 import { useNotificationsQuery, UserNotificationStatus } from '@/entities/notification';
-import { useGetUserUserInfoQuery, UserSummaryCard } from '@/entities/user';
+import { useGetUserUserInfoQuery, usePostCheckInMutation, UserSummaryCard } from '@/entities/user';
 import { BottomList } from '@/pages/mine/ui';
 import { ROUTES_PATH } from '@/shared/config/routes';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
 import { ActionMenuCard, DesignIcon } from '@/shared/ui';
-import { showAppNotice } from '@/shared/ui/app-feedback';
+import { showAppError, showAppNotice } from '@/shared/ui/app-feedback';
 import { TabBar } from '@/widgets/layout';
 
 const Mine: FC = () => {
@@ -22,6 +22,7 @@ const Mine: FC = () => {
   const { data: userInfo } = useGetUserUserInfoQuery({
     queryOptions: { refetchOnMount: 'always' },
   });
+  const [postCheckIn, { isLoading: isCheckingIn }] = usePostCheckInMutation();
   const { data: achievementSummary } = useAchievementSummaryQuery();
   const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
   const { data: notifications } = useNotificationsQuery({ params: { includeClientReleases: false, limit: 50, platform } });
@@ -30,6 +31,16 @@ const Mine: FC = () => {
   const checkIn = useMemo(() => {
     return !!userInfo?.checkIn;
   }, [userInfo]);
+
+  const handleCheckIn = async () => {
+    try {
+      await postCheckIn();
+      showAppNotice({ content: t('checkIn.success'), icon: 'success' });
+    }
+    catch {
+      showAppError({ content: t('checkIn.failed'), icon: 'fail' });
+    }
+  };
 
   const numberInfo = useMemo(() => {
     const defaultNumberInfo = {
@@ -107,7 +118,9 @@ const Mine: FC = () => {
           name={userInfo?.name}
           avatar={userInfo?.avatar}
           checkIn={checkIn}
+          isCheckingIn={isCheckingIn}
           numberInfo={numberInfo}
+          onCheckIn={() => void handleCheckIn()}
           onProfileClick={() => navigate('/user-info')}
         />
 

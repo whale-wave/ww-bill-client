@@ -74,10 +74,14 @@
   "checkIn": {
     "dayUnit": "天",
     "keep": "连续打卡",
-    "allDays": "记账总天数",
+    "allDays": "打卡总天数",
     "recordCount": "记账总笔数",
     "recordUnit": "笔",
-    "completed": "已打卡"
+    "completed": "已打卡",
+    "action": "立即打卡",
+    "checking": "正在打卡",
+    "success": "打卡成功",
+    "failed": "打卡失败，请稍后重试"
   },
   "notLoggedIn": "未登录",
   "vipNotSupported": "暂不支持 VIP 功能",

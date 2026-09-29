@@ -15,9 +15,11 @@ import {
   useCreateLedgerRecordMutation,
   useDeleteLedgerRecordMutation,
   useDeleteRecordMutation,
+  usePostRecordMutation,
   useUpdateLedgerRecordMutation,
 } from '@/entities/record/hooks';
 import { recordKeys } from '@/entities/record/keys';
+import { userKeys } from '@/entities/user/keys';
 import {
   invalidateLedgerRecordEditorCaches,
   invalidatePersonalRecordEditorCaches,
@@ -91,6 +93,16 @@ describe('record-count mutation hook cache reconciliation', () => {
       .toBe(true);
   });
 
+  it('refreshes check-in totals after a successful personal record', async () => {
+    const queryClient = reactQueryMocks.queryClient;
+    seedQuery(queryClient, userKeys.info());
+
+    usePostRecordMutation();
+    await latestMutation<unknown>().onSuccess?.({ statusCode: 200 }, undefined);
+
+    expect(queryClient.getQueryState(userKeys.info())?.isInvalidated).toBe(true);
+  });
+
   it('invalidates personal budget and household aggregates after a personal record is created', async () => {
     const queryClient = reactQueryMocks.queryClient;
     seedQuery(queryClient, budgetKeys.infoRoot());
@@ -98,6 +110,7 @@ describe('record-count mutation hook cache reconciliation', () => {
     seedQuery(queryClient, householdKeys.calendarRoot());
     seedQuery(queryClient, householdKeys.chartRoot());
     seedQuery(queryClient, householdKeys.budgetRoot());
+    seedQuery(queryClient, userKeys.info());
 
     await invalidatePersonalRecordEditorCaches(queryClient);
 
@@ -106,6 +119,7 @@ describe('record-count mutation hook cache reconciliation', () => {
     expect(queryClient.getQueryState(householdKeys.calendarRoot())?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(householdKeys.chartRoot())?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(householdKeys.budgetRoot())?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(userKeys.info())?.isInvalidated).toBe(true);
   });
 
   it('does not add count invalidation to a custom update conflict', async () => {
