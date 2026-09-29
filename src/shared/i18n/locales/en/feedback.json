@@ -12,6 +12,7 @@
   "contentPlaceholder": "Describe your idea or what happened. Steps to reproduce are especially helpful for problems…",
   "contentHint": "At least 5 characters",
   "contactLabel": "How can we reach you? (optional)",
+  "contactHint": "Consider leaving an email or WeChat ID so we can follow up. You can still submit without one, but we may not be able to reply.",
   "contactPlaceholder": "Email, WeChat, or another contact",
   "privacyHint": "Your contact is only used to clarify this feedback and is never shown publicly.",
   "attachmentsLabel": "Screenshots (optional)",
