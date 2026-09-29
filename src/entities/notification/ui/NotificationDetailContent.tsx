@@ -1,4 +1,7 @@
+import type { Components } from 'react-markdown';
 import { useMemo, useState } from 'react';
+import Markdown, { defaultUrlTransform } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useTranslation } from '@/shared/i18n';
 import { openExternalUrl, resolvePublicMediaUrl } from '@/shared/lib';
 import { ImagePreview } from '@/shared/ui';
@@ -14,42 +17,69 @@ export interface NotificationDetailContentProps {
   images?: string[];
 }
 
-export function AutoLinkText({ text }: { text: string }) {
-  if (!text)
+const MARKDOWN_COMPONENTS: Components = {
+  a: ({ children, href }) => {
+    if (!href || !/^https?:\/\//i.test(href))
+      return <span>{children}</span>;
+    return (
+      <a
+        className="break-all font-medium text-primary underline underline-offset-2 transition-opacity hover:opacity-80 active:opacity-60"
+        href={href}
+        rel="noopener noreferrer"
+        target="_blank"
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          void openExternalUrl(href);
+        }}
+      >
+        {children}
+      </a>
+    );
+  },
+  blockquote: ({ children }) => <blockquote className="my-[var(--ww-space-lg)] rounded-[var(--ww-radius-control)] border-0 bg-ww-surface-tint px-[var(--ww-space-lg)] py-[var(--ww-space-md)] text-[14px] leading-6 text-ww-mid">{children}</blockquote>,
+  code: ({ children, className }) => className
+    ? <code className={className}>{children}</code>
+    : <code className="rounded-[6px] bg-ww-surface-tint px-1.5 py-0.5 font-mono text-[0.9em] text-primary-deep">{children}</code>,
+  h1: ({ children }) => <h1 className="mb-[var(--ww-space-md)] mt-[var(--ww-space-2xl)] text-pretty text-[18px] font-extrabold leading-[27px] text-ww-ink first:mt-0">{children}</h1>,
+  h2: ({ children }) => <h2 className="mb-[var(--ww-space-sm)] mt-[var(--ww-space-2xl)] text-pretty text-[16px] font-extrabold leading-6 text-ww-ink first:mt-0">{children}</h2>,
+  h3: ({ children }) => <h3 className="mb-[var(--ww-space-sm)] mt-[var(--ww-space-xl)] text-pretty text-[15px] font-bold leading-6 text-ww-ink first:mt-0">{children}</h3>,
+  hr: () => <hr className="my-[var(--ww-space-xl)] border-0 border-t border-solid border-border-primary" />,
+  img: ({ alt }) => alt ? <span className="text-ww-soft">{alt}</span> : null,
+  li: ({ children }) => <li className="relative pl-[var(--ww-space-xl)] before:absolute before:left-0 before:top-[0.68em] before:h-1.5 before:w-1.5 before:rounded-full before:bg-primary-mid before:content-[''] [&>p]:my-0 [&>p:not(:first-child)]:mt-[var(--ww-space-xs)]">{children}</li>,
+  ol: ({ children }) => <ol className="my-[var(--ww-space-lg)] list-decimal space-y-[var(--ww-space-md)] pl-[var(--ww-space-2xl)] marker:font-bold marker:text-primary-deep">{children}</ol>,
+  p: ({ children }) => <p className="my-[var(--ww-space-md)] whitespace-pre-wrap break-words text-pretty first:mt-0 last:mb-0">{children}</p>,
+  pre: ({ children }) => <pre className="my-[var(--ww-space-lg)] overflow-x-auto rounded-[var(--ww-radius-control)] bg-ww-ink p-[var(--ww-space-lg)] font-mono text-[13px] leading-6 text-white">{children}</pre>,
+  strong: ({ children }) => <strong className="font-bold text-ww-ink">{children}</strong>,
+  table: ({ children }) => <div className="my-[var(--ww-space-lg)] overflow-x-auto rounded-[var(--ww-radius-control)] border border-solid border-border-primary"><table className="w-full min-w-max border-collapse text-left text-sm">{children}</table></div>,
+  td: ({ children }) => <td className="border border-solid border-border-primary px-[var(--ww-space-md)] py-[var(--ww-space-sm)] align-top">{children}</td>,
+  th: ({ children }) => <th className="border border-solid border-border-primary bg-ww-surface-tint px-[var(--ww-space-md)] py-[var(--ww-space-sm)] font-bold text-ww-ink">{children}</th>,
+  ul: ({ children }) => <ul className="my-[var(--ww-space-lg)] list-none space-y-[var(--ww-space-md)] p-0">{children}</ul>,
+};
+
+export function NotificationMarkdown({ content }: { content: string }) {
+  if (!content)
     return null;
 
-  const URL_REGEX = /(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g;
-  let characterOffset = 0;
-  const parts = text.split(URL_REGEX).map((part) => {
-    const item = { id: `${characterOffset}:${part.length}`, text: part };
-    characterOffset += part.length;
-    return item;
-  });
+  return (
+    <div className="break-words text-[15px] font-normal leading-[1.72] text-ww-mid" data-notification-markdown>
+      <Markdown components={MARKDOWN_COMPONENTS} remarkPlugins={[remarkGfm]} skipHtml urlTransform={defaultUrlTransform}>
+        {content}
+      </Markdown>
+    </div>
+  );
+}
+
+export function NotificationMarkdownPreview({ content }: { content: string }) {
+  if (!content)
+    return null;
 
   return (
-    <div className="whitespace-pre-wrap break-words text-[15px] leading-6 text-ww-ink">
-      {parts.map((part) => {
-        if (/^https?:\/\//i.test(part.text)) {
-          return (
-            <a
-              key={part.id}
-              href={part.text}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                void openExternalUrl(part.text);
-              }}
-              className="text-ww-primary font-medium underline underline-offset-2 break-all hover:opacity-80 active:opacity-60 transition-opacity"
-            >
-              {part.text}
-            </a>
-          );
-        }
-        return <span key={part.id}>{part.text}</span>;
-      })}
-    </div>
+    <span data-notification-markdown-preview>
+      <Markdown allowedElements={[]} remarkPlugins={[remarkGfm]} skipHtml unwrapDisallowed urlTransform={defaultUrlTransform}>
+        {content}
+      </Markdown>
+    </span>
   );
 }
 
@@ -136,7 +166,7 @@ export function NotificationDetailContent({
         </div>
       )}
 
-      <AutoLinkText text={content} />
+      <NotificationMarkdown content={content} />
 
       {imageList.length === 1 && (
         <div className="mt-[var(--ww-space-lg)] block aspect-[16/9] w-full overflow-hidden rounded-[var(--ww-radius-control)]">

@@ -29,8 +29,8 @@ export async function getPlatformLatestReleaseApi(platform: 'web' | 'android'): 
   const value = response.data;
   if (platform === 'web') {
     const web = value as WebReleaseManifest;
-    return { ...response, data: { noticeId: web.noticeId, enabled: web.enabled, versionName: web.versionName, summary: web.title ?? web.summary, releaseNotes: web.content ?? web.releaseNotes, highlights: web.highlights ?? [], publishedAt: web.publishedAt, web: { enabled: web.enabled, buildId: web.buildId ?? '', noticeId: web.noticeId }, android: { enabled: false, versionCode: 0, downloadUrl: '' } } };
+    return { ...response, data: { noticeId: web.noticeId, enabled: web.enabled, versionName: web.versionName, summary: web.title ?? web.summary, releaseNotes: web.content ?? web.releaseNotes, images: web.images ?? [], highlights: web.highlights ?? [], publishedAt: web.publishedAt, web: { enabled: web.enabled, buildId: web.buildId ?? '', noticeId: web.noticeId }, android: { enabled: false, versionCode: 0, downloadUrl: '' } } };
   }
   const android = value as AndroidPlatformReleaseManifest;
-  return { ...response, data: { noticeId: android.noticeId, enabled: android.enabled, versionName: android.versionName, summary: android.title ?? android.summary, releaseNotes: android.content ?? android.releaseNotes, highlights: android.highlights ?? [], publishedAt: android.publishedAt, web: { enabled: false, buildId: '' }, android: { enabled: android.enabled, versionCode: android.versionCode, downloadUrl: android.downloadUrl, noticeId: android.noticeId } } };
+  return { ...response, data: { noticeId: android.noticeId, enabled: android.enabled, versionName: android.versionName, summary: android.title ?? android.summary, releaseNotes: android.content ?? android.releaseNotes, images: android.images ?? [], highlights: android.highlights ?? [], publishedAt: android.publishedAt, web: { enabled: false, buildId: '' }, android: { enabled: android.enabled, versionCode: android.versionCode, downloadUrl: android.downloadUrl, noticeId: android.noticeId } } };
 }

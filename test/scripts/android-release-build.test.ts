@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { resolveAndroidReleaseBuildMetadata } from '../../scripts/build-android-release.mjs';
+import {
+  createAndroidReleaseBuildEnvironment,
+  resolveAndroidGradleTask,
+  resolveAndroidReleaseBuildMetadata,
+} from '../../scripts/build-android-release.mjs';
 
 describe('android production release build metadata', () => {
   it('uses the clean tagged HEAD as the embedded version and build id', () => {
@@ -15,6 +19,31 @@ describe('android production release build metadata', () => {
       tagName: 'v1.0.10',
       version: '1.0.10',
     });
+  });
+
+  it('sets the same tagged commit and version for build metadata and client code', () => {
+    expect(createAndroidReleaseBuildEnvironment({
+      androidVersionCode: 10,
+      buildId: '0123456789abcdef0123456789abcdef01234567',
+      tagName: 'v1.0.10',
+      version: '1.0.10',
+    }, {
+      PATH: '/usr/bin',
+      VITE_APP_BUILD_ID: 'stale-build',
+      VITE_APP_VERSION: '0.0.1',
+    })).toMatchObject({
+      APP_BUILD_ID: '0123456789abcdef0123456789abcdef01234567',
+      APP_VERSION: '1.0.10',
+      PATH: '/usr/bin',
+      VITE_APP_BUILD_ID: '0123456789abcdef0123456789abcdef01234567',
+      VITE_APP_VERSION: '1.0.10',
+    });
+  });
+
+  it('builds a debug-signed APK from the same validated production metadata', () => {
+    expect(resolveAndroidGradleTask(['--debug'])).toBe('assembleDebug');
+    expect(resolveAndroidGradleTask([])).toBe('assembleRelease');
+    expect(() => resolveAndroidGradleTask(['--unknown'])).toThrow('未知的 Android 构建参数');
   });
 
   it.each([

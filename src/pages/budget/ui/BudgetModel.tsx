@@ -1,10 +1,11 @@
+import type { BudgetEntityType } from '@/entities/budget';
 import type { CategoryEntity } from '@/entities/category';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BudgetEditorPresentation,
   BudgetEntityLevel,
-  BudgetEntityType,
+  getBudgetPeriodMeta,
 } from '@/entities/budget';
 import { useTranslation } from '@/shared/i18n';
 import { showAppInfoDialog } from '@/shared/ui';
@@ -42,12 +43,12 @@ export const BudgetModel: React.FC<BudgetModelProps> = ({
   const [amount, setAmount] = useState('');
 
   const title = useMemo(() => {
-    const isMonthly = type === BudgetEntityType.MONTH;
+    const period = getBudgetPeriodMeta(type);
     const catName = category?.name ?? '';
     if (level === BudgetEntityLevel.SUMMARY) {
-      return isMonthly ? t('model.title.monthlySummary') : t('model.title.yearlySummary');
+      return t(period.summaryTitleKey);
     }
-    return isMonthly ? t('model.title.monthlyCategory', { category: catName }) : t('model.title.yearlyCategory', { category: catName });
+    return t(period.categoryTitleKey, { category: catName });
   }, [type, level, category, t]);
 
   const handleConfirm = async () => {

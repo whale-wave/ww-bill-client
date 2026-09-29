@@ -13,6 +13,7 @@ export const RankingList: FC<{ betweenSections?: ReactNode }> = ({ betweenSectio
     curTab,
     currentAmountType,
     currentTimeRangeCategory,
+    customRange,
     onRankingItemClick,
     rankingInteraction = 'navigate',
     rankingEmptyContent,
@@ -41,6 +42,10 @@ export const RankingList: FC<{ betweenSections?: ReactNode }> = ({ betweenSectio
       searchParams.set('tabKey', curTab.key);
     if (curTab?.anchorDate)
       searchParams.set('anchorDate', curTab.anchorDate);
+    if (currentTimeRangeCategory === 'custom' && customRange) {
+      searchParams.set('startDate', customRange.startDate);
+      searchParams.set('endDate', customRange.endDate);
+    }
 
     navigate(`/chart/category?${searchParams.toString()}`, {
       state: {

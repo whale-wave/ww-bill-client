@@ -1,0 +1,591 @@
+import type { PropsWithChildren } from 'react';
+import type { CropperProps } from 'react-easy-crop';
+import type { CategoryEntity, CategoryIconCatalogItem } from '@/entities/category';
+import { act, createElement } from 'react';
+import { createRoot } from 'react-dom/client';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { CategoryManagement } from '@/features/category-management';
+
+const mocks = vi.hoisted(() => ({
+  categories: [] as CategoryEntity[],
+  iconCatalog: [] as CategoryIconCatalogItem[],
+  createCategory: vi.fn(),
+  deleteCategory: vi.fn(),
+  moveCategory: vi.fn(),
+  patchCategory: vi.fn(),
+  reorderCategories: vi.fn(),
+  uploadIcon: vi.fn(),
+}));
+
+vi.mock('react-easy-crop', () => ({
+  default: ({ image, onCropAreaChange, onMediaLoaded }: CropperProps) => (
+    <img
+      alt=""
+      onLoad={() => {
+        onMediaLoaded?.({ width: 400, height: 200, naturalWidth: 400, naturalHeight: 200 });
+        onCropAreaChange?.({ x: 25, y: 0, width: 50, height: 100 }, { x: 100, y: 0, width: 200, height: 200 });
+      }}
+      src={image}
+    />
+  ),
+}));
+
+vi.mock('@/entities/category', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/entities/category')>()),
+  useCategoryIconCatalogQuery: () => ({ data: mocks.iconCatalog }),
+  useCreateLedgerCategoryMutation: () => [mocks.createCategory, { isLoading: false }],
+  useDeleteLedgerCategoryPermanentlyMutation: () => ({ mutateAsync: mocks.deleteCategory, isLoading: false }),
+  useLedgerCategoriesQuery: () => ({ data: mocks.categories, isLoading: false, refetch: vi.fn() }),
+  useMoveLedgerCategoryMutation: () => ({ mutateAsync: mocks.moveCategory, isLoading: false }),
+  usePatchLedgerCategoryMutation: () => [mocks.patchCategory, { isLoading: false }],
+  useReorderLedgerCategoriesMutation: () => [mocks.reorderCategories, { isLoading: false }],
+  useUploadLedgerCategoryIconMutation: () => [mocks.uploadIcon, { isLoading: false }],
+}));
+vi.mock('@/shared/i18n', () => ({
+  useTranslation: () => ({
+    i18n: { resolvedLanguage: 'zh-CN' },
+    t: (key: string, options?: { name?: string }) => key === 'categories.editChild'
+      ? `编辑${options?.name}`
+      : key === 'categories.addChildTo'
+        ? `在${options?.name}下添加子分类`
+        : key,
+  }),
+}));
+vi.mock('@/shared/ui', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/shared/ui')>()),
+  AppSheet: ({ children }: PropsWithChildren) => <div>{children}</div>,
+  PageLoadingState: () => null,
+}));
+vi.mock('@/shared/ui/app-feedback', () => ({ showAppError: vi.fn() }));
+
+let cleanup: (() => void) | undefined;
+
+beforeEach(() => {
+  mocks.categories = [];
+  mocks.iconCatalog = [];
+  mocks.createCategory.mockReset();
+  mocks.createCategory.mockResolvedValue({ id: 1 });
+  mocks.deleteCategory.mockReset();
+  mocks.moveCategory.mockReset();
+  mocks.patchCategory.mockReset();
+  mocks.patchCategory.mockResolvedValue({ version: 2 });
+  mocks.reorderCategories.mockReset();
+  mocks.reorderCategories.mockResolvedValue([]);
+  mocks.uploadIcon.mockReset();
+  vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:category-image');
+  vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+});
+
+afterEach(() => {
+  cleanup?.();
+  cleanup = undefined;
+  vi.restoreAllMocks();
+});
+
+describe('category custom image flow', () => {
+  function setCategoryName(container: HTMLElement, name: string) {
+    const categoryName = container.querySelector<HTMLInputElement>('[data-testid="category-name-field"] input');
+    act(() => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(categoryName, name);
+      categoryName?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  }
+
+  it('previews and saves a category background color', async () => {
+    mocks.iconCatalog = [{ group: 'food', key: 'catering', name: { en: 'Dining', zh: '餐饮' } }];
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+
+    const addButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('categories.add'));
+    act(() => addButton?.click());
+    setCategoryName(container, '餐饮');
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="categories.backgroundColorOption"]')?.click());
+
+    const selectedColor = container.querySelector<HTMLButtonElement>('[aria-label="categories.backgroundColorOption"][aria-pressed="true"]')?.style.backgroundColor;
+    expect(selectedColor).toBe('rgb(220, 235, 255)');
+    expect((container.querySelector('[data-category-image-preview]') as HTMLElement)?.style.backgroundColor).toBe(selectedColor);
+
+    const doneButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.done');
+    await act(async () => doneButton?.click());
+    expect(mocks.createCategory).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ backgroundColor: '#DCEBFF' }),
+    }));
+  });
+
+  it('accepts a custom hex color and blocks incomplete input', async () => {
+    mocks.iconCatalog = [{ group: 'food', key: 'catering', name: { en: 'Dining', zh: '餐饮' } }];
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+
+    const addButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('categories.add'));
+    act(() => addButton?.click());
+    setCategoryName(container, '餐饮');
+    const customButton = container.querySelector<HTMLButtonElement>('[aria-label="categories.customBackground"]');
+    act(() => customButton?.click());
+    expect(customButton?.getAttribute('aria-pressed')).toBe('true');
+    expect(container.querySelector('.react-colorful')).not.toBeNull();
+
+    const hexInput = container.querySelector<HTMLInputElement>('[aria-label="categories.backgroundHex"]');
+    act(() => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(hexInput, '#12');
+      hexInput?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    expect(container.querySelector('[role="alert"]')?.textContent).toBe('categories.invalidBackgroundHex');
+    const saveButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.done');
+    expect(saveButton?.disabled).toBe(true);
+
+    act(() => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(hexInput, '#123456');
+      hexInput?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+    expect((container.querySelector('[data-category-image-preview]') as HTMLElement)?.style.backgroundColor).toBe('rgb(18, 52, 86)');
+    expect((container.querySelector('[data-category-image-preview]') as HTMLElement)?.style.color).toBe('var(--ww-ref-mono-white)');
+    expect(saveButton?.disabled).toBe(false);
+    await act(async () => saveButton?.click());
+    expect(mocks.createCategory).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ backgroundColor: '#123456' }),
+    }));
+  });
+
+  it('reopens a saved custom color and can restore the default background', async () => {
+    mocks.categories = [{
+      backgroundColor: '#123456',
+      createdAt: '2026-09-20T00:00:00.000Z',
+      icon: 'catering',
+      iconType: 'BUILTIN',
+      id: 7,
+      isCustom: true,
+      ledgerId: 'ledger-1',
+      name: '餐饮',
+      sortOrder: 1,
+      status: 'ACTIVE',
+      textIconEnabled: false,
+      textIconIndex: 0,
+      type: 'sub',
+      updatedAt: '2026-09-20T00:00:00.000Z',
+      version: 1,
+    }];
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="categories.edit"]')?.click());
+    expect(container.querySelector<HTMLInputElement>('[aria-label="categories.backgroundHex"]')?.value).toBe('#123456');
+    expect(container.querySelector<HTMLButtonElement>('[aria-label="categories.customBackground"]')?.getAttribute('aria-pressed')).toBe('true');
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="categories.defaultBackground"]')?.click());
+    expect(container.querySelector('.react-colorful')).toBeNull();
+    const saveButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.done');
+    await act(async () => saveButton?.click());
+    expect(mocks.patchCategory).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ backgroundColor: null, version: 1 }),
+    }));
+  });
+
+  it('offers an emoji and saves its catalog key without uploading an image', async () => {
+    mocks.iconCatalog = [
+      { group: 'emoji-food', key: 'emoji:🍕', name: { en: 'Pizza', zh: '披萨' } },
+      { group: 'emoji-travel', key: 'emoji:🚕', name: { en: 'Taxi', zh: '出租车' } },
+    ];
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+
+    const addButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('categories.add'));
+    act(() => addButton?.click());
+    setCategoryName(container, '外卖');
+    const emojiModeButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.iconSources.emoji');
+    act(() => emojiModeButton?.click());
+    const foodTab = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.emojiGroups.emoji-food');
+    act(() => foodTab?.click());
+    expect(container.querySelector('button[aria-label="披萨"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="出租车"]')).toBeNull();
+    const search = container.querySelector<HTMLInputElement>('input[aria-label="categories.emojiSearch"]');
+    act(() => {
+      if (search) {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(search, '出租车');
+        search.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+    expect(container.querySelector('button[aria-label="出租车"]')).not.toBeNull();
+    act(() => {
+      if (search) {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(search, '');
+        search.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+    const emojiButton = container.querySelector<HTMLButtonElement>('button[aria-label="披萨"]');
+    expect(emojiButton?.textContent).toBe('🍕');
+    act(() => emojiButton?.click());
+    expect(emojiButton?.getAttribute('aria-pressed')).toBe('true');
+    expect(container.querySelector('[data-category-image-preview]')?.textContent).toBe('🍕');
+
+    const doneButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.done');
+    await act(async () => doneButton?.click());
+    expect(mocks.createCategory).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ iconKey: 'emoji:🍕', name: '外卖', textIconEnabled: false }),
+      ledgerId: 'ledger-1',
+    }));
+    expect(mocks.createCategory.mock.calls[0]?.[0]?.data?.file).toBeUndefined();
+  });
+
+  it('uses the top preview to choose an image and saves only the confirmed square crop', async () => {
+    const drawImage = vi.fn();
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext')
+      .mockReturnValue({ drawImage } as unknown as CanvasRenderingContext2D);
+    vi.spyOn(HTMLCanvasElement.prototype, 'toBlob')
+      .mockImplementation(callback => callback(new Blob(['cropped'], { type: 'image/webp' })));
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+
+    const addButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('categories.add'));
+    act(() => addButton?.click());
+    setCategoryName(container, '旅游');
+    const textIconSwitch = container.querySelector<HTMLButtonElement>('[aria-label="categories.textIcon"]');
+    expect(textIconSwitch).not.toBeNull();
+    act(() => textIconSwitch?.click());
+    expect(textIconSwitch?.getAttribute('aria-pressed')).toBe('true');
+    expect(container.querySelector('[data-category-image-preview]')?.textContent).toBe('旅');
+    const upload = container.querySelector('[data-category-image-upload]');
+    const preview = container.querySelector('[data-category-image-preview]');
+    const nameField = container.querySelector('[data-testid="category-name-field"]');
+    expect(upload).not.toBeNull();
+    expect(upload?.tagName).toBe('LABEL');
+    expect(upload?.contains(preview)).toBe(true);
+    expect(upload?.textContent).toContain('categories.uploadHint');
+    expect(container.querySelectorAll('[data-category-image-upload]')).toHaveLength(1);
+    expect(Boolean(upload && nameField && (upload.compareDocumentPosition(nameField) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+
+    const input = upload?.querySelector<HTMLInputElement>('input[type="file"]');
+    const pickerClick = vi.fn();
+    input?.addEventListener('click', pickerClick);
+    act(() => (preview as HTMLElement)?.click());
+    expect(pickerClick).toHaveBeenCalledOnce();
+    const source = new File(['original image'], 'source.png', { type: 'image/png' });
+    Object.defineProperty(input, 'files', { configurable: true, value: [source] });
+    act(() => input?.dispatchEvent(new Event('change', { bubbles: true })));
+    expect(container.querySelector('[data-category-image-cropper]')).not.toBeNull();
+    expect(mocks.createCategory).not.toHaveBeenCalled();
+
+    const cancelCrop = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.cancel');
+    act(() => cancelCrop?.click());
+    expect(container.querySelector('[data-category-image-cropper]')).toBeNull();
+    expect(container.querySelector('[data-category-image-preview]')?.textContent).toBe('旅');
+    const retryInput = container.querySelector<HTMLInputElement>('[data-category-image-upload] input[type="file"]');
+    Object.defineProperty(retryInput, 'files', { configurable: true, value: [source] });
+    act(() => retryInput?.dispatchEvent(new Event('change', { bubbles: true })));
+    expect(container.querySelector('[data-category-image-cropper]')).not.toBeNull();
+
+    const image = container.querySelector<HTMLImageElement>('[data-category-image-cropper] img');
+    Object.defineProperty(image, 'naturalWidth', { value: 400 });
+    Object.defineProperty(image, 'naturalHeight', { value: 200 });
+    act(() => image?.dispatchEvent(new Event('load')));
+    const confirm = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.applyCrop');
+    await act(async () => confirm?.click());
+
+    expect(container.querySelector('[data-category-image-cropper]')).toBeNull();
+    expect(container.querySelector<HTMLImageElement>('[data-category-image-preview] img')?.src).toBe('blob:category-image');
+    expect(container.querySelector('[aria-label="categories.textIcon"]')?.getAttribute('aria-pressed')).toBe('false');
+    expect(container.querySelector('[data-category-image-upload]')?.textContent).toContain('categories.imageCropped');
+    expect(drawImage).toHaveBeenCalledWith(image, 100, 0, 200, 200, 0, 0, 512, 512);
+    const saveButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.done');
+    expect(saveButton?.disabled).toBe(false);
+    await act(async () => saveButton?.click());
+
+    const uploadedFile = mocks.createCategory.mock.calls[0]?.[0]?.data?.file as File;
+    expect(uploadedFile).toBeInstanceOf(File);
+    expect(uploadedFile.name).toBe('category-icon.webp');
+    expect(uploadedFile).not.toBe(source);
+    expect(mocks.createCategory.mock.calls[0]?.[0]?.data?.textIconEnabled).toBe(false);
+  });
+
+  it('restores a selected image after switching text off and preserves it when saving text', async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext')
+      .mockReturnValue({ drawImage: vi.fn() } as unknown as CanvasRenderingContext2D);
+    vi.spyOn(HTMLCanvasElement.prototype, 'toBlob')
+      .mockImplementation(callback => callback(new Blob(['cropped'], { type: 'image/webp' })));
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+
+    const addButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('categories.add'));
+    act(() => addButton?.click());
+    setCategoryName(container, '旅游');
+    const input = container.querySelector<HTMLInputElement>('[data-category-image-upload] input[type="file"]');
+    Object.defineProperty(input, 'files', { configurable: true, value: [new File(['image'], 'source.png', { type: 'image/png' })] });
+    act(() => input?.dispatchEvent(new Event('change', { bubbles: true })));
+    const image = container.querySelector<HTMLImageElement>('[data-category-image-cropper] img');
+    Object.defineProperty(image, 'naturalWidth', { value: 400 });
+    Object.defineProperty(image, 'naturalHeight', { value: 200 });
+    act(() => image?.dispatchEvent(new Event('load')));
+    const confirm = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.applyCrop');
+    await act(async () => confirm?.click());
+    expect(container.querySelector('[data-category-image-preview] img')).not.toBeNull();
+
+    const textIconSwitch = container.querySelector<HTMLButtonElement>('[aria-label="categories.textIcon"]');
+    act(() => textIconSwitch?.click());
+    expect(textIconSwitch?.getAttribute('aria-pressed')).toBe('true');
+    expect(container.querySelector('[data-category-image-preview] img')).toBeNull();
+    expect(container.querySelector('[data-category-image-preview]')?.textContent).toBe('旅');
+    expect(container.querySelector('[data-category-image-upload]')?.textContent).toContain('categories.imageHiddenByText');
+    act(() => textIconSwitch?.click());
+    expect(container.querySelector<HTMLImageElement>('[data-category-image-preview] img')?.src).toBe('blob:category-image');
+    expect(container.querySelector('[data-category-image-upload]')?.textContent).toContain('categories.imageCropped');
+    act(() => textIconSwitch?.click());
+    expect(container.querySelector('[data-category-image-preview]')?.textContent).toBe('旅');
+
+    const saveButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.done');
+    await act(async () => saveButton?.click());
+    expect(mocks.createCategory.mock.calls[0]?.[0]?.data).toMatchObject({ textIconEnabled: true });
+    expect(mocks.createCategory.mock.calls[0]?.[0]?.data?.file).toBeInstanceOf(File);
+    expect(mocks.createCategory.mock.calls[0]?.[0]?.data?.iconKey).toBeUndefined();
+  });
+
+  it('keeps an existing image when switching to text and back while editing', async () => {
+    mocks.categories = [{
+      createdAt: '2026-09-20T00:00:00.000Z',
+      icon: 'https://example.com/category.webp',
+      iconType: 'IMAGE',
+      id: 7,
+      isCustom: true,
+      ledgerId: 'ledger-1',
+      name: '旅游',
+      sortOrder: 1,
+      status: 'ACTIVE',
+      textIconEnabled: false,
+      textIconIndex: 0,
+      type: 'sub',
+      updatedAt: '2026-09-20T00:00:00.000Z',
+      version: 1,
+    }];
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="categories.edit"]')?.click());
+    expect(container.querySelector('[data-category-image-preview] img')).not.toBeNull();
+    const textIconSwitch = container.querySelector<HTMLButtonElement>('[aria-label="categories.textIcon"]');
+    act(() => textIconSwitch?.click());
+    expect(container.querySelector('[data-category-image-preview] img')).toBeNull();
+    expect(container.querySelector('[data-category-image-preview]')?.textContent).toBe('旅');
+    expect(container.querySelector('[data-category-image-upload]')?.textContent).toContain('categories.imageHiddenByText');
+    act(() => textIconSwitch?.click());
+    expect(container.querySelector<HTMLImageElement>('[data-category-image-preview] img')?.src).toBe('https://example.com/category.webp');
+    act(() => textIconSwitch?.click());
+    expect(container.querySelector('[data-category-image-preview]')?.textContent).toBe('旅');
+
+    const saveButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.done');
+    await act(async () => saveButton?.click());
+    expect(mocks.patchCategory.mock.calls[0]?.[0]?.data).toMatchObject({ textIconEnabled: true });
+    expect(mocks.patchCategory.mock.calls[0]?.[0]?.data?.iconKey).toBeUndefined();
+    expect(mocks.uploadIcon).not.toHaveBeenCalled();
+  });
+
+  it('restores the stored image after reopening a text-icon category', () => {
+    mocks.categories = [{
+      createdAt: '2026-09-20T00:00:00.000Z',
+      icon: 'https://example.com/category.webp',
+      iconType: 'IMAGE',
+      id: 8,
+      isCustom: true,
+      ledgerId: 'ledger-1',
+      name: '旅游',
+      sortOrder: 1,
+      status: 'ACTIVE',
+      textIconEnabled: true,
+      textIconIndex: 0,
+      type: 'sub',
+      updatedAt: '2026-09-20T00:00:00.000Z',
+      version: 2,
+    }];
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="categories.edit"]')?.click());
+    expect(container.querySelector('[data-category-image-preview]')?.textContent).toBe('旅');
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="categories.textIcon"]')?.click());
+    expect(container.querySelector<HTMLImageElement>('[data-category-image-preview] img')?.src).toBe('https://example.com/category.webp');
+  });
+
+  it('can save a text icon before the built-in icon catalog loads', async () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+
+    const addButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent?.includes('categories.add'));
+    act(() => addButton?.click());
+    setCategoryName(container, '旅游');
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="categories.textIcon"]')?.click());
+    const saveButton = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.done');
+    expect(saveButton?.disabled).toBe(false);
+    await act(async () => saveButton?.click());
+
+    expect(mocks.createCategory.mock.calls[0]?.[0]?.data).toMatchObject({
+      iconKey: 'receipt',
+      textIconEnabled: true,
+    });
+    expect(mocks.createCategory.mock.calls[0]?.[0]?.data?.file).toBeUndefined();
+  });
+  function renderChildGrid() {
+    mocks.categories = [
+      { id: 1, name: '旅游' },
+      { id: 2, name: '餐饮' },
+      { id: 11, parentId: 1, name: '北京' },
+      { id: 12, parentId: 1, name: '上海' },
+    ].map((category, index) => ({ ...category, createdAt: '', updatedAt: '', icon: 'receipt', iconType: 'BUILTIN', isCustom: true, ledgerId: 'ledger-1', sortOrder: index, status: 'ACTIVE', type: 'sub', version: 1 }));
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(CategoryManagement, { canManage: true, ledgerId: 'ledger-1' })));
+    cleanup = () => act(() => root.unmount());
+    return container;
+  }
+
+  it('starts parent groups collapsed, shows child summaries, and expands groups independently', () => {
+    const container = renderChildGrid();
+    const grid = container.querySelector('[data-subcategory-grid]');
+    expect(grid?.textContent).toBe('北京上海categories.addChildShort');
+    expect(grid?.querySelectorAll('button')).toHaveLength(3);
+    expect(grid?.querySelectorAll('[data-subcategory-icon]')).toHaveLength(2);
+    expect(container.textContent).not.toContain('二级分类（');
+    const toggle = container.querySelector<HTMLButtonElement>('[aria-controls="subcategory-list-1"]');
+    const emptyToggle = container.querySelector<HTMLButtonElement>('[aria-controls="subcategory-list-2"]');
+    expect(toggle?.textContent).toContain('categories.childCount');
+    expect(emptyToggle?.textContent).toContain('categories.noChildren');
+    expect(toggle?.getAttribute('aria-expanded')).toBe('false');
+    expect(container.querySelector('#subcategory-list-1')?.getAttribute('aria-hidden')).toBe('true');
+
+    act(() => toggle?.click());
+    expect(toggle?.getAttribute('aria-expanded')).toBe('true');
+    act(() => emptyToggle?.click());
+    expect(toggle?.getAttribute('aria-expanded')).toBe('true');
+    expect(emptyToggle?.getAttribute('aria-expanded')).toBe('true');
+    expect(container.querySelector('#subcategory-list-2')?.textContent).toBe('categories.addChild');
+    expect(container.querySelector('#subcategory-list-2 [data-subcategory-grid]')).toBeNull();
+  });
+
+  it('keeps hiding and sibling reordering reachable from child editing', async () => {
+    const container = renderChildGrid();
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="编辑上海"]')?.click());
+    const move = [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === 'categories.moveEarlier');
+    expect(move?.disabled).toBe(false);
+    const siblings = mocks.categories.filter(category => category.parentId === 1).reverse();
+    mocks.reorderCategories.mockResolvedValue(siblings);
+    await act(async () => move?.click());
+    expect(mocks.reorderCategories).toHaveBeenCalledWith({ ledgerId: 'ledger-1', data: { parentId: 1, type: 'sub', items: [{ categoryId: 12, version: 1 }, { categoryId: 11, version: 1 }] } });
+    expect(container.querySelector('[data-category-image-preview]')).toBeNull();
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="编辑上海"]')?.click());
+    const firstMove = [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === 'categories.moveEarlier');
+    expect(firstMove).toBeUndefined();
+    const hide = [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === 'categories.archive');
+    mocks.patchCategory.mockResolvedValue({ ...siblings[0], status: 'ARCHIVED', version: 2 });
+    await act(async () => hide?.click());
+    expect(mocks.patchCategory).toHaveBeenCalledWith({ categoryId: 12, ledgerId: 'ledger-1', data: { status: 'ARCHIVED', version: 1 } });
+    expect(container.querySelector('[aria-label="编辑上海"]')).toBeNull();
+  });
+
+  it('previews a new parent before moving a category', async () => {
+    const container = renderChildGrid();
+    mocks.moveCategory.mockResolvedValue({ path: '餐饮 / 北京', recordCount: 2, version: 1 });
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="编辑北京"]')?.click());
+    const openMove = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.moveAction');
+    act(() => openMove?.click());
+
+    const target = [...container.querySelectorAll<HTMLButtonElement>('[role="radio"]')]
+      .find(button => button.textContent === '餐饮');
+    act(() => target?.click());
+    const preview = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.previewMove');
+    await act(async () => preview?.click());
+
+    expect(mocks.moveCategory).toHaveBeenCalledWith({ ledgerId: 'ledger-1', categoryId: 11, parentId: 2, version: 1, preview: true });
+    expect(container.textContent).toContain('餐饮 / 北京');
+    expect(container.querySelector('[role="radiogroup"]')).toBeNull();
+    const confirm = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.confirmMove');
+    await act(async () => confirm?.click());
+    expect(mocks.moveCategory).toHaveBeenLastCalledWith({ ledgerId: 'ledger-1', categoryId: 11, parentId: 2, version: 1, preview: false });
+  });
+
+  it('deletes an empty category without a migration target', async () => {
+    const container = renderChildGrid();
+    mocks.deleteCategory.mockResolvedValue({ budgetCount: 0, childCount: 0, householdBudgetCount: 0, recordCount: 0, tagCount: 0, requiresMigration: false });
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="编辑北京"]')?.click());
+    const openDelete = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.deleteAction');
+    await act(async () => openDelete?.click());
+
+    expect(mocks.deleteCategory).toHaveBeenCalledWith({ ledgerId: 'ledger-1', categoryId: 11, version: 1, preview: true });
+    expect(container.textContent).toContain('categories.deleteEmptyHint');
+    const confirm = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.confirmDelete');
+    await act(async () => confirm?.click());
+    expect(mocks.deleteCategory).toHaveBeenLastCalledWith({ ledgerId: 'ledger-1', categoryId: 11, version: 1, targetCategoryId: undefined });
+  });
+
+  it('requires a destination before deleting a category with linked records', async () => {
+    const container = renderChildGrid();
+    mocks.deleteCategory.mockResolvedValue({ budgetCount: 0, childCount: 0, householdBudgetCount: 0, recordCount: 2, tagCount: 0, requiresMigration: true });
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="编辑北京"]')?.click());
+    const openDelete = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.deleteAction');
+    await act(async () => openDelete?.click());
+
+    const confirm = [...container.querySelectorAll<HTMLButtonElement>('button')]
+      .find(button => button.textContent === 'categories.migrateAndDelete');
+    expect(confirm?.disabled).toBe(true);
+    const target = [...container.querySelectorAll<HTMLButtonElement>('[role="radio"]')]
+      .find(button => button.textContent === '餐饮');
+    act(() => target?.click());
+    expect(confirm?.disabled).toBe(false);
+    await act(async () => confirm?.click());
+    expect(mocks.deleteCategory).toHaveBeenLastCalledWith({ ledgerId: 'ledger-1', categoryId: 11, version: 1, targetCategoryId: 2 });
+  });
+
+  it('creates from the grid add tile under the correct parent and reveals that parent after saving', async () => {
+    const container = renderChildGrid();
+    const parentToggle = container.querySelector<HTMLButtonElement>('[aria-controls="subcategory-list-1"]');
+    act(() => parentToggle?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="在旅游下添加子分类"]')?.click());
+    act(() => parentToggle?.click());
+    expect(parentToggle?.getAttribute('aria-expanded')).toBe('false');
+    setCategoryName(container, '成都');
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="categories.textIcon"]')?.click());
+    const save = [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === 'categories.done');
+    await act(async () => save?.click());
+    expect(mocks.createCategory).toHaveBeenCalledWith(expect.objectContaining({ ledgerId: 'ledger-1', data: expect.objectContaining({ name: '成都', parentId: 1 }) }));
+    expect(parentToggle?.getAttribute('aria-expanded')).toBe('true');
+  });
+});

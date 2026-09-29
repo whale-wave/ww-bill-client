@@ -42,5 +42,5 @@ export function AgentStatisticChart({ card }: { card: AgentStatisticCard }) {
   if (card.chartType === 'metric')
     return null;
 
-  return <div aria-label="统计图表" className="mt-3 h-[220px] w-full" ref={chartDomRef} role="img" />;
+  return <div aria-label="统计图表" className="mt-[var(--ww-space-md)] h-48 w-full" ref={chartDomRef} role="img" />;
 }

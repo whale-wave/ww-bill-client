@@ -3,6 +3,7 @@ import type { AuthRequestAuth, SuccessResponse } from '@/shared/api';
 import { captureRequestAuth, request } from '@/shared/api';
 
 interface LoginRes {
+  deletionCancelled?: boolean;
   token: string;
   userInfo: UserInfo;
 }

@@ -42,6 +42,7 @@ const hooks = vi.hoisted(() => ({
   useChartPeriodQuery: vi.fn(),
   useGetRecordBillQuery: vi.fn(),
   useGetUserAppConfigQuery: vi.fn(),
+  useVisibleAmount: vi.fn(),
   useLedgerBudgetInfoQuery: vi.fn(),
   useLedgerCategoriesQuery: vi.fn(),
   useLedgerChartQuery: vi.fn(),
@@ -73,6 +74,11 @@ vi.mock('@/entities/ledger', async importOriginal => ({
 
 vi.mock('@/entities/user-app-config', () => ({
   useGetUserAppConfigQuery: hooks.useGetUserAppConfigQuery,
+}));
+
+vi.mock('@/features/display-preferences', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/features/display-preferences')>()),
+  useVisibleAmount: hooks.useVisibleAmount,
 }));
 
 vi.mock('@/entities/household', async importOriginal => ({
@@ -285,6 +291,7 @@ beforeEach(() => {
     isError: false,
     isLoading: false,
   });
+  hooks.useVisibleAmount.mockReturnValue({ isVisibleAmount: true });
   hooks.useLedgerNavigationQuery.mockReturnValue({
     data: [
       navigationLedger({ id: 'private-default-id', kind: LedgerKind.SYSTEM_DEFAULT, name: '系统默认账本', recordCount: 8 }),
@@ -403,7 +410,7 @@ describe('personal ledger workspace integration', () => {
   });
 
   it.each([
-    ['chart', '/chart', createElement(ChartHomePage), '支出', false, true],
+    ['chart', '/chart', createElement(ChartHomePage), 'dashboard.title', false, true],
     ['budget', '/budget', createElement(BudgetPage), '月预算', true, false],
     ['bill', '/bill', createElement(BillPage), '月账单', false, false],
   ])('keeps the original %s navigation contract', (_name, pathname, element, businessTitle, hasTopBack, hasTabBar) => {
@@ -452,19 +459,19 @@ describe('personal ledger workspace integration', () => {
     expect(metrics?.querySelector('.col-span-2')).toBeNull();
   });
 
-  it('changes personal chart amount and range filters through the restored controls', async () => {
+  it('passes the hidden amount preference into the personal statistics dashboard', () => {
+    hooks.useVisibleAmount.mockReturnValue({ isVisibleAmount: false });
+    const { container } = renderPage('/chart', '/chart', createElement(ChartHomePage));
+    expect(container.querySelector('[data-chart-dashboard][data-hide-amounts="true"]')).not.toBeNull();
+  });
+
+  it('changes personal chart range and metric through the statistics controls', async () => {
     const { container, router } = renderPage('/chart', '/chart', createElement(ChartHomePage));
-    const ranges = container.querySelectorAll('.chart-period-tabs > button');
-
-    expect(ranges).toHaveLength(3);
-    await click(ranges[2]);
+    const yearRange = [...container.querySelectorAll('button')].find(button => button.textContent === 'tabs.year');
+    expect(yearRange).not.toBeUndefined();
+    await click(yearRange);
     expect(router.state.location.search).toContain('range=year');
-
-    await click(container.querySelector('[data-chart-amount-type="add"]'));
-    expect(router.state.location.search).toContain('amount=add');
-    expect(hooks.useChartPeriodOptionsQuery).toHaveBeenLastCalledWith({
-      params: { metric: 'income', pageSize: 6, period: 'year' },
-    });
+    expect(hooks.useChartPeriodOptionsQuery).not.toHaveBeenCalled();
   });
 
   it('changes personal budget period and returns through the restored navbar', async () => {
@@ -531,7 +538,7 @@ describe('custom ledger workspace integration', () => {
     expect(router.state.location.search).not.toContain('keyword=');
   });
 
-  it('uses the current ledger name without a redundant capsule and preserves ledger-scoped tabs', () => {
+  it('opens the ledger switcher from a custom-ledger title and preserves ledger-scoped tabs', async () => {
     hooks.useInfiniteLedgerRecordsQuery.mockReturnValue({
       data: {
         data: [{
@@ -582,8 +589,12 @@ describe('custom ledger workspace integration', () => {
     expect(first.container.querySelector('[data-testid="ledger-search-action"]')).not.toBeNull();
     expect(first.container.querySelector('[data-testid="ledger-calendar-action"]')).not.toBeNull();
     expect(first.container.querySelector('.adm-search-bar')).toBeNull();
-    expect(first.container.querySelector('.record-overview-title')?.textContent).toContain('家庭旅行账本');
-    expect(first.container.querySelector('.record-overview-title')?.tagName).toBe('H1');
+    const title = first.container.querySelector('[data-testid="ledger-switcher-title"]');
+    expect(title?.textContent).toContain('家庭旅行账本');
+    expect(title?.tagName).toBe('BUTTON');
+    expect(title?.getAttribute('aria-haspopup')).toBe('dialog');
+    await click(title);
+    expect(document.body.querySelector('[data-ledger-switcher-id="ledger/a"]')?.getAttribute('data-selected')).toBe('true');
     expect(first.container.querySelector('[data-workspace-capsule]')).not.toBeNull();
     expect(first.container.querySelector('[data-record-overview-infinite-scroll]')).not.toBeNull();
     expect(hooks.useInfiniteLedgerRecordsQuery).toHaveBeenCalledWith(expect.objectContaining({
@@ -610,7 +621,7 @@ describe('custom ledger workspace integration', () => {
       isLoading: false,
     });
     const second = renderPage('/ledgers/ledger%2Fa/records', '/ledgers/:ledgerId/records', createElement(LedgerRecordsPage));
-    expect(second.container.querySelector('.record-overview-title')?.tagName).toBe('H1');
+    expect(second.container.querySelector('[data-testid="ledger-switcher-title"]')?.tagName).toBe('SPAN');
     expect(second.container.querySelector('[data-workspace-capsule]')).not.toBeNull();
   });
 
@@ -708,7 +719,8 @@ describe('custom ledger workspace integration', () => {
 
     expect(container.querySelector('[data-budget-page-shell]')).not.toBeNull();
     expect(container.querySelector('[data-budget-id="ledger-summary"]')).not.toBeNull();
-    expect(container.querySelectorAll('[data-budget-type]')).toHaveLength(2);
+    expect(container.querySelectorAll('[data-budget-type]')).toHaveLength(3);
+    expect(container.querySelector(`[data-budget-type="${BudgetEntityType.DAY}"]`)?.textContent).toContain('dropdown.dailyBudget');
     expect(container.querySelector(`[data-budget-type="${BudgetEntityType.MONTH}"]`)?.textContent).toContain('月预算');
   });
 

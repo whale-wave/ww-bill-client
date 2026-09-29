@@ -13,7 +13,10 @@ export interface BudgetPresentationItem {
   title?: string;
   category?: {
     icon?: string;
+    iconType?: 'BUILTIN' | 'IMAGE';
     name: string;
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
   };
   budgetAmount: number | string;
   amount: number | string;
@@ -35,6 +38,11 @@ export interface BudgetItemProps {
 const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = BudgetEntityLevel.SUMMARY, className, data, editable = true, onClick }) => {
   const { t } = useTranslation('budget');
   const isSummaryBudget = type === BudgetEntityLevel.SUMMARY;
+  const summaryTitle = budgetEntityType === BudgetEntityType.DAY
+    ? t('item.summary.day', { day: dayjs().format('DD'), month: dayjs().format('MM') })
+    : budgetEntityType === BudgetEntityType.MONTH
+      ? t('item.summary.month', { month: dayjs().format('MM') })
+      : t('item.summary.year', { year: dayjs().format('YYYY') });
 
   return (
     <Surface
@@ -44,19 +52,17 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
       material={isSummaryBudget ? 'raised' : 'content'}
     >
       <button
-        className={classNames('block min-w-0 border-0 bg-transparent p-0 text-left', editable && 'pr-16')}
+        className="block min-w-0 border-0 bg-transparent p-0 text-left"
         data-budget-item-action
         onClick={onClick}
         type="button"
       >
-        <div className="flex min-w-0 flex-shrink-0 items-center justify-between">
+        <div className={classNames('flex min-w-0 flex-shrink-0 items-center justify-between', editable && 'pr-16')}>
           <div>
             { isSummaryBudget
               ? (
                   <div className="text-[15px] font-extrabold text-ww-ink">
-                    {data.title ?? (budgetEntityType === BudgetEntityType.MONTH
-                      ? t('item.summary.month', { month: dayjs().format('MM') })
-                      : t('item.summary.year', { year: dayjs().format('YYYY') }))}
+                    {data.title ?? summaryTitle}
                   </div>
                 )
               : (
@@ -69,6 +75,9 @@ const BudgetItem: React.FC<BudgetItemProps> = memo(({ budgetEntityType, type = B
                       <CategoryIcon
                         categoryName={data.category?.name}
                         iconKey={data.category?.icon}
+                        iconType={data.category?.iconType}
+                        textIconEnabled={data.category?.textIconEnabled}
+                        textIconIndex={data.category?.textIconIndex}
                         size={24}
                       />
                     </span>

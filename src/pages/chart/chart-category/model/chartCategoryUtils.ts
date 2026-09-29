@@ -12,7 +12,7 @@ export interface ChartCategoryLocationState {
   tabKey?: string;
   tabName?: string;
   amountType?: AmountType;
-  timeRangeCategory?: TimeRangeCategory;
+  timeRangeCategory?: TimeRangeCategory | 'custom';
   curTab?: TabItem & { anchorDate?: string };
 }
 
@@ -102,7 +102,7 @@ export function getPeriodFromState(state: ChartCategoryLocationState | null): Pe
 export function getMatchedRouteState(state: ChartCategoryLocationState | null, context: {
   categoryId: string;
   type: AmountType;
-  category: TimeRangeCategory;
+  category: TimeRangeCategory | 'custom';
   tabKey: string | null;
 }): ChartCategoryLocationState | undefined {
   if (!state?.rankingItem)

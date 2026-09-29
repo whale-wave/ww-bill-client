@@ -2,13 +2,14 @@ import type { TagRankingResponse } from '@/entities/chart';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TagRankingSection } from '@/features/chart-overview';
 import { CategoryDetail } from '@/pages/chart-scope-category/ChartScopeCategoryPage';
 import ChartCategory from '@/pages/chart/chart-category/ChartCategoryPage';
 
 const hooks = vi.hoisted(() => ({
   getChart: vi.fn(),
+  records: vi.fn(),
   tagRanking: vi.fn(),
 }));
 
@@ -16,6 +17,11 @@ vi.mock('@/entities/chart', async importOriginal => ({
   ...await importOriginal<typeof import('@/entities/chart')>(),
   useChartPeriodQuery: hooks.getChart,
   useTagRankingQuery: hooks.tagRanking,
+}));
+
+vi.mock('@/entities/record', async importOriginal => ({
+  ...await importOriginal<typeof import('@/entities/record')>(),
+  useInfiniteRecordsQuery: hooks.records,
 }));
 
 vi.mock('@/shared/lib/use-chart', () => ({
@@ -52,7 +58,6 @@ function assertNormalLayout(container: HTMLElement) {
   const markers = [
     '[data-chart-category-trend]',
     '[data-record-ranking]',
-    '[data-tag-ranking-donut]',
     '[data-tag-ranking-rows]',
   ].map(selector => container.querySelector(selector));
 
@@ -70,8 +75,13 @@ function render(element: React.ReactElement) {
 }
 
 describe('category detail chart layout', () => {
+  beforeEach(() => {
+    hooks.records.mockReturnValue({ records: [], isError: false, isLoading: false, hasNextPage: false });
+  });
+
   afterEach(() => {
     hooks.getChart.mockReset();
+    hooks.records.mockReset();
     hooks.tagRanking.mockReset();
   });
 
@@ -124,6 +134,64 @@ describe('category detail chart layout', () => {
 
     expect(container.querySelector('[data-chart-display-switch]')).toBeNull();
     assertNormalLayout(container);
+    act(() => root.unmount());
+  });
+
+  it('loads category detail for a custom chart range', () => {
+    hooks.getChart.mockReturnValue({
+      data: {
+        anchorDate: '2026-09-01',
+        endDate: '2026-09-19',
+        metric: 'expense',
+        period: 'month',
+        startDate: '2026-09-01',
+        tab: {
+          amount: 90,
+          average: '90.00',
+          data: [{ amount: 90, data: [record], displayLabel: '09-01', type: 'day', value: '2026-09-01' }],
+          key: 'custom',
+          ranking: [{ amount: 90, category: record.category, percentage: '100', type: 'sub' }],
+        },
+      },
+      isError: false,
+      isFetching: false,
+    });
+    hooks.tagRanking.mockReturnValue({ data: tagRanking, isError: false, isLoading: false });
+    const { container, root } = render(
+      <MemoryRouter
+        initialEntries={[{
+          pathname: '/chart/category',
+          search: '?categoryId=11&type=sub&category=custom&startDate=2026-09-01T00:00:00&endDate=2026-09-19T23:59:59',
+          state: {
+            amountType: 'sub',
+            categoryId: '11',
+            curTab: {
+              amount: 90,
+              average: '90.00',
+              data: [{ amount: 90, data: [record], type: 'day', value: '2026-09-01' }],
+              key: 'custom',
+              name: '2026-09-01 — 2026-09-19',
+              ranking: [{ amount: 90, category: record.category, percentage: '100', type: 'sub' }],
+            },
+            rankingItem: { amount: 90, category: record.category, percentage: '100', type: 'sub' },
+            timeRangeCategory: 'custom',
+          },
+        }]}
+      >
+        <ChartCategory />
+      </MemoryRouter>,
+    );
+
+    assertNormalLayout(container);
+    expect(hooks.getChart).toHaveBeenCalledWith(expect.objectContaining({
+      params: expect.objectContaining({
+        anchorDate: '2026-09-01',
+        categoryId: 11,
+        endDate: '2026-09-19T23:59:59+08:00',
+        period: 'month',
+        startDate: '2026-09-01T00:00:00+08:00',
+      }),
+    }));
     act(() => root.unmount());
   });
 

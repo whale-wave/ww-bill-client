@@ -102,4 +102,24 @@ describe('image preview', () => {
     expect(status?.textContent).toBe('凭证图片加载失败');
     expect(status?.closest('[aria-hidden="true"]')).toBeNull();
   });
+
+  it('opens the selected gallery image and navigates without leaving the preview', async () => {
+    const container = document.createElement('div');
+    document.body.append(container);
+    const root = createRoot(container);
+    act(() => root.render(createElement(ImagePreview, {
+      defaultIndex: 1,
+      images: ['blob:first', 'blob:second', 'blob:third'],
+      visible: true,
+    })));
+    cleanup = () => {
+      act(() => root.unmount());
+      container.remove();
+    };
+
+    await vi.waitFor(() => expect(document.body.querySelector<HTMLImageElement>('.adm-image-viewer-control img')?.src).toBe('blob:second'));
+    expect(document.body.textContent).toContain('2 / 3');
+    act(() => document.body.querySelector<HTMLButtonElement>('[aria-label="下一张图片"]')?.click());
+    expect(document.body.querySelector<HTMLImageElement>('.adm-image-viewer-control img')?.src).toBe('blob:third');
+  });
 });

@@ -16,19 +16,19 @@ vi.mock('@tanstack/react-query', async (importOriginal) => {
   };
 });
 
-describe('category-scoped ledger tag query', () => {
+describe('ledger-wide tag query', () => {
   beforeEach(() => {
     queryMocks.options.length = 0;
   });
 
-  it('does not request tags before a record category is selected', () => {
+  it('requests tags without requiring a category', () => {
     useLedgerTagsQuery({
       params: { ledgerId: 'ledger-a' },
       queryOptions: { enabled: true },
     });
 
     expect(queryMocks.options).toEqual([
-      expect.objectContaining({ enabled: false }),
+      expect.objectContaining({ enabled: true }),
     ]);
   });
 

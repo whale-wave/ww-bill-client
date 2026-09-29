@@ -29,6 +29,24 @@ export function resolveAndroidReleaseBuildMetadata(input) {
   };
 }
 
+export function createAndroidReleaseBuildEnvironment(metadata, baseEnvironment = process.env) {
+  return {
+    ...baseEnvironment,
+    APP_BUILD_ID: metadata.buildId,
+    APP_VERSION: metadata.version,
+    VITE_APP_BUILD_ID: metadata.buildId,
+    VITE_APP_VERSION: metadata.version,
+  };
+}
+
+export function resolveAndroidGradleTask(args) {
+  if (args.length === 0)
+    return 'assembleRelease';
+  if (args.length === 1 && args[0] === '--debug')
+    return 'assembleDebug';
+  throw new Error(`未知的 Android 构建参数：${args.join(' ')}`);
+}
+
 function git(args) {
   return execFileSync('git', args, {
     cwd: repositoryRoot,
@@ -46,9 +64,10 @@ function resolveTagCommit(tagName) {
   }
 }
 
-export function runAndroidReleaseBuild() {
+export function runAndroidReleaseBuild(args = process.argv.slice(2)) {
   const packageInfo = JSON.parse(readFileSync(resolve(repositoryRoot, 'package.json'), 'utf8'));
   const version = String(packageInfo.version ?? '').trim();
+  const gradleTask = resolveAndroidGradleTask(args);
   const metadata = resolveAndroidReleaseBuildMetadata({
     androidVersionCode: packageInfo.appRelease?.androidVersionCode,
     gitStatus: git(['status', '--porcelain', '--untracked-files=all']),
@@ -56,18 +75,14 @@ export function runAndroidReleaseBuild() {
     packageVersion: version,
     tagCommit: resolveTagCommit(`v${version}`),
   });
-  const environment = {
-    ...process.env,
-    APP_BUILD_ID: metadata.buildId,
-    APP_VERSION: metadata.version,
-  };
+  const environment = createAndroidReleaseBuildEnvironment(metadata);
 
   execFileSync('pnpm', ['app:sync:prod'], {
     cwd: repositoryRoot,
     env: environment,
     stdio: 'inherit',
   });
-  execFileSync('./gradlew', ['assembleRelease'], {
+  execFileSync('./gradlew', [gradleTask], {
     cwd: resolve(repositoryRoot, 'android'),
     env: environment,
     stdio: 'inherit',

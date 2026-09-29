@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { echarts } from '@/shared/lib/echarts';
 
 interface UseChartOptions {
-  preventTouchMove?: boolean;
+  preventTouchMove?: boolean | 'horizontal';
 }
 
 export function useChart({ preventTouchMove = true }: UseChartOptions = {}) {
@@ -31,8 +31,15 @@ export function useChart({ preventTouchMove = true }: UseChartOptions = {}) {
       return;
 
     const chartDom = chartDomRef.current!;
+    let touchOrigin: { x: number; y: number } | undefined;
+
+    const handleTouchStart = (event: TouchEvent) => {
+      const touch = event.touches[0];
+      touchOrigin = touch ? { x: touch.clientX, y: touch.clientY } : undefined;
+    };
 
     const handleTouchEnd = () => {
+      touchOrigin = undefined;
       myChart.dispatchAction({
         type: 'updateAxisPointer',
         currTrigger: 'leave',
@@ -40,15 +47,24 @@ export function useChart({ preventTouchMove = true }: UseChartOptions = {}) {
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      if (preventTouchMove === 'horizontal') {
+        const touch = e.touches[0];
+        if (!touch || !touchOrigin || Math.abs(touch.clientX - touchOrigin.x) <= Math.abs(touch.clientY - touchOrigin.y))
+          return;
+      }
       e.preventDefault();
     };
 
+    if (preventTouchMove === 'horizontal')
+      chartDom.addEventListener('touchstart', handleTouchStart, { passive: true });
     if (preventTouchMove)
       chartDom.addEventListener('touchmove', handleTouchMove, { passive: false });
     chartDom.addEventListener('touchend', handleTouchEnd);
     chartDom.addEventListener('touchcancel', handleTouchEnd);
 
     return () => {
+      if (preventTouchMove === 'horizontal')
+        chartDom.removeEventListener('touchstart', handleTouchStart);
       if (preventTouchMove)
         chartDom.removeEventListener('touchmove', handleTouchMove);
       chartDom.removeEventListener('touchend', handleTouchEnd);

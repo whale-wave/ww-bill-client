@@ -59,6 +59,9 @@ const router = createHashRouter([
             path: 'design-system',
             lazy: lazyPage(() => import('@/pages/design-system/DesignSystemPage')),
           }, {
+            path: 'preview/asset-overview',
+            lazy: lazyPage(() => import('@/pages/asset/asset-chart/AssetOverviewPreviewPage')),
+          }, {
             path: 'agent',
             lazy: lazyGuardedPage(() => import('@/pages/agent-chat/AgentChatPage')),
           }]
@@ -85,6 +88,10 @@ const router = createHashRouter([
       {
         path: 'record-calendar',
         lazy: lazyGuardedPage(() => import('@/pages/record/record-calendar/RecordCalendarPage')),
+      },
+      {
+        path: 'achievements',
+        lazy: lazyGuardedPage(() => import('@/pages/achievements/AchievementsPage')),
       },
       {
         path: 'search-record',
@@ -283,6 +290,10 @@ const router = createHashRouter([
       {
         path: 'import-data',
         lazy: lazyGuardedPage(() => import('@/pages/import-data/ImportDataPage')),
+      },
+      {
+        path: 'import-data/shark/:batchId',
+        lazy: lazyGuardedPage(() => import('@/pages/import-data/SharkImportPreviewPage')),
       },
       {
         path: 'export-data',

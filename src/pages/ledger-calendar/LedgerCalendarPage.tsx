@@ -10,6 +10,7 @@ import {
   toRecordSearchGroups,
   useLedgerRecordsQuery,
 } from '@/entities/record';
+import { useLedgerAmountPreferences } from '@/features/display-preferences';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { getQueryViewState } from '@/shared/api';
@@ -67,8 +68,7 @@ function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: strin
     },
   });
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
-  const showDailySummary = preferenceQuery.data?.showDailySummary !== false;
-  const isAmountHidden = preferenceQuery.data?.hideTotalAmount === true;
+  const { hideTotalAmount: isAmountHidden, showDailySummary } = useLedgerAmountPreferences(ledgerId, preferenceQuery.data);
   const currentMonthRecords = query.data.data;
   const days = useMemo(() => {
     if (!showDailySummary)
@@ -157,7 +157,7 @@ function CalendarContent({ ledger, ledgerId }: { ledger: Ledger; ledgerId: strin
       }}
       recordCountLabel={count => t('record:calendar.recordCount', { count })}
       retryLabel={t('common.retry')}
-      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
+      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} textIconEnabled={item.textIconEnabled} textIconIndex={item.textIconIndex} size={18} />}
       selectedDayLabel={t('record:calendar.selectedDay')}
       selectedDate={selectedDate}
       state={viewState.isInitialLoading ? 'loading' : viewState.isBlockingError ? 'error' : 'ready'}

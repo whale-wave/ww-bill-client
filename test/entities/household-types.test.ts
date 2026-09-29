@@ -33,7 +33,7 @@ describe('household domain contract', () => {
       'SHARED_UNCOUNTED',
       'PRIVATE',
     ]);
-    expect(Object.values(HouseholdBudgetPeriodType)).toEqual(['MONTH', 'YEAR']);
+    expect(Object.values(HouseholdBudgetPeriodType)).toEqual(['DAY', 'MONTH', 'YEAR']);
   });
 
   it('preserves household, record and budget optimistic versions', () => {

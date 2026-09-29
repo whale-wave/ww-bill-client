@@ -39,11 +39,17 @@ export function LedgerTitleSwitcher({
       : ledgerName ?? t('switcher.currentCustom');
   const quickSwitchEnabled = appConfigQuery.data?.isLedgerQuickSwitchEnabled === true;
   const classes = ['ledger-title-switcher', className].filter(Boolean).join(' ');
+  const visualIconContainerClasses = scope.type === 'custom'
+    ? 'flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-[12px] border border-white/80 bg-white/75 text-primary-deep shadow-ww-xs'
+    : 'ww-theme-primary-action flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full';
+  const visualIconClasses = scope.type === 'custom'
+    ? 'h-[18px] w-[18px] text-primary-deep'
+    : 'h-4 w-4';
 
   const visualIcon = (
-    <span className="ww-theme-primary-action flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full">
+    <span className={visualIconContainerClasses} data-ledger-title-icon>
       <LedgerVisualIcon
-        className="h-4 w-4"
+        className={visualIconClasses}
         iconKey={scope.type === 'custom' ? currentCustom?.iconKey : undefined}
         kind={scope.type === 'personal' ? LedgerKind.SYSTEM_DEFAULT : (currentCustom?.kind ?? LedgerKind.CUSTOM)}
         templateKey={scope.type === 'custom' ? currentCustom?.templateKey : undefined}

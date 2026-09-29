@@ -1,7 +1,7 @@
-import type { DragEndEvent } from '@dnd-kit/core';
 import type { CSSProperties } from 'react';
 import type {
   CategoryAmountType,
+  CategoryDeleteImpact,
   CategoryEntity,
   CategoryIconCatalogItem,
 } from '@/entities/category';
@@ -15,30 +15,42 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
+  Check,
   ChevronDown,
+  ChevronRight,
+  EyeOff,
+  FolderInput,
   GripVertical,
-  ImagePlus,
-  Minus,
+  Palette,
   Pencil,
   Plus,
+  Trash2,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { HexColorPicker } from 'react-colorful';
 import {
   CategoryIcon,
   hasCategoryGlyph,
   useCategoryIconCatalogQuery,
   useCreateLedgerCategoryMutation,
+  useDeleteLedgerCategoryPermanentlyMutation,
   useLedgerCategoriesQuery,
+  useMoveLedgerCategoryMutation,
   usePatchLedgerCategoryMutation,
   useReorderLedgerCategoriesMutation,
   useUploadLedgerCategoryIconMutation,
 } from '@/entities/category';
+import { CATEGORY_BACKGROUND_COLORS, DEFAULT_CUSTOM_CATEGORY_BACKGROUND_COLOR } from '@/shared/config/category-background-colors';
 import { useTranslation } from '@/shared/i18n';
-import { AppSheet, PageLoadingState } from '@/shared/ui';
+import { getCategoryIconForegroundColor } from '@/shared/lib/category-background';
+import { AppButton, AppSheet, PageLoadingState, SheetHeader } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
-import { Button, Input } from '@/shared/ui/konsta-compat';
+import { Input } from '@/shared/ui/konsta-compat';
+import { useMotionPreference } from '@/shared/ui/motion';
+import { CategoryEmojiPicker } from './CategoryEmojiPicker';
+import { CategoryImageCropper } from './CategoryImageCropper';
 
-type EditorState = { category?: CategoryEntity; mode: 'create' | 'edit' } | null;
+type EditorState = { category?: CategoryEntity; parentId?: number; mode: 'create' | 'edit' } | null;
 
 const GROUP_ORDER: CategoryIconCatalogItem['group'][] = [
   'food',
@@ -51,6 +63,11 @@ const GROUP_ORDER: CategoryIconCatalogItem['group'][] = [
 
 const CATEGORY_ERROR_KEYS: Record<string, string> = {
   CATEGORY_ARCHIVED: 'archived',
+  CATEGORY_DELETE_REFERENCED: 'deleteReferenced',
+  CATEGORY_DELETE_REQUIRES_MIGRATION: 'deleteRequiresMigration',
+  CATEGORY_DELETE_TARGET_CONFLICT: 'deleteTargetConflict',
+  CATEGORY_DELETE_TARGET_INVALID: 'deleteTargetInvalid',
+  CATEGORY_DELETE_TARGET_ROOT_REQUIRED: 'deleteTargetRootRequired',
   CATEGORY_ICON_ANIMATED: 'iconAnimated',
   CATEGORY_ICON_INVALID: 'iconInvalid',
   CATEGORY_ICON_STORAGE_UNAVAILABLE: 'iconStorageUnavailable',
@@ -60,6 +77,7 @@ const CATEGORY_ERROR_KEYS: Record<string, string> = {
   CATEGORY_NAME_CONFLICT: 'nameConflict',
   CATEGORY_ORDER_CONFLICT: 'orderConflict',
   CATEGORY_SYSTEM_IMMUTABLE: 'systemImmutable',
+  CATEGORY_TEXT_ICON_INDEX_INVALID: 'textIconIndexInvalid',
   CATEGORY_TYPE_MISMATCH: 'typeMismatch',
   CATEGORY_VERSION_CONFLICT: 'versionConflict',
 };
@@ -80,23 +98,28 @@ function getCategoryErrorMessage(
 function SortableCategoryRow({
   category,
   canManage,
-  disableArchive,
-  onArchive,
+  childCount,
   onEdit,
+  onToggleChildren,
+  isCollapsed,
   position,
   total,
   writePending,
 }: {
   canManage: boolean;
   category: CategoryEntity;
-  disableArchive: boolean;
-  onArchive: () => void;
+  childCount: number;
   onEdit: () => void;
+  onToggleChildren?: () => void;
+  isCollapsed: boolean;
   position: number;
   total: number;
   writePending: boolean;
 }) {
   const { t } = useTranslation('ledger');
+  const childSummary = childCount > 0
+    ? t('categories.childCount', { count: childCount })
+    : t('categories.noChildren');
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
     disabled: !canManage || writePending,
     id: category.id,
@@ -109,41 +132,30 @@ function SortableCategoryRow({
 
   return (
     <div
-      className="flex min-h-[62px] items-center gap-3 border-b border-solid border-border-primary px-3 last:border-b-0"
+      className="flex min-h-[64px] items-center gap-2 border-b border-solid border-border-primary pl-4 pr-2 last:border-b-0"
       ref={setNodeRef}
       role="listitem"
       style={style}
     >
+      <button
+        type="button"
+        className="flex min-h-[64px] min-w-0 flex-1 items-center gap-3 border-0 bg-transparent p-0 text-left"
+        aria-label={`${category.name}，${childSummary}`}
+        aria-expanded={onToggleChildren ? !isCollapsed : undefined}
+        aria-controls={onToggleChildren ? `subcategory-list-${category.id}` : undefined}
+        disabled={!onToggleChildren}
+        onClick={onToggleChildren}
+      >
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-primary-deep" data-category-management-icon style={category.backgroundColor ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) } : undefined}>
+          <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={21} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[14px] font-extrabold text-ww-ink">{category.name}</span>
+          <span className="mt-0.5 block truncate text-[10px] font-semibold text-ww-soft">{childSummary}</span>
+        </span>
+        {onToggleChildren && <ChevronDown aria-hidden size={16} className={`shrink-0 text-ww-soft transition-transform ${isCollapsed ? '-rotate-90' : ''}`} />}
+      </button>
       {canManage && (
-        <button
-          aria-label={disableArchive ? t('categories.lastActive') : t('categories.archive')}
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-feedback-danger/10 text-feedback-danger disabled:cursor-not-allowed ${disableArchive ? 'opacity-35' : ''}`}
-          disabled={disableArchive || writePending}
-          onClick={onArchive}
-          type="button"
-        >
-          <Minus size={17} strokeWidth={2.4} />
-        </button>
-      )}
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-ww-surface-tint text-primary-deep">
-        <CategoryIcon
-          categoryName={category.name}
-          iconKey={category.icon}
-          iconType={category.iconType}
-          size={21}
-        />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-[14px] font-extrabold text-ww-ink">{category.name}</span>
-          {category.isCustom && (
-            <span className="shrink-0 rounded-full bg-primary-light/55 px-2 py-0.5 text-[9px] font-extrabold tracking-wide text-primary-deep">
-              {t('categories.custom')}
-            </span>
-          )}
-        </div>
-      </div>
-      {canManage && category.isCustom && (
         <button
           aria-label={t('categories.edit')}
           className="flex h-11 w-11 items-center justify-center rounded-xl border-0 bg-transparent text-ww-mid disabled:cursor-not-allowed"
@@ -180,6 +192,12 @@ function CategoryEditorSheet({
   ledgerId,
   onClose,
   onRefresh,
+  onSaved,
+  onMove,
+  onArchive,
+  onDelete,
+  onMoveEarlier,
+  managementPending,
   type,
 }: {
   editor: Exclude<EditorState, null>;
@@ -187,6 +205,12 @@ function CategoryEditorSheet({
   ledgerId: string;
   onClose: () => void;
   onRefresh: () => Promise<unknown>;
+  onSaved: () => void;
+  onMove: (category: CategoryEntity) => void;
+  onArchive?: () => void;
+  onDelete?: () => void;
+  onMoveEarlier?: () => void;
+  managementPending?: boolean;
   type: CategoryAmountType;
 }) {
   const { i18n, t } = useTranslation('ledger');
@@ -197,6 +221,10 @@ function CategoryEditorSheet({
     () => iconCatalog.filter(item => hasCategoryGlyph(item.key)),
     [iconCatalog],
   );
+  const emojiIcons = useMemo(
+    () => availableIcons.filter(item => item.group.startsWith('emoji')),
+    [availableIcons],
+  );
   const [name, setName] = useState(editor.category?.name ?? '');
   const [iconKey, setIconKey] = useState<string | undefined>(
     editor.category?.iconType === 'BUILTIN'
@@ -205,20 +233,47 @@ function CategoryEditorSheet({
         ? availableIcons[0]?.key
         : undefined,
   );
+  const [iconMode, setIconMode] = useState<'builtins' | 'emoji'>(
+    editor.category?.icon?.startsWith('emoji:') ? 'emoji' : 'builtins',
+  );
+  const [textIconEnabled, setTextIconEnabled] = useState(editor.category?.textIconEnabled ?? false);
+  const [textIconIndex, setTextIconIndex] = useState(editor.category?.textIconIndex ?? 0);
+  const [backgroundColor, setBackgroundColor] = useState<string | null>(editor.category?.backgroundColor ?? null);
+  const [isCustomColor, setIsCustomColor] = useState(
+    Boolean(editor.category?.backgroundColor)
+    && !CATEGORY_BACKGROUND_COLORS.some(color => color.toUpperCase() === editor.category?.backgroundColor?.toUpperCase()),
+  );
+  const [lastCustomColor, setLastCustomColor] = useState(
+    editor.category?.backgroundColor && !CATEGORY_BACKGROUND_COLORS.some(color => color.toUpperCase() === editor.category?.backgroundColor?.toUpperCase())
+      ? editor.category.backgroundColor.toUpperCase()
+      : DEFAULT_CUSTOM_CATEGORY_BACKGROUND_COLOR,
+  );
+  const [hexDraft, setHexDraft] = useState(lastCustomColor);
+  const isHexDraftValid = !isCustomColor || /^#[0-9A-F]{6}$/i.test(hexDraft);
   const [image, setImage] = useState<File>();
   const [preview, setPreview] = useState<string>();
+  const [cropSourceUrl, setCropSourceUrl] = useState<string>();
   const [uploadProgress, setUploadProgress] = useState(0);
   const submittingRef = useRef(false);
   const normalizedName = name.replace(/^[ \t\r\n\u3000]+|[ \t\r\n\u3000]+$/g, '');
+  const nameChars = Array.from(normalizedName);
+  const safeTextIconIndex = Math.min(textIconIndex, Math.max(0, nameChars.length - 1));
+  const hasImage = Boolean(image || (!iconKey && editor.category?.iconType === 'IMAGE'));
   const valid = Array.from(normalizedName).length >= 1
     && Array.from(normalizedName).length <= 12
-    && Boolean(image || iconKey || editor.category?.iconType === 'IMAGE');
+    && Boolean(image || iconKey || editor.category?.iconType === 'IMAGE' || textIconEnabled)
+    && isHexDraftValid;
   const isSaving = createState.isLoading || patchState.isLoading || uploadState.isLoading;
 
   useEffect(() => () => {
     if (preview)
       URL.revokeObjectURL(preview);
   }, [preview]);
+
+  useEffect(() => () => {
+    if (cropSourceUrl)
+      URL.revokeObjectURL(cropSourceUrl);
+  }, [cropSourceUrl]);
 
   const submit = async () => {
     if (!valid || submittingRef.current)
@@ -230,9 +285,13 @@ function CategoryEditorSheet({
           setUploadProgress(0);
         await createCategory({
           data: {
-            ...(image ? { file: image } : { iconKey: iconKey! }),
+            ...(image ? { file: image } : { iconKey: iconKey ?? 'receipt' }),
             name: normalizedName,
+            parentId: editor.parentId,
             type,
+            textIconEnabled,
+            textIconIndex: safeTextIconIndex,
+            backgroundColor,
           },
           ledgerId,
           ...(image ? { onProgress: setUploadProgress } : {}),
@@ -242,12 +301,17 @@ function CategoryEditorSheet({
         let version = editor.category.version;
         const builtinChanged = Boolean(iconKey)
           && (editor.category.iconType !== 'BUILTIN' || iconKey !== editor.category.icon);
-        if (normalizedName !== editor.category.name || builtinChanged) {
+        const textChanged = textIconEnabled !== editor.category.textIconEnabled
+          || safeTextIconIndex !== editor.category.textIconIndex;
+        const backgroundChanged = backgroundColor !== (editor.category.backgroundColor ?? null);
+        if (normalizedName !== editor.category.name || builtinChanged || textChanged || backgroundChanged) {
           const updated = await patchCategory({
             categoryId: editor.category.id,
             data: {
               ...(builtinChanged ? { iconKey: iconKey! } : {}),
               ...(normalizedName !== editor.category.name ? { name: normalizedName } : {}),
+              ...(textChanged ? { textIconEnabled, textIconIndex: safeTextIconIndex } : {}),
+              ...(backgroundChanged ? { backgroundColor } : {}),
               version,
             },
             ledgerId,
@@ -265,6 +329,7 @@ function CategoryEditorSheet({
           });
         }
       }
+      onSaved();
       onClose();
     }
     catch (error) {
@@ -284,142 +349,358 @@ function CategoryEditorSheet({
     <AppSheet
       bodyStyle={{ height: 'min(86dvh, 720px)', overflow: 'hidden' }}
       destroyOnClose
-      onMaskClick={onClose}
+      onMaskClick={cropSourceUrl ? () => setCropSourceUrl(undefined) : onClose}
       showCloseButton={false}
       visible
     >
       <div className="flex h-full flex-col bg-ww-background">
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-solid border-border-primary px-4">
-          <button className="border-0 bg-transparent text-[14px] font-bold text-ww-mid" onClick={onClose} type="button">{t('categories.cancel')}</button>
+          <button className="border-0 bg-transparent text-[14px] font-bold text-ww-mid" onClick={cropSourceUrl ? () => setCropSourceUrl(undefined) : onClose} type="button">{t('categories.cancel')}</button>
           <h2 className="text-[15px] font-black text-ww-ink">
-            {t(editor.mode === 'create' ? 'categories.addTitle' : 'categories.editTitle', {
-              type: t(type === 'sub' ? 'records.type.sub' : 'records.type.add'),
-            })}
+            {cropSourceUrl
+              ? t('categories.cropTitle')
+              : t(editor.mode === 'create' ? 'categories.addTitle' : 'categories.editTitle', {
+                  type: t(type === 'sub' ? 'records.type.sub' : 'records.type.add'),
+                })}
           </h2>
-          <button
-            className="rounded-full border-0 bg-primary px-4 py-2 text-[12px] font-black text-white disabled:opacity-35"
-            disabled={!valid || isSaving}
-            onClick={() => void submit()}
-            type="button"
-          >
-            {isSaving ? t('categories.saving') : t('categories.done')}
-          </button>
+          {cropSourceUrl
+            ? <span aria-hidden="true" className="w-[52px]" />
+            : (
+                <button
+                  className="rounded-full border-0 bg-primary px-4 py-2 text-[12px] font-black text-white disabled:opacity-35"
+                  disabled={!valid || isSaving}
+                  onClick={() => void submit()}
+                  type="button"
+                >
+                  {isSaving ? t('categories.saving') : t('categories.done')}
+                </button>
+              )}
         </header>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5">
-          <div className="mx-auto max-w-[520px]">
-            <div className="mb-5 flex justify-center">
-              <span className="flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-[22px] bg-ww-surface-tint text-primary-deep shadow-ww">
-                {preview
-                  ? <img alt="" className="h-full w-full object-cover" src={preview} />
-                  : (
-                      <CategoryIcon
-                        categoryName={normalizedName}
-                        iconKey={iconKey ?? editor.category?.icon ?? 'receipt'}
-                        iconType={iconKey ? 'BUILTIN' : editor.category?.iconType}
-                        size={31}
-                      />
-                    )}
-              </span>
-            </div>
-            <label
-              className="ww-category-name-field flex min-h-[54px] items-center rounded-[18px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition-[border-color,box-shadow] focus-within:border-primary-mid focus-within:ring-2 focus-within:ring-[var(--ww-theme-color-light)]"
-              data-testid="category-name-field"
-            >
-              <span className="sr-only">{t('categories.name')}</span>
-              <Input
-                aria-label={t('categories.name')}
-                className="min-w-0 flex-1 text-[15px] text-ww-ink [--color:var(--ww-theme-text-color)] [--font-size:15px] [--placeholder-color:var(--ww-text-color-soft)]"
-                maxLength={24}
-                onChange={setName}
-                placeholder={t('categories.namePlaceholder')}
-                value={name}
-              />
-            </label>
-            <div className="mt-2 text-right text-[10px] font-semibold text-ww-mid">
-              {Array.from(normalizedName).length}
-              /12
-            </div>
-            {image && (isSaving || uploadProgress > 0) && (
-              <div className="mt-3" role="progressbar" aria-label={t('categories.uploadProgress')} aria-valuemax={100} aria-valuemin={0} aria-valuenow={Math.round(uploadProgress * 100)}>
-                <div className="h-1.5 overflow-hidden rounded-full bg-ww-surface-tint">
-                  <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${Math.round(uploadProgress * 100)}%` }} />
-                </div>
-                <p className="mt-1 text-right text-[10px] font-bold text-primary-deep">
-                  {uploadProgress >= 1
-                    ? t('categories.uploadProcessing')
-                    : t('categories.uploadProgressValue', { value: Math.round(uploadProgress * 100) })}
-                </p>
+        {cropSourceUrl && (
+          <CategoryImageCropper
+            onConfirm={(croppedImage) => {
+              setPreview(URL.createObjectURL(croppedImage));
+              setImage(croppedImage);
+              setIconKey(undefined);
+              setTextIconEnabled(false);
+              setUploadProgress(0);
+              setCropSourceUrl(undefined);
+            }}
+            onInvalidImage={() => setCropSourceUrl(undefined)}
+            sourceUrl={cropSourceUrl}
+          />
+        )}
+        {!cropSourceUrl && (
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5">
+            <div className="mx-auto max-w-[520px]">
+              <label className="group mb-5 flex cursor-pointer flex-col items-center gap-2" data-category-image-upload>
+                <span className="flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-primary-deep shadow-ww transition-opacity group-hover:opacity-80 group-focus-within:outline group-focus-within:outline-2 group-focus-within:outline-offset-2 group-focus-within:outline-primary" data-category-image-preview style={backgroundColor ? { backgroundColor, color: getCategoryIconForegroundColor(backgroundColor) } : undefined}>
+                  {preview && !textIconEnabled
+                    ? <img alt="" className="h-full w-full object-cover" src={preview} />
+                    : (
+                        <CategoryIcon
+                          categoryName={normalizedName}
+                          iconKey={iconKey ?? editor.category?.icon ?? 'receipt'}
+                          iconType={iconKey ? 'BUILTIN' : editor.category?.iconType}
+                          textIconEnabled={textIconEnabled}
+                          textIconIndex={safeTextIconIndex}
+                          size={31}
+                        />
+                      )}
+                </span>
+                <span className="text-center text-xs font-bold leading-5 text-primary-deep">
+                  {hasImage
+                    ? t(textIconEnabled ? 'categories.imageHiddenByText' : 'categories.imageCropped')
+                    : t('categories.uploadHint')}
+                </span>
+                <input
+                  accept="image/jpeg,image/png,image/webp"
+                  aria-label={t('categories.uploadImage')}
+                  className="sr-only"
+                  onChange={(event) => {
+                    const source = event.target.files?.[0];
+                    event.target.value = '';
+                    if (!source)
+                      return;
+                    if (source.size > 5 * 1024 * 1024) {
+                      showAppError({ content: t('categories.errors.iconTooLarge'), icon: 'fail' });
+                      return;
+                    }
+                    if (!['image/jpeg', 'image/png', 'image/webp'].includes(source.type)) {
+                      showAppError({ content: t('categories.errors.iconInvalid'), icon: 'fail' });
+                      return;
+                    }
+                    try {
+                      setCropSourceUrl(URL.createObjectURL(source));
+                    }
+                    catch {
+                      showAppError({ content: t('categories.imageFailed'), icon: 'fail' });
+                    }
+                  }}
+                  type="file"
+                />
+              </label>
+              <label
+                className="ww-category-name-field flex min-h-[54px] items-center rounded-[18px] border border-solid border-border-primary bg-white/90 px-4 shadow-ww-xs transition-[border-color,box-shadow] focus-within:border-primary-mid focus-within:ring-2 focus-within:ring-[var(--ww-theme-color-light)]"
+                data-testid="category-name-field"
+              >
+                <span className="sr-only">{t('categories.name')}</span>
+                <Input
+                  aria-label={t('categories.name')}
+                  className="min-w-0 flex-1 text-[15px] text-ww-ink [--color:var(--ww-theme-text-color)] [--font-size:15px] [--placeholder-color:var(--ww-text-color-soft)]"
+                  maxLength={24}
+                  onChange={setName}
+                  placeholder={t('categories.namePlaceholder')}
+                  value={name}
+                />
+              </label>
+              <div className="mt-2 text-right text-[10px] font-semibold text-ww-mid">
+                {Array.from(normalizedName).length}
+                /12
               </div>
-            )}
-            {GROUP_ORDER.map((group) => {
-              const icons = availableIcons.filter(item => item.group === group);
-              if (!icons.length)
-                return null;
-              return (
-                <section className="mt-5" key={group}>
-                  <h3 className="mb-3 text-center text-[11px] font-extrabold tracking-[0.18em] text-ww-mid">
-                    {t(`categories.iconGroups.${group}`)}
-                  </h3>
-                  <div className="grid grid-cols-5 gap-x-3 gap-y-4">
-                    {icons.map((item) => {
-                      const selected = !image && iconKey === item.key;
-                      return (
-                        <button
-                          aria-label={i18n.resolvedLanguage?.startsWith('zh') ? item.name.zh : item.name.en}
-                          aria-pressed={selected}
-                          className={`mx-auto flex h-11 w-11 items-center justify-center rounded-full border-0 transition ${selected ? 'bg-primary text-white shadow-ww' : 'bg-ww-surface-tint text-ww-mid'}`}
-                          key={item.key}
-                          onClick={() => {
-                            setImage(undefined);
-                            setPreview(undefined);
-                            setIconKey(item.key);
-                          }}
-                          type="button"
-                        >
-                          <CategoryIcon iconKey={item.key} size={21} strokeWidth={1.8} />
-                        </button>
-                      );
-                    })}
+              <section className="mt-5 rounded-[18px] border border-border-primary bg-white/90 p-4 shadow-ww-xs">
+                <h3 className="text-[13px] font-black text-ww-ink">{t('categories.backgroundColor')}</h3>
+                <div className="mt-3 grid grid-cols-5 gap-2" role="group" aria-label={t('categories.backgroundColor')}>
+                  <button
+                    aria-label={t('categories.defaultBackground')}
+                    aria-pressed={backgroundColor === null && !isCustomColor}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-solid border-border-primary bg-ww-surface-tint text-primary-deep aria-pressed:border-primary"
+                    onClick={() => {
+                      setBackgroundColor(null);
+                      setIsCustomColor(false);
+                    }}
+                    type="button"
+                  >
+                    {backgroundColor === null && !isCustomColor && <Check size={20} strokeWidth={2.5} />}
+                  </button>
+                  {CATEGORY_BACKGROUND_COLORS.map((color, index) => (
+                    <button
+                      aria-label={t('categories.backgroundColorOption', { number: index + 1 })}
+                      aria-pressed={backgroundColor === color && !isCustomColor}
+                      className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-solid border-transparent text-ww-ink aria-pressed:border-primary"
+                      key={color}
+                      onClick={() => {
+                        setBackgroundColor(color);
+                        setIsCustomColor(false);
+                      }}
+                      style={{ backgroundColor: color }}
+                      type="button"
+                    >
+                      {backgroundColor === color && !isCustomColor && <Check size={20} strokeWidth={2.5} />}
+                    </button>
+                  ))}
+                  <button
+                    aria-label={t('categories.customBackground')}
+                    aria-pressed={isCustomColor}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-solid border-border-primary bg-white text-primary-deep aria-pressed:border-primary"
+                    onClick={() => {
+                      setBackgroundColor(lastCustomColor);
+                      setHexDraft(lastCustomColor);
+                      setIsCustomColor(true);
+                    }}
+                    type="button"
+                  >
+                    <Palette size={20} />
+                  </button>
+                </div>
+                {isCustomColor && (
+                  <div className="mt-4 border-t border-solid border-border-primary pt-4">
+                    <p className="mb-3 text-xs font-semibold text-ww-mid">{t('categories.customBackgroundHint')}</p>
+                    <HexColorPicker
+                      className="!h-[192px] !w-full [&_.react-colorful__hue]:!h-11"
+                      color={backgroundColor ?? lastCustomColor}
+                      onChange={(color) => {
+                        const normalized = color.toUpperCase();
+                        setBackgroundColor(normalized);
+                        setLastCustomColor(normalized);
+                        setHexDraft(normalized);
+                      }}
+                    />
+                    <label className="mt-4 flex min-h-11 items-center gap-3 rounded-xl border border-solid border-border-primary bg-white px-3 focus-within:border-primary-mid">
+                      <span className="shrink-0 text-xs font-bold text-ww-mid">{t('categories.backgroundHex')}</span>
+                      <input
+                        aria-label={t('categories.backgroundHex')}
+                        autoCapitalize="characters"
+                        className="min-w-0 flex-1 border-0 bg-transparent py-2 text-sm font-semibold uppercase text-ww-ink outline-none"
+                        inputMode="text"
+                        maxLength={7}
+                        onInput={(event) => {
+                          const value = event.currentTarget.value;
+                          const draft = (value.startsWith('#') ? value : `#${value}`).toUpperCase();
+                          setHexDraft(draft);
+                          if (/^#[0-9A-F]{6}$/.test(draft)) {
+                            setBackgroundColor(draft);
+                            setLastCustomColor(draft);
+                          }
+                        }}
+                        spellCheck={false}
+                        value={hexDraft}
+                      />
+                    </label>
+                    {!isHexDraftValid && <p className="mt-2 text-xs text-[rgb(var(--ww-color-feedback-danger))]" role="alert">{t('categories.invalidBackgroundHex')}</p>}
                   </div>
+                )}
+              </section>
+              <section className="mt-5 rounded-[18px] border border-border-primary bg-white/90 p-4 shadow-ww-xs">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-[13px] font-black text-ww-ink">{t('categories.textIcon')}</h3>
+                    <p className="mt-1 text-[10px] font-semibold text-ww-mid">{t('categories.textIconHint')}</p>
+                  </div>
+                  <button
+                    aria-label={t('categories.textIcon')}
+                    aria-pressed={textIconEnabled}
+                    className={`relative h-7 w-12 rounded-full border-0 transition ${textIconEnabled ? 'bg-primary' : 'bg-ww-surface-tint'}`}
+                    onClick={() => setTextIconEnabled(value => !value)}
+                    type="button"
+                  >
+                    <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${textIconEnabled ? 'left-6' : 'left-1'}`} />
+                  </button>
+                </div>
+                {textIconEnabled && nameChars.length > 0 && (
+                  <div className="mt-4 grid grid-cols-6 gap-2">
+                    {nameChars.map((char, index) => (
+                      <button
+                        aria-label={`${t('categories.chooseTextIcon')}: ${char}`}
+                        aria-pressed={safeTextIconIndex === index}
+                        className={`mx-auto flex aspect-square w-full max-w-11 items-center justify-center rounded-full border-0 text-[16px] font-black ${safeTextIconIndex === index ? 'bg-primary text-white shadow-ww' : 'bg-ww-surface-tint text-ww-ink'}`}
+                        key={`${char}-${nameChars.slice(0, index).join('')}`}
+                        onClick={() => setTextIconIndex(index)}
+                        type="button"
+                      >
+                        {char}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </section>
+              {editor.category && (editor.category.isCustom || onArchive || onDelete || onMoveEarlier) && (
+                <section className="mt-5 overflow-hidden rounded-[18px] border border-solid border-border-primary bg-white/90 shadow-ww-xs">
+                  <h3 className="px-4 pb-1 pt-4 text-[12px] font-black text-ww-mid">{t('categories.actions')}</h3>
+                  {editor.category.isCustom && (
+                    <button
+                      className="flex min-h-12 w-full items-center gap-3 border-0 border-b border-solid border-border-primary bg-transparent px-4 text-left text-[13px] font-bold text-ww-ink"
+                      disabled={isSaving || managementPending}
+                      onClick={() => onMove(editor.category!)}
+                      type="button"
+                    >
+                      <FolderInput aria-hidden size={18} className="text-primary-deep" />
+                      <span className="flex-1">{t('categories.moveAction')}</span>
+                      <ChevronRight aria-hidden size={16} className="text-ww-soft" />
+                    </button>
+                  )}
+                  {onMoveEarlier && (
+                    <button
+                      className="flex min-h-12 w-full items-center gap-3 border-0 border-b border-solid border-border-primary bg-transparent px-4 text-left text-[13px] font-bold text-ww-ink"
+                      disabled={isSaving || managementPending}
+                      onClick={onMoveEarlier}
+                      type="button"
+                    >
+                      <GripVertical aria-hidden size={18} className="text-primary-deep" />
+                      <span className="flex-1">{t('categories.moveEarlier')}</span>
+                      <ChevronRight aria-hidden size={16} className="text-ww-soft" />
+                    </button>
+                  )}
+                  {onArchive && (
+                    <button
+                      className="flex min-h-12 w-full items-center gap-3 border-0 bg-transparent px-4 text-left text-[13px] font-bold text-feedback-danger"
+                      disabled={isSaving || managementPending}
+                      onClick={onArchive}
+                      type="button"
+                    >
+                      <EyeOff aria-hidden size={18} />
+                      <span className="flex-1">{t('categories.archive')}</span>
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      className="flex min-h-12 w-full items-center gap-3 border-0 border-t border-solid border-border-primary bg-transparent px-4 text-left text-[13px] font-bold text-feedback-danger"
+                      disabled={isSaving || managementPending}
+                      onClick={onDelete}
+                      type="button"
+                    >
+                      <Trash2 aria-hidden size={18} />
+                      <span className="flex-1">{t('categories.deleteAction')}</span>
+                    </button>
+                  )}
                 </section>
-              );
-            })}
-            <label className="mt-6 flex min-h-14 cursor-pointer items-center gap-3 rounded-[18px] border border-dashed border-primary/50 bg-primary-light/25 px-4 text-primary-deep">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white"><ImagePlus size={19} /></span>
-              <span className="min-w-0 flex-1">
-                <strong className="block text-[13px] font-black">{t('categories.uploadImage')}</strong>
-                <small className="block truncate text-[10px] font-semibold text-ww-mid">{image ? t('categories.imageCropped') : t('categories.uploadHint')}</small>
-              </span>
-              <input
-                accept="image/jpeg,image/png,image/webp"
-                className="sr-only"
-                onChange={(event) => {
-                  const source = event.target.files?.[0];
-                  if (!source)
-                    return;
-                  if (source.size > 5 * 1024 * 1024) {
-                    showAppError({
-                      content: t('categories.errors.iconTooLarge'),
-                      icon: 'fail',
-                    });
-                    return;
-                  }
-
-                  setImage(source);
-                  setIconKey(undefined);
-                  setUploadProgress(0);
-                  try {
-                    setPreview(URL.createObjectURL(source));
-                  }
-                  catch {
+              )}
+              {image && (isSaving || uploadProgress > 0) && (
+                <div className="mt-3" role="progressbar" aria-label={t('categories.uploadProgress')} aria-valuemax={100} aria-valuemin={0} aria-valuenow={Math.round(uploadProgress * 100)}>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-ww-surface-tint">
+                    <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${Math.round(uploadProgress * 100)}%` }} />
+                  </div>
+                  <p className="mt-1 text-right text-[10px] font-bold text-primary-deep">
+                    {uploadProgress >= 1
+                      ? t('categories.uploadProcessing')
+                      : t('categories.uploadProgressValue', { value: Math.round(uploadProgress * 100) })}
+                  </p>
+                </div>
+              )}
+              <div className="mt-5 flex rounded-full bg-ww-surface-tint p-1" role="group" aria-label={t('categories.iconSource')}>
+                {(['builtins', 'emoji'] as const).map(mode => (
+                  <button
+                    aria-pressed={iconMode === mode}
+                    className={`min-h-11 flex-1 rounded-full border-0 text-[13px] font-bold ${iconMode === mode ? 'bg-ww-surface text-primary-deep shadow-ww-xs' : 'bg-transparent text-ww-mid'}`}
+                    key={mode}
+                    onClick={() => setIconMode(mode)}
+                    type="button"
+                  >
+                    {t(`categories.iconSources.${mode}`)}
+                  </button>
+                ))}
+              </div>
+              {iconMode === 'emoji' && (
+                <CategoryEmojiPicker
+                  icons={emojiIcons}
+                  onSelect={(selectedKey) => {
+                    setImage(undefined);
                     setPreview(undefined);
-                  }
-                }}
-                type="file"
-              />
-            </label>
+                    setIconKey(selectedKey);
+                    setTextIconEnabled(false);
+                    setUploadProgress(0);
+                  }}
+                  selectedKey={!image ? iconKey : undefined}
+                />
+              )}
+              {iconMode === 'builtins' && GROUP_ORDER.map((group) => {
+                const icons = availableIcons.filter(item => item.group === group);
+                if (!icons.length)
+                  return null;
+                return (
+                  <section className="mt-5" key={group}>
+                    <h3 className="mb-3 text-center text-[11px] font-extrabold tracking-[0.18em] text-ww-mid">
+                      {t(`categories.iconGroups.${group}`)}
+                    </h3>
+                    <div className="grid grid-cols-5 gap-x-3 gap-y-4">
+                      {icons.map((item) => {
+                        const selected = !image && iconKey === item.key;
+                        return (
+                          <button
+                            aria-label={i18n.resolvedLanguage?.startsWith('zh') ? item.name.zh : item.name.en}
+                            aria-pressed={selected}
+                            className={`mx-auto flex h-11 w-11 items-center justify-center rounded-full border-0 transition ${selected ? 'bg-primary text-white shadow-ww' : 'bg-ww-surface-tint text-ww-mid'}`}
+                            key={item.key}
+                            onClick={() => {
+                              setImage(undefined);
+                              setPreview(undefined);
+                              setIconKey(item.key);
+                              setTextIconEnabled(false);
+                              setUploadProgress(0);
+                            }}
+                            type="button"
+                          >
+                            <CategoryIcon iconKey={item.key} size={21} strokeWidth={1.8} />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </AppSheet>
   );
@@ -446,9 +727,103 @@ export function CategoryManagement({
   const [reorderCategories, reorderState] = useReorderLedgerCategoriesMutation();
   const [categories, setCategories] = useState<CategoryEntity[]>([]);
   const [editor, setEditor] = useState<EditorState>(null);
+  const { isMotionEnabled } = useMotionPreference();
+  const [expandedIds, setExpandedIds] = useState<number[]>([]);
+  const parentRowsRef = useRef(new Map<number, HTMLDivElement>());
+  const [moving, setMoving] = useState<CategoryEntity | null>(null);
+  const [moveParentId, setMoveParentId] = useState<number | null>(null);
+  const [movePreview, setMovePreview] = useState<{ path: string; recordCount: number; version: number } | null>(null);
+  const moveCategory = useMoveLedgerCategoryMutation();
+  const [deleting, setDeleting] = useState<CategoryEntity | null>(null);
+  const [deleteImpact, setDeleteImpact] = useState<CategoryDeleteImpact | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const deleteCategory = useDeleteLedgerCategoryPermanentlyMutation();
+  const revealParent = (parentId: number) => {
+    setExpandedIds(current => current.includes(parentId) ? current : [...current, parentId]);
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => parentRowsRef.current.get(parentId)?.scrollIntoView?.({
+        behavior: isMotionEnabled ? 'smooth' : 'auto',
+        block: 'nearest',
+      }));
+    }
+  };
+  const handleMove = async (preview: boolean) => {
+    if (!moving)
+      return;
+    try {
+      const result = await moveCategory.mutateAsync({ ledgerId, categoryId: moving.id, parentId: moveParentId, version: movePreview?.version ?? moving.version, preview });
+      if (preview) {
+        setMovePreview(result);
+      }
+      else {
+        if (moveParentId)
+          revealParent(moveParentId);
+        setMoving(null);
+        setMovePreview(null);
+      }
+    }
+    catch (error) {
+      setMovePreview(null);
+      showAppError({ content: getCategoryErrorMessage(error, t, t('categories.saveFailed')), icon: 'fail' });
+      await query.refetch();
+    }
+  };
+  const handleStartDelete = async (category: CategoryEntity) => {
+    setEditor(null);
+    setDeleting(category);
+    setDeleteImpact(null);
+    setDeleteTargetId(null);
+    try {
+      const impact = await deleteCategory.mutateAsync({
+        categoryId: category.id,
+        ledgerId,
+        preview: true,
+        version: category.version,
+      });
+      setDeleteImpact(impact);
+    }
+    catch (error) {
+      setDeleting(null);
+      showAppError({ content: getCategoryErrorMessage(error, t, t('categories.deleteFailed')), icon: 'fail' });
+      void query.refetch();
+    }
+  };
+  const handleDelete = async () => {
+    if (!deleting || !deleteImpact || (deleteImpact.requiresMigration && !deleteTargetId))
+      return;
+    try {
+      await deleteCategory.mutateAsync({
+        categoryId: deleting.id,
+        ledgerId,
+        targetCategoryId: deleteImpact.requiresMigration ? deleteTargetId! : undefined,
+        version: deleting.version,
+      });
+      setDeleting(null);
+      setDeleteImpact(null);
+      setDeleteTargetId(null);
+    }
+    catch (error) {
+      showAppError({ content: getCategoryErrorMessage(error, t, t('categories.deleteFailed')), icon: 'fail' });
+      void query.refetch();
+    }
+  };
   const writesRef = useRef(new Set<number | 'order'>());
   const active = categories.filter(category => category.status === 'ACTIVE');
+  const roots = active.filter(category => !category.parentId);
   const archived = categories.filter(category => category.status === 'ARCHIVED');
+  const deleteRequiresRoot = Boolean(deleteImpact && (deleteImpact.childCount || deleteImpact.budgetCount || deleteImpact.householdBudgetCount));
+  const deleteTargets = active.filter(category => category.id !== deleting?.id
+    && (!category.parentId || roots.some(root => root.id === category.parentId))
+    && (!deleteRequiresRoot || !category.parentId));
+  const deleteImpactRows = deleteImpact
+    ? [
+        { count: deleteImpact.recordCount, label: t('categories.deleteRecords') },
+        { count: deleteImpact.budgetCount, label: t('categories.deleteBudgets') },
+        { count: deleteImpact.householdBudgetCount, label: t('categories.deleteHouseholdBudgets') },
+        { count: deleteImpact.tagCount, label: t('categories.deleteTags') },
+        { count: deleteImpact.childCount, label: t('categories.deleteChildren') },
+      ].filter(item => item.count > 0)
+    : [];
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 7 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -496,20 +871,26 @@ export function CategoryManagement({
     }
   };
 
-  const handleDragEnd = async ({ active: dragged, over }: DragEndEvent) => {
-    if (!over || dragged.id === over.id || writesRef.current.has('order'))
+  const handleReorder = async (draggedId: number, overId: number | undefined) => {
+    if (overId === undefined || draggedId === overId || writesRef.current.has('order'))
       return;
-    const oldIndex = active.findIndex(item => item.id === Number(dragged.id));
-    const newIndex = active.findIndex(item => item.id === Number(over.id));
+    const draggedCategory = active.find(item => item.id === draggedId);
+    const overCategory = active.find(item => item.id === overId);
+    if (!draggedCategory || !overCategory || (draggedCategory.parentId ?? null) !== (overCategory.parentId ?? null))
+      return;
+    const siblings = active.filter(item => (item.parentId ?? null) === (draggedCategory.parentId ?? null));
+    const oldIndex = siblings.findIndex(item => item.id === draggedId);
+    const newIndex = siblings.findIndex(item => item.id === overId);
     if (oldIndex < 0 || newIndex < 0)
       return;
     const previous = categories;
-    const nextActive = arrayMove(active, oldIndex, newIndex);
-    setCategories([...nextActive, ...archived]);
+    const nextActive = arrayMove(siblings, oldIndex, newIndex);
+    setCategories([...nextActive, ...categories.filter(item => !siblings.some(sibling => sibling.id === item.id))]);
     writesRef.current.add('order');
     try {
       const saved = await reorderCategories({
         data: {
+          parentId: draggedCategory.parentId,
           items: nextActive.map(category => ({
             categoryId: category.id,
             version: category.version,
@@ -518,7 +899,7 @@ export function CategoryManagement({
         },
         ledgerId,
       });
-      setCategories([...saved, ...archived]);
+      setCategories([...saved, ...categories.filter(item => !siblings.some(sibling => sibling.id === item.id))]);
     }
     catch {
       setCategories(previous);
@@ -534,6 +915,7 @@ export function CategoryManagement({
     if (nextType === type)
       return;
     setShowArchived(false);
+    setExpandedIds([]);
     setType(nextType);
   };
 
@@ -574,24 +956,82 @@ export function CategoryManagement({
               : (
                   <DndContext
                     collisionDetection={closestCenter}
-                    onDragEnd={event => void handleDragEnd(event)}
+                    onDragEnd={event => void handleReorder(Number(event.active.id), event.over ? Number(event.over.id) : undefined)}
                     sensors={sensors}
                   >
-                    <SortableContext items={active.map(item => item.id)} strategy={verticalListSortingStrategy}>
+                    <SortableContext items={roots.map(item => item.id)} strategy={verticalListSortingStrategy}>
                       <div aria-label={t('categories.current')} role="list">
-                        {active.map((category, index) => (
-                          <SortableCategoryRow
-                            canManage={canManage}
-                            category={category}
-                            disableArchive={active.length <= 1}
-                            key={category.id}
-                            onArchive={() => void changeStatus(category, 'ARCHIVED')}
-                            onEdit={() => setEditor({ category, mode: 'edit' })}
-                            position={index + 1}
-                            total={active.length}
-                            writePending={patchState.isLoading || reorderState.isLoading}
-                          />
-                        ))}
+                        {roots.map((category, index) => {
+                          const children = active.filter(child => child.parentId === category.id);
+                          const isCollapsed = !expandedIds.includes(category.id);
+                          return (
+                            <div
+                              data-category-parent={category.id}
+                              key={category.id}
+                              ref={(node) => {
+                                if (node)
+                                  parentRowsRef.current.set(category.id, node);
+                                else
+                                  parentRowsRef.current.delete(category.id);
+                              }}
+                            >
+                              <SortableCategoryRow
+                                canManage={canManage}
+                                category={category}
+                                childCount={children.length}
+                                onEdit={() => setEditor({ category, mode: 'edit' })}
+                                onToggleChildren={canManage || children.length > 0 ? () => setExpandedIds(current => isCollapsed ? [...current, category.id] : current.filter(id => id !== category.id)) : undefined}
+                                isCollapsed={isCollapsed}
+                                position={index + 1}
+                                total={roots.length}
+                                writePending={patchState.isLoading || reorderState.isLoading}
+                              />
+                              {(canManage || children.length > 0) && (
+                                <div id={`subcategory-list-${category.id}`} aria-hidden={isCollapsed} className={`grid ${isCollapsed ? 'invisible grid-rows-[0fr]' : 'visible grid-rows-[1fr]'} ${isMotionEnabled ? 'transition-[grid-template-rows,visibility] duration-200 ease-out' : ''}`}>
+                                  <div className="min-h-0 overflow-hidden">
+                                    {children.length === 0
+                                      ? (
+                                          <button
+                                            aria-label={t('categories.addChildTo', { name: category.name })}
+                                            className="mx-4 mb-3 mt-2 flex min-h-12 w-[calc(100%-32px)] items-center justify-center gap-2 rounded-[14px] border border-dashed border-primary-mid bg-ww-surface-tint text-[12px] font-bold text-primary-deep"
+                                            onClick={() => setEditor({ mode: 'create', parentId: category.id })}
+                                            type="button"
+                                          >
+                                            <Plus aria-hidden size={17} />
+                                            {t('categories.addChild')}
+                                          </button>
+                                        )
+                                      : (
+                                          <div className="mx-3 mb-3 mt-2 grid grid-cols-5 gap-x-1 gap-y-2 rounded-2xl bg-ww-surface-tint px-2 py-3 max-[360px]:grid-cols-4" data-subcategory-grid>
+                                            {children.map(child => (
+                                              <button
+                                                key={child.id}
+                                                type="button"
+                                                aria-label={t(canManage ? 'categories.editChild' : 'categories.viewChild', { name: child.name })}
+                                                className="flex min-h-[76px] min-w-0 flex-col items-center gap-1.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center text-[12px] leading-4 text-ww-ink enabled:active:bg-primary-light/50"
+                                                disabled={!canManage || patchState.isLoading || reorderState.isLoading}
+                                                onClick={() => setEditor({ category: child, mode: 'edit' })}
+                                              >
+                                                <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface" data-subcategory-icon style={child.backgroundColor ? { backgroundColor: child.backgroundColor, color: getCategoryIconForegroundColor(child.backgroundColor) } : undefined}>
+                                                  <CategoryIcon categoryName={child.name} iconKey={child.icon} iconType={child.iconType} textIconEnabled={child.textIconEnabled} textIconIndex={child.textIconIndex} size={24} />
+                                                </span>
+                                                <span className="w-full break-words">{child.name}</span>
+                                              </button>
+                                            ))}
+                                            {canManage && (
+                                              <button type="button" aria-label={t('categories.addChildTo', { name: category.name })} className="flex min-h-[76px] min-w-0 flex-col items-center gap-1.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-[12px] leading-4 text-ww-mid active:bg-primary-light/50" onClick={() => setEditor({ mode: 'create', parentId: category.id })}>
+                                                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ww-soft/20"><Plus size={24} strokeWidth={1.8} /></span>
+                                                <span>{t('categories.addChildShort')}</span>
+                                              </button>
+                                            )}
+                                          </div>
+                                        )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </SortableContext>
                   </DndContext>
@@ -626,22 +1066,33 @@ export function CategoryManagement({
             >
               {archived.length
                 ? archived.map(category => (
-                    <div className="flex min-h-[60px] items-center gap-3 border-b border-solid border-border-primary px-3 last:border-b-0" key={category.id}>
-                      {canManage && (
-                        <button
-                          aria-label={t('categories.restoreName', { name: category.name })}
-                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-feedback-success/10 text-feedback-success"
-                          onClick={() => void changeStatus(category, 'ACTIVE')}
-                          type="button"
-                        >
-                          <Plus size={18} strokeWidth={2.5} />
-                        </button>
-                      )}
-                      <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-[14px] bg-ww-surface-tint text-ww-mid">
-                        <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} size={20} />
+                    <div className="flex min-h-[60px] items-center gap-3 border-b border-solid border-border-primary px-4 last:border-b-0" key={category.id}>
+                      <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint text-ww-mid" data-category-management-icon style={category.backgroundColor ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) } : undefined}>
+                        <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={20} />
                       </span>
                       <span className="min-w-0 flex-1 truncate text-[14px] font-bold text-ww-mid">{category.name}</span>
-                      <span className="rounded-full bg-ww-surface-tint px-2 py-1 text-[9px] font-bold text-ww-soft">{t('categories.inactive')}</span>
+                      {canManage && (
+                        <button
+                          aria-label={t('categories.editName', { name: category.name })}
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-0 bg-transparent text-ww-mid"
+                          onClick={() => setEditor({ category, mode: 'edit' })}
+                          type="button"
+                        >
+                          <Pencil aria-hidden size={17} />
+                        </button>
+                      )}
+                      {canManage
+                        ? (
+                            <button
+                              aria-label={t('categories.restoreName', { name: category.name })}
+                              className="min-h-11 shrink-0 rounded-xl border-0 bg-ww-surface-tint px-3 text-[12px] font-bold text-primary-deep"
+                              onClick={() => void changeStatus(category, 'ACTIVE')}
+                              type="button"
+                            >
+                              {t('categories.restore')}
+                            </button>
+                          )
+                        : <span className="text-[11px] font-bold text-ww-soft">{t('categories.inactive')}</span>}
                     </div>
                   ))
                 : <p className="px-4 py-6 text-center text-[11px] font-semibold text-ww-mid">{t('categories.noMore')}</p>}
@@ -650,18 +1101,193 @@ export function CategoryManagement({
         </div>
       </main>
       {canManage && (
-        <div className="absolute inset-x-0 bottom-0 border-t border-solid border-border-primary bg-ww-surface px-[18px] pb-[calc(12px+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
-          <Button
-            block
-            className="mx-auto !h-12 !max-w-[520px] !rounded-[17px] !border-0 !bg-primary !text-[14px] !font-black !text-white !shadow-[0_12px_26px_rgba(45,135,181,0.25)]"
+        <div className="absolute inset-x-0 bottom-0 flex justify-center border-t border-solid border-border-primary bg-ww-surface px-[18px] pb-[calc(12px+env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
+          <AppButton
+            className="max-w-[520px]"
+            fullWidth
+            size="large"
             onClick={() => setEditor({ mode: 'create' })}
           >
             <span className="inline-flex items-center gap-2">
               <Plus size={18} />
               {t('categories.add')}
             </span>
-          </Button>
+          </AppButton>
         </div>
+      )}
+      {moving && (
+        <AppSheet
+          bodyStyle={{ height: 'min(78dvh, 640px)', overflow: 'hidden' }}
+          onMaskClick={() => setMoving(null)}
+          showCloseButton={false}
+          visible
+        >
+          <div className="flex h-full flex-col bg-ww-background">
+            <SheetHeader
+              closeLabel={t('categories.cancel')}
+              description={moving.name}
+              icon={<FolderInput size={20} />}
+              onClose={() => setMoving(null)}
+              title={t('categories.moveTitle')}
+            />
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-[18px] py-4">
+              <div className="mx-auto max-w-[520px]">
+                {movePreview
+                  ? (
+                      <div className="rounded-[20px] border border-solid border-border-primary bg-ww-surface p-5 shadow-ww-xs" role="status">
+                        <p className="text-[12px] font-bold text-ww-mid">{t('categories.moveCurrent')}</p>
+                        <p className="mt-1 text-[15px] font-black text-ww-ink">
+                          {moving.parentId ? roots.find(category => category.id === moving.parentId)?.name : t('categories.asRoot')}
+                        </p>
+                        <div className="my-4 h-px bg-ww-surface-tint" />
+                        <p className="text-[12px] font-bold text-ww-mid">{t('categories.moveResult')}</p>
+                        <p className="mt-1 text-[17px] font-black text-primary-deep">{movePreview.path}</p>
+                        <p className="mt-3 rounded-[12px] bg-ww-surface-tint px-3 py-2 text-[12px] font-semibold text-ww-mid">{t('categories.moveRecords', { count: movePreview.recordCount })}</p>
+                        <button
+                          className="mt-4 min-h-11 border-0 bg-transparent p-0 text-[12px] font-bold text-primary-deep"
+                          onClick={() => setMovePreview(null)}
+                          type="button"
+                        >
+                          {t('categories.changeDestination')}
+                        </button>
+                      </div>
+                    )
+                  : (
+                      <>
+                        <p className="mb-2 px-1 text-[12px] font-black text-ww-mid">{t('categories.moveDestination')}</p>
+                        <div aria-label={t('categories.moveDestination')} className="overflow-hidden rounded-[20px] border border-solid border-border-primary bg-ww-surface shadow-ww-xs" role="radiogroup">
+                          <button
+                            aria-checked={moveParentId === null}
+                            className={`flex min-h-[58px] w-full items-center gap-3 border-0 border-b border-solid border-border-primary px-4 text-left ${moveParentId === null ? 'bg-primary-light/40' : 'bg-transparent'}`}
+                            onClick={() => {
+                              setMoveParentId(null);
+                              setMovePreview(null);
+                            }}
+                            role="radio"
+                            type="button"
+                          >
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ww-surface-tint text-primary-deep"><FolderInput size={18} /></span>
+                            <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-ww-ink">{t('categories.asRoot')}</span>
+                            {moveParentId === null && <Check aria-hidden size={18} className="text-primary-deep" />}
+                          </button>
+                          {roots.filter(category => category.id !== moving.id).map(category => (
+                            <button
+                              aria-checked={moveParentId === category.id}
+                              className={`flex min-h-[58px] w-full items-center gap-3 border-0 border-b border-solid border-border-primary px-4 text-left last:border-b-0 ${moveParentId === category.id ? 'bg-primary-light/40' : 'bg-transparent'}`}
+                              key={category.id}
+                              onClick={() => {
+                                setMoveParentId(category.id);
+                                setMovePreview(null);
+                              }}
+                              role="radio"
+                              type="button"
+                            >
+                              <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint" data-category-management-icon style={category.backgroundColor ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) } : undefined}>
+                                <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={19} />
+                              </span>
+                              <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-ww-ink">{category.name}</span>
+                              {moveParentId === category.id && <Check aria-hidden size={18} className="text-primary-deep" />}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+              </div>
+            </div>
+            <div className="flex shrink-0 justify-center border-t border-solid border-border-primary bg-ww-surface px-[18px] pb-[calc(14px+env(safe-area-inset-bottom))] pt-3">
+              <AppButton
+                className="max-w-[520px]"
+                disabled={moveParentId === (moving.parentId ?? null)}
+                fullWidth
+                loading={moveCategory.isLoading}
+                onClick={() => void handleMove(!movePreview)}
+                size="large"
+              >
+                {t(movePreview ? 'categories.confirmMove' : 'categories.previewMove')}
+              </AppButton>
+            </div>
+          </div>
+        </AppSheet>
+      )}
+      {deleting && (
+        <AppSheet
+          bodyStyle={deleteImpact?.requiresMigration ? { height: 'min(78dvh, 640px)', overflow: 'hidden' } : undefined}
+          onMaskClick={() => setDeleting(null)}
+          showCloseButton={false}
+          visible
+        >
+          <div className={`flex flex-col bg-ww-background ${deleteImpact?.requiresMigration ? 'h-full' : ''}`}>
+            <SheetHeader
+              closeLabel={t('categories.cancel')}
+              description={deleting.path ?? deleting.name}
+              icon={<Trash2 size={20} />}
+              onClose={() => setDeleting(null)}
+              title={t('categories.deleteTitle')}
+            />
+            <div className={`${deleteImpact?.requiresMigration ? 'min-h-0 flex-1 overflow-y-auto overscroll-contain' : ''} px-[18px] py-4`}>
+              <div className="mx-auto max-w-[520px]">
+                {!deleteImpact
+                  ? <PageLoadingState compact label={t('common:nav.loading')} />
+                  : deleteImpact.requiresMigration
+                    ? (
+                        <>
+                          <div className="mb-4 rounded-[18px] border border-solid border-border-primary bg-ww-surface px-4 py-3">
+                            <p className="text-[12px] font-bold text-ww-mid">{t('categories.deleteMigrationHint')}</p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {deleteImpactRows.map(item => (
+                                <span className="rounded-full bg-ww-surface-tint px-2.5 py-1 text-[11px] font-bold text-ww-ink" key={item.label}>
+                                  {item.label}
+                                  {' '}
+                                  {item.count}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <p className="mb-2 px-1 text-[12px] font-black text-ww-mid">{t('categories.deleteTarget')}</p>
+                          {deleteTargets.length
+                            ? (
+                                <div aria-label={t('categories.deleteTarget')} className="overflow-hidden rounded-[20px] border border-solid border-border-primary bg-ww-surface shadow-ww-xs" role="radiogroup">
+                                  {deleteTargets.map(category => (
+                                    <button
+                                      aria-checked={deleteTargetId === category.id}
+                                      className={`flex min-h-[58px] w-full items-center gap-3 border-0 border-b border-solid border-border-primary px-4 text-left last:border-b-0 ${deleteTargetId === category.id ? 'bg-primary-light/40' : 'bg-transparent'}`}
+                                      key={category.id}
+                                      onClick={() => setDeleteTargetId(category.id)}
+                                      role="radio"
+                                      type="button"
+                                    >
+                                      <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ww-surface-tint" data-category-management-icon style={category.backgroundColor ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) } : undefined}>
+                                        <CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={19} />
+                                      </span>
+                                      <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-ww-ink">{category.path ?? category.name}</span>
+                                      {deleteTargetId === category.id && <Check aria-hidden size={18} className="text-primary-deep" />}
+                                    </button>
+                                  ))}
+                                </div>
+                              )
+                            : <p className="rounded-[18px] bg-ww-surface px-4 py-5 text-[12px] font-semibold text-ww-mid">{t('categories.deleteNoTarget')}</p>}
+                        </>
+                      )
+                    : <p className="rounded-[18px] bg-ww-surface px-4 py-5 text-[13px] font-semibold leading-6 text-ww-mid">{t('categories.deleteEmptyHint')}</p>}
+              </div>
+            </div>
+            {deleteImpact && (
+              <div className="flex shrink-0 justify-center border-t border-solid border-border-primary bg-ww-surface px-[18px] pb-[calc(14px+env(safe-area-inset-bottom))] pt-3">
+                <AppButton
+                  className="max-w-[520px]"
+                  disabled={deleteImpact.requiresMigration && !deleteTargetId}
+                  fullWidth
+                  loading={deleteCategory.isLoading}
+                  onClick={() => void handleDelete()}
+                  size="large"
+                  variant="danger"
+                >
+                  {t(deleteImpact.requiresMigration ? 'categories.migrateAndDelete' : 'categories.confirmDelete')}
+                </AppButton>
+              </div>
+            )}
+          </div>
+        </AppSheet>
       )}
       {editor && (
         <CategoryEditorSheet
@@ -670,6 +1296,37 @@ export function CategoryManagement({
           ledgerId={ledgerId}
           onClose={() => setEditor(null)}
           onRefresh={query.refetch}
+          onSaved={() => {
+            const parentId = editor.parentId ?? editor.category?.parentId;
+            if (parentId)
+              revealParent(parentId);
+          }}
+          managementPending={patchState.isLoading || reorderState.isLoading}
+          onArchive={editor.category?.status === 'ACTIVE' && (editor.category.parentId || roots.length > 1)
+            ? () => {
+                const category = editor.category!;
+                setEditor(null);
+                void changeStatus(category, 'ARCHIVED');
+              }
+            : undefined}
+          onDelete={editor.category && (editor.category.status === 'ARCHIVED' || editor.category.parentId || roots.length > 1)
+            ? () => void handleStartDelete(editor.category!)
+            : undefined}
+          onMoveEarlier={editor.category?.parentId && active.filter(item => item.parentId === editor.category?.parentId).findIndex(item => item.id === editor.category?.id) > 0
+            ? () => {
+                const category = editor.category!;
+                const siblings = active.filter(item => item.parentId === category.parentId);
+                const index = siblings.findIndex(item => item.id === category.id);
+                setEditor(null);
+                void handleReorder(category.id, siblings[index - 1]?.id);
+              }
+            : undefined}
+          onMove={(category) => {
+            setEditor(null);
+            setMoving(category);
+            setMoveParentId(category.parentId ?? null);
+            setMovePreview(null);
+          }}
           type={type}
         />
       )}

@@ -1,6 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { budgetKeys } from '@/entities/budget';
 import { householdKeys } from '@/entities/household';
+import { userKeys } from '@/entities/user/keys';
 
 export async function invalidatePersonalRecordEditorCaches(queryClient: QueryClient) {
   await Promise.all([
@@ -9,6 +10,7 @@ export async function invalidatePersonalRecordEditorCaches(queryClient: QueryCli
     queryClient.invalidateQueries({ queryKey: householdKeys.calendarRoot() }),
     queryClient.invalidateQueries({ queryKey: householdKeys.chartRoot() }),
     queryClient.invalidateQueries({ queryKey: householdKeys.budgetRoot() }),
+    queryClient.invalidateQueries({ queryKey: userKeys.info() }),
   ]);
 }
 

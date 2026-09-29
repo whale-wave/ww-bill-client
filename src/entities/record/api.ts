@@ -79,6 +79,9 @@ export interface MonthBillCategoryAmount {
   sortOrder: number;
   amount: string;
   percentage: number;
+  iconType?: 'BUILTIN' | 'IMAGE';
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
 }
 
 export interface MonthBillDetailResponse {
@@ -101,6 +104,9 @@ export interface MonthBillDetailResponse {
       categoryId: number;
       name: string;
       icon?: string;
+      iconType?: 'BUILTIN' | 'IMAGE';
+      textIconEnabled?: boolean;
+      textIconIndex?: number;
       sortOrder: number;
       direction: 'increase' | 'decrease';
       amount: string;
@@ -153,6 +159,10 @@ export interface GetRecordApiResponseData {
 export const RECORD_OVERVIEW_PAGE_SIZE = 50;
 
 export interface GetRecordApiParams {
+  categoryIds?: number[];
+  tagIds?: string[];
+  tagMatch?: 'any' | 'all';
+  account?: string;
   startDate?: string | number;
   endDate?: string;
   keyword?: string;
@@ -260,6 +270,7 @@ export interface PostRecordApiData {
   time: string;
   tagIds?: string[];
   imageAssetId?: string;
+  imageAssetIds?: string[];
   linkedAssetId?: string | null;
   location?: RecordLocation | null;
 }
@@ -282,6 +293,7 @@ export interface PutRecordApiData extends Omit<
 > {
   version: number;
   imageAssetId?: string | null;
+  retainedAttachmentIds?: string[];
 }
 
 export interface TemporaryRecordAttachment {

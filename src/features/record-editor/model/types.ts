@@ -1,4 +1,5 @@
 import type { CalculatorState } from './useCalculator';
+import type { PendingRecordEditorImage } from './useRecordEditorImages';
 import type { CategoryAmountType, CategoryEntity } from '@/entities/category';
 import type { PostRecordApiData, RecordEntry } from '@/entities/record';
 
@@ -7,13 +8,24 @@ export type RecordEditorMode = 'create' | 'edit';
 export interface RecordEditorSeed {
   amount?: string;
   calculator?: CalculatorState;
-  category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'>;
+  category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'> & {
+    iconType?: CategoryEntity['iconType'];
+    path?: string;
+    parentId?: number | null;
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
+  };
   imageAssetId?: string | null;
   imagePreviewFile?: File;
+  attachments?: RecordEntry['attachments'];
+  pendingImages?: PendingRecordEditorImage[];
+  imageSelectionDirty?: boolean;
   linkedAssetId?: string | null;
   location?: RecordEntry['location'];
   locationSelectionDirty?: boolean;
   isTagPickerVisible?: boolean;
+  tagPickerDraftIds?: string[];
+  tagSelectionDirty?: boolean;
   shouldReconcileTags?: boolean;
   recordType: CategoryAmountType;
   remark?: string;
@@ -84,9 +96,10 @@ export function createRecordEditorSettingsNavigationState(
   };
 }
 
-export type RecordDraft = Omit<PostRecordApiData, 'imageAssetId'> & { imageAssetId?: string | null };
+export type RecordDraft = Omit<PostRecordApiData, 'imageAssetId'> & { retainedAttachmentIds?: string[] };
 
 export interface RecordEditorTag {
+  status?: string;
   id: string;
   name: string;
 }

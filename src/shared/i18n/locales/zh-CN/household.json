@@ -19,6 +19,7 @@
     "previousMonth": "上个月",
     "nextMonth": "下个月",
     "monthLabel": "{{year}}年{{month}}月",
+    "dayLabel": "{{year}}年{{month}}月{{day}}日",
     "yearLabel": "{{year}}年",
     "income": "收入",
     "expense": "支出",
@@ -211,6 +212,7 @@
   },
   "budget": {
     "title": "家庭预算",
+    "day": "日预算",
     "month": "月预算",
     "year": "年预算",
     "total": "总预算",

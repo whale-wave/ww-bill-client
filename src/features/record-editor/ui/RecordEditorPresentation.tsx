@@ -8,25 +8,25 @@ import {
   Banknote,
   Check,
   CheckCircle2,
-  ChevronDown,
-  ImagePlus,
+  CircleAlert,
+  History,
   MapPin,
   Settings2,
   Tags,
   Trash2,
   X,
 } from 'lucide-react';
-import { m } from 'motion/react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, m } from 'motion/react';
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { getAssetAccountTypeLabel } from '@/entities/asset';
 import { CategoryIcon } from '@/entities/category';
 import {
   formatRecordLocationLabel,
-  getRecordAttachmentContentApi,
   postRecordLocationCandidatesApi,
 } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { cn, money } from '@/shared/lib';
+import { getCategoryIconForegroundColor } from '@/shared/lib/category-background';
 import {
   AppButton,
   AppDatePicker,
@@ -34,14 +34,15 @@ import {
   confirmDangerousAction,
   DesignIcon,
   IllustratedEmptyState,
-  ImagePreview,
   MOTION_PRESETS,
+  PageLoadingState,
   SheetHeader,
   useMotionPreference,
 } from '@/shared/ui';
-import { Button, ErrorBlock, SpinLoading } from '@/shared/ui/konsta-compat';
 import { KEYPAD_LAYOUT } from '../model/constants';
+import { RecordEditorImagesPanel } from './RecordEditorImagesPanel';
 import { RecordLocationPicker } from './RecordLocationPicker';
+import './record-editor-presentation.scss';
 
 export type RecordEditorCategoryState = 'error' | 'loading' | 'ready';
 
@@ -52,11 +53,10 @@ interface RecordEditorPresentationProps {
   categories: CategoryEntity[];
   categoryState: RecordEditorCategoryState;
   controller: RecordEditorController;
-  initialStage?: 'amount' | 'category';
   onArchiveTag?: (tagId: string) => Promise<void>;
   onCancel: () => void;
   onManageCategories?: () => void;
-  onManageTags?: () => void;
+  onManageTags?: (tagPickerDraftIds: string[]) => void;
   onRetryCategories?: () => void;
   onCreateTag?: (name: string) => Promise<{ id: string; name: string }>;
   remarkHistory?: string[];
@@ -71,7 +71,6 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   canManageTags = false,
   categoryState,
   controller,
-  initialStage,
   onArchiveTag,
   onCancel,
   onManageCategories,
@@ -83,50 +82,119 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   tags,
 }) => {
   const { t } = useTranslation(['record', 'ledger', 'common']);
-  const { handleReconcileTags, shouldReconcileTags } = controller;
-  const imageInputRef = useRef<HTMLInputElement>(null);
-  const contentUrlRef = useRef<string>();
-  const previewRequestRef = useRef(0);
-  const [stage, setStage] = useState<'amount' | 'category'>(
-    initialStage ?? (controller.selectedCategory ? 'amount' : 'category'),
-  );
+
+  const noteInputRef = useRef<HTMLInputElement>(null);
+  const amountDigitsRef = useRef<HTMLSpanElement>(null);
+  const editorPageRef = useRef<HTMLDivElement>(null);
+  const categoryViewportRef = useRef<HTMLElement>(null);
+  const actionStripRef = useRef<HTMLDivElement>(null);
   const [newTagName, setNewTagName] = useState('');
+  const [tagSearch, setTagSearch] = useState('');
+  const [draftTagIds, setDraftTagIds] = useState<string[]>(() => controller.tagPickerDraftIds ?? controller.selectedTagIds);
+  const [expandedCategoryId, setExpandedCategoryId] = useState<number>();
+  useEffect(() => {
+    if (!controller.isNoteFocused) {
+      editorPageRef.current?.style.removeProperty('height');
+      editorPageRef.current?.style.removeProperty('top');
+      return;
+    }
+    const updateViewport = () => {
+      const viewport = window.visualViewport;
+      const page = editorPageRef.current;
+      if (!page)
+        return;
+      page.style.height = `${viewport?.height ?? window.innerHeight}px`;
+      page.style.top = `${viewport?.offsetTop ?? 0}px`;
+    };
+    updateViewport();
+    window.visualViewport?.addEventListener('resize', updateViewport);
+    window.visualViewport?.addEventListener('scroll', updateViewport);
+    window.addEventListener('resize', updateViewport);
+    return () => {
+      window.visualViewport?.removeEventListener('resize', updateViewport);
+      window.visualViewport?.removeEventListener('scroll', updateViewport);
+      window.removeEventListener('resize', updateViewport);
+    };
+  }, [controller.isNoteFocused]);
+  const rootCategories = useMemo(
+    () => categories.filter(category => !category.parentId),
+    [categories],
+  );
+  const childCategoriesByParent = useMemo(() => categories.reduce<Map<number, CategoryEntity[]>>((groups, category) => {
+    if (!category.parentId)
+      return groups;
+    const siblings = groups.get(category.parentId) ?? [];
+    siblings.push(category);
+    groups.set(category.parentId, siblings);
+    return groups;
+  }, new Map()), [categories]);
+  const expandedCategory = rootCategories.find(category => category.id === expandedCategoryId);
+  const expandedChildren = expandedCategoryId ? childCategoriesByParent.get(expandedCategoryId) ?? [] : [];
+  const expandedCategoryIndex = rootCategories.findIndex(category => category.id === expandedCategoryId);
+  const expandedRowEndIndex = expandedCategoryIndex < 0
+    ? -1
+    : Math.min(rootCategories.length - 1, Math.floor(expandedCategoryIndex / 5) * 5 + 4);
+  const selectedCategory = categories.find(category => category.id === controller.selectedCategory?.id)
+    ?? (categoryState === 'ready' ? undefined : controller.selectedCategory);
+  const hasValidSelectedCategory = categoryState === 'ready' && Boolean(selectedCategory);
+  const selectedParentName = selectedCategory?.parentId
+    ? categories.find(category => category.id === selectedCategory.parentId)?.name
+    : undefined;
+  const selectedCategoryPath = selectedCategory?.path
+    ?? (selectedParentName
+      ? `${selectedParentName} / ${selectedCategory?.name}`
+      : selectedCategory?.name);
+  const openTagPicker = () => {
+    setDraftTagIds(controller.selectedTagIds);
+    setTagSearch('');
+    controller.setIsTagPickerVisible(true);
+  };
+  const toggleDraftTag = (tagId: string) => setDraftTagIds(current => current.includes(tagId)
+    ? current.filter(id => id !== tagId)
+    : current.length < 20 ? [...current, tagId] : current);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
-  const [thumbnailUrl, setThumbnailUrl] = useState<string>();
-  const [contentUrl, setContentUrl] = useState<string>();
-  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
-  const [isImagePreviewLoading, setIsImagePreviewLoading] = useState(false);
   const [isAssetPickerVisible, setIsAssetPickerVisible] = useState(false);
-  const [pendingCategoryId, setPendingCategoryId] = useState<number>();
-  const hasReconciledTagsRef = useRef(false);
-  const categoryTransitionTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const { isMotionEnabled } = useMotionPreference();
-  const attachmentId = controller.initialAttachment?.id;
+  useEffect(() => {
+    if (!expandedCategoryId)
+      return;
+    const revealExpandedGroup = () => {
+      const viewport = categoryViewportRef.current;
+      const group = viewport?.querySelector<HTMLElement>(`#record-editor-subcategories-${expandedCategoryId}`);
+      if (!viewport || !group)
+        return;
+      const groupBounds = group.getBoundingClientRect();
+      const viewportBounds = viewport.getBoundingClientRect();
+      const visibleBottom = Math.min(
+        viewportBounds.bottom,
+        (actionStripRef.current?.getBoundingClientRect().top ?? viewportBounds.bottom) - 8,
+      );
+      const visibleHeight = visibleBottom - viewportBounds.top;
+      const scrollDelta = groupBounds.height > visibleHeight
+        ? groupBounds.top - viewportBounds.top
+        : groupBounds.bottom > visibleBottom
+          ? groupBounds.bottom - visibleBottom
+          : groupBounds.top < viewportBounds.top
+            ? groupBounds.top - viewportBounds.top
+            : 0;
+      if (!scrollDelta)
+        return;
+      viewport.scrollTo({
+        behavior: isMotionEnabled ? 'smooth' : 'auto',
+        top: viewport.scrollTop + scrollDelta,
+      });
+    };
+    const timeout = window.setTimeout(revealExpandedGroup, isMotionEnabled ? 220 : 0);
+    return () => window.clearTimeout(timeout);
+  }, [expandedCategoryId, isMotionEnabled]);
   const linkedAsset = assetAccounts?.find(
     asset => asset.id === controller.linkedAssetId,
   );
-  const isLinkedCreditAsset = Boolean(linkedAsset?.creditLimit?.trim())
-    || linkedAsset?.assetGroup.assetType === 'credit';
-  const linkedAssetSummary = linkedAsset && [
-    linkedAsset.comment?.trim(),
-    ...(!isLinkedCreditAsset
-      ? [t('record:bookkeeping.linkedAssetBalance', {
-          amount: linkedAsset.amount,
-        })]
-      : []),
-  ].filter(Boolean).join(' · ');
-  const linkedCreditSummary = linkedAsset && isLinkedCreditAsset
-    ? [
-        ...(linkedAsset.creditLimit
-          ? [t('record:bookkeeping.linkedAssetAvailableCreditLimit', {
-              amount: money.formatNatural(money.subtract(linkedAsset.creditLimit, linkedAsset.amount)),
-            })]
-          : []),
-        t('record:bookkeeping.linkedAssetDebt', {
-          amount: money.formatNatural(linkedAsset.amount),
-        }),
-      ]
-    : [];
+  const linkedAssetLabel = linkedAsset?.comment?.trim() || linkedAsset?.name;
+  const firstSelectedTag = tags?.find(tag => controller.selectedTagIds.includes(tag.id));
+  const tagSummary = firstSelectedTag
+    ? `#${firstSelectedTag.name}${controller.selectedTagIds.length > 1 ? ` +${controller.selectedTagIds.length - 1}` : ''}`
+    : t('ledger:records.tags');
   const filteredRemarkHistory = useMemo(() => {
     const keyword = controller.remark.trim().toLocaleLowerCase();
     if (!keyword)
@@ -136,84 +204,8 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
     );
   }, [controller.remark, remarkHistory]);
 
-  useEffect(() => {
-    if (
-      !shouldReconcileTags
-      || tags === undefined
-      || hasReconciledTagsRef.current
-    ) {
-      return;
-    }
-    hasReconciledTagsRef.current = true;
-    handleReconcileTags(tags.map(tag => tag.id));
-  }, [handleReconcileTags, shouldReconcileTags, tags]);
-
-  const clearContentUrl = useCallback(() => {
-    previewRequestRef.current += 1;
-    if (contentUrlRef.current)
-      URL.revokeObjectURL(contentUrlRef.current);
-    contentUrlRef.current = undefined;
-    setContentUrl(undefined);
-  }, []);
-
-  useEffect(() => {
-    if (!attachmentId)
-      return;
-    let active = true;
-    let url: string | undefined;
-    void getRecordAttachmentContentApi(attachmentId, 'thumbnail')
-      .then((blob) => {
-        if (!active)
-          return;
-        url = URL.createObjectURL(blob);
-        setThumbnailUrl(url);
-      })
-      .catch(() => undefined);
-    return () => {
-      active = false;
-      if (url)
-        URL.revokeObjectURL(url);
-    };
-  }, [attachmentId]);
-
-  useEffect(() => clearContentUrl, [clearContentUrl]);
-
-  useEffect(
-    () => () => {
-      if (categoryTransitionTimerRef.current)
-        clearTimeout(categoryTransitionTimerRef.current);
-    },
-    [],
-  );
-
-  const closeImagePreview = useCallback(() => {
-    setIsImagePreviewOpen(false);
-    clearContentUrl();
-  }, [clearContentUrl]);
-
-  const openImagePreview = useCallback(async () => {
-    setIsImagePreviewOpen(true);
-    if (controller.imagePreviewUrl || !attachmentId || contentUrl)
-      return;
-    const request = ++previewRequestRef.current;
-    setIsImagePreviewLoading(true);
-    try {
-      const blob = await getRecordAttachmentContentApi(attachmentId, 'content');
-      if (request !== previewRequestRef.current)
-        return;
-      const url = URL.createObjectURL(blob);
-      contentUrlRef.current = url;
-      setContentUrl(url);
-    }
-    catch {
-      if (request === previewRequestRef.current)
-        setIsImagePreviewOpen(false);
-    }
-    finally {
-      if (request === previewRequestRef.current)
-        setIsImagePreviewLoading(false);
-    }
-  }, [attachmentId, contentUrl, controller.imagePreviewUrl]);
+  const detailChipClassName = 'record-editor-detail-chip pointer-events-auto inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-[13px] font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep';
+  const selectedChipClassName = 'record-editor-detail-chip--selected';
   const renderDateLabel = useCallback((type: string, value: number) => {
     return type === 'year' ? String(value) : String(value).padStart(2, '0');
   }, []);
@@ -230,13 +222,26 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       if (!confirmed)
         return;
       await onArchiveTag(tagId);
-      controller.handleRemoveTag(tagId);
+      setDraftTagIds(current => current.filter(id => id !== tagId));
     },
-    [controller, onArchiveTag, t],
+    [onArchiveTag, t],
   );
-  const showNumericKeypad = stage === 'amount' && !controller.isNoteFocused;
   const showOperatorControls
     = Number.parseFloat(controller.calculator.totals) > 0;
+  const amountLength = controller.calculator.totals.length;
+  const isCalculationPending = controller.calculator.completeText === '=';
+
+  useLayoutEffect(() => {
+    const digits = amountDigitsRef.current;
+    if (!digits)
+      return;
+    const showLatestDigits = () => {
+      digits.scrollLeft = digits.scrollWidth;
+    };
+    showLatestDigits();
+    window.addEventListener('resize', showLatestDigits);
+    return () => window.removeEventListener('resize', showLatestDigits);
+  }, [controller.calculator.totals]);
 
   const handleBack = () => {
     onCancel();
@@ -244,44 +249,23 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
 
   const handleSelectCategory = useCallback(
     (category: CategoryEntity) => {
-      if (pendingCategoryId)
-        return;
       controller.handleSelectCategory(category);
-      if (!isMotionEnabled) {
-        setStage('amount');
-        return;
-      }
-      setPendingCategoryId(category.id);
-      categoryTransitionTimerRef.current = setTimeout(() => {
-        setPendingCategoryId(undefined);
-        setStage('amount');
-      }, 180);
+      setExpandedCategoryId(undefined);
     },
-    [controller, isMotionEnabled, pendingCategoryId],
+    [controller],
   );
-
-  const stageMotionProps = isMotionEnabled
-    ? {
-        animate: MOTION_PRESETS.contentSwap.animate,
-        exit: MOTION_PRESETS.contentSwap.exit,
-        initial: MOTION_PRESETS.contentSwap.initial,
-        transition: MOTION_PRESETS.contentSwap.transition,
-      }
-    : { initial: false };
 
   return (
     <div
-      className="page relative select-none pt-[max(8px,env(safe-area-inset-top))] [-webkit-touch-callout:none]"
+      className={cn(
+        'page relative select-none pt-[max(8px,var(--ww-safe-area-top))] [-webkit-touch-callout:none]',
+        controller.isNoteFocused && 'record-editor-note-mode',
+      )}
       data-record-editor-presentation
-      data-record-editor-stage={stage}
+      ref={editorPageRef}
     >
       <header
-        className={cn(
-          'flex shrink-0 items-start justify-between gap-3',
-          stage === 'category'
-            ? 'h-[60px] px-5 pb-[14px] pt-1'
-            : 'h-[60px] px-[22px] pb-4',
-        )}
+        className="record-editor-header flex h-[60px] shrink-0 items-start justify-between gap-3 px-5 pb-[14px] pt-1"
         data-record-editor-header
       >
         <button
@@ -293,482 +277,472 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         >
           <DesignIcon name="editor-back" size={18} />
         </button>
-        {stage === 'category'
+        <div className="flex rounded-[14px] border border-border-primary bg-white/[0.85] p-1 shadow-ww-xs">
+          {(
+            [
+              { label: t('record:bookkeeping.expend'), type: 'sub' },
+              { label: t('record:bookkeeping.income'), type: 'add' },
+            ] as const
+          ).map(item => (
+            <button
+              aria-pressed={controller.recordType === item.type}
+              className={cn(
+                'min-h-11 rounded-[10px] px-[22px] py-[7px] text-[13px] font-bold leading-[19.5px] transition',
+                controller.recordType === item.type
+                  ? item.type === 'sub'
+                    ? 'bg-finance-expense text-white shadow-ww-xs'
+                    : 'ww-theme-primary-action'
+                  : 'text-ww-soft',
+              )}
+              key={item.type}
+              onClick={() => {
+                controller.handleRecordTypeChange(item.type);
+                controller.setIsNoteFocused(false);
+                setExpandedCategoryId(undefined);
+              }}
+              type="button"
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        {onManageCategories
           ? (
-              <div className="flex rounded-[14px] border border-border-primary bg-white/[0.85] p-1 shadow-ww-xs">
-                {(
-                  [
-                    { label: t('record:bookkeeping.expend'), type: 'sub' },
-                    { label: t('record:bookkeeping.income'), type: 'add' },
-                  ] as const
-                ).map(item => (
+              <button
+                aria-label={t('record:bookkeeping.categorySettings')}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border-primary bg-white/90 text-ww-mid shadow-ww-xs"
+                data-record-editor-category-settings
+                onClick={onManageCategories}
+                type="button"
+              >
+                <Settings2 aria-hidden="true" size={20} strokeWidth={1.9} />
+              </button>
+            )
+          : <span className="h-11 w-11" />}
+      </header>
+
+      <m.main
+        className="flex min-h-0 flex-grow flex-col"
+        data-record-editor-amount
+      >
+        <div className="record-editor-category-stage relative min-h-0 flex-1 bg-ww-surface" data-record-editor-category-stage>
+          <section
+            aria-label={t('record:bookkeeping.selectCategory')}
+            className="record-editor-categories h-full overflow-y-auto overscroll-contain px-[18px] pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            data-record-editor-categories
+            ref={categoryViewportRef}
+          >
+            {categoryState === 'loading' && (
+              <PageLoadingState className="min-h-full" compact label={t('record:bookkeeping.loadingCategories')} />
+            )}
+            {categoryState === 'error' && (
+              <div className="flex min-h-full flex-col items-center justify-center gap-2 py-2 text-center">
+                <div className="flex items-center gap-1.5 text-[13px] font-semibold leading-5 text-ww-mid" role="alert">
+                  <CircleAlert aria-hidden="true" size={17} strokeWidth={1.8} />
+                  <span>{t('common:error.loadFail')}</span>
+                </div>
+                {onRetryCategories && (
+                  <button className="min-h-11 rounded-full border border-border-primary bg-white px-5 text-[13px] font-semibold text-primary-deep shadow-ww-xs" onClick={onRetryCategories} type="button">
+                    {t('common:retry')}
+                  </button>
+                )}
+              </div>
+            )}
+            {categoryState === 'ready' && categories.length === 0 && (
+              <IllustratedEmptyState
+                className="record-editor-empty-state min-h-full"
+                description={t('record:bookkeeping.emptyCategoryDescription')}
+                icon={<Tags className="text-primary-deep" size={30} strokeWidth={1.5} />}
+                testId="record-editor-empty-state"
+                title={t('record:bookkeeping.emptyCategoryTitle')}
+              />
+            )}
+            {categoryState === 'ready' && rootCategories.length > 0 && (
+              <div className="grid grid-cols-5 gap-x-1 gap-y-2" data-record-editor-category-grid>
+                {rootCategories.map((category, index) => {
+                  const children = childCategoriesByParent.get(category.id) ?? [];
+                  const isExpanded = expandedCategoryId === category.id;
+                  const isSelectedRoot = selectedCategory?.id === category.id || selectedCategory?.parentId === category.id;
+                  return (
+                    <Fragment key={category.id}>
+                      <m.button
+                        aria-controls={children.length ? `record-editor-subcategories-${category.id}` : undefined}
+                        aria-expanded={children.length ? isExpanded : undefined}
+                        aria-label={children.length
+                          ? t('record:bookkeeping.categoryWithChildren', {
+                              count: children.length,
+                              name: category.name,
+                            })
+                          : category.name}
+                        aria-pressed={isSelectedRoot}
+                        className={cn(
+                          'record-editor-category-choice relative flex min-w-0 flex-col items-center gap-0.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
+                          isSelectedRoot && 'record-editor-category-choice--selected text-primary-deep',
+                        )}
+                        data-record-editor-category={category.id}
+                        onClick={() => children.length
+                          ? setExpandedCategoryId(current => current === category.id ? undefined : category.id)
+                          : handleSelectCategory(category)}
+                        type="button"
+                        whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
+                      >
+                        <span className="record-editor-category-icon ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full" style={category.backgroundColor ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) } : undefined}>
+                          <CategoryIcon
+                            categoryName={category.name}
+                            iconKey={category.icon}
+                            iconType={category.iconType}
+                            textIconEnabled={category.textIconEnabled}
+                            textIconIndex={category.textIconIndex}
+                            size={24}
+                          />
+                        </span>
+                        <span className="record-editor-category-label line-clamp-2 w-full text-[11px] font-semibold leading-4 text-ww-mid">{category.name}</span>
+                        {isSelectedRoot && (
+                          <span aria-hidden="true" className="record-editor-category-check absolute flex items-center justify-center rounded-full bg-primary-deep text-white" data-record-editor-category-check>
+                            <Check size={10} strokeWidth={3} />
+                          </span>
+                        )}
+                        {children.length > 0 && (
+                          <span aria-hidden="true" className="absolute right-1 top-[31px] flex h-3.5 min-w-4 items-center justify-center rounded-full bg-primary-deep px-0.5 text-[7px] font-black tracking-[-1.5px] text-white shadow-ww-xs">•••</span>
+                        )}
+                      </m.button>
+                      {(index % 5 === 4 || index === rootCategories.length - 1) && (
+                        <AnimatePresence initial={false}>
+                          {index === expandedRowEndIndex && expandedCategory && (
+                            <m.div
+                              animate={{ height: 'auto', opacity: 1 }}
+                              aria-label={t('record:bookkeeping.subcategoryGroup', { name: expandedCategory.name })}
+                              className="col-span-5 overflow-hidden rounded-[16px] bg-ww-surface-tint"
+                              exit={{ height: 0, opacity: 0 }}
+                              id={`record-editor-subcategories-${expandedCategory.id}`}
+                              initial={isMotionEnabled ? { height: 0, opacity: 0 } : false}
+                              key={expandedCategory.id}
+                              role="group"
+                              transition={{ duration: isMotionEnabled ? 0.2 : 0, ease: 'easeOut' }}
+                            >
+                              <div className="grid grid-cols-5 gap-x-1 gap-y-2 px-1.5 py-2">
+                                <button
+                                  aria-pressed={selectedCategory?.id === expandedCategory.id}
+                                  className={cn(
+                                    'record-editor-category-choice relative flex min-w-0 flex-col items-center gap-0.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
+                                    selectedCategory?.id === expandedCategory.id && 'record-editor-category-choice--selected text-primary-deep',
+                                  )}
+                                  data-record-editor-category-direct={expandedCategory.id}
+                                  onClick={() => handleSelectCategory(expandedCategory)}
+                                  type="button"
+                                >
+                                  <span className="record-editor-category-icon flex h-11 w-11 items-center justify-center rounded-full bg-white/85" style={expandedCategory.backgroundColor ? { backgroundColor: expandedCategory.backgroundColor, color: getCategoryIconForegroundColor(expandedCategory.backgroundColor) } : undefined}>
+                                    <CategoryIcon
+                                      categoryName={expandedCategory.name}
+                                      iconKey={expandedCategory.icon}
+                                      iconType={expandedCategory.iconType}
+                                      textIconEnabled={expandedCategory.textIconEnabled}
+                                      textIconIndex={expandedCategory.textIconIndex}
+                                      size={24}
+                                    />
+                                  </span>
+                                  <span className="record-editor-category-label line-clamp-2 w-full text-[11px] font-semibold leading-4">{expandedCategory.name}</span>
+                                  <span className="text-[9px] leading-3 text-ww-soft">{t('record:bookkeeping.directEntry')}</span>
+                                  {selectedCategory?.id === expandedCategory.id && (
+                                    <span aria-hidden="true" className="record-editor-category-check absolute flex items-center justify-center rounded-full bg-primary-deep text-white" data-record-editor-category-check>
+                                      <Check size={10} strokeWidth={3} />
+                                    </span>
+                                  )}
+                                </button>
+                                {expandedChildren.map(child => (
+                                  <button
+                                    aria-pressed={selectedCategory?.id === child.id}
+                                    className={cn(
+                                      'record-editor-category-choice relative flex min-w-0 flex-col items-center gap-0.5 rounded-xl border-0 bg-transparent px-0.5 py-1 text-center active:bg-primary-light/50',
+                                      selectedCategory?.id === child.id && 'record-editor-category-choice--selected text-primary-deep',
+                                    )}
+                                    data-record-editor-category={child.id}
+                                    key={child.id}
+                                    onClick={() => handleSelectCategory(child)}
+                                    type="button"
+                                  >
+                                    <span className="record-editor-category-icon flex h-11 w-11 items-center justify-center rounded-full bg-white/85" style={child.backgroundColor ? { backgroundColor: child.backgroundColor, color: getCategoryIconForegroundColor(child.backgroundColor) } : undefined}>
+                                      <CategoryIcon
+                                        categoryName={child.name}
+                                        iconKey={child.icon}
+                                        iconType={child.iconType}
+                                        textIconEnabled={child.textIconEnabled}
+                                        textIconIndex={child.textIconIndex}
+                                        size={24}
+                                      />
+                                    </span>
+                                    <span className="record-editor-category-label line-clamp-2 w-full text-[11px] font-semibold leading-4 text-ww-mid">{child.name}</span>
+                                    {selectedCategory?.id === child.id && (
+                                      <span aria-hidden="true" className="record-editor-category-check absolute flex items-center justify-center rounded-full bg-primary-deep text-white" data-record-editor-category-check>
+                                        <Check size={10} strokeWidth={3} />
+                                      </span>
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            </m.div>
+                          )}
+                        </AnimatePresence>
+                      )}
+                    </Fragment>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+          {controller.isNoteFocused && filteredRemarkHistory.length > 0 && (
+            <section
+              aria-label={t('record:bookkeeping.remarkHistory')}
+              className="record-editor-remark-history absolute inset-x-[14px] z-20 min-h-0 overflow-y-auto"
+              data-record-editor-remark-history
+            >
+              <h2 className="record-editor-remark-heading flex items-center gap-1.5 text-[12px] font-semibold leading-5 text-ww-mid">
+                <History aria-hidden="true" size={14} strokeWidth={1.8} />
+                {t('record:bookkeeping.remarkHistory')}
+              </h2>
+              <div className="flex flex-col">
+                {filteredRemarkHistory.map(remark => (
                   <button
-                    className={cn(
-                      'min-h-11 rounded-[10px] px-[22px] py-[7px] text-[13px] font-bold leading-[19.5px] transition',
-                      controller.recordType === item.type
-                        ? item.type === 'sub'
-                          ? 'bg-[linear-gradient(154.093deg,#f0a0b8_0%,#d06080_100%)] text-white shadow-ww-xs'
-                          : 'ww-theme-primary-action'
-                        : 'text-ww-soft',
-                    )}
-                    key={item.type}
-                    onClick={() => {
-                      controller.handleRecordTypeChange(item.type);
-                      setStage('category');
-                    }}
+                    aria-label={t('record:bookkeeping.selectRemarkHistory', { remark })}
+                    className="record-editor-remark-option min-h-11 w-full truncate rounded-[10px] px-2 text-left text-[14px] leading-5 text-ww-ink active:bg-primary-light"
+                    data-record-editor-remark-history-item={remark}
+                    key={remark}
+                    onClick={() => controller.setRemark(remark)}
+                    onMouseDown={event => event.preventDefault()}
                     type="button"
                   >
-                    {item.label}
+                    {remark}
                   </button>
                 ))}
               </div>
-            )
-          : (
+            </section>
+          )}
+
+          <div aria-hidden="true" className="record-editor-control-dock absolute inset-x-0 bottom-0 z-[5]" data-record-editor-control-dock />
+          <div
+            aria-label={t('record:bookkeeping.moreDetails')}
+            className={cn(
+              'record-editor-action-strip absolute inset-x-0 z-10 flex h-11 items-center gap-1 overflow-x-auto overscroll-x-contain px-[14px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+              controller.isNoteFocused && 'hidden',
+            )}
+            data-record-editor-action-strip
+            ref={actionStripRef}
+            role="group"
+          >
+            {assetAccounts !== undefined && (
               <button
-                aria-label="选择分类"
-                className="flex h-11 items-center rounded-full border-0 bg-primary-light px-[14px] text-[13px] font-bold leading-[19.5px] text-primary-deep"
-                data-record-editor-category-trigger
-                onClick={() => {
-                  controller.setIsNoteFocused(false);
-                  setStage('category');
-                }}
+                aria-label={linkedAssetLabel ?? t('record:bookkeeping.noLinkedAsset')}
+                className={cn(detailChipClassName, linkedAsset && selectedChipClassName)}
+                data-record-editor-asset-trigger
+                onClick={() => setIsAssetPickerVisible(true)}
                 type="button"
               >
-                {controller.selectedCategory?.name}
+                <Banknote aria-hidden="true" size={17} strokeWidth={1.8} />
+                <span className="max-w-[112px] truncate">{linkedAssetLabel ?? t('record:bookkeeping.noLinkedAsset')}</span>
               </button>
             )}
-        <span className="h-11 w-11" />
-      </header>
+            {tags !== undefined && (
+              <button
+                aria-label={t('record:bookkeeping.selectTagsWithCount', { count: controller.selectedTagIds.length })}
+                className={cn(detailChipClassName, controller.selectedTagIds.length > 0 && selectedChipClassName)}
+                data-record-editor-tag-trigger
+                onClick={openTagPicker}
+                type="button"
+              >
+                <Tags aria-hidden="true" size={17} strokeWidth={1.8} />
+                <span className="max-w-[125px] truncate">{tagSummary}</span>
+              </button>
+            )}
+            <button
+              aria-label={controller.location ? t('record:location.change') : t('record:location.add')}
+              className={cn(detailChipClassName, controller.location && selectedChipClassName)}
+              data-record-editor-location-trigger
+              onClick={() => controller.setIsLocationPickerVisible(true)}
+              type="button"
+            >
+              <MapPin aria-hidden="true" size={17} strokeWidth={1.8} />
+              <span className="max-w-[132px] truncate">
+                {controller.location ? formatRecordLocationLabel(controller.location) : t('record:location.add')}
+              </span>
+            </button>
+            <button
+              aria-label={`${t('record:bookkeeping.selectTime')}：${controller.formattedDate}`}
+              className={detailChipClassName}
+              data-record-editor-date-trigger
+              onClick={() => controller.setIsDatePickerVisible(true)}
+              type="button"
+            >
+              <DesignIcon name="editor-date" size={17} />
+              <span>{controller.isToday ? t('common:time.today') : controller.formattedDate}</span>
+            </button>
+            <RecordEditorImagesPanel
+              canAddImages={controller.canAddImages}
+              chipClassName={detailChipClassName}
+              hasImageUploadError={controller.hasImageUploadError}
+              images={controller.images}
+              onRemoveImage={controller.handleRemoveImage}
+              onRetryImage={controller.handleRetryImage}
+              onSelectImages={controller.handleSelectImages}
+            />
+          </div>
 
-      {stage === 'category'
-        ? (
-            <m.main
-              key="category"
-              {...stageMotionProps}
-              className="min-h-0 flex-grow overflow-auto px-[14px] pb-5"
-              data-record-editor-categories
-            >
-              {categoryState === 'loading' && (
-                <div className="flex min-h-[240px] items-center justify-center">
-                  <SpinLoading />
-                </div>
-              )}
-              {categoryState === 'error' && (
-                <div className="flex min-h-[240px] flex-col items-center justify-center">
-                  <ErrorBlock description={t('common:error.loadFail')} />
-                  {onRetryCategories && (
-                    <Button
-                      className="mt-3"
-                      onClick={onRetryCategories}
-                      size="small"
-                    >
-                      {t('common:retry')}
-                    </Button>
-                  )}
-                </div>
-              )}
-              {categoryState === 'ready' && categories.length === 0 && (
-                <div className="rounded-[24px] border border-solid border-border-primary bg-white/65 shadow-ww-xs backdrop-blur-xl">
-                  <IllustratedEmptyState
-                    className="min-h-[360px]"
-                    description={t('record:bookkeeping.emptyCategoryDescription')}
-                    icon={(
-                      <Tags
-                        className="text-primary-deep"
-                        size={42}
-                        strokeWidth={1.5}
-                      />
-                    )}
-                    testId="record-editor-empty-state"
-                    title={t('record:bookkeeping.emptyCategoryTitle')}
-                  />
-                </div>
-              )}
-              {categoryState === 'ready'
-                && (categories.length > 0 || onManageCategories) && (
-                <div className="grid grid-cols-4 gap-[9px]">
-                  {categories.map(category => (
-                    <m.button
-                      aria-pressed={
-                        controller.selectedCategory?.id === category.id
-                      }
-                      animate={
-                        isMotionEnabled && pendingCategoryId === category.id
-                          ? { scale: [...MOTION_PRESETS.selection.scale] }
-                          : { scale: 1 }
-                      }
-                      aria-busy={pendingCategoryId === category.id || undefined}
-                      className={cn(
-                        'flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-border-primary bg-white/80 px-1 pb-[10px] pt-[13px] shadow-ww-xs',
-                        pendingCategoryId === category.id
-                        && 'border-primary bg-primary-light/45',
-                      )}
-                      data-record-editor-category={category.id}
-                      disabled={Boolean(pendingCategoryId)}
-                      key={category.id}
-                      onClick={() => handleSelectCategory(category)}
-                      transition={
-                        isMotionEnabled
-                          ? MOTION_PRESETS.selection.transition
-                          : { duration: 0 }
-                      }
-                      type="button"
-                      whileTap={
-                        isMotionEnabled ? MOTION_PRESETS.press : undefined
-                      }
-                    >
-                      <span
-                        className={cn(
-                          'ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full',
-                        )}
-                      >
-                        <CategoryIcon
-                          categoryName={category.name}
-                          iconKey={category.icon}
-                          size={24}
-                        />
-                      </span>
-                      <span className="w-full truncate text-[11px] font-semibold leading-[16.5px] text-ww-mid">
-                        {category.name}
-                      </span>
-                    </m.button>
-                  ))}
-                  {onManageCategories && (
-                    <m.button
-                      aria-label={t('record:bookkeeping.categorySettings')}
-                      className="flex h-[92.5px] min-w-0 flex-col items-center gap-[7px] rounded-[18px] border border-dashed border-primary/35 bg-primary-light/25 px-1 pb-[10px] pt-[13px] text-primary-deep shadow-ww-xs"
-                      data-record-editor-category-settings
-                      onClick={onManageCategories}
-                      type="button"
-                      whileTap={
-                        isMotionEnabled ? MOTION_PRESETS.press : undefined
-                      }
-                    >
-                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/80">
-                        <Settings2
-                          aria-hidden="true"
-                          size={22}
-                          strokeWidth={1.9}
-                        />
-                      </span>
-                      <span className="w-full truncate text-[11px] font-semibold leading-[16.5px]">
-                        {t('record:bookkeeping.categorySettings')}
-                      </span>
-                    </m.button>
-                  )}
-                </div>
-              )}
-            </m.main>
-          )
-        : (
-            <m.main
-              key="amount"
-              {...stageMotionProps}
-              className="flex min-h-0 flex-grow flex-col"
-              data-record-editor-amount
-            >
-              {assetAccounts !== undefined && (
-                <button
-                  className="mx-[22px] mb-2 flex h-[50px] shrink-0 items-center gap-3 rounded-[14px] border border-border-primary bg-white/[0.84] px-4 text-left shadow-ww-xs"
-                  data-record-editor-asset-trigger
-                  onClick={() => setIsAssetPickerVisible(true)}
-                  type="button"
-                >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[11px] bg-primary-light text-primary-deep">
-                    <Banknote size={17} strokeWidth={1.9} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] font-extrabold text-ww-ink">
-                      {linkedAsset?.name ?? t('record:bookkeeping.noLinkedAsset')}
-                    </span>
-                    <span className="block truncate text-[10px] font-semibold text-ww-soft">
-                      {linkedAsset
-                        ? linkedAssetSummary || linkedAsset.assetGroup.name
-                        : t('record:bookkeeping.linkedAssetHint')}
-                    </span>
-                  </span>
-                  {isLinkedCreditAsset && (
-                    <span className="flex shrink-0 flex-col items-end whitespace-nowrap font-number text-[10px] font-semibold leading-4 text-ww-soft">
-                      {linkedCreditSummary.map(item => <span key={item}>{item}</span>)}
-                    </span>
-                  )}
-                  <ChevronDown className="text-ww-soft" size={17} strokeWidth={2} />
-                </button>
-              )}
-              <label
-                className="mx-[22px] flex h-[50px] shrink-0 items-center rounded-[14px] border border-border-primary bg-white/[0.84] px-4 shadow-ww-xs"
-                data-record-editor-note
-              >
-                <input
-                  className="min-w-0 flex-1 select-text border-0 bg-transparent py-3 text-[14px] leading-[normal] text-ww-ink outline-none placeholder:text-[rgba(38,51,64,0.5)] [-webkit-user-select:text]"
-                  onBlur={() => controller.setIsNoteFocused(false)}
-                  onChange={event => controller.setRemark(event.target.value)}
-                  onFocus={() => controller.setIsNoteFocused(true)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      event.stopPropagation();
-                      void controller.handleSubmit();
-                    }
-                  }}
-                  placeholder={t('record:bookkeeping.notePlaceholder')}
-                  type="text"
-                  value={controller.remark}
-                />
-                {tags !== undefined && (
-                  <button
-                    className="min-h-11 shrink-0 border-0 bg-transparent px-1 text-[13px] font-semibold text-primary-deep"
-                    data-record-editor-tag-trigger
-                    onClick={() => controller.setIsTagPickerVisible(true)}
-                    type="button"
-                  >
-                    #
-                    {' '}
-                    {controller.selectedTagIds.length || ''}
-                  </button>
-                )}
-                <input
-                  accept="image/jpeg,image/png,image/webp"
-                  className="hidden"
-                  onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    event.target.value = '';
-                    if (file)
-                      void controller.handleSelectImage(file);
-                  }}
-                  ref={imageInputRef}
-                  type="file"
-                />
-                <button
-                  aria-label="选择图片"
-                  className="ml-1 flex h-11 w-11 shrink-0 items-center justify-center border-0 bg-transparent p-1 text-primary-deep"
-                  onClick={() => imageInputRef.current?.click()}
-                  type="button"
-                >
-                  <ImagePlus size={18} />
-                </button>
-              </label>
-              <div
-                className="mx-[22px] mt-1 flex min-h-11 items-center"
-                data-record-editor-location
-              >
-                <AppButton
-                  aria-label={
-                    controller.location
-                      ? t('record:location.change')
-                      : t('record:location.add')
+          <div
+            className="record-editor-entry-row absolute inset-x-[14px] z-10 flex items-center gap-2 px-3"
+            data-record-editor-entry-row
+          >
+            <label className="flex h-full min-w-0 flex-1 flex-col justify-center" data-record-editor-note>
+              <div className="record-editor-amount-caption truncate text-[10px] font-semibold leading-4 text-primary-deep">
+                {selectedCategoryPath
+                  ? `${selectedCategoryPath} · ${controller.recordType === 'sub' ? t('record:bookkeeping.expend') : t('record:bookkeeping.income')}`
+                  : t('record:bookkeeping.chooseCategory')}
+              </div>
+              <input
+                ref={noteInputRef}
+                aria-label={t('record:bookkeeping.note')}
+                className="min-w-0 w-full select-text border-0 bg-transparent py-1 text-[13px] leading-5 text-ww-ink outline-none placeholder:text-ww-mid [-webkit-user-select:text]"
+                autoComplete="off"
+                enterKeyHint="done"
+                onBlur={() => controller.setIsNoteFocused(false)}
+                onChange={event => controller.setRemark(event.target.value)}
+                onFocus={() => controller.setIsNoteFocused(true)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && hasValidSelectedCategory && !controller.isSubmitting && !controller.isImageUploading && !controller.hasImageUploadError) {
+                    event.stopPropagation();
+                    void controller.handleSubmit();
                   }
-                  data-record-editor-location-trigger
-                  onClick={() => controller.setIsLocationPickerVisible(true)}
-                  size="compact"
-                  variant={controller.location ? 'primary' : 'secondary'}
-                >
-                  <MapPin aria-hidden="true" size={15} strokeWidth={2} />
-                  <span className="max-w-[240px] truncate">
-                    {controller.location
-                      ? formatRecordLocationLabel(controller.location)
-                      : t('record:location.add')}
-                  </span>
-                </AppButton>
-              </div>
-              {controller.isNoteFocused && filteredRemarkHistory.length > 0 && (
-                <section
-                  aria-label={t('record:bookkeeping.remarkHistory')}
-                  className="mx-[22px] mt-2 max-h-48 shrink-0 overflow-y-auto rounded-[14px] border border-border-primary bg-white/[0.96] p-2 shadow-ww-xs"
-                  data-record-editor-remark-history
-                >
-                  <h2 className="px-2 pb-1 text-[12px] font-semibold leading-5 text-ww-soft">
-                    {t('record:bookkeeping.remarkHistory')}
-                  </h2>
-                  <div className="flex flex-col gap-1">
-                    {filteredRemarkHistory.map(remark => (
-                      <button
-                        aria-label={t('record:bookkeeping.selectRemarkHistory', {
-                          remark,
-                        })}
-                        className="min-h-11 truncate rounded-[10px] px-2 text-left text-[14px] leading-5 text-ww-ink active:bg-primary-light"
-                        data-record-editor-remark-history-item={remark}
-                        key={remark}
-                        onClick={() => controller.setRemark(remark)}
-                        onMouseDown={event => event.preventDefault()}
-                        type="button"
-                      >
-                        {remark}
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              )}
-              {(controller.imagePreviewUrl || controller.hasInitialImage) && (
-                <div
-                  className="mx-[22px] mt-2 flex items-center gap-2 text-xs text-ww-soft"
-                  data-record-editor-image
-                >
-                  <button
-                    aria-label="预览凭证图片"
-                    className="shrink-0 rounded-lg border-0 bg-transparent p-0"
-                    data-record-editor-image-preview
-                    onClick={() => void openImagePreview()}
-                    type="button"
-                  >
-                    {controller.imagePreviewUrl
-                      ? (
-                          <img
-                            alt="待上传凭证"
-                            className="h-11 w-11 rounded-lg object-cover"
-                            src={controller.imagePreviewUrl}
-                          />
-                        )
-                      : thumbnailUrl
-                        ? (
-                            <img
-                              alt="已添加凭证图片"
-                              className="h-11 w-11 rounded-lg object-cover"
-                              src={thumbnailUrl}
-                            />
-                          )
-                        : (
-                            <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-light">
-                              <ImagePlus size={18} />
-                            </span>
-                          )}
-                  </button>
-                  <span>
-                    {controller.isImageUploading
-                      ? '正在上传图片…'
-                      : controller.imageUploadError
-                        ? '上传失败，可重新选择'
-                        : '已添加凭证图片'}
-                  </span>
-                  <button
-                    aria-label="移除图片"
-                    className="ml-auto flex h-11 w-11 items-center justify-center p-1 text-ww-mid"
-                    onClick={() => {
-                      closeImagePreview();
-                      controller.handleRemoveImage();
-                    }}
-                    type="button"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              )}
-
-              <div className="relative flex min-h-0 flex-grow flex-col items-center justify-center text-center">
-                <div className="pb-2 text-[11px] font-semibold leading-[16.5px] tracking-[0.5px] text-ww-soft">
-                  {controller.recordType === 'sub'
-                    ? t('record:bookkeeping.expend')
-                    : t('record:bookkeeping.income')}
-                  {t('record:bookkeeping.amount')}
-                </div>
-                <div
-                  className="h-[81px] max-w-full overflow-x-auto whitespace-nowrap font-number text-[54px] font-black leading-[81px] tracking-[-1.5px] text-ww-ink [&::-webkit-scrollbar]:hidden"
-                  data-record-editor-total
-                >
-                  <span className="mr-1 text-[26px] font-bold leading-[39px] tracking-normal text-ww-soft">
-                    ¥
-                  </span>
-                  {controller.calculator.totals}
-                </div>
-                <span className="mt-[10px] h-[2.5px] w-10 rounded-sm bg-primary opacity-70" />
-                {showOperatorControls && (
-                  <div
-                    className="absolute bottom-3 flex gap-2"
-                    data-record-editor-operators
-                  >
-                    {['+', '-'].map((operator, index) => (
-                      <button
-                        className={cn(
-                          'flex h-11 w-11 items-center justify-center rounded-[10px] border border-border-primary bg-white/80 font-number text-lg font-bold text-primary-deep shadow-ww-xs',
-                          controller.activeSideIndex === index + 1
-                          && 'bg-primary-light',
-                        )}
-                        key={operator}
-                        onClick={() => controller.handleOperatorClick(operator)}
-                        onTouchMove={controller.handleKeyTouchMove}
-                        onTouchStart={() =>
-                          controller.handleKeyTouchStart(index + 1)}
-                        type="button"
-                      >
-                        {operator}
-                      </button>
-                    ))}
-                  </div>
+                }}
+                placeholder={t('record:bookkeeping.notePlaceholder')}
+                type="text"
+                value={controller.remark}
+              />
+            </label>
+            <button
+              aria-label={`${t('record:bookkeeping.amount')}：${controller.calculator.totals}`}
+              className="flex min-h-11 min-w-0 max-w-[72%] items-center justify-end text-right"
+              onClick={() => {
+                noteInputRef.current?.blur();
+                controller.setIsNoteFocused(false);
+              }}
+              type="button"
+            >
+              <span
+                className={cn(
+                  'record-editor-total flex max-w-full min-w-0 items-center whitespace-nowrap font-number font-black leading-[44px] tracking-[-1px] text-ww-ink',
+                  amountLength > 11 ? 'text-[23px]' : amountLength > 8 ? 'text-[28px]' : 'text-[34px]',
                 )}
-              </div>
-
-              <section
-                className="shrink-0 border-t border-solid border-border-primary bg-white/70 px-4 pb-[max(14px,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl"
-                data-record-editor-keypad
+                data-record-editor-total
               >
-                <div className="grid grid-cols-[1fr_1fr] gap-[10px]">
-                  <button
-                    className="flex h-[50px] items-center justify-center rounded-[16px] border border-border-primary bg-white/80 px-2 text-[14px] font-bold leading-[21px] text-ww-mid active:bg-primary-light"
-                    data-record-editor-date-trigger
-                    onClick={() => controller.setIsDatePickerVisible(true)}
-                    type="button"
-                  >
-                    <DesignIcon className="mr-1" name="editor-date" size={16} />
-                    {controller.isToday
-                      ? t('common:time.today')
-                      : controller.formattedDate}
-                  </button>
-                  <m.button
-                    className="ww-theme-primary-action h-[50px] rounded-[16px] px-4 text-[15px] font-extrabold leading-[22.5px] disabled:opacity-50"
-                    disabled={
-                      controller.isSubmitting || controller.isImageUploading
-                    }
-                    onClick={() => void controller.handleSubmit()}
-                    type="button"
-                    whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
-                  >
-                    {controller.calculator.completeText}
-                  </m.button>
-                </div>
-                {showNumericKeypad && (
-                  <div className="mt-[10px] grid grid-cols-3 gap-2">
-                    {KEYPAD_LAYOUT.map((item, index) => (
-                      <m.button
-                        aria-label={
-                          item.keys === 'x'
-                            ? t('record:bookkeeping.backspace')
-                            : undefined
-                        }
-                        className={cn(
-                          'flex h-[54px] items-center justify-center rounded-[16px] border border-border-primary bg-white/90 font-number text-[21px] font-bold leading-[31.5px] text-ww-ink shadow-ww-xs',
-                          item.keys === 'x'
-                          && 'gap-1.5 border-primary-light bg-primary-light/55 font-sans text-[12px] text-primary-deep',
-                          controller.activeKeyIndex === index && 'bg-primary-light',
-                        )}
-                        key={String(item.keys)}
-                        onClick={() => controller.handleKeyClick(item.keys)}
-                        onTouchMove={controller.handleKeyTouchMove}
-                        onTouchStart={() => controller.handleKeyTouchStart(index)}
-                        type="button"
-                        whileTap={
-                          isMotionEnabled ? MOTION_PRESETS.press : undefined
-                        }
-                      >
-                        {item.keys === 'x'
-                          ? (
-                              <>
-                                <BackspaceIcon
-                                  aria-hidden="true"
-                                  size={20}
-                                  strokeWidth={1.8}
-                                />
-                                <span>{t('record:bookkeeping.backspace')}</span>
-                              </>
-                            )
-                          : (
-                              item.keys
-                            )}
-                      </m.button>
-                    ))}
-                  </div>
+                <span className="mr-0.5 shrink-0 text-[18px] font-bold tracking-normal text-ww-soft">¥</span>
+                <span
+                  className="min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  data-record-editor-amount-digits
+                  ref={amountDigitsRef}
+                >
+                  {controller.calculator.totals}
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <section
+          className={cn('record-editor-keypad shrink-0 border-t border-solid px-4', controller.isNoteFocused && 'hidden')}
+          data-record-editor-keypad
+        >
+          <div className="grid grid-cols-3 gap-[var(--record-editor-keypad-gap)]">
+            <div className="contents" data-record-editor-operators>
+              {['+', '-'].map((operator, index) => (
+                <button
+                  aria-label={operator === '+' ? t('record:bookkeeping.addAmount') : t('record:bookkeeping.subtractAmount')}
+                  className={cn(
+                    'record-editor-keypad__action record-editor-keypad__operator flex w-full items-center justify-center border-0 font-number text-lg font-bold disabled:opacity-45',
+                    controller.activeSideIndex === index + 1 && 'record-editor-keypad__operator--active',
+                  )}
+                  disabled={!showOperatorControls || controller.isNoteFocused}
+                  key={operator}
+                  onClick={() => controller.handleOperatorClick(operator)}
+                  onTouchMove={controller.handleKeyTouchMove}
+                  onTouchStart={() => controller.handleKeyTouchStart(index + 1)}
+                  type="button"
+                >
+                  {operator}
+                </button>
+              ))}
+            </div>
+            <m.button
+              aria-label={isCalculationPending ? t('record:bookkeeping.calculateResult') : t('record:bookkeeping.complete')}
+              className="record-editor-keypad__action ww-theme-primary-action w-full text-[15px] font-extrabold leading-[22.5px] disabled:opacity-50"
+              data-record-editor-submit
+              disabled={
+                isCalculationPending
+                  ? !controller.calculator.canCalculate() || controller.isSubmitting
+                  : !hasValidSelectedCategory
+                    || controller.isSubmitting
+                    || controller.isImageUploading
+                    || controller.hasImageUploadError
+              }
+              onClick={() => {
+                if (isCalculationPending)
+                  controller.calculator.resolveAmount();
+                else
+                  void controller.handleSubmit();
+              }}
+              type="button"
+              whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
+            >
+              {isCalculationPending ? '=' : t('record:bookkeeping.complete')}
+            </m.button>
+          </div>
+          <div
+            aria-hidden={controller.isNoteFocused}
+            className={cn(
+              'record-editor-keypad__keys grid grid-cols-3',
+              controller.isNoteFocused && 'pointer-events-none invisible',
+            )}
+            data-record-editor-numeric-keys
+          >
+            {KEYPAD_LAYOUT.map((item, index) => (
+              <m.button
+                aria-label={
+                  item.keys === 'x'
+                    ? t('record:bookkeeping.backspace')
+                    : undefined
+                }
+                className={cn(
+                  'record-editor-keypad__key flex items-center justify-center font-number text-[21px] font-bold leading-[31.5px] text-ww-ink',
+                  item.keys === 'x'
+                  && 'gap-1.5 font-sans text-[12px] text-primary-deep',
+                  (item.keys === 'x' || controller.activeKeyIndex === index) && 'record-editor-keypad__key--active',
                 )}
-              </section>
-            </m.main>
-          )}
+                disabled={controller.isNoteFocused}
+                key={String(item.keys)}
+                onClick={() => controller.handleKeyClick(item.keys)}
+                onTouchMove={controller.handleKeyTouchMove}
+                onTouchStart={() => controller.handleKeyTouchStart(index)}
+                type="button"
+                whileTap={
+                  isMotionEnabled ? MOTION_PRESETS.press : undefined
+                }
+              >
+                {item.keys === 'x'
+                  ? (
+                      <>
+                        <BackspaceIcon
+                          aria-hidden="true"
+                          size={20}
+                          strokeWidth={1.8}
+                        />
+                        <span>{t('record:bookkeeping.backspace')}</span>
+                      </>
+                    )
+                  : (
+                      item.keys
+                    )}
+              </m.button>
+            ))}
+          </div>
+        </section>
+      </m.main>
 
       {isSaveSucceeded && (
         <m.div
@@ -795,6 +769,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       )}
 
       <AppDatePicker
+        className="record-editor-date-picker"
         onClose={() => controller.setIsDatePickerVisible(false)}
         onConfirm={(value) => {
           controller.setDate(value);
@@ -822,8 +797,9 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       )}
 
       <AppSheet
-        bodyClassName="flex max-h-[62vh] flex-col overflow-hidden"
+        bodyClassName="record-editor-asset-sheet flex flex-col overflow-hidden"
         destroyOnClose
+        material="opaque"
         onMaskClick={() => setIsAssetPickerVisible(false)}
         onClose={() => setIsAssetPickerVisible(false)}
         position="bottom"
@@ -834,14 +810,14 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           onClose={() => setIsAssetPickerVisible(false)}
           title={t('record:bookkeeping.selectLinkedAsset')}
         />
-        <div className="space-y-2 overflow-auto px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-3">
+        <div className="record-editor-asset-list space-y-2 overflow-y-auto overscroll-contain px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-3">
           <button
             aria-pressed={controller.linkedAssetId === null}
             className={cn(
-              'flex min-h-[58px] w-full items-center gap-3 rounded-[16px] border bg-white px-3 text-left transition-colors active:bg-primary-light/25 focus-visible:border-primary',
+              'record-editor-asset-option flex min-h-[58px] w-full items-center gap-3 rounded-[12px] px-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
               controller.linkedAssetId === null
-                ? 'border-primary'
-                : 'border-transparent',
+                ? 'record-editor-asset-option--selected'
+                : '',
             )}
             data-record-editor-asset-option="none"
             onClick={() => {
@@ -874,10 +850,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               <button
                 aria-pressed={controller.linkedAssetId === asset.id}
                 className={cn(
-                  'flex min-h-[64px] w-full items-center gap-3 rounded-[16px] border bg-white px-3 text-left transition-colors active:bg-primary-light/25 focus-visible:border-primary',
+                  'record-editor-asset-option flex min-h-[64px] w-full items-center gap-3 rounded-[12px] px-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep',
                   controller.linkedAssetId === asset.id
-                    ? 'border-primary'
-                    : 'border-transparent',
+                    ? 'record-editor-asset-option--selected'
+                    : '',
                 )}
                 data-record-editor-asset-option={asset.id}
                 key={asset.id}
@@ -936,7 +912,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       </AppSheet>
 
       <AppSheet
-        bodyClassName="max-h-[55vh] overflow-auto px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4"
+        bodyClassName="record-editor-tag-sheet flex flex-col overflow-hidden px-4 pb-[calc(12px+env(safe-area-inset-bottom))] pt-3"
         destroyOnClose
         onMaskClick={() => controller.setIsTagPickerVisible(false)}
         onClose={() => controller.setIsTagPickerVisible(false)}
@@ -954,7 +930,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                   aria-label="标签设置"
                   className="flex h-11 w-11 items-center justify-center rounded-xl border-0 bg-primary-light/45 text-primary-deep active:bg-primary-light disabled:opacity-45"
                   disabled={controller.isImageUploading}
-                  onClick={onManageTags}
+                  onClick={() => onManageTags(draftTagIds)}
                   type="button"
                 >
                   <Settings2 size={18} strokeWidth={1.9} />
@@ -964,9 +940,9 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 <span className="w-10" aria-hidden="true" />
               )}
         </div>
-        {controller.selectedTagIds.length > 0 && (
+        {draftTagIds.length > 0 && (
           <section
-            className="mb-4 rounded-[18px] border border-primary-light/80 bg-primary-light/25 p-3"
+            className="record-editor-selected-tags mb-3 max-h-[104px] shrink-0 overflow-y-auto rounded-[12px] p-3"
             data-record-editor-selected-tags
           >
             <div className="mb-2 text-[12px] font-extrabold text-primary-deep">
@@ -974,18 +950,19 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </div>
             <div className="flex flex-wrap gap-2">
               {(tags ?? [])
-                .filter(tag => controller.selectedTagIds.includes(tag.id))
+                .filter(tag => draftTagIds.includes(tag.id))
                 .map(tag => (
                   <span
-                    className="inline-flex min-h-11 items-center gap-1 rounded-full border border-primary/25 bg-white px-2 pl-3 text-[13px] font-bold text-primary-deep shadow-ww-xs"
+                    className="record-editor-selected-tag inline-flex min-h-11 items-center gap-1 rounded-full pl-3 text-[12px] font-semibold text-primary-deep"
                     key={tag.id}
                   >
                     #
                     {tag.name}
+                    {tag.status === 'ARCHIVED' && <span className="text-xs text-ww-soft">（已归档）</span>}
                     <button
                       aria-label={`移除标签 ${tag.name}`}
                       className="ml-0.5 flex h-11 w-11 items-center justify-center rounded-full text-primary-deep transition active:bg-primary-light"
-                      onClick={() => controller.handleRemoveTag(tag.id)}
+                      onClick={() => toggleDraftTag(tag.id)}
                       type="button"
                     >
                       <X aria-hidden="true" size={14} strokeWidth={2.4} />
@@ -995,29 +972,29 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </div>
           </section>
         )}
-        {controller.selectedTagIds.length > 1 && (
-          <div className="mb-3 text-sm text-ww-soft">
-            已保留
-            {controller.selectedTagIds.length}
-            {' '}
-            个历史标签；选择后会收敛为单标签。
-          </div>
-        )}
-        <div className="flex flex-wrap gap-2">
-          {(tags ?? []).map(tag => (
+        <input aria-label="搜索标签" className="ww-sheet-control mb-2 min-h-11 w-full shrink-0 rounded-xl px-3" value={tagSearch} onChange={event => setTagSearch(event.target.value)} placeholder="搜索标签" />
+        <p className="mb-2 shrink-0 text-xs text-ww-soft">
+          已选
+          {draftTagIds.length}
+          {' '}
+          / 20；标签在本账本内通用
+        </p>
+        <div className="record-editor-tag-list flex min-h-0 flex-1 flex-wrap content-start gap-2 overflow-y-auto overscroll-contain pb-2">
+          {(tags ?? []).filter(tag => tag.status !== 'ARCHIVED' && tag.name.includes(tagSearch.trim())).map(tag => (
             <div
               className="inline-flex overflow-hidden rounded-full"
               key={tag.id}
             >
               <button
-                aria-pressed={controller.selectedTagIds.includes(tag.id)}
+                aria-pressed={draftTagIds.includes(tag.id)}
                 className={cn(
-                  'min-h-11 rounded-l-full border border-solid border-r-0 px-3 text-sm',
-                  controller.selectedTagIds.includes(tag.id)
-                    ? 'border-primary bg-primary text-white'
-                    : 'border-border-primary bg-white text-ww-mid',
+                  'record-editor-tag-option min-h-11 rounded-l-full px-3 text-[13px] font-semibold',
+                  draftTagIds.includes(tag.id)
+                    ? 'record-editor-tag-option--selected'
+                    : 'text-ww-mid',
                 )}
-                onClick={() => controller.handleToggleTag(tag.id)}
+                onClick={() => toggleDraftTag(tag.id)}
+                disabled={!draftTagIds.includes(tag.id) && draftTagIds.length >= 20}
                 type="button"
               >
                 {tag.name}
@@ -1025,12 +1002,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               {onArchiveTag && (
                 <button
                   aria-label={`${t('ledger:tags.delete')} ${tag.name}`}
-                  className={cn(
-                    'flex min-h-11 w-11 items-center justify-center border border-solid border-l border-l-white/35 transition disabled:opacity-45',
-                    controller.selectedTagIds.includes(tag.id)
-                      ? 'border-primary bg-primary text-white active:bg-primary-deep'
-                      : 'border-border-primary bg-white text-feedback-danger active:bg-feedback-danger-surface',
-                  )}
+                  className="record-editor-tag-delete flex min-h-11 w-11 items-center justify-center text-ww-soft transition-colors active:text-feedback-danger focus-visible:text-feedback-danger disabled:opacity-45"
                   data-record-editor-tag-delete={tag.id}
                   disabled={controller.isImageUploading}
                   onClick={() => void handleArchiveTag(tag.id, tag.name)}
@@ -1044,7 +1016,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
         </div>
         {canManageTags && onCreateTag && (
           <form
-            className="mt-4 flex gap-2 border-t border-border-primary pt-3"
+            className="mt-2 flex shrink-0 gap-2 border-t border-border-primary pt-2"
             onSubmit={(event) => {
               event.preventDefault();
               const name = newTagName.trim();
@@ -1053,15 +1025,15 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               setIsCreatingTag(true);
               void onCreateTag(name)
                 .then((tag) => {
-                  controller.handleToggleTag(tag.id);
+                  toggleDraftTag(tag.id);
                   setNewTagName('');
                 })
                 .finally(() => setIsCreatingTag(false));
             }}
           >
             <input
-              className="min-w-0 flex-1 rounded-xl border border-border-primary px-3 py-2 text-sm outline-none"
-              maxLength={32}
+              className="ww-sheet-control min-w-0 flex-1 rounded-xl border border-border-primary px-3 py-2 text-sm outline-none"
+              maxLength={20}
               onChange={event => setNewTagName(event.target.value)}
               placeholder="新建标签"
               value={newTagName}
@@ -1075,15 +1047,21 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             </button>
           </form>
         )}
+        <div className="mt-2 flex shrink-0 gap-2 border-t border-border-primary pt-2">
+          <AppButton variant="secondary" onClick={() => setDraftTagIds([])}>清空</AppButton>
+          <AppButton data-record-editor-tag-cancel variant="secondary" onClick={() => controller.setIsTagPickerVisible(false)}>取消</AppButton>
+          <AppButton
+            data-record-editor-tag-confirm
+            className="flex-1"
+            onClick={() => {
+              controller.handleSetTags(draftTagIds);
+              controller.setIsTagPickerVisible(false);
+            }}
+          >
+            完成
+          </AppButton>
+        </div>
       </AppSheet>
-      <ImagePreview
-        image={controller.imagePreviewUrl ?? contentUrl}
-        onClose={closeImagePreview}
-        placeholder={
-          isImagePreviewLoading ? <SpinLoading color="white" /> : null
-        }
-        visible={isImagePreviewOpen}
-      />
     </div>
   );
 };

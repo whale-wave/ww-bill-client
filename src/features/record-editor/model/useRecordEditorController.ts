@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { money } from '@/shared/lib';
 import { requestCurrentLocationFix } from './record-location';
 import { useCalculator } from './useCalculator';
+import { MAX_RECORD_IMAGES, useRecordEditorImages } from './useRecordEditorImages';
 
 interface RecordEditorControllerOptions {
   onSubmit: (draft: RecordDraft) => Promise<void>;
@@ -55,7 +56,7 @@ export function useRecordEditorController({
     return initialDate.isValid() ? initialDate.toDate() : new Date();
   });
   const [selectedTagIds, setSelectedTagIds] = useState(seed.tagIds ?? []);
-  const [tagSelectionDirty, setTagSelectionDirty] = useState(false);
+  const [tagSelectionDirty, setTagSelectionDirty] = useState(Boolean(seed.tagSelectionDirty));
   const [linkedAssetId, setLinkedAssetId] = useState<string | null>(
     seed.linkedAssetId ?? null,
   );
@@ -67,18 +68,24 @@ export function useRecordEditorController({
   );
   const [isLocationPickerVisible, setIsLocationPickerVisible] = useState(false);
   const [assetSelectionDirty, setAssetSelectionDirty] = useState(false);
-  const [imageAssetId, setImageAssetId] = useState<string | null | undefined>(
-    seed.imageAssetId,
-  );
-  const [imagePreviewFile, setImagePreviewFile] = useState<File>();
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | undefined>(
-    () =>
-      seed.imagePreviewFile
-        ? URL.createObjectURL(seed.imagePreviewFile)
-        : undefined,
-  );
-  const [isImageUploading, setIsImageUploading] = useState(false);
-  const [imageUploadError, setImageUploadError] = useState(false);
+  const {
+    handleRemoveImage,
+    handleRetryImage,
+    handleSelectImages,
+    getImageDraftState,
+    hasImageUploadError,
+    images,
+    isImageSelectionDirty,
+    isImageUploading,
+    waitForImageUploads,
+  } = useRecordEditorImages({
+    attachments: seed.attachments ?? (seed.imageAssetId !== undefined || !seed.attachment ? [] : [seed.attachment]),
+    pendingImages: seed.pendingImages ?? (seed.imagePreviewFile
+      ? [{ assetId: typeof seed.imageAssetId === 'string' ? seed.imageAssetId : undefined, file: seed.imagePreviewFile, id: 'legacy-image' }]
+      : []),
+    initiallyDirty: seed.imageSelectionDirty ?? seed.imageAssetId !== undefined,
+    onUploadImage,
+  });
   const [isNoteFocused, setIsNoteFocused] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
   const [isTagPickerVisible, setIsTagPickerVisible] = useState(
@@ -88,7 +95,6 @@ export function useRecordEditorController({
   const [activeSideIndex, setActiveSideIndex] = useState(-1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submittingRef = useRef(false);
-  const imageSelectionRef = useRef(0);
   const hasAppliedInitialCategoryRef = useRef(Boolean(seed.category));
 
   useEffect(() => {
@@ -97,22 +103,12 @@ export function useRecordEditorController({
     return () => document.removeEventListener('contextmenu', handleContextMenu);
   }, []);
 
-  useEffect(
-    () => () => {
-      if (imagePreviewUrl)
-        URL.revokeObjectURL(imagePreviewUrl);
-    },
-    [imagePreviewUrl],
-  );
-
   const handleRecordTypeChange = useCallback(
     (nextType: CategoryAmountType) => {
       if (nextType === recordType)
         return;
       setRecordType(nextType);
       setSelectedCategory(undefined);
-      setSelectedTagIds([]);
-      setTagSelectionDirty(true);
       setIsTagPickerVisible(false);
     },
     [recordType],
@@ -121,8 +117,6 @@ export function useRecordEditorController({
   const handleSelectCategory = useCallback(
     (category: CategoryEntity) => {
       if (selectedCategory?.id !== category.id) {
-        setSelectedTagIds([]);
-        setTagSelectionDirty(true);
         setIsTagPickerVisible(false);
       }
       setSelectedCategory(category);
@@ -131,7 +125,7 @@ export function useRecordEditorController({
   );
 
   const applyInitialCategory = useCallback(
-    (category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'>) => {
+    (category?: Pick<CategoryEntity, 'icon' | 'id' | 'name' | 'type'> & { iconType?: CategoryEntity['iconType']; textIconEnabled?: boolean; textIconIndex?: number }) => {
       if (!category || selectedCategory || hasAppliedInitialCategoryRef.current)
         return;
       hasAppliedInitialCategoryRef.current = true;
@@ -185,10 +179,16 @@ export function useRecordEditorController({
 
   const handleToggleTag = useCallback((tagId: string) => {
     setTagSelectionDirty(true);
-    // A historical record can start with multiple tags. Choosing its primary
-    // tag is still an explicit single-selection mutation, not a clear action.
-    setSelectedTagIds([tagId]);
+    setSelectedTagIds(current => current.includes(tagId) ? current.filter(id => id !== tagId) : current.length < 20 ? [...current, tagId] : current);
   }, []);
+
+  const handleSetTags = useCallback((tagIds: string[]) => {
+    const next = [...new Set(tagIds)].slice(0, 20);
+    if (next.length === selectedTagIds.length && next.every(id => selectedTagIds.includes(id)))
+      return;
+    setSelectedTagIds(next);
+    setTagSelectionDirty(true);
+  }, [selectedTagIds]);
 
   const handleClearTag = useCallback(() => {
     setTagSelectionDirty(true);
@@ -241,51 +241,8 @@ export function useRecordEditorController({
     [selectedTagIds],
   );
 
-  const handleSelectImage = useCallback(
-    async (file: File) => {
-      if (!onUploadImage)
-        return;
-      const selection = ++imageSelectionRef.current;
-      const preview = URL.createObjectURL(file);
-      setImagePreviewUrl((current) => {
-        if (current)
-          URL.revokeObjectURL(current);
-        return preview;
-      });
-      setImagePreviewFile(file);
-      setImageUploadError(false);
-      setIsImageUploading(true);
-      try {
-        const assetId = await onUploadImage(file);
-        if (selection === imageSelectionRef.current)
-          setImageAssetId(assetId);
-      }
-      catch {
-        if (selection === imageSelectionRef.current)
-          setImageUploadError(true);
-      }
-      finally {
-        if (selection === imageSelectionRef.current)
-          setIsImageUploading(false);
-      }
-    },
-    [onUploadImage],
-  );
-
-  const handleRemoveImage = useCallback(() => {
-    imageSelectionRef.current += 1;
-    setImagePreviewUrl((current) => {
-      if (current)
-        URL.revokeObjectURL(current);
-      return undefined;
-    });
-    setImagePreviewFile(undefined);
-    setImageAssetId(null);
-    setImageUploadError(false);
-  }, []);
-
   const handleSubmit = useCallback(async () => {
-    if (submittingRef.current || isImageUploading)
+    if (submittingRef.current || isImageUploading || hasImageUploadError)
       return;
     if (!selectedCategory) {
       onValidationError?.('category');
@@ -312,7 +269,12 @@ export function useRecordEditorController({
       ...((!isEditing && location) || locationSelectionDirty
         ? { location }
         : {}),
-      ...(imageAssetId !== undefined ? { imageAssetId } : {}),
+      ...(isImageSelectionDirty
+        ? {
+            imageAssetIds: images.flatMap(image => image.kind === 'new' && image.assetId ? [image.assetId] : []),
+            ...(isEditing ? { retainedAttachmentIds: images.flatMap(image => image.kind === 'existing' ? [image.id] : []) } : {}),
+          }
+        : {}),
     };
 
     submittingRef.current = true;
@@ -335,7 +297,9 @@ export function useRecordEditorController({
     supportsTags,
     isEditing,
     tagSelectionDirty,
-    imageAssetId,
+    hasImageUploadError,
+    images,
+    isImageSelectionDirty,
     isImageUploading,
     linkedAssetId,
     assetSelectionDirty,
@@ -348,46 +312,47 @@ export function useRecordEditorController({
   const formattedTime = useMemo(() => dayjs(date).format('HH:mm:ss'), [date]);
   const isToday = useMemo(() => dayjs().isSame(date, 'day'), [date]);
   const getDraftSnapshot = useCallback(
-    (): RecordEditorSeed => ({
-      amount: calculator.totals,
-      attachment: seed.attachment,
-      calculator: {
-        addNum: calculator.addNum,
-        addition: calculator.addition,
-        completeText: calculator.completeText,
-        num: calculator.num,
-        totals: calculator.totals,
-      },
-      category: selectedCategory,
-      hasImage:
-        Boolean(seed.attachment ?? seed.hasImage)
-        || (imageAssetId !== null && Boolean(imageAssetId ?? imagePreviewFile)),
-      imageAssetId,
-      imagePreviewFile,
-      linkedAssetId,
-      location,
-      locationSelectionDirty,
-      isTagPickerVisible: true,
-      recordType,
-      remark,
-      tagIds: selectedTagIds,
-      time: dayjs(date).toISOString(),
-      shouldReconcileTags: true,
-    }),
+    (): RecordEditorSeed => {
+      const { images: currentImages, isImageSelectionDirty: currentImageSelectionDirty } = getImageDraftState();
+      return {
+        amount: calculator.totals,
+        attachments: currentImages.flatMap(image => image.kind === 'existing' ? [image.attachment] : []),
+        calculator: {
+          addNum: calculator.addNum,
+          addition: calculator.addition,
+          completeText: calculator.completeText,
+          num: calculator.num,
+          totals: calculator.totals,
+        },
+        category: selectedCategory,
+        pendingImages: currentImages.flatMap(image => image.kind === 'new'
+          ? [{ assetId: image.assetId, file: image.file, id: image.id }]
+          : []),
+        imageSelectionDirty: currentImageSelectionDirty,
+        linkedAssetId,
+        location,
+        locationSelectionDirty,
+        isTagPickerVisible: true,
+        recordType,
+        remark,
+        tagIds: selectedTagIds,
+        ...(tagSelectionDirty ? { tagSelectionDirty } : {}),
+        time: dayjs(date).toISOString(),
+        shouldReconcileTags: true,
+      };
+    },
     [
       calculator,
       date,
-      imageAssetId,
-      imagePreviewFile,
+      getImageDraftState,
       linkedAssetId,
       location,
       locationSelectionDirty,
       recordType,
       remark,
-      seed.attachment,
-      seed.hasImage,
       selectedCategory,
       selectedTagIds,
+      tagSelectionDirty,
     ],
   );
 
@@ -401,6 +366,7 @@ export function useRecordEditorController({
     formattedDate,
     formattedTime,
     getDraftSnapshot,
+    waitForImageUploads,
     handleKeyClick,
     handleKeyTouchMove,
     handleKeyTouchStart,
@@ -409,26 +375,26 @@ export function useRecordEditorController({
     handleSelectCategory,
     handleSubmit,
     handleToggleTag,
+    handleSetTags,
     handleClearTag,
     handleRemoveTag,
     handleReconcileTags,
     handleRemoveImage,
-    handleSelectImage,
+    handleRetryImage,
+    handleSelectImages,
     handleSelectLinkedAsset,
     handleSelectLocation,
     isDatePickerVisible,
     isNoteFocused,
     isSubmitting,
     isImageUploading,
-    imagePreviewUrl,
-    imageUploadError,
+    hasImageUploadError,
+    images,
+    canAddImages: Boolean(onUploadImage) && images.length < MAX_RECORD_IMAGES,
     locate,
     resolveLocationCandidates,
     linkedAssetId,
     location,
-    initialAttachment: seed.attachment,
-    hasInitialImage:
-      Boolean(seed.attachment ?? seed.hasImage) && imageAssetId !== null,
     isTagPickerVisible,
     isLocationPickerVisible,
     isToday,
@@ -437,6 +403,7 @@ export function useRecordEditorController({
     selectedCategory,
     selectedTagIds,
     shouldReconcileTags: Boolean(seed.shouldReconcileTags),
+    tagPickerDraftIds: seed.tagPickerDraftIds,
     tagSelectionDirty,
     assetSelectionDirty,
     setActiveSideIndex,

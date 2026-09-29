@@ -7,6 +7,9 @@ export interface ChartOverviewRankingItem {
   amount: number | string;
   category: {
     icon: string;
+    iconType?: 'BUILTIN' | 'IMAGE';
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
     id: number | string;
     name: string;
   };
@@ -45,6 +48,13 @@ export interface ChartOverviewRankingSection {
 
 export type ChartOverviewMetric = AmountType | 'net';
 export type ChartOverviewDisplay = 'line' | 'pie';
+export type ChartOverviewRange = TimeRangeCategory | 'custom';
+
+export interface ChartOverviewCustomRange {
+  /** Asia/Shanghai local timestamp, formatted as yyyy-MM-ddTHH:mm:ss. */
+  endDate: string;
+  startDate: string;
+}
 
 export interface ChartOverviewMetricOption {
   icon: string;
@@ -53,10 +63,13 @@ export interface ChartOverviewMetricOption {
 }
 
 export interface ChartOverviewContextValue {
+  tagRanking?: ReactNode;
   additionalRankingSections?: ChartOverviewRankingSection[];
   currentAmountType: AmountType;
   currentMetric?: ChartOverviewMetric;
-  currentTimeRangeCategory: TimeRangeCategory;
+  currentTimeRangeCategory: ChartOverviewRange;
+  customRange?: ChartOverviewCustomRange;
+  onCustomRangeChange?: (range: ChartOverviewCustomRange) => void;
   displayMode?: ChartOverviewDisplay;
   onDisplayModeChange?: (mode: ChartOverviewDisplay) => void;
   isAmountHidden?: boolean;

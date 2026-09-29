@@ -1,0 +1,21 @@
+html,
+body {
+  overflow: auto;
+}
+
+#storybook-root {
+  min-height: 100%;
+}
+
+.ww-story-page {
+  box-sizing: border-box;
+  min-height: 100%;
+  width: 100%;
+  padding: 20px 16px 96px;
+  background: var(--ww-page-gradient);
+}
+
+.ww-story-stack {
+  display: grid;
+  gap: 16px;
+}

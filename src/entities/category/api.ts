@@ -9,12 +9,18 @@ export interface CategoryEntity {
   createdAt: string;
   icon: string;
   iconType: CategoryIconType;
+  backgroundColor?: string | null;
   id: number;
   isCustom: boolean;
   ledgerId: string;
   name: string;
+  parentId?: number | null;
+  parentName?: string | null;
+  path?: string;
   sortOrder: number;
   status: CategoryStatus;
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
   templateKey?: string | null;
   type: CategoryAmountType;
   updatedAt: string;
@@ -33,8 +39,11 @@ export interface GetCategoryApiResponseData {
 }
 
 export interface CategoryIconCatalogItem {
-  group: 'food' | 'life' | 'family' | 'social' | 'income' | 'other';
+  group: 'food' | 'life' | 'family' | 'social' | 'income' | 'other' | 'emoji'
+    | 'emoji-smileys' | 'emoji-people' | 'emoji-animals' | 'emoji-food'
+    | 'emoji-travel' | 'emoji-activities' | 'emoji-objects' | 'emoji-symbols' | 'emoji-flags';
   key: string;
+  keywords?: string[];
   name: { en: string; zh: string };
 }
 
@@ -59,10 +68,14 @@ export function getLedgerCategoriesApi(
 }
 
 export interface PostLedgerCategoryApiData {
+  backgroundColor?: string | null;
+  parentId?: number | null;
   file?: File;
   iconKey?: string;
   name: string;
   type: CategoryAmountType;
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
 }
 
 export function postLedgerCategoryApi(
@@ -73,10 +86,18 @@ export function postLedgerCategoryApi(
   const formData = new FormData();
   formData.append('name', data.name);
   formData.append('type', data.type);
+  if (data.backgroundColor)
+    formData.append('backgroundColor', data.backgroundColor);
+  if (data.parentId)
+    formData.append('parentId', String(data.parentId));
   if (data.iconKey)
     formData.append('iconKey', data.iconKey);
   if (data.file)
     formData.append('file', data.file);
+  if (data.textIconEnabled !== undefined)
+    formData.append('textIconEnabled', String(data.textIconEnabled));
+  if (data.textIconIndex !== undefined)
+    formData.append('textIconIndex', String(data.textIconIndex));
   return request.post<unknown, SuccessResponse<CategoryEntity>>(
     `/ledgers/${encodeURIComponent(ledgerId)}/categories`,
     formData,
@@ -91,10 +112,13 @@ export function postLedgerCategoryApi(
 }
 
 export interface PatchLedgerCategoryApiData {
+  backgroundColor?: string | null;
   iconKey?: string;
   name?: string;
   status?: CategoryStatus;
   version: number;
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
 }
 
 export function patchLedgerCategoryApi(
@@ -109,6 +133,7 @@ export function patchLedgerCategoryApi(
 }
 
 export interface ReorderLedgerCategoriesApiData {
+  parentId?: number | null;
   items: Array<{ categoryId: number; version: number }>;
   type: CategoryAmountType;
 }
@@ -176,4 +201,37 @@ export function deleteLedgerCategoryApi(
     : request.delete<unknown, SuccessResponse<undefined>>(path, {
         params: { version },
       });
+}
+
+export interface CategoryMovePreview {
+  categoryId: number;
+  parentId: number | null;
+  path: string;
+  recordCount: number;
+  version: number;
+}
+
+export function moveLedgerCategoryApi(ledgerId: string, categoryId: number, data: { parentId: number | null; version: number }, preview = false) {
+  return request.post<unknown, SuccessResponse<CategoryMovePreview>>(`/ledgers/${encodeURIComponent(ledgerId)}/categories/${categoryId}/${preview ? 'move-preview' : 'move'}`, data);
+}
+
+export interface CategoryDeleteImpact {
+  budgetCount: number;
+  childCount: number;
+  householdBudgetCount: number;
+  recordCount: number;
+  tagCount: number;
+  requiresMigration: boolean;
+}
+
+export function deleteLedgerCategoryPermanentlyApi(
+  ledgerId: string,
+  categoryId: number,
+  data: { targetCategoryId?: number; version: number },
+  preview = false,
+) {
+  return request.post<unknown, SuccessResponse<CategoryDeleteImpact>>(
+    `/ledgers/${encodeURIComponent(ledgerId)}/categories/${categoryId}/${preview ? 'delete-preview' : 'delete'}`,
+    data,
+  );
 }

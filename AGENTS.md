@@ -29,6 +29,12 @@ shasum -a 256 ww-bill-admin/AGENTS.md ww-bill-client/AGENTS.md ww-bill-service/A
 git diff --check
 ```
 
+### 计划执行过程文档
+
+实施计划时，在受 Git 管理的 `docs/` 中维护持续更新的 Markdown 执行记录。开始前记录目标、范围、任务拆分和验收条件；每完成阶段、发生决策变化、发现阻塞或得到验证结果时更新。记录应包含日期、对应文件/提交、实际结果、证据和下一步，不能只留在聊天或临时日志中。
+
+跨仓库任务选择一份主记录，其他仓库文档入口链接过去；当前跨三端记录入口为 `ww-bill-service/docs/execution/README.md`（按并列工作区路径定位），含维护约定和模板。历史计划已有主记录时优先继续维护，不重复建立状态来源。交付时同步索引和待办，区分本地完成、发布、数据迁移及设备验收；未验证项不能标为完成。
+
 ### Markdown 代码片段
 
 在 Markdown 中记录代码时，只有可以作为独立示例通过对应语言 ESLint / TypeScript 校验的内容，才使用带语言标识的代码块。短 decorator、类型名、单行调用、配置项片段或其它不完整代码，必须用行内反引号包裹，例如 `@UseGuards(JwtAuthGuard)`，不要写成带 `ts` 语言标识的 fenced code block。
@@ -318,6 +324,7 @@ Mutation hook 内部使用 `useQueryClient()` 获取 client，不要 import 全�
 - 页面根容器优先使用 `.page` 或 `.page-new`。
 - 主色通过 `var(--ww-theme-color)`、`bg-primary` 或 `text-primary` 使用。
 - Ant Design Mobile 变量已在 `global.scss` 中做全局映射，不随意改全局变量。
+- `AppSheet` 不给所有后代输入元素统一叠加表面样式。独立的原生输入、选择和多行控件显式使用 `ww-sheet-control`；放在 `FieldFrame` 等自带外框容器内的控件保持透明、无边框和阴影，焦点样式由外框承载。修改弹层控件样式时检查共享 Storybook 的 `SheetFieldSurfaces` 场景。
 
 `ww-bill-admin`：
 

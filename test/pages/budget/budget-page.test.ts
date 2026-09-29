@@ -112,6 +112,7 @@ describe('personal budget page presentation', () => {
       params: { type: BudgetEntityType.YEAR },
     });
     expect(container.querySelector(`[data-budget-type="${BudgetEntityType.YEAR}"]`)?.textContent).toContain('dropdown.yearlyBudget');
+    expect(container.querySelector(`[data-budget-type="${BudgetEntityType.DAY}"]`)?.textContent).toContain('dropdown.dailyBudget');
     expect(container.querySelector('[data-budget-id="summary-1"]')).not.toBeNull();
     expect(container.querySelector('[data-budget-id="category-1"]')?.textContent).toContain('Dining');
     expect(container.querySelector('[data-budget-add-category]')?.closest('.shrink-0')).not.toBeNull();
@@ -126,8 +127,13 @@ describe('personal budget page presentation', () => {
       params: { type: BudgetEntityType.MONTH },
     });
 
+    await act(async () => container.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.DAY}"]`)?.click());
+    expect(hooks.getBudgetInfo).toHaveBeenLastCalledWith({
+      params: { type: BudgetEntityType.DAY },
+    });
+
     await act(async () => container.querySelector<HTMLElement>('[data-budget-add-category]')?.click());
-    expect(router.state.location.pathname).toBe('/budget/category/0');
+    expect(router.state.location.pathname).toBe(`/budget/category/${BudgetEntityType.DAY}`);
   });
 
   it('keeps the personal summary empty-state create action', () => {

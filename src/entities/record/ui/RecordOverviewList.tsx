@@ -1,9 +1,11 @@
 import type { FC, MouseEvent, ReactNode } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
+import { CategoryIcon } from '@/entities/category';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { cn } from '@/shared/lib';
-import { Icon } from '@/shared/ui';
+import { getCategoryIconForegroundColor } from '@/shared/lib/category-background';
 import { SwipeAction } from '@/shared/ui/konsta-compat';
+import { getRecordDisplayTitle } from '../display-title';
 
 export interface RecordOverviewListItem {
   amount: ReactNode;
@@ -11,6 +13,10 @@ export interface RecordOverviewListItem {
   originalAmount?: ReactNode;
   categoryName?: string;
   iconName: string;
+  iconType?: 'BUILTIN' | 'IMAGE';
+  backgroundColor?: string | null;
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
   memberColorKey?: keyof typeof MEMBER_COLOR_PALETTE;
   id: number | string;
   hasAttachment?: boolean;
@@ -42,7 +48,7 @@ export interface RecordOverviewListGroup {
 
 interface RecordOverviewListProps {
   groups: RecordOverviewListGroup[];
-  renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName'>) => ReactNode;
+  renderCategoryIcon?: (item: Pick<RecordOverviewListItem, 'categoryName' | 'iconName' | 'iconType' | 'textIconEnabled' | 'textIconIndex'>) => ReactNode;
   variant?: 'compact' | 'default' | 'overview' | 'search';
 }
 
@@ -121,6 +127,9 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
               : ''}
             >
               {group.records.map((record, index) => {
+                const primary = typeof record.primary === 'string'
+                  ? getRecordDisplayTitle(record.primary, record.categoryName ?? '')
+                  : record.primary;
                 if (isOverview) {
                   const hasOverviewSecondary = Boolean(record.overviewSecondary) || record.hasAttachment;
                   const recordRow = (
@@ -152,20 +161,22 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                                       ? 'bg-[color:var(--ww-surface-accent-color)] text-primary-deep'
                                       : !record.memberColorKey ? 'bg-[color:var(--ww-surface-tint-color)] text-primary-deep' : '',
                           )}
-                          style={record.memberColorKey
-                            ? {
-                                backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
-                                color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
-                                padding: 3,
-                              }
-                            : undefined}
+                          style={record.backgroundColor
+                            ? { backgroundColor: record.backgroundColor, color: getCategoryIconForegroundColor(record.backgroundColor) ?? 'var(--ww-theme-text-color)', padding: record.iconType === 'IMAGE' ? 0 : 3 }
+                            : record.memberColorKey
+                              ? {
+                                  backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
+                                  color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
+                                  padding: record.iconType === 'IMAGE' ? 0 : 3,
+                                }
+                              : undefined}
                           data-category-icon={record.iconName}
                         >
-                          {renderCategoryIcon?.(record) ?? <Icon className="text-[18px]" name={record.iconName || 'bill'} />}
+                          {renderCategoryIcon?.(record) ?? <CategoryIcon categoryName={record.categoryName} iconKey={record.iconName} iconType={record.iconType} textIconEnabled={record.textIconEnabled} textIconIndex={record.textIconIndex} size={18} />}
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block overflow-hidden text-ellipsis whitespace-nowrap text-[14px] font-semibold leading-[21px] text-ww-ink">
-                            {record.primary}
+                            {primary}
                           </span>
                           {hasOverviewSecondary && (
                             <span className="mt-0.5 flex min-w-0 items-center gap-1 overflow-hidden text-[11px] font-semibold leading-[16.5px] text-ww-mid">
@@ -219,15 +230,17 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                                 ? 'bg-[color:var(--ww-surface-accent-color)] text-primary-deep'
                                 : 'bg-[color:var(--ww-surface-tint-color)] text-primary-deep',
                         )}
-                        style={record.memberColorKey
-                          ? {
-                              backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
-                              color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
-                              padding: 3,
-                            }
-                          : undefined}
+                        style={record.backgroundColor
+                          ? { backgroundColor: record.backgroundColor, color: getCategoryIconForegroundColor(record.backgroundColor) ?? 'var(--ww-theme-text-color)', padding: record.iconType === 'IMAGE' ? 0 : 3 }
+                          : record.memberColorKey
+                            ? {
+                                backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
+                                color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
+                                padding: record.iconType === 'IMAGE' ? 0 : 3,
+                              }
+                            : undefined}
                       >
-                        {renderCategoryIcon?.(record) ?? <Icon className="text-[18px]" name={record.iconName || 'bill'} />}
+                        {renderCategoryIcon?.(record) ?? <CategoryIcon categoryName={record.categoryName} iconKey={record.iconName} iconType={record.iconType} textIconEnabled={record.textIconEnabled} textIconIndex={record.textIconIndex} size={18} />}
                       </span>
                     </span>
                     <span
@@ -239,7 +252,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                       )}
                     >
                       <span className="min-w-0 flex-grow">
-                        <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{record.primary}</span>
+                        <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{primary}</span>
                         {(record.secondary || record.hasAttachment) && (
                           <span className="mt-1 flex min-w-0 items-center gap-1 overflow-hidden text-xs text-ww-soft">
                             {record.secondary && <span className="min-w-0 truncate">{record.secondary}</span>}

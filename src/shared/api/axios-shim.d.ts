@@ -6,5 +6,6 @@ declare module 'axios' {
     authContext?: AuthRequestAuth;
     authIdentity?: AuthRequestIdentity;
     silent?: boolean;
+    monitoringStartedAt?: number;
   }
 }

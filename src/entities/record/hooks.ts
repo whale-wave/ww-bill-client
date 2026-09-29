@@ -22,6 +22,7 @@ import {
 import { useMemo } from 'react';
 import { agentKeys } from '@/entities/agent';
 import { chartKeys } from '@/entities/chart';
+import { userKeys } from '@/entities/user/keys';
 import { assertSuccessApi, isSuccessApi } from '@/shared/api';
 import {
   deleteLedgerRecordAdjustmentApi,
@@ -119,6 +120,7 @@ async function invalidateLedgerRecordSuccessCaches(
   const invalidations = [
     queryClient.invalidateQueries({ queryKey: recordKeys.ledgerRoot(ledgerId) }),
     queryClient.invalidateQueries({ queryKey: chartKeys.ledgerRoot(ledgerId) }),
+    queryClient.invalidateQueries({ queryKey: userKeys.info() }),
   ];
   if (invalidatesRecordCount)
     invalidations.push(invalidateRecordCountNavigationCache(queryClient));
@@ -690,6 +692,7 @@ async function invalidatePersonalRecordCaches(
     queryClient.invalidateQueries({ queryKey: recordKeys.lists() }),
     queryClient.invalidateQueries({ queryKey: recordKeys.bills() }),
     queryClient.invalidateQueries({ queryKey: chartKeys.all }),
+    queryClient.invalidateQueries({ queryKey: userKeys.info() }),
     invalidateRecordCountNavigationCache(queryClient),
   ];
   if (recordId) {

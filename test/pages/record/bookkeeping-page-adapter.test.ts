@@ -91,6 +91,12 @@ vi.mock('@/shared/ui', async importOriginal => ({
 
 let cleanup: (() => void) | undefined;
 
+function clickRecordEditorSubmit(container: ParentNode) {
+  const submitButton = container.querySelector<HTMLButtonElement>('[data-record-editor-submit]');
+  expect(submitButton).not.toBeNull();
+  act(() => submitButton?.click());
+}
+
 function renderRouter(router: ReturnType<typeof createMemoryRouter>) {
   const container = document.createElement('div');
   const root = createRoot(container);
@@ -183,7 +189,7 @@ describe('personal record editor adapter', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 
@@ -204,7 +210,7 @@ describe('personal record editor adapter', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 
@@ -225,7 +231,7 @@ describe('personal record editor adapter', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
     expect(container.querySelector('[role="status"]')).toBeNull();
@@ -247,9 +253,26 @@ describe('personal record editor adapter', () => {
     const toast = vi.spyOn(Toast, 'show');
     const tagId = '00000000-0000-4000-8000-000000000001';
     const imageAssetId = '00000000-0000-4000-8000-000000000501';
+    const defaultAssetId = '00000000-0000-4000-8000-000000000400';
+    const linkedAssetId = '00000000-0000-4000-8000-000000000401';
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:shortcut-image') });
     Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
     hooks.ledgerCapabilities = ['tag:read'];
+    hooks.useGetUserAppConfigQuery.mockReturnValue({ data: { defaultAssetId } });
+    hooks.useGetAssetQuery.mockReturnValue({ data: [
+      {
+        amount: '200',
+        assetGroup: { assetType: 'cash', id: 'asset-group-1', name: '现金账户', type: 'add' },
+        id: defaultAssetId,
+        name: '默认账户',
+      },
+      {
+        amount: '500',
+        assetGroup: { assetType: 'cash', id: 'asset-group-1', name: '现金账户', type: 'add' },
+        id: linkedAssetId,
+        name: '日常支出卡',
+      },
+    ] });
     hooks.useGetCategoryQuery.mockReturnValue({
       data: [{
         createdAt: '',
@@ -300,12 +323,19 @@ describe('personal record editor adapter', () => {
     const container = renderRouter(router);
 
     await act(async () => Promise.resolve());
-    expect(hooks.useGetAssetQuery).toHaveBeenCalledWith({ queryOptions: { enabled: false } });
-    expect(hooks.useGetAssetGroupQuery).toHaveBeenCalledWith({ queryOptions: { enabled: false } });
-    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
+    expect(hooks.useGetAssetQuery).toHaveBeenCalledWith({ queryOptions: { enabled: true } });
+    expect(hooks.useGetAssetGroupQuery).toHaveBeenCalledWith({ queryOptions: { enabled: true } });
+    expect(container.querySelector('[data-record-editor-asset-trigger]')).not.toBeNull();
+    expect(container.querySelector('[data-record-editor-asset-trigger]')?.textContent).toContain('默认账户');
+    expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
+    expect(container.querySelector('[data-record-editor-categories]')).not.toBeNull();
     expect(container.querySelector<HTMLInputElement>('[data-record-editor-note] input')?.value).toBe('滴滴出行');
-    expect(container.querySelector('[data-record-editor-category-trigger]')?.textContent).toBe('交通');
+    expect(container.querySelector('[data-record-editor-amount]')?.textContent).toContain('交通');
     expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('18.60');
+
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-asset-trigger]')?.click());
+    act(() => document.querySelector<HTMLButtonElement>(`[data-record-editor-asset-option="${linkedAssetId}"]`)?.click());
+    expect(container.querySelector('[data-record-editor-asset-trigger]')?.textContent).toContain('日常支出卡');
 
     const imageInput = container.querySelector<HTMLInputElement>('input[type="file"]')!;
     const image = new File(['receipt'], 'receipt.webp', { type: 'image/webp' });
@@ -323,9 +353,10 @@ describe('personal record editor adapter', () => {
       [...document.querySelectorAll('button')].find(button => button.textContent === '通勤')?.click();
       await Promise.resolve();
     });
+    act(() => document.querySelector<HTMLButtonElement>('[data-record-editor-tag-confirm]')!.click());
 
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
     expect(container.querySelector('[role="status"]')).toBeNull();
@@ -335,8 +366,9 @@ describe('personal record editor adapter', () => {
       categoryId: 1,
       code: 'review-code-00001',
       draftId: 'shortcut-draft-1',
-      imageAssetId,
+      imageAssetIds: [imageAssetId],
       ledgerId: 'default-ledger',
+      linkedAssetId,
       remark: '滴滴出行',
       tagIds: [tagId],
       type: 'sub',
@@ -374,7 +406,8 @@ describe('personal record editor adapter', () => {
     });
     const container = renderRouter(router);
 
-    expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBe('amount');
+    expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
+    expect(container.querySelector('[data-record-editor-categories]')).not.toBeNull();
     expect(container.querySelector<HTMLInputElement>('[data-record-editor-note] input')?.value).toBe('未知商户');
     expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('18.60');
   });
@@ -406,7 +439,7 @@ describe('personal record editor adapter', () => {
     const container = renderRouter(router);
 
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 
@@ -526,7 +559,7 @@ describe('personal record editor adapter', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
     expect(container.querySelector('[role="status"]')).toBeNull();
@@ -566,7 +599,7 @@ describe('personal record editor adapter', () => {
     const container = renderRouter(router);
 
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
     expect(container.querySelector('[role="status"]')).toBeNull();
@@ -677,7 +710,7 @@ describe('personal record editor adapter', () => {
     const container = renderRouter(router);
 
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 
@@ -695,7 +728,7 @@ describe('personal record editor adapter', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
     act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 

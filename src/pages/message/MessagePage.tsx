@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import appAvatar from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
 import {
   NotificationDetailModal,
+  NotificationMarkdownPreview,
   useArchiveNotificationsMutation,
   useMarkNotificationReadMutation,
   useNotificationsQuery,
@@ -59,7 +60,7 @@ function NotificationContent({
           </time>
         </span>
         <span className={styles.description}>
-          {notification.content}
+          <NotificationMarkdownPreview content={notification.content} />
           {action}
         </span>
       </span>
@@ -89,7 +90,7 @@ const Message: FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
-  const notificationQuery = useNotificationsQuery({ params: { limit: PAGE_SIZE, platform } });
+  const notificationQuery = useNotificationsQuery({ params: { includeClientReleases: false, limit: PAGE_SIZE, platform } });
   const markReadMutation = useMarkNotificationReadMutation();
   const archiveNotificationsMutation = useArchiveNotificationsMutation();
   const {

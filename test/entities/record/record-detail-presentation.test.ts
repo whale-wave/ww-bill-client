@@ -73,6 +73,7 @@ describe('record detail presentation', () => {
     expect(container.querySelector('[data-record-detail-amount]')?.textContent).toContain('20.00');
     const category = container.querySelector('[data-record-detail-category]');
     expect(category?.classList).toContain('items-center');
+    expect(category?.querySelector('[data-category-icon]')?.classList).toContain('rounded-full');
     expect(container.querySelector('[data-record-detail-row]')?.classList).toContain('border-b');
     expect(container.querySelector('[data-category-icon="food"] use')?.getAttribute('xlink:href')).toBe('#icon-food');
     expect(container.textContent).toContain('Food');

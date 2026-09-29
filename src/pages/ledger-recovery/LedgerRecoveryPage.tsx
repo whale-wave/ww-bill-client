@@ -39,8 +39,8 @@ export function RecoveryList({ records, restoringId, onRestore, showDeletedBy = 
       <Surface className="overflow-hidden" material="content">
         {records.map(record => (
           <div className="flex min-h-[82px] items-center gap-3 border-0 border-b border-solid border-border-primary px-3 last:border-b-0" key={record.id}>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-primary-light text-primary-deep">
-              <CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} size={21} />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-deep">
+              <CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} iconType={record.category?.iconType} textIconEnabled={record.category?.textIconEnabled} textIconIndex={record.category?.textIconIndex} size={21} />
             </div>
             <div className="min-w-0 flex-1 py-3">
               <div className="flex items-center justify-between gap-2">

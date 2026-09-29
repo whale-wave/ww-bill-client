@@ -23,6 +23,7 @@ vi.mock('react-router-dom', () => ({
 }));
 
 vi.mock('@/entities/record', () => ({
+  getRecordDisplayTitle: (remark: string, categoryName: string) => remark.trim() || categoryName,
   readPersonalRecordDetailNavigationState: (value: unknown) => {
     if (typeof value !== 'object' || value === null || !('personalRecordDetail' in value))
       return undefined;
@@ -102,6 +103,30 @@ function expectNoDetails(container: HTMLElement) {
 }
 
 describe('record editing page', () => {
+  it('shows the category in the remark row when an imported record has no remark', () => {
+    queryResult.data = {
+      amount: '66.00',
+      category: {
+        createdAt: '2026-08-01T00:00:00.000Z',
+        icon: 'food',
+        id: 1,
+        name: '餐饮',
+        updatedAt: '2026-08-01T00:00:00.000Z',
+      },
+      createdAt: '2026-08-25T04:00:00.000Z',
+      id: 66,
+      remark: '',
+      time: '2026-08-25T04:00:00.000Z',
+      type: 'sub',
+      updatedAt: '2026-08-25T04:00:00.000Z',
+      version: 1,
+    };
+    queryResult.isLoading = false;
+
+    const { container } = renderPage();
+    expect(container.querySelector('[data-testid="record-detail"]')?.textContent).toContain('edit.remark:餐饮');
+  });
+
   it('shows loading without rendering record detail children', () => {
     queryResult.data = undefined;
     queryResult.isError = false;
@@ -157,6 +182,32 @@ describe('record editing page', () => {
     expect(detail?.textContent).toContain('record:detail.delete');
 
     expect(container.querySelector('[data-testid="record-detail-share"]')).toBeNull();
+  });
+
+  it('does not render a supplementary card when an income record has no supplementary data', () => {
+    queryResult.data = {
+      amount: '6.66',
+      category: {
+        createdAt: '2026-09-21T03:05:07.000Z',
+        icon: 'wallet',
+        id: 1,
+        name: '红包',
+        updatedAt: '2026-09-21T03:05:07.000Z',
+      },
+      createdAt: '2026-09-21T03:05:07.000Z',
+      id: 8,
+      remark: '老妈红包',
+      time: '2026-09-21T03:05:07.000Z',
+      type: 'add',
+      updatedAt: '2026-09-21T03:05:07.000Z',
+      version: 1,
+    };
+    queryResult.isError = false;
+    queryResult.isLoading = false;
+
+    const { container } = renderPage();
+
+    expect(container.querySelector('[data-testid="supplementary-content"]')).toBeNull();
   });
 
   it('keeps the adjustment section available without attachments on an expense record', () => {

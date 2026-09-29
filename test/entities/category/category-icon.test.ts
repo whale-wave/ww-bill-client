@@ -11,13 +11,15 @@ afterEach(() => {
   cleanup = undefined;
 });
 
-function render(iconKey: string, categoryName?: string, iconType?: 'BUILTIN' | 'IMAGE') {
+function render(iconKey: string, categoryName?: string, iconType?: 'BUILTIN' | 'IMAGE', textIconEnabled?: boolean, textIconIndex?: number) {
   const container = document.createElement('div');
   const root = createRoot(container);
   act(() => root.render(createElement(CategoryIcon, {
     categoryName,
     iconKey,
     iconType,
+    textIconEnabled,
+    textIconIndex,
     size: 18,
   })));
   cleanup = () => act(() => root.unmount());
@@ -143,10 +145,33 @@ describe('category icon', () => {
     expect(render('unknown').querySelector('svg')?.classList).toContain('lucide-receipt-text');
   });
 
+  it('renders the selected character before the underlying icon', () => {
+    const container = render('catering', '日本手办', 'BUILTIN', true, 1);
+    expect(container.querySelector('span')?.textContent).toBe('本');
+    expect(container.querySelector('svg')).toBeNull();
+  });
+
+  it('renders a selected emoji across category consumers', () => {
+    expect(hasCategoryGlyph('emoji:🍕')).toBe(true);
+    const container = render('emoji:🍕', '外卖', 'BUILTIN');
+    expect(container.querySelector('span')?.textContent).toBe('🍕');
+    expect(container.querySelector('svg')).toBeNull();
+  });
+
+  it('falls back to the underlying icon for an invalid character index', () => {
+    expect(render('catering', '日本手办', 'BUILTIN', true, 9).querySelector('svg')?.classList)
+      .toContain('lucide-utensils');
+  });
+
   it('loads trusted image icons anonymously and falls back without guessing by name', () => {
     const container = render('https://cdn.example.com/icon.webp', '咖啡', 'IMAGE');
     const image = container.querySelector('img');
     expect(image?.crossOrigin).toBe('anonymous');
+    expect(image?.style.borderRadius).toBe('50%');
+    expect(image?.style.aspectRatio).toBe('1 / 1');
+    expect(image?.style.width).toBe('100%');
+    expect(image?.style.height).toBe('100%');
+    expect(image?.getAttribute('width')).toBe(image?.getAttribute('height'));
 
     act(() => image?.dispatchEvent(new Event('error')));
 

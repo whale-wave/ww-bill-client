@@ -1,52 +1,43 @@
-import type { UserNotification } from '@/entities/notification';
+import type { ClientReleaseManifest } from '@/entities/app-release';
 import { describe, expect, it } from 'vitest';
-import { UserNotificationStatus, UserNotificationType } from '@/entities/notification';
-import { selectClientReleasePrompt } from '@/features/app-update/model/release-prompt';
+import { androidVersionUpdate, isAndroidUpdateAvailable, webVersionUpdate } from '@/features/app-update/model/release-prompt';
 
-function release(id: string, versionName: string, options: Partial<UserNotification> = {}): UserNotification {
+function release(overrides: Partial<ClientReleaseManifest> = {}): ClientReleaseManifest {
   return {
-    content: '',
-    createdAt: '2026-09-14T00:00:00.000Z',
-    id,
-    payload: { promptEnabled: true, versionName },
-    status: UserNotificationStatus.UNREAD,
-    title: versionName,
-    type: UserNotificationType.CLIENT_RELEASE,
-    updatedAt: '2026-09-14T00:00:00.000Z',
-    version: 1,
-    ...options,
+    android: { downloadUrl: 'https://example.com/bill.apk', enabled: false, versionCode: 11 },
+    enabled: false,
+    highlights: [],
+    images: ['https://example.com/release.webp'],
+    publishedAt: '2026-09-14T00:00:00.000Z',
+    releaseNotes: '修复同步体验。',
+    summary: 'v1.0.11 更新',
+    versionName: '1.0.11',
+    web: { buildId: '', enabled: false },
+    ...overrides,
   };
 }
 
-describe('selectClientReleasePrompt', () => {
-  it('chooses the newest target version once instead of walking a new account through history', () => {
-    const notices = [
-      release('system:9', '1.0.9'),
-      release('system:10', '1.0.10'),
-      release('system:11', '1.0.11'),
-    ];
-
-    expect(selectClientReleasePrompt(notices, 'web', { versionName: '1.0.8' })?.id).toBe('system:11');
-    expect(selectClientReleasePrompt([
-      ...notices.slice(0, 2),
-      release('system:11', '1.0.11', { status: UserNotificationStatus.READ }),
-    ], 'web', { versionName: '1.0.8' })).toBeNull();
+describe('independent version detection', () => {
+  it('uses the Android version code and HTTPS package URL even when legacy prompts are disabled', () => {
+    const latest = release();
+    expect(isAndroidUpdateAvailable(latest, 10)).toBe(true);
+    expect(isAndroidUpdateAvailable(latest, 11)).toBe(false);
+    expect(isAndroidUpdateAvailable(release({ android: { downloadUrl: 'http://example.com/bill.apk', enabled: true, versionCode: 11 } }), 10)).toBe(false);
+    expect(androidVersionUpdate(latest)).toMatchObject({
+      content: '修复同步体验。',
+      downloadUrl: 'https://example.com/bill.apk',
+      platform: 'android',
+      versionName: '1.0.11',
+    });
   });
 
-  it('never prompts an already current web/shortcut install, malformed metadata, or a disabled latest notice', () => {
-    expect(selectClientReleasePrompt([release('system:10', '1.0.10')], 'web', { versionName: '1.0.10' })).toBeNull();
-    expect(selectClientReleasePrompt([release('system:broken', 'not-a-version')], 'web', { versionName: '1.0.9' })).toBeNull();
-    expect(selectClientReleasePrompt([
-      release('system:10', '1.0.10'),
-      release('system:11', '1.0.11', { payload: { promptEnabled: false, versionName: '1.0.11' } }),
-    ], 'web', { versionName: '1.0.9' })).toBeNull();
-  });
-
-  it('uses Android versionCode as the authoritative installed-version comparison', () => {
-    const current = { versionCode: 10, versionName: '1.0.10' };
-    expect(selectClientReleasePrompt([
-      release('system:10', '1.0.10', { payload: { promptEnabled: true, versionCode: 10 } }),
-      release('system:11', '1.0.11', { payload: { promptEnabled: true, versionCode: 11 } }),
-    ], 'android', current)?.id).toBe('system:11');
+  it('only attaches Web release notes when their version matches the deployed build', () => {
+    const build = { buildId: 'sha-next', version: '1.0.12' };
+    expect(webVersionUpdate(build, release())).toMatchObject({ buildId: 'sha-next', content: '', versionName: '1.0.12' });
+    expect(webVersionUpdate(build, release({ versionName: '1.0.12' }))).toMatchObject({
+      content: '修复同步体验。',
+      title: 'v1.0.11 更新',
+    });
+    expect(webVersionUpdate(build).content).toBe('');
   });
 });

@@ -37,6 +37,7 @@ export enum FamilyRecordPolicy {
 }
 
 export enum HouseholdBudgetPeriodType {
+  DAY = 'DAY',
   MONTH = 'MONTH',
   YEAR = 'YEAR',
 }
@@ -112,10 +113,17 @@ export interface CreateHouseholdResult {
 }
 
 export interface FamilyRecordCategory {
+  parentId?: number | null;
+  parentKey?: string | null;
+  path?: string;
   id: number;
   key?: string;
   name: string;
   icon: string;
+  iconType?: 'BUILTIN' | 'IMAGE';
+  backgroundColor?: string | null;
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
   templateKey?: string;
 }
 
@@ -217,6 +225,7 @@ export interface HouseholdRecordSummary {
 }
 
 export interface HouseholdRecordsPage {
+  categoryBreakdown?: Array<{ key: string; name: string; amount: string }>;
   data: FamilyRecord[];
   daySummaries?: Array<{
     date: string;
@@ -248,6 +257,8 @@ export interface HouseholdBudget {
   icon?: string;
   iconKey?: string;
   iconType?: 'BUILTIN' | 'IMAGE';
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
   amount: string;
   version: number;
   createdAt: string;
@@ -282,6 +293,8 @@ export interface HouseholdBudgetOverview {
     icon?: string;
     iconKey?: string;
     iconType?: 'BUILTIN' | 'IMAGE';
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
     spent: string;
   }>;
   availableCategories: Array<{
@@ -290,6 +303,8 @@ export interface HouseholdBudgetOverview {
     icon?: string;
     iconKey?: string;
     iconType?: 'BUILTIN' | 'IMAGE';
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
     sortOrder?: number;
     status?: 'ACTIVE' | 'ARCHIVED';
   }>;
@@ -346,6 +361,9 @@ export interface HouseholdChartResult {
     key: string;
     name: string;
     icon?: string;
+    iconType?: 'BUILTIN' | 'IMAGE';
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
     amount: string;
     percent: number;
   }>;

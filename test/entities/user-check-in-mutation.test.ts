@@ -93,4 +93,16 @@ describe('check-in mutation cache reconciliation', () => {
 
     expect(queryClient.getQueryData(userKeys.info())).toEqual(originalResponse);
   });
+
+  it('does not add another day if the cached user is already checked in', async () => {
+    const queryClient = reactQueryMocks.queryClient;
+    const originalResponse = createUserInfoResponse();
+    originalResponse.data.checkIn = true;
+    queryClient.setQueryData(userKeys.info(), originalResponse);
+
+    usePostCheckInMutation();
+    await latestMutation().onMutate?.();
+
+    expect(queryClient.getQueryData(userKeys.info())).toEqual(originalResponse);
+  });
 });

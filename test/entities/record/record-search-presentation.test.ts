@@ -101,10 +101,22 @@ describe('record search presentation', () => {
     vi.setSystemTime(new Date('2026-07-30T16:30:00.000Z'));
     const container = render('idle');
     act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-filter-action"]')?.click());
-    const customDate = [...container.querySelectorAll('button')]
+    const customDate = [...document.querySelectorAll<HTMLButtonElement>('[data-record-filter-panel] button')]
       .find(button => button.textContent === '自定义');
     act(() => customDate?.click());
-    expect(container.querySelector<HTMLInputElement>('[aria-label="开始日期"]')?.value)
+    expect(document.querySelector<HTMLInputElement>('[data-record-filter-panel] [aria-label="开始日期"]')?.value)
       .toBe('2026-07-31');
+  });
+
+  it('renders the filter panel above the tab bar outside the clipped page', () => {
+    const container = render('idle');
+    act(() => container.querySelector<HTMLButtonElement>('[data-testid="record-filter-action"]')?.click());
+
+    const mask = document.querySelector<HTMLElement>('[data-record-filter-mask]');
+    expect(mask?.parentElement).toBe(document.body);
+    expect(mask?.classList).toContain('z-[110]');
+    expect(mask?.classList).toContain('top-[calc(124px+var(--ww-safe-area-top))]');
+    expect(mask?.querySelector('[data-record-filter-panel]')).not.toBeNull();
+    expect(mask?.hasAttribute('data-tab-swipe-ignore')).toBe(true);
   });
 });

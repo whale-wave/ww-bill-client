@@ -10,9 +10,11 @@ import { useMemo } from 'react';
 import { assertSuccessApi, isSuccessApi } from '@/shared/api';
 import {
   deleteLedgerCategoryApi,
+  deleteLedgerCategoryPermanentlyApi,
   getCategoryApi,
   getCategoryIconCatalogApi,
   getLedgerCategoriesApi,
+  moveLedgerCategoryApi,
   patchLedgerCategoryApi,
   postLedgerCategoryApi,
   putLedgerCategoryApi,
@@ -138,6 +140,8 @@ export function usePatchLedgerCategoryMutation() {
       variables.data.status !== undefined
       && variables.data.name === undefined
       && variables.data.iconKey === undefined
+      && variables.data.textIconEnabled === undefined
+      && variables.data.textIconIndex === undefined
         ? 'status'
         : 'metadata',
     ),
@@ -196,4 +200,37 @@ export function useDeleteLedgerCategoryMutation() {
     onSuccess: async () => invalidateCategoryConsumers(queryClient, 'status'),
   });
   return [mutateAsync, rest] as const;
+}
+
+export function useMoveLedgerCategoryMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (options: { ledgerId: string; categoryId: number; parentId: number | null; version: number; preview?: boolean }) => {
+      const response = assertSuccessApi(await moveLedgerCategoryApi(options.ledgerId, options.categoryId, { parentId: options.parentId, version: options.version }, options.preview));
+      return response.data;
+    },
+    onSuccess: async (_response, options) => {
+      if (!options.preview)
+        await invalidateCategoryConsumers(queryClient, 'metadata');
+    },
+  });
+}
+
+export function useDeleteLedgerCategoryPermanentlyMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (options: { ledgerId: string; categoryId: number; targetCategoryId?: number; version: number; preview?: boolean }) => {
+      const response = assertSuccessApi(await deleteLedgerCategoryPermanentlyApi(
+        options.ledgerId,
+        options.categoryId,
+        { targetCategoryId: options.targetCategoryId, version: options.version },
+        options.preview,
+      ));
+      return response.data;
+    },
+    onSuccess: async (_response, options) => {
+      if (!options.preview)
+        await invalidateCategoryConsumers(queryClient, 'metadata');
+    },
+  });
 }

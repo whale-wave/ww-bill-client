@@ -2,7 +2,7 @@
   position: relative;
   z-index: 2;
   flex-shrink: 0;
-  padding: max(10px, env(safe-area-inset-top)) var(--ww-page-gutter) 8px;
+  padding: max(10px, var(--ww-safe-area-top)) var(--ww-page-gutter) 8px;
   background: color-mix(in srgb, var(--ww-background-color) 88%, transparent);
   backdrop-filter: blur(16px);
 }

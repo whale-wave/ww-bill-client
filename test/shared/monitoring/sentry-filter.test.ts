@@ -19,7 +19,7 @@ describe('sentry privacy filters', () => {
 
     expect(event.message).toContain('[redacted-email]');
     expect(event.message).toContain('[redacted-phone]');
-    expect(event.request?.headers).toBeUndefined();
+    expect(event.request?.headers).toEqual({ 'User-Agent': navigator.userAgent });
     expect(event.request?.data).toBeUndefined();
     expect(event.request?.query_string).toBeUndefined();
     expect(event.request?.url).toBe('https://bill.example/api/record');
@@ -33,4 +33,63 @@ describe('sentry privacy filters', () => {
       data: { url: '/api/record', method: 'POST', status_code: 500 },
     });
   });
+});
+
+it('retains transport diagnostics while dropping private breadcrumb data', () => {
+  const breadcrumb = beforeBreadcrumb({ category: 'http', data: {
+    url: '/api/record?token=private',
+    method: 'POST',
+    status_code: 0,
+    error_kind: 'network',
+    error_code: 'ERR_NETWORK',
+    duration_ms: 800,
+    headers: { Authorization: 'Bearer private' },
+    data: { remark: 'private' },
+  } });
+  expect(breadcrumb?.data).toEqual({
+    url: '/api/record',
+    method: 'POST',
+    status_code: 0,
+    error_kind: 'network',
+    error_code: 'ERR_NETWORK',
+    duration_ms: 800,
+  });
+  expect(JSON.stringify(breadcrumb)).not.toContain('private');
+});
+
+it('preserves native device and OS context with searchable model and OS tags', () => {
+  const event = beforeSend({
+    type: undefined,
+    contexts: {
+      device: { model: 'Pixel 9', brand: 'Google', name: 'Personal phone', id: 'private-id', serial_number: 'private-serial' },
+      os: { name: 'Android', version: '16' },
+    },
+    tags: { build_id: 'test-build' },
+  });
+  expect(event.contexts?.device).toEqual({ model: 'Pixel 9', brand: 'Google' });
+  expect(event.contexts?.os).toEqual({ name: 'Android', version: '16' });
+  expect(event.tags).toMatchObject({
+    build_id: 'test-build',
+    platform: 'web',
+    device_model: 'Pixel 9',
+    device_brand: 'Google',
+    os_name: 'Android',
+    os_version: '16',
+  });
+  expect(JSON.stringify(event)).not.toContain('private-id');
+  expect(JSON.stringify(event)).not.toContain('Personal phone');
+});
+
+it('adds device diagnostics to events without request or native contexts', () => {
+  const event = beforeSend({ type: undefined });
+  expect(event.contexts?.client_device).toMatchObject({
+    platform: 'web',
+    user_agent: navigator.userAgent,
+    language: navigator.language,
+    viewport_width: window.innerWidth,
+    viewport_height: window.innerHeight,
+    pixel_ratio: window.devicePixelRatio,
+  });
+  expect(event.tags).toMatchObject({ platform: 'web' });
+  expect(event.tags?.device_model).toBeUndefined();
 });

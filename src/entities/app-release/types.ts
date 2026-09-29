@@ -6,6 +6,7 @@ export interface AndroidReleaseManifest {
   downloadUrl: string;
   releaseNotes: string;
   summary?: string;
+  images?: string[];
   highlights?: ClientReleaseHighlight[];
   updatedAt: string | null;
 }
@@ -16,6 +17,7 @@ export interface ClientReleaseManifest {
   versionName: string;
   summary: string;
   releaseNotes: string;
+  images?: string[];
   highlights: ClientReleaseHighlight[];
   web: {
     enabled: boolean;
@@ -36,6 +38,7 @@ export interface WebReleaseManifest extends ClientReleaseHighlightBase {
   noticeId?: string | null;
   title?: string;
   content?: string;
+  images?: string[];
   enabled: boolean;
   versionName: string;
   buildId: string;
@@ -47,6 +50,7 @@ export interface AndroidPlatformReleaseManifest extends ClientReleaseHighlightBa
   noticeId?: string | null;
   title?: string;
   content?: string;
+  images?: string[];
   enabled: boolean;
   versionName: string;
   versionCode: number;
@@ -95,7 +99,7 @@ export function formatClientReleaseDescription(release: ClientReleaseManifest, f
 }
 
 export function isAndroidClientUpdateAvailable(current: InstalledAndroidVersion, release: ClientReleaseManifest) {
-  return release.enabled && release.android.enabled && current.versionCode < release.android.versionCode;
+  return current.versionCode < release.android.versionCode && /^https:\/\//i.test(release.android.downloadUrl);
 }
 
 export function isWebClientUpdateAvailable(currentBuildId: string, deployedBuildId: string, release: ClientReleaseManifest) {

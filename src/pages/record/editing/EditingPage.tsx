@@ -9,6 +9,7 @@ import { CategoryIcon } from '@/entities/category';
 import {
   formatRecordLocationCoordinates,
   formatRecordLocationLabel,
+  getRecordDisplayTitle,
   readPersonalRecordDetailNavigationState,
   RecordDetailPresentation,
   useDeleteRecordMutation,
@@ -155,6 +156,7 @@ const Editing: FC = () => {
   const timeDate = getTimeDateYear(date);
   const timeOfDay = getTimeOfDay(date);
   const weekByDay = getWeekByDay(getTimedate(date));
+  const displayRemark = getRecordDisplayTitle(state.remark, state.category.name);
 
   return (
     <RecordDetailPresentation
@@ -162,7 +164,7 @@ const Editing: FC = () => {
       amountType={state.type}
       backLabel={t('common:nav.back')}
       category={state.category}
-      categoryIcon={<CategoryIcon categoryName={state.category.name} iconKey={state.category.icon} size={36} />}
+      categoryIcon={<CategoryIcon categoryName={state.category.name} iconKey={state.category.icon} iconType={state.category.iconType} textIconEnabled={state.category.textIconEnabled} textIconIndex={state.category.textIconIndex} size={36} />}
       footerActions={[
         { label: t('record:detail.edit'), onClick: handleEdit },
         {
@@ -177,7 +179,7 @@ const Editing: FC = () => {
         { label: t('record:edit.type'), value: state.type === 'sub' ? t('record:type.expense') : t('record:type.income') },
         { copyValue: `${timeDate}  ${weekByDay}`, label: t('record:edit.date'), value: `${timeDate}  ${weekByDay}` },
         { copyValue: timeOfDay, label: t('record:edit.time'), value: timeOfDay },
-        { ...(state.remark ? { copyValue: state.remark } : {}), label: t('record:edit.remark'), value: state.remark },
+        { copyValue: displayRemark, label: t('record:edit.remark'), value: displayRemark },
         ...(state.location
           ? [{
               copyValue: `${formatRecordLocationLabel(state.location)} · ${formatRecordLocationCoordinates(state.location)}`,
@@ -186,21 +188,23 @@ const Editing: FC = () => {
             }]
           : []),
       ]}
-      supplementaryContent={(
-        <>
-          {state.attachments?.length
-            ? <RecordAttachmentSection attachments={state.attachments} />
-            : undefined}
-          {state.type === 'sub' && (
-            <RecordAdjustmentSection
-              assetOptions={assetQuery.data.map(asset => ({ amount: asset.amount, id: asset.id, name: asset.name }))}
-              canManage
-              record={state}
-              supportsAssetLink
-            />
-          )}
-        </>
-      )}
+      supplementaryContent={(state.attachments?.length || state.type === 'sub')
+        ? (
+            <>
+              {state.attachments?.length
+                ? <RecordAttachmentSection attachments={state.attachments} />
+                : undefined}
+              {state.type === 'sub' && (
+                <RecordAdjustmentSection
+                  assetOptions={assetQuery.data.map(asset => ({ amount: asset.amount, id: asset.id, name: asset.name }))}
+                  canManage
+                  record={state}
+                  supportsAssetLink
+                />
+              )}
+            </>
+          )
+        : undefined}
       supplementaryRows={[
         ...(state.linkedAsset
           ? [{ label: '资产账户', value: `${state.linkedAsset.name} · ¥${state.linkedAsset.amount}` }]

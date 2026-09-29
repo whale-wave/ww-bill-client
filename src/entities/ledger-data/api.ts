@@ -30,7 +30,7 @@ export function getLedgerTagsApi(
 }
 
 export interface PostLedgerTagApiData {
-  categoryId: number;
+  categoryId?: number | null;
   name: string;
   colorKey?: string | null;
   iconKey?: string | null;

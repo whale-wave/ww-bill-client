@@ -1,0 +1,111 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { RecordEditorCategoryState } from './record-editor';
+import type { CategoryEntity } from '@/entities/category';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
+import { categoryKeys } from '@/entities/category';
+import { CategoryManagement } from './category-management';
+import { RecordEditorPresentation, useRecordEditorController } from './record-editor';
+
+const ledgerId = 'classification-preview';
+const categories: CategoryEntity[] = [
+  { id: 1, name: '餐饮', icon: 'catering' },
+  { id: 2, name: '交通', icon: 'traffic' },
+  { id: 3, name: '日用', icon: 'shopping' },
+  { id: 11, name: '三餐', icon: 'catering', parentId: 1 },
+  { id: 12, name: '水果', icon: 'catering', parentId: 1 },
+  { id: 13, name: '外出大餐', icon: 'catering', parentId: 1 },
+  { id: 14, name: '蔬菜', icon: 'catering', parentId: 1 },
+  { id: 15, name: '牛奶', icon: 'catering', parentId: 1 },
+  { id: 16, name: '夜宵', icon: 'catering', parentId: 1 },
+  { id: 21, name: '打车', icon: 'traffic', parentId: 2 },
+  { id: 22, name: '公共交通', icon: 'traffic', parentId: 2 },
+].map((item, index) => ({ ...item, createdAt: '', updatedAt: '', ledgerId, isCustom: true, iconType: 'BUILTIN', sortOrder: index, status: 'ACTIVE', type: 'sub', version: 1 }));
+const denseCategories: CategoryEntity[] = [
+  ...categories,
+  ...['咖啡', '购物', '运动', '旅行', '学习', '娱乐', '医疗', '家居', '服饰', '宠物', '礼物', '通讯', '办公', '饮料', '书籍', '交通卡', '影视', '水电', '家政', '保健', '游戏', '零食'].map((name, index) => ({
+    ...categories[index % 3],
+    id: 100 + index,
+    name,
+    sortOrder: 100 + index,
+  })),
+];
+
+const meta = { title: 'Features/Classification', parameters: { layout: 'fullscreen' } } satisfies Meta;
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+function CategoryPreview({ canManage = false }: { canManage?: boolean }) {
+  const [client] = useState(() => {
+    const cache = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity, retry: false } } });
+    for (const type of ['sub', 'add'] as const)
+      cache.setQueryData(categoryKeys.ledgerList(ledgerId, { status: 'ALL', type }), { statusCode: 200, data: { data: type === 'sub' ? categories : [], total: type === 'sub' ? categories.length : 0 } });
+    cache.setQueryData(categoryKeys.catalog(), { statusCode: 200, data: [] });
+    return cache;
+  });
+  return <QueryClientProvider client={client}><main className="mx-auto max-w-[390px] p-4"><CategoryManagement ledgerId={ledgerId} canManage={canManage} /></main></QueryClientProvider>;
+}
+function MultiTagPreview() {
+  const controller = useRecordEditorController({ seed: { amount: '100', category: categories[3], recordType: 'sub', time: '2026-09-22T12:00:00+08:00', tagIds: ['trip', 'old'], isTagPickerVisible: true }, isEditing: true, supportsTags: true, onSubmit: async () => undefined });
+  return <div className="h-dvh"><RecordEditorPresentation categories={categories} categoryState="ready" controller={controller} onCancel={() => undefined} tags={[{ id: 'trip', name: '出差' }, { id: 'refund', name: '可报销' }, { id: 'weekend', name: '周末' }, { id: 'old', name: '去年旅行', status: 'ARCHIVED' }]} /></div>;
+}
+function createReceiptPreviewFiles(count: number) {
+  const root = getComputedStyle(document.documentElement);
+  const color = (token: string) => root.getPropertyValue(token).trim();
+  const backgrounds = ['--ww-theme-color-light', '--ww-surface-tint-color', '--ww-surface-raised-color'];
+  return Array.from({ length: count }, (_, index) => new File(
+    [`<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><rect width="240" height="240" fill="${color(backgrounds[index % backgrounds.length])}"/><rect x="45" y="19" width="150" height="202" rx="9" fill="${color('--ww-ref-mono-white')}"/><path d="M65 66h105M65 91h80M65 116h105M65 141h71M65 169h105" stroke="${color('--ww-text-color-soft')}" stroke-width="7" stroke-linecap="round"/><circle cx="160" cy="185" r="12" fill="${color('--ww-theme-color')}"/></svg>`],
+    `receipt-${index + 1}.svg`,
+    { type: 'image/svg+xml' },
+  ));
+}
+function RecordEditorPreview({ items = categories, categoryState = 'ready', imageCount = 0, selectedCategory, withDetails = false }: { items?: CategoryEntity[]; categoryState?: RecordEditorCategoryState; imageCount?: number; selectedCategory?: CategoryEntity; withDetails?: boolean }) {
+  const [client] = useState(() => new QueryClient({ defaultOptions: { queries: { retry: false } } }));
+  const [imageFiles] = useState(() => createReceiptPreviewFiles(imageCount));
+  const controller = useRecordEditorController({
+    seed: {
+      amount: withDetails ? '38.50' : undefined,
+      category: selectedCategory,
+      pendingImages: imageFiles.map((file, index) => ({ assetId: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`, file, id: `storybook-image-${index}` })),
+      imageSelectionDirty: imageCount > 0,
+      location: withDetails ? { accuracy: 15, latitude: 31.23, longitude: 121.47, name: '南京西路', capturedAt: '2026-09-22T12:00:00+08:00' } : undefined,
+      recordType: 'sub',
+      remark: withDetails ? '下午茶' : undefined,
+      tagIds: withDetails ? ['weekend'] : undefined,
+      time: '2026-09-22T12:00:00+08:00',
+    },
+    supportsTags: true,
+    onSubmit: async () => undefined,
+    onUploadImage: async file => file.name,
+  });
+  return <QueryClientProvider client={client}><div className="h-dvh"><RecordEditorPresentation assetAccounts={[]} categories={items} categoryState={categoryState} controller={controller} onCancel={() => undefined} onManageCategories={() => undefined} onRetryCategories={() => undefined} tags={[{ id: 'weekend', name: '周末' }]} /></div></QueryClientProvider>;
+}
+export const Hierarchy: Story = { render: () => <CategoryPreview /> };
+export const EditableHierarchy: Story = { render: () => <CategoryPreview canManage /> };
+export const SingleScreenHierarchy: Story = { render: () => <RecordEditorPreview /> };
+export const ExpandedSubcategories: Story = {
+  play: async ({ canvasElement }) => {
+    canvasElement.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click();
+  },
+  render: () => <RecordEditorPreview />,
+};
+export const SelectedSubcategory: Story = { render: () => <RecordEditorPreview selectedCategory={categories[3]} /> };
+export const CompactDetails: Story = { render: () => <RecordEditorPreview selectedCategory={categories[3]} withDetails /> };
+export const FloatingDetailsOverCategories: Story = { render: () => <RecordEditorPreview items={denseCategories} selectedCategory={categories[3]} withDetails /> };
+export const ImageCountAndGallery: Story = {
+  play: async ({ canvasElement }) => {
+    canvasElement.querySelector<HTMLButtonElement>('[data-record-editor-image-trigger]')?.click();
+  },
+  render: () => <RecordEditorPreview imageCount={3} items={denseCategories} selectedCategory={categories[3]} withDetails />,
+};
+export const ImageGalleryAtLimit: Story = {
+  play: async ({ canvasElement }) => {
+    canvasElement.querySelector<HTMLButtonElement>('[data-record-editor-image-trigger]')?.click();
+  },
+  render: () => <RecordEditorPreview imageCount={9} items={denseCategories} selectedCategory={categories[3]} withDetails />,
+};
+export const LeafCategories: Story = { render: () => <RecordEditorPreview items={categories.filter(category => !category.parentId).slice(0, 3)} /> };
+export const LoadingCategories: Story = { render: () => <RecordEditorPreview categoryState="loading" items={[]} /> };
+export const FailedCategories: Story = { render: () => <RecordEditorPreview categoryState="error" items={[]} /> };
+export const EmptyCategories: Story = { render: () => <RecordEditorPreview items={[]} /> };
+export const MultipleTags: Story = { render: () => <MultiTagPreview /> };

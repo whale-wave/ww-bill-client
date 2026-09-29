@@ -48,6 +48,9 @@ describe('budget presentation', () => {
     }));
 
     expect(container.textContent).toContain('dropdown.monthlyBudget');
+    expect(container.textContent).toContain('dropdown.dailyBudget');
+    act(() => container.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.DAY}"]`)?.click());
+    expect(handlePeriodChange).toHaveBeenCalledWith(BudgetEntityType.DAY);
     act(() => container.querySelector<HTMLElement>(`[data-budget-type="${BudgetEntityType.YEAR}"]`)?.click());
 
     expect(handlePeriodChange).toHaveBeenCalledWith(BudgetEntityType.YEAR);
@@ -88,8 +91,11 @@ describe('budget presentation', () => {
     expect(container.querySelector('[data-budget-id="category-1"] .lucide-cooking-pot')).not.toBeNull();
     expect(container.querySelector('[data-budget-id="summary-1"]')?.closest('article')?.classList).toContain('ww-surface--raised');
     expect(container.querySelector('[data-budget-id="category-1"]')?.closest('article')?.classList).toContain('ww-surface--content');
+    const summaryAction = container.querySelector<HTMLButtonElement>('[data-budget-id="summary-1"] [data-budget-item-action]');
+    expect(summaryAction?.classList).not.toContain('pr-16');
+    expect(summaryAction?.firstElementChild?.classList).toContain('pr-16');
 
-    act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="summary-1"] [data-budget-item-action]')?.click());
+    act(() => summaryAction?.click());
     act(() => container.querySelector<HTMLButtonElement>('[data-budget-id="category-1"] [data-budget-item-action]')?.click());
     act(() => container.querySelector<HTMLElement>('[data-budget-add-category]')?.click());
 

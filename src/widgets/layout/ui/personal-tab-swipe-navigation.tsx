@@ -143,9 +143,6 @@ export const PersonalTabSwipeNavigation: FC<PersonalTabSwipeNavigationProps> = (
       || shouldIgnoreSwipe(event.target)) {
       return;
     }
-    trackX.stop();
-    indicatorProgress.stop();
-    indicatorStretch.stop();
     swipeOriginRef.current = {
       axis: 'pending',
       pointerId: event.pointerId,
@@ -173,6 +170,10 @@ export const PersonalTabSwipeNavigation: FC<PersonalTabSwipeNavigationProps> = (
       if (Math.abs(horizontalDistance) < Math.abs(verticalDistance) * 1.15)
         return;
       origin.axis = 'horizontal';
+      origin.trackX = trackX.get();
+      trackX.stop();
+      indicatorProgress.stop();
+      indicatorStretch.stop();
       event.currentTarget.setPointerCapture?.(event.pointerId);
     }
 
@@ -196,14 +197,18 @@ export const PersonalTabSwipeNavigation: FC<PersonalTabSwipeNavigationProps> = (
   };
 
   const handlePointerCancel = () => {
+    const wasHorizontalSwipe = swipeOriginRef.current?.axis === 'horizontal';
     swipeOriginRef.current = undefined;
-    settleAtCurrentPage();
+    if (wasHorizontalSwipe)
+      settleAtCurrentPage();
   };
 
   const handlePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
     const origin = swipeOriginRef.current;
     swipeOriginRef.current = undefined;
     if (!origin || origin.pointerId !== event.pointerId)
+      return;
+    if (origin.axis !== 'horizontal')
       return;
 
     const horizontalDistance = event.clientX - origin.x;

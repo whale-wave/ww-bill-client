@@ -213,7 +213,7 @@ describe('household records', () => {
     const header = container.querySelector('[data-testid="household-home-header"]');
     const title = header?.querySelector('h1');
     expect(header?.matches('[data-record-overview-header]')).toBe(true);
-    expect(header?.classList).toContain('pt-[max(6px,env(safe-area-inset-top))]');
+    expect(header?.classList).toContain('pt-[max(6px,var(--ww-safe-area-top))]');
     expect(title?.textContent).toBe('home.title');
     expect(title?.parentElement?.classList).toContain('gap-2');
     expect(title?.classList).toContain('text-left');
@@ -241,7 +241,7 @@ describe('household records', () => {
     expect(container.textContent).not.toContain('common.net');
   });
 
-  it('persists the current member visibility preference from the home summary', async () => {
+  it('stores the current member visibility preference on this device', async () => {
     const refetchPreference = vi.fn().mockResolvedValue(undefined);
     hooks.useHouseholdPreferencesQuery.mockReturnValue({
       data: { hideTotalAmount: false, id: 'preference/a', updatedAt: '2026-07-01T00:00:00.000Z', version: 3 },
@@ -253,11 +253,10 @@ describe('household records', () => {
 
     await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="toggle amount visibility"]')?.click());
 
-    expect(hooks.patchHouseholdPreferencesApi).toHaveBeenCalledWith('household/a', {
-      hideTotalAmount: true,
-      version: 3,
-    });
-    expect(refetchPreference).toHaveBeenCalled();
+    expect(localStorage.getItem('ww:display-preference:v1:device:household:household/a:hide-total')).toBe('true');
+    expect(hooks.patchHouseholdPreferencesApi).not.toHaveBeenCalled();
+    expect(refetchPreference).not.toHaveBeenCalled();
+    expect(container.querySelector('[data-testid="household-monthly-income"]')?.textContent).toContain('＊＊＊＊＊');
   });
 
   it('uses the shared month picker trigger', () => {
@@ -458,20 +457,20 @@ describe('household records', () => {
     const header = container.querySelector('[data-record-search-header]');
     const input = header?.querySelector('[data-record-search-input]');
     const shell = container.querySelector('[data-record-search-page-shell]');
-    expect(header?.classList).toContain('pt-[max(8px,env(safe-area-inset-top))]');
+    expect(header?.classList).toContain('pt-[max(8px,var(--ww-safe-area-top))]');
     expect(input?.classList).toContain('bg-white/85');
     expect(shell?.classList).not.toContain('bg-bg-gray');
     expect(header?.querySelector<HTMLInputElement>('input')?.value).toBe('餐');
     expect(container.querySelector('[data-record-filter-panel]')).toBeNull();
 
     await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="record-filter-action"]')?.click());
-    const filterPanel = container.querySelector<HTMLElement>('[data-record-filter-panel]');
+    const filterPanel = document.querySelector<HTMLElement>('[data-record-filter-panel]');
     expect(filterPanel).not.toBeNull();
     expect(filterPanel?.textContent).toContain('search.more');
     await act(async () => [...filterPanel?.querySelectorAll<HTMLButtonElement>('button') ?? []]
       .find(button => button.textContent === 'search.more')
       ?.click());
-    expect(container.querySelector('[data-record-filter-more]')).not.toBeNull();
+    expect(filterPanel?.querySelector('[data-record-filter-more]')).not.toBeNull();
     await act(async () => [...filterPanel?.querySelectorAll<HTMLButtonElement>('button') ?? []]
       .find(button => button.textContent === 'search.confirm')
       ?.click());
@@ -707,7 +706,7 @@ describe('household records', () => {
       '/households/previous',
     );
 
-    const back = container.querySelector<HTMLElement>('.bwm-nav-bar-back');
+    const back = container.querySelector<HTMLElement>('[data-page-header] button[aria-label="common:nav.back"]');
     expect(container.querySelector(`[data-testid="${stateTestId}"]`)).not.toBeNull();
     expect(back).not.toBeNull();
 
@@ -738,6 +737,7 @@ describe('household records', () => {
           offset: 0,
           startDate: '2026-07-01',
           tagIds: ['tag-a', 'tag-b'],
+          tagMatch: 'any',
           type: 'sub',
         },
         householdId: 'household/a',

@@ -22,6 +22,7 @@ import {
   useDiscardShortcutDraftMutation,
 } from '@/entities/shortcut-bookkeeping';
 import { useGetUserAppConfigQuery } from '@/entities/user-app-config';
+import { requestAchievementFeedback } from '@/features/achievement-feedback';
 import {
   createShortcutRecordSeed,
   inferShortcutCategory,
@@ -109,7 +110,7 @@ function BookkeepingPage() {
   const isPersonalAssetLinkContext = returnContext.kind === 'history'
     || returnContext.kind === 'personal-calendar'
     || returnContext.kind === 'personal-detail';
-  const supportsAssetLink = isPersonalAssetLinkContext && !shortcutBookkeeping && !agentRecordDraft;
+  const supportsAssetLink = isPersonalAssetLinkContext && !agentRecordDraft;
   const assetQuery = useGetAssetQuery({ queryOptions: { enabled: supportsAssetLink } });
   const assetGroupQuery = useGetAssetGroupQuery({ queryOptions: { enabled: supportsAssetLink } });
   const userAppConfigQuery = useGetUserAppConfigQuery();
@@ -132,8 +133,7 @@ function BookkeepingPage() {
           recordType: initialRecord?.type ?? 'sub' as const,
           remark: initialRecord?.remark,
           tagIds: initialRecord?.tags?.map(tag => tag.id),
-          attachment: initialRecord?.attachments?.[0],
-          hasImage: Boolean(initialRecord?.attachments?.length),
+          attachments: initialRecord?.attachments,
           linkedAssetId: initialRecord?.linkedAsset?.id ?? null,
           location: initialRecord?.location,
           time: initialRecord?.time
@@ -157,14 +157,14 @@ function BookkeepingPage() {
       case 'personal-detail':
         navigate(`/editing/${context.recordId}`, {
           replace: true,
-          state: initialRecord && draft
+          state: initialRecord && draft && draft.imageAssetIds === undefined
             ? {
                 ...initialRecord,
                 ...draft,
                 status: true,
                 ...personalRecordDetailNavigation,
               }
-            : undefined,
+            : personalRecordDetailNavigation,
         });
         return;
       default:
@@ -175,12 +175,13 @@ function BookkeepingPage() {
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
     try {
       if (agentRecordDraft) {
-        const { imageAssetId: _imageAssetId, ...record } = draft;
+        const { retainedAttachmentIds: _retainedAttachmentIds, ...record } = draft;
         await confirmAgentActionMutation.mutateAsync({
           actionId: agentRecordDraft.actionId,
           record,
         });
         await invalidatePersonalRecordEditorCaches(queryClient);
+        requestAchievementFeedback();
         hapticFeedback.success();
         navigate(`${ROUTES_PATH.AGENT.getPath()}?conversationId=${encodeURIComponent(agentRecordDraft.conversationId)}`, { replace: true });
         return;
@@ -193,8 +194,9 @@ function BookkeepingPage() {
           categoryId: draft.categoryId,
           code: shortcutBookkeeping.reviewCode,
           draftId: shortcutBookkeeping.id,
-          ...(typeof draft.imageAssetId === 'string' ? { imageAssetId: draft.imageAssetId } : {}),
+          ...(draft.imageAssetIds !== undefined ? { imageAssetIds: draft.imageAssetIds } : {}),
           ledgerId: defaultLedger.id,
+          ...(draft.linkedAssetId ? { linkedAssetId: draft.linkedAssetId } : {}),
           ...(draft.location === undefined ? {} : { location: draft.location }),
           remark: draft.remark,
           tagIds: draft.tagIds,
@@ -202,6 +204,8 @@ function BookkeepingPage() {
           type: draft.type,
         });
         await invalidatePersonalRecordEditorCaches(queryClient);
+        await invalidateAssetQueries(queryClient);
+        requestAchievementFeedback();
         hapticFeedback.success();
         navigate(`/editing/${result.recordId}`, {
           replace: true,
@@ -209,17 +213,19 @@ function BookkeepingPage() {
         });
         return;
       }
-      const { imageAssetId, ...recordData } = draft;
+      const { retainedAttachmentIds: _retainedAttachmentIds, ...recordData } = draft;
       const response = initialRecord
         ? await putRecord({
             data: { ...draft, version: initialRecord.version },
             id: String(initialRecord.id),
           })
-        : await postRecord(imageAssetId === null ? recordData : { ...recordData, imageAssetId });
+        : await postRecord(recordData);
       if (response.statusCode !== 200)
         throw response;
       await invalidatePersonalRecordEditorCaches(queryClient);
       await invalidateAssetQueries(queryClient);
+      if (!initialRecord)
+        requestAchievementFeedback();
       hapticFeedback.success();
       navigateToReturnContext(returnContext, draft);
     }
@@ -273,6 +279,7 @@ function BookkeepingPage() {
   }, [availableDefaultAssetId, controller]);
   const openRecordEditorSettings = useRecordEditorSettingsNavigation(
     controller.getDraftSnapshot,
+    controller.waitForImageUploads,
   );
   const categoryQuery = useGetCategoryQuery({
     params: { type: controller.recordType },
@@ -284,7 +291,7 @@ function BookkeepingPage() {
     controller.applyInitialCategory(inferredShortcutCategory);
   }, [controller, inferredShortcutCategory]);
   const tagsQuery = useLedgerTagsQuery({
-    params: { ledgerId: defaultLedger?.id ?? '', categoryId: controller.selectedCategory?.id },
+    params: { ledgerId: defaultLedger?.id ?? '' },
     queryOptions: { enabled: Boolean(defaultLedger && canReadTags) },
   });
   const remarkHistoryQuery = useRecordRemarkHistoryQuery({
@@ -327,7 +334,6 @@ function BookkeepingPage() {
         ...controller,
         isSubmitting: controller.isSubmitting || postState.isLoading || putState.isLoading || confirmShortcutDraftMutation.isLoading || confirmAgentActionMutation.isLoading,
       }}
-      initialStage={shortcutBookkeeping || agentRecordDraft ? 'amount' : undefined}
       onArchiveTag={defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE) ? handleArchiveTag : undefined}
       onCancel={() => void handleCancel()}
       onManageCategories={defaultLedger
@@ -337,15 +343,15 @@ function BookkeepingPage() {
           )
         : undefined}
       onManageTags={canReadTags && defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE)
-        ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(defaultLedger.id))
+        ? tagPickerDraftIds => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(defaultLedger.id), { tagPickerDraftIds })
         : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
       remarkHistory={remarkHistoryQuery.data}
       canManageTags={Boolean(defaultLedger?.capabilities.includes(LedgerCapability.TAG_MANAGE))}
       onCreateTag={defaultLedger && controller.selectedCategory
-        ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId: defaultLedger.id })).data
+        ? async name => (await createTag({ data: { name }, ledgerId: defaultLedger.id })).data
         : undefined}
-      tags={canReadTags && controller.selectedCategory ? tagsQuery.data : undefined}
+      tags={canReadTags && controller.selectedCategory ? [...tagsQuery.data, ...(initialRecord?.tags ?? []).filter(tag => !tagsQuery.data.some(active => active.id === tag.id))] : undefined}
     />
   );
 }

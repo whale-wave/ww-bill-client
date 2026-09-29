@@ -15,6 +15,7 @@ export interface AppSheetProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onC
   closeOnMaskClick?: boolean;
   destroyOnClose?: boolean;
   maskClassName?: string;
+  material?: 'default' | 'opaque';
   onClose?: () => void;
   onMaskClick?: () => void;
   position?: 'bottom' | 'top';
@@ -32,6 +33,7 @@ export function AppSheet({
   closeOnMaskClick = true,
   destroyOnClose,
   maskClassName,
+  material = 'default',
   onClose,
   onMaskClick,
   position = 'bottom',
@@ -81,6 +83,7 @@ export function AppSheet({
         className={cn(
           'adm-popup-body ww-app-sheet',
           `ww-app-sheet--${position}`,
+          material === 'opaque' && 'ww-app-sheet--opaque',
           visible && 'ww-app-sheet--open',
           bodyClassName,
           className,

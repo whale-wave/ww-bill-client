@@ -6,6 +6,7 @@ import type {
 import type { RecordOverviewListGroup } from '@/entities/record';
 import { ChevronDown, Search, SlidersHorizontal } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { RecordOverviewList } from '@/entities/record';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
@@ -228,16 +229,17 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
           </>
         )}
       </main>
-      {isFilterVisible && (
+      {isFilterVisible && typeof document !== 'undefined' && createPortal((
         <div
-          className="absolute inset-x-0 bottom-0 top-[116px] z-30 bg-ww-ink/20 backdrop-blur-[2px]"
+          className="fixed inset-x-0 bottom-0 top-[calc(124px+var(--ww-safe-area-top))] z-[110] bg-ww-ink/20 backdrop-blur-[2px]"
           data-record-filter-mask
+          data-tab-swipe-ignore
           onClick={handleCloseFilters}
           role="presentation"
         >
           <section
             aria-label={t('search.filterPanelTitle')}
-            className="max-h-[calc(100dvh-116px)] overflow-auto rounded-b-[28px] border-x-0 border-b border-t-0 border-solid border-white/70 bg-white/95 px-[18px] pb-[max(18px,env(safe-area-inset-bottom))] pt-3 shadow-ww-lg"
+            className="max-h-full overflow-auto rounded-b-[28px] border-x-0 border-b border-t-0 border-solid border-white/70 bg-white/95 px-[18px] pb-[max(18px,env(safe-area-inset-bottom))] pt-3 shadow-ww-lg"
             data-record-filter-panel
             onClick={event => event.stopPropagation()}
           >
@@ -314,7 +316,7 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
                 />
               </div>
             )}
-            {filterCapabilities.household && (
+            {(filterCapabilities.household || filterCapabilities.category || filterCapabilities.tag) && (
               <>
                 <button
                   aria-expanded={isMoreVisible}
@@ -361,6 +363,10 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
                     )}
                     {filterCapabilities.tag && Boolean(filterOptions.tags?.length) && (
                       <FilterRow label={t('search.tag')}>
+                        <select aria-label="标签匹配方式" className="min-h-11 rounded-xl border border-border-primary px-3 text-sm" value={draft.tagMatch ?? 'any'} onChange={event => setDraft(current => ({ ...current, tagMatch: event.target.value === 'all' ? 'all' : 'any' }))}>
+                          <option value="any">符合任一标签</option>
+                          <option value="all">同时包含全部标签</option>
+                        </select>
                         {filterOptions.tags?.map(option => (
                           <FilterChip
                             active={draft.tagIds.includes(String(option.id))}
@@ -377,39 +383,43 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
                         ))}
                       </FilterRow>
                     )}
-                    <FilterRow label={t('search.amount')}>
-                      <input
-                        aria-label={t('search.minAmount')}
-                        className="h-11 min-w-0 flex-1 rounded-xl border border-solid border-primary/15 bg-primary-light/20 px-3 text-[13px] outline-none focus:border-primary"
-                        inputMode="decimal"
-                        onChange={event => setDraft(current => ({ ...current, minAmount: event.target.value }))}
-                        placeholder={t('search.minimum')}
-                        value={draft.minAmount}
-                      />
-                      <input
-                        aria-label={t('search.maxAmount')}
-                        className="h-11 min-w-0 flex-1 rounded-xl border border-solid border-primary/15 bg-primary-light/20 px-3 text-[13px] outline-none focus:border-primary"
-                        inputMode="decimal"
-                        onChange={event => setDraft(current => ({ ...current, maxAmount: event.target.value }))}
-                        placeholder={t('search.maximum')}
-                        value={draft.maxAmount}
-                      />
-                    </FilterRow>
-                    <FilterRow label={t('search.counting')}>
-                      {([
-                        ['all', t('search.all')],
-                        ['counted', t('search.counted')],
-                        ['uncounted', t('search.uncounted')],
-                      ] as const).map(([key, label]) => (
-                        <FilterChip
-                          active={draft.familyCounting === key}
-                          key={key}
-                          onClick={() => setDraft(current => ({ ...current, familyCounting: key }))}
-                        >
-                          {label}
-                        </FilterChip>
-                      ))}
-                    </FilterRow>
+                    {filterCapabilities.household && (
+                      <>
+                        <FilterRow label={t('search.amount')}>
+                          <input
+                            aria-label={t('search.minAmount')}
+                            className="h-11 min-w-0 flex-1 rounded-xl border border-solid border-primary/15 bg-primary-light/20 px-3 text-[13px] outline-none focus:border-primary"
+                            inputMode="decimal"
+                            onChange={event => setDraft(current => ({ ...current, minAmount: event.target.value }))}
+                            placeholder={t('search.minimum')}
+                            value={draft.minAmount}
+                          />
+                          <input
+                            aria-label={t('search.maxAmount')}
+                            className="h-11 min-w-0 flex-1 rounded-xl border border-solid border-primary/15 bg-primary-light/20 px-3 text-[13px] outline-none focus:border-primary"
+                            inputMode="decimal"
+                            onChange={event => setDraft(current => ({ ...current, maxAmount: event.target.value }))}
+                            placeholder={t('search.maximum')}
+                            value={draft.maxAmount}
+                          />
+                        </FilterRow>
+                        <FilterRow label={t('search.counting')}>
+                          {([
+                            ['all', t('search.all')],
+                            ['counted', t('search.counted')],
+                            ['uncounted', t('search.uncounted')],
+                          ] as const).map(([key, label]) => (
+                            <FilterChip
+                              active={draft.familyCounting === key}
+                              key={key}
+                              onClick={() => setDraft(current => ({ ...current, familyCounting: key }))}
+                            >
+                              {label}
+                            </FilterChip>
+                          ))}
+                        </FilterRow>
+                      </>
+                    )}
                   </div>
                 )}
               </>
@@ -423,6 +433,7 @@ export const RecordSearchPresentation: FC<RecordSearchPresentationProps> = ({
             </div>
           </section>
         </div>
+      ), document.body,
       )}
     </div>
   );

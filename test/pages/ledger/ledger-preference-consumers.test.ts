@@ -20,6 +20,7 @@ import LedgerRecordsPage from '@/pages/ledger-records/LedgerRecordsPage';
 import { Dialog } from '@/shared/ui/konsta-compat';
 
 const hooks = vi.hoisted(() => ({
+  dashboard: vi.fn(),
   deleteLedgerRecord: vi.fn(),
   patchLedgerPreferencesApi: vi.fn(),
   useGetUserAppConfigQuery: vi.fn(),
@@ -32,6 +33,10 @@ const hooks = vi.hoisted(() => ({
   useInfiniteLedgerRecordsQuery: vi.fn(),
   useLedgerRecordsQuery: vi.fn(),
   useDeleteLedgerRecordMutation: vi.fn(),
+}));
+
+vi.mock('@/widgets/chart-dashboard', () => ({
+  ChartDashboardHome: hooks.dashboard,
 }));
 
 vi.mock('@/entities/ledger', async importOriginal => ({
@@ -132,6 +137,7 @@ function renderPage(
 
 beforeEach(() => {
   Object.values(hooks).forEach(mock => mock.mockReset());
+  hooks.dashboard.mockImplementation(() => null);
   hooks.useLedgerQuery.mockReturnValue({ data: ledger, isError: false, isLoading: false, refetch: vi.fn() });
   hooks.useLedgerNavigationQuery.mockReturnValue({
     data: [],
@@ -220,14 +226,14 @@ describe('ledger preference consumers', () => {
   it('uses the compact shared-ledger icon treatment in the title row', () => {
     const container = renderPage(createElement(LedgerRecordsPage));
 
-    const iconContainer = container.querySelector('[data-record-overview-title-row] > span');
+    const iconContainer = container.querySelector('[data-ledger-title-icon]');
     const icon = iconContainer?.querySelector('svg');
     expect(iconContainer?.classList).toContain('bg-white/75');
-    expect(iconContainer?.classList).toContain('!bg-none');
+    expect(iconContainer?.classList).toContain('rounded-[12px]');
     expect(icon?.classList).toContain('text-primary-deep');
   });
 
-  it('persists amount visibility changes on the current shared ledger', async () => {
+  it('stores amount visibility on this device for the current shared ledger', async () => {
     const refetchPreference = vi.fn().mockResolvedValue(undefined);
     hooks.useLedgerPreferencesQuery.mockReturnValue({
       data: { ...preference, version: 4 },
@@ -239,11 +245,10 @@ describe('ledger preference consumers', () => {
 
     await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="toggle amount visibility"]')?.click());
 
-    expect(hooks.patchLedgerPreferencesApi).toHaveBeenCalledWith('ledger/a', {
-      hideTotalAmount: true,
-      version: 4,
-    });
-    expect(refetchPreference).toHaveBeenCalled();
+    expect(localStorage.getItem('ww:display-preference:v1:device:ledger:ledger/a:hide-total')).toBe('true');
+    expect(hooks.patchLedgerPreferencesApi).not.toHaveBeenCalled();
+    expect(refetchPreference).not.toHaveBeenCalled();
+    expect(container.querySelector('[data-testid="ledger-monthly-income"]')?.textContent).toContain('＊＊＊＊＊');
   });
 
   it('only enables swipe deletion when the ledger grants record deletion', async () => {
@@ -358,55 +363,25 @@ describe('ledger preference consumers', () => {
     });
   });
 
-  it('uses chart period, metric, and display preferences as initial controls', () => {
+  it('renders the shared monthly dashboard for the accessible ledger', () => {
+    renderPage(createElement(LedgerChartsPage));
+
+    expect(hooks.dashboard.mock.calls[0]?.[0]).toMatchObject({
+      defaultPeriod: 'month',
+      hideAmounts: false,
+      scope: { kind: 'ledger', ledgerId: 'ledger/a' },
+    });
+  });
+
+  it('passes the ledger amount visibility preference to the dashboard', () => {
     hooks.useLedgerPreferencesQuery.mockReturnValue({
-      data: {
-        ...preference,
-        defaultChartDisplay: LedgerChartDisplay.LINE,
-        defaultChartMetric: LedgerChartMetric.INCOME,
-        defaultChartPeriod: LedgerChartPeriod.YEAR,
-      },
+      data: { ...preference, hideTotalAmount: true },
       isError: false,
       isLoading: false,
     });
 
-    const container = renderPage(createElement(LedgerChartsPage));
+    renderPage(createElement(LedgerChartsPage));
 
-    expect(hooks.useLedgerChartPeriodOptionsQuery).toHaveBeenCalledWith(expect.objectContaining({
-      params: {
-        filters: { metric: 'income', pageSize: 6, period: LedgerChartPeriod.YEAR },
-        ledgerId: 'ledger/a',
-      },
-    }));
-    expect(container.querySelector('[data-chart-display="line"]')?.classList)
-      .toContain('ww-tab-bar-scroll-padding');
-  });
-
-  it('lets URL state override preferences and falls net plus pie back to the line slot', () => {
-    const container = renderPage(
-      createElement(LedgerChartsPage),
-      '/ledgers/ledger%2Fa/page?metric=net&range=year&display=pie',
-    );
-
-    expect(hooks.useLedgerChartPeriodOptionsQuery).toHaveBeenCalledWith(expect.objectContaining({
-      params: {
-        filters: { metric: 'net', pageSize: 6, period: LedgerChartPeriod.YEAR },
-        ledgerId: 'ledger/a',
-      },
-    }));
-    expect(container.querySelector('[data-chart-display="line"]')).not.toBeNull();
-    expect(container.textContent).toContain('charts.netNoRanking');
-  });
-
-  it('renders the selected chart period without an obsolete parallel-query loader', () => {
-    hooks.useLedgerPreferencesQuery.mockReturnValue({
-      data: { ...preference, defaultChartDisplay: LedgerChartDisplay.LINE },
-      isError: false,
-      isLoading: false,
-    });
-    const container = renderPage(createElement(LedgerChartsPage));
-
-    expect(container.querySelector('.adm-spin-loading')).toBeNull();
-    expect(container.querySelector('[data-testid="ledger-chart-total"]')?.textContent).toBe('1');
+    expect(hooks.dashboard.mock.calls[0]?.[0]).toMatchObject({ hideAmounts: true });
   });
 });

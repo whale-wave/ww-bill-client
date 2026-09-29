@@ -89,6 +89,7 @@ describe('ledger domain contract', () => {
       'budget:manage',
       'chart:read',
       'data:export',
+      'record:recover:own',
       'data:recovery',
       'data:transfer',
       'ownership:transfer',

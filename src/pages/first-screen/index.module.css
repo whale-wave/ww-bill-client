@@ -16,7 +16,7 @@
   flex-direction: column;
   align-items: center;
   transform: translateY(-10%);
-  animation: enter 640ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: enter 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .logoFrame {
@@ -155,7 +155,7 @@
   height: 100%;
   border-radius: inherit;
   background: var(--ww-theme-color-deep);
-  animation: loading 1.2s cubic-bezier(0.45, 0, 0.55, 1) both;
+  animation: loading 600ms cubic-bezier(0.45, 0, 0.55, 1) both;
 }
 
 @keyframes enter {

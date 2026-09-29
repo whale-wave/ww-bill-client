@@ -35,5 +35,8 @@ export function getNotificationTarget(
   if (payload.action === 'open-household-entry')
     return ROUTES_PATH.HOUSEHOLD.getPath();
 
+  if (payload.action === 'achievements')
+    return ROUTES_PATH.ACHIEVEMENTS.getPath();
+
   return undefined;
 }

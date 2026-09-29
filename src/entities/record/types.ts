@@ -44,8 +44,15 @@ export interface RecordEntry {
   adjustmentSummary?: RecordAdjustmentSummary;
   adjustments?: RecordAdjustment[];
   category: {
+    parentId?: number | null;
+    parentKey?: string | null;
+    path?: string;
     createdAt: string;
     icon: string;
+    iconType?: 'BUILTIN' | 'IMAGE';
+    backgroundColor?: string | null;
+    textIconEnabled?: boolean;
+    textIconIndex?: number;
     id: number;
     name: string;
     updatedAt: string;

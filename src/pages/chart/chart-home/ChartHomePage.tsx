@@ -1,12 +1,13 @@
 import type { FC } from 'react';
-import { ChartOverviewPresentation } from '@/features/chart-overview';
-import { ChartHomeProvider } from '@/pages/chart/chart-home/model/ChartHomeProvider';
+import { useVisibleAmount } from '@/features/display-preferences';
+import { ChartDashboardHome } from '@/widgets/chart-dashboard';
 import { TabBar } from '@/widgets/layout';
 
 const ChartHomeInner: FC = () => {
+  const { isVisibleAmount } = useVisibleAmount();
   return (
     <>
-      <ChartOverviewPresentation />
+      <ChartDashboardHome hideAmounts={!isVisibleAmount} scope={{ kind: 'personal' }} defaultPeriod="week" />
       <TabBar active={1} />
     </>
   );
@@ -14,9 +15,7 @@ const ChartHomeInner: FC = () => {
 
 const ChartHome: FC = () => {
   return (
-    <ChartHomeProvider>
-      <ChartHomeInner />
-    </ChartHomeProvider>
+    <ChartHomeInner />
   );
 };
 

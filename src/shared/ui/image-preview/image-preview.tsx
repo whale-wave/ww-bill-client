@@ -1,6 +1,6 @@
 import type { FC, ReactNode, PointerEvent as ReactPointerEvent } from 'react';
 import { Popup as KonstaPopup } from 'konsta/react';
-import { X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { DialogFocusBoundary } from '@/shared/ui/app-overlay/DialogFocusBoundary';
@@ -8,15 +8,20 @@ import { DialogFocusBoundary } from '@/shared/ui/app-overlay/DialogFocusBoundary
 const getImagePreviewContainer = () => document.body;
 
 export interface ImagePreviewProps {
+  defaultIndex?: number;
   image?: string;
+  images?: string[];
   placeholder?: ReactNode;
   statusLabel?: string;
   visible?: boolean;
   onClose?: () => void;
 }
 
-export const ImagePreview: FC<ImagePreviewProps> = ({ image, onClose, placeholder, statusLabel, visible = false }) => {
+export const ImagePreview: FC<ImagePreviewProps> = ({ defaultIndex = 0, image, images, onClose, placeholder, statusLabel, visible = false }) => {
   const descriptionId = useId();
+  const [activeIndex, setActiveIndex] = useState(defaultIndex);
+  const isGallery = Boolean(images && images.length > 1);
+  const activeImage = isGallery ? images?.[activeIndex] : image;
   const pointersRef = useRef(new Map<number, { x: number; y: number }>());
   const gestureRef = useRef<{
     centerX: number;
@@ -40,6 +45,14 @@ export const ImagePreview: FC<ImagePreviewProps> = ({ image, onClose, placeholde
       gestureRef.current = undefined;
     }
   }, [visible]);
+
+  useEffect(() => {
+    if (visible) {
+      // Start each gallery session at the requested attachment.
+      // eslint-disable-next-line react/set-state-in-effect
+      setActiveIndex(defaultIndex);
+    }
+  }, [defaultIndex, visible]);
 
   const applyTransform = (next: typeof transform) => {
     transformRef.current = next;
@@ -102,6 +115,13 @@ export const ImagePreview: FC<ImagePreviewProps> = ({ image, onClose, placeholde
   };
 
   const handlePointerEnd = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const start = gestureRef.current;
+    const point = pointersRef.current.get(event.pointerId);
+    if (isGallery && pointersRef.current.size === 1 && start && point && start.scale === 1) {
+      const horizontalDistance = point.x - start.pointerX;
+      if (Math.abs(horizontalDistance) > 60 && Math.abs(horizontalDistance) > Math.abs(point.y - start.pointerY))
+        setActiveIndex(current => Math.max(0, Math.min((images?.length ?? 1) - 1, current + (horizontalDistance < 0 ? 1 : -1))));
+    }
     pointersRef.current.delete(event.pointerId);
     startGesture();
   };
@@ -123,7 +143,7 @@ export const ImagePreview: FC<ImagePreviewProps> = ({ image, onClose, placeholde
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerEnd}
         >
-          {image
+          {activeImage
             ? (
                 <div className="flex min-h-full min-w-full items-center justify-center">
                   <img
@@ -131,19 +151,21 @@ export const ImagePreview: FC<ImagePreviewProps> = ({ image, onClose, placeholde
                     className="max-h-[calc(100dvh-96px)] max-w-full select-none object-contain"
                     draggable={false}
                     onDoubleClick={() => applyTransform(transform.scale === 1 ? { scale: 2, x: 0, y: 0 } : { scale: 1, x: 0, y: 0 })}
-                    src={image}
+                    src={activeImage}
                     style={{ transform: `translate3d(${transform.x}px, ${transform.y}px, 0) scale(${transform.scale})` }}
                   />
                 </div>
               )
             : <div className="flex min-h-full items-center justify-center">{placeholder}</div>}
         </div>
-        <p aria-hidden className="pointer-events-none fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-0 right-0 text-center text-xs text-white/70">
-          双指缩放 · 双击放大 · 拖动查看
-        </p>
+        <div className="pointer-events-none fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-0 right-0 flex items-center justify-center gap-4 text-xs text-white/70">
+          {isGallery && <button aria-label="上一张图片" className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full bg-black/75 text-white disabled:opacity-40" disabled={activeIndex === 0} onClick={() => setActiveIndex(current => current - 1)} type="button"><ChevronLeft size={20} /></button>}
+          <span className="rounded-full bg-black/75 px-3 py-2">{isGallery ? `${activeIndex + 1} / ${images?.length} · 左右滑动 · 双指缩放` : '双指缩放 · 双击放大 · 拖动查看'}</span>
+          {isGallery && <button aria-label="下一张图片" className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full bg-black/75 text-white disabled:opacity-40" disabled={activeIndex >= (images?.length ?? 1) - 1} onClick={() => setActiveIndex(current => current + 1)} type="button"><ChevronRight size={20} /></button>}
+        </div>
         <div className="ww-image-preview-dialog-layer pointer-events-none fixed inset-0">
           <p aria-live="polite" className="sr-only" id={descriptionId}>
-            {image ? '支持双指缩放和拖动查看' : statusLabel ?? '图片加载中'}
+            {activeImage ? (isGallery ? `共 ${images?.length} 张图片，支持左右滑动和双指缩放` : '支持双指缩放和拖动查看') : statusLabel ?? '图片加载中'}
           </p>
           <button
             aria-label="关闭图片预览"

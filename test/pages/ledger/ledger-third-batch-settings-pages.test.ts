@@ -38,6 +38,7 @@ const hooks = vi.hoisted(() => ({
   useCreateLedgerCategoryMutation: vi.fn(),
   useCreateLedgerTagMutation: vi.fn(),
   useDeleteLedgerCategoryMutation: vi.fn(),
+  useDeleteLedgerCategoryPermanentlyMutation: vi.fn(),
   useLedgerCategoriesQuery: vi.fn(),
   useLedgerMembersQuery: vi.fn(),
   useLedgerPreferencesQuery: vi.fn(),
@@ -93,8 +94,10 @@ vi.mock('@/entities/category', async importOriginal => ({
   useCreateLedgerCategoryMutation: hooks.useCreateLedgerCategoryMutation,
   useCategoryIconCatalogQuery: hooks.useCategoryIconCatalogQuery,
   useDeleteLedgerCategoryMutation: hooks.useDeleteLedgerCategoryMutation,
+  useDeleteLedgerCategoryPermanentlyMutation: hooks.useDeleteLedgerCategoryPermanentlyMutation,
   useLedgerCategoriesQuery: hooks.useLedgerCategoriesQuery,
   usePatchLedgerCategoryMutation: hooks.usePatchLedgerCategoryMutation,
+  useMoveLedgerCategoryMutation: () => ({ mutateAsync: vi.fn(), isLoading: false }),
   useReorderLedgerCategoriesMutation: hooks.useReorderLedgerCategoriesMutation,
   useUpdateLedgerCategoryMutation: hooks.useUpdateLedgerCategoryMutation,
   useUploadLedgerCategoryIconMutation: hooks.useUploadLedgerCategoryIconMutation,
@@ -107,6 +110,16 @@ vi.mock('@/entities/ledger-data', async importOriginal => ({
   useLedgerTagsQuery: hooks.useLedgerTagsQuery,
   useUpdateLedgerTagMutation: hooks.useUpdateLedgerTagMutation,
 }));
+
+vi.mock('@/features/category-management/ui/CategoryImageCropper', async () => {
+  const { createElement } = await import('react');
+  return {
+    CategoryImageCropper: ({ onConfirm }: { onConfirm: (file: File) => void }) => createElement('button', {
+      onClick: () => onConfirm(new File(['cropped-image'], 'category.webp', { type: 'image/webp' })),
+      type: 'button',
+    }, 'categories.applyCrop'),
+  };
+});
 
 vi.mock('@/shared/i18n', () => ({
   i18n: { t: (key: string) => key },
@@ -210,6 +223,7 @@ beforeEach(() => {
   hooks.useUpdateLedgerCategoryMutation.mockReturnValue([hooks.updateCategory, { isLoading: false }]);
   hooks.useCreateLedgerCategoryMutation.mockReturnValue([hooks.createCategory, { isLoading: false }]);
   hooks.useDeleteLedgerCategoryMutation.mockReturnValue([hooks.deleteCategory, { isLoading: false }]);
+  hooks.useDeleteLedgerCategoryPermanentlyMutation.mockReturnValue({ mutateAsync: hooks.deleteCategory, isPending: false });
   hooks.useLedgerTagsQuery.mockReturnValue(query([{ createdAt: '', createdByUserId: 1, id: 'tag/a', ledgerId: ledger.id, name: '聚餐', status: 'ACTIVE', updatedAt: '', version: 4 }]));
   hooks.useUpdateLedgerTagMutation.mockReturnValue([hooks.updateTag, { isLoading: false }]);
   hooks.useCreateLedgerTagMutation.mockReturnValue([vi.fn(), { isLoading: false }]);
@@ -308,11 +322,11 @@ describe('ledger settings', () => {
         defaultChartMetric: LedgerChartMetric.NET,
         defaultChartPeriod: LedgerChartPeriod.YEAR,
         defaultRecordType: LedgerRecordType.INCOME,
-        hideTotalAmount: true,
         version: 2,
       }),
       ledgerId: 'ledger/a',
     });
+    expect(localStorage.getItem('ww:display-preference:v1:device:ledger:ledger/a:hide-total')).toBe('true');
   });
 
   it('disables the basic save action while the mutation is loading', async () => {
@@ -515,7 +529,7 @@ describe('ledger category and tag management', () => {
     });
     expect(hooks.updateCategory).toHaveBeenCalledWith({
       categoryId: 1,
-      data: { name: '餐饮新', version: 1 },
+      data: { name: '餐饮新', textIconEnabled: false, textIconIndex: 0, version: 1 },
       ledgerId: 'ledger/a',
     });
   });
@@ -553,7 +567,7 @@ describe('ledger category and tag management', () => {
 
     expect(hooks.updateCategory).toHaveBeenCalledWith({
       categoryId: 1,
-      data: { name: '远行', version: 4 },
+      data: { name: '远行', textIconEnabled: false, textIconIndex: 0, version: 4 },
       ledgerId: 'ledger/a',
     });
     expect(hooks.uploadCategory).not.toHaveBeenCalled();
@@ -588,8 +602,13 @@ describe('ledger category and tag management', () => {
       .mockResolvedValueOnce({ ...activeCategory, status: 'ACTIVE', sortOrder: -1, version: 4 });
     const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
 
-    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.archive"]')?.click());
-    await act(async () => container.querySelector<HTMLButtonElement>('button[aria-expanded="false"]')?.click());
+    expect(container.querySelectorAll('[aria-label="categories.edit"]')).toHaveLength(2);
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.edit"]')?.click());
+    expect(document.body.textContent).toContain('categories.actions');
+    const archiveButton = [...document.body.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent?.includes('categories.archive'));
+    expect(archiveButton, document.body.textContent).toBeDefined();
+    await act(async () => archiveButton?.click());
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-controls="archived-category-list"]')?.click());
     await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="categories.restoreName"]')?.click());
 
     expect(hooks.updateCategory).toHaveBeenNthCalledWith(1, {
@@ -630,17 +649,16 @@ describe('ledger category and tag management', () => {
 
     const { container } = renderPage('/ledgers/ledger%2Fa/settings/categories', '/ledgers/:ledgerId/settings/categories', createElement(LedgerCategoriesPage));
 
-    const archiveButtons = container.querySelectorAll<HTMLButtonElement>(
-      '[aria-label="categories.archive"]',
+    const editButtons = container.querySelectorAll<HTMLButtonElement>(
+      '[aria-label="categories.edit"]',
     );
-    expect(archiveButtons).toHaveLength(2);
-    expect([...archiveButtons].every(button => button.disabled)).toBe(true);
-    expect([...archiveButtons].every(button => !button.classList.contains('opacity-35')))
+    expect(editButtons).toHaveLength(2);
+    expect([...editButtons].every(button => button.disabled)).toBe(true);
+    expect([...editButtons].every(button => !button.classList.contains('opacity-35')))
       .toBe(true);
-    expect(container.querySelectorAll('[aria-label="categories.edit"]')).toHaveLength(2);
   });
 
-  it('previews and uploads the original image for server-side normalization', async () => {
+  it('previews and uploads the confirmed crop', async () => {
     hooks.useCategoryIconCatalogQuery.mockReturnValue(query([{
       group: 'other',
       key: 'receipt',
@@ -666,6 +684,12 @@ describe('ledger category and tag management', () => {
       Object.defineProperty(fileInput, 'files', { configurable: true, value: [original] });
       fileInput?.dispatchEvent(new Event('change', { bubbles: true }));
     });
+    expect(hooks.createCategory).not.toHaveBeenCalled();
+    await act(async () => {
+      [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'categories.applyCrop')
+        ?.click();
+    });
     expect(document.body.querySelector<HTMLImageElement>('img[src="blob:preview"]')).not.toBeNull();
     await act(async () => {
       [...document.body.querySelectorAll<HTMLButtonElement>('button')]
@@ -674,14 +698,14 @@ describe('ledger category and tag management', () => {
     });
 
     expect(hooks.createCategory).toHaveBeenCalledWith(expect.objectContaining({
-      data: { file: original, name: '旅行', type: 'sub' },
+      data: expect.objectContaining({ file: expect.objectContaining({ name: 'category.webp', type: 'image/webp' }), name: '旅行', type: 'sub' }),
       ledgerId: 'ledger/a',
     }));
     expect(createObjectURL).toHaveBeenCalled();
     expect(revokeObjectURL).toHaveBeenCalled();
   });
 
-  it('keeps the original image submittable when a local preview URL cannot be created', async () => {
+  it('reports a preview failure without submitting an uncropped image', async () => {
     hooks.createCategory.mockResolvedValue({ version: 1 });
     vi.spyOn(URL, 'createObjectURL').mockImplementation(() => {
       throw new Error('preview unavailable');
@@ -708,13 +732,10 @@ describe('ledger category and tag management', () => {
 
     const done = [...document.body.querySelectorAll<HTMLButtonElement>('button')]
       .find(button => button.textContent === 'categories.done');
-    expect(done?.disabled).toBe(false);
+    expect(done?.disabled).toBe(true);
     await act(async () => done?.click());
-
-    expect(hooks.createCategory).toHaveBeenCalledWith(expect.objectContaining({
-      data: { file: original, name: '旅行', type: 'sub' },
-      ledgerId: 'ledger/a',
-    }));
+    expect(hooks.createCategory).not.toHaveBeenCalled();
+    expect(toastShow).toHaveBeenCalledWith(expect.objectContaining({ content: 'categories.imageFailed', icon: 'fail' }));
   });
 
   it('reports server processing after upload and resets progress immediately on storage failure', async () => {
@@ -743,6 +764,12 @@ describe('ledger category and tag management', () => {
       nameInput?.dispatchEvent(new Event('input', { bubbles: true }));
       Object.defineProperty(fileInput, 'files', { configurable: true, value: [original] });
       fileInput?.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    await act(async () => {
+      [...document.body.querySelectorAll<HTMLButtonElement>('button')]
+        .find(button => button.textContent === 'categories.applyCrop')
+        ?.click();
     });
 
     act(() => {
@@ -825,7 +852,7 @@ describe('ledger category and tag management', () => {
       },
     }, '/ledgers/:ledgerId/settings/tags', createElement(LedgerTagsPage));
 
-    expect(container.querySelector<HTMLSelectElement>('[aria-label="tags.category"]')?.value).toBe('2');
+    expect(container.querySelector('[aria-label="tags.category"]')).toBeNull();
     await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="common:nav.back"]')?.click());
 
     expect(router.state.location.pathname).toBe('/record-editor');

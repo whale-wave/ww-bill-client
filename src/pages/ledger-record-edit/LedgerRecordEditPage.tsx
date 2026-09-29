@@ -59,8 +59,7 @@ function LedgerRecordEditEditor({
     recordType: initialRecord.type,
     remark: initialRecord.remark,
     tagIds: supportsTags ? initialRecord.tags?.map(tag => tag.id) ?? [] : undefined,
-    attachment: initialRecord.attachments?.[0],
-    hasImage: Boolean(initialRecord.attachments?.length),
+    attachments: initialRecord.attachments,
     location: initialRecord.location,
     time: initialRecord.time,
   }), [initialRecord, restoredDraft, supportsTags]);
@@ -74,15 +73,17 @@ function LedgerRecordEditEditor({
       await invalidateLedgerRecordEditorCaches(queryClient, ledgerId);
       navigate(ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId), {
         replace: true,
-        state: createLedgerRecordDetailState({
-          ...initialRecord,
-          amount: draft.amount,
-          location: draft.location === undefined ? initialRecord.location : draft.location,
-          remark: draft.remark,
-          time: draft.time,
-          type: draft.type,
-          version: initialRecord.version + 1,
-        }, ledgerId),
+        state: draft.imageAssetIds !== undefined
+          ? undefined
+          : createLedgerRecordDetailState({
+              ...initialRecord,
+              amount: draft.amount,
+              location: draft.location === undefined ? initialRecord.location : draft.location,
+              remark: draft.remark,
+              time: draft.time,
+              type: draft.type,
+              version: initialRecord.version + 1,
+            }, ledgerId),
       });
     }
     catch (error) {
@@ -109,6 +110,7 @@ function LedgerRecordEditEditor({
   });
   const openRecordEditorSettings = useRecordEditorSettingsNavigation(
     controller.getDraftSnapshot,
+    controller.waitForImageUploads,
   );
   const categoryQuery = useLedgerCategoriesQuery({
     params: { ledgerId, type: controller.recordType },
@@ -120,11 +122,11 @@ function LedgerRecordEditEditor({
     });
   }, [initialRecord, ledgerId, navigate, recordId]);
   const tagsQuery = useLedgerTagsQuery({
-    params: { ledgerId, categoryId: controller.selectedCategory?.id },
+    params: { ledgerId },
     queryOptions: { enabled: supportsTags },
   });
   const remarkHistoryQuery = useRecordRemarkHistoryQuery({
-    params: { categoryId: controller.selectedCategory?.id, ledgerId },
+    params: { ledgerId },
     queryOptions: { enabled: controller.isNoteFocused && Boolean(controller.selectedCategory) },
   });
   const handleArchiveTag = useCallback(async (tagId: string) => {
@@ -150,13 +152,13 @@ function LedgerRecordEditEditor({
         { reopenTagPicker: false },
       )}
       onManageTags={canManageTags
-        ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId))
+        ? tagPickerDraftIds => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId), { tagPickerDraftIds })
         : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
       remarkHistory={remarkHistoryQuery.data}
       canManageTags={canManageTags}
-      onCreateTag={controller.selectedCategory ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId })).data : undefined}
-      tags={supportsTags && controller.selectedCategory ? tagsQuery.data : undefined}
+      onCreateTag={controller.selectedCategory ? async name => (await createTag({ data: { name }, ledgerId })).data : undefined}
+      tags={supportsTags && controller.selectedCategory ? [...tagsQuery.data, ...(initialRecord.tags ?? []).filter(tag => !tagsQuery.data.some(active => active.id === tag.id))] : undefined}
     />
   );
 }

@@ -7,7 +7,7 @@ function seed(queryClient: QueryClient, queryKey: readonly unknown[]) {
 }
 
 describe('category consumer cache invalidation', () => {
-  it('keeps household budget snapshots intact after metadata changes', async () => {
+  it('refreshes household budget candidates while keeping server snapshots intact', async () => {
     const queryClient = new QueryClient();
     const category = ['category', 'ledger', 'ledger-1'];
     const record = ['record', 'ledger', 'ledger-1'];
@@ -21,7 +21,7 @@ describe('category consumer cache invalidation', () => {
     expect(queryClient.getQueryState(category)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(record)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(householdRecord)?.isInvalidated).toBe(true);
-    expect(queryClient.getQueryState(householdBudget)?.isInvalidated).toBe(false);
+    expect(queryClient.getQueryState(householdBudget)?.isInvalidated).toBe(true);
   });
 
   it('refreshes sorted household budget candidates without touching record lists', async () => {

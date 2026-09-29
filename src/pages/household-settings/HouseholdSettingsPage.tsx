@@ -9,10 +9,10 @@ import {
   useHouseholdMembersQuery,
   useHouseholdPreferencesQuery,
   useMyHouseholdQuery,
-  usePatchHouseholdPreferencesMutation,
   useUpdateHouseholdMutation,
 } from '@/entities/household';
 import { useGetUserUserInfoQuery } from '@/entities/user';
+import { useHouseholdAmountPreference } from '@/features/display-preferences';
 import {
   formatMonthStart,
   getApiErrorMessage,
@@ -48,7 +48,7 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
   });
   const userQuery = useGetUserUserInfoQuery();
   const [updateHousehold, updateState] = useUpdateHouseholdMutation();
-  const [updatePreferences, updatePreferencesState] = usePatchHouseholdPreferencesMutation();
+  const [isAmountHidden, setAmountHidden] = useHouseholdAmountPreference(household.id, preferenceQuery.data?.hideTotalAmount);
   const [dissolve, dissolveState] = useDissolveHouseholdMutation();
   const [editor, setEditor] = useState<Editor>(null);
   const [draftMonth, setDraftMonth] = useState<Date>(() => monthStartDate(household.sharedStartMonth));
@@ -124,20 +124,7 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
     }
   };
 
-  const handleHideTotalAmountChange = async (hideTotalAmount: boolean) => {
-    const preference = preferenceQuery.data;
-    if (!preference)
-      return;
-    try {
-      await updatePreferences({
-        data: { hideTotalAmount, version: preference.version },
-        householdId: household.id,
-      });
-    }
-    catch (error) {
-      await handleError(error);
-    }
-  };
+  const handleHideTotalAmountChange = (hideTotalAmount: boolean) => setAmountHidden(hideTotalAmount);
 
   const showDeveloping = () => showAppNotice(t('settings.comingSoon'));
   const isOwner = household.myRole === HouseholdMemberRole.OWNER;
@@ -239,9 +226,8 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
             title: t('settings.sectionData'),
             rows: [
               {
-                checked: preferenceQuery.data?.hideTotalAmount ?? false,
+                checked: isAmountHidden,
                 description: t('settings.hideTotalDescription'),
-                disabled: !preferenceQuery.data || updatePreferencesState.isLoading,
                 icon: 'lock',
                 id: 'hide-total',
                 kind: 'switch',
@@ -252,7 +238,7 @@ const SettingsContent: FC<{ household: Household }> = ({ household }) => {
                 icon: 'import',
                 id: 'import',
                 kind: 'link',
-                label: '导入数据',
+                label: '导入到账本',
                 onClick: () => navigate(ROUTES_PATH.IMPORT_DATA.getPath()),
               },
               {

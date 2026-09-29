@@ -1,6 +1,12 @@
-function choseFile() {
+interface ChooseFileOptions {
+  accept?: string;
+}
+
+function choseFile(options: ChooseFileOptions = {}) {
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
+  if (options.accept)
+    fileInput.accept = options.accept;
   fileInput.hidden = true;
   document.body.append(fileInput);
   fileInput.click();

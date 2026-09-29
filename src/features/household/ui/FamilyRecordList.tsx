@@ -73,7 +73,14 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
               }
             : undefined}
         >
-          {record.category?.icon || record.category?.name?.slice(0, 1) || '￥'}
+          <CategoryIcon
+            categoryName={record.category?.name}
+            iconKey={record.category?.icon}
+            iconType={record.category?.iconType}
+            textIconEnabled={record.category?.textIconEnabled}
+            textIconIndex={record.category?.textIconIndex}
+            size={20}
+          />
         </span>
         <span className="min-w-0 flex-grow">
           <span className="one-line block text-sm font-medium text-font-black">
@@ -145,7 +152,7 @@ export const FamilyRecordList: FC<FamilyRecordListProps> = ({
     return (
       <RecordOverviewList
         groups={overviewGroups}
-        renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
+        renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} textIconEnabled={item.textIconEnabled} textIconIndex={item.textIconIndex} size={18} />}
         variant={groupedVariant === 'compact' ? 'overview' : 'search'}
       />
     );

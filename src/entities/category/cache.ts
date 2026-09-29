@@ -22,7 +22,7 @@ function shouldInvalidate(query: Query, change: CategoryCacheChange) {
   return domain === 'record'
     || domain === 'budget'
     || domain === 'chart'
-    || (domain === 'household' && (section === 'record' || section === 'chart'));
+    || (domain === 'household' && (section === 'record' || section === 'chart' || section === 'budget'));
 }
 
 export function invalidateCategoryConsumers(

@@ -48,7 +48,7 @@ describe('record overview presentation', () => {
     const titleRow = container.querySelector('[data-record-overview-title-row]');
     const shortcut = container.querySelector('[aria-label="record shortcuts"] button');
 
-    expect(header?.classList).toContain('pt-[max(6px,env(safe-area-inset-top))]');
+    expect(header?.classList).toContain('pt-[max(6px,var(--ww-safe-area-top))]');
     expect(header?.querySelector('[data-record-overview-summary]')?.classList).not.toContain('h-[190px]');
     expect(header?.querySelector('[data-record-overview-summary]')?.classList).toContain('ww-surface--raised');
     expect(titleRow?.classList).toContain('gap-2');

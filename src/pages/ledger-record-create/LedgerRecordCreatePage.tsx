@@ -12,6 +12,7 @@ import {
 } from '@/entities/ledger';
 import { useArchiveLedgerTagMutation, useCreateLedgerTagMutation, useLedgerTagsQuery } from '@/entities/ledger-data';
 import { useCreateLedgerRecordMutation, useRecordRemarkHistoryQuery, useUploadTemporaryRecordAttachmentMutation } from '@/entities/record';
+import { requestAchievementFeedback } from '@/features/achievement-feedback';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import {
   invalidateLedgerRecordEditorCaches,
@@ -69,12 +70,13 @@ function LedgerRecordCreateEditor({
   }, [ledgerId, navigate, selectTime]);
   const handleSubmit = useCallback(async (draft: RecordDraft) => {
     try {
-      const { imageAssetId, ...recordData } = draft;
+      const { retainedAttachmentIds: _retainedAttachmentIds, ...recordData } = draft;
       await createRecord({
-        data: imageAssetId === null ? recordData : { ...recordData, imageAssetId },
+        data: recordData,
         ledgerId,
       });
       await invalidateLedgerRecordEditorCaches(queryClient, ledgerId);
+      requestAchievementFeedback();
       navigateAfterCreate();
     }
     catch {
@@ -94,16 +96,17 @@ function LedgerRecordCreateEditor({
   });
   const openRecordEditorSettings = useRecordEditorSettingsNavigation(
     controller.getDraftSnapshot,
+    controller.waitForImageUploads,
   );
   const categoryQuery = useLedgerCategoriesQuery({
     params: { ledgerId, type: controller.recordType },
   });
   const tagsQuery = useLedgerTagsQuery({
-    params: { ledgerId, categoryId: controller.selectedCategory?.id },
+    params: { ledgerId },
     queryOptions: { enabled: supportsTags },
   });
   const remarkHistoryQuery = useRecordRemarkHistoryQuery({
-    params: { categoryId: controller.selectedCategory?.id, ledgerId },
+    params: { ledgerId },
     queryOptions: { enabled: controller.isNoteFocused && Boolean(controller.selectedCategory) },
   });
   const handleArchiveTag = useCallback(async (tagId: string) => {
@@ -129,12 +132,12 @@ function LedgerRecordCreateEditor({
         { reopenTagPicker: false },
       )}
       onManageTags={canManageTags
-        ? () => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId))
+        ? tagPickerDraftIds => openRecordEditorSettings(ROUTES_PATH.LEDGER_TAGS.getPath(ledgerId), { tagPickerDraftIds })
         : undefined}
       onRetryCategories={() => void categoryQuery.refetch()}
       remarkHistory={remarkHistoryQuery.data}
       canManageTags={canManageTags}
-      onCreateTag={controller.selectedCategory ? async name => (await createTag({ data: { categoryId: controller.selectedCategory!.id, name }, ledgerId })).data : undefined}
+      onCreateTag={controller.selectedCategory ? async name => (await createTag({ data: { name }, ledgerId })).data : undefined}
       tags={supportsTags && controller.selectedCategory ? tagsQuery.data : undefined}
     />
   );

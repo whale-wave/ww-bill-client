@@ -34,6 +34,7 @@ import {
   useShortcutAccessTokensQuery,
   useShortcutInstallUrlQuery,
 } from '@/entities/shortcut-bookkeeping';
+import { isRequestError } from '@/shared/api';
 import { useTranslation } from '@/shared/i18n';
 import {
   AppButton,
@@ -43,8 +44,10 @@ import {
   Surface,
 } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
+import shortcutInstallGuide from '../../../public/shortcut-install-guide.png';
 import {
   getConfiguredIosShortcutInstallUrl,
+  getShortcutTokenRetryAt,
   openIosShortcutInstallUrl,
 } from './model';
 
@@ -99,15 +102,29 @@ export default function ShortcutBookkeepingSettingsPage() {
   const [view, setView] = useState<ShortcutView>('loading');
   const [newToken, setNewToken] = useState<string>();
   const [isTokenVisible, setIsTokenVisible] = useState(false);
+  const [isTokenCopied, setIsTokenCopied] = useState(false);
+  const [rateLimitedUntil, setRateLimitedUntil] = useState<Date>();
   const [countdown, setCountdown] = useState(INSTALL_COUNTDOWN_SECONDS);
   const deadlineRef = useRef<number>();
   const redirectedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
+  const copyFeedbackTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const hasSetupFlow
     = Boolean(newToken)
       || view === 'create-key'
       || view === 'key-created'
       || view === 'install-guide';
+
+  useEffect(() => {
+    if (!rateLimitedUntil)
+      return;
+    const timeoutId = window.setTimeout(
+      setRateLimitedUntil,
+      Math.max(0, rateLimitedUntil.getTime() - Date.now()),
+      undefined,
+    );
+    return () => window.clearTimeout(timeoutId);
+  }, [rateLimitedUntil]);
 
   useEffect(() => {
     if (
@@ -161,6 +178,7 @@ export default function ShortcutBookkeepingSettingsPage() {
     return clearTimer;
   }, [installUrl, view]);
   useEffect(() => clearTimer, []);
+  useEffect(() => () => clearTimeout(copyFeedbackTimerRef.current), []);
 
   const handleCopy = async (value: string) => {
     let copied = false;
@@ -174,8 +192,15 @@ export default function ShortcutBookkeepingSettingsPage() {
       copied = false;
     }
     copied ||= copy(value);
-    if (!copied)
+    if (copied) {
+      setIsTokenCopied(true);
+      clearTimeout(copyFeedbackTimerRef.current);
+      copyFeedbackTimerRef.current = setTimeout(setIsTokenCopied, 2000, false);
+    }
+    else {
+      setIsTokenCopied(false);
       showAppError(undefined, { message: t('shortcutBookkeeping.copyFailed') });
+    }
     return copied;
   };
 
@@ -188,13 +213,27 @@ export default function ShortcutBookkeepingSettingsPage() {
         name: t('shortcutBookkeeping.defaultName'),
       });
       setNewToken(result.token);
+      setRateLimitedUntil(undefined);
       setIsTokenVisible(false);
+      setIsTokenCopied(false);
       setView('key-created');
     }
-    catch {
-      showAppError({
-        content: t('shortcutBookkeeping.saveFailed'),
-        icon: 'fail',
+    catch (error) {
+      const isRateLimited = isRequestError(error) && error.statusCode === 429;
+      const retryAt = isRateLimited && error.code === 'SHORTCUT_TOKEN_ISSUE_RATE_LIMITED'
+        ? getShortcutTokenRetryAt(error.data)
+        : undefined;
+      if (isRateLimited)
+        setRateLimitedUntil(retryAt);
+      showAppError(error, {
+        fallbackMessage: t('shortcutBookkeeping.saveFailed'),
+        message: isRateLimited
+          ? retryAt
+            ? t('shortcutBookkeeping.createRateLimitedUntil', {
+                time: dayjs(retryAt).format('YYYY/MM/DD HH:mm:ss'),
+              })
+            : t('shortcutBookkeeping.createRateLimited')
+          : undefined,
       });
     }
   };
@@ -525,6 +564,13 @@ export default function ShortcutBookkeepingSettingsPage() {
             <ShieldCheck className="mb-2 text-primary-deep" size={22} />
             {t('shortcutBookkeeping.createKey.security')}
           </div>
+          {rateLimitedUntil && (
+            <p className="mt-4 rounded-[14px] bg-amber-50 px-4 py-3 text-[12px] leading-5 text-amber-700" role="alert">
+              {t('shortcutBookkeeping.createRateLimitedUntil', {
+                time: dayjs(rateLimitedUntil).format('YYYY/MM/DD HH:mm:ss'),
+              })}
+            </p>
+          )}
           <AppButton
             className="mt-8"
             fullWidth
@@ -567,12 +613,14 @@ export default function ShortcutBookkeepingSettingsPage() {
               {isTokenVisible ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
             <button
-              aria-label={t('shortcutBookkeeping.keyCreated.copy')}
+              aria-label={t(isTokenCopied ? 'shortcutBookkeeping.keyCreated.copied' : 'shortcutBookkeeping.keyCreated.copy')}
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-0 bg-white text-primary-deep"
               onClick={() => void handleCopy(newToken)}
               type="button"
             >
-              <Copy size={18} />
+              {isTokenCopied
+                ? <span aria-live="polite" className="whitespace-nowrap text-[11px] font-bold">{t('shortcutBookkeeping.keyCreated.copied')}</span>
+                : <Copy size={18} />}
             </button>
           </div>
           <div className="mt-4 rounded-[14px] bg-amber-50 px-3 py-3 text-[11px] leading-5 text-amber-700">
@@ -609,7 +657,7 @@ export default function ShortcutBookkeepingSettingsPage() {
           <img
             alt={t('shortcutBookkeeping.installGuide.imageAlt')}
             className="mt-5 w-full rounded-[16px]"
-            src="/shortcut-install-guide.png"
+            src={shortcutInstallGuide}
           />
           <ol className="mt-5 space-y-3">
             {['paste', 'confirm', 'run'].map((key, index) => (

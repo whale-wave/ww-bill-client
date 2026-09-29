@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { LockKeyhole, Mail, UserRound } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { login, loginEmailCaptchaApi } from '@/entities/auth';
 import { userKeys } from '@/entities/user';
@@ -9,15 +9,14 @@ import { AuthPageShell, AuthPrimaryButton, AuthSegmentedControl, isAuthRequiredR
 import { EmailCaptchaInput } from '@/features/email-captcha';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
-import { FormField } from '@/shared/ui';
+import { FormField, PageLoadingState, showAppNotice } from '@/shared/ui';
+import { beginLoginSubmission, finishLoginSubmission, isCurrentLoginSubmission, useLoginPageState } from './model/login-state';
 
 interface RedirectLocation {
   pathname: string;
   search: string;
   hash: string;
 }
-
-type LoginType = 'email' | 'username';
 
 function getSafeRedirectLocation(from: unknown): RedirectLocation | '/' {
   if (!from || typeof from !== 'object')
@@ -46,19 +45,24 @@ const Login: FC = () => {
   const queryClient = useQueryClient();
   const isAuthRequired = isAuthRequiredRedirectState(location.state);
   const { startSession } = useAuthStore(({ startSession }) => ({ startSession }));
-  const [userNameForm, setUserNameForm] = useState({ username: '', password: '' });
-  const [emailForm, setEmailForm] = useState({ email: '', emailCode: '' });
-  const [loginType, setLoginType] = useState<LoginType>('username');
+  const { userNameForm, setUserNameForm, emailForm, setEmailForm, loginType, setLoginType, isSubmitting, showLoading } = useLoginPageState();
   const loginOptions = useMemo(() => [
     { label: t('login.usernamePasswordLogin'), value: 'username' as const },
     { label: t('login.emailLogin'), value: 'email' as const },
   ], [t]);
 
   const handleLogin = useCallback(async () => {
+    const submission = beginLoginSubmission();
+    if (!submission)
+      return;
+
     try {
       const { statusCode, data } = await login(
         loginType === 'username' ? userNameForm : emailForm,
       );
+      if (!isCurrentLoginSubmission(submission))
+        return;
+
       if (statusCode === 200) {
         const runtime = startSession(data.token, data.userInfo.userId || String(data.userInfo.id));
         (runtime?.queryClient ?? queryClient).setQueryData(userKeys.info(), {
@@ -66,14 +70,18 @@ const Login: FC = () => {
           message: '',
           data: data.userInfo,
         });
+        if (data.deletionCancelled)
+          showAppNotice({ content: t('login.deletionCancelled'), icon: 'success' });
         const redirectLocation = getSafeRedirectLocation(location.state?.from);
-        setTimeout(navigate, 1000, redirectLocation, { replace: true });
+        navigate(redirectLocation, { replace: true });
+        return;
       }
     }
     catch {
       // HTTP interceptor displays error prompt automatically
     }
-  }, [emailForm, location.state, loginType, navigate, queryClient, startSession, userNameForm]);
+    finishLoginSubmission(submission);
+  }, [emailForm, location.state, loginType, navigate, queryClient, startSession, t, userNameForm]);
 
   const handleForgetPassword = useCallback(() => {
     playSound.turnPage();
@@ -94,67 +102,71 @@ const Login: FC = () => {
       onBack={isAuthRequired ? undefined : () => navigate(-1)}
       title={t('login.title')}
     >
-      <AuthSegmentedControl
-        ariaLabel={t('login.method')}
-        onChange={setLoginType}
-        options={loginOptions}
-        value={loginType}
-      />
-      {loginType === 'username'
-        ? (
-            <div className="space-y-4">
-              <FormField
-                autoComplete="username"
-                label={t('login.usernameLabel')}
-                onChange={username => setUserNameForm(form => ({ ...form, username }))}
-                placeholder={t('login.usernamePlaceholder')}
-                prefix={<UserRound size={18} strokeWidth={1.8} />}
-                value={userNameForm.username}
-              />
-              <FormField
-                autoComplete="current-password"
-                label={t('login.passwordLabel')}
-                onChange={password => setUserNameForm(form => ({ ...form, password }))}
-                onEnterPress={() => void handleLogin()}
-                placeholder={t('login.passwordPlaceholder')}
-                prefix={<LockKeyhole size={18} strokeWidth={1.8} />}
-                type="password"
-                value={userNameForm.password}
-              />
-            </div>
-          )
-        : (
-            <div className="space-y-4">
-              <FormField
-                autoComplete="email"
-                inputMode="email"
-                label={t('login.emailLabel')}
-                onChange={email => setEmailForm(form => ({ ...form, email }))}
-                placeholder={t('login.emailPlaceholder')}
-                prefix={<Mail size={18} strokeWidth={1.8} />}
-                type="email"
-                value={emailForm.email}
-              />
-              <EmailCaptchaInput
-                email={emailForm.email}
-                onChange={emailCode => setEmailForm(form => ({ ...form, emailCode }))}
-                sendEmailApi={loginEmailCaptchaApi}
-                value={emailForm.emailCode}
-              />
-            </div>
-          )}
-      <div className="mt-4 flex justify-end">
-        <button
-          className="border-0 bg-transparent p-0 text-[12px] font-bold text-primary-deep"
-          onClick={handleForgetPassword}
-          type="button"
-        >
-          {t('login.forgotPassword')}
-        </button>
-      </div>
-      <AuthPrimaryButton onClick={() => void handleLogin()} testId="login-submit">
-        {t('login.submit')}
-      </AuthPrimaryButton>
+      {showLoading && <PageLoadingState label={t('login.loading')} testId="login-loading" />}
+      <fieldset className={showLoading ? 'hidden' : 'm-0 min-w-0 border-0 p-0'} disabled={isSubmitting}>
+        {location.state?.accountDeletionScheduledAt && <p className="m-0 rounded-xl bg-feedback-warning/10 px-3 py-2 text-[12px] font-semibold leading-5 text-feedback-warning">{t('login.deletionWaitingHint')}</p>}
+        <AuthSegmentedControl
+          ariaLabel={t('login.method')}
+          onChange={setLoginType}
+          options={loginOptions}
+          value={loginType}
+        />
+        {loginType === 'username'
+          ? (
+              <div className="space-y-4">
+                <FormField
+                  autoComplete="username"
+                  label={t('login.usernameLabel')}
+                  onChange={username => setUserNameForm({ username })}
+                  placeholder={t('login.usernamePlaceholder')}
+                  prefix={<UserRound size={18} strokeWidth={1.8} />}
+                  value={userNameForm.username}
+                />
+                <FormField
+                  autoComplete="current-password"
+                  label={t('login.passwordLabel')}
+                  onChange={password => setUserNameForm({ password })}
+                  onEnterPress={() => void handleLogin()}
+                  placeholder={t('login.passwordPlaceholder')}
+                  prefix={<LockKeyhole size={18} strokeWidth={1.8} />}
+                  type="password"
+                  value={userNameForm.password}
+                />
+              </div>
+            )
+          : (
+              <div className="space-y-4">
+                <FormField
+                  autoComplete="email"
+                  inputMode="email"
+                  label={t('login.emailLabel')}
+                  onChange={email => setEmailForm({ email })}
+                  placeholder={t('login.emailPlaceholder')}
+                  prefix={<Mail size={18} strokeWidth={1.8} />}
+                  type="email"
+                  value={emailForm.email}
+                />
+                <EmailCaptchaInput
+                  email={emailForm.email}
+                  onChange={emailCode => setEmailForm({ emailCode })}
+                  sendEmailApi={loginEmailCaptchaApi}
+                  value={emailForm.emailCode}
+                />
+              </div>
+            )}
+        <div className="mt-4 flex justify-end">
+          <button
+            className="border-0 bg-transparent p-0 text-[12px] font-bold text-primary-deep"
+            onClick={handleForgetPassword}
+            type="button"
+          >
+            {t('login.forgotPassword')}
+          </button>
+        </div>
+        <AuthPrimaryButton disabled={isSubmitting} onClick={() => void handleLogin()} testId="login-submit">
+          {t('login.submit')}
+        </AuthPrimaryButton>
+      </fieldset>
     </AuthPageShell>
   );
 };

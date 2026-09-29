@@ -7,6 +7,7 @@ import { Fragment, useEffect, useRef } from 'react';
 import { MEMBER_COLOR_PALETTE } from '@/shared/config/member-colors';
 import { useTranslation } from '@/shared/i18n';
 import { formatAmount } from '@/shared/lib';
+import { getCategoryIconForegroundColor } from '@/shared/lib/category-background';
 import { Icon, Surface } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 
@@ -31,8 +32,10 @@ export interface RecordDetailPresentationProps {
   amountType?: 'add' | 'sub';
   backLabel: string;
   category: {
+    backgroundColor?: string | null;
     icon: string;
     name: string;
+    path?: string;
   };
   categoryIcon?: ReactNode;
   memberColorKey?: MemberColorKey;
@@ -145,7 +148,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
       <div aria-hidden="true" className="pointer-events-none absolute -left-20 top-[54%] h-52 w-52 rounded-full bg-ww-pink-light/25 blur-3xl" />
 
       {showNavigation && (
-        <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,env(safe-area-inset-top))]" data-record-detail-navigation>
+        <header className="relative z-10 flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,var(--ww-safe-area-top))]" data-record-detail-navigation>
           <button
             aria-label={backLabel}
             className="absolute left-[18px] flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep shadow-ww-xs"
@@ -154,7 +157,7 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
           >
             <ChevronLeft size={19} />
           </button>
-          <h1 className="max-w-[220px] truncate text-[17px] font-extrabold text-ww-ink">{category.name}</h1>
+          <h1 className="max-w-[220px] truncate text-[17px] font-extrabold text-ww-ink">{category.path ?? category.name}</h1>
         </header>
       )}
 
@@ -171,19 +174,21 @@ export const RecordDetailPresentation: FC<RecordDetailPresentationProps> = ({
             <div aria-hidden="true" className="absolute -right-7 -top-9 h-32 w-32 rounded-full border-[22px] border-solid border-white/25" />
             <div className="relative flex items-center gap-3" data-record-detail-category>
               <div
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] border border-white/80 text-primary-deep shadow-ww-xs"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/80 text-primary-deep shadow-ww-xs"
                 data-category-icon={category.icon}
-                style={memberColorKey
-                  ? {
-                      backgroundColor: MEMBER_COLOR_PALETTE[memberColorKey].background,
-                      color: MEMBER_COLOR_PALETTE[memberColorKey].foreground,
-                    }
-                  : { backgroundColor: 'rgba(255,255,255,0.75)' }}
+                style={category.backgroundColor
+                  ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) }
+                  : memberColorKey
+                    ? {
+                        backgroundColor: MEMBER_COLOR_PALETTE[memberColorKey].background,
+                        color: MEMBER_COLOR_PALETTE[memberColorKey].foreground,
+                      }
+                    : { backgroundColor: 'rgba(255,255,255,0.75)' }}
               >
                 {categoryIcon ?? <Icon className="text-[26px]" name={category.icon} />}
               </div>
               <div className="min-w-0 flex-1">
-                <h2 className="truncate text-[18px] font-black leading-7 text-ww-ink">{category.name}</h2>
+                <h2 className="truncate text-[18px] font-black leading-7 text-ww-ink">{category.path ?? category.name}</h2>
               </div>
               {pinnedAction && (
                 <button

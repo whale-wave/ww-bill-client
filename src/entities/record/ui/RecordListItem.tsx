@@ -1,7 +1,9 @@
 import type { RecordEntry } from '../types';
 import classNames from 'classnames';
 import React, { memo } from 'react';
-import { Icon } from '@/shared/ui';
+import { CategoryIcon } from '@/entities/category';
+import { getCategoryIconForegroundColor } from '@/shared/lib/category-background';
+import { getRecordDisplayTitle } from '../display-title';
 
 interface RecordListItemProps {
   className?: string;
@@ -16,14 +18,14 @@ const RecordListItem: React.FC<RecordListItemProps> = memo((props) => {
   const content = (
     <>
       <div className="mx-4 py-3">
-        <div className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-ww-surface-tint"><Icon className="text-xl" name={record.category.icon} /></div>
+        <div className="flex h-[35px] w-[35px] shrink-0 items-center justify-center rounded-full bg-ww-surface-tint" style={record.category.backgroundColor ? { backgroundColor: record.category.backgroundColor, color: getCategoryIconForegroundColor(record.category.backgroundColor) } : undefined}><CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} iconType={record.category.iconType} textIconEnabled={record.category.textIconEnabled} textIconIndex={record.category.textIconIndex} size={20} /></div>
       </div>
       <div className={classNames({
         'border-0 border-b-[1px] border-border-primary border-solid': index !== lastIndex,
       }, 'flex h-[59px] min-w-0 flex-grow items-center py-3 pr-3')}
       >
         <div className="flex-grow overflow-hidden overflow-ellipsis whitespace-nowrap">
-          {record.remark}
+          {getRecordDisplayTitle(record.remark, record.category.name)}
         </div>
         <div className="ml-4">
           {record.type === 'sub' && '-'}

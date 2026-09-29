@@ -177,7 +177,7 @@ describe('message page', () => {
   it('renders the real notification feed without the former category hub', () => {
     const { container } = renderPage();
 
-    expect(hooks.useNotificationsQuery).toHaveBeenCalledWith({ params: { limit: 20, platform: 'web' } });
+    expect(hooks.useNotificationsQuery).toHaveBeenCalledWith({ params: { includeClientReleases: false, limit: 20, platform: 'web' } });
     expect(container.textContent).toContain('鲸浪记账');
     expect(container.textContent).toContain('4分钟前');
     expect(container.textContent).toContain('分账本“报销账本”有一个新的加入申请');
@@ -250,14 +250,22 @@ describe('message page', () => {
     });
 
     const modal = container.querySelector('[data-testid="notification-detail-modal"]');
+    const header = modal?.querySelector('[data-notification-detail-header]');
+    const scrollRegion = modal?.querySelector('[data-notification-detail-scroll]');
+    const footer = modal?.querySelector('[data-notification-detail-footer]');
+    const confirmButton = modal?.querySelector<HTMLButtonElement>('[data-testid="notification-detail-confirm"]');
     expect(modal).not.toBeNull();
+    expect(header?.textContent).toContain('message.notificationCenter.types.LEDGER_MEMBER_CHANGED');
+    expect(scrollRegion).not.toBeNull();
+    expect(scrollRegion?.contains(confirmButton ?? null)).toBe(false);
+    expect(footer?.contains(confirmButton ?? null)).toBe(true);
     expect(modal?.textContent).toContain('账本成员信息已更新');
     expect(modal?.textContent).toContain('message.notificationCenter.types.LEDGER_MEMBER_CHANGED');
     expect(modal?.textContent).toContain('共 3 张图片，轻触可放大');
     expect(modal?.querySelectorAll('[data-notification-image]')).toHaveLength(3);
 
     await act(async () => {
-      modal?.querySelector<HTMLButtonElement>('[data-testid="notification-detail-confirm"]')?.click();
+      confirmButton?.click();
     });
     expect(container.querySelector('[data-testid="notification-detail-modal"]')).toBeNull();
   });

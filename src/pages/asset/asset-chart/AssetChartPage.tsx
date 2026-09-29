@@ -6,15 +6,18 @@ import { useTranslation } from '@/shared/i18n';
 import { PageHeader } from '@/shared/ui';
 import { AssetTabBar } from '../asset-manager/ui';
 import styles from './AssetChart.module.scss';
-import { AssetRanking, AssetTrendChart, CurAssetStatus, CurNetAssetStatus } from './ui';
+import { AssetRanking, AssetSankey, AssetTrendChart, CurAssetStatus, CurNetAssetStatus } from './ui';
 
 const CHART_TYPES = [
   AssetStatisticalRecordType.ASSET,
   AssetStatisticalRecordType.LIABILITY,
   AssetStatisticalRecordType.NET_ASSET,
+  'overview',
 ] as const;
 
-function isChartType(value: string | null): value is AssetStatisticalRecordType {
+type ChartType = typeof CHART_TYPES[number];
+
+function isChartType(value: string | null): value is ChartType {
   return value !== null && (CHART_TYPES as readonly string[]).includes(value);
 }
 
@@ -23,19 +26,20 @@ const AssetChart: FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedType = searchParams.get('type') ?? searchParams.get('chart.asset');
-  const selectTab = isChartType(requestedType) ? requestedType : AssetStatisticalRecordType.ASSET;
+  const selectTab = isChartType(requestedType) ? requestedType : requestedType === null ? 'overview' : AssetStatisticalRecordType.ASSET;
 
-  const tabs = [
+  const tabs: Array<{ name: string; value: ChartType }> = [
     { name: t('tab.asset'), value: AssetStatisticalRecordType.ASSET },
     { name: t('tab.liability'), value: AssetStatisticalRecordType.LIABILITY },
     { name: t('tab.netAsset'), value: AssetStatisticalRecordType.NET_ASSET },
+    { name: t('tab.overview'), value: 'overview' },
   ];
 
   const onBack = useCallback(() => {
     navigate(-1);
   }, [navigate]);
 
-  const onChangeTab = useCallback((type: AssetStatisticalRecordType) => {
+  const onChangeTab = useCallback((type: ChartType) => {
     setSearchParams({ type }, { replace: true });
   }, [setSearchParams]);
 
@@ -71,7 +75,7 @@ const AssetChart: FC = () => {
       <div className="relative z-10 shrink-0 px-[18px] pb-3 pt-1">
         <div
           aria-label={t('assetChartTitle')}
-          className="grid grid-cols-3 gap-1 rounded-[17px] border border-border-primary bg-white/60 p-1 shadow-ww-xs backdrop-blur-xl"
+          className="grid grid-cols-4 gap-1 rounded-[17px] border border-border-primary bg-white/60 p-1 shadow-ww-xs backdrop-blur-xl"
           role="tablist"
         >
           {tabs.map((tab) => {
@@ -98,15 +102,17 @@ const AssetChart: FC = () => {
 
       <main className={`${styles['scroll-area']} ww-tab-bar-scroll-padding relative z-[1] min-h-0 flex-1 overflow-y-auto px-[18px]`}>
         <div className={`${styles['tab-content']} space-y-[14px] pb-4`} key={selectTab}>
-          <AssetTrendChart type={selectTab} />
-          {selectTab === AssetStatisticalRecordType.NET_ASSET
-            ? <CurNetAssetStatus />
-            : (
-                <>
-                  <CurAssetStatus type={selectTab} />
-                  <AssetRanking type={selectTab} />
-                </>
-              )}
+          {selectTab === 'overview' ? <AssetSankey /> : <AssetTrendChart type={selectTab} />}
+          {selectTab === 'overview'
+            ? null
+            : selectTab === AssetStatisticalRecordType.NET_ASSET
+              ? <CurNetAssetStatus />
+              : (
+                  <>
+                    <CurAssetStatus type={selectTab} />
+                    <AssetRanking type={selectTab} />
+                  </>
+                )}
         </div>
       </main>
 

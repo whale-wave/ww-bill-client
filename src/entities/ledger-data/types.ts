@@ -8,7 +8,7 @@ export enum LedgerTagStatus {
 export interface LedgerTag {
   id: string;
   ledgerId: string;
-  categoryId: number;
+  categoryId?: number | null;
   createdByUserId: number;
   name: string;
   colorKey?: string;
@@ -109,6 +109,7 @@ export interface LedgerExportFilters {
   type?: 'add' | 'sub';
   categoryIds?: number[];
   tagIds?: string[];
+  tagMatch?: 'any' | 'all';
 }
 
 export interface LedgerExportTask {

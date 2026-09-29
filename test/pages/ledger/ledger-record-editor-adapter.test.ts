@@ -75,6 +75,12 @@ vi.mock('@/shared/ui', async importOriginal => ({
 
 let cleanup: (() => void) | undefined;
 
+function clickRecordEditorSubmit(container: ParentNode) {
+  const submitButton = container.querySelector<HTMLButtonElement>('[data-record-editor-submit]');
+  expect(submitButton).not.toBeNull();
+  act(() => submitButton?.click());
+}
+
 function loadedRecordQuery() {
   return {
     data: {
@@ -195,9 +201,7 @@ describe('custom ledger record editor adapter', () => {
     expect(container.querySelector('[data-record-editor-presentation]')).not.toBeNull();
 
     await act(async () => {
-      [...container.querySelectorAll('button')]
-        .find(button => button.textContent === '完成')
-        ?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 
@@ -267,9 +271,10 @@ describe('custom ledger record editor adapter', () => {
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-tag-trigger]')?.click());
     await act(async () => Promise.resolve());
     act(() => [...document.body.querySelectorAll('button')].find(button => button.textContent === '固定收入')?.click());
+    act(() => document.querySelector<HTMLButtonElement>('[data-record-editor-tag-confirm]')!.click());
     act(() => [...container.querySelectorAll('button')].find(button => button.textContent === '1')?.click());
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 
@@ -326,7 +331,7 @@ describe('custom ledger record editor adapter', () => {
 
     expect(container.querySelector('[data-record-editor-presentation]')).not.toBeNull();
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 
@@ -381,7 +386,7 @@ describe('custom ledger record editor adapter', () => {
     const container = renderRouter(router);
 
     await act(async () => {
-      [...container.querySelectorAll('button')].find(button => button.textContent === '完成')?.click();
+      clickRecordEditorSubmit(container);
       await Promise.resolve();
     });
 

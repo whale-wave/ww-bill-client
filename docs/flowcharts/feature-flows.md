@@ -332,7 +332,7 @@ flowchart TD
   Mine["/mine"] --> UserInfoApi["useGetUserUserInfoQuery -> GET /user/userInfo"]
   Bookkeeping["新增记账成功"] --> AutoCheckIn["服务端自动补当天打卡"]
   AutoCheckIn --> Mine
-  UserInfoApi --> CheckInStatus["展示今日自动打卡状态与累计统计"]
+  UserInfoApi --> CheckInStatus["按打卡和记账日期展示今日状态与连续天数"]
   Mine --> UserInfo["/user-info"]
   UserInfo --> EditName["修改昵称"]
   EditName --> PutUser["PUT /user/userInfo"]

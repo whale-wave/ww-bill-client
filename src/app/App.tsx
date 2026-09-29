@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { App as KonstaApp } from 'konsta/react';
 import { Router } from '@/app/router';
+import { AchievementFeedbackController } from '@/features/achievement-feedback';
 import { ClientUpdateController } from '@/features/app-update';
 import { AppearanceProvider } from '@/features/appearance';
 import { useAuthStore } from '@/features/auth';
@@ -30,6 +31,7 @@ export const App: FC = () => {
         <QueryRefreshController>
           <AppearanceProvider>
             <KonstaApp className="h-full bg-transparent font-sans text-ww-ink" dark={false} safeAreas={false} theme="ios">
+              <AchievementFeedbackController sessionKey={useAuthStore.getState().token} />
               <PresenceReporter />
               <ClientUpdateController />
               <SeniorModeProvider>
@@ -59,6 +61,7 @@ export const App: FC = () => {
       <QueryRefreshController persister={persister}>
         <AppearanceProvider>
           <KonstaApp className="h-full bg-transparent font-sans text-ww-ink" dark={false} safeAreas={false} theme="ios">
+            <AchievementFeedbackController sessionKey={useAuthStore.getState().token} />
             <PresenceReporter />
             <ClientUpdateController />
             <SeniorModeProvider>

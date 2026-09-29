@@ -122,7 +122,7 @@ function ExpenseCategoryCard({ chartsEnabled = true, data, exportMode, onChartEr
         {data.expense.categories.slice(0, 3).map((item, index) => (
           <div className="flex items-center gap-2 py-1.5" key={item.categoryId}>
             <span className="w-4 font-number text-[12px] font-extrabold text-ww-mid">{index + 1}</span>
-            <BillCategoryIcon categoryName={item.name} iconKey={item.icon} />
+            <BillCategoryIcon categoryName={item.name} iconKey={item.icon} iconType={item.iconType} textIconEnabled={item.textIconEnabled} textIconIndex={item.textIconIndex} />
             <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-ww-ink">{item.name}</span>
             <span className="font-number text-[12px] font-extrabold text-finance-expense">
               -¥
@@ -148,10 +148,10 @@ function CategoryLegend({ item }: { item: MonthBillCategorySegment }) {
   );
 }
 
-function BillCategoryIcon({ categoryName, iconKey }: { categoryName: string; iconKey?: string }) {
+function BillCategoryIcon({ categoryName, iconKey, iconType, textIconEnabled, textIconIndex }: { categoryName: string; iconKey?: string; iconType?: 'BUILTIN' | 'IMAGE'; textIconEnabled?: boolean; textIconIndex?: number }) {
   return (
     <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border border-border-primary bg-ww-surface-tint text-primary-deep shadow-ww-xs">
-      <CategoryIcon categoryName={categoryName} iconKey={iconKey} size={17} strokeWidth={1.7} />
+      <CategoryIcon categoryName={categoryName} iconKey={iconKey} iconType={iconType} textIconEnabled={textIconEnabled} textIconIndex={textIconIndex} size={17} strokeWidth={1.7} />
     </span>
   );
 }
@@ -225,7 +225,7 @@ function ComparisonCard({ chartsEnabled = true, data, exportMode, onChartError, 
         : data.expense.categoryChanges.map((item, index) => (
             <div className="flex items-center gap-2 py-1.5" key={item.categoryId}>
               <span className="w-4 font-number text-[12px] font-extrabold text-ww-mid">{index + 1}</span>
-              <BillCategoryIcon categoryName={item.name} iconKey={item.icon} />
+              <BillCategoryIcon categoryName={item.name} iconKey={item.icon} iconType={item.iconType} textIconEnabled={item.textIconEnabled} textIconIndex={item.textIconIndex} />
               <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-ww-ink">{item.name}</span>
               <span className={item.direction === 'increase' ? 'font-number text-[11px] font-bold text-finance-expense' : 'font-number text-[11px] font-bold text-finance-income'}>
                 {item.direction === 'increase' ? `↑ ${t('increase')}` : `↓ ${t('decrease')}`}
@@ -265,7 +265,7 @@ function IncomeCard({ chartsEnabled = true, data, exportMode, onChartError, onCh
       <div className="space-y-2">
         {data.income.chartCategories.map(item => (
           <div className="flex items-center gap-2" key={item.key}>
-            <BillCategoryIcon categoryName={item.name} iconKey={item.icon} />
+            <BillCategoryIcon categoryName={item.name} iconKey={item.icon} iconType={item.iconType} textIconEnabled={item.textIconEnabled} textIconIndex={item.textIconIndex} />
             <span className="w-[76px] truncate text-[11px] font-semibold text-ww-mid">{item.name}</span>
             <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-primary-light/50"><div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, item.percentage)}%` }} /></div>
             <span className="w-[76px] text-right font-number text-[11px] font-bold text-ww-ink">

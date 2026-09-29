@@ -10,6 +10,7 @@ import { request } from '@/shared/api';
 
 export interface GetNotificationsApiParams {
   platform?: 'web' | 'android';
+  includeClientReleases?: boolean;
   status?: UserNotificationStatus;
   type?: UserNotificationType;
   limit?: number;

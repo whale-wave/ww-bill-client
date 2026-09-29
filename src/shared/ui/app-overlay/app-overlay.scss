@@ -207,7 +207,7 @@
     border: 1px solid var(--ww-border-color) !important;
     border-radius: var(--ww-component-overlay-control-radius);
     color: var(--ww-component-overlay-secondary-foreground) !important;
-    background-color: var(--ww-component-overlay-secondary-background) !important;
+    background: var(--ww-component-overlay-secondary-background) !important;
     font-size: 15px;
     font-weight: 700;
     line-height: 20px;
@@ -228,7 +228,7 @@
       --background-color: var(--ww-component-overlay-primary-background);
       border: 0 !important;
       color: var(--ww-component-overlay-primary-foreground) !important;
-      background-color: var(--ww-component-overlay-primary-background) !important;
+      background: var(--ww-component-overlay-primary-background) !important;
       box-shadow: 0 4px 14px color-mix(in srgb, var(--ww-theme-color) 35%, transparent);
 
       &,
@@ -253,38 +253,22 @@
 }
 
 .ww-app-dialog--danger {
+  --ww-component-overlay-primary-background: rgb(var(--ww-color-feedback-danger));
+  --ww-component-overlay-primary-foreground: rgb(var(--ww-color-action-primary-foreground));
+
   .ww-app-dialog__icon {
     color: rgb(var(--ww-color-feedback-danger));
     background: rgb(var(--ww-color-feedback-danger-surface) / 0.76);
   }
-
-  .adm-dialog-footer .adm-dialog-action-row > .adm-dialog-button:last-child {
-    color: rgb(var(--ww-color-action-primary-foreground));
-    background: rgb(var(--ww-color-feedback-danger));
-
-    &,
-    span,
-    .adm-button-text {
-      color: rgb(var(--ww-color-action-primary-foreground));
-    }
-  }
 }
 
 .ww-app-dialog--warning {
+  --ww-component-overlay-primary-background: rgb(var(--ww-color-feedback-warning));
+  --ww-component-overlay-primary-foreground: rgb(var(--ww-color-action-primary-foreground));
+
   .ww-app-dialog__icon {
-    color: #b45309;
+    color: rgb(var(--ww-color-feedback-warning));
     background: rgb(var(--ww-color-feedback-warning-surface));
-  }
-
-  .adm-dialog-footer .adm-dialog-action-row > .adm-dialog-button:last-child {
-    color: #ffffff;
-    background: #d97706;
-
-    &,
-    span,
-    .adm-button-text {
-      color: #ffffff;
-    }
   }
 }
 
@@ -335,6 +319,10 @@
   border: 1px solid var(--ww-material-overlay-border);
   background: var(--ww-material-overlay-background);
   box-shadow: var(--ww-material-overlay-shadow);
+}
+
+.ww-app-sheet.ww-app-sheet--opaque.adm-popup-body {
+  background: var(--ww-material-overlay-opaque-background);
 }
 
 .ww-app-action-sheet > .adm-popup-body,
@@ -497,9 +485,7 @@
     font-weight: 800;
   }
 
-  input:not([type='checkbox']),
-  select,
-  textarea {
+  :is(input, select, textarea).ww-sheet-control {
     border-color: var(--ww-component-sheet-control-border);
     border-radius: var(--ww-radius-control);
     color: var(--ww-theme-text-color);
@@ -508,29 +494,9 @@
     outline: none;
   }
 
-  input:not([type='checkbox']):focus,
-  select:focus,
-  textarea:focus {
+  :is(input, select, textarea).ww-sheet-control:focus {
     border-color: var(--ww-theme-color);
     box-shadow: 0 0 0 3px var(--ww-component-sheet-focus-ring);
-  }
-
-  .ww-category-name-field {
-    .adm-input-element,
-    .adm-input-element:focus {
-      border: 0;
-      border-radius: 0;
-      background: transparent;
-      box-shadow: none;
-    }
-  }
-
-  input.ww-sheet-plain-input,
-  input.ww-sheet-plain-input:focus {
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
   }
 
   .adm-button {
@@ -539,6 +505,27 @@
     border-radius: var(--ww-radius-control);
     font-size: 14px;
     font-weight: 800;
+  }
+}
+
+[data-chart-custom-range-content] {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ww-theme-color-deep) 42%, transparent) transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ww-theme-color-deep) 42%, transparent);
   }
 }
 

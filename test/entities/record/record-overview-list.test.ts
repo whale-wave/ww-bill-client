@@ -1,7 +1,7 @@
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { RecordOverviewList, toRecordSearchGroups } from '@/entities/record';
+import { getRecordDisplayTitle, RecordOverviewList, toRecordSearchGroups } from '@/entities/record';
 
 let cleanup: (() => void) | undefined;
 
@@ -39,7 +39,62 @@ function render(variant?: 'overview' | 'search', onDelete?: () => void, onRecord
   return container;
 }
 
+function renderImageCategoryList() {
+  const container = document.createElement('div');
+  const root = createRoot(container);
+  act(() => root.render(createElement(RecordOverviewList, {
+    groups: [{
+      dateLabel: '2026年07月21日',
+      key: '2026-07-21',
+      records: [{
+        amount: '-20.00',
+        categoryName: '自定义餐饮',
+        iconName: 'media:550e8400-e29b-41d4-a716-446655440000',
+        iconType: 'IMAGE',
+        id: 8,
+        primary: 'Dinner',
+      }],
+    }],
+  })));
+  cleanup = () => act(() => root.unmount());
+  return container;
+}
+
 describe('record overview list', () => {
+  it('uses a saved category background color for a record icon', () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(RecordOverviewList, {
+      groups: [{
+        dateLabel: '2026年07月21日',
+        key: '2026-07-21',
+        records: [{ amount: '-20.00', backgroundColor: '#DCEBFF', iconName: 'food', id: 7, primary: 'Dinner' }],
+      }],
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    const icon = container.querySelector<HTMLElement>('[data-category-icon="food"] span');
+    expect(icon?.style.backgroundColor).toBe('rgb(220, 235, 255)');
+  });
+
+  it.each(['overview', 'search'] as const)('shows the category for empty remarks in the %s view', (variant) => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(RecordOverviewList, {
+      groups: [{
+        dateLabel: '2026年08月25日',
+        key: '2026-08-25',
+        records: [{ amount: '-66', categoryName: '餐饮', iconName: 'food', id: 66, primary: '' }],
+      }],
+      variant,
+    })));
+    cleanup = () => act(() => root.unmount());
+
+    expect(container.querySelector('[data-record-id="66"]')?.textContent).toContain('餐饮');
+    expect(getRecordDisplayTitle('  ', '餐饮')).toBe('餐饮');
+    expect(getRecordDisplayTitle('中午饭', '餐饮')).toBe('中午饭');
+  });
+
   it('maps calendar metadata for both search and overview list styles', () => {
     const [group] = toRecordSearchGroups([{
       amount: '20.00',
@@ -120,6 +175,13 @@ describe('record overview list', () => {
     expect(row?.classList).toContain('h-[59px]');
     expect(iconCell?.classList).toContain('mx-4');
     expect(iconCell?.classList).toContain('py-3');
+  });
+
+  it('renders uploaded category icons from the explicit image contract', () => {
+    const container = renderImageCategoryList();
+
+    expect(container.querySelector('[data-category-icon^="media:"] img')?.getAttribute('src'))
+      .toBe('media:550e8400-e29b-41d4-a716-446655440000');
   });
 
   it('uses a compact but readable card row for overview pages', () => {

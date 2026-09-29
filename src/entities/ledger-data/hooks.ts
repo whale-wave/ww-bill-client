@@ -16,7 +16,7 @@ import type {
   RecoverableLedgerRecord,
 } from './types';
 import type { SuccessResponse } from '@/shared/api';
-import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { assertSuccessApi } from '@/shared/api';
 import {
   deleteLedgerTagApi,
@@ -163,12 +163,11 @@ export function useLedgerTagsQuery(options: {
   queryOptions?: Omit<UseQueryOptions<SuccessResponse<LedgerTag[]>>, 'queryFn' | 'queryKey'>;
 }) {
   const status = options.params.status ?? 'ACTIVE';
-  const categoryId = options.params.categoryId;
   const { data: response, ...rest } = useQuery<SuccessResponse<LedgerTag[]>>({
     ...options.queryOptions,
-    queryFn: () => getLedgerTagsQueryFn(options.params.ledgerId, { categoryId: categoryId!, status }),
-    queryKey: ledgerDataKeys.tags(options.params.ledgerId, categoryId, status),
-    enabled: Boolean(categoryId) && (options.queryOptions?.enabled ?? true),
+    queryFn: () => getLedgerTagsQueryFn(options.params.ledgerId, { status }),
+    queryKey: ledgerDataKeys.tags(options.params.ledgerId, undefined, status),
+    enabled: Boolean(options.params.ledgerId) && (options.queryOptions?.enabled ?? true),
   });
   return { response, data: response?.data ?? [], ...rest };
 }
@@ -178,18 +177,8 @@ export function useLedgerTagsByCategoriesQuery(options: {
   categoryIds: number[];
   enabled?: boolean;
 }) {
-  const categoryIds = [...new Set(options.categoryIds)].sort((left, right) => left - right);
-  const queries = useQueries({
-    queries: categoryIds.map(categoryId => ({
-      enabled: options.enabled ?? true,
-      queryFn: () => getLedgerTagsQueryFn(options.ledgerId, { categoryId, status: 'ACTIVE' }),
-      queryKey: ledgerDataKeys.tags(options.ledgerId, categoryId, 'ACTIVE'),
-    })),
-  });
-  return {
-    data: queries.flatMap(query => query.data?.data ?? []),
-    isLoading: queries.some(query => query.isLoading),
-  };
+  const query = useLedgerTagsQuery({ params: { ledgerId: options.ledgerId }, queryOptions: { enabled: options.enabled ?? true } });
+  return { data: query.data, isLoading: query.isLoading };
 }
 
 export function useLedgerRecoveryRecordsQuery(options: {

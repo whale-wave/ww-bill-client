@@ -1,4 +1,4 @@
-import { BarChart, LineChart, PieChart } from 'echarts/charts';
+import { BarChart, LineChart, PieChart, SankeyChart } from 'echarts/charts';
 import {
   GridComponent,
   LegendComponent,
@@ -19,6 +19,7 @@ echarts.use([
   LineChart,
   MarkLineComponent,
   PieChart,
+  SankeyChart,
   TitleComponent,
   TooltipComponent,
   UniversalTransition,

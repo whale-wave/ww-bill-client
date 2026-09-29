@@ -4,6 +4,9 @@ export type AgentChartType = 'bar' | 'donut' | 'line' | 'metric';
 
 export interface AgentCategory {
   icon: string;
+  iconType?: 'BUILTIN' | 'IMAGE';
+  textIconEnabled?: boolean;
+  textIconIndex?: number;
   id: number;
   name: string;
   type: AgentRecordType;
@@ -14,6 +17,7 @@ export interface AgentRecordDraft {
   categoryId: number;
   remark: string;
   tagIds?: string[];
+  imageAssetIds?: string[];
   time: string;
   type: AgentRecordType;
 }
@@ -65,6 +69,11 @@ export interface AgentMessage {
   id: string;
   role: 'ASSISTANT' | 'USER';
   status: 'COMPLETE' | 'FAILED' | 'STREAMING';
+}
+
+export interface AgentTurn {
+  assistantMessage: AgentMessage;
+  userMessage: AgentMessage;
 }
 
 export interface AgentConversation {

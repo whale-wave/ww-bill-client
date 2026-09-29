@@ -141,6 +141,7 @@ describe('system notification center page', () => {
 
     expect(hooks.useNotificationsQuery).toHaveBeenCalledWith({
       params: {
+        includeClientReleases: false,
         limit: 20,
         platform: 'web',
         status: UserNotificationStatus.UNREAD,
@@ -153,6 +154,23 @@ describe('system notification center page', () => {
     expect(container.textContent).toContain('types.LEDGER_JOIN_REQUEST');
     expect(container.querySelector('time')?.getAttribute('datetime'))
       .toBe(notification.createdAt);
+  });
+
+  it('renders notification content as Markdown', () => {
+    hooks.useNotificationsQuery.mockReturnValue({
+      data: [{ ...notification, content: '## 系统维护\n\n- **时间**：今晚 23:00' }],
+      fetchNextPage: vi.fn(),
+      hasNextPage: false,
+      isError: false,
+      isFetchingNextPage: false,
+      isLoading: false,
+      refetch: hooks.refetch,
+    });
+
+    const { container } = renderPage();
+
+    expect(container.querySelector('[data-notification-markdown] h2')?.textContent).toBe('系统维护');
+    expect(container.querySelector('strong')?.textContent).toBe('时间');
   });
 
   it('marks one notification read and soft-archives it with its current version', async () => {

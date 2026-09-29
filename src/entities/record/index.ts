@@ -1,4 +1,5 @@
 export * from './api';
+export * from './display-title';
 export * from './hooks';
 export * from './keys';
 export * from './location';

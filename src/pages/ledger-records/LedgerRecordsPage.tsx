@@ -9,8 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import {
   LedgerCapability,
-  LedgerVisualIcon,
-  patchLedgerPreferencesApi,
   useLedgerPreferencesQuery,
 } from '@/entities/ledger';
 import {
@@ -22,11 +20,13 @@ import {
   useDeleteLedgerRecordMutation,
   useInfiniteLedgerRecordsQuery,
 } from '@/entities/record';
+import { useLedgerAmountPreferences } from '@/features/display-preferences';
 import {
   buildMonthRecordRange,
   formatMonthStart,
 } from '@/features/household';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
+import { LedgerTitleSwitcher } from '@/features/ledger-switcher';
 import { WorkspaceCapsule } from '@/features/workspace-navigation';
 import { getQueryViewState } from '@/shared/api';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -121,6 +121,10 @@ function groupRecords(
           categoryName: record.category.name,
           hasAttachment: indicators.hasAttachment,
           iconName: record.category.icon,
+          iconType: record.category.iconType,
+          backgroundColor: record.category.backgroundColor,
+          textIconEnabled: record.category.textIconEnabled,
+          textIconIndex: record.category.textIconIndex,
           memberColorKey: record.creator?.colorKey,
           id: record.id,
           onClick: () => onRecordClick(record),
@@ -181,11 +185,11 @@ function LedgerRecordsView({
   const { i18n, t } = useTranslation('ledger');
   const navigate = useNavigate();
   const locale = i18n?.resolvedLanguage ?? i18n?.language ?? 'zh-CN';
-  const isAmountHidden = preferenceQuery.data?.hideTotalAmount === true;
+  const { hideTotalAmount: isAmountHidden, showDailySummary } = useLedgerAmountPreferences(ledgerId, preferenceQuery.data);
   const groups = useMemo(() => {
     const groupedRecords = groupRecords(
       recordsQuery.data.data,
-      preferenceQuery.data?.showDailySummary !== false,
+      showDailySummary,
       locale,
       t,
       record => navigate(
@@ -205,7 +209,7 @@ function LedgerRecordsView({
     locale,
     navigate,
     onRecordDelete,
-    preferenceQuery.data?.showDailySummary,
+    showDailySummary,
     recordsQuery.data.data,
     recordsQuery.hasNextPage,
     t,
@@ -256,7 +260,7 @@ function LedgerRecordsView({
           ),
           valueWidth: 'cell',
         },
-        renderTitle: className => <h1 className={className}>{ledger.name}</h1>,
+        renderTitle: className => <LedgerTitleSwitcher className={className} ledgerName={ledger.name} />,
         shortcuts: LEDGER_SHORTCUTS.map(({ capability, icon: ShortcutIcon, key, route }) => ({
           disabled: !ledger.capabilities.includes(capability),
           icon: <ShortcutIcon size={20} />,
@@ -272,15 +276,6 @@ function LedgerRecordsView({
         })),
         shortcutsTestId: 'ledger-record-shortcuts',
         testId: 'ledger-records-header',
-        titleIcon: (
-          <LedgerVisualIcon
-            className="h-[18px] w-[18px] text-primary-deep"
-            iconKey={ledger.iconKey}
-            kind={ledger.kind}
-            templateKey={ledger.templateKey}
-          />
-        ),
-        titleIconContainerClassName: 'rounded-[12px] border border-white/80 bg-white/75 !bg-none text-primary-deep shadow-ww-xs',
         titleAlignment: 'start',
       }}
       onRetry={() => void recordsQuery.refetch()}
@@ -292,7 +287,7 @@ function LedgerRecordsView({
         ? () => recordsQuery.fetchNextPage({ throwOnError: true })
         : undefined}
       retryLabel={t('common.retry')}
-      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} size={18} />}
+      renderCategoryIcon={item => <CategoryIcon categoryName={item.categoryName} iconKey={item.iconName} iconType={item.iconType} textIconEnabled={item.textIconEnabled} textIconIndex={item.textIconIndex} size={18} />}
       state={viewState.isInitialLoading ? 'loading' : viewState.isBlockingError ? 'error' : 'ready'}
     />
   );
@@ -347,15 +342,10 @@ function RecordsContent({ canDelete, ledger, ledgerId }: { canDelete: boolean; l
   }), [month]);
   const recordsQuery = useInfiniteLedgerRecordsQuery({ params: { filters, ledgerId } });
   const preferenceQuery = useLedgerPreferencesQuery({ params: { ledgerId } });
+  const { hideTotalAmount, setHideTotalAmount } = useLedgerAmountPreferences(ledgerId, preferenceQuery.data);
   const handleToggleAmountVisibility = useCallback(() => {
-    const preference = preferenceQuery.data;
-    if (!preference)
-      return;
-    void patchLedgerPreferencesApi(ledgerId, {
-      hideTotalAmount: !preference.hideTotalAmount,
-      version: preference.version,
-    }).then(() => preferenceQuery.refetch());
-  }, [ledgerId, preferenceQuery]);
+    setHideTotalAmount(!hideTotalAmount);
+  }, [hideTotalAmount, setHideTotalAmount]);
   const viewProps = {
     ledger,
     ledgerId,

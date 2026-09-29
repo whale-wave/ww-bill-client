@@ -43,6 +43,115 @@
   animation: tab-enter 220ms ease-out both;
 }
 
+:global(.asset-sankey) {
+  padding: var(--ww-space-lg);
+  overflow: hidden;
+
+  :global(.asset-sankey__header) {
+    display: flex;
+    align-items: center;
+    gap: var(--ww-space-sm);
+  }
+
+  :global(.asset-sankey__switch) {
+    display: flex;
+    margin-top: var(--ww-space-lg);
+    padding: var(--ww-space-xs);
+    border-radius: 14px;
+    background: var(--ww-control-surface);
+
+    button {
+      flex: 1;
+      min-height: 44px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--ww-text-color-mid);
+      font-size: 12px;
+      font-weight: 700;
+
+      &[aria-pressed='true'] {
+        background: var(--ww-theme-color);
+        color: var(--ww-primary-foreground);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--ww-theme-color);
+        outline-offset: 2px;
+      }
+    }
+  }
+
+  :global(.asset-sankey__metrics) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--ww-space-sm);
+    margin-top: var(--ww-space-lg);
+
+    dt {
+      color: var(--ww-text-color-mid);
+      font-size: 11px;
+    }
+
+    dd {
+      margin-top: var(--ww-space-xs);
+      overflow: hidden;
+      color: var(--ww-theme-text-color);
+      font-family: Nunito, sans-serif;
+      font-size: clamp(12px, 4vw, 18px);
+      font-weight: 800;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  :global(.asset-sankey__hint) {
+    display: flex;
+    align-items: center;
+    gap: var(--ww-space-xs);
+    margin-top: var(--ww-space-lg);
+    color: var(--ww-text-color-mid);
+    font-size: 11px;
+  }
+
+  :global(.asset-sankey__scroll) {
+    margin-top: var(--ww-space-md);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  :global(.asset-sankey__canvas) {
+    width: 800px;
+    min-width: 100%;
+  }
+
+  :global(.asset-sankey__columns) {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 100px;
+    color: var(--ww-text-color-mid);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  :global(.asset-sankey__state) {
+    display: flex;
+    min-height: 240px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--ww-text-color-mid);
+    font-size: 13px;
+  }
+
+  :global(.asset-sankey__note) {
+    margin-top: var(--ww-space-md);
+    color: var(--ww-text-color-mid);
+    font-size: 11px;
+    line-height: 1.7;
+  }
+}
+
 @keyframes tab-enter {
   from {
     opacity: 0;

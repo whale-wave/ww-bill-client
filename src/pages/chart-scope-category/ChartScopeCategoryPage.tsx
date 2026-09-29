@@ -3,13 +3,13 @@ import type { FamilyRecord } from '@/entities/household';
 import type { RecordEntry } from '@/entities/record';
 import { ChevronLeft, ReceiptText } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { useLedgerTagRankingQuery } from '@/entities/chart';
-import { useHouseholdRecordsQuery, useHouseholdTagRankingQuery } from '@/entities/household';
+import { useHouseholdTagRankingQuery, useInfiniteHouseholdRecordsQuery } from '@/entities/household';
 import { LedgerCapability } from '@/entities/ledger';
-import { useLedgerRecordsQuery } from '@/entities/record';
-import { CategoryTrendChart, TagRankingSection } from '@/features/chart-overview';
+import { useInfiniteLedgerRecordsQuery } from '@/entities/record';
+import { CategoryTrendChart, SubcategoryBreakdown, TagRankingSection } from '@/features/chart-overview';
 import { HouseholdScopeBoundary } from '@/features/household';
 import { LedgerScopeBoundary } from '@/features/ledger-scope';
 import { ROUTES_PATH } from '@/shared/config/routes';
@@ -19,24 +19,52 @@ import { IllustratedEmptyState, MetricGrid, ProgressBar, Surface } from '@/share
 
 interface ChartDetailState {
   amount: number | string;
-  category: { id: string | number; icon: string; name: string };
+  category: { id: string | number; icon: string; iconType?: 'BUILTIN' | 'IMAGE'; name: string; textIconEnabled?: boolean; textIconIndex?: number };
   endDate: string;
   percentage: string;
   periodName: string;
   startDate: string;
   type: 'add' | 'sub';
+  tagIds?: string[];
+  tagMatch?: 'any' | 'all';
+  account?: string;
+  sourceMemberId?: number;
 }
 
-function readState(value: unknown): ChartDetailState | undefined {
-  if (typeof value !== 'object' || value === null)
+function readState(value: unknown, params: URLSearchParams): ChartDetailState | undefined {
+  const saved = typeof value === 'object' && value !== null ? value as Partial<ChartDetailState> : undefined;
+  const categoryId = params.get('categoryId');
+  const categoryName = params.get('categoryName');
+  const type = params.get('type');
+  const startDate = params.get('startDate');
+  const endDate = params.get('endDate');
+  const category = saved?.category ?? (categoryId && categoryName
+    ? {
+        id: categoryId,
+        name: categoryName,
+        icon: params.get('categoryIcon') ?? 'bill',
+        iconType: params.get('categoryIconType') === 'IMAGE' ? 'IMAGE' as const : 'BUILTIN' as const,
+      }
+    : undefined);
+  if (!category || !(saved?.startDate ?? startDate) || !(saved?.endDate ?? endDate) || !['add', 'sub'].includes(type ?? saved?.type ?? ''))
     return undefined;
-  const state = value as Partial<ChartDetailState>;
-  return state.category && state.startDate && state.endDate && state.type
-    ? state as ChartDetailState
-    : undefined;
+  return {
+    ...(saved as ChartDetailState | undefined),
+    amount: saved?.amount ?? params.get('amount') ?? '0',
+    category,
+    endDate: (endDate ?? saved?.endDate)!,
+    percentage: saved?.percentage ?? params.get('percentage') ?? '0',
+    periodName: saved?.periodName ?? params.get('periodName') ?? `${startDate} — ${endDate}`,
+    startDate: (startDate ?? saved?.startDate)!,
+    type: (type ?? saved?.type) as 'add' | 'sub',
+    tagIds: params.get('tagIds')?.split(',').filter(Boolean) ?? saved?.tagIds,
+    tagMatch: params.get('tagMatch') === 'all' ? 'all' : params.get('tagMatch') === 'any' ? 'any' : saved?.tagMatch,
+    account: params.get('account') ?? saved?.account,
+    sourceMemberId: params.get('sourceMemberId') ? Number(params.get('sourceMemberId')) : saved?.sourceMemberId,
+  };
 }
 
-export function CategoryDetail({ isRecordsLoading, records, state, tagRanking, toRecord }: { isRecordsLoading?: boolean; records: Array<RecordEntry | FamilyRecord>; state: ChartDetailState; tagRanking?: ReactNode; toRecord: (id: number) => string }) {
+export function CategoryDetail({ categoryBreakdown, hasMoreRecords, isLoadingMore, isRecordsLoading, loadMoreRecords, records, state, tagRanking, toRecord }: { categoryBreakdown?: Array<{ key: string; name: string; amount: string }>; hasMoreRecords?: boolean; isLoadingMore?: boolean; isRecordsLoading?: boolean; loadMoreRecords?: () => void; records: Array<RecordEntry | FamilyRecord>; state: ChartDetailState; tagRanking?: ReactNode; toRecord: (id: number) => string }) {
   const { t } = useTranslation('chart');
   const navigate = useNavigate();
   const [sort, setSort] = useState<'amount' | 'time'>('amount');
@@ -45,8 +73,8 @@ export function CategoryDetail({ isRecordsLoading, records, state, tagRanking, t
       const category = record.category;
       const categoryKey = category && 'key' in category ? category.key : undefined;
       return categoryKey
-        ? categoryKey === String(state.category.id)
-        : String(category?.id) === String(state.category.id);
+        ? categoryKey === String(state.category.id) || category?.parentKey === String(state.category.id)
+        : String(category?.id) === String(state.category.id) || String(category?.parentId) === String(state.category.id);
     })
     .sort((left, right) => sort === 'amount'
       ? Number(right.amount) - Number(left.amount)
@@ -57,7 +85,7 @@ export function CategoryDetail({ isRecordsLoading, records, state, tagRanking, t
   );
   return (
     <div className="page-new relative overflow-hidden">
-      <header className="flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,env(safe-area-inset-top))]">
+      <header className="flex h-[60px] shrink-0 items-center justify-center px-[18px] pt-[max(8px,var(--ww-safe-area-top))]">
         <button aria-label={t('common:nav.back')} className="absolute left-[18px] flex h-11 w-11 items-center justify-center rounded-full border border-solid border-border-primary bg-white/80 text-primary-deep" onClick={() => navigate(-1)} type="button"><ChevronLeft size={19} /></button>
         <h1 className="text-[17px] font-extrabold text-ww-ink">{state.category.name}</h1>
       </header>
@@ -92,7 +120,7 @@ export function CategoryDetail({ isRecordsLoading, records, state, tagRanking, t
                       const percentage = recordsAmount ? Number(record.amount) / recordsAmount : 0;
                       return (
                         <button className="flex h-[56px] w-full items-center gap-[11px] border-0 border-t border-solid border-border-primary bg-transparent py-[10px] text-left first:border-0" key={record.id} onClick={() => navigate(toRecord(record.id))} type="button">
-                          <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(111,194,220,0.16)] text-primary-deep"><CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} size={16} /></span>
+                          <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(111,194,220,0.16)] text-primary-deep"><CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} iconType={record.category?.iconType} textIconEnabled={record.category?.textIconEnabled} textIconIndex={record.category?.textIconIndex} size={16} /></span>
                           <span className="min-w-0 flex-1">
                             <span className="flex items-center justify-between">
                               <span className="truncate text-[13px] font-semibold leading-[19.5px] text-ww-ink">{record.remark || record.category?.name}</span>
@@ -113,8 +141,10 @@ export function CategoryDetail({ isRecordsLoading, records, state, tagRanking, t
                       );
                     })
                   : <IllustratedEmptyState description={t('noRecordsHint')} icon={<ReceiptText size={32} />} title={t('noRecords')} />}
+              {hasMoreRecords && <button className="w-full border-t border-border-primary py-3 text-sm font-semibold text-primary-deep disabled:opacity-50" disabled={isLoadingMore} onClick={loadMoreRecords} type="button">{isLoadingMore ? t('common:nav.loading') : t('dashboard.loadMore')}</button>}
             </Surface>
           </section>
+          <SubcategoryBreakdown records={sortedRecords} items={categoryBreakdown} />
           {tagRanking}
         </div>
       </main>
@@ -122,29 +152,31 @@ export function CategoryDetail({ isRecordsLoading, records, state, tagRanking, t
   );
 }
 
-const LedgerCategoryPage: FC<{ ledgerId: string }> = ({ ledgerId }) => {
-  const state = readState(useLocation().state);
-  const query = useLedgerRecordsQuery({ params: { filters: state ? { endDate: state.endDate, startDate: state.startDate, type: state.type } : undefined, ledgerId }, queryOptions: { enabled: Boolean(state) } });
-  const tagRanking = useLedgerTagRankingQuery({ params: { ledgerId, filters: state ? { categoryId: String(state.category.id), endDate: state.endDate, startDate: state.startDate, type: state.type } : { categoryId: '', type: 'sub' } }, enabled: Boolean(state) });
+const LedgerCategoryPage: FC<{ ledgerId: string; canReadTags: boolean }> = ({ ledgerId, canReadTags }) => {
+  const [searchParams] = useSearchParams();
+  const state = readState(useLocation().state, searchParams);
+  const query = useInfiniteLedgerRecordsQuery({ params: { filters: state ? { categoryIds: [Number(state.category.id)], dateMode: 'range', endDate: state.endDate, startDate: state.startDate, type: state.type, tagIds: state.tagIds, tagMatch: state.tagMatch, account: state.account, limit: 50 } : undefined, ledgerId }, queryOptions: { enabled: Boolean(state) } });
+  const tagRanking = useLedgerTagRankingQuery({ params: { ledgerId, filters: state ? { categoryId: String(state.category.id), endDate: state.endDate, startDate: state.startDate, type: state.type, tagIds: state.tagIds, tagMatch: state.tagMatch, account: state.account } : { categoryId: '', type: 'sub' } }, enabled: Boolean(state && canReadTags) });
   if (!state)
     return null;
-  return <CategoryDetail isRecordsLoading={query.isLoading} records={query.data.data} state={state} tagRanking={<TagRankingSection data={tagRanking.data} fallbackRecords={query.data.data} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />} toRecord={recordId => ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId)} />;
+  return <CategoryDetail hasMoreRecords={query.hasNextPage} isLoadingMore={query.isFetchingNextPage} isRecordsLoading={query.isLoading} loadMoreRecords={() => void query.fetchNextPage()} records={query.records} state={state} tagRanking={canReadTags ? <TagRankingSection data={tagRanking.data} fallbackRecords={query.records} isError={tagRanking.isError} isLoading={tagRanking.isLoading} /> : null} toRecord={recordId => ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId)} />;
 };
 
 const HouseholdCategoryPage: FC<{ householdId: string }> = ({ householdId }) => {
-  const state = readState(useLocation().state);
-  const query = useHouseholdRecordsQuery({ params: { filters: state ? { categoryKeys: [String(state.category.id)], endDate: state.endDate, limit: 50, startDate: state.startDate, type: state.type } : undefined, householdId }, queryOptions: { enabled: Boolean(state) } });
-  const tagRanking = useHouseholdTagRankingQuery({ params: { householdId, filters: state ? { categoryKey: String(state.category.id), endDate: state.endDate, metric: state.type === 'sub' ? 'expense' : 'income', startDate: state.startDate } : { categoryKey: '', metric: 'expense' } }, queryOptions: { enabled: Boolean(state) } });
+  const [searchParams] = useSearchParams();
+  const state = readState(useLocation().state, searchParams);
+  const query = useInfiniteHouseholdRecordsQuery({ params: { filters: state ? { categoryKeys: [String(state.category.id)], countedOnly: true, endDate: state.endDate, dateMode: 'range', startDate: state.startDate, type: state.type, tagIds: state.tagIds, tagMatch: state.tagMatch, account: state.account, ...(state.sourceMemberId ? { memberUserId: state.sourceMemberId } : {}), limit: 50 } : undefined, householdId }, queryOptions: { enabled: Boolean(state) } });
+  const tagRanking = useHouseholdTagRankingQuery({ params: { householdId, filters: state ? { categoryKey: String(state.category.id), endDate: state.endDate, metric: state.type === 'sub' ? 'expense' : 'income', startDate: state.startDate, tagIds: state.tagIds, tagMatch: state.tagMatch, account: state.account, sourceMemberId: state.sourceMemberId } : { categoryKey: '', metric: 'expense' } }, queryOptions: { enabled: Boolean(state) } });
   if (!state)
     return null;
-  return <CategoryDetail isRecordsLoading={query.isLoading} records={query.records} state={state} tagRanking={<TagRankingSection data={tagRanking.data} fallbackRecords={query.records} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />} toRecord={recordId => ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(householdId, recordId)} />;
+  return <CategoryDetail categoryBreakdown={query.data?.categoryBreakdown ?? []} hasMoreRecords={query.hasNextPage} isLoadingMore={query.isFetchingNextPage} isRecordsLoading={query.isLoading} loadMoreRecords={() => void query.fetchNextPage()} records={query.records} state={state} tagRanking={<TagRankingSection data={tagRanking.data} fallbackRecords={query.records} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />} toRecord={recordId => ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(householdId, recordId)} />;
 };
 
 export function LedgerChartCategoryPage() {
   const { ledgerId = '' } = useParams<{ ledgerId: string }>();
   return (
     <LedgerScopeBoundary capability={LedgerCapability.CHART_READ}>
-      {() => <LedgerCategoryPage ledgerId={ledgerId} />}
+      {scope => <LedgerCategoryPage canReadTags={scope.ledger.capabilities.includes(LedgerCapability.TAG_READ)} ledgerId={ledgerId} />}
     </LedgerScopeBoundary>
   );
 }

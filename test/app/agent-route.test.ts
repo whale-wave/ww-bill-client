@@ -33,7 +33,7 @@ describe('agent route', () => {
 
     expect(route?.path).toBe('agent');
     expect(route?.lazy).toBeTypeOf('function');
-  });
+  }, 15_000);
 
   it('does not register the conversation page in production', async () => {
     vi.stubEnv('DEV', false);

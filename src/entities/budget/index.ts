@@ -1,6 +1,7 @@
 export * from './api';
 export * from './hooks';
 export * from './keys';
+export * from './period';
 export * from './ui/BudgetEditorPresentation';
 export * from './ui/BudgetItem';
 export { default as BudgetItem } from './ui/BudgetItem';
