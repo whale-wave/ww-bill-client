@@ -20,6 +20,7 @@
     "test:storybook": "vitest --config vitest.storybook.config.ts --project storybook run",
     "lint:type:storybook": "tsc -p tsconfig.storybook.json --noEmit",
     "test": "vitest run",
+    "test:miniapp-pages": "vitest run --config vitest.miniapp-pages.config.ts",
     "test:watch": "vitest",
     "lint": "eslint .",
     "lint:type": "pnpm --filter @ww-bill/bill-core lint:type && pnpm --filter @ww-bill/bill-ui lint:type && tsc -b --noEmit",
