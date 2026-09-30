@@ -24,6 +24,7 @@ WORKDIR /app
 #RUN npm config set registry https://registry.npmmirror.com
 RUN npm i -g pnpm@10
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/bill-core/package.json ./packages/bill-core/package.json
 COPY patches ./patches
 RUN pnpm install --frozen-lockfile
 COPY . .

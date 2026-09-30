@@ -10,6 +10,10 @@ trustPolicyExclude:
   - synckit@0.9.3
   - tailwind-merge@2.6.1
   - undici-types@6.21.0
+packages:
+  - miniapp
+  - packages/*
+
 patchedDependencies:
   '@locator/babel-jsx@0.5.1': patches/@locator__babel-jsx@0.5.1.patch
   mdast-util-gfm-autolink-literal@2.0.1: patches/mdast-util-gfm-autolink-literal@2.0.1.patch

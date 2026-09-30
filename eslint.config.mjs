@@ -20,6 +20,7 @@ export default antfu({
     'android/**',
     'ios/**',
     'dist/**',
+    'miniapp/**',
     'coverage/**',
   ],
 }, {
