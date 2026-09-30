@@ -10,6 +10,7 @@ export interface RecordEntry {
   category: {
     id: number
     name: string
+    path?: string
     icon: string
     iconType?: 'BUILTIN' | 'IMAGE'
   }

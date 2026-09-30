@@ -49,15 +49,15 @@ export default function RecordsPage() {
           <View><Text className='muted'>支出</Text><Text className='money money--expense'>¥{money.format(firstPage?.expend ?? 0)}</Text></View>
         </View>
       </View>
-      <View className='row'><Text className='section-title'>本月记录</Text><Text className='muted'>{firstPage?.total ?? 0} 笔</Text></View>
+      <View className='row'><Text className='section-title'>该月记录</Text><Text className='muted'>{firstPage?.total ?? 0} 笔</Text></View>
       {recordsQuery.isLoading && <View className='state-panel'>正在加载明细…</View>}
       {recordsQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(recordsQuery.error)}</Text><Button className='button button--plain' onClick={() => void recordsQuery.refetch()}>重试</Button></View>}
       {!recordsQuery.isLoading && !recordsQuery.isError && records.length === 0 && <View className='state-panel'>这个月还没有记录，记下第一笔吧。</View>}
       {records.map(record => (
         <View key={record.id} className='record-row'>
           <View className='record-row__main'>
-            <Text className='record-row__category'>{record.category?.name ?? '未分类'}</Text>
-            <Text className='muted'>{record.remark || displayRecordDate(record.time)} · {displayRecordDate(record.time)}</Text>
+            <Text className='record-row__category'>{record.category?.path ?? record.category?.name ?? '未分类'}</Text>
+            <Text className='muted'>{record.remark ? `${record.remark} · ` : ''}{displayRecordDate(record.time)}</Text>
           </View>
           <Text className={`money ${record.type === 'add' ? 'money--income' : 'money--expense'}`}>{record.type === 'add' ? '+' : '-'}¥{money.format(record.amount)}</Text>
         </View>
