@@ -33,13 +33,15 @@ Figma Design 文件 `Whale Wave Bill New UI` 是新版界面的唯一视觉基�
 
 色彩以 Figma Make Version 10 为全局基准。业务组件优先使用 CSS 变量或 Tailwind token，语义色可在局部明确使用。
 
-- **页面渐变**：`linear-gradient(154.699deg, #E2F6FF 6.9018%, #F4FBFF 50%, #FFF2F7 93.098%)`，通过 `--ww-page-gradient` 使用。
-- **主色阶**：`#6FC2DC`、`#C8EAF6`、`#4AAAC4`、`#2B8BAA`，对应 `primary`、`primary-light`、`primary-mid`、`primary-deep`。
+- **页面渐变**：清新主题使用偏中性的浅蓝灰到暖白渐变 `linear-gradient(155deg, #F2F8FA 0%, #F8FAFB 54%, #FBF7F8 100%)`，通过 `--ww-page-gradient` 使用；品牌蓝集中用于选中态和主要操作。
+- **主色阶**：清新主题使用 `#6FC2DC`、`#DCEEF4`、`#4AAAC4`、`#23728E`，对应 `primary`、`primary-light`、`primary-mid`、`primary-deep`。
 - **粉色阶**：`#F0A0B8`、`#FFD8E6`，对应 `ww-pink`、`ww-pink-light`。
 - **内容表面**：默认使用 `rgba(255,255,255,0.84)`，实色白用于输入区和需要更高对比度的控件。
-- **文本阶**：`#263340`、`#5C7080`、`#9BAEBB`、`#C4D4DC`，对应 `ww-ink`、`ww-mid`、`ww-soft`、`ww-ghost`。
-- **描边**：浅蓝 `rgba(110,194,220,0.2)`，通过 `border-primary` 使用。
+- **文本阶**：清新主题使用 `#263340`、`#5C7080`、`#637987`、`#9EAFB9`，对应 `ww-ink`、`ww-mid`、`ww-soft`、`ww-ghost`。
+- **描边**：清新主题使用低饱和蓝灰 `rgba(73,112,129,0.14)`，通过 `border-primary` 使用。
 - **财务语义色**：收入、支出、风险、到期提醒和图表辅助色可以少量使用绿色、红色、橙色等语义色。它们只用于状态和数据含义，不替代主色。
+
+清新主题的统计摘要用浅暖色区分支出、浅绿色区分收入，结余和日均保持中性底色；避免整页、卡片与筛选控件叠加同一层浅蓝。
 
 避免大面积高饱和配色、霓虹发光、复杂纹理和无业务含义的装饰色块。预算、资产等摘要卡可以使用设计系统内的粉色或浅紫柔和渐变。
 

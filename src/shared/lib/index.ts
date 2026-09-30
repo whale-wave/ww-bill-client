@@ -4,6 +4,7 @@ export * from './component';
 export * from './donut-amount';
 export * from './haptic-feedback';
 export * from './image-export';
+export * from './install-android-update';
 export * from './locale-date';
 export * from './math';
 export * from './open-external-url';

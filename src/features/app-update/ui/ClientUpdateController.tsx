@@ -12,8 +12,9 @@ import { getAppSocket } from '@/shared/api/socket';
 import { APP_INFO } from '@/shared/config/app-info';
 import { fetchBuildInfo, isNewerBuild, refreshForBuild } from '@/shared/config/build-info';
 import { useTranslation } from '@/shared/i18n';
-import { openExternalUrl } from '@/shared/lib';
+import { installAndroidUpdate, isInstallPermissionRequired } from '@/shared/lib';
 import { showDate } from '@/shared/lib/time';
+import { showAppError } from '@/shared/ui/app-feedback';
 import { androidVersionUpdate, isAndroidUpdateAvailable, webVersionUpdate } from '../model/release-prompt';
 import { VersionUpdateModal } from './VersionUpdateModal';
 
@@ -25,6 +26,7 @@ function getWebChannel() {
 
 export const ClientUpdateController: FC = () => {
   const { t: commonT } = useTranslation('common');
+  const { t: settingsT } = useTranslation('settings');
   const queryClient = useQueryClient();
   const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'web';
   const webChannel = platform === 'web' ? getWebChannel() : 'browser';
@@ -47,6 +49,7 @@ export const ClientUpdateController: FC = () => {
   const androidCheckInFlightRef = useRef(false);
   const [versionCheckReady, setVersionCheckReady] = useState(false);
   const [versionUpdate, setVersionUpdate] = useState<VersionUpdate | null>(null);
+  const [isInstalling, setIsInstalling] = useState(false);
   const [promptNotification, dispatchPromptNotification] = useReducer(
     (_current: UserNotification | null, next: UserNotification | null) => next,
     null,
@@ -138,17 +141,29 @@ export const ClientUpdateController: FC = () => {
     setVersionUpdate(null);
   }, [versionUpdate, webChannel]);
 
-  const confirmVersionUpdate = useCallback(() => {
-    if (!versionUpdate)
+  const confirmVersionUpdate = useCallback(async () => {
+    if (!versionUpdate || isInstalling)
       return;
     if (versionUpdate.platform === 'web' && versionUpdate.buildId) {
       refreshForBuild(window.location, versionUpdate.buildId);
       return;
     }
-    if (versionUpdate.platform === 'android' && versionUpdate.downloadUrl)
-      void openExternalUrl(versionUpdate.downloadUrl);
-    setVersionUpdate(null);
-  }, [versionUpdate]);
+    if (versionUpdate.platform === 'android' && versionUpdate.downloadUrl && versionUpdate.versionCode) {
+      setIsInstalling(true);
+      try {
+        await installAndroidUpdate(versionUpdate.downloadUrl, versionUpdate.versionCode);
+        setVersionUpdate(null);
+      }
+      catch (error) {
+        showAppError({ content: settingsT(isInstallPermissionRequired(error)
+          ? 'aboutSupport.installPermissionRequired'
+          : 'aboutSupport.updateDownloadFailed') });
+      }
+      finally {
+        setIsInstalling(false);
+      }
+    }
+  }, [isInstalling, settingsT, versionUpdate]);
 
   useEffect(() => {
     if (!token || !versionCheckReady || versionUpdate || promptNotification)
@@ -221,7 +236,7 @@ export const ClientUpdateController: FC = () => {
 
   return (
     <>
-      <VersionUpdateModal update={versionUpdate} onClose={closeVersionUpdate} onConfirm={confirmVersionUpdate} />
+      <VersionUpdateModal isInstalling={isInstalling} update={versionUpdate} onClose={closeVersionUpdate} onConfirm={() => void confirmVersionUpdate()} />
       <NotificationDetailModal
         notification={versionUpdate ? null : promptNotification}
         onClose={closeNoticeDialog}

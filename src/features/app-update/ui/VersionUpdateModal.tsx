@@ -4,8 +4,9 @@ import { NotificationDetailContent } from '@/entities/notification';
 import { useTranslation } from '@/shared/i18n';
 import { AppButton, AppModal } from '@/shared/ui';
 
-export function VersionUpdateModal({ update, onClose, onConfirm }: {
+export function VersionUpdateModal({ update, isInstalling = false, onClose, onConfirm }: {
   update: VersionUpdate | null;
+  isInstalling?: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }) {
@@ -44,8 +45,8 @@ export function VersionUpdateModal({ update, onClose, onConfirm }: {
                 </details>
               )}
               <footer className="flex shrink-0 gap-3 border-t border-border-primary px-5 py-4">
-                <AppButton className="flex-1" onClick={onClose} variant="secondary">{t('aboutSupport.later')}</AppButton>
-                <AppButton className="flex-1" data-testid="version-update-confirm" onClick={onConfirm}>{t('aboutSupport.updateNow')}</AppButton>
+                <AppButton className="flex-1" disabled={isInstalling} onClick={onClose} variant="secondary">{t('aboutSupport.later')}</AppButton>
+                <AppButton className="flex-1" data-testid="version-update-confirm" loading={isInstalling} loadingLabel={t('aboutSupport.downloadingUpdate')} onClick={onConfirm}>{t('aboutSupport.updateNow')}</AppButton>
               </footer>
             </article>
           )

@@ -130,7 +130,7 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
   return (
     <nav
       aria-label={ariaLabel}
-      className="ww-ledger-workspace-tab-bar ww-tab-bar ww-floating-dock ww-ios-tabbar fixed bottom-[calc(10px+var(--ww-safe-area-bottom))] left-[14px] right-[14px] z-[100] flex h-[68px] items-center justify-evenly rounded-[34px] px-[5px] text-ww-mid"
+      className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar ww-floating-dock ww-ios-tabbar fixed bottom-[calc(10px+var(--ww-safe-area-bottom))] left-[14px] right-[14px] z-[100] flex h-[68px] items-center justify-evenly rounded-[34px] px-[5px] text-ww-mid"
       data-active-index={activeIndex >= 0 ? activeIndex : undefined}
       data-motion-enabled={isMotionEnabled}
       ref={tabListRef}

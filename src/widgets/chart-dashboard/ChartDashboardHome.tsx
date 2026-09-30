@@ -21,6 +21,7 @@ import { localDate, useChartDashboardUrlState } from './model/useChartDashboardU
 import { ChartDashboardFilterSheet } from './ui/ChartDashboardFilterSheet';
 import { ChartDashboardPeriodSheet } from './ui/ChartDashboardPeriodSheet';
 import { ChartDashboardSwitch } from './ui/ChartDashboardSwitch';
+import './chart-dashboard.scss';
 
 const money = (value: string, hidden: boolean) => hidden ? '••••' : `¥${Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -318,10 +319,15 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
                 <span className="text-xs text-ww-soft">{t('dashboard.days', { count: data.summary.dayCount })}</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                {[[t('dashboard.expense'), data.summary.expense, 'text-ww-ink'], [t('dashboard.income'), data.summary.income, 'text-primary-deep'], [t('dashboard.net'), data.summary.net, 'text-ww-ink'], [t('dashboard.dailyAverage'), data.summary.averageDailyExpense, 'text-ww-mid']].map(([label, amount, color]) => (
-                  <div key={label} className="rounded-2xl bg-ww-surface-tint p-3">
+                {[
+                  ['expense', t('dashboard.expense'), data.summary.expense, 'text-ww-ink'],
+                  ['income', t('dashboard.income'), data.summary.income, 'text-primary-deep'],
+                  ['net', t('dashboard.net'), data.summary.net, 'text-ww-ink'],
+                  ['average', t('dashboard.dailyAverage'), data.summary.averageDailyExpense, 'text-ww-mid'],
+                ].map(([summaryMetric, label, amount, color]) => (
+                  <div key={summaryMetric} className="ww-chart-summary-tile rounded-2xl bg-ww-surface-tint p-3" data-summary-metric={summaryMetric}>
                     <div className="text-xs text-ww-soft">{label}</div>
-                    <div className={`mt-1 font-number text-lg font-semibold ${color}`}>{money(amount, hideAmounts)}</div>
+                    <div className={`ww-chart-summary-amount mt-1 font-number text-lg font-semibold ${color}`}>{money(amount, hideAmounts)}</div>
                   </div>
                 ))}
               </div>
