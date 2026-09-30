@@ -57,6 +57,8 @@ pnpm install
 pnpm dev
 ```
 
+在 `bill-2` 工作区，本地开发端口为 `4331`，预览为 `4431`，Storybook 为 `4606`；API 指向同工作区服务端 `4301`。完整端口表见 [本地端口记录](../ww-bill-service/docs/execution/2026-09-30-bill-2-local-ports.md)。
+
 ## 质量检查与构建
 
 ```bash
@@ -78,11 +80,11 @@ pnpm preview
 
 ## Docker 部署
 
-仓库提供了 Nginx 静态站点镜像构建文件。以下示例会在本地构建并以 `8080` 端口提供页面：
+仓库提供了 Nginx 静态站点镜像构建文件。以下示例会在本地构建并以 `48080` 端口提供页面：
 
 ```bash
 docker build -t whale-wave-bill-client .
-docker run --rm -p 8080:80 whale-wave-bill-client
+docker run --rm -p 48080:80 whale-wave-bill-client
 ```
 
 ## Android 与 iOS 工程

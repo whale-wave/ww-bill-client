@@ -6,7 +6,7 @@ import process from 'node:process';
 import { chromium } from 'playwright';
 
 // Run against the existing local development server; no account or real business data required.
-const origin = process.env.STUDIO_URL ?? 'http://localhost:3231';
+const origin = process.env.STUDIO_URL ?? 'http://localhost:4331';
 const artifacts = mkdtempSync(join(tmpdir(), 'ww-studio-ios-'));
 const browser = await chromium.launch({ headless: true });
 const errors = [];
