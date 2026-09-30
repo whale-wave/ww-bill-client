@@ -320,6 +320,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.24.4
         version: 7.29.7
+      '@tanstack/react-query':
+        specifier: 4.36.1
+        version: 4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tarojs/components':
         specifier: 4.3.0
         version: 4.3.0(@tarojs/helper@4.3.0)(@types/react@18.3.30)(postcss@8.5.15)(rollup@3.30.0)
@@ -344,12 +347,18 @@ importers:
       '@tarojs/taro':
         specifier: 4.3.0
         version: 4.3.0(@tarojs/components@4.3.0(@tarojs/helper@4.3.0)(@types/react@18.3.30)(postcss@8.5.15)(rollup@3.30.0))(@tarojs/helper@4.3.0)(@tarojs/shared@4.3.0)(@types/react@18.3.30)(postcss@8.5.15)(rollup@3.30.0)
+      '@ww-bill/bill-core':
+        specifier: workspace:*
+        version: link:../packages/bill-core
       react:
         specifier: ^18.0.0
         version: 18.3.1
       react-dom:
         specifier: ^18.0.0
         version: 18.3.1(react@18.3.1)
+      zustand:
+        specifier: 4.5.4
+        version: 4.5.4(@types/react@18.3.30)(immer@10.2.0)(react@18.3.1)
     devDependencies:
       '@babel/core':
         specifier: ^7.24.4
@@ -432,9 +441,9 @@ importers:
 
   packages/bill-core:
     dependencies:
-      mathjs:
-        specifier: 13.0.2
-        version: 13.0.2
+      decimal.js:
+        specifier: 10.6.0
+        version: 10.6.0
     devDependencies:
       typescript:
         specifier: ~6.0.3

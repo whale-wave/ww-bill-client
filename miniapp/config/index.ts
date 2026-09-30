@@ -4,11 +4,11 @@ import devConfig from './dev'
 import prodConfig from './prod'
 
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
-export default defineConfig<'vite'>(async (merge, { command, mode }) => {
+export default defineConfig<'vite'>(async (merge) => {
   const baseConfig: UserConfigExport<'vite'> = {
     projectName: 'miniapp',
     date: '2026-9-30',
-    designWidth: 750,
+    designWidth: 375,
     deviceRatio: {
       640: 2.34 / 2,
       750: 1,
@@ -21,6 +21,10 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
       "@tarojs/plugin-generator"
     ],
     defineConstants: {
+      BILL_API_BASE_URL: JSON.stringify(
+        process.env.BILL_MINIAPP_API_BASE_URL
+        ?? (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:4301' : ''),
+      ),
     },
     copy: {
       patterns: [

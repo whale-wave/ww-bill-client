@@ -1,9 +1,9 @@
-import { add, bignumber, compareNatural, subtract } from 'mathjs';
+import Decimal from 'decimal.js';
 
 export type MoneyInput = number | string;
 
 function toMoneyNumber(value: MoneyInput) {
-  return bignumber(value);
+  return new Decimal(value);
 }
 
 function trimTrailingZeros(value: string) {
@@ -17,13 +17,13 @@ function trimTrailingZeros(value: string) {
  */
 export const money = {
   add(left: MoneyInput, right: MoneyInput) {
-    return add(toMoneyNumber(left), toMoneyNumber(right)).toString();
+    return toMoneyNumber(left).plus(toMoneyNumber(right)).toString();
   },
   subtract(left: MoneyInput, right: MoneyInput) {
-    return subtract(toMoneyNumber(left), toMoneyNumber(right)).toString();
+    return toMoneyNumber(left).minus(toMoneyNumber(right)).toString();
   },
   compare(left: MoneyInput, right: MoneyInput) {
-    return compareNatural(toMoneyNumber(left), toMoneyNumber(right));
+    return toMoneyNumber(left).comparedTo(toMoneyNumber(right));
   },
   format(value: MoneyInput) {
     return toMoneyNumber(value).toFixed(2);
