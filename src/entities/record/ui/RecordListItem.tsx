@@ -1,4 +1,5 @@
 import type { RecordEntry } from '../types';
+import { RecordLine } from '@ww-bill/bill-ui';
 import classNames from 'classnames';
 import React, { memo } from 'react';
 import { CategoryIcon } from '@/entities/category';
@@ -13,33 +14,34 @@ interface RecordListItemProps {
   onClick?: () => void;
 }
 
-const RecordListItem: React.FC<RecordListItemProps> = memo((props) => {
-  const { record, className, index, lastIndex, onClick } = props;
+const RecordListItem: React.FC<RecordListItemProps> = memo(({ className, index, lastIndex, onClick, record }) => {
+  const icon = (
+    <span
+      className="flex h-full w-full items-center justify-center rounded-full"
+      style={record.category.backgroundColor
+        ? {
+            backgroundColor: record.category.backgroundColor,
+            color: getCategoryIconForegroundColor(record.category.backgroundColor),
+          }
+        : undefined}
+    >
+      <CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} iconType={record.category.iconType} textIconEnabled={record.category.textIconEnabled} textIconIndex={record.category.textIconIndex} size={20} />
+    </span>
+  );
   const content = (
-    <>
-      <div className="mx-4 py-3">
-        <div className="flex h-[35px] w-[35px] shrink-0 items-center justify-center rounded-full bg-ww-surface-tint" style={record.category.backgroundColor ? { backgroundColor: record.category.backgroundColor, color: getCategoryIconForegroundColor(record.category.backgroundColor) } : undefined}><CategoryIcon categoryName={record.category.name} iconKey={record.category.icon} iconType={record.category.iconType} textIconEnabled={record.category.textIconEnabled} textIconIndex={record.category.textIconIndex} size={20} /></div>
-      </div>
-      <div className={classNames({
-        'border-0 border-b-[1px] border-border-primary border-solid': index !== lastIndex,
-      }, 'flex h-[59px] min-w-0 flex-grow items-center py-3 pr-3')}
-      >
-        <div className="flex-grow overflow-hidden overflow-ellipsis whitespace-nowrap">
-          {getRecordDisplayTitle(record.remark, record.category.name)}
-        </div>
-        <div className="ml-4">
-          {record.type === 'sub' && '-'}
-          {record.amount}
-        </div>
-      </div>
-    </>
+    <RecordLine
+      amount={`${record.type === 'sub' ? '-' : ''}${record.amount}`}
+      icon={icon}
+      isLast={index === lastIndex}
+      title={getRecordDisplayTitle(record.remark, record.category.name)}
+    />
   );
 
   if (!onClick)
-    return <div className={classNames('flex items-center text-base', className)}>{content}</div>;
+    return <div className={classNames('text-base', className)}>{content}</div>;
 
   return (
-    <button className={classNames('flex w-full items-center border-0 bg-transparent p-0 text-left text-base', className)} onClick={onClick} type="button">
+    <button className={classNames('w-full border-0 bg-transparent p-0 text-left text-base', className)} onClick={onClick} type="button">
       {content}
     </button>
   );

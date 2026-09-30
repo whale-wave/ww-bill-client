@@ -2,11 +2,14 @@ import { useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 import { money } from '@ww-bill/bill-core'
+import { RecordLine, type RecordLinePrimitives } from '@ww-bill/bill-ui'
 import { useMonthRecords } from '../../entities/record'
 import { useAuthGate } from '../../features/auth'
 import { currentMonth, displayRecordDate, shiftMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import './index.scss'
+
+const recordLinePrimitives: RecordLinePrimitives = { Box: View, Text }
 
 export default function RecordsPage() {
   const [month, setMonth] = useState(currentMonth)
@@ -53,13 +56,17 @@ export default function RecordsPage() {
       {recordsQuery.isLoading && <View className='state-panel'>正在加载明细…</View>}
       {recordsQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(recordsQuery.error)}</Text><Button className='button button--plain' onClick={() => void recordsQuery.refetch()}>重试</Button></View>}
       {!recordsQuery.isLoading && !recordsQuery.isError && records.length === 0 && <View className='state-panel'>这个月还没有记录，记下第一笔吧。</View>}
-      {records.map(record => (
+      {records.map((record, index) => (
         <View key={record.id} className='record-row'>
-          <View className='record-row__main'>
-            <Text className='record-row__category'>{record.category?.path ?? record.category?.name ?? '未分类'}</Text>
-            <Text className='muted'>{record.remark ? `${record.remark} · ` : ''}{displayRecordDate(record.time)}</Text>
-          </View>
-          <Text className={`money ${record.type === 'add' ? 'money--income' : 'money--expense'}`}>{record.type === 'add' ? '+' : '-'}¥{money.format(record.amount)}</Text>
+          <RecordLine
+            amount={`${record.type === 'add' ? '+' : '-'}¥${money.format(record.amount)}`}
+            amountTone={record.type === 'add' ? 'income' : 'expense'}
+            icon={<Text>{(record.category?.name ?? '未').slice(0, 1)}</Text>}
+            isLast={index === records.length - 1}
+            primitives={recordLinePrimitives}
+            subtitle={`${record.remark ? `${record.remark} · ` : ''}${displayRecordDate(record.time)}`}
+            title={record.category?.path ?? record.category?.name ?? '未分类'}
+          />
         </View>
       ))}
       {recordsQuery.hasNextPage && <Button className='button button--plain records-more' disabled={recordsQuery.isFetchingNextPage} onClick={() => void recordsQuery.fetchNextPage()}>{recordsQuery.isFetchingNextPage ? '加载中…' : '加载更多'}</Button>}

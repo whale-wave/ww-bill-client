@@ -79,6 +79,9 @@ importers:
       '@ww-bill/bill-core':
         specifier: workspace:*
         version: link:packages/bill-core
+      '@ww-bill/bill-ui':
+        specifier: workspace:*
+        version: link:packages/bill-ui
       ahooks:
         specifier: 3.8.0
         version: 3.8.0(react@18.3.1)
@@ -350,6 +353,9 @@ importers:
       '@ww-bill/bill-core':
         specifier: workspace:*
         version: link:../packages/bill-core
+      '@ww-bill/bill-ui':
+        specifier: workspace:*
+        version: link:../packages/bill-ui
       react:
         specifier: ^18.0.0
         version: 18.3.1
@@ -445,6 +451,19 @@ importers:
         specifier: 10.6.0
         version: 10.6.0
     devDependencies:
+      typescript:
+        specifier: ~6.0.3
+        version: 6.0.3
+
+  packages/bill-ui:
+    dependencies:
+      react:
+        specifier: ^18.0.0
+        version: 18.3.1
+    devDependencies:
+      '@types/react':
+        specifier: ^18.0.0
+        version: 18.3.30
       typescript:
         specifier: ~6.0.3
         version: 6.0.3

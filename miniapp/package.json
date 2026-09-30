@@ -32,6 +32,7 @@
     "@tarojs/shared": "4.3.0",
     "@tarojs/taro": "4.3.0",
     "@ww-bill/bill-core": "workspace:*",
+    "@ww-bill/bill-ui": "workspace:*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "zustand": "4.5.4"

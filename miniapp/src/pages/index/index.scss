@@ -7,18 +7,10 @@
   &__metrics .money { font-size: 24px; }
 }
 .record-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  min-height: 70px;
-  padding: 8px 14px;
-  border-bottom: 1px solid var(--ww-border);
   background: white;
-  box-sizing: border-box;
-  &__main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  &__category { font-size: 15px; font-weight: 700; }
-  .money { white-space: nowrap; font-size: 16px; }
+  .bill-record-line__icon { color: var(--ww-primary-deep); font-weight: 700; }
+  .bill-record-line__title { font-weight: 700; }
+  .bill-record-line__amount { font-weight: 800; }
 }
 .records-more { margin-top: 12px; }
 .records-create { margin-top: 20px; }
