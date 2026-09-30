@@ -1,0 +1,112 @@
+.bill-metrics {
+  display: grid;
+  margin: 0;
+  padding: 0;
+}
+
+.bill-metrics--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.bill-metrics--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.bill-metrics__cell {
+  min-width: 0;
+  padding: 0 8px;
+}
+
+.bill-metrics__cell--divided {
+  border-left: 1px solid var(--bill-metric-divider, rgba(111, 194, 220, 0.25));
+}
+
+.bill-metrics--center .bill-metrics__cell {
+  text-align: center;
+}
+.bill-metrics--start .bill-metrics__cell {
+  text-align: left;
+}
+
+.bill-metrics__label {
+  display: block;
+  overflow: hidden;
+  color: var(--bill-muted-color, #5c7080);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bill-metrics__value {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 2px;
+  margin: 4px 0 0;
+  color: var(--bill-ink-color, #263340);
+  font-family: 'Nunito Variable', 'Noto Sans SC', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 24px;
+  font-variant-numeric: tabular-nums;
+}
+
+.bill-metrics--center .bill-metrics__value {
+  justify-content: center;
+}
+.bill-metrics--start .bill-metrics__value {
+  justify-content: flex-start;
+}
+.bill-metrics__value--income {
+  color: var(--bill-income-color, #328568);
+}
+.bill-metrics__value--expense {
+  color: var(--bill-expense-color, #b24f71);
+}
+.bill-metrics__value--primary {
+  color: var(--bill-primary-color, #23728e);
+}
+.bill-metrics__value--muted {
+  color: var(--bill-muted-color, #5c7080);
+}
+.bill-metrics__number {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bill-metrics__suffix {
+  flex: none;
+  color: var(--bill-muted-color, #5c7080);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.bill-metrics--compact .bill-metrics__label {
+  font-size: 10px;
+  line-height: 15px;
+}
+.bill-metrics--compact .bill-metrics__value {
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 19.5px;
+}
+.bill-metrics--hero .bill-metrics__label {
+  font-size: 10px;
+  line-height: 15px;
+}
+.bill-metrics--hero .bill-metrics__value {
+  margin-top: 0;
+  font-size: 22px;
+  line-height: 33px;
+  font-weight: 900;
+}
+.bill-metrics--chart .bill-metrics__label {
+  letter-spacing: 0.5px;
+}
+.bill-metrics--chart .bill-metrics__value {
+  font-size: 28px;
+  line-height: 42px;
+  font-weight: 900;
+  letter-spacing: -1px;
+}

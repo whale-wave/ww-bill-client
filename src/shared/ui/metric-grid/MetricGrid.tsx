@@ -1,16 +1,10 @@
+import type { MetricRowItem, MetricTone } from '@ww-bill/bill-ui';
 import type { ReactNode } from 'react';
+import { MetricRow } from '@ww-bill/bill-ui';
 import { useLayoutEffect, useRef } from 'react';
 
-export type MetricTone = 'default' | 'income' | 'expense' | 'primary' | 'muted';
-
-export interface MetricGridItem {
-  key: string;
-  label: ReactNode;
-  value: ReactNode;
-  valueClassName?: string;
-  suffix?: ReactNode;
-  tone?: MetricTone;
-}
+export type { MetricTone } from '@ww-bill/bill-ui';
+export type MetricGridItem = MetricRowItem;
 
 export interface MetricGridProps {
   align?: 'center' | 'start';
@@ -27,25 +21,6 @@ const toneClassNames: Record<MetricTone, string> = {
   expense: 'text-finance-expense',
   primary: 'text-primary-deep',
   muted: 'text-ww-mid',
-};
-
-const densityClassNames = {
-  chart: {
-    label: 'text-[11px] font-semibold leading-[16.5px] tracking-[0.5px]',
-    value: 'mt-1 text-[28px] font-black leading-[42px] tracking-[-1px]',
-  },
-  compact: {
-    label: 'text-[10px] font-semibold leading-[15px]',
-    value: 'mt-0.5 text-[13px] font-extrabold leading-[19.5px]',
-  },
-  hero: {
-    label: 'text-[10px] font-semibold leading-[15px]',
-    value: 'text-[22px] font-black leading-[33px]',
-  },
-  standard: {
-    label: 'text-[11px] font-semibold leading-[16.5px] tracking-[0.5px]',
-    value: 'mt-1 text-[16px] font-extrabold leading-6',
-  },
 };
 
 function ChartMetricValue({ children }: { children: ReactNode }) {
@@ -132,8 +107,6 @@ function ChartSummaryMetricGrid({ className, items }: { className: string; items
 }
 
 export function MetricGrid({ align = 'center', items, columns = 3, density = 'standard', className = '', variant = 'default' }: MetricGridProps) {
-  const densityClasses = densityClassNames[density];
-
   if (variant === 'detail-summary') {
     return (
       <dl className={`grid grid-cols-2 items-start gap-[var(--ww-component-summary-metric-gap)] ${className}`}>
@@ -157,24 +130,5 @@ export function MetricGrid({ align = 'center', items, columns = 3, density = 'st
     return <ChartSummaryMetricGrid className={className} items={items} />;
   }
 
-  return (
-    <dl
-      className={`grid ${columns === 2 ? 'grid-cols-2' : 'grid-cols-3'} ${className}`}
-    >
-      {items.map((item, index) => (
-        <div
-          className={`min-w-0 px-2 ${align === 'center' ? 'text-center' : 'text-left'} ${index > 0 ? 'border-l border-primary/25' : ''}`}
-          key={item.key}
-        >
-          <dt className={`truncate text-ww-mid ${densityClasses.label}`}>{item.label}</dt>
-          <dd
-            className={`flex min-w-0 items-baseline gap-0.5 font-number ${align === 'center' ? 'justify-center' : 'justify-start'} ${densityClasses.value} ${toneClassNames[item.tone ?? 'default']}`}
-          >
-            <span className={`truncate ${item.valueClassName ?? ''}`}>{item.value}</span>
-            {item.suffix && <span className="shrink-0 text-xs font-normal text-ww-mid">{item.suffix}</span>}
-          </dd>
-        </div>
-      ))}
-    </dl>
-  );
+  return <MetricRow align={align} className={`${columns === 2 ? 'grid-cols-2' : 'grid-cols-3'} ${className}`} columns={columns} density={density} items={items} />;
 }

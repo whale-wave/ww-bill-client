@@ -3,6 +3,8 @@ import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { Asset, AssetGroup } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
+import { groupCategoriesByParent } from '@ww-bill/bill-core';
+import { CategoryChoiceVisual } from '@ww-bill/bill-ui';
 import {
   Delete as BackspaceIcon,
   Banknote,
@@ -116,18 +118,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       window.removeEventListener('resize', updateViewport);
     };
   }, [controller.isNoteFocused]);
-  const rootCategories = useMemo(
-    () => categories.filter(category => !category.parentId),
+  const { roots: rootCategories, childrenByParent: childCategoriesByParent } = useMemo(
+    () => groupCategoriesByParent(categories),
     [categories],
   );
-  const childCategoriesByParent = useMemo(() => categories.reduce<Map<number, CategoryEntity[]>>((groups, category) => {
-    if (!category.parentId)
-      return groups;
-    const siblings = groups.get(category.parentId) ?? [];
-    siblings.push(category);
-    groups.set(category.parentId, siblings);
-    return groups;
-  }, new Map()), [categories]);
   const expandedCategory = rootCategories.find(category => category.id === expandedCategoryId);
   const expandedChildren = expandedCategoryId ? childCategoriesByParent.get(expandedCategoryId) ?? [] : [];
   const expandedCategoryIndex = rootCategories.findIndex(category => category.id === expandedCategoryId);
@@ -386,25 +380,15 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                         type="button"
                         whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
                       >
-                        <span className="record-editor-category-icon ww-category-choice-icon flex h-11 w-11 items-center justify-center rounded-full" style={category.backgroundColor ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) } : undefined}>
-                          <CategoryIcon
-                            categoryName={category.name}
-                            iconKey={category.icon}
-                            iconType={category.iconType}
-                            textIconEnabled={category.textIconEnabled}
-                            textIconIndex={category.textIconIndex}
-                            size={24}
-                          />
-                        </span>
-                        <span className="record-editor-category-label line-clamp-2 w-full text-[11px] font-semibold leading-4 text-ww-mid">{category.name}</span>
-                        {isSelectedRoot && (
-                          <span aria-hidden="true" className="record-editor-category-check absolute flex items-center justify-center rounded-full bg-primary-deep text-white" data-record-editor-category-check>
-                            <Check size={10} strokeWidth={3} />
-                          </span>
-                        )}
-                        {children.length > 0 && (
-                          <span aria-hidden="true" className="absolute right-1 top-[31px] flex h-3.5 min-w-4 items-center justify-center rounded-full bg-primary-deep px-0.5 text-[7px] font-black tracking-[-1.5px] text-white shadow-ww-xs">•••</span>
-                        )}
+                        <CategoryChoiceVisual
+                          checkIcon={<Check size={10} strokeWidth={3} />}
+                          hasChildren={children.length > 0}
+                          icon={<CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={24} />}
+                          iconClassName="ww-category-choice-icon"
+                          iconStyle={category.backgroundColor ? { backgroundColor: category.backgroundColor, color: getCategoryIconForegroundColor(category.backgroundColor) } : undefined}
+                          isSelected={isSelectedRoot}
+                          label={category.name}
+                        />
                       </m.button>
                       {(index % 5 === 4 || index === rootCategories.length - 1) && (
                         <AnimatePresence initial={false}>
@@ -431,23 +415,15 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                                   onClick={() => handleSelectCategory(expandedCategory)}
                                   type="button"
                                 >
-                                  <span className="record-editor-category-icon flex h-11 w-11 items-center justify-center rounded-full bg-white/85" style={expandedCategory.backgroundColor ? { backgroundColor: expandedCategory.backgroundColor, color: getCategoryIconForegroundColor(expandedCategory.backgroundColor) } : undefined}>
-                                    <CategoryIcon
-                                      categoryName={expandedCategory.name}
-                                      iconKey={expandedCategory.icon}
-                                      iconType={expandedCategory.iconType}
-                                      textIconEnabled={expandedCategory.textIconEnabled}
-                                      textIconIndex={expandedCategory.textIconIndex}
-                                      size={24}
-                                    />
-                                  </span>
-                                  <span className="record-editor-category-label line-clamp-2 w-full text-[11px] font-semibold leading-4">{expandedCategory.name}</span>
-                                  <span className="text-[9px] leading-3 text-ww-soft">{t('record:bookkeeping.directEntry')}</span>
-                                  {selectedCategory?.id === expandedCategory.id && (
-                                    <span aria-hidden="true" className="record-editor-category-check absolute flex items-center justify-center rounded-full bg-primary-deep text-white" data-record-editor-category-check>
-                                      <Check size={10} strokeWidth={3} />
-                                    </span>
-                                  )}
+                                  <CategoryChoiceVisual
+                                    checkIcon={<Check size={10} strokeWidth={3} />}
+                                    hint={t('record:bookkeeping.directEntry')}
+                                    icon={<CategoryIcon categoryName={expandedCategory.name} iconKey={expandedCategory.icon} iconType={expandedCategory.iconType} textIconEnabled={expandedCategory.textIconEnabled} textIconIndex={expandedCategory.textIconIndex} size={24} />}
+                                    iconClassName="bg-white/85"
+                                    iconStyle={expandedCategory.backgroundColor ? { backgroundColor: expandedCategory.backgroundColor, color: getCategoryIconForegroundColor(expandedCategory.backgroundColor) } : undefined}
+                                    isSelected={selectedCategory?.id === expandedCategory.id}
+                                    label={expandedCategory.name}
+                                  />
                                 </button>
                                 {expandedChildren.map(child => (
                                   <button
@@ -461,22 +437,14 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                                     onClick={() => handleSelectCategory(child)}
                                     type="button"
                                   >
-                                    <span className="record-editor-category-icon flex h-11 w-11 items-center justify-center rounded-full bg-white/85" style={child.backgroundColor ? { backgroundColor: child.backgroundColor, color: getCategoryIconForegroundColor(child.backgroundColor) } : undefined}>
-                                      <CategoryIcon
-                                        categoryName={child.name}
-                                        iconKey={child.icon}
-                                        iconType={child.iconType}
-                                        textIconEnabled={child.textIconEnabled}
-                                        textIconIndex={child.textIconIndex}
-                                        size={24}
-                                      />
-                                    </span>
-                                    <span className="record-editor-category-label line-clamp-2 w-full text-[11px] font-semibold leading-4 text-ww-mid">{child.name}</span>
-                                    {selectedCategory?.id === child.id && (
-                                      <span aria-hidden="true" className="record-editor-category-check absolute flex items-center justify-center rounded-full bg-primary-deep text-white" data-record-editor-category-check>
-                                        <Check size={10} strokeWidth={3} />
-                                      </span>
-                                    )}
+                                    <CategoryChoiceVisual
+                                      checkIcon={<Check size={10} strokeWidth={3} />}
+                                      icon={<CategoryIcon categoryName={child.name} iconKey={child.icon} iconType={child.iconType} textIconEnabled={child.textIconEnabled} textIconIndex={child.textIconIndex} size={24} />}
+                                      iconClassName="bg-white/85"
+                                      iconStyle={child.backgroundColor ? { backgroundColor: child.backgroundColor, color: getCategoryIconForegroundColor(child.backgroundColor) } : undefined}
+                                      isSelected={selectedCategory?.id === child.id}
+                                      label={child.name}
+                                    />
                                   </button>
                                 ))}
                               </div>

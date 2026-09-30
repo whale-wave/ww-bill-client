@@ -2,11 +2,14 @@ import { useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import { useDidShow } from '@tarojs/taro'
 import { money } from '@ww-bill/bill-core'
+import { MetricRow, type MetricRowPrimitives } from '@ww-bill/bill-ui'
 import { useMonthChart } from '../../entities/chart'
 import { useAuthGate } from '../../features/auth'
 import { currentMonth, shiftMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import './index.scss'
+
+const metricPrimitives: MetricRowPrimitives = { Root: View, Cell: View, Label: Text, Value: View, Text }
 
 export default function ChartPage() {
   const [month, setMonth] = useState(currentMonth)
@@ -39,7 +42,11 @@ export default function ChartPage() {
         <View className='card chart-summary'>
           <Text className='muted'>本月结余</Text>
           <Text className='money chart-summary__net'>¥{money.format(summary.net)}</Text>
-          <View className='row'><Text className='money--income'>收入 ¥{money.format(summary.income)}</Text><Text className='money--expense'>支出 ¥{money.format(summary.expense)}</Text></View>
+          <MetricRow align='start' columns={2} items={[
+            { key: 'income', label: '收入', tone: 'income', value: `¥${money.format(summary.income)}` },
+            { key: 'expense', label: '支出', tone: 'expense', value: `¥${money.format(summary.expense)}` },
+          ]} primitives={metricPrimitives}
+          />
         </View>
         <Text className='section-title'>支出分类</Text>
         {categories.length === 0 && <View className='state-panel'>本月暂无支出数据</View>}

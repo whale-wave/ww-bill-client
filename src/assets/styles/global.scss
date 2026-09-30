@@ -17,6 +17,12 @@ html {
   --ww-safe-area-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
   --bill-income-color: rgb(var(--ww-color-finance-income));
   --bill-expense-color: rgb(var(--ww-color-finance-expense));
+  --bill-primary-color: var(--ww-theme-color-deep);
+  --bill-muted-color: var(--ww-text-color-mid);
+  --bill-ink-color: var(--ww-theme-text-color);
+  --bill-metric-divider: rgb(var(--ww-color-action-primary) / 0.25);
+  --bill-category-icon-background: var(--ww-surface-tint-color);
+  --bill-surface-color: var(--ww-surface-color);
 }
 
 .page {

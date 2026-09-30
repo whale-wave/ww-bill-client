@@ -1,13 +1,16 @@
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, useMemo, useRef, useState } from 'react'
 import { Button, Input, Picker, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { money, normalizeAmount } from '@ww-bill/bill-core'
+import { groupCategoriesByParent, money, normalizeAmount } from '@ww-bill/bill-core'
+import { CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
 import { useCategories, type RecordType } from '../../entities/category'
 import { useAuthGate } from '../../features/auth'
 import { useCreateRecord } from '../../features/record-create'
 import { dateKey, shanghaiDateTimeToIso, timeKey } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import './index.scss'
+
+const categoryPrimitives: CategoryChoicePrimitives = { Box: View, Text }
 
 export default function RecordCreatePage() {
   const isAuthenticated = useAuthGate()
@@ -22,7 +25,10 @@ export default function RecordCreatePage() {
   const isSubmitting = useRef(false)
   const categoriesQuery = useCategories({ params: { recordType }, queryOptions: { enabled: isAuthenticated } })
   const categories = categoriesQuery.data ?? []
-  const rootCategories = categories.filter(category => !category.parentId)
+  const { roots: rootCategories, childrenByParent } = useMemo(
+    () => groupCategoriesByParent(categoriesQuery.data ?? []),
+    [categoriesQuery.data],
+  )
   const selectedCategory = categories.find(category => category.id === selectedCategoryId)
   const createMutation = useCreateRecord()
 
@@ -34,7 +40,7 @@ export default function RecordCreatePage() {
   }
 
   function handleRootCategory(categoryId: number) {
-    if (categories.some(category => category.parentId === categoryId)) {
+    if (childrenByParent.has(categoryId)) {
       setExpandedParentId(current => current === categoryId ? null : categoryId)
       return
     }
@@ -102,23 +108,37 @@ export default function RecordCreatePage() {
       {!categoriesQuery.isLoading && !categoriesQuery.isError && !categoriesQuery.data?.length && <View className='state-panel'>暂无可用分类</View>}
       <View className='create-categories'>
         {rootCategories.map(category => {
-          const children = categories.filter(child => child.parentId === category.id)
+          const children = childrenByParent.get(category.id) ?? []
           return (
             <Fragment key={category.id}>
               <View className={`create-categories__item ${selectedCategoryId === category.id || expandedParentId === category.id ? 'is-active' : ''}`} onClick={() => handleRootCategory(category.id)}>
-                <Text className='create-categories__mark'>{category.name.slice(0, 1)}</Text>
-                <Text className='create-categories__name'>{category.name}{children.length > 0 ? ' ···' : ''}</Text>
+                <CategoryChoiceVisual
+                  hasChildren={children.length > 0}
+                  icon={<Text>{category.name.slice(0, 1)}</Text>}
+                  isSelected={selectedCategoryId === category.id || expandedParentId === category.id}
+                  label={category.name}
+                  primitives={categoryPrimitives}
+                />
               </View>
               {expandedParentId === category.id && (
                 <View className='create-categories__children'>
                   <View className='create-categories__item' onClick={() => handleSelectCategory(category.id)}>
-                    <Text className='create-categories__mark'>{category.name.slice(0, 1)}</Text>
-                    <Text className='create-categories__name'>直接记入</Text>
+                    <CategoryChoiceVisual
+                      hint='直接记入'
+                      icon={<Text>{category.name.slice(0, 1)}</Text>}
+                      isSelected={selectedCategoryId === category.id}
+                      label={category.name}
+                      primitives={categoryPrimitives}
+                    />
                   </View>
                   {children.map(child => (
                     <View key={child.id} className={`create-categories__item ${selectedCategoryId === child.id ? 'is-active' : ''}`} onClick={() => handleSelectCategory(child.id)}>
-                      <Text className='create-categories__mark'>{child.name.slice(0, 1)}</Text>
-                      <Text className='create-categories__name'>{child.name}</Text>
+                      <CategoryChoiceVisual
+                        icon={<Text>{child.name.slice(0, 1)}</Text>}
+                        isSelected={selectedCategoryId === child.id}
+                        label={child.name}
+                        primitives={categoryPrimitives}
+                      />
                     </View>
                   ))}
                 </View>
