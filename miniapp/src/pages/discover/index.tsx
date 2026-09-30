@@ -31,7 +31,7 @@ export default function DiscoverPage() {
       <View className='card discover-overview'>
         <Text className='muted'>本月账单</Text>
         {chartQuery.isLoading && <Text>正在加载…</Text>}
-        {chartQuery.isError && <Text className='error-text'>{errorMessage(chartQuery.error)}</Text>}
+        {chartQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(chartQuery.error)}</Text><Button className='button button--plain' onClick={() => void chartQuery.refetch()}>重试</Button></View>}
         {chartQuery.data && <>
           <Text className='money discover-overview__amount'>¥{money.format(chartQuery.data.summary.expense)}</Text>
           <Text className='muted'>本月支出 · 收入 ¥{money.format(chartQuery.data.summary.income)}</Text>
