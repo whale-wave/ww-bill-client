@@ -1,0 +1,51 @@
+.custom-tab-bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  min-height: 66px;
+  padding: 5px 8px calc(5px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid rgba(73, 112, 129, 0.14);
+  box-sizing: border-box;
+
+  &__item {
+    width: 18%;
+    min-height: 52px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #637987;
+  }
+
+  &__icon { font-size: 21px; line-height: 1; }
+  .is-active { color: #23728e; font-weight: 700; }
+
+  &__create {
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: #23728e;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  &__plus {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #6fc2dc;
+    color: white;
+    font-size: 32px;
+    line-height: 1;
+  }
+
+  &__create-label { min-height: 15px; }
+}

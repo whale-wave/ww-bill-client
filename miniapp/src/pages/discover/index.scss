@@ -1,0 +1,6 @@
+.discover-overview { display: flex; flex-direction: column; gap: 10px; background: linear-gradient(135deg, #e5f4f8, #fff); }
+.discover-overview__amount { font-size: 30px; }
+.discover-overview .button { margin-top: 8px; }
+.discover-actions { display: flex; gap: 12px; }
+.discover-actions__item { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.discover-actions__item > text:first-child { font-weight: 700; }

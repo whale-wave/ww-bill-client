@@ -1,0 +1,62 @@
+:root, page {
+  --ww-theme-color: #6fc2dc;
+  --ww-ink: #263340;
+  --ww-mid: #5c7080;
+  --ww-soft: #637987;
+  --ww-border: rgba(73, 112, 129, 0.14);
+  background: #f2f8fa;
+  color: var(--ww-ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans SC', sans-serif;
+  font-size: 15px;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 18px 18px 120px;
+  box-sizing: border-box;
+  background: linear-gradient(155deg, #f2f8fa 0%, #f8fafb 54%, #fbf7f8 100%);
+}
+
+.page__title { display: block; font-size: 20px; font-weight: 700; margin-bottom: 18px; }
+.card {
+  padding: 18px;
+  border: 1px solid var(--ww-border);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  margin-bottom: 16px;
+}
+.section-title { display: block; font-size: 17px; font-weight: 700; margin: 18px 0 10px; }
+.muted { color: var(--ww-soft); font-size: 13px; }
+.money { font-variant-numeric: tabular-nums; font-weight: 800; }
+.money--expense { color: #b24f71; }
+.money--income { color: #328568; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.state-panel { padding: 36px 18px; text-align: center; color: var(--ww-mid); }
+.error-text { color: #a43d5a; font-size: 13px; }
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 48px;
+  border: 0;
+  border-radius: 15px;
+  background: var(--ww-theme-color);
+  color: #174b5d;
+  font-size: 15px;
+  font-weight: 700;
+  box-sizing: border-box;
+}
+.button::after { border: 0; }
+.button[disabled] { opacity: .5; }
+.button--plain { background: #e8f3f6; }
+.input-field {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid var(--ww-border);
+  border-radius: 13px;
+  background: white;
+  box-sizing: border-box;
+  margin-top: 6px;
+}

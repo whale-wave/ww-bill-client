@@ -1,0 +1,51 @@
+import { useState } from 'react'
+import { Button, Text, View } from '@tarojs/components'
+import { money } from '@ww-bill/bill-core'
+import { useMonthChart } from '../../entities/chart/queries'
+import { useAuthGate } from '../../features/auth/use-auth-gate'
+import { currentMonth, shiftMonth } from '../../shared/lib/date'
+import { errorMessage } from '../../shared/lib/errors'
+import './index.scss'
+
+export default function ChartPage() {
+  const [month, setMonth] = useState(currentMonth)
+  const isAuthenticated = useAuthGate()
+  const chartQuery = useMonthChart(month, isAuthenticated)
+  const summary = chartQuery.data?.summary
+  const categories = chartQuery.data?.categories ?? []
+  const largestAmount = Math.max(0, ...categories.map(category => Number(category.amount)))
+
+  function handlePreviousMonth() { setMonth(value => shiftMonth(value, -1)) }
+  function handleNextMonth() {
+    if (month < currentMonth())
+      setMonth(value => shiftMonth(value, 1))
+  }
+
+  return (
+    <View className='page'>
+      <Text className='page__title'>图表</Text>
+      <View className='row chart-month'>
+        <Text onClick={handlePreviousMonth}>‹</Text><Text>{month.replace('-', '年')}月</Text><Text onClick={handleNextMonth}>›</Text>
+      </View>
+      {chartQuery.isLoading && <View className='state-panel'>正在加载图表…</View>}
+      {chartQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(chartQuery.error)}</Text><Button className='button button--plain' onClick={() => void chartQuery.refetch()}>重试</Button></View>}
+      {summary && <>
+        <View className='card chart-summary'>
+          <Text className='muted'>本月结余</Text>
+          <Text className='money chart-summary__net'>¥{money.format(summary.net)}</Text>
+          <View className='row'><Text className='money--income'>收入 ¥{money.format(summary.income)}</Text><Text className='money--expense'>支出 ¥{money.format(summary.expense)}</Text></View>
+        </View>
+        <Text className='section-title'>支出分类</Text>
+        {categories.length === 0 && <View className='state-panel'>本月暂无支出数据</View>}
+        <View className='card'>
+          {categories.map(category => (
+            <View key={category.key ?? category.id ?? category.name} className='chart-category'>
+              <View className='row'><Text>{category.name}</Text><Text className='money'>¥{money.format(category.amount)}</Text></View>
+              <View className='chart-category__track'><View className='chart-category__fill' style={{ width: `${largestAmount > 0 ? Math.max(3, Math.min(100, Number(category.amount) / largestAmount * 100)) : 0}%` }} /></View>
+            </View>
+          ))}
+        </View>
+      </>}
+    </View>
+  )
+}
