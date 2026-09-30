@@ -9,6 +9,7 @@ export interface VersionUpdate {
   images: string[];
   buildId?: string;
   downloadUrl?: string;
+  versionCode?: number;
 }
 
 export function isAndroidUpdateAvailable(release: ClientReleaseManifest | undefined, installedVersionCode: number | null) {
@@ -29,6 +30,7 @@ export function androidVersionUpdate(release: ClientReleaseManifest): VersionUpd
     content: release.releaseNotes,
     images: release.images ?? [],
     downloadUrl: release.android.downloadUrl,
+    versionCode: release.android.versionCode,
   };
 }
 

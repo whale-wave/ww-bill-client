@@ -18,7 +18,7 @@ import { useWorkspaceBack } from '@/features/workspace-navigation';
 import { APP_INFO } from '@/shared/config/app-info';
 import { fetchBuildInfo, isNewerBuild, refreshForBuild } from '@/shared/config/build-info';
 import { useTranslation } from '@/shared/i18n';
-import { openExternalUrl } from '@/shared/lib';
+import { installAndroidUpdate, isInstallPermissionRequired } from '@/shared/lib';
 import { AppButton, PageHeader } from '@/shared/ui';
 import { showAppError } from '@/shared/ui/app-feedback';
 import { SponsorSupportModal } from './ui/SponsorSupportModal';
@@ -102,6 +102,7 @@ const AboutSupportPage: FC = () => {
   const [installedVersion, setInstalledVersion] = useState<{ versionCode: number; versionName: string } | null>(null);
   const [latestWebBuild, setLatestWebBuild] = useState<BuildInfo | null>(null);
   const [isSponsorModalVisible, setIsSponsorModalVisible] = useState(false);
+  const [isInstallingUpdate, setIsInstallingUpdate] = useState(false);
   const sponsorTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -129,6 +130,23 @@ const AboutSupportPage: FC = () => {
 
   const handleOpenSponsor = () => setIsSponsorModalVisible(true);
   const handleCloseSponsor = () => setIsSponsorModalVisible(false);
+
+  const handleInstallUpdate = async () => {
+    if (!latestRelease?.android.downloadUrl || !latestRelease.android.versionCode || isInstallingUpdate)
+      return;
+    setIsInstallingUpdate(true);
+    try {
+      await installAndroidUpdate(latestRelease.android.downloadUrl, latestRelease.android.versionCode);
+    }
+    catch (error) {
+      showAppError({ content: t(isInstallPermissionRequired(error)
+        ? 'aboutSupport.installPermissionRequired'
+        : 'aboutSupport.updateDownloadFailed') });
+    }
+    finally {
+      setIsInstallingUpdate(false);
+    }
+  };
 
   return (
     <div className="page-new relative overflow-hidden">
@@ -176,7 +194,7 @@ const AboutSupportPage: FC = () => {
                     {t('aboutSupport.checkNow')}
                   </AppButton>
                   {latestRelease?.android.downloadUrl && /^https:\/\//i.test(latestRelease.android.downloadUrl) && (
-                    <AppButton className="h-11 flex-1 rounded-[14px] px-3 text-xs" onClick={() => void openExternalUrl(latestRelease.android.downloadUrl)}>
+                    <AppButton className="h-11 flex-1 rounded-[14px] px-3 text-xs" loading={isInstallingUpdate} loadingLabel={t('aboutSupport.downloadingUpdate')} onClick={() => void handleInstallUpdate()}>
                       {t('aboutSupport.downloadUpdate')}
                     </AppButton>
                   )}
