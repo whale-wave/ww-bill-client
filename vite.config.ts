@@ -34,6 +34,8 @@ export default defineConfig(() => {
 
   return {
     build: {
+      // The web app still supports iOS 16.2 Safari; Vite 8 defaults to Safari 16.4+.
+      target: ['chrome111', 'edge111', 'firefox114', 'safari16'],
       cssCodeSplit: true,
       manifest: true,
       ...(process.env.SENTRY_UPLOAD_ENABLED === 'true' ? { sourcemap: 'hidden' as const } : {}),
