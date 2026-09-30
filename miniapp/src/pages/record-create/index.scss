@@ -1,12 +1,15 @@
 .create-page { padding-bottom: 40px; }
-.create-type { display: flex; padding: 4px; border-radius: 14px; background: #e8f3f6; }
+.create-type { display: flex; padding: 4px; border-radius: 14px; background: var(--ww-primary-light); }
 .create-type > view { flex: 1; min-height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 11px; }
-.create-type .is-active { background: white; color: #23728e; font-weight: 700; }
-.create-categories { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 18px; }
-.create-categories__item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 72px; border-radius: 14px; background: white; font-size: 12px; text-align: center; }
-.create-categories__item.is-active { background: #dceef4; color: #23728e; font-weight: 700; }
-.create-categories__mark { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: #e8f3f6; font-size: 16px; }
+.create-type .is-active { background: white; color: var(--ww-primary-deep); font-weight: 700; }
+.create-categories { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 4px; margin-bottom: 18px; }
+.create-categories__item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-height: 68px; color: var(--ww-ink); font-size: 11px; text-align: center; }
+.create-categories__item.is-active { color: var(--ww-primary-deep); font-weight: 700; }
+.create-categories__name { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.create-categories__mark { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: var(--ww-primary-light); font-size: 16px; }
+.create-categories__item.is-active .create-categories__mark { background: var(--ww-theme-color); color: white; }
+.create-categories__children { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 4px; padding: 8px 0; border-top: 1px solid var(--ww-border); border-bottom: 1px solid var(--ww-border); }
 .create-form { display: flex; flex-direction: column; gap: 10px; }
 .create-form__amount { font-size: 28px; font-weight: 800; }
-.create-form__pickers { padding: 10px 0; color: #23728e; }
+.create-form__pickers { padding: 10px 0; color: var(--ww-primary-deep); }
 .create-form__pickers picker { min-height: 44px; display: flex; align-items: center; }

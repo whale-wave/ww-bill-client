@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 import { money } from '@ww-bill/bill-core'
-import { useMonthRecords } from '../../entities/record/queries'
-import { useAuthGate } from '../../features/auth/use-auth-gate'
+import { useMonthRecords } from '../../entities/record'
+import { useAuthGate } from '../../features/auth'
 import { currentMonth, displayRecordDate, shiftMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import './index.scss'
@@ -11,7 +11,7 @@ import './index.scss'
 export default function RecordsPage() {
   const [month, setMonth] = useState(currentMonth)
   const isAuthenticated = useAuthGate()
-  const recordsQuery = useMonthRecords(month, isAuthenticated)
+  const recordsQuery = useMonthRecords({ params: { month }, queryOptions: { enabled: isAuthenticated } })
   const firstPage = recordsQuery.data?.pages[0]
   const records = recordsQuery.data?.pages.flatMap(page => page.data) ?? []
 

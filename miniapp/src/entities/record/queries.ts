@@ -1,5 +1,7 @@
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, type UseInfiniteQueryOptions } from '@tanstack/react-query'
+import type { RecordPage } from './api'
 import { getRecords } from './api'
+import { nextRecordPageOffset } from './paging'
 
 export const recordKeys = {
   all: ['records'] as const,
@@ -8,14 +10,14 @@ export const recordKeys = {
 
 const PAGE_SIZE = 50
 
-export function useMonthRecords(month: string, isEnabled: boolean) {
-  return useInfiniteQuery({
-    queryKey: recordKeys.month(month),
-    queryFn: ({ pageParam = 0, signal }) => getRecords(`${month}-01`, pageParam, PAGE_SIZE, signal),
-    getNextPageParam: (lastPage, pages) => {
-      const loaded = pages.reduce((count, page) => count + page.data.length, 0)
-      return loaded < lastPage.total && lastPage.data.length > 0 ? loaded : undefined
-    },
-    enabled: isEnabled,
+export function useMonthRecords(options: {
+  params: { month: string }
+  queryOptions?: Omit<UseInfiniteQueryOptions<RecordPage, Error>, 'queryKey' | 'queryFn' | 'getNextPageParam'>
+}) {
+  return useInfiniteQuery<RecordPage, Error>({
+    queryKey: recordKeys.month(options.params.month),
+    queryFn: ({ pageParam = 0, signal }) => getRecords(`${options.params.month}-01`, Number(pageParam), PAGE_SIZE, signal),
+    getNextPageParam: nextRecordPageOffset,
+    ...options.queryOptions,
   })
 }

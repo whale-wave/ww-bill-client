@@ -1,23 +1,13 @@
-import { useRef, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import { Button, Input, Picker, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { money, normalizeAmount } from '@ww-bill/bill-core'
-import type { RecordType } from '../../entities/category/api'
-import { useCategories } from '../../entities/category/queries'
-import { chartKeys } from '../../entities/chart/queries'
-import { createRecord } from '../../entities/record/api'
-import { recordKeys } from '../../entities/record/queries'
-import { userKeys } from '../../entities/user/queries'
-import { useAuthGate } from '../../features/auth/use-auth-gate'
-import { dateKey } from '../../shared/lib/date'
+import { useCategories, type RecordType } from '../../entities/category'
+import { useAuthGate } from '../../features/auth'
+import { useCreateRecord } from '../../features/record-create'
+import { dateKey, shanghaiDateTimeToIso, timeKey } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import './index.scss'
-
-function currentTime(): string {
-  const date = new Date()
-  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-}
 
 export default function RecordCreatePage() {
   const isAuthenticated = useAuthGate()
@@ -25,18 +15,36 @@ export default function RecordCreatePage() {
   const [amount, setAmount] = useState('')
   const [remark, setRemark] = useState('')
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
+  const [expandedParentId, setExpandedParentId] = useState<number | null>(null)
   const [selectedDate, setSelectedDate] = useState(() => dateKey(new Date()))
-  const [selectedTime, setSelectedTime] = useState(currentTime)
+  const [selectedTime, setSelectedTime] = useState(() => timeKey(new Date()))
   const [formError, setFormError] = useState('')
   const isSubmitting = useRef(false)
-  const queryClient = useQueryClient()
-  const categoriesQuery = useCategories(recordType, isAuthenticated)
-  const selectedCategory = categoriesQuery.data?.find(category => category.id === selectedCategoryId)
-  const createMutation = useMutation({ mutationFn: createRecord })
+  const categoriesQuery = useCategories({ params: { recordType }, queryOptions: { enabled: isAuthenticated } })
+  const categories = categoriesQuery.data ?? []
+  const rootCategories = categories.filter(category => !category.parentId)
+  const selectedCategory = categories.find(category => category.id === selectedCategoryId)
+  const createMutation = useCreateRecord()
 
   function handleRecordType(nextType: RecordType) {
     setRecordType(nextType)
     setSelectedCategoryId(null)
+    setExpandedParentId(null)
+    setFormError('')
+  }
+
+  function handleRootCategory(categoryId: number) {
+    if (categories.some(category => category.parentId === categoryId)) {
+      setExpandedParentId(current => current === categoryId ? null : categoryId)
+      return
+    }
+    setSelectedCategoryId(categoryId)
+    setExpandedParentId(null)
+  }
+
+  function handleSelectCategory(categoryId: number) {
+    setSelectedCategoryId(categoryId)
+    setExpandedParentId(null)
     setFormError('')
   }
 
@@ -56,8 +64,8 @@ export default function RecordCreatePage() {
       setFormError('请选择分类')
       return
     }
-    const occurredAt = new Date(`${selectedDate}T${selectedTime}:00`)
-    if (Number.isNaN(occurredAt.getTime())) {
+    const occurredAt = shanghaiDateTimeToIso(selectedDate, selectedTime)
+    if (!occurredAt) {
       setFormError('请选择有效的日期和时间')
       return
     }
@@ -68,14 +76,9 @@ export default function RecordCreatePage() {
         amount: money.format(amount),
         categoryId: selectedCategory.id,
         remark: remark.trim() || selectedCategory.name,
-        time: occurredAt.toISOString(),
+        time: occurredAt,
         type: recordType,
       })
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: recordKeys.all }),
-        queryClient.invalidateQueries({ queryKey: chartKeys.all }),
-        queryClient.invalidateQueries({ queryKey: userKeys.info }),
-      ])
       await Taro.navigateBack()
     }
     catch (error) {
@@ -98,14 +101,34 @@ export default function RecordCreatePage() {
       {categoriesQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(categoriesQuery.error)}</Text><Button className='button button--plain' onClick={() => void categoriesQuery.refetch()}>重试</Button></View>}
       {!categoriesQuery.isLoading && !categoriesQuery.isError && !categoriesQuery.data?.length && <View className='state-panel'>暂无可用分类</View>}
       <View className='create-categories'>
-        {categoriesQuery.data?.map(category => (
-          <View key={category.id} className={`create-categories__item ${selectedCategoryId === category.id ? 'is-active' : ''}`} onClick={() => setSelectedCategoryId(category.id)}>
-            <Text className='create-categories__mark'>{category.name.slice(0, 1)}</Text>
-            <Text>{category.name}</Text>
-          </View>
-        ))}
+        {rootCategories.map(category => {
+          const children = categories.filter(child => child.parentId === category.id)
+          return (
+            <Fragment key={category.id}>
+              <View className={`create-categories__item ${selectedCategoryId === category.id || expandedParentId === category.id ? 'is-active' : ''}`} onClick={() => handleRootCategory(category.id)}>
+                <Text className='create-categories__mark'>{category.name.slice(0, 1)}</Text>
+                <Text className='create-categories__name'>{category.name}{children.length > 0 ? ' ···' : ''}</Text>
+              </View>
+              {expandedParentId === category.id && (
+                <View className='create-categories__children'>
+                  <View className='create-categories__item' onClick={() => handleSelectCategory(category.id)}>
+                    <Text className='create-categories__mark'>{category.name.slice(0, 1)}</Text>
+                    <Text className='create-categories__name'>直接记入</Text>
+                  </View>
+                  {children.map(child => (
+                    <View key={child.id} className={`create-categories__item ${selectedCategoryId === child.id ? 'is-active' : ''}`} onClick={() => handleSelectCategory(child.id)}>
+                      <Text className='create-categories__mark'>{child.name.slice(0, 1)}</Text>
+                      <Text className='create-categories__name'>{child.name}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </Fragment>
+          )
+        })}
       </View>
       <View className='card create-form'>
+        {selectedCategory && <Text className='muted'>已选分类：{selectedCategory.path ?? selectedCategory.name}</Text>}
         <Text className='muted'>金额</Text>
         <Input className='input-field create-form__amount' type='digit' value={amount} placeholder='0.00' onInput={event => handleAmount(event.detail.value)} />
         <Text className='muted'>备注</Text>

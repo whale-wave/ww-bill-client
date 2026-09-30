@@ -1,14 +1,18 @@
 import { Button, Text, View } from '@tarojs/components'
-import Taro from '@tarojs/taro'
-import { useUserInfo } from '../../entities/user/queries'
-import { useAuthStore } from '../../features/auth/store'
-import { useAuthGate } from '../../features/auth/use-auth-gate'
+import Taro, { useDidShow } from '@tarojs/taro'
+import { useUserInfo } from '../../entities/user'
+import { useAuthGate, useAuthStore } from '../../features/auth'
 import { errorMessage } from '../../shared/lib/errors'
 import './index.scss'
 
 export default function MinePage() {
   const isAuthenticated = useAuthGate()
-  const userQuery = useUserInfo(isAuthenticated)
+  const userQuery = useUserInfo({ queryOptions: { enabled: isAuthenticated } })
+
+  useDidShow(() => {
+    if (isAuthenticated)
+      void userQuery.refetch()
+  })
 
   function handleLogout() {
     useAuthStore.getState().logOut()

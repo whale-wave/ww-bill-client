@@ -2,7 +2,7 @@ import { useState, useEffect, type PropsWithChildren } from 'react'
 import Taro, { useDidHide, useDidShow } from '@tarojs/taro'
 import { QueryClient, QueryClientProvider, focusManager, onlineManager } from '@tanstack/react-query'
 import { configureRequestContext } from './shared/api'
-import { useAuthStore } from './features/auth/store'
+import { useAuthStore } from './features/auth'
 
 import './app.scss'
 

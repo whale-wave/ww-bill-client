@@ -1,15 +1,25 @@
+import { useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import Taro, { useDidShow } from '@tarojs/taro'
 import { money } from '@ww-bill/bill-core'
-import { useMonthChart } from '../../entities/chart/queries'
-import { useAuthGate } from '../../features/auth/use-auth-gate'
+import { useMonthChart } from '../../entities/chart'
+import { useAuthGate } from '../../features/auth'
 import { currentMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import './index.scss'
 
 export default function DiscoverPage() {
+  const [month, setMonth] = useState(currentMonth)
   const isAuthenticated = useAuthGate()
-  const chartQuery = useMonthChart(currentMonth(), isAuthenticated)
+  const chartQuery = useMonthChart({ params: { month }, queryOptions: { enabled: isAuthenticated } })
+
+  useDidShow(() => {
+    const current = currentMonth()
+    if (current !== month)
+      setMonth(current)
+    else if (isAuthenticated)
+      void chartQuery.refetch()
+  })
 
   function handleOpenChart() { void Taro.switchTab({ url: '/pages/chart/index' }) }
   function handleOpenRecords() { void Taro.switchTab({ url: '/pages/index/index' }) }

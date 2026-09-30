@@ -10,6 +10,8 @@ export interface Category {
   icon: string
   iconType?: 'BUILTIN' | 'IMAGE'
   parentId?: number | null
+  parentName?: string | null
+  path?: string
   sortOrder: number
   status: 'ACTIVE' | 'ARCHIVED'
 }

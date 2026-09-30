@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import type { RecordType } from './api'
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
+import type { Category , RecordType } from './api'
 import { getCategories } from './api'
 
 export const categoryKeys = {
@@ -7,10 +7,13 @@ export const categoryKeys = {
   byType: (recordType: RecordType) => ['categories', recordType] as const,
 }
 
-export function useCategories(recordType: RecordType, isEnabled: boolean) {
-  return useQuery({
-    queryKey: categoryKeys.byType(recordType),
-    queryFn: ({ signal }) => getCategories(recordType, signal),
-    enabled: isEnabled,
+export function useCategories(options: {
+  params: { recordType: RecordType }
+  queryOptions?: Omit<UseQueryOptions<Category[], Error>, 'queryKey' | 'queryFn'>
+}) {
+  return useQuery<Category[], Error>({
+    queryKey: categoryKeys.byType(options.params.recordType),
+    queryFn: ({ signal }) => getCategories(options.params.recordType, signal),
+    ...options.queryOptions,
   })
 }

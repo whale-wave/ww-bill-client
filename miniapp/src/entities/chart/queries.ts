@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
+import type { ChartDashboard } from './api'
 import { getChartDashboard } from './api'
 
 export const chartKeys = {
@@ -6,10 +7,13 @@ export const chartKeys = {
   month: (month: string) => ['chart', 'month', month] as const,
 }
 
-export function useMonthChart(month: string, isEnabled: boolean) {
-  return useQuery({
-    queryKey: chartKeys.month(month),
-    queryFn: ({ signal }) => getChartDashboard(`${month}-01`, signal),
-    enabled: isEnabled,
+export function useMonthChart(options: {
+  params: { month: string }
+  queryOptions?: Omit<UseQueryOptions<ChartDashboard, Error>, 'queryKey' | 'queryFn'>
+}) {
+  return useQuery<ChartDashboard, Error>({
+    queryKey: chartKeys.month(options.params.month),
+    queryFn: ({ signal }) => getChartDashboard(`${options.params.month}-01`, signal),
+    ...options.queryOptions,
   })
 }

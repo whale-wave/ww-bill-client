@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
+import { useDidShow } from '@tarojs/taro'
 import { money } from '@ww-bill/bill-core'
-import { useMonthChart } from '../../entities/chart/queries'
-import { useAuthGate } from '../../features/auth/use-auth-gate'
+import { useMonthChart } from '../../entities/chart'
+import { useAuthGate } from '../../features/auth'
 import { currentMonth, shiftMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import './index.scss'
@@ -10,10 +11,15 @@ import './index.scss'
 export default function ChartPage() {
   const [month, setMonth] = useState(currentMonth)
   const isAuthenticated = useAuthGate()
-  const chartQuery = useMonthChart(month, isAuthenticated)
+  const chartQuery = useMonthChart({ params: { month }, queryOptions: { enabled: isAuthenticated } })
   const summary = chartQuery.data?.summary
   const categories = chartQuery.data?.categories ?? []
   const largestAmount = Math.max(0, ...categories.map(category => Number(category.amount)))
+
+  useDidShow(() => {
+    if (isAuthenticated)
+      void chartQuery.refetch()
+  })
 
   function handlePreviousMonth() { setMonth(value => shiftMonth(value, -1)) }
   function handleNextMonth() {

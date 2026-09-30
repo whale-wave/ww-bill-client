@@ -1,5 +1,11 @@
 :root, page {
   --ww-theme-color: #6fc2dc;
+  --ww-primary-light: #dceef4;
+  --ww-primary-deep: #23728e;
+  --ww-page-gradient: linear-gradient(155deg, #f2f8fa 0%, #f8fafb 54%, #fbf7f8 100%);
+  --ww-surface: rgba(255, 255, 255, 0.9);
+  --ww-income: #328568;
+  --ww-expense: #b24f71;
   --ww-ink: #263340;
   --ww-mid: #5c7080;
   --ww-soft: #637987;
@@ -14,7 +20,7 @@
   min-height: 100vh;
   padding: 18px 18px 120px;
   box-sizing: border-box;
-  background: linear-gradient(155deg, #f2f8fa 0%, #f8fafb 54%, #fbf7f8 100%);
+  background: var(--ww-page-gradient);
 }
 
 .page__title { display: block; font-size: 20px; font-weight: 700; margin-bottom: 18px; }
@@ -22,17 +28,17 @@
   padding: 18px;
   border: 1px solid var(--ww-border);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--ww-surface);
   margin-bottom: 16px;
 }
 .section-title { display: block; font-size: 17px; font-weight: 700; margin: 18px 0 10px; }
 .muted { color: var(--ww-soft); font-size: 13px; }
 .money { font-variant-numeric: tabular-nums; font-weight: 800; }
-.money--expense { color: #b24f71; }
-.money--income { color: #328568; }
+.money--expense { color: var(--ww-expense); }
+.money--income { color: var(--ww-income); }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .state-panel { padding: 36px 18px; text-align: center; color: var(--ww-mid); }
-.error-text { color: #a43d5a; font-size: 13px; }
+.error-text { color: var(--ww-expense); font-size: 13px; }
 .button {
   display: flex;
   justify-content: center;
