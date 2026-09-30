@@ -18,6 +18,7 @@
 - 2026-09-30：将 `src/shared/lib/amount.ts` 原实现移入 `packages/bill-core/src/amount.ts`，旧路径改为共享包再导出；更新工作区配置、依赖和 Docker 安装步骤。
 - 2026-09-30：`pnpm install --frozen-lockfile`、共享包与 Web 类型检查、金额相关 9 项测试、Web 构建及 Docker 构建通过。`pnpm lint` 通过，现有其他文件仍有 29 条警告。共享包经 Node.js 直接导入并计算 `0.1 + 0.2 = 0.3`。
 - 2026-09-30：`bill-2` 的客户端、管理端、服务端和网站仓库均从各自 `dev` 建立并切换到 `refactor/taro`；仅客户端有本阶段代码改动。客户端功能代码提交为 `824f4310`，文档单独提交；未推送远端。
+- 2026-09-30：补充[小程序首版接口接入清单](../context/taro-miniapp-api-readiness.md)，核对现有服务端契约、分类版本请求头和共享代码依赖边界；Taro 模板仍由项目所有者创建。
 
 ## 下一步
 
