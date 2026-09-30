@@ -208,7 +208,7 @@
   --record-editor-keypad-key-height: clamp(44px, 7vh, 48px);
   --record-editor-keypad-gap: clamp(6px, 1.2vh, 8px);
 
-  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  padding-bottom: max(10px, var(--ww-safe-area-bottom));
   padding-top: clamp(8px, 1.8vh, 12px);
   border-color: var(--ww-component-record-editor-control-border);
   background: var(--ww-component-record-editor-control-background);
@@ -287,7 +287,7 @@
     --record-editor-keypad-key-height: 44px;
     --record-editor-keypad-gap: 6px;
 
-    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    padding-bottom: max(8px, var(--ww-safe-area-bottom));
     padding-top: 8px;
   }
 }
