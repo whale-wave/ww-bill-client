@@ -5,6 +5,11 @@ import prodConfig from './prod'
 
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
 export default defineConfig<'vite'>(async (merge) => {
+  const apiBaseUrl = process.env.BILL_MINIAPP_API_BASE_URL?.trim()
+    || (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:4301' : '')
+  if (!apiBaseUrl)
+    throw new Error('小程序构建缺少接口地址：请设置 BILL_MINIAPP_API_BASE_URL，或使用 dev:weapp 进行本地开发')
+
   const baseConfig: UserConfigExport<'vite'> = {
     projectName: 'miniapp',
     date: '2026-9-30',
@@ -21,10 +26,7 @@ export default defineConfig<'vite'>(async (merge) => {
       "@tarojs/plugin-generator"
     ],
     defineConstants: {
-      BILL_API_BASE_URL: JSON.stringify(
-        process.env.BILL_MINIAPP_API_BASE_URL
-        ?? (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:4301' : ''),
-      ),
+      BILL_API_BASE_URL: JSON.stringify(apiBaseUrl),
     },
     copy: {
       patterns: [
