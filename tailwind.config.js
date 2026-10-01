@@ -2,7 +2,7 @@
 const tokenColor = name => ({ opacityValue }) => `rgb(var(${name}) / ${opacityValue ?? 1})`;
 
 module.exports = {
-  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
+  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}', './packages/bill-ui/src/**/*.{ts,tsx}'],
   safelist: ['bg-action-primary/20', 'text-fg/60', 'border-stroke/50'],
   theme: {
     extend: {

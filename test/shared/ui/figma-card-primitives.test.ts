@@ -70,9 +70,9 @@ describe('figma card primitives', () => {
       variant: 'detail-summary',
     }));
     const values = container.querySelectorAll('dd');
-    expect(values[0]?.className).toContain('text-finance-income');
-    expect(values[1]?.className).toContain('text-finance-expense');
-    expect(container.querySelector('dl')?.classList).toContain('grid-cols-2');
+    expect(values[0]?.className).toContain('bill-metrics__value--income');
+    expect(values[1]?.className).toContain('bill-metrics__value--expense');
+    expect(container.querySelector('dl')?.classList).toContain('bill-metrics--2');
   });
 
   it('renders the exact chart summary geometry and currency baseline', () => {

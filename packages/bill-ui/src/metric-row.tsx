@@ -27,6 +27,7 @@ export interface MetricRowProps {
   density?: 'chart' | 'compact' | 'hero' | 'standard';
   items: readonly MetricRowItem[];
   primitives?: MetricRowPrimitives;
+  variant?: 'default' | 'detail-summary';
 }
 
 const webPrimitives: MetricRowPrimitives = {
@@ -44,10 +45,11 @@ export function MetricRow({
   density = 'standard',
   items,
   primitives = webPrimitives,
+  variant = 'default',
 }: MetricRowProps) {
   const { Root, Cell, Label, Value, Text } = primitives;
   return (
-    <Root className={`bill-metrics bill-metrics--${columns} bill-metrics--${density} bill-metrics--${align}${className ? ` ${className}` : ''}`}>
+    <Root className={`bill-metrics bill-metrics--${columns} bill-metrics--${density} bill-metrics--${align} bill-metrics--${variant}${className ? ` ${className}` : ''}`}>
       {items.map((item, index) => (
         <Cell className={`bill-metrics__cell${index > 0 ? ' bill-metrics__cell--divided' : ''}`} key={item.key}>
           <Label className="bill-metrics__label">{item.label}</Label>

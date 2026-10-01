@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Text, View } from '@tarojs/components'
+import { Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { money } from '@ww-bill/bill-core'
 import { MetricRow, type MetricRowPrimitives } from '@ww-bill/bill-ui'
@@ -8,6 +8,7 @@ import { useAuthGate } from '../../features/auth'
 import { currentMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
+import { AppButton } from '../../shared/ui/app-button'
 import './index.scss'
 
 const metricPrimitives: MetricRowPrimitives = { Root: View, Cell: View, Label: Text, Value: View, Text }
@@ -35,7 +36,7 @@ export default function DiscoverPage() {
       <Surface className='card discover-overview' material='raised'>
         <Text className='muted'>本月账单</Text>
         {chartQuery.isLoading && <Text>正在加载…</Text>}
-        {chartQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(chartQuery.error)}</Text><Button className='button button--plain' onClick={() => void chartQuery.refetch()}>重试</Button></View>}
+        {chartQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(chartQuery.error)}</Text><AppButton variant='secondary' onClick={() => void chartQuery.refetch()}>重试</AppButton></View>}
         {chartQuery.data && <>
           <MetricRow density='compact' items={[
             { key: 'income', label: '收入', tone: 'income', value: `¥${money.format(chartQuery.data.summary.income)}` },
@@ -44,7 +45,7 @@ export default function DiscoverPage() {
           ]} primitives={metricPrimitives}
           />
         </>}
-        <Button className='button button--plain' onClick={handleOpenChart}>查看图表</Button>
+        <AppButton variant='secondary' onClick={handleOpenChart}>查看图表</AppButton>
       </Surface>
       <Text className='section-title'>常用入口</Text>
       <View className='discover-actions'>

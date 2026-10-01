@@ -110,3 +110,33 @@
   font-weight: 900;
   letter-spacing: -1px;
 }
+
+.bill-metrics--detail-summary {
+  align-items: start;
+  gap: var(--ww-component-summary-metric-gap);
+  .bill-metrics__cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+    text-align: left;
+  }
+  .bill-metrics__cell--divided {
+    border: 0;
+  }
+  .bill-metrics__label {
+    width: 100%;
+    font-size: var(--ww-component-summary-label-size);
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--ww-component-summary-label-foreground);
+  }
+  .bill-metrics__value {
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: var(--ww-component-summary-value-gap);
+    font-size: var(--ww-component-summary-value-size);
+    line-height: 1.25;
+    gap: 0;
+  }
+}

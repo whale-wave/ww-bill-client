@@ -1,5 +1,5 @@
 import { Fragment, useMemo, useRef, useState } from 'react'
-import { Button, Input, Picker, Text, View } from '@tarojs/components'
+import { Input, Picker, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { groupCategoriesByParent, money, normalizeAmount } from '@ww-bill/bill-core'
 import { CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
@@ -9,6 +9,7 @@ import { useCreateRecord } from '../../features/record-create'
 import { dateKey, shanghaiDateTimeToIso, timeKey } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
+import { AppButton } from '../../shared/ui/app-button'
 import './index.scss'
 
 const categoryPrimitives: CategoryChoicePrimitives = { Box: View, Text }
@@ -105,7 +106,7 @@ export default function RecordCreatePage() {
       </View>
       <Text className='section-title'>选择分类</Text>
       {categoriesQuery.isLoading && <View className='state-panel'>正在加载分类…</View>}
-      {categoriesQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(categoriesQuery.error)}</Text><Button className='button button--plain' onClick={() => void categoriesQuery.refetch()}>重试</Button></View>}
+      {categoriesQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(categoriesQuery.error)}</Text><AppButton variant='secondary' onClick={() => void categoriesQuery.refetch()}>重试</AppButton></View>}
       {!categoriesQuery.isLoading && !categoriesQuery.isError && !categoriesQuery.data?.length && <View className='state-panel'>暂无可用分类</View>}
       <View className='create-categories'>
         {rootCategories.map(category => {
@@ -159,7 +160,7 @@ export default function RecordCreatePage() {
           <Picker mode='time' value={selectedTime} onChange={event => setSelectedTime(event.detail.value)}><View>{selectedTime}</View></Picker>
         </View>
         {formError && <Text className='error-text'>{formError}</Text>}
-        <Button className='button' loading={createMutation.isLoading} disabled={createMutation.isLoading} onClick={handleSubmit}>完成</Button>
+        <AppButton loading={createMutation.isLoading} disabled={createMutation.isLoading} onClick={handleSubmit}>完成</AppButton>
       </Surface>
     </View>
   )

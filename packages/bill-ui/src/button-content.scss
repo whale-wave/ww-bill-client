@@ -1,0 +1,105 @@
+.bill-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 0;
+  font-weight: 800;
+  transition: transform 0.15s;
+  line-height: inherit;
+  &::after {
+    border: 0;
+  }
+  &:active {
+    transform: scale(0.99);
+  }
+  &:disabled,
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--ww-theme-color);
+    outline-offset: 2px;
+  }
+}
+
+@each $size in medium, large {
+  .bill-button--#{$size} {
+    height: var(--ww-component-button-height-#{$size});
+    gap: var(--ww-component-button-gap-default);
+    border-radius: var(--ww-component-button-radius-#{$size});
+    padding: 0 var(--ww-component-button-padding-x-#{$size});
+    font-size: var(--ww-component-button-font-size-#{$size});
+  }
+}
+
+.bill-button--full {
+  width: 100%;
+}
+.bill-button__content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.bill-button--compact {
+  min-height: var(--ww-component-button-hit-target-min);
+  border-radius: var(--ww-component-button-radius-compact);
+  padding: 0;
+  background: transparent;
+  .bill-button__content {
+    height: var(--ww-component-button-height-compact);
+    gap: var(--ww-component-button-gap-compact);
+    border-radius: var(--ww-component-button-radius-compact);
+    padding: 0 var(--ww-component-button-padding-x-compact);
+    font-size: var(--ww-component-button-font-size-compact);
+  }
+  &.bill-button--full .bill-button__content {
+    width: 100%;
+  }
+}
+
+@mixin variant($background, $foreground, $border: transparent) {
+  background: $background;
+  color: $foreground;
+  @if $border == transparent {
+    border: 0;
+  } @else {
+    border: 1px solid $border;
+  }
+  box-shadow: var(--ww-card-shadow);
+}
+
+.bill-button--primary:not(.bill-button--compact),
+.bill-button--primary.bill-button--compact .bill-button__content {
+  @include variant(var(--ww-theme-color), white);
+}
+.bill-button--secondary:not(.bill-button--compact),
+.bill-button--secondary.bill-button--compact .bill-button__content {
+  @include variant(var(--ww-surface-raised-color), var(--ww-theme-color-deep), var(--ww-border-color));
+}
+.bill-button--danger:not(.bill-button--compact),
+.bill-button--danger.bill-button--compact .bill-button__content {
+  @include variant(rgb(var(--ww-color-feedback-danger)), white);
+}
+.bill-button--ghost:not(.bill-button--compact),
+.bill-button--ghost.bill-button--compact .bill-button__content {
+  background: transparent;
+  color: var(--ww-theme-color-deep);
+}
+.bill-button--compact:not(.bill-button--ghost) .bill-button__content {
+  box-shadow: var(--ww-card-shadow-xs);
+}
+.bill-button__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: bill-button-spin 1s linear infinite;
+}
+@keyframes bill-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

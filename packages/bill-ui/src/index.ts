@@ -1,3 +1,7 @@
+export { buttonPresentationClassNames } from './button-appearance';
+export type { ButtonAppearance, ButtonSize, ButtonVariant } from './button-appearance';
+export { ButtonContent } from './button-content';
+export type { ButtonContentProps } from './button-content';
 export { CategoryChoiceVisual } from './category-choice-visual';
 export type { CategoryChoicePrimitives, CategoryChoiceVisualProps } from './category-choice-visual';
 export { MetricRow } from './metric-row';

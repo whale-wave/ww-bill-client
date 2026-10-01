@@ -108,22 +108,7 @@ function ChartSummaryMetricGrid({ className, items }: { className: string; items
 
 export function MetricGrid({ align = 'center', items, columns = 3, density = 'standard', className = '', variant = 'default' }: MetricGridProps) {
   if (variant === 'detail-summary') {
-    return (
-      <dl className={`grid grid-cols-2 items-start gap-[var(--ww-component-summary-metric-gap)] ${className}`}>
-        {items.map(item => (
-          <div
-            className="flex min-w-0 flex-1 flex-col items-start"
-            key={item.key}
-          >
-            <dt className="w-full truncate text-[length:var(--ww-component-summary-label-size)] font-medium leading-normal text-[color:var(--ww-component-summary-label-foreground)]">{item.label}</dt>
-            <dd className={`mt-[var(--ww-component-summary-value-gap)] flex w-full min-w-0 items-baseline font-number text-[length:var(--ww-component-summary-value-size)] font-extrabold leading-tight tabular-nums ${toneClassNames[item.tone ?? 'default']}`}>
-              <span className={`truncate ${item.valueClassName ?? ''}`}>{item.value}</span>
-              {item.suffix && <span className="shrink-0 text-xs font-normal text-ww-mid">{item.suffix}</span>}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    );
+    return <MetricRow className={className} columns={2} items={items} variant="detail-summary" />;
   }
 
   if (variant === 'chart-summary') {

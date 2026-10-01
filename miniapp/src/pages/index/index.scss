@@ -2,9 +2,6 @@
   &__month { font-size: 17px; font-weight: 700; margin-bottom: 18px; }
   &__nav { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: 0; padding: 0; border: 0; background: transparent; color: inherit; font-size: 26px; line-height: 1; }
   &__nav::after { border: 0; }
-  &__metrics { display: flex; gap: 20px; }
-  &__metrics > view { flex: 1; display: flex; flex-direction: column; gap: 5px; }
-  &__metrics .money { font-size: 24px; }
 }
 .record-row { background: var(--ww-material-content-background); }
 

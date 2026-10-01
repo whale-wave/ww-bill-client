@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Button, Input, Text, View } from '@tarojs/components'
+import { Input, Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { useMutation } from '@tanstack/react-query'
 import { login } from '../../entities/auth'
 import { useAuthStore } from '../../features/auth'
 import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
+import { AppButton } from '../../shared/ui/app-button'
 import './index.scss'
 
 export default function LoginPage() {
@@ -47,7 +48,7 @@ export default function LoginPage() {
         <Text>密码</Text>
         <Input className='input-field' value={password} password placeholder='请输入密码' onInput={event => setPassword(event.detail.value)} />
         {formError && <Text className='error-text'>{formError}</Text>}
-        <Button className='button' loading={loginMutation.isLoading} disabled={loginMutation.isLoading} onClick={handleLogin}>登录</Button>
+        <AppButton loading={loginMutation.isLoading} disabled={loginMutation.isLoading} onClick={handleLogin}>登录</AppButton>
       </Surface>
     </View>
   )

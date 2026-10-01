@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 import { money } from '@ww-bill/bill-core'
-import { RecordLine, type RecordLinePrimitives } from '@ww-bill/bill-ui'
+import { MetricRow, RecordLine, type RecordLinePrimitives } from '@ww-bill/bill-ui'
 import { useMonthRecords } from '../../entities/record'
 import { useAuthGate } from '../../features/auth'
 import { currentMonth, displayRecordDate, shiftMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
+import { AppButton } from '../../shared/ui/app-button'
 import './index.scss'
 
 const recordLinePrimitives: RecordLinePrimitives = { Box: View, Text }
@@ -52,14 +53,19 @@ export default function RecordsPage() {
           <Text>{month.replace('-', '年')}月</Text>
           <Button className={`records-summary__nav${month >= currentMonth() ? ' muted' : ''}`} aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}>›</Button>
         </View>
-        <View className='records-summary__metrics'>
-          <View><Text className='muted'>收入</Text><Text className='money money--income'>¥{money.format(firstPage?.income ?? 0)}</Text></View>
-          <View><Text className='muted'>支出</Text><Text className='money money--expense'>¥{money.format(firstPage?.expend ?? 0)}</Text></View>
-        </View>
+        <MetricRow
+          columns={2}
+          variant='detail-summary'
+          primitives={{ Root: View, Cell: View, Label: Text, Value: View, Text }}
+          items={[
+            { key: 'income', label: '收入', value: `¥${money.format(firstPage?.income ?? 0)}`, tone: 'income' },
+            { key: 'expense', label: '支出', value: `¥${money.format(firstPage?.expend ?? 0)}`, tone: 'expense' },
+          ]}
+        />
       </Surface>
       <View className='row'><Text className='section-title'>该月记录</Text><Text className='muted'>{firstPage?.total ?? 0} 笔</Text></View>
       {recordsQuery.isLoading && <View className='state-panel'>正在加载明细…</View>}
-      {recordsQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(recordsQuery.error)}</Text><Button className='button button--plain' onClick={() => void recordsQuery.refetch()}>重试</Button></View>}
+      {recordsQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(recordsQuery.error)}</Text><AppButton variant='secondary' onClick={() => void recordsQuery.refetch()}>重试</AppButton></View>}
       {!recordsQuery.isLoading && !recordsQuery.isError && records.length === 0 && <View className='state-panel'>这个月还没有记录，记下第一笔吧。</View>}
       {records.map((record, index) => (
         <View key={record.id} className='record-row'>
@@ -74,9 +80,9 @@ export default function RecordsPage() {
           />
         </View>
       ))}
-      {recordsQuery.hasNextPage && <Button className='button button--plain records-more' disabled={recordsQuery.isFetchingNextPage} onClick={() => void recordsQuery.fetchNextPage()}>{recordsQuery.isFetchingNextPage ? '加载中…' : '加载更多'}</Button>}
+      {recordsQuery.hasNextPage && <AppButton variant='secondary' className='records-more' disabled={recordsQuery.isFetchingNextPage} onClick={() => void recordsQuery.fetchNextPage()}>{recordsQuery.isFetchingNextPage ? '加载中…' : '加载更多'}</AppButton>}
       {recordsQuery.isError && records.length > 0 && <Text className='error-text'>加载更多失败，请重试</Text>}
-      <Button className='button records-create' onClick={handleCreate}>记一笔</Button>
+      <AppButton className='records-create' onClick={handleCreate}>记一笔</AppButton>
     </View>
   )
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Text, View } from '@tarojs/components'
+import { Text, View } from '@tarojs/components'
 import { useDidShow } from '@tarojs/taro'
 import { money } from '@ww-bill/bill-core'
 import { MetricRow, type MetricRowPrimitives } from '@ww-bill/bill-ui'
@@ -8,6 +8,7 @@ import { useAuthGate } from '../../features/auth'
 import { currentMonth, shiftMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
+import { AppButton } from '../../shared/ui/app-button'
 import './index.scss'
 
 const metricPrimitives: MetricRowPrimitives = { Root: View, Cell: View, Label: Text, Value: View, Text }
@@ -38,7 +39,7 @@ export default function ChartPage() {
         <Text onClick={handlePreviousMonth}>‹</Text><Text>{month.replace('-', '年')}月</Text><Text onClick={handleNextMonth}>›</Text>
       </View>
       {chartQuery.isLoading && <View className='state-panel'>正在加载图表…</View>}
-      {chartQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(chartQuery.error)}</Text><Button className='button button--plain' onClick={() => void chartQuery.refetch()}>重试</Button></View>}
+      {chartQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(chartQuery.error)}</Text><AppButton variant='secondary' onClick={() => void chartQuery.refetch()}>重试</AppButton></View>}
       {summary && <>
         <Surface className='card chart-summary' material='raised'>
           <Text className='muted'>本月结余</Text>

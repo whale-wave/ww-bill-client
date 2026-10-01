@@ -36,22 +36,6 @@
 .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .state-panel { padding: 36px 18px; text-align: center; color: var(--ww-mid); }
 .error-text { color: var(--ww-expense); font-size: 13px; }
-.button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: var(--ww-control-height);
-  border: 0;
-  border-radius: var(--ww-component-button-radius-medium);
-  background: var(--ww-theme-color);
-  color: var(--ww-primary-foreground);
-  font-size: 15px;
-  font-weight: 700;
-  box-sizing: border-box;
-}
-.button::after { border: 0; }
-.button[disabled] { opacity: .5; }
-.button--plain { background: var(--ww-surface-tint-color); }
 .input-field {
   display: block;
   width: 100%;
