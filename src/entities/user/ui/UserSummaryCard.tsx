@@ -93,7 +93,7 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
                   suffix: t('checkIn.recordUnit'),
                   tone: 'expense',
                   value: numberInfo.recordCount ?? 0,
-                  valueClassName: 'whitespace-nowrap text-[clamp(14px,5vw,20px)] tracking-[-0.04em]',
+                  valueClassName: 'bill-profile-summary__record-count',
                 },
               ]}
             />

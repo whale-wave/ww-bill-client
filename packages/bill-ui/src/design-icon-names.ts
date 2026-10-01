@@ -14,6 +14,8 @@ export const designIconNames = {
   'discovery-asset': 'WalletCards',
   'discovery-bill': 'ReceiptText',
   'discovery-budget': 'ChartPie',
+  'empty-alert': 'CircleAlert',
+  'empty-retry': 'RefreshCw',
   'editor-back': 'ArrowLeft',
   'editor-date': 'CalendarDays',
   'editor-delete': 'Delete',

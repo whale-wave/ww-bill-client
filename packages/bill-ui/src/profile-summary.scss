@@ -69,3 +69,9 @@
   width: 68px;
   height: 68px;
 }
+
+.bill-profile-summary__record-count {
+  white-space: nowrap;
+  font-size: clamp(14px, 5vw, 20px);
+  letter-spacing: -0.04em;
+}

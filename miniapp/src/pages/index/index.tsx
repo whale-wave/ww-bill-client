@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 import { getRecordDisplayTitle, groupRecordsByKey, sumRecordAmounts, isDarkCategoryBackground, money } from '@ww-bill/bill-core'
-import { MetricRow, PeriodLabel, RecordOverviewRowContent, RecordDateGroupHeader, RecordGroupSurface } from '@ww-bill/bill-ui'
+import { PageHeadingVisual, RecordSummaryContent, MetricRow, PeriodLabel, RecordOverviewRowContent, RecordDateGroupHeader, RecordGroupSurface } from '@ww-bill/bill-ui'
 import { useMonthRecords } from '../../entities/record'
 import { useAuthGate } from '../../features/auth'
 import { currentMonth, displayRecordDate, shiftMonth } from '../../shared/lib/date'
@@ -10,6 +10,7 @@ import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
 import { AppButton } from '../../shared/ui/app-button'
 import { CategoryIcon } from '../../shared/ui/category-icon'
+import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
 
 export default function RecordsPage() {
@@ -50,27 +51,28 @@ export default function RecordsPage() {
 
   return (
     <View className='page'>
-      <Text className='page__title'>明细</Text>
-      <Surface className='card records-summary' material='raised'>
-        <View className='row records-summary__month'>
+      <PageHeadingVisual primitive={View} title={<Text className='bill-page-heading__title'>鲸浪记账</Text>} />
+      <Surface className='records-summary bill-record-summary' material='raised'>
+        <RecordSummaryContent primitive={View} period={<View className='row records-summary__month'>
           <Button className='records-summary__nav' aria-label='上个月' onClick={handlePreviousMonth}>‹</Button>
           <View className='records-summary__period'><PeriodLabel year={month.slice(0, 4)} yearSuffix='年' month={month.slice(5)} monthSuffix='月' primitive={Text} /></View>
           <Button className={`records-summary__nav${month >= currentMonth() ? ' muted' : ''}`} aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}>›</Button>
         </View>
-        <MetricRow
-          columns={2}
-          variant='detail-summary'
-          primitives={{ Root: View, Cell: View, Label: Text, Value: View, Text }}
-          items={[
+} metrics={<MetricRow
+  columns={2}
+  variant='detail-summary'
+  primitives={{ Root: View, Cell: View, Label: Text, Value: View, Text }}
+  items={[
             { key: 'income', label: '收入', value: `¥${money.format(firstPage?.income ?? 0)}`, tone: 'income' },
             { key: 'expense', label: '支出', value: `¥${money.format(firstPage?.expend ?? 0)}`, tone: 'expense' },
           ]}
+/>}
         />
       </Surface>
       <View className='row'><Text className='section-title'>该月记录</Text><Text className='muted'>{firstPage?.total ?? 0} 笔</Text></View>
       {recordsQuery.isLoading && <View className='state-panel'>正在加载明细…</View>}
-      {recordsQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(recordsQuery.error)}</Text><AppButton variant='secondary' onClick={() => void recordsQuery.refetch()}>重试</AppButton></View>}
-      {!recordsQuery.isLoading && !recordsQuery.isError && records.length === 0 && <View className='state-panel'>这个月还没有记录，记下第一笔吧。</View>}
+      {recordsQuery.isError && <EmptyState error title='加载失败' description={errorMessage(recordsQuery.error)} actionLabel='重试' onAction={() => void recordsQuery.refetch()} />}
+      {!recordsQuery.isLoading && !recordsQuery.isError && records.length === 0 && <EmptyState title='这个月还没有记录' description='记下第一笔，开始整理本月收支。' actionLabel='记一笔' onAction={handleCreate} />}
       {groups.map(group => (
         <View key={group.date} className='bill-record-group'>
           <RecordDateGroupHeader date={<Text style={{ fontWeight: 700 }}>{group.date}</Text>} primitives={{ Header: View, Text, Box: View }} summaries={<><Text className='money--income'>收入 {money.format(group.totals.income)}</Text><Text className='money--expense'>支出 {money.format(group.totals.expense)}</Text></>} />
@@ -95,7 +97,6 @@ export default function RecordsPage() {
       ))}
       {recordsQuery.hasNextPage && <AppButton variant='secondary' className='records-more' disabled={recordsQuery.isFetchingNextPage} onClick={() => void recordsQuery.fetchNextPage()}>{recordsQuery.isFetchingNextPage ? '加载中…' : '加载更多'}</AppButton>}
       {recordsQuery.isError && records.length > 0 && <Text className='error-text'>加载更多失败，请重试</Text>}
-      <AppButton className='records-create' onClick={handleCreate}>记一笔</AppButton>
     </View>
   )
 }

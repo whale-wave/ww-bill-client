@@ -11,6 +11,7 @@ import {
   ChartPie,
   ChevronDown,
   ChevronRight,
+  CircleAlert,
   Compass,
   Crown,
   Delete,
@@ -22,6 +23,7 @@ import {
   Pencil,
   Plus,
   ReceiptText,
+  RefreshCw,
   Search,
   Settings,
   Star,
@@ -54,6 +56,8 @@ const iconComponents = {
   Plus,
   ChartColumn,
   Compass,
+  CircleAlert,
+  RefreshCw,
   Crown,
 } satisfies Record<string, LucideIcon>;
 

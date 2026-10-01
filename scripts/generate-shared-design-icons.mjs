@@ -34,6 +34,7 @@ for (const theme of ['glass', 'fresh', 'minimal']) {
     inverse: values['--ww-primary-foreground'],
     category: values['--ww-theme-color-deep'],
     categoryActive: values['--ww-theme-color-deep'],
+    expense: values['--ww-pink-color'],
   };
 }
 

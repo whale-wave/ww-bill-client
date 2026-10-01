@@ -1,7 +1,7 @@
+import { PageHeadingVisual , PeriodLabel, ProgressVisual, RankingRowVisual } from '@ww-bill/bill-ui'
 import { useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import { useDidShow } from '@tarojs/taro'
-import { PeriodLabel, ProgressVisual, RankingRowVisual } from '@ww-bill/bill-ui'
 import { clampProgress, money } from '@ww-bill/bill-core'
 import { useMonthChart } from '../../entities/chart'
 import { useAuthGate } from '../../features/auth'
@@ -9,8 +9,8 @@ import { currentMonth, shiftMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import { CategoryIcon } from '../../shared/ui/category-icon'
 import { Surface } from '../../shared/ui/surface'
-import { AppButton } from '../../shared/ui/app-button'
 import { ChartSummary } from '../../shared/ui/chart-summary'
+import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
 
 
@@ -34,12 +34,12 @@ export default function ChartPage() {
 
   return (
     <View className='page'>
-      <Text className='page__title'>图表</Text>
+      <PageHeadingVisual primitive={View} title={<Text className='bill-page-heading__title'>图表</Text>} />
       <View className='row chart-month'>
         <Button className='records-summary__nav' aria-label='上个月' onClick={handlePreviousMonth}>‹</Button><View className='records-summary__period'><PeriodLabel year={month.slice(0, 4)} yearSuffix='年' month={month.slice(5)} monthSuffix='月' primitive={Text} /></View><Button className='records-summary__nav' aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}>›</Button>
       </View>
       {chartQuery.isLoading && <View className='state-panel'>正在加载图表…</View>}
-      {chartQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(chartQuery.error)}</Text><AppButton variant='secondary' onClick={() => void chartQuery.refetch()}>重试</AppButton></View>}
+      {chartQuery.isError && <EmptyState error title='加载失败' description={errorMessage(chartQuery.error)} actionLabel='重试' onAction={() => void chartQuery.refetch()} />}
       {summary && <>
         <Surface className='card chart-summary' material='raised'>
           <Text className='muted'>本月结余</Text>
@@ -51,7 +51,7 @@ export default function ChartPage() {
           />
         </Surface>
         <Text className='section-title'>支出分类</Text>
-        {categories.length === 0 && <View className='state-panel'>本月暂无支出数据</View>}
+        {categories.length === 0 && <EmptyState title='本月暂无支出数据' description='有支出记录后，这里会展示分类分布。' />}
         <Surface className='card'>
           {categories.map(category => (
             <View key={category.key ?? category.id ?? category.name} className='bill-ranking-host'>

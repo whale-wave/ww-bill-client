@@ -1,5 +1,5 @@
 .records-summary {
-  &__month { font-size: 17px; font-weight: 700; margin-bottom: 18px; }
+  &__month { font-size: 17px; font-weight: 700; margin-bottom: 0; }
   &__nav { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: 0; padding: 0; border: 0; background: transparent; color: inherit; font-size: 26px; line-height: 1; }
   &__nav::after { border: 0; }
 }
@@ -7,3 +7,5 @@
 
 .records-more { margin-top: 12px; }
 .records-create { margin-top: 20px; }
+
+.records-summary { margin-bottom: 12px; }

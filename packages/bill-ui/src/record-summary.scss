@@ -1,0 +1,63 @@
+.bill-record-summary {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ww-component-summary-gap);
+  overflow: hidden;
+  padding: var(--ww-component-summary-padding-y) var(--ww-component-summary-padding-x);
+}
+.bill-record-summary__period-row {
+  position: relative;
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.bill-record-summary__period {
+  min-width: 0;
+  flex: 1;
+}
+.bill-page-heading {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.bill-page-heading__identity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+.bill-page-heading__title {
+  display: block;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 25.5px;
+  color: var(--ww-theme-text-color);
+}
+.bill-page-heading__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.bill-page-heading--record-overview {
+  height: 56px;
+  min-height: 56px;
+  box-sizing: border-box;
+  align-items: flex-start;
+  margin: 0;
+  padding: 0 22px 12px;
+}
+.bill-page-heading--record-overview .bill-page-heading__identity {
+  height: 32px;
+}

@@ -1,4 +1,5 @@
 import type { FC, ReactNode } from 'react';
+import { PageHeadingVisual, RecordSummaryContent } from '@ww-bill/bill-ui';
 import { cn } from '@/shared/lib';
 
 import { ActionMenuCard, MetricGrid, Surface } from '@/shared/ui';
@@ -71,85 +72,88 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
       data-record-overview-header=""
       data-testid={testId}
     >
-      <div className="flex h-[56px] items-start justify-between gap-3 px-[22px] pb-3">
-        <div className="flex h-8 min-w-0 items-center gap-2" data-record-overview-title-row>
-          {titleIcon && (
-            <span className={cn(
-              'ww-overview-title-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-[16px]',
-              titleIconContainerClassName,
-            )}
-            >
-              {titleIcon}
-            </span>
-          )}
-          {renderTitle(titleClassName)}
-        </div>
-        {actions && <div className="ww-overview-header-actions flex shrink-0 items-center gap-[10px] [&>button]:flex [&>button]:h-11 [&>button]:w-11 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:border [&>button]:border-solid">{actions}</div>}
-      </div>
+      <PageHeadingVisual
+        className="bill-page-heading--record-overview"
+        title={renderTitle(titleClassName)}
+        icon={titleIcon && <span className={cn('ww-overview-title-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-[16px]', titleIconContainerClassName)}>{titleIcon}</span>}
+        actions={actions && <div className="ww-overview-header-actions flex shrink-0 items-center gap-[10px] [&>button]:flex [&>button]:h-11 [&>button]:w-11 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:border [&>button]:border-solid">{actions}</div>}
+      />
       <div className="px-[18px] pb-3">
         <Surface
-          className="relative flex flex-col gap-[var(--ww-component-summary-gap)] overflow-hidden px-[var(--ww-component-summary-padding-x)] py-[var(--ww-component-summary-padding-y)]"
+          className="bill-record-summary relative flex flex-col gap-[var(--ww-component-summary-gap)] overflow-hidden px-[var(--ww-component-summary-padding-x)] py-[var(--ww-component-summary-padding-y)]"
           data-record-overview-summary=""
           material="raised"
         >
-          <div className="relative flex min-h-11 items-center justify-between gap-2">
-            <div className="min-w-0 flex-1" data-record-overview-metrics>
-              <div className="sr-only">{period.label}</div>
-              <div
-                className={cn('min-w-0 text-ww-ink', period.valueWidth === 'cell' ? 'max-w-[190px]' : '')}
-                data-testid={period.testId}
-                onClick={period.onClick}
-              >
-                {period.value}
-              </div>
-            </div>
-            {amountToggle && (
-              <button
-                aria-label="toggle amount visibility"
-                className={cn(
-                  'ww-overview-amount-toggle flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--ww-radius-control)] border-0 p-0 transition-colors',
-                  amountToggle.disabled && 'opacity-45',
-                )}
-                disabled={amountToggle.disabled}
-                onClick={amountToggle.onClick}
-                type="button"
-              >
-                {amountToggle.content}
-              </button>
+          <RecordSummaryContent
+            period={(
+              <>
+                {' '}
+                <div className="sr-only">{period.label}</div>
+                <div
+                  className={cn('min-w-0 text-ww-ink', period.valueWidth === 'cell' ? 'max-w-[190px]' : '')}
+                  data-testid={period.testId}
+                  onClick={period.onClick}
+                >
+                  {period.value}
+                </div>
+              </>
             )}
-          </div>
-          <MetricGrid
-            align="start"
-            className="w-full"
-            columns={2}
-            items={metrics.map((metric, index) => ({
-              key: metric.key,
-              label: metric.label,
-              tone: index === 0 ? 'income' : 'expense',
-              value: <span data-testid={metric.testId}>{metric.value}</span>,
-            }))}
-            variant="detail-summary"
-          />
-          <ActionMenuCard
-            aria-label="record shortcuts"
-            className="ww-overview-shortcuts relative mt-[var(--ww-component-summary-shortcut-offset)] overflow-y-hidden"
-            columns={3}
-            items={shortcuts.map((shortcut, index) => ({
-              ariaDisabled: shortcut.disabled,
-              icon: shortcut.icon,
-              key: shortcut.key,
-              label: shortcut.label,
-              onClick: () => {
-                if (shortcut.disabled) {
-                  showAppNotice(shortcut.disabledMessage ?? '暂无权限');
-                  return;
-                }
-                shortcut.onClick();
-              },
-              testId: shortcut.testId,
-              tone: index === 1 ? 'pink' : index === 2 ? 'purple' : 'blue',
-            }))}
-            variant="detail-shortcuts"
+            amountToggle={(
+              <>
+                {' '}
+                {amountToggle && (
+                  <button
+                    aria-label="toggle amount visibility"
+                    className={cn(
+                      'ww-overview-amount-toggle flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--ww-radius-control)] border-0 p-0 transition-colors',
+                      amountToggle.disabled && 'opacity-45',
+                    )}
+                    disabled={amountToggle.disabled}
+                    onClick={amountToggle.onClick}
+                    type="button"
+                  >
+                    {amountToggle.content}
+                  </button>
+                )}
+              </>
+            )}
+            metrics={(
+              <MetricGrid
+                align="start"
+                className="w-full"
+                columns={2}
+                items={metrics.map((metric, index) => ({
+                  key: metric.key,
+                  label: metric.label,
+                  tone: index === 0 ? 'income' : 'expense',
+                  value: <span data-testid={metric.testId}>{metric.value}</span>,
+                }))}
+                variant="detail-summary"
+              />
+            )}
+            shortcuts={(
+              <ActionMenuCard
+                aria-label="record shortcuts"
+                className="ww-overview-shortcuts relative mt-[var(--ww-component-summary-shortcut-offset)] overflow-y-hidden"
+                columns={3}
+                items={shortcuts.map((shortcut, index) => ({
+                  ariaDisabled: shortcut.disabled,
+                  icon: shortcut.icon,
+                  key: shortcut.key,
+                  label: shortcut.label,
+                  onClick: () => {
+                    if (shortcut.disabled) {
+                      showAppNotice(shortcut.disabledMessage ?? '暂无权限');
+                      return;
+                    }
+                    shortcut.onClick();
+                  },
+                  testId: shortcut.testId,
+                  tone: index === 1 ? 'pink' : index === 2 ? 'purple' : 'blue',
+                }))}
+                variant="detail-shortcuts"
+              />
+            )}
           />
           {shortcutsTestId && <span className="hidden" data-testid={shortcutsTestId} />}
         </Surface>

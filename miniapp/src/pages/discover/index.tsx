@@ -1,3 +1,4 @@
+import { PageHeadingVisual } from '@ww-bill/bill-ui'
 import { useState } from 'react'
 import { Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
@@ -10,7 +11,7 @@ import { errorMessage } from '../../shared/lib/errors'
 import { DesignIcon } from '../../shared/ui/design-icon'
 import { ActionMenu } from '../../shared/ui/action-menu'
 import { Surface } from '../../shared/ui/surface'
-import { AppButton } from '../../shared/ui/app-button'
+import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
 
 const metricPrimitives: MetricRowPrimitives = { Root: View, Cell: View, Label: Text, Value: View, Text }
@@ -34,10 +35,10 @@ export default function DiscoverPage() {
 
   return (
     <View className='page'>
-      <Text className='page__title'>发现</Text>
+      <PageHeadingVisual primitive={View} title={<Text className='bill-page-heading__title'>发现</Text>} />
       <Surface className='card discover-overview' material='raised'>
         {chartQuery.isLoading && <Text>正在加载…</Text>}
-        {chartQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(chartQuery.error)}</Text><AppButton variant='secondary' onClick={() => void chartQuery.refetch()}>重试</AppButton></View>}
+        {chartQuery.isError && <EmptyState error title='加载失败' description={errorMessage(chartQuery.error)} actionLabel='重试' onAction={() => void chartQuery.refetch()} />}
         {chartQuery.data && <View onClick={handleOpenChart}>
           <BillOverviewVisual title='本月账单' period={`${month.slice(5)}月`} primitives={{ Box: View, Text }} icon={<DesignIcon name='discovery-bill' size={18} tone='category' />} metrics={
             <MetricRow density='compact' items={[
