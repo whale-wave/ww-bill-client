@@ -44,13 +44,13 @@ export default function ChartPage() {
     <Page className='page chart-page bill-dashboard-canvas'>
       <DashboardHeadingVisual primitives={{ Box: View, Title: Text }} title='统计' />
       <DashboardPeriodToolbar primitive={View}>
-        <AppButton fullWidth={false} size='compact' variant='ghost' aria-label='上个月' onClick={handlePreviousMonth}><DesignIcon name='period-previous' tone='active' size={20} /></AppButton>
-        <Button className='bill-dashboard-period-control chart-period-trigger' aria-label='选择期间' onClick={() => setPeriodOpen(true)}>
+        <AppButton fullWidth={false} size='compact' variant='ghost' ariaLabel='上个月' onClick={handlePreviousMonth}><DesignIcon name='period-previous' tone='active' size={20} /></AppButton>
+        <Button className='bill-dashboard-period-control chart-period-trigger' ariaLabel='选择期间' onClick={() => setPeriodOpen(true)}>
           <View className='bill-dashboard-period-control'>
             <DashboardPeriodContent primitives={{ Box: View, Text }} title={formatMonthPeriod(month, currentMonth(), { thisMonth: '本月', lastMonth: '上月', monthNumber: value => `${value}月`, yearMonthNumber: (year, value) => `${year}年${value}月` })} start={chartQuery.data?.startDate ?? `${month}-01`} end={chartQuery.data?.endDate ?? '—'} selectable chevron={<DesignIcon name='chart-selector-chevron' tone='active' size={15} />} />
           </View>
         </Button>
-        <AppButton fullWidth={false} size='compact' variant='ghost' aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}><DesignIcon name='period-next' tone='active' size={20} /></AppButton>
+        <AppButton fullWidth={false} size='compact' variant='ghost' ariaLabel='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}><DesignIcon name='period-next' tone='active' size={20} /></AppButton>
       </DashboardPeriodToolbar>
       {periodOpen && <ChartPeriodSheet month={month} visible onClose={() => setPeriodOpen(false)} onSelect={setMonth} />}
       {chartQuery.isLoading && <PageLoadingState label='正在加载图表…' />}

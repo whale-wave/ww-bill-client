@@ -51,6 +51,20 @@ function input(element: Element, value: string) {
 }
 
 describe('miniapp login presentation and request state', () => {
+  it('toggles password visibility without changing its draft or sending a request', () => {
+    const page = renderPage();
+    const password = page.querySelectorAll('input')[1];
+    input(password, 'visibility-test');
+    const toggle = page.querySelector('.bill-form-field__suffix-action')!;
+    expect(password.type).toBe('password');
+    act(() => toggle.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(password.type).toBe('text');
+    expect(password.value).toBe('visibility-test');
+    act(() => toggle.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(password.type).toBe('password');
+    expect(password.value).toBe('visibility-test');
+    expect(auth.login).not.toHaveBeenCalled();
+  });
   it('keeps empty validation local', () => {
     const page = renderPage();
     act(() => page.querySelector('button.bill-auth-primary-action')?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
