@@ -19,3 +19,4 @@ export * from './public-media';
 export * from './record-display-title';
 
 export * from './record-groups';
+export * from './record-indicators';

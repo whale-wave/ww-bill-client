@@ -35,7 +35,7 @@ vi.mock('../../miniapp/src/entities/record', () => ({
     data: {
       pages: [{
         data: [
-          { id: 1, amount: '32.50', category: { id: 1, icon: 'food', name: '午餐', path: '餐饮 / 午餐' }, remark: '便当', time: '2026-10-01T04:00:00.000Z', type: 'sub' },
+          { id: 1, amount: '32.50', originalAmount: '35.50', adjustmentSummary: { refundAmount: '3.00', cashbackAmount: '0.00', supplementAmount: '0.00' }, tags: [{ name: '午餐' }], attachments: [{}], category: { id: 1, icon: 'food', name: '午餐', path: '餐饮 / 午餐' }, remark: '便当', time: '2026-10-01T04:00:00.000Z', type: 'sub' },
           { id: 2, amount: '5000', category: { id: 2, icon: 'salary', name: '工资' }, remark: '', time: '2026-10-01T04:00:00.000Z', type: 'add' },
         ],
         expend: 32.5,
@@ -114,9 +114,11 @@ describe('miniapp basic data pages', () => {
     const page = renderPage(RecordsPage);
     expect(page.textContent).toContain('收入5000.00');
     expect(page.textContent).toContain('支出32.50');
-    expect(page.textContent).toContain('餐饮 / 午餐');
+    expect(page.querySelector('.bill-overview-record__secondary')?.textContent).toBe('退款 ¥3.00 · #午餐');
+    expect(page.querySelector('[data-record-original-amount]')?.textContent).toBe('-35.50');
+    expect(page.querySelector('.bill-overview-record__secondary img')).not.toBeNull();
     expect(page.textContent).toContain('便当');
-    expect(page.querySelector('.bill-overview-record__amount')?.textContent).toBe('-32.5');
+    expect(page.querySelector('.bill-overview-record__amount-value')?.textContent).toBe('-32.5');
     expect(page.querySelector('.bill-record-group__header')?.textContent).toContain('支出 32.5');
     const secondIcon = page.querySelector<HTMLImageElement>('.bill-overview-record__icon--1 img');
     expect(decodeURIComponent(secondIcon?.getAttribute('src') ?? '')).toContain('stroke="#6d6d73"');
@@ -130,7 +132,7 @@ describe('miniapp basic data pages', () => {
     act(() => toggle?.click());
     expect(summary?.textContent).not.toContain('5000.00');
     expect(summary?.textContent).toContain('\uFF0A'.repeat(5));
-    expect(page.querySelector('.bill-overview-record__amount')?.textContent).toBe('-32.5');
+    expect(page.querySelector('.bill-overview-record__amount-value')?.textContent).toBe('-32.5');
     act(() => toggle?.click());
     expect(summary?.textContent).toContain('5000.00');
   });

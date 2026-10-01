@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Button, Image, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
-import { getRecordDisplayTitle, groupRecordsByKey, sumRecordAmounts, isDarkCategoryBackground, money } from '@ww-bill/bill-core'
+import { getRecordIndicators, getRecordDisplayTitle, groupRecordsByKey, sumRecordAmounts, isDarkCategoryBackground, money, type RecordIndicatorSource } from '@ww-bill/bill-core'
 import { AmountToggleVisual, BrandMarkVisual, PageHeadingVisual, RecordSummaryContent, MetricRow, RecordOverviewRowContent, RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordStateSurface, recordIconForeground } from '@ww-bill/bill-ui'
 import { appLogo } from '../../shared/lib/presentation-assets'
 import { PageLoadingState } from '../../shared/ui/page-loading-state'
@@ -19,6 +19,10 @@ import { useAmountVisibility } from '../../features/display-preferences'
 import { DesignIcon } from '../../shared/ui/design-icon'
 import { CategoryIcon } from '../../shared/ui/category-icon'
 import { useAppearanceTemplate } from '../../shared/model/appearance'
+
+function recordIndicators(record: RecordIndicatorSource) {
+  return getRecordIndicators(record, (kind, amount) => `${({ refund: '退款', cashback: '返现', supplement: '补款' })[kind]} ¥${amount}`)
+}
 
 export default function RecordsPage() {
   const [month, setMonth] = useState(currentMonth)
@@ -76,20 +80,24 @@ export default function RecordsPage() {
         <View key={group.date} className='bill-record-group'>
           <RecordDateGroupHeader date={<Text><RecordDateLabelVisual label={group.date} primitive={Text} /></Text>} primitives={{ Header: View, Text, Box: View }} summaries={recordsQuery.hasNextPage && groupIndex === groups.length - 1 ? undefined : <>{money.compare(group.totals.income, 0) > 0 && <Text className='money--income'>收入 {money.formatNatural(group.totals.income)}</Text>}<Text className='money--expense'>支出 {money.formatNatural(group.totals.expense)}</Text></>} />
           <View className='bill-record-group__body'>
-            <RecordGroupSurface single={group.entries.length === 1 && !group.entries[0].category?.path?.includes('/')} primitive={View}>
-              {group.entries.map((record, index) => (
-                <View key={record.id} className={`bill-overview-record${record.category?.path?.includes('/') ? ' bill-overview-record--secondary' : ''}`}>
+            <RecordGroupSurface single={group.entries.length === 1 && !group.entries.some(record => { const hints = recordIndicators(record); return hints.adjustmentSummary || hints.tagSummary || hints.hasAttachment })} primitive={View}>
+              {group.entries.map((record, index) => {
+                const indicators = recordIndicators(record)
+                const secondary = [indicators.adjustmentSummary, indicators.tagSummary].filter(Boolean).join(' · ') || undefined
+                return (
+                <View key={record.id} className={`bill-overview-record${secondary || indicators.hasAttachment ? ' bill-overview-record--secondary' : ''}`}>
                   <RecordOverviewRowContent
                     primitives={{ Box: View, Text, Deleted: Text }}
                     amount={record.type === 'sub' ? money.subtract(0, record.amount) : money.formatNatural(record.amount)}
                     amountTone={record.type === 'add' ? 'income' : 'expense'}
                     icon={<View className={`bill-overview-record__icon bill-overview-record__icon--${index % 4}`} style={record.category?.backgroundColor ? { backgroundColor: record.category.backgroundColor } : undefined}><CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} iconType={record.category?.iconType} textIconEnabled={record.category?.textIconEnabled} textIconIndex={record.category?.textIconIndex} color={isDarkCategoryBackground(record.category?.backgroundColor) ? '#fff' : recordIconForeground(index, template)} size={18} /></View>}
-                    secondary={record.category?.path?.includes('/') ? record.category.path : undefined}
+                    secondary={secondary || indicators.hasAttachment ? <>{secondary && <Text className='record-hint-copy'>{secondary}</Text>}{indicators.hasAttachment && <DesignIcon name='record-attachment' size={12} tone='active' />}</> : undefined}
+                    originalAmount={record.originalAmount ? `-${record.originalAmount}` : undefined}
                     primary={getRecordDisplayTitle(record.remark, record.category?.path ?? record.category?.name ?? '未分类')}
                   />
                   {index !== group.entries.length - 1 && <View className='bill-overview-record__divider' />}
                 </View>
-              ))}
+              )})}
             </RecordGroupSurface>
           </View>
         </View>

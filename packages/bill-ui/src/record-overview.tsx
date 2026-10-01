@@ -14,14 +14,14 @@ export function RecordOverviewRowContent({ amount, amountTone = 'neutral', icon,
   return (
     <Box className={`bill-overview-record__content flex h-full w-full min-w-0 items-center gap-[13px] px-[18px]${secondary ? ' bill-overview-record__content--secondary' : ''}`} data-record-content>
       {icon}
-      <Text className="bill-overview-record__copy">
+      <Box className="bill-overview-record__copy">
         <Text className="bill-overview-record__primary">{primary}</Text>
-        {secondary && <Text className="bill-overview-record__secondary">{secondary}</Text>}
-      </Text>
-      <Text className={`bill-overview-record__amount font-number text-[15px] font-bold leading-[22.5px] bill-overview-record__amount--${amountTone}`} data-record-amount>
+        {secondary && <Box className="bill-overview-record__secondary">{secondary}</Box>}
+      </Box>
+      <Box className={`bill-overview-record__amount font-number text-[15px] font-bold leading-[22.5px] bill-overview-record__amount--${amountTone}`} data-record-amount>
         <Text className="bill-overview-record__amount-value">{amount}</Text>
         {originalAmount && <Deleted className="bill-overview-record__original" data-record-original-amount>{originalAmount}</Deleted>}
-      </Text>
+      </Box>
     </Box>
   );
 }

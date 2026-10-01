@@ -1,9 +1,11 @@
+import type { RecordIndicatorSource } from '@ww-bill/bill-core'
 import { api } from '../../shared/api'
 import type { RecordType } from '../../shared/model/record-type'
 
-export interface RecordEntry {
+export interface RecordEntry extends RecordIndicatorSource {
   id: number
   amount: string
+  originalAmount?: string
   remark: string
   time: string
   type: RecordType

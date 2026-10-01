@@ -1,6 +1,7 @@
+import type { RecordIndicatorSource } from '@ww-bill/bill-core';
 import type { RecordEntry } from '../types';
 import type { RecordOverviewListGroup } from './RecordOverviewList';
-import { groupRecordsByKey, sumRecordAmounts } from '@ww-bill/bill-core';
+import { getRecordIndicators, groupRecordsByKey, sumRecordAmounts } from '@ww-bill/bill-core';
 import dayjs from 'dayjs';
 import { i18n } from '@/shared/i18n';
 import { money } from '@/shared/lib';
@@ -12,32 +13,8 @@ interface RecordSearchGroupOptions {
   showCategoryAsSecondary?: boolean;
 }
 
-interface RecordListIndicatorSource {
-  adjustmentSummary?: RecordEntry['adjustmentSummary'];
-  attachments?: readonly unknown[];
-  tags?: readonly { name: string }[];
-}
-
-export function getRecordListIndicators(record: RecordListIndicatorSource) {
-  const summary = record.adjustmentSummary;
-  const adjustmentSummary = summary
-    ? [
-        money.compare(summary.refundAmount, 0) > 0
-          ? i18n.t('adjustment.refundWithAmount', { amount: summary.refundAmount, ns: 'record' })
-          : undefined,
-        money.compare(summary.cashbackAmount, 0) > 0
-          ? i18n.t('adjustment.cashbackWithAmount', { amount: summary.cashbackAmount, ns: 'record' })
-          : undefined,
-        money.compare(summary.supplementAmount, 0) > 0
-          ? i18n.t('adjustment.supplementWithAmount', { amount: summary.supplementAmount, ns: 'record' })
-          : undefined,
-      ].filter(Boolean).join(' · ')
-    : undefined;
-  return {
-    adjustmentSummary,
-    hasAttachment: Boolean(record.attachments?.length),
-    tagSummary: record.tags?.map(tag => `#${tag.name}`).join(' ') || undefined,
-  };
+export function getRecordListIndicators(record: RecordIndicatorSource) {
+  return getRecordIndicators(record, (kind, amount) => i18n.t(`adjustment.${kind}WithAmount`, { amount, ns: 'record' }));
 }
 
 export function toRecordSearchGroups(

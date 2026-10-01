@@ -46,6 +46,7 @@ export const designIconNames = {
   'tab-mine-active': 'UserRound',
   'tab-mine': 'UserRound',
   'vip-crown': 'Crown',
+  'record-attachment': 'Image',
 } as const;
 
 export type DesignIconName = keyof typeof designIconNames;

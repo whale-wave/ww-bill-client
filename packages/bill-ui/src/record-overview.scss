@@ -97,6 +97,7 @@
   text-overflow: ellipsis;
 }
 .bill-overview-record__original {
+  text-decoration: line-through;
   font-family: var(--bill-font-numeric);
   font-size: 10px;
   font-weight: 600;
