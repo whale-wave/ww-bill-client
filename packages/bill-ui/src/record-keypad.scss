@@ -117,7 +117,14 @@
   line-height: 22.5px;
 }
 
-.record-editor-keypad .record-editor-keypad__operator[disabled] {
+.record-editor-keypad__disabled {
+  opacity: 0.45;
+}
+.record-editor-keypad__submit--disabled {
+  opacity: 0.5;
+}
+
+.record-editor-keypad .record-editor-keypad__operator.record-editor-keypad__disabled {
   color: var(--ww-theme-color-deep);
   background: var(--ww-component-record-editor-chip-background);
 }

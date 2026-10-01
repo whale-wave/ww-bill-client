@@ -19,3 +19,10 @@ export function groupCategoriesByParent<T extends CategoryNode>(categories: read
 
   return { roots, childrenByParent };
 }
+
+/** Keep an expanded category panel below its complete five-column row. */
+export function categoryRowEndIndex(index: number, count: number): number {
+  if (index < 0 || index >= count)
+    return -1;
+  return Math.min(count - 1, Math.floor(index / 5) * 5 + 4);
+}

@@ -12,7 +12,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     environmentOptions: { jsdom: { url: 'http://localhost/' } },
-    include: ['test/miniapp/basic-data-pages.spec.tsx', 'test/miniapp/appearance-session.spec.tsx', 'test/miniapp/presentation-fonts.spec.ts'],
+    include: ['test/miniapp/editor-page.spec.tsx', 'test/miniapp/basic-data-pages.spec.tsx', 'test/miniapp/appearance-session.spec.tsx', 'test/miniapp/presentation-fonts.spec.ts'],
     setupFiles: ['./test/setup.ts'],
   },
 });

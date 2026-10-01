@@ -1,7 +1,6 @@
 .create-page { position: fixed; inset: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--ww-page-gradient); }
 .create-category-viewport { flex: 1; min-height: 0; height: 0; background: var(--ww-surface-color); }
 .create-categories { padding:4px 18px 10px; }
-.create-categories__children { grid-column:1 / -1; border-top:1px solid var(--ww-border-color); border-bottom:1px solid var(--ww-border-color); }
 .create-form { flex-shrink: 0; background: var(--ww-component-record-editor-dock-background); }
 .create-form > .bill-record-entry { margin: 0 14px 5px; }
 .create-form__pickers { height: 44px; padding: 0 14px; justify-content: flex-start; gap: 4px; color: var(--ww-component-record-editor-chip-foreground); }

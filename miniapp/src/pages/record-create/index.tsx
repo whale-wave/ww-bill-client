@@ -1,7 +1,7 @@
 import { Fragment, useMemo, useRef, useState } from 'react'
 import { Button, Input, Picker, ScrollView, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { isDarkCategoryBackground, groupCategoriesByParent, money } from '@ww-bill/bill-core'
+import { isDarkCategoryBackground, groupCategoriesByParent, categoryRowEndIndex, money } from '@ww-bill/bill-core'
 import { RecordDetailChipContent, RecordCategoryGrid, categoryChoiceClassName, RecordEditorHeader, RecordAmountVisual, RecordEntryRow, CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
 import { EmptyState } from '../../shared/ui/empty-state'
 import { PageLoadingState } from '../../shared/ui/page-loading-state'
@@ -38,6 +38,9 @@ export default function RecordCreatePage() {
     () => groupCategoriesByParent(categoriesQuery.data ?? []),
     [categoriesQuery.data],
   )
+  const expandedCategory = rootCategories.find(category => category.id === expandedParentId)
+  const expandedChildren = expandedParentId ? childrenByParent.get(expandedParentId) ?? [] : []
+  const expandedRowEndIndex = categoryRowEndIndex(rootCategories.findIndex(category => category.id === expandedParentId), rootCategories.length)
   const selectedCategory = categories.find(category => category.id === selectedCategoryId)
   const createMutation = useCreateRecord()
 
@@ -113,7 +116,7 @@ export default function RecordCreatePage() {
       {categoriesQuery.isError && <EmptyState error title='分类加载失败' description={errorMessage(categoriesQuery.error)} actionLabel='重试' onAction={() => void categoriesQuery.refetch()} />}
       {!categoriesQuery.isLoading && !categoriesQuery.isError && !categoriesQuery.data?.length && <EmptyState title='暂无可用分类' description='请先在 Web 端配置记账分类。' />}
       <View className='create-categories'><RecordCategoryGrid primitive={View}>
-        {rootCategories.map(category => {
+        {rootCategories.map((category, index) => {
           const children = childrenByParent.get(category.id) ?? []
           return (
             <Fragment key={category.id}>
@@ -127,19 +130,19 @@ export default function RecordCreatePage() {
                   primitives={categoryPrimitives}
                 />
               </View>
-              {expandedParentId === category.id && (
-                <View className='create-categories__children'><RecordCategoryGrid primitive={View} variant='children'>
-                  <View className={categoryChoiceClassName(selectedCategoryId === category.id)} onClick={() => handleSelectCategory(category.id)}>
+              {index === expandedRowEndIndex && expandedCategory && (
+                <View className='bill-record-category-panel'><RecordCategoryGrid primitive={View} variant='children'>
+                  <View className={categoryChoiceClassName(selectedCategoryId === expandedCategory.id)} onClick={() => handleSelectCategory(expandedCategory.id)}>
                     <CategoryChoiceVisual
                       hint='直接记入'
-                      icon={<CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={24} color={isDarkCategoryBackground(category.backgroundColor) ? '#fff' : undefined} />}
-                      iconStyle={category.backgroundColor ? { backgroundColor: category.backgroundColor } : undefined}
-                      isSelected={selectedCategoryId === category.id}
-                      label={category.name}
+                      icon={<CategoryIcon categoryName={expandedCategory.name} iconKey={expandedCategory.icon} iconType={expandedCategory.iconType} textIconEnabled={expandedCategory.textIconEnabled} textIconIndex={expandedCategory.textIconIndex} size={24} color={isDarkCategoryBackground(expandedCategory.backgroundColor) ? '#fff' : undefined} />}
+                      iconStyle={expandedCategory.backgroundColor ? { backgroundColor: expandedCategory.backgroundColor } : undefined}
+                      isSelected={selectedCategoryId === expandedCategory.id}
+                      label={expandedCategory.name}
                       primitives={categoryPrimitives}
                     />
                   </View>
-                  {children.map(child => (
+                  {expandedChildren.map(child => (
                     <View key={child.id} className={categoryChoiceClassName(selectedCategoryId === child.id)} onClick={() => handleSelectCategory(child.id)}>
                       <CategoryChoiceVisual
                         icon={<CategoryIcon categoryName={child.name} iconKey={child.icon} iconType={child.iconType} textIconEnabled={child.textIconEnabled} textIconIndex={child.textIconIndex} size={24} color={isDarkCategoryBackground(child.backgroundColor) ? '#fff' : undefined} />}

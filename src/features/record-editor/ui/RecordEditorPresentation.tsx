@@ -3,7 +3,7 @@ import type { RecordEditorTag } from '../model/types';
 import type { RecordEditorController } from '../model/useRecordEditorController';
 import type { Asset, AssetGroup } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
-import { groupCategoriesByParent } from '@ww-bill/bill-core';
+import { categoryRowEndIndex, groupCategoriesByParent } from '@ww-bill/bill-core';
 import { CategoryChoiceVisual, RecordAmountVisual, RecordCategoryGrid, RecordDetailChipContent, RecordEditorHeader, RecordEntryRow, RecordKeypadLayout } from '@ww-bill/bill-ui';
 import {
   Delete as BackspaceIcon,
@@ -125,9 +125,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const expandedCategory = rootCategories.find(category => category.id === expandedCategoryId);
   const expandedChildren = expandedCategoryId ? childCategoriesByParent.get(expandedCategoryId) ?? [] : [];
   const expandedCategoryIndex = rootCategories.findIndex(category => category.id === expandedCategoryId);
-  const expandedRowEndIndex = expandedCategoryIndex < 0
-    ? -1
-    : Math.min(rootCategories.length - 1, Math.floor(expandedCategoryIndex / 5) * 5 + 4);
+  const expandedRowEndIndex = categoryRowEndIndex(expandedCategoryIndex, rootCategories.length);
   const selectedCategory = categories.find(category => category.id === controller.selectedCategory?.id)
     ?? (categoryState === 'ready' ? undefined : controller.selectedCategory);
   const hasValidSelectedCategory = categoryState === 'ready' && Boolean(selectedCategory);
@@ -247,6 +245,10 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
     },
     [controller],
   );
+
+  const isSubmitDisabled = isCalculationPending
+    ? !controller.calculator.canCalculate() || controller.isSubmitting
+    : !hasValidSelectedCategory || controller.isSubmitting || controller.isImageUploading || controller.hasImageUploadError;
 
   return (
     <div
@@ -394,7 +396,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                             <m.div
                               animate={{ height: 'auto', opacity: 1 }}
                               aria-label={t('record:bookkeeping.subcategoryGroup', { name: expandedCategory.name })}
-                              className="col-span-5 overflow-hidden rounded-[16px] bg-ww-surface-tint"
+                              className="bill-record-category-panel"
                               exit={{ height: 0, opacity: 0 }}
                               id={`record-editor-subcategories-${expandedCategory.id}`}
                               initial={isMotionEnabled ? { height: 0, opacity: 0 } : false}
@@ -607,6 +609,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     className={cn(
                       'record-editor-keypad__action record-editor-keypad__operator flex w-full items-center justify-center border-0 font-number text-lg font-bold disabled:opacity-45',
                       controller.activeSideIndex === index + 1 && 'record-editor-keypad__operator--active',
+                      (!showOperatorControls || controller.isNoteFocused) && 'record-editor-keypad__disabled',
                     )}
                     disabled={!showOperatorControls || controller.isNoteFocused}
                     key={operator}
@@ -621,16 +624,9 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               </div>
               <m.button
                 aria-label={isCalculationPending ? t('record:bookkeeping.calculateResult') : t('record:bookkeeping.complete')}
-                className="record-editor-keypad__action record-editor-keypad__submit ww-theme-primary-action w-full text-[15px] font-extrabold leading-[22.5px] disabled:opacity-50"
+                className={cn('record-editor-keypad__action record-editor-keypad__submit ww-theme-primary-action w-full text-[15px] font-extrabold leading-[22.5px]', isSubmitDisabled && 'record-editor-keypad__submit--disabled')}
                 data-record-editor-submit
-                disabled={
-                  isCalculationPending
-                    ? !controller.calculator.canCalculate() || controller.isSubmitting
-                    : !hasValidSelectedCategory
-                      || controller.isSubmitting
-                      || controller.isImageUploading
-                      || controller.hasImageUploadError
-                }
+                disabled={isSubmitDisabled}
                 onClick={() => {
                   if (isCalculationPending)
                     controller.calculator.resolveAmount();
