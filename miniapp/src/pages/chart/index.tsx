@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import { useDidShow } from '@tarojs/taro'
 import { formatDashboardAmount, formatChartPercent, getChartAverage } from '@ww-bill/bill-core'
+import { PageLoadingState } from '../../shared/ui/page-loading-state'
+import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
 import { Page } from '../../shared/ui/page'
 import { useMonthChart } from '../../entities/chart'
@@ -13,7 +15,6 @@ import { CategoryIcon } from '../../shared/ui/category-icon'
 import { Surface } from '../../shared/ui/surface'
 import { ChartTrend } from '../../shared/ui/chart-trend'
 import { ChartDonut } from '../../shared/ui/chart-donut'
-import { EmptyState } from '../../shared/ui/empty-state'
 
 
 export default function ChartPage() {
@@ -41,7 +42,7 @@ export default function ChartPage() {
       <View className='row chart-month'>
         <Button className='records-summary__nav' aria-label='上个月' onClick={handlePreviousMonth}>‹</Button><View className='records-summary__period'><PeriodLabel year={month.slice(0, 4)} yearSuffix='年' month={month.slice(5)} monthSuffix='月' primitive={Text} /></View><Button className='records-summary__nav' aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}>›</Button>
       </View>
-      {chartQuery.isLoading && <View className='state-panel'>正在加载图表…</View>}
+      {chartQuery.isLoading && <PageLoadingState label='正在加载图表…' />}
       {chartQuery.isError && <EmptyState error title='加载失败' description={errorMessage(chartQuery.error)} actionLabel='重试' onAction={() => void chartQuery.refetch()} />}
       {summary && <>
         <Surface className='bill-dashboard-section chart-section' material='content'>

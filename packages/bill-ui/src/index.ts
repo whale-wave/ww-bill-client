@@ -34,12 +34,14 @@ export { MetricRow } from './metric-row';
 
 export type { MetricRowItem, MetricRowPrimitives, MetricRowProps, MetricTone } from './metric-row';
 
+export { PageLoadingVisual } from './page-loading';
+
 export { PeriodLabel } from './period-label';
-
 export { ProfileSummaryVisual } from './profile-summary';
-export { RankingSectionVisual } from './ranking-section';
 
+export { RankingSectionVisual } from './ranking-section';
 export { RecordCategoryGrid } from './record-category-grid';
+
 export { RecordDetailChipContent } from './record-detail-chip';
 
 export { RecordEditorHeader } from './record-editor-header';
@@ -47,16 +49,16 @@ export { RecordEditorHeader } from './record-editor-header';
 export { RecordAmountVisual, RecordEntryRow } from './record-entry';
 
 export type { RecordAmountVisualProps, RecordEntryRowProps } from './record-entry';
-
 export { RecordKeypadLayout } from './record-keypad';
+
 export { recordKeypadKeys } from './record-keypad-keys';
 
 export { RecordLine } from './record-line';
 
 export type { RecordLinePrimitives, RecordLineProps } from './record-line';
-
 export { RecordDateGroupHeader, RecordGroupSurface, RecordOverviewRowContent } from './record-overview';
-export { PageHeadingVisual, RecordSummaryContent } from './record-summary';
 
+export { PageHeadingVisual, RecordSummaryContent } from './record-summary';
 export { SurfacePresentation } from './surface';
+
 export type { SurfaceMaterial, SurfacePresentationProps } from './surface';

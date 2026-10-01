@@ -3,6 +3,8 @@ import { Button, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 import { getRecordDisplayTitle, groupRecordsByKey, sumRecordAmounts, isDarkCategoryBackground, money } from '@ww-bill/bill-core'
 import { PageHeadingVisual, RecordSummaryContent, MetricRow, PeriodLabel, RecordOverviewRowContent, RecordDateGroupHeader, RecordGroupSurface } from '@ww-bill/bill-ui'
+import { PageLoadingState } from '../../shared/ui/page-loading-state'
+import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
 import { Page } from '../../shared/ui/page'
 import { useMonthRecords } from '../../entities/record'
@@ -12,7 +14,6 @@ import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
 import { AppButton } from '../../shared/ui/app-button'
 import { CategoryIcon } from '../../shared/ui/category-icon'
-import { EmptyState } from '../../shared/ui/empty-state'
 
 export default function RecordsPage() {
   const [month, setMonth] = useState(currentMonth)
@@ -71,7 +72,7 @@ export default function RecordsPage() {
         />
       </Surface>
       <View className='row'><Text className='section-title'>该月记录</Text><Text className='muted'>{firstPage?.total ?? 0} 笔</Text></View>
-      {recordsQuery.isLoading && <View className='state-panel'>正在加载明细…</View>}
+      {recordsQuery.isLoading && <PageLoadingState label='正在加载明细…' />}
       {recordsQuery.isError && <EmptyState error title='加载失败' description={errorMessage(recordsQuery.error)} actionLabel='重试' onAction={() => void recordsQuery.refetch()} />}
       {!recordsQuery.isLoading && !recordsQuery.isError && records.length === 0 && <EmptyState title='这个月还没有记录' description='记下第一笔，开始整理本月收支。' actionLabel='记一笔' onAction={handleCreate} />}
       {groups.map(group => (

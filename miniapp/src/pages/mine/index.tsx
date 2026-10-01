@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { MetricRow, ProfileSummaryVisual } from '@ww-bill/bill-ui'
 import { Image, Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
+import { PageLoadingState } from '../../shared/ui/page-loading-state'
+import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
 import { Page } from '../../shared/ui/page'
 import { DesignIcon } from '../../shared/ui/design-icon'
@@ -11,7 +13,6 @@ import { errorMessage } from '../../shared/lib/errors'
 import { resolvePublicMediaUrl } from '../../shared/lib/public-media-url'
 import { Surface } from '../../shared/ui/surface'
 import { AppButton } from '../../shared/ui/app-button'
-import { EmptyState } from '../../shared/ui/empty-state'
 
 export default function MinePage() {
   const [failedAvatar, setFailedAvatar] = useState<string | null>(null)
@@ -30,7 +31,7 @@ export default function MinePage() {
 
   return (
     <Page className='page'>
-      {userQuery.isLoading && <View className='state-panel'>正在加载账号信息…</View>}
+      {userQuery.isLoading && <PageLoadingState label='正在加载账号信息…' />}
       {userQuery.isError && <EmptyState error title='加载失败' description={errorMessage(userQuery.error)} actionLabel='重试' onAction={() => void userQuery.refetch()} />}
       {userQuery.data && <>
         <Surface className='mine-profile' material='raised'>

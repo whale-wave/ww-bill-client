@@ -34,12 +34,12 @@ describe('pageLoadingState', () => {
 
   it('uses the compact min-height when compact is set and the full height otherwise', () => {
     const compact = render(PageLoadingState, { compact: true, label: 'c' });
-    expect(compact.querySelector('[class~="min-h-[160px]"]')).not.toBeNull();
-    expect(compact.querySelector('[class~="min-h-[300px]"]')).toBeNull();
+    expect(compact.querySelector('.bill-page-loading--compact')).not.toBeNull();
+    expect(compact.querySelector('.bill-page-loading:not(.bill-page-loading--compact)')).toBeNull();
 
     const full = render(PageLoadingState, { label: 'f' });
-    expect(full.querySelector('[class~="min-h-[300px]"]')).not.toBeNull();
-    expect(full.querySelector('[class~="min-h-[160px]"]')).toBeNull();
+    expect(full.querySelector('.bill-page-loading:not(.bill-page-loading--compact)')).not.toBeNull();
+    expect(full.querySelector('.bill-page-loading--compact')).toBeNull();
   });
 
   it('forwards testId to data-testid', () => {

@@ -3,6 +3,8 @@ import { Button, Input, Picker, ScrollView, Text, View } from '@tarojs/component
 import Taro from '@tarojs/taro'
 import { isDarkCategoryBackground, groupCategoriesByParent, money } from '@ww-bill/bill-core'
 import { RecordDetailChipContent, RecordCategoryGrid, categoryChoiceClassName, RecordEditorHeader, RecordAmountVisual, RecordEntryRow, CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
+import { EmptyState } from '../../shared/ui/empty-state'
+import { PageLoadingState } from '../../shared/ui/page-loading-state'
 import './index.scss'
 import { Page } from '../../shared/ui/page'
 import { useCategories, type RecordType } from '../../entities/category'
@@ -13,7 +15,6 @@ import { errorMessage } from '../../shared/lib/errors'
 import { DesignIcon } from '../../shared/ui/design-icon'
 import { useCalculator } from '../../features/record-create/model/use-calculator'
 import { RecordKeypad } from '../../shared/ui/record-keypad'
-import { AppButton } from '../../shared/ui/app-button'
 import { CategoryIcon } from '../../shared/ui/category-icon'
 
 const categoryPrimitives: CategoryChoicePrimitives = { Box: View, Text }
@@ -108,9 +109,9 @@ export default function RecordCreatePage() {
         <Button className={`bill-record-type${recordType === 'add' ? ' bill-record-type--income' : ''}`} onClick={() => handleRecordType('add')}>收入</Button>
       </RecordEditorHeader>
       <ScrollView scrollY className='create-category-viewport'>
-      {categoriesQuery.isLoading && <View className='state-panel'>正在加载分类…</View>}
-      {categoriesQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(categoriesQuery.error)}</Text><AppButton variant='secondary' onClick={() => void categoriesQuery.refetch()}>重试</AppButton></View>}
-      {!categoriesQuery.isLoading && !categoriesQuery.isError && !categoriesQuery.data?.length && <View className='state-panel'>暂无可用分类</View>}
+      {categoriesQuery.isLoading && <PageLoadingState label='正在加载分类…' />}
+      {categoriesQuery.isError && <EmptyState error title='分类加载失败' description={errorMessage(categoriesQuery.error)} actionLabel='重试' onAction={() => void categoriesQuery.refetch()} />}
+      {!categoriesQuery.isLoading && !categoriesQuery.isError && !categoriesQuery.data?.length && <EmptyState title='暂无可用分类' description='请先在 Web 端配置记账分类。' />}
       <View className='create-categories'><RecordCategoryGrid primitive={View}>
         {rootCategories.map(category => {
           const children = childrenByParent.get(category.id) ?? []

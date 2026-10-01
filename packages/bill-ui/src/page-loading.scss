@@ -1,0 +1,47 @@
+.bill-page-loading {
+  display: flex;
+  min-height: 300px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--ww-text-color-mid);
+}
+.bill-page-loading__whale {
+  width: 56px;
+  height: 56px;
+}
+.bill-page-loading__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.bill-page-loading--compact {
+  min-height: 160px;
+}
+.bill-page-loading--compact .bill-page-loading__whale {
+  width: 40px;
+  height: 40px;
+}
+.ww-page-loading__whale {
+  animation: ww-page-loading-breathe 1.8s ease-in-out infinite;
+}
+@keyframes ww-page-loading-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(-4px) scale(1.04);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ww-page-loading__whale {
+    animation: none;
+  }
+}
