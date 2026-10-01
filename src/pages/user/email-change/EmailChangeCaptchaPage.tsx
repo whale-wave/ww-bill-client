@@ -41,7 +41,7 @@ const EmailChangeCaptcha: React.FC<EmailChangeProps> = () => {
   return (
     <div className="page-new relative overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-24 h-52 w-52 rounded-full bg-primary-light/35 blur-3xl" />
-      <PageHeader backLabel={t('emailChange.back')} onBack={onBack} title={t('emailChange.verifyEmail')} />
+      <PageHeader backLabel={t('emailChange.back')} onBack={onBack} title={t('emailChange.title')} />
       <main className="relative z-[1] min-h-0 flex-grow overflow-y-auto px-[18px] pb-8">
         <div className="mx-auto w-full max-w-[420px]">
           <div className="mb-5 flex items-center gap-3 px-1">
