@@ -17,6 +17,7 @@ export const designIconNames = {
   'empty-alert': 'CircleAlert',
   'empty-retry': 'RefreshCw',
   'editor-back': 'ArrowLeft',
+  'editor-category-empty': 'Tags',
   'editor-date': 'CalendarDays',
   'editor-time': 'Clock3',
   'editor-delete': 'Delete',

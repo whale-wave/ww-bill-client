@@ -5,17 +5,19 @@ import Taro from './mocks/taro';
 
 vi.mock('../../miniapp/src/features/auth', () => ({ useAuthGate: () => true }));
 vi.mock('../../miniapp/src/features/record-create', () => ({ useCreateRecord: () => ({ isLoading: false }) }));
-const categoriesState = vi.hoisted(() => ({ isError: false, refetch: vi.fn() }));
+const categoriesState = vi.hoisted(() => ({ isError: false, isLoading: false, isEmpty: false, refetch: vi.fn() }));
 vi.mock('../../miniapp/src/entities/category', () => ({
   useCategories: () => ({
-    isLoading: false,
+    isLoading: categoriesState.isLoading,
     isError: categoriesState.isError,
     refetch: categoriesState.refetch,
-    data: [
-      ...Array.from({ length: 7 }, (_, index) => ({ id: index + 1, name: `分类${index + 1}`, icon: 'food', parentId: null })),
-      { id: 11, name: '午餐', icon: 'food', parentId: 1 },
-      { id: 12, name: '晚餐', icon: 'food', parentId: 6 },
-    ],
+    data: categoriesState.isEmpty
+      ? []
+      : [
+          ...Array.from({ length: 7 }, (_, index) => ({ id: index + 1, name: `分类${index + 1}`, icon: 'food', parentId: null })),
+          { id: 11, name: '午餐', icon: 'food', parentId: 1 },
+          { id: 12, name: '晚餐', icon: 'food', parentId: 6 },
+        ],
   }),
 }));
 
@@ -28,6 +30,8 @@ beforeAll(async () => {
 afterEach(() => {
   cleanup?.();
   categoriesState.isError = false;
+  categoriesState.isLoading = false;
+  categoriesState.isEmpty = false;
   categoriesState.refetch.mockReset();
 });
 
@@ -44,6 +48,20 @@ function click(element: Element | null | undefined) {
 }
 
 describe('miniapp editor presentation', () => {
+  it('uses the compact full-height category loading presentation', () => {
+    categoriesState.isLoading = true;
+    const page = renderPage();
+    expect(page.querySelector('.bill-record-category-loading.bill-page-loading--compact')?.textContent).toBe('正在加载分类');
+    expect(page.querySelector('[data-record-editor-keypad]')).not.toBeNull();
+  });
+  it('uses the shared category empty state without offering unsupported actions', () => {
+    categoriesState.isEmpty = true;
+    const page = renderPage();
+    expect(page.querySelector('.bill-record-category-empty .bill-empty-state__title')?.textContent).toBe('还没有可用分类');
+    expect(page.querySelector('.bill-empty-state__description')?.textContent).toBe('请先在设置中创建收支分类，再回来记账');
+    expect(page.querySelector('.bill-empty-state__action')).toBeNull();
+    expect(page.querySelector('[data-record-editor-keypad]')).not.toBeNull();
+  });
   it('uses the shared category error presentation and native retry callback', () => {
     categoriesState.isError = true;
     const page = renderPage();

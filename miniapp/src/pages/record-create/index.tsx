@@ -2,8 +2,7 @@ import { Fragment, useMemo, useRef, useState } from 'react'
 import { Button, Input, ScrollView, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { isDarkCategoryBackground, groupCategoriesByParent, categoryRowEndIndex, money } from '@ww-bill/bill-core'
-import { RecordDetailChipContent, RecordCategoryGrid, RecordCategoryErrorVisual, categoryChoiceClassName, RecordEditorHeader, RecordAmountVisual, RecordEntryRow, CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
-import { EmptyState } from '../../shared/ui/empty-state'
+import { RecordDetailChipContent, RecordCategoryGrid, RecordCategoryErrorVisual, EmptyStateVisual, categoryChoiceClassName, RecordEditorHeader, RecordAmountVisual, RecordEntryRow, CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
 import { PageLoadingState } from '../../shared/ui/page-loading-state'
 import './index.scss'
 import { Page } from '../../shared/ui/page'
@@ -119,9 +118,9 @@ export default function RecordCreatePage() {
         <Button className={`bill-record-type${recordType === 'add' ? ' bill-record-type--income' : ''}`} onClick={() => handleRecordType('add')}>收入</Button>
       </RecordEditorHeader>
       <ScrollView scrollY className='create-category-viewport'>
-      {categoriesQuery.isLoading && <PageLoadingState label='正在加载分类…' />}
+      {categoriesQuery.isLoading && <PageLoadingState className='bill-record-category-loading' compact label='正在加载分类' />}
       {categoriesQuery.isError && <RecordCategoryErrorVisual primitives={{ Box: View, Text }} label='加载失败' icon={<DesignIcon name='empty-alert' size={17} tone='muted' />} action={<Button className='bill-record-category-error__retry' onClick={() => void categoriesQuery.refetch()}>重试</Button>} />}
-      {!categoriesQuery.isLoading && !categoriesQuery.isError && !categoriesQuery.data?.length && <EmptyState title='暂无可用分类' description='请先在 Web 端配置记账分类。' />}
+      {!categoriesQuery.isLoading && !categoriesQuery.isError && !categoriesQuery.data?.length && <EmptyStateVisual primitives={{ Box: View, Title: Text, Description: Text, Dot: View }} className='bill-record-category-empty' title='还没有可用分类' description='请先在设置中创建收支分类，再回来记账' icon={<DesignIcon name='editor-category-empty' size={30} tone='active' />} />}
       <View className='create-categories'><RecordCategoryGrid primitive={View}>
         {rootCategories.map((category, index) => {
           const children = childrenByParent.get(category.id) ?? []

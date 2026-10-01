@@ -76,3 +76,25 @@
 .bill-record-category-error__retry::after {
   border: 0;
 }
+
+.bill-record-category-loading.bill-page-loading,
+.bill-record-category-empty.bill-empty-state {
+  min-height: 100%;
+}
+@media (max-height: 680px) {
+  .bill-record-category-empty.bill-empty-state {
+    padding: 8px 10px;
+  }
+  .bill-record-category-empty .bill-empty-state__illustration {
+    display: none;
+  }
+  .bill-record-category-empty .bill-empty-state__title {
+    font-size: 13px;
+    line-height: 18px;
+  }
+  .bill-record-category-empty .bill-empty-state__description {
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 16px;
+  }
+}

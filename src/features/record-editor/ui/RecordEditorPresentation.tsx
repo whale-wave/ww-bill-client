@@ -327,7 +327,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             ref={categoryViewportRef}
           >
             {categoryState === 'loading' && (
-              <PageLoadingState className="min-h-full" compact label={t('record:bookkeeping.loadingCategories')} />
+              <PageLoadingState className="bill-record-category-loading" compact label={t('record:bookkeeping.loadingCategories')} />
             )}
             {categoryState === 'error' && (
               <RecordCategoryErrorVisual
@@ -338,9 +338,9 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             )}
             {categoryState === 'ready' && categories.length === 0 && (
               <IllustratedEmptyState
-                className="record-editor-empty-state min-h-full"
+                className="record-editor-empty-state bill-record-category-empty"
                 description={t('record:bookkeeping.emptyCategoryDescription')}
-                icon={<Tags className="text-primary-deep" size={30} strokeWidth={1.5} />}
+                icon={<DesignIcon name="editor-category-empty" className="text-primary-deep" size={30} strokeWidth={1.8} />}
                 testId="record-editor-empty-state"
                 title={t('record:bookkeeping.emptyCategoryTitle')}
               />
