@@ -89,10 +89,12 @@ flowchart TD
   Forget --> SendForgetEmail["请求 /auth/forget-password-email"]
   SendForgetEmail --> VerifyCode["/forget-password/verify-code 校验 /auth/forget-password-email/verify-code"]
   VerifyCode --> Reset["/forget-password/reset 提交 /auth/password/forget/reset"]
-  Reset --> Done["重置成功后返回我的页"]
+  Reset --> Done["重置成功后返回登录页"]
 ```
 
 源码入口：`src/pages/auth/login/LoginPage.tsx`, `src/pages/auth/sign/SignPage.tsx`, `src/pages/auth/forget-password/*`, `src/entities/auth`, `src/entities/tools`, `src/features/auth`, `src/features/email-captcha`。
+
+找回密码验证码与登录验证码复用服务端进程内挑战缓存，按用途与规范化邮箱隔离，不依赖 Session/Cookie。验证步骤不消费验证码；重置步骤在密码校验通过后、写入前消费，禁止重复使用。有效期 10 分钟，重发冷却 60 秒，错误次数上限 5 次。验证业务失败显示后端提示，提交中禁用按钮。服务重启或多实例分流仍可能导致验证码失效。执行记录见[找回密码验证码脱离 Session](../../../ww-bill-service/docs/execution/2026-10-01-password-recovery.md)。
 
 ## 记账、明细、编辑与搜索
 

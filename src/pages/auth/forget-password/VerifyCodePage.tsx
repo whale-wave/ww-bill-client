@@ -11,12 +11,13 @@ import { EmailCaptchaInput } from '@/features/email-captcha';
 import { buildResetPath, readPasswordRecoveryParams } from '@/pages/auth/forget-password/model/params';
 import { useTranslation } from '@/shared/i18n';
 import { playSound } from '@/shared/lib/play-sound';
-import { FormField } from '@/shared/ui';
+import { FormField, showAppError } from '@/shared/ui';
 
 const ForgetPasswordVerifyCode: FC = () => {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const [captcha, setCaptcha] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [cooldownStartedAt] = useState(() => Date.now());
   const [urlSearchParams] = useSearchParams();
   const { email } = readPasswordRecoveryParams(urlSearchParams);
@@ -32,18 +33,27 @@ const ForgetPasswordVerifyCode: FC = () => {
   }, [email]);
 
   const handleSubmit = useCallback(async () => {
+    if (isSubmitting)
+      return;
+    setIsSubmitting(true);
     try {
-      const response = await getToolsForgetPasswordEmailVerifyCodeApi({ email, captcha });
+      const response = await getToolsForgetPasswordEmailVerifyCodeApi({ email, captcha: captcha.trim() });
       if (response.statusCode === 200) {
         setTimeout(() => {
-          navigate(buildResetPath({ captcha, email }), { replace: true });
+          navigate(buildResetPath({ captcha: captcha.trim(), email }), { replace: true });
         }, 400);
+      }
+      else {
+        showAppError(undefined, { message: response.message });
       }
     }
     catch {
       // HTTP interceptor displays error prompt automatically
     }
-  }, [captcha, email, navigate]);
+    finally {
+      setIsSubmitting(false);
+    }
+  }, [captcha, email, isSubmitting, navigate]);
 
   useEffect(() => {
     if (!email)
@@ -74,7 +84,7 @@ const ForgetPasswordVerifyCode: FC = () => {
           value={captcha}
         />
       </div>
-      <AuthPrimaryButton disabled={isDisabled} onClick={() => void handleSubmit()} testId="password-recovery-next">
+      <AuthPrimaryButton disabled={isDisabled} loading={isSubmitting} onClick={() => void handleSubmit()} testId="password-recovery-next">
         {t('common:nav.next')}
       </AuthPrimaryButton>
     </AuthPageShell>

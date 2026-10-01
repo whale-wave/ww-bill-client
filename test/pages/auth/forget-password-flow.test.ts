@@ -14,11 +14,13 @@ const {
   confirmDialog,
   getForgetPasswordEmail,
   postPasswordReset,
+  showError,
   verifyForgetPasswordCode,
 } = vi.hoisted(() => ({
   confirmDialog: vi.fn<() => Promise<boolean>>(),
   getForgetPasswordEmail: vi.fn(),
   postPasswordReset: vi.fn(),
+  showError: vi.fn(),
   verifyForgetPasswordCode: vi.fn(),
 }));
 
@@ -47,12 +49,13 @@ vi.mock('antd-mobile', () => ({
 
 vi.mock('@/features/auth', () => ({
   AuthPageShell: ({ children }: { children: ReactNode }) => createElement('main', null, children),
-  AuthPrimaryButton: ({ children, disabled, onClick, testId }: {
+  AuthPrimaryButton: ({ children, disabled, loading, onClick, testId }: {
     children: ReactNode;
     disabled?: boolean;
+    loading?: boolean;
     onClick: () => unknown;
     testId?: string;
-  }) => createElement('button', { 'data-testid': testId, disabled, onClick }, children),
+  }) => createElement('button', { 'data-testid': testId, 'disabled': disabled || loading, onClick }, children),
 }));
 
 vi.mock('@/pages/auth/forget-password/ui', () => ({
@@ -107,6 +110,7 @@ vi.mock('@/shared/lib/play-sound', () => ({
 
 vi.mock('@/shared/ui', () => ({
   confirmAppAction: confirmDialog,
+  showAppError: showError,
   FormField: ({
     disabled,
     onChange,
@@ -180,6 +184,7 @@ function getNextButton(container: HTMLElement) {
 beforeEach(() => {
   vi.useFakeTimers();
   confirmDialog.mockReset();
+  showError.mockReset();
   getForgetPasswordEmail.mockReset();
   postPasswordReset.mockReset();
   verifyForgetPasswordCode.mockReset();
@@ -227,6 +232,35 @@ describe('password recovery pages', () => {
       email,
     });
     expect(router.state.historyAction).toBe('REPLACE');
+  });
+
+  it.each([
+    { statusCode: 4004, message: '验证码错误' },
+    { statusCode: 4005, message: '验证码过期' },
+    { statusCode: 4003, message: '重新获取验证码' },
+  ])('shows the verification business failure: $message', async (response) => {
+    verifyForgetPasswordCode.mockResolvedValue(response);
+    const { container, router } = renderAt('/forget-password/verify-code?email=user%40example.com');
+    enterText(getInput(container, 'captcha.placeholder'), '123456');
+    await act(async () => getNextButton(container).click());
+    expect(showError).toHaveBeenCalledWith(undefined, { message: response.message });
+    expect(router.state.location.pathname).toBe('/forget-password/verify-code');
+    expect(getNextButton(container).disabled).toBe(false);
+  });
+
+  it('disables submission while verification is pending', async () => {
+    let finish: ((response: { statusCode: number; message: string }) => void) | undefined;
+    verifyForgetPasswordCode.mockReturnValue(new Promise((resolve) => {
+      finish = resolve;
+    }));
+    const { container } = renderAt('/forget-password/verify-code?email=user%40example.com');
+    enterText(getInput(container, 'captcha.placeholder'), '123456');
+    await act(async () => getNextButton(container).click());
+    expect(getNextButton(container).disabled).toBe(true);
+    await act(async () => getNextButton(container).click());
+    expect(verifyForgetPasswordCode).toHaveBeenCalledTimes(1);
+    await act(async () => finish?.({ statusCode: 4004, message: '验证码错误' }));
+    expect(getNextButton(container).disabled).toBe(false);
   });
 
   it('sends the routed email and captcha with the entered reset passwords', async () => {
