@@ -1,5 +1,6 @@
 import type { ChartDashboardPeriod } from '@/entities/chart';
-import { addDays, addMonths, format, getISOWeek, getISOWeekYear, startOfISOWeek, subDays, subMonths } from 'date-fns';
+import { formatMonthPeriod } from '@ww-bill/bill-core';
+import { addDays, addMonths, format, getISOWeek, getISOWeekYear, startOfISOWeek, subDays } from 'date-fns';
 
 export type SelectableDashboardPeriod = Extract<ChartDashboardPeriod, 'week' | 'month' | 'year'>;
 
@@ -48,16 +49,12 @@ export function getDashboardPeriodTitle(period: SelectableDashboardPeriod, ancho
       : t('tab.yearWeekNumber', { year, week });
   }
   if (period === 'month') {
-    const year = anchor.getFullYear();
-    const month = anchor.getMonth() + 1;
-    if (year === current.getFullYear() && month === current.getMonth() + 1)
-      return t('tab.thisMonth');
-    const previous = subMonths(current, 1);
-    if (year === previous.getFullYear() && month === previous.getMonth() + 1)
-      return t('tab.lastMonth');
-    return year === current.getFullYear()
-      ? t('tab.monthNumber', { month })
-      : t('tab.yearMonthNumber', { year, month });
+    return formatMonthPeriod(anchorDate.slice(0, 7), today.slice(0, 7), {
+      thisMonth: t('tab.thisMonth'),
+      lastMonth: t('tab.lastMonth'),
+      monthNumber: month => t('tab.monthNumber', { month }),
+      yearMonthNumber: (year, month) => t('tab.yearMonthNumber', { year, month }),
+    });
   }
   const year = anchor.getFullYear();
   if (year === current.getFullYear())

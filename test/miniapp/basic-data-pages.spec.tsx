@@ -3,6 +3,7 @@ import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
+const chartMonthRequests = vi.hoisted(() => vi.fn());
 const checkIn = vi.hoisted(() => ({ submit: vi.fn(), completed: false }));
 beforeEach(() => {
   checkIn.completed = false;
@@ -41,15 +42,20 @@ vi.mock('../../miniapp/src/entities/record', () => ({
 }));
 
 vi.mock('../../miniapp/src/entities/chart', () => ({
-  useMonthChart: () => ({
-    data: {
-      categories: [{ amount: '32.50', key: 'food', name: '餐饮' }],
-      summary: { expense: '32.50', income: '5000', net: '4967.50', averageDailyExpense: '1.08' },
-      timeline: [{ key: '2026-10-01', expense: '32.50', income: '5000', net: '4967.50' }, { key: '2026-10-02', expense: '0.00', income: '0', net: '0' }],
-    },
-    isError: false,
-    isLoading: false,
-  }),
+  useMonthChart: (options: { params: { month: string } }) => {
+    chartMonthRequests(options.params.month);
+    return ({
+      data: {
+        startDate: '2026-10-01',
+        endDate: '2026-10-31',
+        categories: [{ amount: '32.50', key: 'food', name: '餐饮' }],
+        summary: { expense: '32.50', income: '5000', net: '4967.50', averageDailyExpense: '1.08' },
+        timeline: [{ key: '2026-10-01', expense: '32.50', income: '5000', net: '4967.50' }, { key: '2026-10-02', expense: '0.00', income: '0', net: '0' }],
+      },
+      isError: false,
+      isLoading: false,
+    });
+  },
 }));
 
 vi.mock('../../miniapp/src/entities/user', () => ({
@@ -109,6 +115,7 @@ describe('miniapp basic data pages', () => {
     expect(page.textContent).toContain('餐饮');
     expect(page.textContent).toContain('¥32.50');
     expect(page.textContent).toContain('日均支出¥1.08');
+    expect(page.querySelector('.bill-dashboard-period-range')?.textContent).toBe('2026-10-01 — 2026-10-31');
     expect(page.querySelector('.bill-chart-trend')?.getAttribute('src')).toMatch(/^data:image\/svg\+xml,/);
     expect(page.textContent).not.toContain('趋势图暂时无法显示');
     const expenseSource = page.querySelector('.bill-chart-trend')?.getAttribute('src');
@@ -117,6 +124,23 @@ describe('miniapp basic data pages', () => {
     expect(incomeSwitch?.getAttribute('aria-pressed')).toBe('true');
     expect(page.querySelector('.bill-chart-trend')?.getAttribute('src')).not.toBe(expenseSource);
     expect(page.textContent).toContain('日均: ¥2,500.00');
+  });
+
+  it('keeps chart month navigation in the native host state', () => {
+    const page = renderPage(ChartPage);
+    const initialMonth = chartMonthRequests.mock.lastCall?.[0] as string;
+    const [year, month] = initialMonth.split('-').map(Number);
+    const previous = new Date(year, month - 2, 1);
+    const expected = `${previous.getFullYear()}-${String(previous.getMonth() + 1).padStart(2, '0')}`;
+    const next = page.querySelector<HTMLButtonElement>('button[aria-label="下个月"]');
+    expect(next?.disabled).toBe(true);
+    act(() => page.querySelector('button[aria-label="上个月"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(chartMonthRequests.mock.lastCall?.[0]).toBe(expected);
+    expect(next?.disabled).toBe(false);
+    expect(page.querySelector('.bill-dashboard-period-title')?.textContent).toBe('上月');
+    act(() => next?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(chartMonthRequests.mock.lastCall?.[0]).toBe(initialMonth);
+    expect(next?.disabled).toBe(true);
   });
 
   it('shows the current bill on discover', () => {

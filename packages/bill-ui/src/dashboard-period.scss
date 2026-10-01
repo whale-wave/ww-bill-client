@@ -1,0 +1,43 @@
+.bill-dashboard-period-toolbar {
+  display: flex;
+  height: calc(var(--ww-component-button-hit-target-min) + var(--ww-space-lg));
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ww-space-sm);
+  padding: 0 var(--ww-space-lg);
+}
+.bill-dashboard-period-control {
+  display: flex;
+  height: var(--ww-component-button-hit-target-min);
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--ww-space-xs);
+  text-align: center;
+}
+.bill-dashboard-period-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ww-theme-text-color);
+}
+.bill-dashboard-period-title--selectable {
+  color: var(--ww-theme-color-deep);
+}
+.bill-dashboard-period-range {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--bill-font-numeric);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ww-text-color-mid);
+}

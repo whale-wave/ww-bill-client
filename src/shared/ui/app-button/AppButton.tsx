@@ -34,7 +34,7 @@ export const AppButton = forwardRef<HTMLButtonElement, AppButtonProps>(({
     <button
       {...buttonProps}
       aria-busy={loading || undefined}
-      className={cn(buttonPresentationClassNames({ size, variant, fullWidth, loading }), className)}
+      className={cn(buttonPresentationClassNames({ size, variant, fullWidth, loading }), isDisabled && 'bill-button--disabled', className)}
       disabled={isDisabled}
       ref={ref}
       type={type}

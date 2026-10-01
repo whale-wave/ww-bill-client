@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { ChartDashboardMetric, ChartDashboardScope } from './model/useChartDashboardUrlState';
 import type { ChartDashboardPeriod, ChartDashboardResult } from '@/entities/chart';
 import { getCategoryDonutSlices, getChartAverage, formatDashboardAmount as money } from '@ww-bill/bill-core';
-import { DashboardCategoriesVisual, DashboardCategoryRowContent, DashboardDonutLabel, DashboardHeadingVisual, DashboardSummaryVisual, DashboardTrendVisual } from '@ww-bill/bill-ui';
+import { DashboardCategoriesVisual, DashboardCategoryRowContent, DashboardDonutLabel, DashboardHeadingVisual, DashboardPeriodContent, DashboardPeriodToolbar, DashboardSummaryVisual, DashboardTrendVisual } from '@ww-bill/bill-ui';
 import { addDays, addMonths, addYears } from 'date-fns';
 import { ChevronDown, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -223,7 +223,7 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
           }, { replace: true });
         }}
       />
-      <div className="flex h-[calc(var(--ww-component-button-hit-target-min)+var(--ww-space-lg))] shrink-0 items-center justify-between gap-[var(--ww-space-sm)] px-[var(--ww-space-lg)]">
+      <DashboardPeriodToolbar>
         {period === 'custom'
           ? (
               <>
@@ -261,39 +261,22 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
                   ? (
                       <button
                         aria-label={`${t('dashboard.choosePeriod')}: ${periodTitle}, ${displayedStart} — ${displayedEnd}`}
-                        className="flex h-[var(--ww-component-button-hit-target-min)] min-w-0 flex-1 flex-col items-center justify-center px-[var(--ww-space-xs)] text-center"
+                        className="bill-dashboard-period-control"
                         onClick={() => setPeriodPickerOpen(true)}
                         type="button"
                       >
-                        <span className="flex items-center gap-1 text-[14px] font-bold text-primary-deep">
-                          {periodTitle}
-                          <ChevronDown aria-hidden size={15} />
-                        </span>
-                        <span className="max-w-full truncate font-number text-[11px] font-semibold text-ww-mid">
-                          {displayedStart}
-                          {' '}
-                          —
-                          {' '}
-                          {displayedEnd}
-                        </span>
+                        <DashboardPeriodContent title={periodTitle} start={displayedStart} end={displayedEnd} selectable chevron={<ChevronDown aria-hidden size={15} />} />
                       </button>
                     )
                   : (
-                      <span className="flex h-[var(--ww-component-button-hit-target-min)] min-w-0 flex-1 flex-col justify-center px-[var(--ww-space-xs)] text-center">
-                        <span className="block text-[14px] font-bold text-ww-ink">{periodTitle}</span>
-                        <span className="block truncate font-number text-[11px] font-semibold text-ww-mid">
-                          {displayedStart}
-                          {' '}
-                          —
-                          {' '}
-                          {displayedEnd}
-                        </span>
+                      <span className="bill-dashboard-period-control">
+                        <DashboardPeriodContent title={periodTitle} start={displayedStart} end={displayedEnd} />
                       </span>
                     )}
                 {period !== 'all' && <AppButton aria-label={t('dashboard.next')} className="shrink-0" disabled={periodEnd >= today} onClick={() => stepPeriod(1)} size="compact" variant="ghost"><ChevronRight size={20} /></AppButton>}
               </>
             )}
-      </div>
+      </DashboardPeriodToolbar>
       <main className="ww-tab-bar-scroll-padding min-h-0 flex-1 space-y-3 overflow-y-auto px-4" data-dashboard-scroll>
         {query.isError && <button className="w-full rounded-2xl bg-ww-surface p-4 text-sm text-feedback-danger" onClick={() => void query.refetch()} type="button">{t('dashboard.loadError')}</button>}
         {query.isLoading && !data && <div className="h-40 animate-pulse rounded-3xl bg-ww-surface" />}

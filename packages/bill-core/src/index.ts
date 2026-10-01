@@ -6,7 +6,7 @@ export * from './category-background';
 export * from './category-tree';
 export * from './chart-geometry';
 export { withColorAlpha } from './color';
-export { formatMonthDay } from './date-label';
+export { formatMonthDay, formatMonthPeriod } from './date-label';
 export * from './fit-metric-font';
 
 export * from './progress';

@@ -27,6 +27,8 @@ export const designIconNames = {
   'mine-message': 'MessageSquare',
   'mine-points': 'Star',
   'mine-settings': 'Settings',
+  'period-previous': 'ChevronLeft',
+  'period-next': 'ChevronRight',
   'period-chevron': 'ChevronRight',
   'search': 'Search',
   'shortcut-asset': 'WalletCards',
