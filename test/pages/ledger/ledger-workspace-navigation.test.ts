@@ -397,7 +397,7 @@ describe('personal ledger workspace integration', () => {
     expect(title?.className).not.toContain('text-left');
     expect(container.querySelector('[data-workspace-capsule]')).toBeNull();
     expect(searchAction?.parentElement).toBe(calendarAction?.parentElement);
-    expect(searchAction?.parentElement?.parentElement?.parentElement).toBe(header);
+    expect(searchAction?.closest('[data-testid="record-overview-header"]')).toBe(header);
     expect(shortcutButtons).toHaveLength(3);
     expect(Array.from(shortcutButtons).map(button => button.textContent)).toEqual([
       'bill:title',

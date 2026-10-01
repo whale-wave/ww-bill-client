@@ -366,7 +366,7 @@ describe('household records', () => {
     expect(dateGroup?.textContent).toContain('20.00');
     expect(recordRow?.classList).toContain('min-h-[68px]');
     expect(recordRow?.classList).not.toContain('min-h-[60px]');
-    expect(amount?.classList).toContain('text-finance-expense');
+    expect(amount?.classList).toContain('bill-overview-record__amount--expense');
     expect(incomeAmount?.textContent).toBe('100.00');
     expect(container.querySelector('[data-date-group="2026-07-20"]')?.textContent).toContain('records.dailyIncome');
     expect(container.querySelector('[data-category-icon="catering"] svg')?.classList).toContain('lucide-utensils');

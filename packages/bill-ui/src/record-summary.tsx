@@ -5,10 +5,10 @@ export function RecordSummaryContent({ period, amountToggle, metrics, shortcuts,
   return (
     <>
       <Box className="bill-record-summary__period-row relative flex min-h-11 items-center justify-between gap-2">
-        <Box className="bill-record-summary__period min-w-0 flex-1" data-record-overview-metrics>{period}</Box>
+        <Box className="bill-record-summary__period min-w-0 flex-1" data-record-overview-period>{period}</Box>
         {amountToggle}
       </Box>
-      {metrics}
+      <Box data-record-overview-metrics>{metrics}</Box>
       {shortcuts}
     </>
   );

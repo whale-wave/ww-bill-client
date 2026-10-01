@@ -119,7 +119,7 @@ describe('budget presentation', () => {
     expect(container.querySelector('[data-budget-add-category]')).toBeNull();
     const createButton = container.querySelector('[data-testid="budget-empty-state"] button');
     expect(createButton).not.toBeNull();
-    expect(createButton?.classList).toContain('bg-primary');
+    expect(createButton?.classList).toContain('bill-empty-state__action');
 
     act(() => createButton?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
     expect(handleSummaryCreate).toHaveBeenCalledOnce();
