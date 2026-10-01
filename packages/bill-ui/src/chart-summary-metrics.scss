@@ -1,0 +1,70 @@
+.bill-chart-metrics {
+  display: grid;
+  height: 62.5px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  margin: 0;
+  padding: 0;
+}
+.bill-chart-metrics__cell {
+  min-width: 0;
+  padding: 0 20px;
+  text-align: left;
+}
+.bill-chart-metrics__cell--divided {
+  border-left: 1px solid var(--bill-metric-divider);
+}
+.bill-chart-metrics__label {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16.5px;
+  letter-spacing: 0.5px;
+  color: var(--ww-text-color-mid);
+}
+.bill-chart-metrics__value {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: baseline;
+  margin: 4px 0 0;
+  font-family: 'Nunito Variable', 'Noto Sans SC Variable', system-ui, sans-serif;
+  color: var(--ww-theme-text-color);
+}
+.bill-chart-metrics__value--income {
+  color: var(--bill-income-color);
+}
+.bill-chart-metrics__value--expense {
+  color: var(--bill-expense-color);
+}
+.bill-chart-metrics__value--primary {
+  color: var(--ww-theme-color-deep);
+}
+.bill-chart-metrics__value--muted {
+  color: var(--ww-text-color-mid);
+}
+.bill-chart-metrics__currency {
+  margin-right: 4px;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 19.5px;
+  color: var(--ww-text-color-mid);
+}
+.bill-chart-metrics__slot {
+  display: block;
+  min-width: 0;
+  flex: 1;
+}
+.bill-chart-metrics__text {
+  display: inline-block;
+  max-width: none;
+  white-space: nowrap;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 42px;
+  letter-spacing: -1px;
+}

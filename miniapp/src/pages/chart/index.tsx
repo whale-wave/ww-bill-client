@@ -2,16 +2,15 @@ import { useState } from 'react'
 import { Text, View } from '@tarojs/components'
 import { useDidShow } from '@tarojs/taro'
 import { money } from '@ww-bill/bill-core'
-import { MetricRow, type MetricRowPrimitives } from '@ww-bill/bill-ui'
 import { useMonthChart } from '../../entities/chart'
 import { useAuthGate } from '../../features/auth'
 import { currentMonth, shiftMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
 import { AppButton } from '../../shared/ui/app-button'
+import { ChartSummary } from '../../shared/ui/chart-summary'
 import './index.scss'
 
-const metricPrimitives: MetricRowPrimitives = { Root: View, Cell: View, Label: Text, Value: View, Text }
 
 export default function ChartPage() {
   const [month, setMonth] = useState(currentMonth)
@@ -44,10 +43,10 @@ export default function ChartPage() {
         <Surface className='card chart-summary' material='raised'>
           <Text className='muted'>本月结余</Text>
           <Text className='money chart-summary__net'>¥{money.format(summary.net)}</Text>
-          <MetricRow align='start' columns={2} items={[
-            { key: 'income', label: '收入', tone: 'income', value: `¥${money.format(summary.income)}` },
-            { key: 'expense', label: '支出', tone: 'expense', value: `¥${money.format(summary.expense)}` },
-          ]} primitives={metricPrimitives}
+          <ChartSummary items={[
+            { key: 'income', label: '收入', tone: 'income', suffix: '¥', value: money.format(summary.income) },
+            { key: 'expense', label: '支出', tone: 'expense', suffix: '¥', value: money.format(summary.expense) },
+          ]}
           />
         </Surface>
         <Text className='section-title'>支出分类</Text>

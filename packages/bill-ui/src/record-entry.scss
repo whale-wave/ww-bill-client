@@ -1,0 +1,92 @@
+.bill-record-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 12px;
+  border-radius: var(--ww-radius-control);
+  background: var(--ww-component-record-editor-entry-background);
+}
+.bill-record-entry__note {
+  display: flex;
+  height: 100%;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+}
+.bill-record-entry__caption {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--ww-theme-color-deep);
+}
+.bill-record-entry__note-input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  padding: 4px 0;
+  background: transparent;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--ww-theme-text-color);
+  outline: none;
+}
+.bill-record-entry__amount-control {
+  display: flex;
+  min-height: 44px;
+  min-width: 0;
+  max-width: 72%;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+}
+.bill-record-amount {
+  display: flex;
+  max-width: 100%;
+  min-width: 0;
+  align-items: center;
+  white-space: nowrap;
+  font-family: 'Nunito Variable', 'Noto Sans SC Variable', system-ui, sans-serif;
+  font-weight: 900;
+  line-height: 44px;
+  letter-spacing: -1px;
+  color: var(--ww-theme-text-color);
+}
+@each $size in 23, 28, 34 {
+  .bill-record-amount--#{$size} {
+    font-size: #{$size}px;
+  }
+}
+.bill-record-amount__currency {
+  margin-right: 2px;
+  flex-shrink: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: normal;
+  color: var(--ww-text-color-soft);
+}
+.bill-record-amount__digits {
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+.bill-record-amount__input {
+  max-width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: right;
+  color: inherit;
+}

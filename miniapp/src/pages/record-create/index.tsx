@@ -2,7 +2,7 @@ import { Fragment, useMemo, useRef, useState } from 'react'
 import { Input, Picker, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { groupCategoriesByParent, money, normalizeAmount } from '@ww-bill/bill-core'
-import { CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
+import { RecordAmountVisual, RecordEntryRow, CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
 import { useCategories, type RecordType } from '../../entities/category'
 import { useAuthGate } from '../../features/auth'
 import { useCreateRecord } from '../../features/record-create'
@@ -150,11 +150,20 @@ export default function RecordCreatePage() {
         })}
       </View>
       <Surface className='card create-form'>
-        {selectedCategory && <Text className='muted'>已选分类：{selectedCategory.path ?? selectedCategory.name}</Text>}
-        <Text className='muted'>金额</Text>
-        <Input className='input-field create-form__amount' type='digit' value={amount} placeholder='0.00' onInput={event => handleAmount(event.detail.value)} />
-        <Text className='muted'>备注</Text>
-        <Input className='input-field' value={remark} placeholder={selectedCategory?.name ?? '选填'} onInput={event => setRemark(event.detail.value)} />
+        <RecordEntryRow
+          caption={selectedCategory ? `${selectedCategory.path ?? selectedCategory.name} · ${recordType === 'sub' ? '支出' : '收入'}` : '请选择分类'}
+          primitives={{ Box: View, Note: View, Text }}
+          noteInput={<Input className='bill-record-entry__note-input' value={remark} placeholder='备注（选填）' onInput={event => setRemark(event.detail.value)} />}
+          amountControl={(
+            <View className='bill-record-entry__amount-control'>
+              <RecordAmountVisual
+                value={amount || '0.00'}
+                primitives={{ Box: View, Text }}
+                digits={fontSize => <Input className='bill-record-amount__input' style={{ width: `${Math.max(4, amount.length + 1) * fontSize * 0.65}px` }} type='digit' value={amount} placeholder='0.00' onInput={event => handleAmount(event.detail.value)} />}
+              />
+            </View>
+          )}
+        />
         <View className='row create-form__pickers'>
           <Picker mode='date' value={selectedDate} end={dateKey(new Date())} onChange={event => setSelectedDate(event.detail.value)}><View>{selectedDate}</View></Picker>
           <Picker mode='time' value={selectedTime} onChange={event => setSelectedTime(event.detail.value)}><View>{selectedTime}</View></Picker>

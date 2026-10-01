@@ -4,7 +4,7 @@ import type { RecordEditorController } from '../model/useRecordEditorController'
 import type { Asset, AssetGroup } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
 import { groupCategoriesByParent } from '@ww-bill/bill-core';
-import { CategoryChoiceVisual } from '@ww-bill/bill-ui';
+import { CategoryChoiceVisual, RecordAmountVisual, RecordEntryRow } from '@ww-bill/bill-ui';
 import {
   Delete as BackspaceIcon,
   Banknote,
@@ -222,7 +222,6 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   );
   const showOperatorControls
     = Number.parseFloat(controller.calculator.totals) > 0;
-  const amountLength = controller.calculator.totals.length;
   const isCalculationPending = controller.calculator.completeText === '=';
 
   useLayoutEffect(() => {
@@ -554,20 +553,16 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             />
           </div>
 
-          <div
-            className="record-editor-entry-row absolute inset-x-[14px] z-10 flex items-center gap-2 px-3"
-            data-record-editor-entry-row
-          >
-            <label className="flex h-full min-w-0 flex-1 flex-col justify-center" data-record-editor-note>
-              <div className="record-editor-amount-caption truncate text-[10px] font-semibold leading-4 text-primary-deep">
-                {selectedCategoryPath
-                  ? `${selectedCategoryPath} · ${controller.recordType === 'sub' ? t('record:bookkeeping.expend') : t('record:bookkeeping.income')}`
-                  : t('record:bookkeeping.chooseCategory')}
-              </div>
+          <RecordEntryRow
+            className="absolute inset-x-[14px] z-10"
+            caption={selectedCategoryPath
+              ? `${selectedCategoryPath} · ${controller.recordType === 'sub' ? t('record:bookkeeping.expend') : t('record:bookkeeping.income')}`
+              : t('record:bookkeeping.chooseCategory')}
+            noteInput={(
               <input
                 ref={noteInputRef}
                 aria-label={t('record:bookkeeping.note')}
-                className="min-w-0 w-full select-text border-0 bg-transparent py-1 text-[13px] leading-5 text-ww-ink outline-none placeholder:text-ww-mid [-webkit-user-select:text]"
+                className="bill-record-entry__note-input min-w-0 w-full select-text border-0 bg-transparent py-1 text-[13px] leading-5 text-ww-ink outline-none placeholder:text-ww-mid [-webkit-user-select:text]"
                 autoComplete="off"
                 enterKeyHint="done"
                 onBlur={() => controller.setIsNoteFocused(false)}
@@ -583,34 +578,21 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 type="text"
                 value={controller.remark}
               />
-            </label>
-            <button
-              aria-label={`${t('record:bookkeeping.amount')}：${controller.calculator.totals}`}
-              className="flex min-h-11 min-w-0 max-w-[72%] items-center justify-end text-right"
-              onClick={() => {
-                noteInputRef.current?.blur();
-                controller.setIsNoteFocused(false);
-              }}
-              type="button"
-            >
-              <span
-                className={cn(
-                  'record-editor-total flex max-w-full min-w-0 items-center whitespace-nowrap font-number font-black leading-[44px] tracking-[-1px] text-ww-ink',
-                  amountLength > 11 ? 'text-[23px]' : amountLength > 8 ? 'text-[28px]' : 'text-[34px]',
-                )}
-                data-record-editor-total
+            )}
+            amountControl={(
+              <button
+                aria-label={`${t('record:bookkeeping.amount')}：${controller.calculator.totals}`}
+                className="bill-record-entry__amount-control flex min-h-11 min-w-0 max-w-[72%] items-center justify-end text-right"
+                onClick={() => {
+                  noteInputRef.current?.blur();
+                  controller.setIsNoteFocused(false);
+                }}
+                type="button"
               >
-                <span className="mr-0.5 shrink-0 text-[18px] font-bold tracking-normal text-ww-soft">¥</span>
-                <span
-                  className="min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                  data-record-editor-amount-digits
-                  ref={amountDigitsRef}
-                >
-                  {controller.calculator.totals}
-                </span>
-              </span>
-            </button>
-          </div>
+                <RecordAmountVisual digitsRef={amountDigitsRef} value={controller.calculator.totals} />
+              </button>
+            )}
+          />
         </div>
 
         <section
