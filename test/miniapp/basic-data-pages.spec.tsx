@@ -41,7 +41,7 @@ vi.mock('../../miniapp/src/entities/record', () => ({
           pages: [{
             data: [
               { id: 1, amount: '32.50', originalAmount: '35.50', adjustmentSummary: { refundAmount: '3.00', cashbackAmount: '0.00', supplementAmount: '0.00' }, tags: [{ name: '午餐' }], attachments: [{}], category: { id: 1, icon: 'food', name: '午餐', path: '餐饮 / 午餐' }, remark: '便当', time: '2026-10-01T04:00:00.000Z', type: 'sub' },
-              { id: 2, amount: '5000', category: { id: 2, icon: 'salary', name: '工资' }, remark: '', time: '2026-10-01T04:00:00.000Z', type: 'add' },
+              { id: 2, amount: '5000', originalAmount: '5000.00', category: { id: 2, icon: 'salary', name: '工资' }, remark: '', time: '2026-10-01T04:00:00.000Z', type: 'add' },
             ],
             expend: 32.5,
             income: 5000,
@@ -157,7 +157,7 @@ describe('miniapp basic data pages', () => {
     expect(page.textContent).toContain('收入5000.00');
     expect(page.textContent).toContain('支出32.50');
     expect(page.querySelector('.bill-overview-record__secondary')?.textContent).toBe('退款 ¥3.00 · #午餐');
-    expect(page.querySelector('[data-record-original-amount]')?.textContent).toBe('-35.50');
+    expect(Array.from(page.querySelectorAll('[data-record-original-amount]'), element => element.textContent)).toEqual(['-35.5', '5000']);
     expect(page.querySelector('.bill-overview-record__secondary img')).not.toBeNull();
     expect(page.textContent).toContain('便当');
     expect(page.querySelector('.bill-overview-record__amount-value')?.textContent).toBe('-32.5');

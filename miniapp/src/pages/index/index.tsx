@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Button, Image, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
-import { getRecordIndicators, getRecordDisplayTitle, groupRecordsByKey, sumRecordAmounts, isDarkCategoryBackground, money, type RecordIndicatorSource } from '@ww-bill/bill-core'
+import { formatRecordOriginalAmount, getRecordIndicators, getRecordDisplayTitle, groupRecordsByKey, sumRecordAmounts, isDarkCategoryBackground, money, type RecordIndicatorSource } from '@ww-bill/bill-core'
 import { AmountToggleVisual, BrandMarkVisual, PageHeadingVisual, RecordSummaryContent, MetricRow, RecordOverviewRowContent, RecordSecondaryContent, RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordStateSurface, recordIconForeground } from '@ww-bill/bill-ui'
 import { appLogo } from '../../shared/lib/presentation-assets'
 import { PageLoadingState } from '../../shared/ui/page-loading-state'
@@ -92,7 +92,7 @@ export default function RecordsPage() {
                     amountTone={record.type === 'add' ? 'income' : 'expense'}
                     icon={<View className={`bill-overview-record__icon bill-overview-record__icon--${index % 4}`} style={record.category?.backgroundColor ? { backgroundColor: record.category.backgroundColor } : undefined}><CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} iconType={record.category?.iconType} textIconEnabled={record.category?.textIconEnabled} textIconIndex={record.category?.textIconIndex} color={isDarkCategoryBackground(record.category?.backgroundColor) ? '#fff' : recordIconForeground(index, template)} size={18} /></View>}
                     secondary={secondary || indicators.hasAttachment ? <RecordSecondaryContent primitives={{ Box: View, Text }} copy={secondary} attachmentIcon={indicators.hasAttachment ? <DesignIcon name='record-attachment' size={12} tone='active' /> : undefined} /> : undefined}
-                    originalAmount={record.originalAmount ? `-${record.originalAmount}` : undefined}
+                    originalAmount={formatRecordOriginalAmount(record.type, record.originalAmount)}
                     primary={getRecordDisplayTitle(record.remark, record.category?.path ?? record.category?.name ?? '未分类')}
                   />
                   {index !== group.entries.length - 1 && <View className='bill-overview-record__divider' />}

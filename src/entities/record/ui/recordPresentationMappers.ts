@@ -1,7 +1,7 @@
 import type { RecordIndicatorSource } from '@ww-bill/bill-core';
 import type { RecordEntry } from '../types';
 import type { RecordOverviewListGroup } from './RecordOverviewList';
-import { getRecordIndicators, groupRecordsByKey, sumRecordAmounts } from '@ww-bill/bill-core';
+import { formatRecordOriginalAmount, getRecordIndicators, groupRecordsByKey, sumRecordAmounts } from '@ww-bill/bill-core';
 import dayjs from 'dayjs';
 import { i18n } from '@/shared/i18n';
 import { money } from '@/shared/lib';
@@ -55,9 +55,7 @@ export function toRecordSearchGroups(
             ? () => options.onRecordClick?.(record)
             : undefined,
           overviewSecondary: secondary,
-          originalAmount: record.originalAmount
-            ? `${record.type === 'sub' ? '-' : ''}${money.formatNatural(record.originalAmount)}`
-            : undefined,
+          originalAmount: formatRecordOriginalAmount(record.type, record.originalAmount),
           primary: record.remark || record.category.name,
           secondary,
         };

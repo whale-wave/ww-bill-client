@@ -21,3 +21,4 @@ export * from './record-display-title';
 
 export * from './record-groups';
 export * from './record-indicators';
+export * from './record-original-amount';
