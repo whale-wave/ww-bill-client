@@ -116,6 +116,10 @@ describe('miniapp basic data pages', () => {
     expect(page.textContent).toContain('支出32.50');
     expect(page.textContent).toContain('餐饮 / 午餐');
     expect(page.textContent).toContain('便当');
+    expect(page.querySelector('.bill-overview-record__amount')?.textContent).toBe('-32.5');
+    expect(page.querySelector('.bill-record-group__header')?.textContent).toContain('支出 32.5');
+    const secondIcon = page.querySelector<HTMLImageElement>('.bill-overview-record__icon--1 img');
+    expect(decodeURIComponent(secondIcon?.getAttribute('src') ?? '')).toContain('stroke="#6d6d73"');
   });
 
   it('toggles the shared summary amount display without hiding record rows', () => {
@@ -126,7 +130,7 @@ describe('miniapp basic data pages', () => {
     act(() => toggle?.click());
     expect(summary?.textContent).not.toContain('5000.00');
     expect(summary?.textContent).toContain('\uFF0A'.repeat(5));
-    expect(page.querySelector('.bill-overview-record')?.textContent).toContain('-32.50');
+    expect(page.querySelector('.bill-overview-record__amount')?.textContent).toBe('-32.5');
     act(() => toggle?.click());
     expect(summary?.textContent).toContain('5000.00');
   });

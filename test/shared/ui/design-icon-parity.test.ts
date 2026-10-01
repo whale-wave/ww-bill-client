@@ -1,4 +1,4 @@
-import { categoryIconImageSource, categoryIconNames, designIconImageSource, designIconNames } from '@ww-bill/bill-ui';
+import { categoryIconImageSource, categoryIconNames, designIconImageSource, designIconNames, recordIconForeground } from '@ww-bill/bill-ui';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
@@ -6,6 +6,13 @@ import { CategoryIcon } from '@/entities/category';
 import { DesignIcon } from '@/shared/ui/design-icon';
 
 describe('shared design icons', () => {
+  it('resolves record container colors into SVG-compatible strokes for image hosts', () => {
+    for (const appearance of ['glass', 'fresh', 'minimal'] as const) {
+      const source = decodeURIComponent(categoryIconImageSource('ShoppingBag', { appearance, color: recordIconForeground(2, appearance) }));
+      expect(source).toContain('stroke="rgb(42,148,96)"');
+      expect(source).not.toContain('undefined');
+    }
+  });
   it('uses the same official glyph geometry and stroke on both hosts', () => {
     for (const name of Object.keys(designIconNames) as (keyof typeof designIconNames)[]) {
       const miniappSvg = decodeURIComponent(designIconImageSource(name).split(',').slice(1).join(','));

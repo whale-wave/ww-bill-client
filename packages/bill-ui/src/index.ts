@@ -26,7 +26,7 @@ export { DashboardPeriodContent, DashboardPeriodToolbar } from './dashboard-peri
 export { chartPresentationColors } from './design-icon-assets';
 export { designIconNames } from './design-icon-names';
 export type { DesignIconName } from './design-icon-names';
-export { categoryIconImageSource, designIconImageSource } from './design-icon-source';
+export { categoryIconImageSource, designIconImageSource, recordIconForeground } from './design-icon-source';
 export type { IconAppearance, IconTone } from './design-icon-source';
 
 export { EmptyStateVisual } from './empty-state';

@@ -35,6 +35,8 @@ export default defineConfig<'vite'>(async (merge) => {
     },
     copy: {
       patterns: [
+        { from: '../packages/bill-ui/assets/whale-logo.png', to: 'dist/assets/bill-ui/whale-logo.png' },
+        { from: '../packages/bill-ui/assets/whale-loading.png', to: 'dist/assets/bill-ui/whale-loading.png' },
       ],
       options: {
       }

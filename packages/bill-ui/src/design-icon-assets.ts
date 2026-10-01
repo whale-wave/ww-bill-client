@@ -124,6 +124,7 @@ export const designIconColors = {
     category: '#24526a',
     categoryActive: '#24526a',
     expense: '#6d6d73',
+    income: 'rgb(42,148,96)',
   },
   fresh: {
     ink: '#263340',
@@ -135,6 +136,7 @@ export const designIconColors = {
     category: '#23728e',
     categoryActive: '#23728e',
     expense: '#f0a0b8',
+    income: 'rgb(42,148,96)',
   },
   minimal: {
     ink: '#273444',
@@ -146,6 +148,7 @@ export const designIconColors = {
     category: '#2d3b4d',
     categoryActive: '#2d3b4d',
     expense: '#81909e',
+    income: 'rgb(42,148,96)',
   },
 } as const;
 

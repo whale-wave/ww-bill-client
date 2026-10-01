@@ -26,7 +26,9 @@ const chartColors = {};
 for (const theme of ['glass', 'fresh', 'minimal']) {
   const css = compileString(`@use 'token-values' as t; .palette {
     @include t.appearance-default;
+    @include t.semantic-default;
     ${theme !== 'glass' ? `@include t.appearance-${theme};` : ''}
+    ${theme !== 'glass' ? `@include t.semantic-${theme};` : ''}
   }`, { loadPaths: [resolve(root, 'packages/bill-ui/src/styles')] }).css;
   const values = Object.fromEntries([...css.matchAll(/(--[\w-]+):([^;]+);/g)].map(([, name, value]) => [name, value.trim()]));
   chartColors[theme] = { accent: values['--ww-theme-color-mid'], inverse: '#ffffff', series: Array.from({ length: 6 }, (_, index) => values[`--ww-chart-${index + 1}`]), border: values['--ww-border-color'] };
@@ -40,6 +42,7 @@ for (const theme of ['glass', 'fresh', 'minimal']) {
     category: values['--ww-theme-color-deep'],
     categoryActive: values['--ww-theme-color-deep'],
     expense: values['--ww-pink-color'],
+    income: `rgb(${values['--ww-color-finance-income'].split(/\s+/).join(',')})`,
   };
 }
 

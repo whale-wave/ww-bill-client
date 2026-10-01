@@ -1,9 +1,9 @@
-import appLogo from '@ww-bill/bill-ui/whale-logo.png'
 import { useMemo, useState } from 'react'
 import { Button, Image, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 import { getRecordDisplayTitle, groupRecordsByKey, sumRecordAmounts, isDarkCategoryBackground, money } from '@ww-bill/bill-core'
-import { AmountToggleVisual, BrandMarkVisual, PageHeadingVisual, RecordSummaryContent, MetricRow, RecordOverviewRowContent, RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordStateSurface } from '@ww-bill/bill-ui'
+import { AmountToggleVisual, BrandMarkVisual, PageHeadingVisual, RecordSummaryContent, MetricRow, RecordOverviewRowContent, RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordStateSurface, recordIconForeground } from '@ww-bill/bill-ui'
+import { appLogo } from '../../shared/lib/presentation-assets'
 import { PageLoadingState } from '../../shared/ui/page-loading-state'
 import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
@@ -18,9 +18,11 @@ import { AppButton } from '../../shared/ui/app-button'
 import { useAmountVisibility } from '../../features/display-preferences'
 import { DesignIcon } from '../../shared/ui/design-icon'
 import { CategoryIcon } from '../../shared/ui/category-icon'
+import { useAppearanceTemplate } from '../../shared/model/appearance'
 
 export default function RecordsPage() {
   const [month, setMonth] = useState(currentMonth)
+  const template = useAppearanceTemplate()
   const isAuthenticated = useAuthGate()
   const userId = useAuthStore(state => state.userId)
   const amounts = useAmountVisibility({ userId, enabled: isAuthenticated })
@@ -70,18 +72,18 @@ export default function RecordsPage() {
       {recordsQuery.isLoading && <PageLoadingState label='正在加载明细…' />}
       {recordsQuery.isError && <RecordStateSurface primitive={View}><EmptyState error title='加载失败' description={errorMessage(recordsQuery.error)} actionLabel='重试' onAction={() => void recordsQuery.refetch()} /></RecordStateSurface>}
       {!recordsQuery.isLoading && !recordsQuery.isError && records.length === 0 && <RecordStateSurface primitive={View}><EmptyState title='这个月还没有明细' description='记下第一笔收支，月度明细会自动整理在这里' actionLabel='去记一笔' onAction={handleCreate} /></RecordStateSurface>}
-      {groups.map(group => (
+      {groups.map((group, groupIndex) => (
         <View key={group.date} className='bill-record-group'>
-          <RecordDateGroupHeader date={<Text><RecordDateLabelVisual label={group.date} primitive={Text} /></Text>} primitives={{ Header: View, Text, Box: View }} summaries={<><Text className='money--income'>收入 {money.format(group.totals.income)}</Text><Text className='money--expense'>支出 {money.format(group.totals.expense)}</Text></>} />
+          <RecordDateGroupHeader date={<Text><RecordDateLabelVisual label={group.date} primitive={Text} /></Text>} primitives={{ Header: View, Text, Box: View }} summaries={recordsQuery.hasNextPage && groupIndex === groups.length - 1 ? undefined : <>{money.compare(group.totals.income, 0) > 0 && <Text className='money--income'>收入 {money.formatNatural(group.totals.income)}</Text>}<Text className='money--expense'>支出 {money.formatNatural(group.totals.expense)}</Text></>} />
           <View className='bill-record-group__body'>
             <RecordGroupSurface single={group.entries.length === 1 && !group.entries[0].category?.path?.includes('/')} primitive={View}>
               {group.entries.map((record, index) => (
                 <View key={record.id} className={`bill-overview-record${record.category?.path?.includes('/') ? ' bill-overview-record--secondary' : ''}`}>
                   <RecordOverviewRowContent
                     primitives={{ Box: View, Text, Deleted: Text }}
-                    amount={`${record.type === 'sub' ? '-' : ''}${money.format(record.amount)}`}
+                    amount={record.type === 'sub' ? money.subtract(0, record.amount) : money.formatNatural(record.amount)}
                     amountTone={record.type === 'add' ? 'income' : 'expense'}
-                    icon={<View className={`bill-overview-record__icon bill-overview-record__icon--${index % 4}`} style={record.category?.backgroundColor ? { backgroundColor: record.category.backgroundColor } : undefined}><CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} iconType={record.category?.iconType} textIconEnabled={record.category?.textIconEnabled} textIconIndex={record.category?.textIconIndex} color={isDarkCategoryBackground(record.category?.backgroundColor) ? '#fff' : undefined} size={18} /></View>}
+                    icon={<View className={`bill-overview-record__icon bill-overview-record__icon--${index % 4}`} style={record.category?.backgroundColor ? { backgroundColor: record.category.backgroundColor } : undefined}><CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} iconType={record.category?.iconType} textIconEnabled={record.category?.textIconEnabled} textIconIndex={record.category?.textIconIndex} color={isDarkCategoryBackground(record.category?.backgroundColor) ? '#fff' : recordIconForeground(index, template)} size={18} /></View>}
                     secondary={record.category?.path?.includes('/') ? record.category.path : undefined}
                     primary={getRecordDisplayTitle(record.remark, record.category?.path ?? record.category?.name ?? '未分类')}
                   />
