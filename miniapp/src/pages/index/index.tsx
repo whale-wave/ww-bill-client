@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import { Button, Image, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 import { getRecordDisplayTitle, groupRecordsByKey, sumRecordAmounts, isDarkCategoryBackground, money } from '@ww-bill/bill-core'
-import { BrandMarkVisual, PageHeadingVisual, RecordSummaryContent, MetricRow, PeriodLabel, RecordOverviewRowContent, RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordStateSurface } from '@ww-bill/bill-ui'
+import { BrandMarkVisual, PageHeadingVisual, RecordSummaryContent, MetricRow, RecordOverviewRowContent, RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordStateSurface } from '@ww-bill/bill-ui'
 import { PageLoadingState } from '../../shared/ui/page-loading-state'
 import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
@@ -13,6 +13,7 @@ import { useAuthGate } from '../../features/auth'
 import { currentMonth, displayRecordDate, shiftMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
+import { MonthPicker } from '../../shared/ui/month-picker'
 import { AppButton } from '../../shared/ui/app-button'
 import { CategoryIcon } from '../../shared/ui/category-icon'
 
@@ -56,7 +57,7 @@ export default function RecordsPage() {
     <Page className='page records-page'>
       <PageHeadingVisual className='bill-page-heading--record-overview' primitive={View} icon={<BrandMarkVisual primitive={View} image={<Image className='bill-brand-mark__image' src={appLogo} mode='aspectFill' />} />} title={<Text className='bill-page-heading__title'>鲸浪记账</Text>} />
       <Surface className='records-summary bill-record-summary' material='raised'>
-        <RecordSummaryContent primitive={View} period={<View className='records-summary__period'><PeriodLabel year={month.slice(0, 4)} yearSuffix='年' month={month.slice(5)} monthSuffix='月' primitive={Text} /></View>}
+        <RecordSummaryContent primitive={View} period={<MonthPicker month={month} onChange={setMonth} />}
           amountToggle={<View className='records-summary__navigation'>
             <Button className='records-summary__nav' aria-label='上个月' onClick={handlePreviousMonth}>‹</Button>
             <Button className={`records-summary__nav${month >= currentMonth() ? ' records-summary__nav--disabled' : ''}`} aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}>›</Button>

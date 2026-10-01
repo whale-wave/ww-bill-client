@@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useOverlayStore } from '../../miniapp/src/shared/model/overlay';
 
 const chartMonthRequests = vi.hoisted(() => vi.fn());
 const checkIn = vi.hoisted(() => ({ submit: vi.fn(), completed: false }));
@@ -90,6 +91,7 @@ beforeAll(async () => {
 afterEach(() => {
   cleanup?.();
   cleanup = undefined;
+  vi.useRealTimers();
 });
 
 function renderPage(Page: ComponentType) {
@@ -107,6 +109,33 @@ describe('miniapp basic data pages', () => {
     expect(page.textContent).toContain('支出32.50');
     expect(page.textContent).toContain('餐饮 / 午餐');
     expect(page.textContent).toContain('便当');
+  });
+
+  it('keeps native month drafts local until confirmation and discards cancellation', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-01T04:00:00Z'));
+    const page = renderPage(RecordsPage);
+    const click = (selector: string) => act(() => page.querySelector<HTMLButtonElement>(selector)?.click());
+    const option = (section: string, label: string) => Array.from(page.querySelectorAll<HTMLButtonElement>(`[data-testid="${section}"] button`)).find(button => button.textContent === label);
+    click('.bill-month-picker-trigger');
+    expect(useOverlayStore.getState().count).toBe(1);
+    expect(option('record-month-options', '11月')?.disabled).toBe(true);
+    act(() => option('record-month-options', '9月')?.click());
+    expect(page.querySelector('.bill-month-picker-trigger')?.textContent).toContain('10月');
+    click('.bill-month-selection__close');
+    expect(page.querySelector('.bill-month-selection')).toBeNull();
+    expect(useOverlayStore.getState().count).toBe(0);
+    click('.bill-month-picker-trigger');
+    expect(option('record-month-options', '10月')?.getAttribute('aria-pressed')).toBe('true');
+    act(() => option('record-year-options', '2025年')?.click());
+    act(() => option('record-month-options', '12月')?.click());
+    act(() => option('record-year-options', '2026年')?.click());
+    expect(page.querySelector<HTMLButtonElement>('[data-testid="record-month-confirm"]')?.disabled).toBe(true);
+    expect(page.querySelector('[role="status"]')?.textContent).toContain('所选月份尚未到来');
+    act(() => option('record-month-options', '9月')?.click());
+    click('[data-testid="record-month-confirm"]');
+    expect(page.querySelector('.bill-month-selection')).toBeNull();
+    expect(page.querySelector('.bill-month-picker-trigger')?.textContent).toContain('09月');
   });
 
   it('shows the chart summary and expense category', () => {

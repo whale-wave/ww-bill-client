@@ -1,6 +1,6 @@
 import type { Dayjs } from 'dayjs';
 import type { FC, ReactNode } from 'react';
-import { PeriodLabel } from '@ww-bill/bill-ui';
+import { MonthSelectionPanel, PeriodLabel } from '@ww-bill/bill-ui';
 import dayjs from 'dayjs';
 import { CalendarDays, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
@@ -63,7 +63,7 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
             ? 'mx-auto h-11 min-w-0 justify-center gap-2 rounded-full border border-solid border-white/70 bg-white/70 px-4 text-[16px] font-extrabold tracking-[-0.02em] text-ww-ink shadow-ww-xs backdrop-blur-md transition active:scale-[0.98]'
             : variant === 'compact'
               ? 'h-11 gap-1 rounded-full border border-border-primary bg-white/55 px-3 font-number text-[13px] font-bold'
-              : 'ww-summary-period min-w-0 gap-[var(--ww-component-summary-period-gap)] bg-transparent p-0',
+              : 'bill-month-picker-trigger ww-summary-period min-w-0',
         )}
         data-testid={testId}
         onClick={openPicker}
@@ -90,93 +90,23 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
         {variant !== 'calendar' && <DesignIcon name="period-chevron" size={variant === 'compact' ? 12 : 14} />}
       </button>
       <AppSheet
-        bodyClassName="pb-[calc(48px+env(safe-area-inset-bottom))]"
         onMaskClick={() => setIsVisible(false)}
         visible={isVisible}
       >
         <div data-testid={testId ? `${testId}-sheet` : undefined}>
-          <div className="flex items-center justify-between px-[22px] pb-4 pt-3">
-            <strong className="text-[15px] font-bold leading-[22.5px] text-ww-ink">
-              {isYearOnly ? t('record:periodPicker.selectYear') : t('record:periodPicker.selectMonth')}
-            </strong>
-            <button
-              className="min-h-11 px-2 text-[13px] font-semibold leading-[19.5px] text-ww-soft"
-              onClick={() => setIsVisible(false)}
-              type="button"
-            >
-              {t('common:nav.close')}
-            </button>
-          </div>
-          <div className="px-[18px] pb-[14px]" data-testid="record-year-options">
-            <div className="mb-2 text-[11px] font-semibold leading-[16.5px] tracking-[0.6px] text-ww-soft">
-              {t('record:periodPicker.year')}
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {years.map(year => (
-                <button
-                  className={cn(
-                    'h-11 rounded-[10px] px-1 text-[13px] font-medium leading-[19.5px]',
-                    draftMonth.year() === year
-                      ? 'ww-theme-primary-action font-extrabold'
-                      : 'bg-white/80 text-ww-mid',
-                  )}
-                  key={year}
-                  onClick={() => handleSelectYear(year)}
-                  type="button"
-                >
-                  {year}
-                  {t('common:dateTime.yearSuffix')}
-                </button>
-              ))}
-            </div>
-          </div>
-          {!isYearOnly && (
-            <div className="px-[18px]" data-testid="record-month-options">
-              <div className="mb-2 text-[11px] font-semibold leading-[16.5px] tracking-[0.6px] text-ww-soft">
-                {t('record:periodPicker.month')}
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                {Array.from({ length: 12 }, (_, index) => index).map((monthIndex) => {
-                  const isFuture = draftMonth.year() === currentYear && monthIndex > dayjs().month();
-                  return (
-                    <button
-                      className={cn(
-                        'h-11 rounded-[12px] border border-solid text-[13px] font-medium leading-[19.5px]',
-                        draftMonth.month() === monthIndex
-                          ? 'ww-theme-primary-action border-transparent font-extrabold'
-                          : 'border-border-primary bg-white/80 text-ww-mid shadow-ww-xs',
-                        isFuture && 'opacity-35',
-                      )}
-                      disabled={isFuture}
-                      key={monthIndex}
-                      onClick={() => setDraftMonth(draftMonth.month(monthIndex))}
-                      type="button"
-                    >
-                      {monthIndex + 1}
-                      {t('common:dateTime.monthSuffix')}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-          {!isYearOnly && (
-            <div className="px-[18px] pt-4">
-              {isDraftMonthInFuture && (
-                <p className="mb-3 text-[12px] leading-5 text-ww-mid" role="status">
-                  {t('record:periodPicker.futureMonthHint')}
-                </p>
-              )}
-              <AppButton
-                data-testid="record-month-confirm"
-                disabled={isDraftMonthInFuture}
-                fullWidth
-                onClick={handleConfirm}
-              >
-                {t('common:nav.confirm')}
-              </AppButton>
-            </div>
-          )}
+          <MonthSelectionPanel
+            title={isYearOnly ? t('record:periodPicker.selectYear') : t('record:periodPicker.selectMonth')}
+            closeLabel={t('common:nav.close')}
+            yearLabel={t('record:periodPicker.year')}
+            monthLabel={t('record:periodPicker.month')}
+            onClose={() => setIsVisible(false)}
+            onYear={handleSelectYear}
+            onMonth={month => setDraftMonth(draftMonth.month(month))}
+            years={years.map(year => ({ value: year, label: `${year}${t('common:dateTime.yearSuffix')}`, selected: draftMonth.year() === year }))}
+            months={isYearOnly ? undefined : Array.from({ length: 12 }, (_, month) => ({ value: month, label: `${month + 1}${t('common:dateTime.monthSuffix')}`, selected: draftMonth.month() === month, disabled: draftMonth.year() === currentYear && month > dayjs().month() }))}
+            hint={isDraftMonthInFuture ? t('record:periodPicker.futureMonthHint') : undefined}
+            action={isYearOnly ? undefined : <AppButton data-testid="record-month-confirm" disabled={isDraftMonthInFuture} fullWidth onClick={handleConfirm}>{t('common:nav.confirm')}</AppButton>}
+          />
         </div>
       </AppSheet>
     </>

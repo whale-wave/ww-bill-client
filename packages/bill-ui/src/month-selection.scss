@@ -1,0 +1,114 @@
+.bill-month-selection {
+  padding-bottom: calc(48px + var(--ww-safe-area-bottom, env(safe-area-inset-bottom)));
+}
+.bill-month-selection__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 22px 16px;
+}
+.bill-month-selection__title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22.5px;
+  color: var(--ww-theme-text-color);
+}
+.bill-month-selection__close {
+  min-height: 44px;
+  padding: 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 19.5px;
+  color: var(--ww-text-color-soft);
+}
+.bill-month-selection__years {
+  padding: 0 18px 14px;
+}
+.bill-month-selection__months {
+  padding: 0 18px;
+}
+.bill-month-selection__label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16.5px;
+  letter-spacing: 0.6px;
+  color: var(--ww-text-color-soft);
+}
+.bill-month-selection__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.bill-month-selection__option {
+  box-sizing: border-box;
+  height: 44px;
+  padding: 0 4px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 19.5px;
+  color: var(--ww-text-color-mid);
+  background: rgba(255, 255, 255, 0.8);
+}
+.bill-month-selection__option--month {
+  border: 1px solid var(--ww-border-color);
+  border-radius: 12px;
+  box-shadow: var(--ww-card-shadow-xs);
+}
+.bill-month-selection__option--selected {
+  font-weight: 800;
+  border-color: transparent;
+  color: var(--ww-primary-foreground);
+  background: var(--ww-action-primary-background);
+  box-shadow: var(--ww-action-primary-shadow);
+}
+.bill-month-selection .bill-month-selection__option--disabled {
+  opacity: 0.35;
+  color: var(--ww-text-color-mid);
+  background: rgba(255, 255, 255, 0.8);
+}
+.bill-month-selection__close,
+.bill-month-selection__option {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bill-month-selection__close,
+.bill-month-selection__option--year {
+  border: 0;
+}
+.bill-month-selection__close {
+  background: transparent;
+}
+.bill-month-selection__close::after,
+.bill-month-selection__option::after {
+  border: 0;
+}
+.bill-month-selection__footer {
+  padding: 16px 18px 0;
+}
+.bill-month-selection__hint {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--ww-text-color-mid);
+}
+
+.bill-month-picker-trigger {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: var(--ww-component-summary-period-gap);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ww-theme-text-color);
+}
+.bill-month-picker-trigger::after {
+  border: 0;
+}

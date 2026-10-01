@@ -3,6 +3,7 @@ import { Button, View } from '@tarojs/components'
 import { BottomNavigation, NavigationItemVisual, type DesignIconName } from '@ww-bill/bill-ui'
 import './index.scss'
 import { useAppearanceTemplate } from '../shared/model/appearance'
+import { useOverlayStore } from '../shared/model/overlay'
 import { DesignIcon } from '../shared/ui/design-icon'
 
 const tabs: { path: string, label: string, icon: DesignIconName, prominent?: boolean }[] = [
@@ -15,6 +16,7 @@ const tabs: { path: string, label: string, icon: DesignIconName, prominent?: boo
 
 function CustomTabBar() {
   const template = useAppearanceTemplate()
+  const overlayCount = useOverlayStore(state => state.count)
   const pages = Taro.getCurrentPages()
   const currentPath = `/${pages[pages.length - 1]?.route ?? ''}`
 
@@ -26,6 +28,9 @@ function CustomTabBar() {
   function handleCreate() {
     void Taro.navigateTo({ url: '/pages/record-create/index' })
   }
+
+  if (overlayCount > 0)
+    return null
 
   return (
     <BottomNavigation
