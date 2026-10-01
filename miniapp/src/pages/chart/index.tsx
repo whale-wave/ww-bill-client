@@ -79,7 +79,7 @@ export default function ChartPage() {
             donut={<><ChartDonut categories={categories} /><DashboardDonutLabel primitives={{ Box: View, Text }} label={metric === 'income' ? '总收入' : '总支出'} amount={formatDashboardAmount(metric === 'income' ? summary.income : summary.expense)} /></>}
             rows={categories.map(category => <View key={category.key ?? category.id ?? category.name} className='bill-dashboard-category-row'>
               <DashboardCategoryRowContent primitives={{ Box: View, Text }}
-                icon={<View className='bill-dashboard-category-row__icon'><CategoryIcon categoryName={category.name} iconKey={category.icon ?? 'receipt'} iconType={category.iconType ?? 'BUILTIN'} textIconEnabled={category.textIconEnabled ?? false} textIconIndex={category.textIconIndex ?? 0} size={20} /></View>}
+                icon={<View className='bill-dashboard-category-row__icon'><CategoryIcon tone='ink' categoryName={category.name} iconKey={category.icon ?? 'receipt'} iconType={category.iconType ?? 'BUILTIN'} textIconEnabled={category.textIconEnabled ?? false} textIconIndex={category.textIconIndex ?? 0} size={20} /></View>}
                 label={category.name} amount={formatDashboardAmount(category.amount)} percentage={formatChartPercent(category.percent ?? 0)}
               />
             </View>)}

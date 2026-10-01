@@ -18,7 +18,7 @@ export function designIconImageSource(name: DesignIconName, { appearance = 'glas
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-export function categoryIconImageSource(glyph: CategoryGlyphName, { appearance = 'glass', color }: { appearance?: IconAppearance; color?: string } = {}) {
-  const svg = designIconSvg[glyph].split('currentColor').join(color ?? designIconColors[appearance].category);
+export function categoryIconImageSource(glyph: CategoryGlyphName, { appearance = 'glass', color, tone = 'category' }: { appearance?: IconAppearance; color?: string; tone?: IconTone } = {}) {
+  const svg = designIconSvg[glyph].split('currentColor').join(color ?? designIconColors[appearance][tone]);
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
