@@ -1,7 +1,8 @@
 .records-summary {
   background: linear-gradient(135deg, #e5f4f8, #fff);
   &__month { font-size: 17px; font-weight: 700; margin-bottom: 18px; }
-  &__month text:first-child, &__month text:last-child { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; font-size: 26px; }
+  &__nav { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: 0; padding: 0; border: 0; background: transparent; color: inherit; font-size: 26px; line-height: 1; }
+  &__nav::after { border: 0; }
   &__metrics { display: flex; gap: 20px; }
   &__metrics > view { flex: 1; display: flex; flex-direction: column; gap: 5px; }
   &__metrics .money { font-size: 24px; }

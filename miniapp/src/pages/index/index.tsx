@@ -31,21 +31,25 @@ export default function RecordsPage() {
       void recordsQuery.fetchNextPage()
   })
 
-  function handlePreviousMonth() { setMonth(value => shiftMonth(value, -1)) }
+  function handlePreviousMonth() {
+    setMonth(value => shiftMonth(value, -1))
+  }
   function handleNextMonth() {
     if (month < currentMonth())
       setMonth(value => shiftMonth(value, 1))
   }
-  function handleCreate() { void Taro.navigateTo({ url: '/pages/record-create/index' }) }
+  function handleCreate() {
+    void Taro.navigateTo({ url: '/pages/record-create/index' })
+  }
 
   return (
     <View className='page'>
       <Text className='page__title'>明细</Text>
       <View className='card records-summary'>
         <View className='row records-summary__month'>
-          <Text onClick={handlePreviousMonth}>‹</Text>
+          <Button className='records-summary__nav' aria-label='上个月' onClick={handlePreviousMonth}>‹</Button>
           <Text>{month.replace('-', '年')}月</Text>
-          <Text onClick={handleNextMonth} className={month >= currentMonth() ? 'muted' : ''}>›</Text>
+          <Button className={`records-summary__nav${month >= currentMonth() ? ' muted' : ''}`} aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}>›</Button>
         </View>
         <View className='records-summary__metrics'>
           <View><Text className='muted'>收入</Text><Text className='money money--income'>¥{money.format(firstPage?.income ?? 0)}</Text></View>
