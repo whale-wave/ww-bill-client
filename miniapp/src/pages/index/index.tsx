@@ -1,8 +1,9 @@
+import appLogo from '@ww-bill/bill-ui/whale-logo.png'
 import { useMemo, useState } from 'react'
-import { Button, Text, View } from '@tarojs/components'
+import { Button, Image, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 import { getRecordDisplayTitle, groupRecordsByKey, sumRecordAmounts, isDarkCategoryBackground, money } from '@ww-bill/bill-core'
-import { PageHeadingVisual, RecordSummaryContent, MetricRow, PeriodLabel, RecordOverviewRowContent, RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordStateSurface } from '@ww-bill/bill-ui'
+import { BrandMarkVisual, PageHeadingVisual, RecordSummaryContent, MetricRow, PeriodLabel, RecordOverviewRowContent, RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordStateSurface } from '@ww-bill/bill-ui'
 import { PageLoadingState } from '../../shared/ui/page-loading-state'
 import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
@@ -53,7 +54,7 @@ export default function RecordsPage() {
 
   return (
     <Page className='page records-page'>
-      <PageHeadingVisual className='bill-page-heading--record-overview' primitive={View} title={<Text className='bill-page-heading__title'>鲸浪记账</Text>} />
+      <PageHeadingVisual className='bill-page-heading--record-overview' primitive={View} icon={<BrandMarkVisual primitive={View} image={<Image className='bill-brand-mark__image' src={appLogo} mode='aspectFill' />} />} title={<Text className='bill-page-heading__title'>鲸浪记账</Text>} />
       <Surface className='records-summary bill-record-summary' material='raised'>
         <RecordSummaryContent primitive={View} period={<View className='records-summary__period'><PeriodLabel year={month.slice(0, 4)} yearSuffix='年' month={month.slice(5)} monthSuffix='月' primitive={Text} /></View>}
           amountToggle={<View className='records-summary__navigation'>

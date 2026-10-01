@@ -4,6 +4,7 @@ export { AuthPresentation, FormFieldVisual } from './auth-presentation';
 export { BillOverviewVisual } from './bill-overview';
 export { BottomNavigation, NavigationItemVisual } from './bottom-navigation';
 export type { BottomNavigationProps, NavigationItemVisualProps } from './bottom-navigation';
+export { BrandMarkVisual } from './brand-mark';
 export { buttonPresentationClassNames } from './button-appearance';
 export type { ButtonAppearance, ButtonSize, ButtonVariant } from './button-appearance';
 export { ButtonContent } from './button-content';

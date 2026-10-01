@@ -13,7 +13,8 @@
     "./token-values.scss": "./src/styles/_token-values.scss",
     "./surface-rules.scss": "./src/styles/_surface-rules.scss",
     "./component-tokens.scss": "./src/styles/component-tokens.scss",
-    "./whale-loading.png": "./assets/whale-loading.png"
+    "./whale-loading.png": "./assets/whale-loading.png",
+    "./whale-logo.png": "./assets/whale-logo.png"
   },
   "scripts": {
     "lint:type": "tsc --noEmit"

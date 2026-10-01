@@ -1,5 +1,5 @@
 import type { ImgHTMLAttributes } from 'react';
-import whaleLogo from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
+import whaleLogo from '@ww-bill/bill-ui/whale-logo.png';
 import { cn } from '@/shared/lib';
 
 export interface BrandAvatarProps {

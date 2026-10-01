@@ -1,7 +1,7 @@
 import type { PropsWithChildren, ReactNode } from 'react';
 import { AuthPresentation } from '@ww-bill/bill-ui';
+import appLogo from '@ww-bill/bill-ui/whale-logo.png';
 import { ArrowLeft, Languages } from 'lucide-react';
-import appLogo from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
 import { changeLanguage, useTranslation } from '@/shared/i18n';
 import { Surface } from '@/shared/ui';
 

@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import type { LedgerKind, LedgerTemplateKey } from '../types';
+import appLogo from '@ww-bill/bill-ui/whale-logo.png';
 import {
   BookOpen,
   BriefcaseBusiness,
@@ -9,7 +10,6 @@ import {
   Store,
   UsersRound,
 } from 'lucide-react';
-import appLogo from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
 import { resolveLedgerVisual } from '../lib/resolveLedgerVisual';
 import { LedgerIconGlyph } from './LedgerIconGlyph';
 
@@ -38,7 +38,7 @@ export const LedgerVisualIcon: FC<LedgerVisualIconProps> = ({
   const visual = resolveLedgerVisual({ iconKey, kind, templateKey });
 
   if (visual.type === 'system-logo')
-    return <img alt="" className="h-full w-full object-cover" src={appLogo} />;
+    return <img alt="" className="bill-brand-mark__image" src={appLogo} />;
 
   if (visual.type === 'fallback')
     return <BookOpen aria-hidden="true" className={className} strokeWidth={1.8} />;

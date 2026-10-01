@@ -1,11 +1,11 @@
 import type { FC, ReactNode } from 'react';
 import type { UserNotification } from '@/entities/notification';
 import { Capacitor } from '@capacitor/core';
+import appAvatar from '@ww-bill/bill-ui/whale-logo.png';
 import { Button, ErrorBlock } from 'antd-mobile';
 import { Bell, Check } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import appAvatar from '@/assets/brand/whale-logo-surface-浅色渐变背景.png';
 import {
   NotificationDetailModal,
   NotificationMarkdownPreview,

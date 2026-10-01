@@ -1,3 +1,4 @@
+import { BrandMarkVisual } from '@ww-bill/bill-ui';
 import { DownFill } from 'antd-mobile-icons';
 import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -46,16 +47,18 @@ export function LedgerTitleSwitcher({
     ? 'h-[18px] w-[18px] text-primary-deep'
     : 'h-4 w-4';
 
-  const visualIcon = (
-    <span className={visualIconContainerClasses} data-ledger-title-icon>
-      <LedgerVisualIcon
-        className={visualIconClasses}
-        iconKey={scope.type === 'custom' ? currentCustom?.iconKey : undefined}
-        kind={scope.type === 'personal' ? LedgerKind.SYSTEM_DEFAULT : (currentCustom?.kind ?? LedgerKind.CUSTOM)}
-        templateKey={scope.type === 'custom' ? currentCustom?.templateKey : undefined}
-      />
-    </span>
-  );
+  const visualIcon = scope.type === 'personal'
+    ? <BrandMarkVisual image={<LedgerVisualIcon kind={LedgerKind.SYSTEM_DEFAULT} />} />
+    : (
+        <span className={visualIconContainerClasses} data-ledger-title-icon>
+          <LedgerVisualIcon
+            className={visualIconClasses}
+            iconKey={scope.type === 'custom' ? currentCustom?.iconKey : undefined}
+            kind={currentCustom?.kind ?? LedgerKind.CUSTOM}
+            templateKey={scope.type === 'custom' ? currentCustom?.templateKey : undefined}
+          />
+        </span>
+      );
 
   return (
     <>
