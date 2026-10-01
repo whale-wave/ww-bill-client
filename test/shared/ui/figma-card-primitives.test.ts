@@ -134,7 +134,7 @@ describe('figma card primitives', () => {
     const scroller = container.firstElementChild;
     const tiles = container.querySelectorAll('button');
 
-    expect(scroller?.classList).not.toContain('snap-mandatory');
+    expect(scroller?.classList).not.toContain('bill-action-menu--scrollable');
     expect(tiles).toHaveLength(5);
     expect(Array.from(tiles).every(tile => (
       tile.classList.contains('min-w-0')
@@ -155,7 +155,7 @@ describe('figma card primitives', () => {
     const tiles = container.querySelectorAll('button');
 
     expect(scroller?.classList).toContain('overflow-x-auto');
-    expect(scroller?.classList).toContain('snap-mandatory');
+    expect(scroller?.classList).toContain('bill-action-menu--scrollable');
     expect(tiles).toHaveLength(6);
     expect(Array.from(tiles).every(tile => (
       tile.classList.contains('w-[calc((100%_-_30px)/4)]')

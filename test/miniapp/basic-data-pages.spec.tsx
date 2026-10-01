@@ -5,8 +5,12 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import { useOverlayStore } from '../../miniapp/src/shared/model/overlay';
 
 const chartMonthRequests = vi.hoisted(() => vi.fn());
+const queryState = vi.hoisted(() => ({ phase: 'ready', refetch: vi.fn(), avatar: '' }));
 const checkIn = vi.hoisted(() => ({ submit: vi.fn(), completed: false }));
 beforeEach(() => {
+  queryState.phase = 'ready';
+  queryState.avatar = '';
+  queryState.refetch.mockReset();
   checkIn.completed = false;
   checkIn.submit.mockReset().mockResolvedValue(undefined);
 });
@@ -32,20 +36,24 @@ vi.mock('../../miniapp/src/features/display-preferences', () => ({
 
 vi.mock('../../miniapp/src/entities/record', () => ({
   useMonthRecords: () => ({
-    data: {
-      pages: [{
-        data: [
-          { id: 1, amount: '32.50', originalAmount: '35.50', adjustmentSummary: { refundAmount: '3.00', cashbackAmount: '0.00', supplementAmount: '0.00' }, tags: [{ name: '午餐' }], attachments: [{}], category: { id: 1, icon: 'food', name: '午餐', path: '餐饮 / 午餐' }, remark: '便当', time: '2026-10-01T04:00:00.000Z', type: 'sub' },
-          { id: 2, amount: '5000', category: { id: 2, icon: 'salary', name: '工资' }, remark: '', time: '2026-10-01T04:00:00.000Z', type: 'add' },
-        ],
-        expend: 32.5,
-        income: 5000,
-        total: 2,
-      }],
-    },
+    data: queryState.phase === 'ready'
+      ? {
+          pages: [{
+            data: [
+              { id: 1, amount: '32.50', originalAmount: '35.50', adjustmentSummary: { refundAmount: '3.00', cashbackAmount: '0.00', supplementAmount: '0.00' }, tags: [{ name: '午餐' }], attachments: [{}], category: { id: 1, icon: 'food', name: '午餐', path: '餐饮 / 午餐' }, remark: '便当', time: '2026-10-01T04:00:00.000Z', type: 'sub' },
+              { id: 2, amount: '5000', category: { id: 2, icon: 'salary', name: '工资' }, remark: '', time: '2026-10-01T04:00:00.000Z', type: 'add' },
+            ],
+            expend: 32.5,
+            income: 5000,
+            total: 2,
+          }],
+        }
+      : undefined,
     hasNextPage: false,
-    isError: false,
-    isLoading: false,
+    isError: queryState.phase === 'error',
+    isLoading: queryState.phase === 'loading',
+    error: new Error('网络异常'),
+    refetch: queryState.refetch,
   }),
 }));
 
@@ -53,24 +61,30 @@ vi.mock('../../miniapp/src/entities/chart', () => ({
   useMonthChart: (options: { params: { month: string } }) => {
     chartMonthRequests(options.params.month);
     return ({
-      data: {
-        startDate: '2026-10-01',
-        endDate: '2026-10-31',
-        categories: [{ amount: '32.50', key: 'food', name: '餐饮' }],
-        summary: { expense: '32.50', income: '5000', net: '4967.50', averageDailyExpense: '1.08' },
-        timeline: [{ key: '2026-10-01', expense: '32.50', income: '5000', net: '4967.50' }, { key: '2026-10-02', expense: '0.00', income: '0', net: '0' }],
-      },
-      isError: false,
-      isLoading: false,
+      data: queryState.phase === 'ready'
+        ? {
+            startDate: '2026-10-01',
+            endDate: '2026-10-31',
+            categories: [{ amount: '32.50', key: 'food', name: '餐饮' }],
+            summary: { expense: '32.50', income: '5000', net: '4967.50', averageDailyExpense: '1.08' },
+            timeline: [{ key: '2026-10-01', expense: '32.50', income: '5000', net: '4967.50' }, { key: '2026-10-02', expense: '0.00', income: '0', net: '0' }],
+          }
+        : undefined,
+      isError: queryState.phase === 'error',
+      isLoading: queryState.phase === 'loading',
+      error: new Error('网络异常'),
+      refetch: queryState.refetch,
     });
   },
 }));
 
 vi.mock('../../miniapp/src/entities/user', () => ({
   useUserInfo: () => ({
-    data: { checkIn: checkIn.completed, email: 'demo@example.test', name: '测试用户', recordCount: 2, username: 'demo' },
-    isError: false,
-    isLoading: false,
+    data: queryState.phase === 'ready' ? { avatar: queryState.avatar, checkIn: checkIn.completed, email: 'demo@example.test', name: '测试用户', recordCount: 2, username: 'demo' } : undefined,
+    isError: queryState.phase === 'error',
+    isLoading: queryState.phase === 'loading',
+    error: new Error('网络异常'),
+    refetch: queryState.refetch,
   }),
 }));
 
@@ -110,6 +124,34 @@ function renderPage(Page: ComponentType) {
 }
 
 describe('miniapp basic data pages', () => {
+  it.each(['records', 'chart', 'discover', 'mine'])('keeps %s loading inside the shared presentation', (name) => {
+    queryState.phase = 'loading';
+    const page = renderPage(({ records: RecordsPage, chart: ChartPage, discover: DiscoverPage, mine: MinePage })[name]!);
+    expect(page.querySelector('.bill-page-loading')).not.toBeNull();
+    expect(page.querySelector('.bill-empty-state')).toBeNull();
+  });
+
+  it.each(['records', 'chart', 'discover', 'mine'])('keeps %s retry in its native query host', (name) => {
+    queryState.phase = 'error';
+    const page = renderPage(({ records: RecordsPage, chart: ChartPage, discover: DiscoverPage, mine: MinePage })[name]!);
+    expect(page.querySelector('.bill-empty-state')?.textContent).toContain('网络异常');
+    const callsBeforeRetry = queryState.refetch.mock.calls.length;
+    act(() => page.querySelector('.bill-empty-state__action')?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(queryState.refetch).toHaveBeenCalledTimes(callsBeforeRetry + 1);
+  });
+
+  it('replaces a failed native avatar image with the shared icon without changing profile data', () => {
+    queryState.avatar = 'https://example.test/missing-avatar.png';
+    const page = renderPage(MinePage);
+    const image = page.querySelector('.bill-profile-summary__avatar-image')!;
+    expect(image).not.toBeNull();
+    act(() => image.dispatchEvent(new Event('error')));
+    expect(page.querySelector('.bill-profile-summary__avatar-image')).toBeNull();
+    expect(page.querySelector('.bill-profile-summary__avatar-content img')).not.toBeNull();
+    expect(page.textContent).toContain('测试用户');
+    expect(page.textContent).toContain('记账总笔数2笔');
+  });
+
   it('shows record totals and category paths', () => {
     const page = renderPage(RecordsPage);
     expect(page.textContent).toContain('收入5000.00');
