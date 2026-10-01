@@ -336,8 +336,6 @@ export interface GetHouseholdChartsApiParams {
   categoryKey?: string;
   startDate?: string;
   endDate?: string;
-  tagIds?: string[];
-  tagMatch?: 'any' | 'all';
   account?: string;
   sourceMemberId?: number;
 }

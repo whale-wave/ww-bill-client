@@ -3,7 +3,7 @@ import type { FamilyRecord } from '@/entities/household';
 import type { RecordEntry } from '@/entities/record';
 import { ChevronLeft, ReceiptText } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CategoryIcon } from '@/entities/category';
 import { useLedgerTagRankingQuery } from '@/entities/chart';
 import { useHouseholdTagRankingQuery, useInfiniteHouseholdRecordsQuery } from '@/entities/household';
@@ -158,7 +158,7 @@ const LedgerCategoryPage: FC<{ ledgerId: string; canReadTags: boolean }> = ({ le
   const query = useInfiniteLedgerRecordsQuery({ params: { filters: state ? { categoryIds: [Number(state.category.id)], dateMode: 'range', endDate: state.endDate, startDate: state.startDate, type: state.type, tagIds: state.tagIds, tagMatch: state.tagMatch, account: state.account, limit: 50 } : undefined, ledgerId }, queryOptions: { enabled: Boolean(state) } });
   const tagRanking = useLedgerTagRankingQuery({ params: { ledgerId, filters: state ? { categoryId: String(state.category.id), endDate: state.endDate, startDate: state.startDate, type: state.type, tagIds: state.tagIds, tagMatch: state.tagMatch, account: state.account } : { categoryId: '', type: 'sub' } }, enabled: Boolean(state && canReadTags) });
   if (!state)
-    return null;
+    return <Navigate replace to={ROUTES_PATH.LEDGER_CHARTS.getPath(ledgerId)} />;
   return <CategoryDetail hasMoreRecords={query.hasNextPage} isLoadingMore={query.isFetchingNextPage} isRecordsLoading={query.isLoading} loadMoreRecords={() => void query.fetchNextPage()} records={query.records} state={state} tagRanking={canReadTags ? <TagRankingSection data={tagRanking.data} fallbackRecords={query.records} isError={tagRanking.isError} isLoading={tagRanking.isLoading} /> : null} toRecord={recordId => ROUTES_PATH.LEDGER_RECORD_DETAIL.getPath(ledgerId, recordId)} />;
 };
 
@@ -166,10 +166,10 @@ const HouseholdCategoryPage: FC<{ householdId: string }> = ({ householdId }) => 
   const [searchParams] = useSearchParams();
   const state = readState(useLocation().state, searchParams);
   const query = useInfiniteHouseholdRecordsQuery({ params: { filters: state ? { categoryKeys: [String(state.category.id)], countedOnly: true, endDate: state.endDate, dateMode: 'range', startDate: state.startDate, type: state.type, tagIds: state.tagIds, tagMatch: state.tagMatch, account: state.account, ...(state.sourceMemberId ? { memberUserId: state.sourceMemberId } : {}), limit: 50 } : undefined, householdId }, queryOptions: { enabled: Boolean(state) } });
-  const tagRanking = useHouseholdTagRankingQuery({ params: { householdId, filters: state ? { categoryKey: String(state.category.id), endDate: state.endDate, metric: state.type === 'sub' ? 'expense' : 'income', startDate: state.startDate, tagIds: state.tagIds, tagMatch: state.tagMatch, account: state.account, sourceMemberId: state.sourceMemberId } : { categoryKey: '', metric: 'expense' } }, queryOptions: { enabled: Boolean(state) } });
+  const tagRanking = useHouseholdTagRankingQuery({ params: { householdId, filters: state ? { categoryKey: String(state.category.id), endDate: state.endDate, metric: state.type === 'sub' ? 'expense' : 'income', startDate: state.startDate, account: state.account, sourceMemberId: state.sourceMemberId } : { categoryKey: '', metric: 'expense' } }, queryOptions: { enabled: Boolean(state && !state.tagIds?.length) } });
   if (!state)
-    return null;
-  return <CategoryDetail categoryBreakdown={query.data?.categoryBreakdown ?? []} hasMoreRecords={query.hasNextPage} isLoadingMore={query.isFetchingNextPage} isRecordsLoading={query.isLoading} loadMoreRecords={() => void query.fetchNextPage()} records={query.records} state={state} tagRanking={<TagRankingSection data={tagRanking.data} fallbackRecords={query.records} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />} toRecord={recordId => ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(householdId, recordId)} />;
+    return <Navigate replace to={ROUTES_PATH.HOUSEHOLD_CHARTS.getPath(householdId)} />;
+  return <CategoryDetail categoryBreakdown={query.data?.categoryBreakdown ?? []} hasMoreRecords={query.hasNextPage} isLoadingMore={query.isFetchingNextPage} isRecordsLoading={query.isLoading} loadMoreRecords={() => void query.fetchNextPage()} records={query.records} state={state} tagRanking={state.tagIds?.length ? null : <TagRankingSection data={tagRanking.data} fallbackRecords={query.records} isError={tagRanking.isError} isLoading={tagRanking.isLoading} />} toRecord={recordId => ROUTES_PATH.HOUSEHOLD_RECORD_DETAIL.getPath(householdId, recordId)} />;
 };
 
 export function LedgerChartCategoryPage() {
