@@ -108,9 +108,9 @@ describe('miniapp basic data pages', () => {
 
   it('shows the current bill on discover', () => {
     const page = renderPage(DiscoverPage);
-    expect(page.textContent).toContain('本月账单');
-    expect(page.textContent).toContain('¥5000.00');
-    expect(page.textContent).toContain('¥32.50');
+    expect(page.textContent).toContain('账单');
+    expect(page.textContent).toContain('¥5000');
+    expect(page.textContent).toContain('¥32.5');
   });
 
   it('shows the user profile and record count', () => {

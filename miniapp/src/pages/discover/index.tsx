@@ -2,7 +2,7 @@ import { PageHeadingVisual } from '@ww-bill/bill-ui'
 import { useState } from 'react'
 import { Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { money } from '@ww-bill/bill-core'
+import { formatBillOverviewAmount } from '@ww-bill/bill-core'
 import { BillOverviewVisual, MetricRow, type MetricRowPrimitives } from '@ww-bill/bill-ui'
 import { PageLoadingState } from '../../shared/ui/page-loading-state'
 import { EmptyState } from '../../shared/ui/empty-state'
@@ -42,19 +42,19 @@ export default function DiscoverPage() {
         {chartQuery.isLoading && <PageLoadingState compact label='正在加载…' />}
         {chartQuery.isError && <EmptyState error title='加载失败' description={errorMessage(chartQuery.error)} actionLabel='重试' onAction={() => void chartQuery.refetch()} />}
         {chartQuery.data && <View onClick={handleOpenChart}>
-          <BillOverviewVisual title='本月账单' period={`${month.slice(5)}月`} primitives={{ Box: View, Text }} icon={<DesignIcon name='discovery-bill' size={18} tone='category' />} metrics={
+          <BillOverviewVisual title='账单' period={`${month.slice(5)}月`} primitives={{ Box: View, Text }} icon={<DesignIcon name='discovery-bill' size={18} tone='category' />} metrics={
             <MetricRow density='compact' items={[
-              { key: 'income', label: '收入', tone: 'income', value: `¥${money.format(chartQuery.data.summary.income)}` },
-              { key: 'expense', label: '支出', tone: 'expense', value: `¥${money.format(chartQuery.data.summary.expense)}` },
-              { key: 'surplus', label: '结余', tone: 'primary', value: `¥${money.format(chartQuery.data.summary.net)}` },
+              { key: 'income', label: '收入', tone: 'income', value: formatBillOverviewAmount(chartQuery.data.summary.income) },
+              { key: 'expense', label: '支出', tone: 'expense', value: formatBillOverviewAmount(chartQuery.data.summary.expense) },
+              { key: 'surplus', label: '结余', tone: 'primary', value: formatBillOverviewAmount(chartQuery.data.summary.net) },
             ]} primitives={metricPrimitives}
             />
           }
           />
         </View>}
       </Surface>
-      <Text className='bill-section-heading'>常用入口</Text>
-      <ActionMenu columns={2} variant='card' items={[
+      <Text className='bill-section-heading'>常用功能</Text>
+      <ActionMenu items={[
         { key: 'records', label: '明细', icon: 'tab-detail', onClick: handleOpenRecords },
         { key: 'create', label: '记一笔', icon: 'tab-add', onClick: handleCreate },
       ]}

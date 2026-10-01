@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import type { MetricGridItem } from '@/shared/ui';
+import { formatBillOverviewAmount } from '@ww-bill/bill-core';
 import { BillOverviewVisual } from '@ww-bill/bill-ui';
 import { useTranslation } from '@/shared/i18n';
 import { zeroFill } from '@/shared/lib/time';
@@ -18,9 +19,9 @@ export interface CurrentMonthBillCardProps {
 export const CurrentMonthBillCard: FC<CurrentMonthBillCardProps> = ({ billRecord, onClick }) => {
   const { t } = useTranslation(['bill', 'common']);
   const items: MetricGridItem[] = [
-    { key: 'income', label: t('bill:monthCard.income'), tone: 'income', value: `¥${billRecord?.income ?? '0.00'}` },
-    { key: 'expend', label: t('bill:monthCard.expend'), tone: 'expense', value: `¥${billRecord?.expend ?? '0.00'}` },
-    { key: 'surplus', label: t('bill:monthCard.surplus'), tone: 'primary', value: `¥${billRecord?.surplus ?? '0.00'}` },
+    { key: 'income', label: t('bill:monthCard.income'), tone: 'income', value: formatBillOverviewAmount(billRecord?.income) },
+    { key: 'expend', label: t('bill:monthCard.expend'), tone: 'expense', value: formatBillOverviewAmount(billRecord?.expend) },
+    { key: 'surplus', label: t('bill:monthCard.surplus'), tone: 'primary', value: formatBillOverviewAmount(billRecord?.surplus) },
   ];
 
   return (
