@@ -4,7 +4,7 @@ import type { RecordEditorController } from '../model/useRecordEditorController'
 import type { Asset, AssetGroup } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
 import { categoryRowEndIndex, groupCategoriesByParent } from '@ww-bill/bill-core';
-import { CategoryChoiceVisual, RecordAmountVisual, RecordCategoryGrid, RecordDetailChipContent, RecordEditorHeader, RecordEntryRow, RecordKeypadLayout } from '@ww-bill/bill-ui';
+import { CategoryChoiceVisual, RecordAmountVisual, RecordCategoryErrorVisual, RecordCategoryGrid, RecordDetailChipContent, RecordEditorHeader, RecordEntryRow, RecordKeypadLayout } from '@ww-bill/bill-ui';
 import {
   Delete as BackspaceIcon,
   Banknote,
@@ -330,17 +330,11 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               <PageLoadingState className="min-h-full" compact label={t('record:bookkeeping.loadingCategories')} />
             )}
             {categoryState === 'error' && (
-              <div className="flex min-h-full flex-col items-center justify-center gap-2 py-2 text-center">
-                <div className="flex items-center gap-1.5 text-[13px] font-semibold leading-5 text-ww-mid" role="alert">
-                  <CircleAlert aria-hidden="true" size={17} strokeWidth={1.8} />
-                  <span>{t('common:error.loadFail')}</span>
-                </div>
-                {onRetryCategories && (
-                  <button className="min-h-11 rounded-full border border-border-primary bg-white px-5 text-[13px] font-semibold text-primary-deep shadow-ww-xs" onClick={onRetryCategories} type="button">
-                    {t('common:retry')}
-                  </button>
-                )}
-              </div>
+              <RecordCategoryErrorVisual
+                label={t('common:error.loadFail')}
+                icon={<CircleAlert aria-hidden="true" size={17} strokeWidth={1.8} />}
+                action={onRetryCategories && <button className="bill-record-category-error__retry" onClick={onRetryCategories} type="button">{t('common:retry')}</button>}
+              />
             )}
             {categoryState === 'ready' && categories.length === 0 && (
               <IllustratedEmptyState

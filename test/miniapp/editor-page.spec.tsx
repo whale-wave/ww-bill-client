@@ -5,10 +5,12 @@ import Taro from './mocks/taro';
 
 vi.mock('../../miniapp/src/features/auth', () => ({ useAuthGate: () => true }));
 vi.mock('../../miniapp/src/features/record-create', () => ({ useCreateRecord: () => ({ isLoading: false }) }));
+const categoriesState = vi.hoisted(() => ({ isError: false, refetch: vi.fn() }));
 vi.mock('../../miniapp/src/entities/category', () => ({
   useCategories: () => ({
     isLoading: false,
-    isError: false,
+    isError: categoriesState.isError,
+    refetch: categoriesState.refetch,
     data: [
       ...Array.from({ length: 7 }, (_, index) => ({ id: index + 1, name: `分类${index + 1}`, icon: 'food', parentId: null })),
       { id: 11, name: '午餐', icon: 'food', parentId: 1 },
@@ -23,7 +25,11 @@ beforeAll(async () => {
   process.env.TARO_PLATFORM = 'web';
   RecordCreatePage = (await import('../../miniapp/src/pages/record-create/index')).default;
 });
-afterEach(() => cleanup?.());
+afterEach(() => {
+  cleanup?.();
+  categoriesState.isError = false;
+  categoriesState.refetch.mockReset();
+});
 
 function renderPage() {
   const container = document.createElement('div');
@@ -38,6 +44,14 @@ function click(element: Element | null | undefined) {
 }
 
 describe('miniapp editor presentation', () => {
+  it('uses the shared category error presentation and native retry callback', () => {
+    categoriesState.isError = true;
+    const page = renderPage();
+    expect(page.querySelector('.bill-record-category-error__message')?.textContent).toBe('加载失败');
+    expect(page.querySelector('.bill-empty-state')).toBeNull();
+    click(page.querySelector('.bill-record-category-error__retry'));
+    expect(categoriesState.refetch).toHaveBeenCalledTimes(1);
+  });
   it('opens a six-column date-time sheet and discards cancellation', () => {
     const page = renderPage();
     const trigger = page.querySelector('.record-editor-detail-chip');

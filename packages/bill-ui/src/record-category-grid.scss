@@ -40,3 +40,39 @@
   border-radius: 16px;
   background: var(--ww-surface-tint-color);
 }
+
+.bill-record-category-error {
+  display: flex;
+  min-height: 100%;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+.bill-record-category-error__message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ww-text-color-mid);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+}
+.bill-record-category-error__retry {
+  min-height: 44px;
+  margin: 0;
+  padding: 0 20px;
+  border: 1px solid var(--ww-border-color);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: var(--ww-card-shadow-xs);
+  color: var(--ww-theme-color-deep);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 42px;
+}
+.bill-record-category-error__retry::after {
+  border: 0;
+}

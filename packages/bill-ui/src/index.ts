@@ -52,7 +52,7 @@ export { PeriodSelectionPanel } from './period-selection';
 export { ProfileAvatarVisual, ProfileCheckInVisual, ProfileSummaryVisual, ProfileTitleContent } from './profile-summary';
 export { RankingSectionVisual } from './ranking-section';
 
-export { RecordCategoryGrid } from './record-category-grid';
+export { RecordCategoryErrorVisual, RecordCategoryGrid } from './record-category-grid';
 
 export { RecordDetailChipContent } from './record-detail-chip';
 
