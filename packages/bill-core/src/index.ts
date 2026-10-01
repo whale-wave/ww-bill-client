@@ -10,6 +10,8 @@ export { withColorAlpha } from './color';
 export { formatMonthDay, formatMonthPeriod } from './date-label';
 
 export * from './fit-metric-font';
+export { getMonthPeriodChoices } from './month-period-choices';
+
 export * from './progress';
 
 export * from './public-media';

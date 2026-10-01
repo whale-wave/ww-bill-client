@@ -29,6 +29,8 @@ export const designIconNames = {
   'mine-settings': 'Settings',
   'period-previous': 'ChevronLeft',
   'period-next': 'ChevronRight',
+  'sheet-close': 'X',
+  'period-selected': 'Check',
   'period-chevron': 'ChevronRight',
   'search': 'Search',
   'shortcut-asset': 'WalletCards',

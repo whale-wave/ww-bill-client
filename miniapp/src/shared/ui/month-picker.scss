@@ -1,4 +1,0 @@
-.bill-month-picker-overlay { position: fixed; inset: 0; z-index: 2000; }
-.bill-month-picker-mask { position: absolute; inset: 0; background: var(--ww-material-scrim-background); backdrop-filter: var(--ww-material-overlay-blur); }
-.bill-month-picker-sheet { position: absolute; bottom: 0; left: 0; right: 0; box-sizing: border-box; max-height: 85vh; overflow-y: auto; border: 1px solid var(--ww-material-overlay-border); border-radius: var(--ww-component-sheet-radius) var(--ww-component-sheet-radius) 0 0; padding-top: var(--ww-component-sheet-handle-space); background: var(--ww-material-overlay-background); box-shadow: var(--ww-material-overlay-shadow); }
-.bill-month-picker-sheet::before { position: absolute; top: 7px; left: 50%; width: var(--ww-component-sheet-handle-width); height: 4px; border-radius: 999px; background: var(--ww-component-sheet-handle-color); content: ''; transform: translateX(-50%); }

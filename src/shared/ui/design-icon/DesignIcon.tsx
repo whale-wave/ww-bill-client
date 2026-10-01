@@ -9,6 +9,7 @@ import {
   CalendarDays,
   ChartColumn,
   ChartPie,
+  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -32,10 +33,12 @@ import {
   Star,
   UserRound,
   WalletCards,
+  X,
 } from 'lucide-react';
 
 const iconComponents = {
   WalletCards,
+  X,
   ArrowRightLeft,
   ReceiptText,
   EyeOff,
@@ -47,6 +50,7 @@ const iconComponents = {
   ChevronLeft,
   CalendarCheck2,
   ChartPie,
+  Check,
   ArrowLeft,
   Delete,
   ChevronRight,

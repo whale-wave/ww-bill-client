@@ -1,0 +1,99 @@
+.bill-period-selection {
+  display: flex;
+  max-height: 84vh;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--ww-surface-color);
+}
+.bill-period-selection__year-row {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 20px;
+  border-bottom: 1px solid var(--ww-border-color);
+}
+.bill-period-selection__year {
+  font-family: var(--bill-font-numeric);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ww-theme-text-color);
+}
+.bill-period-selection__year-button {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  color: var(--ww-theme-color-deep);
+  background: transparent;
+}
+.bill-period-selection__year-button--disabled {
+  color: var(--ww-text-color-soft);
+}
+.bill-period-selection__year-button::after {
+  border: 0;
+}
+.bill-period-selection__scroll {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+}
+.bill-period-selection__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 12px 20px max(20px, var(--ww-safe-area-bottom, env(safe-area-inset-bottom)));
+}
+.bill-period-selection__choice {
+  display: flex;
+  box-sizing: border-box;
+  min-height: 56px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 8px 16px;
+  border: 1px solid var(--ww-border-color);
+  border-radius: 16px;
+  text-align: left;
+  color: var(--ww-theme-text-color);
+  background: var(--ww-surface-raised-color);
+}
+.bill-period-selection__choice::after {
+  border: 0;
+}
+.bill-period-selection__choice--selected {
+  border-color: var(--ww-theme-color);
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-theme-color-light);
+}
+.bill-period-selection__content {
+  min-width: 0;
+}
+.bill-period-selection__title {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 21px;
+}
+.bill-period-selection__range {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--bill-font-numeric);
+  font-size: 11px;
+  line-height: 16.5px;
+  color: var(--ww-text-color-mid);
+}
+@media (min-width: 640px) {
+  .bill-period-selection__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -1,12 +1,13 @@
 import { DashboardPeriodContent, DashboardPeriodToolbar, DashboardHeadingVisual, DashboardSummaryVisual, DashboardTrendVisual, DashboardSwitchVisual, DashboardCategoriesVisual, DashboardCategoryRowContent, DashboardDonutLabel } from '@ww-bill/bill-ui'
 import { useState } from 'react'
-import { Button, Picker, Text, View } from '@tarojs/components'
+import { Button, Text, View } from '@tarojs/components'
 import { useDidShow } from '@tarojs/taro'
 import { formatMonthPeriod, formatDashboardAmount, formatChartPercent, getChartAverage } from '@ww-bill/bill-core'
 import { PageLoadingState } from '../../shared/ui/page-loading-state'
 import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
 import { AppButton } from '../../shared/ui/app-button'
+import { ChartPeriodSheet } from '../../shared/ui/chart-period-sheet'
 import { DesignIcon } from '../../shared/ui/design-icon'
 import { Page } from '../../shared/ui/page'
 import { useMonthChart } from '../../entities/chart'
@@ -21,6 +22,7 @@ import { ChartDonut } from '../../shared/ui/chart-donut'
 
 export default function ChartPage() {
   const [month, setMonth] = useState(currentMonth)
+  const [periodOpen, setPeriodOpen] = useState(false)
   const [metric, setMetric] = useState<'expense' | 'income' | 'net'>('expense')
   const isAuthenticated = useAuthGate()
   const chartQuery = useMonthChart({ params: { month }, queryOptions: { enabled: isAuthenticated } })
@@ -43,18 +45,14 @@ export default function ChartPage() {
       <DashboardHeadingVisual primitives={{ Box: View, Title: Text }} title='统计' />
       <DashboardPeriodToolbar primitive={View}>
         <AppButton fullWidth={false} size='compact' variant='ghost' aria-label='上个月' onClick={handlePreviousMonth}><DesignIcon name='period-previous' tone='active' size={20} /></AppButton>
-        <Picker className='bill-dashboard-period-control' mode='date' fields='month' value={`${month}-01`} end={`${currentMonth()}-01`} onChange={event => {
-          const selectedMonth = event.detail.value.slice(0, 7)
-          if (/^\d{4}-\d{2}$/.test(selectedMonth) && selectedMonth <= currentMonth())
-            setMonth(selectedMonth)
-        }}
-        >
+        <Button className='bill-dashboard-period-control chart-period-trigger' aria-label='选择期间' onClick={() => setPeriodOpen(true)}>
           <View className='bill-dashboard-period-control'>
             <DashboardPeriodContent primitives={{ Box: View, Text }} title={formatMonthPeriod(month, currentMonth(), { thisMonth: '本月', lastMonth: '上月', monthNumber: value => `${value}月`, yearMonthNumber: (year, value) => `${year}年${value}月` })} start={chartQuery.data?.startDate ?? `${month}-01`} end={chartQuery.data?.endDate ?? '—'} selectable chevron={<DesignIcon name='chart-selector-chevron' tone='active' size={15} />} />
           </View>
-        </Picker>
+        </Button>
         <AppButton fullWidth={false} size='compact' variant='ghost' aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}><DesignIcon name='period-next' tone='active' size={20} /></AppButton>
       </DashboardPeriodToolbar>
+      {periodOpen && <ChartPeriodSheet month={month} visible onClose={() => setPeriodOpen(false)} onSelect={setMonth} />}
       {chartQuery.isLoading && <PageLoadingState label='正在加载图表…' />}
       {chartQuery.isError && <EmptyState error title='加载失败' description={errorMessage(chartQuery.error)} actionLabel='重试' onAction={() => void chartQuery.refetch()} />}
       {summary && <>

@@ -3,3 +3,6 @@
 .chart-page > .bill-dashboard-period-toolbar { margin-left: -16px; margin-right: -16px; }
 .chart-section { margin-bottom: 12px; }
 .bill-dashboard-trend > .bill-chart-trend { display: block; width: calc(100% + 8px); height: 100%; max-width: none; margin-top: 0; margin-left: -4px; }
+
+.chart-period-trigger { width: auto; padding: 0; line-height: 1.5; margin: 0; border: 0; background: transparent; }
+.chart-period-trigger::after { border: 0; }

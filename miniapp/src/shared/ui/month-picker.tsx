@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import { MonthSelectionPanel, PeriodLabel } from '@ww-bill/bill-ui'
 import { currentMonth } from '../lib/date'
-import { useOverlayStore } from '../model/overlay'
+import { Sheet } from './sheet'
 import { AppButton } from './app-button'
 import { DesignIcon } from './design-icon'
-import './month-picker.scss'
 
 /** Platform-local sheet state. Public components only receive display props. */
 export function MonthPicker({ month, onChange }: { month: string, onChange: (month: string) => void }) {
@@ -15,12 +14,6 @@ export function MonthPicker({ month, onChange }: { month: string, onChange: (mon
   const currentYear = Number(current.slice(0, 4))
   const draftYear = Number(draft.slice(0, 4))
   const isFuture = draft > current
-  useEffect(() => {
-    if (!visible)
-      return
-    useOverlayStore.getState().acquire()
-    return () => useOverlayStore.getState().release()
-  }, [visible])
   function handleOpen() { setDraft(month); setVisible(true) }
   function handleConfirm() {
     if (isFuture)
@@ -32,9 +25,7 @@ export function MonthPicker({ month, onChange }: { month: string, onChange: (mon
     <Button className='bill-month-picker-trigger' onClick={handleOpen} aria-label='选择月份'>
       <PeriodLabel primitive={Text} year={month.slice(0, 4)} yearSuffix='年' month={month.slice(5)} monthSuffix='月' /><DesignIcon name='period-chevron' size={14} />
     </Button>
-    {visible && <View className='bill-month-picker-overlay'>
-      <View className='bill-month-picker-mask' onClick={() => setVisible(false)} />
-      <View className='bill-month-picker-sheet'>
+    <Sheet visible={visible} onClose={() => setVisible(false)}>
         <MonthSelectionPanel primitives={{ Box: View, Text, Button }} title='选择年月' closeLabel='关闭' yearLabel='年份' monthLabel='月份' onClose={() => setVisible(false)}
           onYear={year => setDraft(`${year}-${draft.slice(5)}`)} onMonth={value => setDraft(`${draftYear}-${String(value + 1).padStart(2, '0')}`)}
           years={Array.from({ length: 6 }, (_, index) => currentYear - 5 + index).map(year => ({ value: year, label: `${year}年`, selected: year === draftYear }))}
@@ -42,7 +33,6 @@ export function MonthPicker({ month, onChange }: { month: string, onChange: (mon
           hint={isFuture ? '所选月份尚未到来，请选择当前或过去的月份' : undefined}
           action={<AppButton data-testid='record-month-confirm' disabled={isFuture} onClick={handleConfirm}>确认</AppButton>}
         />
-      </View>
-    </View>}
+    </Sheet>
   </>
 }

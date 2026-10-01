@@ -1,0 +1,62 @@
+.bill-sheet-heading {
+  display: flex;
+  box-sizing: border-box;
+  min-height: 64px;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+  padding: 12px var(--ww-component-sheet-padding-x);
+  border-bottom: 1px solid var(--ww-component-sheet-header-border);
+  background: var(--ww-component-sheet-header-background);
+  backdrop-filter: var(--ww-component-sheet-header-blur);
+}
+.bill-sheet-heading__content {
+  min-width: 0;
+  flex: 1;
+}
+.bill-sheet-heading__title {
+  display: block;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 24px;
+  color: var(--ww-theme-text-color);
+}
+.bill-sheet-heading__description {
+  display: block;
+  margin: 2px 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ww-text-color-mid);
+}
+.bill-sheet-heading__icon,
+.bill-sheet-heading__close {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ww-component-sheet-close-radius);
+  background: var(--ww-component-sheet-icon-background);
+}
+.bill-sheet-heading__icon {
+  width: 40px;
+  height: 40px;
+  color: var(--ww-theme-color-deep);
+}
+.bill-sheet-heading__close {
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--ww-text-color-mid);
+}
+.bill-sheet-heading__close::after {
+  border: 0;
+}

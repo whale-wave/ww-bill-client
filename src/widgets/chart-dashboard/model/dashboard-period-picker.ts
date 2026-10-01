@@ -1,5 +1,5 @@
 import type { ChartDashboardPeriod } from '@/entities/chart';
-import { formatMonthPeriod } from '@ww-bill/bill-core';
+import { formatMonthPeriod, getMonthPeriodChoices } from '@ww-bill/bill-core';
 import { addDays, addMonths, format, getISOWeek, getISOWeekYear, startOfISOWeek, subDays } from 'date-fns';
 
 export type SelectableDashboardPeriod = Extract<ChartDashboardPeriod, 'week' | 'month' | 'year'>;
@@ -76,11 +76,7 @@ export function getDashboardPeriodChoices(period: SelectableDashboardPeriod, vie
     }
   }
   else if (period === 'month') {
-    for (let month = 0; month < 12; month++) {
-      const [startDate, endDate] = getDashboardPeriodBounds('month', new Date(viewYear, month, 1, 12));
-      if (startDate <= today)
-        choices.push({ anchorDate: startDate, endDate, startDate });
-    }
+    choices.push(...getMonthPeriodChoices(viewYear, today));
   }
   else {
     for (let year = viewYear; year > viewYear - 10 && year >= 1900; year--) {

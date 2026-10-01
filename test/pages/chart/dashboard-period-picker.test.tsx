@@ -47,6 +47,8 @@ describe('chart dashboard period picker', () => {
       { anchorDate: '2026-01-01', startDate: '2026-01-01', endDate: '2026-01-31' },
     ]);
     expect(getDashboardPeriodChoices('year', 2026, '2026-09-28')[0].anchorDate).toBe('2026-01-01');
+    expect(getDashboardPeriodChoices('month', 2024, '2024-02-15')[0].endDate).toBe('2024-02-29');
+    expect(getDashboardPeriodChoices('month', 2025, '2025-02-15')[0].endDate).toBe('2025-02-28');
   });
 
   it('lets the user choose an older month from the bottom sheet', () => {

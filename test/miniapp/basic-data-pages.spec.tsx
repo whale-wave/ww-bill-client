@@ -192,6 +192,32 @@ describe('miniapp basic data pages', () => {
     expect(next?.disabled).toBe(true);
   });
 
+  it('selects chart months through the shared period list and releases the native overlay', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-01T04:00:00Z'));
+    const page = renderPage(ChartPage);
+    act(() => page.querySelector<HTMLButtonElement>('.chart-period-trigger')?.click());
+    expect(useOverlayStore.getState().count).toBe(1);
+    expect(page.querySelector('.bill-period-selection__year')?.textContent).toBe('2026');
+    const choices = Array.from(page.querySelectorAll<HTMLButtonElement>('.bill-period-selection__choice'));
+    expect(choices).toHaveLength(10);
+    expect(choices[0].getAttribute('aria-pressed')).toBe('true');
+    expect(choices[1].textContent).toContain('2026-09-01 — 2026-09-30');
+    act(() => choices[1].click());
+    expect(chartMonthRequests.mock.lastCall?.[0]).toBe('2026-09');
+    expect(page.querySelector('.bill-period-selection')).toBeNull();
+    expect(useOverlayStore.getState().count).toBe(0);
+    act(() => page.querySelector<HTMLButtonElement>('.chart-period-trigger')?.click());
+    const yearButtons = page.querySelectorAll<HTMLButtonElement>('.bill-period-selection__year-button');
+    expect(yearButtons[1].disabled).toBe(true);
+    act(() => yearButtons[0].click());
+    expect(page.querySelectorAll('.bill-period-selection__choice')).toHaveLength(12);
+    expect(page.querySelector('.bill-period-selection__year')?.textContent).toBe('2025');
+    act(() => page.querySelector<HTMLButtonElement>('.bill-sheet-heading__close')?.click());
+    expect(chartMonthRequests.mock.lastCall?.[0]).toBe('2026-09');
+    expect(useOverlayStore.getState().count).toBe(0);
+  });
+
   it('shows the current bill on discover', () => {
     const page = renderPage(DiscoverPage);
     expect(page.textContent).toContain('账单');
