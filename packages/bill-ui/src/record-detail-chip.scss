@@ -1,0 +1,38 @@
+.record-editor-detail-chip {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  box-sizing: border-box;
+  min-height: 44px;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--ww-component-record-editor-chip-foreground);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.record-editor-detail-chip::before {
+  position: absolute;
+  z-index: -1;
+  inset: 5px 0;
+  border-radius: 999px;
+  background: var(--ww-component-record-editor-detail-background);
+  box-shadow: var(--ww-component-record-editor-detail-shadow);
+  content: '';
+}
+
+.record-editor-detail-chip::after {
+  border: 0;
+}
+.record-editor-detail-chip--selected {
+  color: var(--ww-component-record-editor-chip-selected-foreground);
+}
+.record-editor-detail-chip--selected::before {
+  background: var(--ww-component-record-editor-detail-selected-background);
+}

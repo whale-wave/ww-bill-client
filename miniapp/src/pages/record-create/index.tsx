@@ -2,7 +2,7 @@ import { Fragment, useMemo, useRef, useState } from 'react'
 import { Button, Input, Picker, ScrollView, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { isDarkCategoryBackground, groupCategoriesByParent, money } from '@ww-bill/bill-core'
-import { RecordEditorHeader, RecordAmountVisual, RecordEntryRow, CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
+import { RecordDetailChipContent, RecordCategoryGrid, categoryChoiceClassName, RecordEditorHeader, RecordAmountVisual, RecordEntryRow, CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
 import { useCategories, type RecordType } from '../../entities/category'
 import { useAuthGate } from '../../features/auth'
 import { useCreateRecord } from '../../features/record-create'
@@ -110,24 +110,24 @@ export default function RecordCreatePage() {
       {categoriesQuery.isLoading && <View className='state-panel'>正在加载分类…</View>}
       {categoriesQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(categoriesQuery.error)}</Text><AppButton variant='secondary' onClick={() => void categoriesQuery.refetch()}>重试</AppButton></View>}
       {!categoriesQuery.isLoading && !categoriesQuery.isError && !categoriesQuery.data?.length && <View className='state-panel'>暂无可用分类</View>}
-      <View className='create-categories'>
+      <View className='create-categories'><RecordCategoryGrid primitive={View}>
         {rootCategories.map(category => {
           const children = childrenByParent.get(category.id) ?? []
           return (
             <Fragment key={category.id}>
-              <View className={`create-categories__item ${selectedCategoryId === category.id || expandedParentId === category.id ? 'is-active' : ''}`} onClick={() => handleRootCategory(category.id)}>
+              <View className={categoryChoiceClassName(selectedCategoryId === category.id || selectedCategory?.parentId === category.id)} onClick={() => handleRootCategory(category.id)}>
                 <CategoryChoiceVisual
                   hasChildren={children.length > 0}
                   icon={<CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={24} color={isDarkCategoryBackground(category.backgroundColor) ? '#fff' : undefined} />}
                   iconStyle={category.backgroundColor ? { backgroundColor: category.backgroundColor } : undefined}
-                  isSelected={selectedCategoryId === category.id || expandedParentId === category.id}
+                  isSelected={selectedCategoryId === category.id || selectedCategory?.parentId === category.id}
                   label={category.name}
                   primitives={categoryPrimitives}
                 />
               </View>
               {expandedParentId === category.id && (
-                <View className='create-categories__children'>
-                  <View className='create-categories__item' onClick={() => handleSelectCategory(category.id)}>
+                <View className='create-categories__children'><RecordCategoryGrid primitive={View} variant='children'>
+                  <View className={categoryChoiceClassName(selectedCategoryId === category.id)} onClick={() => handleSelectCategory(category.id)}>
                     <CategoryChoiceVisual
                       hint='直接记入'
                       icon={<CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={24} color={isDarkCategoryBackground(category.backgroundColor) ? '#fff' : undefined} />}
@@ -138,7 +138,7 @@ export default function RecordCreatePage() {
                     />
                   </View>
                   {children.map(child => (
-                    <View key={child.id} className={`create-categories__item ${selectedCategoryId === child.id ? 'is-active' : ''}`} onClick={() => handleSelectCategory(child.id)}>
+                    <View key={child.id} className={categoryChoiceClassName(selectedCategoryId === child.id)} onClick={() => handleSelectCategory(child.id)}>
                       <CategoryChoiceVisual
                         icon={<CategoryIcon categoryName={child.name} iconKey={child.icon} iconType={child.iconType} textIconEnabled={child.textIconEnabled} textIconIndex={child.textIconIndex} size={24} color={isDarkCategoryBackground(child.backgroundColor) ? '#fff' : undefined} />}
                         iconStyle={child.backgroundColor ? { backgroundColor: child.backgroundColor } : undefined}
@@ -148,17 +148,17 @@ export default function RecordCreatePage() {
                       />
                     </View>
                   ))}
-                </View>
+                </RecordCategoryGrid></View>
               )}
             </Fragment>
           )
         })}
-      </View>
+      </RecordCategoryGrid></View>
       </ScrollView>
       <View className='create-form'>
         <View className='row create-form__pickers'>
-          <Picker mode='date' value={selectedDate} end={dateKey(new Date())} onChange={event => setSelectedDate(event.detail.value)}><View>{selectedDate}</View></Picker>
-          <Picker mode='time' value={selectedTime} onChange={event => setSelectedTime(event.detail.value)}><View>{selectedTime}</View></Picker>
+          <Picker mode='date' value={selectedDate} end={dateKey(new Date())} onChange={event => setSelectedDate(event.detail.value)}><View className='record-editor-detail-chip'><RecordDetailChipContent primitive={Text} icon={<DesignIcon name='editor-date' size={17} tone='category' />}>{selectedDate === dateKey(new Date()) ? '今天' : selectedDate}</RecordDetailChipContent></View></Picker>
+          <Picker mode='time' value={selectedTime} onChange={event => setSelectedTime(event.detail.value)}><View className='record-editor-detail-chip'><RecordDetailChipContent primitive={Text} icon={<DesignIcon name='editor-time' size={17} tone='category' />}>{selectedTime}</RecordDetailChipContent></View></Picker>
         </View>
         <RecordEntryRow
           caption={selectedCategory ? `${selectedCategory.path ?? selectedCategory.name} · ${recordType === 'sub' ? '支出' : '收入'}` : '请选择分类'}

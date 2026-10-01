@@ -29,21 +29,6 @@
   padding-bottom: calc(var(--ww-component-record-editor-controls-height) + 10px);
 }
 
-.record-editor-category-choice {
-  min-height: var(--ww-component-record-editor-category-height);
-}
-
-.record-editor-category-choice--selected .record-editor-category-icon {
-  color: var(--ww-theme-color-deep);
-  background: var(--ww-component-record-editor-selected-background);
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ww-theme-color-deep) 28%, transparent);
-}
-
-.record-editor-category-choice--selected .record-editor-category-label {
-  color: var(--ww-theme-color-deep);
-  font-weight: 800;
-}
-
 .record-editor-category-check {
   top: 2px;
   left: calc(50% + 8px);
@@ -63,13 +48,6 @@
   touch-action: pan-x;
 }
 
-.record-editor-detail-chip {
-  position: relative;
-  isolation: isolate;
-  color: var(--ww-component-record-editor-chip-foreground);
-}
-
-.record-editor-detail-chip::before,
 .record-editor-selected-tag::before,
 .record-editor-tag-option::before {
   position: absolute;
@@ -78,19 +56,6 @@
   border-radius: 999px;
   background: var(--ww-component-record-editor-chip-background);
   content: '';
-}
-
-.record-editor-detail-chip::before {
-  background: var(--ww-component-record-editor-detail-background);
-  box-shadow: var(--ww-component-record-editor-detail-shadow);
-}
-
-.record-editor-detail-chip--selected {
-  color: var(--ww-component-record-editor-chip-selected-foreground);
-}
-
-.record-editor-detail-chip--selected::before {
-  background: var(--ww-component-record-editor-detail-selected-background);
 }
 
 .record-editor-selected-tag::before,

@@ -18,6 +18,7 @@ export const designIconNames = {
   'empty-retry': 'RefreshCw',
   'editor-back': 'ArrowLeft',
   'editor-date': 'CalendarDays',
+  'editor-time': 'Clock3',
   'editor-delete': 'Delete',
   'list-chevron': 'ChevronRight',
   'mine-badge': 'Award',

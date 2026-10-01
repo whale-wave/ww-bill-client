@@ -373,7 +373,7 @@ describe('record editor presentation', () => {
     expect(container.querySelector('[data-record-editor-keypad]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-categories]')).not.toBeNull();
     expect(container.querySelector('[data-record-editor-presentation]')?.getAttribute('data-record-editor-stage')).toBeNull();
-    expect(container.querySelector('[data-record-editor-category-grid]')?.classList).toContain('grid-cols-5');
+    expect(container.querySelector('[data-record-editor-category-grid]')?.classList).toContain('bill-record-category-grid--root');
 
     act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')?.click());
 

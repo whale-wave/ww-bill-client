@@ -59,7 +59,7 @@ export function FormField({
           {type === 'password' && !disabled && (
             <button
               aria-label={isPasswordVisible ? 'hide password' : 'show password'}
-              className="flex h-11 w-11 shrink-0 items-center justify-center border-0 bg-transparent p-0 text-ww-soft"
+              className="bill-form-field__suffix-action"
               onClick={() => setIsPasswordVisible(visible => !visible)}
               type="button"
             >

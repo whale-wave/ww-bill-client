@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { AuthFieldsVisual } from '@ww-bill/bill-ui';
 import { LockKeyhole, Mail, UserRound } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -113,7 +114,7 @@ const Login: FC = () => {
         />
         {loginType === 'username'
           ? (
-              <div className="space-y-4">
+              <AuthFieldsVisual>
                 <FormField
                   autoComplete="username"
                   label={t('login.usernameLabel')}
@@ -132,10 +133,10 @@ const Login: FC = () => {
                   type="password"
                   value={userNameForm.password}
                 />
-              </div>
+              </AuthFieldsVisual>
             )
           : (
-              <div className="space-y-4">
+              <AuthFieldsVisual>
                 <FormField
                   autoComplete="email"
                   inputMode="email"
@@ -152,7 +153,7 @@ const Login: FC = () => {
                   sendEmailApi={loginEmailCaptchaApi}
                   value={emailForm.emailCode}
                 />
-              </div>
+              </AuthFieldsVisual>
             )}
         <div className="mt-4 flex justify-end">
           <button

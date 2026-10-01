@@ -187,3 +187,20 @@
   font-size: 15px;
   color: var(--ww-theme-text-color);
 }
+
+.bill-form-field__suffix-action {
+  display: flex;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ww-text-color-soft);
+}
+.bill-form-field__suffix-action::after {
+  border: 0;
+}

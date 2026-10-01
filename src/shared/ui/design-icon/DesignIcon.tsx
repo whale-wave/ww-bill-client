@@ -12,6 +12,7 @@ import {
   ChevronDown,
   ChevronRight,
   CircleAlert,
+  Clock3,
   Compass,
   Crown,
   Delete,
@@ -57,6 +58,7 @@ const iconComponents = {
   ChartColumn,
   Compass,
   CircleAlert,
+  Clock3,
   RefreshCw,
   Crown,
 } satisfies Record<string, LucideIcon>;

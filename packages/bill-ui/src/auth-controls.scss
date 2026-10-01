@@ -1,0 +1,50 @@
+.bill-auth-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.bill-auth-primary-action {
+  display: flex;
+  box-sizing: border-box;
+  height: 52px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  margin: 24px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  background: var(--ww-action-primary-background);
+  color: var(--ww-primary-foreground);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22.5px;
+  transition: opacity 0.15s;
+}
+.bill-auth-primary-action::after {
+  border: 0;
+}
+.bill-auth-primary-action:active {
+  opacity: 0.85;
+}
+.bill-auth-primary-action:disabled,
+.bill-auth-primary-action[disabled] {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.bill-auth-primary-action__spinner {
+  display: block;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: bill-auth-spin 1s linear infinite;
+}
+@keyframes bill-auth-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

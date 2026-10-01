@@ -4,7 +4,7 @@ import type { RecordEditorController } from '../model/useRecordEditorController'
 import type { Asset, AssetGroup } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
 import { groupCategoriesByParent } from '@ww-bill/bill-core';
-import { CategoryChoiceVisual, RecordAmountVisual, RecordEditorHeader, RecordEntryRow, RecordKeypadLayout } from '@ww-bill/bill-ui';
+import { CategoryChoiceVisual, RecordAmountVisual, RecordCategoryGrid, RecordDetailChipContent, RecordEditorHeader, RecordEntryRow, RecordKeypadLayout } from '@ww-bill/bill-ui';
 import {
   Delete as BackspaceIcon,
   Banknote,
@@ -198,7 +198,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
     );
   }, [controller.remark, remarkHistory]);
 
-  const detailChipClassName = 'record-editor-detail-chip pointer-events-auto inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-[13px] font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep';
+  const detailChipClassName = 'record-editor-detail-chip pointer-events-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-deep';
   const selectedChipClassName = 'record-editor-detail-chip--selected';
   const renderDateLabel = useCallback((type: string, value: number) => {
     return type === 'year' ? String(value) : String(value).padStart(2, '0');
@@ -350,7 +350,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               />
             )}
             {categoryState === 'ready' && rootCategories.length > 0 && (
-              <div className="grid grid-cols-5 gap-x-1 gap-y-2" data-record-editor-category-grid>
+              <RecordCategoryGrid>
                 {rootCategories.map((category, index) => {
                   const children = childCategoriesByParent.get(category.id) ?? [];
                   const isExpanded = expandedCategoryId === category.id;
@@ -402,7 +402,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                               role="group"
                               transition={{ duration: isMotionEnabled ? 0.2 : 0, ease: 'easeOut' }}
                             >
-                              <div className="grid grid-cols-5 gap-x-1 gap-y-2 px-1.5 py-2">
+                              <RecordCategoryGrid variant="children">
                                 <button
                                   aria-pressed={selectedCategory?.id === expandedCategory.id}
                                   className={cn(
@@ -445,7 +445,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                                     />
                                   </button>
                                 ))}
-                              </div>
+                              </RecordCategoryGrid>
                             </m.div>
                           )}
                         </AnimatePresence>
@@ -453,7 +453,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                     </Fragment>
                   );
                 })}
-              </div>
+              </RecordCategoryGrid>
             )}
           </section>
           {controller.isNoteFocused && filteredRemarkHistory.length > 0 && (
@@ -538,8 +538,9 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               onClick={() => controller.setIsDatePickerVisible(true)}
               type="button"
             >
-              <DesignIcon name="editor-date" size={17} />
-              <span>{controller.isToday ? t('common:time.today') : controller.formattedDate}</span>
+              <RecordDetailChipContent icon={<DesignIcon name="editor-date" size={17} />}>
+                {controller.isToday ? t('common:time.today') : controller.formattedDate}
+              </RecordDetailChipContent>
             </button>
             <RecordEditorImagesPanel
               canAddImages={controller.canAddImages}

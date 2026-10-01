@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Image, Input, Text, View } from '@tarojs/components'
+import { Button, Image, Input, Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { AuthPresentation, FormFieldVisual } from '@ww-bill/bill-ui'
+import { AuthFieldsVisual, AuthPrimaryActionContent, AuthPresentation, FormFieldVisual } from '@ww-bill/bill-ui'
 import { useMutation } from '@tanstack/react-query'
 import appLogo from '../../assets/brand/whale-logo.png'
 import { DesignIcon } from '../../shared/ui/design-icon'
@@ -9,12 +9,12 @@ import { login } from '../../entities/auth'
 import { useAuthStore } from '../../features/auth'
 import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
-import { AppButton } from '../../shared/ui/app-button'
 import './index.scss'
 
 export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [formError, setFormError] = useState('')
   const loginMutation = useMutation({ mutationFn: () => login(username.trim(), password) })
 
@@ -48,14 +48,16 @@ export default function LoginPage() {
       logo={<Image className='bill-auth__logo-image' mode='aspectFill' src={appLogo} />}
       surface={(
         <Surface className='bill-auth__surface login-form' material='raised'>
+          <AuthFieldsVisual primitive={View}>
           <FormFieldVisual label='账号或邮箱' prefix={<DesignIcon name='avatar-user' size={18} tone='category' />} primitives={{ Label: View, Box: View, Text }}>
             <Input className='bill-form-field__input' disabled={loginMutation.isLoading} value={username} placeholder='请输入账号或邮箱' onInput={event => setUsername(event.detail.value)} />
           </FormFieldVisual>
-          <FormFieldVisual label='密码' prefix={<DesignIcon name='auth-lock' size={18} tone='category' />} primitives={{ Label: View, Box: View, Text }}>
-            <Input className='bill-form-field__input' disabled={loginMutation.isLoading} value={password} password placeholder='请输入密码' onInput={event => setPassword(event.detail.value)} onConfirm={() => void handleLogin()} />
+          <FormFieldVisual label='密码' suffix={!loginMutation.isLoading && <Button className='bill-form-field__suffix-action' aria-label={isPasswordVisible ? '隐藏密码' : '显示密码'} onClick={() => setIsPasswordVisible(value => !value)}><DesignIcon name={isPasswordVisible ? 'amount-hidden' : 'amount-visible'} size={18} /></Button>} prefix={<DesignIcon name='auth-lock' size={18} tone='category' />} primitives={{ Label: View, Box: View, Text }}>
+            <Input className='bill-form-field__input' disabled={loginMutation.isLoading} value={password} password={!isPasswordVisible} placeholder='请输入密码' onInput={event => setPassword(event.detail.value)} onConfirm={() => void handleLogin()} />
           </FormFieldVisual>
+          </AuthFieldsVisual>
           {formError && <Text className='error-text'>{formError}</Text>}
-          <AppButton loading={loginMutation.isLoading} disabled={loginMutation.isLoading} onClick={handleLogin}>登录</AppButton>
+          <Button className='bill-auth-primary-action' disabled={loginMutation.isLoading} aria-busy={loginMutation.isLoading} onClick={handleLogin}><AuthPrimaryActionContent primitive={View} loading={loginMutation.isLoading}>登录</AuthPrimaryActionContent></Button>
         </Surface>
       )}
     />

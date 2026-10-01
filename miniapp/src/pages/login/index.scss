@@ -1,3 +1,2 @@
 .bill-auth { position: fixed; inset: 0; height: auto; }
-.login-form { display: flex; flex-direction: column; gap: 16px; }
-.login-form > .button { height: 52px; margin-top: 8px; border-radius: 16px; width: 100%; }
+.login-form > .error-text { display:block; margin-top:8px; }

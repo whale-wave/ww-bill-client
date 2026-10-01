@@ -1,11 +1,8 @@
 .create-page { position: fixed; inset: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--ww-page-gradient); }
 .create-category-viewport { flex: 1; min-height: 0; height: 0; background: var(--ww-surface-color); }
-.create-categories { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 4px; padding: 4px 18px 10px; }
-.create-categories__item { position: relative; display: flex; min-width: 0; min-height: var(--ww-component-record-editor-category-height); flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px; border-radius: 12px; text-align: center; }
-.create-categories__item:active { background: var(--ww-theme-color-light); }
-.create-categories__children { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 4px; padding: 8px 0; border-top: 1px solid var(--ww-border-color); border-bottom: 1px solid var(--ww-border-color); }
+.create-categories { padding:4px 18px 10px; }
+.create-categories__children { grid-column:1 / -1; border-top:1px solid var(--ww-border-color); border-bottom:1px solid var(--ww-border-color); }
 .create-form { flex-shrink: 0; background: var(--ww-component-record-editor-dock-background); }
 .create-form > .bill-record-entry { margin: 0 14px 5px; }
 .create-form__pickers { height: 44px; padding: 0 14px; justify-content: flex-start; gap: 4px; color: var(--ww-component-record-editor-chip-foreground); }
-.create-form__pickers picker { display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 700; }
 .create-form > .error-text { display: block; padding: 4px 14px; }

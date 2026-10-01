@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { AuthPrimaryActionContent } from '@ww-bill/bill-ui';
 import { cn } from '@/shared/lib';
 
 interface AuthPrimaryButtonProps {
@@ -13,15 +14,14 @@ interface AuthPrimaryButtonProps {
 export function AuthPrimaryButton({ children, disabled, loading, loadingLabel, onClick, testId }: AuthPrimaryButtonProps) {
   return (
     <button
-      className="ww-theme-primary-action mt-6 flex h-[52px] w-full items-center justify-center rounded-[16px] border-0 text-[15px] font-bold transition active:opacity-85 disabled:cursor-not-allowed disabled:opacity-45"
+      className="bill-auth-primary-action ww-theme-primary-action"
       data-testid={testId}
       aria-busy={loading || undefined}
       disabled={disabled || loading}
       onClick={onClick}
       type="button"
     >
-      {loading && <span aria-hidden="true" className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
-      {loading ? (loadingLabel ?? children) : children}
+      <AuthPrimaryActionContent loading={loading} loadingLabel={loadingLabel}>{children}</AuthPrimaryActionContent>
     </button>
   );
 }
