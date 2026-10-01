@@ -21,7 +21,7 @@ afterEach(() => {
 
 function dispatchPointer(
   element: Element,
-  type: 'pointerdown' | 'pointermove' | 'pointerup',
+  type: 'pointercancel' | 'pointerdown' | 'pointermove' | 'pointerup',
   clientX: number,
   clientY: number,
   pointerType = 'touch',
@@ -161,6 +161,72 @@ describe('personal tab swipe navigation', () => {
 
     const track = container.querySelector<HTMLElement>('[data-personal-tab-track]');
     expect(track?.style.transform).toContain('-400px');
+  });
+
+  it('preserves a drag when the viewport height changes without changing its width', async () => {
+    const { container, router } = renderNavigation('/detail');
+    await act(async () => new Promise(resolve => setTimeout(resolve, 50)));
+    const swipeArea = container.querySelector<HTMLElement>('[data-personal-tab-swipe-navigation]')!;
+    const track = container.querySelector<HTMLElement>('[data-personal-tab-track]')!;
+    Object.defineProperty(swipeArea, 'clientWidth', { configurable: true, value: 400 });
+    act(() => window.dispatchEvent(new Event('resize')));
+
+    await act(async () => {
+      dispatchPointer(swipeArea, 'pointerdown', 280, 100);
+      dispatchPointer(swipeArea, 'pointermove', 180, 104);
+      await new Promise(resolve => setTimeout(resolve, 40));
+    });
+    expect(track.style.transform).toContain('-100px');
+
+    await act(async () => {
+      window.dispatchEvent(new Event('resize'));
+      await new Promise(resolve => setTimeout(resolve, 40));
+    });
+    expect(track.style.transform).toContain('-100px');
+
+    await act(async () => dispatchPointer(swipeArea, 'pointerup', 180, 106));
+    expect(router.state.location.pathname).toBe('/chart');
+  });
+
+  it('keeps the horizontal direction locked when the finger drifts vertically before release', async () => {
+    const { container, router } = renderNavigation('/detail');
+    const swipeArea = container.querySelector('[data-personal-tab-swipe-navigation]')!;
+
+    await act(async () => {
+      dispatchPointer(swipeArea, 'pointerdown', 280, 100);
+      dispatchPointer(swipeArea, 'pointermove', 240, 104);
+      dispatchPointer(swipeArea, 'pointermove', 180, 185);
+      dispatchPointer(swipeArea, 'pointerup', 180, 185);
+    });
+    expect(router.state.location.pathname).toBe('/chart');
+  });
+
+  it('waits for a clear direction instead of rejecting a diagonal start', async () => {
+    const { container, router } = renderNavigation('/detail');
+    const swipeArea = container.querySelector('[data-personal-tab-swipe-navigation]')!;
+
+    await act(async () => {
+      dispatchPointer(swipeArea, 'pointerdown', 280, 100);
+      dispatchPointer(swipeArea, 'pointermove', 270, 111);
+      dispatchPointer(swipeArea, 'pointermove', 180, 120);
+      dispatchPointer(swipeArea, 'pointerup', 180, 120);
+    });
+    expect(router.state.location.pathname).toBe('/chart');
+  });
+
+  it('cancels a horizontal gesture without switching tabs', async () => {
+    const { container, router } = renderNavigation('/detail');
+    const swipeArea = container.querySelector('[data-personal-tab-swipe-navigation]')!;
+
+    await act(async () => {
+      dispatchPointer(swipeArea, 'pointerdown', 280, 100);
+      dispatchPointer(swipeArea, 'pointermove', 180, 104);
+      dispatchPointer(swipeArea, 'pointercancel', 180, 104);
+      dispatchPointer(swipeArea, 'pointerup', 180, 104);
+      await new Promise(resolve => setTimeout(resolve, 250));
+    });
+    expect(router.state.location.pathname).toBe('/detail');
+    expect(container.querySelector<HTMLElement>('[data-personal-tab-track]')?.style.transform).not.toContain('-100px');
   });
 
   it('does not wrap at an edge or treat bookkeeping as a swipe tab', async () => {

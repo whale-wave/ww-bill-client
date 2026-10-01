@@ -81,7 +81,12 @@ export const PersonalTabSwipeNavigation: FC<PersonalTabSwipeNavigationProps> = (
       if (viewport)
         viewport.scrollLeft = 0;
       const width = getViewportWidth(viewport);
+      // Mobile browser chrome can resize only the height during a gesture.
+      // Reposition the track only when its horizontal geometry changes.
+      if (width === viewportWidthRef.current)
+        return;
       viewportWidthRef.current = width;
+      swipeOriginRef.current = undefined;
       trackX.stop();
       trackX.set(-activeIndexRef.current * width);
     };
@@ -163,7 +168,7 @@ export const PersonalTabSwipeNavigation: FC<PersonalTabSwipeNavigationProps> = (
     if (origin.axis === 'pending') {
       if (Math.abs(horizontalDistance) < 8 && Math.abs(verticalDistance) < 8)
         return;
-      if (Math.abs(verticalDistance) >= Math.abs(horizontalDistance)) {
+      if (Math.abs(verticalDistance) >= Math.abs(horizontalDistance) * 1.15) {
         swipeOriginRef.current = undefined;
         return;
       }
@@ -212,16 +217,14 @@ export const PersonalTabSwipeNavigation: FC<PersonalTabSwipeNavigationProps> = (
       return;
 
     const horizontalDistance = event.clientX - origin.x;
-    const verticalDistance = event.clientY - origin.y;
     const elapsed = Math.max(1, performance.now() - origin.startedAt);
     const horizontalVelocity = Math.abs(horizontalDistance) / elapsed;
     const width = viewportWidthRef.current || getViewportWidth(viewportRef.current);
     const swipeThreshold = Math.min(72, width * 0.2);
-    const isHorizontal = origin.axis === 'horizontal'
-      && Math.abs(horizontalDistance) > Math.abs(verticalDistance) * 1.35;
-    const isIntentionalSwipe = isHorizontal
-      && (Math.abs(horizontalDistance) >= swipeThreshold
-        || (Math.abs(horizontalDistance) >= 44 && horizontalVelocity >= 0.45));
+    // Direction was locked while dragging; finger drift at release must not
+    // turn an accepted horizontal gesture back into a vertical one.
+    const isIntentionalSwipe = Math.abs(horizontalDistance) >= swipeThreshold
+      || (Math.abs(horizontalDistance) >= 44 && horizontalVelocity >= 0.45);
     const nextIndex = activeIndex + (horizontalDistance < 0 ? 1 : -1);
     const nextTab = PERSONAL_SWIPE_TABS[nextIndex];
     if (!isIntentionalSwipe || !nextTab) {
@@ -235,7 +238,7 @@ export const PersonalTabSwipeNavigation: FC<PersonalTabSwipeNavigationProps> = (
 
   return (
     <div
-      className="relative h-full w-full min-w-0 touch-pan-y overflow-hidden [background:var(--ww-page-gradient)] [overflow:clip]"
+      className="relative h-full w-full min-w-0 touch-pan-y overflow-hidden [background:var(--ww-page-gradient)] [overflow:clip] [&_:where(.overflow-auto,.overflow-y-auto,.overflow-scroll,.overflow-y-scroll)]:touch-pan-y"
       data-personal-tab-swipe-navigation
       onClickCapture={(event) => {
         if (!suppressClickRef.current)
