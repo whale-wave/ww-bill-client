@@ -208,7 +208,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
           label={<RequiredLabel text={t('form.name')} />}
           rules={[{ required: true, message: t('form.nameRequired') }]}
         >
-          <Input placeholder={t('form.namePlaceholder')} clearable />
+          <Input aria-label={t('form.name')} placeholder={t('form.namePlaceholder')} clearable />
         </Form.Item>
         <Form.Item
           name="amount"
@@ -225,7 +225,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
           ]}
           normalize={normalizeAmount as any}
         >
-          <Input type="text" inputMode="decimal" placeholder={t('form.amountPlaceholder')} clearable />
+          <Input aria-label={t('form.amount')} type="text" inputMode="decimal" placeholder={t('form.amountPlaceholder')} clearable />
         </Form.Item>
         <Form.Item
           name="cycle"
@@ -324,13 +324,13 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
         defaultOpen={false}
       >
         <Form.Item name="provider" label={t('form.provider')}>
-          <Input placeholder={t('form.providerPlaceholder')} clearable />
+          <Input aria-label={t('form.provider')} placeholder={t('form.providerPlaceholder')} clearable />
         </Form.Item>
         <Form.Item name="account" label={t('form.account')}>
-          <Input placeholder={t('form.optional')} clearable />
+          <Input aria-label={t('form.account')} placeholder={t('form.optional')} clearable />
         </Form.Item>
         <Form.Item name="paymentMethod" label={t('form.paymentMethod')}>
-          <Input placeholder={t('form.paymentMethodPlaceholder')} clearable />
+          <Input aria-label={t('form.paymentMethod')} placeholder={t('form.paymentMethodPlaceholder')} clearable />
         </Form.Item>
       </Section>
 
@@ -365,7 +365,7 @@ const FixedExpenseForm: React.FC<FixedExpenseFormProps> = (props) => {
           <Switch />
         </Form.Item>
         <Form.Item name="comment" label={t('form.comment')}>
-          <TextArea placeholder={t('form.optional')} maxLength={200} rows={2} showCount />
+          <TextArea aria-label={t('form.comment')} placeholder={t('form.optional')} maxLength={200} rows={2} showCount />
         </Form.Item>
       </Section>
 
