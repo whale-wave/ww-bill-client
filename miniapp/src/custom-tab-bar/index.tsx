@@ -1,12 +1,15 @@
 import Taro from '@tarojs/taro'
-import { Text, View } from '@tarojs/components'
+import { Button, View } from '@tarojs/components'
+import { BottomNavigation, NavigationItemVisual, type DesignIconName } from '@ww-bill/bill-ui'
+import { DesignIcon } from '../shared/ui/design-icon'
 import './index.scss'
 
-const tabs = [
-  { path: '/pages/index/index', label: '明细', icon: '▤' },
-  { path: '/pages/chart/index', label: '图表', icon: '▥' },
-  { path: '/pages/discover/index', label: '发现', icon: '◇' },
-  { path: '/pages/mine/index', label: '我的', icon: '◉' },
+const tabs: { path: string, label: string, icon: DesignIconName, prominent?: boolean }[] = [
+  { path: '/pages/index/index', label: '明细', icon: 'tab-detail' },
+  { path: '/pages/chart/index', label: '图表', icon: 'tab-chart' },
+  { path: '/pages/record-create/index', label: '记账', icon: 'tab-add', prominent: true },
+  { path: '/pages/discover/index', label: '发现', icon: 'tab-discovery' },
+  { path: '/pages/mine/index', label: '我的', icon: 'tab-mine' },
 ]
 
 function CustomTabBar() {
@@ -23,24 +26,32 @@ function CustomTabBar() {
   }
 
   return (
-    <View className='custom-tab-bar'>
-      {tabs.slice(0, 2).map(tab => (
-        <View key={tab.path} className={`custom-tab-bar__item ${currentPath === tab.path ? 'is-active' : ''}`} onClick={() => handleSwitch(tab.path)}>
-          <Text className='custom-tab-bar__icon'>{tab.icon}</Text>
-          <Text>{tab.label}</Text>
-        </View>
+    <BottomNavigation
+      activeIndex={tabs.findIndex(tab => tab.path === currentPath)}
+      ariaLabel='主导航'
+      className='custom-tab-bar'
+      itemCount={tabs.length}
+      indicatorPrimitive={View}
+      primitive={View}
+    >
+      {tabs.map(tab => (
+        <Button
+          key={tab.path}
+          className={`ww-floating-dock__button${currentPath === tab.path ? ' ww-floating-dock__button--active' : ''}${tab.prominent ? ' ww-floating-dock__button--prominent' : ''}`}
+          ariaLabel={tab.label}
+          aria-selected={currentPath === tab.path}
+          onClick={() => tab.prominent ? handleCreate() : handleSwitch(tab.path)}
+        >
+          <NavigationItemVisual
+            icon={<DesignIcon name={tab.icon} size={tab.prominent ? 22 : 19} tone={tab.prominent ? 'inverse' : currentPath === tab.path ? 'active' : 'inactive'} />}
+            isActive={currentPath === tab.path}
+            label={tab.label}
+            primitive={View}
+            prominent={tab.prominent}
+          />
+        </Button>
       ))}
-      <View className='custom-tab-bar__create' onClick={handleCreate}>
-        <Text className='custom-tab-bar__plus'>＋</Text>
-        <Text className='custom-tab-bar__create-label'>记账</Text>
-      </View>
-      {tabs.slice(2).map(tab => (
-        <View key={tab.path} className={`custom-tab-bar__item ${currentPath === tab.path ? 'is-active' : ''}`} onClick={() => handleSwitch(tab.path)}>
-          <Text className='custom-tab-bar__icon'>{tab.icon}</Text>
-          <Text>{tab.label}</Text>
-        </View>
-      ))}
-    </View>
+    </BottomNavigation>
   )
 }
 

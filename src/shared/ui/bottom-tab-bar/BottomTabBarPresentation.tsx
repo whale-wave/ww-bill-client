@@ -1,5 +1,6 @@
 import type { MotionValue } from 'motion/react';
-import type { CSSProperties, FC, KeyboardEvent, ReactNode } from 'react';
+import type { FC, KeyboardEvent, ReactNode } from 'react';
+import { BottomNavigation, NavigationItemVisual } from '@ww-bill/bill-ui';
 import { animate, AnimatePresence, m, useMotionValue, useMotionValueEvent } from 'motion/react';
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { cn } from '@/shared/lib';
@@ -106,21 +107,21 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
   }, [activeIndex, indicatorProgress, internalIndicatorProgress, isMotionEnabled]);
 
   return (
-    <nav
-      aria-label={ariaLabel}
-      className="bwm-tab-bar ww-ledger-workspace-tab-bar ww-tab-bar ww-floating-dock fixed bottom-[calc(10px+var(--ww-safe-area-bottom))] left-[14px] right-[14px] z-[100] flex h-[68px] items-center justify-evenly rounded-[34px] px-[5px] text-ww-ghost"
-      data-active-index={activeIndex >= 0 ? activeIndex : undefined}
-      data-motion-enabled={isMotionEnabled}
-      ref={tabListRef}
-      role="tablist"
-      style={{ '--ww-tab-count': items.length } as CSSProperties}
+    <BottomNavigation
+      activeIndex={activeIndex}
+      ariaLabel={ariaLabel}
+      isMotionEnabled={isMotionEnabled}
+      itemCount={items.length}
+      rootRef={tabListRef}
+      indicator={(
+        <span
+          aria-hidden="true"
+          className="ww-floating-dock__active-indicator"
+          ref={indicatorRef}
+          style={{ opacity: activeIndex >= 0 ? 1 : 0, transition: 'none' }}
+        />
+      )}
     >
-      <span
-        aria-hidden="true"
-        className="ww-floating-dock__active-indicator"
-        ref={indicatorRef}
-        style={{ opacity: activeIndex >= 0 ? 1 : 0, transition: 'none' }}
-      />
       {items.map((item) => {
         const isActive = item.key === activeKey;
         return (
@@ -150,38 +151,29 @@ export const BottomTabBarPresentation: FC<BottomTabBarPresentationProps> = ({
             tabIndex={isActive ? 0 : -1}
             type="button"
           >
-            <span
-              className={cn(
-                'ww-tab-bar__button-icon tab-icon relative flex h-[19px] w-[19px] shrink-0 items-center justify-center text-[19px]',
-                isMotionEnabled && 'transition-transform duration-200 ease-out',
-                item.prominent
-                && 'ww-tab-bar__create-icon ww-floating-dock__create absolute bottom-[13px] h-14 w-14 rounded-full text-[22px] text-white',
+            <NavigationItemVisual
+              isActive={isActive}
+              isMotionEnabled={isMotionEnabled}
+              label={item.label}
+              prominent={item.prominent}
+              icon={(
+                <AnimatePresence initial={false} mode="sync">
+                  <m.span
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="absolute inset-0 flex items-center justify-center"
+                    exit={isMotionEnabled ? { opacity: 0, scale: 0.92 } : undefined}
+                    initial={isMotionEnabled ? { opacity: 0, scale: 0.92 } : false}
+                    key={isActive ? 'active' : 'inactive'}
+                    transition={isMotionEnabled ? { duration: 0.18, ease: [0.22, 1, 0.36, 1] } : { duration: 0 }}
+                  >
+                    {isActive ? item.activeIcon ?? item.icon : item.icon}
+                  </m.span>
+                </AnimatePresence>
               )}
-            >
-              <AnimatePresence initial={false} mode="sync">
-                <m.span
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="absolute inset-0 flex items-center justify-center"
-                  exit={isMotionEnabled ? { opacity: 0, scale: 0.92 } : undefined}
-                  initial={isMotionEnabled ? { opacity: 0, scale: 0.92 } : false}
-                  key={isActive ? 'active' : 'inactive'}
-                  transition={isMotionEnabled ? { duration: 0.18, ease: [0.22, 1, 0.36, 1] } : { duration: 0 }}
-                >
-                  {isActive ? item.activeIcon ?? item.icon : item.icon}
-                </m.span>
-              </AnimatePresence>
-            </span>
-            <span className={cn(
-              'name ww-tab-bar__button-label max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[9.5px] font-medium leading-[14.25px] tracking-[0.3px]',
-              isActive && 'font-bold',
-              item.prominent && 'invisible',
-            )}
-            >
-              {item.label}
-            </span>
+            />
           </button>
         );
       })}
-    </nav>
+    </BottomNavigation>
   );
 };

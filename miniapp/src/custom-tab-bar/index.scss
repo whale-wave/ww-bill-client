@@ -1,65 +1,10 @@
 @use '@ww-bill/bill-ui/token-values.scss' as tokens;
+@use '@ww-bill/bill-ui/navigation.scss';
 
 .custom-tab-bar {
-  // Native custom components have their own style scope; use the same defaults.
+  // Native custom components have their own scope; defaults share the source.
   @include tokens.appearance-default;
   @include tokens.reference-default;
   @include tokens.semantic-default;
   @include tokens.material-default;
-  position: fixed;
-  left: 14px;
-  right: 14px;
-  bottom: calc(12px + env(safe-area-inset-bottom));
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  height: 66px;
-  padding: 0 8px;
-  border: 1px solid var(--ww-component-dock-border);
-  border-radius: 33px;
-  background: var(--ww-component-dock-background);
-  box-shadow: var(--ww-component-dock-shadow);
-  backdrop-filter: var(--ww-component-dock-blur);
-  box-sizing: border-box;
-
-  &__item {
-    width: 18%;
-    min-height: 44px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    font-size: 11px;
-    color: var(--ww-text-color-soft);
-  }
-
-  &__icon { font-size: 21px; line-height: 1; }
-  .is-active { color: var(--ww-theme-color-deep); font-weight: 700; }
-
-  &__create {
-    width: 20%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    color: var(--ww-theme-color-deep);
-    font-size: 11px;
-    font-weight: 700;
-  }
-
-  &__plus {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: var(--ww-tab-create-background);
-    color: white;
-    font-size: 32px;
-    line-height: 1;
-  }
-
-  &__create-label { min-height: 15px; }
 }

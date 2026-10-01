@@ -1,4 +1,6 @@
+import type { DesignIconName } from '@ww-bill/bill-ui';
 import type { LucideIcon, LucideProps } from 'lucide-react';
+import { designIconNames } from '@ww-bill/bill-ui';
 import {
   ArrowLeft,
   ArrowRightLeft,
@@ -27,46 +29,33 @@ import {
 } from 'lucide-react';
 
 const iconComponents = {
-  'action-asset': WalletCards,
-  'action-exchange': ArrowRightLeft,
-  'action-invoice': ReceiptText,
-  'amount-hidden': EyeOff,
-  'amount-visible': Eye,
-  'avatar-edit': Pencil,
-  'avatar-user': UserRound,
-  'calendar': CalendarDays,
-  'chart-selector-chevron': ChevronDown,
-  'check-in': CalendarCheck2,
-  'discovery-asset': WalletCards,
-  'discovery-bill': ReceiptText,
-  'discovery-budget': ChartPie,
-  'editor-back': ArrowLeft,
-  'editor-date': CalendarDays,
-  'editor-delete': Delete,
-  'list-chevron': ChevronRight,
-  'mine-badge': Award,
-  'mine-invite': Gift,
-  'mine-message': MessageSquare,
-  'mine-points': Star,
-  'mine-settings': Settings,
-  'period-chevron': ChevronRight,
-  'search': Search,
-  'shortcut-asset': WalletCards,
-  'shortcut-bill': ReceiptText,
-  'shortcut-budget': ChartPie,
-  'tab-add': Plus,
-  'tab-chart-active': ChartColumn,
-  'tab-chart': ChartColumn,
-  'tab-detail-active': ReceiptText,
-  'tab-detail': ReceiptText,
-  'tab-discovery-active': Compass,
-  'tab-discovery': Compass,
-  'tab-mine-active': UserRound,
-  'tab-mine': UserRound,
-  'vip-crown': Crown,
-} as const satisfies Record<string, LucideIcon>;
+  WalletCards,
+  ArrowRightLeft,
+  ReceiptText,
+  EyeOff,
+  Eye,
+  Pencil,
+  UserRound,
+  CalendarDays,
+  ChevronDown,
+  CalendarCheck2,
+  ChartPie,
+  ArrowLeft,
+  Delete,
+  ChevronRight,
+  Award,
+  Gift,
+  MessageSquare,
+  Star,
+  Settings,
+  Search,
+  Plus,
+  ChartColumn,
+  Compass,
+  Crown,
+} satisfies Record<string, LucideIcon>;
 
-export type DesignIconName = keyof typeof iconComponents;
+export type { DesignIconName } from '@ww-bill/bill-ui';
 
 export interface DesignIconProps extends Omit<LucideProps, 'ref' | 'size'> {
   alt?: string;
@@ -75,7 +64,7 @@ export interface DesignIconProps extends Omit<LucideProps, 'ref' | 'size'> {
 }
 
 export function DesignIcon({ alt = '', className, name, size = 20, ...props }: DesignIconProps) {
-  const Icon = iconComponents[name];
+  const Icon = iconComponents[designIconNames[name]];
   const label = props['aria-label'] ?? (alt || undefined);
   const isDecorative = !label && !props['aria-labelledby'];
 

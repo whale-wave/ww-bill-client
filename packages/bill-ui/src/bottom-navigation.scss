@@ -1,0 +1,99 @@
+.bill-navigation.ww-floating-dock {
+  position: fixed;
+  bottom: calc(10px + var(--ww-safe-area-bottom, env(safe-area-inset-bottom)));
+  left: 14px;
+  right: 14px;
+  z-index: 100;
+  display: flex;
+  height: 68px;
+  align-items: center;
+  justify-content: space-evenly;
+  border-radius: 34px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  color: var(--ww-text-color-ghost);
+  border: 1px solid var(--ww-component-dock-border);
+  background: var(--ww-component-dock-background);
+  box-shadow: var(--ww-component-dock-shadow);
+  backdrop-filter: var(--ww-component-dock-blur);
+  -webkit-backdrop-filter: var(--ww-component-dock-blur);
+}
+.bill-navigation .ww-floating-dock__button {
+  position: relative;
+  overflow: visible;
+  margin: 0;
+  display: flex;
+  height: 44px;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: 18px;
+  border: 0;
+  padding: 0 4px;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  z-index: var(--ww-ref-z-content);
+  &::after {
+    border: 0;
+  }
+  &[disabled] {
+    opacity: 0.45;
+  }
+  &.ww-floating-dock__button--active:not(.ww-floating-dock__button--prominent) {
+    color: var(--ww-theme-color-deep);
+  }
+}
+.bill-navigation .ww-floating-dock__active-indicator {
+  position: absolute;
+  top: 12px;
+  left: 5px;
+  width: calc((100% - 10px) / var(--ww-tab-count, 5));
+  height: 44px;
+  z-index: calc(var(--ww-ref-z-content) - 1);
+  border-radius: 18px;
+  pointer-events: none;
+  background: var(--ww-component-dock-active);
+  transform-origin: center;
+}
+.bill-navigation__icon {
+  position: relative;
+  display: flex;
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+}
+.bill-navigation__icon.ww-floating-dock__create {
+  position: absolute;
+  bottom: 13px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 22px;
+  color: var(--ww-component-dock-create-icon-foreground);
+  background: var(--ww-tab-create-background);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--ww-theme-color) 34%, transparent);
+}
+.bill-navigation__label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 9.5px;
+  font-weight: 500;
+  line-height: 14.25px;
+  letter-spacing: 0.3px;
+}
+.ww-floating-dock__button--active .bill-navigation__label {
+  font-weight: 700;
+}
+.ww-floating-dock__button--prominent .bill-navigation__label {
+  visibility: hidden;
+}

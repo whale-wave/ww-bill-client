@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CircleDollarSign, WalletCards } from 'lucide-react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { AppButton } from './app-button';
+import { BottomTabBarPresentation } from './bottom-tab-bar';
 import { ContentStack, SectionStack } from './content-stack';
 import { DesignIcon } from './design-icon';
 import { DonutChart } from './donut-chart';
@@ -18,6 +19,24 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+export const BottomNavigation: Story = {
+  render: () => (
+    <main className="ww-story-page">
+      <BottomTabBarPresentation
+        activeKey="detail"
+        ariaLabel="主导航"
+        items={[
+          { key: 'detail', label: '明细', icon: <DesignIcon name="tab-detail" size={19} />, onSelect: fn() },
+          { key: 'chart', label: '图表', icon: <DesignIcon name="tab-chart" size={19} />, onSelect: fn() },
+          { key: 'create', label: '记账', icon: <DesignIcon name="tab-add" size={22} />, prominent: true, onSelect: fn() },
+          { key: 'discovery', label: '发现', icon: <DesignIcon name="tab-discovery" size={19} />, onSelect: fn() },
+          { key: 'mine', label: '我的', icon: <DesignIcon name="tab-mine" size={19} />, onSelect: fn() },
+        ]}
+      />
+    </main>
+  ),
+};
 
 export const MaterialsAndMetrics: Story = {
   render: () => (

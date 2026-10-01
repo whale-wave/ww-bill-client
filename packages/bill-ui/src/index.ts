@@ -1,9 +1,15 @@
+export { BottomNavigation, NavigationItemVisual } from './bottom-navigation';
+export type { BottomNavigationProps, NavigationItemVisualProps } from './bottom-navigation';
 export { buttonPresentationClassNames } from './button-appearance';
 export type { ButtonAppearance, ButtonSize, ButtonVariant } from './button-appearance';
 export { ButtonContent } from './button-content';
 export type { ButtonContentProps } from './button-content';
 export { CategoryChoiceVisual } from './category-choice-visual';
 export type { CategoryChoicePrimitives, CategoryChoiceVisualProps } from './category-choice-visual';
+export { designIconNames } from './design-icon-names';
+export type { DesignIconName } from './design-icon-names';
+export { designIconImageSource } from './design-icon-source';
+export type { IconAppearance, IconTone } from './design-icon-source';
 export { MetricRow } from './metric-row';
 export type { MetricRowItem, MetricRowPrimitives, MetricRowProps, MetricTone } from './metric-row';
 export { RecordLine } from './record-line';
