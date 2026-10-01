@@ -126,10 +126,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
           </header>
           <div className={isOverview ? 'pt-1.5' : ''}>
             <div className={isOverview
-              ? cn(
-                  'overflow-hidden rounded-[20px] border border-border-primary bg-ww-surface-raised py-0.5',
-                  group.records.length === 1 && !group.records.some(record => record.overviewSecondary) && 'h-[70px]',
-                )
+              ? 'overflow-hidden rounded-[20px] border border-border-primary bg-ww-surface-raised'
               : ''}
             >
               {group.records.map((record, index) => {
@@ -142,7 +139,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                     <div
                       className={cn(
                         'relative flex w-full items-center',
-                        hasOverviewSecondary ? 'min-h-[68px] py-0.5' : 'h-[60px]',
+                        hasOverviewSecondary ? 'min-h-[68px] py-0.5' : 'h-[64px]',
                       )}
                       data-record-id={record.id}
                       key={record.id}

@@ -479,10 +479,12 @@ export function SwipeAction({ children, className, leftActions = [], rightAction
   const [activeSide, setActiveSide] = useState<'left' | 'right' | null>(null);
   const draggedRef = useRef(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const clampOffset = (offset: number) => Math.max(-rightWidth, Math.min(leftWidth, offset));
   const snapTo = (target: number) => {
     x.stop();
-    setActiveSide(target > 0 ? 'left' : target < 0 ? 'right' : null);
-    animate(x, target, { type: 'spring', stiffness: 520, damping: 42 });
+    const clampedTarget = clampOffset(target);
+    setActiveSide(clampedTarget > 0 ? 'left' : clampedTarget < 0 ? 'right' : null);
+    animate(x, clampedTarget, { type: 'spring', stiffness: 520, damping: 42 });
   };
   useDrag(({ down, first, offset: [offset] }) => {
     if (first) {
@@ -490,12 +492,13 @@ export function SwipeAction({ children, className, leftActions = [], rightAction
       draggedRef.current = true;
     }
     if (down) {
-      x.set(offset);
+      x.set(clampOffset(offset));
       return;
     }
-    const target = offset > leftWidth * 0.35 && leftWidth > 0
+    const clampedOffset = clampOffset(offset);
+    const target = clampedOffset > leftWidth * 0.35 && leftWidth > 0
       ? leftWidth
-      : offset < -rightWidth * 0.35 && rightWidth > 0 ? -rightWidth : 0;
+      : clampedOffset < -rightWidth * 0.35 && rightWidth > 0 ? -rightWidth : 0;
     snapTo(target);
   }, {
     axis: 'x',
