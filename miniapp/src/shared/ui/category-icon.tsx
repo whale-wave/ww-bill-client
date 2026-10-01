@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Image, Text } from '@tarojs/components'
 import { categoryIconTextStyle, categoryIconImageSource, resolveCategoryIcon, type CategoryIconInput } from '@ww-bill/bill-ui'
 import { useAppearanceTemplate } from '../model/appearance'
+import { resolvePublicMediaUrl } from '../lib/public-media-url'
 
 export function CategoryIcon({ size = 18, color, ...input }: Omit<CategoryIconInput, 'imageFailed'> & { size?: number; color?: string }) {
   const template = useAppearanceTemplate()
@@ -11,7 +12,7 @@ export function CategoryIcon({ size = 18, color, ...input }: Omit<CategoryIconIn
     return <Text style={{ ...categoryIconTextStyle(visual.kind, size), color }}>{visual.value}</Text>
   }
   if (visual.kind === 'image') {
-    return <Image mode='aspectFill' src={visual.value} onError={() => setFailedImage(input.iconKey)} style={{ width: '100%', height: '100%', borderRadius: '50%', display: 'block' }} />
+    return <Image mode='aspectFill' src={resolvePublicMediaUrl(visual.value) ?? visual.value} onError={() => setFailedImage(input.iconKey)} style={{ width: '100%', height: '100%', borderRadius: '50%', display: 'block' }} />
   }
   return <Image mode='aspectFit' svg src={categoryIconImageSource(visual.glyph, { color, appearance: template })} style={{ width: `${size}px`, height: `${size}px`, display: 'block' }} />
 }

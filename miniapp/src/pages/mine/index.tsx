@@ -8,6 +8,7 @@ import { DesignIcon } from '../../shared/ui/design-icon'
 import { useUserInfo } from '../../entities/user'
 import { useAuthGate, useAuthStore } from '../../features/auth'
 import { errorMessage } from '../../shared/lib/errors'
+import { resolvePublicMediaUrl } from '../../shared/lib/public-media-url'
 import { Surface } from '../../shared/ui/surface'
 import { AppButton } from '../../shared/ui/app-button'
 import { EmptyState } from '../../shared/ui/empty-state'
@@ -36,7 +37,7 @@ export default function MinePage() {
         <Surface className='mine-profile' material='raised'>
           <ProfileSummaryVisual
             primitives={{ Box: View, Text }}
-            avatar={<View className='ww-user-summary-avatar bill-profile-summary__avatar'>{userQuery.data.avatar && failedAvatar !== userQuery.data.avatar ? <Image mode='aspectFill' src={userQuery.data.avatar} onError={() => setFailedAvatar(userQuery.data?.avatar ?? null)} /> : <DesignIcon name='avatar-user' size={30} tone='category' />}</View>}
+            avatar={<View className='ww-user-summary-avatar bill-profile-summary__avatar'>{userQuery.data.avatar && failedAvatar !== userQuery.data.avatar ? <Image mode='aspectFill' src={resolvePublicMediaUrl(userQuery.data.avatar, 'avatar-v1') ?? userQuery.data.avatar} onError={() => setFailedAvatar(userQuery.data?.avatar ?? null)} /> : <DesignIcon name='avatar-user' size={30} tone='category' />}</View>}
             name={userQuery.data.name || userQuery.data.username}
             title={<Text>{userQuery.data.email || userQuery.data.username}</Text>}
             metrics={<MetricRow density='hero' primitives={{ Root: View, Cell: View, Label: Text, Value: View, Text }} items={[
