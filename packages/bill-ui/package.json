@@ -7,7 +7,10 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
-    }
+    },
+    "./tokens.scss": "./src/styles/tokens.scss",
+    "./token-values.scss": "./src/styles/_token-values.scss",
+    "./surface-rules.scss": "./src/styles/_surface-rules.scss"
   },
   "scripts": {
     "lint:type": "tsc --noEmit"

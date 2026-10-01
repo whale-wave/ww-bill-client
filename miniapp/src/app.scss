@@ -1,25 +1,17 @@
+@use '@ww-bill/bill-ui/tokens.scss';
+
 :root, page {
-  --ww-theme-color: #6fc2dc;
-  --ww-primary-light: #dceef4;
-  --ww-primary-deep: #23728e;
-  --ww-page-gradient: linear-gradient(155deg, #f2f8fa 0%, #f8fafb 54%, #fbf7f8 100%);
-  --ww-surface: rgba(255, 255, 255, 0.9);
-  --ww-income: #328568;
-  --ww-expense: #b24f71;
-  --bill-income-color: var(--ww-income);
-  --bill-expense-color: var(--ww-expense);
-  --bill-primary-color: var(--ww-primary-deep);
-  --bill-muted-color: var(--ww-mid);
-  --bill-ink-color: var(--ww-ink);
-  --bill-metric-divider: rgba(111, 194, 220, .25);
-  --bill-category-icon-background: var(--ww-primary-light);
-  --bill-surface-color: #fff;
-  --ww-ink: #263340;
-  --ww-mid: #5c7080;
-  --ww-soft: #637987;
-  --ww-border: rgba(73, 112, 129, 0.14);
-  background: #f2f8fa;
-  color: var(--ww-ink);
+  --ww-primary-light: var(--ww-theme-color-light);
+  --ww-primary-deep: var(--ww-theme-color-deep);
+  --ww-surface: var(--ww-surface-color);
+  --ww-income: var(--bill-income-color);
+  --ww-expense: var(--bill-expense-color);
+  --ww-ink: var(--ww-theme-text-color);
+  --ww-mid: var(--ww-text-color-mid);
+  --ww-soft: var(--ww-text-color-soft);
+  --ww-border: var(--ww-border-color);
+  background: var(--ww-background-color);
+  color: var(--ww-theme-text-color);
   font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans SC', sans-serif;
   font-size: 15px;
 }
@@ -34,9 +26,6 @@
 .page__title { display: block; font-size: 20px; font-weight: 700; margin-bottom: 18px; }
 .card {
   padding: 18px;
-  border: 1px solid var(--ww-border);
-  border-radius: 20px;
-  background: var(--ww-surface);
   margin-bottom: 16px;
 }
 .section-title { display: block; font-size: 17px; font-weight: 700; margin: 18px 0 10px; }
@@ -51,26 +40,26 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 48px;
+  min-height: var(--ww-control-height);
   border: 0;
-  border-radius: 15px;
+  border-radius: var(--ww-component-button-radius-medium);
   background: var(--ww-theme-color);
-  color: #174b5d;
+  color: var(--ww-primary-foreground);
   font-size: 15px;
   font-weight: 700;
   box-sizing: border-box;
 }
 .button::after { border: 0; }
 .button[disabled] { opacity: .5; }
-.button--plain { background: #e8f3f6; }
+.button--plain { background: var(--ww-surface-tint-color); }
 .input-field {
   display: block;
   width: 100%;
-  min-height: 48px;
+  min-height: var(--ww-control-height);
   padding: 12px 14px;
   border: 1px solid var(--ww-border);
-  border-radius: 13px;
-  background: white;
+  border-radius: var(--ww-radius-control);
+  background: var(--ww-surface-raised-color);
   box-sizing: border-box;
   margin-top: 6px;
 }

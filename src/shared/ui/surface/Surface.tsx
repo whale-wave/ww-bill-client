@@ -1,25 +1,17 @@
-import type { AriaAttributes, ReactNode } from 'react';
+import type { SurfaceMaterial, SurfacePresentationProps } from '@ww-bill/bill-ui';
+import { SurfacePresentation } from '@ww-bill/bill-ui';
 import { forwardRef } from 'react';
-import { cn } from '@/shared/lib';
 
-export type SurfaceMaterial = 'chrome' | 'content' | 'floating' | 'overlay' | 'raised';
+export type { SurfaceMaterial } from '@ww-bill/bill-ui';
 export type SurfaceElement = 'article' | 'div' | 'section';
-
-interface SurfaceDataAttributes {
-  [attribute: `data-${string}`]: string | number | boolean | undefined;
-}
 
 /**
  * Presentation-only surface. Interactive controls own their native semantics;
  * surfaces deliberately do not expose event, role, tabIndex, or style props.
  */
-export interface SurfaceProps extends AriaAttributes, SurfaceDataAttributes {
+export interface SurfaceProps extends Omit<SurfacePresentationProps<HTMLElement>, 'primitive' | 'rootRef'> {
   as?: SurfaceElement;
-  children?: ReactNode;
-  className?: string;
-  id?: string;
   material?: SurfaceMaterial;
-  title?: string;
 }
 
 export const Surface = forwardRef<HTMLElement, SurfaceProps>(({
@@ -30,12 +22,14 @@ export const Surface = forwardRef<HTMLElement, SurfaceProps>(({
   ...presentationAttributes
 }, ref) => {
   return (
-    <Component
+    <SurfacePresentation
       {...presentationAttributes}
-      className={cn('ww-surface', `ww-surface--${material}`, className)}
-      ref={ref as never}
+      className={className}
+      material={material}
+      primitive={Component}
+      rootRef={ref}
     >
       {children}
-    </Component>
+    </SurfacePresentation>
   );
 });

@@ -7,6 +7,7 @@ import { useMonthChart } from '../../entities/chart'
 import { useAuthGate } from '../../features/auth'
 import { currentMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
+import { Surface } from '../../shared/ui/surface'
 import './index.scss'
 
 const metricPrimitives: MetricRowPrimitives = { Root: View, Cell: View, Label: Text, Value: View, Text }
@@ -31,7 +32,7 @@ export default function DiscoverPage() {
   return (
     <View className='page'>
       <Text className='page__title'>发现</Text>
-      <View className='card discover-overview'>
+      <Surface className='card discover-overview' material='raised'>
         <Text className='muted'>本月账单</Text>
         {chartQuery.isLoading && <Text>正在加载…</Text>}
         {chartQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(chartQuery.error)}</Text><Button className='button button--plain' onClick={() => void chartQuery.refetch()}>重试</Button></View>}
@@ -44,11 +45,11 @@ export default function DiscoverPage() {
           />
         </>}
         <Button className='button button--plain' onClick={handleOpenChart}>查看图表</Button>
-      </View>
+      </Surface>
       <Text className='section-title'>常用入口</Text>
       <View className='discover-actions'>
-        <View className='card discover-actions__item' onClick={handleOpenRecords}><Text>明细</Text><Text className='muted'>查看收支记录</Text></View>
-        <View className='card discover-actions__item' onClick={handleCreate}><Text>记一笔</Text><Text className='muted'>快速记录收支</Text></View>
+        <View className='discover-actions__item' onClick={handleOpenRecords}><Surface className='card discover-actions__content'><Text>明细</Text><Text className='muted'>查看收支记录</Text></Surface></View>
+        <View className='discover-actions__item' onClick={handleCreate}><Surface className='card discover-actions__content'><Text>记一笔</Text><Text className='muted'>快速记录收支</Text></Surface></View>
       </View>
     </View>
   )

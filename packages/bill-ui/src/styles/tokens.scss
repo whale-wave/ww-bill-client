@@ -1,0 +1,77 @@
+@use 'token-values' as values;
+
+:root,
+page,
+.bill-theme--glass {
+  @include values.appearance-default;
+}
+
+html[data-appearance-template='fresh'],
+.bill-theme--fresh {
+  @include values.appearance-fresh;
+}
+
+html[data-appearance-template='minimal'],
+.bill-theme--minimal {
+  @include values.appearance-minimal;
+}
+
+html[data-design-studio-template='mono'],
+.bill-studio--mono {
+  @include values.studio-mono;
+}
+
+html[data-design-studio-template='konsta-ios'],
+.bill-studio--konsta-ios {
+  @include values.studio-konsta-ios;
+}
+
+:root,
+page,
+.bill-theme--glass {
+  @include values.reference-default;
+}
+
+:root,
+page,
+.bill-theme--glass {
+  @include values.semantic-default;
+}
+
+html[data-appearance-template='fresh'],
+.bill-theme--fresh {
+  @include values.semantic-fresh;
+}
+
+html[data-appearance-template='minimal'],
+.bill-theme--minimal {
+  @include values.semantic-minimal;
+}
+
+:root,
+page,
+.bill-theme--glass {
+  @include values.material-default;
+}
+
+html[data-appearance-template='fresh'],
+html[data-appearance-template='minimal'],
+.bill-theme--fresh,
+.bill-theme--minimal {
+  @include values.material-fresh-minimal;
+}
+
+html[data-appearance-template='fresh'],
+.bill-theme--fresh {
+  @include values.material-fresh;
+}
+
+html[data-appearance-template='minimal'],
+.bill-theme--minimal {
+  @include values.material-minimal;
+}
+
+:root,
+page {
+  @include values.shared-aliases;
+}

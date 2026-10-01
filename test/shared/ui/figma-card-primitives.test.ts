@@ -1,4 +1,4 @@
-import { act, createElement } from 'react';
+import { act, createElement, createRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -28,6 +28,23 @@ describe('figma card primitives', () => {
     const container = render(createElement(Surface, { material: 'raised' }, 'Budget'));
     expect(container.firstElementChild?.classList).toContain('ww-surface');
     expect(container.firstElementChild?.classList).toContain('ww-surface--raised');
+  });
+
+  it('preserves the Web surface element, attributes and ref through shared presentation', () => {
+    const ref = createRef<HTMLElement>();
+    const container = render(createElement(Surface, {
+      'as': 'article',
+      'aria-label': 'Account summary',
+      'data-ledger': 'personal',
+      'id': 'summary',
+      'material': 'raised',
+      ref,
+    }, 'Summary'));
+    expect(ref.current).toBe(container.firstElementChild);
+    expect(ref.current?.tagName).toBe('ARTICLE');
+    expect(ref.current?.getAttribute('aria-label')).toBe('Account summary');
+    expect(ref.current?.dataset.ledger).toBe('personal');
+    expect(ref.current?.id).toBe('summary');
   });
 
   it('renders semantic metric values in a stable grid', () => {

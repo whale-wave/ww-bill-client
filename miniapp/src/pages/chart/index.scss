@@ -1,6 +1,6 @@
 .chart-month { min-height: 44px; font-size: 17px; font-weight: 700; margin-bottom: 12px; }
 .chart-month text:first-child, .chart-month text:last-child { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; font-size: 26px; }
-.chart-summary { display: flex; flex-direction: column; gap: 12px; background: linear-gradient(135deg, #e5f4f8, #fff); }
+.chart-summary { display: flex; flex-direction: column; gap: 12px; }
 .chart-summary__net { font-size: 30px; }
 .chart-category { padding: 10px 0; border-bottom: 1px solid var(--ww-border); }
 .chart-category:last-child { border-bottom: 0; }

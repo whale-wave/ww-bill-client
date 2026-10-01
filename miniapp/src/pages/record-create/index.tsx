@@ -8,6 +8,7 @@ import { useAuthGate } from '../../features/auth'
 import { useCreateRecord } from '../../features/record-create'
 import { dateKey, shanghaiDateTimeToIso, timeKey } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
+import { Surface } from '../../shared/ui/surface'
 import './index.scss'
 
 const categoryPrimitives: CategoryChoicePrimitives = { Box: View, Text }
@@ -147,7 +148,7 @@ export default function RecordCreatePage() {
           )
         })}
       </View>
-      <View className='card create-form'>
+      <Surface className='card create-form'>
         {selectedCategory && <Text className='muted'>已选分类：{selectedCategory.path ?? selectedCategory.name}</Text>}
         <Text className='muted'>金额</Text>
         <Input className='input-field create-form__amount' type='digit' value={amount} placeholder='0.00' onInput={event => handleAmount(event.detail.value)} />
@@ -159,7 +160,7 @@ export default function RecordCreatePage() {
         </View>
         {formError && <Text className='error-text'>{formError}</Text>}
         <Button className='button' loading={createMutation.isLoading} disabled={createMutation.isLoading} onClick={handleSubmit}>完成</Button>
-      </View>
+      </Surface>
     </View>
   )
 }

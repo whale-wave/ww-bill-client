@@ -7,6 +7,7 @@ import { useMonthRecords } from '../../entities/record'
 import { useAuthGate } from '../../features/auth'
 import { currentMonth, displayRecordDate, shiftMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
+import { Surface } from '../../shared/ui/surface'
 import './index.scss'
 
 const recordLinePrimitives: RecordLinePrimitives = { Box: View, Text }
@@ -45,7 +46,7 @@ export default function RecordsPage() {
   return (
     <View className='page'>
       <Text className='page__title'>明细</Text>
-      <View className='card records-summary'>
+      <Surface className='card records-summary' material='raised'>
         <View className='row records-summary__month'>
           <Button className='records-summary__nav' aria-label='上个月' onClick={handlePreviousMonth}>‹</Button>
           <Text>{month.replace('-', '年')}月</Text>
@@ -55,7 +56,7 @@ export default function RecordsPage() {
           <View><Text className='muted'>收入</Text><Text className='money money--income'>¥{money.format(firstPage?.income ?? 0)}</Text></View>
           <View><Text className='muted'>支出</Text><Text className='money money--expense'>¥{money.format(firstPage?.expend ?? 0)}</Text></View>
         </View>
-      </View>
+      </Surface>
       <View className='row'><Text className='section-title'>该月记录</Text><Text className='muted'>{firstPage?.total ?? 0} 笔</Text></View>
       {recordsQuery.isLoading && <View className='state-panel'>正在加载明细…</View>}
       {recordsQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(recordsQuery.error)}</Text><Button className='button button--plain' onClick={() => void recordsQuery.refetch()}>重试</Button></View>}

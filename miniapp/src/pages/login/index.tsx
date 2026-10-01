@@ -5,6 +5,7 @@ import { useMutation } from '@tanstack/react-query'
 import { login } from '../../entities/auth'
 import { useAuthStore } from '../../features/auth'
 import { errorMessage } from '../../shared/lib/errors'
+import { Surface } from '../../shared/ui/surface'
 import './index.scss'
 
 export default function LoginPage() {
@@ -40,14 +41,14 @@ export default function LoginPage() {
     <View className='page login-page'>
       <Text className='login-page__brand'>鲸浪记账</Text>
       <Text className='muted'>登录已有账号，继续查看你的账本</Text>
-      <View className='card login-page__form'>
+      <Surface className='card login-page__form'>
         <Text>账号或邮箱</Text>
         <Input className='input-field' value={username} placeholder='请输入账号或邮箱' onInput={event => setUsername(event.detail.value)} />
         <Text>密码</Text>
         <Input className='input-field' value={password} password placeholder='请输入密码' onInput={event => setPassword(event.detail.value)} />
         {formError && <Text className='error-text'>{formError}</Text>}
         <Button className='button' loading={loginMutation.isLoading} disabled={loginMutation.isLoading} onClick={handleLogin}>登录</Button>
-      </View>
+      </Surface>
     </View>
   )
 }

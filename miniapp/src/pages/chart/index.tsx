@@ -7,6 +7,7 @@ import { useMonthChart } from '../../entities/chart'
 import { useAuthGate } from '../../features/auth'
 import { currentMonth, shiftMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
+import { Surface } from '../../shared/ui/surface'
 import './index.scss'
 
 const metricPrimitives: MetricRowPrimitives = { Root: View, Cell: View, Label: Text, Value: View, Text }
@@ -39,7 +40,7 @@ export default function ChartPage() {
       {chartQuery.isLoading && <View className='state-panel'>正在加载图表…</View>}
       {chartQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(chartQuery.error)}</Text><Button className='button button--plain' onClick={() => void chartQuery.refetch()}>重试</Button></View>}
       {summary && <>
-        <View className='card chart-summary'>
+        <Surface className='card chart-summary' material='raised'>
           <Text className='muted'>本月结余</Text>
           <Text className='money chart-summary__net'>¥{money.format(summary.net)}</Text>
           <MetricRow align='start' columns={2} items={[
@@ -47,17 +48,17 @@ export default function ChartPage() {
             { key: 'expense', label: '支出', tone: 'expense', value: `¥${money.format(summary.expense)}` },
           ]} primitives={metricPrimitives}
           />
-        </View>
+        </Surface>
         <Text className='section-title'>支出分类</Text>
         {categories.length === 0 && <View className='state-panel'>本月暂无支出数据</View>}
-        <View className='card'>
+        <Surface className='card'>
           {categories.map(category => (
             <View key={category.key ?? category.id ?? category.name} className='chart-category'>
               <View className='row'><Text>{category.name}</Text><Text className='money'>¥{money.format(category.amount)}</Text></View>
               <View className='chart-category__track'><View className='chart-category__fill' style={{ width: `${largestAmount > 0 ? Math.max(3, Math.min(100, Number(category.amount) / largestAmount * 100)) : 0}%` }} /></View>
             </View>
           ))}
-        </View>
+        </Surface>
       </>}
     </View>
   )

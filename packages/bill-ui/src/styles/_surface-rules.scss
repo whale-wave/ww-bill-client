@@ -1,0 +1,47 @@
+@mixin surface-rules {
+  .ww-surface {
+    border: 1px solid var(--ww-surface-border);
+    border-radius: var(--ww-surface-radius);
+    background: var(--ww-surface-background);
+    box-shadow: var(--ww-surface-shadow);
+  }
+
+  .ww-surface--content {
+    --ww-surface-background: var(--ww-material-content-background);
+    --ww-surface-border: var(--ww-material-content-border);
+    --ww-surface-radius: var(--ww-material-content-radius);
+    --ww-surface-shadow: var(--ww-material-content-shadow);
+  }
+
+  .ww-surface--raised {
+    --ww-surface-background: var(--ww-material-raised-background);
+    --ww-surface-border: var(--ww-material-raised-border);
+    --ww-surface-radius: var(--ww-material-raised-radius);
+    --ww-surface-shadow: var(--ww-material-raised-shadow);
+  }
+
+  .ww-surface--chrome {
+    --ww-surface-background: var(--ww-material-chrome-background);
+    --ww-surface-border: var(--ww-material-chrome-border);
+    --ww-surface-radius: var(--ww-material-chrome-radius);
+    --ww-surface-shadow: var(--ww-material-chrome-shadow);
+    backdrop-filter: var(--ww-material-chrome-blur);
+    -webkit-backdrop-filter: var(--ww-material-chrome-blur);
+  }
+
+  .ww-surface--floating {
+    --ww-surface-background: var(--ww-material-floating-background);
+    --ww-surface-border: var(--ww-material-floating-border);
+    --ww-surface-radius: var(--ww-material-floating-radius);
+    --ww-surface-shadow: var(--ww-material-floating-shadow);
+    backdrop-filter: var(--ww-material-floating-blur);
+    -webkit-backdrop-filter: var(--ww-material-floating-blur);
+  }
+
+  .ww-surface--overlay {
+    --ww-surface-background: var(--ww-material-overlay-background);
+    --ww-surface-border: var(--ww-material-overlay-border);
+    --ww-surface-radius: var(--ww-material-overlay-radius);
+    --ww-surface-shadow: var(--ww-material-overlay-shadow);
+  }
+}
