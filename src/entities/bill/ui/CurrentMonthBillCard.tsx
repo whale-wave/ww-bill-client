@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import type { MetricGridItem } from '@/shared/ui';
+import { BillOverviewVisual } from '@ww-bill/bill-ui';
 import { useTranslation } from '@/shared/i18n';
 import { zeroFill } from '@/shared/lib/time';
 import { DesignIcon, MetricGrid, Surface } from '@/shared/ui';
@@ -30,19 +31,17 @@ export const CurrentMonthBillCard: FC<CurrentMonthBillCardProps> = ({ billRecord
       material="raised"
     >
       <button aria-label={t('bill:monthCard.title')} className="absolute inset-0 z-[1] cursor-pointer border-0 bg-transparent" onClick={onClick} type="button" />
-      <div className="flex items-center gap-[10px]">
-        <span className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-white/70 text-primary-deep">
-          <DesignIcon name="discovery-bill" size={18} />
-        </span>
-        <div>
-          <div className="text-[14px] font-bold leading-[21px] text-ww-ink">{t('bill:monthCard.title')}</div>
-          <div className="font-number text-[11px] font-normal leading-[16.5px] text-ww-mid">
+      <BillOverviewVisual
+        title={t('bill:monthCard.title')}
+        period={(
+          <>
             {zeroFill(billRecord?.month)}
             {t('common:dateTime.monthSuffix')}
-          </div>
-        </div>
-      </div>
-      <MetricGrid className="mt-[14px]" density="compact" items={items} />
+          </>
+        )}
+        icon={<DesignIcon name="discovery-bill" size={18} />}
+        metrics={<MetricGrid density="compact" items={items} />}
+      />
     </Surface>
   );
 };

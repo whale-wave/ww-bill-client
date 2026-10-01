@@ -1,4 +1,5 @@
 import type { FC, MouseEvent, ReactNode } from 'react';
+import { RecordDateGroupHeader, RecordGroupSurface, RecordOverviewRowContent } from '@ww-bill/bill-ui';
 import { SwipeAction } from 'antd-mobile';
 import { Image as ImageIcon } from 'lucide-react';
 import { CategoryIcon } from '@/entities/category';
@@ -95,37 +96,36 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
           data-date-group={group.key}
           key={group.key}
         >
-          <header className={isOverview
-            ? 'flex h-6 items-start justify-between gap-2 px-0.5 text-[12.5px] leading-[18.75px] text-ww-ink'
-            : 'flex items-center justify-between px-4 text-sm text-ww-soft'}
-          >
-            {group.dateTime
-              ? <time dateTime={group.dateTime}>{renderDateLabel(group.dateLabel)}</time>
-              : <span>{renderDateLabel(group.dateLabel)}</span>}
-            <span className="flex shrink-0 space-x-3 text-[11px] font-semibold leading-[16.5px] text-ww-mid">
-              {group.summaries?.map(summary => (
-                <span
-                  className={cn(
-                    summary.key === 'income' && 'text-finance-income',
-                    summary.key === 'expense' && 'text-finance-expense',
-                  )}
-                  key={summary.key}
-                >
-                  {summary.label}
-                  {' '}
-                  {summary.value}
-                </span>
-              ))}
-            </span>
-          </header>
+          <RecordDateGroupHeader
+            variant={isOverview ? 'overview' : 'search'}
+            date={(
+              <>
+                {group.dateTime
+                  ? <time dateTime={group.dateTime}>{renderDateLabel(group.dateLabel)}</time>
+                  : <span>{renderDateLabel(group.dateLabel)}</span>}
+
+              </>
+            )}
+            summaries={(
+              <>
+                {group.summaries?.map(summary => (
+                  <span
+                    className={cn(
+                      summary.key === 'income' && 'text-finance-income',
+                      summary.key === 'expense' && 'text-finance-expense',
+                    )}
+                    key={summary.key}
+                  >
+                    {summary.label}
+                    {' '}
+                    {summary.value}
+                  </span>
+                ))}
+              </>
+            )}
+          />
           <div className={isOverview ? 'pt-1.5' : ''}>
-            <div className={isOverview
-              ? cn(
-                  'overflow-hidden rounded-[20px] border border-border-primary bg-ww-surface-raised py-0.5',
-                  group.records.length === 1 && !group.records.some(record => record.overviewSecondary) && 'h-[70px]',
-                )
-              : ''}
-            >
+            <RecordGroupSurface variant={isOverview ? 'overview' : 'search'} single={isOverview && group.records.length === 1 && !group.records.some(record => record.overviewSecondary)}>
               {group.records.map((record, index) => {
                 const primary = typeof record.primary === 'string'
                   ? getRecordDisplayTitle(record.primary, record.categoryName ?? '')
@@ -142,64 +142,47 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                       key={record.id}
                       onClick={record.onClick}
                     >
-                      <div
-                        className={cn(
-                          'flex h-full w-full min-w-0 items-center gap-[13px] px-[18px]',
-                          !hasOverviewSecondary && 'py-3',
-                        )}
-                        data-record-content
-                      >
-                        <span
-                          className={cn(
-                            'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                            record.memberColorKey && 'border border-solid border-white/70 shadow-ww-xs',
-                            !record.memberColorKey && index % 4 === 1
-                              ? 'bg-ww-pink-light text-ww-pink'
-                              : !record.memberColorKey && index % 4 === 2
-                                  ? 'bg-finance-income/10 text-finance-income'
-                                  : !record.memberColorKey && index % 4 === 3
-                                      ? 'bg-[color:var(--ww-surface-accent-color)] text-primary-deep'
-                                      : !record.memberColorKey ? 'bg-[color:var(--ww-surface-tint-color)] text-primary-deep' : '',
-                          )}
-                          style={record.backgroundColor
-                            ? { backgroundColor: record.backgroundColor, color: getCategoryIconForegroundColor(record.backgroundColor) ?? 'var(--ww-theme-text-color)', padding: record.iconType === 'IMAGE' ? 0 : 3 }
-                            : record.memberColorKey
-                              ? {
-                                  backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
-                                  color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
-                                  padding: record.iconType === 'IMAGE' ? 0 : 3,
-                                }
-                              : undefined}
-                          data-category-icon={record.iconName}
-                        >
-                          {renderCategoryIcon?.(record) ?? <CategoryIcon categoryName={record.categoryName} iconKey={record.iconName} iconType={record.iconType} textIconEnabled={record.textIconEnabled} textIconIndex={record.textIconIndex} size={18} />}
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block overflow-hidden text-ellipsis whitespace-nowrap text-[14px] font-semibold leading-[21px] text-ww-ink">
-                            {primary}
+                      <RecordOverviewRowContent
+                        amount={record.amount}
+                        amountTone={record.amountTone}
+                        originalAmount={record.originalAmount}
+                        primary={primary}
+                        secondary={hasOverviewSecondary
+                          ? (
+                              <>
+                                {record.overviewSecondary && <span className="min-w-0 truncate">{record.overviewSecondary}</span>}
+                                {record.hasAttachment && <ImageIcon aria-label="含图片" className="shrink-0 text-primary-deep" size={12} />}
+                              </>
+                            )
+                          : undefined}
+                        icon={(
+                          <span
+                            className={cn(
+                              'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                              record.memberColorKey && 'border border-solid border-white/70 shadow-ww-xs',
+                              !record.memberColorKey && index % 4 === 1
+                                ? 'bg-ww-pink-light text-ww-pink'
+                                : !record.memberColorKey && index % 4 === 2
+                                    ? 'bg-finance-income/10 text-finance-income'
+                                    : !record.memberColorKey && index % 4 === 3
+                                        ? 'bg-[color:var(--ww-surface-accent-color)] text-primary-deep'
+                                        : !record.memberColorKey ? 'bg-[color:var(--ww-surface-tint-color)] text-primary-deep' : '',
+                            )}
+                            style={record.backgroundColor
+                              ? { backgroundColor: record.backgroundColor, color: getCategoryIconForegroundColor(record.backgroundColor) ?? 'var(--ww-theme-text-color)', padding: record.iconType === 'IMAGE' ? 0 : 3 }
+                              : record.memberColorKey
+                                ? {
+                                    backgroundColor: MEMBER_COLOR_PALETTE[record.memberColorKey].background,
+                                    color: MEMBER_COLOR_PALETTE[record.memberColorKey].foreground,
+                                    padding: record.iconType === 'IMAGE' ? 0 : 3,
+                                  }
+                                : undefined}
+                            data-category-icon={record.iconName}
+                          >
+                            {renderCategoryIcon?.(record) ?? <CategoryIcon categoryName={record.categoryName} iconKey={record.iconName} iconType={record.iconType} textIconEnabled={record.textIconEnabled} textIconIndex={record.textIconIndex} size={18} />}
                           </span>
-                          {hasOverviewSecondary && (
-                            <span className="mt-0.5 flex min-w-0 items-center gap-1 overflow-hidden text-[11px] font-semibold leading-[16.5px] text-ww-mid">
-                              {record.overviewSecondary && <span className="min-w-0 truncate">{record.overviewSecondary}</span>}
-                              {record.hasAttachment && <ImageIcon aria-label="含图片" className="shrink-0 text-primary-deep" size={12} />}
-                            </span>
-                          )}
-                        </span>
-                        <span
-                          className={cn(
-                            'flex max-w-[42%] shrink-0 flex-col items-end font-number text-[15px] font-bold leading-[22.5px]',
-                            getAmountClassName(record.amountTone),
-                          )}
-                          data-record-amount
-                        >
-                          <span className="truncate">{record.amount}</span>
-                          {record.originalAmount && (
-                            <del className="font-number text-[10px] font-semibold leading-3 text-ww-soft" data-record-original-amount>
-                              {record.originalAmount}
-                            </del>
-                          )}
-                        </span>
-                      </div>
+                        )}
+                      />
                       {index !== group.records.length - 1 && (
                         <span aria-hidden="true" className="absolute bottom-0 left-[71px] right-0 h-px bg-border-primary" />
                       )}
@@ -292,7 +275,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                   ? <SwipeAction className="ww-record-swipe-action" key={record.id} rightActions={record.rightActions}>{recordRow}</SwipeAction>
                   : recordRow;
               })}
-            </div>
+            </RecordGroupSurface>
           </div>
         </section>
       ))}

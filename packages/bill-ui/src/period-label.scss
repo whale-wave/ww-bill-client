@@ -1,0 +1,10 @@
+.bill-period-label {
+  font-family: 'Nunito Variable', 'Noto Sans SC Variable', system-ui, sans-serif;
+  font-size: var(--ww-component-summary-period-size);
+  font-weight: 700;
+  line-height: 1.375;
+  color: var(--ww-component-summary-period-foreground);
+}
+.bill-period-label--muted {
+  color: var(--ww-component-summary-period-muted);
+}

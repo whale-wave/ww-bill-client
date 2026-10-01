@@ -1,0 +1,156 @@
+.bill-overview-record {
+  position: relative;
+  display: flex;
+  height: 60px;
+  width: 100%;
+  align-items: center;
+}
+.bill-overview-record--secondary {
+  height: auto;
+  min-height: 68px;
+  padding: 2px 0;
+}
+.bill-overview-record__content {
+  display: flex;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 13px;
+  padding: 12px 18px;
+}
+.bill-overview-record__content--secondary {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.bill-overview-record__icon {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-surface-tint-color);
+}
+.bill-overview-record__icon--1 {
+  color: var(--ww-pink-color);
+  background: var(--ww-pink-color-light);
+}
+.bill-overview-record__icon--2 {
+  color: var(--bill-income-color);
+  background: color-mix(in srgb, var(--bill-income-color) 10%, transparent);
+}
+.bill-overview-record__icon--3 {
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-surface-accent-color);
+}
+.bill-overview-record__copy {
+  min-width: 0;
+  flex: 1;
+}
+.bill-overview-record__primary {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 21px;
+  color: var(--ww-theme-text-color);
+}
+.bill-overview-record__secondary {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16.5px;
+  color: var(--ww-text-color-mid);
+}
+.bill-overview-record__amount {
+  display: flex;
+  max-width: 42%;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: 'Nunito Variable', 'Noto Sans SC Variable', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22.5px;
+  color: var(--ww-theme-text-color);
+}
+.bill-overview-record__amount--income {
+  color: var(--bill-income-color);
+}
+.bill-overview-record__amount--expense {
+  color: var(--bill-expense-color);
+}
+.bill-overview-record__amount-value {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.bill-overview-record__original {
+  font-family: 'Nunito Variable', 'Noto Sans SC Variable', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 12px;
+  color: var(--ww-text-color-soft);
+}
+.bill-overview-record__divider {
+  position: absolute;
+  bottom: 0;
+  left: 71px;
+  right: 0;
+  height: 1px;
+  background: var(--ww-border-color);
+}
+.bill-record-group {
+  padding-bottom: 8px;
+}
+.bill-record-group__header {
+  display: flex;
+  height: 24px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px;
+  font-size: 12.5px;
+  line-height: 18.75px;
+  color: var(--ww-theme-text-color);
+}
+.bill-record-group__summaries {
+  display: flex;
+  flex-shrink: 0;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16.5px;
+  color: var(--ww-text-color-mid);
+}
+.bill-record-group__surface {
+  overflow: hidden;
+  border: 1px solid var(--ww-border-color);
+  border-radius: 20px;
+  background: var(--ww-surface-raised-color);
+  padding: 2px 0;
+}
+.bill-record-group__surface--single {
+  height: 70px;
+  box-sizing: border-box;
+}
+
+.bill-record-group__header--search {
+  height: auto;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ww-text-color-soft);
+}

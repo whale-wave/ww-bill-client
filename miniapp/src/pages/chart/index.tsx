@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { Text, View } from '@tarojs/components'
+import { Button, Text, View } from '@tarojs/components'
 import { useDidShow } from '@tarojs/taro'
-import { money } from '@ww-bill/bill-core'
+import { PeriodLabel, ProgressVisual, RankingRowVisual } from '@ww-bill/bill-ui'
+import { clampProgress, money } from '@ww-bill/bill-core'
 import { useMonthChart } from '../../entities/chart'
 import { useAuthGate } from '../../features/auth'
 import { currentMonth, shiftMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
+import { CategoryIcon } from '../../shared/ui/category-icon'
 import { Surface } from '../../shared/ui/surface'
 import { AppButton } from '../../shared/ui/app-button'
 import { ChartSummary } from '../../shared/ui/chart-summary'
@@ -18,7 +20,6 @@ export default function ChartPage() {
   const chartQuery = useMonthChart({ params: { month }, queryOptions: { enabled: isAuthenticated } })
   const summary = chartQuery.data?.summary
   const categories = chartQuery.data?.categories ?? []
-  const largestAmount = Math.max(0, ...categories.map(category => Number(category.amount)))
 
   useDidShow(() => {
     if (isAuthenticated)
@@ -35,7 +36,7 @@ export default function ChartPage() {
     <View className='page'>
       <Text className='page__title'>图表</Text>
       <View className='row chart-month'>
-        <Text onClick={handlePreviousMonth}>‹</Text><Text>{month.replace('-', '年')}月</Text><Text onClick={handleNextMonth}>›</Text>
+        <Button className='records-summary__nav' aria-label='上个月' onClick={handlePreviousMonth}>‹</Button><View className='records-summary__period'><PeriodLabel year={month.slice(0, 4)} yearSuffix='年' month={month.slice(5)} monthSuffix='月' primitive={Text} /></View><Button className='records-summary__nav' aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}>›</Button>
       </View>
       {chartQuery.isLoading && <View className='state-panel'>正在加载图表…</View>}
       {chartQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(chartQuery.error)}</Text><AppButton variant='secondary' onClick={() => void chartQuery.refetch()}>重试</AppButton></View>}
@@ -53,9 +54,15 @@ export default function ChartPage() {
         {categories.length === 0 && <View className='state-panel'>本月暂无支出数据</View>}
         <Surface className='card'>
           {categories.map(category => (
-            <View key={category.key ?? category.id ?? category.name} className='chart-category'>
-              <View className='row'><Text>{category.name}</Text><Text className='money'>¥{money.format(category.amount)}</Text></View>
-              <View className='chart-category__track'><View className='chart-category__fill' style={{ width: `${largestAmount > 0 ? Math.max(3, Math.min(100, Number(category.amount) / largestAmount * 100)) : 0}%` }} /></View>
+            <View key={category.key ?? category.id ?? category.name} className='bill-ranking-host'>
+              <RankingRowVisual
+                primitives={{ Box: View, Text }}
+                label={category.name}
+                amount={`¥${money.format(category.amount)}`}
+                percentage={(clampProgress(category.percent ?? 0) * 100).toFixed(1)}
+                icon={<CategoryIcon categoryName={category.name} size={16} />}
+                progress={<ProgressVisual fraction={clampProgress(category.percent ?? 0)} primitive={View} />}
+              />
             </View>
           ))}
         </Surface>

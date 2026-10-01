@@ -14,7 +14,7 @@
   --ww-border: var(--ww-border-color);
   background: var(--ww-background-color);
   color: var(--ww-theme-text-color);
-  font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans SC', sans-serif;
+  font-family: 'Noto Sans SC Variable', system-ui, sans-serif;
   font-size: 15px;
 }
 
@@ -25,12 +25,12 @@
   background: var(--ww-page-gradient);
 }
 
-.page__title { display: block; font-size: 20px; font-weight: 700; margin-bottom: 18px; }
+.page__title { display: block; font-size: 18px; line-height: 27px; font-weight: 800; margin-bottom: 18px; }
 .card {
   padding: 18px;
   margin-bottom: 16px;
 }
-.section-title { display: block; font-size: 17px; font-weight: 700; margin: 18px 0 10px; }
+.section-title { display: block; font-size: 14px; line-height: 21px; font-weight: 700; margin: 18px 0 10px; }
 .muted { color: var(--ww-soft); font-size: 13px; }
 .money { font-variant-numeric: tabular-nums; font-weight: 800; }
 .money--expense { color: var(--ww-expense); }
@@ -49,3 +49,7 @@
   box-sizing: border-box;
   margin-top: 6px;
 }
+
+.records-summary__period { display: flex; align-items: center; gap: var(--ww-component-summary-period-gap); }
+.records-summary__nav { display: flex; width: 44px; height: 44px; align-items: center; justify-content: center; margin: 0; padding: 0; border: 0; background: transparent; color: var(--ww-theme-text-color); font-size: 26px; line-height: 1; }
+.records-summary__nav::after { border: 0; }

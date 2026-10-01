@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
-import { money } from '@ww-bill/bill-core'
-import { MetricRow, RecordLine, type RecordLinePrimitives } from '@ww-bill/bill-ui'
+import { getRecordDisplayTitle, groupRecordsByKey, sumRecordAmounts, isDarkCategoryBackground, money } from '@ww-bill/bill-core'
+import { MetricRow, PeriodLabel, RecordOverviewRowContent, RecordDateGroupHeader, RecordGroupSurface } from '@ww-bill/bill-ui'
 import { useMonthRecords } from '../../entities/record'
 import { useAuthGate } from '../../features/auth'
 import { currentMonth, displayRecordDate, shiftMonth } from '../../shared/lib/date'
@@ -12,14 +12,17 @@ import { AppButton } from '../../shared/ui/app-button'
 import { CategoryIcon } from '../../shared/ui/category-icon'
 import './index.scss'
 
-const recordLinePrimitives: RecordLinePrimitives = { Box: View, Text }
-
 export default function RecordsPage() {
   const [month, setMonth] = useState(currentMonth)
   const isAuthenticated = useAuthGate()
   const recordsQuery = useMonthRecords({ params: { month }, queryOptions: { enabled: isAuthenticated } })
   const firstPage = recordsQuery.data?.pages[0]
-  const records = recordsQuery.data?.pages.flatMap(page => page.data) ?? []
+  const records = useMemo(() => recordsQuery.data?.pages.flatMap(page => page.data) ?? [], [recordsQuery.data])
+
+  const groups = useMemo(() => {
+    const grouped = groupRecordsByKey(records, record => displayRecordDate(record.time))
+    return Array.from(grouped, ([date, entries]) => ({ date, entries, totals: sumRecordAmounts(entries) }))
+  }, [records])
 
   useDidShow(() => {
     if (isAuthenticated)
@@ -51,7 +54,7 @@ export default function RecordsPage() {
       <Surface className='card records-summary' material='raised'>
         <View className='row records-summary__month'>
           <Button className='records-summary__nav' aria-label='上个月' onClick={handlePreviousMonth}>‹</Button>
-          <Text>{month.replace('-', '年')}月</Text>
+          <View className='records-summary__period'><PeriodLabel year={month.slice(0, 4)} yearSuffix='年' month={month.slice(5)} monthSuffix='月' primitive={Text} /></View>
           <Button className={`records-summary__nav${month >= currentMonth() ? ' muted' : ''}`} aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}>›</Button>
         </View>
         <MetricRow
@@ -68,17 +71,26 @@ export default function RecordsPage() {
       {recordsQuery.isLoading && <View className='state-panel'>正在加载明细…</View>}
       {recordsQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(recordsQuery.error)}</Text><AppButton variant='secondary' onClick={() => void recordsQuery.refetch()}>重试</AppButton></View>}
       {!recordsQuery.isLoading && !recordsQuery.isError && records.length === 0 && <View className='state-panel'>这个月还没有记录，记下第一笔吧。</View>}
-      {records.map((record, index) => (
-        <View key={record.id} className='record-row'>
-          <RecordLine
-            amount={`${record.type === 'add' ? '+' : '-'}¥${money.format(record.amount)}`}
-            amountTone={record.type === 'add' ? 'income' : 'expense'}
-            icon={<CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} iconType={record.category?.iconType} textIconEnabled={record.category?.textIconEnabled} textIconIndex={record.category?.textIconIndex} />}
-            isLast={index === records.length - 1}
-            primitives={recordLinePrimitives}
-            subtitle={`${record.remark ? `${record.remark} · ` : ''}${displayRecordDate(record.time)}`}
-            title={record.category?.path ?? record.category?.name ?? '未分类'}
-          />
+      {groups.map(group => (
+        <View key={group.date} className='bill-record-group'>
+          <RecordDateGroupHeader date={<Text style={{ fontWeight: 700 }}>{group.date}</Text>} primitives={{ Header: View, Text, Box: View }} summaries={<><Text className='money--income'>收入 {money.format(group.totals.income)}</Text><Text className='money--expense'>支出 {money.format(group.totals.expense)}</Text></>} />
+          <View style={{ paddingTop: '6px' }}>
+            <RecordGroupSurface single={group.entries.length === 1 && !group.entries[0].category?.path?.includes('/')} primitive={View}>
+              {group.entries.map((record, index) => (
+                <View key={record.id} className={`bill-overview-record${record.category?.path?.includes('/') ? ' bill-overview-record--secondary' : ''}`}>
+                  <RecordOverviewRowContent
+                    primitives={{ Box: View, Text, Deleted: Text }}
+                    amount={`${record.type === 'sub' ? '-' : ''}¥${money.format(record.amount)}`}
+                    amountTone={record.type === 'add' ? 'income' : 'expense'}
+                    icon={<View className={`bill-overview-record__icon bill-overview-record__icon--${index % 4}`} style={record.category?.backgroundColor ? { backgroundColor: record.category.backgroundColor } : undefined}><CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} iconType={record.category?.iconType} textIconEnabled={record.category?.textIconEnabled} textIconIndex={record.category?.textIconIndex} color={isDarkCategoryBackground(record.category?.backgroundColor) ? '#fff' : undefined} size={18} /></View>}
+                    secondary={record.category?.path?.includes('/') ? record.category.path : undefined}
+                    primary={getRecordDisplayTitle(record.remark, record.category?.path ?? record.category?.name ?? '未分类')}
+                  />
+                  {index !== group.entries.length - 1 && <View className='bill-overview-record__divider' />}
+                </View>
+              ))}
+            </RecordGroupSurface>
+          </View>
         </View>
       ))}
       {recordsQuery.hasNextPage && <AppButton variant='secondary' className='records-more' disabled={recordsQuery.isFetchingNextPage} onClick={() => void recordsQuery.fetchNextPage()}>{recordsQuery.isFetchingNextPage ? '加载中…' : '加载更多'}</AppButton>}

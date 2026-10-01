@@ -1,5 +1,6 @@
 import type { Dayjs } from 'dayjs';
 import type { FC, ReactNode } from 'react';
+import { PeriodLabel } from '@ww-bill/bill-ui';
 import dayjs from 'dayjs';
 import { CalendarDays, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
@@ -84,18 +85,7 @@ export const RecordMonthPicker: FC<RecordMonthPickerProps> = ({
                 </span>
               )
             : (
-                <>
-                  <span className="font-number text-[length:var(--ww-component-summary-period-size)] font-bold leading-snug text-[color:var(--ww-component-summary-period-muted)]">
-                    {month.format('YYYY')}
-                    {t('common:dateTime.yearSuffix')}
-                  </span>
-                  {!isYearOnly && (
-                    <span className="font-number text-[length:var(--ww-component-summary-period-size)] font-bold leading-snug text-[color:var(--ww-component-summary-period-foreground)]">
-                      {month.format('MM')}
-                      {monthLabel}
-                    </span>
-                  )}
-                </>
+                <PeriodLabel year={month.format('YYYY')} yearSuffix={t('common:dateTime.yearSuffix')} month={isYearOnly ? undefined : month.format('MM')} monthSuffix={monthLabel} />
               )}
         {variant !== 'calendar' && <DesignIcon name="period-chevron" size={variant === 'compact' ? 12 : 14} />}
       </button>

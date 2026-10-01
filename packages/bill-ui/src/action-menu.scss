@@ -1,0 +1,172 @@
+.bill-action-menu {
+  display: grid;
+  gap: 8px;
+}
+@for $columns from 2 through 5 {
+  .bill-action-menu--columns-#{$columns} {
+    grid-template-columns: repeat(#{$columns}, minmax(0, 1fr));
+  }
+}
+.bill-action-menu--card,
+.bill-action-menu--mine-actions {
+  border: 1px solid var(--ww-border-color);
+  border-radius: var(--ww-radius-card);
+  background: var(--ww-surface-raised-color);
+  padding: 12px 10px;
+}
+.bill-action-menu--mine-actions {
+  gap: 4px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.bill-action-menu--gradient-tiles,
+.bill-action-menu--detail-shortcuts {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.bill-action-menu--gradient-tiles {
+  padding-bottom: 4px;
+}
+.bill-action-menu__item {
+  display: flex;
+  min-width: 0;
+  margin: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+}
+.bill-action-menu__item::after {
+  border: 0;
+}
+.bill-action-menu__item--card {
+  gap: 7px;
+  padding: 8px 4px;
+}
+.bill-action-menu__item--mine-actions {
+  height: 56px;
+  gap: 5px;
+  padding: 0;
+}
+.bill-action-menu__item--gradient-tiles {
+  width: calc((100% - 20px) / 3);
+  min-width: calc((100% - 20px) / 3);
+  height: 68px;
+  box-sizing: border-box;
+  gap: 6px;
+  padding: 12px 8px 8px;
+  border-radius: var(--ww-radius-control);
+}
+.bill-action-menu__item--tiles {
+  gap: 7px;
+  padding: 13px 4px 10px;
+  border: 1px solid var(--ww-border-color);
+  border-radius: 18px;
+  background: var(--ww-surface-raised-color);
+  box-shadow: var(--ww-card-shadow-xs);
+}
+.bill-action-menu__item--detail-shortcuts {
+  flex: 1;
+  gap: var(--ww-component-summary-shortcut-gap);
+  min-height: max(44px, var(--ww-component-summary-shortcut-height));
+  padding: 4px 6px;
+  border: 1px solid;
+  border-radius: var(--ww-radius-control);
+}
+.bill-action-menu__badge {
+  position: relative;
+}
+.bill-action-menu__icon {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--ww-action-surface);
+  color: var(--ww-action-foreground);
+}
+.bill-action-menu__icon--gradient-tiles {
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  font-size: 22px;
+}
+.bill-action-menu__icon--tiles {
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+}
+.bill-action-menu__icon--detail-shortcuts {
+  width: var(--ww-component-summary-shortcut-icon-surface-size);
+  height: var(--ww-component-summary-shortcut-icon-surface-size);
+  flex-shrink: 0;
+  border-radius: var(--ww-component-summary-shortcut-icon-radius);
+  background: var(--ww-component-summary-shortcut-icon-background);
+}
+.bill-action-menu__label {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 15px;
+  color: var(--ww-theme-text-color);
+}
+.bill-action-menu__label--gradient-tiles {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16.5px;
+  color: inherit;
+}
+.bill-action-menu__label--detail-shortcuts {
+  font-size: var(--ww-component-summary-shortcut-label-size);
+  font-weight: 500;
+  line-height: normal;
+  color: inherit;
+}
+@each $tone in blue, pink, purple, green, amber {
+  .bill-action-menu__tone--#{$tone} {
+    --ww-action-surface: var(--ww-shortcut-#{$tone}-bg);
+    --ww-action-foreground: var(--ww-shortcut-#{$tone}-fg);
+  }
+}
+.bill-action-menu__item--gradient-tiles,
+.bill-action-menu__item--detail-shortcuts {
+  color: var(--ww-action-foreground);
+  background: var(--ww-action-surface);
+  border-color: color-mix(in srgb, var(--ww-action-foreground) 12%, white);
+  box-shadow: var(--ww-shortcut-shadow);
+}
+.bill-action-menu__item:active {
+  transform: scale(0.95);
+}
+.bill-action-menu__item:disabled {
+  opacity: 0.45;
+}
+
+.bill-action-menu--detail-shortcuts {
+  overscroll-behavior-x: contain;
+}
+.bill-action-menu--gradient-tiles {
+  scroll-snap-type: x proximity;
+}
+.bill-action-menu--scrollable {
+  scroll-snap-type: x mandatory;
+}
+.bill-action-menu--gradient-tiles .bill-action-menu__item,
+.bill-action-menu--scrollable .bill-action-menu__item {
+  scroll-snap-align: start;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bill-action-menu__item:active {
+    transform: none;
+  }
+}

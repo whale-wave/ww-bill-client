@@ -1,5 +1,6 @@
 import type { RecordEntry } from '../types';
 import type { RecordOverviewListGroup } from './RecordOverviewList';
+import { groupRecordsByKey, sumRecordAmounts } from '@ww-bill/bill-core';
 import dayjs from 'dayjs';
 import { i18n } from '@/shared/i18n';
 import { money } from '@/shared/lib';
@@ -43,30 +44,10 @@ export function toRecordSearchGroups(
   records: readonly RecordEntry[],
   options: RecordSearchGroupOptions,
 ): RecordOverviewListGroup[] {
-  const groups = new Map<string, RecordEntry[]>();
-
-  records.forEach((record) => {
-    const dateKey = dayjs(record.time).format('YYYY-MM-DD');
-    const group = groups.get(dateKey);
-    if (group)
-      group.push(record);
-    else
-      groups.set(dateKey, [record]);
-  });
+  const groups = groupRecordsByKey(records, record => dayjs(record.time).format('YYYY-MM-DD'));
 
   return Array.from(groups, ([dateKey, groupedRecords]) => {
-    const income = groupedRecords.reduce(
-      (total, record) => record.type === 'add'
-        ? money.add(total, record.amount)
-        : total,
-      '0',
-    );
-    const expense = groupedRecords.reduce(
-      (total, record) => record.type === 'sub'
-        ? money.add(total, record.amount)
-        : total,
-      '0',
-    );
+    const { income, expense } = sumRecordAmounts(groupedRecords);
 
     return {
       dateLabel: dayjs(dateKey).format('YYYY年MM月DD日'),

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { ActionMenuItemContent, ActionMenuLayout } from '@ww-bill/bill-ui';
 import { cn } from '@/shared/lib';
 
 export type ActionMenuTone = 'blue' | 'pink' | 'purple' | 'green' | 'amber';
@@ -23,12 +24,6 @@ export interface ActionMenuCardProps {
   'aria-label'?: string;
 }
 
-const columnClassNames = {
-  3: 'grid-cols-3',
-  4: 'grid-cols-4',
-  5: 'grid-cols-5',
-};
-
 export function ActionMenuCard({
   items,
   columns = 4,
@@ -41,32 +36,14 @@ export function ActionMenuCard({
   const hasScrollableDetailShortcuts = isDetailShortcuts && items.length > 5;
   const isMineActions = variant === 'mine-actions';
   return (
-    <div
-      aria-label={ariaLabel}
-      className={cn(
-        'ww-action-menu-card',
-        isDetailShortcuts
-          ? cn(
-              'flex gap-[10px] overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-              hasScrollableDetailShortcuts && 'snap-x snap-mandatory',
-            )
-          : isGradientTiles
-            ? 'flex snap-x gap-[10px] overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
-            : `grid ${columnClassNames[columns]} ${isMineActions ? 'gap-1' : 'gap-2'}`,
-        variant === 'card'
-        && 'rounded-[var(--ww-radius-card)] border border-border-primary bg-ww-surface-raised px-[10px] py-3',
-        isMineActions
-        && 'rounded-[var(--ww-radius-card)] border border-border-primary bg-ww-surface-raised px-[10px] py-2',
-        className,
-      )}
-      role="group"
-    >
+    <ActionMenuLayout label={ariaLabel} columns={columns} variant={variant} className={cn(className, hasScrollableDetailShortcuts && 'bill-action-menu--scrollable')}>
       {items.map((item) => {
         const tone = item.tone ?? 'blue';
         return (
           <button
             aria-disabled={item.ariaDisabled ?? item.disabled}
             className={cn(
+              `bill-action-menu__item bill-action-menu__item--${variant} bill-action-menu__tone--${tone}`,
               'ww-action-menu-card__item flex min-w-0 flex-col items-center justify-center transition active:scale-95 disabled:opacity-45 motion-reduce:transform-none motion-reduce:transition-none',
               variant === 'card' && 'gap-[7px] px-1 py-2',
               isMineActions && 'h-14 gap-[5px] p-0',
@@ -91,36 +68,10 @@ export function ActionMenuCard({
             onClick={item.onClick}
             type="button"
           >
-            <span className="relative">
-              {item.badge}
-            </span>
-            <span
-              className={cn(
-                'flex items-center justify-center',
-                isDetailShortcuts
-                  ? 'ww-summary-shortcut-icon h-[var(--ww-component-summary-shortcut-icon-surface-size)] w-[var(--ww-component-summary-shortcut-icon-surface-size)] shrink-0 rounded-[var(--ww-component-summary-shortcut-icon-radius)] bg-[color:var(--ww-component-summary-shortcut-icon-background)] [&>img]:h-[var(--ww-component-summary-shortcut-icon-size)] [&>img]:w-[var(--ww-component-summary-shortcut-icon-size)] [&>svg]:h-[var(--ww-component-summary-shortcut-icon-size)] [&>svg]:w-[var(--ww-component-summary-shortcut-icon-size)]'
-                  : isGradientTiles
-                    ? 'h-[22px] w-[22px] bg-transparent text-[22px]'
-                    : variant === 'tiles'
-                      ? 'h-11 w-11 rounded-full text-xl'
-                      : 'h-9 w-9 rounded-full text-base',
-                !isGradientTiles && !isDetailShortcuts && 'ww-action-menu-card__icon',
-              )}
-              data-action-menu-tone={tone}
-              data-action-menu-variant={variant}
-            >
-              {item.icon}
-            </span>
-            <span className={cn(
-              'w-full min-w-0 truncate text-center font-semibold',
-              isDetailShortcuts ? 'text-[length:var(--ww-component-summary-shortcut-label-size)] font-medium leading-normal' : isGradientTiles ? 'text-[11px] font-bold leading-[16.5px]' : 'text-[10px] font-semibold leading-[15px] text-ww-ink',
-            )}
-            >
-              {item.label}
-            </span>
+            <ActionMenuItemContent badge={item.badge} icon={item.icon} label={item.label} tone={tone} variant={variant} />
           </button>
         );
       })}
-    </div>
+    </ActionMenuLayout>
   );
 }
