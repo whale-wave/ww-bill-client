@@ -41,9 +41,6 @@
   &::after {
     border: 0;
   }
-  &[disabled] {
-    opacity: 0.45;
-  }
   &.ww-floating-dock__button--active:not(.ww-floating-dock__button--prominent) {
     color: var(--ww-theme-color-deep);
   }

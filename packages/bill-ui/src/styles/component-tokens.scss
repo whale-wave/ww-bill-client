@@ -1,0 +1,24 @@
+@use 'token-values' as values;
+
+// Component WXSS accepts classes; root/page/html selectors belong to the host.
+.bill-theme--glass,
+.bill-theme--fresh,
+.bill-theme--minimal {
+  @include values.appearance-default;
+  @include values.reference-default;
+  @include values.semantic-default;
+  @include values.material-default;
+  @include values.shared-aliases;
+}
+.bill-theme--fresh {
+  @include values.appearance-fresh;
+  @include values.semantic-fresh;
+  @include values.material-fresh-minimal;
+  @include values.material-fresh;
+}
+.bill-theme--minimal {
+  @include values.appearance-minimal;
+  @include values.semantic-minimal;
+  @include values.material-fresh-minimal;
+  @include values.material-minimal;
+}

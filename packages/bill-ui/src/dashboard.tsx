@@ -29,7 +29,7 @@ export function DashboardSummaryVisual({ title, period, items, primitives = {} }
       </Box>
       <Box className="bill-dashboard-summary">
         {items.map(item => (
-          <Box key={item.key} className="ww-chart-summary-tile bill-dashboard-summary__tile" data-summary-metric={item.key}>
+          <Box key={item.key} className={`ww-chart-summary-tile bill-dashboard-summary__tile bill-dashboard-summary__tile--${item.key}`} data-summary-metric={item.key}>
             <Text className="bill-dashboard-summary__label">{item.label}</Text>
             <Text className={`ww-chart-summary-amount bill-dashboard-summary__amount bill-dashboard-summary__amount--${item.tone}`}>{item.amount}</Text>
           </Box>

@@ -71,13 +71,13 @@
 .bill-dashboard-summary__amount--muted {
   color: var(--ww-text-color-mid);
 }
-.ww-chart-summary-tile[data-summary-metric='expense'] {
+.bill-dashboard-summary__tile--expense {
   background: var(--ww-dashboard-expense-surface, var(--ww-surface-tint-color));
   .ww-chart-summary-amount {
     color: var(--ww-dashboard-expense-foreground, var(--ww-theme-text-color));
   }
 }
-.ww-chart-summary-tile[data-summary-metric='income'] {
+.bill-dashboard-summary__tile--income {
   background: var(--ww-dashboard-income-surface, var(--ww-surface-tint-color));
   .ww-chart-summary-amount {
     color: var(--ww-dashboard-income-foreground, var(--ww-theme-color-deep));
