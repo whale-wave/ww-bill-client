@@ -1,0 +1,28 @@
+.bill-amount-toggle {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ww-radius-control);
+  color: var(--ww-component-overview-icon-foreground);
+  background: transparent;
+  box-shadow: none;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+.bill-amount-toggle::after {
+  border: 0;
+}
+.bill-amount-toggle:active {
+  background: var(--ww-component-summary-control-active);
+}
+.bill-amount-toggle--disabled {
+  opacity: 0.45;
+}

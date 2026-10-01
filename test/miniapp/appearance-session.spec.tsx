@@ -5,12 +5,13 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 
 import { AppearanceProvider } from '../../miniapp/src/features/appearance';
 import { useAuthStore } from '../../miniapp/src/features/auth/store';
+import { useAmountVisibility } from '../../miniapp/src/features/display-preferences';
 import { useAppearanceStore } from '../../miniapp/src/shared/model/appearance';
 
-const { storage, getConfig } = vi.hoisted(() => ({ storage: new Map<string, string>(), getConfig: vi.fn() }));
+const { storage, getConfig } = vi.hoisted(() => ({ storage: new Map<string, unknown>(), getConfig: vi.fn() }));
 vi.mock('@tarojs/taro', () => ({ default: {
   getStorageSync: (key: string) => storage.get(key),
-  setStorageSync: (key: string, value: string) => storage.set(key, value),
+  setStorageSync: (key: string, value: unknown) => storage.set(key, value),
   removeStorageSync: (key: string) => storage.delete(key),
 } }));
 vi.mock('../../miniapp/src/features/auth', async () => ({ useAuthStore: (await import('../../miniapp/src/features/auth/store')).useAuthStore }));
@@ -65,4 +66,35 @@ it('does not apply a delayed response from the previous account', async () => {
   });
   expect(useAppearanceStore.getState()).toMatchObject({ userId: '43', template: 'minimal' });
   expect(storage.has('ww-bill-miniapp-appearance:42')).toBe(false);
+});
+
+function AmountProbe() {
+  const userId = useAuthStore(state => state.userId);
+  const token = useAuthStore(state => state.token);
+  const amounts = useAmountVisibility({ userId, enabled: Boolean(token) });
+  return <button data-visible={amounts.isVisible} data-switch={amounts.switchVisible} onClick={amounts.handleToggle}>toggle</button>;
+}
+
+it('keeps amount preferences per native account and honors the server switch', async () => {
+  getConfig.mockImplementation(() => Promise.resolve(useAuthStore.getState().userId === '42'
+    ? { userId: 42, isDisplayAmount: true, isDisplayAmountSwitch: true }
+    : { userId: 43, isDisplayAmount: false, isDisplayAmountSwitch: false }));
+  useAuthStore.getState().startSession('account-42', '42');
+  const container = document.createElement('div');
+  const root = createRoot(container);
+  cleanup = () => act(() => root.unmount());
+  act(() => root.render(<QueryClientProvider client={client}><AmountProbe /></QueryClientProvider>));
+  const probe = container.querySelector('button');
+  await vi.waitFor(() => expect(probe?.getAttribute('data-switch')).toBe('true'));
+  expect(probe?.getAttribute('data-visible')).toBe('true');
+  act(() => probe?.click());
+  expect(probe?.getAttribute('data-visible')).toBe('false');
+  expect(storage.get('ww-bill-miniapp-amount-visible:42')).toBe(false);
+  act(() => useAuthStore.getState().startSession('account-43', '43'));
+  await vi.waitFor(() => expect(probe?.getAttribute('data-switch')).toBe('false'));
+  expect(probe?.getAttribute('data-visible')).toBe('true');
+  expect(storage.has('ww-bill-miniapp-amount-visible:43')).toBe(false);
+  act(() => useAuthStore.getState().startSession('account-42', '42'));
+  await vi.waitFor(() => expect(probe?.getAttribute('data-switch')).toBe('true'));
+  expect(probe?.getAttribute('data-visible')).toBe('false');
 });

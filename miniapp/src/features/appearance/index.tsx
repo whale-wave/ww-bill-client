@@ -1,10 +1,9 @@
 import { useLayoutEffect, useEffect, type PropsWithChildren } from 'react'
 import Taro from '@tarojs/taro'
-import { useQuery } from '@tanstack/react-query'
 import { resolveAppearanceTemplate, type AppearanceTemplate } from '@ww-bill/bill-core'
 import { useAuthStore } from '../auth'
 import { useAppearanceStore } from '../../shared/model/appearance'
-import { api } from '../../shared/api'
+import { useUserAppConfig } from '../../entities/user-app-config'
 
 const mirrorKey = (userId: string) => `ww-bill-miniapp-appearance:${userId}`
 
@@ -12,11 +11,7 @@ const mirrorKey = (userId: string) => `ww-bill-miniapp-appearance:${userId}`
 export function AppearanceProvider({ children }: PropsWithChildren) {
   const token = useAuthStore(state => state.token)
   const userId = useAuthStore(state => state.userId)
-  const config = useQuery({
-    queryKey: ['user-app-config', userId],
-    queryFn: ({ signal }) => api.get<{ userId: number | string, appearanceTemplate?: unknown }>('/user-app-config', { signal }),
-    enabled: Boolean(token && userId),
-  })
+  const config = useUserAppConfig({ userId, enabled: Boolean(token && userId) })
 
   useLayoutEffect(() => {
     let template: AppearanceTemplate = 'glass'

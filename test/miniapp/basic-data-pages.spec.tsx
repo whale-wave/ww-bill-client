@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import { act, createElement } from 'react';
+import { act, createElement, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useOverlayStore } from '../../miniapp/src/shared/model/overlay';
@@ -20,7 +20,14 @@ vi.mock('../../miniapp/src/features/check-in', () => ({
 
 vi.mock('../../miniapp/src/features/auth', () => ({
   useAuthGate: () => true,
-  useAuthStore: { getState: () => ({ logOut: vi.fn() }) },
+  useAuthStore: Object.assign((selector: (state: { userId: string }) => unknown) => selector({ userId: '42' }), { getState: () => ({ logOut: vi.fn() }) }),
+}));
+
+vi.mock('../../miniapp/src/features/display-preferences', () => ({
+  useAmountVisibility: () => {
+    const [visible, setVisible] = useState(true);
+    return { visible, switchVisible: true, isVisible: visible, handleToggle: () => setVisible(value => !value) };
+  },
 }));
 
 vi.mock('../../miniapp/src/entities/record', () => ({
@@ -109,6 +116,19 @@ describe('miniapp basic data pages', () => {
     expect(page.textContent).toContain('支出32.50');
     expect(page.textContent).toContain('餐饮 / 午餐');
     expect(page.textContent).toContain('便当');
+  });
+
+  it('toggles the shared summary amount display without hiding record rows', () => {
+    const page = renderPage(RecordsPage);
+    const summary = page.querySelector('[data-record-overview-metrics]');
+    expect(summary?.textContent).toContain('5000.00');
+    const toggle = page.querySelector<HTMLButtonElement>('.bill-amount-toggle');
+    act(() => toggle?.click());
+    expect(summary?.textContent).not.toContain('5000.00');
+    expect(summary?.textContent).toContain('\uFF0A'.repeat(5));
+    expect(page.querySelector('.bill-overview-record')?.textContent).toContain('-32.50');
+    act(() => toggle?.click());
+    expect(summary?.textContent).toContain('5000.00');
   });
 
   it('keeps native month drafts local until confirmation and discards cancellation', () => {

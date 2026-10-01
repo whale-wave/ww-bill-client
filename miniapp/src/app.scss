@@ -51,7 +51,3 @@ button, input, textarea { font-family: var(--bill-font-body); }
   box-sizing: border-box;
   margin-top: 6px;
 }
-
-.records-summary__period { display: flex; align-items: center; gap: var(--ww-component-summary-period-gap); }
-.records-summary__nav { display: flex; width: 44px; height: 44px; align-items: center; justify-content: center; margin: 0; padding: 0; border: 0; background: transparent; color: var(--ww-theme-text-color); font-size: 26px; line-height: 1; }
-.records-summary__nav::after { border: 0; }

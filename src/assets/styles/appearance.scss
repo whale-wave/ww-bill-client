@@ -241,8 +241,7 @@ html[data-appearance-template='minimal'] {
   box-shadow: none;
 }
 
-.ww-overview-shortcuts .ww-action-menu-card__item:active,
-.ww-overview-amount-toggle:active {
+.ww-overview-shortcuts .ww-action-menu-card__item:active {
   background: var(--ww-component-summary-control-active);
 }
 
@@ -273,12 +272,6 @@ html[data-appearance-template='minimal'] {
   box-shadow: var(--ww-control-shadow);
   backdrop-filter: var(--ww-material-chrome-blur);
   -webkit-backdrop-filter: var(--ww-material-chrome-blur);
-}
-
-.ww-overview-amount-toggle {
-  color: var(--ww-component-overview-icon-foreground);
-  background: transparent;
-  box-shadow: none;
 }
 
 .ww-metric-divider::after {

@@ -74,7 +74,7 @@ describe('personal record detail overview', () => {
     expect(container.querySelector('[data-record-list-variant]')?.getAttribute('data-record-list-variant')).toBe('overview');
     expect(recordRow?.classList).toContain('h-[60px]');
     expect(amount?.textContent).toBe('-20');
-    expect(amount?.className).toContain('text-finance-expense');
+    expect(amount?.className).toContain('bill-overview-record__amount--expense');
     expect(container.querySelector('[data-category-icon="catering"] svg')?.classList).toContain('lucide-utensils');
   });
 });

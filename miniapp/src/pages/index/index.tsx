@@ -3,23 +3,27 @@ import { useMemo, useState } from 'react'
 import { Button, Image, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 import { getRecordDisplayTitle, groupRecordsByKey, sumRecordAmounts, isDarkCategoryBackground, money } from '@ww-bill/bill-core'
-import { BrandMarkVisual, PageHeadingVisual, RecordSummaryContent, MetricRow, RecordOverviewRowContent, RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordStateSurface } from '@ww-bill/bill-ui'
+import { AmountToggleVisual, BrandMarkVisual, PageHeadingVisual, RecordSummaryContent, MetricRow, RecordOverviewRowContent, RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordStateSurface } from '@ww-bill/bill-ui'
 import { PageLoadingState } from '../../shared/ui/page-loading-state'
 import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
 import { Page } from '../../shared/ui/page'
 import { useMonthRecords } from '../../entities/record'
-import { useAuthGate } from '../../features/auth'
-import { currentMonth, displayRecordDate, shiftMonth } from '../../shared/lib/date'
+import { useAuthGate, useAuthStore } from '../../features/auth'
+import { currentMonth, displayRecordDate } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
 import { MonthPicker } from '../../shared/ui/month-picker'
 import { AppButton } from '../../shared/ui/app-button'
+import { useAmountVisibility } from '../../features/display-preferences'
+import { DesignIcon } from '../../shared/ui/design-icon'
 import { CategoryIcon } from '../../shared/ui/category-icon'
 
 export default function RecordsPage() {
   const [month, setMonth] = useState(currentMonth)
   const isAuthenticated = useAuthGate()
+  const userId = useAuthStore(state => state.userId)
+  const amounts = useAmountVisibility({ userId, enabled: isAuthenticated })
   const recordsQuery = useMonthRecords({ params: { month }, queryOptions: { enabled: isAuthenticated } })
   const firstPage = recordsQuery.data?.pages[0]
   const records = useMemo(() => recordsQuery.data?.pages.flatMap(page => page.data) ?? [], [recordsQuery.data])
@@ -42,13 +46,6 @@ export default function RecordsPage() {
       void recordsQuery.fetchNextPage()
   })
 
-  function handlePreviousMonth() {
-    setMonth(value => shiftMonth(value, -1))
-  }
-  function handleNextMonth() {
-    if (month < currentMonth())
-      setMonth(value => shiftMonth(value, 1))
-  }
   function handleCreate() {
     void Taro.navigateTo({ url: '/pages/record-create/index' })
   }
@@ -58,17 +55,14 @@ export default function RecordsPage() {
       <PageHeadingVisual className='bill-page-heading--record-overview' primitive={View} icon={<BrandMarkVisual primitive={View} image={<Image className='bill-brand-mark__image' src={appLogo} mode='aspectFill' />} />} title={<Text className='bill-page-heading__title'>鲸浪记账</Text>} />
       <Surface className='records-summary bill-record-summary' material='raised'>
         <RecordSummaryContent primitive={View} period={<MonthPicker month={month} onChange={setMonth} />}
-          amountToggle={<View className='records-summary__navigation'>
-            <Button className='records-summary__nav' aria-label='上个月' onClick={handlePreviousMonth}>‹</Button>
-            <Button className={`records-summary__nav${month >= currentMonth() ? ' records-summary__nav--disabled' : ''}`} aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}>›</Button>
-          </View>}
+          amountToggle={amounts.switchVisible ? <AmountToggleVisual primitive={Button} onClick={amounts.handleToggle} icon={<DesignIcon name={amounts.visible ? 'amount-visible' : 'amount-hidden'} size={16} />} /> : undefined}
           metrics={<MetricRow
             columns={2}
             variant='detail-summary'
             primitives={{ Root: View, Cell: View, Label: Text, Value: View, Text }}
             items={[
-            { key: 'income', label: '收入', value: money.format(firstPage?.income ?? 0), tone: 'income' },
-            { key: 'expense', label: '支出', value: money.format(firstPage?.expend ?? 0), tone: 'expense' },
+            { key: 'income', label: '收入', value: amounts.isVisible ? money.format(firstPage?.income ?? 0) : '\uff0a'.repeat(5), tone: 'income' },
+            { key: 'expense', label: '支出', value: amounts.isVisible ? money.format(firstPage?.expend ?? 0) : '\uff0a'.repeat(5), tone: 'expense' },
           ]}
           />}
         />

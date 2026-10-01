@@ -1,5 +1,5 @@
 import type { FC, ReactNode } from 'react';
-import { PageHeadingVisual, RecordSummaryContent } from '@ww-bill/bill-ui';
+import { AmountToggleVisual, PageHeadingVisual, RecordSummaryContent } from '@ww-bill/bill-ui';
 import { cn } from '@/shared/lib';
 
 import { ActionMenuCard, MetricGrid, Surface } from '@/shared/ui';
@@ -102,18 +102,7 @@ export const RecordOverviewHeader: FC<RecordOverviewHeaderProps> = ({
               <>
                 {' '}
                 {amountToggle && (
-                  <button
-                    aria-label="toggle amount visibility"
-                    className={cn(
-                      'ww-overview-amount-toggle flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--ww-radius-control)] border-0 p-0 transition-colors',
-                      amountToggle.disabled && 'opacity-45',
-                    )}
-                    disabled={amountToggle.disabled}
-                    onClick={amountToggle.onClick}
-                    type="button"
-                  >
-                    {amountToggle.content}
-                  </button>
+                  <AmountToggleVisual disabled={amountToggle.disabled} onClick={amountToggle.onClick} icon={amountToggle.content} />
                 )}
               </>
             )}
