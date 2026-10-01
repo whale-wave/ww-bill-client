@@ -6,7 +6,7 @@ describe('miniapp Asia/Shanghai dates', () => {
     const instant = new Date('2026-09-30T16:30:00.000Z');
     expect(dateKey(instant)).toBe('2026-10-01');
     expect(timeKey(instant)).toBe('00:30');
-    expect(displayRecordDate(instant.toISOString())).toBe('10月1日');
+    expect(displayRecordDate(instant.toISOString())).toBe('10月01日 星期四');
     expect(shiftMonth('2026-12', 1)).toBe('2027-01');
   });
 

@@ -1,3 +1,5 @@
+import { formatMonthDay } from '@ww-bill/bill-core'
+
 const SHANGHAI_OFFSET_MS = 8 * 60 * 60 * 1000
 
 function shanghaiDate(date: Date): Date {
@@ -47,5 +49,6 @@ export function displayRecordDate(value: string): string {
   if (Number.isNaN(date.getTime()))
     return value
   const shifted = shanghaiDate(date)
-  return `${shifted.getUTCMonth() + 1}月${shifted.getUTCDate()}日`
+  const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+  return `${formatMonthDay(shifted.getUTCMonth() + 1, shifted.getUTCDate(), { monthSuffix: '月', daySuffix: '日' })} ${weekdays[shifted.getUTCDay()]}`
 }

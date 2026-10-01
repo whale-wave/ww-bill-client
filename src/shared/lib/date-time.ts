@@ -1,3 +1,4 @@
+import { formatMonthDay } from '@ww-bill/bill-core';
 import { i18n } from '@/shared/i18n';
 
 export function getWeekByDay(dayValue: string) {
@@ -17,13 +18,7 @@ export function getWeekByDay(dayValue: string) {
 }
 
 export function getTimeDateYear(val: Date) {
-  const Y = `${val.getFullYear()}${i18n.t('common:dateTime.yearSuffix')}`;
-  const M
-    = `${val.getMonth() + 1 < 10
-      ? `0${val.getMonth() + 1}`
-      : val.getMonth() + 1}${i18n.t('common:dateTime.monthSuffix')}`;
-  const D = `${val.getDate() < 10 ? `0${val.getDate()}` : val.getDate()}${i18n.t('common:dateTime.daySuffix')}`;
-  return Y + M + D;
+  return `${val.getFullYear()}${i18n.t('common:dateTime.yearSuffix')}${getTimeValueFn(val)}`;
 }
 
 export function getTimeOfDay(val: Date) {
@@ -53,10 +48,5 @@ export function getTimedate(val: Date) {
 }
 
 export function getTimeValueFn(val: Date) {
-  const M
-    = `${val.getMonth() + 1 < 10
-      ? `0${val.getMonth() + 1}`
-      : val.getMonth() + 1}${i18n.t('common:dateTime.monthSuffix')}`;
-  const D = `${val.getDate() < 10 ? `0${val.getDate()}` : val.getDate()}${i18n.t('common:dateTime.daySuffix')}`;
-  return M + D;
+  return formatMonthDay(val.getMonth() + 1, val.getDate(), { monthSuffix: i18n.t('common:dateTime.monthSuffix'), daySuffix: i18n.t('common:dateTime.daySuffix') });
 }
