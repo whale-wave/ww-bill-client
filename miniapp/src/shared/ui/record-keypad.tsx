@@ -22,7 +22,7 @@ export function RecordKeypad({ canCalculate, canSubmit, operatorsEnabled, isCalc
       keys={recordKeypadKeys.map(({ keys }) => (
         <Button key={keys} className={`record-editor-keypad__key${keys === 'x' ? ' record-editor-keypad__delete record-editor-keypad__key--active' : ''}`} disabled={isSubmitting} onClick={() => onAction(typeof keys === 'number' ? { type: 'digit', value: keys } : { type: keys === '.' ? 'decimal' : 'delete' })}>
           {keys === 'x' && <DesignIcon name='editor-delete' size={20} tone='category' />}
-          <Text>{keys === 'x' ? '删除' : keys}</Text>
+          <Text>{keys === 'x' ? '退格' : keys}</Text>
         </Button>
       ))}
     />

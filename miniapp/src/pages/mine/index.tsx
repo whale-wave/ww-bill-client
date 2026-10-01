@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { PageHeadingVisual , MetricRow, ProfileSummaryVisual } from '@ww-bill/bill-ui'
+import { MetricRow, ProfileSummaryVisual } from '@ww-bill/bill-ui'
 import { Image, Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import './index.scss'
@@ -30,7 +30,6 @@ export default function MinePage() {
 
   return (
     <Page className='page'>
-      <PageHeadingVisual primitive={View} title={<Text className='bill-page-heading__title'>我的</Text>} />
       {userQuery.isLoading && <View className='state-panel'>正在加载账号信息…</View>}
       {userQuery.isError && <EmptyState error title='加载失败' description={errorMessage(userQuery.error)} actionLabel='重试' onAction={() => void userQuery.refetch()} />}
       {userQuery.data && <>

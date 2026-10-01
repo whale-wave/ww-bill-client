@@ -26,7 +26,7 @@ export const CurrentMonthBillCard: FC<CurrentMonthBillCardProps> = ({ billRecord
   return (
     <Surface
       as="article"
-      className="relative overflow-hidden px-5 py-[18px]"
+      className="bill-overview-surface"
       data-testid="current-month-bill-card"
       material="raised"
     >

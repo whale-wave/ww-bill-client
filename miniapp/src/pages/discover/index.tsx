@@ -35,9 +35,9 @@ export default function DiscoverPage() {
   function handleCreate() { void Taro.navigateTo({ url: '/pages/record-create/index' }) }
 
   return (
-    <Page className='page'>
-      <PageHeadingVisual primitive={View} title={<Text className='bill-page-heading__title'>发现</Text>} />
-      <Surface className='card discover-overview' material='raised'>
+    <Page className='page discover-page'>
+      <PageHeadingVisual primitive={View} className='bill-page-heading--discovery' title={<Text className='bill-page-heading__title'>发现</Text>} />
+      <Surface className='bill-overview-surface discover-overview' material='raised'>
         {chartQuery.isLoading && <Text>正在加载…</Text>}
         {chartQuery.isError && <EmptyState error title='加载失败' description={errorMessage(chartQuery.error)} actionLabel='重试' onAction={() => void chartQuery.refetch()} />}
         {chartQuery.data && <View onClick={handleOpenChart}>
@@ -52,7 +52,7 @@ export default function DiscoverPage() {
           />
         </View>}
       </Surface>
-      <Text className='section-title'>常用入口</Text>
+      <Text className='bill-section-heading'>常用入口</Text>
       <ActionMenu columns={2} variant='card' items={[
         { key: 'records', label: '明细', icon: 'tab-detail', onClick: handleOpenRecords },
         { key: 'create', label: '记一笔', icon: 'tab-add', onClick: handleCreate },

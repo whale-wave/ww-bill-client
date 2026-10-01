@@ -162,9 +162,9 @@ export default function RecordCreatePage() {
           <Picker mode='time' value={selectedTime} onChange={event => setSelectedTime(event.detail.value)}><View className='record-editor-detail-chip'><RecordDetailChipContent primitive={Text} icon={<DesignIcon name='editor-time' size={17} tone='category' />}>{selectedTime}</RecordDetailChipContent></View></Picker>
         </View>
         <RecordEntryRow
-          caption={selectedCategory ? `${selectedCategory.path ?? selectedCategory.name} · ${recordType === 'sub' ? '支出' : '收入'}` : '请选择分类'}
+          caption={selectedCategory ? `${selectedCategory.path ?? selectedCategory.name} · ${recordType === 'sub' ? '支出' : '收入'}` : '选择分类'}
           primitives={{ Box: View, Note: View, Text }}
-          noteInput={<Input className='bill-record-entry__note-input' value={remark} placeholder='备注（选填）' onFocus={() => setIsNoteFocused(true)} onBlur={() => setIsNoteFocused(false)} onInput={event => setRemark(event.detail.value)} />}
+          noteInput={<Input className='bill-record-entry__note-input' value={remark} placeholder='写个备注吧...' onFocus={() => setIsNoteFocused(true)} onBlur={() => setIsNoteFocused(false)} onInput={event => setRemark(event.detail.value)} />}
           amountControl={(
             <View className='bill-record-entry__amount-control'>
               <RecordAmountVisual

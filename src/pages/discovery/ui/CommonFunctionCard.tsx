@@ -11,7 +11,7 @@ const CommonFunctionCard: FC = () => {
 
   return (
     <section>
-      <h2 className="pb-[10px] text-[14px] font-bold leading-[21px] text-ww-ink">{t('commonFunctions.title')}</h2>
+      <h2 className="bill-section-heading">{t('commonFunctions.title')}</h2>
       <ActionMenuCard
         columns={3}
         items={[

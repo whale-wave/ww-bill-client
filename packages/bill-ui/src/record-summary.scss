@@ -61,3 +61,26 @@
 .bill-page-heading--record-overview .bill-page-heading__identity {
   height: 32px;
 }
+
+.bill-page-heading--discovery {
+  box-sizing: border-box;
+  height: 60px;
+  min-height: 60px;
+  margin-bottom: 0;
+  padding: max(8px, var(--ww-safe-area-top, 0px)) 22px 16px;
+}
+.bill-page-heading--discovery .bill-page-heading__title {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 30px;
+}
+
+.bill-section-heading {
+  display: block;
+  margin: 0;
+  padding-bottom: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 21px;
+  color: var(--ww-theme-text-color);
+}

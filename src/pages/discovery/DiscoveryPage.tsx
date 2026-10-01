@@ -9,6 +9,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { PageHeadingVisual } from '@ww-bill/bill-ui';
 import { EyeOff, GripVertical, LayoutPanelTop } from 'lucide-react';
 import { m } from 'motion/react';
 import { useMemo, useState } from 'react';
@@ -188,10 +189,7 @@ const Discovery: FC = () => {
 
   return (
     <div className="page-new relative w-full">
-      <header className="flex h-[60px] shrink-0 items-center justify-between gap-3 px-[22px] pb-4 pt-[max(8px,var(--ww-safe-area-top))]">
-        <h1 className="text-[20px] font-extrabold leading-[30px] text-ww-ink">{t('commonFunctions.discovery')}</h1>
-        {isEditing && <button className="h-9 rounded-[13px] border-0 bg-primary-light/70 px-3 text-[13px] font-extrabold text-primary-deep transition active:scale-95" onClick={() => setIsEditing(false)} type="button">{t('discoveryCards.done')}</button>}
-      </header>
+      <PageHeadingVisual primitive="header" className="bill-page-heading--discovery shrink-0" title={<h1 className="bill-page-heading__title">{t('commonFunctions.discovery')}</h1>} actions={isEditing && <button className="h-9 rounded-[13px] border-0 bg-primary-light/70 px-3 text-[13px] font-extrabold text-primary-deep transition active:scale-95" onClick={() => setIsEditing(false)} type="button">{t('discoveryCards.done')}</button>} />
       <div className="ww-tab-bar-scroll-padding relative flex-grow overflow-auto">
         <div className="space-y-[14px] px-[18px]">
           {isEditing && (
