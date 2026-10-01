@@ -45,3 +45,24 @@ export function RecordDateGroupHeader({ date, summaries, variant = 'overview', p
 export function RecordGroupSurface({ children, single = false, variant = 'overview', primitive: Box = 'div' }: { children: ReactNode; single?: boolean; variant?: 'overview' | 'search'; primitive?: ElementType }) {
   return <Box className={`${variant === 'overview' ? 'bill-record-group__surface overflow-hidden rounded-[20px] border border-border-primary bg-ww-surface-raised py-0.5' : ''}${single ? ' bill-record-group__surface--single' : ''}`}>{children}</Box>;
 }
+
+export function RecordDateLabelVisual({ label, primitive: Text = 'span' }: { label: ReactNode; primitive?: ElementType }) {
+  if (typeof label !== 'string')
+    return label;
+  const [date, ...detail] = label.split(' ');
+  return (
+    <>
+      <Text className="bill-record-group__date">{date}</Text>
+      {detail.length > 0 && (
+        <>
+          {' '}
+          <Text className="bill-record-group__date-detail">{detail.join(' ')}</Text>
+        </>
+      )}
+    </>
+  );
+}
+
+export function RecordStateSurface({ children, primitive: Box = 'div' }: { children: ReactNode; primitive?: ElementType }) {
+  return <Box className="bill-record-state-surface">{children}</Box>;
+}

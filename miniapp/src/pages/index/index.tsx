@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 import { getRecordDisplayTitle, groupRecordsByKey, sumRecordAmounts, isDarkCategoryBackground, money } from '@ww-bill/bill-core'
-import { PageHeadingVisual, RecordSummaryContent, MetricRow, PeriodLabel, RecordOverviewRowContent, RecordDateGroupHeader, RecordGroupSurface } from '@ww-bill/bill-ui'
+import { PageHeadingVisual, RecordSummaryContent, MetricRow, PeriodLabel, RecordOverviewRowContent, RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordStateSurface } from '@ww-bill/bill-ui'
 import { PageLoadingState } from '../../shared/ui/page-loading-state'
 import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
@@ -52,39 +52,38 @@ export default function RecordsPage() {
   }
 
   return (
-    <Page className='page'>
-      <PageHeadingVisual primitive={View} title={<Text className='bill-page-heading__title'>鲸浪记账</Text>} />
+    <Page className='page records-page'>
+      <PageHeadingVisual className='bill-page-heading--record-overview' primitive={View} title={<Text className='bill-page-heading__title'>鲸浪记账</Text>} />
       <Surface className='records-summary bill-record-summary' material='raised'>
-        <RecordSummaryContent primitive={View} period={<View className='row records-summary__month'>
-          <Button className='records-summary__nav' aria-label='上个月' onClick={handlePreviousMonth}>‹</Button>
-          <View className='records-summary__period'><PeriodLabel year={month.slice(0, 4)} yearSuffix='年' month={month.slice(5)} monthSuffix='月' primitive={Text} /></View>
-          <Button className={`records-summary__nav${month >= currentMonth() ? ' muted' : ''}`} aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}>›</Button>
-        </View>
-} metrics={<MetricRow
-  columns={2}
-  variant='detail-summary'
-  primitives={{ Root: View, Cell: View, Label: Text, Value: View, Text }}
-  items={[
-            { key: 'income', label: '收入', value: `¥${money.format(firstPage?.income ?? 0)}`, tone: 'income' },
-            { key: 'expense', label: '支出', value: `¥${money.format(firstPage?.expend ?? 0)}`, tone: 'expense' },
+        <RecordSummaryContent primitive={View} period={<View className='records-summary__period'><PeriodLabel year={month.slice(0, 4)} yearSuffix='年' month={month.slice(5)} monthSuffix='月' primitive={Text} /></View>}
+          amountToggle={<View className='records-summary__navigation'>
+            <Button className='records-summary__nav' aria-label='上个月' onClick={handlePreviousMonth}>‹</Button>
+            <Button className={`records-summary__nav${month >= currentMonth() ? ' records-summary__nav--disabled' : ''}`} aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}>›</Button>
+          </View>}
+          metrics={<MetricRow
+            columns={2}
+            variant='detail-summary'
+            primitives={{ Root: View, Cell: View, Label: Text, Value: View, Text }}
+            items={[
+            { key: 'income', label: '收入', value: money.format(firstPage?.income ?? 0), tone: 'income' },
+            { key: 'expense', label: '支出', value: money.format(firstPage?.expend ?? 0), tone: 'expense' },
           ]}
-/>}
+          />}
         />
       </Surface>
-      <View className='row'><Text className='section-title'>该月记录</Text><Text className='muted'>{firstPage?.total ?? 0} 笔</Text></View>
       {recordsQuery.isLoading && <PageLoadingState label='正在加载明细…' />}
-      {recordsQuery.isError && <EmptyState error title='加载失败' description={errorMessage(recordsQuery.error)} actionLabel='重试' onAction={() => void recordsQuery.refetch()} />}
-      {!recordsQuery.isLoading && !recordsQuery.isError && records.length === 0 && <EmptyState title='这个月还没有记录' description='记下第一笔，开始整理本月收支。' actionLabel='记一笔' onAction={handleCreate} />}
+      {recordsQuery.isError && <RecordStateSurface primitive={View}><EmptyState error title='加载失败' description={errorMessage(recordsQuery.error)} actionLabel='重试' onAction={() => void recordsQuery.refetch()} /></RecordStateSurface>}
+      {!recordsQuery.isLoading && !recordsQuery.isError && records.length === 0 && <RecordStateSurface primitive={View}><EmptyState title='这个月还没有明细' description='记下第一笔收支，月度明细会自动整理在这里' actionLabel='去记一笔' onAction={handleCreate} /></RecordStateSurface>}
       {groups.map(group => (
         <View key={group.date} className='bill-record-group'>
-          <RecordDateGroupHeader date={<Text style={{ fontWeight: 700 }}>{group.date}</Text>} primitives={{ Header: View, Text, Box: View }} summaries={<><Text className='money--income'>收入 {money.format(group.totals.income)}</Text><Text className='money--expense'>支出 {money.format(group.totals.expense)}</Text></>} />
-          <View style={{ paddingTop: '6px' }}>
+          <RecordDateGroupHeader date={<Text><RecordDateLabelVisual label={group.date} primitive={Text} /></Text>} primitives={{ Header: View, Text, Box: View }} summaries={<><Text className='money--income'>收入 {money.format(group.totals.income)}</Text><Text className='money--expense'>支出 {money.format(group.totals.expense)}</Text></>} />
+          <View className='bill-record-group__body'>
             <RecordGroupSurface single={group.entries.length === 1 && !group.entries[0].category?.path?.includes('/')} primitive={View}>
               {group.entries.map((record, index) => (
                 <View key={record.id} className={`bill-overview-record${record.category?.path?.includes('/') ? ' bill-overview-record--secondary' : ''}`}>
                   <RecordOverviewRowContent
                     primitives={{ Box: View, Text, Deleted: Text }}
-                    amount={`${record.type === 'sub' ? '-' : ''}¥${money.format(record.amount)}`}
+                    amount={`${record.type === 'sub' ? '-' : ''}${money.format(record.amount)}`}
                     amountTone={record.type === 'add' ? 'income' : 'expense'}
                     icon={<View className={`bill-overview-record__icon bill-overview-record__icon--${index % 4}`} style={record.category?.backgroundColor ? { backgroundColor: record.category.backgroundColor } : undefined}><CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} iconType={record.category?.iconType} textIconEnabled={record.category?.textIconEnabled} textIconIndex={record.category?.textIconIndex} color={isDarkCategoryBackground(record.category?.backgroundColor) ? '#fff' : undefined} size={18} /></View>}
                     secondary={record.category?.path?.includes('/') ? record.category.path : undefined}

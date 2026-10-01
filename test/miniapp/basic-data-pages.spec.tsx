@@ -97,8 +97,8 @@ function renderPage(Page: ComponentType) {
 describe('miniapp basic data pages', () => {
   it('shows record totals and category paths', () => {
     const page = renderPage(RecordsPage);
-    expect(page.textContent).toContain('收入¥5000.00');
-    expect(page.textContent).toContain('支出¥32.50');
+    expect(page.textContent).toContain('收入5000.00');
+    expect(page.textContent).toContain('支出32.50');
     expect(page.textContent).toContain('餐饮 / 午餐');
     expect(page.textContent).toContain('便当');
   });

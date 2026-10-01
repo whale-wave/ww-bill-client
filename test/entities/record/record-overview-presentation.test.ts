@@ -85,7 +85,7 @@ describe('record overview presentation', () => {
     }));
     const loadingState = loading.querySelector('[data-testid="record-overview-loading"]');
     expect(loadingState?.getAttribute('role')).toBe('status');
-    expect(loadingState?.classList).toContain('min-h-[160px]');
+    expect(loadingState?.classList).toContain('bill-page-loading--compact');
     cleanup?.();
     cleanup = undefined;
 

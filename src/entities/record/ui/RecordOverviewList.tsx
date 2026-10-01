@@ -1,5 +1,5 @@
 import type { FC, MouseEvent, ReactNode } from 'react';
-import { RecordDateGroupHeader, RecordGroupSurface, RecordOverviewRowContent } from '@ww-bill/bill-ui';
+import { RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordOverviewRowContent } from '@ww-bill/bill-ui';
 import { SwipeAction } from 'antd-mobile';
 import { Image as ImageIcon } from 'lucide-react';
 import { CategoryIcon } from '@/entities/category';
@@ -61,23 +61,6 @@ function getAmountClassName(tone: RecordOverviewListItem['amountTone']) {
   return 'text-font-black';
 }
 
-function renderDateLabel(label: ReactNode) {
-  if (typeof label !== 'string')
-    return label;
-  const [date, ...detail] = label.split(' ');
-  return (
-    <>
-      <span className="font-bold">{date}</span>
-      {detail.length > 0 && (
-        <>
-          {' '}
-          <span className="text-[11px] font-normal leading-[16.5px] text-ww-soft">{detail.join(' ')}</span>
-        </>
-      )}
-    </>
-  );
-}
-
 export const RecordOverviewList: FC<RecordOverviewListProps> = ({
   groups,
   renderCategoryIcon,
@@ -101,8 +84,8 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
             date={(
               <>
                 {group.dateTime
-                  ? <time dateTime={group.dateTime}>{renderDateLabel(group.dateLabel)}</time>
-                  : <span>{renderDateLabel(group.dateLabel)}</span>}
+                  ? <time dateTime={group.dateTime}><RecordDateLabelVisual label={group.dateLabel} /></time>
+                  : <span><RecordDateLabelVisual label={group.dateLabel} /></span>}
 
               </>
             )}
@@ -124,7 +107,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
               </>
             )}
           />
-          <div className={isOverview ? 'pt-1.5' : ''}>
+          <div className={isOverview ? 'bill-record-group__body' : ''}>
             <RecordGroupSurface variant={isOverview ? 'overview' : 'search'} single={isOverview && group.records.length === 1 && !group.records.some(record => record.overviewSecondary)}>
               {group.records.map((record, index) => {
                 const primary = typeof record.primary === 'string'

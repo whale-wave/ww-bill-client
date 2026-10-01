@@ -195,7 +195,7 @@ describe('record overview list', () => {
     expect(list?.getAttribute('data-record-list-variant')).toBe('overview');
     expect(row?.classList).toContain('min-h-[68px]');
     expect(card?.classList).toContain('rounded-[20px]');
-    expect(card?.parentElement?.classList).toContain('pt-1.5');
+    expect(card?.parentElement?.classList).toContain('bill-record-group__body');
     expect(content?.classList).toContain('gap-[13px]');
     expect(content?.classList).toContain('px-[18px]');
     expect(amount?.classList).toContain('text-[15px]');

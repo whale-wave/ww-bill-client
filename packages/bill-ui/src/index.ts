@@ -56,7 +56,7 @@ export { recordKeypadKeys } from './record-keypad-keys';
 export { RecordLine } from './record-line';
 
 export type { RecordLinePrimitives, RecordLineProps } from './record-line';
-export { RecordDateGroupHeader, RecordGroupSurface, RecordOverviewRowContent } from './record-overview';
+export { RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordOverviewRowContent, RecordStateSurface } from './record-overview';
 
 export { PageHeadingVisual, RecordSummaryContent } from './record-summary';
 export { SurfacePresentation } from './surface';

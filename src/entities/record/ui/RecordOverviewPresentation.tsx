@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import type { RecordOverviewHeaderProps } from './RecordOverviewHeader';
 import type { RecordOverviewListGroup, RecordOverviewListItem } from './RecordOverviewList';
+import { RecordStateSurface } from '@ww-bill/bill-ui';
 import { InfiniteScroll } from 'antd-mobile';
 import { CircleAlert, Plus, RefreshCw } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
@@ -82,7 +83,7 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
             className="flex w-full items-start justify-center pb-3 pt-0"
             data-record-overview-state="error"
           >
-            <div className="w-full rounded-[var(--ww-radius-card)] border border-solid border-border-primary bg-ww-surface-raised">
+            <RecordStateSurface>
               <IllustratedEmptyState
                 accentIcon={<RefreshCw size={18} strokeWidth={2.2} />}
                 actionLabel={retryLabel ?? t('error.loadFail')}
@@ -93,7 +94,7 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
                 testId="record-overview-error-state"
                 title={errorTitle ?? t('error.loadFail')}
               />
-            </div>
+            </RecordStateSurface>
           </div>
         )}
         {state === 'ready' && groups.length === 0 && (
@@ -101,7 +102,7 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
             className="flex w-full items-start justify-center pb-3 pt-0"
             data-record-overview-state="empty"
           >
-            <div className="w-full rounded-[var(--ww-radius-card)] border border-solid border-border-primary bg-ww-surface-raised">
+            <RecordStateSurface>
               <IllustratedEmptyState
                 accentIcon={onEmptyAction ? <Plus size={19} strokeWidth={2.2} /> : undefined}
                 actionLabel={emptyActionLabel}
@@ -112,7 +113,7 @@ export const RecordOverviewPresentation: FC<RecordOverviewPresentationProps> = (
                 testId="record-overview-empty-state"
                 title={emptyTitle ?? emptyDescription}
               />
-            </div>
+            </RecordStateSurface>
           </div>
         )}
         {state === 'ready' && groups.length > 0 && (

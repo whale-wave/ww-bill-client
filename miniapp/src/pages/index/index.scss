@@ -1,5 +1,5 @@
 .records-summary {
-  &__month { font-size: 17px; font-weight: 700; margin-bottom: 0; }
+  &__period { font-size: 17px; font-weight: 700; }
   &__nav { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: 0; padding: 0; border: 0; background: transparent; color: inherit; font-size: 26px; line-height: 1; }
   &__nav::after { border: 0; }
 }
@@ -9,3 +9,9 @@
 .records-create { margin-top: 20px; }
 
 .records-summary { margin-bottom: 12px; }
+
+.records-page { padding-top: max(6px, var(--ww-safe-area-top, 0px)); }
+.records-page > .bill-page-heading--record-overview { margin-left: -18px; margin-right: -18px; }
+
+.records-summary__navigation { display: flex; flex-shrink: 0; gap: 0; }
+.records-summary__nav--disabled { opacity: 0.4; color: var(--ww-text-color-soft); }
