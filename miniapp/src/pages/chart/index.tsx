@@ -2,7 +2,7 @@ import { DashboardPeriodContent, DashboardPeriodToolbar, DashboardHeadingVisual,
 import { useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import { useDidShow } from '@tarojs/taro'
-import { formatMonthPeriod, formatDashboardAmount, formatChartPercent, getChartAverage } from '@ww-bill/bill-core'
+import { formatMonthPeriod, formatDashboardAmount, formatChartPercent, getCategoryOtherAmount, getChartAverage } from '@ww-bill/bill-core'
 import { PageLoadingState } from '../../shared/ui/page-loading-state'
 import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
@@ -83,7 +83,7 @@ export default function ChartPage() {
                 label={category.name} amount={formatDashboardAmount(category.amount)} percentage={formatChartPercent(category.percent ?? 0)}
               />
             </View>)}
-            other={categories.length > 5 ? `其他：${formatDashboardAmount(categories.slice(5).reduce((sum, category) => sum + Number(category.amount), 0))}` : undefined}
+            other={categories.length > 5 ? `其他：${formatDashboardAmount(getCategoryOtherAmount(categories))}` : undefined}
             empty={categories.length === 0 ? '暂无分类数据' : undefined}
           />
         </Surface>

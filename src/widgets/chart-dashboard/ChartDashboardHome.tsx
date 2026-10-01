@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { ChartDashboardMetric, ChartDashboardScope } from './model/useChartDashboardUrlState';
 import type { ChartDashboardPeriod, ChartDashboardResult } from '@/entities/chart';
-import { getCategoryDonutSlices, getChartAverage, formatDashboardAmount as money } from '@ww-bill/bill-core';
+import { getCategoryDonutSlices, getCategoryOtherAmount, getChartAverage, formatDashboardAmount as money } from '@ww-bill/bill-core';
 import { DashboardCategoriesVisual, DashboardCategoryRowContent, DashboardDonutLabel, DashboardHeadingVisual, DashboardPeriodContent, DashboardPeriodToolbar, DashboardSummaryVisual, DashboardTrendVisual } from '@ww-bill/bill-ui';
 import { addDays, addMonths, addYears } from 'date-fns';
 import { ChevronDown, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
@@ -346,7 +346,7 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
                     />
                   </button>
                 ))}
-                other={selectedCategories.length > 5 ? `${t('dashboard.other')}：${money(String(selectedCategories.slice(5).reduce((sum, item) => sum + Number(item.amount), 0)), hideAmounts)}` : undefined}
+                other={selectedCategories.length > 5 ? `${t('dashboard.other')}：${money(getCategoryOtherAmount(selectedCategories), hideAmounts)}` : undefined}
                 empty={selectedCategories.length === 0 ? t('dashboard.noCategories') : undefined}
               />
             </Surface>

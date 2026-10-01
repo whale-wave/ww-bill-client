@@ -1,9 +1,15 @@
-import { formatDashboardAmount, getCategoryDonutSlices } from '@ww-bill/bill-core';
+import { formatDashboardAmount, getCategoryDonutSlices, getCategoryOtherAmount } from '@ww-bill/bill-core';
 import { describe, expect, it } from 'vitest';
 import { buildAssetTrendGeometry, buildTrendGeometry, formatChartPercent, getLatestAssetValue } from '@/widgets/chart-dashboard/model/dashboard-chart';
 import { resolveChartAccountFilter } from '@/widgets/chart-dashboard/model/query-params';
 
 describe('dashboard chart geometry', () => {
+  it('sums only categories outside the five named donut segments with decimal precision', () => {
+    const categories = Array.from({ length: 5 }, () => ({ amount: '100' }));
+    expect(getCategoryOtherAmount(categories)).toBe('0');
+    expect(getCategoryOtherAmount([...categories, { amount: '0.1' }, { amount: '0.2' }])).toBe('0.3');
+    expect(getCategoryOtherAmount([])).toBe('0');
+  });
   it('keeps the other ring segment and grouped currency identical across hosts', () => {
     const slices = getCategoryDonutSlices(Array.from({ length: 6 }, () => ({ amount: '10' })));
     expect(slices).toHaveLength(6);

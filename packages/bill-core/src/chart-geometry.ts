@@ -1,3 +1,7 @@
+import { money } from './amount';
+
+const donutCategoryLimit = 5;
+
 /** Normalized geometry shared by browser SVG and miniapp image adapters. */
 export function buildTrendGeometry(values: number[]) {
   const minimum = Math.min(0, ...values);
@@ -26,10 +30,14 @@ export function getChartAverage(values: number[]) {
   return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
 }
 
+export function getCategoryOtherAmount(categories: { amount: string | number }[]) {
+  return categories.slice(donutCategoryLimit).reduce((sum, category) => money.add(sum, category.amount), '0');
+}
+
 export function getCategoryDonutSlices(categories: { amount: string | number }[]) {
   const total = categories.reduce((sum, item) => sum + Number(item.amount), 0);
   let accumulated = 0;
-  const slices = categories.slice(0, 5).map((item, index) => {
+  const slices = categories.slice(0, donutCategoryLimit).map((item, index) => {
     const start = accumulated / Math.max(total, 0.01);
     accumulated += Number(item.amount);
     return { colorIndex: index, start, end: accumulated / Math.max(total, 0.01) };
