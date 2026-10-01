@@ -112,6 +112,9 @@ export const designIconSvg = {
 
 export const designIconColors = {
   glass: {
+    ink: '#202024',
+    muted: '#77777e',
+    soft: '#a4a4aa',
     active: '#24526a',
     inactive: '#c9c9cf',
     inverse: '#ffffff',
@@ -120,6 +123,9 @@ export const designIconColors = {
     expense: '#6d6d73',
   },
   fresh: {
+    ink: '#263340',
+    muted: '#5c7080',
+    soft: '#637987',
     active: '#23728e',
     inactive: '#9eafb9',
     inverse: '#ffffff',
@@ -128,6 +134,9 @@ export const designIconColors = {
     expense: '#f0a0b8',
   },
   minimal: {
+    ink: '#273444',
+    muted: '#617080',
+    soft: '#9aa6b2',
     active: '#2d3b4d',
     inactive: '#c7ced5',
     inverse: '#ffffff',

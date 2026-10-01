@@ -31,6 +31,9 @@ for (const theme of ['glass', 'fresh', 'minimal']) {
   const values = Object.fromEntries([...css.matchAll(/(--[\w-]+):([^;]+);/g)].map(([, name, value]) => [name, value.trim()]));
   chartColors[theme] = { accent: values['--ww-theme-color-mid'], inverse: '#ffffff', series: Array.from({ length: 6 }, (_, index) => values[`--ww-chart-${index + 1}`]), border: values['--ww-border-color'] };
   appearanceColors[theme] = {
+    ink: values['--ww-theme-text-color'],
+    muted: values['--ww-text-color-mid'],
+    soft: values['--ww-text-color-soft'],
     active: values['--ww-theme-color-deep'],
     inactive: values['--ww-text-color-ghost'],
     inverse: values['--ww-primary-foreground'],

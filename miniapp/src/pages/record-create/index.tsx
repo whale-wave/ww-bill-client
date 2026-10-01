@@ -111,7 +111,7 @@ export default function RecordCreatePage() {
     <Page className='create-page'>
       <RecordEditorHeader
         primitives={{ Header: View, Box: View }}
-        back={<Button className='bill-record-back' aria-label='取消' onClick={() => void Taro.navigateBack()}><DesignIcon name='editor-back' size={18} /></Button>}
+        back={<Button className='bill-record-back' aria-label='取消' onClick={() => void Taro.navigateBack()}><DesignIcon name='editor-back' size={18} tone='muted' /></Button>}
       >
         <Button className={`bill-record-type${recordType === 'sub' ? ' bill-record-type--expense' : ''}`} onClick={() => handleRecordType('sub')}>支出</Button>
         <Button className={`bill-record-type${recordType === 'add' ? ' bill-record-type--income' : ''}`} onClick={() => handleRecordType('add')}>收入</Button>

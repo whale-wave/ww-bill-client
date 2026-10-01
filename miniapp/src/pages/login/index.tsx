@@ -59,7 +59,7 @@ export default function LoginPage() {
           <FormFieldVisual disabled={loginMutation.isLoading} label='账号' prefix={<DesignIcon name='avatar-user' size={18} tone='category' />} primitives={{ Label: View, Box: View, Text }}>
             <Input className='bill-form-field__input' disabled={loginMutation.isLoading} value={username} placeholder='请输入账号ID或邮箱' onInput={event => setUsername(event.detail.value)} />
           </FormFieldVisual>
-          <FormFieldVisual disabled={loginMutation.isLoading} label='密码' suffix={!loginMutation.isLoading && <Button className='bill-form-field__suffix-action' aria-label={isPasswordVisible ? '隐藏密码' : '显示密码'} onClick={() => setIsPasswordVisible(value => !value)}><DesignIcon name={isPasswordVisible ? 'amount-hidden' : 'amount-visible'} size={18} /></Button>} prefix={<DesignIcon name='auth-lock' size={18} tone='category' />} primitives={{ Label: View, Box: View, Text }}>
+          <FormFieldVisual disabled={loginMutation.isLoading} label='密码' suffix={!loginMutation.isLoading && <Button className='bill-form-field__suffix-action' aria-label={isPasswordVisible ? '隐藏密码' : '显示密码'} onClick={() => setIsPasswordVisible(value => !value)}><DesignIcon name={isPasswordVisible ? 'amount-hidden' : 'amount-visible'} size={18} tone='soft' /></Button>} prefix={<DesignIcon name='auth-lock' size={18} tone='category' />} primitives={{ Label: View, Box: View, Text }}>
             <Input className='bill-form-field__input' disabled={loginMutation.isLoading} value={password} password={!isPasswordVisible} placeholder='请输入密码' onInput={event => setPassword(event.detail.value)} onConfirm={() => void handleLogin()} />
           </FormFieldVisual>
           </AuthFieldsVisual>
