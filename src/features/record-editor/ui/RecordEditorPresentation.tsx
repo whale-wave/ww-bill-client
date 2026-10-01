@@ -4,7 +4,7 @@ import type { RecordEditorController } from '../model/useRecordEditorController'
 import type { Asset, AssetGroup } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
 import { groupCategoriesByParent } from '@ww-bill/bill-core';
-import { CategoryChoiceVisual, RecordAmountVisual, RecordEntryRow, RecordKeypadLayout } from '@ww-bill/bill-ui';
+import { CategoryChoiceVisual, RecordAmountVisual, RecordEditorHeader, RecordEntryRow, RecordKeypadLayout } from '@ww-bill/bill-ui';
 import {
   Delete as BackspaceIcon,
   Banknote,
@@ -257,49 +257,19 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
       data-record-editor-presentation
       ref={editorPageRef}
     >
-      <header
-        className="record-editor-header flex h-[60px] shrink-0 items-start justify-between gap-3 px-5 pb-[14px] pt-1"
-        data-record-editor-header
-      >
-        <button
-          aria-label={t('common:nav.cancel')}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-border-primary bg-white/90 text-ww-mid shadow-ww-xs"
-          data-record-editor-cancel
-          onClick={handleBack}
-          type="button"
-        >
-          <DesignIcon name="editor-back" size={18} />
-        </button>
-        <div className="flex rounded-[14px] border border-border-primary bg-white/[0.85] p-1 shadow-ww-xs">
-          {(
-            [
-              { label: t('record:bookkeeping.expend'), type: 'sub' },
-              { label: t('record:bookkeeping.income'), type: 'add' },
-            ] as const
-          ).map(item => (
-            <button
-              aria-pressed={controller.recordType === item.type}
-              className={cn(
-                'min-h-11 rounded-[10px] px-[22px] py-[7px] text-[13px] font-bold leading-[19.5px] transition',
-                controller.recordType === item.type
-                  ? item.type === 'sub'
-                    ? 'bg-finance-expense text-white shadow-ww-xs'
-                    : 'ww-theme-primary-action'
-                  : 'text-ww-soft',
-              )}
-              key={item.type}
-              onClick={() => {
-                controller.handleRecordTypeChange(item.type);
-                controller.setIsNoteFocused(false);
-                setExpandedCategoryId(undefined);
-              }}
-              type="button"
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-        {onManageCategories
+      <RecordEditorHeader
+        back={(
+          <button
+            aria-label={t('common:nav.cancel')}
+            className="bill-record-back"
+            data-record-editor-cancel
+            onClick={handleBack}
+            type="button"
+          >
+            <DesignIcon name="editor-back" size={18} />
+          </button>
+        )}
+        settings={onManageCategories
           ? (
               <button
                 aria-label={t('record:bookkeeping.categorySettings')}
@@ -312,7 +282,36 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
               </button>
             )
           : <span className="h-11 w-11" />}
-      </header>
+      >
+        {(
+          [
+            { label: t('record:bookkeeping.expend'), type: 'sub' },
+            { label: t('record:bookkeeping.income'), type: 'add' },
+          ] as const
+        ).map(item => (
+          <button
+            aria-pressed={controller.recordType === item.type}
+            className={cn(
+              'bill-record-type transition',
+              controller.recordType === item.type
+                ? item.type === 'sub'
+                  ? 'bill-record-type--expense'
+                  : 'bill-record-type--income'
+                : 'text-ww-soft',
+            )}
+            key={item.type}
+            onClick={() => {
+              controller.handleRecordTypeChange(item.type);
+              controller.setIsNoteFocused(false);
+              setExpandedCategoryId(undefined);
+            }}
+            type="button"
+          >
+            {item.label}
+          </button>
+        ))}
+
+      </RecordEditorHeader>
 
       <m.main
         className="flex min-h-0 flex-grow flex-col"

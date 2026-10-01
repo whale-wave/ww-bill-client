@@ -1,0 +1,71 @@
+.bill-profile-summary__identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.bill-profile-summary__details {
+  flex: 1;
+  min-width: 0;
+}
+.bill-profile-summary__name {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 30px;
+  color: var(--ww-theme-text-color);
+}
+.bill-profile-summary__title {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border: 1px solid color-mix(in srgb, var(--ww-theme-color) 20%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ww-theme-color-light) 55%, transparent);
+  color: var(--ww-theme-color-deep);
+  font-size: 11px;
+  font-weight: 700;
+}
+.bill-profile-summary__action {
+  display: flex;
+  height: 44px;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+}
+.bill-profile-summary__metrics {
+  margin-top: 18px;
+  border-top: 1px solid var(--ww-border-color);
+  padding: 12px 4px 0;
+  background: var(--ww-highlight-metrics-background);
+}
+.ww-user-summary-avatar {
+  background: var(--ww-highlight-avatar-background);
+}
+.ww-user-summary-edit {
+  color: var(--ww-primary-foreground);
+  background: var(--ww-highlight-edit-background);
+}
+.bill-profile-summary__avatar {
+  display: flex;
+  width: 68px;
+  height: 68px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: var(--ww-card-shadow-xs);
+  overflow: hidden;
+}
+.bill-profile-summary__avatar > image {
+  width: 68px;
+  height: 68px;
+}

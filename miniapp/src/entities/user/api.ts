@@ -8,6 +8,8 @@ export interface UserInfo {
   email: string
   avatar: string | null
   recordCount: number
+  checkInAll?: number
+  checkInKeep?: number
   billRecord?: {
     expend: number
     income: number

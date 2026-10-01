@@ -1,14 +1,14 @@
 import { Fragment, useMemo, useRef, useState } from 'react'
-import { Input, Picker, Text, View } from '@tarojs/components'
+import { Button, Input, Picker, ScrollView, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { isDarkCategoryBackground, groupCategoriesByParent, money } from '@ww-bill/bill-core'
-import { RecordAmountVisual, RecordEntryRow, CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
+import { RecordEditorHeader, RecordAmountVisual, RecordEntryRow, CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
 import { useCategories, type RecordType } from '../../entities/category'
 import { useAuthGate } from '../../features/auth'
 import { useCreateRecord } from '../../features/record-create'
 import { dateKey, shanghaiDateTimeToIso, timeKey } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
-import { Surface } from '../../shared/ui/surface'
+import { DesignIcon } from '../../shared/ui/design-icon'
 import { useCalculator } from '../../features/record-create/model/use-calculator'
 import { RecordKeypad } from '../../shared/ui/record-keypad'
 import { AppButton } from '../../shared/ui/app-button'
@@ -23,6 +23,7 @@ export default function RecordCreatePage() {
   const calculator = useCalculator()
   const amount = calculator.totals
   const [remark, setRemark] = useState('')
+  const [isNoteFocused, setIsNoteFocused] = useState(false)
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
   const [expandedParentId, setExpandedParentId] = useState<number | null>(null)
   const [selectedDate, setSelectedDate] = useState(() => dateKey(new Date()))
@@ -97,13 +98,15 @@ export default function RecordCreatePage() {
   }
 
   return (
-    <View className='page create-page'>
-      <Text className='page__title'>记一笔</Text>
-      <View className='create-type'>
-        <View className={recordType === 'sub' ? 'is-active' : ''} onClick={() => handleRecordType('sub')}>支出</View>
-        <View className={recordType === 'add' ? 'is-active' : ''} onClick={() => handleRecordType('add')}>收入</View>
-      </View>
-      <Text className='section-title'>选择分类</Text>
+    <View className='create-page'>
+      <RecordEditorHeader
+        primitives={{ Header: View, Box: View }}
+        back={<Button className='bill-record-back' aria-label='取消' onClick={() => void Taro.navigateBack()}><DesignIcon name='editor-back' size={18} /></Button>}
+      >
+        <Button className={`bill-record-type${recordType === 'sub' ? ' bill-record-type--expense' : ''}`} onClick={() => handleRecordType('sub')}>支出</Button>
+        <Button className={`bill-record-type${recordType === 'add' ? ' bill-record-type--income' : ''}`} onClick={() => handleRecordType('add')}>收入</Button>
+      </RecordEditorHeader>
+      <ScrollView scrollY className='create-category-viewport'>
       {categoriesQuery.isLoading && <View className='state-panel'>正在加载分类…</View>}
       {categoriesQuery.isError && <View className='state-panel'><Text className='error-text'>{errorMessage(categoriesQuery.error)}</Text><AppButton variant='secondary' onClick={() => void categoriesQuery.refetch()}>重试</AppButton></View>}
       {!categoriesQuery.isLoading && !categoriesQuery.isError && !categoriesQuery.data?.length && <View className='state-panel'>暂无可用分类</View>}
@@ -151,11 +154,16 @@ export default function RecordCreatePage() {
           )
         })}
       </View>
-      <Surface className='card create-form'>
+      </ScrollView>
+      <View className='create-form'>
+        <View className='row create-form__pickers'>
+          <Picker mode='date' value={selectedDate} end={dateKey(new Date())} onChange={event => setSelectedDate(event.detail.value)}><View>{selectedDate}</View></Picker>
+          <Picker mode='time' value={selectedTime} onChange={event => setSelectedTime(event.detail.value)}><View>{selectedTime}</View></Picker>
+        </View>
         <RecordEntryRow
           caption={selectedCategory ? `${selectedCategory.path ?? selectedCategory.name} · ${recordType === 'sub' ? '支出' : '收入'}` : '请选择分类'}
           primitives={{ Box: View, Note: View, Text }}
-          noteInput={<Input className='bill-record-entry__note-input' value={remark} placeholder='备注（选填）' onInput={event => setRemark(event.detail.value)} />}
+          noteInput={<Input className='bill-record-entry__note-input' value={remark} placeholder='备注（选填）' onFocus={() => setIsNoteFocused(true)} onBlur={() => setIsNoteFocused(false)} onInput={event => setRemark(event.detail.value)} />}
           amountControl={(
             <View className='bill-record-entry__amount-control'>
               <RecordAmountVisual
@@ -166,12 +174,8 @@ export default function RecordCreatePage() {
             </View>
           )}
         />
-        <View className='row create-form__pickers'>
-          <Picker mode='date' value={selectedDate} end={dateKey(new Date())} onChange={event => setSelectedDate(event.detail.value)}><View>{selectedDate}</View></Picker>
-          <Picker mode='time' value={selectedTime} onChange={event => setSelectedTime(event.detail.value)}><View>{selectedTime}</View></Picker>
-        </View>
         {formError && <Text className='error-text'>{formError}</Text>}
-        <RecordKeypad
+        {!isNoteFocused && <RecordKeypad
           canCalculate={calculator.canCalculate}
           canSubmit={calculator.canSubmit && Boolean(selectedCategory)}
           operatorsEnabled={Number.parseFloat(calculator.totals) > 0}
@@ -184,8 +188,8 @@ export default function RecordCreatePage() {
             else
               void handleSubmit()
           }}
-        />
-      </Surface>
+        />}
+      </View>
     </View>
   )
 }

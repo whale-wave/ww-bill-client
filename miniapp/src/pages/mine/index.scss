@@ -1,4 +1,2 @@
-.mine-profile { display: flex; align-items: center; gap: 16px; min-height: 100px; }
-.mine-profile__avatar { display: flex; align-items: center; justify-content: center; width: 68px; height: 68px; border-radius: 50%; background: #dceef4; color: #23728e; font-size: 27px; font-weight: 800; }
-.mine-profile__name { display: block; margin-bottom: 5px; font-size: 20px; font-weight: 700; }
+.mine-profile { overflow: hidden; padding: 20px; }
 .mine-logout { margin-top: 24px; }

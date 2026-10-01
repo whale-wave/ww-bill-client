@@ -1,6 +1,8 @@
 @use '@ww-bill/bill-ui/tokens.scss';
 
 :root, page {
+  --ww-safe-area-top: env(safe-area-inset-top, 0px);
+  --ww-safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --ww-primary-light: var(--ww-theme-color-light);
   --ww-primary-deep: var(--ww-theme-color-deep);
   --ww-surface: var(--ww-surface-color);

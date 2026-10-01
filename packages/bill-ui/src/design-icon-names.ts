@@ -5,6 +5,7 @@ export const designIconNames = {
   'action-invoice': 'ReceiptText',
   'amount-hidden': 'EyeOff',
   'amount-visible': 'Eye',
+  'auth-lock': 'LockKeyhole',
   'avatar-edit': 'Pencil',
   'avatar-user': 'UserRound',
   'calendar': 'CalendarDays',

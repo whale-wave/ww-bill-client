@@ -107,6 +107,6 @@ describe('miniapp basic data pages', () => {
     const page = renderPage(MinePage);
     expect(page.textContent).toContain('测试用户');
     expect(page.textContent).toContain('demo@example.test');
-    expect(page.textContent).toContain('2 笔');
+    expect(page.querySelector('.bill-profile-summary__metrics')?.textContent).toContain('累计记账2笔');
   });
 });

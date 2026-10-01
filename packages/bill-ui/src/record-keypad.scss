@@ -116,3 +116,8 @@
   font-weight: 800;
   line-height: 22.5px;
 }
+
+.record-editor-keypad .record-editor-keypad__operator[disabled] {
+  color: var(--ww-theme-color-deep);
+  background: var(--ww-component-record-editor-chip-background);
+}

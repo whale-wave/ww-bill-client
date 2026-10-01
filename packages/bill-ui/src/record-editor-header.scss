@@ -1,0 +1,69 @@
+.record-editor-header {
+  display: flex;
+  height: 60px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 20px 14px;
+}
+.bill-record-header-placeholder {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+.bill-record-types {
+  display: flex;
+  padding: 4px;
+  border: 1px solid var(--ww-border-color);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: var(--ww-card-shadow-xs);
+}
+.bill-record-type {
+  display: flex;
+  min-height: 44px;
+  margin: 0;
+  padding: 7px 22px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ww-text-color-soft);
+  font-family: 'Noto Sans SC Variable', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 19.5px;
+  &::after {
+    border: 0;
+  }
+  &--expense {
+    background: var(--bill-expense-color);
+    color: white;
+    box-shadow: var(--ww-card-shadow-xs);
+  }
+  &--income {
+    background: var(--ww-theme-color);
+    color: var(--ww-primary-foreground);
+    box-shadow: var(--ww-card-shadow-xs);
+  }
+}
+.bill-record-back {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ww-border-color);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ww-text-color-mid);
+  box-shadow: var(--ww-card-shadow-xs);
+  &::after {
+    border: 0;
+  }
+}

@@ -1,3 +1,4 @@
+export { AuthPresentation, FormFieldVisual } from './auth-presentation';
 export { BottomNavigation, NavigationItemVisual } from './bottom-navigation';
 export type { BottomNavigationProps, NavigationItemVisualProps } from './bottom-navigation';
 export { buttonPresentationClassNames } from './button-appearance';
@@ -17,12 +18,17 @@ export { categoryIconImageSource, designIconImageSource } from './design-icon-so
 export type { IconAppearance, IconTone } from './design-icon-source';
 export { MetricRow } from './metric-row';
 export type { MetricRowItem, MetricRowPrimitives, MetricRowProps, MetricTone } from './metric-row';
+export { ProfileSummaryVisual } from './profile-summary';
+export { RecordEditorHeader } from './record-editor-header';
 export { RecordAmountVisual, RecordEntryRow } from './record-entry';
+
 export type { RecordAmountVisualProps, RecordEntryRowProps } from './record-entry';
 export { RecordKeypadLayout } from './record-keypad';
 export { recordKeypadKeys } from './record-keypad-keys';
-
 export { RecordLine } from './record-line';
+
 export type { RecordLinePrimitives, RecordLineProps } from './record-line';
+
 export { SurfacePresentation } from './surface';
+
 export type { SurfaceMaterial, SurfacePresentationProps } from './surface';
