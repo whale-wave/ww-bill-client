@@ -1,4 +1,11 @@
+@use '@ww-bill/bill-ui/token-values.scss' as tokens;
+
 .custom-tab-bar {
+  // Native custom components have their own style scope; use the same defaults.
+  @include tokens.appearance-default;
+  @include tokens.reference-default;
+  @include tokens.semantic-default;
+  @include tokens.material-default;
   position: fixed;
   left: 14px;
   right: 14px;
@@ -8,10 +15,11 @@
   justify-content: space-around;
   height: 66px;
   padding: 0 8px;
-  border: 1px solid var(--ww-border);
+  border: 1px solid var(--ww-component-dock-border);
   border-radius: 33px;
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 8px 28px rgba(40, 100, 150, 0.16);
+  background: var(--ww-component-dock-background);
+  box-shadow: var(--ww-component-dock-shadow);
+  backdrop-filter: var(--ww-component-dock-blur);
   box-sizing: border-box;
 
   &__item {
@@ -23,11 +31,11 @@
     justify-content: center;
     gap: 4px;
     font-size: 11px;
-    color: var(--ww-soft);
+    color: var(--ww-text-color-soft);
   }
 
   &__icon { font-size: 21px; line-height: 1; }
-  .is-active { color: var(--ww-primary-deep); font-weight: 700; }
+  .is-active { color: var(--ww-theme-color-deep); font-weight: 700; }
 
   &__create {
     width: 20%;
@@ -35,7 +43,7 @@
     flex-direction: column;
     align-items: center;
     gap: 2px;
-    color: var(--ww-primary-deep);
+    color: var(--ww-theme-color-deep);
     font-size: 11px;
     font-weight: 700;
   }
@@ -47,7 +55,7 @@
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    background: linear-gradient(145deg, var(--ww-theme-color), #4aaac4);
+    background: var(--ww-tab-create-background);
     color: white;
     font-size: 32px;
     line-height: 1;
