@@ -185,3 +185,18 @@
     min-height: 300px;
   }
 }
+
+.bill-record-secondary__copy {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bill-record-secondary__attachment {
+  display: flex;
+  width: 12px;
+  min-width: 12px;
+  height: 12px;
+  flex: none;
+  align-items: center;
+}

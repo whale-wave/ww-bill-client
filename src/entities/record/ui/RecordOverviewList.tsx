@@ -1,5 +1,5 @@
 import type { FC, MouseEvent, ReactNode } from 'react';
-import { RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordOverviewRowContent } from '@ww-bill/bill-ui';
+import { RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordOverviewRowContent, RecordSecondaryContent } from '@ww-bill/bill-ui';
 import { SwipeAction } from 'antd-mobile';
 import { Image as ImageIcon } from 'lucide-react';
 import { CategoryIcon } from '@/entities/category';
@@ -132,10 +132,10 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                         primary={primary}
                         secondary={hasOverviewSecondary
                           ? (
-                              <>
-                                {record.overviewSecondary && <span className="min-w-0 truncate">{record.overviewSecondary}</span>}
-                                {record.hasAttachment && <ImageIcon aria-label="含图片" className="shrink-0 text-primary-deep" size={12} />}
-                              </>
+                              <RecordSecondaryContent
+                                copy={record.overviewSecondary}
+                                attachmentIcon={record.hasAttachment ? <ImageIcon aria-label="含图片" className="shrink-0 text-primary-deep" size={12} /> : undefined}
+                              />
                             )
                           : undefined}
                         icon={(
@@ -221,8 +221,7 @@ export const RecordOverviewList: FC<RecordOverviewListProps> = ({
                         <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{primary}</span>
                         {(record.secondary || record.hasAttachment) && (
                           <span className="mt-1 flex min-w-0 items-center gap-1 overflow-hidden text-xs text-ww-soft">
-                            {record.secondary && <span className="min-w-0 truncate">{record.secondary}</span>}
-                            {record.hasAttachment && <ImageIcon aria-label="含图片" className="shrink-0 text-primary-deep" size={12} />}
+                            <RecordSecondaryContent copy={record.secondary} attachmentIcon={record.hasAttachment ? <ImageIcon aria-label="含图片" className="shrink-0 text-primary-deep" size={12} /> : undefined} />
                           </span>
                         )}
                       </span>

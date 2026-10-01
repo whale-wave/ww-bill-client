@@ -1,4 +1,5 @@
 import type { ElementType, ReactNode } from 'react';
+import { Fragment } from 'react';
 import './record-overview.scss';
 
 export function RecordOverviewRowContent({ amount, amountTone = 'neutral', icon, originalAmount, primary, secondary, primitives = { Box: 'div', Text: 'span', Deleted: 'del' } }: {
@@ -65,4 +66,19 @@ export function RecordDateLabelVisual({ label, primitive: Text = 'span' }: { lab
 
 export function RecordStateSurface({ children, primitive: Box = 'div' }: { children: ReactNode; primitive?: ElementType }) {
   return <Box className="bill-record-state-surface">{children}</Box>;
+}
+
+/** Keep the attachment marker readable when the explanation is truncated. */
+export function RecordSecondaryContent({ copy, attachmentIcon, primitives = { Box: 'span', Text: 'span' } }: {
+  copy?: ReactNode;
+  attachmentIcon?: ReactNode;
+  primitives?: { Box: ElementType; Text: ElementType };
+}) {
+  const { Box, Text } = primitives;
+  return (
+    <Fragment>
+      {copy && <Text className="bill-record-secondary__copy">{copy}</Text>}
+      {attachmentIcon && <Box className="bill-record-secondary__attachment">{attachmentIcon}</Box>}
+    </Fragment>
+  );
 }
