@@ -40,6 +40,7 @@ import {
   useMotionPreference,
 } from '@/shared/ui';
 import { KEYPAD_LAYOUT } from '../model/constants';
+import { useNoteKeyboardViewport } from '../model/useNoteKeyboardViewport';
 import { RecordEditorImagesPanel } from './RecordEditorImagesPanel';
 import { RecordLocationPicker } from './RecordLocationPicker';
 import './record-editor-presentation.scss';
@@ -92,30 +93,12 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
   const [tagSearch, setTagSearch] = useState('');
   const [draftTagIds, setDraftTagIds] = useState<string[]>(() => controller.tagPickerDraftIds ?? controller.selectedTagIds);
   const [expandedCategoryId, setExpandedCategoryId] = useState<number>();
-  useEffect(() => {
-    if (!controller.isNoteFocused) {
-      editorPageRef.current?.style.removeProperty('height');
-      editorPageRef.current?.style.removeProperty('top');
-      return;
-    }
-    const updateViewport = () => {
-      const viewport = window.visualViewport;
-      const page = editorPageRef.current;
-      if (!page)
-        return;
-      page.style.height = `${viewport?.height ?? window.innerHeight}px`;
-      page.style.top = `${viewport?.offsetTop ?? 0}px`;
-    };
-    updateViewport();
-    window.visualViewport?.addEventListener('resize', updateViewport);
-    window.visualViewport?.addEventListener('scroll', updateViewport);
-    window.addEventListener('resize', updateViewport);
-    return () => {
-      window.visualViewport?.removeEventListener('resize', updateViewport);
-      window.visualViewport?.removeEventListener('scroll', updateViewport);
-      window.removeEventListener('resize', updateViewport);
-    };
-  }, [controller.isNoteFocused]);
+  const { handleExitNote, handleFocusNote } = useNoteKeyboardViewport({
+    inputRef: noteInputRef,
+    isNoteFocused: controller.isNoteFocused,
+    pageRef: editorPageRef,
+    setIsNoteFocused: controller.setIsNoteFocused,
+  });
   const rootCategories = useMemo(
     () => categories.filter(category => !category.parentId),
     [categories],
@@ -602,9 +585,9 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 className="min-w-0 w-full select-text border-0 bg-transparent py-1 text-[13px] leading-5 text-ww-ink outline-none placeholder:text-ww-mid [-webkit-user-select:text]"
                 autoComplete="off"
                 enterKeyHint="done"
-                onBlur={() => controller.setIsNoteFocused(false)}
+                onBlur={handleExitNote}
                 onChange={event => controller.setRemark(event.target.value)}
-                onFocus={() => controller.setIsNoteFocused(true)}
+                onFocus={handleFocusNote}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' && hasValidSelectedCategory && !controller.isSubmitting && !controller.isImageUploading && !controller.hasImageUploadError) {
                     event.stopPropagation();
@@ -619,10 +602,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
             <button
               aria-label={`${t('record:bookkeeping.amount')}：${controller.calculator.totals}`}
               className="flex min-h-11 min-w-0 max-w-[72%] items-center justify-end text-right"
-              onClick={() => {
-                noteInputRef.current?.blur();
-                controller.setIsNoteFocused(false);
-              }}
+              onClick={handleExitNote}
               type="button"
             >
               <span

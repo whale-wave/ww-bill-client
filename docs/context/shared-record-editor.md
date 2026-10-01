@@ -35,3 +35,29 @@ Personal record mutations invalidate personal records, bills, charts,
 budgets, navigation counts, and household record/calendar/chart/budget
 aggregates. Scoped record mutations invalidate the matching ledger's records,
 charts, budgets, and navigation count where applicable.
+
+## Note keyboard dismissal
+
+`isNoteFocused` controls note mode, which hides the custom amount keypad and
+detail action strip. Android's system Back button or IME dismiss button can
+hide the system keyboard without blurring the HTML input. The editor therefore
+uses `useNoteKeyboardViewport` to detect viewport recovery independently of
+`onBlur`.
+
+- Keep an idle viewport height baseline (`visualViewport.height`, falling back
+  to `innerHeight`). Capture it when entering note mode.
+- Arm dismissal detection only after the viewport shrinks by more than 120px.
+  Restore the keypad when height returns within 48px of the baseline and stays
+  unchanged for 150ms. Duplicate resize/scroll notifications do not extend the
+  delay; height changes or another keyboard opening cancel pending restoration.
+- Keyboard dismissal, amount clicks and natural blur share the exit handler:
+  blur the input, reset note mode, remove temporary page height/top and keep
+  the note, amount and category unchanged.
+- Rotation exits note mode and re-establishes the idle baseline, because the
+  previous portrait/landscape height is no longer comparable. Unmount removes
+  viewport/window listeners, timers and temporary styles.
+
+This is a viewport-based fallback, not a native keyboard visibility API. Devices
+whose IME does not change viewport height still need native hide-event detection.
+Android feedback-device and iOS verification remain pending; see the
+[execution record](../execution/2026-10-01-note-keyboard-restoration.md).

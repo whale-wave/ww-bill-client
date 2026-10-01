@@ -4,6 +4,9 @@
 
 ## 文档入口
 
+- [安卓备注输入法收起恢复数字键盘执行记录](./execution/2026-10-01-note-keyboard-restoration.md)
+- [共享记账编辑器与输入法恢复约定](./context/shared-record-editor.md)
+
 - [登录过渡与延迟加载修复记录](./context/login-transition.md)
 
 - [分类管理子分类宫格调整](./context/category-management-grid.md)

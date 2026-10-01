@@ -157,6 +157,8 @@ afterEach(() => {
   Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: originalCreateObjectUrl });
   Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: originalRevokeObjectUrl });
   vi.clearAllMocks();
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
 });
 
 function TestEditor({
@@ -211,6 +213,183 @@ function TestEditor({
 }
 
 describe('record editor presentation', () => {
+  function mountKeyboardEditor(useVisualViewport = true) {
+    vi.useFakeTimers();
+    let height = 800;
+    const viewport = Object.assign(new EventTarget(), {
+      offsetTop: 0,
+    });
+    Object.defineProperty(viewport, 'height', { get: () => height });
+    vi.stubGlobal('visualViewport', useVisualViewport ? viewport : undefined);
+    vi.stubGlobal('innerHeight', 800);
+    const container = document.createElement('div');
+    document.body.append(container);
+    const root = createRoot(container);
+    act(() => root.render(createElement(TestEditor, { remarkHistory: ['午餐'] })));
+    cleanup = () => {
+      act(() => root.unmount());
+      container.remove();
+    };
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-category="1"]')!.click());
+    const input = container.querySelector<HTMLInputElement>('[data-record-editor-note] input')!;
+    const page = container.querySelector<HTMLElement>('[data-record-editor-presentation]')!;
+    const keypad = container.querySelector<HTMLElement>('[data-record-editor-keypad]')!;
+    const resize = (nextHeight: number) => {
+      height = nextHeight;
+      act(() => {
+        if (useVisualViewport) {
+          viewport.dispatchEvent(new Event('resize'));
+        }
+        else {
+          vi.stubGlobal('innerHeight', nextHeight);
+          window.dispatchEvent(new Event('resize'));
+        }
+      });
+    };
+    const advance = (ms: number) => act(() => vi.advanceTimersByTime(ms));
+    const setHeightWithoutResize = (nextHeight: number) => {
+      height = nextHeight;
+    };
+    return { advance, container, input, keypad, page, resize, setHeightWithoutResize, viewport };
+  }
+
+  it.each([true, false])('restores the keypad after Android hides the IME while the input stays focused (visualViewport=%s)', (useVisualViewport) => {
+    const { advance, container, input, keypad, page, resize, viewport } = mountKeyboardEditor(useVisualViewport);
+    const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+    act(() => Array.from(keypad.querySelectorAll<HTMLButtonElement>('button')).find(button => button.textContent === '7')!.click());
+    const amountBeforeNote = container.querySelector('[data-record-editor-total]')?.textContent;
+    act(() => input.focus());
+    act(() => {
+      setValue.call(input, '午餐备注');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    viewport.offsetTop = 24;
+    resize(470);
+    expect(keypad.classList).toContain('hidden');
+    expect(document.activeElement).toBe(input);
+    expect(page.style.height).toBe('470px');
+    expect(page.style.top).toBe(useVisualViewport ? '24px' : '0px');
+    resize(800);
+    advance(100);
+    act(() => {
+      window.dispatchEvent(new Event('resize'));
+      viewport.dispatchEvent(new Event('scroll'));
+    });
+    advance(49);
+    expect(keypad.classList).toContain('hidden');
+    advance(1);
+    expect(document.activeElement).not.toBe(input);
+    expect(keypad.classList).not.toContain('hidden');
+    expect(container.querySelector('[data-record-editor-action-strip]')?.classList).not.toContain('hidden');
+    expect(container.querySelector('[data-record-editor-remark-history]')).toBeNull();
+    expect(page.classList).not.toContain('record-editor-note-mode');
+    expect(page.style.height).toBe('');
+    expect(page.style.top).toBe('');
+    expect(input.value).toBe('午餐备注');
+    expect(container.querySelector('[data-record-editor-amount]')?.textContent).toContain('餐饮');
+    expect(container.querySelector('[data-record-editor-total]')?.textContent).toBe(amountBeforeNote);
+    act(() => Array.from(keypad.querySelectorAll<HTMLButtonElement>('button')).find(button => button.textContent === '8')!.click());
+    expect(container.querySelector('[data-record-editor-total]')?.textContent).toContain('78');
+  });
+
+  it('waits for keyboard opening and stable recovery instead of closing during delayed opening or height changes', () => {
+    const { advance, input, keypad, resize } = mountKeyboardEditor();
+    act(() => input.focus());
+    resize(780);
+    advance(1000);
+    expect(document.activeElement).toBe(input);
+    expect(keypad.classList).toContain('hidden');
+    resize(470);
+    resize(530);
+    advance(1000);
+    expect(keypad.classList).toContain('hidden');
+    resize(800);
+    advance(100);
+    resize(760);
+    advance(100);
+    expect(keypad.classList).toContain('hidden');
+    resize(470);
+    advance(200);
+    expect(keypad.classList).toContain('hidden');
+    resize(760);
+    advance(150);
+    expect(keypad.classList).not.toContain('hidden');
+  });
+
+  it('resets keyboard detection on repeated focus and restores immediately on amount click or natural blur', () => {
+    const { advance, container, input, keypad, page, resize } = mountKeyboardEditor();
+    act(() => input.focus());
+    resize(470);
+    resize(800);
+    advance(100);
+    act(() => container.querySelector<HTMLButtonElement>('[data-record-editor-entry-row] > button')!.click());
+    expect(keypad.classList).not.toContain('hidden');
+    expect(page.style.height).toBe('');
+    act(() => input.focus());
+    advance(1000);
+    expect(document.activeElement).toBe(input);
+    expect(keypad.classList).toContain('hidden');
+    resize(470);
+    resize(800);
+    advance(150);
+    expect(keypad.classList).not.toContain('hidden');
+    act(() => input.focus());
+    act(() => input.blur());
+    expect(keypad.classList).not.toContain('hidden');
+    expect(page.style.top).toBe('');
+  });
+
+  it('rechecks viewport stability when a height change precedes its resize notification', () => {
+    const { advance, input, keypad, resize, setHeightWithoutResize } = mountKeyboardEditor();
+    act(() => input.focus());
+    resize(470);
+    resize(800);
+    advance(100);
+    setHeightWithoutResize(760);
+    advance(50);
+    expect(keypad.classList).toContain('hidden');
+    advance(149);
+    expect(keypad.classList).toContain('hidden');
+    advance(1);
+    expect(keypad.classList).not.toContain('hidden');
+  });
+
+  it('leaves note mode on rotation and uses the new idle height on subsequent focus', () => {
+    const { advance, input, keypad, resize } = mountKeyboardEditor();
+    act(() => input.focus());
+    resize(470);
+    act(() => window.dispatchEvent(new Event('orientationchange')));
+    resize(420);
+    expect(keypad.classList).not.toContain('hidden');
+    act(() => input.focus());
+    advance(1000);
+    expect(keypad.classList).toContain('hidden');
+    resize(250);
+    resize(420);
+    advance(150);
+    expect(keypad.classList).not.toContain('hidden');
+  });
+
+  it('cleans viewport listeners, temporary styles and pending recovery on unmount', () => {
+    const { advance, input, page, resize, viewport } = mountKeyboardEditor();
+    const removeViewportListener = vi.spyOn(viewport, 'removeEventListener');
+    const removeWindowListener = vi.spyOn(window, 'removeEventListener');
+    act(() => input.focus());
+    resize(470);
+    resize(800);
+    const blur = vi.spyOn(input, 'blur');
+    cleanup?.();
+    cleanup = undefined;
+    expect(page.style.height).toBe('');
+    expect(page.style.top).toBe('');
+    expect(removeViewportListener).toHaveBeenCalledWith('resize', expect.any(Function));
+    expect(removeViewportListener).toHaveBeenCalledWith('scroll', expect.any(Function));
+    expect(removeWindowListener).toHaveBeenCalledWith('resize', expect.any(Function));
+    expect(removeWindowListener).toHaveBeenCalledWith('orientationchange', expect.any(Function));
+    advance(150);
+    expect(blur).not.toHaveBeenCalled();
+  });
+
   it('opens the device image picker directly when the draft has no images', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
