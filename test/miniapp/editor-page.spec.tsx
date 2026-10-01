@@ -1,6 +1,7 @@
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import Taro from './mocks/taro';
 
 vi.mock('../../miniapp/src/features/auth', () => ({ useAuthGate: () => true }));
 vi.mock('../../miniapp/src/features/record-create', () => ({ useCreateRecord: () => ({ isLoading: false }) }));
@@ -72,5 +73,17 @@ describe('miniapp editor presentation', () => {
     expect(operator.disabled).toBe(false);
     expect(operator.classList).not.toContain('record-editor-keypad__disabled');
     expect(page.querySelector('.record-editor-keypad__submit--disabled')).not.toBeNull();
+  });
+  it('returns from note input to the amount keypad', () => {
+    const hideKeyboard = vi.spyOn(Taro, 'hideKeyboard');
+    const page = renderPage();
+    act(() => page.querySelector('input')?.dispatchEvent(new FocusEvent('focusin', { bubbles: true })));
+    expect(page.querySelector('[data-record-editor-keypad]')).toBeNull();
+    expect(page.querySelector('.create-form__pickers')).toBeNull();
+    click(page.querySelector('.bill-record-entry__amount-control'));
+    expect(page.querySelector('[data-record-editor-keypad]')).not.toBeNull();
+    expect(page.querySelector('.create-form__pickers')).not.toBeNull();
+    expect(hideKeyboard).toHaveBeenCalledTimes(1);
+    hideKeyboard.mockRestore();
   });
 });

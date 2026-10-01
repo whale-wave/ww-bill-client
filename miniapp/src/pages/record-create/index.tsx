@@ -66,6 +66,11 @@ export default function RecordCreatePage() {
     setFormError('')
   }
 
+  function handleAmountFocus() {
+    setIsNoteFocused(false)
+    void Taro.hideKeyboard().catch(() => undefined)
+  }
+
   async function handleSubmit() {
     if (isSubmitting.current)
       return
@@ -161,22 +166,22 @@ export default function RecordCreatePage() {
       </RecordCategoryGrid></View>
       </ScrollView>
       <View className='create-form'>
-        <View className='row create-form__pickers'>
+        {!isNoteFocused && <View className='row create-form__pickers'>
           <Picker mode='date' value={selectedDate} end={dateKey(new Date())} onChange={event => setSelectedDate(event.detail.value)}><View className='record-editor-detail-chip'><RecordDetailChipContent primitive={Text} icon={<DesignIcon name='editor-date' size={17} tone='category' />}>{selectedDate === dateKey(new Date()) ? '今天' : selectedDate}</RecordDetailChipContent></View></Picker>
           <Picker mode='time' value={selectedTime} onChange={event => setSelectedTime(event.detail.value)}><View className='record-editor-detail-chip'><RecordDetailChipContent primitive={Text} icon={<DesignIcon name='editor-time' size={17} tone='category' />}>{selectedTime}</RecordDetailChipContent></View></Picker>
-        </View>
+        </View>}
         <RecordEntryRow
           caption={selectedCategory ? `${selectedCategory.path ?? selectedCategory.name} · ${recordType === 'sub' ? '支出' : '收入'}` : '选择分类'}
           primitives={{ Box: View, Note: View, Text }}
-          noteInput={<Input className='bill-record-entry__note-input' value={remark} placeholder='写个备注吧...' onFocus={() => setIsNoteFocused(true)} onBlur={() => setIsNoteFocused(false)} onInput={event => setRemark(event.detail.value)} />}
+          noteInput={<Input className='bill-record-entry__note-input' focus={isNoteFocused} value={remark} placeholder='写个备注吧...' onFocus={() => setIsNoteFocused(true)} onBlur={() => setIsNoteFocused(false)} onInput={event => setRemark(event.detail.value)} />}
           amountControl={(
-            <View className='bill-record-entry__amount-control'>
+            <Button className='bill-record-entry__amount-control' aria-label={`金额：${amount || '0.00'}`} onClick={handleAmountFocus}>
               <RecordAmountVisual
                 value={amount || '0.00'}
                 primitives={{ Box: View, Text }}
 
               />
-            </View>
+            </Button>
           )}
         />
         {formError && <Text className='error-text'>{formError}</Text>}

@@ -8,6 +8,7 @@ const Taro = {
     };
     return query;
   },
+  hideKeyboard: async () => undefined,
   navigateTo: async () => undefined,
   stopPullDownRefresh: async () => undefined,
   switchTab: async () => undefined,
