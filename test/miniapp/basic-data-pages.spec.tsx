@@ -32,7 +32,7 @@ vi.mock('../../miniapp/src/entities/chart', () => ({
     data: {
       categories: [{ amount: '32.50', key: 'food', name: '餐饮' }],
       summary: { expense: '32.50', income: '5000', net: '4967.50', averageDailyExpense: '1.08' },
-      timeline: [{ key: '2026-10-01', expense: '32.50' }, { key: '2026-10-02', expense: '0.00' }],
+      timeline: [{ key: '2026-10-01', expense: '32.50', income: '5000', net: '4967.50' }, { key: '2026-10-02', expense: '0.00', income: '0', net: '0' }],
     },
     isError: false,
     isLoading: false,
@@ -92,12 +92,18 @@ describe('miniapp basic data pages', () => {
 
   it('shows the chart summary and expense category', () => {
     const page = renderPage(ChartPage);
-    expect(page.textContent).toContain('¥4967.50');
+    expect(page.textContent).toContain('¥4,967.50');
     expect(page.textContent).toContain('餐饮');
     expect(page.textContent).toContain('¥32.50');
-    expect(page.textContent).toContain('日均¥1.08');
+    expect(page.textContent).toContain('日均支出¥1.08');
     expect(page.querySelector('.bill-chart-trend')?.getAttribute('src')).toMatch(/^data:image\/svg\+xml,/);
     expect(page.textContent).not.toContain('趋势图暂时无法显示');
+    const expenseSource = page.querySelector('.bill-chart-trend')?.getAttribute('src');
+    const incomeSwitch = Array.from(page.querySelectorAll('.bill-dashboard-switch button')).find(button => button.textContent === '收入');
+    act(() => incomeSwitch?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(incomeSwitch?.getAttribute('aria-pressed')).toBe('true');
+    expect(page.querySelector('.bill-chart-trend')?.getAttribute('src')).not.toBe(expenseSource);
+    expect(page.textContent).toContain('日均: ¥2,500.00');
   });
 
   it('shows the current bill on discover', () => {

@@ -3,6 +3,7 @@ export * from './appearance';
 export * from './calculator';
 export * from './category-background';
 export * from './category-tree';
+export * from './chart-geometry';
 export { withColorAlpha } from './color';
 export * from './fit-metric-font';
 export * from './progress';

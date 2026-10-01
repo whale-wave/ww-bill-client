@@ -1,8 +1,18 @@
+import { formatDashboardAmount, getCategoryDonutSlices } from '@ww-bill/bill-core';
 import { describe, expect, it } from 'vitest';
 import { buildAssetTrendGeometry, buildTrendGeometry, formatChartPercent, getLatestAssetValue } from '@/widgets/chart-dashboard/model/dashboard-chart';
 import { resolveChartAccountFilter } from '@/widgets/chart-dashboard/model/query-params';
 
 describe('dashboard chart geometry', () => {
+  it('keeps the other ring segment and grouped currency identical across hosts', () => {
+    const slices = getCategoryDonutSlices(Array.from({ length: 6 }, () => ({ amount: '10' })));
+    expect(slices).toHaveLength(6);
+    expect(slices[5].start).toBeCloseTo(5 / 6);
+    expect(slices[5].end).toBe(1);
+    expect(getCategoryDonutSlices([])).toEqual([{ colorIndex: 5, start: 0, end: 1 }]);
+    expect(formatDashboardAmount('-1234.5')).toBe('¥-1,234.50');
+    expect(formatDashboardAmount('1234.5', true)).toBe('••••');
+  });
   it('drops legacy account filters for custom ledgers while preserving supported scopes', () => {
     expect(resolveChartAccountFilter('ledger', 'asset-1')).toBeUndefined();
     expect(resolveChartAccountFilter('personal', 'asset-1')).toBe('asset-1');

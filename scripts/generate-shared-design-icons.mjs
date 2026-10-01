@@ -29,7 +29,7 @@ for (const theme of ['glass', 'fresh', 'minimal']) {
     ${theme !== 'glass' ? `@include t.appearance-${theme};` : ''}
   }`, { loadPaths: [resolve(root, 'packages/bill-ui/src/styles')] }).css;
   const values = Object.fromEntries([...css.matchAll(/(--[\w-]+):([^;]+);/g)].map(([, name, value]) => [name, value.trim()]));
-  chartColors[theme] = { accent: values['--ww-theme-color-mid'], inverse: '#ffffff' };
+  chartColors[theme] = { accent: values['--ww-theme-color-mid'], inverse: '#ffffff', series: Array.from({ length: 6 }, (_, index) => values[`--ww-chart-${index + 1}`]), border: values['--ww-border-color'] };
   appearanceColors[theme] = {
     active: values['--ww-theme-color-deep'],
     inactive: values['--ww-text-color-ghost'],
@@ -41,6 +41,8 @@ for (const theme of ['glass', 'fresh', 'minimal']) {
 }
 
 function toSource(value, indent = 0) {
+  if (Array.isArray(value))
+    return `[${value.map(nested => toSource(nested, indent)).join(', ')}]`;
   if (typeof value === 'string')
     return `'${value.replaceAll('\\', '\\\\').replaceAll('\'', '\\\'')}'`;
   const entries = Object.entries(value).map(([name, nested]) => `${' '.repeat(indent + 2)}${name}: ${toSource(nested, indent + 2)},`);

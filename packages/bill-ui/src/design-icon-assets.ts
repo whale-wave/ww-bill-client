@@ -140,13 +140,19 @@ export const chartPresentationColors = {
   glass: {
     accent: '#2788aa',
     inverse: '#ffffff',
+    series: ['#394d60', '#596b7b', '#798896', '#99a4ae', '#b8c0c7', '#d4d8dc'],
+    border: 'rgba(20, 20, 24, 0.07)',
   },
   fresh: {
     accent: '#4aaac4',
     inverse: '#ffffff',
+    series: ['#4aaac4', '#f0a0b8', '#a996dc', '#79c6a8', '#efbc70', '#6e9fdb'],
+    border: 'rgba(73, 112, 129, 0.14)',
   },
   minimal: {
     accent: '#6d829d',
     inverse: '#ffffff',
+    series: ['#52657e', '#8798aa', '#7b94a0', '#99a878', '#b49a74', '#8b83a9'],
+    border: 'color-mix(in srgb, var(--ww-theme-color) 20%, #d9dde3)',
   },
 } as const;

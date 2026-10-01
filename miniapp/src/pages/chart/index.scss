@@ -1,5 +1,5 @@
-.chart-month { min-height: 44px; font-size: 17px; font-weight: 700; margin-bottom: 12px; }
-.chart-summary { display: flex; flex-direction: column; gap: 12px; }
-.chart-summary__net { font-size: 30px; }
-
-.chart-balances { margin-top:14px; }
+.chart-page { padding-top: 0; padding-left: 16px; padding-right: 16px; }
+.chart-page .bill-dashboard-heading { margin-left: -16px; margin-right: -16px; }
+.chart-month { min-height: 44px; margin-bottom: 12px; }
+.chart-section { margin-bottom: 12px; }
+.bill-dashboard-trend > .bill-chart-trend { display: block; width: 100%; height: 100%; }

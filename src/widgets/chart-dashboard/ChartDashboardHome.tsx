@@ -1,6 +1,8 @@
 import type { FC } from 'react';
 import type { ChartDashboardMetric, ChartDashboardScope } from './model/useChartDashboardUrlState';
 import type { ChartDashboardPeriod, ChartDashboardResult } from '@/entities/chart';
+import { getCategoryDonutSlices, getChartAverage, formatDashboardAmount as money } from '@ww-bill/bill-core';
+import { DashboardCategoriesVisual, DashboardCategoryRowContent, DashboardDonutLabel, DashboardHeadingVisual, DashboardSummaryVisual, DashboardTrendVisual } from '@ww-bill/bill-ui';
 import { addDays, addMonths, addYears } from 'date-fns';
 import { ChevronDown, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -23,23 +25,10 @@ import { ChartDashboardPeriodSheet } from './ui/ChartDashboardPeriodSheet';
 import { ChartDashboardSwitch } from './ui/ChartDashboardSwitch';
 import './chart-dashboard.scss';
 
-const money = (value: string, hidden: boolean) => hidden ? '••••' : `¥${Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
 function categoryDonutGradient(categories: NonNullable<ChartDashboardResult['categories']>) {
-  const colors = Array.from({ length: 5 }, (_, index) => `var(--ww-chart-${index + 1})`);
-  const visible = categories.slice(0, 5);
-  const total = categories.reduce((sum, item) => sum + Number(item.amount), 0);
-  if (!visible.length)
+  if (!categories.length)
     return 'conic-gradient(var(--ww-border-color) 0 100%)';
-  let accumulated = 0;
-  const slices = visible.map((item, index) => {
-    const start = accumulated / Math.max(total, 0.01) * 100;
-    accumulated += Number(item.amount);
-    const end = accumulated / Math.max(total, 0.01) * 100;
-    return `${colors[index]} ${start}% ${end}%`;
-  });
-  slices.push(`var(--ww-chart-6) ${accumulated / Math.max(total, 0.01) * 100}% 100%`);
-  return `conic-gradient(${slices.join(', ')})`;
+  return `conic-gradient(${getCategoryDonutSlices(categories).map(slice => `var(--ww-chart-${slice.colorIndex + 1}) ${slice.start * 100}% ${slice.end * 100}%`).join(', ')})`;
 }
 
 export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?: ChartDashboardPeriod; hideAmounts?: boolean }> = ({ scope, defaultPeriod, hideAmounts = false }) => {
@@ -85,7 +74,7 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
   const canReadTags = scope.kind === 'household' ? householdFilterOptions.data.capabilities.tag : recordFilterOptions.data.capabilities.tag;
   const data = query.data;
   const chartValues = useMemo(() => data?.timeline.map(point => Number(point[metric])) ?? [], [data, metric]);
-  const chartAverage = chartValues.length ? chartValues.reduce((sum, value) => sum + value, 0) / chartValues.length : 0;
+  const chartAverage = getChartAverage(chartValues);
   const trend = useMemo(() => buildTrendGeometry(chartValues), [chartValues]);
   const selectedCategories = metric === 'income' ? data?.incomeCategories ?? [] : data?.categories ?? [];
   const gradient = categoryDonutGradient(selectedCategories);
@@ -203,11 +192,8 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-canvas text-ww-ink" data-chart-dashboard data-hide-amounts={hideAmounts}>
-      <header className="flex shrink-0 items-center justify-between px-[var(--ww-space-xl)] pb-[var(--ww-space-xs)] pt-[max(10px,var(--ww-safe-area-top))]">
-        <h1 className="text-[22px] font-extrabold">{t('dashboard.title')}</h1>
-        <AppButton aria-label={t('dashboard.filter')} className="min-w-[var(--ww-component-button-hit-target-min)]" onClick={openFilter} size="compact" variant="secondary"><SlidersHorizontal size={18} /></AppButton>
-      </header>
+    <div className="bill-dashboard-canvas flex h-full min-h-0 flex-col" data-chart-dashboard data-hide-amounts={hideAmounts}>
+      <DashboardHeadingVisual title={t('dashboard.title')} actions={<AppButton aria-label={t('dashboard.filter')} className="min-w-[var(--ww-component-button-hit-target-min)]" onClick={openFilter} size="compact" variant="secondary"><SlidersHorizontal size={18} /></AppButton>} />
       <ChartDashboardSwitch
         className="mx-[var(--ww-space-lg)] shrink-0"
         label={t('dashboard.range')}
@@ -313,93 +299,73 @@ export const ChartDashboardHome: FC<{ scope: ChartDashboardScope; defaultPeriod?
         {query.isLoading && !data && <div className="h-40 animate-pulse rounded-3xl bg-ww-surface" />}
         {data && (
           <>
-            <Surface className="p-4" material="content">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-bold">{t('dashboard.summary')}</h2>
-                <span className="text-xs text-ww-soft">{t('dashboard.days', { count: data.summary.dayCount })}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  ['expense', t('dashboard.expense'), data.summary.expense, 'text-ww-ink'],
-                  ['income', t('dashboard.income'), data.summary.income, 'text-primary-deep'],
-                  ['net', t('dashboard.net'), data.summary.net, 'text-ww-ink'],
-                  ['average', t('dashboard.dailyAverage'), data.summary.averageDailyExpense, 'text-ww-mid'],
-                ].map(([summaryMetric, label, amount, color]) => (
-                  <div key={summaryMetric} className="ww-chart-summary-tile rounded-2xl bg-ww-surface-tint p-3" data-summary-metric={summaryMetric}>
-                    <div className="text-xs text-ww-soft">{label}</div>
-                    <div className={`ww-chart-summary-amount mt-1 font-number text-lg font-semibold ${color}`}>{money(amount, hideAmounts)}</div>
-                  </div>
-                ))}
-              </div>
+            <Surface className="bill-dashboard-section" material="content">
+              <DashboardSummaryVisual
+                title={t('dashboard.summary')}
+                period={t('dashboard.days', { count: data.summary.dayCount })}
+                items={[
+                  { key: 'expense', label: t('dashboard.expense'), amount: money(data.summary.expense, hideAmounts), tone: 'normal' },
+                  { key: 'income', label: t('dashboard.income'), amount: money(data.summary.income, hideAmounts), tone: 'income' },
+                  { key: 'net', label: t('dashboard.net'), amount: money(data.summary.net, hideAmounts), tone: 'normal' },
+                  { key: 'average', label: t('dashboard.dailyAverage'), amount: money(data.summary.averageDailyExpense, hideAmounts), tone: 'muted' },
+                ]}
+              />
             </Surface>
-            <Surface className="p-4" data-dashboard-section="trend" material="content">
-              <div className="mb-[var(--ww-space-sm)] flex flex-wrap items-center justify-between gap-[var(--ww-space-sm)]">
-                <h2 className="shrink-0 font-bold">{t('dashboard.trend')}</h2>
-                <ChartDashboardSwitch label={t('dashboard.trend')} options={(['expense', 'income', 'net'] as ChartDashboardMetric[]).map(item => ({ label: t(`dashboard.${item}`), value: item }))} value={metric} onChange={item => setValue('metric', item)} />
-              </div>
-              <div className="h-28 border-b border-dashed border-border-primary px-1">
-                <div className="relative h-full w-full">
-                  <svg aria-label={t('dashboard.trend')} className="h-full w-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
-                    <line x1="0" x2="100" y1={trend.zeroY} y2={trend.zeroY} stroke="var(--ww-border-color)" strokeDasharray="2 3" strokeWidth="0.7" />
-                    <line x1="0" x2="100" y1="8" y2="8" stroke="var(--ww-border-color)" strokeDasharray="2 3" strokeWidth="0.7" />
-                    <line x1="0" x2="100" y1="92" y2="92" stroke="var(--ww-border-color)" strokeDasharray="2 3" strokeWidth="0.7" />
-                    {trend.path && (
-                      <>
-                        <path d={`${trend.path} L 100 ${trend.zeroY} L 0 ${trend.zeroY} Z`} fill={metric === 'income' ? 'color-mix(in srgb, var(--ww-chart-2) 14%, transparent)' : 'color-mix(in srgb, var(--ww-chart-1) 14%, transparent)'} />
-                        <path d={trend.path} fill="none" stroke={metric === 'income' ? 'var(--ww-chart-2)' : metric === 'net' ? 'var(--ww-chart-3)' : 'var(--ww-chart-1)'} strokeWidth="1.8" vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
-                      </>
-                    )}
-                  </svg>
-                  {trend.points.map((point, index) => (
-                    <span
-                      aria-label={`${data.timeline[index].label ?? data.timeline[index].key} ${money(String(chartValues[index]), hideAmounts)}`}
-                      className="absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-ww-surface-raised"
-                      key={data.timeline[index].key}
-                      role="img"
-                      style={{ backgroundColor: metric === 'income' ? 'var(--ww-chart-2)' : metric === 'net' ? 'var(--ww-chart-3)' : 'var(--ww-chart-1)', left: `${point.x}%`, top: `${point.y}%` }}
+            <Surface className="bill-dashboard-section" data-dashboard-section="trend" material="content">
+              <DashboardTrendVisual
+                title={t('dashboard.trend')}
+                controls={<ChartDashboardSwitch label={t('dashboard.trend')} options={(['expense', 'income', 'net'] as ChartDashboardMetric[]).map(item => ({ label: t(`dashboard.${item}`), value: item }))} value={metric} onChange={item => setValue('metric', item)} />}
+                chart={(
+                  <div className="relative h-full w-full">
+                    <svg aria-label={t('dashboard.trend')} className="h-full w-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
+                      <line x1="0" x2="100" y1={trend.zeroY} y2={trend.zeroY} stroke="var(--ww-border-color)" strokeDasharray="2 3" strokeWidth="0.7" />
+                      <line x1="0" x2="100" y1="8" y2="8" stroke="var(--ww-border-color)" strokeDasharray="2 3" strokeWidth="0.7" />
+                      <line x1="0" x2="100" y1="92" y2="92" stroke="var(--ww-border-color)" strokeDasharray="2 3" strokeWidth="0.7" />
+                      {trend.path && (
+                        <>
+                          <path d={`${trend.path} L 100 ${trend.zeroY} L 0 ${trend.zeroY} Z`} fill={metric === 'income' ? 'color-mix(in srgb, var(--ww-chart-2) 14%, transparent)' : 'color-mix(in srgb, var(--ww-chart-1) 14%, transparent)'} />
+                          <path d={trend.path} fill="none" stroke={metric === 'income' ? 'var(--ww-chart-2)' : metric === 'net' ? 'var(--ww-chart-3)' : 'var(--ww-chart-1)'} strokeWidth="1.8" vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
+                        </>
+                      )}
+                    </svg>
+                    {trend.points.map((point, index) => (
+                      <span
+                        aria-label={`${data.timeline[index].label ?? data.timeline[index].key} ${money(String(chartValues[index]), hideAmounts)}`}
+                        className="absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-ww-surface-raised"
+                        key={data.timeline[index].key}
+                        role="img"
+                        style={{ backgroundColor: metric === 'income' ? 'var(--ww-chart-2)' : metric === 'net' ? 'var(--ww-chart-3)' : 'var(--ww-chart-1)', left: `${point.x}%`, top: `${point.y}%` }}
+                      />
+                    ))}
+                  </div>
+                )}
+                start={data.timeline[0]?.label ?? data.timeline[0]?.key}
+                average={`${t('dashboard.averageBy', { unit: t(`dashboard.unit${data.grain[0].toUpperCase()}${data.grain.slice(1)}`) })}: ${money(String(chartAverage), hideAmounts)}`}
+                end={data.timeline.at(-1)?.label ?? data.timeline.at(-1)?.key}
+              />
+            </Surface>
+            <Surface className="bill-dashboard-section" data-dashboard-section="categories" material="content">
+              <DashboardCategoriesVisual
+                title={t('dashboard.categories')}
+                donut={(
+                  <>
+                    <div aria-label={t('dashboard.categories')} className="bill-dashboard-donut__graph" style={{ background: gradient }} />
+                    <DashboardDonutLabel label={t(metric === 'income' ? 'dashboard.totalIncome' : 'dashboard.totalExpense')} amount={money(metric === 'income' ? data.summary.income : data.summary.expense, hideAmounts)} />
+                  </>
+                )}
+                rows={selectedCategories.map(item => (
+                  <button className="bill-dashboard-category-row" key={`${item.id ?? item.key}-${item.name}`} onClick={() => categoryRoute(item)} type="button">
+                    <DashboardCategoryRowContent
+                      icon={<span className="bill-dashboard-category-row__icon"><CategoryIcon categoryName={item.name} iconKey={item.icon ?? 'receipt'} iconType={item.iconType ?? 'BUILTIN'} textIconEnabled={item.textIconEnabled ?? false} textIconIndex={item.textIconIndex ?? 0} size={20} /></span>}
+                      label={item.name}
+                      amount={money(item.amount, hideAmounts)}
+                      percentage={formatChartPercent(item.percent ?? 0)}
                     />
-                  ))}
-                </div>
-              </div>
-              <div className="mt-2 flex justify-between text-[10px] text-ww-soft">
-                <span>{data.timeline[0]?.label ?? data.timeline[0]?.key}</span>
-                <span>
-                  {t('dashboard.averageBy', { unit: t(`dashboard.unit${data.grain[0].toUpperCase()}${data.grain.slice(1)}`) })}
-                  :
-                  {' '}
-                  {money(String(chartAverage), hideAmounts)}
-                </span>
-                <span>{data.timeline.at(-1)?.label ?? data.timeline.at(-1)?.key}</span>
-              </div>
-            </Surface>
-            <Surface className="p-4" data-dashboard-section="categories" material="content">
-              <h2 className="mb-4 font-bold">{t('dashboard.categories')}</h2>
-              <div className="flex items-center gap-4">
-                <div aria-label={t('dashboard.categories')} className="relative size-32 shrink-0 rounded-full" style={{ background: gradient }}>
-                  <div className="absolute inset-5 grid place-content-center rounded-full bg-ww-surface text-center">
-                    <span className="text-[10px] text-ww-soft">{t(metric === 'income' ? 'dashboard.totalIncome' : 'dashboard.totalExpense')}</span>
-                    <span className="font-number text-sm font-bold">{money(metric === 'income' ? data.summary.income : data.summary.expense, hideAmounts)}</span>
-                  </div>
-                </div>
-                <div className="min-w-0 flex-1 space-y-2">
-                  {selectedCategories.map(item => (
-                    <button className="flex min-h-11 w-full items-center gap-2 text-left text-xs" key={`${item.id ?? item.key}-${item.name}`} onClick={() => categoryRoute(item)} type="button">
-                      <CategoryIcon categoryName={item.name} iconKey={item.icon ?? 'receipt'} iconType={item.iconType ?? 'BUILTIN'} textIconEnabled={item.textIconEnabled ?? false} textIconIndex={item.textIconIndex ?? 0} size={20} />
-                      <span className="min-w-0 flex-1 truncate">{item.name}</span>
-                      <span className="font-number">{money(item.amount, hideAmounts)}</span>
-                      <span className="w-9 text-right text-ww-soft">{formatChartPercent(item.percent ?? 0)}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {selectedCategories.length > 5 && (
-                <div className="mt-3 border-t border-border-primary pt-2 text-xs text-ww-soft">
-                  {t('dashboard.other')}
-                  ：
-                  {money(String(selectedCategories.slice(5).reduce((sum, item) => sum + Number(item.amount), 0)), hideAmounts)}
-                </div>
-              )}
-              {selectedCategories.length === 0 && <div className="py-4 text-center text-sm text-ww-soft">{t('dashboard.noCategories')}</div>}
+                  </button>
+                ))}
+                other={selectedCategories.length > 5 ? `${t('dashboard.other')}：${money(String(selectedCategories.slice(5).reduce((sum, item) => sum + Number(item.amount), 0)), hideAmounts)}` : undefined}
+                empty={selectedCategories.length === 0 ? t('dashboard.noCategories') : undefined}
+              />
             </Surface>
             <Surface className="p-4" material="content">
               <h2 className="mb-3 font-bold">{t('dashboard.adjustments')}</h2>

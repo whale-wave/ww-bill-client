@@ -1,15 +1,1 @@
-.ww-chart-summary-tile[data-summary-metric='expense'] {
-  background: var(--ww-dashboard-expense-surface, var(--ww-surface-tint-color));
-
-  .ww-chart-summary-amount {
-    color: var(--ww-dashboard-expense-foreground, var(--ww-theme-text-color));
-  }
-}
-
-.ww-chart-summary-tile[data-summary-metric='income'] {
-  background: var(--ww-dashboard-income-surface, var(--ww-surface-tint-color));
-
-  .ww-chart-summary-amount {
-    color: var(--ww-dashboard-income-foreground, var(--ww-theme-color-deep));
-  }
-}
+// Dashboard presentation is supplied by @ww-bill/bill-ui/dashboard.

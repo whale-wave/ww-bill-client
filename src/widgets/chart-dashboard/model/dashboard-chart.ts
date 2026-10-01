@@ -1,23 +1,6 @@
 import type { PersonalAssetDashboardResult } from '@/entities/chart';
 
-export function buildTrendGeometry(values: number[]) {
-  const minimum = Math.min(0, ...values);
-  const maximum = Math.max(0, ...values);
-  const span = Math.max(1, maximum - minimum);
-  const zeroY = 92 - (0 - minimum) / span * 84;
-  const points = values.map((value, index) => ({
-    x: values.length <= 1 ? 50 : index / (values.length - 1) * 100,
-    y: 92 - (value - minimum) / span * 84,
-  }));
-  const path = points.length ? `M ${points.map(point => `${point.x} ${point.y}`).join(' L ')}` : '';
-  return { points, path, zeroY };
-}
-
-export function formatChartPercent(fraction: number) {
-  if (fraction > 0 && fraction * 100 < 0.05)
-    return '<0.1%';
-  return `${Math.round(fraction * 1000) / 10}%`;
-}
+export { buildTrendGeometry, formatChartPercent } from '@ww-bill/bill-core';
 
 export function getLatestAssetValue(
   timeline: PersonalAssetDashboardResult['timeline'],

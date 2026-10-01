@@ -1,0 +1,105 @@
+.bill-dashboard-categories__title {
+  margin-bottom: 16px;
+}
+.bill-dashboard-categories {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.bill-dashboard-donut {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+.bill-dashboard-donut__graph {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+.bill-dashboard-donut__center {
+  position: absolute;
+  inset: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--ww-surface-color);
+  text-align: center;
+}
+.bill-dashboard-donut__label {
+  display: block;
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--ww-text-color-soft);
+}
+.bill-dashboard-donut__amount {
+  display: block;
+  font-family: var(--bill-font-numeric);
+  font-size: var(--ww-font-size-sm, 12px);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.bill-dashboard-categories__rows {
+  min-width: 0;
+  flex: 1;
+}
+.bill-dashboard-category-row {
+  display: flex;
+  min-height: 44px;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  text-align: left;
+  font-size: var(--ww-font-size-xs, 11px);
+  line-height: 1.5;
+}
+.bill-dashboard-category-row + .bill-dashboard-category-row {
+  margin-top: 8px;
+}
+.bill-dashboard-category-row__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bill-dashboard-category-row__amount {
+  font-family: var(--bill-font-numeric);
+}
+.bill-dashboard-category-row__percentage {
+  width: 36px;
+  text-align: right;
+  color: var(--ww-text-color-soft);
+}
+.bill-dashboard-categories__other {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--ww-border-color);
+  color: var(--ww-text-color-soft);
+  font-size: var(--ww-font-size-xs, 11px);
+  line-height: 1.5;
+}
+.bill-dashboard-categories__empty {
+  padding: 16px 0;
+  text-align: center;
+  font-size: var(--ww-font-size-sm, 12px);
+  line-height: 1.5;
+  color: var(--ww-text-color-soft);
+}
+.bill-dashboard-category-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}

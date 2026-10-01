@@ -1,5 +1,17 @@
 import { api } from '../../shared/api'
 
+interface DashboardCategory {
+  id?: number | null
+  key?: string
+  name: string
+  amount: string
+  percent?: number
+  icon?: string | null
+  iconType?: 'BUILTIN' | 'IMAGE' | null
+  textIconEnabled?: boolean
+  textIconIndex?: number
+}
+
 export interface ChartDashboard {
   period: 'month'
   startDate: string
@@ -12,8 +24,8 @@ export interface ChartDashboard {
     dayCount: number
   }
   timeline: Array<{ key: string; label?: string; income: string; expense: string; net: string }>
-  categories: Array<{ id?: number | null; key?: string; name: string; amount: string; percent?: number }>
-  incomeCategories?: Array<{ id?: number | null; key?: string; name: string; amount: string; percent?: number }>
+  categories: DashboardCategory[]
+  incomeCategories?: DashboardCategory[]
 }
 
 export function getChartDashboard(anchorDate: string, signal?: AbortSignal) {

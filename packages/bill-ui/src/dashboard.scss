@@ -1,0 +1,162 @@
+.bill-dashboard-canvas,
+.page.bill-dashboard-canvas {
+  background: var(--ww-background-color);
+  color: var(--ww-theme-text-color);
+}
+.bill-dashboard-section {
+  padding: 16px;
+}
+.bill-dashboard-heading {
+  display: flex;
+  box-sizing: border-box;
+  min-height: 58px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: max(10px, var(--ww-safe-area-top, 0px)) var(--ww-space-xl) var(--ww-space-xs);
+}
+.bill-dashboard-heading__title {
+  display: block;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 33px;
+}
+.bill-dashboard-section__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.bill-dashboard-section__title {
+  display: block;
+  margin: 0;
+  font-size: var(--ww-font-size-base, 15px);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.bill-dashboard-section__period {
+  font-size: var(--ww-font-size-xs, 11px);
+  line-height: 1.5;
+  color: var(--ww-text-color-soft);
+}
+.bill-dashboard-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.bill-dashboard-summary__tile {
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--ww-surface-tint-color);
+}
+.bill-dashboard-summary__label {
+  display: block;
+  font-size: var(--ww-font-size-xs, 11px);
+  line-height: 1.5;
+  color: var(--ww-text-color-soft);
+}
+.bill-dashboard-summary__amount {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--bill-font-numeric);
+  font-size: var(--ww-font-size-lg, 17px);
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--ww-theme-text-color);
+}
+.bill-dashboard-summary__amount--income {
+  color: var(--ww-theme-color-deep);
+}
+.bill-dashboard-summary__amount--muted {
+  color: var(--ww-text-color-mid);
+}
+.ww-chart-summary-tile[data-summary-metric='expense'] {
+  background: var(--ww-dashboard-expense-surface, var(--ww-surface-tint-color));
+  .ww-chart-summary-amount {
+    color: var(--ww-dashboard-expense-foreground, var(--ww-theme-text-color));
+  }
+}
+.ww-chart-summary-tile[data-summary-metric='income'] {
+  background: var(--ww-dashboard-income-surface, var(--ww-surface-tint-color));
+  .ww-chart-summary-amount {
+    color: var(--ww-dashboard-income-foreground, var(--ww-theme-color-deep));
+  }
+}
+.bill-dashboard-section__heading--trend {
+  flex-wrap: wrap;
+  gap: var(--ww-space-sm);
+  margin-bottom: var(--ww-space-sm);
+}
+.bill-dashboard-trend {
+  box-sizing: border-box;
+  height: 112px;
+  padding: 0 4px;
+  border-bottom: 1px dashed var(--ww-border-color);
+}
+.bill-dashboard-trend__legend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--ww-text-color-soft);
+}
+.bill-dashboard-switch {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+  align-items: center;
+}
+.bill-dashboard-switch__track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  z-index: -10;
+  pointer-events: none;
+  height: var(--ww-component-chart-switch-visible-height);
+  transform: translateY(-50%);
+  border-radius: var(--ww-component-chart-switch-radius);
+  background: var(--ww-component-chart-switch-background);
+}
+.bill-dashboard-switch__button {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--ww-component-button-hit-target-min);
+  min-width: var(--ww-component-button-hit-target-min);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.bill-dashboard-switch__button::after {
+  border: 0;
+}
+.bill-dashboard-switch__button:focus-visible {
+  outline: 2px solid var(--ww-theme-color);
+  border-radius: 999px;
+}
+.bill-dashboard-switch__option {
+  display: flex;
+  width: 100%;
+  height: var(--ww-component-chart-switch-visible-height);
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  white-space: nowrap;
+  border-radius: var(--ww-component-chart-switch-active-radius);
+  padding: 0 var(--ww-space-sm);
+  font-size: var(--ww-component-button-font-size-compact);
+  line-height: 1.5;
+  color: var(--ww-component-chart-switch-inactive-foreground);
+}
+.bill-dashboard-switch__option--active {
+  background: var(--ww-component-chart-switch-active);
+  font-weight: 700;
+  color: var(--ww-component-chart-switch-active-foreground);
+}
