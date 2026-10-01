@@ -12,6 +12,8 @@ export interface RecordEntry {
     name: string
     path?: string
     icon: string
+    textIconEnabled?: boolean
+    textIconIndex?: number
     iconType?: 'BUILTIN' | 'IMAGE'
   }
 }

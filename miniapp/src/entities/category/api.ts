@@ -8,6 +8,9 @@ export interface Category {
   name: string
   type: RecordType
   icon: string
+  textIconEnabled?: boolean
+  textIconIndex?: number
+  backgroundColor?: string | null
   iconType?: 'BUILTIN' | 'IMAGE'
   parentId?: number | null
   parentName?: string | null

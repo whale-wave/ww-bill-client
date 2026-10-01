@@ -1,7 +1,7 @@
 import { Fragment, useMemo, useRef, useState } from 'react'
 import { Input, Picker, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { groupCategoriesByParent, money, normalizeAmount } from '@ww-bill/bill-core'
+import { isDarkCategoryBackground, groupCategoriesByParent, money, normalizeAmount } from '@ww-bill/bill-core'
 import { RecordAmountVisual, RecordEntryRow, CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
 import { useCategories, type RecordType } from '../../entities/category'
 import { useAuthGate } from '../../features/auth'
@@ -10,6 +10,7 @@ import { dateKey, shanghaiDateTimeToIso, timeKey } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
 import { AppButton } from '../../shared/ui/app-button'
+import { CategoryIcon } from '../../shared/ui/category-icon'
 import './index.scss'
 
 const categoryPrimitives: CategoryChoicePrimitives = { Box: View, Text }
@@ -116,7 +117,8 @@ export default function RecordCreatePage() {
               <View className={`create-categories__item ${selectedCategoryId === category.id || expandedParentId === category.id ? 'is-active' : ''}`} onClick={() => handleRootCategory(category.id)}>
                 <CategoryChoiceVisual
                   hasChildren={children.length > 0}
-                  icon={<Text>{category.name.slice(0, 1)}</Text>}
+                  icon={<CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={24} color={isDarkCategoryBackground(category.backgroundColor) ? '#fff' : undefined} />}
+                  iconStyle={category.backgroundColor ? { backgroundColor: category.backgroundColor } : undefined}
                   isSelected={selectedCategoryId === category.id || expandedParentId === category.id}
                   label={category.name}
                   primitives={categoryPrimitives}
@@ -127,7 +129,8 @@ export default function RecordCreatePage() {
                   <View className='create-categories__item' onClick={() => handleSelectCategory(category.id)}>
                     <CategoryChoiceVisual
                       hint='直接记入'
-                      icon={<Text>{category.name.slice(0, 1)}</Text>}
+                      icon={<CategoryIcon categoryName={category.name} iconKey={category.icon} iconType={category.iconType} textIconEnabled={category.textIconEnabled} textIconIndex={category.textIconIndex} size={24} color={isDarkCategoryBackground(category.backgroundColor) ? '#fff' : undefined} />}
+                      iconStyle={category.backgroundColor ? { backgroundColor: category.backgroundColor } : undefined}
                       isSelected={selectedCategoryId === category.id}
                       label={category.name}
                       primitives={categoryPrimitives}
@@ -136,7 +139,8 @@ export default function RecordCreatePage() {
                   {children.map(child => (
                     <View key={child.id} className={`create-categories__item ${selectedCategoryId === child.id ? 'is-active' : ''}`} onClick={() => handleSelectCategory(child.id)}>
                       <CategoryChoiceVisual
-                        icon={<Text>{child.name.slice(0, 1)}</Text>}
+                        icon={<CategoryIcon categoryName={child.name} iconKey={child.icon} iconType={child.iconType} textIconEnabled={child.textIconEnabled} textIconIndex={child.textIconIndex} size={24} color={isDarkCategoryBackground(child.backgroundColor) ? '#fff' : undefined} />}
+                        iconStyle={child.backgroundColor ? { backgroundColor: child.backgroundColor } : undefined}
                         isSelected={selectedCategoryId === child.id}
                         label={child.name}
                         primitives={categoryPrimitives}

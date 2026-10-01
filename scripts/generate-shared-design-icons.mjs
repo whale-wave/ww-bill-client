@@ -13,7 +13,9 @@ const names = Object.fromEntries([...namesSource.matchAll(/'([^']+)': '([^']+)'/
 if (Object.keys(names).length === 0)
   throw new Error('Shared design icon mapping is empty');
 
-const glyphs = Object.fromEntries([...new Set(Object.values(names))].map((glyph) => {
+const categorySource = readFileSync(resolve(root, 'packages/bill-ui/src/category-icon-names.ts'), 'utf8');
+const categoryNames = [...categorySource.match(/categoryGlyphNames = \[([\s\S]*?)\]/)[1].matchAll(/'([^']+)'/g)].map(([, name]) => name);
+const glyphs = Object.fromEntries([...new Set([...Object.values(names), ...categoryNames])].map((glyph) => {
   if (!lucide[glyph])
     throw new Error(`Unknown Lucide glyph: ${glyph}`);
   return [glyph, renderToStaticMarkup(createElement(lucide[glyph], { size: 24, strokeWidth: 1.8 }))];
@@ -30,6 +32,8 @@ for (const theme of ['glass', 'fresh', 'minimal']) {
     active: values['--ww-theme-color-deep'],
     inactive: values['--ww-text-color-ghost'],
     inverse: values['--ww-primary-foreground'],
+    category: values['--ww-theme-color-deep'],
+    categoryActive: values['--ww-theme-color-deep'],
   };
 }
 

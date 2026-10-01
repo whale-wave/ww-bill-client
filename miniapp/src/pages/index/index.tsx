@@ -9,6 +9,7 @@ import { currentMonth, displayRecordDate, shiftMonth } from '../../shared/lib/da
 import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
 import { AppButton } from '../../shared/ui/app-button'
+import { CategoryIcon } from '../../shared/ui/category-icon'
 import './index.scss'
 
 const recordLinePrimitives: RecordLinePrimitives = { Box: View, Text }
@@ -72,7 +73,7 @@ export default function RecordsPage() {
           <RecordLine
             amount={`${record.type === 'add' ? '+' : '-'}¥${money.format(record.amount)}`}
             amountTone={record.type === 'add' ? 'income' : 'expense'}
-            icon={<Text>{(record.category?.name ?? '未').slice(0, 1)}</Text>}
+            icon={<CategoryIcon categoryName={record.category?.name} iconKey={record.category?.icon} iconType={record.category?.iconType} textIconEnabled={record.category?.textIconEnabled} textIconIndex={record.category?.textIconIndex} />}
             isLast={index === records.length - 1}
             primitives={recordLinePrimitives}
             subtitle={`${record.remark ? `${record.remark} · ` : ''}${displayRecordDate(record.time)}`}
