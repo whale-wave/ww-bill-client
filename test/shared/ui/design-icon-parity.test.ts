@@ -20,6 +20,13 @@ describe('shared design icons', () => {
       const parser = new DOMParser();
       const miniapp = parser.parseFromString(miniappSvg, 'image/svg+xml').documentElement;
       const web = parser.parseFromString(webSvg, 'image/svg+xml').documentElement;
+      const resolvedColor = miniapp.getAttribute('stroke');
+      expect(resolvedColor, name).toBeTruthy();
+      expect(miniappSvg, name).not.toContain('currentColor');
+      // Image hosts resolve inherited paint; compare the Web fill after the same resolution.
+      for (const shape of web.querySelectorAll('[fill="currentColor"]')) {
+        shape.setAttribute('fill', resolvedColor!);
+      }
       expect(miniapp.innerHTML, name).toBe(web.innerHTML);
       expect(miniapp.getAttribute('viewBox'), name).toBe(web.getAttribute('viewBox'));
       expect(miniapp.getAttribute('stroke-width'), name).toBe(web.getAttribute('stroke-width'));

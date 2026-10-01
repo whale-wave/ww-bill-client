@@ -220,8 +220,7 @@ describe('household records', () => {
     expect(title?.classList).toContain('truncate');
     const householdLogo = header?.querySelector<HTMLImageElement>('[data-record-overview-title-row] img');
     expect(householdLogo).not.toBeNull();
-    expect(householdLogo?.classList).toContain('h-full');
-    expect(householdLogo?.classList).toContain('w-full');
+    expect(householdLogo?.classList).toContain('bill-brand-mark__image');
     expect(householdLogo?.parentElement?.classList).toContain('overflow-hidden');
     expect(householdLogo?.parentElement?.classList).toContain('rounded-full');
     expect(header?.querySelector('[data-record-overview-title-row] svg')).toBeNull();
