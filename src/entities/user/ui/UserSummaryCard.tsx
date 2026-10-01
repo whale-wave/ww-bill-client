@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { ProfileSummaryVisual } from '@ww-bill/bill-ui';
+import { ProfileAvatarVisual, ProfileCheckInVisual, ProfileSummaryVisual, ProfileTitleContent } from '@ww-bill/bill-ui';
 import { CalendarCheck2, Medal } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n';
 import { DesignIcon, MetricGrid, Surface, UserAvatar } from '@/shared/ui';
@@ -35,50 +35,15 @@ export const UserSummaryCard: FC<UserSummaryCardProps> = ({
     <div className="space-y-[14px]">
       <Surface className="ww-user-summary-card overflow-hidden px-5 py-5" material="raised">
         <ProfileSummaryVisual
-          avatar={(
-            <button
-              className="ww-user-summary-avatar relative flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full border-[3px] border-white shadow-ww-xs"
-              onClick={onProfileClick}
-              type="button"
-            >
-              <UserAvatar alt={name || t('notLoggedIn')} fallback="icon" name={name} size={68} src={avatar} />
-              <span className="ww-user-summary-edit absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white">
-                <DesignIcon name="avatar-edit" size={11} />
-              </span>
-            </button>
-          )}
+          avatar={<ProfileAvatarVisual label={name || t('notLoggedIn')} onClick={onProfileClick} avatar={<UserAvatar alt={name || t('notLoggedIn')} fallback="icon" name={name} size={62} src={avatar} />} badge={<DesignIcon name="avatar-edit" size={11} />} />}
           name={name || t('notLoggedIn')}
-          title={(
-            <>
-              <Medal className="shrink-0" size={12} strokeWidth={2} />
-              <span className="truncate">{achievementTitle ?? '航程称号 · 开启你的航程'}</span>
-
-            </>
-          )}
+          title={<ProfileTitleContent icon={<Medal className="shrink-0" size={12} strokeWidth={2} />} label={achievementTitle ?? '航程称号 · 开启你的航程'} />}
           action={name !== undefined
-            ? (
-                checkIn
-                  ? (
-                      <span className="ww-profile-check-in flex items-center px-[13px]">
-                        <CalendarCheck2 className="mr-1" size={14} strokeWidth={2} />
-                        {t('checkIn.completed')}
-                      </span>
-                    )
-                  : onCheckIn
-                    ? (
-                        <button
-                          className="ww-profile-check-in flex min-h-11 items-center px-[13px] disabled:cursor-not-allowed disabled:opacity-60"
-                          aria-busy={isCheckingIn}
-                          disabled={isCheckingIn}
-                          onClick={onCheckIn}
-                          type="button"
-                        >
-                          <CalendarCheck2 className="mr-1" size={14} strokeWidth={2} />
-                          {t(isCheckingIn ? 'checkIn.checking' : 'checkIn.action')}
-                        </button>
-                      )
-                    : <span />
-              )
+            ? (checkIn
+                ? <ProfileCheckInVisual icon={<CalendarCheck2 size={14} strokeWidth={2} />}>{t('checkIn.completed')}</ProfileCheckInVisual>
+                : onCheckIn
+                  ? <ProfileCheckInVisual primitive="button" interactive disabled={isCheckingIn} busy={isCheckingIn} onClick={onCheckIn} icon={<CalendarCheck2 size={14} strokeWidth={2} />}>{t(isCheckingIn ? 'checkIn.checking' : 'checkIn.action')}</ProfileCheckInVisual>
+                  : <span />)
             : undefined}
           metrics={(
             <MetricGrid

@@ -54,24 +54,84 @@
   background: var(--ww-highlight-edit-background);
 }
 .bill-profile-summary__avatar {
+  position: relative;
   display: flex;
+  box-sizing: border-box;
   width: 68px;
   height: 68px;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
+  margin: 0;
+  padding: 0;
   border: 3px solid white;
   border-radius: 50%;
   box-shadow: var(--ww-card-shadow-xs);
+}
+.bill-profile-summary__avatar::after {
+  border: 0;
+}
+.bill-profile-summary__avatar-content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
   overflow: hidden;
 }
-.bill-profile-summary__avatar > image {
-  width: 68px;
-  height: 68px;
+.bill-profile-summary__avatar-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.bill-profile-summary__avatar-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+  border-radius: 50%;
 }
 
 .bill-profile-summary__record-count {
   white-space: nowrap;
   font-size: clamp(14px, 5vw, 20px);
   letter-spacing: -0.04em;
+}
+.bill-profile-summary__title-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bill-profile-check-in {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--ww-component-profile-action-visible-height);
+  margin: 0;
+  padding: 0 13px;
+  border: 1px solid var(--ww-component-profile-action-border);
+  border-radius: var(--ww-component-profile-action-radius);
+  color: var(--ww-component-profile-action-foreground);
+  background: var(--ww-component-profile-action-background);
+  font: inherit;
+  line-height: 18px;
+}
+.bill-profile-check-in::after {
+  border: 0;
+}
+.bill-profile-check-in--interactive {
+  min-height: 44px;
+}
+.bill-profile-check-in--disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }

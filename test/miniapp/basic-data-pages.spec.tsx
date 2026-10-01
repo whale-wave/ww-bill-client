@@ -1,7 +1,20 @@
 import type { ComponentType } from 'react';
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+
+const checkIn = vi.hoisted(() => ({ submit: vi.fn(), completed: false }));
+beforeEach(() => {
+  checkIn.completed = false;
+  checkIn.submit.mockReset().mockResolvedValue(undefined);
+});
+
+vi.mock('../../miniapp/src/entities/achievement', () => ({
+  useAchievementSummary: () => ({ data: { currentTitle: { name: '逐浪者' } } }),
+}));
+vi.mock('../../miniapp/src/features/check-in', () => ({
+  useCheckIn: () => ({ mutateAsync: checkIn.submit, isLoading: false }),
+}));
 
 vi.mock('../../miniapp/src/features/auth', () => ({
   useAuthGate: () => true,
@@ -41,7 +54,7 @@ vi.mock('../../miniapp/src/entities/chart', () => ({
 
 vi.mock('../../miniapp/src/entities/user', () => ({
   useUserInfo: () => ({
-    data: { email: 'demo@example.test', name: '测试用户', recordCount: 2, username: 'demo' },
+    data: { checkIn: checkIn.completed, email: 'demo@example.test', name: '测试用户', recordCount: 2, username: 'demo' },
     isError: false,
     isLoading: false,
   }),
@@ -116,7 +129,39 @@ describe('miniapp basic data pages', () => {
   it('shows the user profile and record count', () => {
     const page = renderPage(MinePage);
     expect(page.textContent).toContain('测试用户');
-    expect(page.textContent).toContain('demo@example.test');
-    expect(page.querySelector('.bill-profile-summary__metrics')?.textContent).toContain('累计记账2笔');
+    expect(page.textContent).toContain('逐浪者');
+    expect(page.textContent).not.toContain('demo@example.test');
+    expect(page.querySelector('.bill-profile-summary__action')?.textContent).toContain('立即打卡');
+    expect(page.querySelector('.bill-profile-summary__metrics')?.textContent).toContain('记账总笔数2笔');
+  });
+  it('shows completed check-in without an active button', () => {
+    checkIn.completed = true;
+    const page = renderPage(MinePage);
+    expect(page.querySelector('.bill-profile-summary__action')?.textContent).toBe('已打卡');
+    expect(page.querySelector('.bill-profile-check-in--interactive')).toBeNull();
+  });
+
+  it('prevents a second check-in while the first request is unresolved', async () => {
+    let complete: (() => void) | undefined;
+    checkIn.submit.mockReturnValue(new Promise<void>(resolve => complete = resolve));
+    const page = renderPage(MinePage);
+    const button = page.querySelector('.bill-profile-check-in');
+    act(() => {
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(checkIn.submit).toHaveBeenCalledTimes(1);
+    await act(async () => complete?.());
+  });
+
+  it('shows a failed check-in and allows retry', async () => {
+    checkIn.submit.mockRejectedValueOnce(new Error('打卡失败'));
+    const page = renderPage(MinePage);
+    const button = page.querySelector('.bill-profile-check-in');
+    await act(async () => button?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(page.querySelector('.mine-check-in-error')?.textContent).toBe('打卡失败');
+    await act(async () => button?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(checkIn.submit).toHaveBeenCalledTimes(2);
+    expect(page.querySelector('.mine-check-in-error')).toBeNull();
   });
 });

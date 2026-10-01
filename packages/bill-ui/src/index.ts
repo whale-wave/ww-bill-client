@@ -37,7 +37,7 @@ export type { MetricRowItem, MetricRowPrimitives, MetricRowProps, MetricTone } f
 export { PageLoadingVisual } from './page-loading';
 
 export { PeriodLabel } from './period-label';
-export { ProfileSummaryVisual } from './profile-summary';
+export { ProfileAvatarVisual, ProfileCheckInVisual, ProfileSummaryVisual, ProfileTitleContent } from './profile-summary';
 
 export { RankingSectionVisual } from './ranking-section';
 export { RecordCategoryGrid } from './record-category-grid';

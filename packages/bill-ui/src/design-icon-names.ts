@@ -22,6 +22,7 @@ export const designIconNames = {
   'editor-delete': 'Delete',
   'list-chevron': 'ChevronRight',
   'mine-badge': 'Award',
+  'profile-title': 'Medal',
   'mine-invite': 'Gift',
   'mine-message': 'MessageSquare',
   'mine-points': 'Star',

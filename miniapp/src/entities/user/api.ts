@@ -8,6 +8,7 @@ export interface UserInfo {
   email: string
   avatar: string | null
   recordCount: number
+  checkIn?: boolean
   checkInAll?: number
   checkInKeep?: number
   billRecord?: {
@@ -20,4 +21,8 @@ export interface UserInfo {
 
 export function getUserInfo(signal?: AbortSignal) {
   return api.get<UserInfo>('/user/userInfo', { signal })
+}
+
+export function postCheckIn() {
+  return api.post<unknown>('/check_in', null)
 }
