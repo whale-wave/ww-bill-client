@@ -38,6 +38,17 @@ function click(element: Element | null | undefined) {
 }
 
 describe('miniapp editor presentation', () => {
+  it('opens a six-column date-time sheet and discards cancellation', () => {
+    const page = renderPage();
+    const trigger = page.querySelector('.record-editor-detail-chip');
+    const originalLabel = trigger?.textContent;
+    click(trigger);
+    expect(page.querySelector('.bill-date-time-picker__title')?.textContent).toBe('时间选择');
+    expect(page.querySelector('.bill-date-time-picker__wheels')?.children).toHaveLength(6);
+    click(page.querySelector('.bill-date-time-picker__button'));
+    expect(page.querySelector('.bill-date-time-picker')).toBeNull();
+    expect(trigger?.textContent).toBe(originalLabel);
+  });
   it('expands below the full row and retains selection after closing', () => {
     const page = renderPage();
     const grid = page.querySelector('.bill-record-category-grid--root')!;

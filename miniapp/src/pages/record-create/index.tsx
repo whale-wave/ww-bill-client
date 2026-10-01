@@ -1,5 +1,5 @@
 import { Fragment, useMemo, useRef, useState } from 'react'
-import { Button, Input, Picker, ScrollView, Text, View } from '@tarojs/components'
+import { Button, Input, ScrollView, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { isDarkCategoryBackground, groupCategoriesByParent, categoryRowEndIndex, money } from '@ww-bill/bill-core'
 import { RecordDetailChipContent, RecordCategoryGrid, categoryChoiceClassName, RecordEditorHeader, RecordAmountVisual, RecordEntryRow, CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
@@ -16,6 +16,7 @@ import { DesignIcon } from '../../shared/ui/design-icon'
 import { useCalculator } from '../../features/record-create/model/use-calculator'
 import { RecordKeypad } from '../../shared/ui/record-keypad'
 import { CategoryIcon } from '../../shared/ui/category-icon'
+import { DateTimePicker } from '../../shared/ui/date-time-picker'
 
 const categoryPrimitives: CategoryChoicePrimitives = { Box: View, Text }
 
@@ -29,7 +30,8 @@ export default function RecordCreatePage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
   const [expandedParentId, setExpandedParentId] = useState<number | null>(null)
   const [selectedDate, setSelectedDate] = useState(() => dateKey(new Date()))
-  const [selectedTime, setSelectedTime] = useState(() => timeKey(new Date()))
+  const [selectedTime, setSelectedTime] = useState(() => timeKey(new Date(), true))
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const [formError, setFormError] = useState('')
   const isSubmitting = useRef(false)
   const categoriesQuery = useCategories({ params: { recordType }, queryOptions: { enabled: isAuthenticated } })
@@ -167,8 +169,7 @@ export default function RecordCreatePage() {
       </ScrollView>
       <View className='create-form'>
         {!isNoteFocused && <View className='row create-form__pickers'>
-          <Picker mode='date' value={selectedDate} end={dateKey(new Date())} onChange={event => setSelectedDate(event.detail.value)}><View className='record-editor-detail-chip'><RecordDetailChipContent primitive={Text} icon={<DesignIcon name='editor-date' size={17} tone='category' />}>{selectedDate === dateKey(new Date()) ? '今天' : selectedDate}</RecordDetailChipContent></View></Picker>
-          <Picker mode='time' value={selectedTime} onChange={event => setSelectedTime(event.detail.value)}><View className='record-editor-detail-chip'><RecordDetailChipContent primitive={Text} icon={<DesignIcon name='editor-time' size={17} tone='category' />}>{selectedTime}</RecordDetailChipContent></View></Picker>
+          <Button className='record-editor-detail-chip' onClick={() => { handleAmountFocus(); setIsDatePickerOpen(true) }}><RecordDetailChipContent primitive={Text} icon={<DesignIcon name='editor-date' size={17} tone='category' />}>{selectedDate === dateKey(new Date()) ? '今天' : selectedDate}</RecordDetailChipContent></Button>
         </View>}
         <RecordEntryRow
           caption={selectedCategory ? `${selectedCategory.path ?? selectedCategory.name} · ${recordType === 'sub' ? '支出' : '收入'}` : '选择分类'}
@@ -200,6 +201,7 @@ export default function RecordCreatePage() {
           }}
         />}
       </View>
+      {isDatePickerOpen && <DateTimePicker date={selectedDate} time={selectedTime} onClose={() => setIsDatePickerOpen(false)} onConfirm={(date, time) => { setSelectedDate(date); setSelectedTime(time) }} />}
     </Page>
   )
 }

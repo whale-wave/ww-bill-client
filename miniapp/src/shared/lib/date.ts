@@ -14,20 +14,20 @@ export function dateKey(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
-export function timeKey(date: Date): string {
+export function timeKey(date: Date, includeSeconds = false): string {
   const shifted = shanghaiDate(date)
-  return `${String(shifted.getUTCHours()).padStart(2, '0')}:${String(shifted.getUTCMinutes()).padStart(2, '0')}`
+  return `${String(shifted.getUTCHours()).padStart(2, '0')}:${String(shifted.getUTCMinutes()).padStart(2, '0')}${includeSeconds ? `:${String(shifted.getUTCSeconds()).padStart(2, '0')}` : ''}`
 }
 
 export function shanghaiDateTimeToIso(date: string, time: string): string | null {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time))
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}(?::\d{2})?$/.test(time))
     return null
   const [year, month, day] = date.split('-').map(Number)
-  const [hour, minute] = time.split(':').map(Number)
-  if (hour > 23 || minute > 59)
+  const [hour, minute, second = 0] = time.split(':').map(Number)
+  if (hour > 23 || minute > 59 || second > 59)
     return null
-  const timestamp = new Date(Date.UTC(year, month - 1, day, hour - 8, minute))
-  return dateKey(timestamp) === date && timeKey(timestamp) === time ? timestamp.toISOString() : null
+  const timestamp = new Date(Date.UTC(year, month - 1, day, hour - 8, minute, second))
+  return dateKey(timestamp) === date && timeKey(timestamp, time.length === 8) === time ? timestamp.toISOString() : null
 }
 
 export function currentMonth(): string {

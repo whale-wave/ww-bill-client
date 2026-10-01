@@ -3,6 +3,7 @@ export { isAmountVisible } from './amount-visibility';
 export * from './appearance';
 export { formatBillOverviewAmount } from './bill-overview';
 export * from './calculator';
+export * from './calendar-wheel';
 export * from './category-background';
 export * from './category-tree';
 export * from './chart-geometry';

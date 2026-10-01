@@ -23,10 +23,12 @@ export type { ChartSummaryMetricsProps } from './chart-summary-metrics';
 export { DashboardCategoriesVisual, DashboardCategoryRowContent, DashboardDonutLabel, DashboardHeadingVisual, DashboardSummaryVisual, DashboardSwitchVisual, DashboardTrendVisual } from './dashboard';
 export { DashboardPeriodContent, DashboardPeriodToolbar } from './dashboard-period';
 
+export { DateTimePickerVisual } from './date-time-picker';
 export { chartPresentationColors } from './design-icon-assets';
 export { designIconNames } from './design-icon-names';
 export type { DesignIconName } from './design-icon-names';
 export { categoryIconImageSource, designIconImageSource, recordIconForeground } from './design-icon-source';
+
 export type { IconAppearance, IconTone } from './design-icon-source';
 
 export { EmptyStateVisual } from './empty-state';
@@ -36,11 +38,11 @@ export { presentationFonts } from './fonts';
 export { lineChartOptions } from './line-chart-options';
 
 export { MetricRow } from './metric-row';
-
 export type { MetricRowItem, MetricRowPrimitives, MetricRowProps, MetricTone } from './metric-row';
-export { MonthSelectionPanel } from './month-selection';
 
+export { MonthSelectionPanel } from './month-selection';
 export type { MonthSelectionOption } from './month-selection';
+
 export { PageLoadingVisual } from './page-loading';
 
 export { PeriodLabel } from './period-label';
@@ -48,29 +50,28 @@ export { PeriodLabel } from './period-label';
 export { PeriodSelectionPanel } from './period-selection';
 
 export { ProfileAvatarVisual, ProfileCheckInVisual, ProfileSummaryVisual, ProfileTitleContent } from './profile-summary';
-
 export { RankingSectionVisual } from './ranking-section';
+
 export { RecordCategoryGrid } from './record-category-grid';
 
 export { RecordDetailChipContent } from './record-detail-chip';
 
 export { RecordEditorHeader } from './record-editor-header';
-
 export { RecordAmountVisual, RecordEntryRow } from './record-entry';
-export type { RecordAmountVisualProps, RecordEntryRowProps } from './record-entry';
 
+export type { RecordAmountVisualProps, RecordEntryRowProps } from './record-entry';
 export { RecordKeypadLayout } from './record-keypad';
+
 export { recordKeypadKeys } from './record-keypad-keys';
 
 export { RecordLine } from './record-line';
 
 export type { RecordLinePrimitives, RecordLineProps } from './record-line';
-
 export { RecordDateGroupHeader, RecordDateLabelVisual, RecordGroupSurface, RecordOverviewRowContent, RecordStateSurface } from './record-overview';
+
 export { PageHeadingVisual, RecordSummaryContent } from './record-summary';
 
 export { SheetHeadingVisual } from './sheet-heading';
 
 export { SurfacePresentation } from './surface';
-
 export type { SurfaceMaterial, SurfacePresentationProps } from './surface';

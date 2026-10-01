@@ -1,0 +1,157 @@
+.ww-app-date-picker,
+.bill-date-time-picker {
+  --header-button-font-size: 14px;
+  --item-font-size: 16px;
+  --item-height: var(--ww-component-date-picker-item-height);
+  --title-font-size: 16px;
+
+  height: var(--ww-component-date-picker-height);
+  background: transparent;
+
+  .adm-picker-header,
+  .bill-date-time-picker__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--ww-component-sheet-divider);
+    min-height: var(--ww-component-date-picker-header-height);
+    margin: 0 var(--ww-component-sheet-padding-x);
+    padding: 0;
+    border-bottom-color: var(--ww-component-sheet-divider);
+  }
+
+  .adm-picker-header-title,
+  .bill-date-time-picker__title {
+    font-size: 16px;
+    color: var(--ww-theme-text-color);
+    font-weight: 800;
+  }
+
+  .adm-picker-header-button,
+  .bill-date-time-picker__button {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 14px;
+    line-height: 21px;
+    display: flex;
+    min-width: 64px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--ww-component-overlay-control-radius);
+    color: var(--ww-text-color-mid);
+    background: transparent;
+    font-weight: 700;
+    transition: background-color 160ms cubic-bezier(0.22, 1, 0.36, 1);
+
+    &:last-child {
+      color: var(--ww-theme-color-deep);
+      font-weight: 800;
+    }
+
+    &:active {
+      background: var(--ww-component-sheet-selected-background);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--ww-component-sheet-focus-ring);
+      outline-offset: -2px;
+    }
+  }
+
+  .adm-picker-view {
+    isolation: isolate;
+    background: transparent;
+
+    &::before {
+      position: absolute;
+      z-index: 0;
+      top: 50%;
+      right: 8px;
+      left: 8px;
+      height: var(--ww-component-date-picker-item-height);
+      border-radius: 8px;
+      background: var(--ww-component-date-picker-selection-background);
+      content: '';
+      transform: translateY(-50%);
+    }
+  }
+
+  .adm-picker-view-column {
+    z-index: 1;
+  }
+
+  .adm-picker-view-column-item {
+    color: var(--ww-text-color-mid);
+    font-family: Nunito, 'Noto Sans SC', sans-serif;
+    font-weight: 700;
+  }
+
+  .adm-picker-view-column-item-active {
+    color: var(--ww-theme-text-color);
+    font-weight: 800;
+  }
+
+  .adm-picker-view-mask-top,
+  .adm-picker-view-mask-bottom {
+    background: var(--ww-material-overlay-background);
+  }
+
+  .adm-picker-view-mask-middle {
+    border: 0;
+    background: transparent;
+  }
+}
+
+.bill-date-time-picker {
+  background: var(--ww-material-overlay-opaque-background);
+  padding-bottom: var(--ww-safe-area-bottom, 0px);
+}
+.bill-date-time-picker__button::after {
+  border: 0;
+}
+.bill-date-time-picker__confirm {
+  padding-inline: 14px;
+  background: var(--ww-component-record-editor-selected-background);
+}
+.bill-date-time-picker__wheels {
+  height: calc(var(--ww-component-date-picker-height) - var(--ww-component-date-picker-header-height));
+  width: 100%;
+}
+.bill-date-time-picker__item {
+  height: var(--ww-component-date-picker-item-height);
+  line-height: var(--ww-component-date-picker-item-height);
+  text-align: center;
+  font-family: var(--bill-font-numeric);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ww-text-color-mid);
+}
+.bill-date-time-picker__item--selected {
+  font-weight: 800;
+  color: var(--ww-theme-text-color);
+}
+.bill-date-time-picker__indicator {
+  height: var(--ww-component-date-picker-item-height);
+  border: 0;
+  background: transparent;
+}
+.bill-date-time-picker__indicator::before,
+.bill-date-time-picker__indicator::after {
+  border: 0;
+}
+.bill-date-time-picker__wheel-frame {
+  position: relative;
+}
+.bill-date-time-picker__wheel-frame::before {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  left: 8px;
+  height: var(--ww-component-date-picker-item-height);
+  border-radius: 8px;
+  background: var(--ww-component-date-picker-selection-background);
+  content: '';
+  transform: translateY(-50%);
+}

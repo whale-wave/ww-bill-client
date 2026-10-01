@@ -5,3 +5,5 @@ export const Image = 'img';
 export const Input = 'input';
 export const Picker = 'div';
 export const ScrollView = 'div';
+export const PickerView = 'div';
+export const PickerViewColumn = 'div';

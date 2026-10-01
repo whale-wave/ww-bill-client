@@ -8,6 +8,7 @@
       "types": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./date-time-picker.scss": "./src/date-time-picker.scss",
     "./navigation.scss": "./src/bottom-navigation.scss",
     "./tokens.scss": "./src/styles/tokens.scss",
     "./token-values.scss": "./src/styles/_token-values.scss",
