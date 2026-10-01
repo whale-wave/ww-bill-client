@@ -53,6 +53,7 @@
     "quickActions": "Ledger quick actions"
   },
   "home": {
+    "bill": "Bills",
     "budget": "Budget",
     "search": "Search",
     "calendar": "Calendar",

@@ -53,6 +53,7 @@
     "quickActions": "账本快捷操作"
   },
   "home": {
+    "bill": "账单",
     "budget": "预算",
     "search": "搜索",
     "calendar": "日历",
