@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Button, Image, Input, Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { AuthFieldsVisual, AuthPrimaryActionContent, AuthPresentation, FormFieldVisual } from '@ww-bill/bill-ui'
@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [formError, setFormError] = useState('')
+  const isSubmitting = useRef(false)
   const loginMutation = useMutation({ mutationFn: () => login(username.trim(), password) })
 
   useDidShow(() => {
@@ -24,11 +25,14 @@ export default function LoginPage() {
   })
 
   async function handleLogin() {
+    if (isSubmitting.current)
+      return
     if (!username.trim() || !password) {
       setFormError('请输入账号和密码')
       return
     }
     setFormError('')
+    isSubmitting.current = true
     try {
       const result = await loginMutation.mutateAsync()
       if (!result.token)
@@ -38,6 +42,9 @@ export default function LoginPage() {
     }
     catch (error) {
       setFormError(errorMessage(error))
+    }
+    finally {
+      isSubmitting.current = false
     }
   }
 
@@ -49,15 +56,15 @@ export default function LoginPage() {
       surface={(
         <Surface className='bill-auth__surface login-form' material='raised'>
           <AuthFieldsVisual primitive={View}>
-          <FormFieldVisual label='账号或邮箱' prefix={<DesignIcon name='avatar-user' size={18} tone='category' />} primitives={{ Label: View, Box: View, Text }}>
-            <Input className='bill-form-field__input' disabled={loginMutation.isLoading} value={username} placeholder='请输入账号或邮箱' onInput={event => setUsername(event.detail.value)} />
+          <FormFieldVisual disabled={loginMutation.isLoading} label='账号' prefix={<DesignIcon name='avatar-user' size={18} tone='category' />} primitives={{ Label: View, Box: View, Text }}>
+            <Input className='bill-form-field__input' disabled={loginMutation.isLoading} value={username} placeholder='请输入账号ID或邮箱' onInput={event => setUsername(event.detail.value)} />
           </FormFieldVisual>
-          <FormFieldVisual label='密码' suffix={!loginMutation.isLoading && <Button className='bill-form-field__suffix-action' aria-label={isPasswordVisible ? '隐藏密码' : '显示密码'} onClick={() => setIsPasswordVisible(value => !value)}><DesignIcon name={isPasswordVisible ? 'amount-hidden' : 'amount-visible'} size={18} /></Button>} prefix={<DesignIcon name='auth-lock' size={18} tone='category' />} primitives={{ Label: View, Box: View, Text }}>
+          <FormFieldVisual disabled={loginMutation.isLoading} label='密码' suffix={!loginMutation.isLoading && <Button className='bill-form-field__suffix-action' aria-label={isPasswordVisible ? '隐藏密码' : '显示密码'} onClick={() => setIsPasswordVisible(value => !value)}><DesignIcon name={isPasswordVisible ? 'amount-hidden' : 'amount-visible'} size={18} /></Button>} prefix={<DesignIcon name='auth-lock' size={18} tone='category' />} primitives={{ Label: View, Box: View, Text }}>
             <Input className='bill-form-field__input' disabled={loginMutation.isLoading} value={password} password={!isPasswordVisible} placeholder='请输入密码' onInput={event => setPassword(event.detail.value)} onConfirm={() => void handleLogin()} />
           </FormFieldVisual>
           </AuthFieldsVisual>
           {formError && <Text className='error-text'>{formError}</Text>}
-          <Button className='bill-auth-primary-action' disabled={loginMutation.isLoading} aria-busy={loginMutation.isLoading} onClick={handleLogin}><AuthPrimaryActionContent primitive={View} loading={loginMutation.isLoading}>登录</AuthPrimaryActionContent></Button>
+          <Button className={`bill-auth-primary-action${loginMutation.isLoading ? ' bill-auth-primary-action--disabled' : ''}`} disabled={loginMutation.isLoading} aria-busy={loginMutation.isLoading} onClick={handleLogin}><AuthPrimaryActionContent primitive={View} loading={loginMutation.isLoading} loadingLabel='正在登录…'>登录</AuthPrimaryActionContent></Button>
         </Surface>
       )}
     />

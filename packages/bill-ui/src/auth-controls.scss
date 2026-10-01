@@ -28,7 +28,7 @@
   opacity: 0.85;
 }
 .bill-auth-primary-action:disabled,
-.bill-auth-primary-action[disabled] {
+.bill-auth-primary-action--disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }

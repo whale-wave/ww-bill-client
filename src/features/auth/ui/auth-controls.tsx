@@ -14,7 +14,7 @@ interface AuthPrimaryButtonProps {
 export function AuthPrimaryButton({ children, disabled, loading, loadingLabel, onClick, testId }: AuthPrimaryButtonProps) {
   return (
     <button
-      className="bill-auth-primary-action ww-theme-primary-action"
+      className={cn('bill-auth-primary-action ww-theme-primary-action', (disabled || loading) && 'bill-auth-primary-action--disabled')}
       data-testid={testId}
       aria-busy={loading || undefined}
       disabled={disabled || loading}
