@@ -1,7 +1,7 @@
 import { Fragment, useMemo, useRef, useState } from 'react'
 import { Input, Picker, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { isDarkCategoryBackground, groupCategoriesByParent, money, normalizeAmount } from '@ww-bill/bill-core'
+import { isDarkCategoryBackground, groupCategoriesByParent, money } from '@ww-bill/bill-core'
 import { RecordAmountVisual, RecordEntryRow, CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
 import { useCategories, type RecordType } from '../../entities/category'
 import { useAuthGate } from '../../features/auth'
@@ -9,6 +9,8 @@ import { useCreateRecord } from '../../features/record-create'
 import { dateKey, shanghaiDateTimeToIso, timeKey } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
+import { useCalculator } from '../../features/record-create/model/use-calculator'
+import { RecordKeypad } from '../../shared/ui/record-keypad'
 import { AppButton } from '../../shared/ui/app-button'
 import { CategoryIcon } from '../../shared/ui/category-icon'
 import './index.scss'
@@ -18,7 +20,8 @@ const categoryPrimitives: CategoryChoicePrimitives = { Box: View, Text }
 export default function RecordCreatePage() {
   const isAuthenticated = useAuthGate()
   const [recordType, setRecordType] = useState<RecordType>('sub')
-  const [amount, setAmount] = useState('')
+  const calculator = useCalculator()
+  const amount = calculator.totals
   const [remark, setRemark] = useState('')
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
   const [expandedParentId, setExpandedParentId] = useState<number | null>(null)
@@ -54,11 +57,6 @@ export default function RecordCreatePage() {
   function handleSelectCategory(categoryId: number) {
     setSelectedCategoryId(categoryId)
     setExpandedParentId(null)
-    setFormError('')
-  }
-
-  function handleAmount(value: string) {
-    setAmount(previous => normalizeAmount(value, previous))
     setFormError('')
   }
 
@@ -163,7 +161,7 @@ export default function RecordCreatePage() {
               <RecordAmountVisual
                 value={amount || '0.00'}
                 primitives={{ Box: View, Text }}
-                digits={fontSize => <Input className='bill-record-amount__input' style={{ width: `${Math.max(4, amount.length + 1) * fontSize * 0.65}px` }} type='digit' value={amount} placeholder='0.00' onInput={event => handleAmount(event.detail.value)} />}
+
               />
             </View>
           )}
@@ -173,7 +171,20 @@ export default function RecordCreatePage() {
           <Picker mode='time' value={selectedTime} onChange={event => setSelectedTime(event.detail.value)}><View>{selectedTime}</View></Picker>
         </View>
         {formError && <Text className='error-text'>{formError}</Text>}
-        <AppButton loading={createMutation.isLoading} disabled={createMutation.isLoading} onClick={handleSubmit}>完成</AppButton>
+        <RecordKeypad
+          canCalculate={calculator.canCalculate}
+          canSubmit={calculator.canSubmit && Boolean(selectedCategory)}
+          operatorsEnabled={Number.parseFloat(calculator.totals) > 0}
+          isCalculationPending={calculator.completeText === '='}
+          isSubmitting={createMutation.isLoading}
+          onAction={calculator.handleAction}
+          onComplete={() => {
+            if (calculator.completeText === '=')
+              calculator.resolveAmount()
+            else
+              void handleSubmit()
+          }}
+        />
       </Surface>
     </View>
   )

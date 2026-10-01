@@ -19,8 +19,10 @@ export { MetricRow } from './metric-row';
 export type { MetricRowItem, MetricRowPrimitives, MetricRowProps, MetricTone } from './metric-row';
 export { RecordAmountVisual, RecordEntryRow } from './record-entry';
 export type { RecordAmountVisualProps, RecordEntryRowProps } from './record-entry';
-export { RecordLine } from './record-line';
+export { RecordKeypadLayout } from './record-keypad';
+export { recordKeypadKeys } from './record-keypad-keys';
 
+export { RecordLine } from './record-line';
 export type { RecordLinePrimitives, RecordLineProps } from './record-line';
 export { SurfacePresentation } from './surface';
 export type { SurfaceMaterial, SurfacePresentationProps } from './surface';

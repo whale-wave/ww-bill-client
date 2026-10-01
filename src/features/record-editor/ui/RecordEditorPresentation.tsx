@@ -4,7 +4,7 @@ import type { RecordEditorController } from '../model/useRecordEditorController'
 import type { Asset, AssetGroup } from '@/entities/asset';
 import type { CategoryEntity } from '@/entities/category';
 import { groupCategoriesByParent } from '@ww-bill/bill-core';
-import { CategoryChoiceVisual, RecordAmountVisual, RecordEntryRow } from '@ww-bill/bill-ui';
+import { CategoryChoiceVisual, RecordAmountVisual, RecordEntryRow, RecordKeypadLayout } from '@ww-bill/bill-ui';
 import {
   Delete as BackspaceIcon,
   Banknote,
@@ -595,63 +595,57 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
           />
         </div>
 
-        <section
-          className={cn('record-editor-keypad shrink-0 border-t border-solid px-4', controller.isNoteFocused && 'hidden')}
-          data-record-editor-keypad
-        >
-          <div className="grid grid-cols-3 gap-[var(--record-editor-keypad-gap)]">
-            <div className="contents" data-record-editor-operators>
-              {['+', '-'].map((operator, index) => (
-                <button
-                  aria-label={operator === '+' ? t('record:bookkeeping.addAmount') : t('record:bookkeeping.subtractAmount')}
-                  className={cn(
-                    'record-editor-keypad__action record-editor-keypad__operator flex w-full items-center justify-center border-0 font-number text-lg font-bold disabled:opacity-45',
-                    controller.activeSideIndex === index + 1 && 'record-editor-keypad__operator--active',
-                  )}
-                  disabled={!showOperatorControls || controller.isNoteFocused}
-                  key={operator}
-                  onClick={() => controller.handleOperatorClick(operator)}
-                  onTouchMove={controller.handleKeyTouchMove}
-                  onTouchStart={() => controller.handleKeyTouchStart(index + 1)}
-                  type="button"
-                >
-                  {operator}
-                </button>
-              ))}
-            </div>
-            <m.button
-              aria-label={isCalculationPending ? t('record:bookkeeping.calculateResult') : t('record:bookkeeping.complete')}
-              className="record-editor-keypad__action ww-theme-primary-action w-full text-[15px] font-extrabold leading-[22.5px] disabled:opacity-50"
-              data-record-editor-submit
-              disabled={
-                isCalculationPending
-                  ? !controller.calculator.canCalculate() || controller.isSubmitting
-                  : !hasValidSelectedCategory
-                    || controller.isSubmitting
-                    || controller.isImageUploading
-                    || controller.hasImageUploadError
-              }
-              onClick={() => {
-                if (isCalculationPending)
-                  controller.calculator.resolveAmount();
-                else
-                  void controller.handleSubmit();
-              }}
-              type="button"
-              whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
-            >
-              {isCalculationPending ? '=' : t('record:bookkeeping.complete')}
-            </m.button>
-          </div>
-          <div
-            aria-hidden={controller.isNoteFocused}
-            className={cn(
-              'record-editor-keypad__keys grid grid-cols-3',
-              controller.isNoteFocused && 'pointer-events-none invisible',
-            )}
-            data-record-editor-numeric-keys
-          >
-            {KEYPAD_LAYOUT.map((item, index) => (
+        <RecordKeypadLayout
+          className={controller.isNoteFocused ? 'hidden' : ''}
+          keysHidden={controller.isNoteFocused}
+          actions={(
+            <>
+              <div className="contents" data-record-editor-operators>
+                {['+', '-'].map((operator, index) => (
+                  <button
+                    aria-label={operator === '+' ? t('record:bookkeeping.addAmount') : t('record:bookkeeping.subtractAmount')}
+                    className={cn(
+                      'record-editor-keypad__action record-editor-keypad__operator flex w-full items-center justify-center border-0 font-number text-lg font-bold disabled:opacity-45',
+                      controller.activeSideIndex === index + 1 && 'record-editor-keypad__operator--active',
+                    )}
+                    disabled={!showOperatorControls || controller.isNoteFocused}
+                    key={operator}
+                    onClick={() => controller.handleOperatorClick(operator)}
+                    onTouchMove={controller.handleKeyTouchMove}
+                    onTouchStart={() => controller.handleKeyTouchStart(index + 1)}
+                    type="button"
+                  >
+                    {operator}
+                  </button>
+                ))}
+              </div>
+              <m.button
+                aria-label={isCalculationPending ? t('record:bookkeeping.calculateResult') : t('record:bookkeeping.complete')}
+                className="record-editor-keypad__action record-editor-keypad__submit ww-theme-primary-action w-full text-[15px] font-extrabold leading-[22.5px] disabled:opacity-50"
+                data-record-editor-submit
+                disabled={
+                  isCalculationPending
+                    ? !controller.calculator.canCalculate() || controller.isSubmitting
+                    : !hasValidSelectedCategory
+                      || controller.isSubmitting
+                      || controller.isImageUploading
+                      || controller.hasImageUploadError
+                }
+                onClick={() => {
+                  if (isCalculationPending)
+                    controller.calculator.resolveAmount();
+                  else
+                    void controller.handleSubmit();
+                }}
+                type="button"
+                whileTap={isMotionEnabled ? MOTION_PRESETS.press : undefined}
+              >
+                {isCalculationPending ? '=' : t('record:bookkeeping.complete')}
+              </m.button>
+            </>
+          )}
+          keys={(
+            KEYPAD_LAYOUT.map((item, index) => (
               <m.button
                 aria-label={
                   item.keys === 'x'
@@ -661,7 +655,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                 className={cn(
                   'record-editor-keypad__key flex items-center justify-center font-number text-[21px] font-bold leading-[31.5px] text-ww-ink',
                   item.keys === 'x'
-                  && 'gap-1.5 font-sans text-[12px] text-primary-deep',
+                  && 'record-editor-keypad__delete gap-1.5 font-sans text-[12px] text-primary-deep',
                   (item.keys === 'x' || controller.activeKeyIndex === index) && 'record-editor-keypad__key--active',
                 )}
                 disabled={controller.isNoteFocused}
@@ -689,9 +683,9 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                       item.keys
                     )}
               </m.button>
-            ))}
-          </div>
-        </section>
+            ))
+          )}
+        />
       </m.main>
 
       {isSaveSucceeded && (
