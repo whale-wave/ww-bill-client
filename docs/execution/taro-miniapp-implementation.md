@@ -104,3 +104,5 @@
 - 2026-10-01：加载状态阶段：Web 的鲸鱼插画、300px/160px 两档容器、字重/间距及呼吸动效进入公共 `PageLoadingVisual`，品牌 PNG 由 bill-ui 唯一提供。Web 原组件转发，小程序明细、图表、发现、我的、分类加载消费同源展示；Query 状态仍各自持有。记账分类失败/空列表也改用已有公共空态。5 项 Web 加载组件测试、8 项小程序测试、两端类型、目标 lint、设计系统检查通过；最新微信产物生成成功。模拟器页面恢复且没有 WXSS 选择器错误，登录/记账和全部页面最终视觉复验继续进行，真机未验收。
 
 - 2026-10-01：整页对照阶段：发现页由白色菜单卡改用 Web 当前的 68px 彩色入口块，账单标题与金额展示保持 Web 基准；从 Web 原数字插值提取 `formatBillOverviewAmount`，小程序接受原接口的字符串金额，Web 数字展示及未取到数据的 `0.00` 回退不变。趋势 SVG 增加图像边界并用宿主负边距保持折线坐标，避免首尾圆点裁切。7 项加载/概览格式测试、8 项小程序页面测试、两端类型、目标 lint、设计系统通过；全项目 ESLint 0 错误、29 条已有警告，微信产物成功生成。模拟器已逐页进入明细、图表、发现、我的、登录和记账；重新登录成功，记账分类选中与输入显示正常，未提交新账单。证据 `/tmp/bill-native-records-final-phone.png`、`/tmp/bill-native-dashboard-final-phone.png`、`/tmp/bill-native-mine-final-phone.png`、`/tmp/bill-native-login-final-phone.png`、`/tmp/bill-native-editor-final-phone.png` 以及发现页两端截图。当前小程序的业务入口范围少于 Web；共享区域按同一组件/token 显示，不能据此称小程序已经具备 Web 全部业务模块。真机、线上 HTTPS 字体/图片与正式 AppID 验收仍未进行。
+
+- 2026-10-01：趋势边界复验：旧紧凑折线的 `.bill-chart-trend` 仍限制 `max-width:100%` 并加 10px 顶部间距，导致新统计图图片边界补偿被截断；新统计面板宿主显式清除这两项遗留约束，保持公共 112px 趋势区和归一化坐标。
