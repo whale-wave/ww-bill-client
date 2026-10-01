@@ -14,9 +14,11 @@
   --ww-border: var(--ww-border-color);
   background: var(--ww-background-color);
   color: var(--ww-theme-text-color);
-  font-family: 'Noto Sans SC Variable', system-ui, sans-serif;
+  font-family: var(--bill-font-body);
   font-size: 15px;
 }
+
+button, input, textarea { font-family: var(--bill-font-body); }
 
 .page {
   min-height: 100vh;

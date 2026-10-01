@@ -62,7 +62,7 @@
 
 ## 接口地址与验收环境
 
-- 本地使用 `pnpm --filter miniapp dev:weapp`，开发构建默认连接 `http://127.0.0.1:4301`，与 `bill-2` 服务端口一致；生产构建必须显式设置 `BILL_MINIAPP_API_BASE_URL`，否则会停止而不覆盖现有产物。该变量填写服务根地址，不含 `/api`，例如 `BILL_MINIAPP_API_BASE_URL=https://example.com pnpm --filter miniapp build:weapp`。本地接口未启动时会显示网络连接失败，不能据此判定页面数据已通过真实接口验收。
+- 本地使用 `pnpm --filter miniapp dev:weapp`，开发构建默认连接 `http://127.0.0.1:4301`，字体目录默认 `http://127.0.0.1:4331/fonts`，需同时运行 Web 静态服务。生产构建必须显式设置 `BILL_MINIAPP_API_BASE_URL` 和 `BILL_MINIAPP_FONT_BASE_URL`，否则会停止而不覆盖现有产物。接口变量填写服务根地址，不含 `/api`；字体变量填写 HTTPS 静态资源目录，例如 `BILL_MINIAPP_API_BASE_URL=https://api.example.com BILL_MINIAPP_FONT_BASE_URL=https://web.example.com/fonts pnpm --filter miniapp build:weapp`。本地接口未启动时会显示网络连接失败，不能据此判定页面数据已通过真实接口验收。
 - 服务端本机验收使用 `BILL_SKIP_BACKGROUND_MAINTENANCE=true pnpm start:dev`。该选项仅在 development 生效，关闭自动维护与定时任务；用户主动发出的登录、读取和记账请求照常执行。验收需使用专用测试账号，避免在共用数据库中修改真实账号的数据。
 - 开发者工具游客模式仅用于页面与请求链路验证。真机需要有效的小程序 AppID、已登记的 HTTPS 请求域名、可访问的 `bill-2` 服务及测试账号；完成后应分别检查登录、四个 Tab、记账提交、退出登录和重新登录后的数据隔离。
 
@@ -90,3 +90,5 @@
 - 2026-10-01：9 项 Web 外观测试、4 项小程序数据页测试及 2 项账号外观集成测试通过；集成测试覆盖按账号镜像、服务端调和、退出恢复默认和旧账号延迟响应隔离。两端类型、目标 lint、设计系统检查通过，微信产物正常。模拟器 fresh 导航、分类圆形背景与淡紫色键盘已显示。自定义分类图片仍使用相对公共媒体路径而失效，下一阶段共享媒体引用解析并在小程序适配其绝对地址；字体和最终全页复验继续进行。
 
 - 2026-10-01：阶段：把公共媒体路径识别、`media:` 引用及图片变体解析抽到 bill-core。Web 保留自身环境/浏览器域名适配，小程序单独使用接口域名生成图片绝对地址，接入分类图标与头像；没有移动请求/存储状态或修改媒体后端接口。9 项 Web 头像/媒体测试、2 项小程序媒体边界测试及 6 项小程序页面/外观测试通过，两端类型、目标 lint、设计系统检查通过。模拟器已显示与 Web 相同的红包和早餐自定义图片，保留图片失败回退。字体加载与六页最终对照仍待继续，真机未验收。
+
+- 2026-10-01：字体阶段：字体栈、数字字体和字体文件清单移入 bill-ui；Web 保留 Fontsource 分片加载，小程序独立通过 Taro 注册同版本 Noto Sans SC 2.004 / Nunito 3.602。完整 WOFF2 由现有 Web `static/fonts` 提供，附官方固定提交、校验值及 OFL 许可，不放入微信代码包。Web 开发/预览和 Nginx 仅为字体路径提供跨域响应头。类型检查、定向 lint、设计系统及 8 项小程序测试通过；测试包含注册复用和失败重试。字体 HTTP 响应已验证 200、`font/woff2` 与跨域头，微信产物生成成功；模拟器记账页数字、中文字体和共享键盘已对照。证据 `/tmp/bill-web-fonts.png`、`/tmp/bill-native-fonts-phone.png`。首次完整中文字体下载约 7.8 MB；真机字体加载和线上 HTTPS 静态资源未验证，六页整体复验继续进行。

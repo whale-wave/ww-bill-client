@@ -52,7 +52,7 @@
   min-width: 0;
   align-items: center;
   white-space: nowrap;
-  font-family: 'Nunito Variable', 'Noto Sans SC Variable', system-ui, sans-serif;
+  font-family: var(--bill-font-numeric);
   font-weight: 900;
   line-height: 44px;
   letter-spacing: -1px;

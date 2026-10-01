@@ -25,6 +25,7 @@ export type { DesignIconName } from './design-icon-names';
 export { categoryIconImageSource, designIconImageSource } from './design-icon-source';
 export type { IconAppearance, IconTone } from './design-icon-source';
 export { EmptyStateVisual } from './empty-state';
+export { presentationFonts } from './fonts';
 export { lineChartOptions } from './line-chart-options';
 
 export { MetricRow } from './metric-row';

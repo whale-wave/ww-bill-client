@@ -31,7 +31,7 @@
   min-width: 0;
   align-items: baseline;
   margin: 4px 0 0;
-  font-family: 'Nunito Variable', 'Noto Sans SC Variable', system-ui, sans-serif;
+  font-family: var(--bill-font-numeric);
   color: var(--ww-theme-text-color);
 }
 .bill-chart-metrics__value--income {

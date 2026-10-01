@@ -322,6 +322,10 @@
 }
 
 @mixin reference-default {
+  --bill-font-body:
+    'Noto Sans SC Variable', 'HarmonyOS Sans SC', MiSans, 'PingFang SC', 'Source Han Sans SC', 'Microsoft YaHei UI',
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --bill-font-numeric: 'Nunito Variable', var(--bill-font-body);
   --ww-ref-space-1: 4px;
   --ww-ref-space-2: 8px;
   --ww-ref-space-3: 12px;

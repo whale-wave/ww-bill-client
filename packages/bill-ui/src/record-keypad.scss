@@ -84,7 +84,7 @@
   align-items: center;
   justify-content: center;
   border: 0;
-  font-family: 'Nunito Variable', 'Noto Sans SC Variable', system-ui, sans-serif;
+  font-family: var(--bill-font-numeric);
   &::after {
     border: 0;
   }
@@ -104,12 +104,12 @@
 }
 .record-editor-keypad__delete {
   gap: 6px;
-  font-family: 'Noto Sans SC Variable', system-ui, sans-serif;
+  font-family: var(--bill-font-body);
   font-size: 12px;
   color: var(--ww-theme-color-deep);
 }
 .record-editor-keypad__submit {
-  font-family: 'Noto Sans SC Variable', sans-serif;
+  font-family: var(--bill-font-body);
   background: var(--ww-theme-color);
   color: var(--ww-primary-foreground);
   font-size: 15px;

@@ -1,3 +1,4 @@
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Plugin } from 'vite';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -11,6 +12,19 @@ import config from './config';
 
 const srcPath = resolve(__dirname, 'src');
 const packageInfo = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf8')) as { version: string };
+
+function fontAssetCorsPlugin(): Plugin {
+  function headers(req: IncomingMessage, res: ServerResponse, next: () => void) {
+    if (req.url?.startsWith('/fonts/'))
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    next();
+  }
+  return {
+    name: 'public-font-cors',
+    configureServer: (server) => { server.middlewares.use(headers); },
+    configurePreviewServer: (server) => { server.middlewares.use(headers); },
+  };
+}
 
 function buildInfoPlugin(): Plugin {
   const version = process.env.APP_VERSION ?? packageInfo.version;
@@ -69,6 +83,7 @@ export default defineConfig(() => {
       },
     },
     plugins: [
+      fontAssetCorsPlugin(),
       buildInfoPlugin(),
       react(),
       babel({

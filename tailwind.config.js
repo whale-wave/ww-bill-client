@@ -7,19 +7,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: [
-          '"Noto Sans SC Variable"',
-          '"HarmonyOS Sans SC"',
-          'MiSans',
-          '"PingFang SC"',
-          '"Source Han Sans SC"',
-          '"Microsoft YaHei UI"',
-          'system-ui',
-          '-apple-system',
-          'BlinkMacSystemFont',
-          '"Segoe UI"',
-          'sans-serif',
-        ],
+        sans: ['var(--bill-font-body)'],
         display: [
           '"Alimama ShuHeiTi"',
           '"Alibaba PuHuiTi"',
