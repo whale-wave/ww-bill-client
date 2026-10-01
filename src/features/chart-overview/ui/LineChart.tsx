@@ -1,5 +1,6 @@
 import type { EChartsOption } from 'echarts';
 import type { FC } from 'react';
+import { lineChartOptions } from '@ww-bill/bill-ui';
 import { format } from 'date-fns';
 import { useEffect, useMemo } from 'react';
 import { renderToString } from 'react-dom/server';
@@ -36,12 +37,13 @@ export const LineChart: FC = () => {
       text: readAppearanceToken('--ww-theme-text-color', CHART_STYLE_FALLBACKS.text),
     };
     const option: EChartsOption = {
-      grid: {
-        top: 8,
-        left: 5,
-        right: 5,
-        bottom: 4,
-      },
+      ...lineChartOptions({ data: seriesData, labels: xAxisData, colors: {
+        accent: appearanceColors.accent,
+        inverse: CHART_STYLE_FALLBACKS.inverse,
+        grid: withAlpha(appearanceColors.accent, 0.13),
+        fillStart: withAlpha(appearanceColors.accent, 0.35),
+        fillEnd: withAlpha(appearanceColors.accent, 0.02),
+      } }),
       tooltip: {
         triggerOn: 'mousemove|click',
         appendToBody: true,
@@ -82,60 +84,7 @@ export const LineChart: FC = () => {
           return html;
         },
       },
-      xAxis: {
-        boundaryGap: false,
-        type: 'category',
-        data: xAxisData,
-        axisLine: { show: false },
-        axisTick: {
-          lineStyle: {
-            opacity: 0,
-          },
-        },
-        axisLabel: { show: false },
-        // axisLabel: {
-        //   customValues: ['1月', '3月', '6月', '9月', '12月'],
-        // },
-      },
-      yAxis: {
-        type: 'value',
-        axisLabel: { show: false },
-        splitLine: { lineStyle: { color: withAlpha(appearanceColors.accent, 0.13), type: 'dashed' } },
-        show: true,
-      },
-      series: [
-        {
-          data: seriesData,
-          type: 'line',
-          symbol: 'circle',
-          symbolSize: 6,
-          itemStyle: {
-            color: (params) => {
-              const data = params.data as { value: number };
-              return data.value === 0 ? CHART_STYLE_FALLBACKS.inverse : appearanceColors.accent;
-            },
-            borderColor: appearanceColors.accent,
-            borderWidth: 2,
-          },
-          lineStyle: {
-            color: appearanceColors.accent,
-            width: 2,
-          },
-          areaStyle: {
-            color: {
-              type: 'linear',
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                { offset: 0, color: withAlpha(appearanceColors.accent, 0.35) },
-                { offset: 1, color: withAlpha(appearanceColors.accent, 0.02) },
-              ],
-            },
-          },
-        },
-      ],
+
     };
 
     myChart?.setOption(option);

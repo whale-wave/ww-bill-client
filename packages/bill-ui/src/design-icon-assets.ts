@@ -134,3 +134,18 @@ export const designIconColors = {
     expense: '#81909e',
   },
 } as const;
+
+export const chartPresentationColors = {
+  glass: {
+    accent: '#2788aa',
+    inverse: '#ffffff',
+  },
+  fresh: {
+    accent: '#4aaac4',
+    inverse: '#ffffff',
+  },
+  minimal: {
+    accent: '#6d829d',
+    inverse: '#ffffff',
+  },
+} as const;

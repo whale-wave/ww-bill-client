@@ -356,6 +356,9 @@ importers:
       '@ww-bill/bill-ui':
         specifier: workspace:*
         version: link:../packages/bill-ui
+      echarts:
+        specifier: ^5.5.1
+        version: 5.6.0
       react:
         specifier: ^18.0.0
         version: 18.3.1

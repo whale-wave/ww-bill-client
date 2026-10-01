@@ -31,7 +31,8 @@ vi.mock('../../miniapp/src/entities/chart', () => ({
   useMonthChart: () => ({
     data: {
       categories: [{ amount: '32.50', key: 'food', name: '餐饮' }],
-      summary: { expense: '32.50', income: '5000', net: '4967.50' },
+      summary: { expense: '32.50', income: '5000', net: '4967.50', averageDailyExpense: '1.08' },
+      timeline: [{ key: '2026-10-01', expense: '32.50' }, { key: '2026-10-02', expense: '0.00' }],
     },
     isError: false,
     isLoading: false,
@@ -94,6 +95,9 @@ describe('miniapp basic data pages', () => {
     expect(page.textContent).toContain('¥4967.50');
     expect(page.textContent).toContain('餐饮');
     expect(page.textContent).toContain('¥32.50');
+    expect(page.textContent).toContain('日均¥1.08');
+    expect(page.querySelector('.bill-chart-trend')?.getAttribute('src')).toMatch(/^data:image\/svg\+xml,/);
+    expect(page.textContent).not.toContain('趋势图暂时无法显示');
   });
 
   it('shows the current bill on discover', () => {

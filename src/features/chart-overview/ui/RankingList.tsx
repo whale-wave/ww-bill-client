@@ -1,4 +1,5 @@
 import type { FC, ReactNode } from 'react';
+import { RankingSectionVisual } from '@ww-bill/bill-ui';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/shared/i18n';
@@ -65,24 +66,21 @@ export const RankingList: FC<{ betweenSections?: ReactNode }> = ({ betweenSectio
     title: rankingTitle ?? `${currentAmountType === 'sub' ? t('amountType.expense') : t('amountType.income')}${t('ranking.title')}`,
   };
   const renderSection = (section: typeof categorySection) => (
-    <section className="flex-shrink-0" key={section.key}>
-      <h2 className="pb-[10px] text-[14px] font-bold leading-[21px] text-ww-ink">{section.title}</h2>
-      <div className="overflow-hidden rounded-[20px] border border-border-primary bg-white/[0.84] px-4 py-1.5 shadow-ww backdrop-blur-xl">
-        {section.items.length === 0 && rankingEmptyContent
-          ? (
-              <div className="flex min-h-[120px] items-center justify-center px-4 text-center text-sm text-font-gray">
-                {rankingEmptyContent}
-              </div>
-            )
-          : section.items.map(item => (
-              <RankingItem
-                key={item.category.id}
-                item={item}
-                onClick={rankingInteraction === 'none' || section.key !== 'category' ? undefined : () => handleRankingItemClick(item)}
-              />
-            ))}
-      </div>
-    </section>
+    <RankingSectionVisual key={section.key} title={section.title}>
+      {section.items.length === 0 && rankingEmptyContent
+        ? (
+            <div className="flex min-h-[120px] items-center justify-center px-4 text-center text-sm text-font-gray">
+              {rankingEmptyContent}
+            </div>
+          )
+        : section.items.map(item => (
+            <RankingItem
+              key={item.category.id}
+              item={item}
+              onClick={rankingInteraction === 'none' || section.key !== 'category' ? undefined : () => handleRankingItemClick(item)}
+            />
+          ))}
+    </RankingSectionVisual>
   );
 
   return (

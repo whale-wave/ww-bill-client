@@ -1,7 +1,8 @@
 import type { FC, ReactNode } from 'react';
+import { ChartSummaryCardVisual } from '@ww-bill/bill-ui';
 import { useTranslation } from '@/shared/i18n';
 import { cn } from '@/shared/lib';
-import { MetricGrid, PageLoadingState, Surface } from '@/shared/ui';
+import { MetricGrid, PageLoadingState } from '@/shared/ui';
 import { useChartOverview } from '../model/chart-overview-context';
 import { ChartDisplaySwitch } from './ChartDisplaySwitch';
 import { ChartEmptyState } from './ChartEmptyState';
@@ -38,19 +39,9 @@ export const ChartContent: FC<ChartContentProps> = ({ pieChart, tagRanking }) =>
             ? <ChartEmptyState />
             : (
                 <div className={cn('flex shrink-0 flex-col gap-[14px] pb-4')}>
-                  <Surface
-                    className={cn(
-                      onDisplayModeChange ? 'h-[208px] pt-3' : 'h-[192px] pt-3',
-                      'relative flex-shrink-0 overflow-hidden px-4 pb-3',
-                    )}
-                    material="raised"
-                  >
-                    {onDisplayModeChange && (
-                      <div className="absolute right-3 top-2 z-10" data-chart-display-toolbar>
-                        <ChartDisplaySwitch compact value={displayMode} onChange={onDisplayModeChange} />
-                      </div>
-                    )}
-                    <div className={onDisplayModeChange ? 'pt-7' : undefined}>
+                  <ChartSummaryCardVisual
+                    toolbar={onDisplayModeChange ? <ChartDisplaySwitch compact value={displayMode} onChange={onDisplayModeChange} /> : undefined}
+                    metrics={(
                       <MetricGrid
                         columns={2}
                         items={[
@@ -71,9 +62,9 @@ export const ChartContent: FC<ChartContentProps> = ({ pieChart, tagRanking }) =>
                         ]}
                         variant="chart-summary"
                       />
-                    </div>
-                    {displayMode === 'pie' ? pieChart ?? <PieChart /> : <LineChart />}
-                  </Surface>
+                    )}
+                    chart={displayMode === 'pie' ? pieChart ?? <PieChart /> : <LineChart />}
+                  />
                   <RankingList betweenSections={tagRanking} />
                 </div>
               )}

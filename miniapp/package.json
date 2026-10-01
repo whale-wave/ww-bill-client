@@ -35,7 +35,8 @@
     "@ww-bill/bill-ui": "workspace:*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "zustand": "4.5.4"
+    "zustand": "4.5.4",
+    "echarts": "^5.5.1"
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",

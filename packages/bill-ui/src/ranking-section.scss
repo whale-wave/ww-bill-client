@@ -1,0 +1,21 @@
+.bill-ranking-section {
+  flex-shrink: 0;
+}
+.bill-ranking-section__title {
+  display: block;
+  margin: 0;
+  padding-bottom: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 21px;
+  color: var(--ww-theme-text-color);
+}
+.bill-ranking-section__card {
+  overflow: hidden;
+  border: 1px solid var(--ww-border-color);
+  border-radius: 20px;
+  background: rgb(255 255 255 / 84%);
+  padding: 6px 16px;
+  box-shadow: var(--ww-card-shadow);
+  backdrop-filter: blur(24px);
+}

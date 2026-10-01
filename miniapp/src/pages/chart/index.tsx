@@ -1,4 +1,4 @@
-import { PageHeadingVisual , PeriodLabel, ProgressVisual, RankingRowVisual } from '@ww-bill/bill-ui'
+import { PageHeadingVisual , MetricRow, RankingSectionVisual, ChartSummaryCardVisual, PeriodLabel, ProgressVisual, RankingRowVisual } from '@ww-bill/bill-ui'
 import { useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import { useDidShow } from '@tarojs/taro'
@@ -9,6 +9,7 @@ import { currentMonth, shiftMonth } from '../../shared/lib/date'
 import { errorMessage } from '../../shared/lib/errors'
 import { CategoryIcon } from '../../shared/ui/category-icon'
 import { Surface } from '../../shared/ui/surface'
+import { ChartTrend } from '../../shared/ui/chart-trend'
 import { ChartSummary } from '../../shared/ui/chart-summary'
 import { EmptyState } from '../../shared/ui/empty-state'
 import './index.scss'
@@ -41,18 +42,17 @@ export default function ChartPage() {
       {chartQuery.isLoading && <View className='state-panel'>正在加载图表…</View>}
       {chartQuery.isError && <EmptyState error title='加载失败' description={errorMessage(chartQuery.error)} actionLabel='重试' onAction={() => void chartQuery.refetch()} />}
       {summary && <>
-        <Surface className='card chart-summary' material='raised'>
-          <Text className='muted'>本月结余</Text>
-          <Text className='money chart-summary__net'>¥{money.format(summary.net)}</Text>
-          <ChartSummary items={[
-            { key: 'income', label: '收入', tone: 'income', suffix: '¥', value: money.format(summary.income) },
-            { key: 'expense', label: '支出', tone: 'expense', suffix: '¥', value: money.format(summary.expense) },
-          ]}
-          />
+        <ChartSummaryCardVisual primitives={{ Surface, Box: View }} metrics={<ChartSummary items={[
+          { key: 'total', label: '总支出', suffix: '¥', value: money.format(summary.expense) },
+          { key: 'average', label: '日均', tone: 'muted', suffix: '¥', value: money.format(summary.averageDailyExpense ?? 0) },
+        ]}
+        />} chart={<ChartTrend timeline={chartQuery.data?.timeline ?? []} />}
+        />
+        <Surface className='card chart-balances' material='raised'>
+          <MetricRow columns={2} density='compact' primitives={{ Root: View, Cell: View, Label: Text, Value: View, Text }} items={[{ key: 'income', label: '收入', tone: 'income', value: `¥${money.format(summary.income)}` }, { key: 'net', label: '结余', value: `¥${money.format(summary.net)}` }]} />
         </Surface>
-        <Text className='section-title'>支出分类</Text>
-        {categories.length === 0 && <EmptyState title='本月暂无支出数据' description='有支出记录后，这里会展示分类分布。' />}
-        <Surface className='card'>
+        <RankingSectionVisual title='支出分类' primitives={{ Section: View, Title: Text, Box: View }}>
+          {categories.length === 0 && <EmptyState title='本月暂无支出数据' description='有支出记录后，这里会展示分类分布。' />}
           {categories.map(category => (
             <View key={category.key ?? category.id ?? category.name} className='bill-ranking-host'>
               <RankingRowVisual
@@ -65,7 +65,7 @@ export default function ChartPage() {
               />
             </View>
           ))}
-        </Surface>
+        </RankingSectionVisual>
       </>}
     </View>
   )
