@@ -142,6 +142,7 @@ export default function RecordCreatePage() {
                   <View className={categoryChoiceClassName(selectedCategoryId === expandedCategory.id)} onClick={() => handleSelectCategory(expandedCategory.id)}>
                     <CategoryChoiceVisual
                       hint='直接记入'
+                      iconClassName='bill-category-choice__icon--child'
                       icon={<CategoryIcon categoryName={expandedCategory.name} iconKey={expandedCategory.icon} iconType={expandedCategory.iconType} textIconEnabled={expandedCategory.textIconEnabled} textIconIndex={expandedCategory.textIconIndex} size={24} color={isDarkCategoryBackground(expandedCategory.backgroundColor) ? '#fff' : undefined} />}
                       iconStyle={expandedCategory.backgroundColor ? { backgroundColor: expandedCategory.backgroundColor } : undefined}
                       isSelected={selectedCategoryId === expandedCategory.id}
@@ -152,6 +153,7 @@ export default function RecordCreatePage() {
                   {expandedChildren.map(child => (
                     <View key={child.id} className={categoryChoiceClassName(selectedCategoryId === child.id)} onClick={() => handleSelectCategory(child.id)}>
                       <CategoryChoiceVisual
+                        iconClassName='bill-category-choice__icon--child'
                         icon={<CategoryIcon categoryName={child.name} iconKey={child.icon} iconType={child.iconType} textIconEnabled={child.textIconEnabled} textIconIndex={child.textIconIndex} size={24} color={isDarkCategoryBackground(child.backgroundColor) ? '#fff' : undefined} />}
                         iconStyle={child.backgroundColor ? { backgroundColor: child.backgroundColor } : undefined}
                         isSelected={selectedCategoryId === child.id}

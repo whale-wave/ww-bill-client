@@ -419,7 +419,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                                     checkIcon={<Check size={10} strokeWidth={3} />}
                                     hint={t('record:bookkeeping.directEntry')}
                                     icon={<CategoryIcon categoryName={expandedCategory.name} iconKey={expandedCategory.icon} iconType={expandedCategory.iconType} textIconEnabled={expandedCategory.textIconEnabled} textIconIndex={expandedCategory.textIconIndex} size={24} />}
-                                    iconClassName="bg-white/85"
+                                    iconClassName="bill-category-choice__icon--child"
                                     iconStyle={expandedCategory.backgroundColor ? { backgroundColor: expandedCategory.backgroundColor, color: getCategoryIconForegroundColor(expandedCategory.backgroundColor) } : undefined}
                                     isSelected={selectedCategory?.id === expandedCategory.id}
                                     label={expandedCategory.name}
@@ -440,7 +440,7 @@ export const RecordEditorPresentation: FC<RecordEditorPresentationProps> = ({
                                     <CategoryChoiceVisual
                                       checkIcon={<Check size={10} strokeWidth={3} />}
                                       icon={<CategoryIcon categoryName={child.name} iconKey={child.icon} iconType={child.iconType} textIconEnabled={child.textIconEnabled} textIconIndex={child.textIconIndex} size={24} />}
-                                      iconClassName="bg-white/85"
+                                      iconClassName="bill-category-choice__icon--child"
                                       iconStyle={child.backgroundColor ? { backgroundColor: child.backgroundColor, color: getCategoryIconForegroundColor(child.backgroundColor) } : undefined}
                                       isSelected={selectedCategory?.id === child.id}
                                       label={child.name}
