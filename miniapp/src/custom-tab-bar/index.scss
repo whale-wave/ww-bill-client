@@ -1,10 +1,2 @@
-@use '@ww-bill/bill-ui/token-values.scss' as tokens;
+@use '@ww-bill/bill-ui/tokens.scss';
 @use '@ww-bill/bill-ui/navigation.scss';
-
-.custom-tab-bar {
-  // Native custom components have their own scope; defaults share the source.
-  @include tokens.appearance-default;
-  @include tokens.reference-default;
-  @include tokens.semantic-default;
-  @include tokens.material-default;
-}

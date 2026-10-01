@@ -1,8 +1,10 @@
+import type { AppearanceTemplate } from '@ww-bill/bill-core';
 import type { SuccessResponse } from '@/shared/api';
+
 import { request } from '@/shared/api';
 
-export const APPEARANCE_TEMPLATES = ['fresh', 'minimal', 'glass'] as const;
-export type AppearanceTemplate = typeof APPEARANCE_TEMPLATES[number];
+export { APPEARANCE_TEMPLATES } from '@ww-bill/bill-core';
+export type { AppearanceTemplate } from '@ww-bill/bill-core';
 
 export const APPEARANCE_ACCENTS = ['sky', 'coral', 'lavender', 'mint'] as const;
 export type AppearanceAccent = typeof APPEARANCE_ACCENTS[number];

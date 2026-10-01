@@ -2,7 +2,9 @@
 
 :root,
 page,
-.bill-theme--glass {
+.bill-theme--glass,
+.bill-theme--fresh,
+.bill-theme--minimal {
   @include values.appearance-default;
 }
 
@@ -28,13 +30,17 @@ html[data-design-studio-template='konsta-ios'],
 
 :root,
 page,
-.bill-theme--glass {
+.bill-theme--glass,
+.bill-theme--fresh,
+.bill-theme--minimal {
   @include values.reference-default;
 }
 
 :root,
 page,
-.bill-theme--glass {
+.bill-theme--glass,
+.bill-theme--fresh,
+.bill-theme--minimal {
   @include values.semantic-default;
 }
 
@@ -50,7 +56,9 @@ html[data-appearance-template='minimal'],
 
 :root,
 page,
-.bill-theme--glass {
+.bill-theme--glass,
+.bill-theme--fresh,
+.bill-theme--minimal {
   @include values.material-default;
 }
 
@@ -72,6 +80,9 @@ html[data-appearance-template='minimal'],
 }
 
 :root,
-page {
+page,
+.bill-theme--glass,
+.bill-theme--fresh,
+.bill-theme--minimal {
   @include values.shared-aliases;
 }

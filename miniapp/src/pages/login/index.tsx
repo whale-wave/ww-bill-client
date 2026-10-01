@@ -3,13 +3,13 @@ import { Button, Image, Input, Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { AuthFieldsVisual, AuthPrimaryActionContent, AuthPresentation, FormFieldVisual } from '@ww-bill/bill-ui'
 import { useMutation } from '@tanstack/react-query'
+import './index.scss'
 import appLogo from '../../assets/brand/whale-logo.png'
 import { DesignIcon } from '../../shared/ui/design-icon'
 import { login } from '../../entities/auth'
 import { useAuthStore } from '../../features/auth'
 import { errorMessage } from '../../shared/lib/errors'
 import { Surface } from '../../shared/ui/surface'
-import './index.scss'
 
 export default function LoginPage() {
   const [username, setUsername] = useState('')

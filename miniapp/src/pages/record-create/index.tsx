@@ -3,6 +3,8 @@ import { Button, Input, Picker, ScrollView, Text, View } from '@tarojs/component
 import Taro from '@tarojs/taro'
 import { isDarkCategoryBackground, groupCategoriesByParent, money } from '@ww-bill/bill-core'
 import { RecordDetailChipContent, RecordCategoryGrid, categoryChoiceClassName, RecordEditorHeader, RecordAmountVisual, RecordEntryRow, CategoryChoiceVisual, type CategoryChoicePrimitives } from '@ww-bill/bill-ui'
+import './index.scss'
+import { Page } from '../../shared/ui/page'
 import { useCategories, type RecordType } from '../../entities/category'
 import { useAuthGate } from '../../features/auth'
 import { useCreateRecord } from '../../features/record-create'
@@ -13,7 +15,6 @@ import { useCalculator } from '../../features/record-create/model/use-calculator
 import { RecordKeypad } from '../../shared/ui/record-keypad'
 import { AppButton } from '../../shared/ui/app-button'
 import { CategoryIcon } from '../../shared/ui/category-icon'
-import './index.scss'
 
 const categoryPrimitives: CategoryChoicePrimitives = { Box: View, Text }
 
@@ -98,7 +99,7 @@ export default function RecordCreatePage() {
   }
 
   return (
-    <View className='create-page'>
+    <Page className='create-page'>
       <RecordEditorHeader
         primitives={{ Header: View, Box: View }}
         back={<Button className='bill-record-back' aria-label='取消' onClick={() => void Taro.navigateBack()}><DesignIcon name='editor-back' size={18} /></Button>}
@@ -190,6 +191,6 @@ export default function RecordCreatePage() {
           }}
         />}
       </View>
-    </View>
+    </Page>
   )
 }

@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import { useDidShow } from '@tarojs/taro'
 import { clampProgress, money } from '@ww-bill/bill-core'
+import './index.scss'
+import { Page } from '../../shared/ui/page'
 import { useMonthChart } from '../../entities/chart'
 import { useAuthGate } from '../../features/auth'
 import { currentMonth, shiftMonth } from '../../shared/lib/date'
@@ -12,7 +14,6 @@ import { Surface } from '../../shared/ui/surface'
 import { ChartTrend } from '../../shared/ui/chart-trend'
 import { ChartSummary } from '../../shared/ui/chart-summary'
 import { EmptyState } from '../../shared/ui/empty-state'
-import './index.scss'
 
 
 export default function ChartPage() {
@@ -34,7 +35,7 @@ export default function ChartPage() {
   }
 
   return (
-    <View className='page'>
+    <Page className='page'>
       <PageHeadingVisual primitive={View} title={<Text className='bill-page-heading__title'>图表</Text>} />
       <View className='row chart-month'>
         <Button className='records-summary__nav' aria-label='上个月' onClick={handlePreviousMonth}>‹</Button><View className='records-summary__period'><PeriodLabel year={month.slice(0, 4)} yearSuffix='年' month={month.slice(5)} monthSuffix='月' primitive={Text} /></View><Button className='records-summary__nav' aria-label='下个月' disabled={month >= currentMonth()} onClick={handleNextMonth}>›</Button>
@@ -67,6 +68,6 @@ export default function ChartPage() {
           ))}
         </RankingSectionVisual>
       </>}
-    </View>
+    </Page>
   )
 }

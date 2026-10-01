@@ -5,9 +5,9 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--bill-category-icon-background, #dceef4);
+  background: var(--ww-category-choice-background, #dceef4);
   box-sizing: border-box;
-  color: var(--bill-primary-color, #23728e);
+  color: var(--ww-category-choice-foreground, #23728e);
   font-size: 16px;
 }
 
@@ -40,7 +40,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--bill-primary-color, #23728e);
+  background: var(--ww-category-choice-foreground, #23728e);
   box-shadow: 0 0 0 2px var(--bill-surface-color, #fff);
   color: #fff;
   font-size: 10px;
@@ -56,7 +56,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: var(--bill-primary-color, #23728e);
+  background: var(--ww-category-choice-foreground, #23728e);
   color: #fff;
   font-size: 7px;
   font-weight: 900;

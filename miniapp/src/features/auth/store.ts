@@ -1,6 +1,7 @@
 import Taro from '@tarojs/taro'
 import { create } from 'zustand'
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware'
+import { useAppearanceStore } from '../../shared/model/appearance'
 
 interface AuthState {
   token: string
@@ -20,8 +21,14 @@ export const useAuthStore = create<AuthState>()(persist(set => ({
   token: '',
   userId: '',
   sessionVersion: 0,
-  startSession: (token, userId) => set(state => ({ token, userId, sessionVersion: state.sessionVersion + 1 })),
-  logOut: () => set(state => ({ token: '', userId: '', sessionVersion: state.sessionVersion + 1 })),
+  startSession: (token, userId) => {
+    useAppearanceStore.getState().reset()
+    set(state => ({ token, userId, sessionVersion: state.sessionVersion + 1 }))
+  },
+  logOut: () => {
+    useAppearanceStore.getState().reset()
+    set(state => ({ token: '', userId: '', sessionVersion: state.sessionVersion + 1 }))
+  },
 }), {
   name: 'ww-bill-miniapp-auth',
   storage: createJSONStorage(() => taroStorage),

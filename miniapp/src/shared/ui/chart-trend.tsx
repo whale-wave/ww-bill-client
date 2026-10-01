@@ -6,6 +6,7 @@ import { GridComponent } from 'echarts/components'
 import { SVGRenderer } from 'echarts/renderers'
 import { chartPresentationColors, lineChartOptions } from '@ww-bill/bill-ui'
 import { withColorAlpha } from '@ww-bill/bill-core'
+import { useAppearanceTemplate } from '../model/appearance'
 
 use([LineChart, GridComponent, SVGRenderer])
 // This compact chart hides all labels. Taro's document shim has no canvas
@@ -13,8 +14,9 @@ use([LineChart, GridComponent, SVGRenderer])
 setPlatformAPI({ measureText: () => ({ width: 0 }) })
 
 export function ChartTrend({ timeline }: { timeline: Array<{ key: string, expense: string }> }) {
+  const template = useAppearanceTemplate()
   const source = useMemo(() => {
-    const palette = chartPresentationColors.glass
+    const palette = chartPresentationColors[template]
     const chart = init(null, undefined, { renderer: 'svg', ssr: true, width: 315, height: 80 })
     try {
       chart.setOption({
@@ -28,7 +30,7 @@ export function ChartTrend({ timeline }: { timeline: Array<{ key: string, expens
     } finally {
       chart.dispose()
     }
-  }, [timeline])
+  }, [timeline, template])
   if (!source.source)
     return <Text className='muted'>趋势图暂时无法显示</Text>
   return <Image svg className='bill-chart-trend' mode='scaleToFill' src={source.source} aria-label='本月每日支出趋势' />

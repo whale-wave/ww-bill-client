@@ -1,8 +1,9 @@
 import Taro from '@tarojs/taro'
 import { Button, View } from '@tarojs/components'
 import { BottomNavigation, NavigationItemVisual, type DesignIconName } from '@ww-bill/bill-ui'
-import { DesignIcon } from '../shared/ui/design-icon'
 import './index.scss'
+import { useAppearanceTemplate } from '../shared/model/appearance'
+import { DesignIcon } from '../shared/ui/design-icon'
 
 const tabs: { path: string, label: string, icon: DesignIconName, prominent?: boolean }[] = [
   { path: '/pages/index/index', label: '明细', icon: 'tab-detail' },
@@ -13,6 +14,7 @@ const tabs: { path: string, label: string, icon: DesignIconName, prominent?: boo
 ]
 
 function CustomTabBar() {
+  const template = useAppearanceTemplate()
   const pages = Taro.getCurrentPages()
   const currentPath = `/${pages[pages.length - 1]?.route ?? ''}`
 
@@ -29,7 +31,7 @@ function CustomTabBar() {
     <BottomNavigation
       activeIndex={tabs.findIndex(tab => tab.path === currentPath)}
       ariaLabel='主导航'
-      className='custom-tab-bar'
+      className={`custom-tab-bar bill-theme--${template}`}
       itemCount={tabs.length}
       indicatorPrimitive={View}
       primitive={View}

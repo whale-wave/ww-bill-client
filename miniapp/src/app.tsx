@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider, focusManager, onlineManager } from '@
 import { configureRequestContext } from './shared/api'
 import { useAuthStore } from './features/auth'
 
+import { AppearanceProvider } from './features/appearance'
 import './app.scss'
 
 configureRequestContext({
@@ -24,7 +25,7 @@ function SessionQueryProvider({ children }: PropsWithChildren) {
     },
   }))
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  return <QueryClientProvider client={queryClient}><AppearanceProvider>{children}</AppearanceProvider></QueryClientProvider>
 }
 
 function App({ children }: PropsWithChildren) {

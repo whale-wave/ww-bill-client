@@ -1,7 +1,9 @@
 import type { AppearanceTemplate, UserAppConfig } from '@/entities/user-app-config';
-import { APPEARANCE_TEMPLATES } from '@/entities/user-app-config';
+import { resolveAppearanceTemplate } from '@ww-bill/bill-core';
 import { APPEARANCE_CHANGE_EVENT } from '@/shared/lib/appearance-tokens';
 import { MONO_DEVELOPMENT_TEMPLATE, MONO_DEVELOPMENT_TOKENS } from './development-appearance';
+
+export { isAppearanceTemplate, resolveAppearanceTemplate } from '@ww-bill/bill-core';
 
 export interface AppearancePreference {
   template: AppearanceTemplate;
@@ -69,12 +71,4 @@ export function applyDevelopmentAppearancePreference(template: DevelopmentAppear
 
 export function resetAppearancePreference(): void {
   applyAppearancePreference(DEFAULT_APPEARANCE);
-}
-
-export function isAppearanceTemplate(value: unknown): value is AppearanceTemplate {
-  return APPEARANCE_TEMPLATES.includes(value as AppearanceTemplate);
-}
-
-export function resolveAppearanceTemplate(value: unknown): AppearanceTemplate {
-  return isAppearanceTemplate(value) ? value : DEFAULT_APPEARANCE.template;
 }

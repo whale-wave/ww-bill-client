@@ -3,6 +3,8 @@ import { Button, Text, View } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 import { getRecordDisplayTitle, groupRecordsByKey, sumRecordAmounts, isDarkCategoryBackground, money } from '@ww-bill/bill-core'
 import { PageHeadingVisual, RecordSummaryContent, MetricRow, PeriodLabel, RecordOverviewRowContent, RecordDateGroupHeader, RecordGroupSurface } from '@ww-bill/bill-ui'
+import './index.scss'
+import { Page } from '../../shared/ui/page'
 import { useMonthRecords } from '../../entities/record'
 import { useAuthGate } from '../../features/auth'
 import { currentMonth, displayRecordDate, shiftMonth } from '../../shared/lib/date'
@@ -11,7 +13,6 @@ import { Surface } from '../../shared/ui/surface'
 import { AppButton } from '../../shared/ui/app-button'
 import { CategoryIcon } from '../../shared/ui/category-icon'
 import { EmptyState } from '../../shared/ui/empty-state'
-import './index.scss'
 
 export default function RecordsPage() {
   const [month, setMonth] = useState(currentMonth)
@@ -50,7 +51,7 @@ export default function RecordsPage() {
   }
 
   return (
-    <View className='page'>
+    <Page className='page'>
       <PageHeadingVisual primitive={View} title={<Text className='bill-page-heading__title'>鲸浪记账</Text>} />
       <Surface className='records-summary bill-record-summary' material='raised'>
         <RecordSummaryContent primitive={View} period={<View className='row records-summary__month'>
@@ -97,6 +98,6 @@ export default function RecordsPage() {
       ))}
       {recordsQuery.hasNextPage && <AppButton variant='secondary' className='records-more' disabled={recordsQuery.isFetchingNextPage} onClick={() => void recordsQuery.fetchNextPage()}>{recordsQuery.isFetchingNextPage ? '加载中…' : '加载更多'}</AppButton>}
       {recordsQuery.isError && records.length > 0 && <Text className='error-text'>加载更多失败，请重试</Text>}
-    </View>
+    </Page>
   )
 }

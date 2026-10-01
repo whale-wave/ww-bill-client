@@ -4,6 +4,8 @@ import { Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { money } from '@ww-bill/bill-core'
 import { BillOverviewVisual, MetricRow, type MetricRowPrimitives } from '@ww-bill/bill-ui'
+import './index.scss'
+import { Page } from '../../shared/ui/page'
 import { useMonthChart } from '../../entities/chart'
 import { useAuthGate } from '../../features/auth'
 import { currentMonth } from '../../shared/lib/date'
@@ -12,7 +14,6 @@ import { DesignIcon } from '../../shared/ui/design-icon'
 import { ActionMenu } from '../../shared/ui/action-menu'
 import { Surface } from '../../shared/ui/surface'
 import { EmptyState } from '../../shared/ui/empty-state'
-import './index.scss'
 
 const metricPrimitives: MetricRowPrimitives = { Root: View, Cell: View, Label: Text, Value: View, Text }
 
@@ -34,7 +35,7 @@ export default function DiscoverPage() {
   function handleCreate() { void Taro.navigateTo({ url: '/pages/record-create/index' }) }
 
   return (
-    <View className='page'>
+    <Page className='page'>
       <PageHeadingVisual primitive={View} title={<Text className='bill-page-heading__title'>发现</Text>} />
       <Surface className='card discover-overview' material='raised'>
         {chartQuery.isLoading && <Text>正在加载…</Text>}
@@ -57,6 +58,6 @@ export default function DiscoverPage() {
         { key: 'create', label: '记一笔', icon: 'tab-add', onClick: handleCreate },
       ]}
       />
-    </View>
+    </Page>
   )
 }
