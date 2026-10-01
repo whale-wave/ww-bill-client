@@ -22,7 +22,7 @@ button, input, textarea { font-family: var(--bill-font-body); }
 
 .page {
   min-height: 100vh;
-  padding: 18px 18px 120px;
+  padding: 18px var(--ww-page-gutter) 120px;
   box-sizing: border-box;
   background: var(--ww-page-gradient);
 }
