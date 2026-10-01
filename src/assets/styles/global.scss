@@ -131,7 +131,7 @@ html.senior {
 // Floating navigation stays outside document flow. The extra 48px lets the
 // final row scroll fully above the 68px bar and its 10px bottom offset.
 .ww-tab-bar-scroll-padding {
-  padding-bottom: calc(126px + var(--ww-safe-area-bottom));
+  padding-bottom: var(--ww-component-dock-scroll-clearance);
 }
 
 // Keep native scrolling, but do not flash scroll indicators while adjacent

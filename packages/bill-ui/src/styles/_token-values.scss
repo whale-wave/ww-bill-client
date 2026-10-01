@@ -656,6 +656,7 @@
 }
 
 @mixin shared-aliases {
+  --ww-component-dock-scroll-clearance: calc(126px + var(--ww-safe-area-bottom, 0px));
   --bill-income-color: rgb(var(--ww-color-finance-income));
   --bill-expense-color: rgb(var(--ww-color-finance-expense));
   --bill-primary-color: var(--ww-theme-color-deep);
