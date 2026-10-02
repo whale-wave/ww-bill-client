@@ -15,7 +15,7 @@
     "build": "tsc -b && vite build",
     "build:docker": "tsc -b && vite build --mode docker",
     "preview": "vite preview",
-    "storybook": "storybook dev -p 6006",
+    "storybook": "node scripts/dev.cjs storybook",
     "build:storybook": "storybook build -o storybook-static",
     "test:storybook": "vitest --config vitest.storybook.config.ts --project storybook run",
     "lint:type:storybook": "tsc -p tsconfig.storybook.json --noEmit",

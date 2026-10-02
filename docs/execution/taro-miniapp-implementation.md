@@ -201,3 +201,5 @@
 - 2026-10-02：继续核对明细金额边界，发现小程序原金额固定加负号并直接显示接口字符串，与 Web 按收支类型决定符号、使用自然金额格式的规则不同。将 Web 既有规则抽为 bill-core 的 formatRecordOriginalAmount，两端分别在自身映射/页面中消费；Web 行为保持原样，小程序收入原金额不再带负号，支出 35.50 规范显示 -35.5。新增收入大数精度、支出小数、缺失值与显式零字符串测试，页面同时验证收入/支出划线内容。Web 4 文件 / 25 项及小程序 5 文件 / 36 项测试、两端类型检查、目标 ESLint、微信构建与空白检查通过；使用本机接口与字体地址。当前 Mac 锁屏，新增原金额文本的开发者工具实际显示尚未复验，不将页面组件测试当作模拟器截图验收。未写后端数据，后续解锁后复验收入与支出原金额。
 
 - 2026-10-02：按用户要求交付功能测试版。客户端 50 个待推送阶段提交已推送 GitHub origin/refactor/taro，功能版本 f132ee46；后端 088a3db、管理端 d072c21、官网 c6b8f7e 已经与同名远端分支同步。四个工作区干净。最新相关回归 61 项、两端类型及微信构建通过；原金额修正的模拟器显示仍待复验。交付时本机 4301 API 和 4331 Web 均无法连接，功能测试需先启动本地服务并使用有效账号；此前授权账号最近返回“账号或密码错误”。不包含线上部署、手机验收或发布上传。
+
+- 2026-10-02: Added local environment overrides after pulling restored defaults. The ignored client/miniapp .env.local selects API 4301 and fonts 4331/fonts; development defaults remain 3001 and 3231/fonts. Native build without inline environment arguments, generated URL inspection, Storybook smoke test, type checks and targeted lint passed. Development and preview listeners were verified and stopped. See the service local-port record for the complete variable table. No backend startup or database changes.

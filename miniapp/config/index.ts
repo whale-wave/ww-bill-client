@@ -1,7 +1,13 @@
 import { defineConfig, type UserConfigExport } from '@tarojs/cli'
+import { existsSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 import devConfig from './dev'
 import prodConfig from './prod'
+
+const localEnvPath = resolve(__dirname, '../.env.local')
+if (existsSync(localEnvPath))
+  process.loadEnvFile(localEnvPath)
 
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
 export default defineConfig<'vite'>(async (merge) => {

@@ -117,3 +117,7 @@ pnpm app:open:android
 # Android production release builds
 
 `pnpm app:build:prod` only builds a production APK from a clean Git worktree whose current `HEAD` already has the exact `v{package.json.version}` tag. The build embeds the full commit SHA and package version in `assets/public/build-info.json`; the admin release center validates these values against the APK manifest and Gitee tag.
+
+## Local port overrides
+
+Use the Git-ignored `.env.local` for local ports and API targets. Repository defaults remain unchanged. See [local port configuration](../ww-bill-service/docs/execution/2026-09-30-bill-2-local-ports.md) for variables and verification results. Restart the corresponding command after changing the file.

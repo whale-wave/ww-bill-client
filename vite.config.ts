@@ -6,7 +6,7 @@ import process from 'node:process';
 import babel from '@rolldown/plugin-babel';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import config from './config';
 
@@ -43,8 +43,8 @@ function buildInfoPlugin(): Plugin {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig(() => {
-  // const env = loadEnv(mode, process.cwd(), '');
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
 
   return {
     build: {
@@ -55,17 +55,23 @@ export default defineConfig(() => {
       ...(process.env.SENTRY_UPLOAD_ENABLED === 'true' ? { sourcemap: 'hidden' as const } : {}),
     },
     server: {
+      port: Number(env.BILL_WEB_DEV_PORT || 3231),
+      strictPort: true,
       proxy: {
         '/api': {
-          target: config.defaultHost,
+          target: env.VITE_DEV_HOST || config.defaultHost,
           changeOrigin: true,
         },
         '/socket.io': {
-          target: config.defaultHost,
+          target: env.VITE_DEV_HOST || config.defaultHost,
           changeOrigin: true,
           ws: true,
         },
       },
+    },
+    preview: {
+      port: Number(env.BILL_WEB_PREVIEW_PORT || 4173),
+      strictPort: true,
     },
     resolve: {
       alias: {
