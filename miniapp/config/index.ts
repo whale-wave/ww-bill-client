@@ -6,11 +6,11 @@ import prodConfig from './prod'
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
 export default defineConfig<'vite'>(async (merge) => {
   const apiBaseUrl = process.env.BILL_MINIAPP_API_BASE_URL?.trim()
-    || (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:4301' : '')
+    || (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:3001' : '')
   if (!apiBaseUrl)
     throw new Error('小程序构建缺少接口地址：请设置 BILL_MINIAPP_API_BASE_URL，或使用 dev:weapp 进行本地开发')
   const fontBaseUrl = process.env.BILL_MINIAPP_FONT_BASE_URL?.trim()
-    || (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:4331/fonts' : '')
+    || (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:3231/fonts' : '')
   if (!fontBaseUrl)
     throw new Error('小程序构建缺少字体地址：请设置 BILL_MINIAPP_FONT_BASE_URL，指向 Web 静态资源的 /fonts 目录')
 

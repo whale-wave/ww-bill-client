@@ -62,7 +62,7 @@
 
 ## 接口地址与验收环境
 
-- 本地使用 `pnpm --filter miniapp dev:weapp`，开发构建默认连接 `http://127.0.0.1:4301`，字体目录默认 `http://127.0.0.1:4331/fonts`，需同时运行 Web 静态服务。生产构建必须显式设置 `BILL_MINIAPP_API_BASE_URL` 和 `BILL_MINIAPP_FONT_BASE_URL`，否则会停止而不覆盖现有产物。接口变量填写服务根地址，不含 `/api`；字体变量填写 HTTPS 静态资源目录，例如 `BILL_MINIAPP_API_BASE_URL=https://api.example.com BILL_MINIAPP_FONT_BASE_URL=https://web.example.com/fonts pnpm --filter miniapp build:weapp`。本地接口未启动时会显示网络连接失败，不能据此判定页面数据已通过真实接口验收。
+- 本地使用 `pnpm --filter miniapp dev:weapp`，开发构建默认连接后端默认端口 `http://127.0.0.1:3001`，如需真机或其他设备访问，通过 `BILL_MINIAPP_API_BASE_URL` 设置服务端电脑的局域网地址；字体目录默认 `http://127.0.0.1:3231/fonts`，需同时运行客户端 Web 服务。生产构建必须显式设置 `BILL_MINIAPP_API_BASE_URL` 和 `BILL_MINIAPP_FONT_BASE_URL`，否则会停止而不覆盖现有产物。接口变量填写服务根地址，不含 `/api`；字体变量填写 HTTPS 静态资源目录，例如 `BILL_MINIAPP_API_BASE_URL=https://api.example.com BILL_MINIAPP_FONT_BASE_URL=https://web.example.com/fonts pnpm --filter miniapp build:weapp`。本地接口未启动时会显示网络连接失败，不能据此判定页面数据已通过真实接口验收。
 - 服务端本机验收使用 `BILL_SKIP_BACKGROUND_MAINTENANCE=true pnpm start:dev`。该选项仅在 development 生效，关闭自动维护与定时任务；用户主动发出的登录、读取和记账请求照常执行。验收需使用专用测试账号，避免在共用数据库中修改真实账号的数据。
 - 开发者工具游客模式仅用于页面与请求链路验证。真机需要有效的小程序 AppID、已登记的 HTTPS 请求域名、可访问的 `bill-2` 服务及测试账号；完成后应分别检查登录、四个 Tab、记账提交、退出登录和重新登录后的数据隔离。
 
